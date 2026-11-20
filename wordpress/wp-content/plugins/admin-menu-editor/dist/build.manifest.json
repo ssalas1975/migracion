@@ -1,0 +1,6 @@
+{
+  "tweak-manager": [
+    "runtime.bundle.js",
+    "tweak-manager.bundle.js"
+  ]
+}

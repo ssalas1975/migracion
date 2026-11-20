@@ -1,0 +1,733 @@
+<?php
+
+/**
+ * Event Model Class
+ *
+ * @package Eventin
+ */
+namespace Etn\Core\Event;
+
+defined( 'ABSPATH' ) || exit;
+
+use Etn\Base\Post_Model;
+use Eventin\Input;
+use Etn\Core\Attendee\Attendee_Model;
+use Etn\Core\Speaker\User_Model;
+
+/**
+ * Event Model
+ */
+class Event_Model extends Post_Model {
+    /**
+     * Store post type
+     *
+     * @var string
+     */
+    protected $post_type = 'etn';
+
+    /**
+     * Store event data
+     *
+     * @var array
+     */
+    protected $data = [
+        'etn_select_speaker_schedule_type'  => '',
+        'etn_event_organizer'               => '',
+        'etn_event_speaker'                 => '',
+        'event_timezone'                    => '',
+        'etn_start_date'                    => '',
+        'etn_end_date'                      => '',
+        'etn_start_time'                    => '',
+        'etn_end_time'                      => '',
+        'etn_ticket_availability'           => '',
+        'etn_total_sold_tickets'            => '',
+        'etn_ticket_variations'             => '',
+        'etn_registration_deadline'         => '',
+        'etn_zoom_id'                       => '',
+        'etn_zoom_event'                    => '',
+        'etn_total_avaiilable_tickets'      => '',
+        'etn_google_meet'                   => '',
+        'etn_google_meet_short_description' => '',
+        'fluent_crm'                        => '',
+        'zoho_crm'                          => '',
+        'mail_mint'                         => '',
+        'mail_mint_send_to'                 => [],
+        'optiontics_addons'                 => '',
+        'mailpoet'                          => '',
+        'mailpoet_list_ids'                 => [],
+        'mailpoet_send_to'                  => [],
+        'funnel_kit'                        => '',
+        'funnel_kit_send_to'                => [],
+        'zapier'                            => '',
+        'zapier_send_to'                    => [],
+        'uncanny_automator'                 => '',
+        'uncanny_automator_send_to'         => [],
+        'hubspot'                           => '',
+        'hubspot_send_to'                   => [],
+        'hubspot_track_event'               => '',
+        'etn_event_location_type'           => '',
+        'etn_event_location'                => '',
+        'etn_event_socials'                 => [],
+        'etn_event_schedule'                => [],
+        'etn_event_faq'                     => [],
+        'recurring_enabled'                 => '',
+        'etn_event_recurrence'              => [],
+        'etn_google_meet'                   => '',
+        'rsvp_settings'                     => '',
+        'seat_plan'                         => '',
+        'seat_plan_settings'                => '',
+        'certificate_template'              => '',
+        'ticket_template'                   => '',
+        'external_link'                     => '',
+        'speaker_type'                      => '',
+        'organizer_type'                    => '',
+        'speaker_group'                     => '',
+        'organizer_group'                   => '',
+        'etn_event_logo'                    => '',
+        'etn_event_calendar_bg'             => '',
+        'etn_event_calendar_text_color'     => '',
+        'fluent_crm_webhook'                => '',
+        'zoho_crm_webhook'                  => '',
+        'mail_mint_webhook'                 => '',
+        'funnel_kit_webhook'                => '',
+        'zapier_webhook'                    => '',
+        'uncanny_automator_webhook'         => '',
+        'attende_page_link'                 => '',
+        'event_banner'                      => '',
+        'event_layout'                      => '',
+        'attendee_extra_fields'             => '',
+        'event_type'                        => '',
+        'location'                          => '',
+        'meeting_link'                      => '',
+        'is_clone'                          => false,
+        'certificate_preference'            => '',
+        '_virtual'                           => '',
+        'event_logo_id'                      => '',
+        'event_banner_id'                   => '',
+        'excerpt_enable'                    => false,
+        'enable_seatmap'                    => false,
+        'enable_legacy_certificate_template' => false,
+        '_tax_status'                        => 'taxable',
+        'pending_seats'                     => [],
+        'etn_last_update_date'              => '',
+        'etn_enable_global_stock'           => false,
+        'etn_global_stock'                  => 0,
+        'etn_global_waiting_list'            => 0,
+        'enable_attendee_waiting_list'      => false,
+    ];
+
+    /**
+     * Meta keys whose value is used to build a template include path.
+     *
+     * Each legitimately holds EITHER a bare template slug ('event-two',
+     * 'style-1', a Pro-only layout name) OR the numeric post id of an
+     * `etn-template` post. Both shapes are plain `[A-Za-z0-9_-]`, so confining
+     * them rejects nothing real.
+     *
+     * Why it matters: `event_layout` is reachable through
+     * POST/PUT /eventin/v2/events, which a stock Contributor may call for an
+     * event they own. Its value is concatenated into include_once() when the
+     * event's public page renders (etn_single_event_template_select()), and
+     * sanitize_text_field() — all it used to get — happily preserves `../`.
+     *
+     * @since 4.1.22
+     *
+     * @var string[]
+     */
+    protected static $template_slug_meta_keys = [
+        'event_layout',
+        'ticket_template',
+        'certificate_template',
+    ];
+
+    /**
+     * Update event meta, confining template-slug keys to a bare slug.
+     *
+     * A rejected value is stored as '' — the same thing the field holds when no
+     * template has been chosen — rather than silently substituting a default.
+     *
+     * @since 4.1.22
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function update_meta( $data = [] ) {
+        foreach ( self::$template_slug_meta_keys as $key ) {
+            if ( array_key_exists( $key, $data ) ) {
+                $data[$key] = \Etn\Utils\Helper::sanitize_template_slug( $data[$key], '' );
+            }
+        }
+
+        parent::update_meta( $data );
+    }
+
+    /**
+     * Get total tickets
+     *
+     * @return  integer
+     */
+    public function get_total_ticket() {
+        if ( $this->etn_enable_global_stock ) {
+            return intval( $this->etn_global_stock );
+        }
+
+        $ticket_variations = $this->etn_ticket_variations;
+        $total_ticket      = 0;
+
+        if ( is_array( $ticket_variations ) ) {
+            foreach ( $ticket_variations as $ticket ) {
+                $is_unlimited = ! empty( $ticket['etn_unlimited_tickets'] ) || ( isset( $ticket['etn_avaiilable_tickets'] ) && intval( $ticket['etn_avaiilable_tickets'] ) === -1 );
+                if ( $is_unlimited ) {
+                    return -1;
+                }
+                if ( ! empty( $ticket['etn_avaiilable_tickets'] ) ) {
+                    $total_ticket += $ticket['etn_avaiilable_tickets'];
+                }
+            }
+        }
+
+        return $total_ticket;
+    }
+
+    /**
+     * Get event status
+     *
+     * @return  string
+     */
+    public function get_status()
+    {
+        $start_date = $this->etn_start_date;
+        $start_time = $this->etn_start_time;
+        list( $end_date, $end_time ) = $this->get_effective_end_parts();
+        $status     = get_post_status($this->id);
+        $timezone   = $this->event_timezone ? etn_create_date_timezone($this->event_timezone) : wp_timezone_string();
+
+        $start_date_time = str_replace(',', '', $start_date . ' ' . $start_time);
+        $end_date_time   = str_replace(',', '', $end_date . ' ' . $end_time);
+
+        if (str_contains(strtolower($start_date_time), 'invalid') || str_contains(strtolower($end_date_time), 'invalid')) {
+            return $status;
+        }
+
+        try {
+            $start_date = $this->get_datetime($start_date, $start_time);
+            $end_date   = $this->get_datetime($end_date, $end_time);
+
+            // Create a DateTime object for the current date and time in the given timezone
+            $current_date = new \DateTime('now', new \DateTimeZone($timezone));
+
+            if ('publish' === $status) {
+                if ($current_date > $end_date) {
+                    $status = __('Expired', 'wp-event-solution');
+                    return [
+                        'key'=>"expired",
+                        'value'=> $status
+                    ];
+                } elseif ($current_date >= $start_date && $current_date <= $end_date) {
+                    $status = __('Ongoing', 'wp-event-solution');
+                    return [
+                        'key'=>"ongoing",
+                        'value'=> $status
+                    ];
+                } else {
+                    $status = __('Upcoming', 'wp-event-solution');
+                    return [
+                        'key'=>"upcoming",
+                        'value'=> $status
+                    ];
+                }
+            }
+
+            return $status;
+        } catch (\Exception $e) {
+            return $status;
+        }
+    }
+
+    /**
+     * Get tickets
+     *
+     * @param   string  $slug
+     *
+     * @return  array
+     */
+    public function get_ticket( $slug = '' ) {
+        $ticket_variations = $this->etn_ticket_variations;
+
+        if ( ! $ticket_variations ) {
+            return;
+        }
+
+        if ( ! $slug ) {
+            return $ticket_variations;
+        }
+        
+        foreach( $ticket_variations as $variation ) {
+            if ( $slug === $variation['etn_ticket_slug'] ) {
+                return $variation;
+            }
+        }
+    }
+
+    /**
+     * Get event title
+     *
+     * @return  string
+     */
+    public function get_title() {
+        $post = get_post( $this->id );
+
+        return $post->post_title;
+    }
+
+    /**
+     * Get event description
+     *
+     * @return  string
+     */
+    public function get_description() {
+        $post = get_post( $this->id );
+
+        return $post->post_content;
+    }
+
+    /**
+     * Get event social media
+     *
+     * @return  array
+     */
+    public function get_social() {
+        return $this->etn_event_socials;
+    }
+
+    /**
+     * Get event location address
+     *
+     * @return  string
+     */
+    public function get_address() {
+        $address = '';
+
+        if ( $this->event_type === 'offline' || $this->event_type === 'hybrid' ) {
+            $location = $this->etn_event_location;
+
+            $address = ! empty( $location['address'] ) ? $location['address'] : '';
+        }
+
+        return $address;
+    }
+
+    /**
+     * Location text for email placeholders. Unlike get_address() it reads string
+     * locations and legacy events without event_type, and labels online events.
+     *
+     * @return  string
+     */
+    public function get_location_label() {
+        if ( 'online' === $this->event_type ) {
+            return __( 'Online', 'wp-event-solution' );
+        }
+
+        $location = $this->etn_event_location;
+
+        if ( is_array( $location ) ) {
+            return ! empty( $location['address'] ) ? trim( (string) $location['address'] ) : '';
+        }
+
+        return is_string( $location ) ? trim( $location ) : '';
+    }
+
+    /**
+     * Get event start date time
+     *
+     * @param   string  $format  [$format description]
+     *
+     * @return  string Event start date time
+     */
+    public function get_start_datetime( $format = 'Y-m-d h:i a' ) {
+        $datetime = $this->get_datetime( $this->etn_start_date, $this->etn_start_time );
+
+        return $datetime->format( $format );
+    }
+
+    /**
+     * Resolve the effective end date and time.
+     *
+     * Events created outside the event editor — CSV/JSON import above all, since
+     * the editor makes both fields required — can store an empty end date. An
+     * empty value parses to `new DateTime('')`, which is *now*, so a future event
+     * compares as already ended (Expired) and a past one as still running
+     * (Ongoing). Worse, both sides of the Expired check then read "now", so the
+     * result flips on a microsecond boundary and the same event reports a
+     * different status from one page load to the next.
+     *
+     * An event with no end simply ends when it starts, which is the fallback
+     * Helper::event_expire_date() already applies to the registration deadline.
+     *
+     * @return  array  [ end date, end time ]
+     */
+    private function get_effective_end_parts() {
+        $end_date = $this->etn_end_date;
+        $end_time = $this->etn_end_time;
+
+        if ( ! $end_date ) {
+            $end_date = $this->etn_start_date;
+            $end_time = $end_time ? $end_time : $this->etn_start_time;
+        }
+
+        return [ $end_date, $end_time ];
+    }
+
+    /**
+     * Get end date time
+     *
+     * @param   string  $format  [$format description]
+     *
+     * @return  string           [return description]
+     */
+    public function get_end_datetime($format = 'Y-m-d h:i a') {
+        list( $end_date, $end_time ) = $this->get_effective_end_parts();
+
+        $datetime = $this->get_datetime( $end_date, $end_time );
+
+        return $datetime->format( $format );
+    }
+
+    /**
+     * Get event timezone
+     *
+     * @return  string
+     */
+    public function get_timezone() {
+        $timezone   = $this->event_timezone ? etn_create_date_timezone( $this->event_timezone ) : wp_timezone_string();
+
+        return $timezone;
+    }
+
+    /**
+     * Get date time object
+     *
+     * @param   string  $date
+     * @param   string  $time  [$time description]
+     *
+     * @return  Datetime
+     */
+    public function get_datetime($date, $time) {
+        return etn_parse_event_datetime( $date, $time, $this->get_timezone() );
+    }
+
+    /**
+     * Check an event is expired or not
+     *
+     * @return  bool
+     */
+    public function is_expaired() {
+        return etn_is_ticket_sale_end( $this->get_end_datetime(), $this->get_timezone() );
+    }
+
+    /**
+     * Get total sold tickets
+     *
+     * @return  integer  Total number of sold tickets
+     */
+    public function get_total_sold_ticket() {
+        $ticket_variations = $this->etn_ticket_variations;
+        $total_ticket      = 0;
+
+        if ( is_array( $ticket_variations ) ) {
+            foreach ( $ticket_variations as $ticket ) {
+                if ( ! empty( $ticket['etn_sold_tickets'] ) ) {
+                    $total_ticket += $ticket['etn_sold_tickets'];
+                }
+            }
+        }
+
+        return $total_ticket;
+    }
+
+    /**
+     * Get ticket price by ticket name
+     *
+     * @param   string  $ticket_name  [$ticket_name description]
+     *
+     * @return  int | float
+     */
+    public function get_ticket_price_by_name( $ticket_name ) {
+        $tickets = $this->etn_ticket_variations;
+
+        if ( is_array( $tickets ) ) {
+            foreach( $tickets as $ticket ) {
+                $input = new Input( $ticket );
+
+                if ( $input->get( 'etn_ticket_name' ) === $ticket_name ) {
+                    return $input->get( 'etn_ticket_price' );
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get ticket price by ticket name
+     *
+     * @param   string  $ticket_name  [$ticket_name description]
+     *
+     * @return  int | float
+     */
+    public function get_ticket_slug_by_name( $ticket_name ) {
+        $tickets = $this->etn_ticket_variations;
+
+        if ( is_array( $tickets ) ) {
+            foreach( $tickets as $ticket ) {
+                $input = new Input( $ticket );
+
+                if ( $input->get( 'etn_ticket_name' ) === $ticket_name ) {
+                    return $input->get( 'etn_ticket_slug' );
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Check seatp is enable or not
+     *
+     * @return  bool
+     */
+    public function is_enable_seatmap() {
+        $seat_map_switcher = ! metadata_exists( 'post', $this->id, 'enable_seatmap' ) && $this->seat_plan ? true : $this->enable_seatmap;
+
+        return $seat_map_switcher;
+    }
+
+    /**
+     * Check event already has meeting link or not
+     *
+     * @return  bool  Return true if an event has a meeting link otherwise false
+     */
+    public function has_meeting_link() {
+        return $this->meeting_link ? true : false;
+    }
+
+    /**
+     * Get meeting platform name
+     *
+     * @return  string  Meeting platform name: zoom, google-meet, custom-url
+     */
+    public function get_meeting_platform() {
+        $location = $this->etn_event_location;
+
+        return ! empty( $location['integration'] ) ? $location['integration'] : '';
+    }
+
+    /**
+     * Get evend ids by author
+     *
+     * @param   integer  $author_id  [$author_id description]
+     *
+     * @return  array
+     */
+    public function get_ids_by_author( $author_id ) {
+        $event_ids = get_posts( [
+            'post_type'      => 'etn',
+            'author'         => $author_id,
+            'fields'         => 'ids',
+            'posts_per_page' => -1, // Fetch all events by this author
+        ] );
+    
+        return $event_ids;
+    }
+
+    /**
+     * Get all attenddes for an order
+     *
+     * @return  array Attendee data
+     */
+    public function get_attendees($status = ['publish', 'trash'], $limit = -1) {
+        $attendee_obect = new Attendee_Model();
+
+        $attendees = $attendee_obect->get_attendees_by( 'etn_event_id', $this->id, $status, $limit );
+
+        return $attendees;
+    }
+
+    /**
+     * Get related events based on etn_tags.
+     *
+     * @param int $limit Number of related events to fetch.
+     * @return array List of related Event_Model objects.
+     */
+    public function get_related_events( $limit = 5 ) {
+        $tags = get_the_terms( $this->id, 'etn_tags' );
+
+        if ( empty( $tags ) || is_wp_error( $tags ) ) {
+            return [];
+        }
+
+        $tag_ids = wp_list_pluck( $tags, 'term_id' );
+
+        $args = [
+            'post_type'        => $this->post_type,
+            'post_status'      => 'publish',
+            'posts_per_page'   => $limit,
+            'post__not_in'     => [ $this->id ], // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+            'suppress_filters' => false, // let WPML scope to current language
+            'tax_query'        => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+                [
+                    'taxonomy' => 'etn_tags',
+                    'field'    => 'term_id',
+                    'terms'    => $tag_ids,
+                ]
+            ],
+        ];
+
+        $posts = get_posts( $args );
+
+        if ( ! $posts ) {
+            return [];
+        }
+
+        $related_events = [];
+
+        foreach ( $posts as $post ) {
+            $related_events[] = new self( $post->ID );
+        }
+
+        return $related_events;
+    }
+
+    /**
+     * Get event speakers based on the event's speaker IDs
+     *
+     * @return array
+     */
+    public function get_speakers() {
+        $speakers = [];
+
+        // Get speaker IDs associated with the event
+        $speaker_ids = $this->etn_event_speaker;
+
+        if ( ! $speaker_ids ) {
+            return [];
+        }
+
+        // Loop through speaker IDs and create User_Model objects for each
+        foreach ( (array) $speaker_ids as $speaker_id ) {
+            // Never present a non-speaker/organizer (e.g. an admin id stored
+            // by an old crafted save) as a public profile with their email.
+            if ( ! \Eventin\AccessControl\Ownership::is_speaker_or_organizer( $speaker_id ) ) {
+                continue;
+            }
+
+            $speakers[] = new User_Model( $speaker_id );
+        }
+
+        return $speakers;
+    }
+
+    /**
+     * Get event organizers based on the event's organizer IDs
+     *
+     * @return array
+     */
+    public function get_organizers() {
+        $organizers = [];
+
+        // Get organizer IDs associated with the event
+        $organizer_ids = $this->etn_event_organizer;
+
+        if ( ! $organizer_ids ) {
+            return [];
+        }
+
+        // Loop through organizer IDs and create User_Model objects for each
+        foreach ( (array) $organizer_ids as $organizer_id ) {
+            // Never present a non-speaker/organizer (e.g. an admin id stored
+            // by an old crafted save) as a public profile with their email.
+            if ( ! \Eventin\AccessControl\Ownership::is_speaker_or_organizer( $organizer_id ) ) {
+                continue;
+            }
+
+            $organizers[] = new User_Model( $organizer_id );
+        }
+
+        return $organizers;
+    }
+
+    /**
+     * Get start date
+     *
+     * @param   string  $format  Date format that will be need to display
+     *
+     * @return  string
+     */
+    public function get_start_date( $format = 'Y-m-d') {
+        return $this->get_start_datetime( $format );
+    }
+
+    /**
+     * Get start time
+     *
+     * @param   string  $format  Time format that will be need to display
+     *
+     * @return  string
+     */
+    public function get_start_time( $format = 'h:i a') {
+        return $this->get_start_datetime( $format );
+    }
+
+    /**
+     * Get end date
+     *
+     * @param   string  $format  Date format that will be need to display
+     *
+     * @return  string
+     */
+    public function get_end_date( $format = 'Y-m-d') {
+        return $this->get_end_datetime( $format );
+    }
+
+    /**
+     * Get end time
+     *
+     * @param   string  $format  Time format that will be need to display
+     *
+     * @return  string
+     */
+    public function get_end_time( $format = 'h:i a') {
+        return $this->get_end_datetime( $format );
+    }
+    
+    /**
+     * Get event tags
+     *
+     * @return  array  All tags for this event
+     */
+    public function get_tags() {
+        $tags = get_the_terms( $this->id, 'etn_tags' );
+
+        if ( ! $tags ) {
+            return [];
+        }
+
+        return $tags;
+    }
+
+    /**
+     * Get event tags
+     *
+     * @return  array  All tags for this event
+     */
+    public function get_categories() {
+        $tags = get_the_terms( $this->id, 'etn_category' );
+
+        if ( ! $tags ) {
+            return [];
+        }
+
+        return $tags;
+    }
+}

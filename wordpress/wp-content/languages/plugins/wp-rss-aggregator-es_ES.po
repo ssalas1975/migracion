@@ -1,0 +1,3813 @@
+# Translation of Plugins - WP RSS Aggregator &#8211; Import RSS Feeds, Feed to Post, Autoblogging - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - WP RSS Aggregator &#8211; Import RSS Feeds, Feed to Post, Autoblogging - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-10-10 12:50:11+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - WP RSS Aggregator &#8211; Import RSS Feeds, Feed to Post, Autoblogging - Stable (latest release)\n"
+
+#. translators: %s: Cron help URL.
+#: core/modules/admin.php:371
+msgid "Aggregator cannot import new items on schedule. If your host runs a server cron job instead, you can safely dismiss this notice. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">How to fix it.</a>"
+msgstr "Aggregator no puede importar nuevos elementos según lo programado. Si tu alojamiento ejecuta una tarea cron del servidor, puedes descartar este aviso sin problema. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Cómo solucionarlo.</a>"
+
+#: core/modules/admin.php:365
+msgid "WordPress cron is disabled on this site."
+msgstr "WP-Cron está desactivado en este sitio."
+
+#: core/modules/aiHubPromotionalNotice.php:114
+msgid "Invalid promotional notice state."
+msgstr "Estado del aviso promocional no válido."
+
+#: core/src/Plugin.php:122
+msgid "Module is not compatible with the installed Aggregator version."
+msgstr "El módulo no es compatible con la versión instalada de Aggregator."
+
+#. translators: 1: item GUID/permalink, 2: error message
+#: core/src/Importer.php:573
+msgid "Failed to convert RSS item %1$s: %2$s"
+msgstr "Falló la conversión del elemento RSS %1$s: %2$s"
+
+#. translators: %1$s: upgrade URL
+#: core/modules/aiHubPromotionalNotice.php:80
+msgid "Want to try it out? <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Upgrade to get instant access</a></strong>"
+msgstr "¿Quieres probarlo? <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Mejora tu plan para obtener acceso instantáneo</a></strong>"
+
+#. translators: %1$s: account upgrades URL
+#: core/modules/aiHubPromotionalNotice.php:60
+msgid "AI Rewriting is part of the Elite plan, along with <strong>20x more AI credits.</strong> <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Upgrade to get instant access</a></strong>"
+msgstr "La reescritura con IA forma parte del plan Elite, junto con <strong>20 veces más créditos de IA.</strong> <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Mejora tu plan para obtener acceso instantáneo</a></strong>"
+
+#. translators: %1$s: AI Rewriting help URL
+#: core/modules/aiHubPromotionalNotice.php:42
+msgid "Start using it now from the <em>Advanced → AI Rewriting</em> source settings. It’s included in your plan at <strong>no extra cost.</strong> <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Learn more</a>"
+msgstr "Empieza a usarlo ya desde los ajustes de fuente en <em>Avanzado → Reescritura con IA</em>. Está incluido en tu plan <strong>sin coste adicional.</strong> <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Más información</a>"
+
+#: core/modules/aiHubPromotionalNotice.php:75 core/js/dist/admin.js:42
+msgid "Pro and Elite plans can now automatically rewrite imported articles into unique, ready-to-publish pieces, with <strong>no extra setup or charges.</strong>"
+msgstr "Los planes Pro y Elite ya pueden reescribir automáticamente los artículos importados y convertirlos en piezas únicas listas para publicar, <strong>sin configuración adicional ni cargos extra.</strong>"
+
+#: core/modules/aiHubPromotionalNotice.php:73 core/js/dist/admin.js:42
+msgid "Automatically rewrite imported articles into something new and original. No more duplicate content."
+msgstr "Reescribe automáticamente los artículos importados y conviértelos en contenido nuevo y original. Adiós al contenido duplicado."
+
+#: core/modules/aiHubPromotionalNotice.php:55 core/js/dist/admin.js:42
+msgid "Aggregator can rewrite the articles from your feeds into original pieces, ready to publish and unique to your site, with <strong>no more duplicate content.</strong>"
+msgstr "Aggregator puede reescribir los artículos de tus feeds y convertirlos en piezas originales, listas para publicar y únicas en tu sitio, <strong>sin más contenido duplicado.</strong>"
+
+#: core/modules/aiHubPromotionalNotice.php:53 core/js/dist/admin.js:42
+msgid "Want your imported articles to become new, original content?"
+msgstr "¿Quieres que tus artículos importados se conviertan en contenido nuevo y original?"
+
+#: core/modules/aiHubPromotionalNotice.php:37 core/js/dist/admin.js:42
+msgid "Aggregator’s AI rewrites your feeds’ articles into original pieces. <strong>Eliminate duplicate content</strong> and automatically publish unique pieces on a regular basis."
+msgstr "La IA de Aggregator reescribe los artículos de tus feeds y los convierte en piezas originales. <strong>Elimina el contenido duplicado</strong> y publica automáticamente piezas únicas de forma regular."
+
+#: core/modules/aiHubPromotionalNotice.php:35 core/js/dist/admin.js:42
+msgid "Your imported articles can now rewrite themselves into something new."
+msgstr "Tus artículos importados ya pueden reescribirse y convertirse en algo nuevo."
+
+#: core/modules/licensing.php:116
+msgid "3rd Party AI integrations"
+msgstr "Integraciones de IA de terceros"
+
+#: core/modules/licensing.php:115 core/js/dist/admin.js:130
+msgid "10,000 AI Credits"
+msgstr "10.000 créditos de IA"
+
+#: core/modules/licensing.php:114
+msgid "AI summaries"
+msgstr "Resúmenes de IA"
+
+#: core/modules/aiCreditSync.php:82
+msgid "Unsupported sync action."
+msgstr "Acción de sincronización no compatible."
+
+#: core/modules/aiCreditSync.php:78
+msgid "Timestamp is too old."
+msgstr "La marca de tiempo es demasiado antigua."
+
+#: core/modules/aiCreditSync.php:74
+msgid "Signature mismatch."
+msgstr "La firma no coincide."
+
+#: core/modules/aiCreditSync.php:69
+msgid "License key does not match."
+msgstr "La clave de licencia no coincide."
+
+#: core/modules/aiCreditSync.php:64
+msgid "Site URL mismatch."
+msgstr "La URL del sitio no coincide."
+
+#: core/modules/aiCreditSync.php:59
+msgid "Invalid credit sync payload."
+msgstr "Payload de sincronización de créditos no válido."
+
+#: core/modules/debugInfo.php:47
+msgid "Migrated to v5"
+msgstr "Migrado a la v5"
+
+#: core/modules/debugInfo.php:21
+msgid "Not Applicable"
+msgstr "No aplicable"
+
+#: core/modules/debugInfo.php:19
+msgid "Incomplete"
+msgstr "Incompleto"
+
+#: core/modules/debugInfo.php:17
+msgid "Completed"
+msgstr "Completado"
+
+#: v4/includes/v5-notices.php:407
+msgid "Dismiss this notice"
+msgstr "Descartar este aviso"
+
+#: v4/includes/v5-notices.php:368
+msgid "How to migrate"
+msgstr "Cómo migrar"
+
+#: v4/includes/v5-notices.php:357
+msgid "We strongly recommend migrating to v5 for continuous support and updates."
+msgstr "Te recomendamos encarecidamente migrar a la v5 para seguir recibiendo soporte y actualizaciones."
+
+#: v4/includes/v5-notices.php:349
+msgid "January 31, 2026"
+msgstr "31 de enero de 2026"
+
+#: v4/includes/v5-notices.php:345
+msgid "Support and maintenance for Aggregator v4 has been extended to %s. After this date, the plugin will continue working, but it will no longer be maintained and supported."
+msgstr "El soporte y el mantenimiento de Aggregator v4 se han ampliado hasta el %s. Después de esa fecha, el plugin seguirá funcionando, pero ya no se mantendrá ni se dará soporte."
+
+#: v4/includes/v5-notices.php:338
+msgid "Aggregator v4 Support Ending Soon"
+msgstr "El soporte de Aggregator v4 termina pronto"
+
+#: core/src/Rpc/Handlers/RpcWpHandler.php:133
+msgid "Returned an error for the second subscription: HTTP "
+msgstr "Devolvió un error para la segunda suscripción: HTTP "
+
+#: core/src/Rpc/Handlers/RpcWpHandler.php:127
+msgid "Connection failed for the second subscription, please try again."
+msgstr "Falló la conexión para la segunda suscripción, por favor inténtalo de nuevo."
+
+#: v4/includes/cron-jobs.php:291
+msgid "Once every 10 minutes"
+msgstr "Una vez cada 10 minutos"
+
+#: v4/includes/cron-jobs.php:287
+msgid "Once every 5 minutes"
+msgstr "Una vez cada 5 minutos"
+
+#: core/modules/admin.php:559 core/js/dist/admin.js:21
+msgid "Step-by-step instructions"
+msgstr "Instrucciones paso a paso"
+
+#: core/modules/admin.php:556 core/js/dist/admin.js:21
+msgid "Download Premium v5.0.2"
+msgstr "Descargar Premium v5.0.2"
+
+#: core/modules/admin.php:521
+msgid "After updating Premium to v5.0.2, premium update checks will resume as normal."
+msgstr "Después de actualizar Premium a la v5.0.2, las comprobaciones de actualizaciones premium se reanudarán con normalidad."
+
+#: core/modules/admin.php:514
+msgid "Your settings and data will remain intact. If you have any questions, please <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">contact support</a> for help."
+msgstr "Tus ajustes y datos se mantendrán intactos. Si tienes alguna pregunta, <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">contacta con el soporte</a> para obtener ayuda."
+
+#: core/modules/admin.php:511
+msgid "This has been fixed in Premium v5.0.2, but you’ll need to perform a one-time only manual update of the Premium plugin to restore update checks."
+msgstr "Esto se ha corregido en Premium v5.0.2, pero tendrás que realizar una actualización manual única del plugin Premium para restaurar las comprobaciones de actualizaciones."
+
+#: core/modules/admin.php:506
+msgid "However, we detected that you’re still using Aggregator Premium v%1$s. Due to a configuration issue in v%2$s, premium updates are not being detected."
+msgstr "Sin embargo, hemos detectado que sigues usando Aggregator Premium v%1$s. Debido a un problema de configuración en la v%2$s, no se están detectando las actualizaciones premium."
+
+#: core/modules/admin.php:503
+msgid "You’ve successfully updated the free plugin to v5.0.2."
+msgstr "Has actualizado correctamente el plugin gratuito a la v5.0.2."
+
+#: core/modules/admin.php:502
+msgid "One-time only manual update required for Aggregator Premium plugin"
+msgstr "Actualización manual única obligatoria del plugin Aggregator Premium"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block keyword"
+msgid "feed"
+msgstr "feed"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block keyword"
+msgid "rss"
+msgstr "rss"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block keyword"
+msgid "aggregator"
+msgstr "aggregator"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block keyword"
+msgid "display"
+msgstr "display"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block keyword"
+msgid "wpra"
+msgstr "wpra"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block description"
+msgid "Display RSS feed content"
+msgstr "Mostrar el contenido del feed RSS"
+
+#: core/js/blocks/dist/display/block.json
+msgctxt "block title"
+msgid "RSS Aggregator Display"
+msgstr "Visualización de RSS Aggregator"
+
+#: v4/includes/v5-notices.php:386 core/js/dist/admin.js:130
+msgid "Days"
+msgstr "Días"
+
+#: v4/includes/v5-notices.php:391 core/js/dist/admin.js:130
+msgid "Hours"
+msgstr "Horas"
+
+#: v4/includes/v5-notices.php:396 core/js/dist/admin.js:130
+msgid "Minutes"
+msgstr "Minutos"
+
+#: v4/includes/v5-notices.php:377 core/js/dist/admin.js:42
+msgid "Contact support"
+msgstr "Contactar con el soporte"
+
+#: v4/src/Util/Normalize.php:29
+msgid "Not an iterable"
+msgstr "No es un iterable"
+
+#: v4/src/Ui/BlacklistTable.php:134 v4/src/Ui/BlacklistTable.php:171
+#: core/js/dist/admin.js:42 core/js/dist/admin.js:112 core/js/dist/admin.js:130
+msgid "Delete"
+msgstr "Borrar"
+
+#: v4/src/Ui/BlacklistTable.php:130
+msgid "Edit"
+msgstr "Editar"
+
+#: v4/src/Ui/BlacklistTable.php:52
+msgid "There are no blacklisted items"
+msgstr "No hay elementos en la lista negra"
+
+#: v4/src/Templates/TwigTemplate.php:67
+msgid "Syntax error in template at line %d: %s"
+msgstr "Error de sintaxis en la plantilla en la línea %d: %s"
+
+#: v4/src/Templates/TwigTemplate.php:62
+msgid "Could not load template"
+msgstr "No se ha podido cargar la plantilla"
+
+#: v4/src/Templates/Feeds/Types/AbstractFeedTemplateType.php:69
+msgid "Items is not a collection instance"
+msgstr "Items no es una instancia de colección"
+
+#: v4/src/Templates/Feeds/MasterFeedsTemplate.php:233
+#: v4/src/Templates/Feeds/TemplateTypeTemplate.php:168
+msgid "The \"items\" must be a collection instance"
+msgstr "«items» debe ser una instancia de colección"
+
+#: v4/src/RestApi/EndPoints/FeedTemplates/DeleteTemplateEndPoint.php:79
+#: v4/src/RestApi/EndPoints/FeedTemplates/PatchTemplateEndPoint.php:55
+msgid "Template \"%s\" does not exist"
+msgstr "La plantilla «%s» no existe"
+
+#: v4/src/RestApi/EndPoints/FeedTemplates/DeleteTemplateEndPoint.php:60
+msgid "Missing template ID or set of IDs in the request"
+msgstr "Falta el ID de plantilla o el conjunto de IDs en la solicitud"
+
+#: v4/src/RestApi/EndPoints/FeedTemplates/CreateUpdateTemplateEndPoint.php:63
+msgid "Missing template ID or slug name"
+msgstr "Falta el ID de plantilla o el nombre del slug"
+
+#: v4/src/RestApi/Auth/AuthVerifyNonce.php:64
+msgid "Request nonce is invalid or has expired"
+msgstr "El nonce de la solicitud no es válido o ha caducado"
+
+#: v4/src/RestApi/Auth/AuthVerifyNonce.php:55
+msgid "Invalid request"
+msgstr "Solicitud no válida"
+
+#: v4/src/RestApi/Auth/AuthUserIsAdmin.php:33
+msgid "User is not an administrator"
+msgstr "El usuario no es un administrador"
+
+#: v4/src/RestApi/Auth/AuthUserIsAdmin.php:24
+msgid "Not a user or not logged in"
+msgstr "No es un usuario o no ha iniciado sesión"
+
+#: v4/src/Modules/UpsellModule.php:336
+msgid "Try Spotlight"
+msgstr "Prueba Spotlight"
+
+#: v4/src/Modules/UpsellModule.php:272
+msgid "More Features"
+msgstr "Más funciones"
+
+#: v4/src/Modules/UpsellModule.php:224
+msgid "An extension for Feed to Post that allows you to integrate the SpinnerChief article spinner so that the imported content is both completely unique and completely readable."
+msgstr "Una extensión para Feed to Post que te permite integrar el spinner de artículos SpinnerChief para que el contenido importado sea completamente único y completamente legible."
+
+#: v4/src/Modules/UpsellModule.php:212
+msgid "An extension for Feed to Post that allows you to integrate the WordAi article spinner so that the imported content is both completely unique and completely readable."
+msgstr "Una extensión para Feed to Post que te permite integrar el spinner de artículos WordAi para que el contenido importado sea completamente único y completamente legible."
+
+#: v4/src/Modules/UpsellModule.php:126
+msgid "Priority support"
+msgstr "Soporte prioritario"
+
+#: v4/src/Modules/UpsellModule.php:123
+msgid "AI Integrations"
+msgstr "Integraciones de IA"
+
+#: v4/src/Modules/UpsellModule.php:121
+msgid "Includes everything in Pro, and:"
+msgstr "Incluye todo lo de Pro, y:"
+
+#: v4/src/Modules/UpsellModule.php:120 core/js/dist/admin.js:130
+msgid "Import unlimited content from RSS feeds and generate your own original versions."
+msgstr "Importa contenido ilimitado de feeds RSS y genera tus propias versiones originales."
+
+#: v4/src/Modules/UpsellModule.php:106
+msgid "Includes everything in Plus, and:"
+msgstr "Incluye todo lo de Plus, y:"
+
+#: v4/src/Modules/UpsellModule.php:93
+msgid "Includes everything in Basic, and:"
+msgstr "Incluye todo lo de Basic, y:"
+
+#: v4/src/Modules/UpsellModule.php:92
+msgid "Aggregate RSS feeds as blog posts and publish their excerpts to your blog or CPT."
+msgstr "Agrega feeds RSS como entradas del blog y publica sus extractos en tu blog o CPT."
+
+#: v4/src/Modules/UpsellModule.php:88 v4/src/Modules/UpsellModule.php:101
+#: v4/src/Modules/UpsellModule.php:114 v4/src/Modules/UpsellModule.php:129
+msgid "See Pricing"
+msgstr "Ver precios"
+
+#: v4/src/Modules/UpsellModule.php:82
+msgid "All template designs"
+msgstr "Todos los diseños de plantilla"
+
+#: v4/src/Modules/UpsellModule.php:80
+msgid "Unlocks access to:"
+msgstr "Desbloquea el acceso a:"
+
+#: v4/src/Modules/UpsellModule.php:79
+msgid "Display RSS feeds anywhere on your site and customize them to match your site's design."
+msgstr "Muestra feeds RSS en cualquier lugar de tu sitio y personalízalos para que coincidan con el diseño de tu sitio."
+
+#: v4/src/Modules/ToolsModule.php:41 v4/src/Modules/ToolsModule.php:52
+msgid "Tools"
+msgstr "Herramientas"
+
+#: v4/src/Modules/SysInfoToolModule.php:30
+msgid "System Info"
+msgstr "Información del sistema"
+
+#: v4/src/Modules/ResetToolModule.php:90
+msgid "The items are being deleted in the background."
+msgstr "Los elementos se están eliminando en segundo plano."
+
+#: v4/src/Modules/ResetToolModule.php:30 core/js/dist/admin.js:130
+msgid "Reset"
+msgstr "Restablecer"
+
+#: v4/src/Modules/ImportExportToolsModule.php:119
+msgid "Upload error"
+msgstr "Error de subida"
+
+#: v4/src/Modules/ImportExportToolsModule.php:115
+msgid "The file upload failed. Please try again."
+msgstr "Ha fallado la subida del archivo. Por favor, inténtalo de nuevo."
+
+#: v4/src/Modules/ImportExportToolsModule.php:112
+msgid "The file was not fully uploaded."
+msgstr "El archivo no se ha subido por completo."
+
+#: v4/src/Modules/ImportExportToolsModule.php:109
+msgid "Upload file is too large."
+msgstr "El archivo subido es demasiado grande."
+
+#: v4/src/Modules/ImportExportToolsModule.php:105
+msgid "No file was uploaded. Please select a file."
+msgstr "No se ha subido ningún archivo. Por favor, selecciona un archivo."
+
+#: v4/src/Modules/ImportExportToolsModule.php:43 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:82
+msgid "Import"
+msgstr "Importar"
+
+#: v4/src/Modules/ImportExportToolsModule.php:30 core/js/dist/admin.js:42
+msgid "Export"
+msgstr "Exportar"
+
+#: v4/src/Modules/ImagesModule.php:191 v4/src/Modules/ImagesModule.php:289
+#: core/js/dist/admin.js:130
+msgid "Images"
+msgstr "Imágenes"
+
+#: v4/src/Modules/ImagesModule.php:150 core/js/dist/admin.js:42
+msgid "Image"
+msgstr "Imagen"
+
+#: v4/src/Modules/FeedTemplatesModule.php:533
+msgid "Numbers"
+msgstr "Números"
+
+#: v4/src/Modules/FeedTemplatesModule.php:532
+msgid "Bullets"
+msgstr "Viñetas"
+
+#: v4/src/Modules/FeedTemplatesModule.php:529 core/js/dist/admin.js:42
+msgid "Numbered"
+msgstr "Numerada"
+
+#: v4/src/Modules/FeedTemplatesModule.php:528 core/js/dist/admin.js:42
+msgid "Older/Newer"
+msgstr "Anteriores/Siguientes"
+
+#: v4/src/Modules/FeedTemplatesModule.php:525 core/js/dist/admin.js:42
+msgid "Open in a lightbox"
+msgstr "Abrir en una caja de luz"
+
+#: v4/src/Modules/FeedTemplatesModule.php:524 core/js/dist/admin.js:42
+msgid "Open in a new tab"
+msgstr "Abrir en una pestaña nueva"
+
+#: v4/src/Modules/FeedTemplatesModule.php:523
+msgid "Open in same tab/window"
+msgstr "Abrir en la misma pestaña/ventana"
+
+#: v4/src/Modules/FeedTemplatesModule.php:496
+#: v4/src/Templates/Feeds/Types/ListTemplateType.php:29
+#: core/js/dist/admin.js:28
+msgid "List"
+msgstr "Lista"
+
+#: v4/src/Modules/FeedTemplatesModule.php:483
+msgid "You can add your own HTML class name to the template output. This lets you customize your template further using custom CSS styling or custom JS functionality."
+msgstr "Puedes añadir tu propio nombre de clase HTML a la salida de la plantilla. Esto te permite personalizar aún más tu plantilla con estilos CSS personalizados o funcionalidad JS personalizada."
+
+#: v4/src/Modules/FeedTemplatesModule.php:473
+msgid "Enter the text that you want to show before the author name. A space is automatically added between this text and the author name."
+msgstr "Introduce el texto que quieras mostrar antes del nombre del autor. Se añade automáticamente un espacio entre este texto y el nombre del autor."
+
+#: v4/src/Modules/FeedTemplatesModule.php:140
+msgid "No Templates Found In Trash"
+msgstr "No se han encontrado plantillas en la papelera"
+
+#: v4/src/Modules/FeedTemplatesModule.php:139
+msgid "No Templates Found"
+msgstr "No se han encontrado plantillas"
+
+#: v4/src/Modules/FeedTemplatesModule.php:136
+msgid "New Template"
+msgstr "Nueva plantilla"
+
+#: v4/src/Modules/FeedTemplatesModule.php:134
+msgid "Add New Template"
+msgstr "Añadir nueva plantilla"
+
+#: v4/src/Modules/FeedTemplatesModule.php:130
+#: v4/src/Modules/FeedTemplatesModule.php:133
+#: v4/src/Modules/FeedTemplatesModule.php:141
+#: v4/src/Modules/FeedTemplatesModule.php:230
+#: v4/src/Modules/FeedTemplatesModule.php:231 core/js/dist/admin.js:137
+msgid "Templates"
+msgstr "Plantillas"
+
+#: v4/src/Modules/FeedBlacklistModule.php:54
+msgid "No blacklisted items found in the trash"
+msgstr "No se han encontrado elementos de la lista negra en la papelera"
+
+#: v4/src/Modules/FeedBlacklistModule.php:53
+msgid "No Blacklisted Items"
+msgstr "No hay elementos en la lista negra"
+
+#: v4/src/Modules/FeedBlacklistModule.php:52
+msgid "Search Blacklisted Items"
+msgstr "Buscar elementos de la lista negra"
+
+#: v4/src/Modules/FeedBlacklistModule.php:51
+msgid "View Blacklisted Items"
+msgstr "Ver elementos de la lista negra"
+
+#: v4/src/Modules/FeedBlacklistModule.php:46
+#: v4/src/Modules/FeedBlacklistModule.php:48
+#: v4/src/Modules/FeedBlacklistModule.php:50
+msgid "Blacklist An Item"
+msgstr "Añadir un elemento a la lista negra"
+
+#: v4/src/Modules/FeedBlacklistModule.php:45
+msgid "Blacklisted Item"
+msgstr "Elemento de la lista negra"
+
+#: v4/src/Modules/FeedBlacklistModule.php:44
+#: v4/src/Modules/FeedBlacklistModule.php:47
+msgid "Blacklisted Items"
+msgstr "Elementos de la lista negra"
+
+#: v4/src/Modules/CronsToolModule.php:30
+msgid "Crons"
+msgstr "Crons"
+
+#: v4/src/Modules/BlacklistToolModule.php:89
+msgid "Added to blacklist."
+msgstr "Añadido a la lista negra."
+
+#: v4/src/Modules/BlacklistToolModule.php:78
+msgid "The blacklisted item does not have a valid URL."
+msgstr "El elemento de la lista negra no tiene una URL válida."
+
+#: v4/src/Modules/BlacklistToolModule.php:71
+msgid "The blacklist item URL is empty. Please enter the URL to blacklist."
+msgstr "La URL del elemento de la lista negra está vacía. Introduce la URL que quieras añadir a la lista negra."
+
+#: v4/src/Modules/BlackFriday23Module.php:120
+msgid "Try Spotlight at 30% off"
+msgstr "Prueba Spotlight con un 30 % de descuento"
+
+#: v4/src/Importer/Images/ImageContainer.php:57
+msgid "Image URL cannot be empty"
+msgstr "La URL de la imagen no puede estar vacía"
+
+#: v4/src/Handlers/FeedTemplates/PreviewTemplateRedirectHandler.php:81
+msgid "Invalid template ID"
+msgstr "ID de plantilla no válido"
+
+#: v4/src/Handlers/FeedTemplates/PreviewTemplateRedirectHandler.php:75
+msgid "You do not have sufficient privileges!"
+msgstr "¡No tienes permisos suficientes!"
+
+#: v4/src/Data/Wp/WpPostMetaDataSet.php:51
+#: v4/src/Util/NormalizeWpPostCapableTrait.php:32
+msgid "Post with ID %s does not exist"
+msgstr "La entrada con ID %s no existe"
+
+#: v4/src/Data/Collections/TwigTemplateCollection.php:91
+msgid "Cannot modify Twig templates"
+msgstr "No se pueden modificar las plantillas Twig"
+
+#: v4/src/Data/ChangelogDataSet.php:122
+msgid "No changelog entry found for version %s"
+msgstr "No se ha encontrado ninguna entrada del registro de cambios para la versión %s"
+
+#: v4/includes/v5-switch.php:321
+msgid "Click below to start your migration to v5"
+msgstr "Haz clic a continuación para iniciar la migración a la v5"
+
+#: v4/includes/v5-switch.php:320
+msgid "Ready to Move Forward?"
+msgstr "¿Listo para avanzar?"
+
+#: v4/includes/v5-switch.php:302
+msgid "Check out the <a target=\"_blank\" href=\"%1$s\">migration guide</a> or <a target=\"_blank\" href=\"%2$s\">contact our support team</a>, we’re always happy to help!"
+msgstr "Consulta la <a target=\"_blank\" href=\"%1$s\">guía de migración</a> o <a target=\"_blank\" href=\"%2$s\">contacta con nuestro equipo de soporte</a>, ¡siempre estaremos encantados de ayudarte!"
+
+#: v4/includes/v5-switch.php:296
+msgid "Need a Hand?"
+msgstr "¿Necesitas ayuda?"
+
+#: v4/includes/v5-switch.php:277
+msgid "<strong>Note:</strong> If your site has <strong>over 10,000 imported items</strong> or you encounter issues during migration, we recommend using the <strong>WP-CLI Migration Method</strong> for a more controlled and reliable process. <a target=\"_blank\" href=\"%1$s\">View the guide.</a>"
+msgstr "<strong>Nota:</strong> Si tu sitio tiene <strong>más de 10.000 elementos importados</strong> o encuentras problemas durante la migración, te recomendamos usar el <strong>método de migración por WP-CLI</strong> para un proceso más controlado y fiable. <a target=\"_blank\" href=\"%1$s\">Ver la guía.</a>"
+
+#: v4/includes/v5-switch.php:245
+msgid "Before migrating, we recommend backing up your site:"
+msgstr "Antes de migrar, te recomendamos hacer una copia de seguridad de tu sitio:"
+
+#: v4/includes/v5-switch.php:236
+msgid "You can <strong>roll back to v4</strong> on the <strong>Settings</strong> page in v5."
+msgstr "Puedes <strong>volver a la v4</strong> en la página de <strong>Ajustes</strong> de la v5."
+
+#: v4/includes/v5-switch.php:225
+msgid "<strong>Test first</strong> on a staging site."
+msgstr "<strong>Prueba primero</strong> en un sitio de pruebas."
+
+#: v4/includes/v5-switch.php:220
+msgid "Migration Tips"
+msgstr "Consejos de migración"
+
+#: wp-rss-aggregator.php:83
+msgctxt "%s = plugin name"
+msgid "%1$s requires WordPress version %2$s or higher."
+msgstr "%1$s requiere la versión %2$s de WordPress o superior."
+
+#: wp-rss-aggregator.php:65
+msgctxt "%s = plugin name"
+msgid "%1$s requires PHP version %2$s or higher."
+msgstr "%1$s requiere la versión %2$s de PHP o superior."
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:78
+#: core/js/dist/admin.js:130
+msgid "year"
+msgid_plural "years"
+msgstr[0] "año"
+msgstr[1] "años"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:75
+#: core/js/dist/admin.js:130
+msgid "month"
+msgid_plural "months"
+msgstr[0] "mes"
+msgstr[1] "meses"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:72
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "segundo"
+msgstr[1] "segundos"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:69
+#: core/js/dist/admin.js:130
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minuto"
+msgstr[1] "minutos"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:66
+#: core/js/dist/admin.js:130
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "hora"
+msgstr[1] "horas"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:63
+#: core/js/dist/admin.js:130
+msgid "day"
+msgid_plural "days"
+msgstr[0] "día"
+msgstr[1] "días"
+
+#: v4/src/Templates/TwigTemplate.php:75
+msgid "Could not render twig template: "
+msgstr "No se ha podido procesar la plantilla twig: "
+
+#: v4/src/Templates/Feeds/MasterFeedsTemplate.php:259
+msgid "Template \"{0}\" does not exist or could not be loaded. The default template was used instead."
+msgstr "La plantilla «{0}» no existe o no se ha podido cargar. Se ha usado la plantilla por defecto en su lugar."
+
+#: v4/src/Modules/UpsellModule.php:200
+msgid "Categorises your feed sources and allows you to display feed items from a particular category within your site using the shortcode parameters."
+msgstr "Categoriza tus fuentes de feed y te permite mostrar elementos del feed de una categoría concreta en tu sitio usando los parámetros del shortcode."
+
+#: v4/src/Modules/UpsellModule.php:188
+msgid "Filters the feed items to be imported based on your own keywords, key phrases, or tags; you only get the items you're interested in. It is compatible with all other add-ons."
+msgstr "Filtra los elementos del feed que se importan según tus propias palabras clave, frases clave o etiquetas; solo obtienes los elementos que te interesan. Es compatible con todos los demás complementos."
+
+#: v4/src/Modules/UpsellModule.php:176
+msgid "Premium templates to display images and excerpts in various ways. It includes a fully customisable grid template and a list template that includes excerpts & thumbnails, both of which will spruce up your site!"
+msgstr "Plantillas premium para mostrar imágenes y extractos de diversas formas. Incluye una plantilla de cuadrícula totalmente personalizable y una plantilla de lista que incluye extractos y miniaturas, ¡ambas te darán un toque especial a tu sitio!"
+
+#: v4/src/Modules/UpsellModule.php:164
+msgid "An extension for Feed to Post that adds connectivity to our premium full text service, which allows you to import the full post content for an unlimited number of feed items per feed source, even when the feed itself doesn't provide it"
+msgstr "Una extensión para Feed to Post que añade conectividad con nuestro servicio premium de texto completo, que te permite importar el contenido completo de la entrada para un número ilimitado de elementos del feed por fuente de feed, incluso cuando el propio feed no lo proporciona"
+
+#: v4/src/Modules/UpsellModule.php:152
+msgid "An advanced importer that lets you import RSS feed items as WordPress posts or any other custom post type. You can use it to populate a website in minutes (auto-blog). This is the most popular and feature-filled extension."
+msgstr "Un importador avanzado que te permite importar elementos de feeds RSS como entradas de WordPress o cualquier otro tipo de contenido personalizado. Puedes usarlo para rellenar un sitio web en minutos (auto-blog). Esta es la extensión más popular y con más funciones."
+
+#: v4/src/Modules/UpsellModule.php:111
+msgid "Custom mapping"
+msgstr "Asignación personalizada"
+
+#: v4/src/Modules/UpsellModule.php:105 core/js/dist/admin.js:130
+msgid "Curate RSS feeds as Posts or any CPT and give your visitors all the content they’re after."
+msgstr "Selecciona feeds RSS como entradas o cualquier CPT y ofrece a tus visitantes todo el contenido que buscan."
+
+#: v4/src/Modules/ImagesModule.php:270
+msgid ""
+"This option allows you to select which feed item image to use as the featured image. Automatic best image detection will attempt to find the largest image with the best aspect ratio.\n"
+"\n"
+"                        WordPress requires that featured images exist in the media library, so WP RSS Aggregator will always download and save featured images."
+msgstr ""
+"Esta opción te permite seleccionar qué imagen del elemento del feed usar como imagen destacada. La detección automática de la mejor imagen intentará encontrar la imagen más grande con la mejor relación de aspecto.\n"
+"\n"
+"                        WordPress requiere que las imágenes destacadas existan en la biblioteca de medios, por lo que WP RSS Aggregator siempre descargará y guardará las imágenes destacadas."
+
+#: v4/src/Modules/FeedTemplatesModule.php:484
+msgid "If the feed item or post has an audio attachment, you can choose to show an audio player that plays the attached audio file."
+msgstr "Si el elemento del feed o la entrada tiene un adjunto de audio, puedes elegir mostrar un reproductor de audio que reproduzca el archivo de audio adjunto."
+
+#: v4/src/Modules/FeedTemplatesModule.php:482
+msgid "The bullet type to use for feed items."
+msgstr "El tipo de viñeta que se usará para los elementos del feed."
+
+#: v4/src/Modules/FeedTemplatesModule.php:481
+msgid "Enable this option to show bullets next to feed items."
+msgstr "Activa esta opción para mostrar viñetas junto a los elementos del feed."
+
+#: v4/src/Modules/FeedTemplatesModule.php:480
+msgid "Tick this box to have feed items link to their embedded content, if they have any. This works especially well when links are set to <em>\"Open in a lightbox\"</em>."
+msgstr "Marca esta casilla para que los elementos del feed enlacen a su contenido incrustado, si lo tienen. Funciona especialmente bien cuando los enlaces están configurados como <em>«Abrir en una caja de luz»</em>."
+
+#: v4/src/Modules/FeedTemplatesModule.php:479
+msgid "Enable this option to set all links displayed as \"NoFollow\".<hr/>\"Nofollow\" provides a way to tell search engines to <em>not</em> follow certain links, such as links to feed items in this case."
+msgstr "Activa esta opción para establecer todos los enlaces mostrados como «No seguir».<hr/>«Nofollow» ofrece una forma de indicar a los motores de búsqueda que <em>no</em> sigan determinados enlaces, como los enlaces a los elementos del feed en este caso."
+
+#: v4/src/Modules/FeedTemplatesModule.php:477
+msgid "Enable this option to show the elapsed time from the feed item's date and time to the present time. <em>Eg. 2 hours ago</em>"
+msgstr "Activa esta opción para mostrar el tiempo transcurrido desde la fecha y hora del elemento del feed hasta el momento actual. <em>P. ej. hace 2 horas</em>"
+
+#: v4/src/Modules/FeedTemplatesModule.php:468
+msgid "The type of pagination to use when showing feed items on multiple pages. The first shows two links, \"Older\" and \"Newer\", which allow you to navigate through the pages. The second shows links for all the pages, together with links for the next and previous pages."
+msgstr "El tipo de paginación que se usará al mostrar los elementos del feed en varias páginas. La primera muestra dos enlaces, «Anteriores» y «Siguientes», que te permiten navegar por las páginas. La segunda muestra enlaces a todas las páginas, junto con enlaces a las páginas siguiente y anterior."
+
+#: v4/src/Modules/FeedTemplatesModule.php:467
+msgid "Enable this option to show the pagination beneath feed items."
+msgstr "Activa esta opción para mostrar la paginación debajo de los elementos del feed."
+
+#: v4/src/Modules/FeedTemplatesModule.php:465
+msgid "Set the maximum number of characters to show for feed item titles.<hr/><em>Leave empty for no limit.</em>"
+msgstr "Establece el número máximo de caracteres que se mostrarán en los títulos de los elementos del feed.<hr/><em>Déjalo vacío para no aplicar límite.</em>"
+
+#: v4/src/Modules/FeedTemplatesModule.php:464
+msgid "The maximum number of feed items to display when using the shortcode. This enables pagination if set to a number smaller than the number of items to be displayed."
+msgstr "El número máximo de elementos del feed que se mostrarán al usar el shortcode. Esto activa la paginación si se establece un número menor que la cantidad de elementos a mostrar."
+
+#: v4/src/Modules/FeedTemplatesModule.php:137
+msgid "View Template"
+msgstr "Ver plantilla"
+
+#: v4/src/Modules/FeedTemplatesModule.php:135
+msgid "Edit Template"
+msgstr "Editar plantilla"
+
+#: v4/src/Modules/FeedBlacklistModule.php:49
+msgid "Edit Blacklisted Item"
+msgstr "Editar elemento de la lista negra"
+
+#: v4/src/Modules/BulkAddToolModule.php:33
+msgid "Bulk Add Sources"
+msgstr "Añadir fuentes por lotes"
+
+#: v4/src/Modules/BlackFriday23Module.php:109
+msgid "Upgrade at 30% off"
+msgstr "Mejora con un 30 % de descuento"
+
+#: v4/src/Handlers/Images/RenderItemsImageColumnHandler.php:63
+msgid "Feed item image"
+msgstr "Imagen del elemento del feed"
+
+#: v4/src/Entities/Collections/WpEntityCollection.php:118
+msgid "Post \"%s\" was not found"
+msgstr "No se ha encontrado la entrada «%s»"
+
+#: v4/src/Database/WpdbTable.php:238
+msgid "Failed to create the \"%s\" database table. Reason: %s"
+msgstr "No se ha podido crear la tabla de base de datos «%s». Motivo: %s"
+
+#: v4/src/Database/WpdbTable.php:114
+msgid "Cannot find record with key \"%s\""
+msgstr "No se puede encontrar el registro con la clave «%s»"
+
+#: v4/src/Data/Wp/WpPostArrayMetaDataSet.php:72
+msgid "Meta data \"%s\" for post %d does not have a \"%s\" key"
+msgstr "Los metadatos «%s» de la entrada %d no tienen una clave «%s»"
+
+#: v4/src/Data/Collections/TwigTemplateCollection.php:101
+msgid "Cannot delete Twig templates"
+msgstr "No se pueden borrar las plantillas Twig"
+
+#: v4/src/Container/ModuleContainer.php:71
+msgid "Service \"%s\" was not found; stack: %s"
+msgstr "No se ha encontrado el servicio «%s»; pila: %s"
+
+#: v4/includes/v5-switch.php:262
+msgid "<strong>Ensure any add-ons you own are installed and activated.</strong>"
+msgstr "<strong>Asegúrate de que todas las extensiones que tengas estén instaladas y activadas.</strong>"
+
+#: v4/includes/v5-switch.php:251
+msgid "Make sure you have your <strong>main license key</strong> (not add-on keys)."
+msgstr "Asegúrate de tener tu <strong>clave de licencia principal</strong> (no las claves de extensiones)."
+
+#: v4/includes/v5-switch.php:199
+msgid "You’re welcome to switch to v5 at no cost, but please note that <a target=\"_blank\" href=\"%1$s\"><strong>premium features require a plan license.</strong></a><br> You’ll need to  <a target=\"_blank\" href=\"%2$s\">upgrade to any plan</a> (Basic, Plus, Pro, or Elite) to unlock premium features and support."
+msgstr "Puedes cambiar a la v5 sin coste, pero ten en cuenta que <a target=\"_blank\" href=\"%1$s\"><strong>las funciones premium requieren una licencia de plan.</strong></a><br> Tendrás que  <a target=\"_blank\" href=\"%2$s\">mejorar a cualquier plan</a> (Basic, Plus, Pro o Elite) para desbloquear las funciones premium y el soporte."
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:88
+msgctxt "Format for future feed item dates, example: \"in 2 days\""
+msgid "in {number} {unit}"
+msgid_plural "in {number} {unit}"
+msgstr[0] "en {number} {unit}"
+msgstr[1] "en {number} {unit}"
+
+#: v4/src/Twig/Extensions/Date/TwigDateTranslator.php:87
+msgctxt "Format for past feed item dates, example: \"5 hours ago\""
+msgid "{number} {unit} ago"
+msgid_plural "{number} {unit} ago"
+msgstr[0] "hace {number} {unit}"
+msgstr[1] "hace {number} {unit}"
+
+#: v4/includes/v5-switch.php:193
+msgid "Free User?"
+msgstr "¿Usuario gratuito?"
+
+#: v4/includes/v5-switch.php:136
+msgid "Using a Premium Plan?"
+msgstr "¿Usas un plan premium?"
+
+#: v4/includes/v5-switch.php:108
+msgid "We're excited to introduce Aggregator v5, but before you switch, here's what you need to know:"
+msgstr "Nos alegra presentarte Aggregator v5, pero antes de cambiar, esto es lo que necesitas saber:"
+
+#: v4/includes/v5-switch.php:100
+msgid "Step-by-step walkthrough from v4 to v5"
+msgstr "Guía paso a paso de la v4 a la v5"
+
+#: v4/includes/v5-switch.php:93 v4/includes/v5-switch.php:99
+msgid "Migration Guide"
+msgstr "Guía de migración"
+
+#: v4/includes/v5-switch.php:84
+msgid "Discover the latest improvements"
+msgstr "Descubre las últimas mejoras"
+
+#: v4/includes/v5-switch.php:77 v4/includes/v5-switch.php:83
+msgid "What’s New in v5"
+msgstr "Novedades de la v5"
+
+#: v4/includes/v5-switch.php:67
+msgid "Upgrade safely from version 4"
+msgstr "Actualiza de forma segura desde la versión 4"
+
+#: v4/includes/v5-switch.php:52
+msgid "Get the latest version with faster performance and a sleek new look"
+msgstr "Consigue la última versión con un rendimiento más rápido y un aspecto renovado"
+
+#: v4/includes/v5-switch.php:51
+msgid "Aggregator v5 is here!"
+msgstr "¡Aggregator v5 ya está aquí!"
+
+#: v4/includes/v5-switch.php:23 v4/includes/v5-switch.php:324
+msgid "Switch to v5"
+msgstr "Cambiar a la v5"
+
+#: v4/includes/v5-notices.php:191
+msgid "Migrate now"
+msgstr "Migrar ahora"
+
+#: v4/includes/v5-notices.php:183
+msgctxt "%s = \"Migrate now\" link"
+msgid "To complete the upgrade and start using Aggregator v5, a migration is required. %s."
+msgstr "Para completar la actualización y empezar a usar Aggregator v5, es necesaria una migración. %s."
+
+#: v4/includes/v5-notices.php:181
+msgid "Aggregator was updated successfully, but you’re still using v4."
+msgstr "Aggregator se actualizó correctamente, pero sigues usando la v4."
+
+#: v4/includes/v5-notices.php:172
+msgid "Install Premium"
+msgstr "Instalar Premium"
+
+#: v4/includes/v5-notices.php:164
+msgctxt "%s = \"Install Premium\" link"
+msgid "To unlock the full v5 experience, please install the Aggregator Premium plugin before migrating. %s."
+msgstr "Para desbloquear la experiencia completa de la v5, instala el plugin Aggregator Premium antes de migrar. %s."
+
+#: v4/includes/v5-notices.php:162
+msgid "Aggregator Free was updated successfully, but your premium features aren’t active."
+msgstr "Aggregator Free se actualizó correctamente, pero tus funciones premium no están activas."
+
+#: v4/includes/v5-notices.php:93
+msgid "This is a major update. Prior testing on a staging site is recommended.<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">View version 5.0 details</a> or <a href=\"%2$s\">update now</a>."
+msgstr "Esta es una actualización importante. Se recomienda probar antes en un sitio de pruebas.<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">Ver detalles de la versión 5.0</a> o <a href=\"%2$s\">actualizar ahora</a>."
+
+#: v4/includes/v5-notices.php:61
+msgid "update"
+msgstr "actualizar"
+
+#: v4/includes/v5-notices.php:60
+msgid "View version 5.0 details"
+msgstr "Ver detalles de la versión 5.0"
+
+#. translators: 1: Link to migration guide, 2: Update link
+#: v4/includes/v5-notices.php:59
+msgid "A major update of Aggregator is available. %1$s or %2$s to get access to the new and improved aggregator."
+msgstr "Hay disponible una actualización importante de Aggregator. %1$s o %2$s para acceder al nuevo y mejorado aggregator."
+
+#: v4/includes/v5-notices.php:55 core/js/dist/admin.js:42
+msgid "Note:"
+msgstr "Nota:"
+
+#: v4/includes/scripts.php:116
+msgid "Are you sure you want to do this? This operation cannot be undone."
+msgstr "¿Seguro que quieres hacer esto? Esta operación no se puede deshacer."
+
+#: v4/includes/scripts.php:109
+msgid "Global"
+msgstr "Global"
+
+#: v4/includes/scripts.php:98
+msgid "Use Global Cron"
+msgstr "Usar cron global"
+
+#: v4/includes/scripts.php:33
+msgid "Deleting!"
+msgstr "¡Eliminando!"
+
+#: v4/includes/scripts.php:32
+msgid "Importing!"
+msgstr "¡Importando!"
+
+#: v4/includes/opml-importer.php:119
+msgid "The uploaded file could not be found at %s. It is likely that this was caused by a permissions problem."
+msgstr "No se ha podido encontrar el archivo subido en %s. Es probable que se deba a un problema de permisos."
+
+#: v4/includes/legacy-feed-display.php:216
+msgctxt "Time ago"
+msgid "%1$s ago"
+msgstr "hace %1$s"
+
+#: v4/includes/legacy-feed-display.php:203
+msgctxt "Text before author name. Example: \"By John Smith\" "
+msgid "By"
+msgstr "Por"
+
+#: v4/includes/feed-processing.php:427
+msgid "The plugin failed to schedule a fetch for this feed. Please try again."
+msgstr "El plugin no ha podido programar la obtención de este feed. Inténtalo de nuevo."
+
+#: v4/includes/feed-importing.php:1214
+msgid "The URL is not valid RSS feed URL"
+msgstr "La URL no es una URL de feed RSS válida"
+
+#: v4/includes/feed-importing.php:1211
+msgid "The feed is not a valid XML document"
+msgstr "El feed no es un documento XML válido"
+
+#: v4/includes/feed-importing.php:1207
+msgid "Kindly double-check the feed URL."
+msgstr "Comprueba de nuevo la URL del feed."
+
+#: v4/includes/feed-access.php:235
+msgid "Leave blank to inherit general setting"
+msgstr "Déjalo en blanco para heredar el ajuste general"
+
+#: v4/includes/feed-access.php:214 core/js/dist/admin.js:42
+msgid "Enable feed cache"
+msgstr "Activar la caché del feed"
+
+#: v4/includes/feed-access.php:209 v4/includes/feed-access.php:234
+#: core/js/dist/admin.js:42
+msgid "Feed request useragent"
+msgstr "User-Agent de la petición del feed"
+
+#: v4/includes/cron-jobs.php:307
+msgid "Once weekly"
+msgstr "Una vez a la semana"
+
+#: v4/includes/black-friday-2021.php:26
+msgid "Offer ends on the 29th of November."
+msgstr "La oferta termina el 29 de noviembre."
+
+#: v4/includes/black-friday-2021.php:25
+msgid "Get 30% off WP RSS Aggregator plans today!"
+msgstr "¡Consigue hoy un 30 % de descuento en los planes de WP RSS Aggregator!"
+
+#: v4/includes/black-friday-2021.php:24
+msgid "Black Friday/Cyber Monday:"
+msgstr "Black Friday/Cyber Monday:"
+
+#: v4/includes/Aventura/Wprss/Core/Plugin.php:74 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:135
+msgid "Getting Started"
+msgstr "Primeros pasos"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:153
+msgid "Feed source representation is invalid"
+msgstr "La representación de la fuente de feed no es válida"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:135
+msgid "Source URL must not be empty"
+msgstr "La URL de la fuente no debe estar vacía"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:131
+msgid "Source URL is missing"
+msgstr "Falta la URL de la fuente"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:127
+msgid "Source title must not be empty"
+msgstr "El título de la fuente no debe estar vacío"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:123
+msgid "Source title is missing"
+msgstr "Falta el título de la fuente"
+
+#: v4/includes/Aventura/Wprss/Core/Model/BulkSourceImport/AbstractImporter.php:119
+msgid "A source must have at least two data members"
+msgstr "Una fuente debe tener al menos dos elementos de datos"
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:323
+msgid "The item was deleted successfully and added to the blacklist."
+msgstr "El elemento se ha borrado correctamente y se ha añadido a la lista negra."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:203
+msgid "Your settings were imported successfully"
+msgstr "Tus ajustes se importaron correctamente"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:427
+#: core/js/dist/admin.js:130
+msgid "Expires:"
+msgstr "Caduca:"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:421
+msgctxt "Number of license activations remaining"
+msgid "%s left"
+msgstr "Quedan %s"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:377
+msgid "never"
+msgstr "nunca"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:319
+msgid "Deactivate license"
+msgstr "Desactivar la licencia"
+
+#: v4/includes/admin.php:215
+msgid "Please <a href=\"%1$s\" target=\"_blank\">rate us</a>!"
+msgstr "¡Por favor, <a href=\"%1$s\" target=\"_blank\">valóranos</a>!"
+
+#: v4/includes/admin.php:211
+msgid "Thank you for using <a href=\"%1$s\" target=\"_blank\">WP RSS Aggregator</a>."
+msgstr "Gracias por usar <a href=\"%1$s\" target=\"_blank\">WP RSS Aggregator</a>."
+
+#: v4/includes/admin.php:105
+msgid "Name this feed"
+msgstr "Nombra este feed"
+
+#: v4/includes/admin-update-page.php:43
+msgid "What's new in WP RSS Aggregator"
+msgstr "¿Qué hay de nuevo en WP RSS Aggregator?"
+
+#: v4/includes/admin-update-page.php:14 v4/includes/admin-update-page.php:15
+msgid "Thank you for updating WP RSS Aggregator"
+msgstr "Gracias por actualizar WP RSS Aggregator"
+
+#: v4/includes/admin-options.php:1042
+msgid "years"
+msgstr "años"
+
+#: v4/includes/admin-options.php:1041
+msgid "months"
+msgstr "meses"
+
+#: v4/includes/admin-options.php:1040
+msgid "weeks"
+msgstr "semanas"
+
+#: v4/includes/admin-options.php:1039 core/js/dist/admin.js:42
+msgid "days"
+msgstr "días"
+
+#: v4/includes/admin-options.php:760
+msgid "Off"
+msgstr "Desactivado"
+
+#: v4/includes/admin-options.php:759
+msgid "On"
+msgstr "Activado"
+
+#: v4/includes/admin-options.php:727
+msgid "Original feed order"
+msgstr "Orden original del feed"
+
+#: v4/includes/admin-options.php:726
+msgid "Oldest items first"
+msgstr "Elementos más antiguos primero"
+
+#: v4/includes/admin-options.php:725
+msgid "Latest items first"
+msgstr "Elementos más recientes primero"
+
+#: v4/includes/admin-options.php:617
+msgid "Open custom feed"
+msgstr "Abrir feed personalizado"
+
+#: v4/includes/admin-options.php:439 core/js/dist/admin.js:42
+msgid "Only change these options if you know what you are doing!"
+msgstr "¡Cambia estas opciones solo si sabes lo que haces!"
+
+#: v4/includes/admin-options.php:428 core/js/dist/admin.js:42
+msgid "WP RSS Aggregator creates a custom RSS feed on your site that includes all of your imported items. Use the below options to set it up."
+msgstr "WP RSS Aggregator crea un feed RSS personalizado en tu sitio que incluye todos los elementos importados. Usa las opciones de abajo para configurarlo."
+
+#: v4/includes/admin-options.php:418
+msgid "Configure how WP RSS Aggregator imports RSS feed items."
+msgstr "Configura cómo WP RSS Aggregator importa los elementos del feed RSS."
+
+#: v4/includes/admin-options.php:260 core/js/dist/admin.js:42
+msgid "Advanced Settings"
+msgstr "Ajustes avanzados"
+
+#: v4/includes/admin-options.php:250
+msgid "Custom RSS Feed"
+msgstr "Feed RSS personalizado"
+
+#: v4/includes/admin-options.php:180
+msgid "Schedule future items"
+msgstr "Programar elementos futuros"
+
+#: v4/includes/admin-options.php:176
+msgid "Limit feed items per import"
+msgstr "Limitar elementos del feed por importación"
+
+#: v4/includes/admin-options.php:168
+msgid "Limit feed items stored per feed"
+msgstr "Limitar elementos del feed almacenados por feed"
+
+#: v4/includes/admin-options.php:164
+msgid "Limit items by age"
+msgstr "Limitar elementos por antigüedad"
+
+#: v4/includes/admin-options.php:160
+msgid "Import order"
+msgstr "Orden de importación"
+
+#: v4/includes/admin-options.php:152
+msgid "Update interval"
+msgstr "Intervalo de actualización"
+
+#: v4/includes/admin-options.php:123
+msgid "You do not have access to this page"
+msgstr "No tienes acceso a esta página"
+
+#: v4/includes/admin-options.php:43 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Advanced"
+msgstr "Avanzado"
+
+#: v4/includes/admin-options.php:35 core/js/dist/admin.js:42
+msgid "Custom Feed"
+msgstr "Feed personalizado"
+
+#: v4/includes/admin-options-legacy.php:21
+msgid "Display settings"
+msgstr "Ajustes de visualización"
+
+#: v4/includes/admin-metaboxes.php:771
+msgid "Limit items by age:"
+msgstr "Limitar elementos por antigüedad:"
+
+#: v4/includes/admin-metaboxes.php:347
+msgid "How to find an RSS feed"
+msgstr "Cómo encontrar un feed RSS"
+
+#: v4/includes/admin-metaboxes.php:126
+msgid "Use GUIDs"
+msgstr "Usar GUIDs"
+
+#: v4/includes/admin-metaboxes.php:120
+msgid "Use source info"
+msgstr "Usar información de la fuente"
+
+#: v4/includes/admin-metaboxes.php:52
+msgid "Share The Love"
+msgstr "Comparte el amor"
+
+#: v4/includes/admin-intro-page.php:420
+msgctxt "default name of shortcode page"
+msgid "Feeds"
+msgstr "Feeds"
+
+#: v4/includes/admin-intro-page.php:244
+msgid "Failed to retrieve items"
+msgstr "No se pudieron recuperar los elementos"
+
+#: v4/includes/admin-intro-page.php:144
+msgid "The given feed URL is invalid"
+msgstr "La URL del feed proporcionada no es válida"
+
+#: v4/includes/admin-intro-page.php:139
+msgid "Missing feed URL parameter"
+msgstr "Falta el parámetro de URL del feed"
+
+#: v4/includes/admin-help.php:261
+msgid "Users of the free version of WP RSS Aggregator can ask questions on the <a href=\"%s\">support forum</a>."
+msgstr "Los usuarios de la versión gratuita de WP RSS Aggregator pueden hacer preguntas en el <a href=\"%s\">foro de soporte</a>."
+
+#: v4/includes/admin-help.php:236
+msgid "WordPress debugging information"
+msgstr "Información de depuración de WordPress"
+
+#: v4/includes/admin-help.php:221 core/js/dist/admin.js:42
+msgid "Message"
+msgstr "Mensaje"
+
+#: v4/includes/admin-help.php:211
+msgid "Subject"
+msgstr "Asunto"
+
+#: v4/includes/admin-help.php:196
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: v4/includes/admin-help.php:111
+msgid "Premium Support"
+msgstr "Soporte Premium"
+
+#: v4/includes/admin-help.php:80
+msgid "Enable support beacon"
+msgstr "Activar la baliza de soporte"
+
+#: v4/includes/admin-help.php:77
+msgid "By enabling the help beacon, you are consenting to this data collection."
+msgstr "Al activar la baliza de ayuda, consientes esta recopilación de datos."
+
+#: v4/includes/admin-help.php:73
+msgid "Disable support beacon"
+msgstr "Desactivar la baliza de soporte"
+
+#: v4/includes/admin-help.php:71
+msgid "The support beacon is currently <b>enabled</b>."
+msgstr "La baliza de soporte está actualmente <b>activada</b>."
+
+#: v4/includes/admin-help.php:67
+msgid "The beacon only works on WP RSS Aggregator admin pages and does not track your mouse clicks and/or keyboard input."
+msgstr "La baliza solo funciona en las páginas de administración de WP RSS Aggregator y no rastrea los clics del ratón ni las pulsaciones del teclado."
+
+#: v4/includes/admin-help.php:64
+msgid "It provides access to our extensive knowledge base where you can find the answers to the most commonly asked questions."
+msgstr "Proporciona acceso a nuestra amplia base de conocimientos, donde puedes encontrar las respuestas a las preguntas más frecuentes."
+
+#: v4/includes/admin-help.php:63
+msgid "The help beacon is an interactive button that appears on the bottom-right section of WP RSS Aggregator admin pages."
+msgstr "La baliza de ayuda es un botón interactivo que aparece en la esquina inferior derecha de las páginas de administración de WP RSS Aggregator."
+
+#: v4/includes/admin-help.php:60
+msgid "Built-in Help Beacon"
+msgstr "Baliza de ayuda integrada"
+
+#: v4/includes/admin-help.php:27
+msgid "Knowledge Base"
+msgstr "Base de conocimientos"
+
+#: v4/includes/v5-switch.php:172
+msgid "Previously bought single add-ons without a plan? Those are now considered <strong>legacy licenses.</strong><br> You’ll need to  <a target=\"_blank\" href=\"%1$s\">upgrade to any plan</a> (Basic, Plus, Pro, or Elite) to keep enjoying premium features, updates, and support."
+msgstr "¿Compraste antes extensiones individuales sin un plan? Ahora se consideran <strong>licencias heredadas.</strong><br> Tendrás que  <a target=\"_blank\" href=\"%1$s\">mejorar a cualquier plan</a> (Basic, Plus, Pro o Elite) para seguir disfrutando de las funciones premium, las actualizaciones y el soporte."
+
+#: v4/includes/v5-switch.php:166
+msgid "Have Individual Add-Ons?"
+msgstr "¿Tienes extensiones individuales?"
+
+#: v4/includes/v5-switch.php:142
+msgid "To unlock the premium features in v5 and receive future updates, you’ll need an <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">active plan license.</a></strong><br> If your plan has expired, please <a target=\"_blank\" href=\"%2$s\">renew or upgrade here</a> before migrating."
+msgstr "Para desbloquear las funciones premium de la v5 y recibir actualizaciones futuras, necesitarás una <strong><a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">licencia de plan activa.</a></strong><br> Si tu plan ha caducado, <a target=\"_blank\" href=\"%2$s\">renueva o mejora aquí</a> antes de migrar."
+
+#: v4/includes/v5-switch.php:121
+msgid "Aggregator v4 and all legacy premium add-ons will officially reach end-of-life on <strong>December 31, 2025.</strong><br>After this date, they’ll no longer receive updates, support, or be available for download."
+msgstr "Aggregator v4 y todas las extensiones premium heredadas llegarán oficialmente al final de su vida útil el <strong>31 de diciembre de 2025.</strong><br>A partir de esa fecha, ya no recibirán actualizaciones ni soporte, ni estarán disponibles para descargar."
+
+#: v4/includes/v5-switch.php:116
+msgid "Version 4 & Legacy Add-Ons Retiring"
+msgstr "La versión 4 y las extensiones heredadas se retiran"
+
+#: v4/includes/v5-switch.php:60 v4/includes/v5-switch.php:66
+#: core/js/dist/admin.js:135
+msgid "Welcome to Aggregator v5"
+msgstr "Te damos la bienvenida a Aggregator v5"
+
+#: v4/includes/feed-importing.php:977
+msgid "The importing process failed after %d seconds with the message: \"%s\""
+msgstr "El proceso de importación falló tras %d segundos con el mensaje: «%s»"
+
+#: v4/includes/feed-importing.php:758
+msgid "Failed to save a feed item: %s"
+msgstr "Error al guardar un elemento del feed: %s"
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:495
+msgid "The license for the <strong>WP RSS Aggregator - %2$s</strong> add-on is about to expire. <a href=\"%1$s\">Please renew it</a> to keep receiving updates and benefit from support."
+msgstr "La licencia de la extensión <strong>WP RSS Aggregator - %2$s</strong> está a punto de caducar. <a href=\"%1$s\">Renuévala</a> para seguir recibiendo actualizaciones y beneficiarte del soporte."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:447
+msgid "The license key for the <strong>WP RSS Aggregator - %2$s</strong> add-on is saved but not activated. In order to benefit from updates and support, it must be <a href=\"%1$s\">activated</a>."
+msgstr "La clave de licencia de la extensión <strong>WP RSS Aggregator - %2$s</strong> está guardada pero no activada. Para beneficiarte de actualizaciones y soporte, debe ser <a href=\"%1$s\">activada</a>."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:402
+msgid "Remember to <a href=\"%1$s\">enter your license key</a> for the <strong>WP RSS Aggregator - %2$s</strong> add-on to benefit from updates and support."
+msgstr "Recuerda <a href=\"%1$s\">introducir tu clave de licencia</a> de la extensión <strong>WP RSS Aggregator - %2$s</strong> para beneficiarte de actualizaciones y soporte."
+
+#: v4/includes/admin-intro-page.php:326
+msgid "Failed to import the feed source \"%s\" with URL \"%s\""
+msgstr "Falló la importación de la fuente de feed «%s» con la URL «%s»"
+
+#: v4/includes/admin-intro-page.php:112
+msgid "Missing intro step param \"%s\""
+msgstr "Falta el parámetro del paso de introducción «%s»"
+
+#: v4/includes/admin-help.php:113
+msgid "Contact us <a href=\"%s\" target=\"%s=\">here</a> for pre-sales and premium support."
+msgstr "Contáctanos <a href=\"%s\" target=\"%s=\">aquí</a> para soporte de preventa y premium."
+
+#: v4/includes/admin-help.php:44
+msgid "If after going through the knowledge base you still have questions, please take a look at the <a href=\"%s\">FAQ section</a>. We set this up purposely to answer the most commonly asked questions from our users."
+msgstr "Si después de consultar la base de conocimientos todavía tienes preguntas, echa un vistazo a la <a href=\"%s\">sección de FAQ</a>. La hemos creado a propósito para responder a las preguntas más habituales de nuestros usuarios."
+
+#: v4/includes/admin-help.php:31
+msgid ""
+"In the <a href=\"%s\">WP RSS Aggregator knowledge base</a> you will find comprehensive details and tutorials on how to use the core plugin and all the add-ons.\n"
+"\n"
+"                            There are also some videos to help you make a quick start to setting up and enjoying this plugin."
+msgstr ""
+"En la <a href=\"%s\">base de conocimiento de WP RSS Aggregator</a> encontrarás detalles completos y tutoriales sobre cómo usar el plugin principal y todos los complementos.\n"
+"\n"
+"                            También hay algunos vídeos para ayudarte a empezar rápidamente a configurar y disfrutar de este plugin."
+
+#: v4/includes/admin-help-settings.php:194
+msgid ""
+"Check this box to disable all plugin styles used for displaying feed items.\n"
+"\n"
+"This will allow you to provide your own custom CSS styles for displaying the feed items."
+msgstr ""
+"Marca esta casilla para desactivar todos los estilos del plugin usados para mostrar los elementos del feed.\n"
+"\n"
+"Esto te permitirá proporcionar tus propios estilos CSS personalizados para mostrar los elementos del feed."
+
+#: v4/includes/admin-help-settings.php:137
+msgid ""
+"The maximum number of feed items to display when using the shortcode.\n"
+"\n"
+"This enables pagination if set to a number smaller than the number of items to be displayed."
+msgstr ""
+"El número máximo de elementos del feed a mostrar al usar el shortcode.\n"
+"\n"
+"Esto habilita la paginación si se establece en un número menor que el de elementos a mostrar."
+
+#: v4/includes/admin-help-settings.php:128
+msgid ""
+"The type of pagination to use when showing feed items on multiple pages.\n"
+"\n"
+"The first shows two links, \"Older\" and \"Newer\", which allow you to navigate through the pages.\n"
+"\n"
+"The second shows links for all the pages, together with links for the next and previous pages."
+msgstr ""
+"El tipo de paginación a usar al mostrar elementos del feed en varias páginas.\n"
+"\n"
+"El primero muestra dos enlaces, «Anteriores» y «Más recientes», que te permiten navegar por las páginas.\n"
+"\n"
+"El segundo muestra enlaces a todas las páginas, junto con enlaces a las páginas siguiente y anterior."
+
+#: v4/includes/admin-help-settings.php:219
+msgid ""
+"The user agent string that WP RSS Aggregator uses for feed requests.\n"
+"\n"
+"You should leave this blank. Only change it if you know what you're doing.\n"
+"<hr/>\n"
+"\n"
+"<strong>Important:</strong> Do not use this option to circumvent any security mechanisms that an RSS feed server may have put in place. Servers reserve the right to block you or WP RSS Aggregator.\n"
+"\n"
+"Attempting to bypass such blocks may result in legal action being taken against you. WP RSS Aggregator will not be held liable for misuse of this setting."
+msgstr ""
+"La cadena de agente de usuario que WP RSS Aggregator usa para las peticiones del feed.\n"
+"\n"
+"Deberías dejarlo en blanco. Solo cámbialo si sabes lo que haces.\n"
+"<hr/>\n"
+"\n"
+"<strong>Importante:</strong> No uses esta opción para eludir ningún mecanismo de seguridad que un servidor de feed RSS haya puesto en marcha. Los servidores se reservan el derecho de bloquearte a ti o a WP RSS Aggregator.\n"
+"\n"
+"Intentar eludir esos bloqueos puede dar lugar a acciones legales contra ti. WP RSS Aggregator no se hará responsable del uso indebido de este ajuste."
+
+#: v4/includes/admin-help-settings.php:207
+msgid ""
+"Path to the file containing one or more certificates.\n"
+"\n"
+"These will be used to verify certificates over secure connection, such as when fetching a remote resource over HTTPS.\n"
+"\n"
+"Relative path will be relative to the WordPress root.\n"
+"\n"
+"<strong>Default:</strong> path to certificate file bundled with WordPress."
+msgstr ""
+"Ruta al archivo que contiene uno o más certificados.\n"
+"\n"
+"Se usarán para verificar certificados en conexiones seguras, como al obtener un recurso remoto mediante HTTPS.\n"
+"\n"
+"Una ruta relativa lo será respecto a la raíz de WordPress.\n"
+"\n"
+"<strong>Predeterminado:</strong> ruta al archivo de certificados incluido con WordPress."
+
+#: v4/includes/admin-help-settings.php:182
+msgid ""
+"Enable this option to show the elapsed time from the feed item's date and time to the present time.\n"
+"<em>Eg. 2 hours ago</em>"
+msgstr ""
+"Activa esta opción para mostrar el tiempo transcurrido desde la fecha y hora del elemento del feed hasta el momento actual.\n"
+"<em>Ej. hace 2 horas</em>"
+
+#: v4/includes/admin-help-settings.php:149
+msgid ""
+"Enable this option to set all links displayed as \"NoFollow\".\n"
+"<hr/>\n"
+"\n"
+"\"Nofollow\" provides a way to tell search engines to <em>not</em> follow certain links, such as links to feed items in this case."
+msgstr ""
+"Activa esta opción para establecer todos los enlaces mostrados como «NoFollow».\n"
+"<hr/>\n"
+"\n"
+"«Nofollow» permite indicar a los motores de búsqueda que <em>no</em> sigan ciertos enlaces, como los enlaces a elementos del feed en este caso."
+
+#: v4/includes/admin-help-metaboxes.php:130
+msgid ""
+"Use this option if you are seeing an <q>Invalid feed URL</q> error in the Feed Preview above, but you are sure that the URL is correct.\n"
+"\n"
+"Note, however, that this will disable auto-discovery, meaning that the given URL must be an RSS feed URL. Using the site's URL will not work."
+msgstr ""
+"Usa esta opción si ves un error de <q>URL de feed no válida</q> en la vista previa del feed de arriba, pero estás seguro de que la URL es correcta.\n"
+"\n"
+"Ten en cuenta, no obstante, que esto desactivará el auto-descubrimiento, lo que significa que la URL dada debe ser una URL de feed RSS. Usar la URL del sitio no funcionará."
+
+#: v4/includes/admin-help-metaboxes.php:98
+msgid ""
+"You can set a time, in UTC, in the future when the feed source will become paused, if it is active.\n"
+"\n"
+"Leave blank to never pause."
+msgstr ""
+"Puedes establecer una hora, en UTC, en el futuro en la que la fuente de feed se pondrá en pausa, si está activa.\n"
+"\n"
+"Déjalo en blanco para no pausarla nunca."
+
+#: v4/includes/admin-help-metaboxes.php:90
+msgid ""
+"You can set a time, in UTC, in the future when the feed source will become active, if it is paused.\n"
+"\n"
+"Leave blank to activate immediately."
+msgstr ""
+"Puedes establecer una hora, en UTC, en el futuro en la que la fuente de feed se activará, si está en pausa.\n"
+"\n"
+"Déjalo en blanco para activarla de inmediato."
+
+#: v4/includes/admin-help-settings.php:79
+msgid ""
+"Whether to allow multiple feed items to have the same title. When checked, if a feed item has the same title as a previously-imported feed item from any feed source, it will not be imported.\n"
+"\n"
+"This can be useful in cases where permalinks change, or where multiple permalinks refer to the same item.\n"
+"\n"
+"Since this feature requires checking every post title, WordPress installs with a significant amount of posts may notice a slight slowdown of the post import process."
+msgstr ""
+"Si se permite que varios elementos del feed tengan el mismo título. Si está marcado, si un elemento del feed tiene el mismo título que un elemento importado previamente desde cualquier fuente de feed, no se importará.\n"
+"\n"
+"Esto puede ser útil cuando los enlaces permanentes cambian, o cuando varios enlaces permanentes se refieren al mismo elemento.\n"
+"\n"
+"Como esta función requiere comprobar el título de cada entrada, las instalaciones de WordPress con una cantidad significativa de entradas pueden notar una ligera ralentización del proceso de importación de entradas."
+
+#: v4/includes/admin-help-settings.php:73
+msgid ""
+"How frequently should the feed sources (that do not have their own update interval) check for updates and fetch items accordingly.\n"
+"\n"
+"It is recommended to not have more than 20 feed sources that use this global update interval. Having too many feed sources updating precisely at the same time can cause the WP Cron System to crash."
+msgstr ""
+"Con qué frecuencia las fuentes de feed (que no tienen su propio intervalo de actualización) deben comprobar si hay actualizaciones y obtener elementos en consecuencia.\n"
+"\n"
+"Se recomienda no tener más de 20 fuentes de feed que usen este intervalo de actualización global. Tener demasiadas fuentes de feed actualizándose exactamente al mismo tiempo puede hacer que el sistema WP Cron se caiga."
+
+#: v4/includes/admin-help-metaboxes.php:80
+msgid ""
+"State of the feed, active or paused.\n"
+"\n"
+"If active, the feed source will fetch items periodically, according to the settings below.\n"
+"\n"
+"If paused, the feed source will not fetch feed items periodically."
+msgstr ""
+"Estado del feed, activo o en pausa.\n"
+"\n"
+"Si está activo, la fuente de feed obtendrá elementos periódicamente, según los ajustes de abajo.\n"
+"\n"
+"Si está en pausa, la fuente de feed no obtendrá elementos del feed periódicamente."
+
+#: v4/includes/admin-help-metaboxes.php:66
+msgid ""
+"Tick this box to get the site name and URL from the RSS feed, for each item individually.\n"
+"\n"
+"This option is useful when importing from aggregated RSS feeds that have items from different sources.\n"
+"\n"
+"If the RSS feed does not provide source information for its items, the name and URL that you have given for the feed source will be used instead."
+msgstr ""
+"Marca esta casilla para obtener el nombre y la URL del sitio desde el feed RSS, para cada elemento individualmente.\n"
+"\n"
+"Esta opción es útil al importar desde feeds RSS agregados que tienen elementos de distintas fuentes.\n"
+"\n"
+"Si el feed RSS no proporciona información de origen para sus elementos, se usarán en su lugar el nombre y la URL que hayas indicado para la fuente de feed."
+
+#: v4/includes/admin-help-metaboxes.php:59
+msgid ""
+"Enable this option to identify duplicate feed items by their GUIDs, rather than by their permalink.\n"
+"\n"
+"This can be useful when the feed items share the same permalink, and so not all feed items would get imported."
+msgstr ""
+"Activa esta opción para identificar elementos del feed duplicados por sus GUID, en lugar de por su enlace permanente.\n"
+"\n"
+"Esto puede ser útil cuando los elementos del feed comparten el mismo enlace permanente, y por tanto no se importarían todos los elementos del feed."
+
+#: v4/includes/admin-help-metaboxes.php:50
+msgid ""
+"Enable this option to link the feed source name to the RSS feed's source site.\n"
+"\n"
+"Selecting \"Default\" will cause the value chosen in the general Source Display Settings to be used.\n"
+"\n"
+"This option only applies when using the shortcode to output feed items."
+msgstr ""
+"Activa esta opción para enlazar el nombre de la fuente de feed al sitio de origen del feed RSS.\n"
+"\n"
+"Al seleccionar «Predeterminado» se usará el valor elegido en los ajustes generales de visualización de la fuente.\n"
+"\n"
+"Esta opción solo se aplica al usar el shortcode para mostrar elementos del feed."
+
+#: v4/includes/admin-help-metaboxes.php:43
+msgid ""
+"Whether to allow multiple feed items to have the same title. When checked, if a feed item has the same title as a previously-imported feed item, it will not be imported.\n"
+"\n"
+"This can be useful in cases where permalinks change, or where multiple permalinks refer to the same item."
+msgstr ""
+"Si se permite que varios elementos del feed tengan el mismo título. Si está marcado, si un elemento del feed tiene el mismo título que un elemento importado previamente, no se importará.\n"
+"\n"
+"Esto puede ser útil cuando los enlaces permanentes cambian, o cuando varios enlaces permanentes se refieren al mismo elemento."
+
+#: v4/includes/admin-help-metaboxes.php:34
+msgid ""
+"Tick this box to make imported items link to their enclosure, rather than to the original article.\n"
+"\n"
+"Enclosures are typically links to attachments, such as images, audio, videos, documents or flash content.\n"
+"\n"
+"If you are not sure, leave this option unticked."
+msgstr ""
+"Marca esta casilla para que los elementos importados enlacen a su enclosure, en lugar de al artículo original.\n"
+"\n"
+"Los enclosures suelen ser enlaces a archivos adjuntos, como imágenes, audio, vídeos, documentos o contenido Flash.\n"
+"\n"
+"Si no estás seguro, deja esta opción sin marcar."
+
+#: v4/includes/admin-help-metaboxes.php:25
+msgid ""
+"The maximum number of imported items from this feed to keep stored.\n"
+"\n"
+"When new items are imported and the limit is exceeded, the oldest feed items will be deleted to make room for new ones.\n"
+"\n"
+"If you already have items imported from this feed source, setting this option now may delete some of your items, in order to comply with the limit."
+msgstr ""
+"El número máximo de elementos importados de este feed a conservar almacenados.\n"
+"\n"
+"Cuando se importen elementos nuevos y se supere el límite, se eliminarán los elementos del feed más antiguos para hacer sitio a los nuevos.\n"
+"\n"
+"Si ya tienes elementos importados de esta fuente de feed, establecer esta opción ahora puede eliminar algunos de tus elementos, para cumplir con el límite."
+
+#: v4/includes/admin-help-metaboxes.php:114
+msgid ""
+"The maximum age allowed for feed items. Very useful if you are only concerned with, say, last week's news.\n"
+"\n"
+"Items already imported will be deleted if they eventually exceed this age limit.\n"
+"\n"
+"Also, items in the RSS feed that are already older than this age will not be imported at all.\n"
+"\n"
+"Leave empty to use the <em>Limit feed items by age</em> option in the general settings."
+msgstr ""
+"La antigüedad máxima permitida para los elementos del feed. Muy útil si solo te interesan, por ejemplo, las noticias de la última semana.\n"
+"\n"
+"Los elementos ya importados se eliminarán si acaban superando este límite de antigüedad.\n"
+"\n"
+"Además, los elementos del feed RSS que ya sean más antiguos que esta antigüedad no se importarán en absoluto.\n"
+"\n"
+"Déjalo vacío para usar la opción <em>Limitar elementos del feed por antigüedad</em> de los ajustes generales."
+
+#: v4/includes/admin-help-metaboxes.php:106
+msgid ""
+"How frequently the feed source should check for new items and fetch if needed.\n"
+"\n"
+"If left as <em>Default</em>, the interval in the global settings is used."
+msgstr ""
+"Con qué frecuencia la fuente de feed debe comprobar si hay elementos nuevos y obtenerlos si es necesario.\n"
+"\n"
+"Si se deja como <em>Predeterminado</em>, se usa el intervalo de los ajustes globales."
+
+#: v4/includes/admin-help-metaboxes.php:18
+msgid ""
+"The URL of the feed source. In most cases, the URL of the site will also work, but for best results we recommend trying to find the URL of the RSS feed.\n"
+"\n"
+"Also include the <code>http://</code> or <code>https://</code> prefix in the URL."
+msgstr ""
+"La URL de la fuente de feed. En la mayoría de los casos, la URL del sitio también funcionará, pero para mejores resultados recomendamos intentar encontrar la URL del feed RSS.\n"
+"\n"
+"Incluye también el prefijo <code>http://</code> o <code>https://</code> en la URL."
+
+#: v4/includes/admin-help-settings.php:114
+msgid ""
+"Set the maximum number of characters to show for feed item titles.\n"
+"<hr/>\n"
+"\n"
+"<em>Leave empty for no limit.</em>"
+msgstr ""
+"Establece el número máximo de caracteres a mostrar en los títulos de los elementos del feed.\n"
+"<hr/>\n"
+"\n"
+"<em>Déjalo vacío para no poner límite.</em>"
+
+#: v4/includes/admin-help-settings.php:98
+msgid ""
+"The title of the custom feed.\n"
+"\n"
+"This title will be included in the RSS source of the custom feed, in a <code>&lt;title&gt;</code> tag."
+msgstr ""
+"El título del feed personalizado.\n"
+"\n"
+"Este título se incluirá en la fuente RSS del feed personalizado, en una etiqueta <code>&lt;title&gt;</code>."
+
+#: v4/includes/admin-help-settings.php:66
+msgid ""
+"If ticked, items with future dates will be scheduled to be published later. Leave unticked to always publish items immediately.\n"
+"<hr/>\n"
+"\n"
+"Default: <em>Off</em>"
+msgstr ""
+"Si está marcado, los elementos con fechas futuras se programarán para publicarse más tarde. Déjalo desmarcado para publicar siempre los elementos de inmediato.\n"
+"<hr/>\n"
+"\n"
+"Por defecto: <em>Desactivado</em>"
+
+#: v4/includes/admin-help-settings.php:40
+msgid ""
+"The maximum amount of items to process per import.\n"
+"<hr/>\n"
+"\n"
+"Will not process more than this amount of items every time the feed source updates, regardless of other settings.\n"
+"\n"
+"The frequency of updates is determined by the feed processing interval.\n"
+"<hr/>\n"
+"\n"
+"<em>Leave empty for no limit.</em>"
+msgstr ""
+"La cantidad máxima de elementos a procesar por importación.\n"
+"<hr/>\n"
+"\n"
+"No procesará más de esta cantidad de elementos cada vez que se actualice la fuente del feed, independientemente de otros ajustes.\n"
+"\n"
+"La frecuencia de las actualizaciones la determina el intervalo de procesamiento del feed.\n"
+"<hr/>\n"
+"\n"
+"<em>Déjalo vacío para no establecer un límite.</em>"
+
+#: v4/includes/admin-help-settings.php:88
+msgid ""
+"The URL of the custom feed, located at <code>https://yoursite.com/[custom feed url]</code>.\n"
+"<hr/>\n"
+"\n"
+"WP RSS Aggregator allows you to create a custom RSS feed, that contains all of your imported feed items. This setting allows you to change the URL of this custom feed.\n"
+"\n"
+"<hr/>\n"
+"\n"
+"<strong>Note:</strong> You may be required to refresh you Permalinks after you change this setting, by going to <em>Settings <i class=\"fa fa-angle-right\"></i> Permalinks</e> and clicking <em>Save</em>."
+msgstr ""
+"La URL del feed personalizado, ubicada en <code>https://yoursite.com/[custom feed url]</code>.\n"
+"<hr/>\n"
+"\n"
+"WP RSS Aggregator te permite crear un feed RSS personalizado que contiene todos los elementos de feed importados. Este ajuste te permite cambiar la URL de este feed personalizado.\n"
+"\n"
+"<hr/>\n"
+"\n"
+"<strong>Nota:</strong> Puede que tengas que actualizar los enlaces permanentes después de cambiar este ajuste, yendo a <em>Ajustes <i class=\"fa fa-angle-right\"></i> Enlaces permanentes</e> y haciendo clic en <em>Guardar</em>."
+
+#: v4/includes/admin-help-settings.php:51
+msgid ""
+"The order in which feed items will be imported.\n"
+"<hr />\n"
+"\n"
+"<strong>Latest items first</strong> will import the most recent items in the feed first.\n"
+"<strong>Oldest items first</strong> will import the oldest items in the feed first.\n"
+"<strong>Original feed order</strong> only works well on PHP7 or later.\n"
+"\n"
+"This setting is very useful in combination with the per-import limit.\n"
+"<hr />\n"
+"\n"
+"Default: <em>Latest items first</em>"
+msgstr ""
+"El orden en el que se importarán los elementos del feed.\n"
+"<hr />\n"
+"\n"
+"<strong>Elementos más recientes primero</strong> importará primero los elementos más recientes del feed.\n"
+"<strong>Elementos más antiguos primero</strong> importará primero los elementos más antiguos del feed.\n"
+"<strong>Orden original del feed</strong> solo funciona bien con PHP7 o posterior.\n"
+"\n"
+"Este ajuste es muy útil en combinación con el límite por importación.\n"
+"<hr />\n"
+"\n"
+"Por defecto: <em>Elementos más recientes primero</em>"
+
+#: v4/includes/admin-help-settings.php:29
+msgid ""
+"The maximum number of imported items to keep stored, for feed sources that do not have their own limit.\n"
+"<hr/>\n"
+"\n"
+"When new items are imported and the limit for a feed source is exceeded, the oldest feed items for that feed source will be deleted to make room for the new ones.\n"
+"\n"
+"If you already have items imported from this feed source, setting this option now may delete some of your items, in order to comply with the limit.\n"
+"<hr/>\n"
+"\n"
+"<em>Use 0 or leave empty for no limit.</em>"
+msgstr ""
+"El número máximo de elementos importados a mantener almacenados, para fuentes de feed que no tienen su propio límite.\n"
+"<hr/>\n"
+"\n"
+"Cuando se importan elementos nuevos y se supera el límite de una fuente de feed, se eliminarán los elementos de feed más antiguos de esa fuente de feed para hacer sitio a los nuevos.\n"
+"\n"
+"Si ya tienes elementos importados de esta fuente de feed, activar esta opción ahora puede eliminar algunos de tus elementos, para cumplir con el límite.\n"
+"<hr/>\n"
+"\n"
+"<em>Usa 0 o déjalo vacío para no establecer un límite.</em>"
+
+#: v4/includes/admin-help-settings.php:18
+msgid ""
+"The maximum age allowed for feed items.\n"
+"<hr/>\n"
+"\n"
+"Items already imported will be deleted if they eventually exceed this age limit.\n"
+"\n"
+"Also, items in the RSS feed that are already older than this age will not be imported at all.\n"
+"<hr/>\n"
+"\n"
+"<em>Leave empty for no limit.</em>"
+msgstr ""
+"La antigüedad máxima permitida para los elementos del feed.\n"
+"<hr/>\n"
+"\n"
+"Los elementos ya importados se eliminarán si llegan a superar este límite de antigüedad.\n"
+"\n"
+"Además, los elementos del feed RSS que ya superen esta antigüedad no se importarán.\n"
+"<hr/>\n"
+"\n"
+"<em>Déjalo vacío para no establecer ningún límite.</em>"
+
+#: v4/src/Modules/LogsToolModule.php:33
+msgid "Logs"
+msgstr "Registros"
+
+#: v4/includes/admin-heartbeat.php:41
+msgctxt "Next update: now"
+msgid "now"
+msgstr "ahora"
+
+#: v4/includes/admin-editor.php:204
+msgid "Starting page"
+msgstr "Página inicial"
+
+#: v4/includes/admin-editor.php:197
+msgid "Choose whether to show or hide pagination controls"
+msgstr "Elige si mostrar u ocultar los controles de paginación"
+
+#: v4/includes/admin-editor.php:193
+msgid "Disabled"
+msgstr "Desactivado"
+
+#: v4/includes/admin-editor.php:192
+msgid "Enabled"
+msgstr "Activado"
+
+#: v4/includes/admin-editor.php:180 v4/includes/admin-editor.php:191
+#: v4/includes/admin-editor.php:210
+msgid "Use template setting"
+msgstr "Usar ajuste de plantilla"
+
+#: v4/includes/admin-editor.php:174 core/js/dist/admin.js:42
+msgid "Number of items"
+msgstr "Número de elementos"
+
+#: v4/includes/admin-editor.php:152
+msgid "Choose which feed sources to show:"
+msgstr "Elige qué fuentes de feed mostrar:"
+
+#: v4/includes/admin-editor.php:147
+msgid "You may choose to exclude some feed sources:"
+msgstr "Puedes elegir excluir algunas fuentes de feed:"
+
+#: v4/includes/admin-editor.php:120 v4/src/Modules/FeedTemplatesModule.php:131
+msgid "Template"
+msgstr "Plantilla"
+
+#: v4/includes/admin-editor.php:108
+msgid "To select more than one feed source, click and drag with your mouse pointer or click individual feed sources while holding down the Ctrl (Windows) or Command (Mac) key."
+msgstr "Para seleccionar más de una fuente de feed, haz clic y arrastra con el puntero del ratón o haz clic en fuentes de feed individuales manteniendo pulsada la tecla Ctrl (Windows) o Command (Mac)."
+
+#: v4/includes/admin-display.php:819
+msgid "Get started today."
+msgstr "Empieza hoy mismo."
+
+#: core/modules/admin.php:133 v4/includes/admin-display.php:818
+#: v4/src/Modules/UpsellModule.php:292 core/js/dist/admin.js:21
+#: core/js/dist/admin.js:137
+msgid "Upgrade"
+msgstr "Mejorar"
+
+#: v4/includes/admin-display.php:813
+msgid "Build a comprehensive content hub with WordPress."
+msgstr "Crea un centro de contenido completo con WordPress."
+
+#: v4/includes/admin-display.php:812
+msgid "Content Hub"
+msgstr "Centro de contenido"
+
+#: v4/includes/admin-display.php:807
+msgid "All the features you need, directly on your site."
+msgstr "Todas las funciones que necesitas, directamente en tu sitio."
+
+#: v4/includes/admin-display.php:806
+msgid "News Aggregator"
+msgstr "Agregador de noticias"
+
+#: v4/includes/admin-display.php:558 v4/includes/admin-display.php:609
+msgid "Source ID was not specified"
+msgstr "No se ha especificado el ID de la fuente"
+
+#: v4/includes/admin-display.php:526 v4/includes/admin-display.php:576
+msgid "Failed to schedule cron"
+msgstr "Error al programar el cron"
+
+#: v4/includes/admin-display.php:497
+msgid "Could not schedule fetch: feed source ID is invalid or was not specified"
+msgstr "No se ha podido programar la obtención: el ID de la fuente de feed no es válido o no se ha especificado"
+
+#: v4/includes/admin-display.php:492
+msgid "Could not schedule fetch for feed source: nonce is invalid."
+msgstr "No se ha podido programar la obtención de la fuente de feed: el nonce no es válido."
+
+#: v4/includes/admin-display.php:487
+msgid "Could not schedule fetch for feed source: user must have sufficient privileges."
+msgstr "No se ha podido programar la obtención de la fuente de feed: el usuario debe tener privilegios suficientes."
+
+#: v4/includes/admin-display.php:197
+msgid "Fetch"
+msgstr "Obtener"
+
+#: v4/includes/admin-display.php:184
+msgid "items"
+msgstr "elementos"
+
+#: v4/includes/admin-display.php:179
+msgid "View the imported items for this feed source"
+msgstr "Ver los elementos importados de esta fuente de feed"
+
+#: v4/includes/admin-display.php:145
+msgctxt "Example: \"15 new\""
+msgid "items"
+msgstr "elementos"
+
+#: v4/includes/admin-display.php:134
+msgctxt "Example: \"Updated 2 days ago\""
+msgid "Updated"
+msgstr "Actualizado"
+
+#: v4/includes/admin-display.php:124
+msgid "Next update in"
+msgstr "Próxima actualización en"
+
+#: v4/includes/admin-display.php:114 v4/includes/admin-heartbeat.php:44
+msgid "..."
+msgstr "..."
+
+#: v4/includes/admin-display.php:81
+msgid "YouTube Feed"
+msgstr "Feed de YouTube"
+
+#: v4/includes/admin-display.php:76
+msgid "Normal RSS Feed"
+msgstr "Feed RSS normal"
+
+#: v4/includes/admin-display.php:58
+msgid "Activate or pause auto importing for this feed"
+msgstr "Activar o pausar la importación automática de este feed"
+
+#: v4.php:1088
+msgid "Click here to learn more."
+msgstr "Haz clic aquí para saber más."
+
+#: v4.php:816
+msgid "WP RSS Aggregator - PHP version error"
+msgstr "WP RSS Aggregator - Error de versión de PHP"
+
+#: v4.php:806
+msgctxt "the \"%s\" part is a link with text = \"contact support\""
+msgid "Kindly contact your hosting provider to upgrade your PHP version or %s for more information."
+msgstr "Contacta con tu proveedor de alojamiento para actualizar la versión de PHP o %s para más información."
+
+#: v4.php:801
+msgid "The plugin requires version %s or later and your site's PHP version is %s."
+msgstr "El plugin requiere la versión %s o posterior y la versión de PHP de tu sitio es %s."
+
+#: v4.php:793
+msgctxt "Used like \"Kindly contact your hosting provider or contact support for more information.\""
+msgid "contact support"
+msgstr "contacta con el soporte"
+
+#: v4.php:789
+msgid "WP RSS Aggregator has been deactivated."
+msgstr "WP RSS Aggregator se ha desactivado."
+
+#: v4.php:788
+msgid "WP RSS Aggregator cannot be activated."
+msgstr "WP RSS Aggregator no se puede activar."
+
+#: v4.php:735 v4.php:837
+msgid "As of version 4.13, WP RSS Aggregator will stop supporting PHP 5.3 and will require PHP 5.4 or later. Kindly contact your site's hosting provider for PHP version update options."
+msgstr "A partir de la versión 4.13, WP RSS Aggregator dejará de ser compatible con PHP 5.3 y requerirá PHP 5.4 o posterior. Contacta con el proveedor de alojamiento de tu sitio para ver las opciones de actualización de la versión de PHP."
+
+#: v4.php:593
+msgid "Stack trace:"
+msgstr "Traza de la pila:"
+
+#: v4.php:585
+msgid "Error Message:"
+msgstr "Mensaje de error:"
+
+#: v4.php:581
+msgid "Click to show error details"
+msgstr "Haz clic para mostrar los detalles del error"
+
+#: v4.php:565
+msgid "Caused by:"
+msgstr "Causado por:"
+
+#: v4.php:536
+msgid "WP RSS Aggregator Error"
+msgstr "Error de WP RSS Aggregator"
+
+#: v4.php:526
+msgid "<b>WP RSS Aggregator</b> has encountered a critical error. The safest course of action is to deactivate the plugin and any of its add-ons on this site using the button below. Once you’ve done that, you may reactivate them and start using the plugins again. If the problem persists, please copy the below error and send it to our support team with an explanation of when and how it happened."
+msgstr "<b>WP RSS Aggregator</b> ha encontrado un error crítico. Lo más seguro es desactivar el plugin y cualquiera de sus complementos en este sitio con el botón de abajo. Una vez hecho eso, puedes volver a activarlos y empezar a usar los plugins de nuevo. Si el problema persiste, copia el error de abajo y envíalo a nuestro equipo de soporte con una explicación de cuándo y cómo ocurrió."
+
+#: v4.php:482
+msgid "<b>WP RSS Aggregator</b> has encountered an error. If this problem persists, kindly contact customer support and provide the following details:"
+msgstr "<b>WP RSS Aggregator</b> ha encontrado un error. Si el problema persiste, contacta con el soporte al cliente y facilita los siguientes detalles:"
+
+#: v4.php:462
+msgid "Attempted to load an invalid WP RSS Aggregator module"
+msgstr "Se ha intentado cargar un módulo de WP RSS Aggregator no válido"
+
+#: core/src/V4/V4TemplatesMigrator.php:149
+#: core/src/V4/V4TemplatesMigrator.php:200
+#: v4/src/Modules/FeedTemplatesModule.php:439
+#: v4/src/Templates/Feeds/MasterFeedsTemplate.php:289
+#: v4/src/Templates/Feeds/Types/ListTemplateType.php:109
+msgid "By"
+msgstr "Por"
+
+#: core/src/V4/V4TemplatesMigrator.php:145
+#: core/src/V4/V4TemplatesMigrator.php:202
+#: v4/src/Modules/FeedTemplatesModule.php:441
+#: v4/src/Templates/Feeds/MasterFeedsTemplate.php:291
+#: v4/src/Templates/Feeds/Types/ListTemplateType.php:117
+msgid "Published on:"
+msgstr "Publicado el:"
+
+#: core/src/V4/V4TemplatesMigrator.php:142
+#: core/src/V4/V4TemplatesMigrator.php:197
+#: v4/src/Modules/FeedTemplatesModule.php:436
+#: v4/src/Templates/Feeds/MasterFeedsTemplate.php:286
+#: v4/src/Templates/Feeds/Types/ListTemplateType.php:97
+#: core/js/dist/admin.js:82
+msgid "Source:"
+msgstr "Fuente:"
+
+#: core/src/Utils/Strings.php:166
+msgctxt "DO NOT TRANSLATE. Change to \"characters\" for Eastern languages"
+msgid "words"
+msgstr "palabras"
+
+#: core/src/Utils/Result.php:107
+msgid "An unknown error occurred"
+msgstr "Se ha producido un error desconocido"
+
+#: core/src/Utils/Result.php:76
+msgid "The result list is empty"
+msgstr "La lista de resultados está vacía"
+
+#: core/src/Tier.php:26 core/js/dist/admin.js:42 core/js/dist/admin.js:130
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: core/src/Tier.php:24 core/js/dist/admin.js:13 core/js/dist/admin.js:130
+msgid "Elite"
+msgstr "Elite"
+
+#: core/src/Tier.php:22 core/js/dist/admin.js:13 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Pro"
+msgstr "Pro"
+
+#: core/src/Tier.php:20 core/js/dist/admin.js:13
+msgid "Plus"
+msgstr "Plus"
+
+#: core/src/Tier.php:18 core/js/dist/admin.js:13 core/js/dist/admin.js:130
+msgid "Basic"
+msgstr "Básico"
+
+#: core/src/Tier.php:16 core/js/dist/admin.js:13 core/js/dist/admin.js:42
+msgid "Free"
+msgstr "Gratis"
+
+#: core/src/Store/WpPostsStore.php:665
+msgctxt "The recorded note when an imported post is deleted and rejected. %s = post title"
+msgid "Rejected after deletion: %s"
+msgstr "Rechazado tras la eliminación: %s"
+
+#: core/src/Store/WpPostsStore.php:233
+msgid "Post #%s does not exist or is not imported by WP RSS Aggregator"
+msgstr "La entrada #%s no existe o no ha sido importada por WP RSS Aggregator"
+
+#: core/src/Store/SourcesStore.php:416
+msgid "Cannot replace source with no ID"
+msgstr "No se puede reemplazar la fuente sin ID"
+
+#: core/src/Store/SourcesStore.php:54
+msgid "Source with ID %d not found"
+msgstr "No se ha encontrado la fuente con ID %d"
+
+#: core/src/Store/ProgressStore.php:59
+msgid "Progress with ID %s not found"
+msgstr "No se ha encontrado el progreso con ID %s"
+
+#: core/src/Store/DisplaysStore.php:186
+msgid "Cannot replace display with no ID"
+msgstr "No se puede reemplazar la visualización sin ID"
+
+#: core/src/Store/DisplaysStore.php:52
+msgid "Display with ID %d not found"
+msgstr "No se ha encontrado la visualización con ID %d"
+
+#: core/src/RssReader/SimplePie/SpRssReader.php:450
+msgid "The feed could not be fetched. Kindly check if the feed URL is correct."
+msgstr "No se ha podido obtener el feed. Comprueba si la URL del feed es correcta."
+
+#: core/src/RssReader/SimplePie/SpRssReader.php:132
+#: core/src/RssReader/SimplePie/SpRssReader.php:168
+msgctxt "The title to show for found RSS feeds without a name"
+msgid "Unnamed feed"
+msgstr "Feed sin nombre"
+
+#: core/modules/admin.php:333 core/modules/aiHubPromotionalNotice.php:107
+#: core/src/Rpc/RpcServer.php:81 v4/src/RestApi/EndPointManager.php:94
+msgid "Unauthorized"
+msgstr "No autorizado"
+
+#: core/src/Rpc/Handlers/RpcWpHandler.php:119
+msgid "Returned an error: HTTP "
+msgstr "Ha devuelto un error: HTTP "
+
+#: core/src/Rpc/Handlers/RpcWpHandler.php:113
+msgid "Connection failed, please try again."
+msgstr "La conexión ha fallado, inténtalo de nuevo."
+
+#: core/src/Rpc/Handlers/RpcWpHandler.php:98
+msgid "Email is not valid"
+msgstr "El correo electrónico no es válido"
+
+#: core/src/Renderer.php:416 core/js/dist/admin.js:137
+msgid "Next"
+msgstr "Siguiente"
+
+#: core/src/Renderer.php:406
+msgid "Previous"
+msgstr "Anterior"
+
+#: core/src/Renderer.php:332
+msgid "Please select a display from the block settings →"
+msgstr "Selecciona una visualización en los ajustes del bloque →"
+
+#: core/src/Renderer.php:236
+msgid "Invalid display ID."
+msgstr "ID de visualización no válido."
+
+#: core/src/Renderer.php:116
+msgid "Failed to get the posts for this display."
+msgstr "No se han podido obtener las entradas de esta visualización."
+
+#: core/src/Renderer.php:108
+msgid "The display is set to show 0 items."
+msgstr "La visualización está configurada para mostrar 0 elementos."
+
+#: core/src/Licensing.php:282 core/src/Licensing.php:296
+msgid "Invalid license key"
+msgstr "Clave de licencia no válida"
+
+#: core/src/Licensing.php:193
+msgid "Failed to update the license status: "
+msgstr "No se ha podido actualizar el estado de la licencia: "
+
+#: core/src/Licensing.php:175
+msgid "Your license has expired."
+msgstr "Tu licencia ha caducado."
+
+#: core/src/Licensing.php:173
+msgid "Your license has been deactivated."
+msgstr "Tu licencia ha sido desactivada."
+
+#: core/src/Licensing.php:129
+msgid "License check failed."
+msgstr "La comprobación de la licencia ha fallado."
+
+#: core/src/IrPost/IrTerm.php:65
+msgid "Could not get or create parent term: %s"
+msgstr "No se ha podido obtener o crear el término superior: %s"
+
+#: core/src/IrPost/IrAuthor.php:336
+msgctxt "The name of the default author"
+msgid "Source Author"
+msgstr "Autor de la fuente"
+
+#: core/src/Importer/WpPostBuilder.php:328
+msgid "Could not get URL of downloaded image with ID %d"
+msgstr "No se ha podido obtener la URL de la imagen descargada con ID %d"
+
+#: core/src/Importer/WpPostBuilder.php:315
+msgid "Failed to download image for post: %s"
+msgstr "No se ha podido descargar la imagen de la entrada: %s"
+
+#: core/src/Importer/RssImageFinder.php:308
+msgid "Feed does not have a source URL."
+msgstr "El feed no tiene una URL de origen."
+
+#: core/src/Importer/RssImageFinder.php:302
+msgid "Failed to parse the feed's source URL."
+msgstr "No se ha podido analizar la URL de origen del feed."
+
+#: core/src/Importer.php:533
+msgid "Ignoring RSS item with no GUID or permalink."
+msgstr "Ignorando el elemento RSS sin GUID ni enlace permanente."
+
+#: core/src/Importer.php:527
+msgctxt "Progress bar"
+msgid "%1$d/%2$d"
+msgstr "%1$d/%2$d"
+
+#: core/src/Importer.php:338
+msgid "Saving items"
+msgstr "Guardando elementos"
+
+#: core/src/Importer.php:306
+msgid "The source does not have a URL."
+msgstr "La fuente no tiene una URL."
+
+#: core/src/Importer.php:93
+msgid "Reading RSS feed"
+msgstr "Leyendo el feed RSS"
+
+#: core/src/Display/LayoutTrait.php:170
+msgctxt "Time ago format (future)"
+msgid "%s from now"
+msgstr "dentro de %s"
+
+#: core/src/Display/LayoutTrait.php:168
+msgctxt "Time ago format"
+msgid "%s ago"
+msgstr "hace %s"
+
+#: core/src/Display/DisplaySettings.php:138
+msgctxt "Default value for the \"Read more text\" display setting"
+msgid "Read more"
+msgstr "Leer más"
+
+#: core/src/Display/DisplaySettings.php:137
+msgctxt "Default value for the \"Author prefix\" display setting"
+msgid "By "
+msgstr "Por "
+
+#: core/src/Cli/Commands/FeedCommand.php:43
+msgid "Invalid"
+msgstr "No válido"
+
+#: core/src/Cli/Commands/FeedCommand.php:41
+msgid "Valid"
+msgstr "Válido"
+
+#: core/src/Cli/Commands/DisplayCommand.php:90
+msgctxt "Name of a duplicated display"
+msgid "%s (copy)"
+msgstr "%s (copia)"
+
+#: core/modules/rowActions.php:92
+msgid "The post has been successfully rejected and moved to the Trash."
+msgstr "La entrada se ha rechazado correctamente y se ha movido a la papelera."
+
+#: core/modules/rowActions.php:68
+msgctxt "wp-rss-aggregator"
+msgid "Deleted and rejected by %s"
+msgstr "Eliminado y rechazado por %s"
+
+#: core/modules/rowActions.php:63
+msgid "Cannot reject a post that was not imported by Aggregator."
+msgstr "No se puede rechazar una entrada que no haya sido importada por Aggregator."
+
+#: core/modules/rowActions.php:28
+msgid "Trash and reject"
+msgstr "Enviar a la papelera y rechazar"
+
+#: core/modules/logger.php:95
+msgctxt "post status"
+msgid "Debug"
+msgstr "Depuración"
+
+#: core/modules/logger.php:94
+msgctxt "post status"
+msgid "Info"
+msgstr "Información"
+
+#: core/modules/logger.php:93
+msgctxt "post status"
+msgid "Notice"
+msgstr "Aviso"
+
+#: core/modules/logger.php:92
+msgctxt "post status"
+msgid "Warning"
+msgstr "Advertencia"
+
+#: core/modules/logger.php:91
+msgctxt "post status"
+msgid "Error"
+msgstr "Error"
+
+#: core/modules/logger.php:90
+msgctxt "post status"
+msgid "Critical"
+msgstr "Crítico"
+
+#: core/modules/logger.php:89
+msgctxt "post status"
+msgid "Alert"
+msgstr "Alerta"
+
+#: core/modules/logger.php:88
+msgctxt "post status"
+msgid "Emergency"
+msgstr "Emergencia"
+
+#: core/modules/logger.php:81
+msgid "No logs found in Trash."
+msgstr "No se han encontrado registros en la papelera."
+
+#: core/modules/logger.php:80
+msgid "No logs found."
+msgstr "No se han encontrado registros."
+
+#: core/modules/logger.php:79
+msgid "Parent Logs:"
+msgstr "Registros superiores:"
+
+#: core/modules/logger.php:78
+msgid "Search Logs"
+msgstr "Buscar registros"
+
+#: core/modules/logger.php:77 core/js/dist/admin.js:42
+msgid "All Logs"
+msgstr "Todos los registros"
+
+#: core/modules/logger.php:76
+msgid "View Log"
+msgstr "Ver registro"
+
+#: core/modules/logger.php:75
+msgid "Edit Log"
+msgstr "Editar registro"
+
+#: core/modules/logger.php:74
+msgid "New Log"
+msgstr "Nuevo registro"
+
+#: core/modules/logger.php:73
+msgctxt "add new on admin bar"
+msgid "Log"
+msgstr "Registro"
+
+#: core/modules/logger.php:72
+msgctxt "admin menu"
+msgid "Logs"
+msgstr "Registros"
+
+#: core/modules/logger.php:71
+msgctxt "post type singular name"
+msgid "Log"
+msgstr "Registro"
+
+#: core/modules/logger.php:70
+msgctxt "post type general name"
+msgid "Logs"
+msgstr "Registros"
+
+#: v4/src/Modules/UpsellModule.php:125
+msgid "Content spinning"
+msgstr "Reescritura de contenido"
+
+#: v4/src/Modules/UpsellModule.php:124
+msgid "Title spinning"
+msgstr "Reescritura de títulos"
+
+#: core/modules/licensing.php:107
+msgctxt "Description of the all access plan"
+msgid "Import unlimited content from RSS feeds and generate your own original versions."
+msgstr "Importa contenido ilimitado desde feeds RSS y genera tus propias versiones originales."
+
+#: core/modules/licensing.php:106
+msgctxt "Name of the Elite plan"
+msgid "Elite"
+msgstr "Elite"
+
+#: core/modules/licensing.php:98 v4/src/Modules/UpsellModule.php:109
+msgid "Include all media"
+msgstr "Incluir todos los medios"
+
+#: core/modules/licensing.php:97 v4/src/Modules/UpsellModule.php:108
+#: core/js/dist/admin.js:21 core/js/dist/admin.js:130
+msgid "Full text import"
+msgstr "Importación de texto completo"
+
+#: core/modules/licensing.php:89
+msgctxt "Name of the pro plan"
+msgid "Pro"
+msgstr "Pro"
+
+#: core/modules/licensing.php:82 v4/src/Modules/UpsellModule.php:98
+#: core/js/dist/admin.js:130
+msgid "Import taxonomies"
+msgstr "Importar taxonomías"
+
+#: core/modules/licensing.php:81 v4/src/Modules/UpsellModule.php:97
+msgid "Add custom content"
+msgstr "Añadir contenido personalizado"
+
+#: core/modules/licensing.php:80 v4/src/Modules/UpsellModule.php:96
+msgid "Schedule publishing"
+msgstr "Programar la publicación"
+
+#: core/modules/licensing.php:79 v4/src/Modules/UpsellModule.php:95
+#: core/js/dist/admin.js:130
+msgid "Import as Posts"
+msgstr "Importar como entradas"
+
+#: core/modules/licensing.php:72
+msgctxt "Description of the plus plan"
+msgid "Aggregate RSS feeds as blog posts and publish their excerpts to your blog or CPT."
+msgstr "Agrega feeds RSS como entradas del blog y publica sus extractos en tu blog o CPT."
+
+#: core/modules/licensing.php:71
+msgctxt "Name of the plus plan"
+msgid "Plus"
+msgstr "Plus"
+
+#: core/modules/licensing.php:64 v4/src/Modules/UpsellModule.php:85
+#: core/js/dist/admin.js:130
+msgid "Source management"
+msgstr "Gestión de fuentes"
+
+#: core/modules/licensing.php:63 v4/src/Modules/UpsellModule.php:84
+#: core/js/dist/admin.js:130
+msgid "Automatic filtering"
+msgstr "Filtrado automático"
+
+#: core/modules/licensing.php:62 v4/src/Modules/UpsellModule.php:83
+#: core/js/dist/admin.js:130
+msgid "Full customization"
+msgstr "Personalización completa"
+
+#: core/modules/licensing.php:60 core/js/dist/admin.js:130
+msgid "All layout designs"
+msgstr "Todos los diseños de disposición"
+
+#: core/modules/licensing.php:53
+msgctxt "Description of the basic plan"
+msgid "Display RSS feeds anywhere on your site and customize them to match your site’s design."
+msgstr "Muestra feeds RSS en cualquier parte de tu sitio y personalízalos para que encajen con el diseño de tu sitio."
+
+#: core/modules/licensing.php:44
+msgid "Import text, audio, & video"
+msgstr "Importar texto, audio y vídeo"
+
+#: core/modules/licensing.php:43
+msgid "All import options"
+msgstr "Todas las opciones de importación"
+
+#: core/modules/licensing.php:42
+msgid "Unlimited feeds"
+msgstr "Feeds ilimitados"
+
+#: core/modules/licensing.php:41
+msgid "Unlimited sources"
+msgstr "Fuentes ilimitadas"
+
+#: core/modules/licensing.php:39
+msgctxt "Description of the free plan"
+msgid "Free, for trying things out."
+msgstr "Gratis, para probar."
+
+#: core/modules/licensing.php:38
+msgctxt "Name of the free plan"
+msgid "Free"
+msgstr "Gratis"
+
+#: core/modules/feedItems.php:127
+msgid "No source link"
+msgstr "Sin enlace a la fuente"
+
+#: core/modules/feedItems.php:117
+msgid "(no title)"
+msgstr "(sin título)"
+
+#: core/modules/feedItems.php:94 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Date"
+msgstr "Fecha"
+
+#: core/modules/feedItems.php:93 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Author"
+msgstr "Autor"
+
+#: core/modules/feedItems.php:89 core/js/blocks/dist/gutenberg/gutenberg.js:1
+#: core/js/dist/admin.js:130
+msgid "Source Link"
+msgstr "Enlace a la fuente"
+
+#: core/modules/feedItems.php:57
+msgid "Filter by date"
+msgstr "Filtrar por fecha"
+
+#: core/modules/feedItems.php:55
+msgid "Use as featured image"
+msgstr "Usar como imagen destacada"
+
+#: core/modules/feedItems.php:54
+msgid "Remove featured image"
+msgstr "Quitar la imagen destacada"
+
+#: core/modules/feedItems.php:53 core/js/dist/admin.js:137
+msgid "Set featured image"
+msgstr "Establecer imagen destacada"
+
+#: core/modules/feedItems.php:52
+msgid "Featured Image"
+msgstr "Imagen destacada"
+
+#: core/modules/debugInfo.php:58 v4/includes/admin-metaboxes.php:101
+#: core/js/dist/admin.js:13 core/js/dist/admin.js:42 core/js/dist/admin.js:130
+msgid "No"
+msgstr "No"
+
+#: core/modules/debugInfo.php:57 v4/includes/admin-metaboxes.php:100
+#: core/js/dist/admin.js:13 core/js/dist/admin.js:42 core/js/dist/admin.js:130
+msgid "Yes"
+msgstr "Sí"
+
+#: core/modules/debugInfo.php:55
+msgctxt "Label for extension in Site Health Info"
+msgid "%s extension"
+msgstr "Extensión %s"
+
+#: core/modules/debugInfo.php:44
+msgctxt "fsockopen status in Site Health Info"
+msgid "Unsupported"
+msgstr "No compatible"
+
+#: core/modules/debugInfo.php:43
+msgctxt "fsockopen status in Site Health Info"
+msgid "Supported"
+msgstr "Compatible"
+
+#: core/modules/debugInfo.php:41
+msgid "fsockopen"
+msgstr "fsockopen"
+
+#: core/modules/debugInfo.php:33
+msgid "Plan"
+msgstr "Plan"
+
+#: core/modules/debugInfo.php:29
+msgid "Version"
+msgstr "Versión"
+
+#: core/modules/admin.php:133
+msgid "Manage Plan"
+msgstr "Gestionar plan"
+
+#: core/modules/admin.php:131 core/js/dist/admin.js:130
+msgid "Tutorials"
+msgstr "Tutoriales"
+
+#: core/modules/admin.php:130 core/js/dist/admin.js:42
+msgid "Help"
+msgstr "Ayuda"
+
+#: core/modules/admin.php:128 core/js/dist/admin.js:42 core/js/dist/admin.js:82
+msgid "Integrations"
+msgstr "Integraciones"
+
+#: core/modules/admin.php:127 core/js/dist/admin.js:42
+msgid "Folders"
+msgstr "Carpetas"
+
+#: core/modules/admin.php:126 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Displays"
+msgstr "Visualizaciones"
+
+#: core/modules/admin.php:125 v4/includes/admin-editor.php:129
+#: core/js/dist/admin.js:42 core/js/dist/admin.js:130 core/js/dist/admin.js:137
+msgid "Sources"
+msgstr "Fuentes"
+
+#: core/modules/admin.php:124 core/js/dist/admin.js:42
+msgid "Hub"
+msgstr "Hub"
+
+#: core/modules/admin.php:113
+msgid "Aggregator"
+msgstr "Aggregator"
+
+#: core/modules/admin.php:112
+msgctxt "wp-rss-aggregator"
+msgid "Aggregator"
+msgstr "Aggregator"
+
+#: core/edd-sl-updater.php:285
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:287
+msgid "Update now."
+msgstr "Actualizar ahora."
+
+#: core/edd-sl-updater.php:274
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:276
+msgid "%1$sView version %2$s details%3$s or %4$supdate now%5$s."
+msgstr "%1$sVer los detalles de la versión %2$s%3$s o %4$sactualizar ahora%5$s."
+
+#. translators: 1. opening anchor tag, do not translate 2. the new plugin
+#. version 3. closing anchor tag, do not translate.
+#: core/edd-sl-updater.php:266
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:268
+msgid "%1$sView version %2$s details%3$s."
+msgstr "%1$sVer los detalles de la versión %2$s%3$s."
+
+#: core/edd-sl-updater.php:261
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:263
+msgid "Contact your network administrator to install the update."
+msgstr "Contacta con el administrador de tu red para instalar la actualización."
+
+#. translators: the plugin name.
+#: core/edd-sl-updater.php:255
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:257
+msgid "There is a new version of %1$s available."
+msgstr "Hay una nueva versión de %1$s disponible."
+
+#. Author URI of the plugin
+#: wp-rss-aggregator.php
+msgid "https://rebelcode.com"
+msgstr "https://rebelcode.com"
+
+#. Author of the plugin
+#: wp-rss-aggregator.php
+msgid "RebelCode"
+msgstr "RebelCode"
+
+#. Description of the plugin
+#: wp-rss-aggregator.php
+msgid "An RSS importer, aggregator, and auto-blogger plugin for WordPress."
+msgstr "Un plugin de WordPress para importar, agregar y auto-publicar feeds RSS."
+
+#: v4/includes/admin-editor.php:187 core/js/dist/admin.js:42
+msgid "Pagination"
+msgstr "Paginación"
+
+#: core/src/Store/SourcesStore.php:284 core/src/Store/SourcesStore.php:329
+msgid "#%d [Missing]"
+msgstr "#%d [Falta]"
+
+#: v4/includes/admin-display.php:466
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:156
+msgid "The feed items for this feed source are being deleted in the background."
+msgstr "Los elementos del feed de esta fuente se están borrando en segundo plano."
+
+#: v4.php:1087
+msgid "The Excerpts & Thumbnails addon has been discontinued in favor of the Templates addon."
+msgstr "La extensión Extractos y miniaturas está en desuso en favor de la extensión Plantillas."
+
+#: v4.php:762
+msgid "<p><strong>%2$s requires WordPress to be of version %1$s or higher.</strong></br>Older versions of WordPress are no longer supported by %2$s. Please upgrade your WordPress core to continue benefiting from %2$s support services.</p>"
+msgstr "<p><strong>%2$s requiere WordPress en la versión %1$s o superior.</strong></br>Las versiones anteriores de WordPress ya no son compatibles con %2$s. Actualiza el núcleo de WordPress para seguir beneficiándote de los servicios de soporte de %2$s.</p>"
+
+#: v4.php:509
+msgid "Deactivate WP RSS Aggregator and its addons"
+msgstr "Desactivar WP RSS Aggregator y sus complementos"
+
+#: core/src/Store/DisplaysStore.php:106
+msgid "Display with slug \"%s\" not found"
+msgstr "No se ha encontrado la visualización con el slug «%s»"
+
+#: core/src/IrPost/IrTerm.php:77
+msgid "Could not get WordPress term \"%s\"."
+msgstr "No se ha podido obtener el término de WordPress «%s»."
+
+#: core/src/Importer.php:626
+msgid "Imported post (#%1$d) \"%2$s\""
+msgstr "Entrada importada (#%1$d) «%2$s»"
+
+#: core/src/Cli/Commands/RejectListCommand.php:49
+msgid "Added \"%s\" to the reject list"
+msgstr "Se ha añadido «%s» a la lista de rechazo"
+
+#: core/modules/licensing.php:99 core/js/dist/admin.js:130
+msgid "Custom Mapping"
+msgstr "Asignación personalizada"
+
+#: core/modules/licensing.php:90
+msgctxt "Description of the pro plan"
+msgid "Curate RSS feeds as Posts or any CPT and give your visitors all the content they’re after."
+msgstr "Selecciona feeds RSS como entradas o cualquier CPT y ofrece a tus visitantes todo el contenido que buscan."
+
+#: core/modules/licensing.php:61 v4/src/Modules/UpsellModule.php:110
+#: core/js/dist/admin.js:130
+msgid "Manual curation"
+msgstr "Selección manual"
+
+#: core/modules/licensing.php:52
+msgctxt "Name of the basic plan"
+msgid "Basic"
+msgstr "Básico"
+
+#: core/modules/feedItems.php:67
+msgid "A link to a feed item"
+msgstr "Un enlace a un elemento del feed"
+
+#: core/modules/feedItems.php:66
+msgid "Feed item link"
+msgstr "Enlace del elemento del feed"
+
+#: core/modules/feedItems.php:65
+msgid "Feed item updated"
+msgstr "Elemento del feed actualizado"
+
+#: core/modules/feedItems.php:64
+msgid "Feed item scheduled"
+msgstr "Elemento del feed programado"
+
+#: core/modules/feedItems.php:63
+msgid "Feed item trashed"
+msgstr "Elemento del feed enviado a la papelera"
+
+#: core/modules/feedItems.php:62
+msgid "Feed item reverted to draft"
+msgstr "Elemento del feed revertido a borrador"
+
+#: core/modules/feedItems.php:61
+msgid "Feed item published privately"
+msgstr "Elemento del feed publicado de forma privada"
+
+#: core/modules/feedItems.php:60
+msgid "Feed item published"
+msgstr "Elemento del feed publicado"
+
+#: core/modules/feedItems.php:59
+msgid "Feed items list"
+msgstr "Lista de elementos del feed"
+
+#: core/modules/feedItems.php:58
+msgid "Feed items list navigation"
+msgstr "Navegación por la lista de elementos del feed"
+
+#: core/modules/feedItems.php:56
+msgid "Filter feed items list"
+msgstr "Filtrar la lista de elementos del feed"
+
+#: core/modules/feedItems.php:51
+msgid "Uploaded to this feed item"
+msgstr "Subido a este elemento del feed"
+
+#: core/modules/feedItems.php:50
+msgid "Insert into feed item"
+msgstr "Insertar en el elemento del feed"
+
+#: core/modules/feedItems.php:49
+msgid "Feed Item Attributes"
+msgstr "Atributos del elemento del feed"
+
+#: core/modules/feedItems.php:48
+msgid "Feed Item Archives"
+msgstr "Archivo de elementos del feed"
+
+#: core/modules/feedItems.php:47
+msgid "All Feed Items"
+msgstr "Todos los elementos del feed"
+
+#: core/modules/feedItems.php:46
+msgid "Parent Feed Item:"
+msgstr "Elemento del feed superior:"
+
+#: core/modules/feedItems.php:45
+msgid "No feed items found in trash"
+msgstr "No se han encontrado elementos del feed en la papelera"
+
+#: core/modules/feedItems.php:44
+msgid "No feed items found"
+msgstr "No se han encontrado elementos del feed"
+
+#: core/modules/feedItems.php:41
+msgid "View Feed Item"
+msgstr "Ver elemento del feed"
+
+#: core/modules/feedItems.php:40
+msgid "New Feed Item"
+msgstr "Nuevo elemento del feed"
+
+#: core/modules/feedItems.php:39
+msgid "Edit Feed Item"
+msgstr "Editar elemento del feed"
+
+#: core/modules/feedItems.php:37 core/modules/feedItems.php:38
+msgid "Add New Feed Item"
+msgstr "Añadir nuevo elemento del feed"
+
+#: core/admin-frame.php:10
+msgid "Aggregator Admin"
+msgstr "Administración de Aggregator"
+
+#: core/src/Source/Schedule/WeeklySchedule.php:81
+msgid "Every week"
+msgid_plural "Every %d weeks"
+msgstr[0] "Cada semana"
+msgstr[1] "Cada %d semanas"
+
+#: core/src/Source/Schedule/WeeklySchedule.php:75
+msgid "Every week at %2$s"
+msgid_plural "Every %1$d weeks at %2$s"
+msgstr[0] "Cada semana a las %2$s"
+msgstr[1] "Cada %1$d semanas a las %2$s"
+
+#: core/src/Source/Schedule/WeeklySchedule.php:69
+msgid "Every week on %2$s"
+msgid_plural "Every %1$d weeks on %2$s"
+msgstr[0] "Cada semana el %2$s"
+msgstr[1] "Cada %1$d semanas el %2$s"
+
+#: core/src/Source/Schedule/WeeklySchedule.php:62
+msgid "Every week on %2$s at %3$s"
+msgid_plural "Every %1$d weeks on %2$s at %3$s"
+msgstr[0] "Cada semana el %2$s a las %3$s"
+msgstr[1] "Cada %1$d semanas el %2$s a las %3$s"
+
+#: core/src/Source/Schedule/MonthlySchedule.php:74
+msgid "Every month"
+msgid_plural "Every %d months"
+msgstr[0] "Cada mes"
+msgstr[1] "Cada %d meses"
+
+#: core/src/Source/Schedule/MonthlySchedule.php:68
+msgid "Every month at %2$s"
+msgid_plural "Every %1$d months at %2$s"
+msgstr[0] "Cada mes a las %2$s"
+msgstr[1] "Cada %1$d meses a las %2$s"
+
+#: core/src/Source/Schedule/MonthlySchedule.php:62
+msgid "Every month on the %2$s"
+msgid_plural "Every %1$d months on the %2$s"
+msgstr[0] "Cada mes el %2$s"
+msgstr[1] "Cada %1$d meses el %2$s"
+
+#: core/src/Source/Schedule/MonthlySchedule.php:55
+msgid "Every month, on the %2$s, at %3$s"
+msgid_plural "Every %1$d months, on the %2$s, at %3$s"
+msgstr[0] "Cada mes, el %2$s, a las %3$s"
+msgstr[1] "Cada %1$d meses, el %2$s, a las %3$s"
+
+#: core/src/Source/Schedule/MinuteSchedule.php:72
+msgid "Every minute"
+msgid_plural "Every %d minutes"
+msgstr[0] "Cada minuto"
+msgstr[1] "Cada %d minutos"
+
+#: core/src/Source/Schedule/MinuteSchedule.php:61
+msgid "Every minute, starting from xx:%2$s"
+msgid_plural "Every %1$d minutes, starting from xx:%2$02d"
+msgstr[0] "Cada minuto, a partir de xx:%2$s"
+msgstr[1] "Cada %1$d minutos, a partir de xx:%2$02d"
+
+#: core/src/Source/Schedule/HourlySchedule.php:69
+msgid "Every hour"
+msgid_plural "Every %d hours"
+msgstr[0] "Cada hora"
+msgstr[1] "Cada %d horas"
+
+#: core/src/Source/Schedule/HourlySchedule.php:58
+msgid "Every hour starting from %2$02d:00"
+msgid_plural "Every %1$d hours starting from %2$02d:00"
+msgstr[0] "Cada hora a partir de las %2$02d:00"
+msgstr[1] "Cada %1$d horas a partir de las %2$02d:00"
+
+#: core/src/Source/Schedule/DailySchedule.php:51
+msgid "Every day"
+msgid_plural "Every %d days"
+msgstr[0] "Cada día"
+msgstr[1] "Cada %d días"
+
+#: core/src/Source/Schedule/DailySchedule.php:45
+msgid "Every day at %s"
+msgid_plural "Every %1$d days at %2$s"
+msgstr[0] "Cada día a las %s"
+msgstr[1] "Cada %1$d días a las %2$s"
+
+#: core/src/Importer.php:115
+msgid "Found %d item in the RSS feed"
+msgid_plural "Found %d items in the RSS feed"
+msgstr[0] "Se ha encontrado %d elemento en el feed RSS"
+msgstr[1] "Se han encontrado %d elementos en el feed RSS"
+
+#: core/src/Cli/Commands/SourceCommand.php:440
+msgid "%s source updated."
+msgid_plural "%s sources updated."
+msgstr[0] "%s fuente actualizada."
+msgstr[1] "%s fuentes actualizadas."
+
+#: core/src/Cli/Commands/SourceCommand.php:240
+msgid "Deleted %d source."
+msgid_plural "Deleted %d sources."
+msgstr[0] "Se ha eliminado %d fuente."
+msgstr[1] "Se han eliminado %d fuentes."
+
+#: core/src/Cli/Commands/RejectListCommand.php:138
+msgid "Deleted %d item."
+msgid_plural "Deleted %d items"
+msgstr[0] "Se ha eliminado %d elemento."
+msgstr[1] "Se han eliminado %d elementos"
+
+#: core/src/Cli/Commands/RejectListCommand.php:76
+msgid "Removed %d item"
+msgid_plural "Removed %d items"
+msgstr[0] "Se ha quitado %d elemento"
+msgstr[1] "Se han quitado %d elementos"
+
+#: core/src/Cli/Commands/ImportCommand.php:79
+msgid "Imported %d new item"
+msgid_plural "Imported %d new items"
+msgstr[0] "Se ha importado %d elemento nuevo"
+msgstr[1] "Se han importado %d elementos nuevos"
+
+#: core/src/Cli/Commands/DisplayCommand.php:421
+msgid "%s display updated."
+msgid_plural "%s displays updated."
+msgstr[0] "%s visualización actualizada."
+msgstr[1] "%s visualizaciones actualizadas."
+
+#: core/src/Cli/Commands/DisplayCommand.php:402
+msgid "Source %s does not exist."
+msgid_plural "Sources %s do not exist."
+msgstr[0] "La fuente %s no existe."
+msgstr[1] "Las fuentes %s no existen."
+
+#: core/src/Cli/Commands/DisplayCommand.php:240
+msgid "Deleted %d display."
+msgid_plural "Deleted %d displays."
+msgstr[0] "Se ha eliminado %d visualización."
+msgstr[1] "Se han eliminado %d visualizaciones."
+
+#: v4/includes/update.php:69
+msgid "Follow"
+msgstr "Seguir"
+
+#: v4/includes/scripts.php:36
+msgid "OK"
+msgstr "OK"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:187
+msgid "License"
+msgstr "Licencia"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:346
+#: core/js/dist/admin.js:42
+msgid "Status"
+msgstr "Estado"
+
+#: v4/includes/scripts.php:37 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:112 core/js/dist/admin.js:130
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: core/src/Utils/Strings.php:158 v4/includes/misc-functions.php:312
+msgid "&hellip;"
+msgstr "&hellip;"
+
+#: v4/includes/opml-importer.php:201 v4/includes/opml-importer.php:232
+msgid "ID"
+msgstr "ID"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:194
+msgid "License key"
+msgstr "Clave de licencia"
+
+#. Plugin Name of the plugin
+#: wp-rss-aggregator.php core/modules/debugInfo.php:25
+msgid "WP RSS Aggregator"
+msgstr "WP RSS Aggregator"
+
+#: v4/includes/update.php:67
+msgid "No Follow"
+msgstr "No seguir"
+
+#: v4/includes/system-info.php:106
+msgid "Your server does not support fsockopen."
+msgstr "Tu servidor no es compatible con fsockopen."
+
+#: v4/includes/system-info.php:106
+msgid "Your server supports fsockopen."
+msgstr "Tu servidor es compatible con fsockopen."
+
+#: v4/includes/scripts.php:70
+msgid "Sending..."
+msgstr "Enviando..."
+
+#: v4/includes/scripts.php:65
+msgid "Deactivating..."
+msgstr "Desactivando..."
+
+#: v4/includes/scripts.php:64
+msgid "Activating..."
+msgstr "Activando..."
+
+#: v4/includes/scripts.php:53 core/js/dist/admin.js:42
+msgid "Pause"
+msgstr "Pausar"
+
+#: v4/includes/scripts.php:40
+msgid "Remove selected from Blacklist"
+msgstr "Eliminar seleccionados de la lista negra"
+
+#: v4/includes/scripts.php:38
+msgid "The feed items listed here will be disregarded when importing new items from your feed sources."
+msgstr "Los elementos de feed enumerados aquí no se tendrán en cuenta al importar nuevos elementos de sus feeds de origen.."
+
+#: v4/includes/scripts.php:31
+msgid "Failed to import"
+msgstr "Falló la importación"
+
+#: v4/includes/scripts.php:35
+msgid "Bulk Add"
+msgstr "Agregar masivamente"
+
+#: v4/includes/scripts.php:20 v4/includes/scripts.php:34
+msgid "Please wait ..."
+msgstr "Por favor espera..."
+
+#: v4/includes/opml-importer.php:264
+msgid "WP RSS OPML"
+msgstr "WP RSS OPML"
+
+#: v4/includes/opml-importer.php:265
+msgid "Import Feeds from an OPML file into WP RSS Aggregator"
+msgstr "Importar feeds de un archivo OPML a WP RSS Aggregator"
+
+#: v4/includes/scripts.php:72
+msgid "There was an error sending the form. Please use the <a href=\"%s\">contact form on our site.</a>"
+msgstr "Se ha producido un error al enviar el formulario. Utiliza el <a href=\"%s\">formulario de contacto de nuestro sitio web</a>, por favor."
+
+#: v4/includes/opml-importer.php:194
+msgid "Feeds were imported successfully!"
+msgstr "¡Los feeds se importaron con éxito!"
+
+#: v4/includes/opml-importer.php:117
+msgid "Sorry, it seems your uploaded file has been misplaced!"
+msgstr "Lo siento, parece que el archivo que has subido se ha perdido"
+
+#: v4/includes/opml-importer.php:109
+msgid "Sorry, an error has been encountered."
+msgstr "Lo siento, se ha encontrado un error."
+
+#: v4/includes/opml-importer.php:76
+msgid "We will take care of the rest."
+msgstr "Nos haremos cargo del resto."
+
+#: v4/includes/opml-importer.php:63
+msgid "Import OPML"
+msgstr "Importar OPML"
+
+#. translators: If your word count is based on single characters (East Asian
+#. characters), enter 'characters'. Otherwise, enter 'words'. Do not translate
+#. into your own language.
+#: v4/includes/misc-functions.php:320
+msgctxt "word count: words or characters?"
+msgid "words"
+msgstr "palabras"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:359
+msgid "Failed to get license information. This is a temporary problem. Check your internet connection and try again later."
+msgstr "Error al obtener información sobre la licencia. Este es un problema temporal. Comprueba tu conexión a Internet y vuelve a intentarlo más tarde."
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:410
+msgid "Renew your license to continue receiving updates and support."
+msgstr "Renueva tu licencia para seguir recibiendo actualizaciones y soporte."
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:391
+msgid "No activations left. Click here to manage the sites you've activated licenses on."
+msgstr "No quedan activaciones. Haz clic aquí para administrar los sitios en los que has activado las licencias."
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:242
+#: core/js/dist/admin.js:42 core/js/dist/admin.js:130 core/js/dist/admin.js:135
+msgid "Enter your license key"
+msgstr "Escribe tu clave de licencia"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:104
+msgid "No license"
+msgstr "Sin licencia"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:103
+msgid "No event specified"
+msgstr "No se ha especificado ningún evento"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:130
+msgid "Invalid event specified"
+msgstr "Evento especificado no válido"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:98
+msgid "Bad nonce"
+msgstr "Mal nonce"
+
+#: v4/includes/opml-importer.php:75
+msgid "Click the button below, choose your file, and click 'Upload'."
+msgstr "Haz clic en el botón de debajo, escoge tu archivo y haz clic en 'Subir'."
+
+#: v4/includes/opml-importer.php:74
+msgid "Howdy! Import your feeds here from an OPML (.xml) export file."
+msgstr "¡Hola! Importa tus feeds desde un archivo de exportación de OPML (.xml)."
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:102
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:156
+msgid "No addon ID"
+msgstr "Sin ID de complemento"
+
+#: core/edd-sl-updater.php:516
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:519
+#: core/js/dist/admin.js:42
+msgid "Error"
+msgstr "Error"
+
+#: core/edd-sl-updater.php:516
+#: v4/includes/libraries/EDD_licensing/EDD_SL_Plugin_Updater.php:519
+msgid "You do not have permission to install plugin updates"
+msgstr "No tienes permiso para instalar actualizaciones del plugin"
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:365
+msgid "The feed sources have been paused!"
+msgstr "¡Las fuentes de feeds han sido pausadas! "
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:344
+msgid "The feed sources have been activated!"
+msgstr "¡Las fuentes de feeds han sido activadas!"
+
+#: v4/includes/system-info.php:64
+msgid "Could not determine database driver version"
+msgstr "No se puede determinar la versión del controlador de la base de datos"
+
+#: v4/includes/scripts.php:78
+msgid "Your message has been sent and we'll send you a confirmation e-mail when we receive it."
+msgstr "Tu mensaje ha sido enviado y te enviaremos un correo electrónico de confirmación cuando lo recibamos."
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/AjaxController.php:93
+msgid "No nonce"
+msgstr "Sin nonce"
+
+#: v4/includes/image-caching.php:514
+msgid "Invalid URL provided: \"%1$s\""
+msgstr "URL proporcionada no válida: \"%1$s\""
+
+#: v4/includes/image-caching.php:538
+msgid "Could not create directory: \"%1$s\". Filename: \"%2$s\""
+msgstr "No se puede crear el directorio: \"%1$s\". Nombre de archivo: \"%2$s\""
+
+#: v4/includes/image-caching.php:544
+msgid "The file library cannot be read from %1$s"
+msgstr "No se puede leer el archivo de la biblioteca de %1$s"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:432
+msgid "Registered to:"
+msgstr "Registrado a:"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:416
+#: core/js/dist/admin.js:130
+msgid "Activations:"
+msgstr "Activaciones:"
+
+#. Plugin URI of the plugin
+#: wp-rss-aggregator.php
+msgid "https://wprssaggregator.com"
+msgstr "https://wprssaggregator.com"
+
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:203
+#: v4/includes/Aventura/Wprss/Core/Licensing/Settings.php:320
+msgid "Activate license"
+msgstr "Activar la licencia"
+
+#: v4.php:856
+msgid "%2$s requires WordPress version %1$s or higher."
+msgstr "%2$s requiere la versión %1$s de WordPress o superior."
+
+#: v4/includes/admin-metaboxes.php:15
+msgid "Save Feed Source"
+msgstr "Guardar Fuente del Feed"
+
+#: v4/includes/admin-metaboxes.php:33
+msgid "Feed Preview"
+msgstr "Mostrar Feed"
+
+#: v4/includes/admin-metaboxes.php:62
+msgid "Feed Source Details"
+msgstr "Detalles de la Fuente del Feed"
+
+#: v4/includes/admin-metaboxes.php:81 v4/includes/opml-importer.php:203
+#: v4/includes/opml-importer.php:234 v4/src/Ui/BlacklistTable.php:74
+#: core/js/dist/admin.js:42
+msgid "URL"
+msgstr "URL"
+
+#: v4/includes/admin-metaboxes.php:500
+msgid "No feed URL defined yet"
+msgstr "Aún no se ha definido la URL del feed."
+
+#: v4/includes/admin-options-legacy.php:48 core/js/dist/admin.js:42
+msgid "Open links behaviour"
+msgstr "Abrir comportamiento de enlaces"
+
+#: v4/includes/admin-options.php:68 v4/includes/admin.php:29
+msgid "WP RSS Aggregator Settings"
+msgstr "Ajustes de WP RSS Aggregator"
+
+#: core/src/V4/V4SettingsMigrator.php:51
+#: v4/includes/admin-options-legacy.php:274 v4/includes/update.php:131
+msgid "New window"
+msgstr "Nueva ventana"
+
+#: core/modules/admin.php:129 v4/includes/admin.php:30
+#: v4/includes/admin.php:130 core/js/dist/admin.js:42 core/js/dist/admin.js:130
+#: core/js/dist/admin.js:137
+msgid "Settings"
+msgstr "Ajustes"
+
+#: v4/src/Modules/FeedSourcesModule.php:179
+msgid "RSS Aggregator"
+msgstr "RSS Aggregator"
+
+#: v4/includes/admin-options.php:31 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "General"
+msgstr "General"
+
+#: v4/includes/admin-metaboxes.php:548
+msgid "No Date"
+msgstr "Sin fecha"
+
+#: v4/includes/admin-options.php:239
+msgid "Import Settings"
+msgstr "Importar opciones"
+
+#: v4/includes/admin-options.php:888
+msgid "now"
+msgstr "ahora"
+
+#: core/modules/feedItems.php:88 v4/includes/opml-importer.php:202
+#: v4/includes/opml-importer.php:233 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Title"
+msgstr "Título"
+
+#: v4/includes/admin-metaboxes.php:633 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Active"
+msgstr "Activar"
+
+#: v4/includes/admin-metaboxes.php:99 v4/includes/admin-metaboxes.php:278
+#: v4/includes/admin-metaboxes.php:638 v4/includes/admin-metaboxes.php:774
+#: v4/includes/admin-options.php:655 v4/includes/admin-options.php:761
+#: v4/includes/admin-options.php:874 v4/includes/feed-access.php:275
+#: v4/src/Modules/FeedTemplatesModule.php:390 core/js/dist/admin.js:42
+msgid "Default"
+msgstr "Por defecto"
+
+#: v4/includes/admin-metaboxes.php:547 v4/includes/scripts.php:58
+msgid "ago"
+msgstr "hace"
+
+#: v4/src/Modules/FeedSourcesModule.php:170
+#: v4/src/Modules/FeedTemplatesModule.php:132
+msgid "Add New"
+msgstr "Añadir nuevo"
+
+#: v4/includes/admin.php:136 core/js/dist/admin.js:42
+msgid "Documentation"
+msgstr "Documentación"
+
+#: core/src/Display/LayoutTrait.php:277 v4/includes/legacy-feed-display.php:425
+msgid "No feed items found."
+msgstr "No se encontraron elementos en los feeds."
+
+#: v4/includes/feed-blacklist.php:193
+msgid "The item will be deleted permanently, and its permalink will be recorded in the blacklist"
+msgstr "El elemento será borrado definitivamente y su enlace permanente se añadirá a la lista negra."
+
+#: v4/includes/feed-blacklist.php:187
+msgid "Delete Permanently & Blacklist"
+msgstr "Borrar permanentemente y añadir a lista negra"
+
+#: v4/src/Modules/BlacklistToolModule.php:33 v4/src/Ui/BlacklistTable.php:37
+#: v4/src/Ui/BlacklistTable.php:38
+msgid "Blacklist"
+msgstr "Añadir a la lista negra"
+
+#: v4/includes/feed-blacklist.php:101
+msgid "The item you are trying to blacklist is not valid!"
+msgstr "¡El elemento que estás tratando de añadir a la lista negra no es válido!"
+
+#: v4/includes/feed-blacklist.php:96
+msgid "The item you are trying to blacklist does not exist"
+msgstr "El elemento que estás tratando de añadir a la lista negra no existe"
+
+#: v4/src/Modules/FeedItemsModule.php:158
+msgid "No Feed Items Found In Trash"
+msgstr "No se encontraron artículos del feed en la papelera"
+
+#: v4/src/Modules/FeedItemsModule.php:157
+msgid "No Feed Items Found"
+msgstr "No se encontraron artículos del feed"
+
+#: core/modules/feedItems.php:43 v4/src/Modules/FeedItemsModule.php:156
+msgid "Search Feed Items"
+msgstr "Buscar artículos del feed"
+
+#: core/modules/feedItems.php:42 v4/src/Modules/FeedItemsModule.php:155
+msgid "View Feed Items"
+msgstr "Ver artículos del feed"
+
+#: core/modules/feedItems.php:35 v4/src/Modules/FeedItemsModule.php:153
+msgid "Feed Item"
+msgstr "Artículo del feed"
+
+#: core/modules/feedItems.php:34 core/modules/feedItems.php:36
+#: v4/src/Modules/FeedItemsModule.php:152
+#: v4/src/Modules/FeedItemsModule.php:154
+msgid "Feed Items"
+msgstr "Artículos del feed"
+
+#: v4/src/Modules/FeedSourcesModule.php:178
+msgid "No Feed Sources Found In Trash"
+msgstr "No se encontraron fuentes de feed en la papelera"
+
+#: v4/src/Modules/FeedSourcesModule.php:177
+msgid "No Feed Sources Found"
+msgstr "No se encontraron fuentes de feed"
+
+#: v4/src/Modules/FeedSourcesModule.php:176
+#: v4/src/Modules/FeedTemplatesModule.php:138
+msgid "Search Feeds"
+msgstr "Buscar feeds"
+
+#: v4/src/Modules/FeedSourcesModule.php:175
+msgid "View Feed Source"
+msgstr "Mostrar fuente de feed "
+
+#: v4/src/Modules/FeedSourcesModule.php:174
+msgid "New Feed Source"
+msgstr "Nueva fuente de feed "
+
+#: v4/src/Modules/FeedSourcesModule.php:173
+msgid "Edit Feed Source"
+msgstr "Modificar fuente de feed "
+
+#: v4/src/Modules/FeedSourcesModule.php:172
+msgid "Add New Feed Source"
+msgstr "Añadir nuevas fuentes de feed"
+
+#: v4/src/Modules/FeedSourcesModule.php:169
+msgid "Feed Source"
+msgstr "Fuente de feed "
+
+#: v4/includes/cron-jobs.php:303
+msgid "Once every 2 hours"
+msgstr "Una vez cada dos horas"
+
+#: v4/includes/cpt-feeds.php:86
+msgid "%1$s &raquo; %2$s Feed"
+msgstr "Feed %1$s &raquo; %2$s"
+
+#: v4/includes/admin-options.php:884
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s segundo"
+msgstr[1] "%s segundos"
+
+#: v4/includes/admin-options.php:883
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s minuto"
+msgstr[1] "%s minutos"
+
+#: v4/includes/admin-options.php:882
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s hora"
+msgstr[1] "%s horas"
+
+#: v4/includes/admin-options.php:881
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s día"
+msgstr[1] "%s días"
+
+#: v4/includes/admin-options.php:880
+msgid "%s week"
+msgid_plural "%s weeks"
+msgstr[0] "%s semana"
+msgstr[1] "%s semanas"
+
+#: v4/includes/admin-options.php:879
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "%s mes"
+msgstr[1] "%s meses"
+
+#: v4/includes/admin-options.php:878
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "%s año"
+msgstr[1] "%s años"
+
+#: v4/includes/admin-options.php:517 v4/includes/admin-options.php:690
+msgid "No Limit"
+msgstr "Sin límite"
+
+#: v4/includes/admin-options-legacy.php:239
+msgid "\"Older posts\" and \"Newer posts\" links"
+msgstr "Enlaces a las \"Entradas más antiguas\" y a las \"Entradas más recientes\""
+
+#: v4/includes/admin-options-legacy.php:177 v4/includes/admin-options.php:466
+#: core/js/dist/admin.js:42 core/js/dist/admin.js:130
+msgid "No limit"
+msgstr "Sin límite"
+
+#: v4/includes/admin-options-legacy.php:224
+msgid "This will not affect already imported feed items."
+msgstr "Esto no afectará a los elementos del feed ya importados."
+
+#: v4/includes/admin-options-legacy.php:216
+#: v4/src/Modules/FeedTemplatesModule.php:537
+msgid "Embedded video player link"
+msgstr "Enlace del reproductor de video incorporado"
+
+#: v4/includes/admin-options-legacy.php:215
+#: v4/src/Modules/FeedTemplatesModule.php:536
+msgid "Original page link"
+msgstr "Enlace a la página original"
+
+#: v4/includes/admin-options.php:140
+msgid "Save Settings"
+msgstr "Guardar ajustes"
+
+#: v4/includes/admin-options.php:49
+msgid "Licenses"
+msgstr "Licencias"
+
+#: v4/includes/admin-options-legacy.php:88
+msgid "Date format"
+msgstr "Formato de fecha"
+
+#: v4/includes/admin-options-legacy.php:80
+msgid "Show date"
+msgstr "Mostrar fecha"
+
+#: v4/includes/admin-metaboxes.php:113 v4/includes/admin-options-legacy.php:70
+msgid "Link source"
+msgstr "Enlace a la fuente"
+
+#: v4/includes/admin-options-legacy.php:62
+msgid "Show source"
+msgstr "Mostrar fuente"
+
+#: v4/includes/admin-options-legacy.php:52
+msgid "Set links as nofollow"
+msgstr "Establecer los enlaces como nofollow"
+
+#: v4/includes/admin-options-legacy.php:40
+msgid "Pagination type"
+msgstr "Tipo de paginación"
+
+#: v4/includes/admin-options-legacy.php:32
+msgid "Show authors"
+msgstr "Mostrar autores"
+
+#: v4/includes/admin-options-legacy.php:28
+msgid "Title maximum length"
+msgstr "Longitud máxima del título"
+
+#: v4/includes/admin-options-legacy.php:24 core/js/dist/admin.js:42
+msgid "Link title"
+msgstr "Enlace en el título"
+
+#: v4/includes/admin-options.php:195
+msgid "Custom feed limit"
+msgstr "Límite del feed personalizado"
+
+#: v4/includes/admin-options.php:264
+msgid "Styles"
+msgstr "Estilos"
+
+#: v4/includes/admin-metaboxes.php:820
+msgid "Give it a 5 star rating on WordPress.org"
+msgstr "Dar una valoración de 5 estrellas en WordPress.org"
+
+#: v4/includes/admin-metaboxes.php:594
+msgid "Force the feed"
+msgstr "Forzar el feed"
+
+#: v4/includes/admin-metaboxes.php:95 v4/includes/admin-options.php:156
+msgid "Unique titles only"
+msgstr "Solo títulos únicos"
+
+#: v4/includes/admin-metaboxes.php:106 core/js/dist/admin.js:130
+msgid "Link to enclosure"
+msgstr "Enlace al adjunto"
+
+#: v4/includes/admin-metaboxes.php:89
+msgid "Limit"
+msgstr "Límite"
+
+#: v4/includes/admin-metaboxes.php:42
+msgid "Feed Processing"
+msgstr "Procesando el feed"
+
+#: v4/includes/admin-help.php:312
+msgid "Please enter a valid email address."
+msgstr "Por favor introduce una dirección de correo electrónico válida."
+
+#: v4/includes/admin-help.php:258
+msgid "Support Forums"
+msgstr "Foros de soporte"
+
+#: v4/includes/admin-help.php:244
+msgid "Send Message"
+msgstr "Enviar mensaje"
+
+#: v4/includes/admin-help.php:226
+msgid "Attachments"
+msgstr "Adjuntos"
+
+#: v4/includes/admin-help.php:181
+msgid "From: "
+msgstr "De:"
+
+#: v4/includes/admin-help.php:203
+msgid "Replies will be sent to this email address."
+msgstr "Las respuestas se enviarán a esta dirección de correo."
+
+#: v4/includes/admin-help.php:40
+msgid "Frequently Asked Questions (FAQ)"
+msgstr "Preguntas frecuentes (FAQ)"
+
+#: v4/includes/admin-help.php:173
+msgid "Email Support"
+msgstr "Soporte por correo electrónico"
+
+#: v4/includes/admin-options-legacy.php:421
+msgid "PHP Date Format Reference"
+msgstr "Referencia de formato de fecha PHP"
+
+#: v4/includes/admin-help.php:1113
+msgid "Could not enqueue tooltip content: the queue method is not a valid callable."
+msgstr "No se pudo encolar el contenido de información emergente: el método de cola no es válido."
+
+#: v4.php:510
+msgid "Deactivate WP RSS Aggregator"
+msgstr "Desactiva WP RSS Aggregator"
+
+#: v4/includes/admin-options-legacy.php:92
+msgid "Time ago format"
+msgstr "Formato del tiempo"
+
+#: v4/includes/admin-options.php:187
+msgid "Custom feed URL"
+msgstr "URL de feed personalizado"
+
+#: v4/includes/admin-help.php:231
+msgid "WP RSS Aggregator log file"
+msgstr "Archivo de registro de WP RSS Aggregator"
+
+#: v4/includes/admin-options-legacy.php:84
+msgid "Text preceding date"
+msgstr "Texto que precede a la fecha"
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:224
+msgid "Invalid file or file size too big."
+msgstr "Archivo no válido o archivo demasiado grande."
+
+#: v4/includes/admin-options-legacy.php:240
+msgid "Page numbers with \"Next\" and \"Previous\" page links"
+msgstr "Números de página con enlaces a páginas  \"Siguientes\" y \"Anteriores\""
+
+#: v4/includes/admin-options-legacy.php:136
+msgid "Options that control how the feed item's date is displayed."
+msgstr "Opciones que controlan como se muestra la fecha de los elementos del feed."
+
+#: v4/includes/admin-options.php:449 core/js/dist/admin.js:42
+msgid "If you would like to disable all styles used in this plugin, tick the checkbox."
+msgstr "Si quieres desactivar todos los estilos usados en este plugin, marca la casilla de verificación."
+
+#: v4/includes/admin-options-legacy.php:123
+msgid "Options that control how the feed item's source is displayed."
+msgstr "Opciones que controlan como se muestran las fuentes de de los elmentos del feed."
+
+#: v4/includes/admin-options-legacy.php:66
+msgid "Text preceding source"
+msgstr "Texto que precede a la fuente"
+
+#: v4/includes/admin-options-legacy.php:110
+msgid "In this section you can find some general options that control how the feed items are displayed."
+msgstr "En esta sección puedes encontrar algunas opciones generales que controlan cómo se muestran los elementos del feed."
+
+#: v4/includes/admin-options-legacy.php:44
+msgid "Feed display limit"
+msgstr "Límite de feeds mostrados"
+
+#: v4/includes/admin-options-legacy.php:36
+msgid "For video feed items use"
+msgstr "Para los elementos de feed de vídeo utiliza"
+
+#: v4/includes/admin-options.php:191
+msgid "Custom feed title"
+msgstr "Título de feed personalizado"
+
+#: v4/includes/admin-options.php:172
+msgid "Limit feed items stored"
+msgstr "Límite de elementos de feed almacenados"
+
+#: v4/includes/admin-options-legacy.php:77
+msgid "Date Display settings"
+msgstr "Ajustes de visualización de fecha"
+
+#: v4/includes/admin-options-legacy.php:59
+msgid "Source Display settings"
+msgstr "Ajustes de visualización de fuente"
+
+#: v4/includes/admin-metaboxes.php:511
+msgid "Not sure where to find the RSS feed on a website? <a target=\"_blank\" href=\"%1$s\">Click here</a> for a visual guide."
+msgstr "¿No estás seguro de dónde encontrar el feed RSS de un sitio web? <a target=\"_blank\" href=\"%1$s\">Haz clic aquí</a> para ver una guía."
+
+#: v4/includes/admin-metaboxes.php:532
+msgid "Latest %1$s feed items out of %2$s available from %3$s"
+msgstr "Los últimos %1$s de %2$s elementos disponibles del feed de %3$s"
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:180
+msgid "Successfully imported <code>%1$s</code> feed sources."
+msgstr "Importadas con éxito <code>%1$s</code> fuentes de feed."
+
+#: v4/includes/admin-help.php:303
+msgid "Please fill out all the fields in the form, including the <strong>%s</strong> field."
+msgstr "Por favor completa todos los campos del formulario, incluido el campo <strong>%s</strong>"
+
+#: v4/includes/admin-help.php:174
+msgid "If you still can't find an answer to your query after reading the documentation and going through the FAQ, just fill out the support request form below. We'll be happy to help you out."
+msgstr "Si sigues sin no poder encontrar una respuesta a tu duda después de leer la documentación y pasar por las preguntas más frecuentes, simplemente rellena el formulario de solicitud de soporte que aparece a continuación. Estaremos encantados de ayudarte."
+
+#: core/src/V4/V4SettingsMigrator.php:55
+#: v4/includes/admin-options-legacy.php:275 v4/includes/update.php:135
+msgid "Self"
+msgstr "Yo"
+
+#: core/src/V4/V4SettingsMigrator.php:53
+#: v4/includes/admin-options-legacy.php:273 v4/includes/update.php:133
+msgid "Lightbox"
+msgstr "Caja de luz"
+
+#: core/src/Renderer.php:367 v4/includes/legacy-feed-display.php:479
+msgid "Older posts"
+msgstr "Entradas anteriores"
+
+#: core/src/Renderer.php:368 v4/includes/legacy-feed-display.php:483
+msgid "Newer posts"
+msgstr "Entradas siguientes"
+
+#: v4/includes/cron-jobs.php:299
+msgid "Once every 30 minutes"
+msgstr "Una vez cada 30 minutos"
+
+#: v4/includes/admin-options.php:207 core/js/dist/admin.js:42
+msgid "Disable styles"
+msgstr "Desactivar estilos"
+
+#: v4/includes/cron-jobs.php:295
+msgid "Once every 15 minutes"
+msgstr "Una vez cada 15 minutos"
+
+#: v4/includes/feed-access.php:204
+msgid "Certificate path"
+msgstr "Ruta del certificado"
+
+#: v4/includes/admin-display.php:36 v4/includes/admin-display.php:299
+#: v4/includes/admin-help.php:187 v4/src/Ui/BlacklistTable.php:73
+#: core/js/dist/admin.js:42 core/js/dist/admin.js:130
+msgid "Name"
+msgstr "Nombre"
+
+#: v4/includes/admin-display.php:111 v4/includes/admin-heartbeat.php:38
+msgid "None"
+msgstr "Ninguno"
+
+#: v4/includes/admin-display.php:301
+msgid "Date published"
+msgstr "Fecha de publicación"
+
+#: core/modules/feedItems.php:90 v4/includes/admin-display.php:302
+#: core/js/dist/admin.js:42
+msgid "Source"
+msgstr "Fuente"
+
+#: v4/includes/admin-display.php:398
+msgid "Feed source updated. "
+msgstr "Origen del feed actualizado."
+
+#: v4/includes/admin-display.php:399
+msgid "Custom field updated."
+msgstr "Campo personalizado actualizado."
+
+#: v4/includes/admin-display.php:400
+msgid "Custom field deleted."
+msgstr "Campo personalizado eliminado."
+
+#: v4/includes/admin-display.php:401 v4/includes/admin-display.php:407
+msgid "Feed source updated."
+msgstr "Origen del feed actualizado."
+
+#: v4/includes/admin-display.php:403 v4/includes/admin-display.php:404
+msgid "Feed source saved."
+msgstr "Origen del feed salvado."
+
+#: v4/includes/admin-display.php:405
+msgid "Feed source submitted."
+msgstr "Origen del feed enviado."
+
+#: v4/src/Modules/FeedSourcesModule.php:168
+#: v4/src/Modules/FeedSourcesModule.php:171
+msgid "Feed Sources"
+msgstr "Fuentes de Feed"
+
+#: v4/includes/admin-metaboxes.php:634 core/js/dist/admin.js:130
+msgid "Paused"
+msgstr "En pausa"
+
+#: core/modules/debugInfo.php:37 v4/includes/admin-display.php:33
+#: core/js/dist/admin.js:130
+msgid "State"
+msgstr "Provincia"
+
+#: v4/includes/admin-help-settings.php:112
+#: v4/src/Modules/FeedTemplatesModule.php:466
+msgid "Check this box to make the feed item titles link to the original article."
+msgstr "Marca esta casilla para que los títulos de los elementos del feed se vinculen al artículo original."
+
+#: v4/includes/admin-help-settings.php:121
+#: v4/src/Modules/FeedTemplatesModule.php:472
+msgid "Check this box to show the author for each feed item, if it is available."
+msgstr "Marca esta casilla para mostrar al autor de cada elemento del feed, si está disponible."
+
+#: v4/includes/admin-help-settings.php:123
+msgid "For feed items from YouTube, Vimeo or Dailymotion, you can choose whether you want to have the items link to the original page link, or a link to the embedded video player only."
+msgstr "Para elementos del feed de YouTube, Vimeo o Dailymotion, puedes elegir si deseas que los elementos enlacen al vínculo de página original o solo un enlace al reproductor de vídeo integrado."
+
+#: v4/includes/admin-help-settings.php:144
+#: v4/src/Modules/FeedTemplatesModule.php:478
+msgid "Choose how you want links to be opened. This applies to the feed item title and the source link."
+msgstr "Elige cómo deseas que se abran los enlaces. Esto se aplica al título del elemento del feed y al enlace de origen."
+
+#: v4/includes/admin-help-settings.php:160
+#: v4/src/Modules/FeedTemplatesModule.php:469
+msgid "Enable this option to show the feed source name for each feed item."
+msgstr "Activa esta opción para mostrar el nombre de la fuente del feed para cada elemento del feed."
+
+#: v4/includes/admin-help-settings.php:162
+#: v4/src/Modules/FeedTemplatesModule.php:470
+msgid "Enter the text that you want to show before the source name. A space is automatically added between this text and the feed source name."
+msgstr "Introduce el texto que deseas mostrar antes del nombre de la fuente. Se añade automáticamente un espacio entre este texto y el nombre de la fuente del feed."
+
+#: v4/includes/admin-help-settings.php:105
+msgid "The maximum number of feed items in the custom feed."
+msgstr "Número máximo de elementos de feed en el feed personalizado."
+
+#: v4/includes/admin-editor.php:222
+msgid "Add shortcode"
+msgstr "Añadir shortcode"
+
+#: v4/includes/admin-editor.php:142
+msgid "Exclude"
+msgstr "Excluir"
+
+#: v4/includes/admin-ajax-notice.php:474
+msgid "Dismiss this notification"
+msgstr "Descartar esta notificación"
+
+#: v4/includes/Aventura/Wprss/Core/Plugin.php:78
+msgid "Extensions"
+msgstr "Extensiones"
+
+#: v4/includes/scripts.php:52 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130 core/js/dist/admin.js:135
+#: core/js/dist/admin.js:137
+msgid "Activate"
+msgstr "Activar"
+
+#: v4/includes/admin-editor.php:134
+msgid "All feed sources"
+msgstr "Todas las fuentes de feeds"
+
+#: v4/includes/admin-display.php:207 core/js/dist/admin.js:42
+#: core/js/dist/admin.js:130
+msgid "Delete items"
+msgstr "Borrar elementos"
+
+#: v4/includes/admin-metaboxes.php:331
+msgid "Updating feed source"
+msgstr "Actualizando la fuente del feed"
+
+#: v4/includes/admin-display.php:731
+msgid "View Items"
+msgstr "Ver elementos"
+
+#: v4/includes/admin-display.php:431
+msgid "ID: %1$s"
+msgstr "ID: %1$s"
+
+#: v4/includes/admin-display.php:137
+msgid "%1$s ago"
+msgstr "hace %1$s"
+
+#: v4/includes/admin-display.php:41 core/js/dist/admin.js:130
+msgid "Updates"
+msgstr "Actualizaciones"
+
+#: v4/includes/admin-help.php:25 v4/includes/admin.php:40
+#: v4/includes/admin.php:41
+msgid "Help & Support"
+msgstr "Ayuda y soporte"
+
+#: v4/includes/admin-help-settings.php:180
+#: v4/src/Modules/FeedTemplatesModule.php:476
+msgid "The format to use for the feed item dates, as a PHP date format."
+msgstr "El formato a utilizar para las fechas de los elementos del feed, como el formato de fecha PHP."
+
+#: v4/includes/admin-help-settings.php:175
+#: v4/src/Modules/FeedTemplatesModule.php:475
+msgid "Enter the text that you want to show before the feed item date. A space is automatically added between this text and the date."
+msgstr "Introduce el texto que deseas mostrar antes de la fecha del elemento de feed. Se agrega automáticamente un espacio entre este texto y la fecha."
+
+#: v4/includes/admin-help-settings.php:173
+#: v4/src/Modules/FeedTemplatesModule.php:474
+msgid "Enable this to show the feed item's date."
+msgstr "Activa esto para mostrar la fecha del elemento del feed."
+
+#: v4/includes/admin-help-settings.php:167
+#: v4/src/Modules/FeedTemplatesModule.php:471
+msgid "Enable this option to link the feed source name to the RSS feed's source site."
+msgstr "Activa esta opción para enlazar el nombre de la fuente del feed al feed RSS del sitio de origen."
+
+#: v4/includes/admin-display.php:159
+msgid "This feed source experienced an error during the last feed fetch or validation check. Re-check the feed source URL or check the Error Log in the Debugging page for more details."
+msgstr "Esta fuente de feed sufrió un error durante la última búsqueda de feed o comprobación de validación. Vuelve a comprobar la URL del feedd o consulta el registro de errores en la página de depuración para conocer más detalles."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:304
+#: v4/src/Modules/ResetToolModule.php:101
+msgid "The plugin settings have been reset to default."
+msgstr "Los ajustes del plugin se han reiniciado a los valores por defecto."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:284
+msgid "The error log has been cleared."
+msgstr "El registro de errores ha sido limpiado."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:264
+msgid "Feeds deleted and are being re-imported in the background."
+msgstr "Los feeds han sido borrados y están siendo reimportados en un segundo plano."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:244
+msgid "Feeds are being updated in the background."
+msgstr "Los feeds están siendo actualizados en un segundo plano."
+
+#: v4/includes/admin-intro-page.php:29 v4/includes/admin-intro-page.php:30
+msgid "Welcome to WP RSS Aggregator"
+msgstr "Bienvenido a WP RSS Aggregator"
+
+#: v4/includes/OPML.php:43
+msgid "An error occurred: The file might not be a valid OPML file or is corrupt. "
+msgstr "Ha sucedido un error: parece que el archivo no es un archivo OPML válido o está corrupto."
+
+#: v4/includes/Aventura/Wprss/Core/Model/AdminAjaxNotice/ServiceProvider.php:136
+msgid "Did you know that you can get more RSS features? Excerpts, thumbnails, keyword filtering, importing into posts and more... "
+msgstr "¿Sabías que puedes obtener más funcionalidades RSS? Extractos, miniaturas, filtrado de palabras clave, importación a entradas y más ..."
+
+#: v4/includes/admin-display.php:300
+msgid "Permalink"
+msgstr "Enlace permanente"

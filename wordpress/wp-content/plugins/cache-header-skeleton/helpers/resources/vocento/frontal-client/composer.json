@@ -1,0 +1,43 @@
+{
+    "name": "vocento/frontal-client",
+    "description": "Vocento Frontal Client",
+    "license": "proprietary",
+    "type": "library",
+    "authors": [
+        {
+            "name": "David Zapatero",
+            "email": "dzapatero@vocento.com",
+            "role": "developer"
+        },
+        {
+            "name": "Hector Prats",
+            "email": "hprats@vocento.com",
+            "role": "backend developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Vocento\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Vocento\\": "tests/"
+        }
+    },
+    "require": {
+        "vocento/service-client": "^3.0",
+        "vocento/request-id": "~1.1",
+        "vocento/symfony-cache": "^1.0",
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5",
+        "vocento/php-http-mock-client": "^2.0",
+        "php-http/message": "^1.8",
+        "php-http/guzzle6-adapter": "^2.0"
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}

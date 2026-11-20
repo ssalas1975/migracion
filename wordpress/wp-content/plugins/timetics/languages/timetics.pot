@@ -1,0 +1,5167 @@
+# Copyright (C) 2026 Arraytics
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Timetics - Appointment Booking Calendar & Scheduling System 1.0.67\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/timetics\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-10T11:53:44+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: timetics\n"
+
+#. Plugin Name of the plugin
+#: timetics.php
+msgid "Timetics - Appointment Booking Calendar & Scheduling System"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: timetics.php
+msgid "https://arraytics.com/timetics/"
+msgstr ""
+
+#. Description of the plugin
+#: timetics.php
+msgid "Schedule, Appointment and Seat Booking plugin."
+msgstr ""
+
+#. Author of the plugin
+#: timetics.php
+msgid "Arraytics"
+msgstr ""
+
+#. Author URI of the plugin
+#: timetics.php
+msgid "https://arraytics.com/"
+msgstr ""
+
+#. translators: Error Message
+#: base/api.php:58
+#, php-format
+msgid "%s can't be empty"
+msgstr ""
+
+#. translators: %1$s: Class name, %2$s: Method name
+#: base/forward-calls.php:49
+#, php-format
+msgid "Call to undefined method %1$s::%2$s()"
+msgstr ""
+
+#: base/importer.php:75
+msgid "You must provide a valid file type"
+msgstr ""
+
+#. translators: %s: Property name
+#: base/post-model.php:53
+#: base/post-model.php:67
+#, php-format
+msgid "Undefined property %s"
+msgstr ""
+
+#: base/role.php:67
+msgid "Staff"
+msgstr ""
+
+#: base/role.php:80
+msgid "Timetics Customer"
+msgstr ""
+
+#: bootstrap.php:35
+msgid "Cloning is forbidden."
+msgstr ""
+
+#: bootstrap.php:42
+msgid "Unserializing instances of this class is forbidden."
+msgstr ""
+
+#: core/addon/api-addon.php:59
+msgid "Filter by extension type: module, addon, plugin, or all."
+msgstr ""
+
+#: core/addon/api-addon.php:114
+msgid "Invalid extension type."
+msgstr ""
+
+#: core/addon/api-addon.php:147
+msgid "Please enter an extension name."
+msgstr ""
+
+#. translators: %s: status value
+#: core/addon/api-addon.php:155
+#, php-format
+msgid "Invalid status \"%s\" provided."
+msgstr ""
+
+#: core/addon/api-addon.php:165
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:115
+msgid "Enter a valid email address."
+msgstr ""
+
+#. translators: %s: plugin name
+#: core/addon/api-addon.php:175
+#, php-format
+msgid "Extension \"%s\" not found."
+msgstr ""
+
+#: core/addon/api-addon.php:186
+msgid "Redirecting to upgrade page."
+msgstr ""
+
+#: core/addon/api-addon.php:203
+msgid "Sorry, you are not allowed to manage plugins on this site."
+msgstr ""
+
+#: core/addon/api-addon.php:234
+msgid "Plugin installation failed."
+msgstr ""
+
+#. translators: %s: action name
+#: core/addon/api-addon.php:253
+#, php-format
+msgid "Could not %s the extension."
+msgstr ""
+
+#. translators: %s: action name
+#: core/addon/api-addon.php:294
+#, php-format
+msgid "Extension %s successfully."
+msgstr ""
+
+#: core/addon/api-addon.php:374
+#: core/addon/api-addon.php:391
+msgid "Download URL must use HTTPS from a trusted domain."
+msgstr ""
+
+#: core/admin/hooks.php:74
+msgid "Timetics requires WooCommerce to enable woocommerce integration. You can download <a href=\"https://wordpress.org/plugins/woocommerce/\" target=\"_blank\">WooCommerce</a> here."
+msgstr ""
+
+#: core/admin/hooks.php:127
+#: core/admin/menu.php:93
+#: assets/src/admin/pages/ask-ai/index.js:60
+#: assets/src/admin/pages/settings/index.js:94
+msgid "Settings"
+msgstr ""
+
+#. translators: {%customer_name%} is a token replaced at runtime with the recipient customer's name
+#: core/admin/hooks.php:300
+#, php-format
+msgid "Hi {%customer_name%}"
+msgstr ""
+
+#. translators: {%host_name%} is a token replaced at runtime with the recipient host's name
+#: core/admin/hooks.php:302
+msgid "Hi {%host_name%}"
+msgstr ""
+
+#: core/admin/hooks.php:303
+msgid "A new meeting has been scheduled."
+msgstr ""
+
+#. translators: {%meeting_title%} is a token replaced at runtime with the meeting title
+#: core/admin/hooks.php:305
+msgid "{%meeting_title%} has been canceled."
+msgstr ""
+
+#. translators: {%meeting_title%} is a token replaced at runtime with the meeting title
+#: core/admin/hooks.php:307
+msgid "{%meeting_title%} has been rescheduled"
+msgstr ""
+
+#. translators: {%meeting_title%}, {%meeting_date%}, {%meeting_time%} are tokens replaced at runtime with the meeting details
+#: core/admin/hooks.php:309
+msgid "{%meeting_title%} at {%meeting_date%} {%meeting_time%}"
+msgstr ""
+
+#: core/admin/hooks.php:314
+#: core/admin/hooks.php:318
+msgid "New meeting scheduled!"
+msgstr ""
+
+#: core/admin/hooks.php:323
+#: core/admin/hooks.php:327
+msgid "Meeting cancelled"
+msgstr ""
+
+#: core/admin/hooks.php:331
+#: core/admin/hooks.php:335
+msgid "Meeting rescheduled!"
+msgstr ""
+
+#: core/admin/hooks.php:339
+#: core/admin/hooks.php:343
+msgid "Meeting time reminder"
+msgstr ""
+
+#: core/admin/menu.php:49
+#: assets/src/admin/pages/overview/index.js:166
+#: assets/src/admin/pages/staff/Update.js:95
+msgid "Overview"
+msgstr ""
+
+#: core/admin/menu.php:56
+#: assets/src/admin/components/ask-ai/AskAiButton.js:31
+#: assets/src/admin/pages/ask-ai/index.js:97
+msgid "Ask AI"
+msgstr ""
+
+#: core/admin/menu.php:64
+#: assets/src/admin/pages/ask-ai/index.js:30
+msgid "Meetings"
+msgstr ""
+
+#: core/admin/menu.php:71
+#: assets/src/admin/pages/ask-ai/index.js:40
+msgid "Team Members"
+msgstr ""
+
+#: core/admin/menu.php:79
+#: assets/src/admin/pages/bookings/bookingLists.js:164
+msgid "Calendar"
+msgstr ""
+
+#: core/admin/menu.php:86
+msgid "Customers"
+msgstr ""
+
+#: core/admin/menu.php:100
+msgid "My Profile"
+msgstr ""
+
+#: core/admin/menu.php:107
+#: assets/src/admin/pages/shortcodes/index.js:16
+msgid "Shortcodes"
+msgstr ""
+
+#: core/admin/menu.php:114
+#: utils/pro-awareness/pro-awareness.php:207
+msgid "Setup Wizard"
+msgstr ""
+
+#: core/admin/menu.php:121
+#: assets/src/admin/pages/about-us/index.js:47
+msgid "About Us"
+msgstr ""
+
+#: core/admin/menu.php:129
+#: core/admin/menu.php:130
+msgid "Timetics"
+msgstr ""
+
+#: core/admin/menu.php:173
+#: timetics.php:398
+#: assets/src/admin/components/GoProButton.js:19
+msgid "Go Pro"
+msgstr ""
+
+#: core/admin/notification-seeder.php:83
+msgid "Booking Links – Customer"
+msgstr ""
+
+#: core/admin/notification-seeder.php:90
+#: core/emails/manage-links-customer-email.php:54
+#: templates/emails/manage-links.php:20
+msgid "Your upcoming bookings"
+msgstr ""
+
+#. translators: Keep the {%customer_name%} and {%upcoming_bookings%} tags as they are.
+#: core/admin/notification-seeder.php:92
+#, php-format
+msgid "<p>Hi {%customer_name%},</p><p>Here are your upcoming bookings. Use the buttons to reschedule or cancel.</p>{%upcoming_bookings%}"
+msgstr ""
+
+#: core/admin/notification.php:49
+msgid "Automation"
+msgstr ""
+
+#: core/admin/notification.php:84
+msgid "Sorry, you are not allowed to do that."
+msgstr ""
+
+#: core/admin/notification.php:102
+msgid "Meeting Title"
+msgstr ""
+
+#: core/admin/notification.php:107
+#: core/admin/notification.php:202
+msgid "Meeting Date"
+msgstr ""
+
+#: core/admin/notification.php:112
+msgid "Meeting Time"
+msgstr ""
+
+#: core/admin/notification.php:117
+msgid "All Sessions"
+msgstr ""
+
+#: core/admin/notification.php:122
+msgid "Session Number"
+msgstr ""
+
+#: core/admin/notification.php:127
+msgid "Series Size"
+msgstr ""
+
+#: core/admin/notification.php:132
+msgid "Meeting Location"
+msgstr ""
+
+#: core/admin/notification.php:137
+msgid "Google Meet Link"
+msgstr ""
+
+#: core/admin/notification.php:142
+msgid "Meeting Duration"
+msgstr ""
+
+#: core/admin/notification.php:147
+msgid "Host Name"
+msgstr ""
+
+#: core/admin/notification.php:152
+#: core/admin/notification.php:189
+msgid "Host Email"
+msgstr ""
+
+#: core/admin/notification.php:157
+#: core/admin/notification.php:243
+msgid "Customer Name"
+msgstr ""
+
+#: core/admin/notification.php:162
+#: core/admin/notification.php:185
+#: core/admin/notification.php:248
+msgid "Customer Email"
+msgstr ""
+
+#: core/admin/notification.php:167
+msgid "Login URL"
+msgstr ""
+
+#: core/admin/notification.php:172
+msgid "Login Username"
+msgstr ""
+
+#: core/admin/notification.php:177
+msgid "Set Password URL"
+msgstr ""
+
+#: core/admin/notification.php:193
+msgid "Custom Email"
+msgstr ""
+
+#: core/admin/notification.php:209
+#: assets/src/admin/pages/settings/Notification.js:55
+msgid "After Booking Confirmation"
+msgstr ""
+
+#: core/admin/notification.php:216
+#: assets/src/admin/pages/settings/Notification.js:79
+msgid "After Booking Cancellation"
+msgstr ""
+
+#: core/admin/notification.php:229
+msgid "After Booking Rescheduled"
+msgstr ""
+
+#: core/admin/notification.php:236
+msgid "Booking Links Requested"
+msgstr ""
+
+#: core/admin/notification.php:253
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:27
+#: assets/src/admin/pages/overview/UpcommingBookings.js:15
+msgid "Upcoming Bookings"
+msgstr ""
+
+#: core/admin/notification.php:260
+msgid "Request Time"
+msgstr ""
+
+#: core/admin/notification.php:329
+msgid "Powered by Timetics"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:140
+#: core/appointments/api-appointment-taxonomy.php:172
+msgid "Category list"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:214
+msgid "Category successfully created"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:257
+msgid "Category successfully updated"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:277
+msgid "Category doesn't exist"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:283
+msgid "Successfully deleted, appointment category"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:303
+msgid "Category id required"
+msgstr ""
+
+#: core/appointments/api-appointment-taxonomy.php:315
+msgid "No category exists."
+msgstr ""
+
+#. translators: 1: Number of deleted categories, 2: Total number of categories
+#: core/appointments/api-appointment-taxonomy.php:322
+#, php-format
+msgid "Successfully deleted %1$d out of %2$d categories"
+msgstr ""
+
+#: core/appointments/api-appointment.php:419
+#: core/appointments/api-appointment.php:499
+#: core/appointments/api-appointment.php:797
+#: core/bookings/api-booking.php:298
+#: core/staffs/api-staff.php:333
+#: core/staffs/api-staff.php:371
+msgid "Something went wrong"
+msgstr ""
+
+#: core/appointments/api-appointment.php:484
+msgid "You are not allowed to edit this appointment."
+msgstr ""
+
+#: core/appointments/api-appointment.php:543
+#: core/appointments/api-appointment.php:627
+#: core/appointments/api-appointment.php:644
+#: core/appointments/api-appointment.php:686
+#: core/appointments/api-appointment.php:742
+#: core/appointments/api-appointment.php:819
+msgid "Invalid appointment id."
+msgstr ""
+
+#: core/appointments/api-appointment.php:653
+msgid "Successfully retrieved appointments"
+msgstr ""
+
+#: core/appointments/api-appointment.php:677
+msgid "You are not allowed to delete this meeting."
+msgstr ""
+
+#: core/appointments/api-appointment.php:695
+msgid "Successfully deleted appointment"
+msgstr ""
+
+#: core/appointments/api-appointment.php:753
+msgid "You are not allowed to delete one or more of the selected appointments."
+msgstr ""
+
+#: core/appointments/api-appointment.php:770
+msgid "Successfully deleted all appointments"
+msgstr ""
+
+#: core/appointments/api-appointment.php:833
+msgid "Successfully duplicated appointment"
+msgstr ""
+
+#: core/appointments/api-appointment.php:887
+msgid "Select a valid phone field setting."
+msgstr ""
+
+#: core/appointments/api-appointment.php:958
+msgid "Your timezone is invaid."
+msgstr ""
+
+#. translators: %s: Action performed (created, updated, etc.)
+#: core/appointments/api-appointment.php:1043
+#, php-format
+msgid "Successfully %s meeting"
+msgstr ""
+
+#: core/appointments/api-appointment.php:1172
+msgid "is not connected to google meet. Please connect to google meet then try again"
+msgstr ""
+
+#: core/appointments/api-appointment.php:1178
+msgid "Zoom addon plugin is not active. Please activate the plugin then try again"
+msgstr ""
+
+#: core/appointments/api-appointment.php:1188
+msgid "is not connected to zoom. Please connect to zoom then try again"
+msgstr ""
+
+#: core/appointments/hooks.php:82
+#: core/appointments/hooks.php:84
+msgid "Timetics Appointments"
+msgstr ""
+
+#: core/appointments/hooks.php:83
+msgid "Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:85
+msgid "Add New"
+msgstr ""
+
+#: core/appointments/hooks.php:86
+msgid "Add New Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:87
+#: assets/src/admin/pages/bookings/TableHeader.js:42
+#: assets/src/admin/pages/meeting/MeetingCard.js:278
+#: assets/src/admin/pages/meeting/steps/Integrations.js:168
+#: assets/src/admin/pages/meeting/steps/Integrations.js:208
+#: assets/src/admin/pages/meeting/steps/Integrations.js:246
+#: assets/src/admin/pages/meeting/steps/Integrations.js:285
+msgid "Edit"
+msgstr ""
+
+#: core/appointments/hooks.php:88
+msgid "Edit Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:89
+msgid "New Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:90
+msgid "View"
+msgstr ""
+
+#: core/appointments/hooks.php:91
+msgid "View Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:92
+msgid "Search Timetics Appointments"
+msgstr ""
+
+#: core/appointments/hooks.php:93
+msgid "No timetics appointments found"
+msgstr ""
+
+#: core/appointments/hooks.php:94
+msgid "No timetics appointments found in trash"
+msgstr ""
+
+#: core/appointments/hooks.php:95
+msgid "Parent Timetics Appointment"
+msgstr ""
+
+#: core/appointments/hooks.php:118
+#: core/appointments/hooks.php:121
+msgid "Appointment categories"
+msgstr ""
+
+#: core/appointments/hooks.php:119
+#: core/appointments/hooks.php:120
+msgid "Appointment category"
+msgstr ""
+
+#: core/appointments/hooks.php:122
+msgid "Parent Genre"
+msgstr ""
+
+#: core/appointments/hooks.php:123
+msgid "Parent Genre:"
+msgstr ""
+
+#: core/appointments/hooks.php:124
+msgid "New Genre Name"
+msgstr ""
+
+#: core/appointments/hooks.php:125
+msgid "Add New Genre"
+msgstr ""
+
+#: core/appointments/hooks.php:126
+msgid "Edit Genre"
+msgstr ""
+
+#: core/appointments/hooks.php:127
+msgid "Update Genre"
+msgstr ""
+
+#: core/appointments/hooks.php:128
+msgid "View Genre"
+msgstr ""
+
+#: core/appointments/hooks.php:129
+msgid "Separate genres with commas"
+msgstr ""
+
+#: core/appointments/hooks.php:130
+msgid "Add or remove genres"
+msgstr ""
+
+#: core/appointments/hooks.php:131
+msgid "Choose from the most used genres"
+msgstr ""
+
+#: core/appointments/hooks.php:132
+msgid "Popular Genres"
+msgstr ""
+
+#: core/appointments/hooks.php:133
+msgid "Search Genres"
+msgstr ""
+
+#: core/appointments/hooks.php:134
+msgid "Genre Not Found"
+msgstr ""
+
+#: core/appointments/hooks.php:135
+msgid "No genres"
+msgstr ""
+
+#: core/appointments/hooks.php:136
+msgid "Genres list"
+msgstr ""
+
+#: core/appointments/hooks.php:137
+msgid "Genres list navigation"
+msgstr ""
+
+#: core/booking-calendars/api-booking-calendar.php:85
+msgid "Google"
+msgstr ""
+
+#: core/bookings/api-booking.php:262
+#: core/bookings/api-booking.php:386
+#: core/bookings/api-booking.php:462
+#: core/bookings/api-booking.php:708
+#: core/bookings/api-booking.php:2254
+#: core/integrations/stripe/api-stripe.php:102
+msgid "Invalid booking id."
+msgstr ""
+
+#: core/bookings/api-booking.php:361
+#: core/bookings/api-booking.php:2218
+msgid "Booking not found."
+msgstr ""
+
+#: core/bookings/api-booking.php:395
+msgid "Custom Field Booking Restricted "
+msgstr ""
+
+#: core/bookings/api-booking.php:421
+#: assets/src/frontend/pages/bookings/BookingStatus.js:52
+msgid "Something went wrong, Please try again."
+msgstr ""
+
+#: core/bookings/api-booking.php:431
+#: core/bookings/api-booking.php:476
+msgid "Successfully deleted booking"
+msgstr ""
+
+#: core/bookings/api-booking.php:628
+msgid "Your booking timezone is invalid"
+msgstr ""
+
+#: core/bookings/api-booking.php:633
+msgid "Your meeting timezone is invalid. Please update your meeting timezone with proper timezone."
+msgstr ""
+
+#: core/bookings/api-booking.php:681
+msgid "Get all entries"
+msgstr ""
+
+#: core/bookings/api-booking.php:724
+msgid "Booking has already been finalized."
+msgstr ""
+
+#: core/bookings/api-booking.php:748
+msgid "Missing payment intent."
+msgstr ""
+
+#: core/bookings/api-booking.php:761
+msgid "Cannot verify payment with Stripe."
+msgstr ""
+
+#: core/bookings/api-booking.php:791
+msgid "Payment verification failed."
+msgstr ""
+
+#: core/bookings/api-booking.php:805
+#: core/bookings/api-booking.php:849
+#: core/bookings/api-booking.php:2313
+msgid "Payment intent does not match this booking."
+msgstr ""
+
+#: core/bookings/api-booking.php:860
+msgid "Payment already finalized."
+msgstr ""
+
+#. translators: Action
+#: core/bookings/api-booking.php:943
+#, php-format
+msgid "Payment %s"
+msgstr ""
+
+#: core/bookings/api-booking.php:961
+#: core/bookings/api-booking.php:1018
+msgid "Invalid booking data."
+msgstr ""
+
+#: core/bookings/api-booking.php:1030
+msgid "Recurring booking limit exit"
+msgstr ""
+
+#: core/bookings/api-booking.php:1110
+msgid "You can not change the appointment of a booking."
+msgstr ""
+
+#: core/bookings/api-booking.php:1172
+msgid "This booking is already canceled"
+msgstr ""
+
+#: core/bookings/api-booking.php:1202
+#: assets/src/admin/pages/bookings/FormField.js:496
+#: assets/src/frontend/pages/bookings/ContactInfo.js:91
+msgid "Enter a valid phone number."
+msgstr ""
+
+#. translators: %s: Time slot
+#: core/bookings/api-booking.php:1224
+#, php-format
+msgid "%s time slot is not available"
+msgstr ""
+
+#: core/bookings/api-booking.php:1235
+msgid "Couldn't possible to book. Plese try another time."
+msgstr ""
+
+#: core/bookings/api-booking.php:1254
+msgid "The price changed. Please apply the coupon again."
+msgstr ""
+
+#: core/bookings/api-booking.php:1261
+msgid "Invalid payment method."
+msgstr ""
+
+#. translators: Action
+#: core/bookings/api-booking.php:1603
+#, php-format
+msgid "Successfully %s booking"
+msgstr ""
+
+#: core/bookings/api-booking.php:1763
+msgid "You are not allowed to delete this booking."
+msgstr ""
+
+#: core/bookings/api-booking.php:1941
+msgid "Invalid meeting."
+msgstr ""
+
+#: core/bookings/api-booking.php:1946
+msgid "Invalid timeslot."
+msgstr ""
+
+#: core/bookings/api-booking.php:1951
+msgid "Team member not matched"
+msgstr ""
+
+#: core/bookings/api-booking.php:1956
+msgid "Location type not matched"
+msgstr ""
+
+#: core/bookings/api-booking.php:2070
+msgid "The booking price could not be worked out."
+msgstr ""
+
+#: core/bookings/api-booking.php:2226
+msgid "Unable to verify booking ownership."
+msgstr ""
+
+#: core/bookings/api-booking.php:2233
+msgid "You are not allowed to change the email address for this booking."
+msgstr ""
+
+#: core/bookings/api-booking.php:2269
+msgid "Invalid payment intent id."
+msgstr ""
+
+#: core/bookings/api-booking.php:2283
+msgid "Booking already bound to another payment intent."
+msgstr ""
+
+#: core/bookings/api-booking.php:2296
+msgid "Cannot verify payment intent with Stripe."
+msgstr ""
+
+#: core/bookings/api-booking.php:2324
+msgid "Payment intent is bound to another booking."
+msgstr ""
+
+#: core/bookings/api-booking.php:2339
+msgid "This time slot is no longer available. Please pick another time."
+msgstr ""
+
+#: core/bookings/api-booking.php:2372
+msgid "Payment intent bound."
+msgstr ""
+
+#: core/bookings/booking-lock.php:43
+msgid "Another booking is being saved. Please try again."
+msgstr ""
+
+#: core/bookings/booking-lock.php:52
+msgid "Bookings cannot be saved right now. Please try again later or contact us."
+msgstr ""
+
+#: core/bookings/hooks.php:63
+msgid "Every 5 Minutes (Timetics)"
+msgstr ""
+
+#. translators: %s: Number of approved bookings
+#: core/bookings/hooks.php:490
+#, php-format
+msgid "Approved <span class=\"count\">(%s)</span>"
+msgid_plural "Approved <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: Number of pending bookings
+#: core/bookings/hooks.php:497
+#, php-format
+msgid "Pending <span class=\"count\">(%s)</span>"
+msgid_plural "Pending <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: Number of cancelled bookings
+#: core/bookings/hooks.php:503
+#, php-format
+msgid "Cancelled <span class=\"count\">(%s)</span>"
+msgid_plural "Cancelled <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: Number of completed bookings
+#: core/bookings/hooks.php:509
+#, php-format
+msgid "Completed <span class=\"count\">(%s)</span>"
+msgid_plural "Completed <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: core/bookings/hooks.php:689
+msgid "Automatically cancelled — payment was not completed within the allowed time."
+msgstr ""
+
+#: core/bookings/manage-links-sender.php:125
+msgid "Most likely the one you mean"
+msgstr ""
+
+#. translators: 1: Time, 2: Day, 3: Date, 4: Time zone
+#. translators: 1: Time, 2: Day, 3: Date, 4: Timezone
+#: core/bookings/manage-links-sender.php:131
+#: templates/emails/new-event-customer.php:137
+#: templates/emails/new-event.php:112
+#, php-format
+msgid "%1$s, %2$s %3$s (%4$s)"
+msgstr ""
+
+#: core/bookings/manage-links-sender.php:141
+#: templates/emails/new-event-customer.php:181
+#: assets/src/admin/pages/bookings/RescheduleModal.js:177
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:270
+#: assets/src/frontend/pages/userAccount/TableHeader.js:20
+msgid "Reschedule"
+msgstr ""
+
+#: core/bookings/manage-links-sender.php:142
+#: templates/emails/new-event-customer.php:186
+#: assets/src/admin/components/AllDayScheduleModal.js:87
+msgid "Cancel"
+msgstr ""
+
+#: core/bookings/whatsapp-consent.php:23
+msgid "Choose whether to receive WhatsApp updates."
+msgstr ""
+
+#: core/bookings/whatsapp-consent.php:38
+msgid "WhatsApp updates are unavailable for this meeting."
+msgstr ""
+
+#: core/bookings/whatsapp-consent.php:44
+msgid "WhatsApp updates are not available."
+msgstr ""
+
+#: core/bookings/whatsapp-consent.php:52
+#: core/bookings/whatsapp-consent.php:62
+msgid "Enter a valid phone number to get WhatsApp updates."
+msgstr ""
+
+#: core/bookings/whatsapp-consent.php:58
+msgid "Confirm WhatsApp updates for this phone number."
+msgstr ""
+
+#: core/customers/api-customer.php:203
+#: core/customers/api-customer.php:351
+#: core/customers/api-customer.php:375
+#: core/customers/api-customer.php:415
+#: core/customers/api-customer.php:576
+msgid "Invalid customer id."
+msgstr ""
+
+#: core/customers/api-customer.php:391
+#: core/customers/api-customer.php:433
+msgid "Successfully deleted customer"
+msgstr ""
+
+#. translators: Action
+#: core/customers/api-customer.php:516
+#, php-format
+msgid "Successfully %s customer"
+msgstr ""
+
+#: core/dummy-data/api-faker.php:76
+msgid "Successfully generated dummy data"
+msgstr ""
+
+#: core/emails/re-invite-staff.php:47
+msgid "Re Invitation Subject"
+msgstr ""
+
+#: core/emails/re-invite-staff.php:56
+msgid "Re Invitation Staff"
+msgstr ""
+
+#: core/frontend/shortcode.php:66
+msgid "This booking form is not available."
+msgstr ""
+
+#: core/frontend/shortcode.php:108
+msgid "You are not logged in"
+msgstr ""
+
+#: core/frontend/shortcode.php:108
+msgid "Login"
+msgstr ""
+
+#: core/frontend/templates/meeting-list.php:29
+msgid "All Department"
+msgstr ""
+
+#: core/frontend/templates/meeting-list.php:40
+msgid "All Organizers"
+msgstr ""
+
+#: core/frontend/templates/meeting-list.php:122
+msgid "Book Now"
+msgstr ""
+
+#: core/frontend/templates/meeting-list.php:130
+msgid "No meetings found"
+msgstr ""
+
+#: core/integrations/auth.php:113
+msgid "Google Auth Error"
+msgstr ""
+
+#: core/integrations/google/client.php:179
+msgid "Failed to obtain Google access token."
+msgstr ""
+
+#: core/integrations/stripe/api-stripe.php:73
+msgid "Too many requests. Please try again later."
+msgstr ""
+
+#: core/integrations/stripe/api-stripe.php:115
+#: core/integrations/woocommerce/cart-api.php:93
+msgid "Invalid booking token."
+msgstr ""
+
+#: core/integrations/stripe/api-stripe.php:134
+msgid "Invalid amount or currency."
+msgstr ""
+
+#: core/integrations/stripe/api-stripe.php:170
+msgid "We could not start the payment. Please try again."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:88
+#: core/integrations/stripe/stripe-payment.php:153
+#: core/integrations/stripe/stripe-payment.php:209
+msgid "Invalid Stripe payment intent id."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:94
+#: core/integrations/stripe/stripe-payment.php:159
+#: core/integrations/stripe/stripe-payment.php:215
+msgid "Stripe secret key is not configured."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:106
+msgid "No metadata provided."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:131
+msgid "Stripe payment intent update failed."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:136
+#: core/integrations/stripe/stripe-payment.php:189
+msgid "Unexpected Stripe response."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:184
+msgid "Stripe payment intent retrieval failed."
+msgstr ""
+
+#: core/integrations/stripe/stripe-payment.php:238
+msgid "Stripe payment intent cancellation failed."
+msgstr ""
+
+#: core/integrations/woocommerce/cart-api.php:80
+msgid "Invalid booking."
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:715
+msgid "Date"
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:716
+#: assets/src/admin/pages/calendar/MoreLinks.js:47
+msgid "Time"
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:717
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:328
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:402
+#: assets/src/frontend/pages/userAccount/TableHeader.js:62
+msgid "Duration"
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:718
+#: assets/src/frontend/pages/bookings/ContactInfo.js:489
+msgid "Location"
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:719
+msgid "Timezone"
+msgstr ""
+
+#. translators: 1: WooCommerce order ID, 2: booking ID
+#: core/integrations/woocommerce/hooks.php:877
+#, php-format
+msgid "Order #%1$d was paid, but booking #%2$d was not approved because the site was saving other bookings at that moment. To try once more, change the order to On hold and then back to Processing ( setting Processing again does nothing, the status has not changed ). Or approve the booking by hand."
+msgstr ""
+
+#. translators: 1: WooCommerce order ID, 2: booking ID
+#: core/integrations/woocommerce/hooks.php:880
+#, php-format
+msgid "Order #%1$d was paid, but booking #%2$d could not get its time back because someone else took it. The booking was not approved. Refund the order, or move the booking to another time."
+msgstr ""
+
+#. translators: 1: WooCommerce order ID, 2: booking ID
+#: core/integrations/woocommerce/hooks.php:883
+#, php-format
+msgid "Booking #%2$d of order #%1$d stays cancelled because the site was saving other bookings at that moment. To try once more, change the order to a different status, for example On hold."
+msgstr ""
+
+#. translators: 1: WooCommerce order ID, 2: booking ID
+#: core/integrations/woocommerce/hooks.php:886
+#, php-format
+msgid "Booking #%2$d of order #%1$d stays cancelled because its time was taken by someone else."
+msgstr ""
+
+#: core/integrations/woocommerce/hooks.php:896
+msgid "A paid booking was not approved"
+msgstr ""
+
+#: core/services/api-service.php:153
+#: core/services/api-service.php:176
+#: core/services/api-service.php:204
+msgid "Invalid service id."
+msgstr ""
+
+#: core/services/api-service.php:214
+msgid "Successfully deleted service"
+msgstr ""
+
+#: core/services/api-service.php:289
+msgid "Succssfully created service"
+msgstr ""
+
+#: core/services/service-taxonomy.php:37
+#: core/services/service-taxonomy.php:38
+#: core/services/service-taxonomy.php:47
+msgid "Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:39
+msgid "Search Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:40
+msgid "All Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:41
+msgid "Parent Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:42
+msgid "Parent Category:"
+msgstr ""
+
+#: core/services/service-taxonomy.php:43
+msgid "Edit Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:44
+msgid "Update Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:45
+msgid "Add New Category"
+msgstr ""
+
+#: core/services/service-taxonomy.php:46
+msgid "New Category Name"
+msgstr ""
+
+#: core/settings/api-settings.php:101
+msgid "Get all settings"
+msgstr ""
+
+#: core/settings/api-settings.php:161
+msgid "Settings must be sent as a JSON object."
+msgstr ""
+
+#: core/settings/api-settings.php:188
+msgid "Settings successfully updated"
+msgstr ""
+
+#: core/settings/api-settings.php:319
+msgid "Successfully updated business"
+msgstr ""
+
+#: core/settings/settings.php:89
+#: assets/src/common/nicheData.js:20
+msgid "Patients"
+msgstr ""
+
+#: core/settings/settings.php:90
+#: assets/src/common/nicheData.js:12
+msgid "Doctors"
+msgstr ""
+
+#: core/settings/settings.php:93
+msgid "Students"
+msgstr ""
+
+#: core/settings/settings.php:94
+msgid "Teachers"
+msgstr ""
+
+#: core/settings/settings.php:117
+msgid "Doctors/Health clinic"
+msgstr ""
+
+#: core/settings/settings.php:121
+msgid "Tutor and education center"
+msgstr ""
+
+#: core/settings/settings.php:125
+msgid "Others"
+msgstr ""
+
+#: core/staffs/api-staff.php:160
+msgid "Invitation Email send successfully"
+msgstr ""
+
+#: core/staffs/api-staff.php:163
+msgid "Staff ID missing"
+msgstr ""
+
+#: core/staffs/api-staff.php:233
+#: core/staffs/api-staff.php:357
+#: core/staffs/api-staff.php:394
+#: core/staffs/api-staff.php:429
+#: core/staffs/api-staff.php:468
+#: core/staffs/api-staff.php:495
+msgid "Invalid staff id."
+msgstr ""
+
+#: core/staffs/api-staff.php:405
+#: core/staffs/api-staff.php:447
+msgid "Successfully deleted staff"
+msgstr ""
+
+#: core/staffs/api-staff.php:537
+msgid "Something went wrong, please try again"
+msgstr ""
+
+#: core/staffs/api-staff.php:546
+msgid "Successfully disconnected"
+msgstr ""
+
+#: core/staffs/api-staff.php:610
+msgid "Current password does not match"
+msgstr ""
+
+#. translators: Action
+#: core/staffs/api-staff.php:641
+#, php-format
+msgid "Successfully %s staff"
+msgstr ""
+
+#: core/staffs/hooks.php:101
+msgid "Remove from staff"
+msgstr ""
+
+#: core/staffs/hooks.php:101
+msgid "Make staff"
+msgstr ""
+
+#. translators: %s: Site name
+#: core/staffs/hooks.php:212
+#, php-format
+msgid "Welcome to %s onboarding!"
+msgstr ""
+
+#: core/staffs/hooks.php:227
+msgid "Staff onboard skipped successfully."
+msgstr ""
+
+#: core/staffs/staff.php:339
+#: core/staffs/staff.php:377
+msgid "A user with this email address already exists."
+msgstr ""
+
+#. translators: %s: Recipient name
+#: templates/emails/cancel-event.php:56
+#: templates/emails/customer-booking-reminder.php:68
+#: templates/emails/customer-cancel-event.php:57
+#: templates/emails/customer-update-event.php:70
+#: templates/emails/manage-links.php:27
+#: templates/emails/new-event-customer.php:112
+#: templates/emails/new-event.php:87
+#: templates/emails/staff-booking-reminder.php:67
+#: templates/emails/update-event.php:69
+#, php-format
+msgid "Hi %s,"
+msgstr ""
+
+#: templates/emails/cancel-event.php:59
+#: templates/emails/customer-cancel-event.php:60
+msgid "Meeting has been canceled"
+msgstr ""
+
+#: templates/emails/cancel-event.php:63
+#: templates/emails/customer-cancel-event.php:64
+#: templates/emails/customer-update-event.php:77
+#: templates/emails/new-event-customer.php:119
+#: templates/emails/new-event.php:94
+#: templates/emails/update-event.php:76
+msgid "Meeting Name:"
+msgstr ""
+
+#: templates/emails/cancel-event.php:70
+#: templates/emails/customer-booking-reminder.php:83
+#: templates/emails/new-event.php:101
+#: templates/emails/staff-booking-reminder.php:82
+#: templates/emails/update-event.php:83
+msgid "Invitee:"
+msgstr ""
+
+#: templates/emails/cancel-event.php:78
+#: templates/emails/customer-booking-reminder.php:91
+#: templates/emails/customer-cancel-event.php:79
+#: templates/emails/customer-update-event.php:92
+#: templates/emails/new-event-customer.php:134
+#: templates/emails/new-event.php:109
+#: templates/emails/staff-booking-reminder.php:90
+#: templates/emails/update-event.php:91
+msgid "Date and time:"
+msgstr ""
+
+#. translators: 1: Time, 2: Day, 3: Date
+#: templates/emails/cancel-event.php:81
+#: templates/emails/customer-booking-reminder.php:94
+#: templates/emails/customer-cancel-event.php:82
+#: templates/emails/customer-update-event.php:95
+#: templates/emails/staff-booking-reminder.php:93
+#: templates/emails/update-event.php:94
+#, php-format
+msgid "%1$s, %2$s %3$s"
+msgstr ""
+
+#: templates/emails/cancel-event.php:87
+#: templates/emails/customer-booking-reminder.php:54
+#: templates/emails/customer-booking-reminder.php:100
+#: templates/emails/customer-cancel-event.php:88
+#: templates/emails/customer-update-event.php:56
+#: templates/emails/customer-update-event.php:101
+#: templates/emails/new-event-customer.php:84
+#: templates/emails/new-event-customer.php:96
+#: templates/emails/new-event-customer.php:143
+#: templates/emails/new-event-customer.php:154
+#: templates/emails/new-event.php:63
+#: templates/emails/new-event.php:73
+#: templates/emails/new-event.php:118
+#: templates/emails/staff-booking-reminder.php:54
+#: templates/emails/staff-booking-reminder.php:99
+#: templates/emails/update-event.php:55
+#: templates/emails/update-event.php:100
+msgid "Location:"
+msgstr ""
+
+#: templates/emails/cancel-event.php:91
+#: templates/emails/customer-booking-reminder.php:57
+#: templates/emails/customer-booking-reminder.php:104
+#: templates/emails/customer-cancel-event.php:92
+#: templates/emails/customer-update-event.php:59
+#: templates/emails/customer-update-event.php:105
+#: templates/emails/new-event-customer.php:87
+#: templates/emails/new-event-customer.php:147
+#: templates/emails/new-event.php:66
+#: templates/emails/new-event.php:122
+#: templates/emails/staff-booking-reminder.php:57
+#: templates/emails/staff-booking-reminder.php:103
+#: templates/emails/update-event.php:58
+#: templates/emails/update-event.php:104
+msgid "Joining link:"
+msgstr ""
+
+#: templates/emails/cancel-event.php:99
+#: templates/emails/customer-booking-reminder.php:112
+#: templates/emails/customer-cancel-event.php:100
+#: templates/emails/customer-update-event.php:112
+#: templates/emails/new-event-customer.php:166
+#: templates/emails/new-event.php:132
+#: templates/emails/staff-booking-reminder.php:113
+#: templates/emails/update-event.php:111
+msgid "Invitee Time Zone:"
+msgstr ""
+
+#: templates/emails/cancel-event.php:106
+#: templates/emails/customer-booking-reminder.php:118
+#: templates/emails/customer-cancel-event.php:107
+#: templates/emails/customer-update-event.php:118
+#: templates/emails/new-event-customer.php:191
+#: templates/emails/new-event.php:139
+#: templates/emails/new-staff.php:30
+#: templates/emails/staff-booking-reminder.php:119
+#: templates/emails/update-event.php:117
+msgid "Thank you!"
+msgstr ""
+
+#. translators: %1$s: Booking date, %2$s: Booking time, %3$s: Meeting name
+#: templates/emails/customer-booking-reminder.php:74
+#: templates/emails/staff-booking-reminder.php:73
+#, php-format
+msgid "I hope this email finds you well. This is just a friendly reminder that you have a reservation with us on %1$s at %2$s. We are looking forward to welcoming you to %3$s."
+msgstr ""
+
+#: templates/emails/customer-cancel-event.php:71
+#: templates/emails/customer-update-event.php:84
+msgid "Staff:"
+msgstr ""
+
+#: templates/emails/customer-update-event.php:73
+#: templates/emails/update-event.php:72
+msgid "Meeting has been rescheduled"
+msgstr ""
+
+#: templates/emails/manage-links.php:31
+msgid "Here are your upcoming bookings. Use the buttons to reschedule or cancel."
+msgstr ""
+
+#: templates/emails/manage-links.php:38
+msgid "If you did not ask for this email, you can ignore it."
+msgstr ""
+
+#: templates/emails/new-event-customer.php:115
+#: templates/emails/new-event.php:90
+msgid "A new meeting has been scheduled"
+msgstr ""
+
+#: templates/emails/new-event-customer.php:126
+msgid "Organized By:"
+msgstr ""
+
+#: templates/emails/new-event-customer.php:176
+msgid "Need to make changes to this meeting?"
+msgstr ""
+
+#: templates/emails/new-staff.php:8
+msgid "You're almost there!"
+msgstr ""
+
+#: templates/emails/new-staff.php:14
+msgid ""
+"We're excited to have you on board! Your'are just a few\n"
+"                    steps away from setting up your first booking page. All\n"
+"                    that's left to do is verify your email address and set a\n"
+"                    password"
+msgstr ""
+
+#: templates/emails/new-staff.php:25
+msgid "Verify email and get started"
+msgstr ""
+
+#: templates/emails/new-staff.php:29
+msgid "This link is valid for 24 hours"
+msgstr ""
+
+#: templates/staff/onboard.php:20
+msgid "Staff onboard"
+msgstr ""
+
+#: templates/staff/onboard.php:124
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:99
+#: assets/src/admin/pages/settings/index.js:63
+#: assets/src/admin/pages/staff/Update.js:122
+msgid "Integrations"
+msgstr ""
+
+#: templates/staff/onboard.php:238
+#: assets/src/admin/module/onboard/components/Calendar.js:66
+#: assets/src/admin/pages/settings/integrationForm/GoogleConnection.js:81
+#: assets/src/admin/pages/staff/Integration.js:152
+#: assets/src/admin/pages/staff/Integration.js:190
+msgid "Connect"
+msgstr ""
+
+#: templates/staff/onboard.php:244
+msgid "Skip"
+msgstr ""
+
+#: templates/woocommerce/coupon-restriction-option.php:18
+msgid "Timetics Meetings"
+msgstr ""
+
+#: templates/woocommerce/coupon-restriction-option.php:19
+msgid "Search for a product&hellip;"
+msgstr ""
+
+#: templates/woocommerce/coupon-restriction-option.php:36
+msgid "Products that the coupon will be applied to, or that need to be in the cart in order for the \"Fixed cart discount\" to be applied."
+msgstr ""
+
+#: utils/currency.php:8
+msgid "United Arab Emirates dirham"
+msgstr ""
+
+#: utils/currency.php:13
+msgid "Afghan afghani"
+msgstr ""
+
+#: utils/currency.php:18
+msgid "Albanian lek"
+msgstr ""
+
+#: utils/currency.php:23
+msgid "Armenian dram"
+msgstr ""
+
+#: utils/currency.php:28
+msgid "Netherlands Antillean guilder"
+msgstr ""
+
+#: utils/currency.php:33
+msgid "Angolan kwanza"
+msgstr ""
+
+#: utils/currency.php:38
+msgid "Argentine peso"
+msgstr ""
+
+#: utils/currency.php:43
+msgid "Australian dollar"
+msgstr ""
+
+#: utils/currency.php:48
+msgid "Aruban florin"
+msgstr ""
+
+#: utils/currency.php:53
+msgid "Azerbaijani manat"
+msgstr ""
+
+#: utils/currency.php:58
+msgid "Bosnia and Herzegovina convertible mark"
+msgstr ""
+
+#: utils/currency.php:63
+msgid "Barbadian dollar"
+msgstr ""
+
+#: utils/currency.php:68
+msgid "Bangladeshi taka"
+msgstr ""
+
+#: utils/currency.php:73
+msgid "Bulgarian lev"
+msgstr ""
+
+#: utils/currency.php:78
+msgid "Bahraini dinar"
+msgstr ""
+
+#: utils/currency.php:83
+msgid "Burundian franc"
+msgstr ""
+
+#: utils/currency.php:88
+msgid "Bermudian dollar"
+msgstr ""
+
+#: utils/currency.php:93
+msgid "Brunei dollar"
+msgstr ""
+
+#: utils/currency.php:98
+msgid "Bolivian boliviano"
+msgstr ""
+
+#: utils/currency.php:103
+msgid "Brazilian real"
+msgstr ""
+
+#: utils/currency.php:108
+msgid "Bahamian dollar"
+msgstr ""
+
+#: utils/currency.php:113
+msgid "Bitcoin"
+msgstr ""
+
+#: utils/currency.php:118
+msgid "Bhutanese ngultrum"
+msgstr ""
+
+#: utils/currency.php:123
+msgid "Botswana pula"
+msgstr ""
+
+#: utils/currency.php:128
+msgid "Belarusian ruble (old)"
+msgstr ""
+
+#: utils/currency.php:133
+msgid "Belarusian ruble"
+msgstr ""
+
+#: utils/currency.php:138
+msgid "Belize dollar"
+msgstr ""
+
+#: utils/currency.php:143
+msgid "Canadian dollar"
+msgstr ""
+
+#: utils/currency.php:148
+msgid "Congolese franc"
+msgstr ""
+
+#: utils/currency.php:153
+msgid "Swiss franc"
+msgstr ""
+
+#: utils/currency.php:158
+msgid "Chilean peso"
+msgstr ""
+
+#: utils/currency.php:163
+msgid "Chinese yuan"
+msgstr ""
+
+#: utils/currency.php:168
+msgid "Colombian peso"
+msgstr ""
+
+#: utils/currency.php:173
+msgid "Costa Rican col&oacute;n"
+msgstr ""
+
+#: utils/currency.php:178
+msgid "Cuban convertible peso"
+msgstr ""
+
+#: utils/currency.php:183
+msgid "Cuban peso"
+msgstr ""
+
+#: utils/currency.php:188
+msgid "Cape Verdean escudo"
+msgstr ""
+
+#: utils/currency.php:193
+msgid "Czech koruna"
+msgstr ""
+
+#: utils/currency.php:198
+msgid "Djiboutian franc"
+msgstr ""
+
+#: utils/currency.php:203
+msgid "Danish krone"
+msgstr ""
+
+#: utils/currency.php:208
+msgid "Dominican peso"
+msgstr ""
+
+#: utils/currency.php:213
+msgid "Algerian dinar"
+msgstr ""
+
+#: utils/currency.php:218
+msgid "Egyptian pound"
+msgstr ""
+
+#: utils/currency.php:223
+msgid "Eritrean nakfa"
+msgstr ""
+
+#: utils/currency.php:228
+msgid "Ethiopian birr"
+msgstr ""
+
+#: utils/currency.php:233
+msgid "Euro"
+msgstr ""
+
+#: utils/currency.php:238
+msgid "Fijian dollar"
+msgstr ""
+
+#: utils/currency.php:243
+msgid "Falkland Islands pound"
+msgstr ""
+
+#: utils/currency.php:248
+msgid "Pound sterling"
+msgstr ""
+
+#: utils/currency.php:253
+msgid "Georgian lari"
+msgstr ""
+
+#: utils/currency.php:258
+msgid "Guernsey pound"
+msgstr ""
+
+#: utils/currency.php:263
+msgid "Ghana cedi"
+msgstr ""
+
+#: utils/currency.php:268
+msgid "Gibraltar pound"
+msgstr ""
+
+#: utils/currency.php:273
+msgid "Gambian dalasi"
+msgstr ""
+
+#: utils/currency.php:278
+msgid "Guinean franc"
+msgstr ""
+
+#: utils/currency.php:283
+msgid "Guatemalan quetzal"
+msgstr ""
+
+#: utils/currency.php:288
+msgid "Guyanese dollar"
+msgstr ""
+
+#: utils/currency.php:293
+msgid "Hong Kong dollar"
+msgstr ""
+
+#: utils/currency.php:298
+msgid "Honduran lempira"
+msgstr ""
+
+#: utils/currency.php:303
+msgid "Croatian kuna"
+msgstr ""
+
+#: utils/currency.php:308
+msgid "Haitian gourde"
+msgstr ""
+
+#: utils/currency.php:313
+msgid "Hungarian forint"
+msgstr ""
+
+#: utils/currency.php:318
+msgid "Indonesian rupiah"
+msgstr ""
+
+#: utils/currency.php:323
+msgid "Israeli new shekel"
+msgstr ""
+
+#: utils/currency.php:328
+msgid "Manx pound"
+msgstr ""
+
+#: utils/currency.php:333
+msgid "Indian rupee"
+msgstr ""
+
+#: utils/currency.php:338
+msgid "Iraqi dinar"
+msgstr ""
+
+#: utils/currency.php:343
+msgid "Iranian rial"
+msgstr ""
+
+#: utils/currency.php:348
+msgid "Iranian toman"
+msgstr ""
+
+#: utils/currency.php:353
+msgid "Icelandic kr&oacute;na"
+msgstr ""
+
+#: utils/currency.php:358
+msgid "Jersey pound"
+msgstr ""
+
+#: utils/currency.php:363
+msgid "Jamaican dollar"
+msgstr ""
+
+#: utils/currency.php:368
+msgid "Jordanian dinar"
+msgstr ""
+
+#: utils/currency.php:373
+msgid "Japanese yen"
+msgstr ""
+
+#: utils/currency.php:378
+msgid "Kenyan shilling"
+msgstr ""
+
+#: utils/currency.php:383
+msgid "Kyrgyzstani som"
+msgstr ""
+
+#: utils/currency.php:388
+msgid "Cambodian riel"
+msgstr ""
+
+#: utils/currency.php:393
+msgid "Comorian franc"
+msgstr ""
+
+#: utils/currency.php:398
+msgid "North Korean won"
+msgstr ""
+
+#: utils/currency.php:403
+msgid "South Korean won"
+msgstr ""
+
+#: utils/currency.php:408
+msgid "Kuwaiti dinar"
+msgstr ""
+
+#: utils/currency.php:413
+msgid "Cayman Islands dollar"
+msgstr ""
+
+#: utils/currency.php:418
+msgid "Kazakhstani tenge"
+msgstr ""
+
+#: utils/currency.php:423
+msgid "Lao kip"
+msgstr ""
+
+#: utils/currency.php:428
+msgid "Lebanese pound"
+msgstr ""
+
+#: utils/currency.php:433
+msgid "Sri Lankan rupee"
+msgstr ""
+
+#: utils/currency.php:438
+msgid "Liberian dollar"
+msgstr ""
+
+#: utils/currency.php:443
+msgid "Lesotho loti"
+msgstr ""
+
+#: utils/currency.php:448
+msgid "Libyan dinar"
+msgstr ""
+
+#: utils/currency.php:453
+msgid "Moroccan dirham"
+msgstr ""
+
+#: utils/currency.php:458
+msgid "Moldovan leu"
+msgstr ""
+
+#: utils/currency.php:463
+msgid "Malagasy ariary"
+msgstr ""
+
+#: utils/currency.php:468
+msgid "Macedonian denar"
+msgstr ""
+
+#: utils/currency.php:473
+msgid "Burmese kyat"
+msgstr ""
+
+#: utils/currency.php:478
+msgid "Mongolian t&ouml;gr&ouml;g"
+msgstr ""
+
+#: utils/currency.php:483
+msgid "Macanese pataca"
+msgstr ""
+
+#: utils/currency.php:488
+msgid "Mauritanian ouguiya"
+msgstr ""
+
+#: utils/currency.php:493
+msgid "Mauritian rupee"
+msgstr ""
+
+#: utils/currency.php:498
+msgid "Maldivian rufiyaa"
+msgstr ""
+
+#: utils/currency.php:503
+msgid "Malawian kwacha"
+msgstr ""
+
+#: utils/currency.php:508
+msgid "Mexican peso"
+msgstr ""
+
+#: utils/currency.php:513
+msgid "Malaysian ringgit"
+msgstr ""
+
+#: utils/currency.php:518
+msgid "Mozambican metical"
+msgstr ""
+
+#: utils/currency.php:523
+msgid "Namibian dollar"
+msgstr ""
+
+#: utils/currency.php:528
+msgid "Nigerian naira"
+msgstr ""
+
+#: utils/currency.php:533
+msgid "Nicaraguan c&oacute;rdoba"
+msgstr ""
+
+#: utils/currency.php:538
+msgid "Norwegian krone"
+msgstr ""
+
+#: utils/currency.php:543
+msgid "Nepalese rupee"
+msgstr ""
+
+#: utils/currency.php:548
+msgid "New Zealand dollar"
+msgstr ""
+
+#: utils/currency.php:553
+msgid "Omani rial"
+msgstr ""
+
+#: utils/currency.php:558
+msgid "Panamanian balboa"
+msgstr ""
+
+#: utils/currency.php:563
+msgid "Sol"
+msgstr ""
+
+#: utils/currency.php:568
+msgid "Papua New Guinean kina"
+msgstr ""
+
+#: utils/currency.php:573
+msgid "Philippine peso"
+msgstr ""
+
+#: utils/currency.php:578
+msgid "Pakistani rupee"
+msgstr ""
+
+#: utils/currency.php:583
+msgid "Polish z&#x142;oty"
+msgstr ""
+
+#: utils/currency.php:588
+msgid "Transnistrian ruble"
+msgstr ""
+
+#: utils/currency.php:593
+msgid "Paraguayan guaran&iacute;"
+msgstr ""
+
+#: utils/currency.php:598
+msgid "Qatari riyal"
+msgstr ""
+
+#: utils/currency.php:603
+msgid "Chinese renminbi"
+msgstr ""
+
+#: utils/currency.php:608
+msgid "Romanian leu"
+msgstr ""
+
+#: utils/currency.php:613
+msgid "Serbian dinar"
+msgstr ""
+
+#: utils/currency.php:618
+msgid "Russian ruble"
+msgstr ""
+
+#: utils/currency.php:623
+msgid "Rwandan franc"
+msgstr ""
+
+#: utils/currency.php:628
+msgid "Saudi riyal"
+msgstr ""
+
+#: utils/currency.php:633
+msgid "Solomon Islands dollar"
+msgstr ""
+
+#: utils/currency.php:638
+msgid "Seychellois rupee"
+msgstr ""
+
+#: utils/currency.php:643
+msgid "Sudanese pound"
+msgstr ""
+
+#: utils/currency.php:648
+msgid "Swedish krona"
+msgstr ""
+
+#: utils/currency.php:653
+msgid "Singapore dollar"
+msgstr ""
+
+#: utils/currency.php:658
+msgid "Saint Helena pound"
+msgstr ""
+
+#: utils/currency.php:663
+msgid "Sierra Leonean leone"
+msgstr ""
+
+#: utils/currency.php:668
+msgid "Somali shilling"
+msgstr ""
+
+#: utils/currency.php:673
+msgid "Surinamese dollar"
+msgstr ""
+
+#: utils/currency.php:678
+msgid "South Sudanese pound"
+msgstr ""
+
+#: utils/currency.php:683
+msgid "S&atilde;o Tom&eacute; and Pr&iacute;ncipe dobra"
+msgstr ""
+
+#: utils/currency.php:688
+msgid "Syrian pound"
+msgstr ""
+
+#: utils/currency.php:693
+msgid "Swazi lilangeni"
+msgstr ""
+
+#: utils/currency.php:698
+msgid "Thai baht"
+msgstr ""
+
+#: utils/currency.php:703
+msgid "Tajikistani somoni"
+msgstr ""
+
+#: utils/currency.php:708
+msgid "Turkmenistan manat"
+msgstr ""
+
+#: utils/currency.php:713
+msgid "Tunisian dinar"
+msgstr ""
+
+#: utils/currency.php:718
+msgid "Tongan pa&#x2bb;anga"
+msgstr ""
+
+#: utils/currency.php:723
+msgid "Turkish lira"
+msgstr ""
+
+#: utils/currency.php:728
+msgid "Trinidad and Tobago dollar"
+msgstr ""
+
+#: utils/currency.php:733
+msgid "New Taiwan dollar"
+msgstr ""
+
+#: utils/currency.php:738
+msgid "Tanzanian shilling"
+msgstr ""
+
+#: utils/currency.php:743
+msgid "Ukrainian hryvnia"
+msgstr ""
+
+#: utils/currency.php:748
+msgid "Ugandan shilling"
+msgstr ""
+
+#: utils/currency.php:753
+msgid "United States (US) dollar"
+msgstr ""
+
+#: utils/currency.php:758
+msgid "Uruguayan peso"
+msgstr ""
+
+#: utils/currency.php:763
+msgid "Uzbekistani som"
+msgstr ""
+
+#: utils/currency.php:768
+msgid "Venezuelan bol&iacute;var"
+msgstr ""
+
+#: utils/currency.php:773
+msgid "Bol&iacute;var soberano"
+msgstr ""
+
+#: utils/currency.php:778
+msgid "Vietnamese &#x111;&#x1ed3;ng"
+msgstr ""
+
+#: utils/currency.php:783
+msgid "Vanuatu vatu"
+msgstr ""
+
+#: utils/currency.php:788
+msgid "Samoan t&#x101;l&#x101;"
+msgstr ""
+
+#: utils/currency.php:793
+msgid "Central African CFA franc"
+msgstr ""
+
+#: utils/currency.php:798
+msgid "East Caribbean dollar"
+msgstr ""
+
+#: utils/currency.php:803
+msgid "West African CFA franc"
+msgstr ""
+
+#: utils/currency.php:808
+msgid "CFP franc"
+msgstr ""
+
+#: utils/currency.php:813
+msgid "Yemeni rial"
+msgstr ""
+
+#: utils/currency.php:818
+msgid "South African rand"
+msgstr ""
+
+#: utils/currency.php:823
+msgid "Zambian kwacha"
+msgstr ""
+
+#: utils/global-helper.php:432
+#: assets/src/admin/pages/bookings/FormField.js:665
+#: assets/src/admin/pages/meeting/LocationType.js:396
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:231
+#: assets/src/frontend/pages/bookings/ContactInfo.js:721
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:245
+msgid "Google Meet"
+msgstr ""
+
+#: utils/global-helper.php:433
+#: utils/global-helper.php:443
+msgid "Connect your Meet to sync your booked events."
+msgstr ""
+
+#: utils/global-helper.php:442
+#: assets/src/admin/module/onboard/components/Calendar.js:21
+#: assets/src/frontend/pages/bookings/AddCalender.js:68
+msgid "Google Calendar"
+msgstr ""
+
+#: utils/global-helper.php:571
+msgid "Stripe"
+msgstr ""
+
+#: utils/global-helper.php:575
+msgid "Local Pay"
+msgstr ""
+
+#: utils/global-helper.php:579
+msgid "Woocommerce"
+msgstr ""
+
+#: utils/global-helper.php:652
+msgid "Timetics Meeting"
+msgstr ""
+
+#: utils/global-helper.php:658
+msgid "Timetics meeting"
+msgstr ""
+
+#: utils/global-helper.php:884
+msgid "Eventin"
+msgstr ""
+
+#: utils/global-helper.php:885
+msgid "Best Free WordPress Event Calendar Plugin to manage booking, registration, RSVPs, schedule recurring events and sell event tickets with WooCommerce."
+msgstr ""
+
+#: utils/global-helper.php:900
+msgid "Booktics"
+msgstr ""
+
+#: utils/global-helper.php:901
+msgid "The ultimate online booking plugin for WordPress — services, staff, schedules, and payments in one place."
+msgstr ""
+
+#: utils/global-helper.php:916
+msgid "Poptics"
+msgstr ""
+
+#: utils/global-helper.php:917
+msgid "Discover the ultimate popup mix with Poptics Popup Builder to boost your lead generation and sales conversions."
+msgstr ""
+
+#: utils/global-helper.php:932
+msgid "WPCafe"
+msgstr ""
+
+#: utils/global-helper.php:933
+msgid "WPCafe — Restaurant plugin with Online Ordering, Delivery, Pickup, Food Menu, Reservations, and Table Management."
+msgstr ""
+
+#: utils/global-helper.php:948
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:63
+msgid "Aisentic"
+msgstr ""
+
+#: utils/global-helper.php:949
+msgid "Your AI assistant for Timetics. Manage bookings, analyze schedules and automate routine tasks using plain English — get work done in seconds instead of hours."
+msgstr ""
+
+#: utils/global-helper.php:964
+msgid "Optiontics"
+msgstr ""
+
+#: utils/global-helper.php:965
+msgid "Offer paid add-ons and extra options with every booking — services, extras, packages or custom upgrades that customers can pick during checkout."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:156
+msgid "Default Title"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:208
+msgid "To know the eventin starting guide, run the setup wizard. Your existing settings will not change."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:209
+msgid "Start Now"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:216
+msgid "Help Center"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:217
+msgid "To help you to get started, we put together the documentation, support link, videos and FAQs here."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:261
+msgid "Common FAQs"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:272
+msgid "How to create zoom event?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:275
+msgid "You have to give valid connection details in Eventin=>Settings=>User data."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:276
+msgid "After fill up “Api key”, “Secret key” enter “Save changes” and then check connection. After successful connection navigate to Eventin=>Zoom to create a meeting."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:277
+msgid "Note: You must have successful connection to zoom api).You will get meeting id from zoom. Place your meeting id to shortcode (For instance: [etn_zoom_api_link meeting_id =’123456789′ link_only=’no’]"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:278
+msgid "You can also create meeting and display from elementor widget."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:290
+msgid "How can I translate event content into my own language?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:306
+msgid "How to upgrade to Eventin PRO?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:325
+msgid "How can I skip adding the price for the ticket?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:328
+msgid "If you want to host an event without selling tickets, you can arrange it with WPEventin. Woocommerce is not mandatory in this scenario. In that case, simply skip enabling the “Sell on Woocommerce” option. On the other hand, you can enable selling tickets and put the event ticket price as zero(0), then it will act as a free event and your customers don't have to pay for that event. In this way, you can skip the price of the tickets."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:340
+msgid "I am getting a 404 error. What to do now?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:343
+msgid "You can get a 404 Not Found error for many reasons in WordPress. However, the most common reason for the 404 error is page permalink. In order to solve the permalink error, please login to your WordPress dashboard and click on settings. Then from permalink, select “ Post name” as permalink structure and save the settings. Solution key wp-admin -> settings -> permalink -> Post name -> Save Changes."
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:355
+msgid "Does Eventin support different page builders?"
+msgstr ""
+
+#: utils/pro-awareness/pro-awareness.php:358
+msgid "Yes. Eventin supports different page builders like DIVI builder, Visual Composer and Elementor page builder. You can use a shortcode for DIVI builder and Visual Composer. And the plugin has 15+ dedicated widgets for the Elementor page builder. Most of the widgets are FREE to use. However, <a href=\"https://themewinter.com/eventin/\" target=\"_blank\">Eventin PRO</a> will be required for a few specific widgets."
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:86
+msgid "Apply Schedule"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:94
+#: assets/src/admin/components/SingleDaySchedule.js:522
+msgid "Apply schedule to other days"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:99
+msgid "Apply schedule to all days"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:102
+msgid "Apply schedule to custom days"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:120
+msgid "Friday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:124
+msgid "Saturday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:128
+msgid "Sunday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:132
+msgid "Monday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:136
+msgid "Tuesday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:140
+msgid "Wednesday"
+msgstr ""
+
+#: assets/src/admin/components/AllDayScheduleModal.js:144
+msgid "Thursday"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:60
+msgid "Aisentic was installed, but the account could not be created. Open Aisentic to finish setup."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:65
+msgid "Installation failed. You can install Aisentic from Plugins → Add New instead."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:77
+msgid "Turn on Timetics AI"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:81
+msgid "Your assistant runs on the free <b>Aisentic</b> plugin."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:88
+msgid "We'll install and register it for you."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:94
+msgid "free AI credits · no card, no trial"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:110
+#: assets/src/admin/pages/bookings/BookingModal.js:208
+#: assets/src/admin/pages/customers/TableHeader.js:24
+#: assets/src/admin/pages/staff/FormField.js:68
+#: assets/src/admin/pages/staff/TableHeader.js:48
+#: assets/src/frontend/pages/userAccount/UserProfile.js:126
+msgid "Email"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:132
+msgid "Consent is required."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:138
+msgid "I agree to share my name, email & site address with Aisentic to create my free account."
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:156
+msgid "Not now"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:167
+msgid "Setting up…"
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/components/ask-ai/AisenticSetupDialog.js:170
+#, js-format
+msgid "Install & get %s credits"
+msgstr ""
+
+#: assets/src/admin/components/ask-ai/useAskAi.js:58
+msgid "Ask your site administrator to turn on Timetics AI."
+msgstr ""
+
+#: assets/src/admin/components/ErrorPage.js:15
+msgid "Oops! Something went wrong."
+msgstr ""
+
+#: assets/src/admin/components/ErrorPage.js:21
+msgid "Try Again"
+msgstr ""
+
+#: assets/src/admin/components/goSeatsMap.js:22
+msgid "Go Seats Map"
+msgstr ""
+
+#: assets/src/admin/components/MainPageHeader.js:29
+msgid "Need Help?"
+msgstr ""
+
+#: assets/src/admin/components/MainPageHeader.js:41
+#: assets/src/admin/pages/about-us/PluginCard.js:41
+msgid "Documentation"
+msgstr ""
+
+#: assets/src/admin/components/MainPageHeader.js:53
+msgid "Feature Request"
+msgstr ""
+
+#: assets/src/admin/components/MainPageHeader.js:110
+msgid "Refer & Earn 30% Commission"
+msgstr ""
+
+#: assets/src/admin/components/MainPageHeader.js:118
+msgid "Affiliate Program"
+msgstr ""
+
+#: assets/src/admin/components/ModalApp.js:34
+msgid "Your feedback helps us make WPTimetics better for everyone."
+msgstr ""
+
+#: assets/src/admin/components/NoticeProFeature.js:13
+msgid "Upgrade to timetics pro for ultimate satisfaction"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:121
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:90
+msgid "FROM"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:128
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:97
+msgid "Please enter valid E-mail"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:136
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:105
+msgid "Select email"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:139
+msgid "EMAIL SUBJECT"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:145
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:114
+msgid "Please enter E-mail subject!"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:153
+msgid "Your meeting with {Meeting_title}"
+msgstr ""
+
+#: assets/src/admin/components/notification/EmailCustomizeModal.js:198
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:176
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:97
+msgid "Save"
+msgstr ""
+
+#: assets/src/admin/components/notification/NotificationOption.js:59
+msgid " Notification to Customers/Attendees/Clients"
+msgstr ""
+
+#: assets/src/admin/components/notification/NotificationOption.js:81
+#: assets/src/admin/components/notification/NotificationOption.js:123
+msgid "Configure Email"
+msgstr ""
+
+#: assets/src/admin/components/notification/NotificationOption.js:106
+#: assets/src/admin/pages/meeting/notification/NotificationOption.js:139
+msgid "Notification to Teams"
+msgstr ""
+
+#: assets/src/admin/components/notification/ReminderTime.js:40
+msgid "Send a Reminder Email Before"
+msgstr ""
+
+#: assets/src/admin/components/notification/ReminderTime.js:74
+#: assets/src/admin/pages/meeting/notification/ReminderTime.js:91
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:362
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:432
+msgid "Set custom time"
+msgstr ""
+
+#: assets/src/admin/components/notification/ReminderTime.js:80
+msgid "Day/Hour/Minute"
+msgstr ""
+
+#: assets/src/admin/components/notification/ReminderTime.js:107
+msgid "Add"
+msgstr ""
+
+#: assets/src/admin/components/ScheduleMode.js:25
+msgid "Use Default Availability"
+msgstr ""
+
+#: assets/src/admin/components/ScheduleMode.js:36
+msgid "Customize Availability"
+msgstr ""
+
+#: assets/src/admin/components/SingleDaySchedule.js:304
+#: assets/src/admin/components/SingleDaySchedule.js:493
+msgid "Unavailable"
+msgstr ""
+
+#: assets/src/admin/components/SingleDaySchedule.js:482
+msgid "Time conflict."
+msgstr ""
+
+#: assets/src/admin/components/SingleDaySchedule.js:504
+msgid "Add new time slot"
+msgstr ""
+
+#: assets/src/admin/components/SingleDaySchedule.js:537
+msgid "Apply All Days"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/AvailableTimeSlots.js:46
+msgid "Set Your Availability"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/AvailableTimeSlots.js:47
+msgid "Set up your availability beforehand so that your clients can be more informed about your schedule."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/AvailableTimeSlots.js:90
+#: assets/src/admin/module/onboard/components/Calendar.js:84
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:66
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:265
+#: assets/src/admin/module/onboard/components/Profile.js:119
+msgid "Previous"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/AvailableTimeSlots.js:97
+#: assets/src/admin/module/onboard/components/Calendar.js:93
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:274
+#: assets/src/admin/module/onboard/components/Profile.js:127
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:446
+msgid "Next"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/AvailableTimeSlots.js:108
+#: assets/src/admin/module/onboard/components/Calendar.js:104
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:79
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:280
+#: assets/src/admin/module/onboard/components/Profile.js:139
+msgid "Skip this part"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Calendar.js:26
+msgid "iCal Calendar"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Calendar.js:31
+#: assets/src/admin/pages/settings/Integrations.js:197
+msgid "Outlook Calendar"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Calendar.js:39
+msgid "Connect Your Calendar"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Calendar.js:40
+msgid "Connect your preferred calendar with Timetics so that you won’t miss a single meeting."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:31
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:48
+msgid "Import Demo Data"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:32
+msgid "Click to import demo data of meetings, staff members, bookings, and customers. These dummy data will help you to get familiar with the overall interface of the plugin."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/DemoDataInput.js:73
+msgid "Finish Setup"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Header.js:15
+msgid "Back to dashboard"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Header.js:23
+msgid " Having troubles? "
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Header.js:29
+msgid "Get help"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:47
+msgid "Activated"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:49
+#: assets/src/admin/pages/about-us/constant.js:5
+#: assets/src/admin/pages/about-us/PluginCard.js:12
+msgid "Install"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:50
+#: assets/src/admin/pages/about-us/constant.js:3
+msgid "Activate"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:66
+msgid "Your AI assistant for Timetics. Manage bookings, analyze schedules and automate routine tasks using plain English."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:93
+msgid "Couldn't activate Aisentic. Please try again."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:111
+msgid "Aisentic activated."
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:116
+#, js-format
+msgid "Aisentic connected. %s free AI credits added."
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:122
+#, js-format
+msgid "Aisentic activated. Connect it from your dashboard to get %s free AI credits."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:134
+#: assets/src/admin/pages/overview/AisenticBanner.js:94
+#: assets/src/admin/pages/overview/AisenticBanner.js:103
+msgid "Couldn't connect to Aisentic. Please try again."
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:185
+#, js-format
+msgid "Connect my site and get %s free AI credits"
+msgstr ""
+
+#. translators: %s: email address the Aisentic account is created for.
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:196
+#, js-format
+msgid "Shares your name, email (%s) and site with Aisentic."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:207
+msgid "Privacy Policy"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:235
+msgid "Supercharge Your Bookings"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/InstallPlugins.js:236
+msgid "Install this recommended plugin to manage your schedule with AI."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Profile.js:73
+msgid "Business/User name"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Profile.js:78
+msgid "Please enter valid name!"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Profile.js:85
+msgid "Type name "
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Profile.js:91
+msgid "Business type"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Profile.js:97
+msgid "Select one"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:45
+msgid "Welcome to Timetics"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:47
+msgid "Signup and Join 3000+ founders, business tycoons, and developers worldwide - and get updated with the best tips for using Timetics, exciting deals, and news."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:73
+msgid "Please enter valid email!"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:81
+msgid "Enter your email "
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:94
+msgid "Let's Get Started"
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:104
+msgid "We won’t spam you. We value your privacy."
+msgstr ""
+
+#: assets/src/admin/module/onboard/components/Welcome.js:112
+msgid "I already know, skip all steps!"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/constant.js:4
+msgid "Deactivate"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/constant.js:6
+msgid "On"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/constant.js:7
+msgid "Upgrade"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/HeroSection.js:27
+msgid "About Our Company"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/HeroSection.js:29
+msgid "Arraytics is a software company founded in 2013, specializing in WordPress, AI, Machine Learning, SaaS, and mobile applications. We're committed to delivering high-quality tech solutions that help businesses grow and simplify people's lives."
+msgstr ""
+
+#: assets/src/admin/pages/about-us/HeroSection.js:35
+msgid "Today, our products are trusted by nearly 70,000 customers across 120+ countries, powered by a passionate team of 30+ experts with over 12 years of industry experience. We're proud to be a Level 12 author on Envato."
+msgstr ""
+
+#: assets/src/admin/pages/about-us/HeroSection.js:45
+msgid "About Image"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/index.js:57
+#: assets/src/admin/pages/about-us/OurSass.js:49
+msgid "Our Plugins"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:14
+msgid "Smart AI Booking — Let clients book 24/7 without back-and-forth emails"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:15
+msgid "Multi-Calendar Sync — Google, Outlook & iCal synced in real time"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:16
+msgid "Team Scheduling — Assign staff, manage availability across your whole team"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:17
+msgid "Automated Reminders — Reduce no-shows with SMS & email notifications"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:18
+msgid "Analytics Dashboard — Track revenue, peak hours & booking trends"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:58
+msgid "AI-Powered Scheduling"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:65
+msgid "Timetics AI"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:69
+msgid "v2.0"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:77
+msgid "Timetics AI is your intelligent appointment scheduling assistant. Automate bookings, sync calendars, manage services, and delight your clients — all in one place."
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:104
+msgid "Get Started Free"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:112
+msgid "Learn more"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/OurSass.js:121
+msgid "Timetics AI Scheduling"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/PluginCard.js:51
+msgid "Please wait…"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/ReferralSection.js:23
+msgid "30% Commission"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/ReferralSection.js:27
+msgid "Refer & Earn"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/ReferralSection.js:31
+msgid "Share our plugin with your audience and earn a generous 30% commission for every successful sale."
+msgstr ""
+
+#: assets/src/admin/pages/about-us/ReferralSection.js:43
+msgid "Join Affiliate Program"
+msgstr ""
+
+#: assets/src/admin/pages/about-us/ReferralSection.js:51
+msgid "Refer and Earn"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:20
+msgid "How to create a meeting"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:21
+msgid "How to add a team member"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:22
+msgid "How to connect Google Calendar"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:29
+msgid "Start here"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:31
+msgid "Create one-to-one or group meetings with duration, price and location."
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:35
+#: assets/src/admin/pages/bookings/FormField.js:378
+msgid "Create a meeting"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:41
+msgid "Add staff, set their working hours and assign them to meetings."
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:45
+msgid "Add team members"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:50
+msgid "Calendar & Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:51
+msgid "See every booking in one calendar and add or reschedule them."
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:55
+msgid "Open calendar"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:61
+msgid "Business hours, payments, Google Calendar, Zoom and notifications."
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:65
+msgid "Open settings"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:102
+msgid "Timetics AI assistant"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:105
+msgid "Describe what you want to set up and I'll create your meetings, team and booking settings, then only ask for anything that's missing."
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:120
+msgid "Ask the Timetics AI assistant"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:121
+msgid "e.g. Create a 30-minute consultation, Monday to Friday, 9am to 5pm, with Google Meet"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:129
+#, js-format
+msgid "%s+Enter to submit"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:138
+msgid "Configure with AI"
+msgstr ""
+
+#: assets/src/admin/pages/ask-ai/index.js:157
+msgid "What I can do"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/bookingLists.js:130
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:137
+msgid "Are you sure delete this booking?"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/bookingLists.js:135
+#: assets/src/admin/pages/bookings/bookingLists.js:224
+#: assets/src/admin/pages/bookings/BookingModal.js:78
+#: assets/src/admin/pages/calendar/EventPopOverTitle.js:48
+#: assets/src/admin/pages/customers/CustomerList.js:109
+#: assets/src/admin/pages/customers/CustomerList.js:178
+#: assets/src/admin/pages/meeting/MeetingCard.js:181
+#: assets/src/admin/pages/meeting/MeetingCard.js:201
+#: assets/src/admin/pages/meeting/MeetingList.js:98
+#: assets/src/admin/pages/staff/staffList.js:102
+#: assets/src/admin/pages/staff/staffList.js:150
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:126
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:138
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:150
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:162
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:225
+msgid "Yes"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/bookingLists.js:137
+#: assets/src/admin/pages/bookings/bookingLists.js:226
+#: assets/src/admin/pages/bookings/BookingModal.js:80
+#: assets/src/admin/pages/calendar/EventPopOverTitle.js:50
+#: assets/src/admin/pages/customers/CustomerList.js:111
+#: assets/src/admin/pages/customers/CustomerList.js:180
+#: assets/src/admin/pages/meeting/MeetingCard.js:183
+#: assets/src/admin/pages/meeting/MeetingCard.js:203
+#: assets/src/admin/pages/meeting/MeetingList.js:100
+#: assets/src/admin/pages/staff/staffList.js:104
+#: assets/src/admin/pages/staff/staffList.js:152
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:128
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:140
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:152
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:164
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:227
+msgid "No"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/bookingLists.js:234
+#: assets/src/admin/pages/customers/CustomerList.js:188
+#: assets/src/admin/pages/staff/staffList.js:158
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:239
+msgid "Bulk Delete"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingListViewAction.js:70
+msgid "Meeting, Customer email, Status..."
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:16
+#: assets/src/admin/pages/bookings/FormField.js:284
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:66
+#: assets/src/admin/pages/settings/General.js:244
+msgid "Approved"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:17
+msgid "Completed"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:18
+#: assets/src/admin/pages/bookings/FormField.js:279
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:70
+#: assets/src/admin/pages/settings/General.js:248
+#: assets/src/admin/pages/staff/TableHeader.js:88
+msgid "Pending"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:19
+msgid "Rescheduled"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:20
+#: assets/src/admin/pages/bookings/FormField.js:290
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:74
+#: assets/src/admin/pages/settings/General.js:252
+msgid "Canceled"
+msgstr ""
+
+#. translators: %s: number of later sessions
+#: assets/src/admin/pages/bookings/BookingModal.js:70
+#, js-format
+msgid "Cancel this session and %s later session?"
+msgid_plural "Cancel this session and %s later sessions?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:108
+#, js-format
+msgid "Organizer will call +%s"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:110
+#, js-format
+msgid "Attendee will call +%s"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:135
+msgid "Subtotal"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:136
+msgid "Coupon"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:137
+msgid "Discount"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:163
+#, js-format
+msgid "with %s"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:172
+msgid "Join meeting"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:179
+msgid "Sessions"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:196
+msgid "Cancel this and later sessions"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:203
+#: assets/src/admin/pages/bookings/TableHeader.js:124
+#: assets/src/admin/pages/calendar/EventPopOverContent.js:157
+msgid "Customer"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:206
+#: assets/src/admin/pages/customers/TableHeader.js:19
+#: assets/src/admin/pages/staff/TableHeader.js:43
+#: assets/src/frontend/pages/bookings/ContactInfo.js:447
+msgid "Name"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:213
+#: assets/src/admin/pages/customers/TableHeader.js:29
+#: assets/src/admin/pages/staff/FormField.js:89
+#: assets/src/admin/pages/staff/TableHeader.js:53
+#: assets/src/frontend/pages/bookings/ContactInfo.js:540
+#: assets/src/frontend/pages/userAccount/UserProfile.js:143
+msgid "Phone"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:214
+msgid "Guests"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:215
+msgid "Seats"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:216
+msgid "Notes"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:218
+msgid "Cancel reason"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:225
+#: assets/src/admin/pages/settings/index.js:75
+msgid "Payment"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:228
+msgid "Method"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:229
+msgid "Amount"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:231
+#: assets/src/admin/pages/bookings/FormField.js:646
+#: assets/src/admin/pages/bookings/TableHeader.js:138
+#: assets/src/admin/pages/calendar/EventPopOverContent.js:97
+#: assets/src/frontend/pages/userAccount/TableHeader.js:108
+msgid "Status"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:232
+msgid "Transaction ID"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:234
+msgid "Paid at"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/BookingModal.js:244
+msgid "Invitee list"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/Create.js:34
+msgid "Back to Calendar "
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:301
+msgid "Customer's name"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:308
+msgid "Customer name is required!"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:311
+msgid "Jhon Deo"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:315
+msgid "Customer's Email"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:325
+msgid "name@yourdomain.com"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:357
+msgid "Client time zone"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:365
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:521
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:420
+msgid "Please select your timezone"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:382
+#: assets/src/admin/pages/bookings/RescheduleModal.js:157
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:343
+#: assets/src/admin/pages/shortcodes/BookingForm.js:88
+msgid "Select Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:394
+#: assets/src/admin/pages/shortcodes/BookingForm.js:95
+msgid "Please Select Your Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:401
+#: assets/src/admin/pages/shortcodes/BookingForm.js:104
+msgid "Meeting title is required"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:408
+#: assets/src/admin/pages/bookings/FormField.js:414
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:321
+#: assets/src/admin/pages/meeting/Filters.js:93
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:548
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:322
+msgid "Select team member"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:419
+msgid "Team is required"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:425
+#: assets/src/admin/pages/bookings/FormField.js:436
+msgid "Select Location"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:432
+msgid "Location is required"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:482
+#: assets/src/admin/pages/meeting/LocationType.js:468
+msgid "Phone number"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:486
+#: assets/src/admin/pages/meeting/LocationType.js:472
+#: assets/src/frontend/pages/bookings/ContactInfo.js:543
+#: assets/src/frontend/pages/userAccount/UserProfile.js:147
+msgid "Enter your phone number"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:505
+msgid "Customer agreed to WhatsApp updates"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:517
+msgid "Date is required"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:539
+#: assets/src/admin/pages/bookings/RescheduleModal.js:142
+msgid "Select time"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:558
+msgid "Select Time"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:565
+#: assets/src/admin/pages/bookings/RescheduleModal.js:161
+msgid "Time is required"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:648
+msgid "Select Booking status"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:664
+#: assets/src/admin/pages/meeting/LocationType.js:404
+#: assets/src/admin/pages/settings/Integrations.js:105
+#: assets/src/frontend/pages/bookings/ContactInfo.js:720
+msgid "Zoom"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:666
+#: assets/src/admin/pages/meeting/LocationType.js:433
+#: assets/src/frontend/pages/bookings/ContactInfo.js:722
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:250
+msgid "Organizer Phone Number"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:667
+#: assets/src/admin/pages/meeting/LocationType.js:413
+#: assets/src/frontend/pages/bookings/ContactInfo.js:723
+msgid "In Person Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/FormField.js:668
+#: assets/src/admin/pages/meeting/LocationType.js:425
+#: assets/src/frontend/pages/bookings/ContactInfo.js:724
+msgid "Attendee Phone Number"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/HeaderAction.js:59
+msgid "Calendar View"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/HeaderAction.js:64
+msgid "List View"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/RescheduleModal.js:124
+msgid "date"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/TableHeader.js:55
+#: assets/src/admin/pages/meeting/CategoryList.js:184
+#: assets/src/admin/pages/meeting/MeetingCard.js:211
+msgid "Delete"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/TableHeader.js:74
+#: assets/src/frontend/pages/userAccount/TableHeader.js:39
+msgid "Booking Date"
+msgstr ""
+
+#. translators: 1: session number, 2: sessions in the series
+#: assets/src/admin/pages/bookings/TableHeader.js:113
+#, js-format
+msgid "Session %1$s of %2$s"
+msgstr ""
+
+#: assets/src/admin/pages/bookings/TableHeader.js:203
+msgid "Details"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/BookingDrawer.js:47
+msgid "Your booking limit has been exceeded"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:23
+msgid "All Time Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:31
+msgid "Past Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:35
+msgid "Today's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:39
+msgid "Tomorrow's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:43
+msgid "Yesterday's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:47
+msgid "This Week's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:51
+msgid "Next Week's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:55
+msgid "Past Week's Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:62
+msgid "All"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:358
+msgid "Select Status"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CalendarSearchActions.js:373
+msgid "Select Date Range"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CustomToolbar.js:106
+msgid "Today"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/CustomToolbar.js:113
+msgid "Select View"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/EventPopOverContent.js:105
+#: assets/src/admin/pages/settings/General.js:240
+#: assets/src/admin/pages/settings/General.js:256
+msgid "Select Booking Status"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/EventPopOverContent.js:117
+#: assets/src/admin/pages/calendar/ExternalEventPopoverContent.js:15
+msgid "Date & Time"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/EventPopOverContent.js:140
+msgid "Assigned to"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/EventPopOverTitle.js:44
+msgid "Are you sure to delete this booking?"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/index.js:82
+msgid "No meetings in the Calendar!"
+msgstr ""
+
+#: assets/src/admin/pages/calendar/index.js:86
+msgid "Please create a meeting first to see the schedules in the calendar view."
+msgstr ""
+
+#: assets/src/admin/pages/calendar/MoreLinks.js:46
+#: assets/src/frontend/pages/userAccount/TableHeader.js:76
+msgid "Meeting Name"
+msgstr ""
+
+#: assets/src/admin/pages/customers/CustomerList.js:136
+#: assets/src/admin/pages/staff/HeaderAction.js:51
+msgid "Search"
+msgstr ""
+
+#: assets/src/admin/pages/customers/CustomerList.js:174
+msgid "Are you sure delete selected Customers?"
+msgstr ""
+
+#: assets/src/admin/pages/customers/TableHeader.js:12
+#: assets/src/admin/pages/staff/TableHeader.js:38
+msgid "ID"
+msgstr ""
+
+#: assets/src/admin/pages/customers/TableHeader.js:34
+msgid "Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/customers/TableHeader.js:53
+#: assets/src/admin/pages/staff/TableHeader.js:102
+#: assets/src/admin/pages/staff/UploadImage.js:74
+msgid "Remove"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/AddGuest.js:44
+#: assets/src/admin/pages/settings/AddGuest.js:53
+msgid "Enable Guest(s)"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/AddGuest.js:47
+#: assets/src/admin/pages/settings/AddGuest.js:56
+msgid "Activate whether or not it is allowed to include guests on for a meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/AddGuest.js:57
+#: assets/src/admin/pages/settings/AddGuest.js:65
+msgid "Number of Guest(s)"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/AddGuest.js:59
+#: assets/src/admin/pages/settings/AddGuest.js:67
+msgid "Set the maximum number of guests one user is allowed to bring."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CategoryList.js:152
+msgid "Preview "
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CategoryList.js:161
+msgid "Edit "
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CategoryModal.js:135
+msgid "Please enter desired category name!"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CategoryModal.js:143
+msgid "Enter category name"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CategoryModal.js:159
+msgid "Select meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateMeeting.js:127
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:161
+msgid "Back to Meetings"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:36
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:130
+msgid "One-to-Many"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:42
+msgid "Create a One-to-Many Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:98
+msgid "One-to-One"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:101
+msgid "Single organizer with single invitee. Best for having a one-to-one conversation."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:134
+msgid "Single organizer with multiple invitees. Best for taking classes and seminars."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:166
+msgid "One-to-Many With Seat plan"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CreateOptionBtn.js:173
+msgid "One-to-Many meetings with the option to create seat plans. Best for restaurants, cinema halls, and conferences."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CustomizeForm.js:78
+#: assets/src/admin/pages/settings/CustomizeForm.js:63
+msgid "Invitee Questions"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/CustomizeForm.js:102
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:252
+#: assets/src/admin/pages/settings/CustomizeForm.js:87
+msgid "Required"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/Filters.js:89
+#: assets/src/admin/pages/meeting/Filters.js:109
+msgid "Select"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/Filters.js:102
+msgid "Select status"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/Filters.js:129
+msgid "Clear"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/Filters.js:134
+msgid "Apply"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/hook/useMeetings.js:420
+msgid "The meeting could not be saved. Please try again."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/index.js:34
+msgid "Meetings/Services"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:118
+msgid "Google meet is not connected."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:130
+#: assets/src/admin/pages/meeting/LocationType.js:151
+msgid " Please configure"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:139
+msgid "Zoom is not connected."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:203
+msgid "Location type"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:207
+msgid "Select the type of location for this meeting."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:254
+msgid "Add location"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:342
+msgid "remove-location-type"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:379
+msgid "Add Another Location"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:447
+#: assets/src/admin/pages/meeting/LocationType.js:450
+msgid "Address"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:451
+msgid "Enter the address for the in-person meeting."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/LocationType.js:476
+msgid "A valid phone number is required!"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingCard.js:170
+msgid "Share"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingCard.js:180
+msgid "Are you sure to duplicate?"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingCard.js:190
+msgid "Clone"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingCard.js:200
+#: assets/src/admin/pages/meeting/MeetingList.js:97
+msgid "Are you sure delete?"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingCard.js:286
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:188
+msgid "Preview"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingList.js:224
+msgid "Deselect All"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingList.js:243
+msgid "Select All"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingList.js:322
+msgid "Let's Create a Meeting! "
+msgstr ""
+
+#: assets/src/admin/pages/meeting/MeetingList.js:323
+msgid "Create a meeting to get started and see the schedules in the calendar view."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:108
+msgid "EMAIL SUJECT"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/EmailCustomizeModal.js:122
+msgid "Your meeting with {BOOKING-TITLE}"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/Notification.js:80
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:442
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:587
+#: assets/src/admin/pages/meeting/steps/Integrations.js:300
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:522
+#: assets/src/admin/pages/settings/availability/Availability.js:80
+#: assets/src/admin/pages/settings/General.js:488
+msgid "Save Updates"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/NotificationOption.js:80
+msgid " Notification to customer"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/NotificationOption.js:106
+#: assets/src/admin/pages/meeting/notification/NotificationOption.js:165
+msgid "Customize Email"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/notification/ReminderTime.js:103
+msgid "day / hour / min"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/ShareMeetingModal.js:70
+msgid "Copy"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:208
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:329
+msgid "default"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:217
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:229
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:342
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:353
+msgid "Title"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:220
+msgid "Please enter meeting name that will be displayed on the booking page."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:224
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:348
+msgid "Please enter title!"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:235
+msgid "Description"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:239
+msgid "Enter description"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:241
+msgid "Enter meeting description"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:247
+msgid "Booking phone field"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:250
+msgid "Off"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:251
+msgid "Optional"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:274
+msgid "Categorize your meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:298
+msgid "Enter new category"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:312
+msgid "Add Category"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:332
+msgid "Select meeting duration"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:336
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:406
+msgid "Select your meeting duration"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:344
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:414
+msgid "Please select meeting duration!"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:363
+msgid "Set custom meeting duration time in minutes or hours."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:378
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:444
+msgid "Custom meeting duration time is required!"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:388
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:454
+msgid "hr's / min"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/BasicInfo.js:409
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:475
+msgid "Please select custom time"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:361
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:362
+msgid "Meeting date range (meeting availibility)"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:367
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:370
+msgid "If you don't specify a date, the meeting will automatically be scheduled for one year from now."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:373
+msgid "Set meeting date"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:513
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:412
+msgid "meeting Time zone"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:533
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:307
+msgid "select team member"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:534
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:314
+msgid "Select team member to assign this meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:541
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:311
+msgid "Please select team member"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:566
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:346
+msgid "Select availability "
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/CreateStep.js:567
+msgid "Select availability for the selected team member"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:137
+msgid "Fluent CRM Webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:145
+msgid "Enter fluent CRM webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:146
+msgid "this webhook is automatically copied from the global integration settings. if you want to change it, please click on the checkbox"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:176
+#: assets/src/admin/pages/settings/Integrations.js:124
+msgid "Pabbly Webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:184
+msgid "Enter Pabbly webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:185
+#: assets/src/admin/pages/meeting/steps/Integrations.js:224
+#: assets/src/admin/pages/meeting/steps/Integrations.js:263
+msgid "This webhook is automatically copied from the global integration settings. if you want to change it, please click on the checkbox"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:215
+#: assets/src/admin/pages/settings/Integrations.js:135
+msgid "Zapier Webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:223
+msgid "Enter zapier webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:254
+msgid "FlowMattic Webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/Integrations.js:262
+msgid "Enter FlowMattic webhook"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:23
+msgid "Minute"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:24
+msgid "Hour"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:429
+msgid "Buffer time before"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:440
+msgid "Buffer time before the meeting start"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:446
+msgid "Buffer time after"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:451
+msgid "Buffer time after the meeting end"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:468
+msgid "Minimum Notice Time for booking"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:475
+msgid "Minimum Notice time before the meeting"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:502
+msgid "Meeting visibility"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:506
+msgid "Select meeting visibility, if you want to disable the meeting, select disabled"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/steps/TimeAvailability.js:532
+#: assets/src/frontend/paypal/CheckoutForm.js:34
+#: assets/src/frontend/stripe/CheckoutForm.js:217
+msgid "Back"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/TicketPrice.js:19
+#: assets/src/frontend/pages/userAccount/TableHeader.js:90
+msgid "Price"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/TicketPrice.js:21
+msgid "Set the price for this ticket type."
+msgstr ""
+
+#: assets/src/admin/pages/meeting/TicketPrice.js:26
+msgid "Enter meeting price"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:65
+msgid "Basic Info"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:79
+msgid "Time and Availability"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:93
+msgid "Recurring"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:105
+#: assets/src/admin/pages/settings/index.js:81
+msgid "Booking Questions"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:112
+msgid "Seats Plans"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:124
+msgid "Copied the meeting link"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:166
+msgid "Copy Meeting Link"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:173
+msgid "Copy Link"
+msgstr ""
+
+#: assets/src/admin/pages/meeting/UpdateMeeting.js:179
+msgid "Preview Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/notification-flow/EditNotificationFlow.js:22
+msgid "Edit Notification Flow"
+msgstr ""
+
+#: assets/src/admin/pages/notification-flow/ListNotificationFlow.js:21
+msgid "Notification Flows"
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/pages/overview/AisenticBanner.js:74
+#, js-format
+msgid "Aisentic connected. %s free AI credits added. Reloading..."
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:125
+msgid "Connect Aisentic to use the AI Assistant in Timetics"
+msgstr ""
+
+#. translators: %s: number of free AI credits.
+#: assets/src/admin/pages/overview/AisenticBanner.js:133
+#, js-format
+msgid "Connect to get %s free AI credits and turn on the AI Assistant across your Timetics dashboard. No card, no trial limit."
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:141
+msgid "Connecting shares your name, email and site with Aisentic."
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:150
+msgid "Terms"
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:163
+msgid "Connecting..."
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:164
+msgid "Connect Aisentic"
+msgstr ""
+
+#: assets/src/admin/pages/overview/AisenticBanner.js:172
+msgid "Dismiss banner"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:5
+msgid "Total Bookings"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:11
+msgid "Total Revenue"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:17
+msgid "Total Customers"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:27
+msgid "Current Week"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:31
+msgid "Last Week"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:36
+msgid "Current Month"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:40
+msgid "Last Month"
+msgstr ""
+
+#: assets/src/admin/pages/overview/constant.js:44
+msgid "Last 3 Month"
+msgstr ""
+
+#: assets/src/admin/pages/overview/Reports.js:18
+msgid "Reports"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Appearance.js:9
+msgid "Light"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Appearance.js:10
+msgid "Dark"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Appearance.js:13
+msgid "System"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Appearance.js:33
+#: assets/src/admin/pages/settings/General.js:122
+msgid "Appearance"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/Availability.js:26
+msgid "Weekly Hours"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/Availability.js:31
+msgid "Blocked Dates"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/BlockedDays.js:98
+msgid "Add Blocked Dates"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/BlockedDays.js:155
+msgid "Assign Block Hours"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/SlotInterval.js:27
+msgid "Time Interval Between Slots"
+msgstr ""
+
+#: assets/src/admin/pages/settings/availability/SlotInterval.js:30
+msgid "Set the gap between consecutive meeting times (minimum 1 minute)."
+msgstr ""
+
+#: assets/src/admin/pages/settings/CalendarInput.js:127
+msgid "Select hours you will be unavailable for a meeting"
+msgstr ""
+
+#: assets/src/admin/pages/settings/CalendarInput.js:138
+msgid "(Delete all time slots to make a day unavailable)"
+msgstr ""
+
+#: assets/src/admin/pages/settings/CalendarInput.js:162
+#: assets/src/admin/pages/settings/CalendarInput.js:197
+msgid "Select a time"
+msgstr ""
+
+#: assets/src/admin/pages/settings/CalendarInput.js:223
+msgid "Remove time slot"
+msgstr ""
+
+#: assets/src/admin/pages/settings/CalendarInput.js:246
+msgid " Unavailable"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:106
+msgid "Default phone country"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:107
+msgid "Starting country for booking and admin phone inputs."
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:123
+msgid "Only changes how Timetics looks for you."
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:133
+msgid "Date & Time Format"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:134
+msgid "Change the date and time format to your likings"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:167
+msgid "Update date & time format"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:172
+msgid "Default format:"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:182
+msgid "First Day of The Week"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:183
+msgid "Choose the day your week starts with"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:200
+msgid "Update Week starts on"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:203
+msgid "Week starts on"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:207
+msgid "Selected Day "
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:229
+msgid "Approval Status"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:230
+msgid "Change the approval status to Approved or Pending or Cancelled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:262
+msgid "Select Currency"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:263
+msgid "Select your preferred currency"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:268
+msgid "You are not allowed to change currency here because WooCommerce payment is currently enabled."
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:279
+msgid "Select currency"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:286
+msgid "Search currency by the country name"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:333
+msgid "Set primary color"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:334
+msgid "Set your primary color"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:347
+msgid "Set secondary color"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:348
+msgid "Set your secondary color"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:361
+msgid "Calendar translator"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:362
+msgid "Select the language for your user"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:371
+#: assets/src/admin/pages/settings/General.js:377
+msgid "Select Locale"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:383
+msgid "Set Timezone"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:384
+msgid "Select the timezone of timetics"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:396
+#: assets/src/admin/pages/settings/General.js:421
+msgid "Select Timezone"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:427
+msgid "Unpaid Booking Expiry (Minutes)"
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:428
+msgid "Automatically release the slot and cancel an unpaid Stripe/WooCommerce/PayPal booking after this many minutes. The cleanup check runs every 5 minutes, so values below 5 are treated as 5."
+msgstr ""
+
+#: assets/src/admin/pages/settings/General.js:439
+msgid "5"
+msgstr ""
+
+#: assets/src/admin/pages/settings/index.js:51
+msgid "General"
+msgstr ""
+
+#: assets/src/admin/pages/settings/index.js:57
+#: assets/src/admin/pages/staff/Update.js:107
+msgid "Availability"
+msgstr ""
+
+#: assets/src/admin/pages/settings/index.js:69
+msgid "Notifications"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:87
+msgid "Enable Google Calendar Button for Customers"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:89
+msgid "When enabled, customers will see an 'Google Calendar' button on their booking confirmation. This allows them to manually add the appointment to their Outlook Calendar with one click."
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:111
+msgid "Login to your Google account, go to Google Cloud Console, create a project, complete OAuth  Consent screen process, click on Create Credentials, and you'll get your client id and secret key. If you get the ID and Keys for Google Calendar, Goole Meet will be integrated automatically. For full details read the "
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:120
+msgid "documentation."
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:124
+msgid "Client ID"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:128
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:129
+msgid "Enter Client ID"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:132
+msgid "Client Secret key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:136
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:137
+msgid "Enter Client Secret Key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:140
+msgid "Redirect URl"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:145
+msgid "Redirect URL will be automatically generated when you connect Google Calendar and Google Meet"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:149
+msgid "Redirect url"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:160
+msgid "Block Bookings During Google Calendar Events"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleCalendarForm.js:162
+msgid "When enabled, Timetics will check your connected Google Calendar and automatically block any time slots that are already occupied by events. This ensures that clients can't book meetings with you during your existing appointments."
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleConnection.js:47
+#: assets/src/admin/pages/settings/Integrations.js:94
+msgid "Google Calendar/Meet"
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleConnection.js:48
+#: assets/src/admin/pages/settings/Integrations.js:98
+msgid "Connect Google Calendar/Meet to sync your events."
+msgstr ""
+
+#: assets/src/admin/pages/settings/integrationForm/GoogleConnection.js:90
+#: assets/src/admin/pages/staff/Integration.js:203
+msgid "Disconnect"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:76
+msgid "Configure"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:109
+msgid "Connect Zoom to sync your events."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:113
+msgid "Fluent CRM"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:117
+msgid "Set Fluent CRM webhook to sync your booking data."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:128
+msgid "Set pabbly webhook to sync your booking data."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:139
+msgid "Set Zapier webhook to sync your booking data."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:146
+msgid "Uncanny Automator"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:150
+msgid "Start Uncanny Automator recipes from your bookings. Requires the Uncanny Automator plugin."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:157
+msgid "FlowMattic"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:161
+msgid "Send booking data to FlowMattic to automate your tasks."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:168
+msgid "Twilio Messaging"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:172
+msgid "WhatsApp messaging using the Twilio."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:176
+msgid "WhatsApp Notification"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:180
+msgid "Send booking updates through approved Meta templates in Automations."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:184
+msgid "Apple Calendar"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:188
+msgid "Connect your Apple Calendar to sync your booked events."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Integrations.js:204
+msgid "Connect your Outlook Calendar to sync your booked events."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:56
+msgid "Notification to Customer After Booking Confirmation"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:60
+#: assets/src/admin/pages/settings/Notification.js:109
+msgid "Your Attendees/Customers/Clients will receive a confirmation email containing a link to create that event on their calendar"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:64
+msgid "Notification to Teams After Booking Confirmation"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:68
+#: assets/src/admin/pages/settings/Notification.js:117
+msgid "The Organizer will receive a confirmation email containing a link to create that event on their calendar"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:81
+msgid "Notification to Customer After Booking Canceled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:85
+msgid "Your Attendees/Customers/Clients will receive a cancellation email"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:89
+msgid "Notification to Teams After Booking Canceled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:93
+msgid "The Organizer will receive a cancellation email"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:104
+msgid "After Booking is Rescheduled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:105
+msgid "Notification to Customer After Booking Rescheduled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:113
+msgid "Notification to Teams After Booking Rescheduled"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:128
+msgid "Reminder Before Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:129
+msgid "Notification to Customer Reminder Before Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:133
+msgid "Your Attendees/Customers/Clients will receive an Email reminding them about the meeting"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:137
+msgid "Notification to Teams Reminder Before Meeting"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Notification.js:141
+msgid "The Organizer will receive a confirmation email containing a link to create that event on their calendar."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:178
+msgid "Stripe Payment"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:179
+msgid "Connect your stripe payments."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:185
+msgid "Local Payment"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:186
+msgid "Configure this section to pay locally."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:193
+msgid "WooCommerce"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:194
+msgid "Connect your WooCommerce to sync your booked events."
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:203
+msgid "PayPal Payment"
+msgstr ""
+
+#: assets/src/admin/pages/settings/Payments.js:204
+msgid "Connect your PayPal payments."
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:55
+msgid " Connect or create a Stripe account to accept payments  directly onsite, including Payment Request buttons (such as Apple Pay and Google Pay), iDEAL, SEPA, Sofort, and more international payment methods. Check out the "
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:64
+msgid "documentation "
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:66
+msgid "for more detailed walk-through."
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:69
+msgid " Publishable key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:73
+msgid "Enter  publishable key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:74
+msgid "Only values starting with \"pk__\" will be saved."
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:80
+msgid "Secret key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:84
+msgid "Only values starting with \"sk__\" or \"rk__\" will be saved."
+msgstr ""
+
+#: assets/src/admin/pages/settings/paymentsForm/Stripe.js:88
+msgid "Enter  secret key"
+msgstr ""
+
+#: assets/src/admin/pages/settings/WeeklyHours.js:25
+msgid "Set default schedule for all staffs"
+msgstr ""
+
+#: assets/src/admin/pages/settings/WeeklyHours.js:31
+msgid "This schedule will be the default one for all the staffs, staffs can customize them through profile"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/BookingForm.js:116
+#: assets/src/admin/pages/shortcodes/MeetingList.js:100
+msgid "Generate Shortcode"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/BookingForm.js:135
+msgid "Copy the shortcode and paste where you want to show booking form"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:22
+msgid "Get booking form shortcode"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:50
+msgid "Booking form"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:56
+msgid "Get meeting list shortcode"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:83
+msgid "Meeting List"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:90
+msgid "Get User Dashboard shortcode"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/index.js:117
+msgid "User Dashboard"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/MeetingList.js:68
+msgid "Meeting Limit"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/MeetingList.js:75
+msgid "Show Filters"
+msgstr ""
+
+#: assets/src/admin/pages/shortcodes/MeetingList.js:90
+msgid "Select Option"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Availability.js:102
+msgid "Update Availability"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:39
+#: assets/src/frontend/pages/userAccount/UserProfile.js:83
+msgid "First Name"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:46
+#: assets/src/frontend/pages/userAccount/UserProfile.js:90
+msgid "First name is required!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:52
+#: assets/src/frontend/pages/userAccount/UserProfile.js:96
+msgid "Enter your first name"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:57
+#: assets/src/frontend/pages/userAccount/UserProfile.js:104
+msgid "Last Name"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:61
+#: assets/src/frontend/pages/userAccount/UserProfile.js:117
+msgid "Enter your last name"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:74
+#: assets/src/frontend/pages/bookings/ContactInfo.js:468
+msgid "That doesn't look like an email address"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:81
+#: assets/src/frontend/pages/userAccount/UserProfile.js:132
+msgid "Email is required!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:84
+#: assets/src/frontend/pages/userAccount/UserProfile.js:139
+msgid "Enter your email"
+msgstr ""
+
+#: assets/src/admin/pages/staff/FormField.js:101
+msgid "working hours"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Integration.js:76
+msgid "Before connecting make sure you provide the necessary credentials to "
+msgstr ""
+
+#: assets/src/admin/pages/staff/Integration.js:93
+msgid "Settings -> Integrations"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Integration.js:138
+#: assets/src/admin/pages/staff/Integration.js:161
+msgid "Please complete authorization"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Integration.js:172
+msgid "Connected"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Integration.js:176
+msgid "Disconnected"
+msgstr ""
+
+#: assets/src/admin/pages/staff/staffList.js:101
+msgid "Are you sure delete this staff?"
+msgstr ""
+
+#: assets/src/admin/pages/staff/staffList.js:146
+msgid "Are you sure delete selected staffs?"
+msgstr ""
+
+#: assets/src/admin/pages/staff/staffList.js:162
+msgid "items selected"
+msgstr ""
+
+#: assets/src/admin/pages/staff/TableHeader.js:73
+msgid "Manage"
+msgstr ""
+
+#: assets/src/admin/pages/staff/TableHeader.js:85
+msgid "Re-invite"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Update.js:101
+msgid "Password & Security"
+msgstr ""
+
+#: assets/src/admin/pages/staff/Update.js:132
+msgid "Account Settings"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdateGeneralInfo.js:108
+msgid "Update Preference"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:60
+msgid "Current password "
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:63
+msgid "Enter current password"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:67
+msgid "Current password is required!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:76
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:82
+msgid "New password "
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:77
+msgid "Enter a new password"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:83
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:88
+msgid "New password is required!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:93
+msgid "Confirm new password"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:98
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:102
+msgid "Please confirm your password!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:113
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:117
+msgid "The two passwords that you entered do not match!"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UpdatePassowrd.js:130
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:129
+msgid "Update Password"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UploadImage.js:20
+#: assets/src/frontend/pages/userAccount/UserInfo.js:15
+msgid "profile photo"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UploadImage.js:49
+msgid "Profile Picture"
+msgstr ""
+
+#: assets/src/admin/pages/staff/UploadImage.js:61
+msgid "Change Avatar"
+msgstr ""
+
+#. translators: %s: number of other sessions
+#: assets/src/admin/utils/seriesDeleteNote.js:8
+#, js-format
+msgid "This is the first session of a recurring series. Its other %s session will be deleted too."
+msgid_plural "This is the first session of a recurring series. Its other %s sessions will be deleted too."
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/axios/requestConfig.js:48
+msgid "Could not reach the server. Please check your connection and try again."
+msgstr ""
+
+#: assets/src/common/Actions.js:77
+msgid "Filter"
+msgstr ""
+
+#: assets/src/common/ErrorInstruction.js:8
+msgid "If you're seeing this unexpectedly, try refreshing the page:"
+msgstr ""
+
+#: assets/src/common/ErrorInstruction.js:17
+msgid "Windows:"
+msgstr ""
+
+#: assets/src/common/ErrorInstruction.js:24
+msgid "Mac:"
+msgstr ""
+
+#: assets/src/common/ErrorInstruction.js:30
+msgid "This will perform a hard refresh and clear the cache for this page."
+msgstr ""
+
+#: assets/src/common/nicheData.js:7
+msgid "Department"
+msgstr ""
+
+#: assets/src/common/nicheData.js:8
+msgid "Departments"
+msgstr ""
+
+#: assets/src/common/nicheData.js:11
+msgid "Doctor"
+msgstr ""
+
+#: assets/src/common/nicheData.js:15
+msgid "Appointment"
+msgstr ""
+
+#: assets/src/common/nicheData.js:16
+msgid "Appointments"
+msgstr ""
+
+#: assets/src/common/nicheData.js:19
+msgid "Patient"
+msgstr ""
+
+#: assets/src/common/NotFound.js:22
+msgid "Sorry, the page you are looking for does not exist."
+msgstr ""
+
+#: assets/src/common/NotFound.js:35
+msgid "Go Home"
+msgstr ""
+
+#: assets/src/frontend/hooks/usePrefillFromUrl.js:66
+msgid "We could not open your booking link. Please choose your booking here."
+msgstr ""
+
+#: assets/src/frontend/hooks/usePrefillFromUrl.js:240
+msgid "That time was just booked, please pick another."
+msgstr ""
+
+#: assets/src/frontend/hooks/usePrefillFromUrl.js:260
+msgid "That time is no longer available, please pick another."
+msgstr ""
+
+#: assets/src/frontend/hooks/useRecurringReview.js:58
+msgid "Could not check the sessions. Please try again."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/AddCalender.js:53
+msgid "Add to Calendar"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingDate.js:45
+msgid "Select Date & Time"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSchedule.js:71
+msgid "Choose a time that works for you."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSlot.js:280
+msgid " Seat Plan is not Complete yet!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSlot.js:294
+#: assets/src/frontend/pages/bookings/BookingSlot.js:405
+msgid "No slot available"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSlot.js:296
+msgid "Please select a date to see available time"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingStatus.js:19
+msgid "Booking canceled."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingStatus.js:20
+msgid "Oops, it seems your booking was canceled."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingStatus.js:37
+msgid "Book Again"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingStatus.js:51
+msgid "Couldn't schedule this booking"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingStatus.js:62
+#: assets/src/frontend/pages/bookings/CancelBooking.js:34
+msgid "Book again"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:118
+msgid "This meeting is scheduled"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:119
+msgid "We sent an email to you and the other attendees a calendar invitation with all the details."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:130
+msgid "WhatsApp updates couldn't be turned on for this booking. You'll still get emails."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:136
+msgid "What"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:144
+msgid "When"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:199
+msgid "With"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:207
+msgid "Where"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:263
+msgid "Need to make a change? "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:272
+msgid " or "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/BookingSuccess.js:279
+msgid "Cancel "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancelBooking.js:17
+msgid "Your booking schedule is canceled"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancelBooking.js:18
+msgid "Your booking schedule is canceled, please schedule book aging."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:154
+#: assets/src/frontend/pages/bookings/ContactInfo.js:382
+msgid "Give your information"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:177
+#: assets/src/frontend/pages/bookings/ContactInfo.js:405
+#: assets/src/frontend/pages/bookings/PaymentForm.js:65
+msgid "with"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:202
+msgid "Hello"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:202
+msgid "a"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:202
+msgid "meeting was scheduled from"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:202
+msgid "on"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:202
+msgid "Please make sure you are absolutely sure to cancel the booking."
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:205
+msgid "No content found!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:214
+msgid "Which sessions do you want to cancel?"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:220
+msgid "Only this session"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:229
+#, js-format
+msgid "This and %d later session"
+msgid_plural "This and %d later sessions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:252
+msgid "Reason (optional)"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:255
+msgid "Please tell us the reason to cancel this meeting"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/CancellationForm.js:273
+msgid "Cancel Appointment"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:11
+msgid "Repeats every day"
+msgid_plural "Repeats every %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:12
+msgid "Repeats every week"
+msgid_plural "Repeats every %d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:13
+msgid "Repeats every month"
+msgid_plural "Repeats every %d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:14
+msgid "Repeats every year"
+msgid_plural "Repeats every %d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:35
+#, js-format
+msgid "Sessions (max %d)"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:39
+msgid "One session less"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:47
+msgid "Number of sessions"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/component/RecurringInput.js:57
+msgid "One session more"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:443
+msgid "Enter Information"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:453
+msgid "Enter your name!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:458
+msgid "Enter your name"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:463
+msgid "E-mail"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:475
+msgid "Enter your e-mail!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:483
+msgid "Enter your e-mail"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:495
+msgid "Location is required!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:504
+msgid "Select Meeting location"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:553
+msgid "Send me booking updates on WhatsApp"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:579
+msgid "Additional notes"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:583
+msgid "Please share anything that will help us prepare for the meeting"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:620
+msgid "Notice!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:621
+msgid "No Payment method is enabled by Admin!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:641
+#: assets/src/frontend/pages/bookings/SeatMap.js:172
+#: assets/src/frontend/pages/meetings/GoBackHeading.js:22
+msgid "Go back"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:661
+msgid "Reschedule Booking"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/ContactInfo.js:684
+msgid "Confirm Booking"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/PaymentOptionSelect.js:30
+msgid "Payment type"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/PaymentOptionSelect.js:37
+msgid "Payment type is required!"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/SeatMapPriceVariation.js:15
+msgid "Ticket Price: "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:38
+msgid "Closed on this day"
+msgstr ""
+
+#. translators: %s: picked time
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:43
+#, js-format
+msgid "%s is taken"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:102
+msgid "Show fewer"
+msgstr ""
+
+#. translators: %d: number of sessions
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:105
+#, js-format
+msgid "Show all %d sessions"
+msgstr ""
+
+#. translators: 1: booked sessions, 2: all sessions, 3: session price, 4: total
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:115
+#, js-format
+msgid "Selected %1$d of %2$d sessions · %3$s × %1$d = %4$s"
+msgstr ""
+
+#. translators: 1: booked sessions, 2: all sessions
+#: assets/src/frontend/pages/bookings/Sidebar/RecurringList.js:123
+#, js-format
+msgid "Selected %1$d of %2$d sessions"
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:90
+msgid "Selected seats: "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:111
+msgid "Ticket quantity: "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:117
+msgid "Total Price: "
+msgstr ""
+
+#: assets/src/frontend/pages/bookings/SidebarInfo.js:293
+msgid "Timezone: "
+msgstr ""
+
+#: assets/src/frontend/pages/meetings/Meetings.js:68
+msgid "Select Service"
+msgstr ""
+
+#: assets/src/frontend/pages/meetings/Meetings.js:80
+msgid "Select Organizer"
+msgstr ""
+
+#: assets/src/frontend/pages/meetings/MeetingsList.js:46
+msgid "No meetings found."
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/BackButton.js:24
+msgid "Back booking list"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/TableHeader.js:27
+msgid "Canel"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/TableHeader.js:101
+msgid "Free"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/TableHeader.js:150
+msgid "Stop WhatsApp updates"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:125
+msgid "Are you sure Reschedule this booking?"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:149
+msgid "Are you sure to update this booking?"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:161
+msgid "Are you sure to cancel this booking?"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:174
+msgid "Stop WhatsApp updates for this booking?"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:175
+msgid "You'll still get emails."
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:176
+msgid "Stop updates"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:177
+msgid "Keep updates"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:209
+msgid "All Bookings"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserBookingsList.js:221
+msgid "Are you sure delete selected bookings?"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserChangePassword.js:68
+#: assets/src/frontend/pages/userAccount/UserProfile.js:68
+msgid "Edit profile"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserInfo.js:34
+msgid "Edit Profile"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserProfile.js:111
+msgid "Last name is required!"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserProfile.js:159
+msgid "Save change"
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserProfile.js:162
+msgid "Want to change password? "
+msgstr ""
+
+#: assets/src/frontend/pages/userAccount/UserProfile.js:177
+msgid "Click Here"
+msgstr ""
+
+#: assets/src/frontend/stripe/CheckoutForm.js:97
+msgid "Payment is not ready. Please refresh and try again."
+msgstr ""
+
+#: assets/src/frontend/stripe/CheckoutForm.js:113
+msgid "Could not bind payment to booking."
+msgstr ""
+
+#: assets/src/frontend/stripe/CheckoutForm.js:148
+msgid "Your payment succeeded, but we could not finalize your booking. Please contact support before booking again."
+msgstr ""
+
+#: assets/src/frontend/stripe/CheckoutForm.js:233
+msgid "Pay now"
+msgstr ""
+
+#: assets/src/frontend/stripe/StripePayment.js:77
+msgid "Well, Something's Wrong. Please contact your admin to fix it."
+msgstr ""
+
+#: assets/src/frontend/utils/helper.js:294
+msgid "Please select at least one seat."
+msgstr ""
+
+#. translators: 1: Minimum seats, 2: Ticket name
+#: assets/src/frontend/utils/helper.js:315
+#, js-format
+msgid "Please select at least %1$d seats for %2$s ticket variation"
+msgstr ""
+
+#. translators: 1: Maximum seats, 2: Ticket name
+#: assets/src/frontend/utils/helper.js:327
+#, js-format
+msgid "You can select max %1$d seats for %2$s ticket variation."
+msgstr ""

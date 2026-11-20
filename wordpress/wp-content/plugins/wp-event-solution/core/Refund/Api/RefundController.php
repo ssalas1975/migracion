@@ -1,0 +1,190 @@
+<?php
+namespace Eventin\Refund\Api;
+
+defined( 'ABSPATH' ) || exit;
+
+use Eventin\AccessControl\Ownership;
+use Eventin\Order\OrderModel;
+use Eventin\Refund\RefundModel;
+use Eventin\Refund\RefundService;
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+
+class RefundController extends WP_REST_Controller {
+
+    protected $namespace = 'eventin/v2';
+    protected $rest_base = 'orders';
+
+    public function register_routes() {
+        register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)/refunds', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'get_items' ],
+                'permission_callback' => [ $this, 'get_items_permissions_check' ],
+            ],
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [ $this, 'create_item' ],
+                'permission_callback' => [ $this, 'create_item_permissions_check' ],
+                'args'                => [
+                    'type'         => [ 'required' => true,  'type' => 'string', 'enum' => [ 'ticket', 'amount' ] ],
+                    'attendee_ids' => [ 'required' => false, 'type' => 'array', 'items' => [ 'type' => 'integer' ] ],
+                    'amount'       => [ 'required' => false, 'type' => 'number' ],
+                    'reason'       => [ 'required' => false, 'type' => 'string', 'sanitize_callback' => 'sanitize_textarea_field' ],
+                ],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<id>[\d]+)/refundable-attendees', [
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => [ $this, 'get_refundable_attendees' ],
+            'permission_callback' => [ $this, 'get_items_permissions_check' ],
+        ] );
+    }
+
+    /**
+     * Check access to an order's refund routes.
+     *
+     * These routes hang off the `orders` base and act on a specific order, but
+     * gated on `etn_manage_order` alone they answered 200 for orders whose
+     * parent route `GET /orders/{id}` already answered 403 — so refund history,
+     * buyer names and ticket values leaked, and `POST /orders/{id}/refunds` let
+     * a non-owning organizer move money on someone else's order.
+     *
+     * The capability gates access to the feature; ownership of the specific
+     * order decides whether the call proceeds, matching
+     * OrderController::refund_ticket_permissions_check().
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool
+     */
+    public function get_items_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_order' ) ) {
+            return new WP_Error( 'rest_forbidden', __( 'You do not have permission to manage orders.', 'wp-event-solution' ), [ 'status' => 403 ] );
+        }
+
+        if ( ! Ownership::can_manage_order( Ownership::route_subject_id( $request ) ) ) {
+            return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to manage refunds for this order.', 'wp-event-solution' ), [ 'status' => 403 ] );
+        }
+
+        return true;
+    }
+
+    public function create_item_permissions_check( $request ) {
+        return $this->get_items_permissions_check( $request );
+    }
+
+    public function get_items( $request ) {
+        $order_id     = (int) $request['id'];
+        $model        = new RefundModel();
+        $order        = new OrderModel( $order_id );
+        $svc          = new RefundService();
+        $rows         = $model->find_by_order( $order_id );
+        $total        = $model->refunded_total( $order_id );
+        $final_amount = $svc->final_amount_for_order( $order );
+
+        // Tell the refund modal whether the money goes back by itself.
+        // 'gateway': WooCommerce sends it back through the order's gateway.
+        // 'manual':  Eventin only records it; the admin sends the money back.
+        $refund_method  = 'manual';
+        $refund_gateway = '';
+
+        if ( 'wc' === (string) $order->payment_method && class_exists( '\\Eventin\\Integrations\\WC\\WCRefundSync' ) ) {
+            $wc_order = \Eventin\Integrations\WC\WCRefundSync::get_wc_order( $order_id );
+
+            if ( $wc_order ) {
+                $refund_gateway = (string) $wc_order->get_payment_method_title();
+
+                if ( '' === $refund_gateway && function_exists( 'wc_get_payment_gateway_by_order' ) ) {
+                    $gateway        = wc_get_payment_gateway_by_order( $wc_order );
+                    $refund_gateway = $gateway ? wp_strip_all_tags( (string) $gateway->get_title() ) : '';
+                }
+
+                if ( \Eventin\Integrations\WC\WCRefundSync::sends_money_back( $wc_order ) ) {
+                    $refund_method = 'gateway';
+                }
+            }
+        }
+
+        return new WP_REST_Response( [
+            'refund_method'    => $refund_method,
+            'refund_gateway'   => $refund_gateway,
+            'refunds'          => $rows,
+            'refunded_total'   => $total,
+            'refundable_total' => max( 0, round( $final_amount - $total, 2 ) ),
+            'final_amount'     => $final_amount,
+            'order_status'     => $order->status,
+            // Coupon context so the refund modal can explain why per-ticket amounts
+            // are lower than the sticker price (net = after the coupon discount).
+            'coupon_code'      => $order->coupon_code,
+            'discount_total'   => (float) $order->discount_total,
+            // Currency captured on the order at purchase time (reflects the
+            // gateway/currency actually used), falling back to the global setting.
+            'currency'         => $order->currency ? $order->currency : etn_currency(),
+            'currency_symbol'  => $order->currency_symbol
+                ? html_entity_decode( $order->currency_symbol, ENT_QUOTES, 'UTF-8' )
+                : html_entity_decode( etn_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
+        ], 200 );
+    }
+
+    public function create_item( $request ) {
+        // These gateways refund on their own dashboard and then tell Eventin.
+        // A refund made here would not send the money back.
+        $order = new OrderModel( (int) $request['id'] );
+
+        $external_gateways = [ 'sure_cart' ];
+
+        // Older FluentCart add-ons do not copy partial refunds into Eventin.
+        // Keep the Eventin refund for them, as before.
+        if ( etn_fluentcart_syncs_refunds() ) {
+            $external_gateways[] = 'fluentcart';
+        }
+
+        if ( in_array( (string) $order->payment_method, $external_gateways, true ) ) {
+            return new WP_Error(
+                'eventin_refund_external_gateway',
+                __( 'Refund this booking from the payment platform\'s own dashboard (SureCart or FluentCart). Eventin updates the booking automatically.', 'wp-event-solution' ),
+                [ 'status' => 422 ]
+            );
+        }
+
+        $svc     = new RefundService();
+        $type    = (string) $request['type'];
+        $payload = [
+            'attendee_ids' => (array) ( isset( $request['attendee_ids'] ) ? $request['attendee_ids'] : [] ),
+            'amount'       => isset( $request['amount'] ) ? (float) $request['amount'] : null,
+        ];
+        $result = $svc->create( (int) $request['id'], $type, $payload, isset( $request['reason'] ) ? $request['reason'] : null );
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+        return new WP_REST_Response( $result, 201 );
+    }
+
+    public function get_refundable_attendees( $request ) {
+        $order_id = (int) $request['id'];
+        $svc      = new RefundService();
+        $model    = new RefundModel();
+        $refunded = array_flip( $model->refunded_attendee_ids( $order_id ) );
+
+        $out = [];
+        foreach ( $svc->load_order_attendees( $order_id ) as $a ) {
+            if ( isset( $refunded[ $a['id'] ] ) ) {
+                continue;
+            }
+            $out[] = [
+                'id'          => $a['id'],
+                'name'        => $a['name'],
+                'ticket_name' => $a['ticket_name'],
+                'ticket_slug' => $a['ticket_slug'],
+                'price'       => $a['price'],     // gross sticker price (per-ticket)
+                'net_price'   => $a['net_price'], // post-discount, +tax if excl — what gets refunded
+                'event_id'    => $a['event_id'],
+            ];
+        }
+        return new WP_REST_Response( $out, 200 );
+    }
+}

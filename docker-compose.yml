@@ -1,0 +1,16 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: "host.docker.internal:3306"  # Usa 172.17.0.1:3306 en Linux
+      WORDPRESS_DB_USER: "root"
+      WORDPRESS_DB_PASSWORD: "76rh1108"
+      WORDPRESS_DB_NAME: "ms_mhsites"
+    volumes:
+      - ./wordpress:/var/www/html
+
+volumes:
+  wp_data:

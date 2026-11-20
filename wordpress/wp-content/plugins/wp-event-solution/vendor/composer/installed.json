@@ -1,0 +1,84 @@
+{
+    "packages": [
+        {
+            "name": "themewinter/email-notification-sdk",
+            "version": "dev-emarat/update-flow-calculation-logic",
+            "version_normalized": "dev-emarat/update-flow-calculation-logic",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:themewinter/email-notification-sdk.git",
+                "reference": "b20cc8a436204bc2486de4f396e44de82258d927"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/themewinter/email-notification-sdk/zipball/b20cc8a436204bc2486de4f396e44de82258d927",
+                "reference": "b20cc8a436204bc2486de4f396e44de82258d927",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10"
+            },
+            "time": "2026-10-26T12:15:27+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Eventin\\Vendor\\Ens\\": "src/"
+                },
+                "files": [
+                    "src/Utils/global-helpers.php"
+                ]
+            },
+            "description": "Reusable WordPress plugin's email notification flow handler package with REST API",
+            "support": {
+                "source": "https://github.com/themewinter/email-notification-sdk/tree/emarat/update-flow-calculation-logic",
+                "issues": "https://github.com/themewinter/email-notification-sdk/issues"
+            },
+            "install-path": "../themewinter/email-notification-sdk"
+        },
+        {
+            "name": "themewinter/uninstaller_form",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/themewinter/uninstaller_form.git",
+                "reference": "e69c128bc8809322d60d2227f31349d6b86ad7f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/themewinter/uninstaller_form/zipball/e69c128bc8809322d60d2227f31349d6b86ad7f2",
+                "reference": "e69c128bc8809322d60d2227f31349d6b86ad7f2",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10"
+            },
+            "time": "2026-08-20T08:43:42+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "UninstallerForm\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "UninstallerForm\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Reusable WordPress plugin uninstaller feedback form with REST API",
+            "support": {
+                "source": "https://github.com/themewinter/uninstaller_form/tree/main",
+                "issues": "https://github.com/themewinter/uninstaller_form/issues"
+            },
+            "install-path": "../themewinter/uninstaller_form"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

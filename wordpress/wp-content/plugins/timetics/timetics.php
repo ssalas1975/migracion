@@ -1,0 +1,407 @@
+<?php
+
+/**
+ * Plugin Name:       Timetics - Appointment Booking Calendar & Scheduling System
+ * Plugin URI:        https://arraytics.com/timetics/
+ * Description:       Schedule, Appointment and Seat Booking plugin.
+ * Version:           1.0.67
+ * Requires at least: 5.3
+ * Requires PHP:      7.3
+ * Author:            Arraytics
+ * Author URI:        https://arraytics.com/
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       timetics
+ * Domain Path:       /languages
+
+ * Timetics is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * any later version.
+
+ * Timetics Essential is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with Timetics. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package Timetics
+ * @category Core
+ * @author Arraytics
+ * @version 1.0.67
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * The Main Plugin Requirements Checker
+ *
+ * @since 1.0.0
+ */
+final class Timetics {
+
+    /**
+     * Static Property To Hold Singleton Instance
+     *
+     * @var Timetics The Timetics Requirement Checker Instance
+     */
+    private static $instance;
+
+    /**
+     * Plugin Current Production Version
+     *
+     * @return string
+     */
+    public static function get_version() {
+        return '1.0.67';
+    }
+
+    /**
+     * Requirements Array
+     *
+     * @since 1.0.0
+     * @var array
+     */
+    private $requirements = array(
+        'php' => array(
+            'name'    => 'PHP',
+            'minimum' => '7.3',
+            'exists'  => true,
+            'met'     => false,
+            'checked' => false,
+            'current' => false,
+        ),
+        'wp'  => array(
+            'name'    => 'WordPress',
+            'minimum' => '5.2',
+            'exists'  => true,
+            'checked' => false,
+            'met'     => false,
+            'current' => false,
+        ),
+    );
+
+    /**
+     * Singleton Instance
+     *
+     * @return Timetics
+     */
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * Setup Plugin Requirements
+     *
+     * @since 1.0.0
+     */
+    private function __construct() {
+        // Always load translation.
+        add_action( 'init', array( $this, 'load_text_domain' ) );
+
+        // Initialize plugin functionalities or quit.
+        $this->requirements_met() ? $this->initialize_modules() : $this->quit();
+    }
+
+    /**
+     * Load Localization Files
+     *
+     * @since 1.0
+     * @return void
+     */
+    public function load_text_domain() {
+        $locale = determine_locale();
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core localization hook.
+        $locale = apply_filters( 'plugin_locale', $locale, 'timetics' );
+        $locale = apply_filters( 'timetics_plugin_locale', $locale, 'timetics' );
+
+        $mofile = 'timetics-' . $locale . '.mo';
+
+        // Loco "Custom" location.
+        if ( file_exists( WP_LANG_DIR . '/loco/plugins/' . $mofile ) ) {
+            load_textdomain( 'timetics', WP_LANG_DIR . '/loco/plugins/' . $mofile );
+        }
+
+        // Loco "System" location.
+        if ( file_exists( WP_LANG_DIR . '/plugins/' . $mofile ) ) {
+            load_textdomain( 'timetics', WP_LANG_DIR . '/plugins/' . $mofile );
+        }
+
+        // Bundled translations remain available while WordPress loads language
+        // packs for this text domain automatically.
+        $bundled_mofile = plugin_dir_path( __FILE__ ) . 'languages/' . $mofile;
+        if ( file_exists( $bundled_mofile ) ) {
+            load_textdomain( 'timetics', $bundled_mofile );
+        }
+    }
+
+    /**
+     * Initialize Plugin Modules
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function initialize_modules() {
+        require_once dirname( __FILE__ ) . '/autoloader.php';
+        require_once dirname( __FILE__ ) . '/core/settings/settings.php';
+
+        require_once dirname( __FILE__ ) . '/utils/global-helper.php';
+
+        // block for showing banner.
+		require_once plugin_dir_path( __FILE__ ) . '/utils/notice/notice.php';
+		require_once plugin_dir_path( __FILE__ ) . '/utils/banner/banner.php';
+
+        // Include the bootstrap file if not loaded.
+        if ( ! class_exists( 'Timetics\Bootstrap' ) ) {
+            require_once self::get_plugin_dir() . 'bootstrap.php';
+        }
+
+        // init notice class.
+		\Oxaim\Libs\Notice::init();
+
+        // Initialize the bootstraper if exists.
+        if ( class_exists( 'Timetics\Bootstrap' ) ) {
+
+            // Initialize all modules through plugins_loaded.
+            add_action( 'plugins_loaded', array( $this, 'init' ) );
+
+            register_activation_hook( self::get_plugin_file(), array( $this, 'activate' ) );
+            register_deactivation_hook( self::get_plugin_file(), array( $this, 'deactivate' ) );
+        }
+    }
+
+    /**
+     * Check If All Requirements Are Fulfilled
+     *
+     * @return boolean
+     */
+    private function requirements_met() {
+        $this->prepare_requirement_versions();
+
+        $passed  = true;
+        $to_meet = wp_list_pluck( $this->requirements, 'met' );
+
+        foreach ( $to_meet as $met ) {
+            if ( empty( $met ) ) {
+                $passed = false;
+                continue;
+            }
+        }
+
+        return $passed;
+    }
+
+    /**
+     * Requirement Version Prepare
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    private function prepare_requirement_versions() {
+        foreach ( $this->requirements as $dependency => $config ) {
+            switch ( $dependency ) {
+            case 'php':
+                $version = phpversion();
+                break;
+            case 'wp':
+                $version = get_bloginfo( 'version' );
+                break;
+            default:
+                $version = false;
+            }
+
+            if ( ! empty( $version ) ) {
+                $this->requirements[$dependency]['current'] = $version;
+                $this->requirements[$dependency]['checked'] = true;
+                $this->requirements[$dependency]['met']     = version_compare( $version, $config['minimum'], '>=' );
+            }
+        }
+    }
+
+    /**
+     * Initialize everything
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    public function init() {
+        Timetics\Bootstrap::instantiate( self::get_plugin_file() );
+
+        // Add autoload from composer for integrating uninstallation form
+        if (file_exists(plugin_dir_path( __FILE__ ) . '/vendor/autoload.php')) {
+            require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+        }
+
+        if (class_exists('UninstallerForm\UninstallerForm') && is_callable(['\UninstallerForm\UninstallerForm', 'init'])) {
+
+			$reflection = new ReflectionMethod('\UninstallerForm\UninstallerForm', 'init');
+
+			// Maximum number of parameters allowed
+			$totalParams = $reflection->getNumberOfParameters();
+
+			if($totalParams === 6) {
+				add_filter( 'rest_request_before_callbacks', function( $response, $handler, $request ) {
+					if ( $request->get_route() === '/timetics/v1/feedback' ) {
+						$params = $request->get_json_params();
+
+						if ( empty( $params['email'] ) ) {
+							$params['email'] = get_option( 'admin_email' );
+							$request->set_body( wp_json_encode( $params ) );
+						}
+					}
+					return $response;
+				}, 10, 3 );
+
+				\UninstallerForm\UninstallerForm::init(
+                    'Timetics',         // Plugin name
+                    'timetics',         // Plugin Slug
+                    __FILE__,
+                    'timetics',          // Text Domain Name
+                    'timetics-feedback-modal',  // plugins-admin-script-handler
+                    'https://arraytics.com/?fluentcrm=1&route=contact&hash=13cce8a6-c038-4997-91e7-4a2326cc1124'
+				);
+			} else {
+				add_filter( 'rest_request_before_callbacks', function( $response, $handler, $request ) {
+					if ( $request->get_route() === '/timetics/v1/feedback' ) {
+						$params = $request->get_json_params();
+
+						if ( empty( $params['email'] ) ) {
+							$params['email'] = get_option( 'admin_email' );
+							$request->set_body( wp_json_encode( $params ) );
+						}
+					}
+					return $response;
+				}, 10, 3 );
+
+				\UninstallerForm\UninstallerForm::init(
+                    'Timetics',         // Plugin name
+                    'timetics',         // Plugin Slug
+                    __FILE__,
+                    'timetics',          // Text Domain Name
+                    'timetics-feedback-modal'
+				);
+			}
+		}
+    }
+
+    /**
+     * Called Only Once While Activation
+     *
+     * @return void
+     */
+    public function activate() {
+        // Insert new role.
+        Timetics\Base\Role::instance()->init();
+
+        // Update default settings.
+        timetics_update_default_settings();
+
+        // Register cron
+        timetics_register_cron();
+
+        // Create new woocommerce product category for timetics meeting
+        timetics_add_woocommerce_product_cat();
+
+        // Force rewrite-rule flush on activation; the maybe_flush_rules guard handles subsequent upgrades.
+        delete_option( 'timetics_rewrite_version' );
+
+        // Update option for onboard settings.
+        $timetics_onboard_setup = get_option( 'timetics_onboard_setup' );
+
+        $timetics_demo_data = get_option( 'timetics_demo_data' );
+
+        if ( ! $timetics_demo_data ) {
+            $dummy_data_generator = new Timetics\Core\DummyData\Dummy_Data_Generator();
+            $dummy_data_generator->generate();
+            update_option( 'timetics_demo_data', true );
+        }
+
+        if ( ! $timetics_onboard_setup ) {
+            update_option( 'timetics_onboard_settings', true );
+        }
+    }
+
+    /**
+     * Called Only Once While Deactivation
+     *
+     * @return void
+     */
+    public function deactivate() {
+        wp_clear_scheduled_hook( 'timetics_cleanup_unpaid_bookings' );
+    }
+
+    /**
+     * Quit Plugin Execution
+     *
+     * @return void
+     */
+    private function quit() {
+        add_action( 'admin_head', array( $this, 'show_plugin_requirements_not_met_notice' ) );
+    }
+
+    /**
+     * Show Error Notice For Missing Requirements
+     *
+     * @return void
+     */
+    public function show_plugin_requirements_not_met_notice() {
+        printf( '<div>Minimum requirements for Timetics are not met. Please update requirements to continue.</div>' );
+    }
+
+    /**
+     * Plugin Main File
+     *
+     * @return string
+     */
+    public static function get_plugin_file() {
+        return __FILE__;
+    }
+
+    /**
+     * Plugin Base Directory Path
+     *
+     * @return string
+     */
+    public static function get_plugin_dir() {
+        return trailingslashit( plugin_dir_path( self::get_plugin_file() ) );
+    }
+}
+
+/**
+ * Add a "Go Pro" action link on the Plugins page.
+ * Hidden when the pro plugin already exists.
+ */
+if ( ! function_exists( 'timetics_add_go_pro_action_link' ) ) {
+    function timetics_add_go_pro_action_link( $links ) {
+        if ( ! function_exists( 'get_plugins' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        foreach ( get_plugins() as $plugin ) {
+            if ( isset( $plugin['TextDomain'] ) && 'timetics-pro' === $plugin['TextDomain'] ) {
+                return $links;
+            }
+        }
+
+        $go_pro = sprintf(
+            '<a href="%1$s" target="_blank" rel="noopener noreferrer" style="color:#e8364c;font-weight:600;">%2$s</a>',
+            esc_url( 'https://arraytics.com/timetics/pricing/' ),
+            esc_html__( 'Go Pro', 'timetics' )
+        );
+
+        $links[] = $go_pro;
+        return $links;
+    }
+}
+add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'timetics_add_go_pro_action_link' );
+
+Timetics::get_instance();

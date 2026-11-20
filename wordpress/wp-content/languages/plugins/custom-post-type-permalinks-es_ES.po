@@ -1,0 +1,96 @@
+# Translation of Plugins - Custom Post Type Permalinks - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Custom Post Type Permalinks - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-05-26 19:21:04+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Custom Post Type Permalinks - Stable (latest release)\n"
+
+#. translators: %s slug-automator plugin install page.
+#: CPTP/Module/Admin.php:88
+msgid "If you want URLs without percent-encoding, try <a href=\"%s\">Slug Automator</a>."
+msgstr "Si quieres URL sin codificación de porcentaje, prueba <a href=\"%s\">Slug Automator</a>."
+
+#: CPTP/Module/Admin.php:111
+msgid "The tags you can use are WordPress structure tags and taxonomy tags."
+msgstr "Las etiquetas que puedes usar son etiquetas de estructura de WordPress y etiquetas de taxonomía."
+
+#: CPTP/Module/Admin.php:112
+msgid "Available taxonomy tags:"
+msgstr "Etiquetas de taxonomía disponibles:"
+
+#. translators: %s URL.
+#: CPTP/Module/Admin.php:232
+msgid "[Custom Post Type Permalinks] <a href=\"%s\"><strong>Please check your permalink settings!</strong></a>"
+msgstr "[Custom Post Type Permalinks] <a href=\"%s\"><strong>¡Por favor, comprueba tus ajustes de enlaces permanentes!</strong></a>"
+
+#: CPTP/Module/Admin.php:208
+msgid "You can setting permalink for post type in <a href=\"options-permalink.php\">Permalinks</a>."
+msgstr "Puedes establecer enlaces permanentes por tipo de contenido en «<a href=\"options-permalink.php\">Enlaces permanentes</a>»."
+
+#. Author URI of the plugin
+#: custom-post-type-permalinks.php
+msgid "https://torounit.com/"
+msgstr "https://torounit.com/"
+
+#. Plugin URI of the plugin
+#: custom-post-type-permalinks.php
+msgid "https://github.com/torounit/custom-post-type-permalinks"
+msgstr "https://github.com/torounit/custom-post-type-permalinks"
+
+#. Author of the plugin
+#: custom-post-type-permalinks.php
+msgid "Toro_Unit"
+msgstr "Toro_Unit"
+
+#. Plugin Name of the plugin
+#: custom-post-type-permalinks.php CPTP/Module/Admin.php:207
+msgid "Custom Post Type Permalinks"
+msgstr "Custom Post Type Permalinks"
+
+#. Description of the plugin
+#: custom-post-type-permalinks.php
+msgid "Add post archives of custom post type and customizable permalinks."
+msgstr "Añade archivos de publicaciones de tipos de contenido personalizado y enlaces permanentes personalizables."
+
+#: CPTP/Module/Admin.php:193
+msgid "There are cases when the template to be loaded is changed."
+msgstr "Hay casos en los que se cambia la plantilla a cargar."
+
+#: CPTP/Module/Admin.php:192
+msgid "Custom taxonomy archive also works as post type archive. "
+msgstr "El archivo de taxonomía personalizada también funciona como archivo de tipo de contenido. "
+
+#: CPTP/Module/Admin.php:121
+msgid "If <code>has_archive</code> is true, add permalinks for custom post type archive."
+msgstr "Si <code>has_archive</code> es verdadero, añade enlaces permanentes para el archivo de tipo de contenido personalizado."
+
+#: CPTP/Module/Admin.php:33
+msgid "Permalink Settings for Custom Post Types"
+msgstr "Ajustes de enlaces permanentes para tipos de contenido personalizados"
+
+#: CPTP/Util.php:166
+msgid "View all posts in %s"
+msgstr "Ver todas las entradas en %s"
+
+#: CPTP/Module/Admin.php:120
+msgid "Presence of the trailing '/' is unified into a standard permalink structure setting."
+msgstr "La presencia de la «/» final se unifica en un ajuste de una estructura estándar de enlaces permanentes."
+
+#: CPTP/Module/Admin.php:57
+msgid "Use custom permalink of custom taxonomy archive."
+msgstr "Usa el enlace permanente personalizado del archivo de la taxonomía personalizada."
+
+#: CPTP/Module/Admin.php:70
+msgid "Add <code>post_type</code> query for custom taxonomy archive."
+msgstr "Añade la consulta de <code>post_type</code> para el archivo de la taxonomía personalizada."
+
+#. translators: %s site url
+#: CPTP/Module/Admin.php:183
+msgid "If you check this, the custom taxonomy's permalinks will be <code>%s/post_type/taxonomy/term</code>."
+msgstr "Si marcas esto, los enlaces permanentes de taxonomías personalizadas será <code>%s/post_type/taxonomy/term</code>"

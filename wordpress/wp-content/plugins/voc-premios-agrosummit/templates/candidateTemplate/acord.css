@@ -1,0 +1,202 @@
+.sh-cf7 form .wpcf7-submit {
+    background-size: 200% auto;
+    background-image: linear-gradient(to right, #bf1717 , #bf1717, #bf1717) !important;
+}
+
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #e5e5e5;
+}
+
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 400;
+}
+
+.wpcf7-form p {
+    font-weight: normal !important;
+    font-size: 15px;
+}
+
+.accordion-titulos{ background-color: #757A7D; padding: 10px 10px 10px 10px; margin: 0px 0px 10px 0px; cursor: pointer;
+display: flex;
+align-items: center;
+}
+.wpcf7-form .accordion-titulos p{
+    color: #ffffff!important; 
+}
+
+#accordionhtml5 {clear: both; margin-top: 20px;
+}
+
+details summary::-webkit-details-marker{display: none;}
+
+input{
+border-color: #898369 !important;
+height:50px
+}
+textarea {
+    border-color: #898369 !important;
+}
+label{
+margin:0px
+}
+.cand-1{
+display:flex;
+}
+.cand-1 label:first-of-type{
+width:46%;
+}
+.cand-1 label:last-of-type{
+width:100%;
+margin-left:49px
+}
+@media only screen and (max-width: 550px) {
+.cand-1{
+display:block;
+}
+.cand-1 label{
+margin-left:0px;
+width:100%
+}
+.cand-1 label:last-of-type{
+width:100%;
+margin-left:0px
+}
+.cand-1 label:first-of-type{
+width:100%;
+}
+}
+
+.cand-2{
+display:flex;
+width: 100%;
+justify-content: space-between;
+}
+.cand-2 label{
+width: 30%;
+}
+@media only screen and (max-width: 995px) {
+.cand-2{
+display:block;
+}
+.cand-2 label{
+width: 100%;
+}
+}
+
+.cand-3 label{
+width: 100%
+}
+
+.half-page{
+display:flex;
+}
+.half-1{
+width:33%;
+}
+.half-2{
+width:67%;
+}
+.datos-1{
+ display: flex;
+ justify-content: space-between;
+}
+.datos-1 label {
+width:45%
+}
+@media only screen and (max-width: 700px) {
+.half-page{
+display:block;
+}
+.datos-1{
+ display: block;
+}
+.datos-1 label{
+ width: 100%;
+}
+.half-2 {
+ width: 100%;
+}
+.half-1{
+width:100%;
+}
+}
+
+.uploap{
+display:flex;
+}
+.uploap label:first-of-type{
+width:76%;
+}
+.uploap label:last-of-type{
+width:100%;
+margin-left: 40px;
+}
+.uploap label span input{
+width:100%;
+border: 1px solid;
+border-color: #898369 !important;
+}
+.centrar {
+text-align:center;
+margin-top:30px;
+}
+.uploap-2{
+display:flex;
+margin-bottom: -18px;
+margin-top: 24px;
+}
+.uploap-2 span:first-of-type{
+ margin-top: -8px;
+ margin-right: 7px;
+}
+@media only screen and (max-width: 930px) {
+.uploap{
+display:block;
+}
+.uploap label{
+width:100%;
+}
+.uploap label:last-of-type{
+margin-left:0px
+}
+}
+
+
+
+
+
+
+.plus-box{
+    height: 18px;
+    width: 18px;
+    margin-right: 10px;
+    margin-bottom: 2px;
+}
+
+.mdiv {
+    height: 18px;
+    width: 2px;
+    margin-left: 8px;
+    background-color: white;
+    transform: rotate(90deg);
+    Z-index: 1;
+  }
+  
+  .md {
+    height: 18px;
+    width: 2px;
+    background-color: white;
+    transform: rotate(90deg);
+    Z-index: 2;
+  }
+
+  .md .hidden{
+      display: none;
+      visibility: hidden!important;
+  }

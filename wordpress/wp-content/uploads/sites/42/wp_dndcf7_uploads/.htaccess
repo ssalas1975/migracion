@@ -1,0 +1,13 @@
+Options -Indexes
+
+<FilesMatch "\.(php|phtml|phar|php\d*|cgi|pl|py|jsp|asp|aspx|sh|bash|exe|dll)$">
+# Apache 2.4
+  <IfModule authz_core_module>
+    Require all denied
+  </IfModule>
+
+# Apache 2.2
+  <IfModule !authz_core_module>
+    Deny from all
+  </IfModule>
+</FilesMatch>

@@ -1,0 +1,374 @@
+/* Estilos para el listado Top 100 - Estilo listado3 Refinado */
+.voc-top100-container {
+    padding: 0;
+    color: #202020;
+    font-family: 'Micrograph Regular';
+    font-weight: 400;
+}
+
+/* Estilos para la barra de búsqueda y filtros */
+.voc-top100-filters {
+    background-color: #F3F5F8;
+    height: 60px;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #0E3A6F;
+    box-sizing: border-box;
+    max-width: 1106px;
+    margin: 0 auto;
+}
+
+.voc-top100-filters-left {
+    display: flex;
+    align-items: center;
+}
+
+.voc-top100-search-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #0E3A6F;
+    border-right: none;
+    padding-left: 10px;
+    width: 230px;
+    max-width: 100%;
+    height: 32px;
+    box-sizing: border-box;
+    border-radius: 2px 0 0 2px;
+}
+
+
+.voc-top100-container .voc-top100-buscador {
+    border: none !important;
+    padding: 0 8px !important;
+    font-size: 14px !important;
+    flex-grow: 1 !important;
+    outline: none !important;
+    height: 100% !important;
+    color: #333 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: auto !important;
+}
+
+.voc-top100-btn-clear {
+    cursor: pointer;
+    color: #797979;
+    font-size: 12px;
+    padding-right: 10px;
+    font-family: 'Micrograph Regular';
+    font-weight: 400;
+}
+
+.voc-top100-btn-search {
+    background-color: #0E3A6F;
+    color: #ffffff;
+    border: none;
+    width: 42px;
+    height: 32px;
+    cursor: default;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0 2px 2px 0;
+    flex-shrink: 0;
+}
+
+.voc-top100-sort-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.voc-top100-sort-label {
+    font-size: 14px;
+    color: #333;
+}
+
+.voc-top100-btn-sort {
+    background: #ffffff;
+    border: 1px solid #0E3A6F;
+    color: #0E3A6F;
+    width: 77px;
+    height: 32px;
+    font-size: 14px;
+    font-family: 'Micrograph Semibold';
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2px;
+}
+
+.voc-top100-btn-sort.active {
+    background-color: #0E3A6F;
+    color: white;
+}
+
+.voc-top100-results-info {
+    max-width: 1106px;
+    margin: 20px auto 0;
+    padding: 0 30px;
+    font-family: 'Micrograph Regular';
+    font-size: 14px;
+    color: #797979;
+    box-sizing: border-box;
+}
+
+.voc-top100-results-highlight {
+    font-family: 'Micrograph Semibold';
+    font-weight: 600;
+    color: #797979;
+}
+
+.voc-top100-grid {
+    display: grid;
+    gap: 40px 30px;
+    max-width: 1106px;
+    margin: 0px auto 0;
+    padding: 50px 20px 0;
+    box-sizing: border-box;
+    --responsive-cols: 12;
+    --current-cols: min(var(--desktop-cols, 4), var(--responsive-cols));
+    grid-template-columns: repeat(var(--current-cols), 1fr);
+    transition: opacity 0.1s ease;
+}
+
+.voc-top100-container.is-loading .voc-top100-grid {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.voc-top100-loader {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 0;
+    font-size: 40px;
+    color: #0E3A6F;
+}
+
+.voc-top100-container.is-loading .voc-top100-loader {
+    display: flex;
+}
+
+.voc-top100-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Scroll Reveal Initial State */
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease-out;
+}
+
+.voc-top100-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.voc-top100-image-box {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    margin-bottom: 20px;
+}
+
+.voc-top100-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    filter: grayscale(100%);
+    transition: filter 0.1s ease;
+    will-change: filter;
+}
+
+.voc-top100-card:hover .voc-top100-card-img {
+    filter: grayscale(0%);
+}
+
+.voc-top100-card-badge {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 61px;
+    height: 61px;
+    z-index: 5;
+}
+
+.voc-top100-card-linkedin {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border: 1px solid #0E3A6F;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2px;
+    z-index: 5;
+}
+
+.voc-top100-card-linkedin a {
+    color: #0E3A6F;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.voc-top100-info-name {
+    color: #0E3A6F !important;
+    font-family: 'ABC Display Semibold' !important;
+    font-weight: 600 !important;
+    font-size: 18px !important;
+    line-height: 18px !important;
+    letter-spacing: -0.5% !important;
+    text-align: center;
+    margin: 5px 0;
+    text-transform: capitalize;
+}
+
+.voc-top100-info-role {
+    font-family: 'Micrograph Regular';
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 19px;
+    letter-spacing: -1%;
+    text-align: center;
+    color: #202020;
+    margin: 2px 0;
+}
+
+.voc-top100-info-company {
+    font-family: 'Micrograph Semibold';
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 19px;
+    letter-spacing: 0%;
+    text-align: center;
+    color: #4D4D4D;
+    margin: 2px 0;
+}
+
+.voc-top100-card.hidden {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .voc-top100-grid {
+        --responsive-cols: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .voc-top100-grid {
+        --responsive-cols: 2;
+    }
+
+    .voc-top100-filters {
+        flex-direction: column;
+        height: auto;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .voc-top100-filters-left {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .voc-top100-search-wrapper {
+        flex: 1;
+        width: auto;
+    }
+
+    .voc-top100-sort-wrapper {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .voc-top100-grid {
+        grid-template-columns: 1fr !important;
+        --responsive-cols: 1;
+        gap: 20px 0;
+    }
+
+    .voc-top100-filters {
+        padding: 15px;
+    }
+
+    .voc-top100-search-wrapper {
+        flex: 1;
+        width: auto;
+    }
+
+    .voc-top100-btn-search {
+        width: 42px;
+    }
+}
+
+/* -------------------------------------
+   Formatos de Publicidad
+-------------------------------------- */
+.voc-top100-ad-banner {
+    text-align: center;
+    width: 100%;
+}
+
+.voc-top100-ad-brand {
+    background-color: #3E618C;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    height: 100px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.voc-top100-ad-brand .ad-text {
+    font-family: 'Periodico Display', serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    color: #ffffff;
+    max-width: 400px;
+}
+
+.voc-top100-ad-brand .ad-logo {
+    height: 100%;
+    max-height: 100px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    flex-shrink: 1;
+    margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .voc-top100-ad-brand {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 30px 20px;
+    }
+}

@@ -1,0 +1,31 @@
+.red{
+    color:#e0061f;
+}
+.high{
+    font-size:1.3em;
+    line-height:1.3em;
+}
+p.sangria{
+     text-indent: 4em
+}
+p.bullet{
+    position: relative;
+    margin-left:5em;
+}
+/* hastag */
+p.hastag1{
+    font-family: 'suisse_intlbold';
+}
+p.hastag2{
+     font-family: 'suisse_intlbold';
+}
+p.hastag3{
+    font-family: 'suisse_intlbook'; 
+}
+p.hastag4{
+     font-family: 'suisse_intlbold';;
+}
+p.hastag5{
+     font-family: 'suisse_intlbold';
+}
+/* hastag */

@@ -1,0 +1,166 @@
+%!Adobe-FontList 1.20
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:Arsenica-Bold
+FamilyName:Arsenica
+StyleName:Bold
+MenuName:Arsenica
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Arsenica Bold
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Arsenica-Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:122096
+FileModTime:734614964
+NameArray:0,Mac,4,Arsenica Bold
+NameArray:0,Win,1,Arsenica
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AllianceNo.2-Bold
+FamilyName:Alliance No.2
+StyleName:Bold
+MenuName:Alliance No.2
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Alliance No.2 Bold
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Alliance No.2 Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:135436
+FileModTime:733053745
+NameArray:0,Mac,4,Alliance No.2 Bold
+NameArray:0,Win,1,Alliance No.2
+NameArray:0,Win,16,Alliance No.2
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/AdobeFnt21.lst
+FileLength:4371
+FileModTime:736855023
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AllianceNo.2-Regular
+FamilyName:Alliance No.2
+StyleName:Regular
+MenuName:Alliance No.2
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Alliance No.2 Regular
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Alliance No.2 Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:134048
+FileModTime:733053745
+NameArray:0,Mac,4,Alliance No.2 Regular
+NameArray:0,Win,1,Alliance No.2
+NameArray:0,Win,16,Alliance No.2
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:Arsenica-DemiboldItalic
+FamilyName:Arsenica
+StyleName:Demibold Italic
+MenuName:Arsenica Demibold
+StyleBits:1
+WeightClass:600
+WidthClass:5
+AngleClass:1
+FullName:Arsenica Demibold Italic
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Arsenica-Demibold-Italic.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:126740
+FileModTime:734614964
+NameArray:0,Mac,4,Arsenica Demibold Italic
+NameArray:0,Win,1,Arsenica Demibold
+NameArray:0,Win,16,Arsenica
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AllianceNo.1-Regular
+FamilyName:Alliance No.1
+StyleName:Regular
+MenuName:Alliance No.1
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Alliance No.1 Regular
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Alliance No.1 Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:131748
+FileModTime:733053745
+NameArray:0,Mac,4,Alliance No.1 Regular
+NameArray:0,Win,1,Alliance No.1
+NameArray:0,Win,16,Alliance No.1
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AllianceNo.1-Bold
+FamilyName:Alliance No.1
+StyleName:Bold
+MenuName:Alliance No.1
+StyleBits:2
+WeightClass:700
+WidthClass:5
+AngleClass:0
+FullName:Alliance No.1 Bold
+WritingScript:Roman
+OutlineFileName:/Users/ijodar/Library/CloudStorage/GoogleDrive-imma.jodar@hc-healthcom.com/Unidades compartidas/CREATIVOS/IMMA.JODAR/IMMA Clients 2024/FLAVIA 2024/FLAVIA TALKS/FLAVIA TALKS OK/Document fonts/Alliance No.1 Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:132296
+FileModTime:733053745
+NameArray:0,Mac,4,Alliance No.1 Bold
+NameArray:0,Win,1,Alliance No.1
+NameArray:0,Win,16,Alliance No.1
+%EndFont
+

@@ -1,0 +1,3416 @@
+<?php
+
+/**
+ * Event Api Class
+ *
+ * @package Eventin\Event
+ */
+namespace Eventin\Event\Api;
+
+defined( 'ABSPATH' ) || exit;
+
+use Error;
+use Eventin\AccessControl\Ownership;
+use Eventin\Event\EventExporter;
+use Eventin\Event\EventImporter;
+use Eventin\Event\EventLocation;
+use Etn\Core\Event\Event_Model;
+use Eventin\Event\MeetingPlatforms\MeetingPlatform;
+use Eventin\Input;
+use Eventin\Settings;
+use WP_Error;
+use WP_Query;
+use WP_REST_Controller;
+use WP_REST_Server;
+use Etn\Utils\Helper;
+use Eventin\Reports\RevenueReport;
+use WP_User_Query;
+
+/**
+ * Event Controller Class
+ */
+class EventController extends WP_REST_Controller {
+    /**
+     * Store event taxonomy
+     *
+     * @var string
+     */
+    protected $taxonomy = 'etn_category';
+
+    /**
+     * Store event tags
+     *
+     * @var string
+     */
+    protected $tag_taxonomy = 'etn_tags';
+
+    /**
+     * Store event cache key
+     *
+     * @var string
+     */
+    protected $event_cache_key = 'etn_event_list';
+
+    /**
+     * Constructor for EventController
+     *
+     * @return void
+     */
+    public function __construct() {
+        $this->namespace = 'eventin/v2';
+        $this->rest_base = 'events';
+    }
+
+    /**
+     * Check if a given request has access to get items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function register_routes() {
+        register_rest_route( $this->namespace, $this->rest_base, [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'get_items'],
+                'permission_callback' => [$this, 'get_item_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'create_item'],
+                'permission_callback' => [$this, 'create_item_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::DELETABLE,
+                'callback'            => [$this, 'delete_items'],
+                'permission_callback' => [$this, 'delete_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>[\d]+)',
+            array(
+                'args'   => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_item' ),
+                    'permission_callback' => array( $this, 'get_single_item_permissions_check' ),
+                    'args'                => $this->get_collection_params(),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::EDITABLE,
+                    'callback'            => array( $this, 'update_item' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                    'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
+                    'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+                    'args'                => array(
+                        'force' => array(
+                            'type'        => 'boolean',
+                            'default'     => false,
+                            'description' => __( 'Whether to bypass Trash and force deletion.', 'wp-event-solution' ),
+                        ),
+                    ),
+                ),
+                // 'allow_batch' => $this->allow_batch,
+                'schema' => array( $this, 'get_item_schema' ),
+            ),
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>[\d]+)' . '/clone',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'clone_item' ),
+                    'permission_callback' => array( $this, 'clone_item_permissions_check' ),
+                    'args'                => $this->get_collection_params(),
+                ),
+
+                // 'allow_batch' => $this->allow_batch,
+                'schema' => array( $this, 'get_item_schema' ),
+            ),
+        );
+        // back to wordpress data from elementor data 
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>[\d]+)' . '/back-wordpress',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'convert_elementor_to_wordpress' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+
+            ),
+        );
+
+        // Preview which child recurrences would become standalone events if a
+        // proposed recurrence rule were saved. Read-only; mutates nothing.
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>[\d]+)' . '/recurrence-orphan-preview',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'recurrence_orphan_preview' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                ),
+            ),
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/export',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'export_items' ),
+                    'permission_callback' => array( $this, 'export_permissions_check' ),
+                ),
+ 
+            ),
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/import',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'import_items' ),
+                    'permission_callback' => array( $this, 'import_permissions_check' ),
+                ),
+ 
+            ),
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/authors',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_authors' ),
+                    'permission_callback' => function() {
+                        return current_user_can( 'etn_manage_event' );
+                    },
+                ),
+ 
+            ),
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/authors',
+            array(
+                'args' => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::EDITABLE,
+                    'callback'            => array( $this, 'update_author' ),
+                    // Reassigning post_author is an ownership transfer. Only an
+                    // administrator may perform one — an organizer handing their
+                    // own event to someone else, or (before 4.1.20) taking an
+                    // administrator's event, is not an authoring action.
+                    'permission_callback' => function() {
+                        return current_user_can( 'etn_manage_event' ) && current_user_can( 'manage_options' );
+                    },
+                ),
+ 
+            ),
+        );
+
+        // Set event as homepage endpoint
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>\d+)/set-unset-as-homepage',
+            [
+                'methods'             => WP_REST_Server::EDITABLE,
+                'callback'            => [$this, 'set_unset_event_as_homepage'],
+                // Writes the site-wide `show_on_front` / `page_on_front`
+                // options, so this is a settings change, not an event edit.
+                // Owning the event is not enough.
+                'permission_callback' => function () {
+                    return current_user_can( 'manage_options' );
+                },
+                'args'                => [
+                    'id' => [
+                        'description' => __('Unique identifier for the event.', 'wp-event-solution'),
+                        'type'        => 'integer',
+                        'required'    => true,
+                    ],
+                ],
+            ]
+        );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/update-status',
+            [
+                [
+                    'methods'             => WP_REST_Server::EDITABLE,
+                    'callback'            => array($this, 'update_status'),
+                    'permission_callback' => function () {
+                        return current_user_can('etn_manage_event');
+                    },
+                ],
+            ],
+        );
+    }
+
+    /**
+     * Check if a given request has access to get items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function get_item_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_event' ) || wp_verify_nonce( $request->get_header( 'X-Wp-Nonce' ), 'wp_rest' );
+    }
+
+    public function get_single_item_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_event' ) || wp_verify_nonce( $request->get_header( 'X-Wp-Nonce' ), 'wp_rest' );
+    }
+
+    /**
+     * Check permissions for cloning an event.
+     *
+     * Cloning is an authoring action — it writes a new draft post and returns
+     * the source event's full data. The public wp_rest nonce is not sufficient;
+     * the caller must hold the event-management capability.
+     *
+     * @param WP_REST_Request $request
+     * @return bool
+     */
+    public function clone_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_event' ) ) {
+            return false;
+        }
+
+        // Cloning copies out the source event's full data, so it is a read of
+        // that event as much as a write of a new one.
+        return Ownership::can_manage_post( $request['id'], 'etn' );
+    }
+
+    /**
+     * Get a collection of items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_items( $request ) {
+        // Lightweight list for event-select dropdowns: id/title/status/dates only.
+        // Skips the per-event hydration (50+ meta reads, taxonomies, user-group
+        // queries and revenue map) that the full list performs for every event.
+        if ( 'compact' === ( ! empty( $request['fields'] ) ? sanitize_key( $request['fields'] ) : '' ) ) {
+            return $this->get_compact_event_list( $request );
+        }
+
+        $per_page       = ! empty( $request['per_page'] ) ? intval( $request['per_page'] ) : -1;
+        $paged          = ! empty( $request['paged'] ) ? intval( $request['paged'] ) : 1;
+        $type           = ! empty( $request['type'] ) ? sanitize_text_field( $request['type'] ) : '';
+        $start_date     = ! empty( $request['start_date'] ) ? sanitize_text_field( $request['start_date'] ) : '';
+        $end_date       = ! empty( $request['end_date'] ) ? sanitize_text_field( $request['end_date'] ) : '';
+        $search_keyword = ! empty( $request['search_keyword'] ) ? sanitize_text_field( $request['search_keyword'] ) : '';
+        $status         = ! empty( $request['status'] ) ? sanitize_text_field( $request['status'] ) : 'all';
+        $category       = ! empty( $request['category'] ) ? intval($request['category']): [];
+        $organizer      = ! empty( $request['organizer'] ) ? intval($request['organizer']) : [];
+        $speaker        = ! empty( $request['speaker'] ) ? intval($request['speaker']) : [];
+        $parent         = isset( $request['parent'] ) ? intval( $request['parent'] ) : null;
+
+        $can_see_drafts = current_user_can( 'etn_manage_event' );
+
+        if ( ! $can_see_drafts && 'all' !== $status ) {
+            // Anonymous / nonce-only callers must not be able to request draft or private status.
+            $status = 'all';
+        }
+
+        $args = [
+            'post_type'      => 'etn',
+            'post_status'    => $can_see_drafts ? 'any' : [ 'publish' ],
+            'posts_per_page' => $per_page,
+            'paged'          => $paged,
+        ];
+
+        // Sorting (whitelisted orderby/order). Defaults to WP_Query defaults when no orderby is sent.
+        $orderby = ! empty( $request['orderby'] ) ? sanitize_key( $request['orderby'] ) : '';
+        $order   = ! empty( $request['order'] ) ? strtoupper( sanitize_text_field( $request['order'] ) ) : 'DESC';
+        $order   = in_array( $order, [ 'ASC', 'DESC' ], true ) ? $order : 'DESC';
+
+        switch ( $orderby ) {
+            case 'title':
+                $args['orderby'] = 'title';
+                $args['order']   = $order;
+                break;
+            case 'date':
+                $args['meta_key']  = 'etn_start_date'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+                $args['meta_type'] = 'DATETIME';
+                $args['orderby']   = 'meta_value';
+                $args['order']     = $order;
+                break;
+        }
+
+        // Filter by parent event for recurring child events.
+        if ( $parent !== null ) {
+            $args['post_parent'] = $parent;
+        }
+        elseif ( ! in_array( $status, [ 'upcoming', 'past', 'ongoing' ], true ) ) {
+            // Default list shows only top-level events. When a status filter is
+            // active we drop this restriction so matching recurring child
+            // occurrences also surface as their own rows alongside parents.
+            $args['post_parent'] = 0;
+        }
+
+        // Public callers keep the existing published-event catalogue. Apply
+        // store ownership only to authenticated non-administrators.
+        if ( is_user_logged_in() && ! current_user_can( 'manage_options' ) ) {
+            $owner_id = Ownership::current_user_owner_id();
+
+            if ( $owner_id ) {
+                $args['author'] = $owner_id;
+            } else {
+                // A resolver may deny a malformed or unauthorized store scope
+                // by returning 0. Never pass author=0: WP_Query can interpret
+                // that as no author restriction and expose the collection.
+                $args['post__in'] = [ 0 ];
+            }
+        }
+
+        // Category filter (taxonomy query).
+        if ( ! empty( $category ) ) {
+            $args['tax_query'] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+                [
+                    'taxonomy' => 'etn_category',
+                    'field'    => 'term_id',
+                    'terms'    => $category,
+                    'operator' => 'IN',
+                ],
+            ];
+        }
+
+        $meta_query = [];
+    
+        if ( $start_date && $end_date ) {
+            $meta_query[] = [
+                'relation' => 'AND',
+                [
+                    'key'     => 'etn_start_date',
+                    'value'   => $end_date,
+                    'compare' => '<=',
+                    'type'    => 'DATE'
+                ],
+                [
+                    'key'     => 'etn_end_date',
+                    'value'   => $start_date,
+                    'compare' => '>=',
+                    'type'    => 'DATE'
+                ],
+            ];
+        }
+
+        if (!empty($type)) {
+            $meta_query[] = [
+                [
+                    'key'     => 'event_type',
+                    'value'   => $type,
+                    'compare' => '='
+                ]
+            ];
+        }
+    
+        if ( $search_keyword ) {
+            $args['s'] = $search_keyword;
+        }
+    
+        $current_datetime = gmdate( 'Y-m-d H:i:s' );
+        $tomorrow = gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) );
+        $yesterday = gmdate( 'Y-m-d H:i:s', strtotime( '-1 day' ) );
+    
+        if ( 'draft' === $status && $can_see_drafts ) {
+            $args['post_status'] = 'draft';
+        }
+		elseif ( 'all' !== $status ) {
+            // Exclude drafts unless explicitly requested
+            $args['post_status'] = $can_see_drafts
+                ? array( 'publish', 'pending', 'future', 'private', 'inherit' )
+                : array( 'publish' );
+    
+            if ( 'upcoming' === $status ) {
+                $meta_query[] = [
+                    'key'     => 'etn_start_date',
+                    'value'   => $current_datetime,
+                    'compare' => '>',
+                    'type'    => 'DATETIME'
+                ];
+            } elseif ( 'past' === $status ) {
+                $meta_query[] = [
+                    'key'     => 'etn_end_date',
+                    'value'   => $current_datetime,
+                    'compare' => '<',
+                    'type'    => 'DATETIME'
+                ];
+            } elseif ( 'ongoing' === $status ) {
+                $meta_query[] = [
+                    'relation' => 'AND',
+                    [
+                        'key'     => 'etn_start_date',
+                        'value'   => $current_datetime,
+                        'compare' => '<=',
+                        'type'    => 'DATETIME'
+                    ],
+                    [
+                        'key'     => 'etn_end_date',
+                        'value'   => $current_datetime,
+                        'compare' => '>=',
+                        'type'    => 'DATETIME'
+                    ],
+                ];
+            }
+        }
+    
+        if ( ! empty( $meta_query ) ) {
+            $args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+        }
+
+        // Hide the shipped preview-placeholder event from the events list.
+        $placeholder_ids = \Eventin\PreviewPlaceholder\PreviewPlaceholder::excluded_post_ids();
+        if ( $placeholder_ids ) {
+            $args['post__not_in'] = array_merge(
+                isset( $args['post__not_in'] ) ? (array) $args['post__not_in'] : [],
+                $placeholder_ids
+            );
+        }
+
+        if ( $meta_query || $search_keyword || $status || $category || $organizer || $speaker || $parent !== null ) {
+            return $this->get_event_list( $args, $request );
+        }
+
+        // Define cache key and group
+        $cache_key = $this->event_cache_key;
+
+        // Try to get cached data
+        $response = get_transient( $cache_key );
+        
+        if ( ! $response ) {
+            $response = $this->get_event_list( $args, $request );
+
+            // Set the cache
+            set_transient( $cache_key, $response, 3 * HOUR_IN_SECONDS );
+        }
+
+        return $response;
+    }
+
+    /**
+     * Get event lists
+     *
+     * @param   [type]  $args     [$args description]
+     * @param   [type]  $request  [$request description]
+     *
+     * @return  [type]            [return description]
+     */
+    protected function get_event_list( $args, $request ) {
+        $category       = ! empty( $request['category'] ) ? intval($request['category']) : [];
+        $organizer      = ! empty( $request['organizer'] ) ? intval($request['organizer']) : [];
+        $speaker        = ! empty( $request['speaker'] ) ? intval($request['speaker']) : [];
+
+        $events = [];
+
+        $post_query   = new WP_Query( $args );
+        $query_result = $post_query->posts;
+
+        $total_posts  = $post_query->found_posts;
+        $total_upcomming_events = 0;
+        $total_ongoing_events = 0;
+        $total_expired_events = 0;
+
+        // Batch-fetch revenue for all events on this page in one query.
+        $page_event_ids = wp_list_pluck( $query_result, 'ID' );
+        $revenue_map    = RevenueReport::get_revenue_map_by_event_ids( $page_event_ids );
+
+        foreach ( $query_result as $post ) {
+            $speakers_and_organizers = $this->get_event_organizers_and_speakers($post->ID);
+            
+            $speakers = $speakers_and_organizers['speaker'];
+            $organizers = $speakers_and_organizers['organizer'];
+
+            $categories = get_the_terms( $post->ID, 'etn_category' );
+            $categories     = $categories ? array_column( $categories, 'term_id' ) : [];
+
+            if (!empty($category) && !in_array($category, $categories)) {
+                continue;
+            }
+            if (!empty($speaker) && !in_array($speaker, $speakers)) {
+                continue;
+            }
+            if (!empty($organizer) && !in_array($organizer, $organizers)) {
+                continue;
+            }
+
+            $post_data             = $this->prepare_item_for_response( $post, $request );
+
+            // Revenue is a management figure. It is attached after the
+            // serializer, so the serializer's own strip cannot reach it.
+            if ( Ownership::can_manage_post( $post->ID, 'etn' ) ) {
+                $post_data['revenue'] = $revenue_map[ $post->ID ] ?? 0;
+            } else {
+                unset( $post_data['revenue'] );
+            }
+
+            if(isset($post_data['status'])){
+                if($post_data['status'] == 'Expired'){
+                    $total_expired_events = $total_expired_events + 1;
+                }
+                if($post_data['status'] == 'Ongoing'){
+                    $total_ongoing_events = $total_ongoing_events + 1;
+                }
+                if($post_data['status'] == 'Upcoming'){
+                    $total_upcomming_events = $total_upcomming_events + 1;
+                }
+            }
+    
+            $events[] = $this->prepare_response_for_collection( $post_data );
+        }
+    
+        $data = [
+            'total_items' => $total_posts,
+            'total_expired_events' => $total_expired_events,
+            'total_ongoing_events' => $total_ongoing_events,
+            'total_upcomming_events' => $total_upcomming_events,
+            'items' => $events
+        ];
+
+        $response = rest_ensure_response( $data );
+        $response->header( 'X-WP-Total', $total_posts );
+
+        return $response;
+    }
+
+    /**
+     * Get a compact event list for select/dropdown consumers.
+     *
+     * Returns only id/title/status/start_date/end_date/start_time/end_time with a single batched
+     * meta-cache prime, avoiding the heavy per-event prepare_item_for_response
+     * (userdata, taxonomies, user-group queries, sold-tickets, revenue map).
+     *
+     * @param   WP_REST_Request  $request
+     *
+     * @return  WP_REST_Response
+     */
+    protected function get_compact_event_list( $request ) {
+        $can_see_drafts = current_user_can( 'etn_manage_event' );
+        $search_keyword = ! empty( $request['search_keyword'] ) ? sanitize_text_field( $request['search_keyword'] ) : '';
+
+        // Opt-in: also return recurring child occurrences, each one placed right
+        // after its parent. Off by default so the reporting dropdowns (booking
+        // stats, RSVP report, shortcode select) keep showing only top-level
+        // events. Turned on by the screens that work on a single occurrence:
+        // the attendee-list filter and the bookings-list filter (attendees and
+        // orders store the child occurrence id, so a parent alone cannot
+        // address one date of a series) and the admin Create Booking form (a
+        // manual booking must be able to target one occurrence).
+        $include_children = ! empty( $request['include_children'] ) && rest_sanitize_boolean( $request['include_children'] );
+
+        $args = [
+            'post_type'              => 'etn',
+            'post_status'            => $can_see_drafts
+                ? [ 'publish', 'pending', 'future', 'private', 'inherit', 'draft' ]
+                : [ 'publish' ],
+            'posts_per_page'         => -1,
+            'orderby'                => 'date',
+            'order'                  => 'DESC',
+            'no_found_rows'          => true,
+            'update_post_term_cache' => false,
+        ];
+
+        if ( ! $include_children ) {
+            $args['post_parent'] = 0;
+        }
+
+        // Logged-in non-admins only see their store's events. Anonymous callers
+        // keep the existing public published-event catalogue.
+        if ( is_user_logged_in() && ! current_user_can( 'manage_options' ) ) {
+            $owner_id = Ownership::current_user_owner_id();
+
+            if ( $owner_id ) {
+                $args['author'] = $owner_id;
+            } else {
+                $args['post__in'] = [ 0 ];
+            }
+        }
+
+        if ( $search_keyword ) {
+            $args['s'] = $search_keyword;
+        }
+
+        // Hide the shipped preview-placeholder event, same as the full list does.
+        // This path returns before that filter runs, so it needs its own copy —
+        // without it the demo event shows up in every event-select dropdown
+        // (attendee filter, booking stats, RSVP report).
+        $placeholder_ids = \Eventin\PreviewPlaceholder\PreviewPlaceholder::excluded_post_ids();
+        if ( $placeholder_ids ) {
+            $args['post__not_in'] = $placeholder_ids;
+        }
+
+        $posts = ( new WP_Query( $args ) )->posts;
+
+        // One batched meta query for every event's start/end date + time instead of N.
+        update_meta_cache( 'post', wp_list_pluck( $posts, 'ID' ) );
+
+        if ( $include_children ) {
+            $posts = $this->sort_events_parent_first( $posts );
+        }
+
+        // Which parents actually have an occurrence in this result set. Used to
+        // flag the parent row so the dropdown can label it, without a second query.
+        $parents_with_children = [];
+        if ( $include_children ) {
+            foreach ( $posts as $post ) {
+                if ( $post->post_parent ) {
+                    $parents_with_children[ (int) $post->post_parent ] = true;
+                }
+            }
+        }
+
+        $items = [];
+
+        foreach ( $posts as $post ) {
+            $event = new Event_Model( $post->ID );
+
+            $items[] = [
+                'id'                  => $post->ID,
+                'title'               => $post->post_title,
+                'status'              => $event->get_status(),
+                'start_date'          => get_post_meta( $post->ID, 'etn_start_date', true ),
+                'end_date'            => get_post_meta( $post->ID, 'etn_end_date', true ),
+                'start_time'          => get_post_meta( $post->ID, 'etn_start_time', true ),
+                'end_time'            => get_post_meta( $post->ID, 'etn_end_time', true ),
+                'parent'              => (int) $post->post_parent,
+                'is_recurring_parent' => isset( $parents_with_children[ (int) $post->ID ] ),
+            ];
+        }
+
+        $response = rest_ensure_response([
+            'total_items' => count( $items ),
+            'items'       => $items,
+        ]);
+
+        $response->header( 'X-WP-Total', count( $items ) );
+
+        return $response;
+    }
+
+    /**
+     * Order a flat event list so every recurring child follows its own parent.
+     *
+     * Parents keep the order WP_Query gave them (newest first). Each parent is
+     * immediately followed by its occurrences, oldest occurrence first, so the
+     * dropdown reads like a calendar under each event. Children whose parent is
+     * missing from the set (excluded by author scoping, or trashed) are appended
+     * at the end instead of being dropped.
+     *
+     * @param   WP_Post[]  $posts
+     *
+     * @return  WP_Post[]
+     */
+    protected function sort_events_parent_first( $posts ) {
+        $children = [];
+
+        foreach ( $posts as $post ) {
+            if ( $post->post_parent ) {
+                $children[ (int) $post->post_parent ][] = $post;
+            }
+        }
+
+        // Oldest occurrence first within each parent.
+        foreach ( $children as $parent_id => $group ) {
+            usort( $group, function ( $a, $b ) {
+                $a_date = (string) get_post_meta( $a->ID, 'etn_start_date', true );
+                $b_date = (string) get_post_meta( $b->ID, 'etn_start_date', true );
+
+                return strcmp( $a_date, $b_date );
+            } );
+
+            $children[ $parent_id ] = $group;
+        }
+
+        $sorted   = [];
+        $placed   = [];
+
+        foreach ( $posts as $post ) {
+            if ( $post->post_parent ) {
+                continue;
+            }
+
+            $sorted[] = $post;
+
+            $id = (int) $post->ID;
+
+            if ( ! empty( $children[ $id ] ) ) {
+                foreach ( $children[ $id ] as $child ) {
+                    $sorted[]                    = $child;
+                    $placed[ (int) $child->ID ] = true;
+                }
+            }
+        }
+
+        // Orphans: parent not in this result set.
+        foreach ( $posts as $post ) {
+            if ( $post->post_parent && empty( $placed[ (int) $post->ID ] ) ) {
+                $sorted[] = $post;
+            }
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Get one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_item( $request ) {
+        $id   = intval( $request['id'] );
+        $post = get_post( $id );
+
+        if ( ! $post || 'etn' !== $post->post_type ) {
+            return new WP_Error( 'rest_event_invalid', __( 'Invalid event id.', 'wp-event-solution' ), [ 'status' => 404 ] );
+        }
+
+        // `etn_manage_event` is held by Contributor and Author on a stock
+        // install, so it is not a guard against them — it let any Contributor
+        // read an administrator's draft. Unpublished events belong to their
+        // author and to whoever may edit other people's posts.
+        if ( ! Ownership::can_read_post( $id, 'etn' ) ) {
+            return new WP_Error( 'rest_forbidden', __( 'You do not have permission to view this event.', 'wp-event-solution' ), [ 'status' => 403 ] );
+        }
+
+        $item = $this->prepare_item_for_response( $post, $request );
+
+        // Revenue is a management figure. This route is reachable with only the
+        // public wp_rest nonce (the guest purchase form reads it), so an
+        // anonymous caller must not get the event's earnings back.
+        if ( Ownership::can_manage_post( $id, 'etn' ) ) {
+            $item['revenue'] = RevenueReport::get_total_revenue( [], $id );
+        } else {
+            unset( $item['revenue'] );
+        }
+
+        // Check if event is a recurring event and fetch child events.
+        $recurring_enabled = get_post_meta( $id, 'recurring_enabled', true );
+
+        if ( $recurring_enabled ) {
+            // Prepare request array with parent parameter and pass through other params.
+            $child_request = [
+                'parent'         => $id,
+                'per_page'       => ! empty( $request['per_page'] ) ? $request['per_page'] : 20,
+                'paged'          => ! empty( $request['paged'] ) ? $request['paged'] : 1,
+                'type'           => ! empty( $request['type'] ) ? $request['type'] : '',
+                'start_date'     => ! empty( $request['start_date'] ) ? $request['start_date'] : '',
+                'end_date'       => ! empty( $request['end_date'] ) ? $request['end_date'] : '',
+                'search_keyword' => ! empty( $request['search_keyword'] ) ? $request['search_keyword'] : '',
+                'status'         => ! empty( $request['status'] ) ? $request['status'] : 'all',
+                'category'       => ! empty( $request['category'] ) ? $request['category'] : [],
+                'organizer'      => ! empty( $request['organizer'] ) ? $request['organizer'] : [],
+                'speaker'        => ! empty( $request['speaker'] ) ? $request['speaker'] : [],
+                'orderby'        => ! empty( $request['orderby'] ) ? $request['orderby'] : '',
+                'order'          => ! empty( $request['order'] ) ? $request['order'] : '',
+            ];
+
+            $child_response = $this->get_items( $child_request );
+            $child_data     = $child_response->get_data();
+
+            $item['recurring_events'] = $child_data;
+        } else {
+            $item['recurring_events'] = null;
+        }
+
+        $response = rest_ensure_response( $item );
+
+        return $response;
+    }
+
+    /**
+     * Forces an event to draft when the current user's role is not allowed to
+     * publish events.
+     *
+     * Admins ( manage_options ) are never restricted. A role is restricted when
+     * its publish toggle in Event Settings is off:
+     *  - seller  -> dokan_event_auto_publish
+     *  - author  -> author_can_publish_event
+     *  - editor  -> editor_can_publish_event
+     *
+     * The gate applies to create and update alike. Restricting only updates let
+     * a vendor's first Publish go live while the next save silently dropped the
+     * event back to draft.
+     *
+     * Applies to both wp-admin and the frontend dashboard since both post
+     * through this controller.
+     *
+     * @since 4.0.0
+     *
+     * @param array|WP_Error $prepared_event Prepared event data.
+     * @return array|WP_Error
+     */
+    protected function maybe_restrict_publish( $prepared_event ) {
+        if ( is_wp_error( $prepared_event ) ) {
+            return $prepared_event;
+        }
+
+        // Admins can always publish.
+        if ( current_user_can( 'manage_options' ) ) {
+            return $prepared_event;
+        }
+
+        // Vendor staff act under their store owner's publishing policy. Looking
+        // only at the staff role would bypass dokan_event_auto_publish because
+        // vendor_staff itself is not the seller role that setting checks.
+        $user  = get_userdata( Ownership::current_user_owner_id() ?: -1 );
+        $roles = $user->roles ?? [];
+
+        $restricted =
+            ( in_array( 'seller', $roles, true ) && Settings::get( 'dokan_event_auto_publish' ) !== 'on' )
+            || ( in_array( 'author', $roles, true ) && Settings::get( 'author_can_publish_event' ) !== 'on' )
+            || ( in_array( 'editor', $roles, true ) && Settings::get( 'editor_can_publish_event' ) !== 'on' );
+
+        if ( $restricted ) {
+            $prepared_event['post_status'] = 'draft';
+        }
+
+        return $prepared_event;
+    }
+
+    /**
+     * Creates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function create_item( $request ) {
+		
+        $prepared_event = $this->prepare_item_for_database( $request );
+
+        $prepared_event = $this->maybe_restrict_publish( $prepared_event );
+
+        if ( is_wp_error( $prepared_event ) ) {
+            return $prepared_event;
+        }
+
+        // Dokan vendor staff create events on behalf of their store. Keep the
+        // store owner in post_author so existing author-scoped data and queries
+        // continue to work; ordinary Eventin users still resolve to themselves.
+        $owner_id = Ownership::current_user_owner_id();
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            if ( ! $owner_id ) {
+                return new WP_Error(
+                    'rest_forbidden',
+                    __( 'You do not have permission to create an event for this store.', 'wp-event-solution' ),
+                    [ 'status' => 403 ]
+                );
+            }
+
+            $prepared_event['post_author'] = $owner_id;
+        }
+
+        // `event_type` only reaches $prepared_event when the request carried it,
+        // so a payload without one — which the admin UI never sends, but API
+        // clients do — read an undefined key here and again below. Absent means
+        // "not an online event", matching Event_Model's own '' default.
+        $event_type = $prepared_event['event_type'] ?? '';
+
+        if ( $this->is_online_event_type( $event_type ) ) {
+            $platform_name = $prepared_event['location']['integration'] ?? '';
+
+            try {
+                $meeting_platform = MeetingPlatform::get_platform( $platform_name );
+            } catch ( \Exception $e ) {
+                // Missing or unknown platform: a bad request, not a server error.
+                return new WP_Error( 'invalid_meeting_platform', __( 'Online events need a valid meeting platform.', 'wp-event-solution' ), ['status' => 400] );
+            }
+
+            if ( ! $meeting_platform->is_connected() ) {
+                // translators: %s is the platform name (e.g. Zoom, Google Meet).
+                return new WP_Error( 'not_connected', sprintf( __( '%s is not connected', 'wp-event-solution' ), $platform_name ), ['status' => 400] );
+            }
+        }
+
+		
+        $event   = new Event_Model();
+        $created = $event->create( $prepared_event );
+
+        if ( ! $created ) {
+            return new WP_Error(
+                'event_create_error',
+                __( 'Event can not be created.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        // Update event categories.
+        if ( ! empty( $prepared_event['categories'] ) ) {
+            $this->assign_categories( $event->id, $prepared_event['categories'] );
+        }
+
+        // Update event tags.
+        if ( ! empty( $prepared_event['tags'] ) ) {
+            $this->assign_tags( $event->id, $prepared_event['tags'] );
+        }
+
+        // Manage online event.
+        if ( $this->is_online_event_type( $event_type ) ) {
+            $meeting_link = $this->prepare_meeting_link( $prepared_event, $event );
+
+            if ( is_wp_error( $meeting_link ) ) {
+                return $meeting_link;
+            }
+
+            $event->update( [
+                'meeting_link' => $meeting_link,
+            ] );
+        }
+
+        // Always the event just created. A body `id` used to pick the post
+        // here, so any Contributor could change the featured image of any
+        // post or page (CVE-2026-109994 follow-up).
+        if ( isset( $request['id'] ) ) {
+            set_post_thumbnail( $event->id, $request['event_banner_id'] );
+        }
+
+        $post = get_post( $event->id );
+
+        $item = $this->prepare_item_for_response( $post, $request );
+
+        do_action( 'eventin_event_created', $event, $request );
+
+        delete_transient( $this->event_cache_key );
+
+        $response = rest_ensure_response( $item );
+        $response->set_status( 201 );
+
+        return $response;
+    }
+
+    /**
+     * Checks if a given request has access to create a event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+     */
+    public function create_item_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_event' );
+    }
+
+    /**
+     * Preview which child recurrences would be converted to standalone events
+     * if the proposed recurrence rule were saved. Read-only — nothing is
+     * mutated. Powers the "Recurring rule changed" confirmation modal so it
+     * only opens when at least one recurrence is actually orphaned.
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response
+     */
+    public function recurrence_orphan_preview( $request ) {
+        // Same source the permission check used — the id in the path.
+        $id   = Ownership::route_subject_id( $request );
+        $body = json_decode( $request->get_body(), true );
+
+        if ( ! is_array( $body ) ) {
+            $body = array();
+        }
+
+        $recurrence = ( isset( $body['event_recurrence'] ) && is_array( $body['event_recurrence'] ) )
+            ? $body['event_recurrence']
+            : array();
+
+        $start_date = ! empty( $body['start_date'] )
+            ? sanitize_text_field( $body['start_date'] )
+            : get_post_meta( $id, 'etn_start_date', true );
+
+        $end_date = ! empty( $body['end_date'] )
+            ? sanitize_text_field( $body['end_date'] )
+            : get_post_meta( $id, 'etn_end_date', true );
+
+        $recurring_enabled = isset( $body['recurring_enabled'] )
+            ? in_array( $body['recurring_enabled'], array( 'yes', true, 'true' ), true )
+            : true;
+
+        $orphans = \Etn\Core\Recurring_Event\Hooks::instance()->preview_orphan_children(
+            $id,
+            $recurrence,
+            $start_date,
+            $end_date,
+            $recurring_enabled
+        );
+
+        return rest_ensure_response( array(
+            'orphans' => $orphans,
+            'count'   => count( $orphans ),
+        ) );
+    }
+
+    /**
+     * Updates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function update_item( $request ) {
+        // Same source the permission check used — the id in the path. Reading
+        // `$request['id']` would let a JSON body shadow it.
+        $id = Ownership::route_subject_id( $request );
+
+        $prepared_event = $this->prepare_item_for_database( $request );
+
+        $prepared_event = $this->maybe_restrict_publish( $prepared_event );
+
+        if ( is_wp_error( $prepared_event ) ) {
+            return $prepared_event;
+        }
+
+        $event = new Event_Model( $id );
+
+        if ( $event->is_clone ) {
+            $prepared_event['is_clone'] = false;
+        }
+
+        // Manage online event.
+        //
+        // Absent `event_type` is read as "not online", which is what this
+        // already did before the undefined-key notice was silenced. Falling
+        // back to the stored type instead would be wrong here: a partial update
+        // that omits `location` gives prepare_meeting_link() an empty platform
+        // name, which returns a WP_Error and would fail the whole update.
+        $event_type = $prepared_event['event_type'] ?? '';
+
+        if ( $this->is_online_event_type( $event_type ) ) {
+            $meeting_link = $this->prepare_meeting_link( $prepared_event, $event );
+            if ( is_wp_error( $meeting_link ) ) {
+                return $meeting_link;
+            }
+
+            $event->update( [
+                'meeting_link' => $meeting_link,
+            ] );
+        }
+
+        $previous_event_start_date = $event->etn_start_date;
+        $previous_event_start_time = $event->etn_start_time;
+        $previous_event_timezone   = $event->event_timezone;
+
+        $was_recurring = get_post_meta( $id, 'recurring_enabled', true );
+
+        // Carry the user's draft|publish choice into the recurring hook so mismatched
+        // children become detached events with the chosen status (default: draft).
+        $orphan_status = $request->get_param( 'orphan_status' );
+        if ( in_array( $orphan_status, [ 'draft', 'publish' ], true ) ) {
+            \Etn\Core\Recurring_Event\Hooks::instance()->orphan_status = $orphan_status;
+        } else {
+            \Etn\Core\Recurring_Event\Hooks::instance()->orphan_status = 'draft';
+        }
+
+        // Child event date/time edit — caller confirmed detach in a popup.
+        $detach_from_parent = (bool) $request->get_param( 'detach_from_parent' );
+        $current_parent_id  = (int) wp_get_post_parent_id( $id );
+
+        if ( $detach_from_parent && $current_parent_id > 0 ) {
+            wp_update_post( [
+                'ID'          => (int) $id,
+                'post_parent' => 0,
+            ] );
+
+            delete_post_meta( $id, 'recurring_enabled' );
+            delete_post_meta( $id, 'etn_event_recurrence' );
+            delete_post_meta( $id, 'etn_recurrence_timestamps' );
+
+            clean_post_cache( $id );
+
+            // Reload the model so subsequent ->update() works against the now-detached post.
+            $event = new Event_Model( $id );
+
+            // Don't let the prepared payload reintroduce parent recurrence flags.
+            unset( $prepared_event['recurring_enabled'] );
+            unset( $prepared_event['etn_event_recurrence'] );
+
+            do_action( 'eventin_recurring_child_detached', (int) $id, $current_parent_id, 'manual' );
+        }
+
+        $updated = $event->update( $prepared_event );
+
+        if ( ! $updated ) {
+            return new WP_Error(
+                'event_update_error',
+                __( 'Event can not be updated.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        // Detach previously-generated child recurring events when admin toggles recurring off.
+        $is_recurring_now = ! empty( $prepared_event['recurring_enabled'] ) && 'yes' === $prepared_event['recurring_enabled'];
+
+        if ( 'yes' === $was_recurring && ! $is_recurring_now ) {
+            // Normalize to original-language parent: children are only attached
+            // to the original event under our "inherit from translated parent" rule.
+            $parent_id = (int) $id;
+            if ( class_exists( 'Etn_Wpml' ) ) {
+                $parent_id = \Etn_Wpml::original_id( $parent_id, 'post_etn' );
+            }
+
+            $child_ids = get_posts( [
+                'post_type'      => 'etn',
+                'post_parent'    => $parent_id,
+                'post_status'    => 'any',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+            ] );
+
+            foreach ( $child_ids as $child_id ) {
+                wp_update_post( [
+                    'ID'          => $child_id,
+                    'post_parent' => 0,
+                ] );
+                clean_post_cache( $child_id );
+            }
+
+            do_action( 'eventin_recurring_disabled_children_detached', $id, $child_ids );
+        }
+
+        // Update event categories.
+        if ( isset( $prepared_event['categories'] ) ) {
+            $this->assign_categories( $id, $prepared_event['categories'] );
+        }
+
+        // Update event tags.
+        if ( isset( $prepared_event['tags'] ) ) {
+            $this->assign_tags( $id, $prepared_event['tags'] );
+        } 
+        if ( $id ) {
+            set_post_thumbnail($id, $request['event_banner_id']);
+        }
+
+        if( empty($request['event_banner']) && empty($request['event_banner_id'])) {
+	        delete_post_thumbnail($id);
+        }
+
+		clean_post_cache( $event->id );                                                                                                                                            
+        wp_cache_delete( $event->id, 'posts' );                                                                                                                                    
+        wp_cache_delete( $event->id, 'post_meta' );
+		
+        $post = get_post( $event->id );
+
+        $item = $this->prepare_item_for_response( $post, $request );
+
+        do_action( 'eventin_event_updated', $event, $request );
+
+        do_action( 'eventin_reset_reminder_email', $event, [
+            'previous_event_start_date' => $previous_event_start_date,
+            'previous_event_start_time' => $previous_event_start_time,
+            'previous_event_timezone'   => $previous_event_timezone,
+        ] );
+        
+        delete_transient( $this->event_cache_key );
+
+        $response = rest_ensure_response( $item );
+
+        return $response;
+    }
+
+    /**
+     * Checks if a given request has access to update a event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+     */
+    /**
+     * Check if a given request has access to update an event.
+     *
+     * `etn_manage_event` is collection-level and is held by Contributor and
+     * Author on a stock install, so on its own it let any Contributor edit an
+     * administrator's event. The capability still gates access to the feature;
+     * ownership of the specific event decides whether this call may proceed.
+     *
+     * The subject is read from the URL. Every handler this check guards
+     * (update_item, convert_elementor_to_wordpress, recurrence_orphan_preview)
+     * reads it the same way: `$request['id']` resolves a JSON body key before
+     * the URL one, so a check and a handler that disagree about the source are
+     * the BOLA bypass described in Ownership::route_subject_id().
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function update_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_event' ) ) {
+            return false;
+        }
+
+        return Ownership::can_manage_post( Ownership::route_subject_id( $request ), 'etn' );
+    }
+
+    /**
+     * Delete one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_item( $request ) {
+        // Same source the permission check used — the id in the path. Reading
+        // `$request['id']` would let a JSON body shadow it.
+        $id = Ownership::route_subject_id( $request );
+
+        $post = get_post( $id );
+        if ( ! $post || 'etn' !== $post->post_type ) {
+            return new WP_Error(
+                'rest_event_invalid',
+                __( 'Invalid event id.', 'wp-event-solution' ),
+                array( 'status' => 404 )
+            );
+        }
+
+        $previous = $this->prepare_item_for_response( $post, $request );
+
+        $event = new Event_Model( $id );
+
+        do_action( 'eventin_event_before_delete', $event );
+
+        $result   = wp_delete_post( $id, true );
+        $response = new \WP_REST_Response();
+        $response->set_data(
+            array(
+                'deleted'  => true,
+                'previous' => $previous,
+            )
+        );
+
+        if ( ! $result ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'The event cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        do_action( 'eventin_event_deleted', $id );
+
+        delete_transient( $this->event_cache_key );
+
+        return $response;
+    }
+
+    /**
+     * Delete multiple items from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_items( $request ) {
+        $ids = ! empty( $request['ids'] ) ? $request['ids'] : [];
+
+        if ( ! $ids ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Event ids can not be empty.', 'wp-event-solution' ),
+                array( 'status' => 400 )
+            );
+        }
+        $count = 0;
+
+        foreach ( $ids as $id ) {
+            $event = new Event_Model( $id );
+
+            if ( $event->delete() ) {
+                $count++;
+            }
+        }
+
+        if ( $count == 0 ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Event cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        // translators: %1$d is the number of events deleted, %2$d is the total number of events selected.
+        $message = sprintf( __( '%1$d events are deleted of %2$d', 'wp-event-solution' ), $count, count( $ids ) );
+
+        delete_transient( $this->event_cache_key );
+
+        return rest_ensure_response( $message );
+    }
+
+    /**
+     * Clone an item
+     *
+     * @param   array  $request
+     *
+     * @return  array
+     */
+    public function clone_item( $request ) {
+        $event_id = intval( $request['id'] );
+
+        $event = new Event_Model( $event_id );
+
+        $clone_event = $event->clone();
+
+        // Add Copy Text to the title.
+        $original_post = get_post( $event_id );
+        $event_title = $original_post->post_title;
+        $clone_title = $event_title . ' - ' . __( 'Copy', 'wp-event-solution' );
+
+        // Update the title of the cloned event.
+        $clone_event->update( [
+            'post_title'  => $clone_title,
+            // clone() initially uses the logged-in account. The source already
+            // passed store ownership, so preserve its vendor owner for staff;
+            // administrators keep the existing behaviour and own their clone.
+            'post_author' => current_user_can( 'manage_options' )
+                ? get_current_user_id()
+                : (int) $original_post->post_author,
+        ] );
+
+
+        $response = $this->prepare_item_for_response( get_post( $clone_event->id ), $request );
+
+        // Manage categories.
+        $categories = get_the_terms( $event_id, $this->taxonomy );
+        $categories = $categories ? array_column( $categories, 'term_id' ) : [];
+        $this->assign_categories( $clone_event->id, $categories );
+
+
+        // Manage tags.
+        $tags = get_the_terms( $event_id, $this->tag_taxonomy );
+        $tags = $tags ? array_column( $tags, 'term_id' ) : [];
+        $this->assign_tags( $clone_event->id, $tags );
+
+        do_action( 'eventin_event_after_clone', $clone_event );
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Delete one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    /**
+     * Check if a given request has access to delete events.
+     *
+     * Serves both the per-id route and the bulk route (which carries `ids` in
+     * the body instead). Both are scoped to events the caller owns — a bulk
+     * request containing one foreign id is refused outright rather than
+     * partially applied.
+     *
+     * Which branch runs is decided by the ROUTE, not by which parameters happen
+     * to be present. Preferring `ids` whenever it was set meant a per-id delete
+     * could be authorised against a completely different id than the one
+     * `delete_item()` goes on to delete. See Ownership::route_subject_id().
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function delete_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_event' ) ) {
+            return false;
+        }
+
+        $subject_id = Ownership::route_subject_id( $request );
+
+        // Per-id route: authorise exactly the id in the path, and nothing else.
+        if ( $subject_id ) {
+            return Ownership::can_manage_post( $subject_id, 'etn' );
+        }
+
+        // Bulk route: every id in the batch must be the caller's.
+        return Ownership::can_manage_posts( $request['ids'], 'etn' );
+    }
+
+    /**
+     * Set an event as the homepage
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function set_unset_event_as_homepage( $request ) {
+        $event_id = $request->get_param( 'id' );
+        
+        // Verify the event exists and is published
+        $event = get_post( $event_id );
+        if ( ! $event || $event->post_type !== 'etn' ) {
+            return new WP_Error(
+                'invalid_event',
+                __( 'Invalid event ID.', 'wp-event-solution' ),
+                ['status' => 404]
+            );
+        }
+
+        if ( $event->post_status !== 'publish' ) {
+            return new WP_Error(
+                'invalid_event',
+                __( 'Only published event can be set as homepage.', 'wp-event-solution' ),
+                ['status' => 404]
+            );
+        }
+        
+        // Update the WordPress reading settings
+        update_option( 'show_on_front', 'page' );
+
+        $page_on_front = get_option( 'page_on_front' );
+
+        $message = '';
+
+        if($page_on_front == $event_id){
+            $updated = update_option( 'page_on_front', 0 );
+            // translators: %s is the event title.
+            $message = sprintf(__('Event "%s" has been unset from the homepage.', 'wp-event-solution'), get_the_title( $event_id ) );
+        }
+        else{
+            $updated = update_option( 'page_on_front', $event_id );
+            // translators: %s is the event title.
+            $message = sprintf(__('Event "%s" has been set as the homepage.', 'wp-event-solution'), get_the_title( $event_id ) );
+        }
+        
+        if ( $updated === false ) {
+            return new WP_Error(
+                'update_failed',
+                __('Failed to update homepage settings.', 'wp-event-solution'),
+                ['status' => 500]
+            );
+        }
+        
+        // Clear cache if needed
+        if ( function_exists( 'clean_post_cache' ) ) {
+            clean_post_cache( $event_id );
+        }
+        
+        return rest_ensure_response([
+            'success' => true,
+            'message' => $message,
+            'data'    => [
+                'event_id'   => $event_id,
+            ],
+        ]);
+    }
+
+    /**
+     * Prepare the item for the REST response.
+     *
+     * @param mixed           $item WordPress representation of the item.
+     * @param WP_REST_Request $request Request object.
+     * @return WP_REST_Response $response
+     */
+    public function prepare_item_for_response( $item, $request ) {
+        $event          = new Event_Model( $item->ID );
+        $id             = $item->ID;
+        $parent         = $item->post_parent;
+        $author_data    = get_userdata( $item->post_author );
+        $author         = $author_data ? $author_data->display_name : '';
+        $categories     = get_the_terms( $id, 'etn_category' );
+        $category_names = wp_list_pluck( $categories, 'name', 'term_id' );
+        $categories     = $categories ? array_column( $categories, 'term_id' ) : [];
+        $tags           = get_the_terms( $id, $this->tag_taxonomy );
+        $tags           = $tags ? array_column( $tags, 'term_id' ) : [];
+
+        $schedules       = get_post_meta( $id, 'etn_event_schedule', true );
+        
+        $organizer = get_post_meta( $id, 'etn_event_organizer', true );
+
+        if(empty($organizer) || !is_array($organizer)){
+             $organizer = [];
+        }
+        
+        if(is_array($organizer)){
+            $organizer       = array_map( function( $org ) { return (int) $org; }, $organizer );
+        }
+
+        $speaker         = get_post_meta( $id, 'etn_event_speaker', true );
+        
+        if(empty($speaker) || !is_array($speaker)){
+             $speaker = [];
+        }
+
+        if(is_array($speaker)){
+            $speaker       = array_map( function( $spk ) { return (int) $spk; }, $speaker );
+        }
+
+        
+        $organizer_group = get_post_meta( $id, 'organizer_group', true );
+        $speaker_group   = get_post_meta( $id, 'speaker_group', true );
+        $extra_fields    = get_post_meta( $id, 'attendee_extra_fields', true );
+		$meeting_link    = get_post_meta( $id, 'meeting_link', true );
+        $rsvp_settings   = get_post_meta( $id, 'rsvp_settings', true );
+        $speaker_type    = get_post_meta( $id, 'speaker_type', true );
+        $organizer_type  = get_post_meta( $id, 'organizer_type', true );
+        $seat_plan       = get_post_meta( $id, 'seat_plan', true );
+        $enable_seatmap  = get_post_meta( $id, 'enable_seatmap', true );
+        $sold_tickets      = (array) Helper::etn_get_sold_tickets_by_event( $id );
+        $child_tickets     = $this->get_children_ticket_summary( $id );
+        $ticket_variations = etn_safe_decode( get_post_meta( $id, 'etn_ticket_variations', true ) );
+
+        if(empty($ticket_variations) || !is_array($ticket_variations)){
+            $ticket_variations = [];
+        }
+
+        if($speaker_type == 'group'){
+            $speaker = $this->etn_get_user_ids_by_group($speaker_group);
+        }
+
+        if($organizer_type == 'group'){
+            $organizer = $this->etn_get_user_ids_by_group($organizer_group);
+        }
+
+        $filter_user = $this->filter_organizer_and_speaker($organizer, $speaker);
+
+        if(!empty($filter_user['organizer']) && is_array($filter_user['organizer'])){
+            $organizer       = array_map( function( $org ) { return (int) $org; }, $filter_user['organizer']);
+        }
+        
+        if(!empty($filter_user['speaker']) && is_array($filter_user['speaker'])){
+            $speaker         = array_map( function( $org ) { return (int) $org; }, $filter_user['speaker']);
+        }
+
+        $waiting_list_counts = etn_get_waiting_list_counts_by_slug( $id );
+        foreach( $ticket_variations as &$ticket ) {
+            if ( ! is_array( $ticket ) ) {
+                continue;
+            }
+
+            // A row saved before the slug existed, or one arriving from an
+            // import, has no `etn_ticket_slug`. Sold and waiting-list counts
+            // are keyed by slug, so such a row simply reports zero of each
+            // rather than raising a notice on every read of the event.
+            $slug = $ticket['etn_ticket_slug'] ?? '';
+            $ticket['etn_sold_tickets']    = '' !== $slug && !empty($sold_tickets[$slug]) ? $sold_tickets[$slug] : 0;
+            $ticket['waiting_list_count']  = '' !== $slug && !empty($waiting_list_counts[$slug]) ? intval($waiting_list_counts[$slug]) : 0;
+        }
+        unset($ticket);
+        $settings_options   = get_option( 'etn_event_options' );      
+        $seat_map_switcher = ! metadata_exists( 'post', $id, 'enable_seatmap' ) && $seat_plan ? true : $enable_seatmap;
+
+        if ( ! empty( $rsvp_settings['rsvp_form_type'] ) ) {
+            $rsvp_settings['rsvp_form_type'] = is_array( $rsvp_settings['rsvp_form_type'] ) ? array_values( $rsvp_settings['rsvp_form_type'] ) : [];
+        }
+
+        if(is_array($rsvp_settings)){
+            $rsvp_settings['remaining_capacity'] = $this->get_rsvp_remaining_capacity($id,$rsvp_settings);
+        }
+	    
+        $extra_fields    = is_array( $extra_fields ) ? array_values( $extra_fields ) : [];
+        $event_socials   = get_post_meta( $id, 'etn_event_socials', true );
+        $event_socials   = empty( $event_socials ) ? [] : $event_socials;
+
+        $post = get_post( $id );
+
+        // A password-protected event stays `publish`, so it is listed publicly
+        // like any other — WordPress hides the body, not the row. get_item()
+        // refuses the per-id read outright, but the LIST route is open by
+        // design and runs every event through here, so the body and excerpt
+        // have to be blanked per item. Title and permalink stay: WordPress
+        // shows those in its own archives ("Protected: <title>").
+        $show_content = Ownership::can_read_protected_content( $post );
+
+        $event_data = [
+            'id'                      => $id,
+            'title'                   => $post->post_title,
+            'event_slug'              => $post->post_name,
+            'description'             => $show_content ? $post->post_content : '',
+            'excerpt'                 => $show_content ? $post->post_excerpt : '',
+            'excerpt_enable'          => get_post_meta( $id, 'excerpt_enable', true ),
+            'enable_seatmap'          => $seat_map_switcher,
+            'schedule_type'           => get_post_meta( $id, 'etn_select_speaker_schedule_type', true ),
+            'author'                  => $author,
+            'categories'              => $categories,
+            'tags'                    => $tags,
+            'visibility_status'       => $post->post_status,
+            'status'                  => $event->get_status(),
+            'password'                => current_user_can( 'edit_post', $id ) ? $post->post_password : '',
+            'link'                    => get_permalink( $id ),
+            'link_base'               => home_url().'/'.(!empty($settings_options['event_slug'])?$settings_options['event_slug']:'etn'),
+            'schedules'               => is_array( $schedules ) ? array_map('intval', $schedules ) : [],
+            'organizer'               => !empty($organizer) ? $organizer : [],
+            'organizer_type'          => $organizer_type,
+            'organizer_group'         => 'group' === $organizer_type && is_array( $organizer_group ) ? array_map( 'intval', $organizer_group ) : [],
+            'speaker'                 => !empty($speaker) ? $speaker : [],
+            'speaker_type'            => $speaker_type,
+            'speaker_group'           => 'group' === $speaker_type && is_array( $speaker_group ) ? array_map( 'intval', $speaker_group ) : [],
+            'timezone'                => get_post_meta( $id, 'event_timezone', true ),
+            'start_date'              => get_post_meta( $id, 'etn_start_date', true ),
+            'end_date'                => get_post_meta( $id, 'etn_end_date', true ),
+            'start_time'              => get_post_meta( $id, 'etn_start_time', true ),
+            'end_time'                => get_post_meta( $id, 'etn_end_time', true ),
+            'ticket_availability'     => get_post_meta( $id, 'etn_ticket_availability', true ),
+            'event_logo'              => get_post_meta( $id, 'etn_event_logo', true ),
+            'calendar_bg'             => get_post_meta( $id, 'etn_event_calendar_bg', true ),
+            'calendar_text_color'     => get_post_meta( $id, 'etn_event_calendar_text_color', true ),
+            'registration_deadline'   => get_post_meta( $id, 'etn_registration_deadline', true ),
+            'attende_page_link'       => get_post_meta( $id, 'attende_page_link', true ),
+            'zoom_event'              => get_post_meta( $id, 'etn_zoom_event', true ),
+            'zoom_id'                 => get_post_meta( $id, 'etn_zoom_id', true ),
+            'total_ticket'            => $event->get_total_ticket(),
+            'sold_tickets'            => $event->get_total_sold_ticket(),
+            'total_sold_tickets'      => $event->get_total_sold_ticket(),
+            'etn_enable_global_stock' => rest_sanitize_boolean( get_post_meta( $id, 'etn_enable_global_stock', true ) ),
+            'etn_global_stock'        => intval( get_post_meta( $id, 'etn_global_stock', true ) ),
+            'etn_global_waiting_list'        => intval( get_post_meta( $id, 'etn_global_waiting_list', true ) ),
+            'enable_attendee_waiting_list'   => rest_sanitize_boolean( get_post_meta( $id, 'enable_attendee_waiting_list', true ) ),
+            'ticket_variations'       => $ticket_variations,
+            'event_socials'           => $event_socials,
+            'google_meet'             => get_post_meta( $id, 'etn_google_meet', true ),
+            'google_meet_link'        => get_post_meta( $id, 'etn_google_meet_link', true ),
+            'google_meet_description' => get_post_meta( $id, 'etn_google_meet_short_description', true ),
+            'fluent_crm'              => get_post_meta( $id, 'fluent_crm', true ),
+            'fluent_crm_webhook'      => get_post_meta( $id, 'fluent_crm_webhook', true ),
+            'zoho_crm'                => get_post_meta( $id, 'zoho_crm', true ),
+            'zoho_crm_webhook'        => get_post_meta( $id, 'zoho_crm_webhook', true ),
+            'mail_mint'               => get_post_meta( $id, 'mail_mint', true ),
+            'mail_mint_webhook'       => get_post_meta( $id, 'mail_mint_webhook', true ),
+            'optiontics_addons'       => (bool) get_post_meta( $id, 'optiontics_addons', true ),
+            'mail_mint_send_to'       => get_post_meta( $id, 'mail_mint_send_to', true ) ?: [ 'purchaser', 'attendee' ],
+            'mailpoet'                => get_post_meta( $id, 'mailpoet', true ),
+            'mailpoet_list_ids'       => get_post_meta( $id, 'mailpoet_list_ids', true ) ?: [],
+            'mailpoet_send_to'        => get_post_meta( $id, 'mailpoet_send_to', true ) ?: [ 'purchaser', 'attendee' ],
+            'funnel_kit'              => get_post_meta( $id, 'funnel_kit', true ),
+            'funnel_kit_webhook'      => get_post_meta( $id, 'funnel_kit_webhook', true ),
+            'funnel_kit_send_to'      => get_post_meta( $id, 'funnel_kit_send_to', true ) ?: [ 'purchaser', 'attendee' ],
+            'zapier'                  => get_post_meta( $id, 'zapier', true ),
+            'zapier_webhook'          => get_post_meta( $id, 'zapier_webhook', true ),
+            'zapier_send_to'          => self::zapier_send_to( $id ),
+            'uncanny_automator'         => get_post_meta( $id, 'uncanny_automator', true ),
+            'uncanny_automator_webhook' => get_post_meta( $id, 'uncanny_automator_webhook', true ),
+            'uncanny_automator_send_to' => get_post_meta( $id, 'uncanny_automator_send_to', true ) ?: [ 'purchaser', 'attendee' ],
+            'hubspot'                 => get_post_meta( $id, 'hubspot', true ),
+            'hubspot_send_to'         => get_post_meta( $id, 'hubspot_send_to', true ) ?: [ 'purchaser', 'attendee' ],
+            'hubspot_track_event'     => get_post_meta( $id, 'hubspot_track_event', true ),
+            'faq'                     => get_post_meta( $id, 'etn_event_faq', true ),
+            'external_link'           => get_post_meta( $id, 'external_link', true ),
+            'ticket_template'         => get_post_meta( $id, 'ticket_template', true ),
+            'certificate_template'    => get_post_meta( $id, 'certificate_template', true ),
+            'seat_plan'               => $seat_plan,
+            'rsvp_settings'           => $rsvp_settings,
+            'recurring_enabled'       => get_post_meta( $id, 'recurring_enabled', true ),
+            'event_recurrence'        => get_post_meta( $id, 'etn_event_recurrence', true ),
+            'event_banner'            => get_post_meta( $id, 'event_banner', true ),
+            'event_layout'            => get_post_meta( $id, 'event_layout', true ),
+            'is_clone'                => get_post_meta( $id, 'is_clone', true ),
+            'extra_fields'            => $extra_fields ? $extra_fields : [],
+            'category_names'          => $category_names,
+            'meeting_link'            => $meeting_link,
+            'parent'                  => $parent,
+            'has_children'            => null !== $child_tickets,
+            // Roll-up of every child occurrence, so a recurring parent row can
+            // show "sold / capacity" of the whole series. 0 / 0 when the event
+            // has no occurrences; -1 total means at least one is unlimited.
+            'child_sold_tickets'      => $child_tickets ? $child_tickets['sold'] : 0,
+            'child_total_tickets'     => $child_tickets ? $child_tickets['total'] : 0,
+            'event_type'              => get_post_meta( $id, 'event_type', true ),
+            '_virtual'                => get_post_meta( $id, '_virtual', true ),
+            'etn_event_logo_url'      => get_post_meta( $id, 'etn_event_logo_url', true ),
+            'banner_bg_image_url'     => get_post_meta( $id, 'banner_bg_image_url', true ),
+            'event_logo_id'           => get_post_meta( $id, 'event_logo_id', true ),
+            'event_banner_id'         => get_post_meta( $id, 'event_banner_id', true ),
+            'edit_with_elementor'     => $this->check_post_edit_with_elementor( $id ),
+            'elementor_supported'     => $this->is_etn_post_type_supported_by_elementor( ),
+            'enable_legacy_certificate_template' => get_post_meta( $id, 'enable_legacy_certificate_template', true ),
+            '_tax_status'             => get_post_meta( $id, '_tax_status', true ),
+            'sold_ticket_count'       => $sold_tickets,
+            'last_update_date'        => get_post_meta( $id, 'etn_last_update_date', true ),
+            'module'                  => [
+                'seat_map' => ( \Etn\Core\Addons\Helper::instance()->check_active_module( 'seat_map' ) ) ? true : false,
+                'rsvp' => ( \Etn\Core\Addons\Helper::instance()->check_active_module( 'rsvp' ) ) ? true : false,
+            ],
+            'revenue'                 => null,
+            'imported_from'           => get_post_meta( $id, 'imported_from', true ) ?: '',
+        ];
+
+        $location_type = get_post_meta( $id, 'etn_event_location_type', true );
+        $location      = get_post_meta( $id, 'etn_event_location', true );
+
+        if ( 'new_location' == $location_type ) {
+            $location = get_post_meta( $id, 'etn_event_location_list', true );
+        }
+
+        $event_data['location_type'] = $location_type;
+        $event_data['location']      = $location;
+
+        $event_data['wpml_translations'] = $this->get_wpml_translations_data( $id );
+
+        return $this->strip_management_only_fields( $event_data, $id );
+    }
+
+    /**
+     * Fields that only someone who may manage the event is allowed to see.
+     *
+     * The event routes are readable with the public `wp_rest` nonce, because the
+     * guest purchase form on the single-event page fetches the event it is
+     * selling tickets for. WordPress mints that nonce for user id 0 and Eventin
+     * prints it into the page, so it is the same string for every logged-out
+     * visitor — it proves the request came from the site, not that the caller is
+     * staff. Everything below is back-office data that never appears on the
+     * public event page: CRM webhook endpoints (an unauthenticated URL that
+     * writes into the site owner's CRM), private meeting join links, and the
+     * event's earnings. See Patchstack 33814 follow-up.
+     *
+     * @return string[]
+     */
+    public static function management_only_fields() {
+        $fields = [
+            // CRM / automation integration config and webhook endpoints.
+            'fluent_crm',
+            'fluent_crm_webhook',
+            'zoho_crm',
+            'zoho_crm_webhook',
+            'mail_mint',
+            'mail_mint_webhook',
+            'mail_mint_send_to',
+            'funnel_kit',
+            'funnel_kit_webhook',
+            'funnel_kit_send_to',
+            'mailpoet',
+            'mailpoet_list_ids',
+            'mailpoet_send_to',
+            'zapier',
+            'zapier_webhook',
+            'zapier_send_to',
+            'uncanny_automator',
+            'uncanny_automator_webhook',
+            'uncanny_automator_send_to',
+
+            // Private join links. The public page renders these only to a
+            // ticket holder, never in the event payload.
+            'meeting_link',
+            'google_meet',
+            'google_meet_link',
+            'google_meet_description',
+            'zoom_event',
+            'zoom_id',
+            'attende_page_link',
+
+            // Money and back-office bookkeeping.
+            'revenue',
+            'imported_from',
+            'ticket_template',
+            'certificate_template',
+            'enable_legacy_certificate_template',
+        ];
+
+        /**
+         * Filter the event fields hidden from callers who cannot manage the event.
+         *
+         * Removing a field from this list publishes it to anonymous visitors.
+         *
+         * @param string[] $fields Field keys to strip.
+         */
+        return (array) apply_filters( 'eventin_event_management_only_fields', $fields );
+    }
+
+    /**
+     * Remove management-only fields unless the caller may manage this event.
+     *
+     * @param array $event_data Serialized event.
+     * @param int   $id         Event post id.
+     *
+     * @return array
+     */
+    private function strip_management_only_fields( $event_data, $id ) {
+        if ( Ownership::can_manage_post( $id, 'etn' ) ) {
+            return $event_data;
+        }
+
+        foreach ( self::management_only_fields() as $field ) {
+            unset( $event_data[ $field ] );
+        }
+
+        if ( isset( $event_data['location'] ) ) {
+            $event_data['location'] = self::strip_private_location( $event_data['location'] );
+        }
+
+        return $event_data;
+    }
+
+    /**
+     * Remove the private join link from an event location.
+     *
+     * An online or hybrid event on the "Custom URL" meeting platform stores its
+     * join link inside the location: `custom_url`, or `online.custom_url` on
+     * older hybrid events. Public pages only show the platform label, built
+     * from `integration`, so the link is dropped and everything else is kept.
+     * Callers decide who is an outsider; this only edits the value.
+     *
+     * Events imported from CSV before 4.1.26 can hold the link inside
+     * `integration` or `address` instead (see EventLocation), so the value is
+     * repaired first and `integration` is cut back to the platform name.
+     *
+     * @param mixed $location Location array, or its serialized form from a raw meta dump.
+     *
+     * @return mixed
+     */
+    public static function strip_private_location( $location ) {
+        // Raw meta dumps (v1) pass the serialized string straight from the database.
+        $location = EventLocation::repair( maybe_unserialize( $location ) );
+
+        if ( ! is_array( $location ) ) {
+            return $location;
+        }
+
+        $location = self::strip_join_link( $location );
+
+        if ( isset( $location['online'] ) && is_array( $location['online'] ) ) {
+            $location['online'] = self::strip_join_link( $location['online'] );
+        }
+
+        return $location;
+    }
+
+    /**
+     * Drop `custom_url` and keep only the platform name in `integration`.
+     *
+     * @param array $location One level of a location array.
+     *
+     * @return array
+     */
+    private static function strip_join_link( array $location ) {
+        unset( $location['custom_url'] );
+
+        // A platform name is a slug such as `zoom` or `custom_url`; anything
+        // after it is data that does not belong there.
+        if ( isset( $location['integration'] ) && is_string( $location['integration'] ) ) {
+            $location['integration'] = preg_replace( '/[^a-z0-9_\-].*$/is', '', trim( $location['integration'] ) );
+        }
+
+        return $location;
+    }
+
+    /**
+     * Raw post meta keys behind the management-only fields.
+     *
+     * Most fields are stored under their own name. These few are renamed by
+     * prepare_item_for_response(), so a caller that dumps get_post_meta() — the
+     * legacy v1 route — needs the stored key as well.
+     *
+     * @return string[]
+     */
+    public static function management_only_meta_keys() {
+        $renamed = [
+            'zoom_event'              => 'etn_zoom_event',
+            'zoom_id'                 => 'etn_zoom_id',
+            'google_meet'             => 'etn_google_meet',
+            'google_meet_link'        => 'etn_google_meet_link',
+            'google_meet_description' => 'etn_google_meet_short_description',
+            'certificate_template'    => 'etn_event_certificate',
+        ];
+
+        $keys = [];
+
+        foreach ( self::management_only_fields() as $field ) {
+            $keys[] = $field;
+
+            if ( isset( $renamed[ $field ] ) ) {
+                $keys[] = $renamed[ $field ];
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Build the WPML translations payload for an event response.
+     *
+     * Returned shape (always present; `active` is false when WPML is inactive):
+     *   [
+     *     'active'         => bool,
+     *     'current_lang'   => string,           // e.g. 'en'
+     *     'original_id'    => int,              // source-language event ID
+     *     'translations'   => [                 // languages that already have a sibling
+     *       [ 'code' => 'en', 'name' => 'English', 'native' => 'English',
+     *         'post_id' => 5089, 'is_current' => true ],
+     *       ...
+     *     ],
+     *     'create_url'     => string,           // wp-admin classic editor URL for the
+     *                                           // current event; WPML's metabox there
+     *                                           // exposes the per-language "+" buttons.
+     *   ]
+     */
+    protected function get_wpml_translations_data( $event_id ) {
+        $event_id = (int) $event_id;
+        $payload  = [
+            'active'       => false,
+            'current_lang' => '',
+            'original_id'  => $event_id,
+            'translations' => [],
+            'create_url'   => admin_url( "post.php?post={$event_id}&action=edit" ),
+        ];
+
+        if ( ! class_exists( 'Etn_Wpml' ) || ! \Etn_Wpml::is_active() ) {
+            return $payload;
+        }
+
+        $payload['active']       = true;
+        $payload['current_lang'] = \Etn_Wpml::post_lang( $event_id );
+        $payload['original_id']  = (int) \Etn_Wpml::original_id( $event_id, 'post_etn' );
+
+        $trid = apply_filters( 'wpml_element_trid', null, $event_id, 'post_etn' );
+        if ( ! $trid ) {
+            return $payload;
+        }
+
+        $translations = apply_filters( 'wpml_get_element_translations', [], $trid, 'post_etn' );
+        if ( ! is_array( $translations ) ) {
+            return $payload;
+        }
+
+        $active_languages = apply_filters( 'wpml_active_languages', [], [ 'skip_missing' => 0 ] );
+        $active_languages = is_array( $active_languages ) ? $active_languages : [];
+
+        foreach ( $translations as $lang_code => $info ) {
+            if ( empty( $info->element_id ) ) {
+                continue;
+            }
+            $sibling_id = (int) $info->element_id;
+            $lang_meta  = $active_languages[ $lang_code ] ?? [];
+            $payload['translations'][] = [
+                'code'       => (string) $lang_code,
+                'name'       => (string) ( $lang_meta['translated_name'] ?? $lang_meta['display_name'] ?? $lang_code ),
+                'native'     => (string) ( $lang_meta['native_name'] ?? $lang_code ),
+                'post_id'    => $sibling_id,
+                'is_current' => $sibling_id === $event_id,
+            ];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Filter organizer and speaker
+     * 
+     * @param array $organizer
+     * @param array $speaker
+     * 
+     * @return array
+     */
+    public function filter_organizer_and_speaker($organizer, $speaker)
+    {
+        $organizer = is_array($organizer) ? $organizer : [];
+        $speaker   = is_array($speaker) ? $speaker : [];
+
+        // Merge all users to validate roles
+        $all_users = array_unique(array_merge($organizer, $speaker));
+
+        $new_organizer = [];
+        $new_speaker   = [];
+
+        foreach ($all_users as $user_id) {
+            $user = get_user_by('id', $user_id);
+
+            if (!$user) {
+                continue;
+            }
+
+            $roles = (array) $user->roles;
+
+            if (in_array('etn-organizer', $roles, true)) {
+                $new_organizer[] = $user_id;
+            }
+
+            if (in_array('etn-speaker', $roles, true)) {
+                $new_speaker[] = $user_id;
+            }
+        }
+
+        // Remove duplicates (just in case)
+        $organizer = array_values(array_unique($new_organizer));
+        $speaker   = array_values(array_unique($new_speaker));
+
+        return [
+            'organizer' => $organizer,
+            'speaker'   => $speaker
+        ];
+    }
+
+    /**                                                                                                                             
+     * Get user IDs by group ID                                                                                                     
+     *                                                                                                                              
+     * @param int $group_id The group term ID from etn_speaker_category taxonomy                                                    
+     * @return array Array of user IDs belonging to the group                                                                       
+     */
+    public function etn_get_user_ids_by_group($group_ids)
+    {
+        if (! $group_ids) {
+            return [];
+        }
+
+        $group_ids = is_array($group_ids) ? array_map('intval', $group_ids) : [];
+        $matching_user_ids = [];
+
+        // Query users with speaker group meta                                                                                      
+        $user_query = new WP_User_Query([
+            'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                'relation' => 'OR',
+                [
+                    'key'     => 'etn_speaker_group',
+                    'compare' => 'EXISTS',
+                ],
+                [
+                    'key'     => 'etn_speaker_speaker_group',
+                    'compare' => 'EXISTS',
+                ],
+            ],
+            'fields' => ['ID'],
+        ]);
+
+        if (! empty($user_query->get_results())) {
+                foreach ($user_query->get_results() as $user) {
+                    $user_id = $user->ID;
+
+                    // Get JSON-decoded group array                                                                                     
+                    $speaker_group = get_user_meta($user_id, 'etn_speaker_group', true);
+
+                    if (!is_array($speaker_group)) {
+                        $speaker_group = json_decode($speaker_group);
+                        if(!is_array($speaker_group)){
+                            $speaker_group = [$speaker_group];
+                        }
+                    }                    
+                    
+                    $speaker_speaker_group = get_user_meta($user_id, 'etn_speaker_speaker_group', true);
+
+                    // Check if group_id exists in either meta                                                                          
+                    if ((is_array($speaker_group) && !empty(array_intersect($group_ids,$speaker_group))) ||
+                        (is_array($speaker_speaker_group) && !empty(array_intersect($group_ids,$speaker_speaker_group)))
+                    ) {
+                        $matching_user_ids[] = $user_id;
+                    }
+                }
+        }
+
+        return $matching_user_ids;
+    }
+
+    /**
+     * Assgin event categories
+     *
+     * @param   integer  $post_id
+     * @param   array  $new_categories
+     *
+     * @return  void
+     */
+    /**
+     * Whether this event currently has any recurring child events attached.
+     */
+    protected function event_has_children( $post_id ) {
+        return ! empty( $this->get_children_ids( $post_id ) );
+    }
+
+    /**
+     * IDs of every child occurrence of an event.
+     *
+     * @param   integer  $post_id  Parent event ID.
+     *
+     * @return  int[]
+     */
+    protected function get_children_ids( $post_id ) {
+        $children = get_posts( [
+            'post_type'      => 'etn',
+            'post_parent'    => (int) $post_id,
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ] );
+
+        return array_map( 'intval', (array) $children );
+    }
+
+    /**
+     * Sold and total tickets added up over every child occurrence.
+     *
+     * A recurring parent sells nothing itself: each booking is made on one
+     * occurrence, and each occurrence carries its own capacity. Its own
+     * numbers are therefore always "0 / template capacity", which tells the
+     * organizer nothing. The list shows the series instead.
+     *
+     * @param   integer  $post_id  Parent event ID.
+     *
+     * @return  array|null  [ 'sold' => int, 'total' => int ], or null when the
+     *                      event has no occurrences. A total of -1 means at
+     *                      least one occurrence has unlimited tickets.
+     */
+    protected function get_children_ticket_summary( $post_id ) {
+        $child_ids = $this->get_children_ids( $post_id );
+
+        if ( empty( $child_ids ) ) {
+            return null;
+        }
+
+        // One meta round-trip for the whole series, so get_total_ticket()
+        // below reads from the cache instead of querying per occurrence.
+        update_meta_cache( 'post', $child_ids );
+
+        $total = 0;
+
+        foreach ( $child_ids as $child_id ) {
+            $child_total = intval( ( new Event_Model( $child_id ) )->get_total_ticket() );
+
+            // One unlimited occurrence makes the whole series unlimited.
+            if ( -1 === $child_total ) {
+                $total = -1;
+                break;
+            }
+
+            $total += $child_total;
+        }
+
+        return [
+            'sold'  => Helper::etn_get_sold_ticket_count_by_events( $child_ids ),
+            'total' => $total,
+        ];
+    }
+
+    protected function assign_categories( $post_id, $new_categories ) {
+        // Update event categories.
+        $categories = get_the_terms( $post_id, 'etn_category' );
+        $categories = $categories ? array_column( $categories, 'term_id' ) : [];
+
+        if ( $categories ) {
+            wp_remove_object_terms( $post_id, $categories, $this->taxonomy );
+        }
+
+        wp_set_post_terms( $post_id, $new_categories, $this->taxonomy, true );
+    }
+
+    /**
+     * Assgin event tags
+     *
+     * @param   integer  $post_id
+     * @param   array  $new_tags
+     *
+     * @return  void
+     */
+    protected function assign_tags( $post_id, $new_tags ) {
+        // Update event tags.
+        $tags = get_the_terms( $post_id, $this->tag_taxonomy );
+        $tags = $tags ? array_column( $tags, 'term_id' ) : [];
+
+        if ( $tags ) {
+            wp_remove_object_terms( $post_id, $tags, $this->tag_taxonomy );
+        }
+
+        wp_set_post_terms( $post_id, $new_tags, $this->tag_taxonomy, true );
+    }
+
+    /**
+     * Prepare online meeting link
+     *
+     * @param   array  $prepared_event  [$prepared_event description]
+     * @param   Event_Model  $event           [$event description]
+     *
+     * @return  string  
+     */
+    /**
+     * Whether an event type carries a meeting link (online or hybrid).
+     *
+     * @param   string  $event_type
+     *
+     * @return  bool
+     */
+    private function is_online_event_type( $event_type ) {
+        return in_array( $event_type, [ 'online', 'hybrid' ], true );
+    }
+
+    protected function prepare_meeting_link( $prepared_event, $event ) {
+        $platform_name = $prepared_event['location']['integration'] ?? '';
+        
+        if ( $event->has_meeting_link() && $platform_name === $event->get_meeting_platform() && $platform_name !== 'custom_url' ) {
+            return $event->meeting_link;
+        }
+
+        try {
+            $meeting_platform = MeetingPlatform::get_platform( $platform_name );
+
+            if ( ! $meeting_platform->is_connected() ) {
+                // translators: %s is the platform name (e.g. Zoom, Google Meet).
+                return new WP_Error( 'not_connected', sprintf( __( '%s is not connected', 'wp-event-solution' ), $platform_name ), ['status' => 400] );
+            }
+
+            $args = [
+                'title'      => $prepared_event['post_title'],
+                'start_date' => $prepared_event['etn_start_date'],
+                'start_time' => $prepared_event['etn_start_time'],
+                'end_date'   => $prepared_event['etn_end_date'],
+                'end_time'   => $prepared_event['etn_end_time'],
+                'custom_url' => $prepared_event['custom_url'] ?? '',
+                'timezone'   => $prepared_event['event_timezone']
+            ];
+
+            if ( ! empty( $prepared_event['location']['custom_url'] ) ) {
+                $args['custom_url'] = $prepared_event['location']['custom_url'];
+            }
+
+            $meeting_link = $meeting_platform->create_link( $args );
+
+            
+
+            return $meeting_link;
+        } catch ( \Exception $e ) {
+
+            return new WP_Error( 'unsupported_platform', $e->getMessage() );
+        }
+    }
+
+    /**
+     * Prepare speakers for the event
+     *
+     * @param   array  $args
+     *
+     * @return  array
+     */
+    private function prepare_speaker( $args = [] ) {
+        $speaker_type   = isset( $args['speaker_type'] ) ? $args['speaker_type'] : '';
+        $speakers       = isset( $args['speaker'] ) ? $args['speaker'] : '';
+        $speaker_groups = isset( $args['speaker_group'] ) ? $args['speaker_group'] : '';
+
+        if ( 'single' === $speaker_type ) {
+            return $speakers;
+        }
+
+        if ( ! $speaker_groups ) {
+            return [];
+        }
+
+        $user_ids = [];
+
+        foreach( $speaker_groups as $group_id ) {
+            $args = array(
+                'fields'     => 'ID',
+                'number'     => -1,
+                'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                    'relation' => 'AND',
+                    array(
+                        'key'     => 'etn_speaker_group',
+                        'value'   => strval($group_id),
+                        'compare' => 'LIKE',
+                    ),
+                ),
+            );
+
+            $user_ids = array_merge( $user_ids, get_users( $args ) );
+
+            $user_ids = array_unique( $user_ids );
+        }
+
+        return $user_ids;
+    }
+
+    /**
+     * Prepare organizer for the event
+     *
+     * @param   array  $args  [$args description]
+     *
+     * @return  array
+     */
+    private function prepare_organizer( $args = [] ) {
+        $orgnizer_type    = isset( $args['organizer_type'] ) ? $args['organizer_type'] : '';
+        $organizers       = isset( $args['organizer'] ) ? $args['organizer'] : '';
+        $organizer_groups = isset( $args['organizer_group'] ) ? $args['organizer_group'] : '';
+
+        if ( 'single' === $orgnizer_type ) {
+            return $organizers;
+        }
+
+        if ( ! $organizer_groups ) {
+            return [];
+        }
+
+        $user_ids = [];
+
+        foreach( $organizer_groups as $group_id ) {
+            $args = array(
+                'fields'     => 'ID',
+                'number'     => -1,
+                'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                    'relation' => 'AND',
+                    array(
+                        'key'     => 'etn_speaker_group',
+                        'value'   => strval($group_id),
+                        'compare' => 'LIKE',
+                    ),
+                ),
+            );
+
+            $user_ids = array_merge( $user_ids, get_users( $args ) );
+
+            $user_ids = array_unique( $user_ids );
+        }
+
+        return $user_ids;
+    }
+
+    /**
+     * Prepare the item for create or update operation.
+     *
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|object $prepared_item
+     */
+    /**
+     * Constrain an integration on/off flag to the two values it is ever stored as.
+     *
+     * The event form sends these as the strings 'yes' or 'no'
+     * (see src/layouts/events/prepareBackendPayload.js). Anything else in the request
+     * body is not a toggle, so it is stored as 'no' rather than written through.
+     *
+     * @param   mixed  $value  Raw value from the request body.
+     *
+     * @return  string  'yes' or 'no'.
+     */
+    private function sanitize_toggle_meta( $value ) {
+        return ( is_string( $value ) && 'yes' === strtolower( trim( $value ) ) ) ? 'yes' : 'no';
+    }
+
+    protected function prepare_item_for_database( $request ) {
+        $input_data = is_a( $request, 'WP_REST_Request' ) ? json_decode( $request->get_body(), true ) : $request;
+
+        // The event being saved is the one in the URL, or none on create.
+        // A body `id` must not choose which event's meta is read below.
+        if ( is_a( $request, 'WP_REST_Request' ) && is_array( $input_data ) ) {
+            $route_event_id = Ownership::route_subject_id( $request );
+
+            if ( $route_event_id ) {
+                $input_data['id'] = $route_event_id;
+            } else {
+                unset( $input_data['id'] );
+            }
+        }
+
+		$validate   = etn_validate( $input_data, [
+            'title'      => [
+                'required',
+            ],
+            'timezone'   => [
+                'required',
+            ],
+            'start_date' => [
+                'required',
+            ],
+            'end_date'   => [
+                'required',
+            ],
+            'start_time' => [
+                'required',
+            ],
+            'end_time'   => [
+                'required',
+            ],
+    ] );
+
+        if ( is_wp_error( $validate ) ) {
+            return $validate;
+        }
+
+        $event_data = [];
+        if ( isset( $input_data['title'] ) ) {
+            $event_data['post_title'] = $input_data['title'];            
+        }        
+        
+
+        if ( isset( $input_data['description'] ) ) {
+            $event_data['post_content'] = $input_data['description'];
+        }
+
+        if ( isset( $input_data['excerpt'] ) ) {
+            $event_data['post_excerpt'] = $input_data['excerpt'];
+        }
+
+        if ( isset( $input_data['excerpt_enable'] ) ) {
+            $event_data['excerpt_enable'] = $input_data['excerpt_enable'];
+        }
+
+        if ( isset( $input_data['enable_seatmap'] ) ) {
+            $event_data['enable_seatmap'] = $input_data['enable_seatmap'];
+        }
+
+        if ( isset( $input_data['schedule_type'] ) ) {
+            $event_data['etn_select_speaker_schedule_type'] = $input_data['schedule_type'];
+        }
+
+        // Only real speakers/organizers the caller may attach. Any user id used
+        // to be stored, and the event export and event pages then printed that
+        // user's email (CVE-2026-109994 follow-up).
+        $people_event_id = is_a( $request, 'WP_REST_Request' ) ? Ownership::route_subject_id( $request ) : 0;
+
+        if ( isset( $input_data['organizer'] ) ) {
+            $event_data['etn_event_organizer'] = Ownership::filter_assignable_people(
+                etn_sanitize_array_input( $input_data['organizer'] ),
+                $people_event_id,
+                'etn_event_organizer'
+            );
+        }
+
+        if ( isset( $input_data['speaker'] ) ) {
+            $event_data['etn_event_speaker'] = Ownership::filter_assignable_people(
+                etn_sanitize_array_input( $input_data['speaker'] ),
+                $people_event_id,
+                'etn_event_speaker'
+            );
+        }
+
+        if ( isset( $input_data['timezone'] ) ) {
+            $event_data['event_timezone'] = $input_data['timezone'];
+        }
+
+        if ( isset( $input_data['start_date'] ) ) {
+            $event_data['etn_start_date'] = $input_data['start_date'];
+        }
+
+        if ( isset( $input_data['end_date'] ) ) {
+            $event_data['etn_end_date'] = $input_data['end_date'];
+        }
+
+        if ( isset( $input_data['start_time'] ) ) {
+            $event_data['etn_start_time'] = $input_data['start_time'];
+        }
+
+        if ( isset( $input_data['end_time'] ) ) {
+            $event_data['etn_end_time'] = $input_data['end_time'];
+        }
+
+        if ( isset( $input_data['ticket_availability'] ) ) {
+            $event_data['etn_ticket_availability'] = $input_data['ticket_availability'];
+        }
+
+        if ( isset( $input_data['ticket_variations'] ) ) {
+            $event_data['etn_ticket_variations'] = etn_sanitize_array_input( $input_data['ticket_variations'] );
+        }
+
+        if ( isset( $input_data['etn_enable_global_stock'] ) ) {
+            $event_data['etn_enable_global_stock'] = rest_sanitize_boolean( $input_data['etn_enable_global_stock'] );
+        }
+
+        if ( isset( $input_data['etn_global_stock'] ) ) {
+            $event_data['etn_global_stock'] = max( 0, intval( $input_data['etn_global_stock'] ) );
+        }
+
+        if ( isset( $input_data['etn_global_waiting_list'] ) ) {
+            $event_data['etn_global_waiting_list'] = max( 0, intval( $input_data['etn_global_waiting_list'] ) );
+        }
+
+        if ( isset( $input_data['enable_attendee_waiting_list'] ) ) {
+            $event_data['enable_attendee_waiting_list'] = rest_sanitize_boolean( $input_data['enable_attendee_waiting_list'] );
+        }
+
+        if ( isset( $input_data['event_logo'] ) ) {
+            $event_data['etn_event_logo'] = $input_data['event_logo'];
+        }
+
+        if ( isset( $input_data['event_logo_id'] ) ) {
+            $event_data['event_logo_id'] = $input_data['event_logo_id'];
+        }
+
+        if ( isset( $input_data['event_banner_id'] ) ) {
+            $event_data['event_banner_id'] = $input_data['event_banner_id']; 
+        }
+
+        if ( isset( $input_data['calendar_text_color'] ) ) {
+            $event_data['etn_event_calendar_text_color'] = $input_data['calendar_text_color'];
+        }
+
+        if ( isset( $input_data['calendar_bg'] ) ) {
+            $event_data['etn_event_calendar_bg'] = $input_data['calendar_bg'];
+        }
+
+        if ( isset( $input_data['registration_deadline'] ) ) {
+            $event_data['etn_registration_deadline'] = $input_data['registration_deadline'];
+        }
+
+        if ( isset( $input_data['attende_page_link'] ) ) {
+            $event_data['attende_page_link'] = $input_data['attende_page_link'];
+        }
+
+        if ( isset( $input_data['zoom_id'] ) ) {
+            $event_data['etn_zoom_id'] = $input_data['zoom_id'];
+        }
+
+        if ( isset( $input_data['location_type'] ) ) {
+            $event_data['etn_event_location_type'] = $input_data['location_type'];
+        }
+
+        if ( isset( $input_data['location'] ) ) {
+            $event_data['etn_event_location'] = $input_data['location'];
+        }
+
+        if ( isset( $input_data['zoom_event'] ) ) {
+            $event_data['etn_zoom_event'] = $input_data['zoom_event'];
+        }
+
+        if ( isset( $input_data['total_ticket'] ) ) {
+            $event_data['etn_total_avaiilable_tickets'] = $input_data['total_ticket'];
+        }
+
+        if ( isset( $input_data['google_meet'] ) ) {
+            $event_data['etn_google_meet'] = $input_data['google_meet'];
+        }
+
+        if ( isset( $input_data['google_meet_description'] ) ) {
+            $event_data['etn_google_meet_short_description'] = $input_data['google_meet_description'];
+        }
+
+        if ( isset( $input_data['fluent_crm'] ) ) {
+            $event_data['fluent_crm'] = $input_data['fluent_crm'];
+        }
+
+        if ( isset( $input_data['mail_mint'] ) ) {
+            $event_data['mail_mint'] = $input_data['mail_mint'];
+        }
+
+        if ( isset( $input_data['optiontics_addons'] ) ) {
+            $event_data['optiontics_addons'] = ! empty( $input_data['optiontics_addons'] ) ? '1' : '';
+        }
+
+        if ( isset( $input_data['zoho_crm'] ) ) {
+            $event_data['zoho_crm'] = $input_data['zoho_crm'];
+        }
+
+        if ( isset( $input_data['mail_mint_send_to'] ) && is_array( $input_data['mail_mint_send_to'] ) ) {
+            $allowed                          = [ 'purchaser', 'attendee' ];
+            $event_data['mail_mint_send_to']  = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['mail_mint_send_to'] ) ) );
+        }
+
+        if ( isset( $input_data['mailpoet'] ) ) {
+            $event_data['mailpoet'] = $input_data['mailpoet'];
+        }
+
+        if ( isset( $input_data['mailpoet_list_ids'] ) && is_array( $input_data['mailpoet_list_ids'] ) ) {
+            $event_data['mailpoet_list_ids'] = array_values( array_filter( array_map( 'sanitize_text_field', $input_data['mailpoet_list_ids'] ) ) );
+        }
+
+        if ( isset( $input_data['mailpoet_send_to'] ) && is_array( $input_data['mailpoet_send_to'] ) ) {
+            $allowed                         = [ 'purchaser', 'attendee' ];
+            $event_data['mailpoet_send_to']  = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['mailpoet_send_to'] ) ) );
+        }
+
+        // These four are yes/no switches written straight to post meta. The
+        // *_send_to arrays beside them are already intersected against an allowlist;
+        // without the same treatment here any string in the request body was stored
+        // verbatim. sanitize_toggle_meta() keeps only 'yes' or 'no'.
+        if ( isset( $input_data['funnel_kit'] ) ) {
+            $event_data['funnel_kit'] = $this->sanitize_toggle_meta( $input_data['funnel_kit'] );
+        }
+
+        if ( isset( $input_data['hubspot'] ) ) {
+            $event_data['hubspot'] = $this->sanitize_toggle_meta( $input_data['hubspot'] );
+        }
+
+        if ( isset( $input_data['hubspot_track_event'] ) ) {
+            $event_data['hubspot_track_event'] = $this->sanitize_toggle_meta( $input_data['hubspot_track_event'] );
+        }
+
+        if ( isset( $input_data['hubspot_send_to'] ) && is_array( $input_data['hubspot_send_to'] ) ) {
+            $allowed                       = [ 'purchaser', 'attendee' ];
+            $event_data['hubspot_send_to'] = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['hubspot_send_to'] ) ) );
+        }
+
+        if ( isset( $input_data['funnel_kit_send_to'] ) && is_array( $input_data['funnel_kit_send_to'] ) ) {
+            $allowed                          = [ 'purchaser', 'attendee' ];
+            $event_data['funnel_kit_send_to'] = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['funnel_kit_send_to'] ) ) );
+        }
+
+        // Server-side mirror of the UI gate: with the extension off the card is
+        // hidden, so a request still carrying these fields is not a normal save.
+        if ( self::zapier_enabled() ) {
+            if ( isset( $input_data['zapier'] ) ) {
+                $event_data['zapier'] = ( 'yes' === $input_data['zapier'] ) ? 'yes' : 'no';
+            }
+
+            if ( isset( $input_data['zapier_send_to'] ) && is_array( $input_data['zapier_send_to'] ) ) {
+                $allowed                      = [ 'purchaser', 'attendee' ];
+                $event_data['zapier_send_to'] = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['zapier_send_to'] ) ) );
+            }
+        }
+
+        if ( isset( $input_data['uncanny_automator'] ) ) {
+            $event_data['uncanny_automator'] = $this->sanitize_toggle_meta( $input_data['uncanny_automator'] );
+        }
+
+        if ( isset( $input_data['uncanny_automator_send_to'] ) && is_array( $input_data['uncanny_automator_send_to'] ) ) {
+            $allowed                                 = [ 'purchaser', 'attendee' ];
+            $event_data['uncanny_automator_send_to'] = array_values( array_intersect( $allowed, array_map( 'sanitize_key', $input_data['uncanny_automator_send_to'] ) ) );
+        }
+
+        if ( isset( $input_data['location_type'] ) ) {
+            $event_data['etn_event_location_type'] = $input_data['location_type'];
+        }
+
+        if ( isset( $input_data['event_socials'] ) ) {
+            // The form always submits a trailing empty row (it is the repeater's
+            // "type here" affordance). Drop rows with no URL so the meta never
+            // holds a placeholder link that renders as a bare icon chip.
+            $event_data['etn_event_socials'] = etn_get_valid_event_socials(
+                etn_sanitize_array_input( $input_data['event_socials'] )
+            );
+        }
+
+        if ( isset( $input_data['schedules'] ) ) {
+            $event_data['etn_event_schedule'] = etn_sanitize_array_input( $input_data['schedules'] );
+        }
+
+        if ( isset( $input_data['categories'] ) ) {
+            $event_data['categories'] = etn_sanitize_array_input( $input_data['categories'] );
+        }
+
+        if ( isset( $input_data['tags'] ) ) {
+            $event_data['tags'] = etn_sanitize_array_input( $input_data['tags'] );
+        }
+
+        if ( isset( $input_data['faq'] ) ) {
+            // Sanitize FAQ content on input (wp_kses_post per item) so stored
+            // markup can't carry scripts/event-handlers into any render context.
+            // See CVE-2026-12924.
+            $event_data['etn_event_faq'] = etn_sanitize_faq_array( $input_data['faq'] );
+        }
+
+        if ( isset( $input_data['extra_fields'] ) ) {
+            $event_data['attendee_extra_fields'] = etn_sanitize_array_input( $input_data['extra_fields'] );
+        }
+
+        $event_data['etn_last_update_date'] = wp_date( 'Y-m-d H:i:s', current_time( 'timestamp' ) );
+
+        // Support speaker and organizer group.
+        if ( isset( $input_data['speaker_type'] ) ) {
+            $event_data['speaker_type'] = 'single';
+        }
+
+        if ( isset( $input_data['speaker_group'] ) ) {
+            $event_data['speaker_group'] = etn_sanitize_array_input( $input_data['speaker_group'] );
+        }
+
+        if ( isset( $input_data['organizer_type'] ) ) {
+            $event_data['organizer_type'] = 'single';
+        }
+
+        if ( isset( $input_data['organizer_group'] ) ) {
+            $event_data['organizer_group'] = 'single';
+        }
+
+        if ( isset( $input_data['fluent_crm_webhook'] ) ) {
+            // Was stored raw while the three neighbouring webhook fields below
+            // were escaped — the odd one out. The value is later fetched
+            // server-side, so an unvalidated string here is an SSRF sink.
+            $event_data['fluent_crm_webhook'] = esc_url_raw( $input_data['fluent_crm_webhook'] );
+        }
+
+        if ( isset( $input_data['mail_mint_webhook'] ) ) {
+            $event_data['mail_mint_webhook'] = esc_url_raw( $input_data['mail_mint_webhook'] );
+        }
+
+        if ( isset( $input_data['zoho_crm_webhook'] ) ) {
+            $event_data['zoho_crm_webhook'] = esc_url_raw( $input_data['zoho_crm_webhook'] );
+        }
+
+        if ( isset( $input_data['funnel_kit_webhook'] ) ) {
+            $event_data['funnel_kit_webhook'] = esc_url_raw( $input_data['funnel_kit_webhook'] );
+        }
+
+        if ( self::zapier_enabled() && isset( $input_data['zapier_webhook'] ) ) {
+            $event_data['zapier_webhook'] = self::sanitize_zapier_webhook( $input_data['zapier_webhook'] );
+        }
+
+        if ( isset( $input_data['uncanny_automator_webhook'] ) ) {
+            $event_data['uncanny_automator_webhook'] = esc_url_raw( $input_data['uncanny_automator_webhook'] );
+        }
+
+        // Recurring event data.
+        if ( isset( $input_data['recurring_enabled'] ) ) {
+            $event_data['recurring_enabled'] = $input_data['recurring_enabled'];
+        }
+
+        if ( isset( $input_data['event_recurrence'] ) ) {
+            $event_data['etn_event_recurrence'] = etn_sanitize_array_input( $input_data['event_recurrence'] );
+        }
+
+        // RSVP support.
+        if ( isset( $input_data['rsvp_settings'] ) ) {
+            $event_data['rsvp_settings'] = etn_sanitize_array_input( $input_data['rsvp_settings'] );
+        }
+
+        // Seat Plan Support.
+        if ( isset( $input_data['seat_plan'] ) ) {
+            $event_data['seat_plan'] = etn_sanitize_array_input( $input_data['seat_plan'] );
+        }
+
+        if ( isset( $input_data['seat_plan_settings'] ) ) {
+            $event_data['seat_plan_settings'] = etn_sanitize_array_input( $input_data['seat_plan_settings'] );
+        }
+
+        // Template support.
+        if ( isset( $input_data['ticket_template'] ) ) {
+            $event_data['ticket_template'] = $input_data['ticket_template'];
+        }
+
+        if ( isset( $input_data['certificate_template'] ) ) {
+            $candidate_template_id = absint( $input_data['certificate_template'] );
+            $legacy_enabled        = ! empty( $input_data['enable_legacy_certificate_template'] )
+                ? rest_sanitize_boolean( $input_data['enable_legacy_certificate_template'] )
+                : (bool) get_post_meta( (int) ( $input_data['id'] ?? 0 ), 'enable_legacy_certificate_template', true );
+
+            if ( $candidate_template_id > 0 ) {
+                $candidate_post = get_post( $candidate_template_id );
+
+                // Accept etn-template posts unconditionally; allow other post
+                // types only when the legacy page-based certificate flow is
+                // enabled. Stale IDs that reference non-existent posts are
+                // dropped so the download handler can fall back cleanly.
+                if ( $candidate_post && ( 'etn-template' === $candidate_post->post_type || $legacy_enabled ) ) {
+                    $event_data['certificate_template'] = $candidate_template_id;
+                } else {
+                    $event_data['certificate_template'] = 0;
+                }
+            } else {
+                $event_data['certificate_template'] = 0;
+            }
+        }
+
+        if ( isset( $input_data['external_link'] ) ) {
+            $event_data['external_link'] = $input_data['external_link'];
+        }
+
+        if ( isset( $input_data['event_banner'] ) ) {
+            $event_data['event_banner'] = $input_data['event_banner'];
+        }
+
+        if ( isset( $input_data['event_layout'] ) ) {
+            $event_data['event_layout'] = $input_data['event_layout'];
+        }
+
+        if ( isset( $input_data['visibility_status'] ) ) {
+            $event_data['post_status'] = $input_data['visibility_status'];
+        }
+
+        if ( isset( $input_data['password'] ) ) {
+            $event_data['post_password'] = $input_data['password'];
+        }
+
+        if ( ! empty( $input_data['event_slug'] ) ) {
+            $event_data['post_name'] = sanitize_title( $input_data['event_slug'] );
+        }
+
+        if ( isset( $input_data['event_type'] ) ) {
+            $event_data['event_type'] = $input_data['event_type'];
+        }
+
+        if ( isset( $input_data['location'] ) ) {
+            $event_data['location'] = $input_data['location'];
+        }
+
+        // certificate prefference.
+        if ( isset( $input_data['certificate_preference'] ) ) {
+            $event_data['certificate_preference'] = $input_data['certificate_preference'];
+        }
+
+        if ( isset( $input_data['_virtual'] ) ) {
+            $event_data['_virtual'] = $input_data['_virtual'];
+        }
+
+        if ( isset( $input_data['_tax_status'] ) ) {
+            $event_data['_tax_status'] = $input_data['_tax_status'];
+        }
+
+        if ( isset( $input_data['enable_legacy_certificate_template'] ) ) {
+            $event_data['enable_legacy_certificate_template'] = $input_data['enable_legacy_certificate_template'];
+        }
+		
+        // buddyboss group add
+        if ( isset( $input_data['_etn_buddy_group_id'] ) ) {
+          $event_data['menu_order'] = $input_data['_etn_buddy_group_id'];
+        }
+
+        // On create there is no id yet, so the meta fallback must not be attempted.
+        $existing_event_id = isset( $input_data['id'] ) ? intval( $input_data['id'] ) : 0;
+
+        $is_global_stock_enabled = isset( $event_data['etn_enable_global_stock'] )
+            ? rest_sanitize_boolean( $event_data['etn_enable_global_stock'] )
+            : ( $existing_event_id && rest_sanitize_boolean( get_post_meta( $existing_event_id, 'etn_enable_global_stock', true ) ) );
+
+        $sold_tickets = $existing_event_id ? (array) Helper::etn_get_sold_tickets_by_event( $existing_event_id ) : [];
+
+        /*
+         * `etn_ticket_variations` only reaches $event_data when the request
+         * actually carried tickets (see the `ticket_variations` branch above),
+         * and etn_sanitize_array_input() can hand back a non-array for a
+         * malformed payload — so an event saved without tickets, which is every
+         * event until its first ticket, walked into foreach() on null.
+         *
+         * The key stays absent rather than being defaulted to []: this array is
+         * written back as post meta, so materialising an empty list here would
+         * erase the tickets of any event updated by a request that did not
+         * include them.
+         */
+        $has_ticket_variations = ! empty( $event_data['etn_ticket_variations'] )
+            && is_array( $event_data['etn_ticket_variations'] );
+
+        if ( $has_ticket_variations ) {
+            // Drop malformed rows so they are never written back to post meta.
+            $event_data['etn_ticket_variations'] = array_values( array_filter( $event_data['etn_ticket_variations'], 'is_array' ) );
+
+            foreach ( $event_data['etn_ticket_variations'] as &$ticket ) {
+                // Sold counts are keyed by slug; a row without one counts as unsold.
+                $slug = $ticket['etn_ticket_slug'] ?? '';
+                $ticket['etn_sold_tickets'] = '' !== $slug && ! empty( $sold_tickets[ $slug ] ) ? $sold_tickets[ $slug ] : 0;
+
+                if ( $is_global_stock_enabled ) {
+                    // Global stock owns capacity: per-ticket numbers are meaningless
+                    // and the admin UI hides the field, so normalise them to 0 rather
+                    // than persisting whatever the form last held.
+                    $ticket['etn_avaiilable_tickets'] = 0;
+                    $ticket['etn_unlimited_tickets']  = false;
+                } else {
+                    $ticket['etn_avaiilable_tickets'] = (int) ( $ticket['etn_avaiilable_tickets'] ?? 0 );
+                }
+
+                $ticket['optiontics_block_ids']   = isset( $ticket['optiontics_block_ids'] )
+                    ? array_values( array_map( 'absint', (array) $ticket['optiontics_block_ids'] ) )
+                    : [];
+            }
+            unset( $ticket );
+        }
+
+        if ( $is_global_stock_enabled ) {
+            $global_capacity = isset( $event_data['etn_global_stock'] )
+                ? (int) $event_data['etn_global_stock']
+                : (int) get_post_meta( $existing_event_id, 'etn_global_stock', true );
+            $total_sold      = array_sum( array_map( 'intval', $sold_tickets ) );
+
+            if ( $global_capacity > 0 && $total_sold > $global_capacity ) {
+                return new WP_Error( 'etn_ticket_sold_out', __( 'Global ticket capacity must be greater or equal to the total sold tickets', 'wp-event-solution' ) );
+            }
+        } elseif ( $has_ticket_variations ) {
+            foreach ( $event_data['etn_ticket_variations'] as $ticket ) {
+                if ( $ticket['etn_avaiilable_tickets'] > 0 && $ticket['etn_sold_tickets'] > $ticket['etn_avaiilable_tickets'] ) {
+                    return new WP_Error( 'etn_ticket_sold_out', __( 'Available ticket must be greater or equal to the sold ticket', 'wp-event-solution' ) );
+                }
+            }
+        }
+		
+        return $event_data;
+    }
+
+    /**
+     * Whether the Zapier extension is switched on.
+     *
+     * @return  bool
+     */
+    private static function zapier_enabled() {
+        $status = etn_get_option( 'zapier_api' );
+
+        return $status && 'off' !== $status;
+    }
+
+    /**
+     * Validate an outbound Zapier webhook URL.
+     *
+     * Whoever can edit an event picks where this server later POSTs purchaser
+     * and attendee data, and `etn_manage_event` reaches down to Author. So
+     * require https and let WordPress reject private and loopback hosts, the
+     * same class of fix applied to the FluentCRM webhook in 4.1.20.
+     *
+     * @param   mixed  $url
+     *
+     * @return  string  Empty string when the URL is unusable.
+     */
+    private static function sanitize_zapier_webhook( $url ) {
+        if ( ! is_string( $url ) ) {
+            return '';
+        }
+
+        $url = esc_url_raw( trim( $url ), [ 'https' ] );
+
+        if ( ! $url ) {
+            return '';
+        }
+
+        return wp_http_validate_url( $url ) ? $url : '';
+    }
+
+    /**
+     * Recipients for the Zapier payload.
+     *
+     * An empty array is a real choice - "send nothing" - so only fall back to
+     * both recipients when the key was never written.
+     *
+     * @param   int  $id
+     *
+     * @return  array
+     */
+    private static function zapier_send_to( $id ) {
+        if ( ! metadata_exists( 'post', $id, 'zapier_send_to' ) ) {
+            return [ 'purchaser', 'attendee' ];
+        }
+
+        $send_to = get_post_meta( $id, 'zapier_send_to', true );
+
+        return is_array( $send_to ) ? $send_to : [];
+    }
+
+    /**
+     * back to wordpress data from elementor data
+     *
+     * @param   int  $event_id
+     *
+     * @return  bool
+     */
+    public function convert_elementor_to_wordpress( $request ) {
+        // Check if Elementor is loaded
+        if ( ! did_action( 'elementor/loaded' ) ) {
+            return false;
+        }
+    
+        // Check if the request has an 'id' parameter. Same source the
+        // permission check used — the id in the path.
+        $id = Ownership::route_subject_id( $request );
+
+        if ( ! $id ) {
+            return false;
+        }
+
+        $document = \Elementor\Plugin::$instance->documents->get( $id );
+    
+        // Check if the document exists and is built with Elementor
+        if ( $document && $document->is_built_with_elementor() ) {
+            $document->set_is_built_with_elementor( false );
+            return false;
+        } 
+        return false;
+    }
+    
+    /**
+     * Check if a post type is supported by Elementor
+     *
+     * @param   string  $post_type  The post type to check
+     *
+     * @return  bool    True if the post type is supported, false otherwise
+     */
+    public function is_etn_post_type_supported_by_elementor($post_type='etn') {
+        // Get the list of post types supported by Elementor
+
+        if ( ! did_action( 'elementor/loaded' ) ) {
+            return false;
+        }
+        $elementor_post_types = get_option('elementor_cpt_support', []);
+
+        // Check if your custom post type is in the list
+        if (!empty($elementor_post_types) && in_array($post_type, $elementor_post_types)  ) {
+            return true;
+        } else {
+            return false;
+        }
+    } 
+
+
+    /**
+     * Disable Elementor for a given post
+     *
+     * @param int $post_id The ID of the post to disable Elementor for
+     * @return void
+     */
+    public function check_post_edit_with_elementor( $post_id ) {
+
+        if ( ! did_action( 'elementor/loaded' ) ) {
+            return false;
+        }
+
+        // Get the Elementor document for the post
+        $document = \Elementor\Plugin::$instance->documents->get( $post_id );
+        
+        // Check if the post is built with Elementor
+        $built_with_elementor =  $document->is_built_with_elementor();
+        
+        return $built_with_elementor;
+    }
+
+    /**
+     * Export items
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function export_items( $request ) {
+        $format = ! empty( $request['format'] ) ? sanitize_text_field( $request['format'] ) : '';
+
+        $ids    = ! empty( $request['ids'] ) ? $request['ids'] : '';
+
+        if ( ! $format ) {
+            return new WP_Error( 'format_error', __( 'Invalid data format', 'wp-event-solution' ) );
+        }
+
+        // Export is a bulk READ of everything an event holds — including draft
+        // and private events, meeting links and webhook URLs. The no-ids branch
+        // below is already author-scoped by Post_Model::get_ids(), but an
+        // explicit `ids` list was taken on trust, so gating the route on
+        // `etn_manage_event` alone let a Contributor dump any event on the site
+        // and walk straight around the per-id read and write checks.
+        if ( $ids ) {
+            if ( ! Ownership::can_manage_posts( $ids, 'etn' ) ) {
+                return new WP_Error(
+                    'rest_forbidden',
+                    __( 'Sorry, you are not allowed to export these events.', 'wp-event-solution' ),
+                    [ 'status' => 403 ]
+                );
+            }
+        } else {
+            $ids = ( new Event_Model() )->get_ids();
+        }
+
+        // Keep the shipped demo event out of the file. get_ids() runs no
+        // exclusion, and the pre_get_posts net bails on REST by design.
+        $ids = \Eventin\PreviewPlaceholder\PreviewPlaceholder::strip_post_ids( (array) $ids );
+
+        $exporter = new EventExporter();
+        $exporter->export( $ids, $format );
+    }
+
+    /**
+     * Check permissions for export events
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function export_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_event' );
+    }
+
+    /**
+     * Import events
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  [type]            [return description]
+     */
+    public function import_items( $request ) {
+        $data = $request->get_file_params();
+        $file = ! empty( $data['event_import'] ) ? $data['event_import'] : '';
+
+        if ( ! $file ) {
+            return new WP_Error( 'empty_file', __( 'You must provide a valid file.', 'wp-event-solution' ), ['status' => 409] );
+        }
+
+        $importer = new EventImporter();
+        $result   = $importer->import( $file );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        $response = [
+            'message' => __( 'Successfully imported event', 'wp-event-solution' ),
+        ];
+
+        // Speakers and organizers are WordPress users, and creating one is `create_users`.
+        // A user without it still imports the events; the addresses that had no account yet
+        // are simply not attached. Say so, so nobody is left wondering where the speaker
+        // went. See EventImporter::resolve_user_emails() (CVE-2026-84905).
+        $skipped_users = $importer->get_skipped_users();
+
+        if ( ! empty( $skipped_users ) ) {
+            $response['skipped_users'] = $skipped_users;
+            $response['warning']       = sprintf(
+                /* translators: %s: comma separated list of email addresses. */
+                __( 'These speakers or organizers were not added, because you are not allowed to create user accounts: %s. Ask an administrator to add them first, then import again.', 'wp-event-solution' ),
+                implode( ', ', $skipped_users )
+            );
+        }
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Check permissions for export events
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function import_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_event' )
+            && ( current_user_can( 'manage_options' ) || (bool) Ownership::current_user_owner_id() );
+    }
+
+    /**
+     * Get author lists
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    /**
+     * Get author lists
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function get_authors( $request ) {
+        $per_page = ! empty( $request['per_page'] ) ? intval( $request['per_page'] ) : 20;
+        $paged    = ! empty( $request['paged'] ) ? intval( $request['paged'] ) : 1;
+
+        $user_query = new WP_User_Query( [
+            'number'  => $per_page,
+            'paged'   => $paged,
+            'orderby' => 'display_name',
+            'order'   => 'ASC',
+            'fields'  => [ 'ID', 'display_name' ],
+        ] );
+
+        $users_data = [];
+        foreach ( $user_query->get_results() as $user ) {
+            $users_data[] = [
+                'id'   => $user->ID,
+                'name' => $user->display_name,
+            ];
+        }
+
+        $response = rest_ensure_response( $users_data );
+        $response->header( 'X-WP-Total', $user_query->get_total() );
+        $response->header( 'X-WP-TotalPages', ceil( $user_query->get_total() / $per_page ) );
+
+        return $response;
+    }
+
+    /**
+     * Update event author
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function update_author( $request ) {
+        $input = new Input( json_decode( $request->get_body(), true ) );
+
+        $event_id  = $input->get('event_id');
+        $author_id = $input->get('author_id');
+
+        $post = get_post( $event_id );
+        $user = get_userdata( $author_id );
+
+        if ( ! $post || 'etn' !== $post->post_type ) {
+            return new WP_Error('invalid_event', __( 'Invalid event id', 'wp-event-solution' ), ['status' => 422]);
+        }
+
+        if ( ! $user ) {
+            return new WP_Error('invalid_author', __( 'Invalid author id', 'wp-event-solution' ), ['status' => 422]);
+        }
+
+        // Defence in depth: the route is already administrator-only, but keep
+        // the transfer itself guarded so a future re-wiring of the route cannot
+        // silently reopen the takeover.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return new WP_Error(
+                'rest_forbidden',
+                __( 'Sorry, you are not allowed to reassign the author of this event.', 'wp-event-solution' ),
+                ['status' => 403]
+            );
+        }
+
+        $updated = wp_update_post([
+            'ID'          => $event_id,
+            'post_author' => $author_id
+        ]);
+
+        if ( is_wp_error( $updated ) ) {
+            return new WP_Error('failed_update', $updated->get_error_message() , ['status' => 422]);
+        }
+
+        $response = [
+            'message'   => __( 'Successfully author updated', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Get rsvp remaining capacity
+     *
+     * @param   int  $event_id
+     *
+     * @return  int
+     */
+    public function get_rsvp_remaining_capacity($event_id,$rsv_settings) {
+        $active_plugins = get_option( 'active_plugins', [] );
+
+        if ( in_array( 'eventin-pro/eventin-pro.php', $active_plugins ) ) {
+            $etn_rsvp_total_capacity    = ! empty( $rsv_settings['etn_rsvp_limit_amount'] ) ? $rsv_settings['etn_rsvp_limit_amount'] : 0;
+            $etn_rsvp_total_capacity    = $etn_rsvp_total_capacity === 0 ? 1 : $etn_rsvp_total_capacity;
+
+            $etn_rsvp = \Etn_Pro\Core\Modules\Rsvp\Helper::instance()->data_query( $event_id );
+            $total_attendee = [];
+            $total_report_number = 0;
+
+            if ( count($etn_rsvp) > 0 ) {
+                foreach ($etn_rsvp as $key => $value) {
+                    $status = get_post_meta( $value->ID, 'etn_rsvp_value' , true);
+                                        
+                    if ( !empty($value) && !empty($value->ID) && $status == 'going' ) {
+                        $total_attendee[] = get_post_meta( $value->ID, 'number_of_attendee' , true) !== "" ?  get_post_meta( $value->ID, 'number_of_attendee' , true ) : "";
+                    }
+                }
+
+                $total_report_number = array_sum($total_attendee);
+            }	
+        
+            $remaining_capacity = intval( $etn_rsvp_total_capacity ) - intval( $total_report_number );
+            if($remaining_capacity < 0){
+                $remaining_capacity = 0;
+            }
+            return $remaining_capacity;
+        }
+        return 0;
+    }
+
+    /**
+     * Update event status
+     * 
+     * @param   WP_Rest_Request  $request  [$request description]
+     * 
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function update_status($request) {
+        $input_data = is_a($request, 'WP_REST_Request') ? json_decode($request->get_body(), true) : $request;
+
+        $event_ids = !empty($input_data['event_ids']) && is_array($input_data['event_ids']) ? array_map('intval', $input_data['event_ids']) : [];
+        $status = !empty($input_data['status']) ? sanitize_text_field($input_data['status']) : '';
+
+        if (!in_array($status, ['publish', 'draft'])) {
+            return new WP_Error('invalid_status', __( 'Status must be Publish OR Draft', 'wp-event-solution' ), array('status' => 400));
+        }
+
+        // Validate the WHOLE batch before writing anything. Checking inside the
+        // write loop would publish/unpublish the caller's own events and only
+        // then refuse on the first foreign id — a partial application that
+        // leaves the batch half-applied and is not undone.
+        foreach ($event_ids as $event_id) {
+            $event = get_post($event_id);
+            if (!$event || $event->post_type !== 'etn') {
+                return new WP_Error(
+                    'invalid_event',
+                    __('Invalid event ID.', 'wp-event-solution'),
+                    ['status' => 404]
+                );
+            }
+
+            // The route's capability check is collection-level; publishing or
+            // unpublishing someone else's event needs ownership of that event.
+            if ( ! Ownership::can_manage_post( $event_id, 'etn' ) ) {
+                return new WP_Error(
+                    'rest_forbidden',
+                    __( 'Sorry, you are not allowed to update this event.', 'wp-event-solution' ),
+                    ['status' => 403]
+                );
+            }
+        }
+
+        foreach ($event_ids as $event_id) {
+            $result = wp_update_post([
+                'ID' => $event_id,
+                'post_status' => $status
+            ]);
+
+            if (is_wp_error($result)) {
+                return new WP_Error(
+                    'update_failed',
+                    __('Failed to update event status.', 'wp-event-solution'),
+                    ['status' => 500]
+                );
+            }
+        }
+
+        return rest_ensure_response([
+            'success' => true,
+            'message' => __('Event status updated successfully.', 'wp-event-solution'),
+        ]);
+    }
+
+    public function get_event_organizers_and_speakers($event_id){
+        $event          = new Event_Model( $event_id );
+        
+        $organizer = get_post_meta( $event_id, 'etn_event_organizer', true );
+        $organizer = is_array( $organizer ) ? $organizer : ( $organizer ? [ $organizer ] : [] );
+        $organizer = array_map( 'intval', $organizer );
+        $speaker         = get_post_meta( $event_id, 'etn_event_speaker', true );
+
+        
+        $organizer_group = get_post_meta( $event_id, 'organizer_group', true );
+        $speaker_group   = get_post_meta( $event_id, 'speaker_group', true );
+
+
+
+        $speaker_type    = get_post_meta( $event_id, 'speaker_type', true );
+        $organizer_type  = get_post_meta( $event_id, 'organizer_type', true );
+
+        if($speaker_type == 'group'){
+            $speaker = $this->etn_get_user_ids_by_group($speaker_group);
+        }
+
+        if($organizer_type == 'group'){
+            $organizer = $this->etn_get_user_ids_by_group($organizer_group);
+        }
+
+        $filter_user = $this->filter_organizer_and_speaker($organizer, $speaker);
+
+        return $filter_user;
+    }
+}

@@ -1,0 +1,7 @@
+.idea/
+vendor/
+bin/
+composer.lock
+build/
+/.project
+/.php_cs.cache
