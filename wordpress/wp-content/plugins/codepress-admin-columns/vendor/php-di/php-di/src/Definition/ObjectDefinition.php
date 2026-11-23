@@ -131,7 +131,7 @@ class ObjectDefinition implements Definition
     {
         // Return array leafs
         $injections = [];
-        \array_walk_recursive($this->methodInjections, function ($injection) use(&$injections) {
+        array_walk_recursive($this->methodInjections, function ($injection) use(&$injections) {
             $injections[] = $injection;
         });
         return $injections;

@@ -29,19 +29,27 @@ function action_wpcf7_before_send_mail($cfdata)
     if (!empty($uploaded_files)) {
         preg_match_all($re, $uploaded_files["dniuno"][0], $matches, PREG_SET_ORDER, 0);
         $filenameDNIUNO = $formdata["dniuno"] . $matches[0][0];
-        $dniuno = wp_upload_bits($filenameDNIUNO, null, file_get_contents($uploaded_files["dniuno"][0]));
+        if (!empty($uploaded_files["dniuno"][0])) {
+            $dniuno = wp_upload_bits($filenameDNIUNO, null, file_get_contents($uploaded_files["dniuno"][0]));
+        }
 
         preg_match_all($re, $uploaded_files["dnidos"][0], $matches, PREG_SET_ORDER, 0);
-        $filenameDNIDOS = $formdata["dnidos"] . $matches[0][0];
-        $dnidos = wp_upload_bits($filenameDNIDOS, null, file_get_contents($uploaded_files["dnidos"][0]));
+        if (!empty($uploaded_files["dnidos"][0])) {
+            $filenameDNIDOS = $formdata["dnidos"] . $matches[0][0];
+            $dnidos = wp_upload_bits($filenameDNIDOS, null, file_get_contents($uploaded_files["dnidos"][0]));
+        }
 
         preg_match_all($re, $uploaded_files["cif"][0], $matches, PREG_SET_ORDER, 0);
-        $filenameCIF = $formdata["cif"] . $matches[0][0];
-        $cif = wp_upload_bits($filenameCIF, null, file_get_contents($uploaded_files["cif"][0]));
+        if (!empty($uploaded_files["cif"][0])) {
+            $filenameCIF = $formdata["cif"] . $matches[0][0];
+            $cif = wp_upload_bits($filenameCIF, null, file_get_contents($uploaded_files["cif"][0]));
+        }
 
         preg_match_all($re, $uploaded_files["candidatura"][0], $matches, PREG_SET_ORDER, 0);
-        $filenameCANDIDATURA = $formdata["candidatura"] . $matches[0][0];
-        $candidatura = wp_upload_bits($filenameCANDIDATURA, null, file_get_contents($uploaded_files["candidatura"][0]));
+        if (!empty($uploaded_files["candidatura"][0])) {
+            $filenameCANDIDATURA = $formdata["candidatura"] . $matches[0][0];
+            $candidatura = wp_upload_bits($filenameCANDIDATURA, null, file_get_contents($uploaded_files["candidatura"][0]));
+        }
 
         $candidatoMeta['urldniuno'] = $dniuno['url']; //url fichero subida
         $candidatoMeta['urldnidos'] = $dnidos['url']; //url fichero subida

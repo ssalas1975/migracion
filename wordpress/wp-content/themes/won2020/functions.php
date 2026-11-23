@@ -414,7 +414,7 @@ add_filter('run_wptexturize', '__return_false');
 
 /***************** AMP **************/
 
-//define('WON_AMP_QUERY_VAR', 'amp');
+define('WON_AMP_QUERY_VAR', 'amp');
 
 add_rewrite_endpoint(WON_AMP_QUERY_VAR, EP_ALL);
 //add_post_type_support('post', WON_AMP_QUERY_VAR);

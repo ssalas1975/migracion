@@ -218,7 +218,7 @@ require_once (ABSPATH . "wp-admin/includes/screen.php");
 
 
 			// Preset the 'visual' editor tab (This make the js editor to be instantiated - it's not null)
-			add_filter( 'wp_default_editor', create_function('', 'return "tmce";') );
+			add_filter( 'wp_default_editor', function() { return "tmce"; } );
 
 
 			// Add custom style to editor iframe content

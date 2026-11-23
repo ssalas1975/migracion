@@ -22,32 +22,36 @@ add_action('wp_enqueue_scripts', 'ut_child_theme_enqueue_styles');
 /******************** GONATURAL *********************************************/
 switch_to_blog(get_current_blog_id());
 
-add_action('wpcf7_init', 'custom_add_shortcode');
-function custom_add_shortcode()
-{
-    wpcf7_add_shortcode('event', 'custom_shortcode_handler');
+// Only add shortcode if Contact Form 7 is available
+if (function_exists('wpcf7_add_shortcode')) {
+    add_action('wpcf7_init', 'custom_add_shortcode');
+    function custom_add_shortcode()
+    {
+        wpcf7_add_shortcode('event', 'custom_shortcode_handler');
+    }
 }
 function custom_shortcode_handler($atts)
 {
-    $idpost = $atts[values][0];
+    // Check if array exists to avoid notices
+    if (!isset($atts['values']) || !is_array($atts['values']) || empty($atts['values'])) {
+        return '';
+    }
+    $idpost = $atts['values'][0];
     $evento = get_post_meta($idpost, 'data_event');
+    if (!is_array($evento) || empty($evento)) {
+        return '';
+    }
     $users = get_users(array('meta_key' => 'idevento'));
     $count = 0;
     foreach ($users as $user) {
         $data = get_user_meta($user->ID, 'idevento');
         //print_r($data);
-        if (in_array($idpost, $data[0])) {
+        if (is_array($data) && !empty($data[0]) && in_array($idpost, $data[0])) {
             $count++;
         }
     }
-    $totalpax = $evento[0]['asistentes'];
+    $totalpax = isset($evento[0]['asistentes']) ? (int)$evento[0]['asistentes'] : 0;
     if ($totalpax - $count > 0) {
-        return '<p class="checkBox clases">
-            <font class="verde">' . $evento[0]["hora"] . 'H</font> - ' . $evento[0]['nombre'] . ' ' . $evento[0]["docente"] . '
-            <span class="wpcf7-form-control-wrap checkbox-455"><span class="wpcf7-form-control wpcf7-checkbox">
-            <span class="wpcf7-list-item first last"><label><span class="wpcf7-list-item-label"></span>&nbsp;
-            <input type="checkbox" name="idevento[]"  value="' . $atts[values][0] . '"></label></span></span></span></p>';
-    } else {
         return '<p class="checkBox clases">
 <font style="color: #a1a1a1; display: block; width: 75%">' . $evento[0]["hora"] . 'H - ' . $evento[0]['nombre'] . ' ' . $evento[0]["docente"] . '</font>
 <aviso style="background: #e9e9e9; padding: 5px; float: right; margin-top: -20px">AFORO COMPLETO</aviso>

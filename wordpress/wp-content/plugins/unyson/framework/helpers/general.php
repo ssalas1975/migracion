@@ -484,7 +484,7 @@ function fw_attr_to_html( array $attr_array ) {
 function fw_stripslashes_deep_keys( $value ) {
 	static $magic_quotes = null;
 	if ( $magic_quotes === null ) {
-		$magic_quotes = get_magic_quotes_gpc();
+		$magic_quotes = function_exists('get_magic_quotes_gpc') ? get_magic_quotes_gpc() : false;
 	}
 
 	if ( is_array( $value ) ) {
@@ -516,7 +516,7 @@ function fw_stripslashes_deep_keys( $value ) {
 function fw_addslashes_deep_keys( $value ) {
 	static $magic_quotes = null;
 	if ( $magic_quotes === null ) {
-		$magic_quotes = get_magic_quotes_gpc();
+		$magic_quotes = function_exists('get_magic_quotes_gpc') ? get_magic_quotes_gpc() : false;
 	}
 
 	if ( is_array( $value ) ) {

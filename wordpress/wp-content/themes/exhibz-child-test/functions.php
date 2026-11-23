@@ -85,10 +85,10 @@ function change_image_urls_to_cdn($data, $context)
 {
     function replace_in_array($find, $replace, &$array)
     {
-        array_walk_recursive($array, function (&$array) use ($find, $replace) {
-            $pos = strpos($array, $find);
+        array_walk_recursive($array, function (&$value, $key) use ($find, $replace) {
+            $pos = strpos($value, $find);
             if ($pos !== false) {
-                $array = str_replace($find, $replace, $array);
+                $value = str_replace($find, $replace, $value);
             }
         });
         return $array;

@@ -189,7 +189,7 @@ class FW_WP_Editor_Manager {
 					&&
 					!empty($setting)
 					&&
-					in_array($setting{0}, array('[', '{'), true)
+					in_array($setting[0], array('[', '{'), true)
 					&&
 					! is_null($decoded = json_decode($setting))
 				) {

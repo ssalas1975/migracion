@@ -121,7 +121,7 @@ class UT_Menu_Manager {
 			'new_item' => sprintf( __( 'New %s' , 'ut_table_lang' ), __( 'Card' , 'ut_table_lang' ) ),
 			'all_items' => sprintf( __( 'All %s' , 'ut_table_lang' ), __( 'UT Menu Cards' , 'ut_table_lang' ) ),
 			'view_item' => sprintf( __( 'View %s' , 'ut_table_lang' ), __( 'Cards' , 'ut_table_lang' ) ),
-			'search_items' => sprintf( __( 'Search %a' , 'ut_table_lang' ), __( 'Cards' , 'ut_table_lang' ) ),
+			'search_items' => sprintf( __( 'Search %s' , 'ut_table_lang' ), __( 'Cards' , 'ut_table_lang' ) ),
 			'not_found' =>  sprintf( __( 'No %s Found' , 'ut_table_lang' ), __( 'Cards' , 'ut_table_lang' ) ),
 			'not_found_in_trash' => sprintf( __( 'No %s Found In Trash' , 'ut_table_lang' ), __( 'Posts' , 'ut_table_lang' ) ),
 			'parent_item_colon' => '',

@@ -67,8 +67,8 @@ class SafeGlobalFunctionProxy {
 	 */
 	public static function __callStatic( $name, $arguments ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- Custom error handler is necessary to convert errors to exceptions
-		set_error_handler(
-			static function ( int $type, string $message, string $file, int $line ) {
+		$error_handler_stack = set_error_handler(
+			static function ( int $type, string $message, string $file, int $line ) use ( &$error_handler_stack ) {
 				if ( __FILE__ === $file ) {
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Used to adjust file and line number for accurate error reporting
 					$trace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 3 );
@@ -88,7 +88,7 @@ class SafeGlobalFunctionProxy {
 			self::log_wrapper_error( $name, $e->getMessage(), $arguments );
 			$results = null;
 		} finally {
-			restore_error_handler();
+			restore_error_handler( $error_handler_stack );
 		}
 
 		return $results;

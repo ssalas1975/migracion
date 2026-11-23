@@ -41,6 +41,11 @@ class Frontend extends Base {
 
 		// The regex pattern parses placeholders located in the frontend _templates.scss file.
 		$file_content = preg_replace_callback( '/ELEMENTOR_SCREEN_([A-Z_]+)(?:_(MIN|MAX|NEXT))/', function ( $placeholder_data ) use ( $breakpoints_keys, $breakpoints ) {
+			$placeholder = $placeholder_data[0];
+			$placeholder = str_replace( 'ELEMENTOR_SCREEN_', '', $placeholder );
+			if ( ! in_array( $placeholder, $breakpoints_keys, true ) ) {
+				return false;
+			}
 			// Handle BC for legacy template files and Elementor Pro builds.
 			$placeholder_data = $this->maybe_convert_placeholder_data( $placeholder_data );
 

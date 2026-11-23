@@ -96,7 +96,7 @@ function bybe_remove_yoast_json($data)
     $oldUrl = "https://ms-mhsites.srv.vocento.in/abc-top-100/";
     $newUrl = "https://top.abc.es/";
 
-    array_walk_recursive($data, function (&$item) use ($oldUrl, $newUrl) {
+    array_walk_recursive($data, function (&$item, $key) use ($oldUrl, $newUrl) {
         if (is_string($item)) {
             $item = str_replace($oldUrl, $newUrl, $item);
         }
@@ -115,7 +115,7 @@ function example_change_website($data)
     $oldUrl = "https://ms-mhsites.srv.vocento.in/abc-top-100/";
     $newUrl = "https://top.abc.es/";
 
-    array_walk_recursive($data, function (&$item) use ($oldUrl, $newUrl) {
+    array_walk_recursive($data, function (&$item, $key) use ($oldUrl, $newUrl) {
         if (is_string($item)) {
             $item = str_replace($oldUrl, $newUrl, $item);
         }
@@ -138,7 +138,7 @@ function replace_domain_name_to_breadcrumb_schema($piece)
 {
     $oldUrl = "https://ms-mhsites.srv.vocento.in/abc-top-100/";
     $newUrl = "https://top.abc.es/";
-    array_walk_recursive($piece, function (&$item) use ($oldUrl, $newUrl) {
+    array_walk_recursive($piece, function (&$item, $key) use ($oldUrl, $newUrl) {
         if (is_string($item)) {
             $item = str_replace($oldUrl, $newUrl, $item);
         }

@@ -485,10 +485,11 @@ if (!function_exists('ut_clean_section_id')) {
 /******************** GONATURAL *********************************************/
 switch_to_blog(get_current_blog_id());
 
-add_action('wpcf7_init', 'custom_add_shortcode');
-function custom_add_shortcode()
-{
-    wpcf7_add_shortcode('event', 'custom_shortcode_handler');
+add_action('wp_enqueue_scripts', 'custom_add_shortcode_on_enqueue', 20);
+function custom_add_shortcode_on_enqueue() {
+    if (function_exists('wpcf7_add_shortcode')) {
+        wpcf7_add_shortcode('event', 'custom_shortcode_handler');
+    }
 }
 function custom_shortcode_handler($atts)
 {

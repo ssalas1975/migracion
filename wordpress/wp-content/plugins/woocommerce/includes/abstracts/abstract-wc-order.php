@@ -1338,7 +1338,7 @@ abstract class WC_Abstract_Order extends WC_Abstract_Legacy_Order {
 					}
 
 					// Set the back-reference to the parent order on each loaded item.
-					array_walk( $read_items, fn( $item ) => $item instanceof WC_Order_Item && $item->set_order( $this ) );
+					array_walk( $read_items, fn( $item ) => $item instanceof WC_Order_Item ? $item->set_order( $this ) : null );
 
 					$this->items[ $group ] = $read_items;
 				}

@@ -57,7 +57,8 @@ class configuradorEventosClass {
         <?php
         foreach ($posts as $post) {
             $evento = get_post_meta($post->ID, 'data_event');
-            echo '
+            if (!empty($evento)) {
+                echo '
                 <tr> 
                     <td>' . $evento[0]['nombre'] . '</td>
                     <td>' . $evento[0]["docente"] . '</td> 
