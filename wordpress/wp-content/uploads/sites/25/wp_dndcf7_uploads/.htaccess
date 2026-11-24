@@ -11,3 +11,25 @@ Options -Indexes
     Deny from all
   </IfModule>
 </FilesMatch>
+
+# No MIME sniffing, and force download except common viewable types (email/admin links).
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Content-Disposition "attachment"
+  <FilesMatch "(?i)\.(jpe?g|png|gif|webp|pdf|txt|mp4|m4v|webm|mov|ogv|3gp|mp3|wav|ogg|oga|m4a)$">
+    Header unset Content-Disposition
+  </FilesMatch>
+</IfModule>
+
+# Media types so browsers can play them.
+<IfModule mod_mime.c>
+  AddType video/mp4 .mp4 .m4v
+  AddType video/webm .webm
+  AddType video/quicktime .mov
+  AddType video/ogg .ogv
+  AddType video/3gpp .3gp
+  AddType audio/mpeg .mp3
+  AddType audio/wav .wav
+  AddType audio/ogg .ogg .oga
+  AddType audio/mp4 .m4a
+</IfModule>

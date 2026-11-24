@@ -836,6 +836,140 @@ class td_page_generator {
         return $buffy;
     }
 
+    /**
+     * generate json-ld breadcrumbs
+     */
+    static function get_breadcrumbs_json_ld() {
+        global $post;
+        $breadcrumbs_array = array();
+
+        //posts and custom posts
+        if (is_single()) {
+            $breadcrumbs_array = self::single_breadcrumbs_array(get_the_title($post->ID));
+        }
+
+        //author page
+        if (is_author()) {
+            $part_cur_auth_obj = (get_query_var('author_name')) ? get_user_by('slug', get_query_var('author_name')) : get_userdata(get_query_var('author'));
+            $breadcrumbs_array = self::author_breadcrumbs_array($part_cur_auth_obj, true);
+        }
+
+        //category page
+        if (is_category()) {
+            $primary_category_obj = td_global::$current_category_obj;
+            $breadcrumbs_array = self::category_breadcrumbs_array($primary_category_obj);
+        }
+
+        //taxonomy
+        if (is_tax()) {
+            $current_term_obj = get_queried_object();
+            $breadcrumbs_array = self::taxonomy_breadcrumbs_array($current_term_obj);
+        }
+
+        //tag
+        if (is_tag()) {
+            $current_tag_name = single_tag_title( '', false );
+            $breadcrumbs_array = self::tag_breadcrumbs_array($current_tag_name, true);
+        }
+
+        //date archive
+        if (is_date()) {
+            $breadcrumbs_array = self::archive_breadcrumbs_array();
+        }
+
+        //home
+        if (is_home()) {
+            $breadcrumbs_array = self::home_breadcrumbs_array(true);
+        }
+
+        //page
+        if (!is_front_page() && is_page()) {
+            $breadcrumbs_array = self::page_breadcrumbs_array(get_the_title());
+        }
+
+        //attachment
+        if (is_attachment()) {
+            if (!empty($post->post_parent) and !empty($post->post_title)) {
+                $breadcrumbs_array = self::attachment_breadcrumbs_array($post->post_parent, $post->post_title);
+            }
+        }
+
+        //search
+        if (is_search()) {
+            $breadcrumbs_array = self::search_breadcrumbs_array();
+        }
+
+
+        //create json-ld script
+        if (isset($breadcrumbs_array[0]['url'])) {
+            $buffy = '';
+            $breadcrumbs_count = count($breadcrumbs_array);
+
+            //script start
+            $buffy .= '<script type="application/ld+json">
+                        {
+                            "@context": "http://schema.org",
+                            "@type": "BreadcrumbList",
+                            "itemListElement": [';
+
+            //item 1
+            $buffy .=  '{
+                            "@type": "ListItem",
+                            "position": 1,
+                                "item": {
+                                "@type": "WebSite",
+                                "@id": "' . esc_url(get_home_url()) . '/",
+                                "name": "' . __td('Home', TD_THEME_NAME) . '"                                               
+                            }
+                        }';
+
+            //item 2
+            $buffy .=  ',{
+                            "@type": "ListItem",
+                            "position": 2,
+                                "item": {
+                                "@type": "WebPage",
+                                "@id": "' . $breadcrumbs_array[0]['url'] . '",
+                                "name": "' . $breadcrumbs_array[0]['display_name'] . '"
+                            }
+                        }';
+
+            if (isset($breadcrumbs_array[1]['url'])) {
+                //item 3
+                $buffy .=  ',{
+                            "@type": "ListItem",
+                            "position": 3,
+                                "item": {
+                                "@type": "WebPage",
+                                "@id": "' . $breadcrumbs_array[1]['url'] . '",
+                                "name": "' . $breadcrumbs_array[1]['display_name'] . '"                                
+                            }
+                        }';
+            }
+
+            if (isset($breadcrumbs_array[2]['url'])) {
+                //item 4
+                $buffy .=  ',{
+                            "@type": "ListItem",
+                            "position": 4,
+                                "item": {
+                                "@type": "WebPage",
+                                "@id": "' . $breadcrumbs_array[2]['url'] . '",
+                                "name": "' . $breadcrumbs_array[2]['display_name'] . '"                                
+                            }
+                        }';
+            }
+
+            //close script
+            $buffy .= '    ]
+                        }
+                       </script>';
+
+            //$buffy = preg_replace('/\s+/', ' ', $buffy);
+            echo $buffy;
+        }
+    }
+
 
 
 
