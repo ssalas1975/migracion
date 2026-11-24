@@ -81,28 +81,17 @@ define( 'DB_COLLATE', getenv_docker('WORDPRESS_DB_COLLATE', '') );
  *
  * @since 2.6.0
  */
-define( 'AUTH_KEY',         getenv_docker('WORDPRESS_AUTH_KEY',         '0b19e4b7a572bdf4850769bddbd357313edb3424') );
-define( 'SECURE_AUTH_KEY',  getenv_docker('WORDPRESS_SECURE_AUTH_KEY',  'a3d5ab4af4bbb069fd37a98853a978214b5ea476') );
-define( 'LOGGED_IN_KEY',    getenv_docker('WORDPRESS_LOGGED_IN_KEY',    'b038aa34fbc0d869f29dd65da9f688041aa873ba') );
-define( 'NONCE_KEY',        getenv_docker('WORDPRESS_NONCE_KEY',        '51643395acdc9ca29361cebbbe7775b2518e05f3') );
-define( 'AUTH_SALT',        getenv_docker('WORDPRESS_AUTH_SALT',        'fc00d523ea07097d80aa14fc6834946b77a99fa0') );
-define( 'SECURE_AUTH_SALT', getenv_docker('WORDPRESS_SECURE_AUTH_SALT', 'e38601a3a873bc1169c8ceda278824720a48ac94') );
-define( 'LOGGED_IN_SALT',   getenv_docker('WORDPRESS_LOGGED_IN_SALT',   '93410910ba77a6764030cbf3391e6b65cd9f33c6') );
-define( 'NONCE_SALT',       getenv_docker('WORDPRESS_NONCE_SALT',       '60bb0560b49ec6dd4459bc7166b3c95f7313102c') );
+define( 'AUTH_KEY',         getenv_docker('WORDPRESS_AUTH_KEY',         '4708b821d95025e71e1f5281325b0c3c7cbd905b') );
+define( 'SECURE_AUTH_KEY',  getenv_docker('WORDPRESS_SECURE_AUTH_KEY',  'a233622c1e179db41055dbbe444fd061fb583522') );
+define( 'LOGGED_IN_KEY',    getenv_docker('WORDPRESS_LOGGED_IN_KEY',    '99aecb5d9632eb330d0589d7ef27ab649cbe8f2d') );
+define( 'NONCE_KEY',        getenv_docker('WORDPRESS_NONCE_KEY',        '70db8a446e1fecdc72378901af636ae20caf2ab9') );
+define( 'AUTH_SALT',        getenv_docker('WORDPRESS_AUTH_SALT',        '2f096aec200a86d2f2244c1a40824bed4fa92d27') );
+define( 'SECURE_AUTH_SALT', getenv_docker('WORDPRESS_SECURE_AUTH_SALT', 'f80d18318212ceda3f51ed1f2d0ec59b95812dae') );
+define( 'LOGGED_IN_SALT',   getenv_docker('WORDPRESS_LOGGED_IN_SALT',   '2e956206eedd711882b6b845c43639737a98f0ac') );
+define( 'NONCE_SALT',       getenv_docker('WORDPRESS_NONCE_SALT',       'dd916c48c35de49f842dd849c97b62bfc6e82b41') );
 // (See also https://wordpress.stackexchange.com/a/152905/199287)
 
 /**#@-*/
-
-/**
- * Encryption key for the Secrets API.
- *
- * Secrets stored by WordPress and plugins are encrypted with this key. Change it to
- * a unique phrase, different from the keys and salts above. Unlike them, it must not
- * be changed once secrets are stored: that makes every stored secret unreadable.
- *
- * @since 7.2.0
- */
-define( 'WP_SECRETS_KEY', getenv_docker('WORDPRESS_SECRETS_KEY', '32dbce47eaa87ce0ed420683f11d40e11166d4b1') );
 
 /**
  * WordPress database table prefix.
@@ -130,7 +119,6 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
  *
  * @link https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
  */
-// define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
 define( 'WP_DEBUG', true );
 
 /* Add any custom values between this line and the "stop editing" line. */
@@ -146,16 +134,15 @@ if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 	eval($configExtra);
 }
 
-define( 'DUPLICATOR_AUTH_KEY', 'nf6cG3+oCdr:Nu)!%%P-%(SSRH#><2H=!s} @I2W;05r:$j3#>]o2s|;C~7VNITW' );
 /* That's all, stop editing! Happy publishing. */
 /* Multisite */
-define( 'WP_ALLOW_MULTISITE', true );
 define( 'MULTISITE', true );
 define( 'SUBDOMAIN_INSTALL', false );
 define( 'DOMAIN_CURRENT_SITE', 'localhost:8080' );
 define( 'PATH_CURRENT_SITE', '/' );
 define( 'SITE_ID_CURRENT_SITE', 1 );
 define( 'BLOG_ID_CURRENT_SITE', 1 );
+
 
 /** Absolute path to the WordPress directory. */
 if ( ! defined( 'ABSPATH' ) ) {

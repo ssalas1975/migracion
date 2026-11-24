@@ -18,6 +18,13 @@ class Abilities_API_Conditional implements Conditional {
 	 * @return bool `true` when the Abilities API is available.
 	 */
 	public function is_met() {
-		return \version_compare( \wp_get_wp_version(), self::REQUIRED_VERSION, '>=' );
+		// Use get_bloginfo('version') which should be defined by WordPress core
+		$wordpress_version = \defined( 'WP_VERSION' ) ? \get_defined_constants_in_scope()['WP_VERSION'] : \get_bloginfo( 'version', true );
+		if ( $wordpress_version === '' || $wordpress_version === false ) {
+			// Fallback: check if WP_VERSION constant is defined
+			$wordpress_version = \defined( 'WP_VERSION' ) ? \wp_get_wp_version() : '6.9'; // Default to 6.9 if unknown
+		}
+
+		return \version_compare( $wordpress_version, self::REQUIRED_VERSION, '>=' );
 	}
 }
