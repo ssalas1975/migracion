@@ -1,1 +1,0 @@
-This is only an example child theme. Please read this article here to learn more about child theme: http://codex.wordpress.org/Child_Themes
