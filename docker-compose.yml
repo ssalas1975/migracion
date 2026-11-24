@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wordpress:latest
+    image: wordpress:php8.4
     restart: always
     ports:
       - "8080:80"

@@ -1,0 +1,100 @@
+<?php
+
+defined( 'ABSPATH' ) || exit;
+$elementor_post_types = get_option('elementor_cpt_support', []);
+$current_event_owner_id = class_exists( '\\Eventin\\AccessControl\\Ownership' )
+    ? \Eventin\AccessControl\Ownership::current_user_owner_id()
+    : get_current_user_id();
+
+$data = [
+    'ajax_url'                    => admin_url( 'admin-ajax.php' ),
+    'site_url'                    => site_url(),
+    'razorpay_webhook_url'        => rest_url( 'eventin/v2/razorpay-webhook' ),
+    'fluentcart_refund_sync'      => etn_fluentcart_syncs_refunds(),
+    'admin_url'                   => admin_url(),
+    'admin_email'                 => '',
+    'assets_url'                  => \Wpeventin::plugin_url("assets"),
+    'evnetin_pro_active'          => ( class_exists( 'Wpeventin_Pro' ) ) ? true : false,
+    'locale_name'                 => strtolower( str_replace( '_', '-', get_locale() ) ),
+    'start_of_week'               => get_option( 'start_of_week' ),
+    'calendar_start_of_week'      => get_option( 'start_of_week' ), // Week start for admin calendar view (0 = Sun, 1 = Mon, ..., 6 = Sat). Override via etn_locale_vars to customize.
+    // Dokan staff submit and list events for their store owner, not for the
+    // staff WordPress account. For every other user this remains their own id.
+    'author_id'                   => $current_event_owner_id,
+    'ticket_scanner_link'         => admin_url( '/edit.php?post_type=etn-attendee' ),
+    'post_id'                     => get_the_ID(),
+    'zoom_connection_check_nonce' => wp_create_nonce( 'zoom_connection_check_nonce' ),
+    'ticket_status_nonce'         => wp_create_nonce( 'ticket_status_nonce_value' ),
+    'zoom_module'                 => etn_get_option( 'etn_zoom_api' ) ? 'no' : 'yes',
+    'attendee_module'             => etn_get_option( 'attendee_registration' ) ? 'no' : 'yes',
+    'currency_list'               => etn_get_currency(),
+    'date_format'                 => get_option( 'date_format' ),
+    'date_format_string'          => date_i18n( get_option( 'date_format' ) ),
+    'time_format'                 => get_option( 'time_format' ),
+    'time_format_string'          => date_i18n( get_option( 'time_format' ) ),
+    'timezone_list'               => etn_get_wp_timezones(),
+    'version'                     => \Wpeventin::version(),
+    'payment_option_woo'          => etn_get_option( 'sell_tickets' ),
+    'payment_option_stripe'       => etn_get_option( 'etn_sells_engine_stripe' ),
+    'payment_option_paypal'       => etn_get_option( 'paypal_status' ),
+    'payment_option_razorpay'     => etn_is_razorpay_enabled(),
+    'payment_option_surecart'     => etn_get_option( 'surecart_status' ),
+    'payment_option_fluentcart'   => etn_get_option( 'fluentcart_status' ), '',
+    'payment_option_local_payment' => etn_get_option( 'local_payment_status' ),
+    'currency_symbol'             => etn_currency_symbol(),
+    'nonce'                       => wp_create_nonce('wp_rest'),
+    'etn_event_ajax_nonce'        => wp_create_nonce('etn_event_ajax'),
+    'timetics_pro_active'         => class_exists( 'TimeticsPro' ) ? true : false ,
+    'etn_purchase_login_required' => etn_get_option( 'etn_purchase_login_required' ),
+    'etn_hide_seats_from_details' => etn_get_option( 'etn_hide_seats_from_details' ),
+    'etn_primary_color'           => etn_get_option( 'etn_primary_color' ),
+    'etn_secondary_color'         => etn_get_option( 'etn_secondary_color' ),
+    'decimal_separator'           => etn_get_decimal_separator(),
+    'thousand_separator'          => etn_get_thousand_separator(),
+    'decimals'                    => etn_get_decimals(),
+    'price_format'                => etn_get_price_format(),
+    'currency_position'           => etn_get_currency_position(),
+    'elementor_supported'         => class_exists( '\Elementor\Plugin' ) && in_array( 'etn-template', $elementor_post_types ),
+    // Events (etn) enabled in Elementor > Settings > Post Types; lets the create screen show "Edit with Elementor" before the event has an ID.
+    'etn_elementor_supported'     => did_action( 'elementor/loaded' ) && is_array( $elementor_post_types ) && in_array( 'etn', $elementor_post_types, true ),
+    'bricks_supported'            => ( 'bricks' === wp_get_theme()->get( 'Template' ) || 'Bricks' === wp_get_theme()->get( 'Name' ) ),
+    'selected_template_builder'   => etn_get_selected_template_builder(),
+    // Ids of the free starter templates, from \Eventin\Template\StaticTemplateConfig.
+    // The Template Builder decides lock state from this list (anything not here is
+    // treated as pro), instead of trusting the remote server's is_pro flag.
+    'eventin_free_template_ids'   => \Eventin\Template\StaticTemplateConfig::free_ids(),
+    // Default (static) starter templates, from the local single source of truth.
+    // The Template Builder renders its "Default" cards from this list instead of
+    // the remote template server, so every configured default (e.g. certificate)
+    // shows and stays in sync with \Eventin\Template\StaticTemplateConfig.
+    'eventin_static_templates'    => \Eventin\Template\StaticTemplateConfig::localized(),
+    'is_custom_template'          => (bool) get_post_meta( get_the_ID(), 'is_custom', true ),
+    'is_dokan_enabled'            => ( \Etn\Core\Addons\Helper::instance()->check_active_module( 'dokan' ) ) ? true : false,
+    'seat_map'                    => ( \Etn\Core\Addons\Helper::instance()->check_active_module( 'seat_map' ) ) ? true : false,
+    'rsvp'                        => ( \Etn\Core\Addons\Helper::instance()->check_active_module( 'rsvp' ) ) ? true : false,
+    // The admin sidebar is rendered by PHP, so toggling Attendees Registration in
+    // the settings SPA cannot add the "Attendees" item without a reload. The SPA
+    // inserts it itself (see syncAttendeeMenu), and needs the same capability the
+    // server would have gated the item on — a user with etn_manage_setting does
+    // not necessarily hold etn_manage_attendee.
+    'can_manage_attendee'         => current_user_can( 'etn_manage_attendee' ),
+];
+
+// Expose the logged-in user's billing details so the checkout form can prefill them.
+if ( is_user_logged_in() ) {
+    $current_user  = wp_get_current_user();
+    $billing_phone = get_user_meta( $current_user->ID, 'billing_phone', true );
+
+    $data['current_user'] = [
+        'first_name' => $current_user->first_name,
+        'last_name'  => $current_user->last_name,
+        // Always populated, unlike first/last name, which most WP accounts leave
+        // blank. The Aisentic consent dialog registers with it — the provider
+        // rejects a nameless account.
+        'display_name' => $current_user->display_name,
+        'email'      => $current_user->user_email,
+        'phone'      => $billing_phone ? $billing_phone : '',
+    ];
+}
+
+return apply_filters( 'etn_locale_vars', $data );

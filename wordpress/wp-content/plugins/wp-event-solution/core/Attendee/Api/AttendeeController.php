@@ -1,0 +1,1489 @@
+<?php
+
+/**
+ * Attendee Api Class
+ *
+ * @package Eventin\Attendee
+ */
+namespace Eventin\Attendee\Api;
+
+defined( 'ABSPATH' ) || exit;
+
+use Eventin\AccessControl\Ownership;
+use Eventin\Attendee\AttendeeExporter;
+use Eventin\Attendee\AttendeeImporter;
+use Etn\Core\Attendee\Attendee_Model;
+use Etn\Core\Event\Event_Model;
+use Eventin\Attendee\Attendee\TicketIdGenerator;
+use Eventin\Customer\CustomerModel;
+use Eventin\Emails\AttendeeCertificateEmail;
+use Eventin\Order\OrderModel;
+use Eventin\Emails\AttendeeOrderEmail;
+use Eventin\Input;
+use Eventin\Mails\Mail;
+use WP_Error;
+use WP_Query;
+use WP_REST_Controller;
+use WP_REST_Server;
+
+/**
+ * Attendee Controller Class
+ */
+class AttendeeController extends WP_REST_Controller {
+    /**
+     * Constructor for AttendeeController
+     *
+     * @return void
+     */
+    public function __construct() {
+        $this->namespace = 'eventin/v2';
+        $this->rest_base = 'attendees';
+    }
+
+    /**
+     * Check if a given request has access to get items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function register_routes() {
+        register_rest_route( $this->namespace, $this->rest_base, [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'get_items'],
+                'permission_callback' => [$this, 'get_item_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'create_item'],
+                'permission_callback' => [$this, 'create_item_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::DELETABLE,
+                'callback'            => [$this, 'delete_items'],
+                'permission_callback' => [$this, 'delete_item_permissions_check'],
+            ],
+        ] );
+	    
+	    register_rest_route(
+		    $this->namespace,
+		    '/' . $this->rest_base . '/(?P<id>[\d]+)',
+		    array(
+			    'args'   => array(
+				    'id' => array(
+					    'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+					    'type'        => 'integer',
+				    ),
+			    ),
+			    array(
+				    'methods'             => WP_REST_Server::READABLE,
+				    'callback'            => array( $this, 'get_item' ),
+				    'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				    'args'                => $this->get_collection_params(),
+			    ),
+			    array(
+				    'methods'             => WP_REST_Server::EDITABLE,
+				    'callback'            => array( $this, 'update_item' ),
+				    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				    'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+			    ),
+			    [
+				    'methods'             => WP_REST_Server::DELETABLE,
+				    'callback'            => [$this, 'delete_item'],
+				    'permission_callback' => [$this, 'delete_item_permissions_check'],
+			    ],
+			    // 'allow_batch' => $this->allow_batch,
+			    'schema' => array( $this, 'get_item_schema' ),
+		    )
+	    );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/export', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'export_items'],
+                'permission_callback' => [$this, 'export_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/import', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'import_items'],
+                'permission_callback' => [$this, 'import_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)' . '/resend-ticket', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'resend_ticket'],
+                'permission_callback' => [$this, 'resend_ticket_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)' . '/send-certificate', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'send_certificate'],
+                'permission_callback' => [$this, 'send_certificate_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)/edit-info', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'get_edit_info' ],
+                'permission_callback' => [ $this, 'edit_info_permissions_check' ],
+            ],
+            [
+                'methods'             => WP_REST_Server::EDITABLE,
+                'callback'            => [ $this, 'update_edit_info' ],
+                'permission_callback' => [ $this, 'edit_info_permissions_check' ],
+            ],
+        ] );
+    }
+
+    /**
+     * Permission check for the edit-info GET and PUT routes.
+     *
+     * Extracts the token from the query param (GET) or JSON body (PUT/POST)
+     * and validates it against the stored attendee token. WordPress calls this
+     * before the main callback, so auth logic lives in one place.
+     *
+     * @param WP_REST_Request $request
+     * @return true|WP_Error
+     */
+    public function edit_info_permissions_check( $request ) {
+        $id = intval( $request['id'] );
+
+        $body  = $request->get_json_params() ?? [];
+        $token = sanitize_text_field(
+            $request->get_param( 'etn_info_edit_token' ) ?? ( $body['etn_info_edit_token'] ?? '' )
+        );
+
+        if ( ! $id || ! $token || ! \Etn\Utils\Helper::verify_attendee_edit_token( $id, $token ) ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get a collection of items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_items( $request ) {
+
+        $per_page       = ! empty( $request['per_page'] ) ? intval( $request['per_page'] ) : 20;
+        $paged          = ! empty( $request['paged'] ) ? intval( $request['paged'] ) : 1;
+        $type           = ! empty( $request['type'] ) ? sanitize_text_field( $request['type'] ) : '';
+        $event_id       = ! empty( $request['event_id'] ) ? sanitize_text_field( $request['event_id'] ) : '';
+        $payment_status = ! empty( $request['payment_status'] ) ? sanitize_text_field( $request['payment_status'] ) : '';
+        $ticket_status  = ! empty( $request['ticket_status'] ) ? sanitize_text_field( $request['ticket_status'] ) : '';
+        $ticket_id      = ! empty( $request['ticket_id'] ) ? sanitize_text_field( $request['ticket_id'] ) : '';
+
+        $search         = ! empty( $request['search'] ) ? sanitize_text_field( $request['search'] ) : '';
+
+        $args = [
+            'post_type'      => 'etn-attendee',
+            'post_status'    => ['publish'],
+            'posts_per_page' => $per_page,
+            'paged'          => $paged,
+        ];
+
+        if ( is_numeric( $search ) ) {
+            $args['p'] = $search;
+        }
+
+
+        $meta_query = [];
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            $events = $this->get_events_by_author();
+            $meta_query[] = [
+                'key'     => 'etn_event_id',
+                'value'   => $events ?: [0],
+                'compare' => 'IN',
+            ];
+        }
+
+        if ( ! empty( $event_id ) ) {
+            // A recurring parent holds no attendees of its own — they sit on its
+            // child occurrences. Expand the picked id so the parent shows the
+            // whole series, while one occurrence still shows only itself.
+            $meta_query[] = [
+                'key'     => 'etn_event_id',
+                'value'   => etn_expand_event_filter_ids( $event_id ),
+                'compare' => 'IN',
+            ];
+        }
+
+        if ( ! empty( $payment_status ) ) {
+            $meta_query[] = [
+                'key'     => 'etn_status',
+                'value'   => $payment_status,
+                'compare' => '=',
+            ];
+        }
+
+        if ( ! empty( $ticket_status ) ) {
+            $meta_query[] = [
+                'key'     => 'etn_attendeee_ticket_status',
+                'value'   => $ticket_status,
+                'compare' => '=',
+            ];
+        }
+
+        if ( ! empty( $ticket_id ) ) {
+            $meta_query[] = [
+                'key'     => 'etn_unique_ticket_id',
+                'value'   => $ticket_id,
+                'compare' => '=',
+            ];
+        }
+
+        if ( ! empty( $meta_query ) ) {
+            $meta_query['relation'] = 'AND';
+
+            $args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query 
+        }
+
+        if ( $search && ! is_numeric( $search ) ) {
+            // $args['s'] = $search;
+
+            $meta_query = array(
+                'relation' => 'OR', // 'OR' means any meta key can match
+                array(
+                    'key'     => 'etn_name',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'etn_email',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'etn_phone',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'ticket_name',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'etn_event_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'etn_status',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'order_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'etn_attendeee_ticket_status',
+                    'value'   => $search,
+                    'compare' => '='
+                ),
+                array(
+                    'key'     => 'etn_unique_ticket_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'eventin_order_id',
+                    'value'   => $search,
+                    'compare' => 'LIKE'
+                ),
+            );
+
+            $args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query 
+        }
+
+        $attendees = [];
+
+        $post_query   = new WP_Query();
+        $query_result = $post_query->query( $args );
+        $total_posts  = $post_query->found_posts;
+
+        if ( $query_result ) {
+            // Prime the WordPress meta cache for all posts in a single DB query,
+            // so every subsequent get_post_meta() call in the loop is a cache hit.
+            update_meta_cache( 'post', wp_list_pluck( $query_result, 'ID' ) );
+        }
+
+        $currency_cache = [];
+
+        foreach ( $query_result as $post ) {
+            $attendee  = new Attendee_Model( $post->ID );
+            $post_data = $this->prepare_item_for_response( $attendee, $request );
+
+            $post_data['post_status'] = get_post_status( $post->ID );
+
+            // Cache currency/symbol per order to avoid repeated meta queries.
+            $order_id = $post_data['eventin_order_id'] ?? '';
+            if ( $order_id && ! isset( $currency_cache[ $order_id ] ) ) {
+                $currency_cache[ $order_id ] = [
+                    'currency'        => get_post_meta( $order_id, 'currency', true ),
+                    'currency_symbol' => get_post_meta( $order_id, 'currency_symbol', true ),
+                    // Order-level coupon so the attendee preview can note it (the
+                    // per-ticket price shown is the gross sticker; the coupon discount
+                    // applies to the order total).
+                    'coupon_code'     => get_post_meta( $order_id, 'coupon_code', true ),
+                    'discount_total'  => get_post_meta( $order_id, 'discount_total', true ),
+                ];
+            }
+            $cached_currency              = $order_id ? ( $currency_cache[ $order_id ] ?? [] ) : [];
+            $post_data['currency']        = ! empty( $cached_currency['currency'] ) ? $cached_currency['currency'] : etn_currency();
+            $post_data['currency_symbol'] = ! empty( $cached_currency['currency_symbol'] )
+                ? html_entity_decode( $cached_currency['currency_symbol'], ENT_QUOTES, 'UTF-8' )
+                : html_entity_decode( etn_currency_symbol() );
+            $post_data['coupon_code']     = ! empty( $cached_currency['coupon_code'] ) ? $cached_currency['coupon_code'] : '';
+            $post_data['discount_total']  = ! empty( $cached_currency['discount_total'] ) ? (float) $cached_currency['discount_total'] : 0;
+
+            $attendees[] = $this->prepare_response_for_collection( $post_data );
+        }
+
+        $response = rest_ensure_response( [
+            'items' => $attendees,
+            'total_items' => $total_posts,
+            'paged' => $paged,
+            'per_page' => $per_page
+        ] );
+
+        $response->header( 'X-WP-Total', $total_posts );
+
+        return $response;
+    }
+
+    /**
+     * Get one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_item( $request ) {
+        $id       = intval( $request['id'] );
+        $attendee = new Attendee_Model( $id );
+
+        $item = $this->prepare_item_for_response( $attendee, $request );
+
+        $response = rest_ensure_response( $item );
+
+        return $response;
+    }
+
+    /**
+     * Check if a given request has access to read attendees.
+     *
+     * This callback serves BOTH the collection route and `/attendees/{id}`.
+     *
+     * Attendee rows carry the buyer's name, email and phone. `get_items()` has
+     * always scoped the listing to the caller's own events, but the per-id read
+     * checked only `etn_manage_attendee`, so the same PII the customers table
+     * holds was readable one id at a time — and, via `/attendees/export`, in
+     * bulk. That made the Finding 5 lockdown of GET /customers moot.
+     *
+     * The capability still gates access to the feature; ownership of the
+     * specific attendee decides whether a per-id call may proceed.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function get_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        $attendee_id = Ownership::route_subject_id( $request );
+
+        // Collection route: get_items() author-scopes the query itself.
+        if ( ! $attendee_id ) {
+            return true;
+        }
+
+        return Ownership::can_manage_attendee( $attendee_id );
+    }
+
+    /**
+     * Creates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function create_item( $request ) {
+        $prepared_item = $this->prepare_item_for_database( $request );
+
+        if ( is_wp_error( $prepared_item ) ) {
+            return $prepared_item;
+        }
+        
+
+        $prepared_item['etn_info_edit_token'] = \Etn\Utils\Helper::generate_secure_token();
+        $prepared_item['etn_unique_ticket_id'] = TicketIdGenerator::generate_ticket_id();
+
+        $event  = new Event_Model( $prepared_item['etn_event_id'] );
+
+        if ( $event->is_expaired() ) {
+            return new WP_Error(
+                'event_expired',
+                __( 'Please select another event. This event is already expired.', 'wp-event-solution' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        // Validate global stock before creating order.
+        $order_tickets = [
+            [
+                'ticket_slug'     => $prepared_item['ticket_slug'] ?? '',
+                'ticket_quantity' => 1,
+            ]
+        ];
+        $stock_validation = etn_validate_event_tickets( $prepared_item['etn_event_id'], $order_tickets );
+        if ( is_wp_error( $stock_validation ) ) {
+            return $stock_validation;
+        }
+
+        // Create customer.
+        $customer = new CustomerModel();
+        $customer->create( $this->prepare_customer_data( $request ) );
+
+        // Create order on attendee create.
+        $order = new OrderModel();
+        $order->create( $this->prepare_order_data( $request, $customer->id ) );
+        $prepared_item['eventin_order_id'] = $order->id;
+
+        $prepared_item['etn_info_edit_token'] = \Etn\Utils\Helper::generate_secure_token();
+
+        // Create attendee.
+        $attendee = new Attendee_Model();
+        $attendee->set_fields( $prepared_item );
+        $created  = $attendee->create( $prepared_item );
+
+        if ( ! $created ) {
+            return new WP_Error(
+                'attendee_create_error',
+                __( 'Attendee can not be created.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        $item = $this->prepare_item_for_response( $attendee, $request );
+
+        do_action( 'eventin_attendee_created', $attendee, $request );
+
+        $response = rest_ensure_response( $item );
+        $response->set_status( 201 );
+
+        return $response;
+    }
+
+    /**
+     * Checks if a given request has access to create an attendee.
+     *
+     * Creating an attendee books a seat on the event named in the payload and
+     * spawns an order against it, so the caller must own that event. Without
+     * this an organizer could inject guests into — and consume stock on —
+     * anyone else's event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+     */
+    public function create_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        $input    = json_decode( $request->get_body(), true );
+        $event_id = ! empty( $input['etn_event_id'] ) ? absint( $input['etn_event_id'] ) : 0;
+
+        // No event named: let the handler return its own validation error.
+        if ( ! $event_id ) {
+            return true;
+        }
+
+        return Ownership::can_manage_post( $event_id, 'etn' );
+    }
+
+    /**
+     * Updates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function update_item( $request ) {
+        $prepared_item = $this->prepare_item_for_database( $request );
+
+        $order_id = get_post_meta( $request['id'], 'eventin_order_id', true );
+        $previous_status = get_post_meta( $request['id'], 'etn_status', true );
+        $current_status = $prepared_item['etn_status'];
+
+        if ( $current_status == 'success' && $previous_status != 'success' ) {
+            $order_status = get_post_meta( $order_id, 'status', true );
+            if ($order_status != 'completed') {
+                return new WP_Error(
+                    'attendee_update_error',
+                    __('Attendee status can not be success if order status is not completed.', 'wp-event-solution'),
+                    array('status' => 500)
+                );
+            }
+        }
+
+        if ( $current_status == 'failed' && $previous_status != 'failed' ) {
+            $order_status = get_post_meta( $order_id, 'status', true );
+            if ($order_status == 'completed') {
+                return new WP_Error(
+                    'attendee_update_error',
+                    __('You cannot set attendee status to failed if the order is completed.', 'wp-event-solution'),
+                    array('status' => 500)
+                );
+            }
+        }
+
+        if ( is_wp_error( $prepared_item ) ) {
+            return $prepared_item;
+        }
+
+        $attendee = new Attendee_Model( $request['id'] );
+        $attendee->set_fields( $prepared_item );
+        $updated  = $attendee->update( $prepared_item );
+
+        if ( ! $updated ) {
+            return new WP_Error(
+                'attendee_update_error',
+                __( 'Attendee can not be updated.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        $item = $this->prepare_item_for_response( $attendee, $request );
+
+        do_action( 'eventin_attendee_updated', $attendee, $request );
+
+        $response = rest_ensure_response( $item );
+
+        return $response;
+    }
+
+    /**
+     * Checks if a given request has access to update an attendee.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+     */
+    public function update_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        $attendee_id = Ownership::route_subject_id( $request );
+
+        if ( ! Ownership::can_manage_attendee( $attendee_id ) ) {
+            return false;
+        }
+
+        // The body may also MOVE the attendee: prepare_item_for_database() writes
+        // `etn_event_id` from the raw body. Without this an organizer could put
+        // their own attendee (and a ticket) on another organizer's event.
+        $input    = json_decode( (string) $request->get_body(), true );
+        $event_id = is_array( $input ) && ! empty( $input['etn_event_id'] ) ? absint( $input['etn_event_id'] ) : 0;
+
+        if ( $event_id && $event_id !== absint( get_post_meta( $attendee_id, 'etn_event_id', true ) ) ) {
+            return Ownership::can_manage_post( $event_id, 'etn' );
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_item( $request ) {
+        $id = intval( $request['id'] );
+
+        $attendee = new Attendee_Model( $id );
+        $previous = $this->prepare_item_for_response( $attendee, $request );
+
+        do_action( 'eventin_attendee_before_delete', $attendee );
+
+
+        $trashed  = $attendee->trash_post();
+		
+        $response = new \WP_REST_Response();
+
+        $response->set_data(
+            array(
+                'deleted'  => true,
+                'previous' => $previous,
+            )
+        );
+
+        if ( ! $trashed ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'The attendee cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        $attendee_details = $attendee->get_data();
+        $ticket_slug = $attendee_details['ticket_slug'] ?? '';
+        $event_id = $attendee_details['etn_event_id'] ?? '';
+
+        if (!empty($ticket_slug) && !empty($event_id)) {
+            $formatted_booked_tickets[] = [
+                'ticket_slug' => $ticket_slug,
+                'ticket_quantity' => 1
+            ];
+
+            \Etn\Utils\Helper::decrease_count_by_ticket_slug($formatted_booked_tickets, $event_id);
+        }
+
+
+        do_action( 'eventin_attendee_deleted', $id );
+
+        return $response;
+    }
+
+    /**
+     * Delete multiple items from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_items( $request ) {
+        $ids = ! empty( $request['ids'] ) ? $request['ids'] : [];
+
+        if ( ! $ids ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Attendee ids can not be empty.', 'wp-event-solution' ),
+                array( 'status' => 400 )
+            );
+        }
+        $count = 0;
+
+        foreach ( $ids as $id ) {
+            $attendee = new Attendee_Model( $id );
+            do_action( 'eventin_attendee_before_delete', $attendee );
+
+            if ( $attendee->trash_post() ) {
+                $count++;
+
+                $attendee_details = $attendee->get_data();
+                $ticket_slug = $attendee_details['ticket_slug'] ?? '';
+                $event_id = $attendee_details['etn_event_id'] ?? '';
+
+                if (!empty($ticket_slug) && !empty($event_id)) {
+                    $formatted_booked_tickets = [];
+                    $formatted_booked_tickets[] = [
+                        'ticket_slug' => $ticket_slug,
+                        'ticket_quantity' => 1
+                    ];
+                    
+                    \Etn\Utils\Helper::decrease_count_by_ticket_slug($formatted_booked_tickets, $event_id);
+                }
+
+                do_action('eventin_attendee_deleted', $id);
+            }
+        }
+
+        if ( $count == 0 ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Attendee cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        // translators: %1$d is the number of attendees deleted, %2$d is the total number of attendees selected.
+        $message = sprintf( __( '%1$d Attendee are deleted of %2$d', 'wp-event-solution' ), $count, count( $ids ) );
+
+        return rest_ensure_response( $message );
+    }
+
+    /**
+     * Prepare the item for create or update operation.
+     *
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|object $prepared_item
+     */
+    /**
+     * Checks if a given request has access to delete attendees.
+     *
+     * Serves the per-id route and the bulk route. The subject of a per-id
+     * request is read from the URL, never from the body, so a bulk `ids` list
+     * cannot stand in as the thing being authorised — see
+     * Ownership::route_subject_id().
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return bool
+     */
+    public function delete_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        $attendee_id = Ownership::route_subject_id( $request );
+
+        if ( $attendee_id ) {
+            return Ownership::can_manage_attendee( $attendee_id );
+        }
+
+        $ids = ! empty( $request['ids'] ) ? $request['ids'] : [];
+
+        // No ids: let delete_items() return its own "ids can not be empty" error.
+        if ( ! $ids ) {
+            return true;
+        }
+
+        return Ownership::can_manage_attendees( $ids );
+    }
+
+    /**
+     * Prepare the item for the REST response.
+     *
+     * @param mixed           $item WordPress representation of the item.
+     * @param WP_REST_Request $request Request object.
+     * @return WP_REST_Response $response
+     */
+    public function prepare_item_for_response( $item, $request ) {
+        $data =  $item->get_data();
+        $event_id = !empty($data['etn_event_id']) ? $data['etn_event_id'] : 0;
+        $data['extra_fields'] = $item->get_extra_fields();
+        $data['extra_fields_files'] = $item->get_extra_field_files();
+        // Stored keys are ASCII slugs, so non-Latin labels (Arabic, Bengali, …)
+        // collapse to `_2` and can't be humanized client-side. Ship the schema
+        // labels alongside the values.
+        $data['extra_fields_labels'] = $item->get_extra_field_labels();
+        $data['scanner_update_time'] = $item->get_scanner_update_time();
+        $data['event_extra_field'] = get_post_meta( $event_id, 'attendee_extra_fields', true );
+
+        $event_extra_field = !empty($data['event_extra_field'])?$data['event_extra_field']:[];
+        $settings_extra_field = etn_get_option( 'extra_fields', [] ) ?: etn_get_option( 'attendee_extra_fields', [] );
+
+
+        $data['event_extra_field'] = !empty($event_extra_field) ? $event_extra_field : $settings_extra_field;
+
+        // This attendee's own add-on selections. Each attendee selects independently, so
+        // read the per-attendee meta rather than the order-level aggregate — otherwise two
+        // attendees sharing a ticket variant would each show both attendees' selections.
+        $selections = $item->etn_option_selections;
+        $data['option_selections'] = is_array( $selections ) ? array_values( $selections ) : [];
+
+        return $data;
+    }
+
+    /**
+     * Prepare the item for create or update operation.
+     *
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|object $prepared_item
+     */
+    protected function prepare_item_for_database( $request ) {
+        $prepared_item = [];
+        $input_data    = json_decode( $request->get_body(), true );
+
+        if ( ! empty( $input_data['etn_name'] ) ) {
+            $prepared_item['etn_name'] = $input_data['etn_name'];
+        }
+
+        if ( ! empty( $input_data['etn_email'] ) ) {
+            $prepared_item['etn_email'] = $input_data['etn_email'];
+        }
+
+        if ( ! empty( $input_data['etn_phone'] ) ) {
+            $prepared_item['etn_phone'] = $input_data['etn_phone'];
+        }
+
+        if ( ! empty( $input_data['etn_event_id'] ) ) {
+            $prepared_item['etn_event_id'] = $input_data['etn_event_id'];
+        }
+
+        if ( ! empty( $input_data['ticket_id'] ) ) {
+            $prepared_item['etn_unique_ticket_id'] = $input_data['ticket_id'];
+        }
+
+        if ( ! empty( $input_data['ticket_name'] ) ) {
+            $prepared_item['ticket_name'] = $input_data['ticket_name'];
+        }
+
+        if ( ! empty( $input_data['ticket_slug'] ) ) {
+            $prepared_item['ticket_slug'] = $input_data['ticket_slug'];
+        }
+
+        if ( ! empty( $input_data['etn_attendeee_ticket_status'] ) ) {
+            $prepared_item['etn_attendeee_ticket_status'] = $input_data['etn_attendeee_ticket_status'];
+        }
+
+        if ( ! empty( $input_data['etn_ticket_price'] ) ) {
+            $prepared_item['etn_ticket_price'] = $input_data['etn_ticket_price'];
+        }
+
+        if ( ! empty( $input_data['etn_status'] ) ) {
+            $prepared_item['etn_status'] = $input_data['etn_status'];
+        }
+
+        if ( ! empty( $input_data['extra_fields'] ) ) {
+            $extra_fields = $this->prepare_attendee_extra_fields( $input_data['extra_fields'] );
+
+            if ( $extra_fields && is_array( $extra_fields ) ) {
+                $prepared_item = array_merge( $prepared_item, $extra_fields );
+            }
+        }
+
+        $prepared_item['post_status'] = 'publish';
+
+        return $prepared_item;
+    }
+
+    /**
+     * Prepare attendee extra fields
+     *
+     * @param   array  $extra_fields Attendee extra fields
+     *
+     * @return  array Prepare extra fields data for database
+     */
+    protected function prepare_attendee_extra_fields( $extra_fields ) {
+        $prefix = 'etn_attendee_extra_field_';
+
+        $data = [];
+
+        if ( ! is_array( $extra_fields ) ) {
+            return $data;
+        }
+
+        // Add extra fields meta key prefix.
+        foreach( $extra_fields as $key => $value ) {
+            $sanitized_key = sanitize_key( (string) $key );
+
+            if ( '' === $sanitized_key ) {
+                continue;
+            }
+
+            if ( is_array( $value ) ) {
+                $sanitized_value = map_deep( $value, 'sanitize_text_field' );
+            } else {
+                $sanitized_value = sanitize_text_field( (string) $value );
+            }
+
+            $meta_key = $prefix . $sanitized_key;
+
+            $data[ $meta_key ] = $sanitized_value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Attendee exporter
+     *
+     * @param   WP_Request  $request
+     *
+     * @return  json
+     */
+    public function export_items( $request ) {
+        $format = ! empty( $request['format'] ) ? sanitize_text_field( $request['format'] ) : '';
+
+        $ids    = ! empty( $request['ids'] ) ? $request['ids'] : '';
+
+        if ( ! $format ) {
+            return new WP_Error( 'format_error', __( 'Invalid data format', 'wp-event-solution' ) );
+        }
+
+        // Export is a bulk READ of every attendee's name, email and phone. The
+        // no-ids branch below is author-scoped by get_events_by_author(), but an
+        // explicit `ids` list was taken on trust — so gating the route on
+        // `etn_manage_attendee` alone turned one request into a dump of every
+        // organizer's buyers, walking straight around the per-id read check and
+        // around the Finding 5 lockdown of GET /customers.
+        //
+        // All-or-nothing, matching EventController::export(): a batch mixing
+        // owned and foreign ids is refused rather than silently trimmed.
+        if ( $ids ) {
+            if ( ! Ownership::can_manage_attendees( $ids ) ) {
+                return new WP_Error(
+                    'rest_forbidden',
+                    __( 'Sorry, you are not allowed to export these attendees.', 'wp-event-solution' ),
+                    [ 'status' => 403 ]
+                );
+            }
+        } else {
+            $filters    = ! empty( $request['filters'] ) && is_array( $request['filters'] ) ? $request['filters'] : [];
+            $args       = [];
+            $meta_query = [];
+
+            if ( ! empty( $filters['event_id'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'etn_event_id',
+                    'value'   => sanitize_text_field( $filters['event_id'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['payment_status'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'etn_status',
+                    'value'   => sanitize_text_field( $filters['payment_status'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['ticket_status'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'etn_attendeee_ticket_status',
+                    'value'   => sanitize_text_field( $filters['ticket_status'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['search'] ) ) {
+                $search     = sanitize_text_field( $filters['search'] );
+                $args['meta_query'] = [
+                    'relation' => 'OR',
+                    [ 'key' => 'etn_name',  'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'etn_email', 'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'etn_phone', 'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'ticket_name', 'value' => $search, 'compare' => 'LIKE' ],
+                ];
+            } elseif ( ! empty( $meta_query ) ) {
+                $meta_query['relation'] = 'AND';
+                $args['meta_query']     = $meta_query;
+            }
+
+            $ids = ( new Attendee_Model() )->get_ids( $args );
+        }
+
+        $exporter = new AttendeeExporter();
+
+        $exporter->export( $ids, $format );
+    }
+
+    /**
+     * Check export items permissions
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function export_item_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_attendee' );
+    }
+
+    /**
+     * Attendee exporter
+     *
+     * @param   WP_Request  $request
+     *
+     * @return  json
+     */
+    public function import_items( $request ) {
+        $data = $request->get_file_params();
+        $file = ! empty( $data['attendee_import'] ) ? $data['attendee_import'] : '';
+
+        if ( ! $file ) {
+            return new WP_Error( 'empty_file', __( 'You must provide a valid file.', 'wp-event-solution' ), ['status' => 409] );
+        }
+
+        $importer = new AttendeeImporter();
+        $result   = $importer->import( $file );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        $response = [
+            'message' => __( 'Successfully imported attendee', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Check permissions for import attendees
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function import_item_permissions_check( $request ) {
+        return current_user_can( 'etn_manage_attendee' );
+    }
+
+    /**
+     * Prepare order data
+     *
+     * @param   array  $data
+     *
+     * @return  array
+     */
+    public function prepare_order_data( $data, $customer_id ) {
+        $event         = new Event_Model( $data['etn_event_id'] );
+        $event_ticket = $event->get_ticket( $data['ticket_slug'] );
+
+        $total_price = $event_ticket['etn_ticket_price'] * 1;
+
+        $order_data = [
+            'customer_fname' => ! empty( $data['etn_name'] ) ? $data['etn_name'] : '',
+            'customer_lname' => '',
+            'customer_email' => ! empty( $data['etn_email'] ) ? $data['etn_email'] : '',
+            'event_id'       => ! empty( $data['etn_event_id'] ) ? $data['etn_event_id'] : '',
+            'date_time'      => gmdate('Y-m-d h:i A'),
+            'customer_id'    => $customer_id,
+            'total_price'    => $total_price,
+            'status'         => 'success' === $data['etn_status'] ? 'completed' : 'failed',
+            'tickets'        => [
+                [
+                    'ticket_slug'     => ! empty( $data['ticket_slug'] ) ? $data['ticket_slug'] : '',
+                    'ticket_quantity' => 1,
+                ]
+            ]
+        ];
+
+        return $order_data;
+    }
+
+     /** 
+     * Resend ticket email to attendee
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Error | WP_Rest_Response
+     */
+    public function resend_ticket( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+
+        if ( ! $post ) {
+            return new WP_Error( 'id_error', __( 'Invalid attendee id', 'wp-event-solution' ) );
+        }
+
+        if ( 'etn-attendee' !== $post->post_type ) {
+            return new WP_Error( 'id_error', __( 'Invalid attendee id', 'wp-event-solution' ) );
+        }
+
+        $attendee = new Attendee_Model( $id );
+        $event    = new Event_Model( $attendee->etn_event_id );
+
+        if ( ! is_email( $attendee->etn_email ) ) {
+            return new WP_Error( 'email_error', __( 'The attendee doesn\'t have valid email', 'wp-event-solution' ) );
+        }
+
+        // A resend has to use whichever delivery system a real purchase would use —
+        // mirroring OrderEmailTrait::send_email(). Sending directly regardless of the
+        // module made every resent ticket carry the legacy purchase_email
+        // subject/body/from even when the admin had moved the ticket email into an
+        // "Event Ticket Purchase" automation flow.
+        $etn_addons_options      = get_option( 'etn_addons_options' );
+        $is_automation_module_on = is_array( $etn_addons_options ) && ( $etn_addons_options['automation'] ?? 'off' ) === 'on';
+
+        if ( ! $is_automation_module_on ) {
+            $from = etn_get_email_settings( 'purchase_email' )['from'];
+
+            Mail::to( $attendee->etn_email )->from( $from )->send( new AttendeeOrderEmail( $event, $attendee ) );
+
+            return rest_ensure_response( [
+                'message' => __( 'Successfully send ticket email', 'wp-event-solution' ),
+            ] );
+        }
+
+        $date_format = get_option( 'date_format' );
+
+        try {
+            $event_start_date_timestamp = ( new \DateTime( $event->get_start_date(), wp_timezone() ) )->getTimestamp();
+        } catch ( \Exception $e ) {
+            $event_start_date_timestamp = 0;
+        }
+
+        // Payload mirrors OrderEmailTrait::send_email_to_attendee_through_automation()
+        // so the flow resolves the same trigger variables it would on a real purchase.
+        // Only `attendee_email` is carried: FlowManager skips any email node whose
+        // receiverType key is absent from the payload, so this cannot re-notify the
+        // customer or the admin. attendee_id/attendee_email stay index-aligned because
+        // EnsHooks resolves the per-recipient attendee via $action_data['attendee_id'][$count].
+        // A fresh session_id keeps the node's processed_session_ids list from
+        // suppressing the resend as an already-handled purchase.
+        do_action( 'global_notification_hook', 'event_ticket_purchase', [
+            'site_name'              => get_bloginfo( 'name' ),
+            'site_link'              => get_site_url(),
+            'site_logo'              => get_site_icon_url(),
+            'event_title'            => $event->get_title(),
+            'event_date'             => $event->get_start_date( $date_format ),
+            'event_date_timestamp'   => $event_start_date_timestamp,
+            'event_time'             => $event->get_start_time( etn_time_format() ),
+            'booking_time_timestamp' => current_time( 'timestamp' ),
+            'event_location'         => $event->get_location_label(),
+            'attendee_id'            => [ $attendee->id ],
+            'attendee_email'         => [ $attendee->etn_email ],
+            'attendee_number'        => \Eventin\Emails\WhatsappRecipients::attendee_numbers( [ $attendee ] ),
+            'event_id'               => $event->id,
+            'session_id'             => uniqid(),
+        ] );
+
+        $response = [
+            'message'   => __( 'Successfully send ticket email', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Check permissions for resend ticket to attendee
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function resend_ticket_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        // Resending mails the buyer, so it must be the event's organizer doing it.
+        return Ownership::can_manage_attendee( Ownership::route_subject_id( $request ) );
+    }
+    
+    /**
+     * Prepare customer data
+     *
+     * @param   array  $data  Customer data
+     *
+     * @return  array
+     */
+    public function prepare_customer_data( $data ) {
+        $input = new Input( $data );
+
+        $customer_data = [
+            'first_name'    => $input->get( 'etn_name' ),
+            'last_name'     => '',
+            'email'         => $input->get( 'etn_email' ),
+        ];
+
+        return $customer_data;
+    }
+
+    /**
+     * Get event ids
+     *
+     * @return array
+     */
+    private function get_events_by_author() {
+        $args = [
+            'post_type'      => 'etn',
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'author'         => get_current_user_id(),
+            'fields'         => 'ids',
+        ];
+
+        $post_ids = get_posts( $args );
+
+        return $post_ids;
+    }
+
+    /**
+     * Send certificate email by attendee
+     *
+     * @param   WP_Rest_Request  $request
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function send_certificate( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+
+        if ( ! $post ) {
+            return new WP_Error( 'id_error', __( 'Invalid attendee id', 'wp-event-solution' ), ['status' => 422] );
+        }
+
+        if ( 'etn-attendee' !== $post->post_type ) {
+            return new WP_Error( 'id_error', __( 'Invalid attendee id', 'wp-event-solution' ), ['status' => 422] );
+        }
+
+        $attendee = new Attendee_Model( $id );
+        $event    = new Event_Model( $attendee->etn_event_id );
+
+        if ( ! is_email( $attendee->etn_email ) ) {
+            return new WP_Error( 'email_error', __( 'The attendee doesn\'t have valid email', 'wp-event-solution' ), ['status' => 422] );
+        }
+
+        // When the Automation module is off the notification SDK isn't loaded, so
+        // firing the automation hook would send nothing. Fall back to the direct
+        // certificate email, exactly as this action behaved before automation
+        // routing was added.
+        $etn_addons_options      = get_option( 'etn_addons_options' );
+        $is_automation_module_on = is_array( $etn_addons_options ) && ( $etn_addons_options['automation'] ?? 'off' ) === 'on';
+
+        if ( ! $is_automation_module_on ) {
+            $from = etn_get_email_settings( 'purchase_email' )['from'];
+
+            Mail::to( $attendee->etn_email )->from( $from )->send( new AttendeeCertificateEmail( $event, $attendee ) );
+
+            return rest_ensure_response( [
+                'message' => __( 'Successfully send certificate email', 'wp-event-solution' ),
+            ] );
+        }
+
+        // No certificate_template gate here: the download handler
+        // (eventin-pro/core/attendee/hooks.php) falls back to the default
+        // certificate template when the event has none assigned, so a
+        // certificate is always produceable. Requiring per-event template here
+        // wrongly blocked attendees on recurring/cloned occurrences whose child
+        // post doesn't carry the parent's certificate_template meta.
+        $date_format    = get_option( 'date_format' );
+        $event_timezone = ( new \Eventin\Admin\EventReminder() )->get_event_timezone( $event );
+
+        // Route through the "Send Certificate" automation for consistency with the
+        // event-level send, but scoped to just this attendee: the explicit
+        // attendee_id/attendee_email arrays tell EnsHooks to target only this
+        // recipient instead of re-querying every success attendee of the event.
+        // Payload mirrors EventReminder::register_automated_schedule() so the flow
+        // has every trigger variable (incl. event_end_date_timestamp for any
+        // "after event end" delay node).
+        do_action( 'global_notification_hook', 'send_certificate', [
+            'site_name'                  => get_bloginfo( 'name' ),
+            'site_link'                  => get_site_url(),
+            'event_title'                => $event->get_title(),
+            'event_date'                 => $event->get_end_date( $date_format ),
+            'event_time'                 => $event->get_end_time( etn_time_format() ),
+            // Both timestamps so the flow's delay node can key off event start OR end.
+            'event_start_date_timestamp' => $this->get_event_date_timestamp( $event->get_start_date(), $event->get_start_time( 'H:i' ), $event_timezone ),
+            'event_end_date_timestamp'   => $this->get_event_date_timestamp( $event->get_end_date(), $event->get_end_time( 'H:i' ), $event_timezone ),
+            'event_location'             => $event->get_location_label(),
+            'attendee_id'                => [ $attendee->id ],
+            'attendee_email'             => [ $attendee->etn_email ],
+            'attendee_number'            => \Eventin\Emails\WhatsappRecipients::attendee_numbers( [ $attendee ] ),
+            'event_id'                   => $event->id,
+            'post_id'                    => $event->id,
+            'session_id'                 => uniqid(),
+        ] );
+
+        $response = [
+            'message'   => __( 'Successfully send certificate', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Convert an event date + time (stored in the event's timezone) to a UTC timestamp.
+     *
+     * Mirrors EventReminder::get_event_date_timestamp() so the automation flow's
+     * delay node resolves the same instant regardless of which handler fired it.
+     *
+     * @param   string  $date
+     * @param   string             $time
+     * @param   \DateTimeZone|null $timezone  Defaults to the site timezone.
+     * @return  int
+     */
+    private function get_event_date_timestamp( $date, $time, $timezone = null ) {
+        $time = is_string( $time ) ? trim( $time ) : '';
+
+        // Normalize any "digits + separator + digits" shape (e.g. "6h45", "6.45", "6 45") to "06:45".
+        // Skip 12-hour strings ("8:00 pm"): rewriting them here would discard the
+        // am/pm marker and silently schedule every afternoon event 12 hours early.
+        if ( $time && ! preg_match( '/[ap]\.?m\.?$/i', $time ) && preg_match( '/^(\d{1,2})\D+(\d{1,2})/', $time, $m ) ) {
+            $time = sprintf( '%02d:%02d', (int) $m[1], (int) $m[2] );
+        }
+
+        $formatted = '00:00:00';
+        if ( $time ) {
+            try {
+                $formatted = ( new \DateTime( $time ) )->format( 'H:i:s' );
+            } catch ( \Exception $e ) {
+                // Unparseable time → fall back to midnight rather than fataling.
+            }
+        }
+
+        try {
+            return ( new \DateTime( $date . ' ' . $formatted, $timezone instanceof \DateTimeZone ? $timezone : wp_timezone() ) )->getTimestamp();
+        } catch ( \Exception $e ) {
+            return 0;
+        }
+    }
+
+    /**
+     * Check permissions for resend ticket to attendee
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function send_certificate_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_attendee' ) ) {
+            return false;
+        }
+
+        // Sending mails the buyer, so it must be the event's organizer doing it.
+        return Ownership::can_manage_attendee( Ownership::route_subject_id( $request ) );
+    }
+	
+	
+	
+	/**
+	 * Trash one item from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function trash_item( $request ) {
+		$id = intval( $request['id'] );
+		
+		$attendee = new Attendee_Model( $id );
+		$previous = $this->prepare_item_for_response( $attendee, $request );
+		
+		do_action( 'eventin_attendee_before_trash', $attendee );
+		
+		
+		$trashed  = $attendee->trash_post();
+		
+		
+		$response = new \WP_REST_Response();
+		
+		$response->set_data(
+			array(
+				'trashed'  => true,
+				'previous' => $previous,
+			)
+		);
+		
+		if ( ! $trashed ) {
+			return new WP_Error(
+				'rest_cannot_trashed',
+				__( 'The attendee cannot be trashed.', 'wp-event-solution' ),
+				array( 'status' => 500 )
+			);
+		}
+		
+		do_action( 'eventin_attendee_trashed', $id );
+		
+		return $response;
+	}
+	
+	/**
+	 * Recover From Trash multiple items from the collection.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function untrash_item( $request ) {
+		$id = intval( $request['id'] );
+		
+		$attendee = new Attendee_Model( $id );
+		$previous = $this->prepare_item_for_response( $attendee, $request );
+		
+		do_action( 'eventin_attendee_before_untrash', $attendee );
+		
+		
+		$untrashed  = $attendee->untrash_post();
+		
+		
+		$response = new \WP_REST_Response();
+		
+		$response->set_data(
+			array(
+				'untrashed'  => true,
+				'previous' => $previous,
+			)
+		);
+		
+		if ( ! $untrashed ) {
+			return new WP_Error(
+				'rest_cannot_untrashed',
+				__( 'The attendee cannot be untrashed.', 'wp-event-solution' ),
+				array( 'status' => 500 )
+			);
+		}
+		
+		do_action( 'eventin_attendee_untrashed', $id );
+
+		return $response;
+	}
+
+    /**
+     * Get attendee data for public token-based editing.
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function get_edit_info( $request ) {
+        $id = intval( $request['id'] );
+
+        $attendee = new Attendee_Model( $id );
+        $data     = $this->prepare_item_for_response( $attendee, $request );
+
+        // Never expose the edit token in the response.
+        unset( $data['etn_info_edit_token'] );
+
+        return rest_ensure_response( $data );
+    }
+
+    /**
+     * Update attendee data via public token-based editing.
+     * Only whitelisted fields (name, email, phone, extra_fields) are accepted.
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function update_edit_info( $request ) {
+        $id   = intval( $request['id'] );
+        $body = $request->get_json_params();
+
+        // Whitelist: only allow safe attendee fields to be updated.
+        if ( ! empty( $body['etn_name'] ) ) {
+            update_post_meta( $id, 'etn_name', sanitize_text_field( $body['etn_name'] ) );
+            wp_update_post( [ 'ID' => $id, 'post_title' => sanitize_text_field( $body['etn_name'] ) ] );
+        }
+
+        if ( isset( $body['etn_email'] ) ) {
+            update_post_meta( $id, 'etn_email', sanitize_email( $body['etn_email'] ) );
+        }
+
+        if ( isset( $body['etn_phone'] ) ) {
+            update_post_meta( $id, 'etn_phone', sanitize_text_field( $body['etn_phone'] ) );
+        }
+
+        if ( ! empty( $body['extra_fields'] ) && is_array( $body['extra_fields'] ) ) {
+            $extra_fields = $this->prepare_attendee_extra_fields( $body['extra_fields'] );
+            foreach ( $extra_fields as $meta_key => $meta_value ) {
+                if ( is_array( $meta_value ) ) {
+                    // Checkbox / multi-select: sanitize each item and store as array.
+                    update_post_meta( $id, $meta_key, array_map( 'sanitize_text_field', $meta_value ) );
+                } else {
+                    update_post_meta( $id, $meta_key, sanitize_text_field( (string) $meta_value ) );
+                }
+            }
+        }
+
+        $attendee = new Attendee_Model( $id );
+        $data     = $this->prepare_item_for_response( $attendee, $request );
+        unset( $data['etn_info_edit_token'] );
+
+        do_action( 'eventin_attendee_updated', $attendee, $request );
+
+        return rest_ensure_response( $data );
+    }
+}

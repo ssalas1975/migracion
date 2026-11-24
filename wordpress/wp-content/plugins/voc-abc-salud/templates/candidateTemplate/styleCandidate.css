@@ -1,0 +1,110 @@
+.table td, table th{
+    border: none!important;
+}
+
+.tableData th, .tableData td{
+    height: 60px;
+    text-align: left;
+    padding: 0 15px 0 15px!important;
+
+}
+
+.tableData th{
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    border-right: 1px solid #BAB391;
+}
+
+.tableData td{
+    font-family: 'Raleway', sans-serif;
+}
+
+
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc, table.dataTable thead .sorting_asc_disabled, table.dataTable thead .sorting_desc_disabled{
+    cursor: pointer;
+    *cursor: hand;
+    background-repeat: no-repeat;
+    background-position: center left!important;
+}
+
+.sorting{
+    color: white!important;
+    background-color: #757A7D!important;
+}
+
+.sorting_asc, .sorting_desc{
+    color: white!important;
+    background-color: #55595b!important;
+}
+
+.detalle{
+    height: 35px;
+    width: 35px;
+    background-image: url('img/detalle.svg');
+}
+
+table.dataTable thead .no-sort{
+    background-image: none!important;
+}
+
+.detalle-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0!important;
+    height: 60px!important;
+}
+
+table.dataTable thead .sorting_asc {
+    background-image: url('img/2020-07-03.png')!important;
+}
+
+table.dataTable thead .sorting_desc{
+    background-image: url('img/2020-07-06.png')!important;
+}
+
+.dataTables_info, .dataTables_paginate{
+    font-family: 'Raleway', sans-serif;
+    margin: 10px;
+}
+
+table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td{
+    border-top: 1px solid #BAB391!important;
+    border-right: 1px solid #BAB391!important;
+}
+
+table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td{
+    border-top: 1px solid #BAB391!important;
+}
+
+table.dataTable thead th, table.dataTable thead td{
+    border-bottom: none!important;
+}
+
+table.dataTable.no-footer{
+    border-bottom: 1px solid #BAB391!important;
+    border-left: 1px solid #BAB391!important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+    background: #757A7D!important;
+    border: none!important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current{
+background: #fff!important;
+border: 1px solid #BAB391!important;
+}
+
+body .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover{
+    color: #fff!important;
+    border: none;
+}
+.dataTables_wrapper{
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sh-standard-logo{
+    width:300px !important;
+}

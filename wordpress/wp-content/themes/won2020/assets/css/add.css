@@ -1,0 +1,13 @@
+
+.aligncenter{ 
+    position: relative;
+    display:block;
+    margin:0 auto
+}
+
+@media (min-width: 768px){
+
+    .detail__header .title {
+        max-width: 100% !important;
+    }
+}

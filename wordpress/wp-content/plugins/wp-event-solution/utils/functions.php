@@ -1,0 +1,2087 @@
+<?php
+
+defined( 'ABSPATH' ) || exit;
+
+use Eventin\Settings;
+use Eventin\Validation\Validator;
+use Etn\Core\Event\Event_Model;
+use Etn\Utils\Helper;
+use SureCart\Support\Currency;
+
+if ( ! function_exists( 'etn_safe_decode' ) ) {
+    /**
+     * Safely unserialize data, preventing PHP Object Injection.
+     *
+     * Uses allowed_classes => false to block instantiation of
+     * PHP objects during unserialization.
+     *
+     * @since 4.1.4
+     * @param mixed $data The data to unserialize.
+     * @return mixed The unserialized data (no objects), or the original data if not serialized.
+     */
+    function etn_safe_decode( $data ) {
+        if ( ! is_string( $data ) ) {
+            return $data;
+        }
+
+        if ( ! is_serialized( $data ) ) {
+            return $data;
+        }
+
+        return @unserialize( $data, [ 'allowed_classes' => false ] );
+    }
+}
+
+if ( ! function_exists( 'etn_sanitize_array_input' ) ) {
+    /**
+     * Sanitize input to prevent PHP Object Injection.
+     *
+     * This function rejects serialized strings that could contain malicious PHP objects.
+     * Arrays and non-serialized strings are passed through for further processing.
+     *
+     * @since 4.1.2
+     * @param mixed $input The input to sanitize.
+     * @return array|string Returns array if input is array, string if input is non-serialized string, empty array otherwise.
+     */
+    function etn_sanitize_array_input( $input ) {
+        // If it's already an array, return it
+        if ( is_array( $input ) ) {
+            return $input;
+        }
+        // If it's a serialized string, reject it to prevent PHP Object Injection
+        if ( is_string( $input ) && is_serialized( $input ) ) {
+            return [];
+        }
+        // Return non-serialized strings as-is (safe for further processing like CSV parsing)
+        if ( is_string( $input ) ) {
+            return $input;
+        }
+        // Return empty array for other non-array input types
+        return [];
+    }
+}
+
+if ( ! function_exists( 'etn_sanitize_faq_array' ) ) {
+    /**
+     * Sanitize an array of event FAQ items at input/save time.
+     *
+     * Each FAQ item carries a plain-text title, rich-text content, and an
+     * enabled flag. Titles are reduced to plain text, content is passed through
+     * wp_kses_post() so that scripts and event-handler attributes (e.g.
+     * onerror=) are stripped before storage, and the enabled flag is cast to a
+     * boolean. This neutralizes stored XSS at the source rather than relying on
+     * every downstream render context to escape (CVE-2026-12924).
+     *
+     * @since 4.1.17
+     * @param mixed $faqs The raw FAQ input (expected: array of FAQ items).
+     * @return array The sanitized FAQ array (empty array for non-array input).
+     */
+    function etn_sanitize_faq_array( $faqs ) {
+        if ( ! is_array( $faqs ) ) {
+            return [];
+        }
+
+        return array_map(
+            function ( $faq ) {
+                if ( ! is_array( $faq ) ) {
+                    return is_string( $faq ) ? wp_kses_post( $faq ) : '';
+                }
+
+                if ( isset( $faq['etn_faq_title'] ) ) {
+                    $faq['etn_faq_title'] = sanitize_text_field( $faq['etn_faq_title'] );
+                }
+
+                if ( isset( $faq['etn_faq_content'] ) ) {
+                    $faq['etn_faq_content'] = wp_kses_post( $faq['etn_faq_content'] );
+                }
+
+                if ( array_key_exists( 'etn_faq_enabled', $faq ) ) {
+                    $faq['etn_faq_enabled'] = filter_var( $faq['etn_faq_enabled'], FILTER_VALIDATE_BOOLEAN );
+                }
+
+                return $faq;
+            },
+            $faqs
+        );
+    }
+}
+
+if ( ! function_exists( 'etn_sanitize_schedule_slots' ) ) {
+    /**
+     * Sanitize an array of schedule slots at input/save time.
+     *
+     * Each slot carries plain-text fields (topic, start/end time, room), one
+     * rich-text field (objective) that is printed as HTML on the event page,
+     * and a list of speaker ids. Plain-text fields are reduced with
+     * sanitize_text_field, the objective is passed through wp_kses_post so that
+     * scripts and event-handler attributes (e.g. onclick=, onerror=) are
+     * stripped before storage, and speaker ids are cast to integers. Any other
+     * key the slot may carry (e.g. is_active) is left untouched so existing
+     * behaviour and data are preserved.
+     *
+     * This neutralizes stored XSS at the source rather than relying on every
+     * downstream render context to escape (CVE-2026-15402), mirroring
+     * etn_sanitize_faq_array() introduced for CVE-2026-12924.
+     *
+     * @since 4.1.24
+     * @param mixed $slots The raw schedule-slot input (expected: array of slots).
+     * @return array The sanitized slot array (empty array for non-array input).
+     */
+    function etn_sanitize_schedule_slots( $slots ) {
+        if ( ! is_array( $slots ) ) {
+            return [];
+        }
+
+        $text_fields = [
+            'etn_schedule_topic',
+            'etn_shedule_start_time',
+            'etn_shedule_end_time',
+            'etn_shedule_room',
+        ];
+
+        return array_map(
+            function ( $slot ) use ( $text_fields ) {
+                // Leave non-array entries (e.g. a null placeholder slot the UI
+                // may submit) exactly as they came in. etn_sanitize_array_input()
+                // did the same, and downstream code auto-vivifies a null slot to
+                // an array — coercing it to a string here would break that.
+                if ( ! is_array( $slot ) ) {
+                    return $slot;
+                }
+
+                foreach ( $text_fields as $field ) {
+                    if ( isset( $slot[ $field ] ) && is_string( $slot[ $field ] ) ) {
+                        $slot[ $field ] = sanitize_text_field( $slot[ $field ] );
+                    }
+                }
+
+                // The objective is the one slot field rendered as HTML on the
+                // event page (schedule-list.php + the event-schedule style-3/4/5
+                // parts). wp_kses_post keeps ordinary formatting (bold, links)
+                // but strips <script> and every event-handler attribute.
+                if ( isset( $slot['etn_shedule_objective'] ) && is_string( $slot['etn_shedule_objective'] ) ) {
+                    $slot['etn_shedule_objective'] = wp_kses_post( $slot['etn_shedule_objective'] );
+                }
+
+                if ( isset( $slot['speakers'] ) && is_array( $slot['speakers'] ) ) {
+                    $slot['speakers'] = array_map( 'absint', $slot['speakers'] );
+                }
+
+                return $slot;
+            },
+            $slots
+        );
+    }
+}
+
+if ( ! function_exists( 'etn_array_csv_column' ) ) {
+    /**
+     * Convert array to CSV column
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    function etn_array_csv_column( $data = [] ) {
+        $result_string = '';
+
+        foreach ( $data as $data_key => $value ) {
+            if ( ! is_array( $value ) ) {
+                return etn_is_associative_array( $data ) ? etn_single_array_csv_column( $data ) : implode( ',', $data );
+            }
+
+            if ( etn_is_associative_array( $value ) ) {
+                $valueString = etn_single_array_csv_column( $value );
+                $result_string .= rtrim( $valueString, ', ' ) . '|';
+            } else {
+                $result_string .= implode( ',', $value ) . '|';
+            }
+        }
+
+        // Remove the trailing '|'
+        $result_string = rtrim( $result_string, '|' );
+
+        return $result_string;
+    }
+}
+
+if ( ! function_exists( 'etn_is_associative_array' ) ) {
+    /**
+     * Check an associative array or not
+     *
+     * @param array $array
+     *
+     * @return bool
+     */
+    function etn_is_associative_array( $array ) {
+        return is_array( $array ) && count( array_filter( array_keys( $array ), 'is_string' ) ) > 0;
+    }
+}
+
+if ( ! function_exists( 'etn_single_array_csv_column' ) ) {
+    /**
+     * Convert single array to csv column
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    function etn_single_array_csv_column( $data ) {
+        if ( ! is_array( $data ) ) {
+            return false;
+        }
+
+        $result_string = '';
+
+        foreach ( $data as $key => $value ) {
+            if ( is_array( $value ) ) {
+                $result_string .= implode( ',', $value );
+            } else {
+                $result_string .= "$key:$value,";
+            }
+        }
+
+        return rtrim( $result_string, ',' );
+    }
+}
+
+if ( ! function_exists( 'etn_csv_column_array' ) ) {
+    /**
+     * Convert CSV column to array
+     *
+     * @param string $csvColumn
+     *
+     * @return array|bool
+     */
+    function etn_csv_column_array( $csv_column, $separator = '|' ) {
+        // Explode the CSV column by '|' to get individual array elements
+        if ( strpos( $csv_column, $separator ) !== false ) {
+            return etn_csv_column_multi_dimension_array( $csv_column );
+        }
+
+        return etn_csv_column_single_array( $csv_column );
+    }
+}
+
+if ( ! function_exists( 'etn_csv_column_multi_dimension_array' ) ) {
+    /**
+     * Convert CSV column to multi dimensional array
+     *
+     * @param   string  $csv_column
+     * @param   string  $separator
+     *
+     * @return  array
+     */
+    function etn_csv_column_multi_dimension_array( $csv_column, $separator = '|' ) {
+        $array_strings = explode( $separator, $csv_column );
+        $result_array  = [];
+
+        foreach ( $array_strings as $array_string ) {
+            // Add the temporary array to the result array
+            $result_array[] = etn_csv_column_single_array( $array_string );
+        }
+
+        return $result_array;
+    }
+}
+
+if ( ! function_exists( 'etn_csv_column_single_array' ) ) {
+    /**
+     * Convert CSV column to multi dimensional array
+     *
+     * @param   string  $csv_column
+     * @param   string  $separator
+     *
+     * @return  array
+     */
+    function etn_csv_column_single_array( $csv_column, $separator = ',' ) {
+        $temp_array = [];
+
+        if ( false !== strpos( $csv_column, ':' ) ) {
+            $csv_column = explode( $separator, $csv_column );
+
+            foreach ( $csv_column as $pair ) {
+                // Explode key-value pairs by ':' and populate the temporary array
+                list( $key, $value ) = explode( ':', $pair );
+                $temp_array[$key]  = $value;
+            }
+
+            return $temp_array;
+        }
+
+        return explode( $separator, $csv_column );
+    }
+}
+
+if ( ! function_exists( 'etn_is_request' ) ) {
+    /**
+     * What type of request is this?
+     *
+     * @param  string $type admin, ajax, cron or frontend.
+     *
+     * @return bool
+     */
+    function etn_is_request( $type ) {
+        switch ( $type ) {
+        case 'admin':
+            return is_admin();
+
+        case 'ajax':
+            return defined( 'DOING_AJAX' );
+
+        case 'rest':
+            return defined( 'REST_REQUEST' );
+
+        case 'cron':
+            return defined( 'DOING_CRON' );
+
+        case 'frontend':
+            return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' );
+        }
+    }
+}
+
+if ( ! function_exists( 'etn_get_locale_data' ) ) {
+    /**
+     * Get locale data
+     *
+     * @return  array
+     */
+    function etn_get_locale_data() {
+        $localize_vars   = include Wpeventin::plugin_dir() . 'utils/locale/vars.php';
+        $localize_static = include Wpeventin::plugin_dir() . 'utils/locale/static.php';
+
+        $data = array_merge( $localize_static, $localize_vars );
+
+        return apply_filters( 'etn_locale_data', $data );
+    }
+}
+
+if ( ! function_exists( 'etn_permision_error' ) ) {
+    /**
+     * Rest api error message
+     *
+     * @param   string  $message
+     *
+     * @return  \WP_REST_Response
+     */
+    function etn_permision_error( $message = '' ) {
+        if ( ! $message ) {
+            $message = __( 'Sorry, you are not allowed to do that.', 'wp-event-solution' );
+        }
+
+        $data = [
+            'code'    => 'rest_forbidden',
+            'message' => 'Sorry, you are not allowed to do that.',
+            'data'    => [
+                'status' => 403,
+            ],
+        ];
+
+        return new WP_REST_Response( $data, 401 );
+    }
+}
+
+if ( ! function_exists( 'etn_parse_block_content' ) ) {
+    /**
+     * Parses dynamic blocks out of `post_content` and re-renders them.
+     *
+     * @param   string  $content
+     *
+     * @return  string
+     */
+    function etn_parse_block_content( $content ) {
+        return do_blocks( $content );
+    }
+}
+
+if ( ! function_exists( 'etn_validate' ) ) {
+    /**
+     * Validate user input
+     *
+     * @param   array  $request
+     * @param   array  $rules
+     *
+     * @return  bool | WP_Error
+     */
+    function etn_validate( $request, $rules ) {
+        $validator = new Validator( $request );
+
+        $validator->set_rules( $rules );
+
+        if ( ! $validator->validate() ) {
+            return $validator->get_error();
+        }
+
+        return true;
+    }
+}
+
+if ( ! function_exists( 'etn_get_option' ) ) {
+    /**
+     * Get option for eventin
+     *
+     * @since 1.0.0
+     * @return  mixed
+     */
+    function etn_get_option( $key = '', $default = false ) {
+        $value = Settings::get( $key );
+
+        if ( ! $value ) {
+            return $default;
+        }
+
+        return $value;
+    }
+}
+
+if ( ! function_exists( 'etn_update_option' ) ) {
+
+    /**
+     * Update option
+     *
+     * @param   string  $key
+     *
+     * @since 1.0.0
+     *
+     * @return  boolean
+     */
+    function etn_update_option( $key = '', $value = false ) {
+        if ( ! $key ) {
+            return false;
+        }
+
+        return Settings::update( [
+            $key => $value,
+        ] );
+    }
+}
+
+if ( ! function_exists( 'etn_parse_event_datetime' ) ) {
+    /**
+     * Build a DateTime from a stored event date + time pair.
+     *
+     * Normalizes non-standard time shapes ("8h00", "6.45", "6 45") to "HH:MM"
+     * before construction, and falls back to date-only at midnight rather than
+     * fataling on unparseable input.
+     *
+     * @param   string                       $date      Date string (Y-m-d).
+     * @param   string                       $time      Time string. May be empty or malformed.
+     * @param   \DateTimeZone|string|null    $timezone  DateTimeZone instance, IANA string, or null for wp_timezone().
+     *
+     * @return  \DateTime
+     */
+    function etn_parse_event_datetime( $date, $time = '', $timezone = null ) {
+        if ( $timezone instanceof \DateTimeZone ) {
+            $tz = $timezone;
+        } elseif ( is_string( $timezone ) && $timezone !== '' ) {
+            try {
+                $tz = new \DateTimeZone( $timezone );
+            } catch ( \Exception $e ) {
+                $tz = wp_timezone();
+            }
+        } else {
+            $tz = wp_timezone();
+        }
+
+        $time = is_string( $time ) ? trim( $time ) : '';
+
+        // Normalize "digits + non-digits + digits" (e.g. "8h00", "6.45", "6 45") → "08:00" / "06:45".
+        // Skip values that already contain a colon — "9:00 PM" / "21:00" are parsed natively by
+        // \DateTime, and reformatting them here would drop the AM/PM meridiem (turning every PM
+        // time into the morning). Preserve any meridiem for the compact formats that do get normalized.
+        if ( $time && false === strpos( $time, ':' )
+            && preg_match( '/^(\d{1,2})\D+(\d{1,2})\s*([AaPp][Mm])?/', $time, $m ) ) {
+            $time = sprintf( '%02d:%02d', (int) $m[1], (int) $m[2] );
+            if ( ! empty( $m[3] ) ) {
+                $time .= ' ' . strtoupper( $m[3] );
+            }
+        }
+
+        $date_time_string = trim( $date . ' ' . $time );
+
+        try {
+            return new \DateTime( $date_time_string, $tz );
+        } catch ( \Exception $e ) {
+            try {
+                return new \DateTime( (string) $date, $tz );
+            } catch ( \Exception $e2 ) {
+                return new \DateTime( 'now', $tz );
+            }
+        }
+    }
+}
+
+if ( ! function_exists( 'etn_is_ticket_sale_end' ) ) {
+    /**
+     * Check an event has attendees or not
+     *
+     * @param   string  $end_date_time  Event ticket sale end date and time
+     * @param   string  $timezone       Event timezone
+     *
+     * @return  bool
+     */
+    function etn_is_ticket_sale_end( $end_date_time, $timezone = '' ) {
+        $timezone = $timezone ?: wp_timezone_string();
+        try {
+            $tz           = new DateTimeZone( $timezone );
+            $event_end_dt = new DateTime( $end_date_time, $tz );
+            $current_dt   = new DateTime( 'now', $tz );
+        } catch ( \Exception $e ) {
+            // Unparseable inputs → treat as not-yet-ended rather than fataling.
+            return false;
+        }
+
+        return $current_dt > $event_end_dt;
+    }
+}
+
+if ( ! function_exists( 'etn_is_ticket_sale_start' ) ) {
+    /**
+     * Check an event has attendees or not
+     *
+     * @param   string  $start_date_time  Event ticket sale start date and time
+     * @param   string  $timezone         Event timezone
+     *
+     * @return  bool
+     */
+    function etn_is_ticket_sale_start( $start_date_time, $timezone = '' ) {
+        $timezone = $timezone ?: wp_timezone_string();
+        try {
+            $tz            = new DateTimeZone( $timezone );
+            $event_date    = new DateTime( $start_date_time, $tz );
+            $current_datte = new DateTime( 'now', $tz );
+        } catch ( \Exception $e ) {
+            // Unparseable inputs → treat as already started rather than fataling.
+            return true;
+        }
+
+        return $current_datte >= $event_date;
+    }
+}
+
+
+if ( ! function_exists( 'etn_create_date_timezone' ) ) {
+    /**
+     * Create datetimezone object
+     *
+     * @param   string  $timezoneString  Timezone
+     *
+     * @return  string
+     */
+    function etn_create_date_timezone( $timezoneString ) {
+         // List of valid named timezones
+        $validTimezones = DateTimeZone::listIdentifiers();
+
+        // Check if the provided timezone is a valid named timezone
+        if ( in_array( $timezoneString, $validTimezones ) ) {
+            return $timezoneString;
+        }
+
+        // Check if the provided timezone is an offset timezone like UTC+6 or UTC-4.5
+        if ( preg_match('/^UTC([+-]\d{1,2})(?:\.(\d))?$/i', $timezoneString, $matches ) ) {
+            // Convert the matched offset to a format recognized by DateTimeZone
+            $hours = intval( $matches[1] );
+            $minutes = isset( $matches[2] ) ? intval($matches[2]) * 6 : 0; // 0.1 fractional part means 6 minutes
+
+            // Ensure the format is like +06:30 or -04:30
+            $formattedOffset = sprintf( '%+03d:%02d', $hours, $minutes );
+            return $formattedOffset;
+        }
+
+        // If the timezone string doesn't match any known format, return default
+        return 'America/New_York';
+    }
+}
+
+if ( ! function_exists( 'etn_convert_to_date' ) ) {
+    /**
+     * Convert to date from date time string
+     *
+     * @param   string  $datetimeString  Datetime string
+     *
+     * @return  string  Date string
+     */
+    function etn_convert_to_date( $datetimeString ) {
+        try {
+            // Create a DateTime object using the provided datetime string
+            $datetime = new DateTime( $datetimeString );
+            
+            // Return the formatted date in 'Y-m-d' format
+            return $datetime->format( 'Y-m-d' );
+        } catch ( Exception $e ) {
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+}
+
+if ( ! function_exists( 'etn_get_currency' ) ) {
+    /**
+     * Get currency list
+     *
+     * @return  array
+     */
+    function etn_get_currency () {
+        $currencies = require Wpeventin::plugin_dir() . '/utils/currency.php';
+
+        return $currencies;
+    }
+}
+
+if ( ! function_exists( 'etn_get_currency_by' ) ) {
+    /**
+     * Get currency by name, symbol
+     *
+     * @return  string
+     */
+    function etn_get_currency_by_name( $name ) {
+        $currencies = etn_get_currency();
+
+        foreach( $currencies as $currencie ) {
+            if ( $currencie['name'] === $name ) {
+                return $currencie;
+            }
+        }
+
+        return null;
+    }
+}
+
+if ( ! function_exists( 'etn_get_currency_symbol' ) ) {
+    /**
+     * Get currency by name, symbol
+     *
+     * @return  string
+     */
+    function etn_get_currency_symbol( $name ) {
+        $currency = etn_get_currency_by_name( $name );
+
+        if ( $currency ) {
+            return $currency['symbol'];
+        }
+    }
+}
+
+if ( ! function_exists( 'etn_event_url_editable' ) ) {
+    /**
+     * Check editable url
+     *
+     * @return  bool
+     */
+    function etn_event_url_editable () {
+        $permalink_structure = get_option('permalink_structure');
+
+        if ( strpos( $permalink_structure, '%postname%' ) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+if ( ! function_exists( 'etn_get_timezone' ) ) {
+    /**
+     * Get valid timezonelists
+     *
+     * @return  array Timezone lists
+     */
+    function etn_get_timezone() {
+        $validTimezones = DateTimeZone::listIdentifiers();
+
+        return $validTimezones;
+    }
+}
+
+if ( ! function_exists( 'etn_get_wp_timezones' ) ) {
+    /**
+     * Get valid wp timezone
+     *
+     * @return  string
+     */
+    function etn_get_wp_timezones() {
+        $timezones = [];
+
+        // Generate UTC offsets
+        $offset_range = range( -12, 14 );
+        foreach ( $offset_range as $offset ) {
+            // Whole hour
+            $hours   = ( $offset > 0 ) ? '+' . $offset : (string) $offset;
+
+            if ( $offset != 0 ) {
+                $timezones[] = 'UTC' . $hours;
+            }
+            else{
+                $timezones[] = 'UTC' . '+'.$hours;
+            }
+
+            // Half-hour offsets
+            if ( $offset != 0 ) {
+                $timezones[] = 'UTC' . $hours . ':30';
+            }
+
+            if ( $offset == 0 ) {
+                $timezones[] = 'UTC' . '+'.$hours . ':30';
+                $timezones[] = 'UTC' . '-'.$hours . ':30';
+            }
+
+            // Special quarter-hour offsets
+            if ( in_array( $offset, [ 5, 8, 12, 13 ] ) ) {
+                $timezones[] = 'UTC+' . $offset . ':45';
+            }
+        }
+
+        // Now add all region identifiers
+        $timezones = array_merge( $timezones, DateTimeZone::listIdentifiers() );
+
+        return $timezones;
+    }
+}
+
+if ( ! function_exists( 'etn_prepare_address' ) ) {
+    /**
+     * Prepare event address from event location
+     *
+     * This function is written for temporary solution. We have a nested location issue @since 4.0.0. To resolve this we impletent a temporary function. We have to remove this function when v4.0 is completely statble from location issue. Before remove this function make sure remove from all of the place where we used this.
+     *
+     * @param   array  $location
+     *
+     * @return  string
+     */
+    function etn_prepare_address( $location ) {
+        static $depth = 0;
+    
+        if ( $depth >= 10 ) {
+            return '';
+        }
+    
+        $depth++;
+    
+        if ( ! is_array( $location ) ) {
+            return $location;
+        }
+    
+        $address = ! empty( $location['address'] ) ? $location['address'] : '';
+    
+        return etn_prepare_address( $address );
+    }
+}
+
+if ( ! function_exists( 'etn_get_email_settings' ) ) {
+
+    /**
+     * Get email settings
+     *
+     * @param   string  $email  Email name for the email setting
+     *
+     * @return  array
+     */
+    function etn_get_email_settings( $email = '' ) {
+
+        $email_settings = etn_get_option( 'email' );
+
+        $defaults = etn_get_default_email_settings();
+
+        $email_settings = etn_recursive_wp_parse_args( $email_settings, $defaults );
+
+        if ( ! $email ) {
+            return $email_settings;
+        }
+
+        return $email_settings[$email];
+    }
+}
+
+if ( ! function_exists( 'etn_get_default_email_settings' )  ) {
+    /**
+     * Get default email settings for the email template
+     *
+     * @return  array
+     */
+    function etn_get_default_email_settings() {
+
+        $email_settings = [
+            'purchase_email' => [
+                'from'    => get_option( 'admin_email' ),
+                'subject' => sprintf( __( 'Event Ticket', 'wp-event-solution' ) ),
+                'body'    => __( 'You have purchased ticket(s). Attendee ticket details are as follows.', 'wp-event-solution' ),
+                'send_to_admin' => true,
+                'send_email_to_attendees' => true
+            ],
+            'certificate_email' => [
+                'from'    => get_option( 'admin_email' ),
+                'subject' => sprintf( __( 'Event Certificate', 'wp-event-solution' ) ),
+                // translators: %1$s is the event title
+                'body'    => sprintf( __( '<p>Congratulations for successfully attending/completing the event \'%1$s\'. Your certificate is ready! Click on the link provided below to get the PDF certificate. </p>', 'wp-event-solution' ), '<span>{%event_title%}</span>' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
+                'send_to_admin' => true,
+            ],
+            'rsv_email' => [
+                'from'          => get_option( 'admin_email' ),
+                'response_type' => 'going',
+                'subject'       => sprintf( __( 'RSVP request', 'wp-event-solution' ) ),
+                'body'          => sprintf( __( 'We received your RSVP request', 'wp-event-solution' ) ),
+                'send_to_admin' => true,
+            ],
+            'reminder_email' => [
+                'from'    => get_option( 'admin_email' ),
+                'subject' => sprintf( __( 'Reminder email', 'wp-event-solution' ) ),
+                'body'    => __( 'Just sending you a quick reminder about our retailer meet-up you\'ve registered to attend in two days time. If you\'ve misplaced the Invitation that contained all the details. don\'t worry. Cve added them rn below for you.', 'wp-event-solution' ),
+                'send_to_admin' => true,
+            ]
+        ];
+
+        return apply_filters( 'etn_default_email_settings', $email_settings );
+    }
+}
+
+if ( ! function_exists( 'etn_recursive_wp_parse_args' ) ) {
+    /**
+     * Perse args recursively
+     *
+     * @param   array  $args      [$args description]
+     * @param   array  $defaults  [$defaults description]
+     *
+     * @return  array             [return description]
+     */
+    function etn_recursive_wp_parse_args( $args, $defaults ) {
+        $args = (array) $args; // Ensure args is an array
+    
+        // Loop through each default value and apply wp_parse_args recursively if it's an array
+        foreach ( $defaults as $key => $value ) {
+            if ( is_array( $value ) ) {
+                // If the key is an array, call recursively
+                $args[$key] = etn_recursive_wp_parse_args( isset( $args[$key] ) ? $args[$key] : [], $value );
+            } else {
+                // Otherwise, use wp_parse_args for the non-array values
+                if ( ! isset( $args[$key] ) ) {
+                    $args[$key] = $value;
+                }
+            }
+        }
+    
+        return $args;
+    }
+}
+
+if ( !function_exists( 'etn_editor_settings' ) ) {
+    /**
+     * Retrieves the settings for the Gutenberg editor.
+     *
+     * This function retrieves the settings for the Gutenberg editor, including the allowed block types,
+     * typography, color palette, and other experimental features. It also applies filters to allow
+     * customization of the settings.
+     *
+     * @return array The settings for the Gutenberg editor.
+     */
+    function etn_editor_settings() {
+        
+        
+        $coreSettings            = get_block_editor_settings( [], 'post' );
+        $wordpressCoreTypography = $coreSettings['__experimentalFeatures']['typography'];
+        $coreExperimentalSpacing = $coreSettings['__experimentalFeatures']['spacing'];
+        
+
+        $themePref     = getThemePrefScheme();
+
+        $settings = array(
+            'gradients'                         => [],
+            'alignWide'                         => false,
+            'allowedMimeTypes'                  => get_allowed_mime_types(),
+            '__experimentalBlockPatterns'       => [],
+            '__experimentalFeatures'            => [
+                'appearanceTools' => true,
+                'border'          => [
+                    'color'  => false,
+                    'radius' => true,
+                    'style'  => false,
+                    'width'  => false,
+                ],
+                'color'           => [
+                    'background'       => true,
+                    'customDuotone'    => false,
+                    'defaultGradients' => false,
+                    'defaultPalette'   => false,
+                    'duotone'          => [],
+                    'gradients'        => [],
+                    'link'             => false,
+                    'palette'          => [
+                        'theme' => $themePref['colors'],
+                    ],
+                    'text'             => true,
+                ],
+                'spacing'         => $coreExperimentalSpacing,
+                'typography'      => $wordpressCoreTypography,
+                'blocks'          => [
+                    'core/button' => [
+                        'border'     => [
+                            'radius' => true,
+                            "style"  => true,
+                            "width"  => true,
+                        ],
+                        'typography' => [
+                            'fontSizes' => [],
+                        ],
+                        'spacing'    => $coreExperimentalSpacing,
+                    ],
+
+                ],
+            ],
+            '__experimentalSetIsInserterOpened' => false,
+            'disableCustomColors'               => get_theme_support( 'disable-custom-colors' ),
+            'disableCustomFontSizes'            => false,
+            'disableCustomGradients'            => true,
+            'enableCustomLineHeight'            => get_theme_support( 'custom-line-height' ),
+            'enableCustomSpacing'               => get_theme_support( 'custom-spacing' ),
+            'enableCustomUnits'                 => false,
+            'keepCaretInsideBlock'              => false,
+            'mediaLibrary'                      =>  ['type' => true, 'date' => true, 'allowedTypes' => ['image', 'video', 'audio', 'application']],
+            'mediaUpload'                       => true,
+        );
+
+        $color_palette = current( (array) get_theme_support( 'editor-color-palette' ) );
+        if ( false !== $color_palette ) {
+            $settings['colors'] = $color_palette;
+        } else {
+            $settings['colors'] = [];
+        }
+
+        return $settings;
+    }
+}
+
+if ( !function_exists( 'getThemePrefScheme' ) ) {
+    /**
+     * Retrieves the theme preference scheme.
+     *
+     * This function retrieves the theme preference scheme, which includes the color palette and font sizes.
+     * The color palette is an array of objects, each representing a color with its name, slug, and hex code.
+     * The font sizes is an array of objects, each representing a font size with its name, short name, size, and slug.
+     * The function applies filters to allow customization of the theme preference scheme.
+     *
+     * @return array The theme preference scheme.
+     */
+    function getThemePrefScheme() {
+        static $pref;
+        if ( !$pref ) {
+
+            $color_palette = [
+                [
+                    "name"  => __( "Black", "wp-event-solution" ),
+                    "slug"  => "black",
+                    "color" => "#000000",
+                ],
+                [
+                    "name"  => __( "Cyan bluish gray", "wp-event-solution" ),
+                    "slug"  => "cyan-bluish-gray",
+                    "color" => "#abb8c3",
+                ],
+                [
+                    "name"  => __( "White", "wp-event-solution" ),
+                    "slug"  => "white",
+                    "color" => "#ffffff",
+                ],
+                [
+                    "name"  => __( "Pale pink", "wp-event-solution" ),
+                    "slug"  => "pale-pink",
+                    "color" => "#f78da7",
+                ],
+                [
+                    "name"  => __( "Luminous vivid orange", "wp-event-solution" ),
+                    "slug"  => "luminous-vivid-orange",
+                    "color" => "#ff6900",
+                ],
+                [
+                    "name"  => __( "Luminous vivid amber", "wp-event-solution" ),
+                    "slug"  => "luminous-vivid-amber",
+                    "color" => "#fcb900",
+                ],
+                [
+                    "name"  => __( "Light green cyan", "wp-event-solution" ),
+                    "slug"  => "light-green-cyan",
+                    "color" => "#7bdcb5",
+                ],
+                [
+                    "name"  => __( "Vivid green cyan", "wp-event-solution" ),
+                    "slug"  => "vivid-green-cyan",
+                    "color" => "#00d084",
+                ],
+                [
+                    "name"  => __( "Pale cyan blue", "wp-event-solution" ),
+                    "slug"  => "pale-cyan-blue",
+                    "color" => "#8ed1fc",
+                ],
+                [
+                    "name"  => __( "Vivid cyan blue", "wp-event-solution" ),
+                    "slug"  => "vivid-cyan-blue",
+                    "color" => "#0693e3",
+                ],
+                [
+                    "name"  => __( "Vivid purple", "wp-event-solution" ),
+                    "slug"  => "vivid-purple",
+                    "color" => "#9b51e0",
+                ],
+            ];
+
+            $font_sizes = [
+                [
+                    'name'      => __( 'Small', 'wp-event-solution' ),
+                    'shortName' => 'S',
+                    'size'      => 14,
+                    'slug'      => 'small',
+                ],
+                [
+                    'name'      => __( 'Medium', 'wp-event-solution' ),
+                    'shortName' => 'M',
+                    'size'      => 18,
+                    'slug'      => 'medium',
+                ],
+                [
+                    'name'      => __( 'Large', 'wp-event-solution' ),
+                    'shortName' => 'L',
+                    'size'      => 24,
+                    'slug'      => 'large',
+                ],
+                [
+                    'name'      => __( 'Larger', 'wp-event-solution' ),
+                    'shortName' => 'XL',
+                    'size'      => 32,
+                    'slug'      => 'larger',
+                ],
+            ];
+
+            $pref = apply_filters( 'eventin/theme_pref', [
+                'colors'     => (array) $color_palette,
+                'font_sizes' => (array) $font_sizes,
+            ] );
+        }
+
+        return $pref;
+
+    }
+}
+
+if ( ! function_exists( 'etn_currency' ) ) {
+    /**
+     * Get currecny
+     *
+     * @return  string
+     */
+    function etn_currency() {
+        $payment_method = etn_get_option( 'payment_method' );
+
+        $is_enabled_wc = 'woocommerce' === $payment_method;
+
+        $is_enabled_sc = etn_get_option('surecart_status');
+
+        $is_enabled_fc = etn_get_option('fluentcart_status');
+
+        if ( $is_enabled_sc && class_exists(SureCart::class) ) {
+            return \SureCart::account()->currency;
+        }
+
+        if ( $is_enabled_fc && defined('FLUENTCART_VERSION') ) {
+            return (new \FluentCart\Api\StoreSettings())->getCurrency();
+        }
+
+        if ( function_exists('WC') &&  $is_enabled_wc ) {
+            return get_woocommerce_currency();
+        }
+
+        $currency = etn_get_option( 'etn_settings_country_currency', 'USD' );
+
+        return $currency;
+    }
+}
+
+if ( ! function_exists( 'etn_order_currency_symbol' ) ) {
+    /**
+     * Get the currency symbol an order was paid in
+     *
+     * WooCommerce orders read the WooCommerce order's own currency, because the
+     * symbol saved on the Eventin order can be the Eventin currency (it is saved
+     * from etn_currency_symbol(), which only knows the old `payment_method`
+     * setting, not `wc_enabled`). Other orders use the saved symbol. Orders
+     * with no saved symbol (old or free orders) use the current setting.
+     *
+     * @param   integer  $order_id  Eventin order id.
+     *
+     * @return  string  Decoded symbol, e.g. "£".
+     */
+    function etn_order_currency_symbol( $order_id ) {
+        $order_id = (int) $order_id;
+        $symbol   = '';
+
+        if ( $order_id && 'wc' === get_post_meta( $order_id, 'payment_method', true ) && function_exists( 'wc_get_orders' ) ) {
+            $wc_orders = wc_get_orders( [
+                'limit'      => 1,
+                'meta_key'   => 'eventin_order_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+                'meta_value' => $order_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+            ] );
+
+            if ( ! empty( $wc_orders[0] ) ) {
+                $symbol = get_woocommerce_currency_symbol( $wc_orders[0]->get_currency() );
+            }
+        }
+
+        if ( ! $symbol && $order_id ) {
+            $symbol = get_post_meta( $order_id, 'currency_symbol', true );
+        }
+
+        if ( ! $symbol ) {
+            $symbol = etn_currency_symbol();
+        }
+
+        return html_entity_decode( $symbol, ENT_QUOTES, 'UTF-8' );
+    }
+}
+
+if ( ! function_exists( 'etn_currency_symbol' ) ) {
+    /**
+     * Get currency symbol
+     *
+     * @return  string
+     */
+    function etn_currency_symbol() {
+        $currency = etn_currency();
+
+        $is_enabled_sc = etn_get_option('surecart_status');
+
+        $is_enabled_fc = etn_get_option('fluentcart_status');
+
+        if ( $is_enabled_sc && class_exists(SureCart::class) ) {
+            return  html_entity_decode( Currency::getCurrencySymbol( \SureCart::account()->currency ) );
+        }
+
+        if ( $is_enabled_fc && defined('FLUENTCART_VERSION') ) {
+            return (new \FluentCart\Api\StoreSettings())->getCurrencySymbol();
+        }
+
+        return etn_get_currency_symbol( $currency );
+    }
+}
+
+if ( ! function_exists( 'etn_is_enable_wc' ) ) {
+    /**
+     * Check event in is used woocommerce payment method
+     *
+     * @return  bool
+     */
+    function etn_is_enable_wc() {
+        $payment_method = etn_get_option( 'payment_method' );
+
+        return function_exists( 'WC' ) && 'woocommerce' === $payment_method;
+    }
+}
+
+if ( ! function_exists( 'etn_get_thousand_separator' ) ) {
+
+    /**
+     * Thousand separator
+     *
+     * @return  string
+     */
+    function etn_get_thousand_separator() {
+        if ( etn_is_enable_wc() ) {
+            return wc_get_price_thousand_separator();
+        }
+
+        $thousand_separator = etn_get_option( 'thousand_separator', ',' );
+
+        return apply_filters( 'etn_thousand_separator', $thousand_separator );
+    }
+}
+
+if ( ! function_exists( 'etn_get_decimal_separator' ) ) {
+
+    /**
+     * Get descimal separator
+     *
+     * @return  string
+     */
+    function etn_get_decimal_separator() {
+        if ( etn_is_enable_wc() ) {
+            return wc_get_price_decimal_separator();
+        }
+
+        $decimal_separator = etn_get_option( 'decimal_separator', 'comma_dot' );
+
+        return apply_filters( 'etn_decimal_separator', $decimal_separator );
+    }
+}
+
+if ( ! function_exists( 'etn_get_decimals' ) ) {
+
+    /**
+     * Get number of decimals
+     *
+     * @return  string
+     */
+    function etn_get_decimals() {
+        if ( etn_is_enable_wc() ) {
+            return wc_get_price_decimals();
+        }
+
+        $decimals = etn_get_option( 'decimals', 0 );
+
+        return apply_filters( 'etn_decimals', $decimals );
+    }
+}
+
+if ( ! function_exists( 'etn_get_price_format' ) ) {
+
+    /**
+     * Get price format
+     *
+     * @return  string
+     */
+    function etn_get_price_format() {
+        if ( etn_is_enable_wc() ) {
+            return get_woocommerce_price_format();
+        }
+
+        $currency_pos = get_option( 'currency_position' );
+        $format       = '%1$s%2$s';
+
+        switch ( $currency_pos ) {
+            case 'left':
+                $format = '%1$s%2$s';
+                break;
+            case 'right':
+                $format = '%2$s%1$s';
+                break;
+            case 'left_space':
+                $format = '%1$s&nbsp;%2$s';
+                break;
+            case 'right_space':
+                $format = '%2$s&nbsp;%1$s';
+                break;
+        }
+
+        return apply_filters( 'etn_price_format', $format, $currency_pos );
+    }
+}
+
+if ( ! function_exists( 'etn_get_currency_position' ) ) {
+
+    /**
+     * Get price format
+     *
+     * @return  string
+     */
+    function etn_get_currency_position() {
+        if ( etn_is_enable_wc() ) {
+            $currency_pos = get_option( 'woocommerce_currency_pos' );
+
+            return $currency_pos;
+        }
+
+        $currency_pos = etn_get_option( 'currency_position', 'left' );
+
+        return apply_filters( 'etn_currency_position', $currency_pos );
+    }
+}
+
+if ( ! function_exists( 'etn_get_wc_order_status_list' ) ) {
+    /**
+     * Get all woocommerce order statuses without prefix
+     *
+     * @return  array  Woocommerce order statuses
+     */
+    function etn_get_wc_order_status_list() {
+        $statuses_without_prefix = [];
+    
+        if ( ! function_exists( 'WC' ) ) {
+            return $statuses_without_prefix;
+        }
+    
+        $statuses = wc_get_order_statuses();
+        
+    
+        foreach ( $statuses as $key => $label ) {
+            // Remove the 'wc-' prefix from each status key.
+            $new_key = str_replace( 'wc-', '', $key );
+            $statuses_without_prefix[$new_key] = $label;
+        }
+    
+        return $statuses_without_prefix;
+    }
+}
+
+if ( ! function_exists( 'etn_get_wc_order_statuses' ) ) {
+    /**
+     * Get all woocommerce order statuses stored as eventin settings
+     *
+     * @return  array  Woocommerce order statuses
+     */
+    function etn_get_wc_order_statuses() {
+        $defaults = [ 'completed', 'processing' ];
+        $settings = etn_get_option( 'wc_order_statuses', $defaults );
+
+        return $settings;
+    }
+}
+
+if ( ! function_exists( 'etn_fluentcart_syncs_refunds' ) ) {
+    /**
+     * Whether the installed FluentCart add-on copies FluentCart refunds
+     * (full AND partial) into Eventin. Older add-ons only copy full refunds.
+     *
+     * @return bool
+     */
+    function etn_fluentcart_syncs_refunds() {
+        return method_exists( '\\Eventin_addon_for_FluentCart\\Integrations\\FluentCart\\FluentCartWebhook', 'handle_order_refunded' );
+    }
+}
+
+if ( ! function_exists( 'etn_is_enable_wc_synchronize_order' ) ) {
+    /**
+     * Check wc order synchronizes orders to the posts table enable or not
+     *
+     * @return  bool Retur true if synchronizes orders is enable otherwise false
+     */
+    function etn_is_enable_wc_synchronize_order() {
+
+        if ( false === get_option( 'woocommerce_custom_orders_table_enabled' ) ) {
+            return true;
+        }
+
+        $enable_custom_order_table = get_option( 'woocommerce_custom_orders_table_enabled', true );
+
+        if ( 'no' === $enable_custom_order_table ) {
+            return true;
+        }
+
+        $data_sync_enabled          = get_option( 'woocommerce_custom_orders_table_data_sync_enabled', true );
+
+        if ( 'yes' === $data_sync_enabled ) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+if ( ! function_exists( 'etn_gutenberg_template_path' ) ) {
+    /**
+     * Gutenberg block paths
+     *
+     * @return  string
+     */
+    function etn_block_path() {
+        return Wpeventin::core_dir() . 'Blocks/';
+    }
+}
+
+if ( ! function_exists( 'etn_upload_image_from_url' ) ) {
+    /**
+     * Upload image from url
+     *
+     * @param   string  $image_url  Public Image url
+     *
+     * @return  integer Image attatchment id
+     */
+    function etn_upload_image_from_url( $image_url ) {
+        // Check if the URL is valid
+        if ( empty( $image_url ) || ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
+            return new WP_Error('invalid_url', __('Invalid image URL.', 'wp-event-solution'));
+        }
+    
+        // Get the file name from the URL
+        $file_name = basename( wp_parse_url( $image_url, PHP_URL_PATH ) );
+    
+        // Download the image
+        $image_data = wp_remote_get( $image_url, [
+            'timeout' => 30, // Increase timeout to 30 seconds
+            'blocking' => true,
+        ] );
+        if ( is_wp_error( $image_data ) ) {
+            return new WP_Error( 'download_failed', __( 'Failed to download image.', 'wp-event-solution') );
+        }
+    
+        $image_body = wp_remote_retrieve_body( $image_data );
+        if ( empty( $image_body ) ) {
+            return new WP_Error( 'empty_image', __( 'Downloaded image is empty.', 'wp-event-solution' ) );
+        }
+    
+        // Get the upload directory
+        $upload_dir = wp_upload_dir();
+        $file_path = $upload_dir['path'] . '/' . $file_name;
+    
+        // Save the image file
+        if ( ! file_put_contents( $file_path, $image_body ) ) {
+            return new WP_Error( 'file_write_error', __('Failed to write image file.', 'wp-event-solution' ) );
+        }
+    
+        // Prepare file data for WordPress upload
+        $file_info = [
+            'name'     => $file_name,
+            'type'     => mime_content_type( $file_path ),
+            'tmp_name' => $file_path,
+            'error'    => 0,
+            'size'     => filesize( $file_path ),
+        ];
+    
+        // Include WordPress file handling functions
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+    
+        // Upload image to WordPress media library
+        $attachment_id = media_handle_sideload($file_info, 0);
+    
+        // Check for errors
+        if ( is_wp_error( $attachment_id ) ) {
+            wp_delete_file($file_path); // Delete the temporary file if upload fails
+            return $attachment_id;
+        }
+    
+        // Delete the temporary file after successful upload
+        wp_delete_file($file_path);
+    
+        return $attachment_id; // Return the attachment ID
+    }
+}
+
+if ( ! function_exists( 'etn_date_format' ) ) {
+    /**
+     * Get date formate from wordpress
+     *
+     * @return  string
+     */
+    function etn_date_format() {
+        $date_format = get_option( 'date_format' );
+
+        return $date_format;
+    }
+}
+
+if ( ! function_exists( 'etn_time_format' ) ) {
+    /**
+     * Get time formate from wordpress
+     *
+     * @return  string
+     */
+    function etn_time_format() {
+        $time_format = get_option( 'time_format' );
+
+        return $time_format;
+    }
+}
+
+if ( ! function_exists( 'etn_validate_event_tickets' ) ) {
+    /**
+     * Validate event tickets that verify to prevent overselling
+     *
+     * @param   integer  $event_id       Event id that will be purchased
+     * @param   array  $order_tickets    Order ticket list
+     * @param   bool    $is_for_update  Whether this is an update operation
+     * @param   bool    $is_waiting    Whether this is for waiting list
+     *
+     * @return  bool | WP_Error
+     */
+    function etn_validate_event_tickets( $event_id, $order_tickets, $is_for_update = false, $is_waiting = false ) {
+        $event         = new Event_Model( $event_id );
+        $sold_tickets  = (array)Helper::etn_get_sold_tickets_by_event( $event_id );
+
+        $enable_global_stock = get_post_meta( $event_id, 'etn_enable_global_stock', true );
+        $global_stock      = intval( get_post_meta( $event_id, 'etn_global_stock', true ) );
+
+        if ( $enable_global_stock ) {
+            $total_requested = 0;
+            foreach ( $order_tickets as $ticket ) {
+                $total_requested += intval( $ticket['ticket_quantity'] );
+            }
+
+            $total_sold = array_sum( $sold_tickets );
+
+            $ticket_variations = $event->etn_ticket_variations;
+            $total_pending = 0;
+            if ( is_array( $ticket_variations ) ) {
+                foreach ( $ticket_variations as $ticket_var ) {
+                    $total_pending += intval( $ticket_var['pending'] ?? 0 );
+                }
+            }
+
+            $remaining = $global_stock - $total_sold - $total_pending;
+            if ( $is_for_update ) {
+                $remaining += $total_requested;
+            }
+
+            if ( $is_waiting ) {
+                $global_waiting_list = intval( get_post_meta( $event_id, 'etn_global_waiting_list', true ) );
+                $total_waiting       = array_sum( etn_get_waiting_list_counts_by_slug( $event_id ) );
+                $waiting_remaining   = $global_waiting_list - $total_waiting;
+                if ( $total_requested > $waiting_remaining ) {
+                    return new WP_Error(
+                        'waiting_list_limit',
+                        // translators: %d is the number of waiting-list spots still available.
+                        sprintf( __( 'Waiting list is full. Only %d spots available.', 'wp-event-solution' ), max( 0, $waiting_remaining ) ),
+                        ['status' => 422]
+                    );
+                }
+            } else {
+                if ( $total_requested > $remaining ) {
+                    $only_left = max( 0, $remaining );
+                    return new WP_Error(
+                        'global_stock_limit',
+                        // translators: %d is the number of tickets still left for the event.
+                        sprintf( __( 'Only %d tickets left for this event.', 'wp-event-solution' ), $only_left ),
+                        ['status' => 422]
+                    );
+                }
+            }
+
+            return true;
+        }
+
+        foreach( $order_tickets as $ticket ) {
+            $event_ticket = $event->get_ticket( $ticket['ticket_slug'] );
+
+            if ( ! $event_ticket ) {
+                return new WP_Error( 'ticket_not_found', __( 'Ticket not found', 'wp-event-solution' ), ['status' => 422] );
+            }
+
+            $available = $event_ticket['etn_avaiilable_tickets'] ?? 0;
+            $sold      = $sold_tickets[$ticket['ticket_slug']] ?? 0;
+            $pending   = $event_ticket['pending'] ?? 0;
+
+            if ( ! isset( $available ) || ! is_numeric( $available ) ) {
+                return true;
+            }
+
+            $ticket_left = intval( $available ) - intval( $sold ) - intval( $pending );
+            if ( $is_for_update ) {
+                $ticket_left += intval( $ticket['ticket_quantity'] );
+            }
+
+            if ( $is_waiting ) {
+                $waiting_counts       = etn_get_waiting_list_counts_by_slug( $event_id );
+                $ticket_waiting_limit = intval( $event_ticket['etn_ticket_waiting_list_limit'] ?? 0 );
+
+                // A limit of 0 means this ticket type has no waiting list at all,
+                // which is a different situation from one that filled up. Saying
+                // "the waiting list is full" sent visitors looking for a queue
+                // that was never offered.
+                if ( $ticket_waiting_limit < 1 ) {
+                    return new WP_Error(
+                        'waiting_list_unavailable',
+                        sprintf(
+                            /* translators: %s: ticket type name. */
+                            __( 'There is no waiting list for "%s".', 'wp-event-solution' ),
+                            $event_ticket['etn_ticket_name'] ?? $ticket['ticket_slug']
+                        ),
+                        ['status' => 422]
+                    );
+                }
+
+                $waiting_for_slug     = $waiting_counts[ $ticket['ticket_slug'] ] ?? 0;
+                $waiting_remaining    = $ticket_waiting_limit - $waiting_for_slug;
+                if ( intval( $ticket['ticket_quantity'] ) > $waiting_remaining ) {
+                    return new WP_Error(
+                        'waiting_list_limit',
+                        // translators: %d is the number of waiting-list spots still available for this ticket type.
+                        sprintf( __( 'Waiting list is full for this ticket type. Only %d spots available.', 'wp-event-solution' ), max( 0, $waiting_remaining ) ),
+                        ['status' => 422]
+                    );
+                }
+            } else {
+                $is_unlimited = ! empty( $event_ticket['etn_unlimited_tickets'] ) || -1 === intval( $available );
+
+                if ( ! $is_unlimited && $ticket['ticket_quantity'] > $ticket_left ) {
+                    return new WP_Error( 'ticket_limit', __( 'The ticket limit has been exceeded', 'wp-event-solution' ), ['status' => 422] );
+                }
+            }
+        }
+
+        return true;
+    }
+}
+
+if ( ! function_exists( 'etn_validate_ticket_quantity' ) ) {
+    /**
+     * Validate ticket quantity against min/max per ticket variant
+     *
+     * @param   array  $order_tickets  Order ticket list
+     * @param   integer  $event_id       Event id
+     *
+     * @return  bool | WP_Error
+     */
+    function etn_validate_ticket_quantity( $order_tickets, $event_id ) {
+        $event = new Event_Model( $event_id );
+
+        foreach ( $order_tickets as $ticket ) {
+            $event_ticket = $event->get_ticket( $ticket['ticket_slug'] );
+
+            if ( ! $event_ticket ) {
+                continue;
+            }
+
+            $qty = intval( $ticket['ticket_quantity'] );
+            $min = intval( $event_ticket['etn_min_ticket'] ?? 0 );
+            $max = intval( $event_ticket['etn_max_ticket'] ?? 0 );
+
+            // When no explicit per-order max is configured, fall back to the
+            // ticket's total capacity so requests cannot exceed what the event
+            // can ever fulfill (relevant for waiting-list orders where the
+            // normal stock check is bypassed).
+            if ( $max === 0 ) {
+                $available = intval( $event_ticket['etn_avaiilable_tickets'] ?? 0 );
+                if ( $available > 0 ) {
+                    $max = $available;
+                }
+            }
+
+            if ( $min > 0 && $qty < $min ) {
+                return new WP_Error(
+                    'min_ticket_quantity',
+                    // translators: %d is the minimum ticket quantity required for this ticket type.
+                    sprintf( __( 'Minimum %d tickets required for this ticket type.', 'wp-event-solution' ), $min ),
+                    ['status' => 422]
+                );
+            }
+
+            if ( $max > 0 && $qty > $max ) {
+                return new WP_Error(
+                    'max_ticket_quantity',
+                    // translators: %d is the maximum ticket quantity allowed for this ticket type.
+                    sprintf( __( 'Maximum %d tickets allowed for this ticket type.', 'wp-event-solution' ), $max ),
+                    ['status' => 422]
+                );
+            }
+        }
+
+        return true;
+    }
+}
+
+if ( ! function_exists( 'etn_get_waiting_list_counts_by_slug' ) ) {
+    /**
+     * Return ticket quantities on the waiting list for an event, keyed by ticket slug.
+     * Counts all orders that carry the is_from_waiting_list meta flag.
+     *
+     * @param   integer  $event_id
+     *
+     * @return  array  [ ticket_slug => total_quantity, ... ]
+     */
+    function etn_get_waiting_list_counts_by_slug( $event_id ) {
+        $query = new WP_Query( [
+            'post_type'      => 'etn-order',
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'   => 'event_id',
+                    'value' => $event_id,
+                ],
+                [
+                    'key'   => 'is_from_waiting_list',
+                    'value' => '1',
+                ],
+                // Only a live signup occupies a spot. Cancelled, failed and
+                // refunded signups release theirs, otherwise a waiting list
+                // fills up permanently with orders that will never convert.
+                [
+                    'key'     => 'status',
+                    'value'   => [ 'waiting', 'pending', 'completed' ],
+                    'compare' => 'IN',
+                ],
+            ],
+        ] );
+
+        $counts = [];
+        foreach ( $query->posts as $order_id ) {
+            $tickets = etn_safe_decode( get_post_meta( $order_id, 'tickets', true ) );
+            if ( ! is_array( $tickets ) ) {
+                continue;
+            }
+            foreach ( $tickets as $ticket ) {
+                $slug = $ticket['ticket_slug'] ?? '';
+                $qty  = intval( $ticket['ticket_quantity'] ?? 0 );
+                if ( $slug ) {
+                    $counts[ $slug ] = ( $counts[ $slug ] ?? 0 ) + $qty;
+                }
+            }
+        }
+
+        return $counts;
+    }
+}
+
+if ( ! function_exists( 'etn_is_tickets_sold_out' ) ) {
+    /**
+     * Check whether the requested tickets are sold out (stock exhausted).
+     *
+     * Returns true when every requested ticket type has no remaining stock,
+     * or a WP_Error naming the ticket type(s) that still have availability.
+     * Tickets with no capacity limit (available = 0) are treated as unlimited
+     * and therefore never considered sold out.
+     *
+     * @param   integer  $event_id       Event ID.
+     * @param   array    $order_tickets  Tickets array from the order request.
+     *
+     * @return  true|WP_Error
+     */
+    function etn_is_tickets_sold_out( $event_id, $order_tickets ) {
+        $event        = new Event_Model( $event_id );
+        $sold_tickets = (array) Helper::etn_get_sold_tickets_by_event( $event_id );
+
+        $enable_global_stock = get_post_meta( $event_id, 'etn_enable_global_stock', true );
+        $global_stock        = intval( get_post_meta( $event_id, 'etn_global_stock', true ) );
+
+        if ( $enable_global_stock ) {
+            $total_sold    = array_sum( $sold_tickets );
+            $ticket_vars   = $event->etn_ticket_variations;
+            $total_pending = 0;
+            if ( is_array( $ticket_vars ) ) {
+                foreach ( $ticket_vars as $ticket_var ) {
+                    $total_pending += intval( $ticket_var['pending'] ?? 0 );
+                }
+            }
+            $remaining = $global_stock - $total_sold - $total_pending;
+            if ( $remaining > 0 ) {
+                return new WP_Error(
+                    'tickets_available',
+                    sprintf(
+                        /* translators: %d: number of tickets still available */
+                        __( 'Tickets are still available (%d remaining). You can only join the waiting list when the event is sold out.', 'wp-event-solution' ),
+                        $remaining
+                    ),
+                    [ 'status' => 400 ]
+                );
+            }
+            return true;
+        }
+
+        // Per-ticket check.
+        foreach ( $order_tickets as $ticket ) {
+            $event_ticket = $event->get_ticket( $ticket['ticket_slug'] );
+
+            if ( ! $event_ticket ) {
+                continue;
+            }
+
+            $available    = intval( $event_ticket['etn_avaiilable_tickets'] ?? 0 );
+            $is_unlimited = ! empty( $event_ticket['etn_unlimited_tickets'] ) || -1 === $available;
+
+            // Skip tickets with no capacity limit (unlimited). A capacity of 0
+            // is NOT unlimited - it means no seats, i.e. sold out.
+            if ( $is_unlimited ) {
+                continue;
+            }
+
+            $sold    = intval( $sold_tickets[ $ticket['ticket_slug'] ] ?? 0 );
+            $pending = intval( $event_ticket['pending'] ?? 0 );
+            $left    = $available - $sold - $pending;
+
+            if ( $left > 0 ) {
+                return new WP_Error(
+                    'tickets_available',
+                    sprintf(
+                        /* translators: 1: ticket name, 2: number of tickets still available */
+                        __( 'Tickets are still available for "%1$s" (%2$d remaining). You can only join the waiting list when tickets are sold out.', 'wp-event-solution' ),
+                        $event_ticket['etn_ticket_name'] ?? $ticket['ticket_slug'],
+                        $left
+                    ),
+                    [ 'status' => 400 ]
+                );
+            }
+        }
+
+        return true;
+    }
+}
+
+if ( ! function_exists( 'etn_validate_seat_ids' ) ) {
+    /**
+     * Validate seat ids
+     *
+     * @param   array  $seat_ids  Seat ids
+     *
+     * @return  bool | WP_Error
+     */
+    function etn_validate_seat_ids( $event_id, $seat_ids ) {
+        $booked_seats = etn_safe_decode( get_post_meta( $event_id, '_etn_seat_unique_id', true ));
+        $already_booked_seats = $booked_seats ? explode(',', $booked_seats) : [];
+        $pending_seats = etn_safe_decode( get_post_meta( $event_id, 'pending_seats', true ));
+        if ( empty( $pending_seats ) ) {
+            $pending_seats = [];
+        }
+        $is_enable_payment_timer = etn_get_option( 'ticket_purchase_timer_enable', 'off' );
+
+        foreach ( $seat_ids as $seat_id ) {
+            // need to handle the corner in rush condition 
+            // if ( !in_array( $seat_id, $pending_seats ) &&  $is_enable_payment_timer == 'on') {
+            //     return new WP_Error( 'seat_limit', __( 'The requested seat is already booked, please select another seat', 'eventin' ), ['status' => 422] );
+            // }
+            if ( in_array( $seat_id, $already_booked_seats ) ) {
+                return new WP_Error( 'seat_limit', __( 'The requested seat is already booked', 'wp-event-solution' ), ['status' => 422] );
+            }
+        }
+
+        return true;
+    }
+}
+
+if ( ! function_exists('etn_humanize_number') ) {
+
+	function etn_humanize_number( $number ) {
+		if (!is_numeric($number)) {
+			return $number;
+		}
+		
+		$number = (int)$number;
+		
+		if ($number >= 1000000000) {
+			return round($number / 1000000000, 1) . 'b';
+		}
+		
+		if ($number >= 1000000) {
+			return round($number / 1000000, 1) . 'm';
+		}
+		
+		if ($number >= 1000) {
+			return round($number / 1000, 1) . 'k';
+		}
+		
+		return $number;
+	}
+}
+
+
+
+if ( ! function_exists('is_event_template_builder') ) {
+
+	function is_event_template_builder() {
+		$current_post_id = get_the_ID();
+
+        $post_type = get_post_type($current_post_id);
+
+        if ( $post_type != 'etn-template' ) {
+            return false;
+        }
+
+        return $current_post_id;
+	}
+}
+
+if ( ! function_exists('get_first_published_event') ) {
+
+	function get_first_published_event() {
+		$query = new WP_Query( [
+            'post_type'      => 'etn',
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'orderby'        => 'date',
+            'order'          => 'ASC'
+        ] );
+        
+        $first_post_id = $query->have_posts() ? $query->posts[0]->ID : 0;
+
+        return $first_post_id;       
+	}
+}
+
+if ( ! function_exists( 'etn_get_selected_template_builder' ) ) {
+    /**
+     * Get name of the selected template builder
+     * If selected template builder is deactive or null (not selected) then return emptry string
+     */
+    function etn_get_selected_template_builder() {
+        $selected_template_builder = etn_get_option( 'selected_template_builder' ) ?? '';
+
+        if ( $selected_template_builder == 'elementor' ) {
+            if ( class_exists( '\Elementor\Plugin' ) ) {
+                return 'elementor';
+            }
+
+            return '';
+        }
+
+        return $selected_template_builder;
+    }
+}
+
+if ( ! function_exists( 'etn_get_static_event_templates' ) ) {
+    /**
+     * Returns list of static event (landing page) templates.
+     *
+     * @return array
+     */
+    function etn_get_static_event_templates() {
+        return \Eventin\Template\StaticTemplateConfig::by_type( 'event' );
+    }
+}
+
+if ( ! function_exists( 'etn_get_static_ticket_templates' ) ) {
+    /**
+     * Returns list of static ticket templates.
+     *
+     * @return array
+     */
+    function etn_get_static_ticket_templates() {
+        return \Eventin\Template\StaticTemplateConfig::by_type( 'ticket' );
+    }
+}
+
+if ( ! function_exists( 'etn_get_static_certificate_templates' ) ) {
+    /**
+     * Returns list of static certificate templates.
+     *
+     * @return array
+     */
+    function etn_get_static_certificate_templates() {
+        return \Eventin\Template\StaticTemplateConfig::by_type( 'certificate' );
+    }
+}
+
+if ( ! function_exists( 'etn_get_static_speaker_templates' ) ) {
+    /**
+     * Returns list of static speaker templates.
+     *
+     * @return array
+     */
+    function etn_get_static_speaker_templates() {
+        return \Eventin\Template\StaticTemplateConfig::by_type( 'speaker' );
+    }
+}
+
+if ( ! function_exists( 'etn_get_static_templates_by_type' ) ) {
+    /**
+     * Returns static templates for a given type, or every type when empty.
+     *
+     * Backed by \Eventin\Template\StaticTemplateConfig — edit that config to
+     * change the starter template list or its free/pro flags.
+     *
+     * @param string $type
+     *
+     * @return array
+     */
+    function etn_get_static_templates_by_type( $type = '' ) {
+        return \Eventin\Template\StaticTemplateConfig::by_type( $type );
+    }
+}
+
+if ( ! function_exists( 'etn_get_valid_event_socials' ) ) {
+    /**
+     * Filter an event's social links down to the renderable ones.
+     *
+     * The event form seeds an empty row so the repeater always has an input to
+     * type into, so `etn_event_socials` can hold entries with no icon and no
+     * URL at all. A link needs both to be renderable: without a URL there is
+     * nowhere to go, and without an icon the <a> paints as an empty chip (the
+     * bare circle next to "Share:"). Every render path filters through this.
+     *
+     * @param mixed $socials Raw etn_event_socials meta.
+     *
+     * @return array Entries that have both an icon and a URL. Keys are reindexed.
+     */
+    function etn_get_valid_event_socials( $socials ) {
+        if ( ! is_array( $socials ) ) {
+            return [];
+        }
+
+        $valid = array_filter(
+            $socials,
+            function ( $social ) {
+                return is_array( $social )
+                    && ! empty( $social['icon'] )
+                    && ! empty( $social['etn_social_url'] );
+            }
+        );
+
+        return array_values( $valid );
+    }
+}
+
+if ( ! function_exists( 'etn_readable_post_text' ) ) {
+    /**
+     * An event's body or excerpt, blanked when the visitor may not read it.
+     *
+     * Listings show a snippet of each event: the calendar endpoint, the related
+     * events strip, the Elementor calendar widget, the .ics download. A
+     * password-protected event is still `publish`, so it turns up in all of them
+     * like any other event — and printing its text raw handed out exactly what
+     * the password exists to hide.
+     *
+     * WordPress guards its own equivalents this way: get_the_content() returns
+     * the password form and get_the_excerpt() returns a placeholder when
+     * post_password_required() is true. These call sites read the column
+     * directly, so they need the test spelled out.
+     *
+     * @param int|\WP_Post $post  Post or post id.
+     * @param string       $field 'post_content' (default) or 'post_excerpt'.
+     *
+     * @return string Empty string when the visitor may not see it.
+     */
+    function etn_readable_post_text( $post, $field = 'post_content' ) {
+        $post = get_post( $post );
+
+        if ( ! $post ) {
+            return '';
+        }
+
+        if ( ! \Eventin\AccessControl\Ownership::can_read_protected_content( $post ) ) {
+            return '';
+        }
+
+        return (string) ( 'post_excerpt' === $field ? $post->post_excerpt : $post->post_content );
+    }
+}
+
+if ( ! function_exists( 'etn_expand_event_filter_ids' ) ) {
+    /**
+     * Turn a picked event id into the list of event ids a list should match.
+     *
+     * A recurring parent never sells a ticket itself: every booking and every
+     * attendee is stored against one of its child occurrences. Matching the
+     * parent id exactly therefore returned an empty booking/attendee list, and
+     * the organizer had to open each occurrence one at a time to see the series.
+     *
+     * A parent expands to itself plus every occurrence. Its own id stays in the
+     * list so older bookings made directly on the parent still show. Anything
+     * else — a single occurrence, or a plain non-recurring event — expands to
+     * just itself, so filtering by one occurrence keeps showing only that one.
+     *
+     * "Recurring parent" is decided by having child events, the same test the
+     * event-select dropdown uses for its `is_recurring_parent` flag
+     * (EventController::event_has_children()).
+     *
+     * @param   int|string  $event_id  Event id picked in a list filter.
+     *
+     * @return  int[]  Event ids to match, always at least the given id.
+     */
+    function etn_expand_event_filter_ids( $event_id ) {
+        $event_id = absint( $event_id );
+
+        if ( ! $event_id ) {
+            return [];
+        }
+
+        $children = get_posts( [
+            'post_type'      => 'etn',
+            'post_parent'    => $event_id,
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ] );
+
+        return array_merge( [ $event_id ], array_map( 'absint', (array) $children ) );
+    }
+}
+
+if ( ! function_exists( 'etn_is_razorpay_enabled' ) ) {
+    /**
+     * Check Razorpay can take payments
+     *
+     * Razorpay is a Pro feature. It is on only when the admin turned it on and
+     * an Eventin Pro version that has the Razorpay classes is active.
+     *
+     * @return  bool
+     */
+    function etn_is_razorpay_enabled() {
+        return (bool) etn_get_option( 'razorpay_status' )
+            && class_exists( 'Wpeventin_Pro' )
+            && class_exists( '\EventinPro\Integrations\Razorpay\RazorpayPayment' );
+    }
+}

@@ -1,0 +1,1234 @@
+
+
+
+@media (max-width: 1290px) {
+
+	.container{
+		max-width:95%;
+		padding:0;
+	}
+	header nav.rrss {
+	    right: 0em !important;
+	}
+	main .cabecera span.color_title {
+	    left: 50%;
+	}
+	main .cabecera.noticias span.color_title{
+        left:auto;
+        width:43%;
+    }
+	main .cabecera nav p {
+	    width: 50.2%;
+	}
+	main .cabecera nav ul {
+	    width: 49.3%;
+	}
+
+	/*time*/
+
+	main .time article {
+	    width: 40%;
+	}
+	main .time p.hastag {
+	    left: 60%;
+	}
+
+	/*speakers*/
+	
+	main .speakers.keynote{
+        margin:4.4em auto 0;
+	}
+	main .speakers.keynote ul li {
+	    /*width: 50%;*/
+	    /*min-width: 300px;*/
+	}
+	main .speakers.keynote span.title_speak{
+        display: none;
+    }
+    main .speakers.keynote span.title_speak2 {
+	    right: -2em;
+	    width: 50%;
+	}
+	main .speakers.home ul li:last-child a span{
+        font-size:4em;
+    }
+
+    /*news*/
+     main .news{
+        box-sizing: border-box;
+
+    }
+}
+
+
+@media (max-width: 1150px) {
+
+
+	body{
+		font-size: 10px;
+	}
+	nav.menu {
+	    /*right:3%;*/
+	    width: 72%;
+	    text-align: right;
+	}
+		nav.menu:not(.on) ul.menu{
+		    margin-right:3.3%;
+		}
+		nav.menu ul li {
+		    margin-right: 1.5em;
+		}
+
+	header .menu .wpml-ls {
+	    right: 10em;
+	}
+
+	/*partners*/
+
+	main .partners ul.partner1{
+        width:95%;
+    }
+    main .partners ul.partner1 li{
+        width:44%;
+        margin:0;
+    }
+    main .partners ul.partner1 li.text{
+        width:55%;
+    }
+}
+
+
+@media (max-width: 1020px) {
+
+
+	/*/////////////////*/
+	/* menu responsive */
+
+		.hamburger{
+			position: absolute;
+	        display: block !important;
+	    }
+	    .hamburger.on{
+			position: fixed;
+	    }
+		header nav.menu {
+		     top: 0em; 
+		}
+		nav.menu{
+			position: fixed;
+			top:0;
+			right:-60%;
+			width:60%;
+			height:100%;
+			background-color: rgba(0,0,0,0.65);
+			/*background-color: #e0061f;*/
+			transition: right 0.3s cubic-bezier(0,.66,.3,1.02);
+		}
+		nav.menu.on{
+			right:0%;
+			min-width:360px;
+		}
+			nav.menu ul{
+				position: relative;
+				width:60%;
+				color:#FFF;
+				margin:0 auto 1em;
+				padding:7em 0 1em; 
+				box-sizing: border-box;
+			}
+				nav.menu ul li:not(.wpml-ls-item){
+					position: relative;
+					display: block !important;
+					top:0;
+					width:100%;
+					height:auto;
+					text-align: left;
+					margin-bottom:1em;
+					padding:0; 
+				}
+				nav.menu ul li:not(.wpml-ls-item):last-child{
+					border:1px solid #FFF;
+					display: table !important;
+					padding:0.5em 0;
+					margin-top:2em;
+					text-align: center;
+				}
+					nav.menu li:not(.wpml-ls-item):after {
+						content:'';
+						position: relative;
+					    display: block;
+					    top: 0em;
+					    width: 100%;
+					    height: 1px;
+					    margin: 20px auto;
+					    background-color: #fff;
+					}
+					nav.menu li:not(.wpml-ls-item):last-child:after {
+						display: none;
+					}
+			nav.menu nav.rrss{
+		        position: relative;
+		        display: block;
+				width:50%;
+				left:17.5%;
+		        color:#FFF;
+		    }
+		    header nav.rrss{
+		        display: none !important;
+		    }
+		    nav.menu .wpml-ls{
+		        position: absolute;
+		        display: block;
+		        top:2.5%;
+		        left:3%;
+				width:auto;
+		        color:#FFF;
+		        /*display: none; */
+		    }
+			    nav.menu .wpml-ls ul {
+				    position: relative;
+				    width: 100%;
+				    padding: 0em;
+				    box-sizing: border-box;
+				    text-align: left;
+				}
+		    header .menu .wpml-ls{
+		        display: none !important;
+		    }
+
+	/* menu responsive */
+	/*/////////////////*/
+	
+	body{
+		font-size:10.5px;
+	}
+
+	 header.scroll{
+        display: none;
+    }
+
+
+	main h1.title{
+        font-size:6em;
+    }
+    main .cabecera {
+	    max-width:100%;
+	}
+    main .cabecera p.claim {
+	    font-size: 6em;
+	}
+
+	/* home */
+
+	main .cabecera.home article {
+	    top: 50%;
+	    left: 8%;
+	    max-width: 50%;
+	    font-size: 0.9em;
+	}
+
+	/*time*/
+
+	main .time article {
+	    width: 45%;
+	    height:70%;
+	}
+	main .time p.hastag {
+		font-size: 6.3vw;
+	    left: 67%;
+	    bottom: 22%;
+	}
+
+
+	/* summit */
+	main .summit h1.title span.color {
+	    padding-top: 0.85em;
+	}
+	main .summit h1.title span.color {
+		top:-2em;
+	    height: 125%;
+	}
+
+    /*proximamente*/
+
+    main .summit .dias ul .prox.inspiring {
+	    transform: translate(0%,0%);
+	}
+	main .summit .dias ul .prox.inspiring strong {
+	    text-align: center;
+	}
+
+    main .summit .dias ul .prox {
+	    position: relative;
+	    display: block;
+	    top: 0%;
+	    left: 0%;
+	    transform: translate(0%,0%);
+	    padding-bottom:2.2em;
+	}
+	 main .summit .dias ul .prox span{
+	    position: relative;
+	    display: block;
+	    top:2.2em;
+	}
+
+	/*speakers*/
+    main .speakers.inspiring ul li,
+    main .speakers.home ul li{
+	    width: 33.33%;
+	}
+
+    main .speakers.inspiring ul li div.content,
+    main .speakers.home ul li div.content{
+        padding: 2.8em;
+    }
+	main .speakers.inspiring ul li:nth-child(3n+1),
+    main .speakers.home ul li:nth-child(3n+1){
+        clear: both;
+    }
+    main .speakers.inspiring ul li:nth-child(4n+1),
+    main .speakers.home ul li:nth-child(4n+1){
+        clear: none;
+    }
+
+	/* who */
+
+	main .who h2 {
+	    font-size: 3.3em;;
+	}
+	main .who ul {
+	    width: 80%;
+	}
+		main .who ul li h1 {
+		    font-size: 1.75em;
+		}
+
+
+	/*noticias*/
+
+	main .cabecera.noticias {
+	    height: 0em;
+	}
+	main .cabecera.noticias span.title {
+	    transform: translate(0%,-85%);
+	    font-size: 12.5em;
+	}
+	main .cabecera.noticias span.color_title {
+	    bottom: 1.2em;
+	}
+	main .news.index,
+	main .noticia.news  {
+	    padding-top: 0em;
+	}
+
+
+
+	footer .cont-footer article{
+	 	width: 33%;
+    }
+	    footer .cont-footer article a{
+		 	left:50%;
+		 	transform: translateX(-50%);
+	    	clear: both;
+	    }
+	    footer .cont-footer article br{
+	        display: block;
+	    }
+	
+}
+
+
+
+@media (max-width: 970px) {
+
+	main h1.title{
+        font-size:5.5em;
+    }
+    main .cabecera p.claim {
+	    font-size: 5.5em;
+	}
+	main .cabecera .arrow.arrowLeft {
+	    top: 3em;
+	    transform: translateY(0) rotate(180deg);
+	}
+	main .cabecera.noticias span.color_title{
+        width:55%;
+    }
+
+	/*time*/
+
+	main .time article .center {
+	    top: 55%;
+	    width: 70%;
+	}
+
+	/*news*/
+	main .news ul li {
+	    width: 45%;
+	    /*min-height: 450px;*/
+	    margin: 0% 2.5% 0.5em;
+	}
+	main .news ul li:nth-child(4n) {
+	    margin-right: inherit;
+	}
+
+	/*summit*/
+
+	main .cabecera nav p {
+	    font-size: 2.2em;
+	}
+	
+	main .summit .dias ul li.fecha h1.date {
+	    cursor:pointer;
+	}
+	main .summit .dias.inspiring ul li.fecha article {
+	    left: 37%;
+	    width: 50%;
+	}
+
+	main article.hastag {
+	    width: 80%;
+	    font-size: 4em;
+	}
+
+	main .summit .dias ul {
+	     padding: 0 4%; 
+	}
+
+	/* speakers */
+
+	main .speakers.keynote ul li {
+	    width: 50%;
+	    min-width: 300px;
+	}
+	main .speakers.keynote ul li:nth-child(2n+1){
+        clear: both;
+    }
+    main .speakers.keynote ul li:nth-child(3n+1){
+        clear: none;
+    }
+	
+	/* speakers */
+
+	/*donde*/
+
+	main .planes ul a{
+		width:33.33%;
+    }
+	main .planes ul a:nth-child(3n+1){
+        clear: both;
+    }
+
+    /*donde*/
+
+
+	/*partners*/
+
+	main .partners ul.partner1 li {
+		width:80%;
+		margin:0 0 0.3em !important;
+		left:10%;
+	}
+	main .partners ul.partner1 li.text {
+		left:0%;
+		width:100%;
+	    height: auto;
+	}
+		main .partners ul.partner1 li.text .vcenter {
+			top: 0%;
+		    left: 0%;
+		    transform: translate(0%,0%);
+		}
+	main .partners ul li {
+   		height: 9em;
+   	}
+
+   	main .partners ul.partner3{ width:80%; }
+    main .partners ul.partner4{ width:85%; }
+    main .partners ul.partner5{ width:105%; left:-2.5%; }
+    main .partners ul.partner5small{ width:100%; }
+    main .partners ul.partner6{ width:105%; ; left:-2.5%; }
+    main .partners ul.partner6small{ width:100%; }
+
+
+
+	/* donde */
+
+	main .donde ul.lineas{
+		overflow: hidden;
+	}
+	main .donde ul.lineas .cont-li{
+		position: relative;
+		float: left;
+		overflow: hidden;
+		width:33.33%;
+		height: 17em;
+	}
+	main .donde ul.lineas li {
+	    width: 100%;
+	    height:50%;
+	    background-size: 101% auto;
+	}
+	 main .donde ul.lineas .cont-li:hover li.foto{
+            background-size: 125% auto;
+        }
+	
+	/* who */
+
+	main .who ul {
+	    width: 95%;
+	}
+
+	/* footer */
+
+
+     
+
+}
+
+@media (max-width: 760px) {
+
+	.swiper-slide{ overflow: hidden; }
+
+	header .cont-logo{
+        background-color: #FFF;
+    }
+	main h1.title{
+        font-size:5em;
+    }
+
+    main .cabecera .fondo{
+		left:50%;
+		transform: translateX(-50%);
+		width:auto;
+        min-width: 100%;
+        max-height:300px;
+    }
+	
+	/* home */
+	main .cabecera.home {
+	     margin-bottom: 7em; 
+	}
+		main .cabecera.home span.color_title {
+		    bottom: 8em;
+		}
+		main .cabecera.home article {
+			position: relative;
+		    max-width: 70%;
+		    padding:2em 10% 2em 0;
+		    background-color: #FFF;
+		    color:#252525  !important;
+		}
+		main .cabecera.home article p {
+			color:#252525 !important;
+		}
+		main .cabecera.home article p br {
+			display: none;
+		}
+	    main .cabecera p.save {;
+		    font-size: 3.3em;
+		}
+
+		/*time*/
+
+		main .time {
+		    margin-bottom:6em;
+		}
+		main .time span.title {
+		    font-size: 18vw;
+		}
+		main .time p.fecha {
+		    top: 7%;
+		    left: auto;
+		    margin-left: 5%;
+		}
+		main .time p.fecha span{
+		    font-size: 7.5vw;
+		}
+			main .time p.fecha span br{
+			    /*display: none;*/
+			}
+		main .time article {
+			bottom:9em;
+		    width: 60%;
+		    height: 50%;
+		}
+			main .time article .center {
+			    top: 55%;
+			    width: 70%;
+			}
+			main .time article .center h1 {
+			    font-size: 3em;
+			}
+			main .time article .center p {
+			    line-height: 1.7em;
+			}
+		/*main .time img {
+		    width: 110%;
+		    left:-5%;
+		}*/
+		 main .time img{
+	    	position: relative;
+			left:50%;
+			transform: translateX(-50%);
+			width:auto;
+	        min-width: 100%;
+	        max-height:390px;
+	    }
+		main .time p.hastag {
+		    /*display: none;*/
+		}
+		main .time p.hastag {
+		    position: absolute;
+		    display: block;
+		    font-size: 5.8vw;
+		    bottom: 25%;
+		    left: auto;
+		    right:0;
+		    transform: translateX(0%);
+		}
+		main .time .footer p.hastag {
+		    display: block;
+		    font-size: 6.2em;
+		    /*transform: translateY(100%);*/
+		}
+		
+
+	/*summit*/
+	
+	main .cabecera nav p {
+		display:none;
+	}
+	main .cabecera nav ul {
+	    width: 100%;
+	}
+	main article.hastag {
+	    width: 90%;
+	    font-size: 3em;
+	}
+
+		main .summit .dias ul li.fecha h1.date.on{
+			color:rgba(255,255,255,1) !important;
+		}
+		main .summit .dias ul li.fecha h1.date{
+			color:rgba(0,0,0,0.5);
+		}
+
+		/*eventos*/
+
+		main .summit .dias.inspiring ul li.fecha article {
+		    left: 35%;
+		    width: 60%;
+		}
+		
+		main .summit .dias ul li.fecha:nth-child(2) article {
+		   position: relative;
+		   left: auto;
+		   right:60%;
+		   /*width: 100%;*/
+		}
+
+		main .summit .dias ul li.fecha:nth-child(2) .contenido.byellow {
+			border-left: 0px solid #ffdc71 !important;
+		    border-right: 2px solid #ffdc71;
+		}
+		main .summit .dias ul li.fecha:nth-child(2) .contenido.bblue {
+			border-left: 0px solid #60c9d0 !important;
+		    border-right: 2px solid #60c9d0;
+		}
+		main .summit .dias ul li.fecha:nth-child(2) .contenido.bpink {
+			border-left: 0px solid #d8b0c3 !important;
+		    border-right: 2px solid #d8b0c3;
+		}
+
+		main .summit .dias ul li.fecha:nth-child(2) .horario {
+		   float:right;
+		}
+		main .summit .dias ul li.fecha:nth-child(2) .contenido {
+			float:right;
+		    text-align: right;
+		}
+			main .summit .dias ul li.fecha:nth-child(2) h1.byellow {
+			    border: 2px solid #ffdc71;
+			    border-right: 0px solid #ffdc71;
+			}
+			main .summit .dias ul li.fecha:nth-child(2) h1.bblue {
+			    border: 2px solid #60c9d0;
+			    border-right: 0px solid #60c9d0;
+			}
+			main .summit .dias ul li.fecha:nth-child(2) h1.bpink {
+			    border: 2px solid #d8b0c3;
+			    border-right: 0px solid #d8b0c3;
+			}
+
+	/*sala*/
+	main .summit .dias ul .lugar{
+        top:10em;
+        width:40%;
+    }
+    	main .summit .dias ul .lugar h1{
+            margin-bottom:0.1em;
+            line-height:1.2em;
+        }
+    	main .summit .dias ul .lugar h1 span{
+            display: inline-block;
+            margin-left:0.3em;
+        }
+    main .summit .dias ul li.fecha article:nth-child(2) .horario{
+        margin-top:6.5em;
+    }
+    main .summit .dias ul li.fecha article:nth-child(2) .contenido{
+        padding-top:7.8em;
+    }
+    main .summit .dias ul .lugar.inspiring{
+        transform: translate(-50%,-50%);
+        background-color: #fff;
+        padding:0.5em 1em;
+        border: 2px solid #ffdc71;
+        min-width:275px;
+    }
+
+	/*summit eventos*/
+
+	main .summit .dias ul {
+	    overflow: visible;
+	    /*height:300px;*/
+	}
+		main .summit .dias ul li.fecha {
+		    overflow: visible;
+	    	height:100%;
+		}
+			main .summit .dias ul li.fecha article {
+			    position: relative;
+			    left: 15%;
+			    width: 150%;
+			}
+	main .summit .clear{
+		display: block;
+		width:100%;
+	}
+
+	
+	/*speakers*/
+
+	main .speakers.keynote span.title_speak2 {
+	    right: -0.5em;
+	    width: 50%;
+	}
+
+	main .speakers.inspiring span.title_speak2 {
+	    left: -1.5em;
+    	width: 50%;
+	}
+	main .speakers.home span.title_speak{
+		font-size: 23.5vw;
+	}
+	main .speakers.inspiring ul li,
+    main .speakers.home ul li{
+	    width: 50%;
+	}
+	main .speakers.inspiring ul li:nth-child(2n+1),
+    main .speakers.home ul li:nth-child(2n+1){
+        clear: both;
+    }
+    main .speakers.inspiring ul li:nth-child(3n+1),
+    main .speakers.home ul li:nth-child(3n+1){
+        clear: none;
+    }
+	
+	
+	/*donde*/
+
+	main .planes ul a{
+		width:50%;
+    }
+    main .planes ul a:nth-child(3n+1){
+        clear: none;
+    }
+	main .planes ul a:nth-child(2n+1){
+        clear: both;
+    }
+
+    /*donde*/
+
+
+	/*expertos*/
+
+	main .expertos article {
+	    width: 80%;
+	    margin: 0 auto;
+	}
+
+	/* who */
+
+	main .who ul li {
+	    width: 100%;
+	}
+	main .who h2 {
+	    font-size: 3em;
+	    left:5%;
+	    width:90%;
+	}
+
+	/*noticia*/
+	main .noticia article.contenido{
+		margin-bottom: 1em;
+	}
+	main .noticia div.c2:nth-child(2){
+		width:90%;
+		left:5%;
+	}
+	main .noticia div.c2:nth-child(1){
+		width:80%;
+		left:10%;
+		margin-bottom: 2em;
+	}
+	main .noticia div.c2:nth-child(2){
+		width:90%;
+		left:5%;
+	}
+	main .news ul li p {
+	    font-size:1.15em
+	}
+
+	/*contenido*/
+
+	main article.contenido {
+	    width: 80%;
+	}
+	main article.contenido p.bullet {
+	    margin-left: 3.5em;
+	}
+	main article.contenido p.sangria {
+	    text-indent: 3em;
+	}
+
+	/* footer */
+	
+	
+	footer .cont-footer{
+	    padding:4em 0 4em;
+	}
+		footer .cont-footer img.logo {
+		    display: none;
+		}
+		footer .cont-footer article {
+			position: relative;
+			display: block;
+			top:0;
+			left:0;
+		    width: 90%;
+		    transform: translate(0,0);
+		    margin:0 auto;
+		}
+		 	footer .cont-footer article a{
+			 	left:auto;
+			 	transform: translateX(0%);
+		    	clear: none;
+		    }
+		    footer .cont-footer article br{
+		        display: none;
+		    }
+		footer .cont-footer span.legales-rrss{
+		    position: relative;
+		    display: table;
+		    top:0;
+		    right:auto;
+		    transform: translate(0,0);
+		    margin:1.5em auto 0;
+		}
+			footer .cont-footer span.legales-rrss nav.legales li{
+			    display: inline-block;
+			    margin:0 0.5em;
+			}
+		footer .cont-footer span.legales-rrss nav.rrss {
+			position: relative;
+			display: block;
+		    width:50%;
+		    margin:1.5em auto 0;
+		}
+			footer .cont-footer span.legales-rrss nav.rrss a {
+			    text-align: center;
+			}
+
+
+}
+
+
+@media (max-width: 660px) {
+
+	header .cont-logo {
+	    min-width: 200px;
+	}
+
+	main h1.title{
+        font-size:4.5em;
+    }
+
+	main .cabecera span.color_title {
+		left:auto;
+		right:0;
+	    width: 50%;
+	    height: 300vh;
+	}
+
+	.arrow {
+	    width: 5.5em;
+	    height: 3.8em;
+	}
+	
+	/*home title*/
+
+	main .time article {
+		bottom:9em;
+	    width: 80%;
+	    height: 50%;
+	}
+	main .time p.hastag {
+	   display: none;
+	}
+	main .time article .center h1 {
+	    font-size: 2.5em;
+	}
+	main .time .footer p.hastag {
+	    font-size: 5.5em;
+	}
+
+	/*news*/
+
+	main .news ul li {
+	    width: 70%;
+	    margin: 0% 15% 3em;
+	}
+	main .news ul li p {
+	    font-size:1.3em
+	}
+
+
+	/*summit*/
+
+	main article.hastag {
+	    font-size: 2.6em;
+	    letter-spacing:-0.02em
+	}
+	 main .summit .dias ul .lugar h1 span{
+    	line-height: 1em;
+    	font-size:0.85em;
+    }
+
+	/*speakers*/
+
+	main .speakers.keynote ul li {
+	    width: 70%;
+	    min-width: auto;
+	    left:15%;
+	}
+	main .speakers.keynote span.title_speak2 {
+	    right: -2em;
+	    width: 80%;
+	}
+
+    /*donde
+
+		/*reset*/
+		main .donde ul.lineas .cont-li{
+			position: relative;
+			float: none;
+			overflow: visible;
+			width:auto;
+			height: auto;
+		}
+		main .donde ul.lineas li {
+		    width: inherit;
+		    height:inherit;
+		    background-size: 101% auto;
+		}
+		/*reset*/
+
+	 main .donde ul.lineas .cont-li:hover li.foto{
+            background-size: 125% auto;
+        }
+
+    main .donde ul li.lineas {
+	    width:60%;
+	    margin:0 auto;
+	}
+	main .donde ul.where {
+	    height: auto;
+	}
+		main .donde ul.where li {
+		    width: 100%;
+		    height: 24em;
+		}
+	main .donde ul.lineas {
+	    height: auto;
+	}
+		main .donde ul.lineas li {
+		    width: 50%;
+		    height: 17em;
+		    background-size: 101% auto;
+		}
+		 main .donde ul.lineas .cont-li:hover li.foto{
+            background-size: 125% auto;
+        }
+		main .donde ul.lineas li:nth-child(3) {
+		    float:right;
+		}
+
+	/*noticia*/
+	main .cabecera.noticias span.title {
+	    font-size: 10em;
+	}
+
+
+	/*contenido*/
+
+	main article.contenido {
+	    width: 87.5%;
+	}
+	main article.contenido p.bullet {
+	    margin-left: 2.7em;
+	}
+	main article.contenido p.sangria {
+	    text-indent: 2em;
+	}
+
+
+}
+
+@media (max-width: 500px) {
+
+	body{
+		font-size: 10px;
+	}
+
+	nav.menu{
+		right:-100%;
+		width:100%;
+	}
+
+	/*time*/
+
+	main .time img {
+	    max-height: 350px;
+	}
+	
+	main .time p.fecha span {
+	    font-size: 3.5em;
+	}
+
+	main .time article {
+	    bottom: 9em;
+	    width: 80%;
+	    height: 55%;
+	}
+
+	main .time .footer p.hastag {
+	    font-size: 4.5em;
+	}
+
+	/*news*/
+
+	main .news ul li {
+	    width: 80%;
+	    margin: 0% 10% 3em;
+	}
+
+
+	/*summit*/
+
+	main .summit .dias.inspiring ul li.fecha article {
+	    left: 30%;
+	    width: 70%;
+	}
+
+	main .summit .dias ul li.fecha h1.date {
+	    padding: 0.75em 0;
+	}
+	main .summit .dias .color {
+	    height: 14.3em;
+	}
+	main .summit .dias ul .lugar{
+        top:9.5em;
+    }
+    main .summit .dias ul .lugar p span{
+        display: none;
+    }
+    main .summit .dias ul .lugar.inspiring{
+        min-width:240px;
+    }
+
+	/*speakers*/
+
+	main .speakers.inspiring span.title_speak2 {
+	    /*left: -1.5em;*/
+    	width: 70%;
+	}
+
+	main .speakers.inspiring ul li,
+    main .speakers.home ul li{
+	    width: 70%;
+	    left:15%;
+	}
+	main .speakers.inspiring ul li div.content, 
+	main .speakers.home ul li div.content {
+	    padding: 3em;
+	}
+
+	main .speakers.inspiring ul li:nth-child(1n+1),
+    main .speakers.home ul li:nth-child(1n+1){
+        clear: both;
+    }
+    main .speakers.inspiring ul li:nth-child(2n+1),
+    main .speakers.home ul li:nth-child(2n+1){
+        clear: none;
+    }
+
+	/*partners*/
+
+	main .partners ul.partner3{ width:90%; }
+    main .partners ul.partner4{ width:95%; }
+    main .partners ul.partner5{ width:105%; left:-2.5%; }
+    main .partners ul.partner5small{ width:105%; left:-2.5%; }
+    main .partners ul.partner6{ width:105%;  left:-2.5%; }
+    main .partners ul.partner6small{ width:105%;  left:-2.5%; }
+
+        main .partners ul.partner3 li{
+            width:28.33%;
+            margin:0 2.25%;
+        }
+        main .partners ul.partner4 li{
+            width:22.5%;
+            margin:0 1%;
+        }
+        main .partners ul.partner5 li{
+            width:20%;
+            margin:0 2.25%;
+        }
+        main .partners ul.partner5small li{
+            width:20%;
+            margin:0 2.25%;
+        }
+        main .partners ul.partner6 li{
+            width:15.5%;
+            margin:0 2.15%;
+        }
+        main .partners ul.partner6small li{
+            width:15.5%;
+            margin:0 2.15%;;
+        }
+
+
+    /*donde*/
+
+	main .planes ul a{
+		width:90%;
+		left:5%;
+    }
+    main .planes ul a:nth-child(1n+1){
+        clear: none;
+    }
+	main .planes ul a:nth-child(1n+1){
+        clear: both;
+    }
+
+    /*donde*/
+
+	/*expertos*/
+
+	main .expertos article {
+	    width: 87.5%;
+	}
+
+	/*noticias*/
+	main .cabecera.noticias span.title {
+	    font-size: 7.5em;
+	}
+	main .noticia div.c2:nth-child(1),
+	main .noticia div.c2:nth-child(2) {
+	    width: 95%;
+	    left: 2.5%;
+	}
+	main .noticia div.cont-texto div.cont {
+	    padding: 0;
+	}
+	main .noticia h1 {
+	    font-size: 2.5em;
+	}
+
+    /*contenido*/
+
+	main article.contenido {
+	    width: 93%;
+	}
+	main article.contenido p.bullet {
+	    margin-left: 2.2em;
+	}
+	main article.contenido p.sangria {
+	    text-indent: 1.2em;
+	}
+
+
+	/*footer*/
+
+	footer .registro a {
+	    font-size: 2.2em;
+	}
+}
+
+
+@media (max-width: 440px) {
+
+	/*home*/
+
+	main .cabecera .bullets {
+	    display: none;
+	}
+
+	/*summit*/
+
+	main .cabecera nav ul li {
+		width:31.5%;
+	    font-size: 1.4em;
+	    letter-spacing:-0.02em
+	}
+	main .cabecera nav ul li:last-child {
+		width:36.99% 
+	}
+
+
+	main .summit .dias:not(.inspiring) ul li.fecha h1.date {
+	    background-size: 90% 100%;
+	}
+
+	main article.hastag {
+	    font-size: 2.6em;
+	    letter-spacing:-0.04em
+	}
+	main article.hastag .hastag2 {
+	    font-size: 1.45em;
+	    letter-spacing:-0.06em
+	}
+	main article.hastag .hastag5 {
+	    transform: translate(0%,0%);
+	    text-align: right;
+	    left: 0;
+	}
+	
+	/*speaker*/
+
+	main .speakers.keynote span.title_speak2 {
+		padding-right: 2em;
+	    width: 90%;
+	}
+
+	/*noticias*/
+	main .cabecera.noticias span.title {
+	    display: none;
+	}
+
+}
+@media (max-width: 400px) {
+
+   
+}

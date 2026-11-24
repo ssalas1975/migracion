@@ -1,0 +1,13 @@
+{
+    "name": "sebastiansalasdeporras/configcomposerwordpress",
+    "authors": [
+        {
+            "name": "ssalas",
+            "email": "ssalas@ces.vocento.com"
+        }
+    ],
+    "require": {
+        "php-http/guzzle6-adapter": "^2.0",
+        "vocento/frontal-client": "^2.0"
+    }
+}

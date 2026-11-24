@@ -1,0 +1,107 @@
+
+
+@font-face {
+    font-family: 'aileronsemibold';
+    src: url('aileron-semibold.woff2') format('woff2'),
+         url('aileron-semibold.woff') format('woff'),
+         url('aileron-semibold.otf') format('otf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'cabinregular';
+    src: url('cabin-regular.woff2') format('woff2'),
+         url('cabin-regular.woff') format('woff'),
+         url('cabin-regular.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'suisse_intlbold';
+    src: url('suisseintl-bold.woff2') format('woff2'),
+         url('suisseintl-bold.woff') format('woff'),
+         url('suisseintl-bold.otf') format('otf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'suisse_intlbook';
+    src: url('suisseintl-book.woff2') format('woff2'),
+         url('suisseintl-book.woff') format('woff'),
+         url('suisseintl-book.otf') format('otf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'suisse_intllight';
+    src: url('suisseintl-light.woff2') format('woff2'),
+         url('suisseintl-light.woff') format('woff'),
+         url('suisseintl-light.otf') format('otf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+@font-face {
+  font-family: 'icomoon';
+  src:  url('icomoon.eot?jiffyz');
+  src:  url('icomoon.eot?jiffyz#iefix') format('embedded-opentype'),
+    url('icomoon.ttf?jiffyz') format('truetype'),
+    url('icomoon.woff?jiffyz') format('woff'),
+    url('icomoon.svg?jiffyz#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-fb:before {
+  content: "\ea90";
+}
+.icon-inst:before {
+  content: "\ea92";
+}
+.icon-twt:before {
+  content: "\ea96";
+}
+.icon-link:before {
+  content: "\eaca";
+}
+.icon-icon1:before {
+  content: "\e900";
+}
+.icon-icon2:before {
+  content: "\e901";
+}
+.icon-icon3:before {
+  content: "\e903";
+}
+.icon-lupa:before {
+  content: "\e902";
+}
+.icon-map:before {
+  content: "\e948";
+}

@@ -1,0 +1,1432 @@
+<?php
+
+/**
+ * Extentions class
+ * 
+ * @package Eventin
+ */
+namespace Eventin\Extensions;
+
+defined( 'ABSPATH' ) || exit;
+
+use Eventin\Integrations\HubSpot\EventDefinition;
+use Eventin\Integrations\HubSpot\HubSpotClient;
+use Eventin\Integrations\Zoom\Zoom;
+
+/**
+ * Class extention
+ */
+class Extension {
+
+    /**
+     * Modules that ship enabled as soon as Eventin Pro is active.
+     *
+     * @var array
+     */
+    const PRO_DEFAULT_MODULES = [ 'rsvp' ];
+
+    /**
+     * WhatsApp values the config modal needs.
+     *
+     * Never the access token itself: this payload is readable by anyone with
+     * `etn_manage_addons`. The modal shows a masked hint instead.
+     *
+     * @return  array
+     */
+    private static function whatsapp_card_data() {
+        $token = (string) etn_get_option( 'whatsapp_access_token', '' );
+
+        return [
+            'whatsapp_connected'           => '' !== $token && '' !== (string) etn_get_option( 'whatsapp_phone_number_id', '' ),
+            'whatsapp_token_hint'          => '' === $token ? '' : str_repeat( '•', 8 ) . substr( $token, -4 ),
+            'whatsapp_phone_number_id'     => (string) etn_get_option( 'whatsapp_phone_number_id', '' ),
+            'whatsapp_business_account_id' => (string) etn_get_option( 'whatsapp_business_account_id', '' ),
+            'whatsapp_admin_number'        => (string) etn_get_option( 'whatsapp_admin_number', '' ),
+        ];
+    }
+
+    /**
+     * Resolve an integration card's on/off status from its option.
+     *
+     * The option holds 'on', 'off' or nothing at all, and "not set yet" means off.
+     * Reading it once here also avoids the two etn_get_option() calls per card that
+     * the inline ternary form needs.
+     *
+     * @param   string  $option  Option name, e.g. 'hubspot_api'.
+     *
+     * @return  string  'on' or 'off'.
+     */
+    private static function card_status( $option ) {
+        $status = etn_get_option( $option );
+
+        return ( $status && 'off' !== $status ) ? 'on' : 'off';
+    }
+
+    /**
+     * Get all modules
+     *
+     * @return  array
+     */
+    public static function modules() {
+        $extentions = self::get();
+
+        return array_filter( $extentions, function( $extension ) {
+            return $extension['type'] === 'module';
+        } );
+    }
+
+    /**
+     * Get all addons
+     *
+     * @return  array
+     */
+    public static function addons() {
+        $extensions = self::get(); // Fixed the typo
+
+        return array_values( array_filter($extensions, function($extension) {
+            return $extension['type'] === 'addon';
+        } ) );
+    }
+
+    /**
+     * Get all addons
+     *
+     * @return  array
+     */
+    public static function plugins() {
+        $extensions = self::get(); // Fixed the typo
+
+        return array_values( array_filter($extensions, function($extension) {
+            return $extension['type'] === 'plugin';
+        } ) );
+    }
+
+    /**
+     * Get all integrations
+     *
+     * @return  array
+     */
+    public static function integrations() {
+        $extensions = self::get(); // Fixed the typo
+
+        return array_values( array_filter($extensions, function($extension) {
+            return $extension['type'] === 'integration';
+        } ) );
+    }
+
+    /**
+     * Get all except plugins
+     *
+     * @return  array
+     */
+    public static function all_except_plugins() {
+        $extensions = self::get();
+        return array_values( array_filter($extensions, function($extension) {
+            return ( $extension['type'] === 'integration' || $extension['type'] === 'module' || $extension['type'] === 'addon' );
+        } ) );
+    }
+
+    /**
+     * Get all extensions
+     *
+     * @return  array
+     */
+    public static function get() {
+        $extensions = self::extensions();
+        
+        return array_map( function( $extension ) {
+            $settings = get_option( 'etn_addons_options', [] );
+
+            $user_setting = isset( $settings[ $extension['name'] ] ) ? $settings[ $extension['name'] ] : null;
+            $is_user_on   = 'on' === $user_setting;
+            $is_user_off  = 'off' === $user_setting;
+            $auto_enable  = ! $is_user_off && self::should_auto_enable( $extension );
+
+            if ( $is_user_on || $auto_enable ) {
+
+                $extension['status'] = ( $extension['type'] != 'integration' ) ? 'on' : $extension['status'];
+
+                if ( 'addon' === $extension['type'] ) {
+                    if ( 
+                            self::is_need_upgrade( $extension['name'] )
+                            && ! PluginManager::is_installed( $extension['slug'] )
+                        ) {
+                        $extension['status'] = 'upgrade';
+                    }
+
+                    if ( PluginManager::is_installed( $extension['slug'] ) ) {
+                        $extension['status'] = 'install';
+                    }
+
+                    if ( PluginManager::is_activated( $extension['slug'] ) ) {
+                        $extension['status'] = 'activate';
+                    }
+                }
+
+                // Only resolve install/activate state for modules that actually
+                // declare a dependency. Modules without one (e.g. rsvp) used to
+                // fall through with an empty slug, which PluginManager matched
+                // against any plugin missing a `Text Domain:` header, rewriting
+                // their status from 'on' to 'install'/'activate'.
+                if ( 'module' === $extension['type'] ) {
+                    $dependencies = self::get_depencies( $extension['slug'] );
+
+                    if ( ! empty( $dependencies ) ) {
+                        $dependency = $dependencies[0];
+
+                        if (
+                            self::is_need_upgrade( $extension['name'] )
+                            && ! PluginManager::is_installed( $dependency )
+                        ) {
+                            $extension['status'] = 'upgrade';
+                        }
+
+                        if ( PluginManager::is_installed( $dependency ) ) {
+                            $extension['status'] = 'install';
+                        }
+
+                        if ( PluginManager::is_activated( $dependency ) ) {
+                            $extension['status'] = 'activate';
+                        }
+                    }
+                }
+
+                if ( self::dependencies_resolved( $extension['name'] ) ) {
+                    $extension['notice'] = false;
+                }
+
+            }
+
+            if ( ! $is_user_off && 'integration' === $extension['type'] && ! empty( $extension['deps'] ) ) {
+                $dependency = $extension['deps'][0];
+
+                if ( PluginManager::is_installed( $dependency ) ) {
+                    $extension['status'] = 'install';
+                }
+
+                if ( PluginManager::is_activated( $dependency ) ) {
+                    $extension['status'] = 'activate';
+                }
+            }
+
+            if ( 'plugin' === $extension['type'] ) {
+                if ( 
+                        self::is_need_upgrade( $extension['name'] )
+                        && ! PluginManager::is_installed( $extension['slug'] )
+                    ) {
+                    $extension['status'] = 'upgrade';
+                }
+
+                if ( PluginManager::is_installed( $extension['slug'] ) ) {
+                    $extension['status'] = 'install';
+                }
+
+                if ( PluginManager::is_activated( $extension['slug'] ) ) {
+                    $extension['status'] = 'activate';
+                }
+            }
+
+            // Resolve addon install/activate state from disk regardless of the
+            // user on/auto-enable gate above. Without this an installed-not-active
+            // addon (e.g. aisentic) keeps its literal 'on' status and the UI shows
+            // an "Install" button instead of "Activate". The is_user_off override
+            // below still wins for addons the user explicitly disabled.
+            if ( ! $is_user_off && 'addon' === $extension['type'] ) {
+                if (
+                        self::is_need_upgrade( $extension['name'] )
+                        && ! PluginManager::is_installed( $extension['slug'] )
+                    ) {
+                    $extension['status'] = 'upgrade';
+                }
+
+                if ( PluginManager::is_installed( $extension['slug'] ) ) {
+                    $extension['status'] = 'install';
+                }
+
+                if ( PluginManager::is_activated( $extension['slug'] ) ) {
+                    $extension['status'] = 'activate';
+                }
+            }
+
+            if ( $is_user_off && in_array( $extension['type'], [ 'module', 'addon' ], true ) ) {
+                $extension['status'] = 'off';
+            }
+
+            return $extension;
+            
+        }, $extensions );
+    }
+
+    /**
+     * Seed the modules that ship enabled on a brand new install.
+     *
+     * The Automation module is advertised as on by default, but every runtime
+     * reader (the SDK gate in eventin.php, OrderEmailTrait, EventReminder, …)
+     * decides from `etn_addons_options` and treats a missing key as off. With no
+     * stored value the Email Automation menu never appears until the user toggles
+     * the module off and back on, which is what actually writes the key.
+     *
+     * Only a site with no history is seeded: `etn_db_migration` is written once
+     * the upgraders have run, so its absence means fresh install (or a site whose
+     * options were wiped). An existing site keeps whatever it has — neither an
+     * upgrade nor a re-activation may flip a site that has deliberately been
+     * running without Automation.
+     *
+     * Called from both the activation hook and the fresh-install branch of
+     * `do_upgrade()`, because a reset that truncates options without touching
+     * plugin activation never fires activation. Idempotent by the key check.
+     *
+     * @return void
+     */
+    public static function seed_default_module_options() {
+        if ( get_option( 'etn_db_migration' ) ) {
+            return;
+        }
+
+        $addons_options = get_option( 'etn_addons_options', [] );
+
+        if ( ! is_array( $addons_options ) ) {
+            $addons_options = [];
+        }
+
+        if ( array_key_exists( 'automation', $addons_options ) ) {
+            return;
+        }
+
+        $addons_options['automation'] = 'on';
+
+        update_option( 'etn_addons_options', $addons_options );
+    }
+
+    /**
+     * Seed the modules that are enabled by default once Eventin Pro is active.
+     *
+     * RSVP is a Pro feature with no `deps`, so `should_auto_enable()` never
+     * covers it and nothing writes `etn_addons_options['rsvp']`. Pro's
+     * `Config::active_modules()` boots the module only when the stored value is
+     * 'on' (via `Helper::check_active_module`), so without this the module stays
+     * dead and the card stays off until the user toggles it by hand.
+     *
+     * Never seeds while Pro is inactive — the module is Pro-only, so enabling it
+     * on a free install would advertise a feature the site cannot run.
+     *
+     * Guarded on key presence, not value: once a user switches the module off,
+     * the key exists and holds 'off', and no later boot may turn it back on.
+     *
+     * @return void
+     */
+    public static function seed_pro_default_modules() {
+        if ( ! class_exists( 'Wpeventin_Pro' ) ) {
+            return;
+        }
+
+        $addons_options = get_option( 'etn_addons_options', [] );
+
+        if ( ! is_array( $addons_options ) ) {
+            $addons_options = [];
+        }
+
+        $seeded = false;
+
+        foreach ( self::PRO_DEFAULT_MODULES as $module ) {
+            if ( array_key_exists( $module, $addons_options ) ) {
+                continue;
+            }
+
+            $addons_options[$module] = 'on';
+            $seeded                  = true;
+        }
+
+        if ( ! $seeded ) {
+            return;
+        }
+
+        update_option( 'etn_addons_options', $addons_options );
+    }
+
+    /**
+     * Find extension by name
+     *
+     * @return  array
+     */
+    public static function find( $name ) {
+        $extensions = self::extensions();
+        
+        if ( array_key_exists( $name, $extensions ) ) {
+            return $extensions[$name];  
+        }
+
+        return null;
+    }
+
+    /**
+     * Update extension status
+     *
+     * @param   string  $name
+     *
+     * @return  bool | WP_Error
+     */
+    public static function update( $name, $status ) {
+        $extension = self::find( $name );
+
+        if ( ! $extension ) {
+            return false;
+        }
+
+        $settings = self::get_settings();
+        $updated_status = 'off' !== $status ? 'on' : 'off';
+        $settings[$name] = $updated_status;
+
+        $slug = ! empty( $extension['slug'] ) ? $extension['slug'] : '';
+
+        $result = true;
+
+        if ( 'addon' === $extension['type'] && 'on' === $updated_status ) {
+            if ( ! $slug ) {
+                return false;
+            }
+
+            $dependencies = ! empty( $extension['deps'] ) ? $extension['deps'] : [];
+
+            // Commercially licensed dependencies are not on wordpress.org, so
+            // PluginManager::install_plugin() would 404 and fail with no
+            // explanation. Tell the admin to install them by hand instead.
+            $manual_install_deps = apply_filters( 'eventin_manual_install_dependencies', [ 'sfwd-lms' => __( 'LearnDash', 'wp-event-solution' ) ] );
+
+            if ( is_array( $dependencies ) ) {
+                foreach ( $dependencies as $dependency ) {
+                    if ( isset( $manual_install_deps[ $dependency ] ) && ! PluginManager::is_installed( $dependency ) ) {
+                        return new \WP_Error(
+                            'eventin_dependency_missing',
+                            sprintf(
+                                /* translators: %s: name of the required third-party plugin, e.g. LearnDash */
+                                __( '%s is not installed. It is a commercial plugin, so install and activate it manually first, then enable this addon.', 'wp-event-solution' ),
+                                $manual_install_deps[ $dependency ]
+                            )
+                        );
+                    }
+
+                    if ( ! PluginManager::is_installed( $dependency ) ) {
+                        $result = PluginManager::install_plugin( $dependency );
+                        if ( ! $result || is_wp_error( $result ) ) {
+                            return $result ?: false;
+                        }
+                    }
+
+                    if ( ! PluginManager::is_activated( $dependency ) ) {
+                        $result = PluginManager::activate_plugin( $dependency );
+                        if ( ! $result || is_wp_error( $result ) ) {
+                            return $result ?: false;
+                        }
+                    }
+                }
+            }
+
+            $one_click_install_addons = [ 'eventin-addon-for-tutor-lms', 'eventin-addon-for-learndash', 'ai-matchmaker-for-eventin' ];
+            $is_one_click_addon       = in_array( $slug, $one_click_install_addons, true );
+
+            if ( 'install' === $status || $is_one_click_addon ) {
+                if ( ! PluginManager::is_installed( $slug ) ) {
+                    $install_result = PluginManager::install_plugin( $slug );
+                    if ( ! $install_result || is_wp_error( $install_result ) ) {
+                        return $install_result ?: false;
+                    }
+                }
+
+                if ( $is_one_click_addon && ! PluginManager::is_activated( $slug ) ) {
+                    $activate_result = PluginManager::activate_plugin( $slug );
+                    if ( ! $activate_result || is_wp_error( $activate_result ) ) {
+                        return $activate_result ?: false;
+                    }
+                }
+            }
+
+            if ( 'activate' === $status && ! PluginManager::is_activated( $slug ) ) {
+                $result = PluginManager::activate_plugin( $slug );
+                if ( ! $result || is_wp_error( $result ) ) {
+                    return $result ?: false;
+                }
+            }
+
+            if ( 'deactivate' === $status && PluginManager::is_activated( $slug ) ) {
+                $result = PluginManager::deactivate_plugin( $slug );
+                if ( ! $result || is_wp_error( $result ) ) {
+                    return $result ?: false;
+                }
+            }
+        }
+
+        if ( 'plugin' === $extension['type'] ) {
+            if ( ! $slug ) {
+                return false;
+            }
+
+            if ( 'install' === $status && ! PluginManager::is_installed( $slug ) ) {
+                $result = PluginManager::install_plugin( $slug );
+            }
+
+            if ( 'activate' === $status && ! PluginManager::is_activated( $slug ) ) {
+                $result = PluginManager::activate_plugin( $slug );
+            }
+
+            if ( 'deactivate' === $status && PluginManager::is_activated( $slug ) ) {
+                $result = PluginManager::deactivate_plugin( $slug );
+            }
+        }
+
+        if ( 'addon' === $extension['type'] && 'off' === $status ) {
+            if ( ! $slug ) {
+                return false;
+            }
+
+            if ( PluginManager::is_activated( $slug ) ) {
+                $result = PluginManager::deactivate_plugin( $slug );
+                if ( ! $result || is_wp_error( $result ) ) {
+                    return $result ?: false;
+                }
+            }
+        }
+
+        if ( 'module' === $extension['type']  && ! empty( $extension['deps'] ) ) {
+            $dependency = $extension['deps'][0];
+            if ( 'install' === $status && ! PluginManager::is_installed( $dependency ) ) {
+                $result = PluginManager::install_plugin( $dependency );
+            }
+
+            if ( 'activate' === $status && ! PluginManager::is_activated( $dependency ) ) {
+                $result = PluginManager::activate_plugin( $dependency );
+            }
+
+            if ( 'deactivate' === $status && PluginManager::is_activated( $dependency ) ) {
+                $result = PluginManager::deactivate_plugin( $dependency );
+            }
+        }
+
+        if ( 'integration' === $extension['type'] && ! empty( $extension['deps'] ) ) {
+            $dependency = $extension['deps'][0];
+
+            if ( 'install' === $status && ! PluginManager::is_installed( $dependency ) ) {
+                $result = PluginManager::install_plugin( $dependency );
+            }
+
+            if ( 'activate' === $status && ! PluginManager::is_activated( $dependency ) ) {
+                $result = PluginManager::activate_plugin( $dependency );
+            }
+
+            if ( 'deactivate' === $status && PluginManager::is_activated( $dependency ) ) {
+                $result = PluginManager::deactivate_plugin( $dependency );
+            }
+        }
+
+        $previous_automation = get_option( 'etn_addons_options', [] )['automation'] ?? 'off';
+
+        update_option( 'etn_addons_options', $settings );
+
+        $current_automation = $settings['automation'] ?? 'off';
+
+        // Reminder routing (Automation flow vs. default WP-Cron) is decided per
+        // event; flipping the module has to re-decide it for events that already
+        // exist, otherwise they keep the route they were created under.
+        if ( $current_automation !== $previous_automation ) {
+            do_action( 'eventin_automation_module_toggled', $current_automation );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get settings
+     *
+     * @return  array
+     */
+    public static function get_settings() {
+        $settings = get_option( 'etn_addons_options', [] );
+
+        return $settings;
+    }
+
+    /**
+     * Decide whether an extension should be auto-enabled based on its
+     * declared dependencies.
+     *
+     * Returns true only when the extension declares `deps`, every declared
+     * dependency plugin is installed and activated, the extension is a
+     * module/addon/integration (not a `plugin` row), and the extension is
+     * not Pro-locked. The caller is responsible for short-circuiting when
+     * the user has explicitly disabled the extension via `etn_addons_options`.
+     *
+     * @param array $extension
+     * @return bool
+     */
+    public static function should_auto_enable( $extension ) {
+        if (
+            empty( $extension['type'] )
+            || ! in_array( $extension['type'], [ 'module', 'addon', 'integration' ], true )
+        ) {
+            return false;
+        }
+
+        if ( ! empty( $extension['is_pro'] ) && ! class_exists( 'Wpeventin_Pro' ) ) {
+            return false;
+        }
+
+        if ( empty( $extension['deps'] ) || ! is_array( $extension['deps'] ) ) {
+            return false;
+        }
+
+        foreach ( $extension['deps'] as $dependency ) {
+            if ( ! PluginManager::is_activated( $dependency ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if an extension's dependencies are resolved.
+     *
+     * @param string $extension_name Name of the extension.
+     * @return bool True if all dependencies are resolved, false otherwise.
+     */
+    public static function dependencies_resolved( $extension_name ) {
+        $depencies = self::get_depencies( $extension_name );
+
+        if ( ! $depencies ) {
+            return true;
+        }
+
+        foreach ( $depencies as $dependency ) {
+            if ( ! PluginManager::is_activated( $dependency ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @param   string  $extension_name  [$extension_name description]
+     *
+     * @return array
+     */
+    public static function get_depencies( $extension_name ) {
+        $extension = self::find( $extension_name );
+
+        if ( ! $extension ) {
+            return null;
+        }
+
+        if ( empty( $extension['deps'] ) ) {
+            return null;
+        }
+
+        return $extension['deps'];
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @param   string  $extension_name  [$extension_name description]
+     *
+     * @return array
+     */
+    public static function get_depency_names( $extension_name ) {
+        $depencies = self::get_depencies( $extension_name );
+        
+        $names = [];
+
+        if ( is_array( $depencies ) ) {
+            foreach( $depencies as $dependency ) {
+                $names[] = PluginManager::get_plugin_name_by_slug( $dependency );
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @param   string  $extension_name  [$extension_name description]
+     *
+     * @return string
+     */
+    public static function get_depency_string( $extension_name ) {
+        $depencies = self::get_depency_names( $extension_name );
+        
+        return implode( ',', $depencies );
+    }
+
+    /**
+     * Check a module or addon need to upgrade
+     *
+     * @param   string  $extension_name  [$extension_name description]
+     *
+     * @return  bool
+     */
+    public static function is_need_upgrade( $extension_name ) {
+        $extension = self::find( $extension_name );
+
+        if ( ! $extension ) {
+            return false;
+        }
+
+        if ( isset( $extension['upgrade'] ) && $extension['upgrade'] ) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * List of all extensions
+     *
+     * @return  array
+     */
+    private static function extensions() {
+        $zapier_status = etn_get_option( 'zapier_api' );
+
+        $extensions = [
+            'dokan' => [
+                'name'          => 'dokan',
+                'slug'          => 'dokan',
+                'type'          => 'module',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'deps'          => ['dokan-lite'],
+                'title'         => __('Dokan', 'wp-event-solution'),
+                'description'   => __('It allows you to create a Multivendor Event marketplace and make commission for each sale.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('dokan'),
+                'notice'        => __('NB: Need to active Dokan plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/multivendor-event-marketplace/',
+                'badge_tags'    => ['Pro', 'Popular', 'Trending'],
+                'video_link'    => '',
+            ],
+            'buddyboss' => [
+                'name'          => 'buddyboss',
+                'slug'          => 'buddyboss',
+                'type'          => 'module',
+                'upgrade'       => true,
+                'upgrade_link'  => 'https://www.buddyboss.com/pricing',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'deps'          => ['buddyboss'],
+                'title'         => __('BuddyBoss', 'wp-event-solution'),
+                'description'   => __('It allows you to create and manage events and sell tickets inside the BuddyBoss theme.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('buddyboss'),
+                'notice'        => __('NB: Need to active BuddyBoss plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/buddyboss-integration/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'fluentcommunity' => [
+                'name'          => 'fluentcommunity',
+                'slug'          => 'fluentcommunity',
+                'type'          => 'module',
+                'upgrade'       => true,
+                'upgrade_link'  => 'https://fluentcommunity.co/',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'deps'          => ['fluent-community'],
+                'title'         => __('FluentCommunity', 'wp-event-solution'),
+                'description'   => __('It allows community members to browse and create events directly inside the FluentCommunity portal.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('fluentcommunity'),
+                'notice'        => __('NB: Need to activate FluentCommunity plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/eventin/how-to-integrate-fluentcommunity-with-eventin/',
+                'badge_tags'    => ['Pro', 'New'],
+            ],
+            'certificate_builder' => [
+                'name'          => 'certificate_builder',
+                'slug'          => 'certificate_builder',
+                'type'          => 'module',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'title'         => __('Certificate Builder', 'wp-event-solution'),
+                'description'   => __('You can design and send a PDF certificate for the event attendee.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('certificate_builder'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => admin_url('admin.php?page=eventin#/settings/event-settings/attendees'),
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/template-builder/certificate-builder-for-attendee/',
+                'badge_tags'    => ['Pro', 'Featured'],
+            ],
+            'rsvp' => [
+                'name'          => 'rsvp',
+                'slug'          => 'rsvp',
+                'type'          => 'module',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'title'         => __('RSVP Module', 'wp-event-solution'),
+                'description'   => __('It allows you to add RSVP at your upcoming events and grab user\'s attention easily.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('rsvp'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => admin_url('admin.php?page=eventin#/settings/email/purchase-email'),
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/rsvp-settings/what-is-rsvp-event/',
+                'badge_tags'    => ['Pro', 'Popular'],
+            ],
+            'seat_map' => [
+                'name'          => 'seat_map',
+                'slug'          => 'seat_map',
+                'type'          => 'module',
+                'upgrade'       => true,
+                'upgrade_link'  => 'https://arraytics.com/timetics/#pricing',
+                'status'        => 'off',
+                'is_pro'        => false,
+                'deps'          => ['timetics-pro'],
+                'title'         => __('Seat Map', 'wp-event-solution'),
+                'description'   => __('With the features, you can now add a visual seat plan with different ticket pricing for events.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('seat_map'),
+                'notice'        => __('NB: Need to active Timetics Pro plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/visual-seat-map/visual-seat-plan/',
+                'badge_tags'    => ['Free'],
+            ],
+            'automation' => [
+                'name'          => 'automation',
+                'slug'          => 'automation',
+                'type'          => 'module',
+                // Falls back to off so the card mirrors what the runtime gates
+                // read from `etn_addons_options`. A fresh install has the option
+                // seeded to 'on' at activation, so it still shows enabled there;
+                // a site with no stored value really is off and must say so.
+                'status'        => 'off',
+                'is_pro'        => false,
+                'title'         => __('Automation', 'wp-event-solution'),
+                'description'   => __('Skip the manual steps — Enable the Eventin’s automation to send emails for event creation, booking confirmation, reminders, and RSVP updates.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('automation'),
+                'notice'        => '',
+                'demo_link'     => 'https://themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/email-settings/automation/',
+                'badge_tags'    => ['Free', 'Recommended'],
+            ],
+            'whatsapp' => [
+                'name'          => 'whatsapp',
+                'slug'          => 'whatsapp',
+                'type'          => 'integration',
+                'status'        => self::card_status( 'whatsapp_api' ),
+                'is_pro'        => true,
+                // No `deps`: WhatsApp is reached through Meta's Cloud API, no
+                // companion WordPress plugin. Same reason as HubSpot below.
+                'deps'          => [],
+                'title'         => __('WhatsApp', 'wp-event-solution'),
+                'description'   => __('Send WhatsApp messages to customers, attendees and admins from your Automation flows. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('whatsapp'),
+                'notice'        => class_exists( 'Wpeventin_Pro' )
+                    ? __( 'NB: Needs the Automation module and a Meta WhatsApp Business account', 'wp-event-solution' )
+                    : __( 'NB: Requires Eventin Pro', 'wp-event-solution' ),
+                'demo_link'     => 'https://developers.facebook.com/docs/whatsapp/cloud-api',
+                'settings_link' => '',
+                'doc_link'      => '',
+                'data'          => self::whatsapp_card_data(),
+                'badge_tags'    => ['Pro', 'New'],
+            ],
+            'eventin-divi-addon' => [
+                'name'          => 'eventin-divi-addon',
+                'slug'          => 'eventin-divi-addon',
+                'type'          => 'addon',
+                'status'        => 'off',
+                'title'         => __('Eventin Divi Addon', 'wp-event-solution'),
+                'description'   => __('It enable the Eventin featured and module inside DIVI editing panel.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('eventin-divi-addon'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/divi-builder-integration/',
+                'badge_tags'    => ['Free'],
+            ],
+            'eventin-bricks-addon' => [
+                'name'          => 'eventin-bricks-addon',
+                'slug'          => 'eventin-bricks-addon',
+                'type'          => 'addon',
+                'upgrade'       => true,
+                'upgrade_link'  => 'https://themewinter.com/purchase-history',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'title'         => __('Eventin Bricks Addon', 'wp-event-solution'),
+                'description'   => __('It\'s enable the Eventin featured and module inside Bricks editing panel.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('eventin-bricks-addon'),
+                'notice'        => '',
+                'demo_link'     => 'https://themewinter.com/docs/plugins/plugin-docs/integration/bricks-builder-integration/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/bricks-builder-integration/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'eventin-oxygen-addon' => [
+                'name'          => 'eventin-oxygen-addon',
+                'slug'          => 'eventin-oxygen-addon',
+                'type'          => 'addon',
+                'upgrade'       => true,
+                'upgrade_link'  => 'https://themewinter.com/purchase-history',
+                'status'        => 'off',
+                'is_pro'        => true,
+                'title'         => __('Eventin Oxygen Addon', 'wp-event-solution'),
+                'description'   => __('It\'s enable the Eventin featured and module inside Oxygen editing panel.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('eventin-oxygen-addon'),
+                'notice'        => '',
+                'demo_link'     => 'https://themewinter.com/docs/plugins/plugin-docs/integration/oxygen-builder-integration-pro',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/oxygen-builder-integration-pro',
+                'badge_tags'    => ['Pro'],
+            ],
+            'wpcafe' => [
+                'name'          => 'wpcafe',
+                'slug'          => 'wpcafe',
+                'type'          => 'plugin',
+                'upgrade'       => false,
+                'upgrade_link'  => 'https://themewinter.com/purchase-history',
+                'status'        => 'on',
+                'is_pro'        => false,
+                'title'         => __('WPCafe', 'wp-event-solution'),
+                'description'   => __('WPCafe - A restaurant plugin to increase sales with an Online Ordering System, Delivery, Pickup, Food Menu, Reservations, and Table Management.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('wpcafe'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/wpcafe',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/docs/wp-cafe/',
+                'badge_tags'    => ['Free'],
+            ],
+            'timetics' => [
+                'name'          => 'timetics',
+                'slug'          => 'timetics',
+                'type'          => 'plugin',
+                'upgrade'       => false,
+                'upgrade_link'  => 'https://themewinter.com/purchase-history',
+                'status'        => 'on',
+                'is_pro'        => false,
+                'title'         => __('WP Timetics', 'wp-event-solution'),
+                'description'   => __('Manage appointments anytime, anywhere. WP Timetics makes scheduling simple with an all-in-one WordPress booking solution.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('timetics'),
+                'notice'        => '',
+                'demo_link'     => 'https://arraytics.com/timetics',
+                'settings_link' => '',
+                'doc_link'      => 'https://docs.arraytics.com/docs/timetics/getting-started/',
+                'badge_tags'    => ['Free'],
+            ],
+            'poptics' => [
+                'name'          => 'poptics',
+                'slug'          => 'poptics',
+                'type'          => 'plugin',
+                'upgrade'       => false,
+                'upgrade_link'  => 'https://themewinter.com/purchase-history',
+                'status'        => 'on',
+                'is_pro'        => false,
+                'title'         => __('Poptics', 'wp-event-solution'),
+                'description'   => __(' Discover the ultimate popup mix with Poptics Popup Builder to boost your lead generation and sales conversions.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('poptics'),
+                'notice'        => '',
+                'demo_link'     => 'https://demo.aethonic.com/popticsadmin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://docs.aethonic.com/docs/getting-started/intro/',
+                'badge_tags'    => ['Free'],
+            ],
+            'booktics' => [
+                'name'          => 'booktics',
+                'slug'          => 'booktics',
+                'type'          => 'plugin',
+                'upgrade'       => false,
+                'upgrade_link'  => 'https://arraytics.com/booktics/#pricing-plan',
+                'status'        => 'on',
+                'is_pro'        => false,
+                'title'         => __('Booktics', 'wp-event-solution'),
+                'description'   => __('Booktics is a WordPress plugin that helps service businesses take bookings, manage teams, and accept payments easily and professionally.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('booktics'),
+                'notice'        => '',
+                'demo_link'     => 'https://arraytics.com/booktics/#booktics-services',
+                'settings_link' => '',
+                'doc_link'      => 'https://docs.arraytics.com/docs/booktics/getting-started/',
+                'badge_tags'    => ['Free'],
+            ],
+            'optiontics' => [
+                'name'          => 'optiontics',
+                'slug'          => 'optiontics',
+                'type'          => 'plugin',
+                'upgrade'       => false,
+                'upgrade_link'  => 'https://themewinter.com/optiontics/',
+                'status'        => 'on',
+                'is_pro'        => false,
+                'title'         => __( 'Optiontics', 'wp-event-solution' ),
+                'description'   => __( 'AI-powered product options plugin for WooCommerce — create configurable products with dynamic pricing, conditional logic, and pre-built templates.', 'wp-event-solution' ),
+                'icon'          => ExtensionIcon::get( 'optiontics' ),
+                'notice'        => '',
+                'demo_link'     => 'https://themewinter.com/optiontics/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/optiontics/',
+                'badge_tags'    => [ 'Free', 'New', 'Updated' ],
+            ],
+            'zoom' => [
+                'name'          => 'zoom',
+                'slug'          => 'zoom',
+                'type'          => 'integration',
+                'status'        => (etn_get_option('etn_zoom_api') && etn_get_option('etn_zoom_api') !== 'off') ? 'on' : 'off',
+                'is_pro'        => false,
+                'title'         => __('Zoom', 'wp-event-solution'),
+                'description'   => __('Zoom Integration for Eventin.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('zoom'),
+                'notice'        => '',
+                'demo_link'     => 'https://themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/zoom-meeting-2/?utm_source=documentations&utm_medium=eventin&utm_campaign=eventin+documentations',
+                'data'          => [
+                    'etn_zoom_api'  =>  etn_get_option('etn_zoom_api') ? 'yes' : 'no',
+                    'zoom_authorize_url' => !empty(etn_get_option('zoom_authorize_url')) ? etn_get_option('zoom_authorize_url') : '',
+                    'zoom_connected' => empty(etn_get_option('zoom_token')) ? 'no' : 'yes',
+                    'zoom_redirect_url' => home_url().'/eventin-integration/zoom-auth',
+                    'zoom_client_id' => !empty(etn_get_option('zoom_client_id')) ? etn_get_option('zoom_client_id') : '',
+                    'zoom_client_secret' => !empty(etn_get_option('zoom_client_secret')) ? etn_get_option('zoom_client_secret') : '',
+                    'zoom_token' => !empty(etn_get_option('zoom_token')) ? etn_get_option('zoom_token') : ''
+                ],
+                'badge_tags'    => ['Free'],
+            ],
+            'google_meet' => [
+                'name'          => 'google_meet',
+                'slug'          => 'google_meet',
+                'type'          => 'integration',
+                'status'        => (etn_get_option('etn_meet_api') && etn_get_option('etn_meet_api') !== 'off') ? 'on' : 'off',
+                'is_pro'        => true,
+                'title'         => __('Google Meet', 'wp-event-solution'),
+                'description'   => __('Use Google Meet to host your meetings and manage virtual events from your dashboard.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('google_meet'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => admin_url('admin.php?page=eventin#/settings/integrations/google-meet'),
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/google-meet/',
+                'video_link'    => 'https://www.youtube.com/watch?v=7RCx6yIKULY&list=PLW54c-mt4ObDwu0GWjJIoH0aP1hQHyKj7&index=22',
+                'data'          => [
+                    'google_meet_connected' => empty(etn_get_option('google_token')) ? 'no' : 'yes',
+                    'google_meet_authorize_url' => !empty(etn_get_option('google_meet_authorize_url')) ? etn_get_option('google_meet_authorize_url') : '',
+                    'google_meet_redirect_url' => home_url().'/eventin-integration/google-auth',
+                    'etn_meet_api' => etn_get_option('etn_meet_api') ? 'yes' : 'no',
+                    'google_meet_client_id' => !empty(etn_get_option('google_meet_client_id'))?etn_get_option('google_meet_client_id'):'',
+                    'google_meet_client_secret_key' => !empty(etn_get_option('google_meet_client_secret_key'))?etn_get_option('google_meet_client_secret_key'):'',
+                ],
+                'badge_tags'    => ['Pro'],
+            ],
+            'google_map' => [
+                'name'          => 'google_map',
+                'slug'          => 'google_map',
+                'type'          => 'integration',
+                'status'        => (etn_get_option('etn_googlemap_api') && etn_get_option('etn_googlemap_api') !== 'off') ? 'on' : 'off',
+                'is_pro'        => true,
+                'title'         => __('Google Map', 'wp-event-solution'),
+                'description'   => __('Google Map Integration for Eventin.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('google-map'),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/event/event-location/?utm_source=documentations&utm_medium=eventin&utm_campaign=eventin+documentations',
+                'data'          => [
+                    'etn_googlemap_api'  =>  etn_get_option('etn_googlemap_api') ? 'no' : 'yes',
+                    'google_api_key' => !empty(etn_get_option('google_api_key')) ? etn_get_option('google_api_key') : ''
+                ],
+                'badge_tags'    => ['Pro'],
+            ],
+            'mail_mint' => [
+                'name'          => 'mail_mint',
+                'slug'          => 'mail-mint',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('mail_mint_api') && etn_get_option('mail_mint_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => false,
+                'deps'          => ['mail-mint'],
+                'title'         => __('Mail Mint', 'wp-event-solution'),
+                'description'   => __('Send purchaser and attendee data to Mail Mint via webhook on order create.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('mail_mint'),
+                'notice'        => __('NB: Need to install and activate Mail Mint plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://getwpfunnels.com/mail-mint/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-mailmint-with-eventin/',
+                'badge_tags'    => ['Free', 'Recommended'],
+            ],
+            'optiontics' => [
+                'name'          => 'optiontics',
+                'slug'          => 'optiontics',
+                'type'          => 'integration',
+                'status'        => ( 'on' === ( get_option( 'etn_addons_options', [] )['optiontics'] ?? '' ) ) ? 'on' : 'off',
+                'is_pro'        => false,
+                'deps'          => ['optiontics'],
+                'title'         => __('Optiontics', 'wp-event-solution'),
+                'description'   => __('Add paid product add-ons (option blocks) to event tickets via Optiontics.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('optiontics'),
+                'notice'        => __('NB: Need to install and activate the Optiontics plugin', 'wp-event-solution'),
+                'demo_link'     => '',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-optiontics-with-eventin/',
+                'badge_tags'    => ['Free', 'New'],
+             ],
+            'mailpoet' => [
+                'name'          => 'mailpoet',
+                'slug'          => 'mailpoet',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('mailpoet_api') && etn_get_option('mailpoet_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => false,
+                'deps'          => ['mailpoet'],
+                'title'         => __('MailPoet', 'wp-event-solution'),
+                'description'   => __('Subscribe purchaser and attendee emails to MailPoet lists on order create.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('mailpoet'),
+                'notice'        => __('NB: Need to install and activate MailPoet plugin', 'wp-event-solution'),
+                'demo_link'     => 'https://www.mailpoet.com/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-mailpoet-with-eventin/',
+                'badge_tags'    => ['Free'],
+            ],
+            'funnel_kit' => [
+                'name'          => 'funnel_kit',
+                'slug'          => 'funnel-kit',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('funnel_kit_api') && etn_get_option('funnel_kit_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'deps'          => ['wp-marketing-automations'],
+                'title'         => __('FunnelKit Automations', 'wp-event-solution'),
+                'description'   => __('Send purchaser and attendee data to FunnelKit Automations via webhook on order create. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('funnel_kit'),
+                'notice'        => ( class_exists( 'Wpeventin_Pro' ) && PluginManager::is_activated( 'wp-marketing-automations' ) )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro and the FunnelKit Automations plugin', 'wp-event-solution' ),
+                'demo_link'     => 'https://funnelkit.com/automations/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integration-funnelkit-autonami-with-eventin/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'zoho_crm' => [
+                'name'          => 'zoho_crm',
+                'slug'          => 'zoho-crm',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('zoho_crm_api') && etn_get_option('zoho_crm_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'deps'          => [],
+                'title'         => __('Zoho CRM', 'wp-event-solution'),
+                'description'   => __('Send purchaser and attendee data to Zoho CRM via Zoho Flow webhook on order create. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('zoho_crm'),
+                'notice'        => class_exists( 'Wpeventin_Pro' )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro', 'wp-event-solution' ),
+                'demo_link'     => 'https://www.zoho.com/crm/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-zoho-crm-with-eventin/',
+            ],
+            'hubspot' => [
+                'name'          => 'hubspot',
+                'slug'          => 'hubspot',
+                'type'          => 'integration',
+                'status'        => self::card_status( 'hubspot_api' ),
+                'is_pro'        => true,
+                // Intentionally no `deps`: HubSpot is a hosted CRM reached with a
+                // private app token, so no companion WordPress plugin is involved
+                // (HubSpot's own "leadin" plugin is unrelated to this integration).
+                // A non-empty `deps` would also make the card's status track that
+                // plugin instead of the user's toggle, so `hubspot_api` — which the
+                // dispatcher gates on — would never be written. Same shape and same
+                // reason as Zoho CRM and Uncanny Automator above.
+                'deps'          => [],
+                'title'         => __('HubSpot', 'wp-event-solution'),
+                'description'   => __('Sync ticket purchasers and attendees to HubSpot contacts with Eventin properties, and log a ticket purchase on the contact timeline. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('hubspot'),
+                'notice'        => class_exists( 'Wpeventin_Pro' )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro', 'wp-event-solution' ),
+                'demo_link'     => 'https://www.hubspot.com/products/crm',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-hubspot-with-eventin/',
+                'data'          => [
+                    // Never the token itself — this payload is readable by anyone
+                    // with `etn_manage_addons`, and the token is a CRM write
+                    // credential. The modal renders from the flag and the hint.
+                    'hubspot_connected'             => HubSpotClient::has_token(),
+                    'hubspot_token_hint'            => HubSpotClient::mask_token( HubSpotClient::get_token() ),
+                    'hubspot_custom_events_support' => EventDefinition::get_support_flag(),
+                ],
+                'badge_tags'    => ['Pro', 'New'],
+            ],
+            'zapier' => [
+                'name'          => 'zapier',
+                'slug'          => 'zapier',
+                'type'          => 'integration',
+                'status'        => ( $zapier_status && 'off' !== $zapier_status ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'deps'          => [],
+                'title'         => __( 'Zapier', 'wp-event-solution' ),
+                'description'   => __( 'Send purchaser and attendee data to a Zapier Catch Hook on order create and automate workflows with thousands of apps.', 'wp-event-solution' ),
+                'icon'          => ExtensionIcon::get('zapier'),
+                'notice'        => class_exists( 'Wpeventin_Pro' )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro', 'wp-event-solution' ),
+                'demo_link'     => 'https://zapier.com/apps/webhook/integrations',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-zapier-with-eventin/',
+            ],
+            'uncanny_automator' => [
+                'name'          => 'uncanny_automator',
+                'slug'          => 'uncanny-automator',
+                'type'          => 'integration',
+                'status'        => self::card_status( 'uncanny_automator_api' ),
+                'is_pro'        => true,
+                // Intentionally no `deps`: a declared dependency makes the card's
+                // status track the dependency plugin instead of the user's toggle,
+                // so `uncanny_automator_api` — which the dispatcher gates on — would
+                // never be written. Zoho CRM has the same shape for the same reason.
+                'deps'          => [],
+                'title'         => __('Uncanny Automator', 'wp-event-solution'),
+                'description'   => __('Send purchaser and attendee data to an Uncanny Automator webhook recipe on order create. Requires Eventin Pro and Uncanny Automator Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('uncanny_automator'),
+                'notice'        => ( class_exists( 'Wpeventin_Pro' ) && PluginManager::is_activated( 'uncanny-automator' ) )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro and the Uncanny Automator plugin. The webhook trigger itself is an Uncanny Automator Pro feature.', 'wp-event-solution' ),
+                'demo_link'     => 'https://automatorplugin.com/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-uncanny-automator-with-eventin/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'rank_math' => [
+                'name'          => 'rank_math',
+                'slug'          => 'seo-by-rank-math',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('rank_math_api') && etn_get_option('rank_math_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                // No `deps` on purpose: get() overwrites an integration's status
+                // with the dep plugin's state, so the toggle would never be stored.
+                'deps'          => [],
+                'title'         => __('Rank Math SEO', 'wp-event-solution'),
+                'description'   => __('Show the Rank Math SEO score and analysis inside the event editor, and save it to the same data Rank Math reads. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('rank_math'),
+                'notice'        => ( class_exists( 'Wpeventin_Pro' ) && PluginManager::is_activated( 'seo-by-rank-math' ) )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro and the Rank Math SEO plugin.', 'wp-event-solution' ),
+                'demo_link'     => 'https://rankmath.com/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-seo-plugins/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'yoast' => [
+                'name'          => 'yoast',
+                'slug'          => 'wordpress-seo',
+                'type'          => 'integration',
+                'status'        => ( etn_get_option('yoast_api') && etn_get_option('yoast_api') !== 'off' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                // Empty for the same reason as Rank Math: see above.
+                'deps'          => [],
+                'title'         => __('Yoast SEO', 'wp-event-solution'),
+                'description'   => __('Show the Yoast SEO score and analysis inside the event editor, and save it to the same data Yoast reads. Requires Eventin Pro.', 'wp-event-solution'),
+                'icon'          => ExtensionIcon::get('yoast'),
+                'notice'        => ( class_exists( 'Wpeventin_Pro' ) && PluginManager::is_activated( 'wordpress-seo' ) )
+                    ? ''
+                    : __( 'NB: Requires Eventin Pro and the Yoast SEO plugin.', 'wp-event-solution' ),
+                'demo_link'     => 'https://yoast.com/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-seo-plugins/',
+                'badge_tags'    => ['Pro'],
+            ],
+            'stripe' => [
+                'name'          => 'stripe',
+                'slug'          => 'stripe',
+                'type'          => 'integration',
+                'status'        => ( 'stripe' === etn_get_option( 'etn_sells_engine_stripe' ) ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'title'         => __( 'Stripe', 'wp-event-solution' ),
+                'description'   => __( 'Accept ticket payments through Stripe. Requires Eventin Pro.', 'wp-event-solution' ),
+                'icon'          => ExtensionIcon::get( 'stripe' ),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/payment-type/stripe/?utm_source=documentations&utm_medium=eventin&utm_campaign=eventin+documentations',
+                'data'          => [
+                    'etn_sells_engine_stripe'      => etn_get_option( 'etn_sells_engine_stripe' ) ? etn_get_option( 'etn_sells_engine_stripe' ) : '',
+                    'stripe_live_publishable_key'  => etn_get_option( 'stripe_live_publishable_key' ) ? etn_get_option( 'stripe_live_publishable_key' ) : '',
+                    'stripe_live_secret_key'       => etn_get_option( 'stripe_live_secret_key' ) ? etn_get_option( 'stripe_live_secret_key' ) : '',
+                    'etn_stripe_webhook_secret'    => etn_get_option( 'etn_stripe_webhook_secret' ) ? etn_get_option( 'etn_stripe_webhook_secret' ) : '',
+                ],
+                'badge_tags'    => ['Pro'],
+            ],
+            'paypal' => [
+                'name'          => 'paypal',
+                'slug'          => 'paypal',
+                'type'          => 'integration',
+                'status'        => etn_get_option( 'paypal_status' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'title'         => __( 'PayPal', 'wp-event-solution' ),
+                'description'   => __( 'Accept ticket payments through PayPal. Requires Eventin Pro.', 'wp-event-solution' ),
+                'icon'          => ExtensionIcon::get( 'paypal' ),
+                'notice'        => '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/payment-type/paypal/?utm_source=documentations&utm_medium=eventin&utm_campaign=eventin+documentations',
+                'data'          => [
+                    'paypal_status'         => etn_get_option( 'paypal_status' ) ? true : false,
+                    'paypal_client_id'      => etn_get_option( 'paypal_client_id' ) ? etn_get_option( 'paypal_client_id' ) : '',
+                    'paypal_client_secret'  => etn_get_option( 'paypal_client_secret' ) ? etn_get_option( 'paypal_client_secret' ) : '',
+                    'paypal_sandbox'        => etn_get_option( 'paypal_sandbox' ) ? true : false,
+                ],
+                'badge_tags'    => ['Pro'],
+            ],
+            'razorpay' => [
+                'name'          => 'razorpay',
+                'slug'          => 'razorpay',
+                'type'          => 'integration',
+                'status'        => etn_get_option( 'razorpay_status' ) ? 'on' : 'off',
+                'is_pro'        => true,
+                'title'         => __( 'Razorpay', 'wp-event-solution' ),
+                'description'   => __( 'Accept ticket payments through Razorpay: UPI, cards, net banking and wallets. Requires Eventin Pro.', 'wp-event-solution' ),
+                'icon'          => ExtensionIcon::get( 'razorpay' ),
+                // Razorpay ships with newer Pro versions only. Tell admins on an older Pro to update.
+                'notice'        => ( class_exists( 'Wpeventin_Pro' ) && ! class_exists( '\EventinPro\Integrations\Razorpay\RazorpayPayment' ) )
+                    ? __( 'NB: Please update Eventin Pro to use Razorpay.', 'wp-event-solution' )
+                    : '',
+                'demo_link'     => 'https://product.themewinter.com/eventin/',
+                'settings_link' => '',
+                'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/payment-type/razorpay/?utm_source=documentations&utm_medium=eventin&utm_campaign=eventin+documentations',
+                'data'          => [
+                    'razorpay_status'         => etn_get_option( 'razorpay_status' ) ? true : false,
+                    'razorpay_key_id'         => etn_get_option( 'razorpay_key_id' ) ? etn_get_option( 'razorpay_key_id' ) : '',
+                    'razorpay_key_secret'     => etn_get_option( 'razorpay_key_secret' ) ? etn_get_option( 'razorpay_key_secret' ) : '',
+                    'razorpay_webhook_secret' => etn_get_option( 'razorpay_webhook_secret' ) ? etn_get_option( 'razorpay_webhook_secret' ) : '',
+                    'razorpay_webhook_url'    => rest_url( 'eventin/v2/razorpay-webhook' ),
+                ],
+                'badge_tags'    => ['Pro'],
+            ],
+        ];
+
+        $extensions['eventin-addon-for-surecart'] = [
+            'name'          => 'eventin-addon-for-surecart',
+            'slug'          => 'eventin-addon-for-surecart',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => false,
+            'deps'          => ['surecart'],
+            'title'         => __('Eventin Surecart Addon', 'wp-event-solution'),
+            'description'   => __('It allows eventin to sell tickets through surecart checkout.', 'wp-event-solution'),
+            'icon'          => ExtensionIcon::get('sure_cart'),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/payment-type/how-to-configure-surecart-in-eventin',
+            'notice'        => __('NB: Need to activate Surecart plugin', 'wp-event-solution'),
+            'badge_tags'    => ['Free', 'New'],
+        ];
+        $extensions['eventin-addon-for-fluentcart'] = [
+            'name'          => 'eventin-addon-for-fluentcart',
+            'slug'          => 'eventin-addon-for-fluentcart',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => false,
+            'deps'          => ['fluent-cart'],
+            'title'         => __('Eventin Addon for FluentCart', 'wp-event-solution'),
+            'description'   => __('It allows eventin to sell tickets through FluentCart checkout.', 'wp-event-solution'),
+            'icon'          => ExtensionIcon::get('fluent_cart'),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-fluentcart-with-eventin/',
+            'notice'        => __('NB: Need to activate FluentCart plugin', 'wp-event-solution'),
+            'badge_tags'    => ['Free', 'New'],
+        ];
+        $extensions['migration-tool-for-eventin'] = [
+            'name'          => 'migration-tool-for-eventin',
+            'slug'          => 'migration-tool-for-eventin',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => false,
+            'title'         => __( 'Migration Tool for Eventin', 'wp-event-solution' ),
+            'description'   => __( 'Import events from external platforms into Eventin.', 'wp-event-solution' ),
+            'icon'          => ExtensionIcon::get( 'migration-tool-for-eventin' ),
+            'notice'        => '',
+            'demo_link'     => '',
+            'settings_link' => admin_url( 'admin.php?page=eventin#/settings/import/eventbrite' ),
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/event-imports/import-event-from-facebook/',
+            'badge_tags'    => [ 'Free', 'New', 'Featured' ],
+        ];
+
+        $extensions['eventin-addon-for-tutor-lms'] = [
+            'name'          => 'eventin-addon-for-tutor-lms',
+            'slug'          => 'eventin-addon-for-tutor-lms',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => false,
+            'deps'          => ['tutor'],
+            'title'         => __( 'Eventin Addon for Tutor LMS', 'wp-event-solution' ),
+            'description'   => __( 'Auto-enroll Eventin ticket buyers and registered attendees into mapped Tutor LMS courses.', 'wp-event-solution' ),
+            'icon'          => ExtensionIcon::get( 'tutor-lms' ),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-tutorlms-with-eventin/',
+            'notice'        => __( 'NB: Need to activate Tutor LMS plugin', 'wp-event-solution' ),
+            'badge_tags'    => [ 'Free', 'New', 'Featured' ],
+        ];
+
+        $extensions['eventin-addon-for-learndash'] = [
+            'name'          => 'eventin-addon-for-learndash',
+            'slug'          => 'eventin-addon-for-learndash',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => false,
+            'deps'          => ['sfwd-lms'],
+            'title'         => __( 'Eventin Addon for LearnDash', 'wp-event-solution' ),
+            'description'   => __( 'Auto-enroll Eventin ticket buyers and registered attendees into mapped LearnDash courses.', 'wp-event-solution' ),
+            'icon'          => ExtensionIcon::get( 'learndash' ),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/integration/how-to-integrate-learndash-with-eventin/',
+            'notice'        => __( 'NB: Need to activate LearnDash plugin', 'wp-event-solution' ),
+            'badge_tags'    => [ 'Free', 'New' ],
+        ];
+
+        $extensions['ai-matchmaker-for-eventin'] = [
+            'name'          => 'ai-matchmaker-for-eventin',
+            'slug'          => 'ai-matchmaker-for-eventin',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => true,
+            'deps'          => [ 'eventin-pro' ],
+            'title'         => __( 'AI Matchmaker', 'wp-event-solution' ),
+            'description'   => __( 'Manage AI Matchmaker settings for Eventin Pro.', 'wp-event-solution' ),
+            'icon'          => ExtensionIcon::get( 'ai-matchmaker-for-eventin' ),
+            'notice'        => __( 'Requires Eventin Pro.', 'wp-event-solution' ),
+            'settings_link' => admin_url( 'admin.php?page=eventin#/settings/ai-match-maker' ),
+            'doc_link'      => '',
+            'badge_tags'    => [ 'Pro', 'New' ],
+            'upgrade'       => true,
+            'upgrade_link'  => 'https://themewinter.com/purchase-history',
+        ];
+
+        $extensions['aisentic'] = [
+            'name'          => 'aisentic',
+            'slug'          => 'aisentic',
+            'type'          => 'addon',
+            'status'        => 'on',
+            'is_pro'        => false,
+            'deps'          => ['aisentic'],
+            'title'         => __('Aisentic Addon for Eventin', 'wp-event-solution'),
+            'description'   => __('AI-powered assistant for Eventin to help manage events more efficiently.', 'wp-event-solution'),
+            'icon'          => ExtensionIcon::get('aisentic'),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => 'https://themewinter.com/docs/plugins/plugin-docs/gettings-started-aisentic/how-to-manage-eventin-events-using-aisentics-ai-chatbot/',
+            'badge_tags'    => ['Free', 'New', "Recommended"],
+        ];
+
+        $extensions['eventin-addon-for-wcfm'] = [
+            'name'          => 'eventin-addon-for-wcfm',
+            'slug'          => 'eventin-addon-for-wcfm',
+            'type'          => 'addon',
+            'status'        => 'off',
+            'is_pro'        => true,
+            'deps'          => ['wc-frontend-manager', 'wc-multivendor-marketplace'],
+            'title'         => __( 'WCFM Multivendor', 'wp-event-solution' ),
+            'description'   => __( 'Sell events through a WCFM Marketplace — vendors create and manage their own events, speakers, schedules and bookings from the WCFM vendor dashboard.', 'wp-event-solution' ),
+            'icon'          => ExtensionIcon::get( 'eventin-addon-for-wcfm' ),
+            'demo_link'     => 'https://product.themewinter.com/eventin/',
+            'settings_link' => '',
+            'doc_link'      => '',
+            'notice'        => __( 'NB: Requires WC Frontend Manager and WC Multivendor Marketplace', 'wp-event-solution' ),
+            'badge_tags'    => [ 'Pro', 'New' ],
+        ];
+
+        return $extensions;
+    }
+}

@@ -1,0 +1,910 @@
+<?php
+
+/**
+ * Extentions class
+ * 
+ * @package Eventin
+ */
+namespace Eventin\Extensions;
+
+defined( 'ABSPATH' ) || exit;
+
+use Eventin\Vendor\Ens\Flow\Flow;
+use Exception;
+
+/**
+ * Class extention
+ */
+class ImportAutomation {
+
+    public static function create_automation_flows() {
+        $result = array(
+            'flow_ids' => array(),
+            'errors'   => array(),
+        );
+
+        $automation_flows = [
+            [
+                "name" => "Send Email To All Attendees",
+                "trigger" => "send_email_to_all_attendees",
+                "flow_config" => [
+                    "nodes" => [
+                        [
+                            "id" => "node_1",
+                            "type" => "trigger",
+                            "name" => "trigger",
+                            "data" => [
+                                "label" => "trigger: send_email_to_all_attendees",
+                                "subtitle" => "Send Email To All Attendees",
+                                "triggerValue" => "send_email_to_all_attendees"
+                            ],
+                            "position" => [
+                                "x" => 200,
+                                "y" => 50
+                            ]
+                        ],
+                        [
+                            "id" => "node_2",
+                            "type" => "end",
+                            "name" => "end",
+                            "data" => [
+                                "label" => "end_flow",
+                                "subtitle" => "End execution path"
+                            ],
+                            "position" => [
+                                "x" => 221.46762850701441,
+                                "y" => 410
+                            ]
+                        ],
+                        [
+                            "id" => "node_3",
+                            "type" => "action",
+                            "name" => "email",
+                            "data" => [
+                                "actionType" => "send_email",
+                                "label" => "send_email",
+                                "subtitle" => "Subject: Thanks for Joining Us -  Here\u2019...",
+                                "receiverType" => "attendee_email",
+                                "from" => "admin@example.com",
+                                "subject" => "Thanks for Joining Us -  Here\u2019s What\u2019s Next",
+                                "body" => "<p>Hi Attendees ,<\/p><p>Thanks for attending \"{%event_title%}\". We appreciate your time and hope the session delivered real value.<\/p><p>&nbsp;<\/p><p>If you would like updates on future sessions or have feedback, reply directly to this email. we review every message.<\/p><p>&nbsp;<\/p><p>Thanks again,<\/p>",
+                                "processed_session_ids" => []
+                            ],
+                            "position" => [
+                                "x" => 210.73381425350721,
+                                "y" => 230
+                            ]
+                        ]
+                    ],
+                    "edges" => [
+                        [
+                            "id" => "edge_node_1-node_3",
+                            "type" => "smoothstep",
+                            "markerEnd" => [
+                                "type" => "arrowclosed"
+                            ],
+                            "source" => "node_1",
+                            "target" => "node_3",
+                            "data" => []
+                        ],
+                        [
+                            "id" => "edge_node_3-node_2",
+                            "type" => "smoothstep",
+                            "markerEnd" => [
+                                "type" => "arrowclosed"
+                            ],
+                            "source" => "node_3",
+                            "target" => "node_2",
+                            "data" => []
+                        ]
+                    ]
+                ],
+                "status" => "publish"
+            ],
+            [
+                'name' => 'Purchase Email Automation For Attendee',
+                'trigger' => 'event_ticket_purchase',
+                'flow_config' => [
+                    'nodes' => [
+                        [
+                            'id' => 'node_1',
+                            'type' => 'trigger',
+                            'name' => 'trigger',
+                            'data' => [
+                                'label' => 'trigger: event_ticket_purchase',
+                                'subtitle' => 'Event Ticket Purchase',
+                                'triggerValue' => 'event_ticket_purchase',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 50,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_2',
+                            'type' => 'end',
+                            'name' => 'end',
+                            'data' => [
+                                'label' => 'end_flow',
+                                'subtitle' => 'End execution path',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 410,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_3',
+                            'type' => 'action',
+                            'name' => 'email',
+                            'data' => [
+                                'actionType' => 'send_email',
+                                'label' => 'send_email',
+                                'subtitle' => 'Subject: Attendee ticket purchase',
+                                'receiverType' => 'attendee_email',
+                                'from' => 'admin@gmail.com',
+                                'subject' => 'You’ve Got Your Ticket!',
+                                'body' => 'A ticket has been purchased for you. The details are as follows:',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 230,
+                            ],
+                        ],
+                    ],
+                    'edges' => [
+                        [
+                            'id' => 'edge_node_1-node_3',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_1',
+                            'target' => 'node_3',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_3-node_2',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_3',
+                            'target' => 'node_2',
+                            'data' => [],
+                        ],
+                    ],
+                ],
+                'status' => 'publish',
+            ],
+            [
+                'name' => 'Purchase Email Automation For Customer',
+                'trigger' => 'event_ticket_purchase',
+                'flow_config' => [
+                    'nodes' => [
+                        [
+                            'id' => 'node_1',
+                            'type' => 'trigger',
+                            'name' => 'trigger',
+                            'data' => [
+                                'label' => 'trigger: event_ticket_purchase',
+                                'subtitle' => 'Event Ticket Purchase',
+                                'triggerValue' => 'event_ticket_purchase',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 50,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_2',
+                            'type' => 'end',
+                            'name' => 'end',
+                            'data' => [
+                                'label' => 'end_flow',
+                                'subtitle' => 'End execution path',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 410,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_3',
+                            'type' => 'action',
+                            'name' => 'email',
+                            'data' => [
+                                'actionType' => 'send_email',
+                                'label' => 'send_email',
+                                'subtitle' => 'Subject: Customer ticket purchase',
+                                'receiverType' => 'customer_email',
+                                'from' => 'admin@gmail.com',
+                                'subject' => 'Ticket purchase successful',
+                                'body' => 'You have purchased ticket(s). Attendee ticket details are as follows.',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 230,
+                            ],
+                        ],
+                    ],
+                    'edges' => [
+                        [
+                            'id' => 'edge_node_1-node_3',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_1',
+                            'target' => 'node_3',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_3-node_2',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_3',
+                            'target' => 'node_2',
+                            'data' => [],
+                        ],
+                    ],
+                ],
+                'status' => 'publish',
+            ],
+            [
+                'name' => 'Purchase Email Automation For Admin',
+                'trigger' => 'event_ticket_purchase',
+                'flow_config' => [
+                    'nodes' => [
+                        [
+                            'id' => 'node_1',
+                            'type' => 'trigger',
+                            'name' => 'trigger',
+                            'data' => [
+                                'label' => 'trigger: event_ticket_purchase',
+                                'subtitle' => 'Event Ticket Purchase',
+                                'triggerValue' => 'event_ticket_purchase',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 50,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_2',
+                            'type' => 'end',
+                            'name' => 'end',
+                            'data' => [
+                                'label' => 'end_flow',
+                                'subtitle' => 'End execution path',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 410,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_3',
+                            'type' => 'action',
+                            'name' => 'email',
+                            'data' => [
+                                'actionType' => 'send_email',
+                                'label' => 'send_email',
+                                'subtitle' => 'Subject: Admin purchase confirmetion',
+                                'receiverType' => 'admin_email',
+                                'from' => 'admin@gmail.com',
+                                'subject' => 'New Event Booking Received',
+                                'body' => 'A customer has successfully purchased a ticket. Details are provided below:',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 230,
+                            ],
+                        ],
+                    ],
+                    'edges' => [
+                        [
+                            'id' => 'edge_node_1-node_3',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_1',
+                            'target' => 'node_3',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_3-node_2',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_3',
+                            'target' => 'node_2',
+                            'data' => [],
+                        ],
+                    ],
+                ],
+                'status' => 'publish',
+            ],
+            [
+                'name' => 'RSVP Automation',
+                'trigger' => 'event_rsvp_email',
+                'flow_config' => [
+                    'nodes' => [
+                        [
+                            'id' => 'node_1',
+                            'type' => 'trigger',
+                            'name' => 'trigger',
+                            'data' => [
+                                'label' => 'trigger: event_rsvp_email',
+                                'subtitle' => 'RSVP Email',
+                                'triggerValue' => 'event_rsvp_email',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 50,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_2',
+                            'type' => 'end',
+                            'name' => 'end',
+                            'data' => [
+                                'label' => 'end_flow',
+                                'subtitle' => 'End execution path',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 410,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_3',
+                            'type' => 'action',
+                            'name' => 'email',
+                            'data' => [
+                                'actionType' => 'send_email',
+                                'label' => 'send_email',
+                                'subtitle' => 'Subject: RSVP ATTENDEES REMINDER',
+                                'receiverType' => 'attendee_email',
+                                'from' => 'admin@gmail.com',
+                                'subject' => 'Event Reminder',
+                                'body' => 'You have been invited to attend an event. The details are provided below:',
+                            ],
+                            'position' => [
+                                'x' => 175.74853493583362,
+                                'y' => 239.09429939906244,
+                            ],
+                        ],
+                    ],
+                    'edges' => [
+                        [
+                            'id' => 'edge_node_1-node_3',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_1',
+                            'target' => 'node_3',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_3-node_2',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_3',
+                            'target' => 'node_2',
+                            'data' => [],
+                        ],
+                    ],
+                ],
+                'status' => 'publish',
+            ],
+            [
+                'name' => 'Event Reminder',
+                'trigger' => 'event_reminder_email',
+                'flow_config' => [
+                    'nodes' => [
+                        [
+                            'id' => 'node_1',
+                            'type' => 'trigger',
+                            'name' => 'trigger',
+                            'data' => [
+                                'label' => 'trigger: event_reminder_email',
+                                'subtitle' => 'Event Reminder Email',
+                                'triggerValue' => 'event_reminder_email',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 50,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_2',
+                            'type' => 'end',
+                            'name' => 'end',
+                            'data' => [
+                                'label' => 'end_flow',
+                                'subtitle' => 'End execution path',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 590,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_3',
+                            'type' => 'action',
+                            'name' => 'delay',
+                            'data' => [
+                                'actionType' => 'add_delay',
+                                'label' => 'add_delay',
+                                'subtitle' => 'Wait for 10 minutes',
+                                'delay' => 10,
+                                'delayUnit' => 'minutes',
+                                'delayCondition' => 'before_event_date',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 230,
+                            ],
+                        ],
+                        [
+                            'id' => 'node_4',
+                            'type' => 'action',
+                            'name' => 'email',
+                            'data' => [
+                                'actionType' => 'send_email',
+                                'label' => 'send_email',
+                                'subtitle' => 'Subject: Just a friendly reminder about your upcoming event',
+                                'receiverType' => 'attendee_email',
+                                'from' => 'eventin@admin.com',
+                                'subject' => 'Just a friendly reminder about your upcoming event',
+                                'body' => 'This is a gentle reminder that your upcoming event is just around the corner!',
+                            ],
+                            'position' => [
+                                'x' => 200,
+                                'y' => 410,
+                            ],
+                        ],
+                    ],
+                    'edges' => [
+                        [
+                            'id' => 'edge_node_1-node_3',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_1',
+                            'target' => 'node_3',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_3-node_4',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_3',
+                            'target' => 'node_4',
+                            'data' => [],
+                        ],
+                        [
+                            'id' => 'edge_node_4-node_2',
+                            'type' => 'smoothstep',
+                            'markerEnd' => [
+                                'type' => 'arrowclosed',
+                            ],
+                            'source' => 'node_4',
+                            'target' => 'node_2',
+                            'data' => [],
+                        ],
+                    ],
+                ],
+                'status' => 'publish',
+            ],
+            self::send_certificate_flow_definition(),
+            self::reminder_all_attendees_flow_definition(),
+        ];
+        try {
+            foreach ( $automation_flows as $key => $automation_flow ) {
+                $flow = new Flow( 'eve',0 );
+                $flow->set_props( $automation_flow );
+                $flow_id = $flow->save();
+                if ( $flow_id ) {
+                    $result['flow_ids'][] = $flow_id;
+                }
+            }
+
+            update_option( 'etn_email_automation_migrated', true );
+            // Send Certificate is part of this seed, so mark its dedicated guard too
+            // to keep the update back-fill (V_4_1_16) a no-op for new customers.
+            update_option( 'etn_send_certificate_automation_migrated', true );
+            // Same for the on-demand reminder flow and its back-fill (V_4_1_26).
+            update_option( 'etn_reminder_all_attendees_automation_migrated', true );
+        } catch ( Exception $e ) {
+            $result['errors'][] = 'Failed to create service: ' . $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Default "Send Certificate" automation flow definition.
+     *
+     * Shared single source of truth used by both the toggle-on seeder
+     * ( create_automation_flows() ) and the update back-fill
+     * ( create_send_certificate_flow(), called from the V_4_1_16 upgrader ).
+     *
+     * Contains exactly the four keys the Flow model persists
+     * ( name, trigger, flow_config, status ) — any extra key would be written
+     * as junk post-meta by Flow::save_metadata().
+     *
+     * @return array
+     */
+    private static function send_certificate_flow_definition() {
+        return [
+            'name'        => 'Send Certificate',
+            'trigger'     => 'send_certificate',
+            'flow_config' => [
+                'nodes' => [
+                    [
+                        'id'       => 'node_1',
+                        'type'     => 'trigger',
+                        'name'     => 'trigger',
+                        'data'     => [
+                            'label'        => 'trigger: send_certificate',
+                            'subtitle'     => 'On "Send Certificate" event fires',
+                            'triggerValue' => 'send_certificate',
+                        ],
+                        'position' => [
+                            'x' => 300,
+                            'y' => 100,
+                        ],
+                    ],
+                    [
+                        'id'       => 'end_1',
+                        'type'     => 'end',
+                        'name'     => 'end',
+                        'data'     => [
+                            'label'    => 'end_flow',
+                            'subtitle' => 'Automation stops here',
+                        ],
+                        'position' => [
+                            'x' => 318.38084617295419,
+                            'y' => 460,
+                        ],
+                    ],
+                    [
+                        'id'       => 'node_3',
+                        'type'     => 'action',
+                        'name'     => 'email',
+                        'data'     => [
+                            'actionType'            => 'send_email',
+                            'label'                 => 'send_email',
+                            'subtitle'              => 'Send certificate email to attendee',
+                            'operator'              => '=',
+                            'value'                 => '',
+                            'receiverType'          => 'attendee_email',
+                            'from'                  => '',
+                            'subject'               => 'Please collect your event certificate ',
+                            'body'                  => '<p><br></p>',
+                            'processed_session_ids' => [],
+                        ],
+                        'position' => [
+                            'x' => 309.1904230864771,
+                            'y' => 280,
+                        ],
+                    ],
+                ],
+                'edges' => [
+                    [
+                        'id'        => 'edge_node_1-node_3',
+                        'type'      => 'smoothstep',
+                        'markerEnd' => [
+                            'type' => 'arrowclosed',
+                        ],
+                        'source'    => 'node_1',
+                        'target'    => 'node_3',
+                        'data'      => [
+                            'animated' => false,
+                        ],
+                    ],
+                    [
+                        'id'        => 'edge_node_3-end_1',
+                        'type'      => 'smoothstep',
+                        'markerEnd' => [
+                            'type' => 'arrowclosed',
+                        ],
+                        'source'    => 'node_3',
+                        'target'    => 'end_1',
+                        'data'      => [
+                            'animated' => false,
+                        ],
+                    ],
+                ],
+            ],
+            'status'      => 'publish',
+        ];
+    }
+
+    /**
+     * Default "Send Reminder To All Attendees" automation flow definition.
+     *
+     * Two things set this flow apart from every other seeded flow, and both are
+     * deliberate:
+     *
+     *  - **No delay node.** The flow is driven by an explicit click in the event
+     *    list, not by the event date. A delay would make the click schedule
+     *    something instead of sending it, which is exactly the behaviour that
+     *    ruled out reusing the scheduled `event_reminder_email` trigger.
+     *  - **Status `publish`, not `draft`.** The other flows ship as drafts because
+     *    the admin opts into a scheduled automation. Here a draft means the button
+     *    warns "publish the reminder flow" on a fresh install and never works
+     *    until someone hunts the flow down.
+     *
+     * Public because it is the single source of truth for the flow's shape; the
+     * release test asserts on it directly.
+     *
+     * Contains exactly the four keys the Flow model persists
+     * ( name, trigger, flow_config, status ) — any extra key would be written
+     * as junk post-meta by Flow::save_metadata().
+     *
+     * @return array
+     */
+    public static function reminder_all_attendees_flow_definition() {
+        $trigger = \Eventin\Emails\ReminderAutomation::TRIGGER;
+
+        return [
+            'name'        => 'Send Reminder To All Attendees',
+            'trigger'     => $trigger,
+            'flow_config' => [
+                'nodes' => [
+                    [
+                        'id'       => 'node_1',
+                        'type'     => 'trigger',
+                        'name'     => 'trigger',
+                        'data'     => [
+                            'label'        => 'trigger: ' . $trigger,
+                            'subtitle'     => 'On "Send Reminder To All Attendees" event fires',
+                            'triggerValue' => $trigger,
+                        ],
+                        'position' => [
+                            'x' => 300,
+                            'y' => 100,
+                        ],
+                    ],
+                    [
+                        'id'       => 'end_1',
+                        'type'     => 'end',
+                        'name'     => 'end',
+                        'data'     => [
+                            'label'    => 'end_flow',
+                            'subtitle' => 'Automation stops here',
+                        ],
+                        'position' => [
+                            'x' => 318.38084617295419,
+                            'y' => 460,
+                        ],
+                    ],
+                    [
+                        'id'       => 'node_3',
+                        'type'     => 'action',
+                        'name'     => 'email',
+                        'data'     => [
+                            'actionType'            => 'send_email',
+                            'label'                 => 'send_email',
+                            'subtitle'              => 'Send reminder email to attendee',
+                            'operator'              => '=',
+                            'value'                 => '',
+                            'receiverType'          => 'attendee_email',
+                            'from'                  => '',
+                            'subject'               => 'Reminder: {%event_title%} is coming up',
+                            'body'                  => '<p>Hi {%attendee_name%},</p><p>This is a reminder about "{%event_title%}".</p><p>Date: {%event_date%} at {%event_time%}<br>Location: {%event_location%}</p><p>See you there.</p>',
+                            'processed_session_ids' => [],
+                        ],
+                        'position' => [
+                            'x' => 309.1904230864771,
+                            'y' => 280,
+                        ],
+                    ],
+                ],
+                'edges' => [
+                    [
+                        'id'        => 'edge_node_1-node_3',
+                        'type'      => 'smoothstep',
+                        'markerEnd' => [
+                            'type' => 'arrowclosed',
+                        ],
+                        'source'    => 'node_1',
+                        'target'    => 'node_3',
+                        'data'      => [
+                            'animated' => false,
+                        ],
+                    ],
+                    [
+                        'id'        => 'edge_node_3-end_1',
+                        'type'      => 'smoothstep',
+                        'markerEnd' => [
+                            'type' => 'arrowclosed',
+                        ],
+                        'source'    => 'node_3',
+                        'target'    => 'end_1',
+                        'data'      => [
+                            'animated' => false,
+                        ],
+                    ],
+                ],
+            ],
+            'status'      => 'publish',
+        ];
+    }
+
+    /**
+     * Create only the "Send Reminder To All Attendees" flow.
+     *
+     * Used by the V_4_1_26 upgrader to back-fill existing customers who already
+     * ran the full seeder ( create_automation_flows() ) before this flow existed.
+     *
+     * @return array { flow_ids: int[], errors: string[] }
+     */
+    public static function create_reminder_all_attendees_flow() {
+        $result = array(
+            'flow_ids' => array(),
+            'errors'   => array(),
+        );
+
+        try {
+            $flow = new Flow( 'eve', 0 );
+            $flow->set_props( self::reminder_all_attendees_flow_definition() );
+            $flow_id = $flow->save();
+
+            if ( $flow_id ) {
+                $result['flow_ids'][] = $flow_id;
+            }
+        } catch ( Exception $e ) {
+            $result['errors'][] = 'Failed to create service: ' . $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Create only the "Send Certificate" flow.
+     *
+     * Used by the V_4_1_16 upgrader to back-fill existing customers who already
+     * ran the full seeder ( create_automation_flows() ) before this flow existed.
+     *
+     * @return array { flow_ids: int[], errors: string[] }
+     */
+    public static function create_send_certificate_flow() {
+        $result = array(
+            'flow_ids' => array(),
+            'errors'   => array(),
+        );
+
+        try {
+            $flow = new Flow( 'eve', 0 );
+            $flow->set_props( self::send_certificate_flow_definition() );
+            $flow_id = $flow->save();
+
+            if ( $flow_id ) {
+                $result['flow_ids'][] = $flow_id;
+            }
+        } catch ( Exception $e ) {
+            $result['errors'][] = 'Failed to create service: ' . $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * update automation flow
+     */
+    public static function update_automation_flows() {
+        $result = array(
+            'flow_ids' => array(),
+            'errors'   => array(),
+        );
+
+        $automation_flows = [
+            [
+                "name" => "Send Email To All Attendees",
+                "trigger" => "send_email_to_all_attendees",
+                "flow_config" => [
+                    "nodes" => [
+                        [
+                            "id" => "node_1",
+                            "type" => "trigger",
+                            "name" => "trigger",
+                            "data" => [
+                                "label" => "trigger: send_email_to_all_attendees",
+                                "subtitle" => "Send Email To All Attendees",
+                                "triggerValue" => "send_email_to_all_attendees"
+                            ],
+                            "position" => [
+                                "x" => 200,
+                                "y" => 50
+                            ]
+                        ],
+                        [
+                            "id" => "node_2",
+                            "type" => "end",
+                            "name" => "end",
+                            "data" => [
+                                "label" => "end_flow",
+                                "subtitle" => "End execution path"
+                            ],
+                            "position" => [
+                                "x" => 221.46762850701441,
+                                "y" => 410
+                            ]
+                        ],
+                        [
+                            "id" => "node_3",
+                            "type" => "action",
+                            "name" => "email",
+                            "data" => [
+                                "actionType" => "send_email",
+                                "label" => "send_email",
+                                "subtitle" => "Subject: Thanks for Joining Us -  Here\u2019...",
+                                "receiverType" => "attendee_email",
+                                "from" => "admin@example.com",
+                                "subject" => "Thanks for Joining Us -  Here\u2019s What\u2019s Next",
+                                "body" => "<p>Hi Attendees ,<\/p><p>Thanks for attending \"{%event_title%}\". We appreciate your time and hope the session delivered real value.<\/p><p>&nbsp;<\/p><p>If you would like updates on future sessions or have feedback, reply directly to this email. we review every message.<\/p><p>&nbsp;<\/p><p>Thanks again,<\/p>",
+                                "processed_session_ids" => []
+                            ],
+                            "position" => [
+                                "x" => 210.73381425350721,
+                                "y" => 230
+                            ]
+                        ]
+                    ],
+                    "edges" => [
+                        [
+                            "id" => "edge_node_1-node_3",
+                            "type" => "smoothstep",
+                            "markerEnd" => [
+                                "type" => "arrowclosed"
+                            ],
+                            "source" => "node_1",
+                            "target" => "node_3",
+                            "data" => []
+                        ],
+                        [
+                            "id" => "edge_node_3-node_2",
+                            "type" => "smoothstep",
+                            "markerEnd" => [
+                                "type" => "arrowclosed"
+                            ],
+                            "source" => "node_3",
+                            "target" => "node_2",
+                            "data" => []
+                        ]
+                    ]
+                ],
+                "status" => "draft"
+            ],
+        ];
+        try {
+            foreach ( $automation_flows as $key => $automation_flow ) {                
+                $flow = new Flow( 'eve',0 );
+                $flow->set_props( $automation_flow );
+                $flow_id = $flow->save();
+                if ( $flow_id ) {
+                    $result['flow_ids'][] = $flow_id;
+                }
+            }
+
+        } catch ( Exception $e ) {
+            $result['errors'][] = 'Failed to create service: ' . $e->getMessage();
+        }
+
+        return $result;
+    }
+}

@@ -1,0 +1,2904 @@
+<?php
+
+namespace Eventin\Order;
+
+defined( 'ABSPATH' ) || exit;
+
+use Etn\Core\Attendee\Attendee_Model;
+use Etn\Core\Event\Event_Model;
+use Eventin\AccessControl\Ownership;
+use Eventin\Attendee\Attendee\TicketIdGenerator;
+use Eventin\Customer\CustomerModel;
+use Eventin\Input;
+use Eventin\Emails\AdminOrderEmail;
+use Eventin\Emails\AttendeeOrderEmail;
+use Eventin\Emails\WaitingListConfirmationEmail;
+use Eventin\Emails\WaitingListPaymentEmail;
+use Eventin\Integrations\Webhook\FluentCRM;
+use Eventin\Mails\Mail;
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Server;
+
+/**
+ * Order controller class
+ * 
+ * @package Eventin
+ */
+class OrderController extends WP_REST_Controller {
+    /**
+     * Constructor for OrderController
+     *
+     * @return void
+     */
+    public function __construct() {
+        $this->namespace = 'eventin/v2';
+        $this->rest_base = 'orders';
+    }
+
+    /**
+     * Check if a given request has access to get items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function register_routes() {
+        register_rest_route( $this->namespace, $this->rest_base, [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'get_items'],
+                'permission_callback' => [$this, 'get_items_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'create_item'],
+                'permission_callback' => [$this, 'create_item_permissions_check'],
+            ],
+            [
+                'methods'             => WP_REST_Server::DELETABLE,
+                'callback'            => [$this, 'delete_items'],
+                'permission_callback' => [$this, 'delete_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base . '/(?P<id>[\d]+)',
+            array(
+                'args'   => array(
+                    'id' => array(
+                        'description' => __( 'Unique identifier for the post.', 'wp-event-solution' ),
+                        'type'        => 'integer',
+                    ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_item' ),
+                    'permission_callback' => array( $this, 'get_item_permissions_check' ),
+                    'args'                => $this->get_collection_params(),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::EDITABLE,
+                    'callback'            => array( $this, 'update_item' ),
+                    'permission_callback' => array( $this, 'update_item_permissions_check' ),
+                    'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::DELETABLE,
+                    'callback'            => array( $this, 'delete_item' ),
+                    'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+                    'args'                => array(
+                        'force' => array(
+                            'type'        => 'boolean',
+                            'default'     => false,
+                            'description' => __( 'Whether to bypass Trash and force deletion.', 'wp-event-solution' ),
+                        ),
+                    ),
+                ),
+                // 'allow_batch' => $this->allow_batch,
+                'schema' => array( $this, 'get_item_schema' ),
+            ),
+        );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/export', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'export_items'],
+                'permission_callback' => [$this, 'export_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/import', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'import_items'],
+                'permission_callback' => [$this, 'import_item_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)' . '/resend-ticket', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'resend_ticket'],
+                'permission_callback' => [$this, 'resend_ticket_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)' . '/refund', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'refund'],
+                'permission_callback' => [$this, 'refund_ticket_permissions_check'],
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base.'/book-seats', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'book_seats'],
+                // Intentionally nonce-only: guests must be able to temporarily hold seats
+                // before an account or order exists. The nonce (injected into the page via
+                // localized_data_obj.nonce) proves the request originates from a real page
+                // load. No PII is read — only transient seat-hold state is written.
+                'permission_callback' => function( $request ) {
+                    return wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ), 'wp_rest' );
+                },
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base.'/waiting-list', [
+            [
+                'methods'             => WP_REST_Server::CREATABLE,
+                'callback'            => [$this, 'add_to_waiting_list'],
+                // Was `return true` — fully unauthenticated, and the callback
+                // creates a WordPress user for whatever email is posted. Guests
+                // must still be able to join a waiting list from the front end,
+                // so this matches the guest order path (create_item): a valid
+                // wp_rest nonce, which proves the request came from a real page
+                // load rather than a script hitting the route directly.
+                'permission_callback' => function( $request ) {
+                    return (bool) wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ), 'wp_rest' );
+                },
+            ],
+        ] );
+
+        register_rest_route( $this->namespace, $this->rest_base . '/(?P<id>[\d]+)/send-payment-link', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [ $this, 'send_payment_link' ],
+                'permission_callback' => [ $this, 'send_payment_link_permissions_check' ],
+            ],
+        ] );
+    }
+
+    /**
+     * Check if a given request has access to get items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    /**
+     * Check if a given request has access to list items (admin only).
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function get_items_permissions_check( $request ) {
+        if ( current_user_can( 'etn_manage_event' ) || current_user_can( 'etn_manage_order' ) ) {
+            return true;
+        }
+
+        $user = wp_get_current_user();
+        if ( $user && in_array( 'etn-customer', (array) $user->roles, true ) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a given request has access to read a single order.
+     *
+     * CVE-2026-4109 was only half-fixed in 4.1.9: the token branch below was
+     * tightened, but the capability branch still returned true for anyone
+     * holding `etn_manage_event` — which Contributor and Author hold by default
+     * — so iterating ids read every customer's order PII. The capability now
+     * gates access to the feature; ownership of the specific order decides
+     * whether this call may proceed, matching how get_items() already scopes
+     * the list.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|boolean
+     */
+    public function get_item_permissions_check( $request ) {
+        // Object-level check. Passes for an administrator, for the organizer who
+        // owns the event the order was placed against, and for the etn-customer
+        // the order belongs to (who holds no etn_manage_* capability at all, so
+        // this must not be nested behind a capability test).
+        if ( is_user_logged_in() && Ownership::can_manage_order( $request['id'] ) ) {
+            return true;
+        }
+
+        if ( wp_verify_nonce( $request->get_header( 'X-Wp-Nonce' ), 'wp_rest' ) ) {
+            $id    = intval( $request['id'] );
+            $token = sanitize_text_field( $request->get_param( 'order_token' ) );
+            $stored = get_post_meta( $id, '_order_access_token', true );
+
+            if ( $token && $stored && hash_equals( $stored, $token ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a collection of items.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_items( $request ) {
+		
+        $per_page = ! empty( $request['per_page'] ) ? intval( $request['per_page'] ) : 20;
+        $paged    = ! empty( $request['paged'] ) ? intval( $request['paged'] ) : 1;
+        $event_id   = ! empty( $request['event_id'] ) ? sanitize_text_field( $request['event_id'] ) : '';
+        $status = ! empty( $request['status'] ) ? sanitize_text_field( $request['status'] ) : '';
+        $payment_method = ! empty( $request['payment_method'] ) ? sanitize_text_field( $request['payment_method'] ) : '';
+
+        $search   = ! empty( $request['search_keyword'] ) ? sanitize_text_field( $request['search_keyword'] ) : '';
+
+        $strt_datetime = ! empty( $request['strt_datetime'] ) ? sanitize_text_field( $request['strt_datetime'] ) : '';
+
+        $end_datetime = ! empty( $request['end_datetime'] ) ? sanitize_text_field( $request['end_datetime'] ) : '';
+
+        $args = [
+            'post_type'      => 'etn-order',
+            'post_status'    => 'any',
+            'posts_per_page' => $per_page,
+            'paged'          => $paged,
+        ];
+
+        if ( is_numeric( $search ) ) {
+            $args['p'] = $search;
+        }
+
+        $meta_query = [];
+
+        if ( ! empty( $event_id ) ) {
+            // A recurring parent sells nothing itself — every booking is made on
+            // one of its child occurrences. Expand the picked id so the parent
+            // shows the whole series, while one occurrence still shows only itself.
+            $meta_query[] = [
+                'key'     => 'event_id',
+                'value'   => etn_expand_event_filter_ids( $event_id ),
+                'compare' => 'IN',
+            ];
+        }
+
+        if ( ! empty( $status ) ) {
+            $meta_query[] = [
+                'key'     => 'status',
+                'value'   => $status,
+                'compare' => '=',
+            ];
+        }
+
+        if ( ! empty( $payment_method ) ) {
+            $meta_query[] = [
+                'key'     => 'payment_method',
+                'value'   => $payment_method,
+                'compare' => '=',
+            ];
+        }
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            if ( current_user_can( 'etn_manage_event' ) ) {
+                $event     = new Event_Model();
+                $event_ids = $event->get_ids_by_author( get_current_user_id() );
+                $event_ids = ! empty( $event_ids ) ? $event_ids : '';
+
+                $meta_query[] = [
+                    'key'     => 'event_id',
+                    'value'   => $event_ids,
+                    'compare' => 'IN',
+                ];
+            } else {
+                // etn-customer users see only their own orders by customer_id.
+                $meta_query[] = [
+                    'key'     => 'customer_id',
+                    'value'   => get_current_user_id(),
+                    'compare' => '=',
+                ];
+            }
+        }
+
+        if ( $strt_datetime && $end_datetime ) {
+            $args['date_query'] = [
+                'relation' => 'AND',
+                [
+                    'before'    => [
+                        'year'  => gmdate('Y', strtotime($end_datetime)),
+                        'month' => gmdate('m', strtotime($end_datetime)),
+                        'day'   => gmdate('d', strtotime($end_datetime)),
+                    ],
+                    'after'     => [
+                        'year'  => gmdate('Y', strtotime($strt_datetime)),
+                        'month' => gmdate('m', strtotime($strt_datetime)),
+                        'day'   => gmdate('d', strtotime($strt_datetime)),
+                    ],
+                    'inclusive' => true, // Include posts that match the exact date range boundaries
+                ],
+            ];
+        }
+
+        // Search keyword: NEST the field OR-group INSIDE the meta_query so the ownership
+        // clause built above (customer_id for an etn-customer, event_id IN for an
+        // organizer) still applies. Previously this REASSIGNED $args['meta_query'] to the
+        // bare OR group, dropping the ownership restriction entirely — which let an
+        // etn-customer read ANY order's PII via ?search_keyword=<a value in the victim
+        // order> (Patchstack: Sensitive Data Exposure / IDOR). By pushing the OR group as
+        // one member of the top-level AND array, the query becomes
+        // (ownership) AND (fname LIKE … OR … OR payment_method LIKE …).
+        if ( $search && ! is_numeric( $search ) ) {
+            /*
+             * Search each word separately.
+             *
+             * A buyer's name is stored split across `customer_fname` and
+             * `customer_lname`, so no single field ever holds "Shafayat Hossain" —
+             * matching the whole phrase against one field at a time found nothing
+             * the moment the admin typed a space, while either word alone worked.
+             *
+             * Every word must match one of the fields, so a full name narrows the
+             * list instead of widening it: "Shafayat Hossain" answers with that
+             * customer rather than with every other Hossain as well. Word order does
+             * not matter, and each word may match a different field.
+             */
+            $search_fields = [
+                'customer_fname',
+                'customer_lname',
+                'customer_email',
+                'customer_phone',
+                'payment_method',
+            ];
+
+            $search_words = preg_split( '/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY );
+
+            foreach ( (array) $search_words as $search_word ) {
+                $word_query = [ 'relation' => 'OR' ]; // any of these fields may match this word
+
+                foreach ( $search_fields as $search_field ) {
+                    $word_query[] = [
+                        'key'     => $search_field,
+                        'value'   => $search_word,
+                        'compare' => 'LIKE',
+                    ];
+                }
+
+                $meta_query[] = $word_query;
+            }
+        }
+
+        if ( ! empty( $meta_query ) ) {
+            $meta_query['relation'] = 'AND';
+
+            $args['meta_query'] = $meta_query;
+        }
+
+		
+        $post_query   = new \WP_Query();
+        $query_result = $post_query->query( $args );
+        $total_posts  = $post_query->found_posts;
+        $orders = [];
+
+        $order_ids = wp_list_pluck( $query_result, 'ID' );
+
+        if ( $query_result ) {
+            // Prime the WordPress meta cache for all orders in a single DB query,
+            // so every subsequent get_post_meta() call in the loop is a cache hit.
+            update_meta_cache( 'post', $order_ids );
+        }
+
+        // Batch-load the two per-order lookups that were previously N+1
+        // (one query per row): every order's attendees, and the matching
+        // WooCommerce order id. Both are resolved here in a single query each
+        // and handed to prepare_item_for_response() as preloaded data.
+        $attendee_map = ( new Attendee_Model() )->get_attendees_grouped_by_order( $order_ids );
+        $wc_order_map = $this->get_wc_order_id_map( $order_ids );
+
+        foreach ( $query_result as $post ) {
+            $order     = new OrderModel( $post->ID );
+            $post_data = $this->prepare_item_for_response( $order, $request, [
+                'attendees'   => isset( $attendee_map[ (int) $post->ID ] ) ? $attendee_map[ (int) $post->ID ] : [],
+                'wc_order_id' => array_key_exists( (int) $post->ID, $wc_order_map ) ? $wc_order_map[ (int) $post->ID ] : null,
+            ] );
+
+            $orders[] = $this->prepare_response_for_collection( $post_data );
+        }
+    
+        $data = [
+            'total_items' => $total_posts,
+            'items'       => $orders,
+        ];
+
+        $response = rest_ensure_response( $data );
+
+        $response->header( 'X-WP-Total', $total_posts );
+
+        return $response;
+        
+    }
+
+    /**
+     * Get one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function get_item( $request ) {
+        $id = intval( $request['id'] );
+
+        $order    = new OrderModel( $id );
+        $response = $this->prepare_item_for_response( $order, $request );
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Creates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function create_item( $request ) {
+        $prepared_order = $this->prepare_item_for_database( $request );
+
+        if ( is_wp_error( $prepared_order ) ) {
+            return new WP_Error( 'order_create_error', $prepared_order->get_error_message(), ['status' => 400] );
+        }
+
+        $qty_validation = etn_validate_ticket_quantity( $prepared_order['tickets'], $prepared_order['event_id'] );
+        if ( is_wp_error( $qty_validation ) ) {
+            return $qty_validation;
+        }
+
+        $prepared_order['date_time'] = gmdate('Y-m-d h:i A', current_time('timestamp')); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+        // Create order.
+        $order     = new OrderModel();
+        $order->create( $prepared_order );
+
+        do_action( 'eventin_before_attendees_create', $order);
+
+        // Create attendees.
+        $attendees = $this->prepare_attendee_data( $prepared_order['attendees'], $prepared_order['event_id'], $order->id );
+
+        $this->create_attendees( $attendees );
+
+        // Make customer.
+        $this->create_customer($order, $request);
+
+        $access_token = bin2hex( random_bytes( 16 ) );
+        update_post_meta( $order->id, '_order_access_token', $access_token );
+
+        $response = $this->prepare_item_for_response( $order, $request );
+        $response['order_access_token'] = $access_token;
+
+        do_action( 'eventin_after_order_create', $order, $attendees);
+
+        // Only a checkout-timer order expires. An order manager who creates a
+        // booking with an explicit "pending" status means "not paid yet", not
+        // "fail it when the timer ends".
+        $json_params      = $request->get_json_params();
+        $status_was_set   = is_array( $json_params ) && isset( $json_params['status'] )
+            && ( current_user_can( 'manage_options' ) || current_user_can( 'etn_manage_order' ) );
+        $is_timer_enabled = 'on' === etn_get_option( 'ticket_purchase_timer_enable', 'off' );
+
+        if ( 'pending' == $order->status && $is_timer_enabled && ! $status_was_set ) {
+            $remaining_time_to_pay = get_post_meta( $order->id, 'remaining_time_to_pay', true );
+            wp_schedule_single_event( time() + ( (int)$remaining_time_to_pay + 1 ), 'eventin_release_held_tickets', [ $order->id ] );
+        }
+	    
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Book seats for an event.
+     * This method allows users to book seats for a specific event by providing the event ID and seat IDs.
+     * 
+     * @param WP_REST_Request $request The request object containing the event ID and seat IDs.
+     * 
+     * @since 4.0.0
+     */
+    public function book_seats( $request ) {
+        $input_data = json_decode( $request->get_body(), true ) ?? [];
+
+        $event_id = isset( $input_data['event_id'] ) ? intval( $input_data['event_id'] ) : 0;
+        $seat_ids = isset( $input_data['seat_ids'] ) ? array_map( 'intval', $input_data['seat_ids'] ) : [];
+        $booked_tickets = isset( $input_data['booked_tickets'] ) ? $input_data['booked_tickets'] : [];
+
+        // Validate event ID and seat IDs
+        if ( empty( $event_id ) && ( empty( $seat_ids ) || empty( $booked_tickets ) ) ) {
+            return new WP_Error( 'invalid_data', __( 'Invalid event ID or seat IDs.', 'wp-event-solution' ), ['status' => 400] );
+        }
+
+        // This route is nonce-only (guests hold seats before an order exists) and
+        // takes event_id from the body, then writes pending_seats /
+        // etn_ticket_variations meta onto it. Without this check an anonymous
+        // visitor could write hold state onto any post id (Patchstack 33814,
+        // sibling finding). Require a real event post first.
+        $event_post = $event_id ? get_post( $event_id ) : null;
+        if ( ! $event_post || 'etn' !== $event_post->post_type ) {
+            return new WP_Error( 'invalid_event', __( 'Invalid event.', 'wp-event-solution' ), ['status' => 404] );
+        }
+
+        // Seats live on the occurrence, never on the recurring parent.
+        if ( $this->is_recurring_parent_event( $event_id ) ) {
+            return new WP_Error(
+                'eventin_recurring_parent_not_bookable',
+                __( 'This is a recurring event. Please book one of its occurrences instead.', 'wp-event-solution' ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        // Drop holds whose timer already ran out before checking availability, so a
+        // stale hold never blocks a real buyer — this also keeps the counts correct
+        // on hosts where wp-cron does not run.
+        TicketHold::sync( $event_id );
+
+        $pending_seats = etn_safe_decode( get_post_meta( $event_id, 'pending_seats', true ));
+        if(empty($pending_seats)){
+            $pending_seats = [];
+        }
+        $booked_seats = get_post_meta( $event_id, '_etn_seat_unique_id', true );
+        $already_booked_seats = $booked_seats ? explode(',', $booked_seats) : [];
+
+        // Validate tickets
+        $ticket_validation = etn_validate_event_tickets( $event_id, $booked_tickets );
+        if (is_wp_error($ticket_validation)) {
+            $response = [
+                'success' => false,
+                'message' => __('The number of tickets u have selected is not available.', 'wp-event-solution'),
+                'booked_tickets' => $booked_tickets,
+            ];
+            return rest_ensure_response($response);
+        }
+
+        // Validate seats
+        if ( !empty($pending_seats) ) {
+            $duplicate_seats = array_intersect($seat_ids, $pending_seats);
+            if (!empty($duplicate_seats)) {
+                $response = [
+                    'success' => false,
+                    'message' => __( 'Some of selected seats are already booked.', 'wp-event-solution' ),
+                    'booked_tickets' => $duplicate_seats,
+                ];
+                return rest_ensure_response( $response );
+            }
+        }
+
+        // Validate seats
+        if ( !empty($already_booked_seats) ) {
+            $duplicate_seats = array_intersect($seat_ids, $already_booked_seats);
+            if (!empty($duplicate_seats)) {
+                $response = [
+                    'success' => false,
+                    'message' => __( 'Some of selected seats are already booked.', 'wp-event-solution' ),
+                    'booked_tickets' => $duplicate_seats,
+                ];
+                return rest_ensure_response( $response );
+            }
+        }
+
+        // Record the hold as its own row and let the ledger write the `pending`
+        // counts. Incrementing them here instead would drift: the release below
+        // can run more than once, and before 4.1.23 it could not run at all.
+        $ticket_purchase_timer = max( 1, (int) etn_get_option( 'ticket_purchase_timer', 10 ) ) + 1;
+        $ttl                   = $ticket_purchase_timer * MINUTE_IN_SECONDS;
+
+        $hold_id = TicketHold::add( $event_id, $seat_ids, $booked_tickets, $ttl );
+
+        // The hold id keeps these arguments unique. With the old
+        // [ $event_id, $seat_ids, $booked_tickets ] arguments, two visitors
+        // buying the same ticket produced an identical job, and WordPress drops
+        // a duplicate job scheduled within 10 minutes — so the second visitor's
+        // hold was never released and the event slowly looked sold out.
+        if ( $hold_id ) {
+            wp_schedule_single_event(
+                time() + $ttl,
+                'eventin_release_held_seats_and_tickets',
+                [ $event_id, $hold_id ]
+            );
+        }
+
+        $response = [
+            'success' => true,
+            'message' => __( 'Seats booked successfully.', 'wp-event-solution' ),
+            'event_id' => $event_id,
+            'seat_ids' => $seat_ids,
+            'booked_tickets' => $booked_tickets,
+            'hold_id' => $hold_id,
+        ];
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Add attendee to waiting list for an event.
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function add_to_waiting_list( $request ) {
+        $prepared_order = $this->prepare_item_for_database( $request, true );
+
+        if ( is_wp_error( $prepared_order ) ) {
+            return new WP_Error( 'waiting_list_error', $prepared_order->get_error_message(), ['status' => 400] );
+        }
+
+        $waiting_list_enabled = rest_sanitize_boolean( get_post_meta( $prepared_order['event_id'], 'enable_attendee_waiting_list', true ) );
+        if ( ! $waiting_list_enabled ) {
+            return new WP_Error( 'waiting_list_disabled', __( 'Waiting list is not enabled for this event.', 'wp-event-solution' ), ['status' => 400] );
+        }
+
+        // Block waiting-list signup when stock is still available.
+        $sold_out_check = etn_is_tickets_sold_out( $prepared_order['event_id'], $prepared_order['tickets'] );
+        if ( is_wp_error( $sold_out_check ) ) {
+            return $sold_out_check;
+        }
+
+        $ticket_validation = etn_validate_event_tickets( $prepared_order['event_id'], $prepared_order['tickets'], false, true );
+        if ( is_wp_error( $ticket_validation ) ) {
+            return $ticket_validation;
+        }
+
+        $qty_validation = etn_validate_ticket_quantity( $prepared_order['tickets'], $prepared_order['event_id'] );
+        if ( is_wp_error( $qty_validation ) ) {
+            return $qty_validation;
+        }
+
+        $prepared_order['date_time'] = gmdate( 'Y-m-d h:i A', current_time( 'timestamp' ) );
+        $prepared_order['status'] = 'waiting';
+
+        $order = new OrderModel();
+        $order->create( $prepared_order );
+
+        update_post_meta( $order->id, 'is_from_waiting_list', 1 );
+
+        do_action( 'eventin_before_attendees_create', $order );
+
+        $attendees = $this->prepare_attendee_data_for_waiting_list( $prepared_order['attendees'], $prepared_order['event_id'], $order->id );
+
+        $this->create_attendees( $attendees );
+
+        $this->send_waiting_list_confirmation( $order );
+
+        $this->create_customer( $order, $request );
+
+        $access_token = bin2hex( random_bytes( 16 ) );
+        update_post_meta( $order->id, '_order_access_token', $access_token );
+
+        $response = $this->prepare_item_for_response( $order, $request );
+        $response['order_access_token'] = $access_token;
+
+        do_action( 'eventin_after_order_create', $order, $attendees );
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Prepare attendee data for waiting list
+     *
+     * @param array $attendees Attendees data from request
+     * @param int $event_id Event id
+     * @param int $order_id Order id
+     * @return array Prepared attendee data
+     */
+    protected function prepare_attendee_data_for_waiting_list( $attendees, $event_id, $order_id ) {
+        $attendee_data = [];
+        $event_tickets = etn_safe_decode( get_post_meta( $event_id, 'etn_ticket_variations', true ) );
+
+        if ( empty( $attendees ) ) {
+            return $attendee_data;
+        }
+
+        foreach ( $attendees as $attendee ) {
+            $ticket_slug = $attendee['ticket_slug'];
+            $ticket_name = '';
+            $ticket_price = 0;
+
+            if ( is_array( $event_tickets ) ) {
+                foreach ( $event_tickets as $ticket ) {
+                    if ( isset( $ticket['etn_ticket_slug'] ) && $ticket['etn_ticket_slug'] === $ticket_slug ) {
+                        $ticket_name = $ticket['etn_ticket_name'] ?? '';
+                        $ticket_price = floatval( $ticket['etn_ticket_price'] ?? 0 );
+                        break;
+                    }
+                }
+            }
+
+            $new_attendee = [
+                'etn_name'               => $attendee['name'],
+                'etn_email'              => $attendee['email'],
+                'etn_phone'              => $attendee['phone'] ?? '',
+                'etn_event_id'           => $event_id,
+                'ticket_name'            => $ticket_name,
+                'ticket_slug'           => $ticket_slug,
+                'etn_ticket_price'       => $ticket_price,
+                'etn_info_edit_token'   => \Etn\Utils\Helper::generate_secure_token(),
+                'etn_unique_ticket_id'  => substr( md5( $ticket_price ), 0, 10 ),
+                'eventin_order_id'        => $order_id,
+                'post_status'            => 'publish',
+                'etn_status'            => 'waiting',
+            ];
+
+            $extra_fields = isset( $attendee['extra_fields'] ) ? $this->prepare_attendee_extra_fields( $attendee['extra_fields'] ) : [];
+
+            $attendee_data[] = array_merge( $new_attendee, $extra_fields );
+        }
+
+        return $attendee_data;
+    }
+
+    /**
+     * Send a waiting-list confirmation email to the purchaser and each attendee.
+     *
+     * Deduplicates by email so a buyer purchasing for themselves (purchaser
+     * email == attendee email) receives a single message.
+     *
+     * @param   OrderModel  $order  The waiting-list order just created.
+     *
+     * @return  void
+     */
+    protected function send_waiting_list_confirmation( $order ) {
+        $event = new Event_Model( $order->event_id );
+        $from  = etn_get_email_settings( 'purchase_email' )['from'];
+        $sent  = [];
+
+        // Purchaser.
+        if ( $order->customer_email ) {
+            Mail::to( $order->customer_email )->from( $from )->send( new WaitingListConfirmationEmail( $event, $order->customer_fname ) );
+            $sent[] = strtolower( $order->customer_email );
+        }
+
+        // Attendees (skip any address already mailed).
+        $attendees = $order->get_attendees();
+
+        if ( ! empty( $attendees ) ) {
+            foreach ( $attendees as $attendee ) {
+                $attendee = new Attendee_Model( $attendee['id'] );
+
+                if ( ! $attendee->etn_email || in_array( strtolower( $attendee->etn_email ), $sent, true ) ) {
+                    continue;
+                }
+
+                Mail::to( $attendee->etn_email )->from( $from )->send( new WaitingListConfirmationEmail( $event, $attendee->etn_name ) );
+                $sent[] = strtolower( $attendee->etn_email );
+            }
+        }
+    }
+
+    /**
+     * Checks if a given request has access to create an order.
+     *
+     * Two independent ways in:
+     *
+     * 1. Staff. Anyone holding `etn_manage_order` (the capability the Manage Access
+     *    screen's "Orders" toggle grants) may create a booking, scoped to an event
+     *    they own — the same shape AttendeeController::create_item_permissions_check
+     *    uses. This path was missing before: the check was nonce-only, so an
+     *    administrator authenticating with an Application Password (WP-CLI, the
+     *    Eventin MCP server, any non-browser client) sent no `X-WP-Nonce` and was
+     *    refused with `rest_forbidden`, no matter what capabilities they held.
+     *
+     * 2. Guests. Ticket purchases are made by unauthenticated visitors who have no
+     *    WordPress account, so login must not be required to buy a ticket. The nonce
+     *    (injected into the page via localized_data_obj.nonce) confirms the request
+     *    originates from a real page load, providing CSRF protection without
+     *    requiring authentication. This is a write-only operation — no existing order
+     *    data is exposed.
+     *
+     * The capability path only widens access for users who already hold
+     * `etn_manage_order`; the guest path is unchanged.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+     */
+    public function create_item_permissions_check( $request ) {
+        if ( current_user_can( 'etn_manage_order' ) ) {
+            $event_id = absint( $request->get_param( 'event_id' ) );
+
+            // No event named: let create_item() return its own validation error.
+            if ( ! $event_id || Ownership::can_manage_post( $event_id, 'etn' ) ) {
+                return true;
+            }
+        }
+
+        // Deliberately a fall-through, not an else. A logged-in visitor may hold
+        // etn_manage_order (the Manage Access screen can grant it to any role) and
+        // still be buying a ticket to somebody else's event from the front end.
+        // Failing the staff branch must never take the normal checkout path away
+        // from them, so the nonce is still the last word for everyone.
+        return (bool) wp_verify_nonce( $request->get_header( 'X-Wp-Nonce' ), 'wp_rest' );
+    }
+
+    /**
+     * Updates a single event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+     */
+    public function update_item( $request ) {
+
+        // Update payment method only (used when a waiting-list customer proceeds to payment).
+        if ( isset( $request['action'] ) && $request['action'] === 'update_payment_method' ) {
+            $id             = intval( $request['id'] );
+            $payment_method = isset( $request['payment_method'] ) ? sanitize_text_field( $request['payment_method'] ) : '';
+
+            if ( empty( $payment_method ) ) {
+                return new WP_Error( 'missing_payment_method', __( 'Payment method is required.', 'wp-event-solution' ), [ 'status' => 400 ] );
+            }
+
+            $order = new OrderModel( $id );
+
+            if ( ! $order->id ) {
+                return new WP_Error( 'invalid_order', __( 'Invalid order id.', 'wp-event-solution' ), [ 'status' => 404 ] );
+            }
+
+            // This branch sets the order back to `pending`, which is right for a buyer
+            // picking a payment method but wrong for an order that is already paid — it
+            // would invalidate tickets that have been bought. Staff may still do it; a
+            // guest token holder may not.
+            if ( ! $this->user_can_access_order( $id ) ) {
+                $settled = $this->guest_order_is_settled( $order );
+
+                if ( is_wp_error( $settled ) ) {
+                    return $settled;
+                }
+            }
+
+            $order->update( [ 'payment_method' => $payment_method, 'status' => 'pending' ] );
+
+            return rest_ensure_response( $this->prepare_item_for_response( $order, $request ) );
+        }
+
+		// if request for status update
+	    // Strict compare, same as the guard in update_item_permissions_check(). With
+	    // `==` a JSON boolean `true` matched here while failing the guard's `===`,
+	    // so a guest token holder could mark their own unpaid order completed.
+	    if ( isset( $request['action'] ) && 'update_booking_status' === $request['action'] ) {
+		    // Booking status is a staff action. Check it here too, where the change
+		    // happens, so this branch never depends on the permission callback
+		    // reading `action` the same way.
+		    if ( ! $this->user_can_access_order( intval( $request['id'] ) ) ) {
+			    return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to do that.', 'wp-event-solution' ), [ 'status' => 403 ] );
+		    }
+
+		    $status = $request['status'];
+			if ( !in_array($status, ["failed", "completed", "refunded", "partially_refunded"]) ) {
+				return new WP_Error( 'order_update_booking_status_error', __( 'Invalid status', 'wp-event-solution' ), ['status' => 400] );
+			}
+			
+            $id        = intval( $request['id'] );
+		    $seat_ids = etn_safe_decode(get_post_meta($id, 'seat_ids', true));
+            $event_id = get_post_meta($id, 'event_id', true);
+            $tickets = etn_safe_decode(get_post_meta($id, 'tickets', true));
+
+            if ( $status === "completed" ) {
+                if (!empty($seat_ids)) {
+                    $validate_seats = etn_validate_seat_ids( $event_id, $seat_ids );
+                    if (is_wp_error($validate_seats)) {
+                        return $validate_seats;
+                    }
+                }
+                else{
+                    $validate_tickets = etn_validate_event_tickets( $event_id, $tickets, true );
+                    if (is_wp_error($validate_tickets)) {
+                        return $validate_tickets;
+                    }
+                }
+            }
+                        
+            $order     = new OrderModel( $id );
+            $current_status = $order->status;
+            if ( $current_status === 'failed' && $status === 'refunded' ) {
+                return new WP_Error( 'order_update_booking_status_error', __( "You can't refund a failed order", 'wp-event-solution' ), ['status' => 400] );
+            }
+
+            if ( $current_status === 'refunded' && $status === 'failed' ) {
+                return new WP_Error( 'order_update_booking_status_error', __( "You can't fail a refunded order", 'wp-event-solution' ), ['status' => 400] );
+            }
+
+            // Block any transition out of partially_refunded except staying or
+            // going fully refunded (completed is checked just below).
+            if ( $current_status === 'partially_refunded' && ! in_array( $status, [ 'partially_refunded', 'refunded', 'completed' ], true ) ) {
+                return new WP_Error( 'order_update_booking_status_error', __( "Partially refunded orders can only be fully refunded or restored to completed.", 'wp-event-solution' ), ['status' => 400] );
+            }
+
+            // Money that went back to the customer does not come back when the
+            // status changes. Restoring "completed" would give them a valid ticket
+            // for free, and reports would count the refunded money as revenue again.
+            // Only a "refunded" set by the status dropdown (no refund recorded) can be undone.
+            if ( $status === 'completed' && in_array( $current_status, [ 'refunded', 'partially_refunded' ], true ) ) {
+                $refunded_total = ( new \Eventin\Refund\RefundModel() )->refunded_total( intval( $order->id ) );
+
+                if ( $refunded_total > 0 ) {
+                    return new WP_Error(
+                        'order_update_booking_status_error',
+                        sprintf(
+                            /* translators: 1: currency symbol, 2: refunded amount */
+                            __( '%1$s%2$s was already refunded to the customer. Changing the status does not take the money back, so this booking cannot be set to Completed.', 'wp-event-solution' ),
+                            html_entity_decode( $order->currency_symbol ? $order->currency_symbol : etn_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
+                            number_format( $refunded_total, 2 )
+                        ),
+                        [ 'status' => 400 ]
+                    );
+                }
+            }
+
+
+		    $order->update(["status" => $status]);
+
+		    // Only reached when no refund was recorded (checked above), so this is a
+		    // no-op today. Kept so stale refund meta can never outlive a restore.
+		    if ( $status === 'completed' && in_array( $current_status, [ 'refunded', 'partially_refunded' ], true ) ) {
+		        ( new \Eventin\Refund\RefundService() )->undo_refunds_for_order( intval( $order->id ) );
+		    }
+
+		    $attendeeModel = new Attendee_Model();
+		    $attendees = $attendeeModel->get_attendees_model_by_eventin_order_id(intval($order->id));
+
+
+			foreach ($attendees as $attendee) {
+				if ( $status === "completed") {
+					update_post_meta($attendee->ID, 'etn_status', "success");
+				} else {
+					update_post_meta($attendee->ID, 'etn_status', "failed");
+				}
+			}
+			
+			
+			if ( $order->payment_method == "wc" ) {
+				$status = $status == "failed" ? "cancelled" : $status;
+				$this->wc_order_status_update($id, $status);
+			}
+			
+		    $response   = $this->prepare_item_for_response( $order, $request );
+		    
+			// send only email if order status is completed
+		    if ( 'completed' === $status ) {
+                do_action( 'eventin_order_status_completed', $order );
+                $order->send_email();
+			}
+
+            if ( 'refunded' === $status ) {
+                if ( $order->payment_method == "sure_cart" ) {
+                    $payment = PaymentFactory::get_method( $order->payment_method );
+
+                    if ( $payment->refund( $order ) ) {
+                        if ( 'completed' === $order->status ) {
+                            $order->update([
+                                'status' => 'refunded'
+                            ]);
+                            do_action( 'eventin_order_refund', $order );
+                        }
+                        return rest_ensure_response([
+                            'message' => __( 'Successfully refunded', 'wp-event-solution' )
+                        ]);
+                    }
+                    else{
+                        return new WP_Error( 'refund_error', __( 'Refund unsuccessful', 'wp-event-solution' ), ['status' => 422] );
+                    }
+                }
+                else{
+                    do_action( 'eventin_order_refund', $order );
+                }
+            }
+
+            
+            if ( 'failed' === $status || 'cancelled' === $status ) {
+                if ($current_status === 'completed') {
+                    $booked_tickets = $order->tickets;
+                    $formatted_booked_tickets = [];
+                    if (!empty($booked_tickets)) {
+                        foreach ($booked_tickets as $ticket) {
+                            $formatted_booked_tickets[] = [
+                                'ticket_slug' => $ticket['ticket_slug'],
+                                'ticket_quantity' => $ticket['ticket_quantity']
+                            ];
+                        }
+                    }
+
+                    \Etn\Utils\Helper::decrease_count_by_ticket_slug($formatted_booked_tickets, $event_id);
+                }
+                do_action( 'eventin_order_status_failed', $order );
+            }
+			
+			return rest_ensure_response( $response );
+	    }
+	    
+	    $id = intval( $request['id'] );
+
+        // Everything below this point is reachable by a guest holding only the order
+        // access token. That token is handed out at checkout, before payment, and is
+        // meant for fixing your own details — not for deciding what the order costs.
+        $is_owner_staff = $this->user_can_access_order( $id );
+
+        if ( ! $is_owner_staff ) {
+            $pinned = $this->pin_guest_order_fields( $request, $id );
+
+            if ( is_wp_error( $pinned ) ) {
+                return $pinned;
+            }
+        } elseif ( ! Ownership::is_unscoped() ) {
+            $pinned = $this->pin_staff_order_fields( $request, $id );
+
+            if ( is_wp_error( $pinned ) ) {
+                return $pinned;
+            }
+        }
+
+        $prepared_order = $this->prepare_item_for_database( $request, false, true );
+
+        if ( is_wp_error( $prepared_order ) ) {
+            return new WP_Error( 'order_create_error', $prepared_order->get_error_message(), ['status' => 400] );
+        }
+
+        if ( ! $is_owner_staff ) {
+            // prepare_item_for_database() always writes a status: the submitted one for
+            // staff, the "temporary" one (failed/pending) for everyone else. On the guest
+            // path that silently knocked a live order back to `failed` on an ordinary
+            // detail edit. Leave the stored status alone instead — status changes belong
+            // to staff and to the gateway-verified payment flow.
+            unset( $prepared_order['status'] );
+        }
+
+        // Create order.
+        $order     = new OrderModel( $id );
+        $order->update( $prepared_order );
+
+        // Create attendees.
+        $attendees = $this->prepare_attendee_data( $prepared_order['attendees'], $prepared_order['event_id'], $order->id );
+
+        $this->update_attendees( $attendees );
+
+        $response  = $this->prepare_item_for_response( $order, $request );
+
+        do_action( 'eventin_after_order_update', $order );
+		
+		
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Refuse a guest edit of an order that has already been settled.
+     *
+     * A paid, refunded or cancelled order is finished business. Re-opening one through the
+     * order access token is the "buy a cheap ticket, then upgrade it for free" half of
+     * CVE-2026-77702, and re-opening a paid one also invalidates a ticket somebody already
+     * holds. Buyers who need a change after payment go through the organizer.
+     *
+     * Staff are never routed here — callers check user_can_access_order() first.
+     *
+     * @param OrderModel $order Order being edited.
+     * @return null|WP_Error Null when the order may still be edited.
+     */
+    private function guest_order_is_settled( $order ) {
+        $settled_statuses = [ 'completed', 'refunded', 'partially_refunded', 'cancelled' ];
+
+        if ( in_array( (string) $order->status, $settled_statuses, true ) ) {
+            return new WP_Error(
+                'rest_forbidden',
+                __( 'This order can no longer be changed.', 'wp-event-solution' ),
+                [ 'status' => 403 ]
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Take the money fields away from a guest order update.
+     *
+     * update_item()'s default branch hands the request to prepare_item_for_database(),
+     * which reads `tickets` from the body and recomputes `total_price` from it, and reads
+     * each attendee's `ticket_slug` from the body with nothing checking it against what
+     * the order actually bought.
+     *
+     * Held by a guest with only the order access token, that was CVE-2026-77702: point the
+     * order's `tickets` at a free ticket so the total drops to zero, leave the attendees on
+     * the paid ticket, finalise the order as free, and keep a valid paid ticket. The same
+     * opening also allowed a straight upgrade of the ticket after paying for a cheaper one.
+     *
+     * So on the guest path every field that decides the price is pinned back to what is
+     * stored: the event, the ticket lines, the seats and the coupon. Attendees may still be
+     * corrected, but each one stays on the ticket it was sold and only attendees that
+     * already belong to this order can be touched. Everything the token is actually for —
+     * names, emails, phone, address, extra fields — passes through untouched.
+     *
+     * @param WP_REST_Request $request  Request whose body is rewritten in place.
+     * @param int             $order_id Order being edited.
+     * @return null|WP_Error Null when the (now pinned) request may proceed.
+     */
+    private function pin_guest_order_fields( $request, $order_id ) {
+        $order = new OrderModel( $order_id );
+
+        if ( ! $order->id ) {
+            return new WP_Error( 'invalid_order', __( 'Invalid order id.', 'wp-event-solution' ), [ 'status' => 404 ] );
+        }
+
+        $settled = $this->guest_order_is_settled( $order );
+
+        if ( is_wp_error( $settled ) ) {
+            return $settled;
+        }
+
+        $body = json_decode( $request->get_body(), true );
+
+        if ( ! is_array( $body ) ) {
+            // No usable body; prepare_item_for_database() will reject it on its own.
+            return null;
+        }
+
+        $stored_tickets = etn_safe_decode( get_post_meta( $order_id, 'tickets', true ) );
+
+        $body['event_id']       = (int) get_post_meta( $order_id, 'event_id', true );
+        $body['tickets']        = is_array( $stored_tickets ) ? $stored_tickets : [];
+        $body['seat_ids']       = etn_safe_decode( get_post_meta( $order_id, 'seat_ids', true ) );
+        $body['attendee_seats'] = etn_safe_decode( get_post_meta( $order_id, 'attendee_seats', true ) );
+
+        // A coupon is priced at order creation and frozen on the order. Re-submitting one
+        // here would re-run apply_coupon() against the pinned tickets and move the total.
+        unset( $body['coupon_code'], $body['status'] );
+
+        if ( isset( $body['attendees'] ) && is_array( $body['attendees'] ) ) {
+            $body['attendees'] = $this->pin_guest_attendee_tickets( $body['attendees'], $order_id );
+        }
+
+        $request->set_body( wp_json_encode( $body ) );
+
+        return null;
+    }
+
+    /**
+     * Keep a non-admin staff edit inside the order it was authorised for.
+     *
+     * update_item_permissions_check() authorises the order in the URL. The body
+     * then named the attendees to rewrite (`attendees[].id`) and the event, and
+     * neither was checked: an organizer could rewrite another organizer's
+     * attendee (name, email, ticket link) or move their own order onto someone
+     * else's event.
+     *
+     * - `event_id`: may change only to an event the caller owns.
+     * - `attendees`: rows naming an attendee of another order are dropped.
+     *   Rows with no id are left as they were.
+     *
+     * @param WP_REST_Request $request  Request whose body is rewritten in place.
+     * @param int             $order_id Order being edited.
+     * @return null|WP_Error
+     */
+    private function pin_staff_order_fields( $request, $order_id ) {
+        $body = json_decode( $request->get_body(), true );
+
+        if ( ! is_array( $body ) ) {
+            return null;
+        }
+
+        $stored_event = (int) get_post_meta( $order_id, 'event_id', true );
+
+        if ( isset( $body['event_id'] ) && (int) $body['event_id'] !== $stored_event
+            && ! Ownership::can_manage_post( (int) $body['event_id'], 'etn' ) ) {
+            return new WP_Error( 'rest_forbidden', __( 'You cannot move this order to that event.', 'wp-event-solution' ), [ 'status' => 403 ] );
+        }
+
+        if ( isset( $body['attendees'] ) && is_array( $body['attendees'] ) ) {
+            $own_attendee_ids = array_map( 'intval', (array) $this->attendee_ids_for_order( $order_id ) );
+
+            $body['attendees'] = array_values( array_filter(
+                $body['attendees'],
+                static function ( $attendee ) use ( $own_attendee_ids ) {
+                    if ( ! is_array( $attendee ) ) {
+                        return false;
+                    }
+
+                    return empty( $attendee['id'] ) || in_array( (int) $attendee['id'], $own_attendee_ids, true );
+                }
+            ) );
+        }
+
+        $request->set_body( wp_json_encode( $body ) );
+
+        return null;
+    }
+
+    /**
+     * Pin each submitted attendee to the ticket it was actually sold.
+     *
+     * The attendee record is what becomes the printable ticket, so its `ticket_slug` is a
+     * price field in disguise. Rows are matched to this order's existing attendees by id;
+     * a row naming an attendee that belongs to another order (or no order) is dropped
+     * rather than silently written.
+     *
+     * @param array $attendees Attendee rows from the request body.
+     * @param int   $order_id  Order being edited.
+     * @return array Attendee rows safe to hand to prepare_attendee_data().
+     */
+    private function pin_guest_attendee_tickets( $attendees, $order_id ) {
+        $own_attendee_ids = array_map( 'intval', (array) $this->attendee_ids_for_order( $order_id ) );
+        $pinned           = [];
+
+        foreach ( $attendees as $attendee ) {
+            if ( ! is_array( $attendee ) ) {
+                continue;
+            }
+
+            $attendee_id = isset( $attendee['id'] ) ? intval( $attendee['id'] ) : 0;
+
+            if ( ! $attendee_id || ! in_array( $attendee_id, $own_attendee_ids, true ) ) {
+                continue;
+            }
+
+            $attendee['ticket_slug'] = (string) get_post_meta( $attendee_id, 'ticket_slug', true );
+
+            $pinned[] = $attendee;
+        }
+
+        return $pinned;
+    }
+
+    /**
+     * Ids of the attendees attached to an order.
+     *
+     * @param int $order_id Order id.
+     * @return array<int>
+     */
+    private function attendee_ids_for_order( $order_id ) {
+        $attendees = ( new Attendee_Model() )->get_attendees_model_by_eventin_order_id( intval( $order_id ) );
+
+        return array_map(
+            static function ( $attendee ) {
+                return (int) $attendee->ID;
+            },
+            (array) $attendees
+        );
+    }
+
+    /**
+     * Checks if a given request has access to update a event.
+     *
+     * @since 4.0.0
+     *
+     * @param WP_REST_Request $request Full details about the request.
+     * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+     */
+    public function update_item_permissions_check( $request ) {
+        // Staff who own the order (admin, or the event's organizer) may do anything,
+        // including changing the booking status.
+        if ( $this->user_can_access_order( $request['id'] ) ) {
+            return true;
+        }
+
+        // Guest self-service path: the order-access token is handed to the buyer at
+        // checkout — in plaintext, BEFORE they have paid — and grants a NARROW scope:
+        // updating their own attendee details and choosing a payment method. It must
+        // NEVER authorize a booking-status change. Real payment completion goes through
+        // PaymentController::payment_complete (gateway-verified), so allowing a token
+        // holder to POST action=update_booking_status&status=completed here would let
+        // them mark their own unpaid order paid — a free ticket. Refuse it on the token
+        // path; only owning staff (handled above) may change status.
+        if ( 'update_booking_status' === $request->get_param( 'action' ) ) {
+            return false;
+        }
+
+        if ( wp_verify_nonce( $request->get_header( 'X-Wp-Nonce' ), 'wp_rest' ) ) {
+            $id     = intval( $request['id'] );
+            $token  = sanitize_text_field( $request->get_param( 'order_token' ) );
+            $stored = get_post_meta( $id, '_order_access_token', true );
+
+            if ( $token && $stored && hash_equals( $stored, $token ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Delete one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_item( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+        if ( is_wp_error( $post ) ) {
+            return $post;
+        }
+
+        $order = new OrderModel( $id );
+
+        if ($order->status) {
+            $booked_tickets = $order->tickets;
+            $formatted_booked_tickets = [];
+            if (!empty($booked_tickets)) {
+                foreach ($booked_tickets as $ticket) {
+                    $formatted_booked_tickets[] = [
+                        'ticket_slug' => $ticket['ticket_slug'],
+                        'ticket_quantity' => $ticket['ticket_quantity']
+                    ];
+                }
+            }
+
+            \Etn\Utils\Helper::decrease_count_by_ticket_slug($formatted_booked_tickets, $order->event_id);
+        }
+
+        $previous = $this->prepare_item_for_response( $order, $request );
+
+        do_action( 'eventin_order_before_delete', $order );
+
+        $result   = wp_delete_post( $id, true );
+        $response = new \WP_REST_Response();
+        $response->set_data(
+            array(
+                'deleted'  => true,
+                'previous' => $previous,
+            )
+        );
+
+        if ( ! $result ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'The order cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        do_action( 'eventin_order_deleted', $order );
+
+        return $response;
+    }
+
+    /**
+     * Delete multiple items from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_items( $request ) {
+        $ids = ! empty( $request['ids'] ) ? $request['ids'] : [];
+
+        if ( ! $ids ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Order ids can not be empty.', 'wp-event-solution' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        // Filter to only orders the caller is authorized to delete.
+        $ids = array_values( array_filter( (array) $ids, function ( $id ) {
+            return $this->user_can_access_order( $id );
+        } ) );
+
+        if ( empty( $ids ) ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'No orders accessible to delete.', 'wp-event-solution' ),
+                array( 'status' => 403 )
+            );
+        }
+
+        $count = 0;
+
+        foreach ( $ids as $id ) {
+            $order = new OrderModel( $id );
+
+            $booked_tickets = $order->tickets;
+            $formatted_booked_tickets = [];
+            if (!empty($booked_tickets)) {
+                foreach ($booked_tickets as $ticket) {
+                    $formatted_booked_tickets[] = [
+                        'ticket_slug' => $ticket['ticket_slug'],
+                        'ticket_quantity' => $ticket['ticket_quantity']
+                    ];
+                }
+            }
+
+            \Etn\Utils\Helper::decrease_count_by_ticket_slug($formatted_booked_tickets, $order->event_id);
+
+            do_action( 'eventin_order_before_delete', $order );
+
+            if ( $order->delete() ) {
+                $count++;
+
+                do_action( 'eventin_order_deleted', $order );
+            }
+        }
+
+        if ( $count == 0 ) {
+            return new WP_Error(
+                'rest_cannot_delete',
+                __( 'Order cannot be deleted.', 'wp-event-solution' ),
+                array( 'status' => 500 )
+            );
+        }
+
+        // translators: %1$d is the number of orders deleted, %2$d is the total number of orders selected.
+        $message = sprintf( __( '%1$d orders are deleted of %2$d', 'wp-event-solution' ), $count, count( $ids ) );
+
+        return rest_ensure_response( $message );
+    }
+
+    /**
+     * Delete one item from the collection.
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response
+     */
+    public function delete_item_permissions_check( $request ) {
+        // Per-id route: require ownership of the specific order.
+        if ( ! empty( $request['id'] ) ) {
+            return $this->user_can_access_order( $request['id'] );
+        }
+
+        // Bulk route: cap-gate here; per-id filtering happens inside delete_items().
+        return current_user_can( 'etn_manage_order' );
+    }
+
+    /**
+     * Get the item's schema for display / public consumption purposes.
+     *
+     * @return array
+     */
+    public function get_item_schema() {
+
+    }
+
+    /**
+     * Prepare the item for the REST response.
+     *
+     * @param mixed           $item WordPress representation of the item.
+     * @param WP_REST_Request $request Request object.
+     * @return WP_REST_Response $response
+     */
+    public function prepare_item_for_response( $item, $request, $preloaded = null ) {
+        $order = $item instanceof OrderModel ? $item : new OrderModel( $item );
+        $event = get_post( $order->event_id );
+
+        // Recurring child events (post_parent !== 0) share the parent's title,
+        // so expose the occurrence date to disambiguate which occurrence was
+        // booked. Empty for non-recurring events — the frontend hides it then.
+        $event_date = ( $event && $event->post_parent ) ? get_post_meta( $event->ID, 'etn_start_date', true ) : '';
+
+        // When the caller (list endpoint) has batch-resolved the WooCommerce order
+        // id, use it instead of running findWCOrderByEventinOrder() per row.
+        if ( is_array( $preloaded ) && array_key_exists( 'wc_order_id', $preloaded ) ) {
+            $wc_order_id = $preloaded['wc_order_id'];
+        } else {
+            $wc_order    = function_exists( 'WC' ) ? $order->findWCOrderByEventinOrder() : null;
+            $wc_order_id = $wc_order ? $wc_order->get_id() : null;
+        }
+		
+        // Display values for `total_price` and `total_ticket` shift with refund state:
+        //  - completed / refunded → ORIGINAL purchase values
+        //  - partially_refunded   → ORIGINAL minus all recorded refunds (per-slug + amount)
+        // This makes the bookings table communicate the *outstanding* balance during
+        // a multi-step refund, while preserving the original sale value for fully
+        // refunded orders (matches the pre-partial-refund display behavior).
+        $original_total_price  = (float) $order->total_price;
+        $original_total_ticket = (int) $order->get_total_ticket();
+        $refund_model          = new \Eventin\Refund\RefundModel();
+        $refunded_amount       = (float) $refund_model->refunded_total( $order->id );
+        $display_total_price   = $original_total_price;
+        $display_total_ticket  = $original_total_ticket;
+
+        if ( 'partially_refunded' === $order->status ) {
+            $display_total_price   = max( 0, round( $original_total_price - $refunded_amount, 2 ) );
+            $refunded_ticket_count = 0;
+            foreach ( $refund_model->find_by_order( $order->id ) as $r ) {
+                if ( ( $r['type'] ?? 'ticket' ) !== 'ticket' || empty( $r['slug_counts'] ) || ! is_array( $r['slug_counts'] ) ) {
+                    continue;
+                }
+                foreach ( $r['slug_counts'] as $count ) {
+                    $refunded_ticket_count += (int) $count;
+                }
+            }
+            $display_total_ticket = max( 0, $original_total_ticket - $refunded_ticket_count );
+        }
+
+        $order_data = [
+            'id'                => $order->id,
+            'customer_fname'    => $order->customer_fname,
+            'customer_lname'    => $order->customer_lname,
+            'customer_email'    => $order->customer_email,
+            'customer_phone'    => $order->customer_phone,
+            'customer_country'  => $order->customer_country,
+            'customer_state'    => $order->customer_state,
+            'customer_city'     => $order->customer_city,
+            'customer_zip'      => $order->customer_zip,
+            'date_time'         => $order->date_time,
+            'event_id'          => $order->event_id,
+            'event_name'        => $event ? $event->post_title : '',
+            'event_date'        => $event_date,
+            'payment_method'    => $order->payment_method,
+            'status'            => $order->status,
+            'total_price'           => $display_total_price,
+            'original_total_price'  => $original_total_price,
+            'refunded_amount'       => $refunded_amount,
+            'discount_total'        => $order->discount_total,
+            'coupon_code'           => $order->coupon_code,
+            'tax_total'             => $order->tax_total,
+            'tax_display_mode'      => $order->tax_display_mode,
+            // Add-on (Optiontics) breakdown: aggregate total for the pricing panel
+            // and the per-line rows for the success-page itemisation.
+            'options_total'         => $order->options_total,
+            'option_selections'     => is_array( $order->option_selections ) ? $order->option_selections : [],
+            'total_ticket'          => $display_total_ticket,
+            'original_total_ticket' => $original_total_ticket,
+            'ticket_items'      => $order->get_tickets(),
+            'attendees'         => ( is_array( $preloaded ) && array_key_exists( 'attendees', $preloaded ) )
+                                        ? $preloaded['attendees']
+                                        : $order->get_attendees(),
+            'seat_ids'          => $order->seat_ids,
+            'attendee_seats'    => $order->attendee_seats,
+            'customer'          => $order->get_customer(),
+	        'wc_order_id'       => $wc_order_id,
+            'extra_fields'      => ( $order->extra_fields == "" || $order->extra_fields == null )  ? new \stdClass() : $order->extra_fields,
+            'extra_fields_files' => $order->get_extra_field_files(),
+            // Keys are ASCII slugs, so non-Latin labels can't be humanized
+            // client-side — ship the schema labels with the values.
+            'extra_fields_labels' => $order->get_extra_field_labels(),
+            'currency'          => $order->currency?$order->currency:etn_currency(),
+            'currency_symbol'   => $order->currency_symbol?html_entity_decode($order->currency_symbol, ENT_QUOTES, 'UTF-8'): html_entity_decode(etn_currency_symbol()),
+        ];
+
+        return $order_data;
+    }
+
+    /**
+     * Batch-resolve the WooCommerce order id for a list of Eventin order ids.
+     *
+     * Replaces the per-row OrderModel::findWCOrderByEventinOrder() lookup (an
+     * N+1 meta_query over shop_order posts) with a single query for the whole
+     * page. Returns [ eventin_order_id => wc_order_id ]; orders with no linked
+     * WC order are simply absent (callers treat that as null), matching the
+     * previous behaviour where get_id() was only read on a found order.
+     *
+     * @param   int[]  $order_ids  Eventin order ids on the current page.
+     *
+     * @return  array  [ eventin_order_id => wc_order_id ]
+     */
+    protected function get_wc_order_id_map( $order_ids ) {
+        $order_ids = array_values( array_filter( array_map( 'intval', (array) $order_ids ) ) );
+
+        if ( empty( $order_ids ) || ! function_exists( 'WC' ) ) {
+            return [];
+        }
+
+        $post_type = etn_is_enable_wc_synchronize_order() ? 'shop_order' : 'shop_order_placehold';
+
+        $wc_post_ids = get_posts( [
+            'post_type'      => $post_type,
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                [
+                    'key'     => 'eventin_order_id',
+                    'value'   => $order_ids,
+                    'compare' => 'IN',
+                ],
+            ],
+        ] );
+
+        if ( empty( $wc_post_ids ) ) {
+            return [];
+        }
+
+        // Prime meta in one query so the eventin_order_id reads below are cache hits.
+        update_meta_cache( 'post', $wc_post_ids );
+
+        $map = [];
+        foreach ( $wc_post_ids as $wc_post_id ) {
+            $eventin_order_id = (int) get_post_meta( $wc_post_id, 'eventin_order_id', true );
+            if ( $eventin_order_id ) {
+                $map[ $eventin_order_id ] = (int) $wc_post_id;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Check whether an event is a recurring parent.
+     *
+     * Recurring parents carry the 'recurring_enabled' = 'yes' meta; their
+     * generated occurrences are child posts without it. Only the occurrences
+     * are bookable.
+     *
+     * @param   int|string  $event_id
+     *
+     * @return  bool
+     */
+    protected function is_recurring_parent_event( $event_id ) {
+        $event_id = intval( $event_id );
+
+        if ( ! $event_id ) {
+            return false;
+        }
+
+        return 'yes' === get_post_meta( $event_id, 'recurring_enabled', true );
+    }
+
+    /**
+     * Prepare the item for create or update operation.
+     *
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|object $prepared_item
+     */
+    protected function prepare_item_for_database( $request, $is_waiting = false, $is_update = false ) {
+        $input_data = json_decode( $request->get_body(), true ) ?? [];
+
+        // Get settings to check if phone is required
+        $require_phone_number = etn_get_option( 'require_phone_number', 'off' );
+        
+        $validation_rules = [
+            'event_id'          => ['required'],
+            'tickets'           => ['required'],
+        ];
+
+        // Add phone validation only if it's required in settings
+        if ( $require_phone_number === 'on' ) {
+            $validation_rules['customer_phone'] = ['required'];
+        }
+
+        $validate = etn_validate( $input_data, $validation_rules );
+
+        if ( is_wp_error( $validate ) ) {
+            return $validate;
+        }
+
+        // A recurring parent event sells no tickets of its own - every ticket
+        // belongs to a generated occurrence, which is why the single-event
+        // template hides the purchase form on the parent
+        // (core/Event/template-functions.php). An order booked against the
+        // parent has no real date and holds no occurrence stock, so reject it
+        // on every create path (checkout, admin manual booking, waiting list).
+        // Updates are left alone so orders created before this check can still
+        // be edited.
+        if ( ! $is_update && $this->is_recurring_parent_event( $input_data['event_id'] ) ) {
+            return new WP_Error(
+                'eventin_recurring_parent_not_bookable',
+                __( 'This is a recurring event. Please book one of its occurrences instead.', 'wp-event-solution' ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        // Validate ticket quantities: each must be a positive integer.
+        foreach ( $input_data['tickets'] as $ticket ) {
+            $qty = intval( $ticket['ticket_quantity'] ?? 0 );
+            if ( $qty < 1 ) {
+                return new WP_Error(
+                    'invalid_ticket_quantity',
+                    __( 'Ticket quantity must be at least 1.', 'wp-event-solution' ),
+                    [ 'status' => 400 ]
+                );
+            }
+        }
+
+        // New orders only: updates carry lines and attendees that were already
+        // checked at creation, and guest updates are pinned to the stored order.
+        if ( ! $is_update ) {
+            $input_data['tickets'] = $this->merge_duplicate_ticket_lines( $input_data['tickets'] );
+
+            $attendee_check = $this->validate_attendees_match_tickets(
+                $input_data['tickets'],
+                isset( $input_data['attendees'] ) ? $input_data['attendees'] : []
+            );
+
+            if ( is_wp_error( $attendee_check ) ) {
+                return $attendee_check;
+            }
+        }
+
+        // Waiting-list requests are validated by add_to_waiting_list() itself,
+        // after its sold-out check has run. Repeating the ticket validation here
+        // made the waiting-list limit error win over the sold-out error, so a
+        // visitor queuing for a genuinely sold-out ticket was told the waiting
+        // list was full when the real reason was another ticket still on sale.
+        if ( ! $is_waiting ) {
+            // $is_for_update credits the requested quantity back into the
+            // remaining stock, because an update re-submits tickets the order
+            // already holds. Passing it unconditionally disabled stock
+            // enforcement on the create path entirely - any quantity passed, at
+            // any capacity.
+            $ticket_validation = etn_validate_event_tickets( $input_data['event_id'], $input_data['tickets'], $is_update, $is_waiting );
+
+            if ( is_wp_error( $ticket_validation ) ) {
+                return $ticket_validation;
+            }
+        }
+
+        $email_limit_check = $this->validate_email_purchase_limit(
+            $input_data['event_id'],
+            isset( $input_data['customer_email'] ) ? $input_data['customer_email'] : '',
+            $input_data['tickets'],
+            isset( $request['id'] ) ? intval( $request['id'] ) : 0
+        );
+
+        if ( is_wp_error( $email_limit_check ) ) {
+            return $email_limit_check;
+        }
+
+        if ( isset( $input_data['seat_ids'] ) ) {
+            $seat_validation = etn_validate_seat_ids( $input_data['event_id'], $input_data['seat_ids'] );
+
+            if ( is_wp_error( $seat_validation ) ) {
+                return $seat_validation;
+            }
+        }
+
+        $order_data = [];
+
+        // Prepare customer data. These values are guest-controlled on
+        // unauthenticated checkout and are later substituted into automation
+        // email bodies, so they must be sanitized on the way in.
+        if ( isset( $input_data['customer_fname'] ) ) {
+            $order_data['customer_fname'] = sanitize_text_field( $input_data['customer_fname'] );
+        }
+
+        if ( isset( $input_data['customer_lname'] ) ) {
+            $order_data['customer_lname'] = sanitize_text_field( $input_data['customer_lname'] );
+        }
+
+        if ( isset( $input_data['customer_email'] ) ) {
+            $order_data['customer_email'] = sanitize_email( $input_data['customer_email'] );
+        }
+
+        if ( isset( $input_data['customer_phone'] ) ) {
+            // Keep only characters a phone number can contain. This also strips
+            // any `data:` URI payload used to smuggle an SVG into the email body
+            // (a data URI needs `:` and `/`, which are not in this set).
+            $order_data['customer_phone'] = preg_replace( '/[^0-9+\-().\s]/', '', (string) $input_data['customer_phone'] );
+        }
+
+        // Tax address (used by native tax geo-matching at payment time).
+        if ( isset( $input_data['customer_country'] ) ) {
+            $order_data['customer_country'] = sanitize_text_field( $input_data['customer_country'] );
+        }
+
+        if ( isset( $input_data['customer_state'] ) ) {
+            $order_data['customer_state'] = sanitize_text_field( $input_data['customer_state'] );
+        }
+
+        if ( isset( $input_data['customer_city'] ) ) {
+            $order_data['customer_city'] = sanitize_text_field( $input_data['customer_city'] );
+        }
+
+        if ( isset( $input_data['customer_zip'] ) ) {
+            $order_data['customer_zip'] = sanitize_text_field( $input_data['customer_zip'] );
+        }
+
+        $temporary_status = 'failed';
+        $is_enable_payment_timer = etn_get_option( 'ticket_purchase_timer_enable', 'off' );
+        if ( $is_enable_payment_timer == 'on' ) {
+            $temporary_status = 'pending';
+        }
+        
+        // Only privileged users (order/event managers) may set an explicit order
+        // status. Unauthenticated/guest checkout always starts at the safe temporary
+        // status so a forged 'completed' status cannot bypass payment and exhaust
+        // inventory. A completed order is reached afterwards only through the payment
+        // flow (paymentComplete/webhook), which verifies payment. See CVE-2026-12956.
+        $allowed_statuses = [ 'pending', 'failed', 'completed', 'cancelled', 'refunded', 'partially_refunded', 'waiting' ];
+        // Staff may set a status only on an order for an event they own. The
+        // capability alone let any `etn_manage_order` holder create a "completed"
+        // (never paid) order on someone else's event: the permission check let
+        // them through as a guest, and this line then treated them as staff.
+        // The event comes from the same raw body the rest of this method reads.
+        $can_set_status   = current_user_can( 'manage_options' )
+            || ( current_user_can( 'etn_manage_order' )
+                && Ownership::can_manage_post( isset( $input_data['event_id'] ) ? absint( $input_data['event_id'] ) : 0, 'etn' ) );
+
+        if ( $can_set_status && isset( $input_data['status'] ) && in_array( $input_data['status'], $allowed_statuses, true ) ) {
+            $order_data['status'] = $input_data['status'];
+        } else {
+            $order_data['status'] = $temporary_status;
+        }
+
+        // Prepare event data
+        if ( isset( $input_data['event_id'] ) ) {
+            $order_data['event_id'] = $input_data['event_id'];
+        }
+
+        if ( isset( $input_data['tickets'] ) ) {
+            // Selections live in their own meta (option_selections); keep the stored
+            // tickets array free of them so the price isn't double-kept.
+            $order_data['tickets'] = array_map(
+                function ( $ticket ) {
+                    unset( $ticket['option_selections'] );
+                    return $ticket;
+                },
+                $input_data['tickets']
+            );
+        }
+
+        // Prepare attendee data
+        if ( isset( $input_data['attendees'] ) ) {
+            $order_data['attendees'] = $input_data['attendees'];
+        }
+
+        // Prepare seat ids.
+        if ( isset( $input_data['seat_ids'] ) ) {
+            $order_data['seat_ids'] = $input_data['seat_ids'];
+        }
+
+        if ( isset( $input_data['attendee_seats'] ) ) {
+            $order_data['attendee_seats'] = $input_data['attendee_seats'];
+        }
+
+        if ( isset( $input_data['remaining_time_to_pay'] ) ) {
+            $order_data['remaining_time_to_pay'] = $input_data['remaining_time_to_pay'];
+        }
+        else{
+            // Seconds. Fall back to the full checkout timer, not 10 seconds.
+            $order_data['remaining_time_to_pay'] = max( 1, (int) etn_get_option( 'ticket_purchase_timer', 10 ) ) * MINUTE_IN_SECONDS;
+        }
+
+        if ( isset( $input_data['extra_fields'] ) ) {
+            $order_data['extra_fields'] = $input_data['extra_fields'];
+        }
+
+        // Whether the ticket subtotal already includes tax depends on how WooCommerce
+        // prices are ENTERED, not how they're DISPLAYED. woocommerce_tax_display_shop is
+        // only a display preference and must NOT be used here. woocommerce_prices_include_tax
+        // = 'yes' means the ticket price (and therefore total_price, the subtotal) is already
+        // tax-inclusive, so tax must be presented as "included" rather than added on top.
+        // Native gateways (Stripe/PayPal/local/free) overwrite this with 'incl' in
+        // PaymentController::apply_native_tax(), so this value only sticks for WooCommerce orders.
+        $prices_include_tax             = ( 'yes' === get_option( 'woocommerce_prices_include_tax' ) );
+        $order_data['tax_display_mode'] = $prices_include_tax ? 'incl' : 'excl';
+
+        // Reprice add-on selections per attendee, server-authoritatively (client prices ignored).
+        $order_attendees = isset( $input_data['attendees'] ) ? $input_data['attendees'] : [];
+        list( $attendees_with_rows, $option_rows, $options_total ) =
+            $this->build_attendee_option_selections( $order_data['event_id'], $order_attendees );
+
+        $order_data['attendees']         = $attendees_with_rows;
+        $order_data['option_selections'] = $option_rows;
+        $order_data['options_total']     = $options_total;
+
+        $order_data['total_price'] = $this->total_price( $order_data['event_id'], $order_data['tickets'] ) + $options_total;
+
+        // Coupon: recompute the discount server-side and fold it into total_price.
+        $order_data = $this->apply_coupon( $input_data, $order_data );
+
+        return $order_data;
+    }
+
+    /**
+     * Apply a coupon to the prepared order data, server-authoritatively.
+     *
+     * Recomputes the discount from the stored coupon (the client `discount_amount`
+     * is never trusted — the create route is guest-open), sets discount_total +
+     * coupon id/code, and reduces total_price on the pre-tax base. Tax is applied
+     * downstream on the discounted total by PaymentController::native_subtotal().
+     * No-op when WooCommerce drives checkout or no coupon code is present. An
+     * invalid code is dropped silently (order proceeds at full price) — the
+     * frontend re-validates before submit, so this only trips on an interim race.
+     *
+     * @param array $input_data Raw request body.
+     * @param array $order_data Prepared order data (contains total_price, tickets).
+     * @return array
+     */
+    protected function apply_coupon( $input_data, $order_data ) {
+        $code = isset( $input_data['coupon_code'] ) ? sanitize_text_field( $input_data['coupon_code'] ) : '';
+
+        if ( ! $code || \Eventin\Coupon\CouponModel::woo_owns_checkout() ) {
+            return $order_data;
+        }
+
+        $subtotal = floatval( $order_data['total_price'] );
+
+        // Authoritative per-ticket prices from the event so a ticket-restricted
+        // coupon discounts only the eligible lines (matches the validate route).
+        $event = new Event_Model( $order_data['event_id'] );
+
+        $cart = [];
+        foreach ( (array) $order_data['tickets'] as $ticket ) {
+            $slug        = isset( $ticket['ticket_slug'] ) ? $ticket['ticket_slug'] : '';
+            $event_ticket = $slug ? $event->get_ticket( $slug ) : null;
+            $cart[] = [
+                'ticket_id' => $slug,
+                'qty'       => isset( $ticket['ticket_quantity'] ) ? intval( $ticket['ticket_quantity'] ) : 0,
+                'price'     => $event_ticket && isset( $event_ticket['etn_ticket_price'] ) ? floatval( $event_ticket['etn_ticket_price'] ) : 0,
+            ];
+        }
+
+        $validator = new \Eventin\Coupon\CouponValidator(
+            new \Eventin\Coupon\CouponModel(),
+            new \Eventin\Coupon\RedemptionModel()
+        );
+
+        $result = $validator->validate( [
+            'code'        => $code,
+            'event_id'    => intval( $order_data['event_id'] ),
+            'cart'        => $cart,
+            'subtotal'    => $subtotal,
+            'buyer_email' => isset( $order_data['customer_email'] ) ? $order_data['customer_email'] : '',
+        ] );
+
+        if ( empty( $result['valid'] ) ) {
+            return $order_data;
+        }
+
+        $discount = floatval( $result['discount_amount'] );
+
+        $order_data['discount_total'] = $discount;
+        $order_data['total_price']    = max( 0, $subtotal - $discount );
+        $order_data['coupon_id']      = intval( $result['coupon']['id'] );
+        $order_data['coupon_code']    = $result['coupon']['code'];
+
+        // Freeze the terms the discount was computed under. Refunds have to know how
+        // it was apportioned across the order, and the coupon row is not a safe place
+        // to look it up later: CouponModel::update() rewrites every column and
+        // delete() leaves no tombstone, so editing or removing the coupon would
+        // silently re-apportion the refunds of an already-completed order.
+        $order_data['discount_scope']        = isset( $result['coupon']['discount_scope'] ) ? $result['coupon']['discount_scope'] : 'total';
+        $order_data['discount_ticket_slugs'] = isset( $result['discount_ticket_slugs'] ) ? (array) $result['discount_ticket_slugs'] : [];
+
+        return $order_data;
+    }
+
+    /**
+     * Reprice add-on selections carried on each attendee, server-side, qty 1 each.
+     *
+     * Returns the attendees array with a transient `_option_rows` per attendee, the
+     * order-level aggregate rows (each tagged with attendee_index/attendee_name), and
+     * the grand total. No-op when Optiontics is inactive or there are no attendees.
+     *
+     * @param   int    $event_id   Event id.
+     * @param   array  $attendees  Submitted attendees (each may carry option_selections).
+     *
+     * @return  array  [ attendees_with_rows[], aggregate_rows[], options_total ]
+     */
+    protected function build_attendee_option_selections( $event_id, $attendees ) {
+        $adapter = new \Eventin\Integrations\Optiontics\OptionticsAddons();
+
+        if ( ! is_array( $attendees ) || ! $attendees || ! $adapter->is_available() || ! $adapter->integration_enabled() || ! $adapter->addons_enabled( $event_id ) ) {
+            return [ (array) $attendees, [], 0.0 ];
+        }
+
+        $event           = new Event_Model( $event_id );
+        $event_block_ids = $adapter->event_block_ids( $event_id );
+        $aggregate       = [];
+
+        foreach ( $attendees as $index => $attendee ) {
+            $slug = isset( $attendee['ticket_slug'] ) ? $attendee['ticket_slug'] : '';
+            $subs = isset( $attendee['option_selections'] ) ? $attendee['option_selections'] : [];
+
+            $attendees[ $index ]['_option_rows'] = [];
+
+            if ( ! $slug || ! is_array( $subs ) || ! $subs ) {
+                continue;
+            }
+
+            $variation = $event->get_ticket( $slug );
+            $base      = (float) ( $variation['etn_ticket_price'] ?? 0 );
+            $selected  = array_map( 'absint', (array) ( $variation['optiontics_block_ids'] ?? [] ) );
+            // Mirror the checkout endpoint: only blocks selected for this ticket AND
+            // still assigned to the event are valid. Drops blanket/de-targeted blocks.
+            $allowed   = array_values( array_intersect( $selected, $event_block_ids ) );
+
+            // Authorization: drop selections whose block isn't assigned to this ticket type.
+            $subs = array_values(
+                array_filter(
+                    $subs,
+                    function ( $selection ) use ( $allowed ) {
+                        return in_array( (int) ( $selection['block_id'] ?? 0 ), $allowed, true );
+                    }
+                )
+            );
+
+            // Per attendee: each selection counts once.
+            $subs = array_map(
+                function ( $selection ) {
+                    $selection['qty'] = 1;
+                    return $selection;
+                },
+                $subs
+            );
+
+            if ( ! $subs ) {
+                continue;
+            }
+
+            $rows = $adapter->reprice( $subs, $base, $slug );
+
+            $attendees[ $index ]['_option_rows'] = $rows;
+
+            foreach ( $rows as $row ) {
+                $row['attendee_index'] = (int) $index;
+                $row['attendee_name']  = isset( $attendee['name'] ) ? $attendee['name'] : '';
+                $aggregate[]           = $row;
+            }
+        }
+
+        return [ $attendees, $aggregate, $adapter->options_total( $aggregate ) ];
+    }
+
+    /**
+     * Merge order lines that name the same ticket into one line.
+     *
+     * The stock and per-order limit checks look at one line at a time. Sending the
+     * same ticket as two lines of 1 passed a "max 1 per order" limit and could sell
+     * more tickets than the event has (Patchstack report, September 2026). The checkout never sends
+     * duplicate lines, so real buyers see no change.
+     *
+     * @param array $tickets Ticket lines from the request.
+     * @return array Ticket lines, one per ticket slug, in first-seen order.
+     */
+    protected function merge_duplicate_ticket_lines( $tickets ) {
+        $merged = [];
+
+        foreach ( $tickets as $ticket ) {
+            $slug = isset( $ticket['ticket_slug'] ) ? (string) $ticket['ticket_slug'] : '';
+
+            if ( ! isset( $merged[ $slug ] ) ) {
+                $merged[ $slug ] = $ticket;
+                continue;
+            }
+
+            $merged[ $slug ]['ticket_quantity'] = intval( $merged[ $slug ]['ticket_quantity'] ) + intval( $ticket['ticket_quantity'] );
+
+            if ( ! empty( $ticket['seats'] ) && is_array( $ticket['seats'] ) ) {
+                $seats = isset( $merged[ $slug ]['seats'] ) && is_array( $merged[ $slug ]['seats'] ) ? $merged[ $slug ]['seats'] : [];
+                $merged[ $slug ]['seats'] = array_merge( $seats, $ticket['seats'] );
+            }
+        }
+
+        return array_values( $merged );
+    }
+
+    /**
+     * Check that every attendee belongs to a ticket the order buys.
+     *
+     * Price and stock come from the ticket lines, but each attendee becomes a real
+     * ticket. Without this check a visitor could buy 1 ticket and get 3 attendees,
+     * or buy a free ticket and put the attendee on a paid one (Patchstack report, September 2026).
+     *
+     * Fewer attendees than tickets is still allowed, as before, so no existing
+     * checkout is refused. An order without attendees (attendee form turned off)
+     * is also allowed.
+     *
+     * @param array $tickets   Ticket lines, already merged by slug.
+     * @param array $attendees Attendees from the request.
+     * @return true|WP_Error
+     */
+    protected function validate_attendees_match_tickets( $tickets, $attendees ) {
+        if ( empty( $attendees ) || ! is_array( $attendees ) ) {
+            return true;
+        }
+
+        $bought = [];
+        foreach ( $tickets as $ticket ) {
+            $bought[ (string) $ticket['ticket_slug'] ] = intval( $ticket['ticket_quantity'] );
+        }
+
+        $used = [];
+        foreach ( $attendees as $attendee ) {
+            $slug = is_array( $attendee ) && isset( $attendee['ticket_slug'] ) ? (string) $attendee['ticket_slug'] : '';
+
+            if ( ! isset( $bought[ $slug ] ) ) {
+                return new WP_Error(
+                    'attendee_ticket_mismatch',
+                    __( 'An attendee is assigned to a ticket that is not in this order.', 'wp-event-solution' ),
+                    [ 'status' => 422 ]
+                );
+            }
+
+            $used[ $slug ] = ( $used[ $slug ] ?? 0 ) + 1;
+
+            if ( $used[ $slug ] > $bought[ $slug ] ) {
+                return new WP_Error(
+                    'attendee_ticket_mismatch',
+                    __( 'There are more attendees than tickets in this order.', 'wp-event-solution' ),
+                    [ 'status' => 422 ]
+                );
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Prepare attendee data
+     *
+     * @param   array  $attendees  Attendees
+     * @param   integer  $event_id   Event id that will be purchased
+     * @param   integer  $order_id   Order id
+     *
+     * @return  array   Attendee data
+     */
+    protected function prepare_attendee_data( $attendees, $event_id, $order_id ) {
+        $attendee_data = [];
+        $event = new Event_Model( $event_id );
+
+        if ( $attendees ) {
+            foreach( $attendees as $attendee ) {
+                $ticket_slug = isset( $attendee['ticket_slug'] ) ? $attendee['ticket_slug'] : '';
+                $ticket = $event->get_ticket( $ticket_slug );
+
+                $ticket = apply_filters( 'etn/order-controller/ticket', $ticket, $order_id, $event_id );
+
+                $new_attendee = [
+                    'id'                   => isset( $attendee['id'] ) ? $attendee['id'] : '',
+                    'etn_name'             => isset( $attendee['name'] ) ? $attendee['name'] : '', 
+                    'etn_email'            => isset( $attendee['email'] ) ? $attendee['email'] : '', 
+                    'etn_phone'            => isset( $attendee['phone'] ) ? $attendee['phone'] : '', 
+                    'attendee_seat'        => isset( $attendee['attendee_seat'] ) ? $attendee['attendee_seat'] : '', 
+                    'etn_event_id'         => $event_id,
+                    'etn_status'           => '',
+                    'ticket_name'          => $ticket['etn_ticket_name'],
+                    'ticket_slug'          => $ticket_slug,
+                    'etn_ticket_price'     => $ticket['etn_ticket_price'],
+                    'etn_info_edit_token'  => \Etn\Utils\Helper::generate_secure_token(),
+                    'etn_unique_ticket_id' => substr(md5($ticket['etn_ticket_price']), 0, 10),
+                    'eventin_order_id'     => $order_id,
+                    'post_status'          => 'publish',
+                    'etn_option_selections' => isset( $attendee['_option_rows'] ) && is_array( $attendee['_option_rows'] ) ? $attendee['_option_rows'] : [],
+                ];
+
+                $extra_fields = isset( $attendee['extra_fields'] ) ? $this->prepare_attendee_extra_fields( $attendee['extra_fields'] ) : [];
+				
+                $attendee_data[] = array_merge( $new_attendee, $extra_fields );;
+            }
+        }
+
+        return $attendee_data;
+    }
+
+    /**
+     * Prepare attendee extra fields
+     *
+     * @param   array  $extra_fields Attendee extra fields
+     *
+     * @return  array Prepare extra fields data for database
+     */
+    protected function prepare_attendee_extra_fields( $extra_fields ) {
+        $prefix = 'etn_attendee_extra_field_';
+
+        $data = [];
+
+        if ( ! is_array( $extra_fields ) ) {
+            return $data;
+        }
+
+        // Add extra fields meta key prefix.
+        foreach( $extra_fields as $key => $value ) {
+            $text          = mb_strtolower( preg_replace( '/[^\p{L}\p{N}]+/u', '_', trim( (string) $key ) ) );
+            $sanitized_key = sanitize_key( $text );
+
+            if ( '' === $sanitized_key ) {
+                continue;
+            }
+
+            if ( is_array( $value ) ) {
+                $sanitized_value = map_deep( $value, 'sanitize_text_field' );
+            } else {
+                $sanitized_value = sanitize_text_field( (string) $value );
+            }
+
+            $meta_key = $prefix . $sanitized_key;
+
+            $data[ $meta_key ] = $sanitized_value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Create all attendee
+     *
+     * @param   array  $attendees  Attendees
+     *
+     * @return  void Create attendees
+     */
+    protected function create_attendees( $attendees ) {
+        if ( $attendees ) {
+            foreach( $attendees as $attendee ) {
+                $attendee_object = new Attendee_Model();
+                $temporary_status = 'failed';
+                $is_enable_payment_timer = etn_get_option( 'ticket_purchase_timer_enable', 'off' );
+                if ( $is_enable_payment_timer == 'on' ) {
+                    $temporary_status = 'pending';
+                }
+                $attendee['etn_status'] = $temporary_status;
+                $attendee['etn_info_edit_token'] = \Etn\Utils\Helper::generate_secure_token();
+                
+                $attendee['etn_attendeee_ticket_status'] = 'unused';
+                $attendee['etn_unique_ticket_id']        =  TicketIdGenerator::generate_ticket_id();
+                $attendee_object->set_fields( $attendee );
+                $attendee_object->create( $attendee );
+
+                do_action( 'eventin_order_attendee_created', $attendee_object, $attendee );
+            }
+        }
+    }
+
+    /**
+     * Create all attendee
+     *
+     * @param   array  $attendees  Attendees
+     *
+     * @return  void Create attendees
+     */
+    protected function update_attendees( $attendees ) {
+
+        if ( $attendees ) {
+            foreach( $attendees as $attendee ) {
+                $attendee_object = new Attendee_Model( $attendee['id'] );
+
+                $attendee_object->set_fields( $attendee );
+                $attendee_object->update( $attendee );
+            }
+        }
+    }
+
+    /**
+     * Enforce per-email max ticket purchase limit for an event.
+     *
+     * Counts ticket quantities from this email's existing completed/pending orders
+     * for the same event, adds the requested quantity, and rejects if the sum
+     * exceeds the configured cap.
+     *
+     * @param int    $event_id        Target event id.
+     * @param string $customer_email  Buyer email.
+     * @param array  $tickets         Requested tickets ([['ticket_slug', 'ticket_quantity'], ...]).
+     * @param int    $exclude_order_id Order id to exclude (for update flow). 0 = none.
+     * @return true|WP_Error
+     */
+    protected function validate_email_purchase_limit( $event_id, $customer_email, $tickets, $exclude_order_id = 0 ) {
+        $is_enabled = etn_get_option( 'enable_email_purchase_limit', false );
+
+        if ( ! rest_sanitize_boolean( $is_enabled ) ) {
+            return true;
+        }
+
+        $max_limit = intval( etn_get_option( 'email_purchase_max_limit', 0 ) );
+
+        if ( $max_limit < 1 ) {
+            return true;
+        }
+
+        $customer_email = sanitize_email( $customer_email );
+
+        if ( ! $customer_email ) {
+            return true;
+        }
+
+        $requested = 0;
+        foreach ( $tickets as $ticket ) {
+            $requested += intval( $ticket['ticket_quantity'] ?? 0 );
+        }
+
+        $args = [
+            'post_type'      => 'etn-order',
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => [
+                'relation' => 'AND',
+                [
+                    'key'   => 'customer_email',
+                    'value' => $customer_email,
+                ],
+                [
+                    'key'   => 'event_id',
+                    'value' => intval( $event_id ),
+                ],
+                [
+                    'key'     => 'status',
+                    'value'   => [ 'completed', 'pending', 'waiting' ],
+                    'compare' => 'IN',
+                ],
+            ],
+        ];
+
+        if ( $exclude_order_id > 0 ) {
+            $args['post__not_in'] = [ $exclude_order_id ];
+        }
+
+        $prior_order_ids = get_posts( $args );
+        $prior_quantity  = 0;
+
+        foreach ( $prior_order_ids as $prior_id ) {
+            $prior_order = new OrderModel( $prior_id );
+            $prior_quantity += $prior_order->get_total_ticket();
+        }
+
+        if ( $prior_quantity >= $max_limit ) {
+            return new WP_Error(
+                'email_purchase_limit_exceeded',
+                sprintf(
+                    /* translators: 1: tickets already purchased, 2: max allowed per email. */
+                    __( 'You have already purchased %1$d of %2$d allowed tickets for this event with this email.', 'wp-event-solution' ),
+                    $prior_quantity,
+                    $max_limit
+                ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        if ( $prior_quantity + $requested > $max_limit ) {
+            $remaining = $max_limit - $prior_quantity;
+
+            return new WP_Error(
+                'email_purchase_limit_exceeded',
+                sprintf(
+                    /* translators: 1: tickets already purchased, 2: max allowed per email, 3: tickets the user can still buy. */
+                    __( 'You have already purchased %1$d of %2$d allowed tickets for this event. You can buy up to %3$d more with this email.', 'wp-event-solution' ),
+                    $prior_quantity,
+                    $max_limit,
+                    $remaining
+                ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Calculate total price for an order
+     *
+     * @param   integer  $event_id       Event id
+     * @param   array  $order_tickets  Selected order ticket variations
+     *
+     * @return  integer
+     */
+    protected function total_price( $event_id, $order_tickets ) {
+        $event         = new Event_Model( $event_id );
+        $total_price   = 0;
+
+        foreach( $order_tickets as $ticket ) {
+            $event_ticket = $event->get_ticket( $ticket['ticket_slug'] );
+
+            $total_price += $event_ticket['etn_ticket_price'] * $ticket['ticket_quantity'];
+        }
+        
+        return apply_filters( 'etn/orders/total_price',$total_price, $event_id, $order_tickets );
+    }
+
+    /**
+     * Export items
+     *
+     * @return  JSON
+     */
+    public function export_items( $request ) {
+        $format = ! empty( $request['format'] ) ? sanitize_text_field( $request['format'] ) : '';
+
+        $ids    = ! empty( $request['ids'] ) ? $request['ids'] : '';
+
+        if ( ! $format ) {
+            return new WP_Error( 'format_error', __( 'Invalid data format', 'wp-event-solution' ) );
+        }
+
+        if ( ! $ids ) {
+            $filters    = ! empty( $request['filters'] ) && is_array( $request['filters'] ) ? $request['filters'] : [];
+            $args       = [];
+            $meta_query = [];
+
+            if ( ! empty( $filters['eventId'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'event_id',
+                    'value'   => sanitize_text_field( $filters['eventId'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['status'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'status',
+                    'value'   => sanitize_text_field( $filters['status'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['payment_method'] ) ) {
+                $meta_query[] = [
+                    'key'     => 'payment_method',
+                    'value'   => sanitize_text_field( $filters['payment_method'] ),
+                    'compare' => '=',
+                ];
+            }
+
+            if ( ! empty( $filters['startDate'] ) && ! empty( $filters['endDate'] ) ) {
+                $args['date_query'] = [ [
+                    'after'     => sanitize_text_field( $filters['startDate'] ),
+                    'before'    => sanitize_text_field( $filters['endDate'] ),
+                    'inclusive' => true,
+                ] ];
+            }
+
+            if ( ! empty( $filters['searchTerm'] ) && ! is_numeric( $filters['searchTerm'] ) ) {
+                $search = sanitize_text_field( $filters['searchTerm'] );
+                $args['meta_query'] = [
+                    'relation' => 'OR',
+                    [ 'key' => 'customer_fname',  'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'customer_lname',  'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'customer_email',  'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'customer_phone',  'value' => $search, 'compare' => 'LIKE' ],
+                    [ 'key' => 'payment_method',  'value' => $search, 'compare' => 'LIKE' ],
+                ];
+            } elseif ( ! empty( $meta_query ) ) {
+                $meta_query['relation'] = 'AND';
+                $args['meta_query']     = $meta_query;
+            }
+
+            // Scope non-admin event-managers to their own events. Mirrors get_items()
+            // (lines 257-276) so the no-ids fallback can't leak orders for events the
+            // caller did not author.
+            if ( ! current_user_can( 'manage_options' ) && current_user_can( 'etn_manage_event' ) ) {
+                $event_model = new Event_Model();
+                $author_event_ids = $event_model->get_ids_by_author( get_current_user_id() );
+                $author_event_ids = ! empty( $author_event_ids ) ? $author_event_ids : [ 0 ];
+
+                $meta_query[] = [
+                    'key'     => 'event_id',
+                    'value'   => $author_event_ids,
+                    'compare' => 'IN',
+                ];
+
+                $meta_query['relation'] = 'AND';
+                $args['meta_query']     = $meta_query;
+            }
+
+            $ids = ( new OrderModel() )->get_ids( $args );
+        }
+
+        // Filter supplied / resolved ids to those the caller is authorized to read.
+        // Closes the IDOR: even with etn_manage_order, a non-admin caller can only
+        // export orders tied to events they authored.
+        $ids = array_values( array_filter( (array) $ids, function ( $id ) {
+            return $this->user_can_access_order( $id );
+        } ) );
+
+        if ( empty( $ids ) ) {
+            return new WP_Error(
+                'no_accessible_orders',
+                __( 'No orders accessible to export.', 'wp-event-solution' ),
+                [ 'status' => 403 ]
+            );
+        }
+
+        $exporter = new OrderExporter();
+        $response = $exporter->export( $ids, $format );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+    }
+
+    /**
+     * Export items permission check
+     *
+     * @param   WP_Rest_Request  $request
+     *
+     * @return  JSON
+     */
+    public function export_item_permissions_check( $request ) {
+        if ( ! current_user_can( 'etn_manage_order' ) ) {
+            return false;
+        }
+
+        // Defense-in-depth: deny if the only role is etn-customer even if the cap
+        // is somehow re-granted via the permissions UI. Customer "my orders" listing
+        // goes through get_items(), not the export endpoint.
+        $user = wp_get_current_user();
+        if ( $user
+            && in_array( 'etn-customer', (array) $user->roles, true )
+            && ! current_user_can( 'manage_options' ) ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Import items
+     *
+     * @return  JSON
+     */
+    public function import_items( $request ) {
+        $data = $request->get_file_params();
+        $file = ! empty( $data['order_import'] ) ? $data['order_import'] : '';
+
+        if ( ! $file ) {
+            return new WP_Error( 'empty_file', __( 'You must provide a valid file.', 'wp-event-solution' ), ['status' => 409] );
+        }
+
+        $importer = new OrderImporter();
+        $result   = $importer->import( $file );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        $response = [
+            'message' => __( 'Successfully imported order', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Export items permission check
+     *
+     * @param   WP_Rest_Request  $request
+     *
+     * @return  JSON
+     */
+    public function import_item_permissions_check( $request ) {
+        return current_user_can('etn_manage_order');
+    }
+
+    /**
+     * Create customer
+     *
+     * @param   OrderModel  $order  [$order description]
+     * @param   array  $data   [$data description]
+     *
+     * @return  void
+     */
+    public function create_customer( $order, $data ) {
+        $input = new Input( $data );
+
+        $email          = $input->get('customer_email');
+        $payment_method = $input->get('payment_method');
+
+        // Defer account creation to WooCommerce for guest checkouts paid via WooCommerce.
+        // The store may disallow guest checkout / force account creation during its own
+        // checkout. Creating the WP user here would pre-occupy the email, so WooCommerce
+        // then rejects the purchase with "An account is already registered with your email
+        // address. Please log in." for every buyer. Letting WooCommerce create the account
+        // also honors "no account without a completed purchase". The WooCommerce-created
+        // customer is linked back to this order on `woocommerce_new_order`
+        // (see Etn\Core\Woocommerce\Hooks::attatch_eventin_order_id()).
+        if ( ! is_user_logged_in() && 'wc' === $payment_method ) {
+            return;
+        }
+
+        if ( email_exists( $email ) ) {
+            $user_data = get_user_by( 'email', $email );
+
+            $customer = new CustomerModel( $user_data->ID );
+
+            // This path is reachable by an unauthenticated buyer, so the email
+            // posted is unverified — it may well be someone else's. Linking the
+            // order to the account is harmless, but granting a role to an
+            // account that can administer something is not. Skip the role for
+            // privileged accounts; ordinary buyers are unaffected.
+            if ( ! user_can( $user_data->ID, 'edit_posts' ) && ! user_can( $user_data->ID, 'manage_options' ) ) {
+                $customer->assign_role( ['etn-customer'] );
+            }
+        } else {
+            // Do not mint WordPress accounts from a guest checkout when the site
+            // has registration switched off. Honouring the site policy is what
+            // stops this endpoint being an open account-creation primitive.
+            // Staff creating an order from the admin screens are unaffected.
+            if ( ! get_option( 'users_can_register' ) && ! current_user_can( 'etn_manage_order' ) ) {
+                /**
+                 * Fires when a guest order could not be linked to an account
+                 * because registration is disabled. The order still holds the
+                 * buyer's contact details; only the WP user is skipped.
+                 *
+                 * @param OrderModel $order The order just created.
+                 * @param string     $email The buyer's email.
+                 */
+                do_action( 'eventin_guest_customer_creation_skipped', $order, $email );
+
+                return;
+            }
+
+            $customer = CustomerModel::create([
+                'first_name'    => $input->get('customer_fname'),
+                'last_name'     => $input->get('customer_lname'),
+                'email'         => $email,
+            ]);
+        }
+
+        if ( is_wp_error( $customer ) || empty( $customer->id ) ) {
+            return;
+        }
+
+        $order->update( [
+            'customer_id' => $customer->id
+        ] );
+    }
+
+     /** 
+     * Resend ticket email to order customer and attendees
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Error | WP_Rest_Response
+     */
+    public function resend_ticket( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+
+        if ( ! $post ) {
+            return new WP_Error( 'id_error', __( 'Invalid order id', 'wp-event-solution' ) );
+        }
+
+        if ( 'etn-order' !== $post->post_type ) {
+            return new WP_Error( 'id_error', __( 'Invalid order id', 'wp-event-solution' ) );
+        }
+
+        $order = new OrderModel( $id );
+        $event = new Event_Model( $order->event_id );
+        $attendees = $order->get_attendees();
+
+        // A resend has to use whichever delivery system a real purchase would use —
+        // the same branch OrderEmailTrait::send_email() takes. Sending directly
+        // regardless of the module made every resent ticket carry the legacy
+        // purchase_email subject/body/from even when the admin had moved the ticket
+        // email into an "Event Ticket Purchase" automation flow.
+        $etn_addons_options      = get_option( 'etn_addons_options' );
+        $is_automation_module_on = is_array( $etn_addons_options ) && ( $etn_addons_options['automation'] ?? 'off' ) === 'on';
+
+        if ( $is_automation_module_on ) {
+            // Reuse the trait's per-receiver dispatch so the flow resolves exactly the
+            // trigger variables it would on a real purchase. Each call carries a single
+            // receiver key and FlowManager skips any email node whose receiverType key
+            // is absent, so the customer node and the attendee node fire independently.
+            // No admin dispatch: resend has never notified the site admin, and adding it
+            // here would send mail this action has never sent.
+            $order->send_email_to_customer_through_automation( $order, $event );
+
+            if ( $attendees ) {
+                $order->send_email_to_attendee_through_automation( $attendees, $event, $order );
+            }
+        } else {
+            $from = etn_get_email_settings( 'purchase_email' )['from'];
+
+            // Send email to customer.
+            Mail::to( $order->customer_email )->from( $from )->send( new AdminOrderEmail( $order ) );
+
+            // Send to attendees email.
+            if ( $attendees ) {
+                foreach( $attendees as $attendee ) {
+                    $attendee = new Attendee_Model( $attendee['id'] );
+
+                    if ( $attendee->etn_email ) {
+                        Mail::to( $attendee->etn_email )->from( $from )->send( new AttendeeOrderEmail( $event, $attendee ) );
+                    }
+                }
+            }
+        }
+
+        $response = [
+            'message'   => __( 'Successfully send ticket email to', 'wp-event-solution' ),
+        ];
+
+        return rest_ensure_response( $response );
+    }
+
+    /**
+     * Check permissions for resend ticket to attendee
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function resend_ticket_permissions_check( $request ) {
+        return $this->user_can_access_order( $request['id'] );
+    }
+
+    /**
+     * Send a direct payment link to a customer whose order is on the waiting list.
+     *
+     * Generates (or reuses) a signed access token, builds a checkout URL that
+     * pre-populates the cart via URL query params, and emails the link to the
+     * customer associated with the order.
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function send_payment_link( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+
+        if ( ! $post ) {
+            return new WP_Error( 'invalid_order', __( 'Invalid order id', 'wp-event-solution' ), [ 'status' => 404 ] );
+        }
+
+        if ( 'etn-order' !== $post->post_type ) {
+            return new WP_Error( 'invalid_order', __( 'Invalid order id', 'wp-event-solution' ), [ 'status' => 404 ] );
+        }
+
+        $order = new OrderModel( $id );
+
+        if ( 'waiting' !== $order->status ) {
+            return new WP_Error(
+                'invalid_status',
+                __( 'Payment link can only be sent for orders with waiting-list status.', 'wp-event-solution' ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        // Reuse the existing token or create one if missing.
+        $access_token = get_post_meta( $id, '_order_access_token', true );
+        if ( ! $access_token ) {
+            $access_token = bin2hex( random_bytes( 16 ) );
+            update_post_meta( $id, '_order_access_token', $access_token );
+        }
+
+        $payment_url = add_query_arg(
+            [
+                'order_id'    => $id,
+                'order_token' => $access_token,
+            ],
+            site_url( 'eventin-purchase/preview/' )
+        );
+
+        $from = etn_get_email_settings( 'purchase_email' )['from'];
+        Mail::to( $order->customer_email )->from( $from )->send( new WaitingListPaymentEmail( $order, $payment_url ) );
+
+        return rest_ensure_response( [
+            'message'     => __( 'Payment link sent successfully.', 'wp-event-solution' ),
+            'payment_url' => $payment_url,
+        ] );
+    }
+
+    /**
+     * Check permissions for send_payment_link.
+     *
+     * @return bool
+     */
+    public function send_payment_link_permissions_check( $request ) {
+        return $this->user_can_access_order( $request['id'] );
+    }
+
+    /**
+     * Refund an order
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  WP_Rest_Response | WP_Error
+     */
+    public function refund( $request ) {
+        $id = intval( $request['id'] );
+
+        $post = get_post( $id );
+
+        if ( ! $post || 'etn-order' !== $post->post_type ) {
+            return new WP_Error( 'invalid_order', __( 'Invalid order id', 'wp-event-solution' ), ['status' => 404] );
+        }
+
+        $service    = new \Eventin\Refund\RefundService();
+        $attendees  = $service->load_order_attendees( $id );
+        $refunded   = ( new \Eventin\Refund\RefundModel() )->refunded_attendee_ids( $id );
+        $unrefunded = array_values( array_diff( array_keys( $attendees ), $refunded ) );
+
+        if ( empty( $unrefunded ) ) {
+            return new WP_Error( 'eventin_refund_invalid_state', __( 'No refundable tickets remain.', 'wp-event-solution' ), ['status' => 422] );
+        }
+
+        $result = $service->create(
+            $id,
+            'ticket',
+            [ 'attendee_ids' => $unrefunded ],
+            $request->get_param( 'reason' )
+        );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        // Preserve the legacy hook for backward compatibility with extensions
+        // listening on the old full-refund action.
+        do_action( 'eventin_order_refund', new OrderModel( $id ) );
+
+        return rest_ensure_response([
+            'message' => __( 'Successfully refunded', 'wp-event-solution' ),
+            'result'  => $result,
+        ]);
+    }
+
+    /**
+     * Check permission to make refund
+     *
+     * @param   WP_Rest_Request  $request  [$request description]
+     *
+     * @return  bool
+     */
+    public function refund_ticket_permissions_check( $request ) {
+        return $this->user_can_access_order( $request['id'] );
+    }
+	
+	
+	/**
+	 * Authorize the current user against a specific order id.
+	 *
+	 * Admins (manage_options) pass unconditionally. Holders of etn_manage_order
+	 * are scoped down to orders attached to events they authored; this matches
+	 * the customer/event-manager scoping in get_items() and closes the IDOR
+	 * exposed by /orders/export when callers supply arbitrary ids.
+	 *
+	 * @param int|string $order_id Order post id.
+	 * @return bool
+	 */
+	private function user_can_access_order( $order_id ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		if ( ! current_user_can( 'etn_manage_order' ) ) {
+			return false;
+		}
+
+		$order_id = intval( $order_id );
+		if ( ! $order_id ) {
+			return false;
+		}
+
+		$post = get_post( $order_id );
+		if ( ! $post || 'etn-order' !== $post->post_type ) {
+			return false;
+		}
+
+		if ( current_user_can( 'etn_manage_event' ) ) {
+			$event_id         = (int) get_post_meta( $order_id, 'event_id', true );
+			$event_model      = new Event_Model();
+			$author_event_ids = array_map( 'intval', (array) $event_model->get_ids_by_author( get_current_user_id() ) );
+
+			return in_array( $event_id, $author_event_ids, true );
+		}
+
+		return false;
+	}
+
+	private function wc_order_status_update( $eventin_order_id, $status ) {
+		$post_type = etn_is_enable_wc_synchronize_order() ? 'shop_order' : 'shop_order_placehold';
+		$args = [
+			'post_type'   => $post_type,
+			'post_status' => 'any',
+			'posts_per_page' => -1,
+			'fields'          => 'ids',
+			'meta_query'    => [
+				[
+					'key'   => 'eventin_order_id',
+					'value' => $eventin_order_id,
+					'compare' => '='
+				]
+			]
+		];
+		
+		
+		$orders_ids = get_posts( $args );
+		
+		if ( ! $orders_ids ) {
+			return false;
+		}
+		
+		$order = wc_get_order( $orders_ids[0] );
+		
+		if ( $order ) {
+			$order->update_status( $status );
+			
+			return true;
+		}
+		
+		return false;
+	}
+}

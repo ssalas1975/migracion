@@ -1,0 +1,172 @@
+<?php
+namespace Ens\Utils;
+
+class Helpers {
+
+    /**
+     * will return strings after translation
+     *
+     * @return  array
+     */
+    public static function ens_get_translatable_strings( $string, $text_domain ) {
+        return $string;
+    }
+
+    /**
+     * Build the private nonce action for a plugin using this SDK.
+     *
+     * The public 'wp_rest' action must not be used on its own: WordPress hands
+     * the same 'wp_rest' nonce to every logged out visitor, and plugins print
+     * it on public pages, so it proves nothing about who is calling.
+     *
+     * @since 1.0.0
+     *
+     * @param   string  $identifier
+     *
+     * @return  string
+     */
+    public static function get_nonce_action( $identifier ) {
+        return 'ens_' . $identifier . '_flow';
+    }
+
+    /**
+     * will verify nonce
+     *
+     * @return  array
+     */
+    public static function ens_verify_nonce( $nonce, $identifier ) {
+        if ( ! empty( $nonce ) && wp_verify_nonce( $nonce, self::get_nonce_action( $identifier ) ) ) {
+            return true;
+        }
+
+        // Backward compatibility: plugins bundling an older SDK still send a
+        // 'wp_rest' nonce. This is only a CSRF check; authorization is enforced
+        // by the capability check in each route's permission_callback.
+        if ( ! empty( $nonce ) && wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+            return true;
+        }
+
+        $response = [
+            'success'     => 0,
+            'status_code' => 403,
+            'message'     => __( 'Nonce not verified', self::get_config_data( $identifier,'text_domain' ) ),
+            'data'        => [],
+        ];
+        return new WP_HTTP_Response( $response, 403 );
+    }
+
+    /**
+     * Sanitize a flow config, keeping plain text as typed.
+     *
+     * HTML such as an email body goes through wp_kses_post(). Text with no
+     * tags (a condition's "Sessions > 1") only loses tags: kses would turn
+     * its < and > into &lt; and &gt;, which the editor then shows.
+     *
+     * @param mixed $input Value to sanitize.
+     *
+     * @return mixed
+     */
+    public static function ens_sanitize_recursive( $input ) {
+        if ( is_array( $input ) ) {
+            foreach ( $input as $key => $value ) {
+                $input[$key] = self::ens_sanitize_recursive( $value );
+            }
+        } elseif ( is_object( $input ) ) {
+            foreach ( $input as $key => $value ) {
+                $input->$key = self::ens_sanitize_recursive( $value );
+            }
+        } elseif ( filter_var( $input, FILTER_VALIDATE_URL ) !== false ) {
+            $input = sanitize_url( $input );
+        } elseif ( is_email( $input ) ) {
+            $input = sanitize_email( $input );
+        } elseif ( is_string( $input ) && strip_tags( $input ) === $input ) {
+            // Decode first, so text saved as &gt; by older versions reads right again.
+            $input = strip_tags( html_entity_decode( $input, ENT_QUOTES, 'UTF-8' ) );
+        } elseif ( is_string( $input ) && strpos( $input, '<svg' ) === false ) {
+            $input = wp_kses_post( $input );
+        }
+
+        return $input;
+    }
+
+    /**
+     * will return post status
+     *
+     * @return  array
+     */
+    public static function ens_get_post_status() {
+        return ['publish', 'draft', 'trash'];
+    }
+
+    /**
+     * Get config data value with fallback
+     *
+     * @param string $prefix
+     * @param string $value_of
+     * @return mixed|null
+     */
+    public static function get_config_data($prefix, $value_of) {
+        $key = $prefix . '_ens_config';
+
+        $data = get_option( $key );
+
+        if (isset($data[$value_of])) {
+            return $data[$value_of];
+        }
+
+        return null;
+    }
+
+    /**
+     * Build a plugin-scoped hook name.
+     *
+     * Prepends the consumer plugin's hook_prefix (or general_prefix as
+     * fallback) to the given suffix so hooks fired from the SDK do not
+     * collide when the package is bundled in multiple plugins.
+     *
+     * @param string $identifier The consumer plugin identifier (general_prefix).
+     * @param string $hook_suffix The unscoped hook name (e.g. 'email_body').
+     *
+     * @return string
+     */
+    public static function get_hook_name( $identifier, $hook_suffix ) {
+        $prefix = self::get_config_data( $identifier, 'hook_prefix' );
+
+        if ( empty( $prefix ) ) {
+            $prefix = $identifier;
+        }
+
+        return $prefix . '_' . $hook_suffix;
+    }
+
+    /**
+     * Channels the consumer plugin has switched on.
+     *
+     * Every channel is on unless the plugin turns it off through the
+     * `ens_{identifier}_channels` filter, so plugins that never use the
+     * filter behave as before.
+     *
+     * @param string $identifier The consumer plugin identifier (general_prefix).
+     *
+     * @return array Channel name => bool, e.g. [ 'whatsapp' => true ].
+     */
+    public static function get_channels( $identifier ) {
+        $channels = apply_filters( 'ens_' . $identifier . '_channels', [ 'whatsapp' => true ] );
+
+        return is_array( $channels ) ? $channels : [ 'whatsapp' => true ];
+    }
+
+    /**
+     * Whether a channel is on for the consumer plugin.
+     *
+     * @param string $identifier The consumer plugin identifier (general_prefix).
+     * @param string $channel    Channel name, e.g. 'whatsapp'.
+     *
+     * @return bool
+     */
+    public static function channel_enabled( $identifier, $channel ) {
+        $channels = self::get_channels( $identifier );
+
+        return ! isset( $channels[ $channel ] ) || false !== $channels[ $channel ];
+    }
+}
