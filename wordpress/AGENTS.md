@@ -6,8 +6,8 @@
 - **Docker-ready** config with `getenv_docker()` helper for environment variables
 
 ## Key Directories
-- **Themes**: `wp-content/themes/` — 32 themes including custom `Taller-Editores`, `ionMag`, `salient`, `exhibz`
-- **Plugins**: `wp-content/plugins/` — 130+ plugins: WooCommerce, Elementor, WPML, Better WP Security, TD Composer, Oxygen, Brizy
+- **Themes**: `wp-content/themes/`
+- **Plugins**: `wp-content/plugins/`
 - **Custom plugins**: `vocento-analytics`, `configurador-eventos`, `pidecita-prescripcion-reserva`, `voc-abc-salud`, `voc-gistau`, `voc-premios-*`
 
 ## Critical Config Facts
