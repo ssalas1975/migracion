@@ -3,7 +3,7 @@
  * Plugin Name: Bulk Delete
  * Plugin URI: https://bulkwp.com/
  * Description: Bulk delete users and posts from selected categories, tags, post types, custom taxonomies or by post status like drafts, scheduled posts, revisions etc.
- * Version: 6.11
+ * Version: 6.12
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Author: WebFactory Ltd
@@ -13,7 +13,7 @@
 
 /**
  * Copyright 2025-2026 WebFactory Ltd
- * Copyright 2009 Sudar Muthu  (email : sudar@sudarmuthu.com)
+ * Copyright 2009 Sudar Muthu (email: sudar@sudarmuthu.com)
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
  * published by the Free Software Foundation.

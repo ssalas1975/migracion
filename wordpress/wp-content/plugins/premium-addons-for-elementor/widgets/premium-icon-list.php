@@ -125,7 +125,8 @@ class Premium_Icon_List extends Widget_Base {
 			if ( ! empty( $settings['list'] ) ) {
 				foreach ( $settings['list'] as $item ) {
 					if ( 'yes' === $item['draw_svg'] ) {
-						array_push( $scripts, 'pa-tweenmax', 'pa-motionpath' );
+						$scripts[] = 'pa-tweenmax';
+						$scripts[] = 'pa-motionpath';
 
 						$draw_js = true;
 					}
@@ -182,7 +183,7 @@ class Premium_Icon_List extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'premium bullet list', 'icon', 'feature', 'list' );
@@ -301,15 +302,30 @@ class Premium_Icon_List extends Widget_Base {
 			'icon_type',
 			array(
 				'label'       => __( 'Bullet Type', 'premium-addons-for-elementor' ),
-				'type'        => Controls_Manager::SELECT,
+				'type'        => Controls_Manager::CHOOSE,
 				'default'     => 'icon',
 				'render_type' => 'template',
 				'options'     => array(
-					'icon'   => __( 'Icon', 'premium-addons-for-elementor' ),
-					'image'  => __( 'Image', 'premium-addons-for-elementor' ),
-					'lottie' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
-					'text'   => __( 'Text', 'premium-addons-for-elementor' ),
-					'svg'    => __( 'SVG Code', 'premium-addons-for-elementor' ),
+					'icon'   => array(
+						'title' => __( 'Icon', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-icon',
+					),
+					'image'  => array(
+						'title' => __( 'Image', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-image',
+					),
+					'lottie' => array(
+						'title' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-lottie',
+					),
+					'text'   => array(
+						'title' => __( 'Text', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-t-letter',
+					),
+					'svg'    => array(
+						'title' => __( 'SVG Code', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-code',
+					),
 				),
 				'condition'   => $common_conditions,
 			)
@@ -318,13 +334,16 @@ class Premium_Icon_List extends Widget_Base {
 		$repeater_list->add_control(
 			'premium_icon_list_font_updated',
 			array(
-				'label'     => __( 'Icon', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::ICONS,
-				'default'   => array(
+				'label'                  => __( 'Icon', 'premium-addons-for-elementor' ),
+				'type'                   => Controls_Manager::ICONS,
+				'default'                => array(
 					'value'   => 'fas fa-star',
 					'library' => 'fa-solid',
 				),
-				'condition' => array_merge(
+				'exclude_inline_options' => 'none',
+				'skin'                   => 'inline',
+				'label_block'            => false,
+				'condition'              => array_merge(
 					$common_conditions,
 					array(
 						'icon_type' => 'icon',
@@ -889,7 +908,7 @@ class Premium_Icon_List extends Widget_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} {{CURRENT_ITEM}} .premium-bullet-list-wrapper i' => 'color: {{VALUE}}',
-					'{{WRAPPER}} {{CURRENT_ITEM}} .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}} svg:not([class*="premium-"])' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} {{CURRENT_ITEM}} .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}} svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'fill: {{VALUE}};',
 					'{{WRAPPER}} .premium-bullet-list-blur:hover {{CURRENT_ITEM}} .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-blur:hover {{CURRENT_ITEM}} .premium-bullet-list-wrapper svg' => 'text-shadow: 0 0 3px {{VALUE}}',
 				),
 				'condition' => array(
@@ -913,7 +932,7 @@ class Premium_Icon_List extends Widget_Base {
 						'show_global_style' => 'yes',
 					),
 					'selectors' => array(
-						'{{WRAPPER}} {{CURRENT_ITEM}} .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}} svg:not([class*="premium-"])' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} {{CURRENT_ITEM}} .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}} svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
 					),
 				)
 			);
@@ -1034,7 +1053,7 @@ class Premium_Icon_List extends Widget_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => array(
 					'{{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-bullet-list-wrapper i' => 'color: {{VALUE}}',
-					'{{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover svg:not([class*="premium-"])' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'fill: {{VALUE}};',
 					'{{WRAPPER}} .premium-bullet-list-blur {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-blur {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-bullet-list-wrapper svg' => 'text-shadow: none !important; color: {{VALUE}} !important',
 				),
 				'condition' => array(
@@ -1058,7 +1077,7 @@ class Premium_Icon_List extends Widget_Base {
 						'show_global_style' => 'yes',
 					),
 					'selectors' => array(
-						'{{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover svg:not([class*="premium-"])' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} {{CURRENT_ITEM}}.premium-bullet-list-content:hover svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
 					),
 				)
 			);
@@ -1920,7 +1939,7 @@ class Premium_Icon_List extends Widget_Base {
 				),
 				'selectors' => array(
 					'{{WRAPPER}} .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-icon-text p' => 'color: {{VALUE}}',
-					$selector . '{{WRAPPER}} svg:not([class*="premium-"])' => 'fill: {{VALUE}};',
+					$selector . '{{WRAPPER}} svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'fill: {{VALUE}};',
 					'{{WRAPPER}} .premium-bullet-list-blur:hover .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-blur:hover .premium-bullet-list-wrapper svg, {{WRAPPER}} .premium-bullet-list-blur:hover .premium-bullet-list-wrapper .premium-bullet-list-icon-text p' => 'text-shadow: 0 0 3px {{VALUE}};',
 				),
 			)
@@ -1936,7 +1955,7 @@ class Premium_Icon_List extends Widget_Base {
 						'default' => Global_Colors::COLOR_PRIMARY,
 					),
 					'selectors' => array(
-						'{{WRAPPER}} .premium-drawable-icon *, {{WRAPPER}} svg:not([class*="premium-"])' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} .premium-drawable-icon *, {{WRAPPER}} svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
 					),
 				)
 			);
@@ -1953,7 +1972,7 @@ class Premium_Icon_List extends Widget_Base {
 				'selectors' => array(
 					'{{WRAPPER}} .premium-bullet-list-content:hover .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-content:hover .premium-bullet-list-icon-text p' => 'color: {{VALUE}}',
 					'{{WRAPPER}} .premium-bullet-list-blur .premium-bullet-list-content:hover .premium-bullet-list-wrapper i, {{WRAPPER}} .premium-bullet-list-blur .premium-bullet-list-content:hover  .premium-bullet-list-icon-text p' => 'text-shadow: none !important; color: {{VALUE}} !important;',
-					$hover_selector . '{{WRAPPER}} .premium-bullet-list-content:hover svg:not([class*="premium-"])' => 'fill: {{VALUE}};',
+					$hover_selector . '{{WRAPPER}} .premium-bullet-list-content:hover svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'fill: {{VALUE}};',
 				),
 			)
 		);
@@ -1968,7 +1987,7 @@ class Premium_Icon_List extends Widget_Base {
 						'default' => Global_Colors::COLOR_PRIMARY,
 					),
 					'selectors' => array(
-						'{{WRAPPER}} .premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} .premium-bullet-list-content:hover svg:not([class*="premium-"])' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} .premium-bullet-list-content:hover .premium-drawable-icon *, {{WRAPPER}} .premium-bullet-list-content:hover svg:not([class*="premium-"]):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
 					),
 				)
 			);
@@ -2582,6 +2601,22 @@ class Premium_Icon_List extends Widget_Base {
 
 		$this->add_render_attribute( 'title_wrapper', 'class', 'premium-bullet-list-text-wrapper' );
 
+		if ( 'linear gradient' === $settings['hover_effect_type'] ) {
+			$this->add_render_attribute( 'title_wrapper', 'class', 'premium-bullet-list-gradient-effect' );
+		}
+
+		if ( 'yes' === $settings['show_divider'] ) {
+			$divider_class = 'row' === $settings['layout_type'] ? 'premium-bullet-list-divider-inline' : 'premium-bullet-list-divider';
+
+			$this->add_render_attribute(
+				'divider',
+				array(
+					'class'       => $divider_class,
+					'aria-hidden' => 'true',
+				)
+			);
+		}
+
 		if ( $blur_trans_effect ) {
 			$this->add_render_attribute( 'box', 'class', 'premium-bullet-list-' . $settings['hover_effect_type'] );
 		}
@@ -2608,7 +2643,7 @@ class Premium_Icon_List extends Widget_Base {
 		}
 
 		?>
-			<ul <?php echo wp_kses_post( $this->get_render_attribute_string( 'box' ) ); ?>>
+			<ul <?php $this->print_render_attribute_string( 'box' ); ?>>
 				<?php
 
 				if ( $settings['list'] ) {
@@ -2723,7 +2758,7 @@ class Premium_Icon_List extends Widget_Base {
 
 						?>
 
-							<li <?php echo wp_kses_post( $this->get_render_attribute_string( $list_content_key ) ); ?>>
+							<li <?php $this->print_render_attribute_string( $list_content_key ); ?>>
 								<div class="premium-bullet-list-text">
 								<?php
 								if ( 'yes' === $item['show_icon'] ) {
@@ -2740,10 +2775,6 @@ class Premium_Icon_List extends Widget_Base {
 
 									}
 
-									if ( 'linear gradient' === $settings['hover_effect_type'] ) {
-										$this->add_render_attribute( 'title_wrapper', 'class', 'premium-bullet-list-gradient-effect' );
-									}
-
 									if ( in_array( $settings['hover_effect_type'], array( 'show-bullet', 'translate-bullet' ), true ) ) {
 										$this->add_render_attribute( 'wrapper-' . $index, 'class', 'pa-' . $settings['hover_effect_type'] );
 
@@ -2753,7 +2784,7 @@ class Premium_Icon_List extends Widget_Base {
 									}
 
 									?>
-											<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'wrapper-' . $index ) ); ?>>
+											<div <?php $this->print_render_attribute_string( 'wrapper-' . $index ); ?>>
 											<?php if ( $has_connector && $index < ( $items_count - 1 ) ) { ?>
 													<div class="premium-bullet-list-connector">
 														<div class="premium-icon-connector-content"></div>
@@ -2774,21 +2805,21 @@ class Premium_Icon_List extends Widget_Base {
 													echo '</div>';
 												} else {
 													?>
-														<div <?php echo wp_kses_post( $this->get_render_attribute_string( $animation_key ) ); ?>>
-														<?php echo Helper_Functions::get_svg_by_icon( $item['premium_icon_list_font_updated'] ); ?>
+														<div <?php $this->print_render_attribute_string( $animation_key ); ?>>
+														<?php echo Helper_Functions::get_svg_by_icon( $item['premium_icon_list_font_updated'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_svg_by_icon() returns sanitized inline SVG/icon markup. ?>
 														</div>
 														<?php
 												}
 											} elseif ( 'svg' === $item['icon_type'] ) {
 												?>
-													<div <?php echo wp_kses_post( $this->get_render_attribute_string( $animation_key ) ); ?>>
-													<?php echo Helper_Functions::sanitize_svg( $item['custom_svg'] ); ?>
+													<div <?php $this->print_render_attribute_string( $animation_key ); ?>>
+													<?php echo Helper_Functions::sanitize_svg( $item['custom_svg'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_svg() returns wp_kses-sanitized SVG markup. ?>
 													</div>
 													<?php
 											} elseif ( 'text' === $item['icon_type'] ) {
 												?>
 													<div class="premium-bullet-list-icon-text">
-														<p <?php echo wp_kses_post( $this->get_render_attribute_string( $text_icon ) ); ?>>
+														<p <?php $this->print_render_attribute_string( $text_icon ); ?>>
 														<?php echo wp_kses_post( $item['list_text_icon'] ); ?>
 														</p>
 													</div>
@@ -2805,7 +2836,7 @@ class Premium_Icon_List extends Widget_Base {
 											</div>
 									<?php } ?>
 
-									<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'title_wrapper' ) ); ?>>
+									<div <?php $this->print_render_attribute_string( 'title_wrapper' ); ?>>
 										<?php echo '<span class="premium-bullet-text" data-text="' . esc_attr( $item['list_title'] ) . '"> ' . wp_kses_post( $item['list_title'] ) . ' </span>'; ?>
 										<?php if ( ! empty( $item['list_desc'] ) ) : ?>
 										<span class="premium-bullet-list-desc" data-text="<?php echo esc_attr( $item['list_desc'] ); ?>"><?php echo wp_kses_post( $item['list_desc'] ); ?></span>
@@ -2815,14 +2846,14 @@ class Premium_Icon_List extends Widget_Base {
 
 								<?php if ( 'yes' === $item['show_badge'] ) { ?>
 									<div class="premium-bullet-list-badge">
-										<span <?php echo wp_kses_post( $this->get_render_attribute_string( $text_badge ) ); ?>>
+										<span <?php $this->print_render_attribute_string( $text_badge ); ?>>
 											<?php echo wp_kses_post( $item['badge_title'] ); ?>
 										</span>
 									</div>
 								<?php } ?>
 
 								<?php if ( 'yes' === $item['show_list_link'] ) { ?>
-									<a <?php echo wp_kses_post( $this->get_render_attribute_string( $item_link ) ); ?>>
+									<a <?php $this->print_render_attribute_string( $item_link ); ?>>
 										<span><?php echo wp_kses_post( $item['list_title'] ); ?></span>
 									</a>
 								<?php } ?>
@@ -2830,17 +2861,11 @@ class Premium_Icon_List extends Widget_Base {
 							</li>
 
 							<?php
-							if ( 'yes' === $settings['show_divider'] ) {
-								$layout        = $settings['layout_type'];
-								$divider_class = 'premium-bullet-list-divider';
+							$is_last_item = $index === $items_count - 1;
 
-								if ( 'row' === $layout ) {
-									$divider_class .= '-inline';
-								}
-
-								$this->add_render_attribute( 'divider', 'class', $divider_class );
+							if ( 'yes' === $settings['show_divider'] && ! $is_last_item ) {
 								?>
-										<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'divider' ) ); ?>></div>
+										<li <?php $this->print_render_attribute_string( 'divider' ); ?>></li>
 									<?php
 							}
 					}

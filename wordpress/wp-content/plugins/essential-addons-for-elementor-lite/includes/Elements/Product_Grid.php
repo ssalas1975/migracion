@@ -572,7 +572,7 @@ class Product_Grid extends Widget_Base
 				    'type'        => Controls_Manager::SELECT2,
 				    'label_block' => true,
 				    'multiple'    => true,
-				    'default'     => [ 'publish', 'pending', 'future' ],
+				    'default'     => [ 'publish' ],
 				    'options'     => $this->eael_get_product_statuses(),
 				    'condition'   => [
 					    'eael_product_grid_product_filter!' => 'manual',
@@ -969,16 +969,6 @@ class Product_Grid extends Widget_Base
             ]
         );
 
-        $this->add_group_control(
-            Group_Control_Image_Size::get_type(),
-            [
-                'name' => 'eael_product_grid_image_size',
-                'exclude' => ['custom'],
-                'default' => 'medium',
-                'label_block' => true,
-            ]
-        );
-
         $this->add_control('show_compare', [
             'label'     => esc_html__('Product Compare?', 'essential-addons-for-elementor-lite'),
             'type'      => Controls_Manager::SWITCHER,
@@ -1035,6 +1025,102 @@ class Product_Grid extends Widget_Base
                 'label_off'    => __( 'Hide', 'essential-addons-for-elementor-lite' ),
                 'return_value' => 'yes',
                 'description'  => __( 'Enable to show a secondary image from the product gallery on hover.', 'essential-addons-for-elementor-lite' ),
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Image_Size::get_type(),
+            [
+                'name'        => 'eael_product_grid_image_size',
+                'exclude'     => [ 'custom' ],
+                'default'     => 'medium',
+                'label_block' => true,
+            ]
+        );
+
+        $this->add_control(
+            'eael_product_grid_image_height',
+            [
+                'label' => esc_html__( 'Height', 'essential-addons-for-elementor-lite' ),
+                'type'  => Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 1000,
+                    ],
+                    '%' => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                    'em' => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .eael-product-grid .woocommerce ul.products li.product img' => 'height: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'eael_product_grid_image_object_fitting',
+            [
+                'label'     => esc_html__( 'Render Type', 'essential-addons-for-elementor-lite' ),
+                'type'      => Controls_Manager::CHOOSE,
+                'options'   => [
+                    'fill' => [
+                        'title' => esc_html__( 'Stretched', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-image',
+                    ],
+                    'cover' => [
+                        'title' => esc_html__( 'Cropped', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-frame-expand',
+                    ],
+                    'contain' => [
+                        'title' => esc_html__( 'Contain', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-frame-minimize',
+                    ],
+                ],
+                'default'   => 'fill',
+                'toggle'    => true,
+                'condition' => [
+                    'eael_product_grid_image_height[size]!' => '',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .eael-product-grid .woocommerce ul.products li.product img' => 'object-fit: {{VALUE}}',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'eael_product_grid_image_object_position',
+            [
+                'label'     => esc_html__( 'Position', 'essential-addons-for-elementor-lite' ),
+                'type'      => Controls_Manager::CHOOSE,
+                'options'   => [
+                    'top' => [
+                        'title' => esc_html__( 'Top', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-v-align-top',
+                    ],
+                    'center' => [
+                        'title' => esc_html__( 'Center', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-v-align-middle',
+                    ],
+                    'bottom' => [
+                        'title' => esc_html__( 'Bottom', 'essential-addons-for-elementor-lite' ),
+                        'icon'  => 'eicon-v-align-bottom',
+                    ],
+                ],
+                'default'   => 'center',
+                'toggle'    => true,
+                'selectors' => [
+                    '{{WRAPPER}} .eael-product-grid .woocommerce ul.products li.product img' => 'object-position: {{VALUE}}',
+                ],
+                'condition' => [
+                    'eael_product_grid_image_object_fitting' => 'cover',
+                    'eael_product_grid_image_height[size]!'  => '',
+                ],
             ]
         );
 
@@ -3788,7 +3874,9 @@ class Product_Grid extends Widget_Base
                     echo "</div>";
                 }
 
-                if ( $found_posts > $args['posts_per_page'] && 'source_archive' !== $settings['post_type'] ) {
+                // On the source_archive path $args comes from $wp_query->query, which has no
+                // posts_per_page key, so check the post type before touching it.
+                if ( 'source_archive' !== $settings['post_type'] && $found_posts > absint( $args['posts_per_page'] ?? 0 ) ) {
 	                $this->print_load_more_button( $settings, $args, $dir_name );
                 }
 
@@ -3835,9 +3923,9 @@ class Product_Grid extends Widget_Base
 
         $args = [
             'post_type'      => 'product',
-            'post_status'    => ! empty( $settings['eael_product_grid_products_status'] )
-                ? $settings['eael_product_grid_products_status']
-                : [ 'publish', 'pending', 'future' ],
+            'post_status'    => HelperClass::eael_validate_product_statuses(
+                ! empty( $settings['eael_product_grid_products_status'] ) ? $settings['eael_product_grid_products_status'] : [ 'publish' ]
+            ),
             'posts_per_page' => ! empty( $settings['eael_product_grid_products_count'] )
                 ? (int) $settings['eael_product_grid_products_count']
                 : 4,
@@ -4025,6 +4113,8 @@ class Product_Grid extends Widget_Base
                 )
             );
         }
+
+        $args = HelperClass::eael_multivendorx_store_query_args( $args );
 
         return $args;
     }

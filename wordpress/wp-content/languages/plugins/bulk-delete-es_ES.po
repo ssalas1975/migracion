@@ -1,0 +1,925 @@
+# Translation of Plugins - Bulk Delete - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Bulk Delete - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-09-06 14:55:59+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Bulk Delete - Stable (latest release)\n"
+
+#: include/Core/Base/Mixin/Renderer.php:223
+msgid "Custom Taxonomies"
+msgstr "Taxonomías personalizadas"
+
+#: include/Core/Base/Mixin/Renderer.php:92
+msgid "Select Post Type"
+msgstr "Selecciona el tipo de contenido"
+
+#: include/Core/Base/Mixin/Renderer.php:437
+msgid " by "
+msgstr "por"
+
+#: include/Core/Base/Mixin/Renderer.php:297
+msgid "Date"
+msgstr "Fecha"
+
+#: include/Core/Base/Mixin/Renderer.php:296
+msgid "Character"
+msgstr "Carácter"
+
+#: include/Core/Base/Mixin/Renderer.php:295
+msgid "Number"
+msgstr "Número"
+
+#: include/Core/Base/Mixin/Renderer.php:270
+msgid "not contains"
+msgstr "no contiene"
+
+#: include/Core/Base/Mixin/Renderer.php:269
+msgid "contains"
+msgstr "contiene"
+
+#: include/Core/Base/Mixin/Renderer.php:268
+msgid "ends with"
+msgstr "termina con"
+
+#: include/Core/Base/Mixin/Renderer.php:267
+msgid "starts with"
+msgstr "empieza con"
+
+#: include/Core/Base/Mixin/Renderer.php:191
+msgid "No role"
+msgstr "Sin perfil"
+
+#: include/Core/Cron/CronListTable.php:123
+msgid "Run Now"
+msgstr "Ejecutar ahora"
+
+#: include/Core/Base/Mixin/Renderer.php:180
+msgid "Select User Role"
+msgstr "Selecciona el perfil del usuario"
+
+#: include/Core/Base/Mixin/Renderer.php:160
+msgid "Select User"
+msgstr "Seleccionar usuario"
+
+#: include/Core/Base/Mixin/Renderer.php:512
+msgid "Delete Post"
+msgstr "Borrar entrada"
+
+#: include/Core/Base/Mixin/Renderer.php:436
+msgid "Published on"
+msgstr "Publicado el"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:54
+msgid "Delete based on post meta key name prefix or postfix"
+msgstr "Borrar basado en el prefijo o sufijo del la clave meta del nombre de la entrada"
+
+#: include/Core/Users/UsersModule.php:321
+msgid "Select the post types. By default all post types are considered."
+msgstr "Elige los tipos de contenido. Por defecto se tienen en cuenta todos los tipos de contenido."
+
+#: include/Core/Users/UsersModule.php:311
+msgid "Restrict to users who don't have any posts."
+msgstr "Restringir a usuarios que no tengan entradas."
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:73
+msgid "If you want to check for null values, then leave the value column blank"
+msgstr "Si quieres comprobar valores nulos entonces deja el valor de la columna en blanco"
+
+#. Plugin Name of the plugin
+#: bulk-delete.php include/Core/Posts/DeletePostsPage.php:43
+#: include/Core/Posts/DeletePostsPage.php:44
+msgid "Bulk Delete"
+msgstr "Bulk Delete"
+
+#. Description of the plugin
+#: bulk-delete.php
+msgid "Bulk delete users and posts from selected categories, tags, post types, custom taxonomies or by post status like drafts, scheduled posts, revisions etc."
+msgstr "Borra en masa usuarios y entradas de las categorías, etiquetas, tipos de contenido, taxonomías personalizadas seleccionadas o por estado de entrada, como borrador, entradas programadas, revisiones, etc."
+
+#. Plugin URI of the plugin
+#: bulk-delete.php
+msgid "https://bulkwp.com/"
+msgstr "https://bulkwp.com/"
+
+#: include/ui/form.php:86
+msgid "Public posts"
+msgstr "Entradas públicas"
+
+#: include/ui/form.php:87
+msgid "Private Posts"
+msgstr "Entradas privadas"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:214
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:68
+msgid "Meta Value"
+msgstr "Valor meta"
+
+#: include/helpers/common.php:169 include/ui/form.php:269
+#: include/util/class-bd-util.php:281
+msgid "All"
+msgstr "Todo"
+
+#: include/ui/form.php:151
+msgid "Enter time in <strong>Y-m-d H:i:s</strong> format or enter <strong>now</strong> to use current time"
+msgstr "Introduce la hora en foramto <strong>Y-m-d H:i:s</strong> o introduce <strong>ahora</strong> apra usar la hora actual"
+
+#: include/helpers/common.php:161 include/util/class-bd-util.php:273
+msgid "All mime types"
+msgstr "Todos los tipos mime"
+
+#: include/Core/Cron/CronListPage.php:123 include/util/class-bd-util.php:125
+msgctxt "Cron table date format"
+msgid "M j, Y @ G:i"
+msgstr "M j, Y @ G:i"
+
+#: include/Core/Users/Modules/DeleteUsersByUserRoleModule.php:192
+msgid "Select at least one user role from which users should be deleted"
+msgstr "Elige al menos un perfil de usuario de los usuarios que deberían borrarse"
+
+#: include/Core/Users/Modules/DeleteUsersByUserRoleModule.php:189
+msgid "Are you sure you want to delete all the users from the selected user role?"
+msgstr "¿Estás seguro de querer borrar todos los usuarios del perfil de usuario seleccionado?"
+
+#: include/Core/Users/Modules/DeleteUsersByUserRoleModule.php:42
+msgid "Select the user roles from which you want to delete users"
+msgstr "Elige los perfiles de usuario de los que quieres borrar usuarios"
+
+#. translators: 1 Number of users deleted
+#: include/Core/Users/Modules/DeleteUsersByUserRoleModule.php:199
+msgid "Deleted %d user from the selected roles"
+msgid_plural "Deleted %d users from the selected roles"
+msgstr[0] "%d usuario borrado de los perfiles seleccionados"
+msgstr[1] ""
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:151
+msgid "Please enter the value for the user meta field based on which you want to delete users"
+msgstr "Por favor, introduce el valor del campo meta de usuario basado en el que quieres borrar usuarios"
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:148
+msgid "Are you sure you want to delete all the users from the selected user meta?"
+msgstr "¿Estás seguro de querer borrar todos los usuarios del meta de usuario seleccionado?"
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:43
+msgid "Select the user meta from which you want to delete users"
+msgstr "Elige el meta de usuario del que quieres borrar usuarios"
+
+#. translators: 1 Number of users deleted
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:158
+msgid "Deleted %d user with the selected user meta"
+msgid_plural "Deleted %d users with the selected user meta"
+msgstr[0] "%d usuario borrado con el meta de usuario seleccionado"
+msgstr[1] ""
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:30
+msgid "Users from with the selected user meta are scheduled for deletion."
+msgstr "Los usuarios con los meta de usuario seleccionados se han programado para su borrado."
+
+#: include/Core/Users/Modules/DeleteUsersByUserMetaModule.php:29
+msgid "By User Meta"
+msgstr "Por meta de usuario"
+
+#: include/Core/Users/DeleteUsersPage.php:52
+#: include/users/class-bd-users-page.php:90
+msgid "This screen contains different modules that allows you to delete users or schedule them for deletion."
+msgstr "Esta pantalla contiene diferentes módulos que te permiten borrar usuarios o programarlos para su borrado."
+
+#: include/Core/Users/DeleteUsersPage.php:28
+#: include/Core/Users/DeleteUsersPage.php:29
+#: include/users/class-bd-users-page.php:48
+#: include/users/class-bd-users-page.php:49
+#: include/users/class-bd-users-page.php:72
+msgid "Bulk Delete Users"
+msgstr "Borrar usuarios en masa"
+
+#: include/ui/class-bulk-delete-help-screen.php:82
+msgid "This plugin can be used to delete the posts, pages or users using various filters and conditions."
+msgstr "Este plugin se puede usar para borrar entradas, páginas o usuarios usando diversos filtros y condiciones."
+
+#. translators: %s is the post type
+#: include/ui/form.php:112
+msgid "Use this option if there are more than 1000 %s and the script times out."
+msgstr "Usa esta opción si hay  más de 1000 %s y el script agota el tiempo de espera."
+
+#. translators: %s is the post type
+#: include/ui/form.php:45
+msgid "Only restrict to %s which are "
+msgstr "Solo restringir a %s los que sean"
+
+#: include/Core/Terms/Modules/DeleteTermsByNameModule.php:34
+#: include/Core/Terms/Modules/DeleteTermsByPostCountModule.php:34
+#: include/ui/form.php:22
+msgid "Choose your filtering options"
+msgstr "Elige tus opciones de filtrado"
+
+#: include/ui/class-bulk-delete-help-screen.php:81
+msgid "This plugin allows you to perform bulk operations in WordPress easily."
+msgstr "Este plugin te permite realizar fácilmente operaciones masivas en WordPress."
+
+#: include/ui/class-bulk-delete-help-screen.php:58
+msgid "About Plugin"
+msgstr "Acerca del plugin"
+
+#: include/Core/Pages/DeletePagesPage.php:45
+#: include/ui/class-bulk-delete-help-screen.php:48
+msgid "This screen contains different modules that allows you to delete pages or schedule them for deletion."
+msgstr "Esta pantalla contiene distintos módulos que te permiten borrar páginas o programarlas para su borrado."
+
+#: include/Core/Posts/DeletePostsPage.php:82
+#: include/ui/class-bulk-delete-help-screen.php:36
+msgid "This screen contains different modules that allows you to delete posts or schedule them for deletion."
+msgstr "Esta pantalla contiene diferentes módulos que te permiten borrar entradas o programarlas para su borrado."
+
+#: include/Core/Attachments/DeleteAttachmentsPage.php:42
+#: include/Core/Metas/DeleteMetasPage.php:43
+#: include/Core/Pages/DeletePagesPage.php:43
+#: include/Core/Posts/DeletePostsPage.php:80
+#: include/Core/Terms/DeleteTermsPage.php:42
+#: include/Core/Users/DeleteUsersPage.php:50
+#: include/ui/class-bulk-delete-help-screen.php:34
+#: include/ui/class-bulk-delete-help-screen.php:46
+#: include/users/class-bd-users-page.php:88
+msgid "Overview"
+msgstr "Resumen"
+
+#: include/settings/class-bd-settings.php:29
+msgid "Add Addon License"
+msgstr "Añadir licencia de la extensión"
+
+#: include/settings/class-bd-settings-page.php:50
+#: include/settings/class-bd-settings-page.php:107
+msgid "Bulk Delete Settings"
+msgstr "Ajustes de Bulk Delete"
+
+#: include/Core/Cron/CronListPage.php:103
+#: include/posts/class-bulk-delete-posts.php:1023
+msgid "The selected scheduled job was successfully deleted "
+msgstr "La tarea programada seleccionada se ha borrado con éxito"
+
+#: include/Core/Posts/Modules/DeletePostsByURLModule.php:53
+#: include/posts/class-bulk-delete-posts.php:999
+msgid "Please enter at least one post url"
+msgstr "Por favor, introduce el menos la url de una entrada"
+
+#: include/Core/Posts/Modules/DeletePostsByTagModule.php:74
+#: include/posts/class-bulk-delete-posts.php:995
+msgid "Please select at least one tag"
+msgstr "Por favor, elige al menos una etiqueta"
+
+#: include/Core/Posts/Modules/DeletePostsByCategoryModule.php:74
+#: include/posts/class-bulk-delete-posts.php:991
+msgid "Please select at least one category"
+msgstr "Por favor, elige al menos una categoría"
+
+#: include/Core/Base/BaseModule.php:227
+#: include/posts/class-bulk-delete-posts.php:987
+msgid "Please select posts from at least one option"
+msgstr "Por favor, elige entradas de al menos una opción"
+
+#: include/Core/Base/BaseModule.php:226
+#: include/posts/class-bulk-delete-posts.php:986
+msgid "Are you sure you want to delete all the posts based on the selected option?"
+msgstr "¿Estás seguro de querer borrar todas las entradas basándote en la opción seleccionada?"
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:938
+msgid "Deleted %d post revision"
+msgid_plural "Deleted %d post revisions"
+msgstr[0] "Borrada %d revisión de entrada"
+msgstr[1] "Borradas %d revisiones de entradas"
+
+#: include/settings/class-bd-settings-page.php:51
+msgid "Settings"
+msgstr "Ajustes"
+
+#: include/Core/Posts/Modules/DeletePostsByRevisionModule.php:30
+#: include/posts/class-bulk-delete-posts.php:908
+msgid "Select the posts which you want to delete"
+msgstr "Elige las entradas que deseas eliminar"
+
+#: include/Core/Posts/Modules/DeletePostsByRevisionModule.php:37
+#: include/posts/class-bulk-delete-posts.php:915
+msgid "All Revisions"
+msgstr "Todas las revisiones"
+
+#: include/Core/Posts/Modules/DeletePostsByRevisionModule.php:37
+#: include/posts/class-bulk-delete-posts.php:915
+msgid "Revisions"
+msgstr "Revisiones"
+
+#: include/posts/class-bulk-delete-posts.php:724
+msgid "This WordPress installation doesn't have any non-empty custom post types"
+msgstr "Esta instalación de WordPress no tiene ningún tipo de contenido personalizado no vacío"
+
+#: include/posts/class-bulk-delete-posts.php:695
+msgid "Select the custom post types from which you want to delete posts"
+msgstr "Elige los tipos de contenido personalizados de los que quieres borrar entradas"
+
+#: include/posts/class-bulk-delete-posts.php:551
+msgid "This WordPress installation doesn't have any non-empty custom taxonomies defined"
+msgstr "Esta instalación de WordPress no tiene ninguna taxonomía definida personalizada no vacía"
+
+#: include/Core/Posts/Modules/DeletePostsByTaxonomyModule.php:53
+#: include/posts/class-bulk-delete-posts.php:494
+msgid "Select the taxonomies from which you want to delete posts"
+msgstr "Elige las taxonomías de las que quieras borrar entradas"
+
+#: include/posts/class-bulk-delete-posts.php:487
+msgid "Select the post type from which you want to delete posts by custom taxonomy"
+msgstr "Elige el tipo de contenido del que quieras borrar entradas por taxonomía personalizada"
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:880
+msgid "Deleted %d post with the specified urls"
+msgid_plural "Deleted %d posts with the specified urls"
+msgstr[0] "Borrada %d entrada con la url especificada"
+msgstr[1] "Borradas %d entradas con las urls especificadas"
+
+#: include/Core/Posts/Modules/DeletePostsByURLModule.php:33
+#: include/posts/class-bulk-delete-posts.php:843
+msgid "Enter one post url (not post ids) per line"
+msgstr "Introduce una url de entrada (no ids de entradas) por línea"
+
+#: include/Core/Posts/Modules/DeletePostsByURLModule.php:27
+#: include/posts/class-bulk-delete-posts.php:837
+msgid "Delete posts and pages that have the following Permalink"
+msgstr "Borra entradas y páginas que tengan los siguientes enlaces permanentes"
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:761
+msgid "Deleted %d post from the selected custom post type"
+msgid_plural "Deleted %d posts from the selected custom post type"
+msgstr[0] "Borrada %d entrada del tipo de contenido personalizado seleccionado"
+msgstr[1] "Borradas %d entradas del tipo de contenido personalizado seleccionado"
+
+#. translators: %s is the URL to sheduled tasks page
+#: include/posts/class-bulk-delete-posts.php:757
+msgid "Posts from the selected custom post type are scheduled for deletion."
+msgstr "Las entradas del tipo de contenido personalizado seleccionado se han programado para su borrado."
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:590
+msgid "Deleted %d post from the selected custom taxonomies"
+msgid_plural "Deleted %d posts from the selected custom taxonomies"
+msgstr[0] "Borrada %d entrada de las taxonomías personalizadas seleccionadas"
+msgstr[1] "Borradas %d entradas de las taxonomías personalizadas seleccionadas"
+
+#. translators: %s is the URL to sheduled tasks page
+#: include/posts/class-bulk-delete-posts.php:586
+msgid "Posts from the selected custom taxonomies are scheduled for deletion."
+msgstr "Las entradas de las taxonomías personalizadas seleccionadas se han programado para su borrado."
+
+#: include/Core/Posts/Modules/DeletePostsByTaxonomyModule.php:78
+#: include/posts/class-bulk-delete-posts.php:514
+msgid "Note: The post count below for each term is the total number of posts in that term, irrespective of post type"
+msgstr "Nota: El contador de entradas de abajo de cada término es el número total de entradas de ese término, independientemente de su tipo de entrada"
+
+#: include/Core/Posts/Modules/DeletePostsByTaxonomyModule.php:74
+#: include/posts/class-bulk-delete-posts.php:513
+msgid "The selected taxonomy has the following terms. Select the terms from which you want to delete posts"
+msgstr "La taxonomía seleccionada tiene los siguientes términos. Elige los términos de los que quieres borrar entradas"
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:410
+msgid "Deleted %d post from the selected tags"
+msgid_plural "Deleted %d posts from the selected tags"
+msgstr[0] "Borrada %d entrada de las etiquetas seleccionadas"
+msgstr[1] "Borradas %d entradas de las etiquetas seleccionadas"
+
+#. translators: %s is the URL to sheduled tasks page
+#: include/posts/class-bulk-delete-posts.php:406
+msgid "Posts from the selected tags are scheduled for deletion."
+msgstr "Las entradas de las etiquetas seleccionadas se han programado para su borrado."
+
+#: include/posts/class-bulk-delete-posts.php:373
+msgid "You don't have any posts assigned to tags in this blog."
+msgstr "No tienes ninguna entrada asignada a entradas en este sitio."
+
+#: include/Core/Base/Mixin/Renderer.php:381
+#: include/posts/class-bulk-delete-posts.php:351
+msgid "All Tags"
+msgstr "Todas las etiquetas"
+
+#: include/Core/Posts/Modules/DeletePostsByTagModule.php:43
+#: include/posts/class-bulk-delete-posts.php:343
+msgid "Select the tags from which you want to delete posts"
+msgstr "Elige las etiquetas de las que quieres borrar entradas"
+
+#: include/Core/Base/Mixin/Renderer.php:376
+#: include/posts/class-bulk-delete-posts.php:350
+msgid "Select Tags"
+msgstr "Etiquetas seleccionadas"
+
+#. translators: %d number of posts
+#: include/posts/class-bulk-delete-posts.php:274
+msgid "Deleted %d post from the selected categories"
+msgid_plural "Deleted %d posts from the selected categories"
+msgstr[0] "Borrada %d entrada de las categorías seleccionadas"
+msgstr[1] "Borradas %d entradas de las categorías seleccionadas"
+
+#. translators: %s is the URL to sheduled tasks page
+#: include/posts/class-bulk-delete-posts.php:270
+msgid "Posts from the selected categories are scheduled for deletion."
+msgstr "Las entradas de las categorías seleccionadas se han programado para su borrado."
+
+#: include/Core/Base/Mixin/Renderer.php:246
+#: include/posts/class-bulk-delete-posts.php:217
+msgid "All Categories"
+msgstr "Todas las categorías"
+
+#: include/posts/class-bulk-delete-posts.php:205
+msgid "Select the categories from which you wan to delete posts"
+msgstr "Elige las categorías de las que quieres borrar entradas"
+
+#: include/Core/Posts/Modules/DeletePostsByCategoryModule.php:35
+#: include/posts/class-bulk-delete-posts.php:199
+msgid "Select the post type from which you want to delete posts by category"
+msgstr "Elige el tipo de contenido del que quieres borrar entradas por categoría"
+
+#: include/Core/Base/Mixin/Renderer.php:241
+#: include/posts/class-bulk-delete-posts.php:216
+msgid "Select Categories"
+msgstr "Seleccionar categorías"
+
+#: include/posts/class-bulk-delete-posts.php:206
+msgid "Note: The post count below for each category is the total number of posts in that category, irrespective of post type"
+msgstr "Nota: El contador de entradas de abajo de cada categoría es el número total de entradas de esa categoría, independientemente de su tipo de entrada"
+
+#. translators: 1 Number of pages deleted
+#. translators: 1 Number of posts deleted
+#: include/Core/Posts/Modules/DeletePostsByRevisionModule.php:72
+#: include/Core/Posts/Modules/DeletePostsByURLModule.php:87
+#: include/posts/class-bulk-delete-posts.php:116
+msgid "Deleted %d post with the selected post status"
+msgid_plural "Deleted %d posts with the selected post status"
+msgstr[0] "Borrada %d entrada con el estado de entrada seleccionado"
+msgstr[1] "Borradas %d entradas con el estado de entrada seleccionado"
+
+#: include/posts/class-bulk-delete-posts.php:108
+msgid "Posts with the selected status are scheduled for deletion."
+msgstr "Las entradas del estado seleccionado se han programado para su borrado."
+
+#: include/posts/class-bulk-delete-posts.php:55
+msgid "The date filter will not work for sticky posts"
+msgstr "El filtro de fecha no funcionará para entradas fijas"
+
+#: include/posts/class-bulk-delete-posts.php:53
+msgid "All Sticky Posts"
+msgstr "Todas las entradas fijas"
+
+#: include/posts/class-bulk-delete-posts.php:55
+msgid "Note"
+msgstr "Nota"
+
+#: include/Core/Base/Mixin/Fetcher.php:64
+#: include/Core/Base/Mixin/Renderer.php:41
+#: include/Core/Base/Mixin/Renderer.php:251
+#: include/Core/Base/Mixin/Renderer.php:386
+#: include/Core/Base/Mixin/Renderer.php:422
+#: include/Core/Posts/Modules/DeletePostsByTaxonomyModule.php:96
+#: include/posts/class-bulk-delete-posts.php:40
+#: include/posts/class-bulk-delete-posts.php:54
+#: include/posts/class-bulk-delete-posts.php:219
+#: include/posts/class-bulk-delete-posts.php:353
+#: include/posts/class-bulk-delete-posts.php:527 include/ui/form.php:269
+msgid "Posts"
+msgstr "Entradas"
+
+#: include/Core/Posts/Modules/DeletePostsByStatusModule.php:38
+#: include/posts/class-bulk-delete-posts.php:26
+msgid "Select the post statuses from which you want to delete posts"
+msgstr "Elige el estado de entrada del que quieres borrar entradas"
+
+#. translators: %d number of posts
+#: include/pages/class-bulk-delete-pages.php:127
+msgid "Deleted %d page"
+msgid_plural "Deleted %d pages"
+msgstr[0] "Borrada %d página"
+msgstr[1] "Borradas %d páginas"
+
+#. translators: %s is the URL to sheduled tasks page
+#: include/pages/class-bulk-delete-pages.php:123
+msgid "The selected pages are scheduled for deletion."
+msgstr "Las páginas seleccionadas están programadas para su borrado."
+
+#: include/pages/class-bulk-delete-pages.php:73
+msgid "All Private Pages"
+msgstr "Todas las páginas privadas"
+
+#: include/pages/class-bulk-delete-pages.php:66
+msgid "All Pending Pages"
+msgstr "Todas las páginas pendientes"
+
+#: include/pages/class-bulk-delete-pages.php:59
+msgid "All Scheduled Pages"
+msgstr "Todas las páginas programadas"
+
+#: include/pages/class-bulk-delete-pages.php:52
+msgid "All Draft Pages"
+msgstr "Todas las páginas en borrador"
+
+#: include/ui/form.php:69
+msgid "Delete permanently"
+msgstr "Eliminar de manera permanente"
+
+#: include/pages/class-bulk-delete-pages.php:45
+#: include/pages/class-bulk-delete-pages.php:52
+#: include/pages/class-bulk-delete-pages.php:59
+#: include/pages/class-bulk-delete-pages.php:66
+#: include/pages/class-bulk-delete-pages.php:73
+msgid "Pages"
+msgstr "Páginas"
+
+#: include/pages/class-bulk-delete-pages.php:38
+msgid "Select the status from which you want to delete pages"
+msgstr "Elige el estado del que quieres borrar páginas"
+
+#: include/pages/class-bulk-delete-pages.php:45
+msgid "All Published Pages"
+msgstr "Todas las páginas publicadas"
+
+#: include/ui/form.php:108
+msgid "Only delete first "
+msgstr "Eliminar solamente las primeras"
+
+#: include/ui/form.php:68
+msgid "Move to Trash"
+msgstr "Mover a la Papelera"
+
+#. translators: 1 Number of posts deleted
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:157
+msgid "Deleted user meta field from %d user"
+msgid_plural "Deleted user meta field from %d users"
+msgstr[0] "Borrado el campo meta de usuario de %d usuario"
+msgstr[1] "Borrado el campo meta de usuario de %d usuarios"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:22
+msgid "User meta fields from the users with the selected criteria are scheduled for deletion."
+msgstr "Los campos meta de usuario de los usuarios con el criterio seleccionado se han programado para su borrado."
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:150
+msgid "Are you sure you want to delete all the user meta fields that match the selected filters?"
+msgstr "¿Estás seguro de querer borrar todos los campos meta de usuario que coincidan con los filtros seleccionados?"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:62
+msgid "User Meta Key "
+msgstr "Clave meta de usuario"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:53
+msgid "Delete based on user meta key name and value"
+msgstr "Borrar basándose en el nombre y valor de la clave meta de usuario"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:45
+msgid "Delete based on user meta key name only"
+msgstr "Borrar basándose solo en el nombre de la clave meta de usuario"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:40
+msgid "Choose your user meta field settings"
+msgstr "Elige tus ajustes del campo meta de usuario"
+
+#: include/Core/Base/Mixin/Renderer.php:593 include/ui/form.php:136
+msgid "Don't repeat"
+msgstr "No repetir"
+
+#: include/ui/form.php:167
+msgid "Bulk Delete "
+msgstr "Bulk Delete (Eliminar de forma masiva)"
+
+#: include/ui/form.php:49
+msgid "posted within last"
+msgstr "publicada durante los últimos"
+
+#: include/Core/Base/Mixin/Renderer.php:184
+#: include/Core/Base/Mixin/Renderer.php:191
+msgid "Users"
+msgstr "Usuarios"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:34
+msgid "Select the user role whose user meta fields you want to delete"
+msgstr "Elige el perfil de usuario del que quieras borrar campos meta de usuario"
+
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:21
+msgid "Bulk Delete User Meta"
+msgstr "Borrado masivo de meta de usuario"
+
+#: include/Core/Base/Mixin/Renderer.php:588 include/ui/form.php:134
+msgid "repeat "
+msgstr "repetir"
+
+#: include/Core/Base/Mixin/Renderer.php:577 include/ui/form.php:132
+msgid "Delete now"
+msgstr "Borrar ahora"
+
+#. translators: 1 Number of posts deleted
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:191
+msgid "Deleted post meta field from %d post"
+msgid_plural "Deleted post meta field from %d posts"
+msgstr[0] "Borrado el campo meta de entrada de %d entrada"
+msgstr[1] "Borrado el campo meta de entrada de %d entradas"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:22
+msgid "Post meta fields from the posts with the selected criteria are scheduled for deletion."
+msgstr "Los campos meta de entrada de las entradas con los criterios seleccionados se han programado para su borrado."
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:184
+msgid "Are you sure you want to delete all the post meta fields that match the selected filters?"
+msgstr "¿Estás seguro de querer borrar todos los campos meta de entrada que coincidan con los filtros seleccionados?"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:74
+msgid "Post Meta Key "
+msgstr "Clave meta de entrada"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:65
+msgid "Delete based on post meta key name and value"
+msgstr "Borrar basándose en el nombre de la clave meta de entrada y su valor"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:47
+msgid "Delete based on post meta key name only"
+msgstr "Borrar basándose solo en el nombre de la clave meta de entrada"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:42
+msgid "Choose your post meta field settings"
+msgstr "Elige tus ajustes de campo meta de entrada"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:36
+msgid "Select the post type whose post meta fields you want to delete"
+msgstr "Elige el tipo de contenido del que quieres borrar campos meta de entrada"
+
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:21
+msgid "Bulk Delete Post Meta"
+msgstr "Borrado masivo de meta de entrada"
+
+#: include/Core/Metas/DeleteMetasPage.php:25
+#: include/Core/Metas/DeleteMetasPage.php:26
+msgid "Bulk Delete Meta Fields"
+msgstr "Borrado masivo de campos meta"
+
+#. translators: 1 Number of comment deleted
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:177
+msgid "Deleted comment meta field from %d comment"
+msgid_plural "Deleted comment meta field from %d comments"
+msgstr[0] "Borrado el campo meta de %d comentario"
+msgstr[1] "Borrado el campo meta de %d comentarios"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:23
+msgid "Comment meta fields from the comments with the selected criteria are scheduled for deletion."
+msgstr "Los campos meta de comentario de los comentarios con los criterios seleccionados se han programado para su borrado."
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:170
+msgid "Are you sure you want to delete all the comment meta fields that match the selected filters?"
+msgstr "¿Estás seguro de querer borrar todos los campos meta de comentario que coincidan con los filtros seleccionados?"
+
+#: include/ui/form.php:48
+msgid "older than"
+msgstr "mayores de"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:97
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:98
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:79
+msgid "Choose your deletion options"
+msgstr "Elige tus opciones de borrado"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:80
+#: include/Core/Metas/Modules/DeletePostMetaModule.php:80
+#: include/Core/Metas/Modules/DeleteUserMetaModule.php:63
+msgid "Meta Key"
+msgstr "Clave meta"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:79
+msgid "Comment Meta Key "
+msgstr "Clave meta de comentario"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:65
+msgid "Delete based on comment meta key name only"
+msgstr "Borrar basándose solo en el nombre de la clave meta de comentario"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:73
+msgid "Delete based on comment meta key name and value"
+msgstr "Borrar basándose en el nombre y valor de la clave meta de comentario"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:60
+msgid "Choose your comment meta field settings"
+msgstr "Elige tus ajustes de campo meta de comentario"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:55
+msgid "Select the post type whose comment meta fields you want to delete"
+msgstr "Elige el tipo de contenido del que quieres borrar campos meta de comentario"
+
+#: include/Core/Metas/Modules/DeleteCommentMetaModule.php:22
+msgid "Bulk Delete Comment Meta"
+msgstr "Borrado masivo de meta de comentario"
+
+#: include/Core/Cron/CronListTable.php:174
+#: include/cron/class-cron-list-table.php:156
+msgid "You have not scheduled any bulk delete jobs."
+msgstr "No has programado ninguna tarea de borrado masivo."
+
+#: include/Core/Cron/CronListTable.php:114
+#: include/cron/class-cron-list-table.php:115
+msgid "Delete"
+msgstr "Borrar"
+
+#: include/Core/Cron/CronListTable.php:64
+#: include/cron/class-cron-list-table.php:52
+msgid "Options"
+msgstr "Opciones"
+
+#: include/Core/Cron/CronListTable.php:63
+#: include/cron/class-cron-list-table.php:51
+msgid "Type"
+msgstr "Tipo"
+
+#: include/Core/Base/Mixin/Renderer.php:583
+#: include/Core/Cron/CronListTable.php:62
+#: include/cron/class-cron-list-table.php:50 include/ui/form.php:133
+msgid "Schedule"
+msgstr "Programar"
+
+#: include/Core/Users/UsersModule.php:292
+msgid "Enter \"0 days\" to delete users who have never logged in after the \"Simple Login Log\" plugin has been installed."
+msgstr "Introduce \"0 días\" para borrar usuarios que nunca hayan accedido una vez que el plugin \"Simple Login Log\" se haya instalado."
+
+#: include/Core/Users/UsersModule.php:283
+msgid "Need the free \"Simple Login Log\" Plugin"
+msgstr "Necesitas el plugin gratuito \"Simple Login Log\""
+
+#: include/Core/Cron/CronListTable.php:46
+#: include/cron/class-cron-list-table.php:35
+msgid "Note: "
+msgstr "Aviso:"
+
+#: include/cron/class-cron-list-table.php:33
+msgid "This is the list of jobs that are currently scheduled for auto deleting posts in Bulk Delete Plugin."
+msgstr "Esta es la lista de tareas de auto borrado de entradas que están programadas actualmente en Bulk Delete Plugin."
+
+#: include/Core/Cron/CronListTable.php:61
+#: include/cron/class-cron-list-table.php:49
+msgid "Next Due"
+msgstr "Vencimiento siguiente"
+
+#: include/Core/Users/UsersModule.php:279 include/ui/form.php:51
+msgid "days"
+msgstr "días"
+
+#: include/addons/posts.php:25
+#: include/Core/Users/Modules/DeleteUsersByUserRoleModule.php:29
+msgid "By User Role"
+msgstr "Por perfil de usuario"
+
+#: include/addons/addon-list.php:62
+msgid "Scheduler for deleting Users by User Role"
+msgstr "Programador de borrado de usuarios por perfil de usuario"
+
+#: include/Core/Users/UsersModule.php:277
+msgid "Restrict to users who have not logged in the last "
+msgstr "Restringir a usuarios que no hayan accedido en el pasado "
+
+#: include/addons/addon-list.php:68
+msgid "Adds the ability to schedule auto delete of users based on user meta"
+msgstr "Añade la posibilidad de programar el auto borrado de usuarios basado en el meta de usuario"
+
+#: include/addons/addon-list.php:67
+msgid "Scheduler for deleting Users by User Meta"
+msgstr "Programador para borrar usuarios por meta de usuario"
+
+#: include/addons/addon-list.php:63
+msgid "Adds the ability to schedule auto delete of users based on user role"
+msgstr "Añade la posibilidad de programar el auto borrado de usuarios basado en el perfil de usuario"
+
+#. translators: 1 Cron page url
+#. translators: %s is the URL to sheduled tasks page
+#. translators: 1 Url to view cron jobs
+#: include/Core/Base/BaseModule.php:400
+#: include/pages/class-bulk-delete-pages.php:123
+#: include/posts/class-bulk-delete-posts.php:111
+#: include/posts/class-bulk-delete-posts.php:270
+#: include/posts/class-bulk-delete-posts.php:406
+#: include/posts/class-bulk-delete-posts.php:586
+#: include/posts/class-bulk-delete-posts.php:757
+msgid "See the full list of <a href = \"%s\">scheduled tasks</a>"
+msgstr "Revisa la lista completa de <a href = \"%s\">tareas programadas</a>"
+
+#. translators: %1$s is the URL to refresh the page
+#. translators: 1 Module url
+#. translators: 1 Number of posts that are deleted.
+#: include/addons/posts.php:37 include/addons/posts.php:65
+#: include/addons/posts.php:93 include/addons/posts.php:121
+#: include/Core/Base/BaseModule.php:173
+#: include/pages/class-bulk-delete-pages.php:25
+#: include/posts/class-bulk-delete-posts.php:18
+#: include/posts/class-bulk-delete-posts.php:193
+#: include/posts/class-bulk-delete-posts.php:335
+#: include/posts/class-bulk-delete-posts.php:463
+#: include/posts/class-bulk-delete-posts.php:659
+#: include/posts/class-bulk-delete-posts.php:831
+#: include/posts/class-bulk-delete-posts.php:900
+msgid "This section just got enabled. Kindly <a href = \"%1$s\">refresh</a> the page to fully enable it."
+msgstr "Esta sección acaba de ser activada. Por favor, <a href = \"%1$s\">recarga</a> la página para activarla del todo."
+
+#: include/addons/posts.php:24
+msgid "By Duplicate Title"
+msgstr "Por título duplicado"
+
+#: include/addons/posts.php:23
+msgid "By Title"
+msgstr "Por título"
+
+#: include/addons/posts.php:22
+msgid "By Custom Field"
+msgstr "Por campo personalizado"
+
+#: include/addons/addon-list.php:57
+msgid "Scheduler for deleting Pages by Status"
+msgstr "Programador para eliminar páginas según su estado"
+
+#: include/addons/addon-list.php:52
+msgid "Scheduler for deleting Posts by Post Status"
+msgstr "Programador para eliminar entradas según su estado de entrada"
+
+#: include/addons/addon-list.php:48
+msgid "Adds the ability to schedule auto delete of posts based on custom post type"
+msgstr "Añade la posibilidad de programar auto borrado de entradas basado en el tipo de entrada personalizada"
+
+#: include/addons/addon-list.php:47
+msgid "Scheduler for deleting Posts by Custom Post Type"
+msgstr "Programador para eliminar páginas según el tipo de entrada personalizada"
+
+#: include/addons/addon-list.php:42
+msgid "Scheduler for deleting Posts by Custom Taxonomy"
+msgstr "Programador para eliminar entradas según la taxonomía personalizada"
+
+#: include/addons/addon-list.php:38
+msgid "Adds the ability to schedule auto delete of posts based on tag"
+msgstr "Añade la posibilidad de programar auto borrado de entradas basado en la etiqueta"
+
+#: include/addons/addon-list.php:43
+msgid "Adds the ability to schedule auto delete of posts based on custom taxonomy"
+msgstr "Añade la posibilidad de programar auto borrado de entradas basado en la taxonomía personalizada"
+
+#: include/addons/addon-list.php:33
+msgid "Adds the ability to schedule auto delete of posts based on category"
+msgstr "Añade la posibilidad de programar auto borrado de entradas basado en la categoría"
+
+#: include/addons/addon-list.php:37
+msgid "Scheduler for deleting Posts by Tag"
+msgstr "Programador para eliminar entradas según la etiqueta"
+
+#: include/addons/addon-list.php:32
+msgid "Scheduler for deleting Posts by Category"
+msgstr "Programador para eliminar entradas según la categoría"
+
+#: include/addons/addon-list.php:58
+msgid "Adds the ability to schedule auto delete pages based on status"
+msgstr "Añade la posibilidad de programar el auto borrado de páginas en base a su estado"
+
+#: include/addons/addon-list.php:53
+msgid "Adds the ability to schedule auto delete of posts based on post status like drafts, pending posts, scheduled posts etc."
+msgstr "Añade la posibilidad de programar el auto borrado de entradas basado en el estado como borradores, entradas pendientes, entradas programadas, etc."
+
+#: include/addons/addon-list.php:27
+msgid "Scheduler Email"
+msgstr "Programador de correo electrónico"
+
+#: include/Core/Pages/Modules/DeletePagesByStatusModule.php:23
+msgid "By Page Status"
+msgstr "Por estado de página"
+
+#: include/Core/Posts/Modules/DeletePostsByURLModule.php:21
+msgid "By URL"
+msgstr "Por URL"
+
+#: include/Core/Posts/Modules/DeletePostsByStatusModule.php:23
+msgid "By Post Status"
+msgstr "Por estado de la entrada"
+
+#: include/Core/Cron/CronListPage.php:28
+msgid "Scheduled Jobs"
+msgstr "Tareas programadas"
+
+#: include/Core/Cron/CronListPage.php:27
+msgid "Bulk Delete Schedules"
+msgstr "Borrados masivos programados"
+
+#: include/Core/Pages/DeletePagesPage.php:25
+#: include/Core/Pages/DeletePagesPage.php:26
+msgid "Bulk Delete Pages"
+msgstr "Borrado masivo de páginas"
+
+#: include/Core/Posts/DeletePostsPage.php:30
+#: include/Core/Posts/DeletePostsPage.php:31
+msgid "Bulk Delete Posts"
+msgstr "Borrado masivo de entradas"
+
+#: include/Core/Posts/Modules/DeletePostsByRevisionModule.php:21
+msgid "By Post Revisions"
+msgstr "Por revisiones de entradas"
+
+#: include/Deprecated/old-bulk-delete.php:119
+#: include/Deprecated/old-bulk-delete.php:131
+msgid "Cheatin&#8217; huh?"
+msgstr "¿Haciendo trampas?"

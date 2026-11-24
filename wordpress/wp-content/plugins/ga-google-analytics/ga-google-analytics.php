@@ -9,9 +9,9 @@
 	Donate link: https://monzillamedia.com/donate.html
 	Contributors: specialk
 	Requires at least: 4.7
-	Tested up to: 7.0
-	Stable tag: 20260209
-	Version:    20260209
+	Tested up to: 7.2
+	Stable tag: 20261112
+	Version:    20261112
 	Requires PHP: 5.6.20
 	Text Domain: ga-google-analytics
 	Domain Path: /languages
@@ -64,7 +64,7 @@ if (!class_exists('GA_Google_Analytics')) {
 		
 		function constants() {
 			
-			if (!defined('GAP_VERSION')) define('GAP_VERSION', '20260209');
+			if (!defined('GAP_VERSION')) define('GAP_VERSION', '20261112');
 			if (!defined('GAP_REQUIRE')) define('GAP_REQUIRE', '4.7');
 			if (!defined('GAP_AUTHOR'))  define('GAP_AUTHOR',  'Jeff Starr');
 			if (!defined('GAP_NAME'))    define('GAP_NAME',    'GA Google Analytics');
@@ -137,7 +137,7 @@ if (!class_exists('GA_Google_Analytics')) {
 				$pro_href   = 'https://plugin-planet.com/ga-google-analytics-pro/';
 				$pro_title  = esc_attr__('Get GA Pro!', 'ga-google-analytics');
 				$pro_text   = esc_html__('Go&nbsp;Pro', 'ga-google-analytics');
-				$pro_style  = 'font-weight:bold;';
+				$pro_style  = 'padding:2px 4px;font-weight:bold;border:1px solid #00CCCC;border-radius:2px;background-color:#fff;';
 				
 				$pro = '<a target="_blank" rel="noopener noreferrer" href="'. $pro_href .'" title="'. $pro_title .'" style="'. $pro_style .'">'. $pro_text .'</a>';
 				
@@ -160,7 +160,7 @@ if (!class_exists('GA_Google_Analytics')) {
 				$links[]    = '<a target="_blank" rel="noopener noreferrer" href="'. $home_href .'" title="'. $home_title .'">'. $home_text .'</a>';
 				
 				$rate_href  = 'https://wordpress.org/support/plugin/'. GAP_SLUG .'/reviews/?rate=5#new-post';
-				$rate_title = esc_attr__('Click here to rate and review this plugin on WordPress.org', 'ga-google-analytics');
+				$rate_title = esc_attr__('Click here to rate and review this plugin at WordPress.org', 'ga-google-analytics');
 				$rate_text  = esc_html__('Rate this plugin', 'ga-google-analytics') .'&nbsp;&raquo;';
 				
 				$links[]    = '<a target="_blank" rel="noopener noreferrer" href="'. $rate_href .'" title="'. $rate_title .'">'. $rate_text .'</a>';
@@ -236,9 +236,9 @@ if (!class_exists('GA_Google_Analytics')) {
 						deactivate_plugins(GAP_FILE);
 						
 						$msg  = '<strong>'. GAP_NAME .'</strong> '. esc_html__('requires WordPress ', 'ga-google-analytics') . GAP_REQUIRE;
-						$msg .= esc_html__(' or higher, and has been deactivated! ', 'ga-google-analytics');
-						$msg .= esc_html__('Please return to the', 'ga-google-analytics') .' <a href="'. admin_url() .'">';
-						$msg .= esc_html__('WP Admin Area', 'ga-google-analytics') .'</a> '. esc_html__('to upgrade WordPress and try again.', 'ga-google-analytics');
+						$msg .= esc_html__(' or higher, and has been deactivated. ', 'ga-google-analytics');
+						$msg .= esc_html__('Please return to the', 'ga-google-analytics') .' <a href="'. admin_url('plugins.php') .'">';
+						$msg .= esc_html__('WordPress Admin Area', 'ga-google-analytics') .'</a> '. esc_html__('to upgrade WordPress and try again.', 'ga-google-analytics');
 						
 						wp_die($msg);
 						
@@ -312,9 +312,12 @@ if (!class_exists('GA_Google_Analytics')) {
 					
 					<div class="notice notice-success notice-lh">
 						<p>
-							<strong><?php esc_html_e('🚀 SAVE 30% on Google Analytics Pro!', 'ga-google-analytics'); ?></strong> 
-							<a target="_blank" rel="noopener noreferrer" href="https://plugin-planet.com/ga-google-analytics-pro/"><?php esc_html_e('Level up with visitor opt-out and multiple tracking codes', 'ga-google-analytics'); ?></a>. 
-							<?php esc_html_e('Apply code', 'ga-google-analytics'); ?> <code>GAPRO</code> <?php esc_html_e('at checkout. Sale ends 3/28/2026.', 'ga-google-analytics'); ?> 
+							<strong><?php esc_html_e('🍁 Fall Sale!', 'ga-google-analytics'); ?></strong> 
+							<?php esc_html_e('Take 25% OFF any of our', 'ga-google-analytics'); ?> 
+							<a target="_blank" rel="noopener noreferrer" href="https://plugin-planet.com/"><?php esc_html_e('Pro WordPress plugins', 'ga-google-analytics'); ?></a> 
+							<?php esc_html_e('and', 'ga-google-analytics'); ?> 
+							<a target="_blank" rel="noopener noreferrer" href="https://books.perishablepress.com/"><?php esc_html_e('books', 'ga-google-analytics'); ?></a>. 
+							<?php esc_html_e('Apply code', 'ga-google-analytics'); ?> <code>FALL2026</code> <?php esc_html_e('at checkout. Sale ends 12/20/2026.', 'ga-google-analytics'); ?> 
 							<?php echo $this->dismiss_notice_link(); ?>
 						</p>
 					</div>
@@ -371,7 +374,7 @@ if (!class_exists('GA_Google_Analytics')) {
 				
 				$location = admin_url('options-general.php?page=ga-google-analytics&dismiss-notice='. $result);
 				
-				wp_redirect($location);
+				wp_safe_redirect($location);
 				
 				exit;
 				
@@ -393,7 +396,7 @@ if (!class_exists('GA_Google_Analytics')) {
 		
 		function check_date_expired() {
 			
-			$expires = apply_filters('ga_google_analytics_check_date_expired', '2026-03-28');
+			$expires = apply_filters('ga_google_analytics_check_date_expired', '2026-12-20');
 			
 			return (new DateTime() > new DateTime($expires)) ? true : false;
 			
@@ -407,13 +410,15 @@ if (!class_exists('GA_Google_Analytics')) {
 				
 				if (!current_user_can('manage_options')) exit;
 				
+				$dismiss = delete_option('ga-google-analytics-dismiss-notice');
+				
 				$update = update_option('gap_options', $this->default_options());
 				
-				$result = $update ? 'true' : 'false';
+				$result = ($dismiss || $update) ? 'true' : 'false';
 				
 				$location = add_query_arg(array('gap-reset-options' => $result), admin_url(GAP_PATH));
 				
-				wp_redirect(esc_url_raw($location));
+				wp_safe_redirect(esc_url_raw($location));
 				
 				exit;
 				
@@ -423,13 +428,13 @@ if (!class_exists('GA_Google_Analytics')) {
 		
 		function __clone() {
 			
-			_doing_it_wrong(__FUNCTION__, esc_html__('Cheatin&rsquo; huh?', 'ga-google-analytics'), GAP_VERSION);
+			_doing_it_wrong(__FUNCTION__, esc_html__('Cheatin&rsquo; huh?', 'ga-google-analytics'), esc_html(GAP_VERSION));
 			
 		}
 		
 		function __wakeup() {
 			
-			_doing_it_wrong(__FUNCTION__, esc_html__('Cheatin&rsquo; huh?', 'ga-google-analytics'), GAP_VERSION);
+			_doing_it_wrong(__FUNCTION__, esc_html__('Cheatin&rsquo; huh?', 'ga-google-analytics'), esc_html(GAP_VERSION));
 			
 		}
 		

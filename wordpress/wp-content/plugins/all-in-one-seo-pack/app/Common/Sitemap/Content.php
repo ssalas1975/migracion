@@ -27,7 +27,6 @@ class Content {
 		'author',
 		'date',
 		'postArchive',
-		'rss',
 		'bpActivity',
 		'bpGroup',
 		'bpMember'
@@ -99,6 +98,38 @@ class Content {
 		}
 
 		return [];
+	}
+
+	/**
+	 * Checks whether the requested sitemap is one that exists, even when it has no entries right now.
+	 *
+	 * NOTE: Only the first page of the root index or of a public post type or taxonomy (even an excluded one)
+	 * exists while empty. Dedicated indexes (author, date, …) are only listed when they have entries.
+	 *
+	 * @since 5.0.3
+	 *
+	 * @return bool Whether the requested sitemap exists.
+	 */
+	public function isKnownIndex() {
+		$indexName = aioseo()->sitemap->indexName;
+		if ( 0 < aioseo()->sitemap->pageNumber ) {
+			return false;
+		}
+
+		if ( 'root' === $indexName ) {
+			return true;
+		}
+
+		if ( ! aioseo()->sitemap->indexes ) {
+			return false;
+		}
+
+		if ( 'product_attributes' === $indexName ) {
+			return 'general' === aioseo()->sitemap->type && aioseo()->helpers->isWooCommerceActive();
+		}
+
+		return in_array( $indexName, aioseo()->helpers->getPublicPostTypes( true ), true ) ||
+			in_array( $indexName, aioseo()->helpers->getPublicTaxonomies( true ), true );
 	}
 
 	/**
@@ -185,7 +216,8 @@ class Content {
 	/**
 	 * Returns all sitemap entries if indexing is disabled.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage entry now follows {@see Helpers::shouldIncludeHomepage()}.
 	 *
 	 * @return array $entries The sitemap entries.
 	 */
@@ -194,7 +226,7 @@ class Content {
 		$postTypes        = aioseo()->sitemap->helpers->includedPostTypes();
 		$isStaticHomepage = 'page' === get_option( 'show_on_front' );
 		$blogPageEntry    = [];
-		$homePageEntry    = ! $isStaticHomepage ? [ array_shift( $additional ) ] : [];
+		$homePageEntry    = $additional && aioseo()->sitemap->helpers->shouldIncludeHomepage() ? [ array_shift( $additional ) ] : [];
 		$entries          = array_merge( $additional, $this->author(), $this->date(), $this->postArchive() );
 
 		if ( $postTypes ) {
@@ -454,7 +486,8 @@ class Content {
 	/**
 	 * Returns all additional pages.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage entry now follows {@see Helpers::shouldIncludeHomepage()}.
 	 *
 	 * @param  bool  $shouldChunk Whether the entries should be chuncked. Is set to false when the static sitemap is generated.
 	 * @return array              The sitemap entries.
@@ -479,9 +512,7 @@ class Content {
 			];
 		}
 
-		$postTypes             = aioseo()->sitemap->helpers->includedPostTypes();
-		$shouldIncludeHomepage = 'posts' === get_option( 'show_on_front' ) || ! in_array( 'page', $postTypes, true );
-		if ( $shouldIncludeHomepage ) {
+		if ( aioseo()->sitemap->helpers->shouldIncludeHomepage() ) {
 			$frontPageId  = (int) get_option( 'page_on_front' );
 			$frontPageUrl = aioseo()->helpers->localizedUrl( '/' );
 			$post         = aioseo()->helpers->getPost( $frontPageId );
@@ -620,8 +651,8 @@ class Content {
 			"SELECT
 				YEAR(post_date) AS `year`,
 				MONTH(post_date) AS `month`,
-				post_date_gmt,
-				post_modified_gmt
+				MAX(post_date_gmt) AS post_date_gmt,
+				MAX(post_modified_gmt) AS post_modified_gmt
 			FROM {$postsTable}
 			WHERE post_type = 'post' AND post_status = 'publish'
 			GROUP BY
@@ -636,24 +667,38 @@ class Content {
 			return [];
 		}
 
-		$entries = [];
-		$year    = '';
+		$yearMaxLastmod = [];
 		foreach ( $dates as $date ) {
-			$entry = [
-				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $this->getLastModified( $date ) ),
-				'changefreq' => aioseo()->sitemap->priority->frequency( 'date' ),
-				'priority'   => aioseo()->sitemap->priority->priority( 'date' ),
-			];
+			$lastmod = $this->getLastModified( $date );
+			if ( ! isset( $yearMaxLastmod[ $date->year ] ) || $lastmod > $yearMaxLastmod[ $date->year ] ) {
+				$yearMaxLastmod[ $date->year ] = $lastmod;
+			}
+		}
 
-			// Include each year only once.
+		$entries   = [];
+		$year      = '';
+		$changefreq = aioseo()->sitemap->priority->frequency( 'date' );
+		$priority   = aioseo()->sitemap->priority->priority( 'date' );
+		foreach ( $dates as $date ) {
+			// Include each year only once, using the max lastmod across all months in that year.
 			if ( $year !== $date->year ) {
-				$year         = $date->year;
-				$entry['loc'] = get_year_link( $date->year );
-				$entries[]    = apply_filters( 'aioseo_sitemap_date_entry', $entry, $date, 'year', 'date' );
+				$year      = $date->year;
+				$yearEntry = [
+					'loc'        => get_year_link( $date->year ),
+					'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $yearMaxLastmod[ $date->year ] ),
+					'changefreq' => $changefreq,
+					'priority'   => $priority,
+				];
+				$entries[] = apply_filters( 'aioseo_sitemap_date_entry', $yearEntry, $date, 'year', 'date' );
 			}
 
-			$entry['loc'] = get_month_link( $date->year, $date->month );
-			$entries[]    = apply_filters( 'aioseo_sitemap_date_entry', $entry, $date, 'month', 'date' );
+			$monthEntry = [
+				'loc'        => get_month_link( $date->year, $date->month ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $this->getLastModified( $date ) ),
+				'changefreq' => $changefreq,
+				'priority'   => $priority,
+			];
+			$entries[] = apply_filters( 'aioseo_sitemap_date_entry', $monthEntry, $date, 'month', 'date' );
 		}
 
 		return apply_filters( 'aioseo_sitemap_date_archives', $entries );
@@ -701,7 +746,7 @@ class Content {
 		}
 
 		usort( $entries, function( $a, $b ) {
-			return $a['pubDate'] < $b['pubDate'] ? 1 : 0;
+			return strtotime( $b['pubDate'] ) <=> strtotime( $a['pubDate'] );
 		});
 
 		return apply_filters( 'aioseo_sitemap_rss', $entries );
@@ -916,7 +961,7 @@ class Content {
 		}
 
 		$joinClause   = aioseo()->pro ? "LEFT JOIN {$aioseoTermsTable} AS at ON tt.term_id = at.term_id" : '';
-		$whereClause  = aioseo()->pro ? "AND (at.robots_noindex IS NULL OR at.robots_noindex = 0) AND (at.canonical_url IS NULL OR at.canonical_url = '')" : '';
+		$whereClause  = aioseo()->pro ? 'AND (at.robots_noindex IS NULL OR at.robots_noindex = 0)' : '';
 		$limitClause  = $count ? '' : 'LIMIT 50000';
 
 		$result = aioseo()->core->db->execute(

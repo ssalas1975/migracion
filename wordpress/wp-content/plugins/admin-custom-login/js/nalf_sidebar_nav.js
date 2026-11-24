@@ -9,6 +9,7 @@
 	
 			jQuery('#side-menu > li > ul.in').collapse("hide");
 			jQuery('ul.options_tabs li').removeClass('active');
+			jQuery('#side-menu > li').removeClass('active');
 			
 			jQuery(this).parent().addClass('active');
 			jQuery('ul.nav li li a').removeClass('active');
@@ -30,9 +31,8 @@
 			jQuery(ulid).removeClass('deactive');		
 			jQuery(ulid).addClass('active');
 			
-			jQuery('div.ui-tabs-panel').addClass('deactive');
-			jQuery(add).removeClass('active');
-			jQuery(add).removeClass('deactive');
+			jQuery('div.ui-tabs-panel').addClass('deactive').removeClass('active');
+			jQuery(add).removeClass('deactive').addClass('active');
 			
 			
 		}
@@ -54,8 +54,10 @@
 		
 	});
 	
-	
-	
-	
+	// sidebar collapse toggle
+	jQuery('.sidebar-toggle').click(function(e) {
+		e.preventDefault();
+		jQuery('#wrapper').toggleClass('collapsed-sidebar');
+	});
 });
  

@@ -20,7 +20,7 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 	/**
 	 * Singleton instance variable
 	 *
-	 * @var object
+	 * @var Custom_Permalinks_Post_Types_Table|null
 	 */
 	private static $instance;
 
@@ -41,6 +41,9 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 
 		// Handle screen options.
 		$this->screen_options();
+
+		// Runs on the load-{page} hook, before any output, so the redirect works.
+		$this->process_bulk_action();
 	}
 
 	/**
@@ -215,9 +218,13 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_cb( $item ) {
+		$title = $item['post_title'] ? $item['post_title'] : __( '(no title)', 'custom-permalinks' );
+
 		return sprintf(
-			'<input type="checkbox" name="permalink[]" value="%s" />',
-			$item['ID']
+			'<label class="screen-reader-text" for="cb-select-%1$s">%2$s</label><input id="cb-select-%1$s" type="checkbox" name="permalink[]" value="%1$s" />',
+			esc_attr( $item['ID'] ),
+			/* translators: %s: Post title. */
+			esc_html( sprintf( __( 'Select %s', 'custom-permalinks' ), $title ) )
 		);
 	}
 
@@ -242,7 +249,7 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 		$title_with_edit_link = esc_html( $post_title );
 		if ( ! empty( $edit_link ) ) {
 			$title_with_edit_link = sprintf(
-				'<a href="%1s" target="_blank" title="%2s">%3s</a>',
+				'<a href="%s" target="_blank" title="%s">%s</a>',
 				esc_url( $edit_link ),
 				esc_attr__( 'Edit', 'custom-permalinks' ) . ' ' . esc_attr( $post_title ),
 				$title_with_edit_link
@@ -287,7 +294,7 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 		$page_url = esc_url( $page_url );
 
 		$permalink = sprintf(
-			'<a href="%1s" target="_blank" title="%2s">%3s</a>',
+			'<a href="%s" target="_blank" title="%s">%s</a>',
 			$page_url,
 			esc_attr__( 'Visit', 'custom-permalinks' ) . ' ' . esc_attr( $item['post_title'] ),
 			$page_url
@@ -434,9 +441,6 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 
-		// Process bulk action.
-		$this->process_bulk_action();
-
 		$per_page     = $this->get_items_per_page( "{$this->screen->id}_per_page" );
 		$current_page = $this->get_pagenum();
 		$total_items  = Custom_Permalinks_Post_Types::total_permalinks();
@@ -444,9 +448,9 @@ final class Custom_Permalinks_Post_Types_Table extends WP_List_Table {
 
 		$this->set_pagination_args(
 			array(
-				'total_items' => $total_items,
+				'total_items' => (int) $total_items,
 				'per_page'    => $per_page,
-				'total_pages' => ceil( $total_items / $per_page ),
+				'total_pages' => (int) ceil( $total_items / $per_page ),
 			)
 		);
 	}

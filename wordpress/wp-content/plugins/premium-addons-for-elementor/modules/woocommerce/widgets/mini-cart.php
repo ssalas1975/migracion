@@ -59,7 +59,7 @@ class Mini_Cart extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'mini cart', 'cart', 'woocommerce' );
@@ -2783,21 +2783,6 @@ class Mini_Cart extends Widget_Base {
 		);
 
 		$this->add_control(
-			'pa_txt_color_hov',
-			array(
-				'label'     => __( 'Cart Text Color', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => array(
-					'{{WRAPPER}} .pa-woo-mc__link:hover .pa-woo-mc__text,
-					{{WRAPPER}} .pa-woo-mc__inner-container:hover .pa-woo-mc__text' => 'color: {{VALUE}}',
-				),
-				'condition' => array(
-					'cart_txt!' => '',
-				),
-			)
-		);
-
-		$this->add_control(
 			'pa_txt_color_subtotal_hov',
 			array(
 				'label'      => __( 'Subtotal Color', 'premium-addons-for-elementor' ),
@@ -5342,8 +5327,22 @@ class Mini_Cart extends Widget_Base {
 				$cart_settings['cartDelay'] = $settings['cart_delay'];
 			}
 
-			if ( 'yes' === get_option( 'woocommerce_calc_taxes' ) && in_array( 'yes', array( $settings['show_tax_label'], $settings['show_footer_tax_label'] ), true ) ) {
-				$cart_settings['taxLabel'] = WC()->countries->inc_tax_or_vat();
+			$tax_config = $this->get_tax_display_config( $settings );
+
+			$trigger_label_enabled = $tax_config['show_trigger_label']
+				|| ( 'yes' === get_option( 'woocommerce_calc_taxes' ) && 'yes' === $settings['show_tax_label'] );
+
+			$footer_label_enabled = $tax_config['show_footer_label']
+				|| ( 'yes' === get_option( 'woocommerce_calc_taxes' ) && 'yes' === $settings['show_footer_tax_label'] );
+
+			if ( $trigger_label_enabled || $footer_label_enabled ) {
+				$tax_label_text = ! empty( $tax_config['label'] )
+					? $tax_config['label']
+					: ( $tax_config['exclude_tax'] ? WC()->countries->ex_tax_or_vat() : WC()->countries->inc_tax_or_vat() );
+
+				$cart_settings['taxLabel']            = $tax_label_text;
+				$cart_settings['triggerLabelEnabled'] = $trigger_label_enabled;
+				$cart_settings['footerLabelEnabled']  = $footer_label_enabled;
 			}
 
 			if ( 'yes' === $settings['cross_sells'] ) {
@@ -5367,7 +5366,7 @@ class Mini_Cart extends Widget_Base {
 		}
 
 		?>
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'cart_outer_wrapper' ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'cart_outer_wrapper' ); ?>>
 				<div class="pa-woo-mc__inner-container">
 					<div class="pa-woo-mc__icon-wrapper">
 						<?php
@@ -5404,22 +5403,29 @@ class Mini_Cart extends Widget_Base {
 																													<?php
 							}
 							?>
-								<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'trigger_subtotal' ) ); ?>>
+								<span <?php $this->print_render_attribute_string( 'trigger_subtotal' ); ?>>
 									<?php
 									if ( $counting_effect ) {
 										?>
 											<!-- <span class='pa-rtl-counting'> -->
 												<span class="pa-woo-mc__subtotal-val" ><?php echo esc_html( $subtotal_display['raw_subtotal_amount'] ); ?></span>
-												<span class="pa-woo-mc__subtotal-currency"> <?php echo get_woocommerce_currency_symbol(); ?></span>
+												<span class="pa-woo-mc__subtotal-currency"> <?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span>
 											<!-- </span> -->
 											<?php
 									} else {
 										echo wp_kses_data( WC()->cart ? $subtotal_display['subtotal_amount'] : '' );
 									}
 
-									if ( $subtotal_display['includes_tax'] && 'yes' === $settings['show_tax_label'] ) {
+									$tax_config         = $subtotal_display['tax_config'];
+									$show_trigger_label = $tax_config['show_trigger_label']
+										|| ( $subtotal_display['includes_tax'] && 'yes' === $settings['show_tax_label'] );
+
+									if ( $show_trigger_label ) {
+										$tax_label_text = ! empty( $tax_config['label'] )
+											? $tax_config['label']
+											: ( $tax_config['exclude_tax'] ? WC()->countries->ex_tax_or_vat() : WC()->countries->inc_tax_or_vat() );
 										?>
-										<small class="pa-woo-mc__tax-label"><?php echo wp_kses_data( WC()->countries->inc_tax_or_vat() ); ?></small>
+										<small class="pa-woo-mc__tax-label"><?php echo wp_kses_data( $tax_label_text ); ?></small>
 										<?php
 									}
 									?>
@@ -5460,7 +5466,7 @@ class Mini_Cart extends Widget_Base {
 					)
 				);
 				?>
-				<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'overlay' ) ); ?>></div>
+				<div <?php $this->print_render_attribute_string( 'overlay' ); ?>></div>
 								<?php
 			}
 		}
@@ -5495,7 +5501,7 @@ class Mini_Cart extends Widget_Base {
 		}
 
 		?>
-			<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'count_badge' ) ); ?>>
+			<span <?php $this->print_render_attribute_string( 'count_badge' ); ?>>
 				<?php
 				if ( $counting_effect ) {
 					?>
@@ -5531,7 +5537,7 @@ class Mini_Cart extends Widget_Base {
 						)
 					);
 				} else {
-					echo $this->getTriggerIcon( $settings['default_icons'] );
+					echo $this->getTriggerIcon( $settings['default_icons'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hardcoded SVG markup.
 				}
 
 				break;
@@ -5557,7 +5563,7 @@ class Mini_Cart extends Widget_Base {
 					)
 				);
 				?>
-						<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'cart_lottie' ) ); ?>></div>
+						<div <?php $this->print_render_attribute_string( 'cart_lottie' ); ?>></div>
 					<?php
 
 				break;
@@ -5573,7 +5579,7 @@ class Mini_Cart extends Widget_Base {
 		$progress_bar  = 'yes' === $settings['mc_progressbar'];
 
 		?>
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'cart_menu_content' ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'cart_menu_content' ); ?>>
 				<?php
 				if ( $render_header ) {
 					$this->render_cart_header( $settings, $cart_type );
@@ -5586,7 +5592,7 @@ class Mini_Cart extends Widget_Base {
 					$raw_subtotal            = WC()->cart ? WC()->cart->get_cart_contents_total() : 0;
 					if ( $free_shipping_threshold ) :
 						?>
-							<div class="pa-woo-mc__progressbar-wrapper" data-pa-progress-txt="<?php echo wp_kses_data( $this->format_free_shipping_txt( $settings, $free_shipping_threshold, $raw_subtotal ) ); ?>" data-pa-progress-threshold="<?php echo esc_attr( $free_shipping_threshold ); ?>" data-pa-progress-complete="<?php echo esc_attr( $settings['complete_txt'] ); ?>">
+							<div class="pa-woo-mc__progressbar-wrapper" data-pa-progress-txt="<?php echo esc_attr( wp_kses_data( $this->format_free_shipping_txt( $settings, $free_shipping_threshold, $raw_subtotal ) ) ); ?>" data-pa-progress-threshold="<?php echo esc_attr( $free_shipping_threshold ); ?>" data-pa-progress-complete="<?php echo esc_attr( $settings['complete_txt'] ); ?>">
 								<span class="pa-woo-mc__subtotal-placeholder" style="display:none"><?php echo esc_html( $raw_subtotal ); ?></span>
 								<span class="pa-woo-mc__progress-heading"></span>
 								<div class="pa-woo-mc__progressbar" role="progressbar" aria-valuenow="<?php echo esc_attr( $this->get_purchase_percentage( $free_shipping_threshold ) ); ?>" aria-valuemin="0" aria-valuemax="100">
@@ -5671,8 +5677,9 @@ class Mini_Cart extends Widget_Base {
 		$raw_subtotal   = floatval( WC()->cart->get_subtotal() );
 
 		$includes_tax = false;
+		$tax_config   = $this->get_tax_display_config( $settings );
 
-		if ( 'yes' === get_option( 'woocommerce_calc_taxes' ) ) {
+		if ( 'yes' === get_option( 'woocommerce_calc_taxes' ) && ! $tax_config['exclude_tax'] ) {
 			$raw_subtotal += WC()->cart->get_taxes_total();
 			$includes_tax  = true;
 		}
@@ -5684,7 +5691,36 @@ class Mini_Cart extends Widget_Base {
 			'raw_subtotal_amount' => $raw_subtotal_amount,
 			'subtotal_amount'     => $subtotal_amount,
 			'includes_tax'        => $includes_tax,
+			'tax_config'          => $tax_config,
 		);
+	}
+
+	/**
+	 * Get the tax display configuration via the pa_mini_cart_tax_display filter.
+	 *
+	 * Allows developers to control how taxes are displayed in the mini cart subtotals.
+	 *
+	 * @since 4.11.0
+	 *
+	 * @param array $settings Widget settings.
+	 *
+	 * @return array {
+	 *     @type bool   $exclude_tax        Whether to show subtotal without taxes. Default false.
+	 *     @type bool   $show_trigger_label  Whether to show the tax label on the trigger subtotal. Default false.
+	 *     @type bool   $show_footer_label   Whether to show the tax label on the footer subtotal. Default false.
+	 *     @type string $label               Custom label text override. Default '' (uses WC built-in).
+	 * }
+	 */
+	private function get_tax_display_config( $settings ) {
+
+		$defaults = array(
+			'exclude_tax'        => false,
+			'show_trigger_label' => false,
+			'show_footer_label'  => false,
+			'label'              => '',
+		);
+
+		return apply_filters( 'pa_mini_cart_tax_display', $defaults, $this->get_id(), $settings );
 	}
 
 	/**
@@ -5707,7 +5743,7 @@ class Mini_Cart extends Widget_Base {
 		}
 
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'cart_header' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'cart_header' ); ?>>
 			<?php
 
 			if ( 'layout-3' === $layout ) {
@@ -5789,7 +5825,7 @@ class Mini_Cart extends Widget_Base {
 			}
 		}
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'cart_footer' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'cart_footer' ); ?>>
 			<?php if ( $subtotal ) : ?>
 			<div class="pa-woo-mc__cart-subtotal">
 				<?php if ( 'layout-3' === $layout || $subtotal_heading ) : ?>
@@ -5799,9 +5835,16 @@ class Mini_Cart extends Widget_Base {
 				<span class="pa-woo-mc__subtotal">
 					<?php echo wp_kses_data( WC()->cart ? $subtotal_display['subtotal_amount'] : '' ); ?>
 					<?php
-					if ( $subtotal_display['includes_tax'] && 'yes' === $settings['show_footer_tax_label'] ) {
+					$tax_config        = $subtotal_display['tax_config'];
+					$show_footer_label = $tax_config['show_footer_label']
+						|| ( $subtotal_display['includes_tax'] && 'yes' === $settings['show_footer_tax_label'] );
+
+					if ( $show_footer_label ) {
+						$tax_label_text = ! empty( $tax_config['label'] )
+							? $tax_config['label']
+							: ( $tax_config['exclude_tax'] ? WC()->countries->ex_tax_or_vat() : WC()->countries->inc_tax_or_vat() );
 						?>
-							<small class="pa-woo-mc__tax-label"><?php echo wp_kses_data( WC()->countries->inc_tax_or_vat() ); ?></small>
+							<small class="pa-woo-mc__tax-label"><?php echo wp_kses_data( $tax_label_text ); ?></small>
 							<?php
 					}
 					?>

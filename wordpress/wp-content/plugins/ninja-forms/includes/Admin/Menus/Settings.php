@@ -46,8 +46,8 @@ final class NF_Admin_Menus_Settings extends NF_Abstracts_Submenu
     public function ninja_forms_cf7_notice( $notices )
     {
         // If we don't have recaptcha keys, bail.
-        $recaptcha_site_key = Ninja_Forms()->get_settings();
-        if ( $recaptcha_site_key[ 'recaptcha_site_key' ] === '' ) {
+        $recaptcha_site_key = Ninja_Forms()->get_setting( 'recaptcha_site_key', '' );
+        if ( $recaptcha_site_key === '' ) {
             return $notices;
         }
         // If we can detect Contact Form 7...
@@ -158,9 +158,9 @@ final class NF_Admin_Menus_Settings extends NF_Abstracts_Submenu
             $allow_tel = 0;
         }
 
-	    wp_enqueue_script( 'jBox', Ninja_Forms::$url . 'assets/js/min/jBox.min.js', array( 'jquery' ) );
+	    wp_enqueue_script( 'jBox', Ninja_Forms::$url . 'assets/js/min/jBox.min.js', array( 'jquery' ), (string) filemtime( Ninja_Forms::$dir . 'assets/js/min/jBox.min.js' ) );
         wp_enqueue_style( 'nf-combobox', Ninja_Forms::$url . 'assets/css/combobox.css' );
-	    wp_enqueue_style( 'jBox', Ninja_Forms::$url . 'assets/css/jBox.css' );
+	    wp_enqueue_style( 'jBox', Ninja_Forms::$url . 'assets/css/jBox.css', array(), (string) filemtime( Ninja_Forms::$dir . 'assets/css/jBox.css' ) );
         wp_register_script( 'ninja_forms_admin_menu_settings', Ninja_Forms::$url . 'assets/js/admin-settings.js', array( 'jquery' ), FALSE, TRUE );
         
         /**
@@ -176,7 +176,7 @@ final class NF_Admin_Menus_Settings extends NF_Abstracts_Submenu
             'batchNonce'   => wp_create_nonce( 'ninja_forms_batch_nonce' ),
             'i18n'          => array(
                 'trashExpiredSubsMessage'          => esc_html__( 'Are you sure you want to trash all expired submissions?', 'ninja-forms' ),
-                'trashExpiredSubsButtonPrimary'    => esc_html__( 'Trash', 'ninja-forms' ),
+                'trashExpiredSubsButtonPrimary'    => esc_html_x( 'Trash', 'verb: move to the trash', 'ninja-forms' ),
                 'trashExpiredSubsButtonSecondary'  => esc_html__( 'Cancel', 'ninja-forms' ),
             ),
             'allow_telemetry' => $allow_tel,
@@ -197,8 +197,9 @@ final class NF_Admin_Menus_Settings extends NF_Abstracts_Submenu
             'batchNonce'   => wp_create_nonce( 'ninja_forms_batch_nonce' ),
             'i18n'          => array(
                 'trashExpiredSubsMessage'          => esc_html__( 'Are you sure you want to trash all expired submissions?', 'ninja-forms' ),
-                'trashExpiredSubsButtonPrimary'    => esc_html__( 'Trash', 'ninja-forms' ),
+                'trashExpiredSubsButtonPrimary'    => esc_html_x( 'Trash', 'verb: move to the trash', 'ninja-forms' ),
                 'trashExpiredSubsButtonSecondary'  => esc_html__( 'Cancel', 'ninja-forms' ),
+                'deleteSavedFieldFailed'           => esc_html__( "We couldn't confirm this favorite field was deleted. Refresh the page to see the current list.", 'ninja-forms' ),
             ),
             'allow_telemetry' => $allow_tel,
             'nf_optin_nonce' => wp_create_nonce( 'nf_optin_nonce' ),

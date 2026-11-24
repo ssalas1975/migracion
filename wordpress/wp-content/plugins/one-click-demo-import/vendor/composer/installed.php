@@ -3,7 +3,7 @@
         'name' => 'awesomemotive/one-click-demo-import',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '0b3f7715aa51fb1241368301610189e6e7095d00',
+        'reference' => 'b56082bb0f01eb023daca37b37cad1f84f689ef7',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'awesomemotive/one-click-demo-import' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '0b3f7715aa51fb1241368301610189e6e7095d00',
+            'reference' => 'b56082bb0f01eb023daca37b37cad1f84f689ef7',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

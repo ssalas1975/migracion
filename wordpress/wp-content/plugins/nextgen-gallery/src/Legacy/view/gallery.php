@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php $i = 0; ?>
 		<?php foreach ( $images as $image ) : ?>
 
-	<div id="ngg-image-<?php echo esc_attr( $image->pid ); ?>" class="ngg-gallery-thumbnail-box" 
+	<div id="ngg-image-<?php echo esc_attr( $image->pid ); ?>" class="ngg-gallery-thumbnail-box"
 									<?php
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $image->style contains safe CSS style attributes
 									echo $image->style;
@@ -59,14 +59,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				?>
 				>
 				<?php if ( ! $image->hidden ) { ?>
-				<img title="<?php echo esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>" alt="<?php echo esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>" src="
+				<img<?php echo \Imagely\NGG\Display\GalleryImage::attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributes() escapes each attribute with esc_attr(). ?> title="<?php echo esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>" alt="<?php echo esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>" src="
 										<?php
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- \Imagely\NGG\Util\Router::esc_url() provides safe URL escaping
 										echo \Imagely\NGG\Util\Router::esc_url( $image->thumbnailURL );
 										?>
-				" 
+				"
 					<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $image->size contains safe HTML size attributes
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- LegacyImage::__get( 'size' ) casts both dimensions with absint() and escapes them with esc_attr(), so the assembled width/height pair carries no caller-supplied markup.
 					echo $image->size;
 					?>
 				/>

@@ -29,6 +29,21 @@ class NF_Fields_Date extends NF_Fields_Textbox
 
         $this->_nicename = esc_html__( 'Date/Time', 'ninja-forms' );
 
+        /*
+         * The inherited placeholder is written onto the date input, which is
+         * hidden in time-only mode - the hour and minute dropdowns carry their
+         * own labels instead. Offer the setting only in the modes that show the
+         * date input, following the same date_mode dependency the format, year
+         * range, and default-to-current settings already use. See #7065.
+         */
+        $this->_settings[ 'placeholder' ][ 'deps' ] = array(
+            'settings' => array(
+                array( 'name' => 'date_mode', 'value' => 'date_only' ),
+                array( 'name' => 'date_mode', 'value' => 'date_and_time' ),
+            ),
+            'match' => 'any',
+        );
+
         add_filter( 'ninja_forms_localize_field_date', [ $this,'localizeField'], 10, 2);
         add_filter( 'ninja_forms_localize_field_date_preview', [ $this,'localizeField'], 10, 2);
         add_filter( 'ninja_forms_custom_columns', [ $this, 'custom_columns' ], 10, 2 );
@@ -44,16 +59,16 @@ class NF_Fields_Date extends NF_Fields_Textbox
     private function get_format( $format )
     {
         $lookup = array(
-            'MM/DD/YYYY' => esc_html__( 'm/d/Y', 'ninja-forms' ),
-            'MM-DD-YYYY' => esc_html__( 'm-d-Y', 'ninja-forms' ),
-            'MM.DD.YYYY' => esc_html__( 'm.d.Y', 'ninja-forms' ),
-            'DD/MM/YYYY' => esc_html__( 'd/m/Y', 'ninja-forms' ),
-            'DD-MM-YYYY' => esc_html__( 'd-m-Y', 'ninja-forms' ),
-            'DD.MM.YYYY' => esc_html__( 'd.m.Y', 'ninja-forms' ),
-            'YYYY-MM-DD' => esc_html__( 'Y-m-d', 'ninja-forms' ),
-            'YYYY/MM/DD' => esc_html__( 'Y/m/d', 'ninja-forms' ),
-            'YYYY.MM.DD' => esc_html__( 'Y.m.d', 'ninja-forms' ),
-            'dddd, MMMM D YYYY' => esc_html__( 'l, F d Y', 'ninja-forms' ),
+            'MM/DD/YYYY' => 'm/d/Y',
+            'MM-DD-YYYY' => 'm-d-Y',
+            'MM.DD.YYYY' => 'm.d.Y',
+            'DD/MM/YYYY' => 'd/m/Y',
+            'DD-MM-YYYY' => 'd-m-Y',
+            'DD.MM.YYYY' => 'd.m.Y',
+            'YYYY-MM-DD' => 'Y-m-d',
+            'YYYY/MM/DD' => 'Y/m/d',
+            'YYYY.MM.DD' => 'Y.m.d',
+            'dddd, MMMM D YYYY' => 'l, F d Y',
         );
 
         return ( isset( $lookup[ $format ] ) ) ? $lookup[ $format ] : $format;
@@ -111,7 +126,7 @@ class NF_Fields_Date extends NF_Fields_Textbox
         $field = Ninja_Forms()->form( $form_id )->get_field( $id );
 
         // If the value is an array, output an appropriate edit element.
-        if ( ! is_array( $value ) ) return '<input class="widefat" name="fields[' . $id . '][date]" value="' . $value . '" type="text">';
+        if ( ! is_array( $value ) ) return '<input class="widefat" name="fields[' . $id . '][date]" value="' . esc_attr( $value ) . '" type="text">';
 
         $edit_values = '';
 
@@ -126,7 +141,7 @@ class NF_Fields_Date extends NF_Fields_Textbox
         $minutes_options = $this->get_minutes_options( $minute, $field );        
 
         if ( ! empty ( $date ) ) {
-            $edit_values = '<input class="" name="fields[' . $id . '][date]" value="' . $date . '" type="text">';
+            $edit_values = '<input class="" name="fields[' . $id . '][date]" value="' . esc_attr( $date ) . '" type="text">';
         }
 
         if ( ! empty ( $hour ) && ! empty ( $minute ) ) {
@@ -149,26 +164,74 @@ class NF_Fields_Date extends NF_Fields_Textbox
 
     private function stringify_value( $field_value, $field )
     {
+        $hours_24 = false;
+        $date_mode = '';
+
+        if ( is_object( $field ) ) {
+            $hours_24 = 1 == $field->get_setting( 'hours_24' );
+            $date_mode = $field->get_setting( 'date_mode' );
+        } elseif ( is_array( $field ) && isset ( $field[ 'settings' ] ) ) {
+            $hours_24 = isset ( $field[ 'settings' ][ 'hours_24' ] ) && 1 == $field[ 'settings' ][ 'hours_24' ];
+            $date_mode = isset ( $field[ 'settings' ][ 'date_mode' ] ) ? $field[ 'settings' ][ 'date_mode' ] : '';
+        }
+
+        return self::combine_value_parts( $field_value, $hours_24, $date_mode );
+    }
+
+    /**
+     * Combine a stored date value into the single string we display.
+     *
+     * A date field's submission is stored as separate date/hour/minute/ampm
+     * parts. Every surface that shows one - the submissions columns, CSV
+     * export, merge tags - needs the same combined string. Exposed statically
+     * so a date field nested inside a repeater, whose parts are stored under
+     * the repeater rather than as a field of its own, renders identically to
+     * one outside a repeater. See issue #7440.
+     *
+     * @param mixed $field_value Stored value: the parts array, or a plain string.
+     * @param bool $hours_24 Whether the field is configured for 24 hour time.
+     * @param string $date_mode 'date_only', 'date_and_time' or 'time_only'.
+     * @return string
+     */
+    public static function combine_value_parts( $field_value, $hours_24 = false, $date_mode = '' )
+    {
         if ( ! is_array( $field_value ) ) {
             return $field_value;
         }
 
-        // Get our date and time, the combine them into a string.
-        $date = isset ( $field_value[ 'date' ] ) ? $field_value[ 'date' ] : '';
-        $hour = isset ( $field_value[ 'hour' ] ) ? $field_value[ 'hour' ] : '';
-        $minute = isset ( $field_value[ 'minute' ] ) ? $field_value[ 'minute' ] : '';
-        $ampm = isset ( $field_value[ 'ampm' ] ) ? $field_value[ 'ampm' ] : '';
+        $date = isset ( $field_value[ 'date' ] ) ? trim( (string) $field_value[ 'date' ] ) : '';
+        $hour = isset ( $field_value[ 'hour' ] ) ? trim( (string) $field_value[ 'hour' ] ) : '';
+        $minute = isset ( $field_value[ 'minute' ] ) ? trim( (string) $field_value[ 'minute' ] ) : '';
+        $ampm = isset ( $field_value[ 'ampm' ] ) ? trim( (string) $field_value[ 'ampm' ] ) : '';
         $time = '';
 
-        if ( ! empty ( $hour ) && ! empty ( $minute ) ) {
-            $time = ' ' . $hour . ':' . $minute;
-            // Display an edit for am/pm if necessary
-            if ( 1 != $field->get_setting( 'hours_24' ) ) {
+        /*
+         * '00' is a legitimate hour and a legitimate minute. Testing for an
+         * empty string rather than using empty() keeps midnight and on-the-hour
+         * times, which were previously discarded along with their date.
+         */
+        if ( '' !== $hour && '' !== $minute ) {
+            $time = $hour . ':' . $minute;
+
+            // Display am/pm if necessary
+            if ( ! $hours_24 && '' !== $ampm ) {
                 $time .= ' ' . $ampm;
             }
         }
 
-        return $date . $time;
+        /*
+         * A time-only field inside a repeater stores the assembled time under
+         * the 'date' key as well as in the parts. Emit the time once.
+         */
+        if ( 'time_only' === $date_mode ) {
+            return '' !== $time ? $time : $date;
+        }
+
+        if ( '' === $date ) {
+            return $time;
+        }
+
+        return '' === $time ? $date : $date . ' ' . $time;
     }
 
     private function get_hours_options( $hour, $field )
@@ -263,31 +326,23 @@ class NF_Fields_Date extends NF_Fields_Textbox
             return $value;
         }
 
-        /**
-         * Explode our value at each ','.
-         * It'll be in a format like 01/05/2021,hour,minute,ampm.
-         */
-        
-        $exploded_value = explode( ',', $value );
-        
-        $date = $exploded_value[0];
-        $hour = $exploded_value[1];
-        $minute = $exploded_value[2];
-
-        $time = $hour . ':' . $minute;
-
-        if ( isset ( $exploded_value[3] ) ) {
-            $time .= ' ' . $exploded_value[3];
+        // Match the time suffix from the right: a long date can contain commas.
+        // Already assembled values (including time-only values) pass through.
+        if ( ! preg_match( '/^(.*),([0-9]{0,2}),([0-9]{0,2}),(am|pm|)$/s', $value, $parts )
+            && ! preg_match( '/^(.*),([0-9]{1,2}),([0-9]{1,2})$/s', $value, $parts ) ) {
+            return $value;
         }
 
-        if ( 'time_only' == $field[ 'settings' ][ 'date_mode' ] ) {
-            if($time === ':' && !strpos($value, ',')) {
-                return $value;
-            } else {
-                return $time;
-            } 
+        $date = $parts[1];
+        $time = ( '' !== $parts[2] || '' !== $parts[3] ) ? $parts[2] . ':' . $parts[3] : '';
+        if ( isset( $parts[4] ) && '' !== $parts[4] && '' !== $time ) {
+            $time .= ' ' . $parts[4];
         }
 
-        return $date . ' ' . $time;
+        if ( 'time_only' === $field['settings']['date_mode'] ) {
+            return $time;
+        }
+
+        return trim( $date . ' ' . $time );
     }
 }

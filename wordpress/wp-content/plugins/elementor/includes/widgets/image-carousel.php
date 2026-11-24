@@ -946,9 +946,9 @@ class Widget_Image_Carousel extends Widget_Base {
 			}
 
 			if ( $lazyload ) {
-				$image_html = '<img class="swiper-slide-image swiper-lazy" data-src="' . esc_attr( $image_url ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $attachment ) ) . '" />';
+				$image_html = '<img class="swiper-slide-image swiper-lazy" data-src="' . esc_url( $image_url ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $attachment ) ) . '" />';
 			} else {
-				$image_html = '<img class="swiper-slide-image" src="' . esc_attr( $image_url ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $attachment ) ) . '" />';
+				$image_html = '<img class="swiper-slide-image" src="' . esc_url( $image_url ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $attachment ) ) . '" />';
 			}
 
 			$link_tag = '';
@@ -1105,11 +1105,15 @@ class Widget_Image_Carousel extends Widget_Base {
 	private function get_image_caption( $attachment ) {
 		$caption_type = $this->get_settings_for_display( 'caption_type' );
 
-		if ( empty( $caption_type ) ) {
+		if ( empty( $caption_type ) || empty( $attachment['id'] ) ) {
 			return '';
 		}
 
 		$attachment_post = get_post( $attachment['id'] );
+
+		if ( ! $attachment_post ) {
+			return '';
+		}
 
 		if ( Utils::has_invalid_post_permissions( $attachment_post ) ) {
 			return '';
@@ -1142,5 +1146,25 @@ class Widget_Image_Carousel extends Widget_Base {
 		}
 
 		Icons_Manager::render_icon( $icon_settings, [ 'aria-hidden' => 'true' ] );
+	}
+
+	public function render_markdown(): string {
+		$settings = $this->get_settings_for_display();
+		if ( empty( $settings['carousel'] ) ) {
+			return '';
+		}
+		$images = [];
+		foreach ( $settings['carousel'] as $item ) {
+			$url = $item['url'] ?? '';
+			if ( empty( $url ) ) {
+				continue;
+			}
+			$alt = '';
+			if ( ! empty( $item['id'] ) ) {
+				$alt = get_post_meta( $item['id'], '_wp_attachment_image_alt', true );
+			}
+			$images[] = '![' . $alt . '](' . esc_url( $url ) . ')';
+		}
+		return implode( "\n\n", $images );
 	}
 }

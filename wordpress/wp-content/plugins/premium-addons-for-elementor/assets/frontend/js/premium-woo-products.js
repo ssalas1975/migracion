@@ -63,10 +63,7 @@
 				$(window).on("resize", self.handleGridMasonry);
 			}
 
-			// place product title above thumbnail.
-			if ($scope.hasClass("premium-woo-title-above-yes")) {
-				self.handleTitlePos();
-			}
+			self.handleTitlePos();
 
 			$(document).on("berocket_ajax_products_loaded", function () {
 				self.handleGalleryCarousel();
@@ -87,6 +84,10 @@
 		};
 
 		self.handleTitlePos = function () {
+			if (!$scope.hasClass("premium-woo-title-above-yes")) {
+				return;
+			}
+
 			var hasTitle =
 					$elem.find(".woocommerce-loop-product__title").length > 0
 						? true
@@ -566,6 +567,9 @@
 						}, 200);
 					}
 				},
+				error: function () {
+					$this.removeClass("adding").find(".premium-woo-cart-loader").remove();
+				},
 			});
 		};
 
@@ -703,6 +707,8 @@
 						$loadMoreBtn.data("products", newProductsLength);
 
 						$currentProducts.append(html);
+
+						self.handleTitlePos();
 
 						if ($elem.hasClass("premium-woo-products-masonry")) {
 							$currentProducts.isotope("reloadItems");

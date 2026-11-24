@@ -343,7 +343,7 @@ class Single implements PaymentsViewsInterface {
 				'payment_id_raw'      => $this->payment->id,
 				'status'              => $this->payment->status,
 				'status_label'        => $this->get_status_label(),
-				'disabled'            => $this->payment->status === 'refunded',
+				'disabled'            => $this->payment->status === 'refunded' || $this->is_trial_signup(),
 				'stat_cards'          => [
 					'total'  => [
 						'label'          => esc_html__( 'Total', 'wpforms-lite' ),
@@ -412,7 +412,7 @@ class Single implements PaymentsViewsInterface {
 				'gateway_action_link' => $this->get_gateway_action_link( 'cancel' ),
 				'payment_id_raw'      => $this->subscription->id,
 				'status'              => $this->subscription->subscription_status,
-				'status_label'        => ValueValidator::get_allowed_subscription_statuses()[ $this->subscription->subscription_status ],
+				'status_label'        => ValueValidator::get_allowed_subscription_statuses()[ $this->subscription->subscription_status ] ?? $this->subscription->subscription_status,
 				'disabled'            => in_array( $this->subscription->subscription_status, [ 'cancelled', 'completed' ], true ),
 				'stat_cards'          => [
 					'total'   => [
@@ -501,7 +501,7 @@ class Single implements PaymentsViewsInterface {
 		$allowed_intervals = ValueValidator::get_allowed_subscription_intervals();
 
 		if ( isset( $this->subscription_meta['subscription_period']->value, $allowed_intervals[ $this->subscription_meta['subscription_period']->value ] ) ) {
-			$amount   = wpforms_format_amount( wpforms_sanitize_amount( $this->payment->total_amount, $this->payment->currency ), true, $this->payment->currency );
+			$amount   = wpforms_format_amount( wpforms_sanitize_amount( $this->get_billed_amount(), $this->payment->currency ), true, $this->payment->currency );
 			$interval = $allowed_intervals[ $this->subscription_meta['subscription_period']->value ];
 
 			return "{$amount} / {$interval}";
@@ -542,7 +542,16 @@ class Single implements PaymentsViewsInterface {
 			$this->renewals[] = $this->subscription;
 		}
 
-		return count( $this->renewals );
+		// A trial signup is a payment record, but nothing was billed.
+		return count(
+			array_filter(
+				$this->renewals,
+				static function ( $row ) {
+
+					return strpos( (string) $row->transaction_id, 'seti_' ) !== 0;
+				}
+			)
+		);
 	}
 
 	/**
@@ -555,8 +564,9 @@ class Single implements PaymentsViewsInterface {
 	private function get_renewal_date() {
 
 		if (
-			$this->payment->subscription_status === 'cancelled'
-			|| $this->is_renewal_of_cancelled_subscription()
+			$this->is_renewal_of_finished_subscription()
+			|| in_array( $this->payment->subscription_status, $this->get_finished_subscription_statuses(), true )
+			|| $this->is_final_renewal_reached()
 		) {
 			return Helpers::get_placeholder_na_text( false );
 		}
@@ -570,24 +580,133 @@ class Single implements PaymentsViewsInterface {
 			'yearly'     => '+1 year',
 		];
 
+		// Until the first charge, the next payment is the one at the trial end.
+		if ( ! empty( $this->subscription_meta['subscription_trial_end']->value ) && ! $this->has_billed_renewal() ) {
+			return gmdate( 'M d, Y', (int) $this->subscription_meta['subscription_trial_end']->value );
+		}
+
 		if ( ! isset( $this->subscription_meta['subscription_period']->value, $converted_periods[ $this->subscription_meta['subscription_period']->value ] ) ) {
 			return '';
 		}
 
-		return gmdate( 'M d, Y', strtotime( $this->payment->date_updated_gmt . $converted_periods[ $this->subscription_meta['subscription_period']->value ] ) );
+		return gmdate( 'M d, Y', strtotime( $this->get_latest_subscription_payment_date() . $converted_periods[ $this->subscription_meta['subscription_period']->value ] ) );
 	}
 
 	/**
-	 * Is renewal of cancelled subscription.
+	 * Get the most recent billing date across the subscription and its renewals.
+	 *
+	 * The renewal date must reflect the latest billing in the subscription rather than the payment
+	 * currently being viewed, so it advances as renewals are processed regardless of which payment
+	 * page is open. The billing date is "date_created_gmt" (the Stripe period start), not
+	 * "date_updated_gmt" which only tracks when the row was last written.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return string GMT datetime string.
+	 */
+	private function get_latest_subscription_payment_date(): string {
+
+		$dates = [];
+
+		if ( ! empty( $this->subscription->date_created_gmt ) ) {
+			$dates[] = $this->subscription->date_created_gmt;
+		}
+
+		foreach ( $this->renewals as $renewal ) {
+			if ( ! empty( $renewal->date_created_gmt ) ) {
+				$dates[] = $renewal->date_created_gmt;
+			}
+		}
+
+		// Date strings in "Y-m-d H:i:s" format compare lexicographically as chronologically.
+		return $dates ? max( $dates ) : $this->payment->date_created_gmt;
+	}
+
+	/**
+	 * Whether the viewed payment is a trial signup: a saved card for a trialing subscription, nothing charged.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @return bool
+	 */
+	private function is_trial_signup(): bool {
+
+		return strpos( (string) $this->payment->transaction_id, 'seti_' ) === 0;
+	}
+
+	/**
+	 * Get the amount the viewed payment bills: a trial signup collected nothing, so it is the plan price.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @return string
+	 */
+	private function get_billed_amount(): string {
+
+		if ( (float) $this->payment->total_amount > 0 || empty( $this->subscription_meta['subscription_plan_amount']->value ) ) {
+			return (string) $this->payment->total_amount;
+		}
+
+		return (string) $this->subscription_meta['subscription_plan_amount']->value;
+	}
+
+	/**
+	 * Whether the subscription has had a renewal, i.e. a charge after the signup.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @return bool
+	 */
+	private function has_billed_renewal(): bool {
+
+		foreach ( $this->renewals as $row ) {
+			if ( $row->type === 'renewal' ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Is renewal of a finished (cancelled or completed) subscription.
 	 *
 	 * @since 1.8.4
 	 *
 	 * @return bool
 	 */
-	private function is_renewal_of_cancelled_subscription() {
+	private function is_renewal_of_finished_subscription(): bool {
 
 		return $this->payment->type === 'renewal'
-			&& $this->subscription->subscription_status === 'cancelled';
+			&& ! empty( $this->subscription )
+			&& in_array( $this->subscription->subscription_status, $this->get_finished_subscription_statuses(), true );
+	}
+
+	/**
+	 * Get subscription statuses that represent a finished subscription with no future renewal.
+	 *
+	 * @since 1.10.2
+	 *
+	 * @return string[]
+	 */
+	private function get_finished_subscription_statuses(): array {
+
+		return [ 'cancelled', 'completed' ];
+	}
+
+	/**
+	 * Whether the subscription's final renewal has already been billed.
+	 *
+	 * Limited-cycle subscriptions stay active until their scheduled end date, so the next renewal date
+	 * must read N/A once the last cycle is processed instead of pointing to a period that never bills.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return bool
+	 */
+	private function is_final_renewal_reached(): bool {
+
+		return ! empty( $this->subscription_meta['subscription_final_renewal']->value );
 	}
 
 	/**
@@ -871,8 +990,6 @@ class Single implements PaymentsViewsInterface {
 			$fields
 		);
 
-		add_filter( 'wp_kses_allowed_html', [ $this, 'modify_allowed_tags_payment_field_value' ], 10, 2 );
-
 		/**
 		 * Allow modifying the entry fields before rendering the entry details.
 		 *
@@ -906,8 +1023,6 @@ class Single implements PaymentsViewsInterface {
 			],
 			true
 		);
-
-		remove_filter( 'wp_kses_allowed_html', [ $this, 'modify_allowed_tags_payment_field_value' ] );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $entry_output;
@@ -959,9 +1074,9 @@ class Single implements PaymentsViewsInterface {
 				continue;
 			}
 
-			$field_value = isset( $field['value'] ) ? $field['value'] : '';
+			$field_value = wpforms_flatten_field_value( $field['value'] ?? '' );
 			/** This filter is documented in src/SmartTags/SmartTag/FieldHtmlId.php.*/
-			$prepared_fields[ $key ]['field_value'] = apply_filters( 'wpforms_html_field_value', wp_strip_all_tags( $field_value ), $field, $form_data, 'payment-single' );
+			$prepared_fields[ $key ]['field_value'] = apply_filters( 'wpforms_html_field_value', wpforms_neutralize_html_tags( $field_value ), $field, $form_data, 'payment-single' );
 			// phpcs:enable WPForms.PHP.ValidateHooks.InvalidHookName
 
 			$prepared_fields[ $key ]['field_class'] = sanitize_html_class( 'wpforms-field-' . $field_type );
@@ -975,7 +1090,7 @@ class Single implements PaymentsViewsInterface {
 				);
 
 			$is_empty_value    = wpforms_is_empty_string( $field_value );
-			$is_empty_quantity = isset( $field['quantity'] ) && ! $field['quantity'];
+			$is_empty_quantity = wpforms_payment_is_zero_quantity( $field );
 
 			if ( $is_empty_value ) {
 				$prepared_fields[ $key ]['field_value'] = esc_html__( 'Empty', 'wpforms-lite' );
@@ -993,24 +1108,18 @@ class Single implements PaymentsViewsInterface {
 	 * Allow additional tags for the wp_kses_post function.
 	 *
 	 * @since 1.8.2
+	 * @deprecated 2.0.1
 	 *
-	 * @param array  $allowed_html List of allowed HTML.
-	 * @param string $context      Context name.
+	 * @param array|mixed  $allowed_html List of allowed HTML.
+	 * @param string|mixed $context      Context name.
 	 *
 	 * @return array
 	 */
-	public function modify_allowed_tags_payment_field_value( $allowed_html, $context ) {
+	public function modify_allowed_tags_payment_field_value( $allowed_html, $context ): array {
 
-		if ( $context !== 'post' ) {
-			return $allowed_html;
-		}
+		_deprecated_function( __METHOD__, '2.0.1 of the WPForms plugin', 'wpforms_get_allowed_html_tags_for_entry_field_value()' );
 
-		$allowed_html['iframe'] = [
-			'data-src' => [],
-			'class'    => [],
-		];
-
-		return $allowed_html;
+		return wpforms_get_allowed_html_tags_for_entry_field_value( $allowed_html, (string) $context );
 	}
 
 	/**
@@ -1100,7 +1209,8 @@ class Single implements PaymentsViewsInterface {
 
 		switch ( $this->payment->gateway ) {
 			case 'stripe':
-				$link = 'payments/';
+				// A trial signup is a SetupIntent, which has its own dashboard page.
+				$link = $this->is_trial_signup() ? 'setup_intents/' : 'payments/';
 				break;
 
 			case 'paypal_standard':

@@ -62,7 +62,7 @@ class NF_Admin_UserDataRequests {
 	 */
 	function plugin_register_erasers( $erasers = array() ) {
 		$erasers[] = array(
-			'eraser_friendly_name' => esc_html__( 'Ninja Forms Submissions Data', 'ninja-forms' ),
+			'eraser_friendly_name' => esc_html__( 'Ninja Forms Submission Data', 'ninja-forms' ),
 			'callback'               => array( $this, 'plugin_user_data_eraser' ),
 		);
 		return $erasers;
@@ -115,15 +115,23 @@ class NF_Admin_UserDataRequests {
 						// make sure there is a value
 						if ( isset( $sub_meta[ '_field_' . $field_id ] ) ) {
 
+							$raw_value = $sub_meta[ '_field_' . $field_id ][ 0 ];
+
 							//multi-value fields may need to be unserialized
 							if( in_array( $field->get_setting( 'type' ),
 								array( 'listcheckbox', 'listmultiselect' ) ) ){
 
-								//implode the unserialized array
-								$value = implode( ',', maybe_unserialize(
-									$sub_meta[	'_field_' . $field_id ][ 0 ] ) );
+								// Safely unserialize without allowing object instantiation (PHP Object Injection prevention)
+								$value = is_serialized( $raw_value )
+									? unserialize( $raw_value, [ 'allowed_classes' => false ] )
+									: $raw_value;
+
+								// Only implode if the unserialized value is an array
+								if ( is_array( $value ) ) {
+									$value = implode( ',', $value );
+								}
 							} else {
-								$value = $sub_meta[	'_field_' . $field_id ][ 0 ];
+								$value = $raw_value;
 							}
 							// Add label/value pairs to data array
 							$data[] = array(

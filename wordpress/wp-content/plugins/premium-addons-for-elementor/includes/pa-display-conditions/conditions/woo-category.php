@@ -91,7 +91,7 @@ class Woo_Category extends Condition {
 		if ( 'in-cart' === $value ) {
 
 			if ( $cart->is_empty() ) {
-				return false;
+				return Helper_Functions::get_final_result( false, $operator );
 			}
 
 			foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
@@ -100,27 +100,27 @@ class Woo_Category extends Condition {
 
 				if ( $product->is_type( 'variation' ) ) {
 					$product = wc_get_product( $product->get_parent_id() );
+					if ( ! $product ) {
+						continue;
+					}
 				}
 
 				$product_cats = array_merge( $product_cats, $product->get_category_ids() );
 			}
-		} else {
+		} elseif ( is_user_logged_in() ) {
 
 			$args = array(
-				'numberposts' => -1,
-				'meta_key'    => '_customer_user',
-				'meta_value'  => get_current_user_id(),
-				'post_type'   => wc_get_order_types(),
-				'post_status' => array_keys( wc_get_is_paid_statuses() ),
+				'limit'       => -1,
+				'customer_id' => get_current_user_id(),
+				'status'      => wc_get_is_paid_statuses(),
 			);
 
-			$customer_orders = get_posts( $args );
+			$customer_orders = wc_get_orders( $args );
 
 			$product_ids = array();
 
 			foreach ( $customer_orders as $order ) {
 
-				$order = wc_get_order( $order->ID );
 				$items = $order->get_items();
 				foreach ( $items as $item ) {
 					$product_id    = $item->get_product_id();
@@ -129,14 +129,21 @@ class Woo_Category extends Condition {
 			}
 
 			foreach ( $product_ids as $id ) {
+				if ( $id < 1 ) {
+					continue;
+				}
+
 				$product = wc_get_product( $id );
 
-				if ( $id < 1 ) {
+				if ( ! $product ) {
 					continue;
 				}
 
 				if ( $product->is_type( 'variation' ) ) {
 					$product = wc_get_product( $product->get_parent_id() );
+					if ( ! $product ) {
+						continue;
+					}
 				}
 
 				$product_cats = array_merge( $product_cats, $product->get_category_ids() );

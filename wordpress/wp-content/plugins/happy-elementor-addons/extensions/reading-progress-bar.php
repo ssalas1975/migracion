@@ -32,10 +32,7 @@ class Reading_Progress_Bar {
 		add_action( 'elementor/kit/register_tabs', [ $this, 'init_site_settings' ], 1, 40 );
 
 		add_action( 'elementor/documents/register_controls', [$this, 'reading_progress_bar_controls'], 10 );
-        // add_action('elementor/preview/enqueue_scripts', [$this, 'enqueue_scripts']);
-        if ( !ha_elementor()->preview->is_preview_mode() ) {
-            add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts_frontend']);
-        }
+        add_action( 'wp_enqueue_scripts', [$this, 'register_scripts'] );
 		add_action( 'wp_footer', [$this, 'render_reading_progress_bar_html'] );
 
 	}
@@ -52,11 +49,11 @@ class Reading_Progress_Bar {
         }
     }
 
-    public function enqueue_scripts_frontend () {
+    public function register_scripts () {
         $suffix = ha_is_script_debug_enabled() ? '.' : '.min.';
         $extension_js = HAPPY_ADDONS_ASSETS . 'js/extension-reading-progress-bar' . $suffix . 'js';
 
-        wp_enqueue_script(
+        wp_register_script(
             'happy-reading-progress-bar',
             $extension_js,
             ['jquery'],
@@ -145,6 +142,10 @@ class Reading_Progress_Bar {
 		$single_enable = isset( $document_settings_data['ha_rpb_single_enable'] ) ? $document_settings_data['ha_rpb_single_enable'] : 'no' ;
 		$single_disable = isset( $document_settings_data['ha_rpb_single_disable'] ) ? $document_settings_data['ha_rpb_single_disable'] : 'no' ;
 
+		// Whitelist switcher values to prevent stored XSS via _elementor_page_settings
+		$single_enable = ( 'yes' === $single_enable ) ? 'yes' : 'no';
+		$single_disable = ( 'yes' === $single_disable ) ? 'yes' : 'no';
+
 		//render rbp
 		$reading_progress_is_enable = false;
 
@@ -221,12 +222,12 @@ class Reading_Progress_Bar {
 						return;
 					}
 
-					let rpbDefaultType = "<?php echo $progress_bar_type;  ?>";
+				let rpbDefaultType = "<?php echo esc_js( $progress_bar_type ); ?>";
 
-					// Check display on
-					let global_enable = "<?php echo $global_enable; ?>";
-					let single_enable = "<?php echo $single_enable; ?>";
-					let single_disable = "<?php echo $single_disable; ?>";
+				// Check display on
+				let global_enable = "<?php echo esc_js( $global_enable ); ?>";
+				let single_enable = "<?php echo esc_js( $single_enable ); ?>";
+				let single_disable = "<?php echo esc_js( $single_disable ); ?>";
 
 					if( global_enable == 'globally' ) {
 						if( single_disable !== 'yes' ) {
@@ -303,7 +304,7 @@ class Reading_Progress_Bar {
 
 							let changeValue = data.changeValue;
 							let changeItem = data.changeItem;
-							let rpbDefaultType = "<?php echo $progress_bar_type;  ?>";
+							let rpbDefaultType = "<?php echo esc_js( $progress_bar_type ); ?>";
 
 							// Check enable
 							if (changeItem[0] == 'ha_rpb_enable') {
@@ -331,8 +332,8 @@ class Reading_Progress_Bar {
 
 							// Check display on
 							if ( changeItem[0] == 'ha_rpb_apply_globally' ) {
-								let single_enable = "<?php echo $single_enable; ?>";
-								let single_disable = "<?php echo $single_disable; ?>";
+								let single_enable = "<?php echo esc_js( $single_enable ); ?>";
+								let single_disable = "<?php echo esc_js( $single_disable ); ?>";
 
 								if( changeValue == 'globally' ) {
 									if( single_disable !== 'yes' ) {
@@ -373,7 +374,7 @@ class Reading_Progress_Bar {
 									$('.hm-hrp-bar-container').css({'opacity':0, 'transition':'opacity 0.3s'});
 									$('.hm-vrp-bar-container').css({'opacity':1, 'transition':'opacity 0.3s'});
 									$('.hm-crp-wrapper').css({'opacity':0, 'transition':'opacity 0.3s'});
-									let vertical_position = "<?php echo $rpb_vertical_position; ?>";
+									let vertical_position = "<?php echo esc_js( $rpb_vertical_position ); ?>";
 									if(vertical_position == 'right') {
 										$('body').addClass('no-scroll');
 									} else {
@@ -474,6 +475,8 @@ class Reading_Progress_Bar {
 			if( ! $reading_progress_is_enable ) {
 				return;
 			}
+
+			wp_enqueue_script( 'happy-reading-progress-bar' );
 
 			if( 'circle' === $progress_bar_type ) { ?>
 				<div class="hm-crp-wrapper ha-reading-progress-bar" data-ha_rpbsettings="<?php echo esc_attr(json_encode($settings_data)); ?>">

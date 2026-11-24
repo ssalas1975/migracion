@@ -165,6 +165,16 @@ class CTA_Module extends Module_Base {
 						$stock_quantity = $child_product->get_stock_quantity();
 
 						if ( ( $quantity <= $stock_quantity ) || ( null === $stock_quantity ) ) {
+
+							if ( ! apply_filters( 'woocommerce_add_to_cart_validation', true, $child_id, $quantity ) ) {
+								wp_send_json_error(
+									array(
+										'message'     => 'Failed to add product to cart.',
+										'product_url' => get_permalink( $product_id ),
+									)
+								);
+							}
+
 							WC()->cart->add_to_cart( $child_id, $quantity );
 						} else {
 
@@ -200,6 +210,10 @@ class CTA_Module extends Module_Base {
 
 			if ( $variation_id ) {
 				$variation = wc_get_product( $variation_id );
+				if ( ! $variation ) {
+					wp_send_json_error( array( 'message' => 'Invalid variation.' ) );
+					return;
+				}
 				if ( ! $variation->is_in_stock() ) {
 					wp_send_json_error( array( 'message' => 'Selected variation is out of stock.' ) );
 					return;
@@ -209,6 +223,15 @@ class CTA_Module extends Module_Base {
 				$product_url    = $product ? get_permalink( $product_id ) : '';
 
 				if ( ( $quantity <= $stock_quantity ) || ( null === $stock_quantity ) ) {
+
+					if ( ! apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity, $variation_id, $attributes ) ) {
+						wp_send_json_error(
+							array(
+								'message'     => 'Failed to add product to cart.',
+								'product_url' => $product_url,
+							)
+						);
+					}
 
 					$added = WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $attributes );
 					if ( $added ) {
@@ -246,6 +269,16 @@ class CTA_Module extends Module_Base {
 
 			// Check if the stock quantity is set or is unlimited.
 			if ( ( $quantity <= $stock_quantity ) || ( null === $stock_quantity ) ) {
+
+				if ( ! apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, $quantity ) ) {
+					wp_send_json_error(
+						array(
+							'message'     => 'Failed to add product to cart.',
+							'product_url' => $product_url,
+						)
+					);
+				}
+
 				$added = WC()->cart->add_to_cart( $product_id, $quantity );
 				if ( $added ) {
 					wp_send_json_success(

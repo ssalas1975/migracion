@@ -22,12 +22,28 @@ class PS_Category_Lock {
     private static $woo_protected_form = '';
 
     /**
+     * Rendered form HTML to pass to the protected regular category template.
+     *
+     * @var string
+     */
+    private static $protected_form = '';
+
+    /**
      * Get the stored protected form HTML (used by the WooCommerce override template).
      *
      * @return string
      */
     public static function get_woo_protected_form() : string {
         return self::$woo_protected_form;
+    }
+
+    /**
+     * Get the stored protected form HTML (used by the regular category override template).
+     *
+     * @return string
+     */
+    public static function get_protected_form() : string {
+        return self::$protected_form;
     }
 
     /**
@@ -56,7 +72,10 @@ class PS_Category_Lock {
         add_action( 'wp_ajax_passster_quick_edit_category', array($this, 'ajax_quick_edit_category') );
         // Frontend protection.
         add_filter( 'the_content', array($this, 'filter_content_by_category'), 11 );
-        add_filter( 'get_the_excerpt', array($this, 'filter_content_by_category'), 11 );
+        add_filter( 'the_excerpt', array($this, 'filter_content_by_category'), 11 );
+        add_filter( 'render_block_core/post-excerpt', array($this, 'filter_content_by_category'), 11 );
+        add_filter( 'get_the_excerpt', array($this, 'filter_text_by_category'), 11 );
+        add_filter( 'the_content_feed', array($this, 'filter_text_by_category'), 11 );
         add_action( 'template_redirect', array($this, 'protect_category_archive') );
     }
 
@@ -68,6 +87,30 @@ class PS_Category_Lock {
      */
     public function use_protected_category_template( string $template ) : string {
         return plugin_dir_path( __FILE__ ) . 'templates/woo-category-protected.php';
+    }
+
+    /**
+     * Swap the archive template for the protected regular-category template (classic themes only).
+     *
+     * @param string $template Current template path.
+     * @return string
+     */
+    public function use_protected_regular_category_template( string $template ) : string {
+        return plugin_dir_path( __FILE__ ) . 'templates/category-protected.php';
+    }
+
+    /**
+     * Replace the core/query block output with the password form (FSE/block themes only).
+     *
+     * @param string $block_content Rendered block HTML.
+     * @param array  $block         Block data.
+     * @return string
+     */
+    public function replace_query_block_with_form( string $block_content, array $block ) : string {
+        if ( 'core/query' !== $block['blockName'] ) {
+            return $block_content;
+        }
+        return self::$protected_form;
     }
 
     /**
@@ -888,37 +931,110 @@ class PS_Category_Lock {
      * @return string
      */
     public function filter_content_by_category( $content ) {
-        // Skip admin, REST, and non-singular contexts.
-        if ( is_admin() || defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-            return $content;
-        }
-        // On category/taxonomy archives, template_include already handles protection.
-        // Skip here to avoid showing escaped shortcode HTML in post excerpts.
-        if ( is_category() || is_tax() ) {
-            return $content;
-        }
-        $post_id = get_the_id();
-        if ( !$post_id ) {
-            return $content;
-        }
-        // Skip if the post itself already has protection (PS_Public handles it).
-        $post_protection = get_post_meta( $post_id, 'passster_activate_protection', true );
-        if ( $post_protection ) {
-            return $content;
-        }
-        // Check each hierarchical taxonomy for protected terms.
-        $term_data = $this->get_protected_term_for_post( $post_id );
+        $term_data = $this->get_current_post_category_lock();
         if ( !$term_data ) {
             return $content;
         }
-        // Build atts and validate.
-        $atts = $this->build_atts_from_term( $term_data['term_id'] );
-        if ( PS_Conditional::is_valid( $atts ) ) {
-            return $content;
-        }
-        // Build shortcode and render form.
         $shortcode = $this->build_shortcode_from_term( $term_data['term_id'], $content );
         return do_shortcode( $shortcode );
+    }
+
+    /**
+     * Replace plain-text output (get_the_excerpt, feeds) of a category-locked post.
+     *
+     * @param string $text Excerpt or feed content.
+     * @return string
+     */
+    public function filter_text_by_category( $text ) {
+        return ( $this->get_current_post_category_lock() ? PS_Helper::get_protected_text() : $text );
+    }
+
+    /**
+     * @return array|null
+     */
+    private function get_current_post_category_lock() {
+        if ( is_admin() || $this->is_locked_archive() ) {
+            return null;
+        }
+        $post_id = get_the_id();
+        if ( !$post_id ) {
+            return null;
+        }
+        // Block editor previews read REST content; keep them unlocked for users who can edit the post.
+        if ( defined( 'REST_REQUEST' ) && REST_REQUEST && current_user_can( 'edit_post', $post_id ) ) {
+            return null;
+        }
+        return $this->get_active_category_lock( $post_id );
+    }
+
+    /**
+     * Whether protect_category_archive() already replaced the whole archive with the form.
+     * Feeds bypass template replacement, so each item still has to be locked there.
+     *
+     * @return bool
+     */
+    private function is_locked_archive() : bool {
+        if ( is_feed() || !is_category() && !is_tax() ) {
+            return false;
+        }
+        return '' !== self::$protected_form || '' !== self::$woo_protected_form;
+    }
+
+    /**
+     * Whether a protected term's schedule (Pro) currently applies.
+     *
+     * @param int $term_id Term ID.
+     * @return bool
+     */
+    private function is_term_in_schedule( int $term_id ) : bool {
+        return true;
+    }
+
+    /**
+     * Protected terms whose lock currently applies, grouped by taxonomy. Their descendants are locked too.
+     *
+     * @return array<string, int[]>
+     */
+    public function get_locked_term_ids() : array {
+        $taxonomies = $this->get_taxonomies();
+        if ( !$taxonomies ) {
+            return array();
+        }
+        $terms = get_terms( array(
+            'taxonomy'   => array_values( $taxonomies ),
+            'hide_empty' => false,
+            'meta_key'   => 'passster_activate_protection',
+        ) );
+        $locked = array();
+        foreach ( ( is_wp_error( $terms ) ? array() : $terms ) as $term ) {
+            if ( get_term_meta( $term->term_id, 'passster_activate_protection', true ) && $this->is_term_in_schedule( $term->term_id ) ) {
+                $locked[$term->taxonomy][] = (int) $term->term_id;
+            }
+        }
+        return $locked;
+    }
+
+    /**
+     * @param int $post_id Post ID.
+     * @return array|null
+     */
+    public function get_active_category_lock( int $post_id ) {
+        $post_protection = get_post_meta( $post_id, 'passster_activate_protection', true );
+        if ( $post_protection ) {
+            return null;
+        }
+        $term_data = $this->get_protected_term_for_post( $post_id );
+        if ( !$term_data ) {
+            return null;
+        }
+        if ( !$this->is_term_in_schedule( $term_data['term_id'] ) ) {
+            return null;
+        }
+        $atts = $this->build_atts_from_term( $term_data['term_id'] );
+        if ( PS_Conditional::is_valid( $atts ) ) {
+            return null;
+        }
+        return $term_data;
     }
 
     /**
@@ -959,14 +1075,7 @@ class PS_Category_Lock {
             return;
         }
         // Check the term itself and then its ancestors for protection.
-        $protected_term_id = null;
-        $ids_to_check = array_merge( array($term->term_id), get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) );
-        foreach ( $ids_to_check as $check_id ) {
-            if ( get_term_meta( $check_id, 'passster_activate_protection', true ) ) {
-                $protected_term_id = $check_id;
-                break;
-            }
-        }
+        $protected_term_id = $this->get_active_protected_term_id( $term );
         if ( !$protected_term_id ) {
             return;
         }
@@ -979,58 +1088,62 @@ class PS_Category_Lock {
         if ( PS_Conditional::is_valid( $atts ) ) {
             return;
         }
+        // A locked archive must not hand out its posts' URLs through WP 7.2 random content redirects.
+        add_filter( 'wp_enable_random_content_redirect', '__return_false' );
         // Check for redirect.
         $redirect = get_term_meta( $term->term_id, 'passster_redirect_url', true );
         if ( !empty( $redirect ) ) {
             wp_redirect( esc_url_raw( $redirect ) );
             exit;
         }
-        // Directly replace the main query's posts with a virtual post whose content is the password form.
         $shortcode = $this->build_shortcode_from_term( $term->term_id, '' );
+        $form_html = do_shortcode( $shortcode );
         // WooCommerce product category archives use their own template system and never
         // call the_content() on the main query posts, so the virtual-post trick doesn't work.
         // Instead, inject the form via WooCommerce's own template hooks and suppress the product loop.
         if ( class_exists( 'WooCommerce' ) && 'product_cat' === $term->taxonomy ) {
-            self::$woo_protected_form = do_shortcode( $shortcode );
+            self::$woo_protected_form = $form_html;
             // Replace WooCommerce's entire archive template with a minimal one that shows only the form.
             add_filter( 'template_include', array($this, 'use_protected_category_template'), 99 );
             return;
         }
-        global $wp_query;
-        $virtual = new \WP_Post((object) array(
-            'ID'                    => 0,
-            'post_author'           => 0,
-            'post_date'             => current_time( 'mysql' ),
-            'post_date_gmt'         => current_time( 'mysql', true ),
-            'post_content'          => $shortcode,
-            'post_title'            => '',
-            'post_excerpt'          => '',
-            'post_status'           => 'publish',
-            'comment_status'        => 'closed',
-            'ping_status'           => 'closed',
-            'post_password'         => '',
-            'post_name'             => 'passster-protected',
-            'to_ping'               => '',
-            'pinged'                => '',
-            'post_modified'         => current_time( 'mysql' ),
-            'post_modified_gmt'     => current_time( 'mysql', true ),
-            'post_content_filtered' => '',
-            'post_parent'           => 0,
-            'guid'                  => '',
-            'menu_order'            => 0,
-            'post_type'             => 'post',
-            'post_mime_type'        => '',
-            'comment_count'         => 0,
-            'filter'                => 'raw',
-        ));
-        $wp_query->posts = array($virtual);
-        $wp_query->post_count = 1;
-        $wp_query->found_posts = 1;
+        self::$protected_form = $form_html;
+        if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+            // FSE/block themes: let the block template render normally; replace only the
+            // core/query block (the post loop) with the password form. This preserves the
+            // theme's own header/footer block templates.
+            add_filter(
+                'render_block',
+                array($this, 'replace_query_block_with_form'),
+                10,
+                2
+            );
+        } else {
+            // Classic themes: swap the archive template for a minimal protected-category
+            // template that calls get_header()/get_footer() from the active theme.
+            add_filter( 'template_include', array($this, 'use_protected_regular_category_template'), 99 );
+        }
     }
 
     // -------------------------------------------------------------------------
     // Helper Methods
     // -------------------------------------------------------------------------
+    /**
+     * Check a term and its ancestors for active protection.
+     *
+     * @param \WP_Term $term Term to check (and walk up from).
+     * @return int|null The protected term ID (itself or an ancestor), or null if none.
+     */
+    public function get_active_protected_term_id( \WP_Term $term ) {
+        $ids_to_check = array_merge( array($term->term_id), get_ancestors( $term->term_id, $term->taxonomy, 'taxonomy' ) );
+        foreach ( $ids_to_check as $check_id ) {
+            if ( get_term_meta( $check_id, 'passster_activate_protection', true ) ) {
+                return $check_id;
+            }
+        }
+        return null;
+    }
+
     /**
      * Get the first protected term for a given post.
      *
@@ -1046,15 +1159,12 @@ class PS_Category_Lock {
             }
             foreach ( $terms as $term ) {
                 // Check the term itself, then walk up its ancestor chain.
-                $ids_to_check = array_merge( array($term->term_id), get_ancestors( $term->term_id, $taxonomy, 'taxonomy' ) );
-                foreach ( $ids_to_check as $check_id ) {
-                    $activate = get_term_meta( $check_id, 'passster_activate_protection', true );
-                    if ( $activate ) {
-                        return array(
-                            'term_id'  => $check_id,
-                            'taxonomy' => $taxonomy,
-                        );
-                    }
+                $protected_term_id = $this->get_active_protected_term_id( $term );
+                if ( $protected_term_id ) {
+                    return array(
+                        'term_id'  => $protected_term_id,
+                        'taxonomy' => $taxonomy,
+                    );
                 }
             }
         }
@@ -1084,18 +1194,18 @@ class PS_Category_Lock {
         $options = get_option( 'passster' );
         $shortcode = '[passster ';
         $password = get_term_meta( $term_id, 'passster_password', true );
-        $shortcode .= 'password="' . esc_attr( $password ) . '" ';
+        $shortcode .= 'password="' . PS_Helper::shortcode_attr( $password ) . '" ';
         $shortcode .= 'protection="full" ';
         $shortcode .= 'term_id="' . $term_id . '" ';
         // Redirect.
         $redirect = get_term_meta( $term_id, 'passster_redirect_url', true );
         if ( !empty( $redirect ) ) {
-            $shortcode .= 'redirect="' . esc_url( $redirect ) . '" ';
+            $shortcode .= 'redirect="' . PS_Helper::shortcode_attr( esc_url( $redirect ) ) . '" ';
         }
         // Overwrite defaults.
         $headline = get_term_meta( $term_id, 'passster_headline', true );
         if ( !empty( $headline ) ) {
-            $shortcode .= 'headline="' . esc_attr( $headline ) . '" ';
+            $shortcode .= 'headline="' . PS_Helper::shortcode_attr( $headline ) . '" ';
         }
         $instruction = get_term_meta( $term_id, 'passster_instruction', true );
         if ( !empty( $instruction ) ) {
@@ -1103,11 +1213,11 @@ class PS_Category_Lock {
         }
         $placeholder = get_term_meta( $term_id, 'passster_placeholder', true );
         if ( !empty( $placeholder ) ) {
-            $shortcode .= 'placeholder="' . esc_attr( $placeholder ) . '" ';
+            $shortcode .= 'placeholder="' . PS_Helper::shortcode_attr( $placeholder ) . '" ';
         }
         $button = get_term_meta( $term_id, 'passster_button', true );
         if ( !empty( $button ) ) {
-            $shortcode .= 'button="' . esc_attr( $button ) . '" ';
+            $shortcode .= 'button="' . PS_Helper::shortcode_attr( $button ) . '" ';
         }
         $shortcode .= ']' . $content . '[/passster]';
         return $shortcode;

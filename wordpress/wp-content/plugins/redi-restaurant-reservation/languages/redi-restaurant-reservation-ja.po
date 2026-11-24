@@ -12,14 +12,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _e;__\n"
-"X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-"
-"reservation\\trunk\n"
-"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-reservation\\trunk\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: redi-restaurant-reservation.php:872
 msgid " \"Min Persons\" should be lower than Max Persons"
@@ -82,20 +81,18 @@ msgid ""
 "is not generated yet to use the plugin. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>"
-"Pluginはアクティブですが、プラグインを使用するためのAPIキーがまだ生成されていません。シームレスな予約のためにセットアップウィザードを今すぐ調整します。</p"
-">%s"
+"<h3>ReDi Restaurant Reservation Plugin</h3> "
+"<p>Pluginはアクティブですが、プラグインを使用するためのAPIキーがまだ生成されていません。シームレスな予約のためにセットアップウィザードを今すぐ調整します。</p>%s"
 
 #. %s is the HTML link to the setup wizard.
 #: functions/notice.php:75
 #, php-format
 msgid ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
-"not created a page with reservation form. Finilize setup wizard now for "
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have"
+" not created a page with reservation form. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
-"<h3>ReDiレストラン予約プラグイン</h3>プラグイン<p>"
-"はアクティブですが、予約フォームのあるページを作成していません。シームレスな予約のためにセットアップウィザードを今すぐ調整します。</p>%s"
+"<h3>ReDiレストラン予約プラグイン</h3>プラグイン<p>はアクティブですが、予約フォームのあるページを作成していません。シームレスな予約のためにセットアップウィザードを今すぐ調整します。</p>%s"
 
 #. %s is the HTML link to the configuration page.
 #: functions/notice.php:98
@@ -106,21 +103,22 @@ msgid ""
 "seamless bookings. Visit the %1$s to finilize configuration and start "
 "impress your clients!</p> %2$s"
 msgstr ""
-"<p>プラグインをインストールしてから設定を変更していません。<b>ReDi レストラン予約プラグイン</b>"
-"のセットアップを整理して、シームレスな予約を実現します。%1$s にアクセスして構成を完成させ、クライアントに好印象を与えましょう!</p>%2$s秒"
+"<p>プラグインをインストールしてから設定を変更していません。<b>ReDi "
+"レストラン予約プラグイン</b>のセットアップを整理して、シームレスな予約を実現します。%1$s "
+"にアクセスして構成を完成させ、クライアントに好印象を与えましょう!</p>%2$s秒"
 
 #: templates/admin.php:122
 msgid ""
-"<strong>Attention</strong>: New settings are available for review and saving,"
-" please take a moment to update your preferences or fill out the required "
-"settings and click on the save button."
+"<strong>Attention</strong>: New settings are available for review and "
+"saving, please take a moment to update your preferences or fill out the "
+"required settings and click on the save button."
 msgstr ""
 "<strong>注意</strong>: 新しい設定は確認と保存が可能ですので、設定を更新するか、必要な設定を入力して保存ボタンをクリックしてください。"
 
 #: templates/frontend.php:338
 msgid ""
-"A confirmation email has been sent to you, should you not receive it, please "
-"rest assured that your booking has been received and is confirmed. If you "
+"A confirmation email has been sent to you, should you not receive it, please"
+" rest assured that your booking has been received and is confirmed. If you "
 "wish you may contact us by phone to confirm."
 msgstr ""
 "確認メールが送信されましたので、届かない場合は、予約が受信され、確認されていますのでご安心ください。ご希望の場合は、お電話にてご確認ください。"
@@ -151,8 +149,8 @@ msgstr "予約リクエストが承認されると、確認メールが送信さ
 #: templates/admin.php:230
 msgid ""
 "A pre-designed style requiring minimal customization for a polished look. "
-"Please note that this option is still in beta testing  and some features are "
-"not copied over from Default theme."
+"Please note that this option is still in beta testing  and some features are"
+" not copied over from Default theme."
 msgstr ""
 "洗練された外観のために最小限のカスタマイズを必要とする事前にデザインされたスタイル。このオプションはまだベータテスト中であり、一部の機能はデフォルトテーマからコピーされないことに注意してください。"
 
@@ -167,8 +165,8 @@ msgstr ""
 
 #: templates/admin.php:229
 msgid ""
-"Adapts to your website's theme, ensuring seamless integration. However, some "
-"adjustments may be needed to match your design preferences."
+"Adapts to your website's theme, ensuring seamless integration. However, some"
+" adjustments may be needed to match your design preferences."
 msgstr "Web サイトのテーマに適応し、シームレスな統合を保証します。ただし、デザインの好みに合わせていくつかの調整が必要になる場合があります。"
 
 #: redi-restaurant-reservation.php:2043
@@ -225,7 +223,8 @@ msgstr "プラグインに関する情報の送信を許可する"
 
 #: templates/admin.php:703
 msgid ""
-"Allow users to fill the Wait List when all time slots for the day are booked."
+"Allow users to fill the Wait List when all time slots for the day are "
+"booked."
 msgstr "その日のすべての時間枠が予約されたときに、ユーザーが待機リストに入力できるようにします。"
 
 #: templates/admin.php:702
@@ -240,7 +239,8 @@ msgstr "Whatsappを許可する"
 #: templates/admin.php:799
 msgid ""
 "Allows to show or hide comments section on the reservation form. Enabled by "
-"default. If you see that your guests misuse the comments section, disable it."
+"default. If you see that your guests misuse the comments section, disable "
+"it."
 msgstr ""
 "予約フォームのコメントセクションを表示または非表示にすることができます。デフォルトで有効になっています。ゲストがコメント欄を悪用していることがわかった場合は、コメント欄を無効にしてください。"
 
@@ -284,14 +284,14 @@ msgstr "Apiキー"
 
 #: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
 msgid ""
-"Apologies for the inconvenience, but we encountered an issue while trying to "
-"make your reservation. It seems there was a technical glitch on our end. Our "
-"team is actively working to resolve this issue. Please try again in a few "
-"minutes, and if the problem persists, feel free to reach out to our customer "
-"support for assistance. Additionally, if you could please send a screenshot "
-"of the error message to {emailLink}, it would greatly help us in diagnosing "
-"and resolving the issue more efficiently. We appreciate your patience and "
-"cooperation. Response:"
+"Apologies for the inconvenience, but we encountered an issue while trying to"
+" make your reservation. It seems there was a technical glitch on our end. "
+"Our team is actively working to resolve this issue. Please try again in a "
+"few minutes, and if the problem persists, feel free to reach out to our "
+"customer support for assistance. Additionally, if you could please send a "
+"screenshot of the error message to {emailLink}, it would greatly help us in "
+"diagnosing and resolving the issue more efficiently. We appreciate your "
+"patience and cooperation. Response:"
 msgstr ""
 "お手数ですが、ご予約中に問題が発生しました。私たち側に技術的な不具合があったようです。私たちのチームは、この問題の解決に積極的に取り組んでいます。数分後にもう一度お試しいただき、問題が解決しない場合は、お気軽にカスタマー"
 " サポートにお問い合わせください。さらに、エラー メッセージのスクリーンショットを {emailLink} "
@@ -345,7 +345,8 @@ msgstr "予約ページに戻る"
 msgid "Basic package functionality (paid version)"
 msgstr "パッケージの基本機能(有料版)"
 
-#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+#: templates/admin_welcome_no_key.php:32
+#: templates/admin_welcome_no_page.php:28
 msgid "Below is your API Key, please use it when you ask for a support. "
 msgstr "以下はAPIキーですので、サポートを依頼する際にご利用ください。"
 
@@ -360,8 +361,8 @@ msgstr "誕生日(dd/mm)"
 #: templates/basicpackage.php:44
 msgid ""
 "Blocked Time. Define time range when online reservation should not be "
-"accepted. Specify a reason why reservations are not accepted at this time to "
-"keep your clients happy."
+"accepted. Specify a reason why reservations are not accepted at this time to"
+" keep your clients happy."
 msgstr ""
 "ブロックされた時間。オンライン予約を受け付けない時間範囲を定義します。現時点で予約を受け付けない理由を明記して、クライアントを満足させてください。"
 
@@ -646,7 +647,8 @@ msgstr "確認メールを無効にする"
 msgid "Disabled"
 msgstr "無効"
 
-#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+#: redi-restaurant-reservation-api.php:447
+#: redi-restaurant-reservation.php:2607
 msgid "Discount"
 msgstr "割引"
 
@@ -657,11 +659,10 @@ msgstr "左席の表示"
 #: templates/admin.php:664
 msgid ""
 "Displays the available time with time step to the clients. For instance, if "
-"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
-"30, etc."
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, "
+"10:30, etc."
 msgstr ""
-"クライアントに時間ステップを含む利用可能な時間を表示します。たとえば、15分のタイムステップを選択した場合、代替時間は10:00、10:15、10:"
-"30などになります。"
+"クライアントに時間ステップを含む利用可能な時間を表示します。たとえば、15分のタイムステップを選択した場合、代替時間は10:00、10:15、10:30などになります。"
 
 #: templates/admin.php:701
 msgid "Do not allow guests to fill the Wait List form."
@@ -675,8 +676,8 @@ msgstr "クライアントが前回の訪問についてどう思っているか
 
 #: templates/basicpackage.php:70
 msgid ""
-"Do you want to write your own module? We have an API. Contact us to get more "
-"information."
+"Do you want to write your own module? We have an API. Contact us to get more"
+" information."
 msgstr "独自のモジュールを書きたいですか?APIがあります。詳細については、お問い合わせください。"
 
 #: templates/admin_welcome.php:27
@@ -685,8 +686,9 @@ msgid ""
 "the setup process? Sign up for a free personalized assistance call – our "
 "team is here to help you get started smoothly."
 msgstr ""
-"プラグインがどのように機能するかを掘り下げたり、セットアップ プロセスを理解したりするのに時間を費やしたくありませんか?"
-"無料のパーソナライズされたサポートコールにサインアップしてください – 私たちのチームが、スムーズに始めるお手伝いをします。"
+"プラグインがどのように機能するかを掘り下げたり、セットアップ "
+"プロセスを理解したりするのに時間を費やしたくありませんか?無料のパーソナライズされたサポートコールにサインアップしてください – "
+"私たちのチームが、スムーズに始めるお手伝いをします。"
 
 #: templates/frontend_v2.php:97
 msgid "Done!"
@@ -707,8 +709,8 @@ msgstr "期間"
 #: templates/admin_ajaxed.php:449
 msgid ""
 "Duration of reservation in minutes. This is the time allocated for each "
-"reservation so the reservation system can calculate availability. Enter here "
-"average time that guests stays in."
+"reservation so the reservation system can calculate availability. Enter here"
+" average time that guests stays in."
 msgstr ""
 "予約期間(分単位)。これは、予約システムが空き時間を計算できるように、各予約に割り当てられた時間です。ゲストが滞在する平均時間をここに入力してください。"
 
@@ -805,9 +807,9 @@ msgstr "[子の有効化/無効化] ドロップダウン"
 #: templates/basicpackage.php:61
 msgid ""
 "Enhance your business experience by using our Facebook integration service "
-"where we try to provide you with profile pictures of your customers if found."
-" You can amaze your customer by knowing him by face when he visits you, "
-"especially at the time of first visit."
+"where we try to provide you with profile pictures of your customers if "
+"found. You can amaze your customer by knowing him by face when he visits "
+"you, especially at the time of first visit."
 msgstr ""
 "Facebook統合サービスを使用して、顧客のプロフィール写真が見つかった場合は提供しようとします。顧客があなたを訪問するとき、特に最初の訪問時に顔で知ることで、顧客を驚かせることができます。"
 
@@ -853,11 +855,10 @@ msgstr "フィールドタイプ"
 #: functions/notice.php:137
 #, php-format
 msgid ""
-"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
-"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to"
+" impress your clients, make a test reservation. <b>%1$s</b>%2$s"
 msgstr ""
-"最後に、<b>ReDiレストラン予約プラグイン</b>"
-"のセットアップの最後のステップは、クライアントに好印象を与えるために、テスト予約を行うことです。<b>%1$s</b>%2$s"
+"最後に、<b>ReDiレストラン予約プラグイン</b>のセットアップの最後のステップは、クライアントに好印象を与えるために、テスト予約を行うことです。<b>%1$s</b>%2$s"
 
 #: redi-restaurant-reservation.php:2073
 msgid "Find Reservation"
@@ -894,7 +895,8 @@ msgid ""
 "Form security check failed with error: Nonce check failed. Reservation form "
 "is not working today, please contact us directly."
 msgstr ""
-"フォームのセキュリティチェックがエラーで失敗しました: Nonce チェックに失敗しました。本日は予約フォームが使えませんので、直接お問い合わせください。"
+"フォームのセキュリティチェックがエラーで失敗しました: Nonce "
+"チェックに失敗しました。本日は予約フォームが使えませんので、直接お問い合わせください。"
 
 #: templates/admin.php:126
 msgid "Free package settings"
@@ -951,9 +953,8 @@ msgid ""
 "confirmation. Try it out today and see the difference it can make in just a "
 "few clicks!"
 msgstr ""
-"<strong>ReDi Restaurant Reservationプラグイン</strong>でレストランビジネスを盛り上げましょう!"
-"当社のプラグインは予約プロセスを簡素化し、クライアントがオンラインで簡単に予約できるようにします。<strong>即時予約確認</strong>"
-"とカスタマイズ可能な設定により、予約管理がかつてないほど簡単になりました。手動で予約を確認する煩わしさに別れを告げ、自動確認の利便性を手に入れましょう。今すぐ試して、数回クリックするだけでその違いを確認してください。"
+"<strong>ReDi Restaurant "
+"Reservationプラグイン</strong>でレストランビジネスを盛り上げましょう!当社のプラグインは予約プロセスを簡素化し、クライアントがオンラインで簡単に予約できるようにします。<strong>即時予約確認</strong>とカスタマイズ可能な設定により、予約管理がかつてないほど簡単になりました。手動で予約を確認する煩わしさに別れを告げ、自動確認の利便性を手に入れましょう。今すぐ試して、数回クリックするだけでその違いを確認してください。"
 
 #: templates/basicpackage.php:92
 msgid "Getting discovered on Google, Apple, Facebook, and more"
@@ -1008,9 +1009,9 @@ msgstr "プライバシーポリシーに同意します"
 
 #: templates/admin.php:858
 msgid ""
-"If checkbox is checked then reservations will not be automatically confirmed."
-" You will receive email with reservation request and each reservation needs "
-"to be confirmed or rejected manually."
+"If checkbox is checked then reservations will not be automatically "
+"confirmed. You will receive email with reservation request and each "
+"reservation needs to be confirmed or rejected manually."
 msgstr ""
 "チェックボックスにチェックを入れると、予約は自動的に確定されません。予約リクエストが記載されたメールが届きますが、各予約は手動で確認または拒否する必要があります。"
 
@@ -1024,8 +1025,8 @@ msgid ""
 "If checkbox is checked, a logo of <b>\"Powered by ReservationDiary.eu\"</b> "
 "is displayed. Thank you for supporting us."
 msgstr ""
-"チェックボックスにチェックを入れると、「<b>Powered by ReservationDiary.eu」</b>"
-"のロゴが表示されます。応援していただきありがとうございます。"
+"チェックボックスにチェックを入れると、「<b>Powered by "
+"ReservationDiary.eu」</b>のロゴが表示されます。応援していただきありがとうございます。"
 
 #: templates/admin.php:466
 msgid ""
@@ -1054,8 +1055,8 @@ msgstr "すでに API キーをお持ちの場合は、この手順をスキッ�
 #: templates/admin.php:913
 msgid ""
 "If you want to customize confirmation page or have a separated page for "
-"marketing purposes, then select custom reservation confirmation page. If not "
-"specified, then built in confirmation page will be used."
+"marketing purposes, then select custom reservation confirmation page. If not"
+" specified, then built in confirmation page will be used."
 msgstr ""
 "確認ページをカスタマイズする場合、またはマーケティング目的でページを分離する場合は、カスタム予約確認ページを選択します。指定しない場合は、組み込みの確認ページが使用されます。"
 
@@ -1067,11 +1068,11 @@ msgstr "新しい機能を追加したい場合、またはその他の質問が
 
 #: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
 msgid ""
-"In case you need to show it in multiple languages, then use following format "
-"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+"In case you need to show it in multiple languages, then use following format"
+" [locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 msgstr ""
-"複数の言語で表示する必要がある場合は、次の形式 [locale]Text[/locale] を使用します。例: [en_US]Text[/en_US]"
-"[es_ES]Texto[/es_ES]"
+"複数の言語で表示する必要がある場合は、次の形式 [locale]Text[/locale] を使用します。例: "
+"[en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 
 #: templates/frontend_v2.php:468
 msgid ""
@@ -1079,24 +1080,24 @@ msgid ""
 "this day, please fill <a  href=\"#\" class=\"link-waitlist-form\">this "
 "form</a>."
 msgstr ""
-"この日の予約をキャンセルした際に通知をご希望の場合は、 <a href=\"#\" class=\"link-waitlist-form\">"
-"こちらのフォーム</a>にご記入ください。"
+"この日の予約をキャンセルした際に通知をご希望の場合は、 <a href=\"#\" class=\"link-waitlist-"
+"form\">こちらのフォーム</a>にご記入ください。"
 
 #: templates/frontend.php:199 templates/frontend.php:381
 msgid ""
 "In case you would like to be notified when someone cancels reservation for "
 "this day, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
-"この日の予約をキャンセルした際に通知をご希望の場合は、 <a class=\"link-waitlist-form\">こちらのフォーム</a>"
-"にご記入ください。"
+"この日の予約をキャンセルした際に通知をご希望の場合は、 <a class=\"link-waitlist-"
+"form\">こちらのフォーム</a>にご記入ください。"
 
 #: templates/frontend.php:369
 msgid ""
 "In case you would like to be notified when someone cancels reservation for "
 "this time, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
-"この時期の予約をキャンセルされたときに通知をご希望の場合は、 <a class=\"link-waitlist-form\">こちらのフォーム</a>"
-"にご記入ください。"
+"この時期の予約をキャンセルされたときに通知をご希望の場合は、 <a class=\"link-waitlist-"
+"form\">こちらのフォーム</a>にご記入ください。"
 
 #: templates/admin.php:914
 msgid ""
@@ -1508,14 +1509,14 @@ msgstr "現在、オンライン予約サービスはご利用いただけませ
 #: redi.php:283
 #, php-format
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"%s"
+"Online reservation service is not available at this time. Try again later or"
+" %s"
 msgstr "現在、オンライン予約サービスはご利用いただけません。後で再試行するか、%s"
 
 #: redi-restaurant-reservation.php:2104
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"contact us directly."
+"Online reservation service is not available at this time. Try again later or"
+" contact us directly."
 msgstr "現在、オンライン予約サービスはご利用いただけません。後でもう一度お試しいただくか、直接お問い合わせください。"
 
 #: templates/admin_ajaxed.php:348
@@ -1531,10 +1532,6 @@ msgid ""
 "Open times. This option will enable you to choose between various working "
 "hours whichever is most convenient to you."
 msgstr "営業時間。このオプションを使用すると、さまざまな労働時間から最も都合の良い方を選択できます。"
-
-#: templates/basicpackage.php:37
-msgid "Open upcoming reservations"
-msgstr "今後の予約を受付中"
 
 #: templates/admin_ajaxed.php:621
 msgid "Option"
@@ -1610,12 +1607,6 @@ msgstr "電話番号は必須です"
 msgid "Place"
 msgstr "場所"
 
-#: templates/basicpackage.php:53
-msgid ""
-"Please allow 1 business day for us to confirm your payment and upgrade your "
-"account."
-msgstr "お支払いの確認とアカウントのアップグレードまで1営業日かかります。"
-
 #: templates/admin.php:232
 msgid ""
 "Please contact info@reservationdiary.eu for any issues or missing features "
@@ -1638,7 +1629,8 @@ msgstr "有効なメールアドレスを入力してください"
 msgid "Please provide a reason for cancellation"
 msgstr "キャンセルの理由をお知らせください"
 
-#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+#: templates/admin_welcome_no_key.php:37
+#: templates/admin_welcome_no_page.php:33
 msgid "Please provide your API Key in order to continue using plugin"
 msgstr "プラグインを引き続き使用するには、APIキーを入力してください"
 
@@ -1669,11 +1661,11 @@ msgstr "「月間宿泊者予約限度額」から金額をお選びください
 #: templates/admin.php:841
 msgid ""
 "Please verify you current time. This is important as this time is taken and "
-"used in reservation logic. In case time is differnet than your current time, "
-"please change time zone in Settings -> General -> Time Zone"
+"used in reservation logic. In case time is differnet than your current time,"
+" please change time zone in Settings -> General -> Time Zone"
 msgstr ""
-"現在の時刻を確認してください。この時間は予約ロジックで取得され、使用されるため、これは重要です。現在の時刻と時刻が異なる場合は、[設定] -> [一般] "
-"-> [タイムゾーン] でタイムゾーンを変更してください。"
+"現在の時刻を確認してください。この時間は予約ロジックで取得され、使用されるため、これは重要です。現在の時刻と時刻が異なる場合は、[設定] -> [一般]"
+" -> [タイムゾーン] でタイムゾーンを変更してください。"
 
 #: templates/admin_welcome.php:22
 msgid "Plugin Documentation"
@@ -1727,7 +1719,7 @@ msgid "Rate your reservation experience"
 msgstr "予約体験を評価する"
 
 #: templates/admin.php:223 templates/admin.php:231
-msgid "React 25 theme (BETA)"
+msgid "React 25 theme"
 msgstr "React 25 テーマ (ベータ版)"
 
 #: templates/admin.php:1026 templates/cancel.php:40
@@ -1760,30 +1752,23 @@ msgstr "レディレストラン予約"
 
 #: redi-restaurant-reservation.php:793
 msgid ""
-"ReDi Restaurant Reservation plugin could not get an API key from the "
-"reservationdiary.eu server when it activated.\n"
-"                        <br/> You can try to fix this by going to the ReDi "
-"Restaurant Reservation \"options\" page.\n"
-"                        <br/>This will cause ReDi Restaurant Reservation "
-"plugin to retry fetching an API key for you.\n"
-"                        <br/>If you keep seeing this error it usually means "
-"that server where you host your web site can't connect to our "
-"reservationdiary.eu server.\n"
-"                        <br/>You can try asking your WordPress host to allow "
-"your WordPress server to connect to api.reservationdiary.eu\n"
-"                        <br/>In case you can not solve this problem yourself,"
-" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"ReDi Restaurant Reservation plugin could not get an API key from the reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means that server where you host your web site can't connect to our reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself, please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 msgstr ""
 "ReDi Restaurant Reservationプラグインは、アクティベート時に reservationdiary.eu "
 "サーバーからAPIキーを取得できませんでした。                        <br/> ReDi "
 "レストラン予約の「オプション」ページにアクセスして、これを修正できます。                        <br/>これにより、ReDi "
-"Restaurant ReservationプラグインはAPIキーの取得を再試行します。                        <br/>"
-"このエラーが引き続き表示される場合は、通常、Web サイトをホストしているサーバーが reservationdiary.eu "
-"サーバーに接続できないことを意味します。                        <br/>"
-"WordPressホストに、WordPressサーバーが api.reservationdiary.eu に接続できるように依頼してみてください     "
-"                   <br/>ご自身で解決できない場合は、 <a href=\"mailto:"
-"info@reservationdiary.eu\">直接お問い合わせください info@reservationdiary.eu</a>"
+"Restaurant ReservationプラグインはAPIキーの取得を再試行します。                        "
+"<br/>このエラーが引き続き表示される場合は、通常、Web サイトをホストしているサーバーが reservationdiary.eu "
+"サーバーに接続できないことを意味します。                        "
+"<br/>WordPressホストに、WordPressサーバーが api.reservationdiary.eu "
+"に接続できるように依頼してみてください                        <br/>ご自身で解決できない場合は、 <a "
+"href=\"mailto:info@reservationdiary.eu\">直接お問い合わせください "
+"info@reservationdiary.eu</a>"
 
 #: templates/admin_welcome.php:15
 msgid "ReDi restaurant reservation plugin is ready to use"
@@ -1928,7 +1913,8 @@ msgstr "予約制限"
 msgid "Reservation settings"
 msgstr "予約設定"
 
-#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+#: redi-restaurant-reservation-api.php:350
+#: redi-restaurant-reservation.php:2765
 msgid "Reservation that is canceled can not be modified."
 msgstr "キャンセルされた予約は変更できません。"
 
@@ -2024,8 +2010,8 @@ msgstr "選択した日付または時刻が無効です。"
 
 #: templates/admin.php:340
 msgid ""
-"Selecting this option, the calendar is set to popup when the user clicks the "
-"calendar control."
+"Selecting this option, the calendar is set to popup when the user clicks the"
+" calendar control."
 msgstr "このオプションを選択すると、ユーザーが予定表コントロールをクリックしたときに予定表がポップアップするように設定されます。"
 
 #: templates/basicpackage.php:46
@@ -2121,9 +2107,9 @@ msgstr "特別リクエスト(オプション)"
 
 #: templates/admin_ajaxed.php:470
 msgid ""
-"Specify how late customers can make their booking in hours. For example, the "
-"current time is 10:00 and this setting is set to 3 hours then the first time,"
-" when the reservation will be accepted is 13:00."
+"Specify how late customers can make their booking in hours. For example, the"
+" current time is 10:00 and this setting is set to 3 hours then the first "
+"time, when the reservation will be accepted is 13:00."
 msgstr ""
 "顧客が予約できる遅刻時間を指定します。たとえば、現在の時刻が 10:00 で、この設定が 3 時間に設定されている場合、予約が受付される最初の時刻は "
 "13:00 です。"
@@ -2136,7 +2122,8 @@ msgstr "時刻を 24 時間形式 (00:00 - 23:59) で指定します。"
 msgid ""
 "Status must be \"cancelled\", and personal_information and "
 "cancellation_reason are required."
-msgstr "ステータスは「キャンセル済み」である必要があり、personal_informationとcancellation_reasonが必要です。"
+msgstr ""
+"ステータスは「キャンセル済み」である必要があり、personal_informationとcancellation_reasonが必要です。"
 
 #: templates/admin_ajaxed.php:325
 msgid ""
@@ -2146,9 +2133,7 @@ msgid ""
 "and suggestions to enhance your experience with our plugin. Don't miss out "
 "on the latest features and improvements – opt in now!"
 msgstr ""
-"最新情報を入手してください!"
-"購読すると、プラグインに関連する貴重な最新情報、ヒント、推奨事項を受け取ることができます。このボックスにチェックを入れると、重要なお知らせ、役立つ洞察、プラグインのエクスペリエンスを向上させるための提案が記載された電子メールを不定期に受信することに同意したことになります。最新の機能と改善点をお見逃しなく、今すぐオプトインしてください"
-"!"
+"最新情報を入手してください!購読すると、プラグインに関連する貴重な最新情報、ヒント、推奨事項を受け取ることができます。このボックスにチェックを入れると、重要なお知らせ、役立つ洞察、プラグインのエクスペリエンスを向上させるための提案が記載された電子メールを不定期に受信することに同意したことになります。最新の機能と改善点をお見逃しなく、今すぐオプトインしてください!"
 
 #: templates/frontend.php:49 templates/frontend.php:68
 #: templates/frontend.php:217 templates/frontend.php:240
@@ -2201,8 +2186,8 @@ msgid ""
 "guests find a table! We hope to see you back soon. Would you like to make "
 "another reservation for a different date?"
 msgstr ""
-"キャンセルについてお知らせいただきありがとうございます - これは他のゲストがテーブルを見つけるのに役立ちます!"
-"近いうちにお会いできることを楽しみにしています。別の日付に再度予約したいですか?"
+"キャンセルについてお知らせいただきありがとうございます - "
+"これは他のゲストがテーブルを見つけるのに役立ちます!近いうちにお会いできることを楽しみにしています。別の日付に再度予約したいですか?"
 
 #: functions/feedback.php:89
 msgid "Thank you for your feedback."
@@ -2277,8 +2262,8 @@ msgstr "日付形式が日付コントロールに表示される方法。さま
 
 #: templates/admin.php:882
 msgid ""
-"The way you want confirmation email to be delivered to the client. It can be "
-"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"The way you want confirmation email to be delivered to the client. It can be"
+" \"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
 "SMTP\" or \"Disable confirmation email\"."
 msgstr ""
 "確認メールをクライアントに配信する方法。「WordPressメールアカウントから」、「reservationdiary.eu "
@@ -2300,15 +2285,6 @@ msgstr "この時期の予約はこれ以上できません。"
 #: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1899
 msgid "There are no more reservations can be made for selected day."
 msgstr "選択した日の予約はこれ以上できません。"
-
-#: templates/admin_ajaxed.php:105
-msgid ""
-"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
-"short code for specifying the place of reservation in case of multiple "
-"restaurants. <br/>Example of shortcode:"
-msgstr ""
-"この <b>ID</b> は、あなたの場所に関連付けられています。<b>ID</b>"
-"は、複数のレストランの場合に予約場所を指定するための短縮コードとして使用できます。<br/>ショートコードの例:"
 
 #: redi-restaurant-reservation.php:2033
 msgid "This date is in the past and cannot be selected"
@@ -2335,15 +2311,15 @@ msgstr "このフィールドでは、時間ピッカーの表示方法を選択
 #: templates/admin.php:543
 msgid ""
 "This is how the available time will be shown. This setting is taken from "
-"generic WordPress settings. You can change it in Settings -> General -> Time "
-"Format"
+"generic WordPress settings. You can change it in Settings -> General -> Time"
+" Format"
 msgstr ""
 "これは、利用可能な時間の表示方法です。この設定は、一般的なWordPress設定から取得されます。設定 -> 一般 -> 時間形式で変更できます"
 
 #: templates/admin_ajaxed.php:413
 msgid ""
-"This is the number of maximum persons in restaurant at any time. System will "
-"check automatically availability of free seats and will not allow to go "
+"This is the number of maximum persons in restaurant at any time. System will"
+" check automatically availability of free seats and will not allow to go "
 "beyond this number."
 msgstr "これは、レストランの常時の最大人数です。システムは自動的に空席状況を確認し、この数を超えることはできません。"
 
@@ -2401,8 +2377,8 @@ msgstr "タイムシフトモード"
 msgid ""
 "To schedule your session, simply click the image below: We provide "
 "complimentary one-on-one assistance for plugin setup. You can book a call "
-"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
-"Links are below."
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp."
+" Links are below."
 msgstr ""
 "セッションをスケジュールするには、下の画像をクリックしてください。プラグインのセットアップに関する無料の 1 対 1 "
 "のサポートを提供します。Calendly を通じて当社との通話を予約するか、Skype、Facebook または Whatsapp "
@@ -2427,8 +2403,8 @@ msgstr "火"
 #: redi-restaurant-reservation-api.php:341
 msgid ""
 "Unable to find reservation with provided information. Please verify that "
-"provided reservation number and personal information (email, phone, or name) "
-"is correct."
+"provided reservation number and personal information (email, phone, or name)"
+" is correct."
 msgstr "提供された情報で予約が見つかりません。ご入力いただいた予約番号と個人情報(メールアドレス、電話番号、氏名)が正しいかご確認ください。"
 
 #: redi-restaurant-reservation.php:2757
@@ -2482,16 +2458,15 @@ msgstr "ReDi Restaurant Reservationsプラグインのヘルプドキュメン�
 
 #: templates/basicpackage.php:35
 msgid ""
-"View your upcoming reservations from your Mobile/Tablet PC and never miss "
-"your customer. This page should be open on a Tablet PC and so hostess can "
-"see all upcoming reservations for today. Page refreshes every 15 min and "
-"shows reservations that in past for 3 hours as well as upcoming reservations "
-"for next 24 hours. By clicking on reservation you will see reservation "
-"details. Demo version can be accessed for 30 days using this link: "
+"Open Host Dashboard from your mobile or tablet and never miss a guest. Keep "
+"this page open on a tablet so the host can see all reservations for today. "
+"The page refreshes every 15 min and shows reservations from the past 3 hours"
+" as well as the next 24 hours. Click a reservation to see its details. A "
+"demo can be accessed for 30 days using this link: "
 msgstr ""
-"モバイル/タブレットPCから今後の予約を表示し、顧客を見逃すことはありません。このページはタブレットPCで開くので、ホステスは今日の予約をすべて確認できます。ページは"
-" 15 分ごとに更新され、過去 3 時間の予約と、次の 24 "
-"時間の今後の予約が表示されます。予約をクリックすると、予約の詳細が表示されます。デモ版は、次のリンクを使用して 30 日間アクセスできます。"
+"スマホやタブレットで Host Dashboard "
+"を開き、お客様を逃さないでください。ホストが本日の予約を見られるよう、タブレットでこのページを開いたままにしてください。15分ごとに更新され、過去3時間と今後24時間の予約が表示されます。予約をタップすると詳細が見られます。30日間のデモはこのリンクから:"
+" "
 
 #: templates/confirm.php:3
 msgid "Visit confirmation"
@@ -2518,8 +2493,14 @@ msgid "Wait List Setting"
 msgstr "ウェイティングリスト設定"
 
 #: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
-msgid "Waiter Dashboard"
-msgstr "ウェイターダッシュボード"
+msgid "Host Dashboard on a tablet or phone"
+msgstr "タブレットまたはスマホの Host Dashboard"
+
+msgid "Host Dashboard"
+msgstr "ホストダッシュボード"
+
+msgid "Open Host Dashboard →"
+msgstr "ホストダッシュボードを開く →"
 
 #: templates/basicpackage.php:59
 msgid ""
@@ -2532,8 +2513,8 @@ msgstr ""
 
 #: templates/frontend_v2.php:932
 msgid ""
-"We have received your reservation request and are checking availability. You "
-"will be notified as soon as your reservation is approved. Please wait for "
+"We have received your reservation request and are checking availability. You"
+" will be notified as soon as your reservation is approved. Please wait for "
 "the confirmation."
 msgstr "ご予約のご依頼をいただき、空室状況を確認中です。ご予約が承認され次第、お知らせいたします。確認までお待ちください。"
 
@@ -2554,7 +2535,8 @@ msgid ""
 "We wish to inform you that your booking request has been received. We "
 "are checking availability and will get back to you as soon as possible. "
 "Please wait confirmation of your reservation."
-msgstr "ご予約のリクエストが受理されたことをお知らせいたします。空室状況を確認しており、できるだけ早くご連絡いたします。ご予約確定をお待ちください。"
+msgstr ""
+"ご予約のリクエストが受理されたことをお知らせいたします。空室状況を確認しており、できるだけ早くご連絡いたします。ご予約確定をお待ちください。"
 
 #: templates/confirm.php:4
 msgid ""
@@ -2605,8 +2587,8 @@ msgstr "WhatsAppの"
 msgid ""
 "When enabled guests has to enter their phone number with country code. This "
 "is most useful when there is a good amount of foreign visitors. Also this "
-"option has to be enabled when SMS addon is in use, as SMS Providers requires "
-"full phone number."
+"option has to be enabled when SMS addon is in use, as SMS Providers requires"
+" full phone number."
 msgstr ""
 "有効にすると、ゲストは電話番号と国コードを入力する必要があります。これは、外国人観光客がたくさんいるときに最も便利です。また、SMSプロバイダーは完全な電話番号を必要とするため、SMSアドオンを使用しているときにこのオプションを有効にする必要があります。"
 
@@ -2620,8 +2602,8 @@ msgstr "特定の時間が利用できない場合"
 
 #: templates/admin.php:596
 msgid ""
-"When this enabled, start and end of reservation time will be displayed. This "
-"is useful when you want to inform the guest about fixed reservation time "
+"When this enabled, start and end of reservation time will be displayed. This"
+" is useful when you want to inform the guest about fixed reservation time "
 "frame."
 msgstr "有効にすると、予約の開始時刻と終了時刻が表示されます。これは、固定予約期間についてゲストに通知する場合に便利です。"
 
@@ -2637,8 +2619,8 @@ msgstr ""
 #: templates/admin.php:988
 msgid ""
 "When translating the plugin, save translations in a separate folder outside "
-"the plugin directory. Then, provide the file path with translated strings in "
-"this setting to avoid issues with updates."
+"the plugin directory. Then, provide the file path with translated strings in"
+" this setting to avoid issues with updates."
 msgstr ""
 "プラグインを翻訳するときは、プラグインディレクトリの外の別のフォルダに翻訳を保存してください。次に、この設定でファイルパスに翻訳された文字列を指定して、更新に関する問題を回避します。"
 
@@ -2659,15 +2641,6 @@ msgstr "勤務時間"
 #: redi-restaurant-reservation.php:2039 redi-restaurant-reservation.php:2095
 msgid "Yes"
 msgstr "はい"
-
-#: templates/admin_welcome_no_page.php:12
-msgid ""
-"You can create dedicated reservation page below, or you can skip this step "
-"and create page manually. When you create page manually, insert "
-"[redireservation] shortcode to the page."
-msgstr ""
-"以下に専用の予約ページを作成することもできますし、この手順をスキップして手動でページを作成することもできます。ページを手動で作成する場合は、ページに[redireservation"
-"]ショートコードを挿入します。"
 
 #: templates/admin_welcome.php:21
 msgid "You can find the documentation for this plugin here"
@@ -2755,9 +2728,185 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: templates/admin.php:221 templates/admin.php:230
-msgid "Zeplin 25 theme (BETA)"
+msgid "Zeplin 25 theme"
 msgstr "Zeplin 25テーマ(ベータ版)"
 
 #: templates/admin.php:473
 msgid "Сhildren selection"
 msgstr "選択のスタイル"
+
+#: templates/admin_welcome_no_page.php:11
+msgid ""
+"You can create a dedicated reservation page below, or skip this step and "
+"create a page manually."
+msgstr "以下で専用の予約ページを作成するか、この手順をスキップして手動でページを作成できます。"
+
+#: templates/admin_welcome_no_page.php:12 templates/admin_welcome.php:15
+#: templates/admin.php:89
+msgid "Your shortcode"
+msgstr "ショートコード"
+
+#: templates/admin_welcome_no_page.php:13 templates/admin_welcome.php:16
+#: templates/admin.php:90
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed. Paste it into any page to show the reservation form."
+msgstr "カスタマイズなしの単一店舗の場合、このショートコードだけで十分です。予約フォームを表示するには、任意のページに貼り付けてください。"
+
+#: templates/admin_ajaxed.php:99
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed:"
+msgstr "カスタマイズなしの単一店舗の場合、このショートコードだけで十分です："
+
+#: templates/admin_ajaxed.php:102
+msgid ""
+"This <b>Place ID</b> is associated with your restaurant. Use it in the "
+"shortcode only if you have multiple restaurants or need the form tied to a "
+"specific location."
+msgstr ""
+"この <b>Place ID</b> "
+"は店舗に関連付けられています。複数店舗がある場合、またはフォームを特定の場所に紐づける場合のみショートコードで使用してください。"
+
+#: templates/admin_ajaxed.php:103
+msgid "Example for multiple restaurants:"
+msgstr "複数店舗の例："
+
+#: redi-restaurant-reservation.php
+msgid "Choose a location first"
+msgstr "まず場所を選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of guests first"
+msgstr "まず人数を選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of children first"
+msgstr "まずお子様の人数を選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a date first"
+msgstr "まず日付を選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a time first"
+msgstr "まず時間を選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a menu first"
+msgstr "まずメニューを選択してください"
+
+#: redi-restaurant-reservation.php
+msgid "Closed"
+msgstr "休業"
+
+#: redi-restaurant-reservation.php
+msgid "Out of range"
+msgstr "範囲外"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant"
+msgstr "レストラン"
+
+#: redi-restaurant-reservation.php
+msgid "Select year"
+msgstr "年を選択"
+
+#: redi-restaurant-reservation.php
+msgid "Selected date"
+msgstr "選択した日付"
+
+#: redi-restaurant-reservation.php
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr "こんにちは。以下の内容で予約をお願いできますでしょうか"
+
+#: redi-restaurant-reservation.php
+msgid ""
+"A confirmation email has been sent to you with your updated reservation "
+"details. You may contact the restaurant directly if you need further "
+"changes."
+msgstr "更新された予約詳細を記載した確認メールをお送りしました。追加の変更が必要な場合は、直接レストランにお問い合わせください。"
+
+#: redi-restaurant-reservation.php
+msgid "and"
+msgstr "および"
+
+#: redi-restaurant-reservation.php
+msgid "apply"
+msgstr "適用"
+
+#: redi-restaurant-reservation.php
+msgid "Menu"
+msgstr "メニュー"
+
+#: redi-restaurant-reservation.php
+msgid "Menu Item"
+msgstr "メニュー項目"
+
+#: redi-restaurant-reservation.php
+msgid "Loading menu items"
+msgstr "メニュー項目を読み込み中"
+
+#: redi-restaurant-reservation.php
+msgid "Selected"
+msgstr "選択済み"
+
+#: redi-restaurant-reservation.php
+msgid "Day"
+msgstr "日"
+
+#: redi-restaurant-reservation.php
+msgid "Month"
+msgstr "月"
+
+#: redi-restaurant-reservation.php
+msgid "Year"
+msgstr "年"
+
+#: redi-restaurant-reservation.php
+msgid "Error"
+msgstr "エラー"
+
+#: redi-restaurant-reservation.php
+msgid "Info"
+msgstr "情報"
+
+#: redi-restaurant-reservation.php
+msgid "Privacy Policy"
+msgstr "プライバシーポリシー"
+
+#: redi-restaurant-reservation.php
+msgid "Terms of Service"
+msgstr "利用規約"
+
+#: redi-restaurant-reservation.php
+msgid "Unable to verify you are human. Please try again."
+msgstr "人間であることを確認できませんでした。もう一度お試しください。"
+
+#: redi-restaurant-reservation.php
+msgid "Please complete the captcha"
+msgstr "キャプチャを完了してください"
+
+#: redi-restaurant-reservation.php
+msgid "This site is protected by reCAPTCHA and the Google"
+msgstr "このサイトは reCAPTCHA と Google によって保護されています"
+
+#: redi-restaurant-reservation.php
+msgid "Update Booking"
+msgstr "予約を更新"
+
+#: redi-restaurant-reservation.php
+msgid "Updating reservation"
+msgstr "予約を更新中"
+
+#: redi-restaurant-reservation.php
+msgid "Your reservation has been updated!"
+msgstr "予約が更新されました！"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant not found"
+msgstr "レストランが見つかりません"
+
+#: redi-restaurant-reservation.php
+msgid "Request for reservations (Reservation form is not working)"
+msgstr "予約リクエスト（予約フォームが動作していません）"

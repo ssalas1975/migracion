@@ -2,13 +2,56 @@
 
 class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
 {
+    /**
+     * Client-submitted form data from the AJAX request.
+     *
+     * WARNING: This data is client-controlled and must not be trusted for security-sensitive
+     * properties like 'type', 'required', 'key', or 'settings'. Always use server-side
+     * form definitions from $_form_cache as the source of truth for field configuration.
+     *
+     * @var array
+     */
     protected $_form_data = array();
 
+    /**
+     * Server-side form configuration cache.
+     *
+     * This data is trusted and should be used as the authoritative source for field
+     * definitions including type, required status, validation rules, and other
+     * security-sensitive settings.
+     *
+     * @var array
+     */
     protected $_form_cache = array();
 
+    /**
+     * Preview data for form preview submissions.
+     *
+     * Contains temporary form configuration when processing preview submissions
+     * from the form builder.
+     *
+     * @var array
+     */
     protected $_preview_data = array();
 
+    /**
+     * The form ID being processed.
+     *
+     * @var string|int
+     */
     protected $_form_id = '';
+
+    /**
+     * Request key carrying the hidden anti-spam box's value.
+     *
+     * The name attribute the form shell renders on that input
+     * (includes/Templates/form-hp.html). It arrives as its own request key
+     * because the honeypot is part of the shell rather than a stored field,
+     * so it is not inside formData.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/7397
+     */
+    const HONEYPOT_FIELD = 'nf-field-hp';
 
     public function __construct()
     {
@@ -108,6 +151,10 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
             $this->_respond();
         }
 
+        $this->maybe_refuse_logged_out_submission();
+
+        $this->maybe_refuse_filled_honeypot();
+
         if( $this->is_preview() ) {
 
             $this->_form_cache = get_user_option( 'nf_form_preview_' . $this->_form_id );
@@ -146,6 +193,129 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
         $this->process();
     }
 
+    /**
+     * Refuse a submission to a form that has reached its submission limit.
+     *
+     * The limit is read from the form's own saved row, never from the request
+     * and never from the cached working copy of the form a request is served
+     * from, so accepting a submission uses the same value as deciding whether
+     * to display the form at all. While the two could disagree, a form whose
+     * limit had been changed kept rendering and kept taking submissions that
+     * were discarded without telling the visitor anything.
+     *
+     * The form's limit reached message is reused as the error and filtered the
+     * same way as on display, because the front end renders form errors as
+     * HTML. An unset or blank message falls back to the default wording rather
+     * than reaching the visitor as an empty refusal.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/7466
+     *
+     * @return void
+     */
+    protected function maybe_refuse_over_limit_submission()
+    {
+        $sub_limit = WPN_Helper::get_saved_sub_limit( $this->_form_id );
+
+        if ( empty( $sub_limit[ 'number' ] ) ) {
+            return;
+        }
+
+        global $wpdb;
+
+        // @TODO: Rewrite this to use our submissions API.
+        $result = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(DISTINCT(p.ID)) AS count FROM `$wpdb->posts` AS p
+            LEFT JOIN `$wpdb->postmeta` AS m
+            ON p.ID = m.post_id
+            WHERE m.meta_key = '_form_id'
+            AND m.meta_value = %d
+            AND p.post_status = 'publish'",
+            $this->_form_id
+        ) );
+
+        if ( intval( $result->count ) < intval( $sub_limit[ 'number' ] ) ) {
+            return;
+        }
+
+        $this->_errors[ 'form' ][ 'sub_limit' ] = NF_Display_Render::sub_limit_reached_message( $sub_limit[ 'message' ], $this->_form_id );
+        $this->_respond();
+    }
+
+    /**
+     * Refuse a logged-out submission to a form that requires a logged-in user.
+     *
+     * The requirement is read from the saved form, never from the request.
+     * The form's logged-out message is reused as the error and filtered the
+     * same way as on display, because the front end renders form errors as HTML.
+     *
+     * @return void
+     */
+    protected function maybe_refuse_logged_out_submission()
+    {
+        if ( is_user_logged_in() ) {
+            return;
+        }
+
+        $form = Ninja_Forms()->form( $this->_form_id )->get();
+
+        if ( ! $form->get_setting( 'logged_in' ) ) {
+            return;
+        }
+
+        $message = trim( (string) $form->get_setting( 'not_logged_in_msg' ) );
+
+        if ( '' === $message ) {
+            $message = esc_html__( 'You must be logged in to submit this form.', 'ninja-forms' );
+        }
+
+        $this->_errors[ 'form' ][ 'logged_in' ] = do_shortcode( WPN_Helper::maybe_kses_form_message( $message ) );
+        $this->_respond();
+    }
+
+    /**
+     * Refuse a submission whose hidden anti-spam box (honeypot) arrived filled.
+     *
+     * The browser refuses this case too, but a submission can reach this
+     * controller without having run our JavaScript at all, so the value is
+     * re-checked here rather than trusted.
+     *
+     * The check is deliberately lenient: a request that does not carry the key
+     * is not refused, so a visitor holding a cached older copy of our scripts,
+     * and third-party integrations that post to this endpoint directly, keep
+     * working.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/7397
+     * @return void
+     */
+    protected function maybe_refuse_filled_honeypot()
+    {
+        if ( ! isset( $_POST[ self::HONEYPOT_FIELD ] ) || ! is_string( $_POST[ self::HONEYPOT_FIELD ] ) ) {
+            return;
+        }
+
+        /*
+         * The raw string is compared on purpose. A single space is a filled
+         * box, so the value is not trimmed, and empty() is not used because it
+         * would let a value of '0' through.
+         */
+        if ( '' === $_POST[ self::HONEYPOT_FIELD ] ) {
+            return;
+        }
+
+        $form    = Ninja_Forms()->form( $this->_form_id )->get();
+        $message = trim( (string) $form->get_setting( 'honeypotHoneypotError' ) );
+
+        if ( '' === $message ) {
+            $message = esc_html__( 'This form could not be submitted. Please reload the page and try again.', 'ninja-forms' );
+        } else {
+            // Shown as text, as the browser-side check shows it (NF_Display_Render escapes this setting).
+            $message = esc_html( $message );
+        }
+
+        $this->_errors[ 'form' ][ 'honeyPot' ] = $message;
+        $this->_respond();
+    }
+
     public function resume()
     {
         $this->_form_data = Ninja_Forms()->session()->get( 'nf_processing_form_data' );
@@ -163,6 +333,23 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
 
     protected function process()
     {
+        // Discard client-submitted extra data stored under a reserved,
+        // server-generated key before it enters processing. See issue #8228.
+        $this->scrubReservedExtraKeys();
+
+        /*
+         * A form with no stored cache gives us boolean false here, while every
+         * write below — the field values and then the actions — treats this as
+         * an array. Normalising once keeps those writes, and the data add-ons
+         * receive, identical to a cached form's without relying on PHP's
+         * deprecated automatic conversion of false to array.
+         *
+         * @see https://github.com/Saturday-Drive/ninja-forms/issues/8219
+         */
+        if( ! is_array( $this->_form_cache ) ){
+            $this->_form_cache = array();
+        }
+
         // Init Field Merge Tags.
         $field_merge_tags = Ninja_Forms()->merge_tags[ 'fields' ];
         $field_merge_tags->set_form_id( $this->_form_id );
@@ -185,6 +372,28 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
 	    $form_merge_tags = Ninja_Forms()->merge_tags[ 'form' ];
 	    $form_merge_tags->set_form_id( $this->_form_id );
 	    $form_merge_tags->set_form_title( $form_settings['title'] );
+	    // Let {submission:sequence} resolve while fields are processed (#6859).
+	    $form_merge_tags->prepareSubmissionProcessing( $this->_form_id, $this->is_preview() );
+
+	    /*
+	     * Freeze {submission:count} for this submission before calculations run.
+	     *
+	     * The count includes the submission being made, and stays the same for
+	     * the rest of the request so a calculation evaluated before the save and
+	     * an email rendered after it report the same number. A preview is never
+	     * stored, so it does not count itself.
+	     */
+	    if( ! $this->is_preview() ){
+	        $form_merge_tags->start_submission();
+	    }
+
+        // Init WordPress Merge Tags with the post the form was displayed on,
+        // carried over from the render. See issue #4028.
+        if ( isset( Ninja_Forms()->merge_tags[ 'wp' ] ) ) {
+            Ninja_Forms()->merge_tags[ 'wp' ]->set_post_context(
+                isset( $this->_form_data[ 'settings' ] ) ? $this->_form_data[ 'settings' ] : array()
+            );
+        }
 
         $this->_data[ 'form_id' ] = $this->_form_data[ 'form_id' ] = $this->_form_id;
         $this->_data[ 'settings' ] = $form_settings;
@@ -252,31 +461,49 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
             $field[ 'settings' ][ 'value' ] = $field[ 'value' ];
 
             // Duplicate field value to form cache for passing to the action filter.
-            $this->_form_cache[ 'fields' ][ $key ][ 'settings' ][ 'value' ] = $this->_form_data[ 'fields' ][ $field_id ][ 'value' ];
+            // Reuse the value guarded above: a field whose add-on is inactive is
+            // submitted without a value. See issue #8198.
+            $this->_form_cache[ 'fields' ][ $key ][ 'settings' ][ 'value' ] = $field[ 'value' ];
 
             // Duplicate the Field ID for access as a setting.
             $field[ 'settings' ][ 'id' ] = $field[ 'id' ];
 
-            // Combine with submitted data.
-            $field = array_merge( $field, $this->_form_data[ 'fields' ][ $field_id ] );
+            // Combine with submitted data using whitelist to prevent field metadata override.
+            // @see https://github.com/Saturday-Drive/ninja-forms/issues/8011
+            $whitelist = apply_filters( 'ninja_forms_submit_field_whitelist', array( 'value', 'files', 'save_id' ) );
+            $field = $this->apply_field_whitelist( $field, $this->_form_data[ 'fields' ][ $field_id ], $whitelist );
 
             // Flatten the field array.
             $field = array_merge( $field, $field[ 'settings' ] );
 
             /** Prepare Fields in repeater for Validation and Process */
             if( $field["type"] === "repeater" ){
-                foreach( $field["value"] as $index => $child_field_value ){
-                    foreach( $field['fields'] as $i => $child_field ) {
-                        if(strpos($index, $child_field['id']) !== false){
-                            $field['value'][$index] = array_merge($child_field, $child_field_value);
-                        }
+                // Build lookup of valid child field IDs from server-side definition.
+                // @see https://github.com/Saturday-Drive/ninja-forms/issues/8116
+                $valid_child_ids = array();
+                foreach( $field['fields'] as $child_field ) {
+                    $valid_child_ids[ (string) $child_field['id'] ] = $child_field;
+                }
+
+                foreach( ( is_array( $field['value'] ) ? $field['value'] : array() ) as $index => $child_field_value ){
+                    $submitted_child_id = $this->resolve_repeater_child_id( (string) $index, $valid_child_ids );
+
+                    if( null !== $submitted_child_id ) {
+                        // Apply whitelist to repeater child fields using server-side definition.
+                        // @see https://github.com/Saturday-Drive/ninja-forms/issues/8011
+                        $child_field = $valid_child_ids[ $submitted_child_id ];
+                        $field['value'][$index] = $this->apply_field_whitelist( $child_field, $child_field_value, $whitelist );
+                    } else {
+                        // Discard entries with keys that don't match any known child field.
+                        // This prevents attackers from injecting rogue entries with arbitrary types.
+                        unset( $field['value'][$index] );
                     }
                 }
             }
             /** Validate the Field */
             if( $validate_fields && ! isset( $this->_data[ 'resume' ] ) ){
                 if( $field["type"] === "repeater" ){
-                    foreach( $field["value"] as  $index => $child_field ){
+                    foreach( ( is_array( $field['value'] ) ? $field['value'] : array() ) as $index => $child_field ){
                         $this->validate_field( $field["value"][$index] );
                     }
                 } else {
@@ -288,14 +515,17 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
             /** Process the Field */
             if( ! isset( $this->_data[ 'resume' ] ) ) {
                 if( $field["type"] === "repeater" ){
-                    foreach( $field["value"] as $index => $child_field ){
+                    foreach( ( is_array( $field['value'] ) ? $field['value'] : array() ) as $index => $child_field ){
                         $this->process_field( $field["value"][$index] );
                     }
                 } else {
                     $this->process_field($field);
                 }
             }
-            $field = array_merge( $field, $this->_form_data[ 'fields' ][ $field_id ] );
+            // Re-merge after processing using whitelist to pick up legitimate changes (e.g., file uploads)
+            // while still protecting against field metadata override.
+            // @see https://github.com/Saturday-Drive/ninja-forms/issues/8011
+            $field = $this->apply_field_whitelist( $field, $this->_form_data[ 'fields' ][ $field_id ], $whitelist );
 
 	        // Check for field errors after processing.
 	        if ( isset( $this->_form_data['errors']['fields'][ $field_id ] ) ) {
@@ -304,7 +534,13 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
 	        }
 
             /** Populate Field Merge Tag */
-            $field_merge_tags->add_field( $field );
+            // Give Hidden fields the saved form's rules so calculations can reject edited values.
+            // @see https://github.com/Saturday-Drive/ninja-forms/issues/8257
+            $merge_tag_field = $field;
+            if( 'hidden' === $field[ 'type' ] ) {
+                $merge_tag_field[ 'form_conditions' ] = ( isset( $form_settings[ 'conditions' ] ) && is_array( $form_settings[ 'conditions' ] ) ) ? $form_settings[ 'conditions' ] : array();
+            }
+            $field_merge_tags->add_field( $merge_tag_field );
 
             $this->_data[ 'fields' ][ $field_id ] = $field;
             $this->_data[ 'fields_by_key' ][ $field[ 'key' ] ] = $field;
@@ -351,19 +587,7 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
         | Verify the submission limit.
         |--------------------------------------------------------------------------
         */
-        if ( isset( $this->_data[ 'settings' ][ 'sub_limit_number' ] ) && ! empty( $this->_data[ 'settings' ][ 'sub_limit_number' ] ) ) {
-            global $wpdb;
-            $result = $wpdb->get_row( "SELECT COUNT(DISTINCT(p.ID)) AS count FROM `$wpdb->posts` AS p
-            LEFT JOIN `$wpdb->postmeta` AS m
-            ON p.ID = m.post_id
-            WHERE m.meta_key = '_form_id'
-            AND m.meta_value = $this->_form_id
-            AND p.post_status = 'publish'");
-            if ( intval( $result->count ) >= intval( $this->_data[ 'settings' ][ 'sub_limit_number' ] ) ) {
-                $this->_errors[ 'form' ][] = $this->_data[ 'settings' ][ 'sub_limit_msg' ];
-                $this->_respond();
-            }
-        }
+        $this->maybe_refuse_over_limit_submission();
 
         /*
         |--------------------------------------------------------------------------
@@ -385,7 +609,10 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
             /**
              * The Calculation Processing Loop
              */
-            foreach( $this->_form_cache[ 'settings' ][ 'calculations' ] as $calc ){
+            // Evaluate each calc after the calcs it uses (#8264).
+            $calculations = NF_MergeTags_Calcs::get_evaluation_order( $this->_form_cache[ 'settings' ][ 'calculations' ] );
+
+            foreach( $calculations as $calc ){
                 $eq = apply_filters( 'ninja_forms_calc_setting', $calc[ 'eq' ] );
 
                 // Scrub unmerged tags (ie deleted/non-existent fields/calcs, etc).
@@ -404,6 +631,11 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
                     'parsed' => $eq,
                     'value' => $calcs_merge_tags->get_formatted_calc_value( $calc[ 'name' ], $dec, $this->_form_data['settings']['decimal_point'], $this->_form_data['settings']['thousands_sep'] ),
                 );
+            }
+
+            // Saved calculations keep the builder's order.
+            if( isset( $this->_data[ 'extra' ][ 'calculations' ] ) ) {
+                $this->_data[ 'extra' ][ 'calculations' ] = NF_MergeTags_Calcs::restore_builder_order( $this->_data[ 'extra' ][ 'calculations' ], $this->_form_cache[ 'settings' ][ 'calculations' ] );
             }
         }
 
@@ -528,6 +760,49 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
      *
      * @return void
      */
+    /**
+     * Submission "extra" data keys reserved for server-generated data.
+     *
+     * Client-submitted values under these keys are discarded during
+     * processing so they cannot spoof or overwrite server data, or reach
+     * an admin screen that renders stored extra data. See issue #8228.
+     *
+     * @return array
+     */
+    protected function getReservedExtraKeys(): array
+    {
+        return apply_filters( 'ninja_forms_reserved_extra_keys', array(
+            'calculations',
+            'product_fields',
+        ) );
+    }
+
+    /**
+     * Remove client-submitted extra data stored under a reserved key.
+     *
+     * WordPress unslashes post meta keys when they are written, so each
+     * submitted key is compared to the reserved list in the form it will be
+     * stored as. This runs for both fresh and resumed submissions, and the
+     * re-merge in the calculations step reads the same scrubbed source.
+     * See issue #8228.
+     *
+     * @return void
+     */
+    protected function scrubReservedExtraKeys(): void
+    {
+        if ( ! isset( $this->_form_data[ 'extra' ] ) || ! is_array( $this->_form_data[ 'extra' ] ) ) {
+            return;
+        }
+
+        $reserved = $this->getReservedExtraKeys();
+
+        foreach ( array_keys( $this->_form_data[ 'extra' ] ) as $key ) {
+            if ( in_array( wp_unslash( $key ), $reserved, true ) ) {
+                unset( $this->_form_data[ 'extra' ][ $key ] );
+            }
+        }
+    }
+
     private function maybePreserveExtraData(): void
     {
         if (
@@ -548,6 +823,9 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
 
         if( ! is_string( $field_settings['type'] ) ) return;
 
+        // The field type is unregistered when its add-on is inactive. See issue #8198.
+        if( ! isset( Ninja_Forms()->fields[ $field_settings['type'] ] ) ) return;
+
         $field_class = Ninja_Forms()->fields[ $field_settings['type'] ];
 
         // if field_class is neither object nor string return before method_exists call
@@ -567,6 +845,9 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
     protected function process_field( $field_settings )
     {
         if( ! is_string( $field_settings['type'] ) ) return;
+
+        // The field type is unregistered when its add-on is inactive. See issue #8198.
+        if( ! isset( Ninja_Forms()->fields[ $field_settings['type'] ] ) ) return;
 
         $field_class = Ninja_Forms()->fields[ $field_settings['type'] ];
 
@@ -708,5 +989,64 @@ class NF_AJAX_Controllers_Submission extends NF_Abstracts_Controller
         // Merge tag resolution should only occur on admin-configured content
         // (email templates, success messages, calculations), not on form submissions.
         return;
+    }
+
+    /**
+     * Apply field whitelist to merge only safe properties from submitted data.
+     *
+     * This method controls which properties from client-submitted field data
+     * are allowed to be merged into the server-defined field configuration.
+     *
+     * SECURITY: This method implements defense-in-depth by explicitly blocking
+     * security-sensitive properties (type, required, key, settings, id) even if
+     * they appear in the whitelist. This prevents malicious filter hooks from
+     * re-enabling dangerous properties.
+     *
+     * @since 3.x.x
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8011
+     *
+     * @param array $server_field Server-defined field configuration (trusted).
+     * @param array $submitted    Client-submitted field data (untrusted).
+     * @param array $whitelist    Allowed properties to copy from submission.
+     * @return array The server field with allowed properties merged from submission.
+     */
+    /**
+     * Resolve a Repeatable Fieldset entry to the child field it belongs to.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8116
+     *
+     * @param string $index           the submitted entry's key
+     * @param array  $valid_child_ids child fields of this fieldset, keyed by id
+     *
+     * @return string|null the child field id, or null when the entry matches none
+     */
+    protected function resolve_repeater_child_id( $index, $valid_child_ids )
+    {
+        $index = (string) $index;
+
+        // A submitted key is the child field's own id followed by the repeat
+        // number, for example "5.1_0" for the first repeat of child field "5.1".
+        // A child field id already contains a dot - it is the fieldset's id, a
+        // dot, then the child's number - so the child id is everything before
+        // the final underscore, not everything before the first dot (#8140).
+        $separator = strrpos( $index, '_' );
+        $submitted_child_id = false === $separator ? $index : substr( $index, 0, $separator );
+
+        return isset( $valid_child_ids[ $submitted_child_id ] ) ? $submitted_child_id : null;
+    }
+
+    protected function apply_field_whitelist( array $server_field, array $submitted, array $whitelist ): array {
+        // Security-critical properties that can NEVER be overridden by client data,
+        // regardless of any filter or whitelist configuration.
+        $blocked_props = array( 'type', 'required', 'key', 'settings', 'id' );
+
+        // Copy only whitelisted properties from submission, excluding blocked ones.
+        foreach ( $whitelist as $prop ) {
+            if ( ! in_array( $prop, $blocked_props, true ) && isset( $submitted[ $prop ] ) ) {
+                $server_field[ $prop ] = $submitted[ $prop ];
+            }
+        }
+
+        return $server_field;
     }
 }

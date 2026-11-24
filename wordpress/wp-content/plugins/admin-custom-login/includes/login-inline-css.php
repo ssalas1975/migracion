@@ -1,5 +1,4 @@
-<?php
-error_reporting(0);
+<?php if ( ! defined( 'ABSPATH' ) ) exit;
 wp_register_style( 'acl-er-login-style', false );
 wp_enqueue_style( 'acl-er-login-style' );
 $css = ' ';

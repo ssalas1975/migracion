@@ -44,6 +44,10 @@ abstract class Filters {
 		// This action needs to run on AJAX/cron for scheduled rewritten posts in Yoast Duplicate Post.
 		add_action( 'duplicate_post_after_rewriting', [ $this, 'updateRescheduledPostMeta' ], 10, 2 );
 
+		// These need to run on AJAX/cron too so that scheduled tasks (e.g. LLMs.txt generation) exclude internal CPTs.
+		add_filter( 'aioseo_public_post_types', [ $this, 'removeInvalidPublicPostTypes' ] );
+		add_filter( 'aioseo_public_taxonomies', [ $this, 'removeInvalidPublicTaxonomies' ] );
+
 		if ( wp_doing_ajax() || wp_doing_cron() ) {
 			return;
 		}
@@ -68,9 +72,10 @@ abstract class Filters {
 		// GoDaddy CDN compatibility.
 		add_filter( 'wpaas_cdn_file_ext', [ $this, 'goDaddySitemapXml' ] );
 
-		// Duplicate Post integration.
-		add_action( 'dp_duplicate_post', [ $this, 'duplicatePost' ], 10, 2 );
-		add_action( 'dp_duplicate_page', [ $this, 'duplicatePost' ], 10, 2 );
+		// Duplicate Post integration. Both Yoast Duplicate Post and ours fire this hook and have
+		// deprecated dp_duplicate_post/dp_duplicate_page, which warned under WP_DEBUG while we listened.
+		add_action( 'duplicate_post_after_duplicated', [ $this, 'duplicatePost' ], 10, 2 );
+		add_action( 'duplicate_post_after_duplicated', [ $this, 'maybeSetDuplicateCanonicalUrl' ], 20, 2 );
 		add_action( 'woocommerce_product_duplicate_before_save', [ $this, 'scheduleDuplicateProduct' ], 10, 2 );
 		add_action( 'add_post_meta', [ $this, 'rewriteAndRepublish' ], 10, 3 );
 
@@ -84,9 +89,6 @@ abstract class Filters {
 		// Clear the site authors cache.
 		add_action( 'profile_update', [ $this, 'clearAuthorsCache' ] );
 		add_action( 'user_register', [ $this, 'clearAuthorsCache' ] );
-
-		add_filter( 'aioseo_public_post_types', [ $this, 'removeInvalidPublicPostTypes' ] );
-		add_filter( 'aioseo_public_taxonomies', [ $this, 'removeInvalidPublicTaxonomies' ] );
 
 		add_action( 'admin_print_scripts', [ $this, 'removeEmojiDetectionScripts' ], 0 );
 
@@ -205,6 +207,50 @@ abstract class Filters {
 		}
 
 		$targetPost->save();
+	}
+
+	/**
+	 * Points a duplicated post's canonical URL at the post it was copied from.
+	 *
+	 * A copy of a published post is duplicate content: without a canonical, both posts tell search
+	 * engines they are the version to index, and the original is the one with the history.
+	 *
+	 * @since   5.0.2
+	 *
+	 * @param  int           $targetPostId The ID of the copy.
+	 * @param  \WP_Post|int  $sourcePost   The post it was copied from.
+	 * @return void
+	 */
+	public function maybeSetDuplicateCanonicalUrl( $targetPostId, $sourcePost = null ) {
+		// Our own Duplicate Post settles this itself, and has a setting that turns it off.
+		if ( function_exists( 'aioseoDuplicatePost' ) ) {
+			return;
+		}
+
+		if ( ! apply_filters( 'aioseo_set_duplicate_canonical_url', true, $targetPostId, $sourcePost ) ) {
+			return;
+		}
+
+		$sourcePost = is_object( $sourcePost ) ? $sourcePost : aioseo()->helpers->getPost( $sourcePost );
+
+		// Only a published post has a URL worth pointing at. Rewrite & Republish copies never reach
+		// this hook: Yoast Duplicate Post creates those through its own class, without firing it.
+		if ( ! is_object( $sourcePost ) || 'publish' !== $sourcePost->post_status ) {
+			return;
+		}
+
+		$sourceAioseoPost = Models\Post::getPost( $sourcePost->ID );
+
+		// A source that already points somewhere had that canonical copied over with the rest of its
+		// data, and that choice is more deliberate than ours.
+		if ( ! empty( $sourceAioseoPost->canonical_url ) ) {
+			return;
+		}
+
+		$targetAioseoPost                = Models\Post::getPost( $targetPostId );
+		$targetAioseoPost->canonical_url = get_permalink( $sourcePost );
+
+		$targetAioseoPost->save();
 	}
 
 	/**
@@ -405,10 +451,14 @@ abstract class Filters {
 		$postTypesToRemove = [
 			'fusion_element', // Avada
 			'elementor_library',
+			'e-floating-buttons', // Elementor floating buttons / contact widgets.
+			'elementor_component', // Elementor reusable components.
 			'redirect_rule', // Safe Redirect Manager
 			'seedprod',
 			'tcb_lightbox',
 			'bricks_template', // Bricks Builder
+			'_et_pb_speculation', // Divi Visual Builder prerender post type.
+			'et_pb_layout', // Divi Library layouts, which Extra makes public.
 
 			// Thrive Themes internal post types.
 			'tva_module',

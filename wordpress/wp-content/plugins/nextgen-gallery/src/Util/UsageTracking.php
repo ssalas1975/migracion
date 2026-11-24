@@ -83,6 +83,120 @@ class UsageTracking {
 	}
 
 	/**
+	 * Get the raw database server version string.
+	 *
+	 * The db_version() helper reports MariaDB as a 5.5.5 compatibility version, which makes MariaDB
+	 * and MySQL indistinguishable -- and they differ on exactly the behaviour being measured, since
+	 * only MariaDB 10.4+ falls back to a hash index for an over-length UNIQUE key. db_server_info()
+	 * returns the unmangled string ("10.11.6-MariaDB-log"), so prefer it and keep db_version() only
+	 * as a fallback.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string
+	 */
+	private function get_db_server_info() {
+		global $wpdb;
+
+		$server_info = method_exists( $wpdb, 'db_server_info' ) ? $wpdb->db_server_info() : $wpdb->db_version();
+
+		// The receiving end stores each check-in value in a VARCHAR(100) column.
+		return substr( (string) $server_info, 0, 100 );
+	}
+
+	/**
+	 * Get the schema facts that decide whether the duplicate-image guard can exist at all.
+	 *
+	 * The UNIQUE KEY on (galleryid, filename) is what stops duplicate images (see #781), but on some
+	 * engine/charset combinations it cannot be created: filename is VARCHAR(255), which at utf8mb4 is
+	 * 1020 bytes -- past MyISAM's 1000-byte total key limit, and past InnoDB's 767-byte per-column
+	 * limit under ROW_FORMAT=COMPACT. dbDelta() never checks for the error, so such a site runs
+	 * indefinitely with no guard and no symptom beyond duplicates accumulating.
+	 *
+	 * unique_key is therefore the field that matters: it reports the outcome directly instead of
+	 * asking the receiving end to infer it. The engine facts explain why the key is missing when it
+	 * is, and row_format has to be reported rather than derived from the server version, because it
+	 * is stored per table and survives every server upgrade -- a table created on MySQL 5.5 is still
+	 * COMPACT on MySQL 8 today.
+	 *
+	 * unique_key alone stopped being enough once the key could be created as a filename prefix.
+	 * It is decided on index *name*, so a site that has the guard at a 191-character prefix and a
+	 * site that has always had the full-column key both report '1' -- which would collapse the
+	 * previously-broken and always-fine populations into one number and make the measurement this
+	 * function exists for impossible to take. unique_key_prefix separates them: 'full' for the
+	 * whole column, the prefix length for a prefixed key, 'none' when there is no key at all.
+	 *
+	 * @since 4.4.0
+	 * @since 4.4.2 Added unique_key_prefix.
+	 *
+	 * @return array
+	 */
+	private function get_pictures_table_info() {
+		global $wpdb;
+
+		// 'unknown' rather than an empty string, so "we could not look this up" stays distinguishable
+		// from a table that exists and genuinely has no unique key.
+		$info = [
+			'engine'            => 'unknown',
+			'row_format'        => 'unknown',
+			'charset'           => 'unknown',
+			'unique_key'        => 'unknown',
+			'unique_key_prefix' => 'unknown',
+		];
+
+		$table = $wpdb->prefix . 'ngg_pictures';
+
+		// information_schema is queried directly because no WordPress API exposes a table's engine,
+		// row format, or index list. Both queries are scoped to one table and run on the weekly
+		// check-in cron, never on a page load.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_info = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT ENGINE AS engine, ROW_FORMAT AS row_format, TABLE_COLLATION AS charset FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = %s',
+				$table
+			)
+		);
+
+		if ( empty( $table_info ) ) {
+			// Either the table has not been created yet or information_schema is restricted for this
+			// user; leaving every value 'unknown' keeps that case out of the measurement entirely.
+			return $info;
+		}
+
+		$info['engine']     = ! empty( $table_info->engine ) ? $table_info->engine : 'unknown';
+		$info['row_format'] = ! empty( $table_info->row_format ) ? $table_info->row_format : 'unknown';
+		$info['charset']    = ! empty( $table_info->charset ) ? $table_info->charset : 'unknown';
+
+		// SUB_PART is NULL for a column indexed in full and the prefix length for a prefixed one,
+		// so MAX() over the index's rows reports the filename prefix without needing to name the
+		// column: 0 means every column is indexed in full, anything else is the prefix length.
+		$key_info = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT COUNT(*) AS columns_indexed, MAX( COALESCE( SUB_PART, 0 ) ) AS filename_prefix
+				FROM information_schema.statistics
+				WHERE table_schema = DATABASE() AND table_name = %s AND index_name = %s',
+				$table,
+				'unique_gallery_filename'
+			)
+		);
+		// phpcs:enable
+
+		if ( ! empty( $key_info ) && null !== $key_info->columns_indexed ) {
+			$info['unique_key'] = $key_info->columns_indexed ? '1' : '0';
+
+			if ( ! $key_info->columns_indexed ) {
+				$info['unique_key_prefix'] = 'none';
+			} elseif ( empty( $key_info->filename_prefix ) ) {
+				$info['unique_key_prefix'] = 'full';
+			} else {
+				$info['unique_key_prefix'] = (string) (int) $key_info->filename_prefix;
+			}
+		}
+
+		return $info;
+	}
+
+	/**
 	 * Get the data to send
 	 *
 	 * @since 3.59.5
@@ -105,6 +219,37 @@ class UsageTracking {
 		}
 
 		$settings = $this->get_settings();
+
+		// These ride in the settings payload rather than as top-level check-in fields because the
+		// receiving end whitelists top-level parameters -- anything it does not name explicitly is
+		// discarded -- while it stores every settings key/value pair as it arrives. Sending them here
+		// means the data starts landing without a matching change to the usage-tracking service.
+		//
+		// Assigning after get_settings() also keeps them clear of its empty() filter, which matters:
+		// 'pictures_unique_key' => '0' is the single most important value to report, and '0' is falsy.
+		$pictures_info = $this->get_pictures_table_info();
+
+		$settings['db_server_info']      = $this->get_db_server_info();
+		$settings['pictures_engine']     = $pictures_info['engine'];
+		$settings['pictures_row_format'] = $pictures_info['row_format'];
+		$settings['pictures_charset']    = $pictures_info['charset'];
+		$settings['pictures_unique_key'] = $pictures_info['unique_key'];
+		// Without this the prefix is computed on every check-in and thrown away, and a prefixed
+		// key reports 'pictures_unique_key' => '1' identically to a full-column one -- the exact
+		// collapse get_pictures_table_info()'s docblock says makes #941's measurement impossible.
+		$settings['pictures_unique_key_prefix'] = $pictures_info['unique_key_prefix'];
+		// The population the installer deliberately did NOT migrate: set on an existing table
+		// that has no guard, carrying that table's approximate row count. #941 sizes what was
+		// left behind from this rather than by inspecting sites by hand. '' when nothing was
+		// deferred, so the deferred and never-examined populations stay distinguishable.
+		$settings['pictures_guard_deferred'] = (string) get_option( 'ngg_pictures_guard_deferred', '' );
+
+		// Private galleries, for the "Delivered" activation level. Counts only, no visitor data.
+		$private = $this->get_private_gallery_info();
+
+		$settings['private_galleries_count']     = $private['count'];
+		$settings['private_galleries_delivered'] = $private['delivered'];
+		$settings['private_galleries_access']    = $private['access'];
 
 		$data['nextgen_version'] = NGG_PLUGIN_VERSION;
 		$data['ng_type']         = 'lite';
@@ -154,6 +299,53 @@ class UsageTracking {
 	}
 
 	/**
+	 * Private gallery totals: how many, how many were opened in the last 90 days, and each one's
+	 * access count and last access.
+	 *
+	 * @return array{count:int,delivered:int,access:string}
+	 */
+	private function get_private_gallery_info() {
+		global $wpdb;
+
+		// The mapper adds the access columns on first use.
+		\Imagely\NGG\DataMappers\Gallery::get_instance();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Weekly check-in.
+		$rows = $wpdb->get_results( "SELECT gid, access_count, last_access_at FROM {$wpdb->nggallery} WHERE is_private = 1" );
+
+		$cutoff    = time() - 90 * DAY_IN_SECONDS;
+		$delivered = 0;
+		$access    = [];
+		$set_up    = \Imagely\NGG\PrivateGalleries\Registry::get_all();
+
+		foreach ( (array) $rows as $row ) {
+			// Galleries flagged before client pages existed are not private galleries yet.
+			if ( ! isset( $set_up[ (int) $row->gid ] ) ) {
+				continue;
+			}
+
+			$last = ! empty( $row->last_access_at ) ? strtotime( $row->last_access_at . ' UTC' ) : 0;
+
+			if ( $last && $last >= $cutoff ) {
+				++$delivered;
+			}
+
+			$access[] = [
+				'gid'            => (int) $row->gid,
+				'access_count'   => (int) $row->access_count,
+				'last_access_at' => $last ? gmdate( 'c', $last ) : '',
+			];
+		}
+
+		return [
+			'count'     => count( $access ),
+			'delivered' => $delivered,
+			// A string: the receiving end stores settings values as they arrive.
+			'access'    => (string) wp_json_encode( $access ),
+		];
+	}
+
+	/**
 	 * Send the checkin
 	 *
 	 * @since 3.59.5
@@ -161,7 +353,7 @@ class UsageTracking {
 	 * @return bool
 	 */
 	public function send_checkin( $ignore_last_checkin = false ) {
-		$ignore_last_checkin = $ignore_last_checkin || defined( DOING_CRON ) && DOING_CRON;
+		$ignore_last_checkin = $ignore_last_checkin || ( defined( 'DOING_CRON' ) && DOING_CRON );
 
 		$home_url = trailingslashit( home_url() );
 		if ( strpos( $home_url, 'imagely.com' ) !== false ) {

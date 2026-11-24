@@ -2,8 +2,8 @@
 Contributors: Carlos Doral.
 Tags: mantenimiento web, mantenimiento wordpress, modo mantenimiento, página en construcción
 Requires at least: 3.5
-Tested up to: 6.0.2
-Stable tag: 0.14
+Tested up to: 7.0
+Stable tag: 0.15
 License: GPLv2 or later 
 
 Este plugin permite poner tu página en modo mantenimiento con el típico mensaje "Página en construcción" o "Página en mantenimiento". El mensaje se puede personalizar y se incorporan varias plantillas para que no tengas que diseñar nada.
@@ -12,7 +12,7 @@ Este plugin permite poner tu página en modo mantenimiento con el típico mensaj
 
 **NUEVO:** Ahora se incluyen plantillas animadas.
 
-**Para más información sobre [mantenimiento web de sitios Wordpress](https://webartesanal.com/mantenimiento-web/)**
+**Para más información sobre [mantenimiento web de sitios Wordpress](https://webartesanal.com/mantenimiento-web-wordpress/)**
 
 Características del plugin:
 
@@ -43,6 +43,9 @@ Si lo desea, como método alternativo de instalación puede ir a la sección Plu
 4. Ahora siga desde el paso 3 de la sección anterior.
 
 == Changelog ==
+
+= 0.15 =
+* Mejoras en seguridad, nada funcional y probado en WP 7.0
 
 = 0.14 =
 * Actualización de seguridad. Agradecimientos a Patchstack.

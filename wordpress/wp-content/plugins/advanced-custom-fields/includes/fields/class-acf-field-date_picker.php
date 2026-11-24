@@ -82,7 +82,7 @@ if ( ! class_exists( 'acf_field_date_picker' ) ) :
 			wp_enqueue_script( 'jquery-ui-datepicker' );
 
 			// style
-			wp_enqueue_style( 'acf-datepicker', acf_get_url( 'assets/inc/datepicker/jquery-ui.min.css' ), array(), '1.11.4' );
+			wp_enqueue_style( 'acf-datepicker', acf_get_url( 'assets/inc/datepicker/jquery-ui.min.css' ), array(), '1.14.2' );
 		}
 
 
@@ -356,8 +356,7 @@ if ( ! class_exists( 'acf_field_date_picker' ) ) :
 			}
 
 			// ACF stores date_picker internally as 'Ymd' (e.g., 20231225).
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'Ymd' ); // Validación preventiva para PHP 8.4
-			$date = $is_valid_format ? \DateTime::createFromFormat( 'Ymd', $value ) : false;
+			$date = \DateTime::createFromFormat( 'Ymd', $value );
 			if ( ! $date ) {
 				return null;
 			}

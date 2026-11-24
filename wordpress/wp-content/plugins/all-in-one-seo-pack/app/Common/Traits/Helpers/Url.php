@@ -356,7 +356,8 @@ trait Url {
 	/**
 	 * Makes the given URL relative.
 	 *
-	 * @since 4.8.3
+	 * @since   4.8.3
+	 * @version 5.0.1 Strips the site URL path so the URL is relative to site_url(), not the host root.
 	 *
 	 * @param  string $url The URL to make relative.
 	 * @return string      The relative URL.
@@ -376,7 +377,25 @@ trait Url {
 			return $url;
 		}
 
-		return ! empty( $parsedUrl['path'] ) ? $parsedUrl['path'] : $url;
+		if ( empty( $parsedUrl['path'] ) ) {
+			return $url;
+		}
+
+		$sitePath = $this->getSiteUrlPath();
+		if ( ! $sitePath ) {
+			return $parsedUrl['path'];
+		}
+
+		if ( $parsedUrl['path'] === $sitePath ) {
+			return '/';
+		}
+
+		if ( 0 === strpos( $parsedUrl['path'], $sitePath . '/' ) ) {
+			return substr( $parsedUrl['path'], strlen( $sitePath ) );
+		}
+
+		// Same host but outside the site path; makeUrlAbsolute() can't round-trip it, so keep it absolute.
+		return $url;
 	}
 
 	/**
@@ -384,23 +403,53 @@ trait Url {
 	 *
 	 * @since   4.0.0
 	 * @version 4.8.3 Moved from WpUri trait to Url trait.
+	 * @version 5.0.1 Root-relative paths that include the site URL path resolve against the host root.
+	 * @version 5.0.2 Added $baseUrl parameter.
 	 *
-	 * @param  string $url The URL.
-	 * @return string      The absolute URL.
+	 * @param  string $url     The URL.
+	 * @param  string $baseUrl The base URL to resolve relative paths against. Defaults to site_url().
+	 * @return string          The absolute URL.
 	 */
-	public function makeUrlAbsolute( $url ) {
+	public function makeUrlAbsolute( $url, $baseUrl = null ) {
 		if ( 0 !== strpos( $url, 'http' ) && '/' !== $url ) {
-			$scheme   = wp_parse_url( site_url(), PHP_URL_SCHEME );
+			$base     = $baseUrl ? $baseUrl : site_url();
+			$scheme   = wp_parse_url( $base, PHP_URL_SCHEME );
 			$cleanUrl = untrailingslashit( preg_replace( '#^https?://#i', '', trim( $url ) ) );
+			$sitePath = $this->getSiteUrlPath();
 			if ( $this->isDomainWithPaths( $cleanUrl ) ) {
 				$url = $scheme . '://' . $cleanUrl;
 			} elseif ( 0 === strpos( $cleanUrl, '//' ) ) {
 				$url = $scheme . ':' . $cleanUrl;
+			} elseif (
+				! $baseUrl &&
+				$sitePath &&
+				( $cleanUrl === $sitePath || 0 === strpos( $cleanUrl, $sitePath . '/' ) )
+			) {
+				// The path already contains the site path; going through site_url() would duplicate it.
+				$url = substr( site_url(), 0, -strlen( $sitePath ) ) . $cleanUrl;
 			} else {
-				$url = site_url( $cleanUrl );
+				$url = $baseUrl
+					? untrailingslashit( $base ) . '/' . ltrim( $cleanUrl, '/' )
+					: site_url( $cleanUrl );
 			}
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Returns the path of the site URL without a trailing slash (empty for document root installs).
+	 *
+	 * @since 5.0.1
+	 *
+	 * @return string The site URL path.
+	 */
+	private function getSiteUrlPath() {
+		static $siteUrlPath = null;
+		if ( null === $siteUrlPath ) {
+			$siteUrlPath = untrailingslashit( (string) wp_parse_url( site_url(), PHP_URL_PATH ) );
+		}
+
+		return $siteUrlPath;
 	}
 }

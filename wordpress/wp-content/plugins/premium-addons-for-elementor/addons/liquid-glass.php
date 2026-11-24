@@ -8,9 +8,6 @@
 namespace PremiumAddons\Addons;
 
 // Elementor Classes.
-use Elementor\Utils;
-use Elementor\Icons_Manager;
-use Elementor\Control_Media;
 use Elementor\Controls_Manager;
 
 
@@ -30,14 +27,14 @@ class Liquid_Glass {
 	/**
 	 * Load Script
 	 *
-	 * @var $load_script
+	 * @var bool|null
 	 */
 	private static $load_script = null;
 
 	/**
 	 * Class object
 	 *
-	 * @var instance
+	 * @var self|null
 	 */
 	private static $instance = null;
 

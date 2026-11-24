@@ -216,7 +216,8 @@ class EDD_SL_Plugin_Updater {
 
 			if ( empty( $version_info->download_link ) ) {
 				printf(
-					__( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s.', 'easy-digital-downloads' ),
+					/* translators: 1: add-on name. 2: opening link tag. 3: new version number. 4: closing link tag. */
+					__( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s.', 'ninja-forms' ),
 					esc_html( $version_info->name ),
 					'<a target="_blank" class="thickbox" href="' . esc_url( $changelog_link ) . '">',
 					esc_html( $version_info->new_version ),
@@ -224,7 +225,8 @@ class EDD_SL_Plugin_Updater {
 				);
 			} else {
 				printf(
-					__( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s or %5$supdate now%6$s.', 'easy-digital-downloads' ),
+					/* translators: 1: add-on name. 2: opening link tag. 3: new version number. 4: closing link tag. 5: opening update link tag. 6: closing update link tag. */
+					__( 'There is a new version of %1$s available. %2$sView version %3$s details%4$s or %5$supdate now%6$s.', 'ninja-forms' ),
 					esc_html( $version_info->name ),
 					'<a target="_blank" class="thickbox" href="' . esc_url( $changelog_link ) . '">',
 					esc_html( $version_info->new_version ),
@@ -325,12 +327,16 @@ class EDD_SL_Plugin_Updater {
 	 *
 	 * @since 3.6.5
 	 *
-	 * @param stdClass $data
+	 * @param mixed $data Optional details from the store; scalars have no entries.
 	 *
 	 * @return array
 	 */
 	private function convert_object_to_array( $data ) {
 		$new_data = array();
+		if ( ! is_array( $data ) && ! is_object( $data ) ) {
+			return $new_data;
+		}
+
 		foreach ( $data as $key => $value ) {
 			$new_data[ $key ] = $value;
 		}
@@ -436,7 +442,7 @@ class EDD_SL_Plugin_Updater {
 			$request->icons = maybe_unserialize( $request->icons );
 		}
 
-		if( ! empty( $request->sections ) ) {
+		if( ! empty( $request->sections ) && ( is_array( $request->sections ) || is_object( $request->sections ) ) ) {
 			foreach( $request->sections as $key => $section ) {
 				$request->$key = (array) $section;
 			}
@@ -462,7 +468,7 @@ class EDD_SL_Plugin_Updater {
 		}
 
 		if( ! current_user_can( 'update_plugins' ) ) {
-			wp_die( esc_html__( 'You do not have permission to install plugin updates', 'easy-digital-downloads' ), esc_html__( 'Error', 'easy-digital-downloads' ), array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to install plugin updates', 'ninja-forms' ), esc_html__( 'Error', 'ninja-forms' ), array( 'response' => 403 ) );
 		}
 
 		$data         = $edd_plugin_data[WPN_Helper::sanitize_text_field($_REQUEST['slug'])];
@@ -528,7 +534,7 @@ class EDD_SL_Plugin_Updater {
 		// We need to turn the icons into an array, thanks to WP Core forcing these into an object at some point.
 		$cache['value'] = json_decode( $cache['value'] );
 		if ( ! empty( $cache['value']->icons ) ) {
-			$cache['value']->icons = (array) $cache['value']->icons;
+			$cache['value']->icons = $this->convert_object_to_array( $cache['value']->icons );
 		}
 
 		return $cache['value'];

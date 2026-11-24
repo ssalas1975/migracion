@@ -310,7 +310,7 @@ abstract class Skin_Style {
 					'post_status'    => 'publish',
 					'posts_per_page' => -1,
 					'paged'          => 1,
-					'post__not_in'   => array(),
+					'post__not_in'   => array(), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- excludes the current product.
 				);
 
 				if ( 'grid' === $settings['layout_type'] || 'masonry' === $settings['layout_type'] ) {
@@ -386,6 +386,8 @@ abstract class Skin_Style {
 
 				$query_args = apply_filters( 'premium_woo_products_query_args', $query_args, $settings );
 
+				self::$query_args = $query_args;
+
 				self::$query = new \WP_Query( $query_args );
 
 			} else {
@@ -399,6 +401,8 @@ abstract class Skin_Style {
 				);
 
 				$query_args = apply_filters( 'premium_woo_products_query_args', $query_args, $settings );
+
+				self::$query_args = $query_args;
 
 				self::$query = new \WP_Query( $query_args );
 			}
@@ -462,6 +466,8 @@ abstract class Skin_Style {
 			}
 
 			$query_args = apply_filters( 'premium_woo_products_query_args', $query_args, $settings );
+
+			self::$query_args = $query_args;
 
 			self::$query = new \WP_Query( $query_args );
 
@@ -529,6 +535,8 @@ abstract class Skin_Style {
 
 				$query_args = apply_filters( 'premium_woo_products_query_args', $query_args, $settings );
 
+				self::$query_args = $query_args;
+
 				self::$query = new \WP_Query( $query_args );
 
 			} else {
@@ -543,6 +551,8 @@ abstract class Skin_Style {
 
 				$query_args = apply_filters( 'premium_woo_products_query_args', $query_args, $settings );
 
+				self::$query_args = $query_args;
+
 				self::$query = new \WP_Query( $query_args );
 			}
 		} else {
@@ -556,7 +566,7 @@ abstract class Skin_Style {
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'paged'          => 1,
-				'post__not_in'   => array(),
+				'post__not_in'   => array(), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- excludes the current product.
 			);
 
 			if ( 'grid' === $settings['layout_type'] || 'masonry' === $settings['layout_type'] ) {
@@ -591,7 +601,7 @@ abstract class Skin_Style {
 			$query_args['order']   = $ordering_args['order'];
 
 			if ( $ordering_args['meta_key'] ) {
-				$query_args['meta_key'] = $ordering_args['meta_key'];
+				$query_args['meta_key'] = $ordering_args['meta_key']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- WooCommerce catalog ordering.
 			}
 
 			if ( 'sale' === $settings['filter_by'] ) {
@@ -830,9 +840,11 @@ abstract class Skin_Style {
 			return;
 		}
 
-		$posts_per_page = self::$query_args['posts_per_page'];
+		$query_args = self::$query_args ? self::$query_args : array();
 
-		$orderby = self::$query_args['orderby'];
+		$posts_per_page = isset( $query_args['posts_per_page'] ) ? $query_args['posts_per_page'] : $settings['products_numbers'];
+
+		$orderby = isset( $query_args['orderby'] ) ? $query_args['orderby'] : $settings['orderby'];
 
 		if ( 'main' === $settings['query_type'] ) {
 
@@ -840,13 +852,13 @@ abstract class Skin_Style {
 				'pa_woo_main_query_args',
 				array(
 					'post_type'   => 'product',
-					'product_cat' => self::$query_args['product_cat'],
+					'product_cat' => isset( $query_args['product_cat'] ) ? $query_args['product_cat'] : '',
 				),
-				self::$query_args
+				$query_args
 			);
 
 		} else {
-			$args = self::$query_args;
+			$args = $query_args;
 
 		}
 

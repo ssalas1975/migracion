@@ -185,6 +185,23 @@ final class BackWPup_Admin {
 	}
 
 	/**
+	 * Return the user-facing notice for an unavailable archive format.
+	 *
+	 * @param string $job_name The job name.
+	 * @param string $format   The unavailable archive format extension (e.g. '.zip').
+	 *
+	 * @return string Translated notice string.
+	 */
+	public static function unavailable_archive_format_notice( string $job_name, string $format ): string {
+		return sprintf(
+			/* translators: 1: archive format (e.g. .zip), 2: job name  */
+			__( 'The archive format "%1$s" configured for job "%2$s" is no longer available. .tar will be used instead.', 'backwpup' ),
+			$format,
+			$job_name
+		);
+	}
+
+	/**
 	 * Get all Message that not displayed.
 	 *
 	 * @return array
@@ -268,7 +285,7 @@ final class BackWPup_Admin {
 			$this->admin_init_pro();
 		}
 
-		if ( ! defined( 'DOING_AJAX' ) || ( defined( 'DOING_AJAX' ) && ! DOING_AJAX ) ) {
+		if ( ! wp_doing_ajax() ) {
 			// Only init notices if this is not an AJAX request.
 			$this->init_notices();
 
@@ -278,18 +295,7 @@ final class BackWPup_Admin {
 		$jobtypes     = BackWPup::get_job_types();
 		$destinations = BackWPup::get_registered_destinations();
 
-		add_action(
-			'wp_ajax_backwpup_debug_info',
-			function () {
-				echo '<html lang="en"><head><title>' . esc_html__( 'Debug Information', 'backwpup' ) . '</title></head><body style="font-family:monospace;word-wrap: break-word;">';
-				$information = BackWPup_Page_Settings::get_information();
-				foreach ( $information as $item ) {
-					echo esc_html( trim( $item['label'] ) ) . ': ' . esc_html( trim( $item['value'] ) ) . "\n<br/>";
-				}
-				echo '</body></html>';
-				wp_die();
-			}
-			);
+		add_action( 'wp_ajax_backwpup_debug_info', [ self::class, 'ajax_debug_info' ] );
 		add_action( 'wp_ajax_backwpup_working', [ \BackWPup_Page_Jobs::class, 'ajax_working' ] );
 		add_action( 'wp_ajax_backwpup_cron_text', [ \BackWPup_Page_Editjob::class, 'ajax_cron_text' ] );
 		add_action( 'wp_ajax_backwpup_view_log', [ \BackWPup_Page_Logs::class, 'ajax_view_log' ] );
@@ -311,6 +317,29 @@ final class BackWPup_Admin {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Outputs the debug information page.
+	 *
+	 * Reached only by typing the URL, it is not linked from anywhere in the admin.
+	 * See issue #1127: support hands this address to a user who needs to report
+	 * their environment, and product asked for it to stay unadvertised.
+	 *
+	 * @return void
+	 */
+	public static function ajax_debug_info() {
+		if ( ! current_user_can( 'backwpup_settings' ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+
+		echo '<html lang="en"><head><title>' . esc_html__( 'Debug Information', 'backwpup' ) . '</title></head><body style="font-family:monospace;word-wrap: break-word;">';
+		$information = BackWPup_Page_Settings::get_information();
+		foreach ( $information as $item ) {
+			echo esc_html( trim( $item['label'] ) ) . ': ' . esc_html( trim( $item['value'] ) ) . "\n<br/>";
+		}
+		echo '</body></html>';
+		wp_die();
 	}
 
 	/**
@@ -476,7 +505,7 @@ final class BackWPup_Admin {
 		add_action(
 			'load-' . $this->page_hooks['backwpupdocs'],
 			function () {
-				wp_redirect( $this->backwpup_url . '/docs/' ); //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+				wp_redirect( $this->backwpup_url . '/docs/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=docs_link' ); //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			}
 			);
 		if ( ! BackWPup::is_pro() ) {
@@ -491,7 +520,7 @@ final class BackWPup_Admin {
 			add_action(
 			'load-' . $this->page_hooks['backwpupbuypro'],
 			function () {
-				wp_redirect( $this->backwpup_url . '/pricing/' );  //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+				wp_redirect( $this->backwpup_url . '/pricing/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=upgrade_cta_plugin' );  //phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			}
 			);
 		}
@@ -656,7 +685,7 @@ final class BackWPup_Admin {
 	 * @return mixed
 	 */
 	public function admin_page_onboarding( $page_hooks ) {
-		if ( false === (bool) get_site_option( 'backwpup_onboarding', false ) ) {
+		if ( ! get_site_option( 'backwpup_onboarding', false ) ) {
 			return $page_hooks;
 		}
 		$this->page_hooks['backwpupbackups'] = add_submenu_page(
@@ -873,11 +902,7 @@ final class BackWPup_Admin {
 		if ( null !== $post_archiveformat ) {
 			$archiveformat = in_array(
 			$post_archiveformat,
-			[
-				'.zip',
-				'.tar',
-				'.tar.gz',
-			],
+			BackWPup_Option::get_allowed_archive_formats(),
 			true
 			) ? $post_archiveformat : '.tar';
 			// Save archive format general value.
@@ -935,14 +960,14 @@ final class BackWPup_Admin {
 </a>
 EOT;
 
-			if ( ! class_exists( \BackWPup_Pro::class, false ) ) {
+			if ( ! BackWPup::is_pro() ) {
 				$admin_footer_text .= sprintf(
 					// translators: %s: BackWPup website URL.
 					__(
-						'<a class="backwpup-get-pro" href="%s">Get BackWPup Pro now.</a>',
+						'<a class="backwpup-get-pro" href="%s" target="_blank">Get BackWPup Pro now.</a>',
 						'backwpup'
 					),
-					__( 'http://backwpup.com', 'backwpup' )
+				wpm_apply_filters_typed( 'string', 'backwpup_url_add_hash', 'https://backwpup.com/pricing/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=upgrade_cta_plugin' )
 				);
 			}
 
@@ -960,9 +985,8 @@ EOT;
 	 * @return string
 	 */
 	public function update_footer( $update_footer_text ) {
-		$default_text = $update_footer_text;
-		$screen       = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		$screen_id    = ( $screen && isset( $screen->id ) ) ? (string) $screen->id : '';
+		$screen    = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$screen_id = ( $screen && isset( $screen->id ) ) ? (string) $screen->id : '';
 
 		if ( '' === $screen_id || false === strpos( $screen_id, 'backwpup' ) ) {
 			return $update_footer_text;
@@ -973,17 +997,22 @@ EOT;
 			$before_version = ob_get_clean();
 
 			$update_footer_text =
-			$before_version .
 			'<span class="backwpup-update-footer">
-        <a href="' . esc_url( 'http://backwpup.com' ) . '">' . esc_html( BackWPup::get_plugin_data( 'Name' ) ) . '</a> ' .
+        <a href="' . esc_url( 'https://backwpup.com/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=footer_link' ) . '">' . esc_html( BackWPup::get_plugin_data( 'Name' ) ) . '</a> ' .
 			sprintf(
 				// translators: %s: BackWPup version.
 				esc_html__( 'version %s', 'backwpup' ),
 				esc_html( BackWPup::get_plugin_data( 'Version' ) )
 			) .
-			'</span>';
+			'</span><br />';
 
-			return $update_footer_text . $default_text;
+		$update_footer_text .= sprintf(
+		// translators: %s: WordPress version number.
+		__( 'WordPress version %s', 'backwpup' ),
+		get_bloginfo( 'version' )
+		);
+
+			return '<p class="text-right py-2 px-6">' . $before_version . '</p><p class="text-right">' . $update_footer_text . '</p>';
 	}
 
 	/**
@@ -1251,10 +1280,13 @@ EOT;
 			'storages'               => rest_url( 'backwpup/v2/storages' ),
 			'messages'               => rest_url( 'backwpup/v2/messages' ),
 			'updates_backup_type'    => trailingslashit( rest_url( 'backwpup/v2/backups' ) ) . '%d/type',
+			'nudge_nonce'            => wp_create_nonce( 'backwpup_track_nudge' ),
+			'job_abort_status'       => rest_url( 'backwpup/v1/job-abort-status' ),
 		];
 
 		if ( $job_object ) {
 			$data['logfile'] = basename( (string) $job_object->logfile );
+			$data['job_id']  = (int) ( $job_object->job['jobid'] ?? 0 );
 		}
 
 		return $data;

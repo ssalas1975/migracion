@@ -12,15 +12,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=( n == 1 ) ? 0 : ( n >= 2 && n <= 4 ) ? 1 : 2;\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _e;__\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: C:/ProjectsCloudSync/Wordpress/redi-restaurant-"
-"reservation/trunk\n"
-"Plural-Forms: nplurals=3; plural=( n == 1 ) ? 0 : ( n >= 2 && n <= 4 ) ? 1 : "
-"2;\n"
-"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-SearchPath-0: C:/ProjectsCloudSync/Wordpress/redi-restaurant-reservation/trunk\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: redi-restaurant-reservation.php:872
 #, fuzzy
@@ -97,8 +95,8 @@ msgstr ""
 #: functions/notice.php:75
 #, php-format
 msgid ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
-"not created a page with reservation form. Finilize setup wizard now for "
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have"
+" not created a page with reservation form. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
 "<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin je aktívny, ale "
@@ -115,15 +113,15 @@ msgid ""
 "impress your clients!</p> %2$s"
 msgstr ""
 "<p>Od inštalácie doplnku ste nevykonali žiadne zmeny v nastaveniach. "
-"Dokončite nastavenie <b>doplnku ReDi Restaurant Reservation Plugin</b> teraz "
-"pre bezproblémové rezervácie. Navštívte %1$s, aby ste dokončili konfiguráciu "
-"a začali pôsobiť na svojich klientov!</p> %2$s"
+"Dokončite nastavenie <b>doplnku ReDi Restaurant Reservation Plugin</b> teraz"
+" pre bezproblémové rezervácie. Navštívte %1$s, aby ste dokončili "
+"konfiguráciu a začali pôsobiť na svojich klientov!</p> %2$s"
 
 #: templates/admin.php:122
 msgid ""
-"<strong>Attention</strong>: New settings are available for review and saving,"
-" please take a moment to update your preferences or fill out the required "
-"settings and click on the save button."
+"<strong>Attention</strong>: New settings are available for review and "
+"saving, please take a moment to update your preferences or fill out the "
+"required settings and click on the save button."
 msgstr ""
 "<strong>Pozor</strong>: Nové nastavenia sú k dispozícii na kontrolu a "
 "uloženie, nájdite si chvíľu na aktualizáciu svojich preferencií alebo "
@@ -131,13 +129,13 @@ msgstr ""
 
 #: templates/frontend.php:338
 msgid ""
-"A confirmation email has been sent to you, should you not receive it, please "
-"rest assured that your booking has been received and is confirmed. If you "
+"A confirmation email has been sent to you, should you not receive it, please"
+" rest assured that your booking has been received and is confirmed. If you "
 "wish you may contact us by phone to confirm."
 msgstr ""
 "Ďakujeme vám za rezerváciu. Potvrdzovací e-mail bol odoslaný k vám, nemali "
-"by ste dostávať to, prosím, buďte si istý, že Vaša rezervácia bola prijatá a "
-"potvrdená. Ak chcete, môžete nás kontaktovať telefonicky pre potvrdenie."
+"by ste dostávať to, prosím, buďte si istý, že Vaša rezervácia bola prijatá a"
+" potvrdená. Ak chcete, môžete nás kontaktovať telefonicky pre potvrdenie."
 
 #: redi-restaurant-reservation.php:2050
 msgid ""
@@ -156,8 +154,8 @@ msgid ""
 "reservation is confirmed. You can also contact us by phone if needed."
 msgstr ""
 "Na uvedenú e-mailovú adresu bol odoslaný potvrdzovací e-mail. Nie sú "
-"potrebné žiadne ďalšie kroky. Ak ho nedostanete, môžete si byť istí, že vaša "
-"rezervácia je potvrdená. V prípade potreby nás môžete kontaktovať aj "
+"potrebné žiadne ďalšie kroky. Ak ho nedostanete, môžete si byť istí, že vaša"
+" rezervácia je potvrdená. V prípade potreby nás môžete kontaktovať aj "
 "telefonicky."
 
 #: redi-restaurant-reservation.php:2051
@@ -166,18 +164,18 @@ msgid ""
 "been approved. You may contact the restaurant directly if you need to make "
 "any changes to your reservation request."
 msgstr ""
-"Po schválení vašej žiadosti o rezerváciu vám bude zaslaný potvrdzujúci e-"
-"mail. Ak potrebujete vykonať akékoľvek zmeny v žiadosti o rezerváciu, môžete "
-"kontaktovať priamo reštauráciu."
+"Po schválení vašej žiadosti o rezerváciu vám bude zaslaný potvrdzujúci "
+"e-mail. Ak potrebujete vykonať akékoľvek zmeny v žiadosti o rezerváciu, "
+"môžete kontaktovať priamo reštauráciu."
 
 #: templates/admin.php:230
 msgid ""
 "A pre-designed style requiring minimal customization for a polished look. "
-"Please note that this option is still in beta testing  and some features are "
-"not copied over from Default theme."
+"Please note that this option is still in beta testing  and some features are"
+" not copied over from Default theme."
 msgstr ""
-"Predpripravený štýl vyžadujúci minimálne prispôsobenie pre vyleštený vzhľad. "
-"Upozorňujeme, že táto možnosť je stále v beta testovaní a niektoré funkcie "
+"Predpripravený štýl vyžadujúci minimálne prispôsobenie pre vyleštený vzhľad."
+" Upozorňujeme, že táto možnosť je stále v beta testovaní a niektoré funkcie "
 "nie sú skopírované z predvolenej témy."
 
 #: templates/admin.php:231
@@ -186,14 +184,15 @@ msgid ""
 "The form is build with React. Please note that this option is still in beta "
 "testing and some features are not copied over from Default theme."
 msgstr ""
-"Predpripravený štýl vyžadujúci minimálne prispôsobenie pre vyleštený vzhľad. "
-"Formulár je vytvorený pomocou Reactu. Upozorňujeme, že táto možnosť je stále "
-"v beta testovaní a niektoré funkcie nie sú skopírované z predvolenej témy."
+"Predpripravený štýl vyžadujúci minimálne prispôsobenie pre vyleštený vzhľad."
+" Formulár je vytvorený pomocou Reactu. Upozorňujeme, že táto možnosť je "
+"stále v beta testovaní a niektoré funkcie nie sú skopírované z predvolenej "
+"témy."
 
 #: templates/admin.php:229
 msgid ""
-"Adapts to your website's theme, ensuring seamless integration. However, some "
-"adjustments may be needed to match your design preferences."
+"Adapts to your website's theme, ensuring seamless integration. However, some"
+" adjustments may be needed to match your design preferences."
 msgstr ""
 "Prispôsobí sa téme vašej webovej stránky a zabezpečí bezproblémovú "
 "integráciu. Môžu však byť potrebné určité úpravy, aby zodpovedali vašim "
@@ -253,7 +252,8 @@ msgstr "Povoliť odosielanie informácií o doplnku"
 
 #: templates/admin.php:703
 msgid ""
-"Allow users to fill the Wait List when all time slots for the day are booked."
+"Allow users to fill the Wait List when all time slots for the day are "
+"booked."
 msgstr ""
 "Umožnite používateľom vyplniť zoznam čakateľov, keď sú rezervované všetky "
 "časové úseky na daný deň."
@@ -272,11 +272,12 @@ msgstr "Povoliť Whatsapp"
 #: templates/admin.php:799
 msgid ""
 "Allows to show or hide comments section on the reservation form. Enabled by "
-"default. If you see that your guests misuse the comments section, disable it."
+"default. If you see that your guests misuse the comments section, disable "
+"it."
 msgstr ""
 "Umožňuje zobraziť alebo skryť sekciu komentárov v rezervačnom formulári. "
-"Predvolene povolené. Ak vidíte, že vaši hostia zneužívajú sekciu komentárov, "
-"vypnite ju."
+"Predvolene povolené. Ak vidíte, že vaši hostia zneužívajú sekciu komentárov,"
+" vypnite ju."
 
 #: templates/admin.php:619
 msgid "Alternative time step"
@@ -320,14 +321,14 @@ msgstr "ApiKey:"
 
 #: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
 msgid ""
-"Apologies for the inconvenience, but we encountered an issue while trying to "
-"make your reservation. It seems there was a technical glitch on our end. Our "
-"team is actively working to resolve this issue. Please try again in a few "
-"minutes, and if the problem persists, feel free to reach out to our customer "
-"support for assistance. Additionally, if you could please send a screenshot "
-"of the error message to {emailLink}, it would greatly help us in diagnosing "
-"and resolving the issue more efficiently. We appreciate your patience and "
-"cooperation. Response:"
+"Apologies for the inconvenience, but we encountered an issue while trying to"
+" make your reservation. It seems there was a technical glitch on our end. "
+"Our team is actively working to resolve this issue. Please try again in a "
+"few minutes, and if the problem persists, feel free to reach out to our "
+"customer support for assistance. Additionally, if you could please send a "
+"screenshot of the error message to {emailLink}, it would greatly help us in "
+"diagnosing and resolving the issue more efficiently. We appreciate your "
+"patience and cooperation. Response:"
 msgstr ""
 "Ospravedlňujeme sa za nepríjemnosti, ale pri pokuse o rezerváciu sme "
 "narazili na problém. Zdá sa, že na našej strane došlo k technickej chybe. "
@@ -387,7 +388,8 @@ msgstr "Naspať na stránku rezervácie"
 msgid "Basic package functionality (paid version)"
 msgstr "Základné funkcie balíček (verzia)"
 
-#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+#: templates/admin_welcome_no_key.php:32
+#: templates/admin_welcome_no_page.php:28
 msgid "Below is your API Key, please use it when you ask for a support. "
 msgstr "Nižšie je uvedený váš kľúč API, použite ho, keď požiadate o podporu. "
 
@@ -402,8 +404,8 @@ msgstr "Dátum narodenia (dd/mm)"
 #: templates/basicpackage.php:44
 msgid ""
 "Blocked Time. Define time range when online reservation should not be "
-"accepted. Specify a reason why reservations are not accepted at this time to "
-"keep your clients happy."
+"accepted. Specify a reason why reservations are not accepted at this time to"
+" keep your clients happy."
 msgstr ""
 "Blokovaný čas. Definovať časové rozpätie, kedy on-line rezervácie by nemal "
 "byť prijatý. Určite dôvod, prečo sú rezervácie nie sú prijímané v tomto "
@@ -693,7 +695,8 @@ msgstr "Zakázať potvrdzovací e-mail"
 msgid "Disabled"
 msgstr "Invalidný"
 
-#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+#: redi-restaurant-reservation-api.php:447
+#: redi-restaurant-reservation.php:2607
 msgid "Discount"
 msgstr "Zľava"
 
@@ -704,8 +707,8 @@ msgstr "Zobrazenie ľavých sedadiel"
 #: templates/admin.php:664
 msgid ""
 "Displays the available time with time step to the clients. For instance, if "
-"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
-"30, etc."
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, "
+"10:30, etc."
 msgstr ""
 "Zobrazuje dostupný čas s časovým krokom ku klientom. Napríklad, ak sa zvolí "
 "15 min časový krok, potom alternatívne čas bude 10:00, 10:15, 10:30, atď."
@@ -724,8 +727,8 @@ msgstr ""
 
 #: templates/basicpackage.php:70
 msgid ""
-"Do you want to write your own module? We have an API. Contact us to get more "
-"information."
+"Do you want to write your own module? We have an API. Contact us to get more"
+" information."
 msgstr ""
 "Chcete napísať vlastný modul? Máme API. Kontaktujte nás pre získanie viac "
 "informácií."
@@ -759,11 +762,11 @@ msgstr "Trvanie"
 #: templates/admin_ajaxed.php:449
 msgid ""
 "Duration of reservation in minutes. This is the time allocated for each "
-"reservation so the reservation system can calculate availability. Enter here "
-"average time that guests stays in."
+"reservation so the reservation system can calculate availability. Enter here"
+" average time that guests stays in."
 msgstr ""
-"Trvanie rezervácie v minútach. Ide o čas vyhradený pre každú rezerváciu, aby "
-"rezervačný systém mohol vypočítať dostupnosť. Tu zadajte priemerný čas "
+"Trvanie rezervácie v minútach. Ide o čas vyhradený pre každú rezerváciu, aby"
+" rezervačný systém mohol vypočítať dostupnosť. Tu zadajte priemerný čas "
 "pobytu hostí."
 
 #: templates/admin_ajaxed.php:479
@@ -846,9 +849,9 @@ msgstr ""
 "Povoľte alebo zakážte prihlásenie do účtu sociálnej siete. Keď je povolené, "
 "klienti sa môžu prihlásiť pomocou akýchkoľvek účtov na sociálnych sieťach, "
 "ako je Facebook, a potom bude rezervačný formulár predvyplnený osobnými "
-"údajmi. Ak sa používateľ prihlási na sociálnu sieť, ale nedokončí rezerváciu,"
-" dostane pripomienku na jej dokončenie. Musíte nainštalovať a nastaviť "
-"doplnok s názvom \"Super Socializer\" z adresára WordPress."
+"údajmi. Ak sa používateľ prihlási na sociálnu sieť, ale nedokončí "
+"rezerváciu, dostane pripomienku na jej dokončenie. Musíte nainštalovať a "
+"nastaviť doplnok s názvom \"Super Socializer\" z adresára WordPress."
 
 #: templates/admin.php:301
 msgid "Enable social network login"
@@ -865,13 +868,13 @@ msgstr "Rozbaľovacia ponuka Povoliť/zakázať deti"
 #: templates/basicpackage.php:61
 msgid ""
 "Enhance your business experience by using our Facebook integration service "
-"where we try to provide you with profile pictures of your customers if found."
-" You can amaze your customer by knowing him by face when he visits you, "
-"especially at the time of first visit."
+"where we try to provide you with profile pictures of your customers if "
+"found. You can amaze your customer by knowing him by face when he visits "
+"you, especially at the time of first visit."
 msgstr ""
 "Vylepšite svoje obchodné skúsenosti pomocou nášho Facebook integrácie "
-"služieb, kde sa snažíme poskytnúť vám profilových obrázkov svojim zákazníkom "
-"v prípade nálezu. Môžete ohromiť svojich zákazníkov tým, že pozná ho podľa "
+"služieb, kde sa snažíme poskytnúť vám profilových obrázkov svojim zákazníkom"
+" v prípade nálezu. Môžete ohromiť svojich zákazníkov tým, že pozná ho podľa "
 "tváre, keď ťa navštívi, a to najmä v čase prvej návštevy."
 
 #: redi-restaurant-reservation.php:2077
@@ -918,8 +921,8 @@ msgstr "typ poľa"
 #: functions/notice.php:137
 #, php-format
 msgid ""
-"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
-"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to"
+" impress your clients, make a test reservation. <b>%1$s</b>%2$s"
 msgstr ""
 "Nakoniec posledný krok v nastavení <b>doplnku ReDi Restaurant Reservation "
 "Plugin</b>, aby ste zapôsobili na svojich klientov, urobte skúšobnú "
@@ -963,7 +966,8 @@ msgid ""
 "is not working today, please contact us directly."
 msgstr ""
 "Kontrola zabezpečenia formulára zlyhala s chybou: Kontrola opakovanej "
-"kontroly zlyhala. Rezervačný formulár dnes nefunguje, kontaktujte nás priamo."
+"kontroly zlyhala. Rezervačný formulár dnes nefunguje, kontaktujte nás "
+"priamo."
 
 #: templates/admin.php:126
 msgid "Free package settings"
@@ -1082,9 +1086,9 @@ msgstr "Súhlasím so zásadami ochrany osobných údajov"
 
 #: templates/admin.php:858
 msgid ""
-"If checkbox is checked then reservations will not be automatically confirmed."
-" You will receive email with reservation request and each reservation needs "
-"to be confirmed or rejected manually."
+"If checkbox is checked then reservations will not be automatically "
+"confirmed. You will receive email with reservation request and each "
+"reservation needs to be confirmed or rejected manually."
 msgstr ""
 "Ak je začiarknuté políčko, rezervácie nebudú automaticky potvrdené. "
 "Dostanete e-mail so žiadosťou o rezerváciu a každú rezerváciu je potrebné "
@@ -1094,13 +1098,14 @@ msgstr ""
 msgid ""
 "If checkbox is checked then seats left will be shown under selected time."
 msgstr ""
-"Ak je začiarknuté políčko, zostávajúce miesta sa zobrazia pod zvoleným časom."
+"Ak je začiarknuté políčko, zostávajúce miesta sa zobrazia pod zvoleným "
+"časom."
 
 #: templates/admin.php:957
 #, fuzzy
 #| msgid ""
-#| "If checkbox is checked, a logo of <b>\"Powered by ReDi\"</b> is displayed."
-#| " Thank you for supporting us."
+#| "If checkbox is checked, a logo of <b>\"Powered by ReDi\"</b> is displayed. "
+#| "Thank you for supporting us."
 msgid ""
 "If checkbox is checked, a logo of <b>\"Powered by ReservationDiary.eu\"</b> "
 "is displayed. Thank you for supporting us."
@@ -1129,22 +1134,22 @@ msgid ""
 "If you close next day at night then set closing time on a same day. For "
 "example 18:00 - 3:00"
 msgstr ""
-"Ak zavriete ďalší deň v noci potom nastavte zatváracou dobou na rovnakom dni."
-" Napríklad 18:00 - 03:00"
+"Ak zavriete ďalší deň v noci potom nastavte zatváracou dobou na rovnakom "
+"dni. Napríklad 18:00 - 03:00"
 
 #: templates/admin_welcome_no_key.php:22
 msgid ""
 "If you have already an API key, you can skip this step and provide API key "
 "on next step."
 msgstr ""
-"Ak už kľúč API máte, môžete tento krok preskočiť a v ďalšom kroku zadať kľúč "
-"API."
+"Ak už kľúč API máte, môžete tento krok preskočiť a v ďalšom kroku zadať kľúč"
+" API."
 
 #: templates/admin.php:913
 msgid ""
 "If you want to customize confirmation page or have a separated page for "
-"marketing purposes, then select custom reservation confirmation page. If not "
-"specified, then built in confirmation page will be used."
+"marketing purposes, then select custom reservation confirmation page. If not"
+" specified, then built in confirmation page will be used."
 msgstr ""
 "Ak chcete prispôsobiť stránku s potvrdením alebo mať samostatnú stránku na "
 "marketingové účely, vyberte vlastnú stránku s potvrdením rezervácie. Ak nie "
@@ -1155,17 +1160,17 @@ msgid ""
 "If you would like to add some new functionality or have any other queries, "
 "please contact us by email: "
 msgstr ""
-"Ak by ste chceli pridať nejaké nové funkcie, alebo máte nejaké ďalšie otázky,"
-" kontaktujte nás na e-maile:"
+"Ak by ste chceli pridať nejaké nové funkcie, alebo máte nejaké ďalšie "
+"otázky, kontaktujte nás na e-maile:"
 
 #: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
 msgid ""
-"In case you need to show it in multiple languages, then use following format "
-"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+"In case you need to show it in multiple languages, then use following format"
+" [locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 msgstr ""
 "V prípade, že ho potrebujete zobraziť vo viacerých jazykoch, použite "
-"nasledujúci formát [locale]Text[/locale]. Príklad: [en_US]Text[/en_US][es_ES]"
-"Texto[/es_ES]"
+"nasledujúci formát [locale]Text[/locale]. Príklad: "
+"[en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 
 #: templates/frontend_v2.php:468
 msgid ""
@@ -1183,7 +1188,8 @@ msgid ""
 "this day, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
 "V prípade, že by ste chceli byť upozornení, keď niekto zruší rezerváciu na "
-"tento deň, vyplňte <a class=\"link-waitlist-form\">prosím tento formulár</a>."
+"tento deň, vyplňte <a class=\"link-waitlist-form\">prosím tento "
+"formulár</a>."
 
 #: templates/frontend.php:369
 msgid ""
@@ -1191,7 +1197,8 @@ msgid ""
 "this time, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
 "V prípade, že by ste chceli byť upozornení, keď niekto zruší rezerváciu na "
-"tento čas, vyplňte <a class=\"link-waitlist-form\">prosím tento formulár</a>."
+"tento čas, vyplňte <a class=\"link-waitlist-form\">prosím tento "
+"formulár</a>."
 
 #: templates/admin.php:914
 msgid ""
@@ -1398,8 +1405,8 @@ msgid ""
 "Maximum number of persons allowed for each reservation. Drop down list of "
 "persons ends with this number."
 msgstr ""
-"Maximálny počet osôb povolených pre každú rezerváciu. V rozbaľovacom zozname "
-"osôb, končí s týmto číslom."
+"Maximálny počet osôb povolených pre každú rezerváciu. V rozbaľovacom zozname"
+" osôb, končí s týmto číslom."
 
 #: templates/admin_ajaxed.php:493
 msgid "Maximum time before the reservation can be accepted."
@@ -1430,8 +1437,8 @@ msgid ""
 "Minimum number of persons allowed for each reservation. Drop down list of "
 "persons starts from this number."
 msgstr ""
-"Minimálny počet osôb povolených pre každú rezerváciu. V rozbaľovacom zozname "
-"osôb, začne od tohto čísla."
+"Minimálny počet osôb povolených pre každú rezerváciu. V rozbaľovacom zozname"
+" osôb, začne od tohto čísla."
 
 #: templates/admin_ajaxed.php:463
 msgid "Minutes"
@@ -1591,8 +1598,8 @@ msgstr ""
 #: templates/admin_ajaxed.php:517
 #, fuzzy
 #| msgid ""
-#| "NOTE: Name, Email and Phone are required fields of reservation form and "
-#| "do not need to be defined here as custom fields."
+#| "NOTE: Name, Email and Phone are required fields of reservation form and do "
+#| "not need to be defined here as custom fields."
 msgid ""
 "NOTE: Name, Email, Phone and Comments are required fields of reservation "
 "form and do not need to be defined here as custom fields."
@@ -1642,16 +1649,16 @@ msgstr ""
 #: redi.php:283
 #, php-format
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"%s"
+"Online reservation service is not available at this time. Try again later or"
+" %s"
 msgstr ""
 "Online rezervačná služba momentálne nie je k dispozícii. Skúste to znova "
 "neskôr alebo %s"
 
 #: redi-restaurant-reservation.php:2104
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"contact us directly."
+"Online reservation service is not available at this time. Try again later or"
+" contact us directly."
 msgstr ""
 "Online rezervácia nie je k dispozícii v tomto okamihu. Skúste to znova "
 "neskôr, alebo nás kontaktujte priamo."
@@ -1671,10 +1678,6 @@ msgid ""
 msgstr ""
 "Otvorené krát. Táto voľba vám umožní vybrať medzi rôznymi pracovného času "
 "podľa toho, čo je najvhodnejšie pre vás."
-
-#: templates/basicpackage.php:37
-msgid "Open upcoming reservations"
-msgstr "Otvorené nadchádzajúce rezervácie"
 
 #: templates/admin_ajaxed.php:621
 msgid "Option"
@@ -1752,14 +1755,6 @@ msgstr "Telefónne číslo je povinné"
 msgid "Place"
 msgstr "Miesto"
 
-#: templates/basicpackage.php:53
-msgid ""
-"Please allow 1 business day for us to confirm your payment and upgrade your "
-"account."
-msgstr ""
-"Prosím, dovoľte jeden pracovný deň, aby sme mohli potvrdiť platbu a "
-"aktualizovať svoj účet."
-
 #: templates/admin.php:232
 msgid ""
 "Please contact info@reservationdiary.eu for any issues or missing features "
@@ -1773,8 +1768,8 @@ msgid ""
 "Please create a reservation page and add this <b>[redirestaurant]</b> "
 "shortcode to that page."
 msgstr ""
-"Vytvorte rezervačnú stránku a pridajte na ňu tento krátky kód <b>"
-"[redirestaurant].</b>"
+"Vytvorte rezervačnú stránku a pridajte na ňu tento krátky kód "
+"<b>[redirestaurant].</b>"
 
 #: redi-restaurant-reservation.php:2116
 msgid "Please enter a valid email address"
@@ -1784,7 +1779,8 @@ msgstr "Zadajte platnú e-mailovú adresu"
 msgid "Please provide a reason for cancellation"
 msgstr "Uveďte dôvod zrušenia"
 
-#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+#: templates/admin_welcome_no_key.php:37
+#: templates/admin_welcome_no_page.php:33
 msgid "Please provide your API Key in order to continue using plugin"
 msgstr "Zadajte svoj kľúč API, aby ste mohli pokračovať v používaní pluginu"
 
@@ -1815,11 +1811,11 @@ msgstr "Vyberte hodnotu z časti \"Mesačný limit rezervácií hostí\""
 #: templates/admin.php:841
 msgid ""
 "Please verify you current time. This is important as this time is taken and "
-"used in reservation logic. In case time is differnet than your current time, "
-"please change time zone in Settings -> General -> Time Zone"
+"used in reservation logic. In case time is differnet than your current time,"
+" please change time zone in Settings -> General -> Time Zone"
 msgstr ""
-"Overte si aktuálny čas. Je to dôležité, pretože tento čas sa berie a používa "
-"v logike rezervácie. V prípade, že sa čas líši od vášho aktuálneho času, "
+"Overte si aktuálny čas. Je to dôležité, pretože tento čas sa berie a používa"
+" v logike rezervácie. V prípade, že sa čas líši od vášho aktuálneho času, "
 "zmeňte časové pásmo v Nastavenia -> Všeobecné -> Časové pásmo"
 
 #: templates/admin_welcome.php:22
@@ -1875,8 +1871,8 @@ msgid "Rate your reservation experience"
 msgstr "Ohodnoťte svoj zážitok z rezervácie"
 
 #: templates/admin.php:223 templates/admin.php:231
-msgid "React 25 theme (BETA)"
-msgstr "React 25 téma (BETA)"
+msgid "React 25 theme"
+msgstr "React 25 téma"
 
 #: templates/admin.php:1026 templates/cancel.php:40
 #: templates/frontend_v2.php:1707
@@ -1908,33 +1904,26 @@ msgstr "Rezervácia reštaurácie Redi"
 
 #: redi-restaurant-reservation.php:793
 msgid ""
-"ReDi Restaurant Reservation plugin could not get an API key from the "
-"reservationdiary.eu server when it activated.\n"
-"                        <br/> You can try to fix this by going to the ReDi "
-"Restaurant Reservation \"options\" page.\n"
-"                        <br/>This will cause ReDi Restaurant Reservation "
-"plugin to retry fetching an API key for you.\n"
-"                        <br/>If you keep seeing this error it usually means "
-"that server where you host your web site can't connect to our "
-"reservationdiary.eu server.\n"
-"                        <br/>You can try asking your WordPress host to allow "
-"your WordPress server to connect to api.reservationdiary.eu\n"
-"                        <br/>In case you can not solve this problem yourself,"
-" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"ReDi Restaurant Reservation plugin could not get an API key from the reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means that server where you host your web site can't connect to our reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself, please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 msgstr ""
-"Doplnok ReDi Restaurant Reservation nemohol pri aktivácii získať kľúč API zo "
-"servera reservationdiary.eu.                        <br/> Môžete sa to "
+"Doplnok ReDi Restaurant Reservation nemohol pri aktivácii získať kľúč API zo"
+" servera reservationdiary.eu.                        <br/> Môžete sa to "
 "pokúsiť vyriešiť tak, že prejdete na stránku \"možnosti\" rezervácie "
 "reštaurácie ReDi.                        <br/>To spôsobí, že doplnok ReDi "
-"Restaurant Reservation sa znova pokúsi načítať kľúč API za vás.              "
-"          <br/>Ak sa vám táto chyba zobrazuje aj naďalej, zvyčajne to "
-"znamená, že server, na ktorom hosťujete svoju webovú stránku, sa nemôže "
-"pripojiť k nášmu reservationdiary.eu serveru.                        <br/>"
-"Môžete skúsiť požiadať svojho hostiteľa WordPress, aby povolil vášmu serveru "
-"WordPress pripojiť sa k api.reservationdiary.eu                        <br/>"
-"V prípade, že tento problém nedokážete vyriešiť sami, kontaktujte nás priamo "
-"<a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
+"Restaurant Reservation sa znova pokúsi načítať kľúč API za vás."
+"                        <br/>Ak sa vám táto chyba zobrazuje aj naďalej, "
+"zvyčajne to znamená, že server, na ktorom hosťujete svoju webovú stránku, sa"
+" nemôže pripojiť k nášmu reservationdiary.eu serveru."
+"                        <br/>Môžete skúsiť požiadať svojho hostiteľa "
+"WordPress, aby povolil vášmu serveru WordPress pripojiť sa k "
+"api.reservationdiary.eu                        <br/>V prípade, že tento "
+"problém nedokážete vyriešiť sami, kontaktujte nás priamo <a "
+"href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 
 #: templates/admin_welcome.php:15
 msgid "ReDi restaurant reservation plugin is ready to use"
@@ -1950,7 +1939,8 @@ msgstr "Zaregistrujte sa na čakaciu listinu"
 
 #: templates/basicpackage.php:65
 msgid "Remind your customer about upcoming reservation via Email or by SMS"
-msgstr "Pripomeňte zákazníka o blížiacom rezervácie e-mailom alebo pomocou SMS"
+msgstr ""
+"Pripomeňte zákazníka o blížiacom rezervácie e-mailom alebo pomocou SMS"
 
 #: templates/admin.php:61 templates/admin_ajaxed.php:609
 msgid "Reminder"
@@ -2082,7 +2072,8 @@ msgstr "Obmedzenia rezervácií"
 msgid "Reservation settings"
 msgstr "Nastavenia rezervácie"
 
-#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+#: redi-restaurant-reservation-api.php:350
+#: redi-restaurant-reservation.php:2765
 msgid "Reservation that is canceled can not be modified."
 msgstr "Rezerváciu, ktorá je zrušená, nie je možné zmeniť."
 
@@ -2178,8 +2169,8 @@ msgstr "Zvolené dátum alebo čas nie je platný."
 
 #: templates/admin.php:340
 msgid ""
-"Selecting this option, the calendar is set to popup when the user clicks the "
-"calendar control."
+"Selecting this option, the calendar is set to popup when the user clicks the"
+" calendar control."
 msgstr ""
 "Voľba tejto možnosti, kalendár je nastavená na hodnotu V okne, keď "
 "používateľ klikne na ovládací prvok kalendára."
@@ -2280,9 +2271,9 @@ msgstr "Špeciálne požiadavky (voliteľné)"
 
 #: templates/admin_ajaxed.php:470
 msgid ""
-"Specify how late customers can make their booking in hours. For example, the "
-"current time is 10:00 and this setting is set to 3 hours then the first time,"
-" when the reservation will be accepted is 13:00."
+"Specify how late customers can make their booking in hours. For example, the"
+" current time is 10:00 and this setting is set to 3 hours then the first "
+"time, when the reservation will be accepted is 13:00."
 msgstr ""
 "Zadajte, ako oneskorení môžu zákazníci vykonať rezerváciu v hodinách. "
 "Napríklad aktuálny čas je 10:00 a toto nastavenie je nastavené na 3 hodiny, "
@@ -2394,8 +2385,8 @@ msgstr "Ďakujeme vám za rezerváciu."
 #: templates/admin.php:891
 #, fuzzy
 #| msgid ""
-#| "the confirmation email will be sent out from info@reservationdiary.eu. "
-#| "When the client replies to confirmation email, you will receive it."
+#| "the confirmation email will be sent out from info@reservationdiary.eu. When "
+#| "the client replies to confirmation email, you will receive it."
 msgid ""
 "The confirmation email will be sent out from info@reservationdiary.eu. When "
 "the client replies to confirmation email, you will receive it."
@@ -2426,8 +2417,8 @@ msgid ""
 "The email addresses of recipients who should be sent the copies of "
 "reservation emails. You can separate multiple recipients using commas."
 msgstr ""
-"E-mailové adresy príjemcov, ktorí by mali byť poslané kópie rezervačných e-"
-"mailov. Môžete oddeliť viacerých príjemcov čiarkami."
+"E-mailové adresy príjemcov, ktorí by mali byť poslané kópie rezervačných "
+"e-mailov. Môžete oddeliť viacerých príjemcov čiarkami."
 
 #: templates/admin.php:294
 msgid ""
@@ -2461,12 +2452,12 @@ msgstr ""
 #: templates/admin.php:882
 #, fuzzy
 #| msgid ""
-#| "The way you want confirmation email to be delivered to the client. It can "
-#| "be \"From WordPress email account\", \"From reservationdiary.eu\" or "
-#| "\"Disable confirmation email\"."
+#| "The way you want confirmation email to be delivered to the client. It can be"
+#| " \"From WordPress email account\", \"From reservationdiary.eu\" or \"Disable"
+#| " confirmation email\"."
 msgid ""
-"The way you want confirmation email to be delivered to the client. It can be "
-"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"The way you want confirmation email to be delivered to the client. It can be"
+" \"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
 "SMTP\" or \"Disable confirmation email\"."
 msgstr ""
 "Spôsob, akým budete chcieť potvrdzovací e-mail, ktoré majú byť dodané ku "
@@ -2490,16 +2481,6 @@ msgstr "Na tento čas nie je možné urobiť žiadne ďalšie rezervácie."
 msgid "There are no more reservations can be made for selected day."
 msgstr "Na vybraný deň nie je možné vykonať ďalšie rezervácie."
 
-#: templates/admin_ajaxed.php:105
-msgid ""
-"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
-"short code for specifying the place of reservation in case of multiple "
-"restaurants. <br/>Example of shortcode:"
-msgstr ""
-"<b>Tento identifikátor</b> je priradený k vášmu bývaniu. <b>ID</b> je možné "
-"použiť ako krátky kód na určenie miesta rezervácie v prípade viacerých "
-"reštaurácií. <br/>Príklad krátkeho kódu:"
-
 #: redi-restaurant-reservation.php:2033
 msgid "This date is in the past and cannot be selected"
 msgstr "Tento dátum je minulosťou a nemožno ho vybrať"
@@ -2509,16 +2490,17 @@ msgid ""
 "This field lets you edit settings for multiple places. Multiple places are "
 "available for Basic package users only."
 msgstr ""
-"Toto pole umožňuje upraviť nastavenie pre viacerých miestach. Viac miesta sú "
-"k dispozícii iba základné používateľov s komplexnými."
+"Toto pole umožňuje upraviť nastavenie pre viacerých miestach. Viac miesta sú"
+" k dispozícii iba základné používateľov s komplexnými."
 
 #: templates/admin.php:337
 msgid ""
 "This field lets you select the style in which the calendar control is "
 "displayed. It can be either \"Show on click\" or \"Always show”."
 msgstr ""
-"Toto pole umožňuje vybrať štýl, v ktorom sa zobrazí ovládací prvok kalendára."
-" To môže byť buď \"Zobraziť na kliknutie\" alebo \"Vždy zobrazovať\"."
+"Toto pole umožňuje vybrať štýl, v ktorom sa zobrazí ovládací prvok "
+"kalendára. To môže byť buď \"Zobraziť na kliknutie\" alebo \"Vždy "
+"zobrazovať\"."
 
 #: templates/admin.php:400
 msgid ""
@@ -2531,8 +2513,8 @@ msgstr ""
 #: templates/admin.php:543
 msgid ""
 "This is how the available time will be shown. This setting is taken from "
-"generic WordPress settings. You can change it in Settings -> General -> Time "
-"Format"
+"generic WordPress settings. You can change it in Settings -> General -> Time"
+" Format"
 msgstr ""
 "Takto sa zobrazí dostupný čas. Toto nastavenie je prevzaté zo všeobecných "
 "nastavení WordPress. Môžete ho zmeniť v Nastavenia -> Všeobecné -> Formát "
@@ -2540,8 +2522,8 @@ msgstr ""
 
 #: templates/admin_ajaxed.php:413
 msgid ""
-"This is the number of maximum persons in restaurant at any time. System will "
-"check automatically availability of free seats and will not allow to go "
+"This is the number of maximum persons in restaurant at any time. System will"
+" check automatically availability of free seats and will not allow to go "
 "beyond this number."
 msgstr ""
 "Jedná sa o maximálny počet osôb v reštaurácii kedykoľvek. Systém bude "
@@ -2593,8 +2575,8 @@ msgid ""
 "Time picker type if selected to be jQuery plugin, it is set to pop up with "
 "the hour and time."
 msgstr ""
-"Doba typ zberač v prípade vybraný, aby sa jQuery plugin, je nastavená na pop-"
-"up s hodinu a času."
+"Doba typ zberač v prípade vybraný, aby sa jQuery plugin, je nastavená na "
+"pop-up s hodinu a času."
 
 #: templates/admin.php:383
 msgid "TimePicker type"
@@ -2608,12 +2590,12 @@ msgstr "režim TimeShift"
 msgid ""
 "To schedule your session, simply click the image below: We provide "
 "complimentary one-on-one assistance for plugin setup. You can book a call "
-"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
-"Links are below."
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp."
+" Links are below."
 msgstr ""
 "Ak si chcete naplánovať reláciu, jednoducho kliknite na obrázok nižšie: "
-"Poskytujeme bezplatnú individuálnu pomoc pri nastavovaní doplnkov. Môžete si "
-"s nami rezervovať hovor cez Calendly alebo nás kontaktovať cez Skype, "
+"Poskytujeme bezplatnú individuálnu pomoc pri nastavovaní doplnkov. Môžete si"
+" s nami rezervovať hovor cez Calendly alebo nás kontaktovať cez Skype, "
 "Facebook alebo Whatsapp. Odkazy sú nižšie."
 
 #: redi-restaurant-reservation.php:2023 templates/frontend_v2.php:528
@@ -2635,11 +2617,12 @@ msgstr "Tue"
 #: redi-restaurant-reservation-api.php:341
 msgid ""
 "Unable to find reservation with provided information. Please verify that "
-"provided reservation number and personal information (email, phone, or name) "
-"is correct."
+"provided reservation number and personal information (email, phone, or name)"
+" is correct."
 msgstr ""
 "Nemôžem nájsť rezerváciu s poskytnutými informáciami. Overte si, či je "
-"uvedené číslo rezervácie a osobné údaje (e-mail, telefón alebo meno) správne."
+"uvedené číslo rezervácie a osobné údaje (e-mail, telefón alebo meno) "
+"správne."
 
 #: redi-restaurant-reservation.php:2757
 msgid ""
@@ -2695,20 +2678,17 @@ msgstr ""
 
 #: templates/basicpackage.php:35
 msgid ""
-"View your upcoming reservations from your Mobile/Tablet PC and never miss "
-"your customer. This page should be open on a Tablet PC and so hostess can "
-"see all upcoming reservations for today. Page refreshes every 15 min and "
-"shows reservations that in past for 3 hours as well as upcoming reservations "
-"for next 24 hours. By clicking on reservation you will see reservation "
-"details. Demo version can be accessed for 30 days using this link: "
+"Open Host Dashboard from your mobile or tablet and never miss a guest. Keep "
+"this page open on a tablet so the host can see all reservations for today. "
+"The page refreshes every 15 min and shows reservations from the past 3 hours"
+" as well as the next 24 hours. Click a reservation to see its details. A "
+"demo can be accessed for 30 days using this link: "
 msgstr ""
-"Zobraziť svoje nadchádzajúce výhrady zo svojho Mobile / Tablet PC a nikdy "
-"nezmeškáte svojich zákazníkov. Táto stránka by mala byť otvorená v počítači "
-"Tablet PC a tak hostiteľka môžete vidieť všetky nadchádzajúce výhrady k dnes."
-" Page obnovuje každých 15 minút a ukazuje výhrady, ktoré v minulosti po dobu "
-"3 hodín, ako aj nadchádzajúce rezervácií pre najbližších 24 hodín. Kliknutím "
-"na rezerváciu uvidíte detaily rezervácie. Demo verzia môže byť zobrazená "
-"počas 30 dní s použitím tohto odkazu:"
+"Otvorte Host Dashboard v telefóne alebo tablete a nenechajte si ujsť "
+"žiadneho hosťa. Nechajte stránku otvorenú na tablete, aby host videl všetky "
+"dnešné rezervácie. Stránka sa obnovuje každých 15 min. a zobrazuje "
+"rezervácie za posledné 3 hodiny aj na nasledujúcich 24 hodín. Kliknutím na "
+"rezerváciu zobrazíte podrobnosti. Demo je 30 dní dostupné cez tento odkaz:"
 
 #: templates/confirm.php:3
 msgid "Visit confirmation"
@@ -2735,8 +2715,14 @@ msgid "Wait List Setting"
 msgstr "Nastavenie zoznamu čakateľov"
 
 #: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
-msgid "Waiter Dashboard"
-msgstr "Dashboard čašníka"
+msgid "Host Dashboard on a tablet or phone"
+msgstr "Host Dashboard na tablete alebo telefóne"
+
+msgid "Host Dashboard"
+msgstr "Host dashboard"
+
+msgid "Open Host Dashboard →"
+msgstr "Otvoriť Host Dashboard →"
 
 #: templates/basicpackage.php:59
 msgid ""
@@ -2750,8 +2736,8 @@ msgstr ""
 
 #: templates/frontend_v2.php:932
 msgid ""
-"We have received your reservation request and are checking availability. You "
-"will be notified as soon as your reservation is approved. Please wait for "
+"We have received your reservation request and are checking availability. You"
+" will be notified as soon as your reservation is approved. Please wait for "
 "the confirmation."
 msgstr ""
 "Dostali sme vašu žiadosť o rezerváciu a preverujeme dostupnosť. Budete "
@@ -2767,8 +2753,8 @@ msgid ""
 "helping restaurants grow, simplify operations, and succeed in the digital "
 "age."
 msgstr ""
-"Hrdo spolupracujeme s vybranými partnermi, ktorí zdieľajú našu víziu pomáhať "
-"reštauráciám rásť, zjednodušovať prevádzku a uspieť v digitálnom veku."
+"Hrdo spolupracujeme s vybranými partnermi, ktorí zdieľajú našu víziu pomáhať"
+" reštauráciám rásť, zjednodušovať prevádzku a uspieť v digitálnom veku."
 
 #: templates/frontend.php:336
 msgid ""
@@ -2831,8 +2817,8 @@ msgstr "WhatsApp"
 msgid ""
 "When enabled guests has to enter their phone number with country code. This "
 "is most useful when there is a good amount of foreign visitors. Also this "
-"option has to be enabled when SMS addon is in use, as SMS Providers requires "
-"full phone number."
+"option has to be enabled when SMS addon is in use, as SMS Providers requires"
+" full phone number."
 msgstr ""
 "Keď je táto možnosť povolená, hostia musia zadať svoje telefónne číslo s "
 "kódom krajiny. To je najužitočnejšie, keď je veľké množstvo zahraničných "
@@ -2849,12 +2835,12 @@ msgstr "Keď nie je k dispozícii konkrétny čas"
 
 #: templates/admin.php:596
 msgid ""
-"When this enabled, start and end of reservation time will be displayed. This "
-"is useful when you want to inform the guest about fixed reservation time "
+"When this enabled, start and end of reservation time will be displayed. This"
+" is useful when you want to inform the guest about fixed reservation time "
 "frame."
 msgstr ""
-"Keď je táto možnosť povolená, zobrazí sa čas začiatku a konca rezervácie. To "
-"je užitočné, keď chcete hosťa informovať o pevnom časovom rámci rezervácie."
+"Keď je táto možnosť povolená, zobrazí sa čas začiatku a konca rezervácie. To"
+" je užitočné, keď chcete hosťa informovať o pevnom časovom rámci rezervácie."
 
 #: templates/admin.php:735
 msgid ""
@@ -2869,11 +2855,11 @@ msgstr ""
 #: templates/admin.php:988
 msgid ""
 "When translating the plugin, save translations in a separate folder outside "
-"the plugin directory. Then, provide the file path with translated strings in "
-"this setting to avoid issues with updates."
+"the plugin directory. Then, provide the file path with translated strings in"
+" this setting to avoid issues with updates."
 msgstr ""
-"Pri preklade pluginu uložte preklady do samostatného priečinka mimo adresára "
-"pluginu. Potom v tomto nastavení zadajte cestu k súboru s preloženými "
+"Pri preklade pluginu uložte preklady do samostatného priečinka mimo adresára"
+" pluginu. Potom v tomto nastavení zadajte cestu k súboru s preloženými "
 "reťazcami, aby ste sa vyhli problémom s aktualizáciami."
 
 #: templates/admin.php:406
@@ -2886,7 +2872,8 @@ msgstr ""
 
 #: templates/admin.php:894
 #, fuzzy
-#| msgid "with this option, confirmation email is not sent to the client."
+#| msgid ""
+#| "with this option, confirmation email is not sent to the client."
 msgid "With this option, confirmation email is not sent to the client."
 msgstr "S touto voľbou, potvrdzovací e-mail nie je odoslaný klientovi."
 
@@ -2897,16 +2884,6 @@ msgstr "Pracovná doba"
 #: redi-restaurant-reservation.php:2039 redi-restaurant-reservation.php:2095
 msgid "Yes"
 msgstr "Áno"
-
-#: templates/admin_welcome_no_page.php:12
-msgid ""
-"You can create dedicated reservation page below, or you can skip this step "
-"and create page manually. When you create page manually, insert "
-"[redireservation] shortcode to the page."
-msgstr ""
-"Nižšie môžete vytvoriť špeciálnu rezervačnú stránku, alebo môžete tento krok "
-"preskočiť a vytvoriť stránku manuálne. Pri manuálnom vytváraní stránky "
-"vložte na stránku krátky kód [redireservation]."
 
 #: templates/admin_welcome.php:21
 msgid "You can find the documentation for this plugin here"
@@ -2983,8 +2960,9 @@ msgid ""
 "restaurant staff. Please note that the reservation is not guaranteed until "
 "you receive confirmation."
 msgstr ""
-"Vaša žiadosť o rezerváciu bola prijatá a personál reštaurácie ju skontroluje."
-" Upozorňujeme, že rezervácia nie je zaručená, kým nedostanete potvrdenie."
+"Vaša žiadosť o rezerváciu bola prijatá a personál reštaurácie ju "
+"skontroluje. Upozorňujeme, že rezervácia nie je zaručená, kým nedostanete "
+"potvrdenie."
 
 #: templates/frontend.php:343 templates/frontend_v2.php:939
 msgid "Your reservation request number for reference:"
@@ -3000,9 +2978,194 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: templates/admin.php:221 templates/admin.php:230
-msgid "Zeplin 25 theme (BETA)"
-msgstr "Motív Zeplin 25 (BETA)"
+msgid "Zeplin 25 theme"
+msgstr "Motív Zeplin 25"
 
 #: templates/admin.php:473
 msgid "Сhildren selection"
 msgstr "Výber detí"
+
+#: templates/admin_welcome_no_page.php:11
+msgid ""
+"You can create a dedicated reservation page below, or skip this step and "
+"create a page manually."
+msgstr ""
+"Nižšie môžete vytvoriť vyhradenú stránku rezervácií, alebo tento krok "
+"preskočiť a vytvoriť stránku ručne."
+
+#: templates/admin_welcome_no_page.php:12 templates/admin_welcome.php:15
+#: templates/admin.php:89
+msgid "Your shortcode"
+msgstr "Váš shortcode"
+
+#: templates/admin_welcome_no_page.php:13 templates/admin_welcome.php:16
+#: templates/admin.php:90
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed. Paste it into any page to show the reservation form."
+msgstr ""
+"Pre jednu reštauráciu bez prispôsobenia je potrebný len tento shortcode. "
+"Vložte ho na ľubovoľnú stránku, aby sa zobrazil rezervačný formulár."
+
+#: templates/admin_ajaxed.php:99
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed:"
+msgstr ""
+"Pre jednu reštauráciu bez prispôsobenia je potrebný len tento shortcode:"
+
+#: templates/admin_ajaxed.php:102
+msgid ""
+"This <b>Place ID</b> is associated with your restaurant. Use it in the "
+"shortcode only if you have multiple restaurants or need the form tied to a "
+"specific location."
+msgstr ""
+"Toto <b>Place ID</b> je spojené s vašou reštauráciou. Použite ho v shortcode"
+" iba vtedy, ak máte viac reštaurácií alebo potrebujete formulár viazať na "
+"konkrétne miesto."
+
+#: templates/admin_ajaxed.php:103
+msgid "Example for multiple restaurants:"
+msgstr "Príklad pre viacero reštaurácií:"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a location first"
+msgstr "Najprv vyberte miesto"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of guests first"
+msgstr "Najprv vyberte počet hostí"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of children first"
+msgstr "Najprv vyberte počet detí"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a date first"
+msgstr "Najprv vyberte dátum"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a time first"
+msgstr "Najprv vyberte čas"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a menu first"
+msgstr "Najprv vyberte menu"
+
+#: redi-restaurant-reservation.php
+msgid "Closed"
+msgstr "Zatvorené"
+
+#: redi-restaurant-reservation.php
+msgid "Out of range"
+msgstr "Mimo rozsahu"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant"
+msgstr "Reštaurácia"
+
+#: redi-restaurant-reservation.php
+msgid "Select year"
+msgstr "Vyberte rok"
+
+#: redi-restaurant-reservation.php
+msgid "Selected date"
+msgstr "Vybraný dátum"
+
+#: redi-restaurant-reservation.php
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr ""
+"Dobrý deň, mohli by ste mi prosím vytvoriť rezerváciu s nasledujúcimi údajmi"
+
+#: redi-restaurant-reservation.php
+msgid ""
+"A confirmation email has been sent to you with your updated reservation "
+"details. You may contact the restaurant directly if you need further "
+"changes."
+msgstr ""
+"Bol vám odoslaný potvrdzovací e-mail s aktualizovanými údajmi o rezervácii. "
+"Ak potrebujete ďalšie zmeny, kontaktujte priamo reštauráciu."
+
+#: redi-restaurant-reservation.php
+msgid "and"
+msgstr "a"
+
+#: redi-restaurant-reservation.php
+msgid "apply"
+msgstr "použiť"
+
+#: redi-restaurant-reservation.php
+msgid "Menu"
+msgstr "Menu"
+
+#: redi-restaurant-reservation.php
+msgid "Menu Item"
+msgstr "Položka menu"
+
+#: redi-restaurant-reservation.php
+msgid "Loading menu items"
+msgstr "Načítavanie položiek menu"
+
+#: redi-restaurant-reservation.php
+msgid "Selected"
+msgstr "Vybrané"
+
+#: redi-restaurant-reservation.php
+msgid "Day"
+msgstr "Deň"
+
+#: redi-restaurant-reservation.php
+msgid "Month"
+msgstr "Mesiac"
+
+#: redi-restaurant-reservation.php
+msgid "Year"
+msgstr "Rok"
+
+#: redi-restaurant-reservation.php
+msgid "Error"
+msgstr "Chyba"
+
+#: redi-restaurant-reservation.php
+msgid "Info"
+msgstr "Info"
+
+#: redi-restaurant-reservation.php
+msgid "Privacy Policy"
+msgstr "Zásady ochrany osobných údajov"
+
+#: redi-restaurant-reservation.php
+msgid "Terms of Service"
+msgstr "Podmienky služby"
+
+#: redi-restaurant-reservation.php
+msgid "Unable to verify you are human. Please try again."
+msgstr "Nepodarilo sa overiť, že ste človek. Skúste to prosím znova."
+
+#: redi-restaurant-reservation.php
+msgid "Please complete the captcha"
+msgstr "Vyplňte prosím captcha"
+
+#: redi-restaurant-reservation.php
+msgid "This site is protected by reCAPTCHA and the Google"
+msgstr "Táto stránka je chránená službou reCAPTCHA a Google"
+
+#: redi-restaurant-reservation.php
+msgid "Update Booking"
+msgstr "Aktualizovať rezerváciu"
+
+#: redi-restaurant-reservation.php
+msgid "Updating reservation"
+msgstr "Aktualizácia rezervácie"
+
+#: redi-restaurant-reservation.php
+msgid "Your reservation has been updated!"
+msgstr "Vaša rezervácia bola aktualizovaná!"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant not found"
+msgstr "Reštaurácia nebola nájdená"
+
+#: redi-restaurant-reservation.php
+msgid "Request for reservations (Reservation form is not working)"
+msgstr "Žiadosť o rezervácie (rezervačný formulár nefunguje)"

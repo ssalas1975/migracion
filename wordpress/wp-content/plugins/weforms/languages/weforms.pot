@@ -2,9 +2,9 @@
 # This file is distributed under the GPL2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: weForms 1.6.28\n"
+"Project-Id-Version: weForms 1.6.29\n"
 "Report-Msgid-Bugs-To: https://wedevs.com/contact/\n"
-"POT-Creation-Date: 2026-03-05 16:43:14+00:00\n"
+"POT-Creation-Date: 2026-10-16 16:08:49+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,7 +67,7 @@ msgid "Forms"
 msgstr ""
 
 #: includes/admin/class-admin.php:58 includes/class-form-widget.php:49
-#: includes/functions.php:803
+#: includes/functions.php:1126
 msgid "Form"
 msgstr ""
 
@@ -160,14 +160,14 @@ msgid "Invalid nonce"
 msgstr ""
 
 #: includes/admin/class-admin.php:195
-#: includes/api/class-weforms-forms-controller.php:1368
-#: includes/functions.php:823
+#: includes/api/class-weforms-forms-controller.php:1371
+#: includes/functions.php:1146
 msgid "IP Address"
 msgstr ""
 
 #: includes/admin/class-admin.php:196
-#: includes/api/class-weforms-forms-controller.php:1369
-#: includes/functions.php:814
+#: includes/api/class-weforms-forms-controller.php:1372
+#: includes/functions.php:1137
 #: includes/templates/class-template-restaurant-reservation.php:61
 msgid "Date"
 msgstr ""
@@ -212,8 +212,8 @@ msgstr ""
 msgid "UPGRADE NOW!"
 msgstr ""
 
-#: includes/admin/class-form-builder-assets.php:46 includes/functions.php:1218
-#: includes/functions.php:1221
+#: includes/admin/class-form-builder-assets.php:46 includes/functions.php:1541
+#: includes/functions.php:1544
 msgid "New Form Submission"
 msgstr ""
 
@@ -382,11 +382,11 @@ msgid "HP Anti-Spam"
 msgstr ""
 
 #: includes/admin/class-form-builder-assets.php:379
-#: includes/admin/class-privacy.php:244 includes/functions.php:821
+#: includes/admin/class-privacy.php:244 includes/functions.php:1144
 msgid "User"
 msgstr ""
 
-#: includes/admin/class-form-builder-assets.php:381 includes/functions.php:825
+#: includes/admin/class-form-builder-assets.php:381 includes/functions.php:1148
 #: includes/integrations/mailpoet/component/template.php:38
 #: includes/templates/class-template-conference-proposal.php:33
 #: includes/templates/class-template-donation-form.php:32
@@ -1445,7 +1445,7 @@ msgstr ""
 #: includes/api/class-weforms-forms-controller.php:163
 #: includes/api/class-weforms-forms-controller.php:170
 #: includes/api/class-weforms-forms-controller.php:197
-#: includes/api/class-weforms-forms-controller.php:988
+#: includes/api/class-weforms-forms-controller.php:991
 msgid "Unique identifier for the object"
 msgstr ""
 
@@ -1531,70 +1531,70 @@ msgstr ""
 msgid "Could not create an entry"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:797
-#: includes/api/class-weforms-forms-controller.php:822
+#: includes/api/class-weforms-forms-controller.php:800
+#: includes/api/class-weforms-forms-controller.php:825
 #: includes/class-ajax.php:354
 msgid "Could not create the form"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:897
+#: includes/api/class-weforms-forms-controller.php:900
 msgid "Could not delete the form"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:901
+#: includes/api/class-weforms-forms-controller.php:904
 msgid "form  deleted successfully"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:924
+#: includes/api/class-weforms-forms-controller.php:927
 msgid "Could not duplicate the form"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1066
+#: includes/api/class-weforms-forms-controller.php:1069
 msgid "Form not found"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1072
+#: includes/api/class-weforms-forms-controller.php:1075
 msgid "Unable to delete form"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1099
+#: includes/api/class-weforms-forms-controller.php:1102
 #: includes/class-ajax.php:313
 msgid "No form ids provided!"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1110
+#: includes/api/class-weforms-forms-controller.php:1113
 msgid "form  deleted successfully "
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1235
+#: includes/api/class-weforms-forms-controller.php:1238
 #: includes/class-ajax.php:1169
 msgid "No file found to import."
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1249
+#: includes/api/class-weforms-forms-controller.php:1252
 #: includes/class-ajax.php:1182
 msgid "The forms have been imported successfully!"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1257
+#: includes/api/class-weforms-forms-controller.php:1260
 #: includes/class-ajax.php:1184
 msgid "Something went wrong importing the file."
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1260
+#: includes/api/class-weforms-forms-controller.php:1263
 #: includes/class-ajax.php:1187
 msgid "Invalid file or file size too big."
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1357
+#: includes/api/class-weforms-forms-controller.php:1360
 msgid "Form id not exists"
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1440
+#: includes/api/class-weforms-forms-controller.php:1443
 msgid "Sorry, you have no permission to submit this form."
 msgstr ""
 
-#: includes/api/class-weforms-forms-controller.php:1482
+#: includes/api/class-weforms-forms-controller.php:1485
 msgid "Please provide a form id"
 msgstr ""
 
@@ -1628,11 +1628,11 @@ msgstr ""
 msgid "File Size exceeds limit!"
 msgstr ""
 
-#: includes/api/class-weforms-uploads-controller.php:207
+#: includes/api/class-weforms-uploads-controller.php:208
 msgid "could not upload file"
 msgstr ""
 
-#: includes/api/class-weforms-uploads-controller.php:356
+#: includes/api/class-weforms-uploads-controller.php:357
 msgid "Sorry, you have no permission to upload File."
 msgstr ""
 
@@ -2337,43 +2337,43 @@ msgstr ""
 msgid "This is a premium field. You need to upgrade."
 msgstr ""
 
-#: includes/functions.php:805
+#: includes/functions.php:1128
 msgid "Entry ID"
 msgstr ""
 
-#: includes/functions.php:806
+#: includes/functions.php:1129
 msgid "Form ID"
 msgstr ""
 
-#: includes/functions.php:807
+#: includes/functions.php:1130
 msgid "Form Name"
 msgstr ""
 
-#: includes/functions.php:811
+#: includes/functions.php:1134
 msgid "System"
 msgstr ""
 
-#: includes/functions.php:813
+#: includes/functions.php:1136
 msgid "Site Administrator Email"
 msgstr ""
 
-#: includes/functions.php:815
+#: includes/functions.php:1138
 msgid "Site Title"
 msgstr ""
 
-#: includes/functions.php:816
+#: includes/functions.php:1139
 msgid "Site URL"
 msgstr ""
 
-#: includes/functions.php:817
+#: includes/functions.php:1140
 msgid "Embedded Page Title"
 msgstr ""
 
-#: includes/functions.php:824
+#: includes/functions.php:1147
 msgid "User ID"
 msgstr ""
 
-#: includes/functions.php:826
+#: includes/functions.php:1149
 #: includes/integrations/mailpoet/component/template.php:50
 #: includes/templates/class-template-conference-proposal.php:38
 #: includes/templates/class-template-donation-form.php:37
@@ -2385,90 +2385,90 @@ msgstr ""
 msgid "Last Name"
 msgstr ""
 
-#: includes/functions.php:827
+#: includes/functions.php:1150
 msgid "Display Name"
 msgstr ""
 
-#: includes/functions.php:828
+#: includes/functions.php:1151
 msgid "Email"
 msgstr ""
 
-#: includes/functions.php:832
+#: includes/functions.php:1155
 msgid "URL's"
 msgstr ""
 
-#: includes/functions.php:834
+#: includes/functions.php:1157
 msgid "Embeded Page URL"
 msgstr ""
 
-#: includes/functions.php:835
+#: includes/functions.php:1158
 msgid "Referer URL"
 msgstr ""
 
-#: includes/functions.php:836
+#: includes/functions.php:1159
 msgid "Login URL"
 msgstr ""
 
-#: includes/functions.php:837
+#: includes/functions.php:1160
 msgid "Logout URL"
 msgstr ""
 
-#: includes/functions.php:838
+#: includes/functions.php:1161
 msgid "Register URL"
 msgstr ""
 
-#: includes/functions.php:839
+#: includes/functions.php:1162
 msgid "Lost Password URL"
 msgstr ""
 
-#: includes/functions.php:840
+#: includes/functions.php:1163
 msgid "Personal Data Erase Confirmation URL"
 msgstr ""
 
-#: includes/functions.php:841
+#: includes/functions.php:1164
 msgid "Personal Data Export Confirmation URL"
 msgstr ""
 
-#: includes/functions.php:1034
+#: includes/functions.php:1357
 msgid "Images"
 msgstr ""
 
-#: includes/functions.php:1038
+#: includes/functions.php:1361
 msgid "Audio"
 msgstr ""
 
-#: includes/functions.php:1042
+#: includes/functions.php:1365
 msgid "Videos"
 msgstr ""
 
-#: includes/functions.php:1046
+#: includes/functions.php:1369
 msgid "PDF"
 msgstr ""
 
-#: includes/functions.php:1050
+#: includes/functions.php:1373
 msgid "Office Documents"
 msgstr ""
 
-#: includes/functions.php:1054
+#: includes/functions.php:1377
 msgid "Zip Archives"
 msgstr ""
 
-#: includes/functions.php:1058
+#: includes/functions.php:1381
 msgid "Executable Files"
 msgstr ""
 
-#: includes/functions.php:1062
+#: includes/functions.php:1385
 msgid "CSV"
 msgstr ""
 
-#: includes/functions.php:1132
+#: includes/functions.php:1455
 #: includes/importer/class-importer-abstract.php:898
 #: includes/importer/class-importer-gf.php:271
 #: includes/templates/class-template-to-do-list.php:67
 msgid "Thanks for contacting us! We will get in touch with you shortly."
 msgstr ""
 
-#: includes/functions.php:1136
+#: includes/functions.php:1459
 #: includes/templates/class-template-admission-form.php:135
 #: includes/templates/class-template-bug-report.php:180
 #: includes/templates/class-template-comment-and-rating.php:56
@@ -2480,35 +2480,35 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: includes/functions.php:1152
+#: includes/functions.php:1475
 #: includes/importer/class-importer-abstract.php:906
 msgid "Form submission hasn't been started yet"
 msgstr ""
 
-#: includes/functions.php:1153
+#: includes/functions.php:1476
 #: includes/importer/class-importer-abstract.php:907
 msgid "Form submission is now closed."
 msgstr ""
 
-#: includes/functions.php:1155
+#: includes/functions.php:1478
 #: includes/importer/class-importer-abstract.php:909
 msgid "You need to login to submit a query."
 msgstr ""
 
-#: includes/functions.php:1158
+#: includes/functions.php:1481
 #: includes/importer/class-importer-abstract.php:912
 msgid "Sorry, we have reached the maximum number of submissions."
 msgstr ""
 
-#: includes/functions.php:1173
+#: includes/functions.php:1496
 msgid "PayPal"
 msgstr ""
 
-#: includes/functions.php:1174
+#: includes/functions.php:1497
 msgid "Credit Card"
 msgstr ""
 
-#: includes/functions.php:1220
+#: includes/functions.php:1543
 msgid "Admin Notification"
 msgstr ""
 

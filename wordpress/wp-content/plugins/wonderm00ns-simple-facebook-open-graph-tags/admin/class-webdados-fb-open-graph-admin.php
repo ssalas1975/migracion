@@ -142,7 +142,7 @@ if ( ! class_exists( 'Webdados_FB_Admin' ) ) :
 		 * @return array Modified array with settings link added.
 		 */
 		public function place_settings_link( $links ) {
-			$settings_link = '<a href="options-general.php?page=' . esc_attr( basename( __FILE__ ) ) . '">' . __( 'Settings', 'wonderm00ns-simple-facebook-open-graph-tags' ) . '</a>';
+			$settings_link = '<a href="options-general.php?page=ogatc-settings">' . __( 'Settings', 'wonderm00ns-simple-facebook-open-graph-tags' ) . '</a>';
 			// Place it before other links.
 			array_unshift( $links, $settings_link );
 			return $links;
@@ -666,7 +666,18 @@ if ( ! class_exists( 'Webdados_FB_Admin' ) ) :
 		 * @since 1.0.0
 		 */
 		public function admin_style() {
-			wp_enqueue_style( 'webdados_fb_admin_style', plugins_url( 'css/webdados-fb-open-graph-admin.css', __FILE__ ), false, $this->version );
+			wp_enqueue_style(
+				'webdados-fb-poppins',
+				'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap',
+				array(),
+				null
+			);
+			wp_enqueue_style(
+				'webdados_fb_admin_style',
+				plugins_url( 'css/webdados-fb-open-graph-admin.css', __FILE__ ),
+				array( 'webdados-fb-poppins' ),
+				$this->version
+			);
 		}
 		/**
 		 * Enqueue admin JavaScript.

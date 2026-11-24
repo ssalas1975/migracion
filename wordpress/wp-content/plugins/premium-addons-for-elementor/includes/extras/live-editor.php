@@ -116,72 +116,103 @@ if ( ! class_exists( 'Live_Editor' ) ) {
 
 			check_ajax_referer( 'pa-live-editor', 'security' );
 
+			if ( ! current_user_can( 'publish_posts' ) ) {
+				wp_send_json_error( 'Insufficient user permission', 403 );
+			}
+
 			if ( ! isset( $_POST['key'] ) ) { // Widget ID ( + Control ID in case of repeater items ).
 				wp_send_json_error();
 			}
 
-			$post_name  = 'pa-dynamic-temp-' . sanitize_text_field( wp_unslash( $_POST['key'] ) );
-			$temp_type  = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : false;
-			$meta_input = array(
-				'_elementor_edit_mode'     => 'builder',
-				'_elementor_template_type' => 'page',
-				'_wp_page_template'        => 'elementor_canvas',
+			$key       = sanitize_text_field( wp_unslash( $_POST['key'] ) );
+			$temp_type = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : false;
+
+			wp_send_json_success( self::get_or_create_dynamic_template( $key, $temp_type ) );
+		}
+
+		/**
+		 * Get the published dynamic template for a key, creating it when missing.
+		 *
+		 * Shared with the configure-menu-item ability, so the "Edit Mega Content"
+		 * button and the AI always resolve the same template.
+		 *
+		 * @since 4.11.110
+		 *
+		 * @param string       $key  Sanitized key: widget ID (+ repeater item ID), or a menu item ID.
+		 * @param string|false $type Template type: 'loop', 'grid', or anything else for a page.
+		 * @return array { url, id, title }. id is 0 when the template could not be created.
+		 */
+		public static function get_or_create_dynamic_template( $key, $type = false ) {
+
+			$post_name = 'pa-dynamic-temp-' . $key;
+
+			$post = get_posts(
+				array(
+					'post_type'              => 'elementor_library',
+					'name'                   => $post_name,
+					'post_status'            => 'publish',
+					'update_post_term_cache' => false,
+					'update_post_meta_cache' => false,
+					'posts_per_page'         => 1,
+				)
 			);
 
-			if ( 'loop' === $temp_type ) {
-				$meta_input = array(
+			if ( empty( $post ) ) {
+
+				$post_title = 'PA Template | #' . substr( md5( $key ), 0, 4 );
+
+				$post_id = wp_insert_post(
+					array(
+						'post_content' => '',
+						'post_type'    => 'elementor_library',
+						'post_title'   => $post_title,
+						'post_name'    => $post_name,
+						'post_status'  => 'publish',
+						'meta_input'   => self::get_dynamic_template_meta( $type ),
+					)
+				);
+
+			} else {
+				$post_id    = $post[0]->ID;
+				$post_title = $post[0]->post_title;
+			}
+
+			return array(
+				'url'   => get_admin_url() . '/post.php?post=' . $post_id . '&action=elementor',
+				'id'    => $post_id,
+				'title' => $post_title,
+			);
+		}
+
+		/**
+		 * Get the Elementor meta a new dynamic template is created with.
+		 *
+		 * @since 4.11.110
+		 *
+		 * @param string|false $type Template type: 'loop', 'grid', or anything else for a page.
+		 * @return array
+		 */
+		private static function get_dynamic_template_meta( $type ) {
+
+			if ( 'loop' === $type ) {
+				return array(
 					'_elementor_edit_mode'     => 'builder',
 					'_elementor_template_type' => 'loop-item',
 				);
-			} elseif ( 'grid' === $temp_type ) {
-				$meta_input = array(
+			}
+
+			if ( 'grid' === $type ) {
+				return array(
 					'_elementor_edit_mode'     => 'builder',
 					'_elementor_template_type' => 'premium-grid',
 				);
 			}
 
-			$post_title = '';
-			$args       = array(
-				'post_type'              => 'elementor_library',
-				'name'                   => $post_name,
-				'post_status'            => 'publish',
-				'update_post_term_cache' => false,
-				'update_post_meta_cache' => false,
-				'posts_per_page'         => 1,
+			return array(
+				'_elementor_edit_mode'     => 'builder',
+				'_elementor_template_type' => 'page',
+				'_wp_page_template'        => 'elementor_canvas',
 			);
-
-			$post = get_posts( $args );
-
-			if ( empty( $post ) ) { // create a new one.
-
-				$key        = sanitize_text_field( wp_unslash( $_POST['key'] ) );
-				$post_title = 'PA Template | #' . substr( md5( $key ), 0, 4 );
-
-				$params = array(
-					'post_content' => '',
-					'post_type'    => 'elementor_library',
-					'post_title'   => $post_title,
-					'post_name'    => $post_name,
-					'post_status'  => 'publish',
-					'meta_input'   => $meta_input,
-				);
-
-				$post_id = wp_insert_post( $params );
-
-			} else { // edit post.
-				$post_id    = $post[0]->ID;
-				$post_title = $post[0]->post_title;
-			}
-
-			$edit_url = get_admin_url() . '/post.php?post=' . $post_id . '&action=elementor';
-
-			$result = array(
-				'url'   => $edit_url,
-				'id'    => $post_id,
-				'title' => $post_title,
-			);
-
-			wp_send_json_success( $result );
 		}
 
 		/**
@@ -212,7 +243,7 @@ if ( ! class_exists( 'Live_Editor' ) ) {
 				'post_status'      => 'publish',
 				'posts_per_page'   => 1,
 				'title'            => $decoded_title,
-				'suppress_filters' => true,
+				'suppress_filters' => true, // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.SuppressFilters_suppress_filters -- match the exact title, unfiltered by language or access plugins.
 			);
 
 			$query = new \WP_Query( $args );
@@ -264,6 +295,10 @@ if ( ! class_exists( 'Live_Editor' ) ) {
 			$temp_id   = isset( $_POST['templateID'] ) ? sanitize_text_field( wp_unslash( $_POST['templateID'] ) ) : '';
 			$temp_type = isset( $_POST['tempType'] ) ? sanitize_text_field( wp_unslash( $_POST['tempType'] ) ) : '';
 
+			if ( ! self::is_dynamic_template( $temp_id ) ) {
+				wp_send_json_error( 'Only live editor templates can be removed', 403 );
+			}
+
 			if ( 'loop' === $temp_type ) {
 				/** @var LoopDocument $document */
 				$template_content = PluginPro::elementor()->documents->get( $temp_id );
@@ -285,6 +320,21 @@ if ( ! class_exists( 'Live_Editor' ) ) {
 			}
 
 			wp_send_json_success( $res );
+		}
+
+		/**
+		 * Whether a post is a template created by the live editor.
+		 *
+		 * @since 4.11.116
+		 *
+		 * @param int|string $post_id post ID.
+		 * @return bool
+		 */
+		private static function is_dynamic_template( $post_id ) {
+
+			$post = get_post( $post_id );
+
+			return $post && 'elementor_library' === $post->post_type && 0 === strpos( $post->post_name, 'pa-dynamic-temp-' );
 		}
 
 		/**

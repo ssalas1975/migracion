@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Based roughly on wp-login.php @revision 19414
  * http://core.trac.wordpress.org/browser/trunk/wp-login.php?rev=19414
@@ -7,6 +11,7 @@
 
 global $wp_version, $Password_Protected, $error, $is_iphone;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 /**
  * WP Shake JS
  */
@@ -38,6 +43,7 @@ if ( ! function_exists( 'wp_login_viewport_meta' ) ) {
 		<?php
 	}
 }
+// phpcs:enable
 
 nocache_headers();
 header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_bloginfo( 'charset' ) );
@@ -49,13 +55,14 @@ if ( SITECOOKIEPATH != COOKIEPATH ) {
 }
 
 // If cookies are disabled we can't log in even with a valid password.
+// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Cookie test on public login form.
 if ( isset( $_POST['password_protected_cookie_test'] ) && empty( $_COOKIE[ TEST_COOKIE ] ) ) {
 	$Password_Protected->errors->add( 'test_cookie', __( "<strong>ERROR</strong>: Cookies are blocked or not supported by your browser. You must <a href='http://www.google.com/cookies.html'>enable cookies</a> to use WordPress.", 'password-protected' ) );
 }
 
 // Shake it!
-$shake_error_codes = array( 'empty_password', 'incorrect_password' );
-if ( $Password_Protected->errors->get_error_code() && in_array( $Password_Protected->errors->get_error_code(), $shake_error_codes ) ) {
+$password_protected_shake_error_codes = array( 'empty_password', 'incorrect_password' );
+if ( $Password_Protected->errors->get_error_code() && in_array( $Password_Protected->errors->get_error_code(), $password_protected_shake_error_codes ) ) {
 	add_action( 'password_protected_login_head', 'wp_shake_js', 12 );
 }
 
@@ -75,7 +82,7 @@ add_action( 'password_protected_login_head', 'wp_login_viewport_meta' );
 <head>
 
 <meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
-<title><?php echo apply_filters( 'password_protected_wp_title', get_bloginfo( 'name' ) ); ?></title>
+<title><?php echo esc_html( apply_filters( 'password_protected_wp_title', get_bloginfo( 'name' ) ) ); ?></title>
 
 <?php
 
@@ -108,6 +115,7 @@ if ( $is_iphone ) {
 	<?php
 }
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress login script compatibility.
 do_action( 'login_enqueue_scripts' );
 if ( class_exists( 'Login_Designer' ) ) {
 	do_action( 'password_protected_enqueue_scripts' );
@@ -117,7 +125,7 @@ do_action( 'password_protected_login_head' );
 ?>
 
 </head>
-<body class="login login-password-protected login-action-password-protected-login wp-core-ui">
+<body class="login login-password-protected login-action-password-protected-login wp-core-ui admin-color-modern">
 
 <div id="login">
 	<h1 class="wp-login-logo" id="password-protected-logo"><a href="<?php echo esc_url( apply_filters( 'password_protected_login_headerurl', home_url( '/' ) ) ); ?>" title="<?php echo esc_attr( apply_filters( 'password_protected_login_headertitle', get_bloginfo( 'name' ) ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
@@ -179,7 +187,7 @@ do_action( 'password_protected_login_head' );
                         tabindex="102"
                     />
                     &nbsp;
-                    <?php esc_attr_e( 'Remember Me' ); ?>
+                    <?php esc_attr_e( 'Remember Me', 'password-protected' ); ?>
                 </label>
 			</p>
 		<?php endif; ?>
@@ -190,12 +198,15 @@ do_action( 'password_protected_login_head' );
                 name="wp-submit"
                 id="wp-submit"
                 class="button button-primary button-large"
-                value="<?php esc_attr_e( 'Log In' ); ?>"
+                value="<?php echo esc_attr( apply_filters( 'password_protected_login_button_text', __( 'Log In', 'password-protected' ) ) ); ?>"
                 tabindex="103"
             />
 			<input type="hidden" name="password_protected_cookie_test" value="1" />
 			<input type="hidden" name="password-protected" value="login" />
-			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( ! empty( $_REQUEST['redirect_to'] ) ? esc_url( $_REQUEST['redirect_to'] ) : '' ); ?>" />
+			<input type="hidden" name="redirect_to" value="<?php
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public login form redirect target.
+			echo esc_attr( ! empty( $_REQUEST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) ) : '' );
+			?>" />
 		</p>
 
         <div style="display: table;clear: both;"></div>
@@ -216,13 +227,11 @@ if(typeof wpOnload=='function')wpOnload();
 try{let s=document.getElementById("pp-hide-show-password");s.addEventListener("click",function(e){e.preventDefault();let t=document.getElementById("password_protected_pass");"password"===t.type?(t.type="text",s.innerHTML='<span class="dashicons dashicons-hidden" aria-hidden="true"></span>'):(t.type="password",s.innerHTML='<span class="dashicons dashicons-visibility" aria-hidden="true"></span>')})}catch(e){}
 </script>
 
-<?php do_action( 'login_footer' ); ?>
+<?php do_action( 'login_footer' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress login script compatibility. ?>
 
 <div class="clear"></div>
 
-<?php if ( class_exists( 'Login_Designer' ) ) : ?>
-	<div id="password-protected-background" style="position:absolute; inset: 0;width: 100%;height: 100%;z-index: -1;transition: opacity 300ms cubic-bezier(0.694, 0, 0.335, 1) 0s"></div>
-<?php endif; ?>
+<div id="password-protected-background" style="position:absolute; inset: 0;width: 100%;height: 100%;z-index: -1;transition: opacity 300ms cubic-bezier(0.694, 0, 0.335, 1) 0s"></div>
 
 </body>
 </html>

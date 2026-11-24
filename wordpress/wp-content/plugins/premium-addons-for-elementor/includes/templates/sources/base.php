@@ -84,20 +84,7 @@ abstract class Premium_Templates_Source_Base {
 	 * @param array $value
 	 */
 	public function set_templates_cache( $value ) {
-
-		$localhost = array(
-			'127.0.0.1',
-			'::1',
-		);
-
-		if ( ! isset( $_SERVER['REMOTE_ADDR'] ) ) {
-			return;
-		}
-
-		// Load templates remotely if localhost.
-		if ( ! in_array( $_SERVER['REMOTE_ADDR'], $localhost ) ) {
-			set_transient( $this->templates_key(), $value, $this->transient_lifetime() );
-		}
+		set_transient( $this->templates_key(), $value, $this->transient_lifetime() );
 	}
 
 	/**
@@ -105,18 +92,7 @@ abstract class Premium_Templates_Source_Base {
 	 */
 	public function get_templates_cache() {
 
-		// if ( $this->is_debug_active() ) {
-		// return false;
-		// }
-
 		return get_transient( $this->templates_key() );
-	}
-
-	/**
-	 * Delete templates cache
-	 */
-	public function delete_templates_cache() {
-		delete_transient( $this->templates_key() );
 	}
 
 	/**
@@ -127,26 +103,11 @@ abstract class Premium_Templates_Source_Base {
 	}
 
 	/**
-	 * Set categories cache.
-	 *
-	 * @param array $value
+	 * Get categories cache.
 	 */
 	public function get_categories_cache() {
 
-		// if ( $this->is_debug_active() ) {
-		// return false;
-		// }
-
 		return get_transient( $this->categories_key() );
-	}
-
-	/**
-	 * Delete categories cache
-	 *
-	 * @return [type] [description]
-	 */
-	public function delete_categories_cache() {
-		delete_transient( $this->categories_key() );
 	}
 
 	/**
@@ -159,39 +120,39 @@ abstract class Premium_Templates_Source_Base {
 	}
 
 	/**
-	 * Set categories cache.
-	 *
-	 * @param array $value cached value.
+	 * Get keywords cache.
 	 */
 	public function get_keywords_cache() {
-
-		// if ( $this->is_debug_active() ) {
-		// return false;
-		// }
 
 		return get_transient( $this->keywords_key() );
 	}
 
 	/**
-	 * Delete categories cache
+	 * Remove a tab's entries from the templates, categories and keywords caches.
 	 *
-	 * @return [type] [description]
-	 */
-	public function delete_keywords_cache() {
-		delete_transient( $this->keywords_key() );
-	}
-
-	/**
-	 * Check if debug is active
+	 * @since 4.11.102
 	 *
-	 * @return boolean
+	 * @param string $tab tab slug.
 	 */
-	public function is_debug_active() {
+	public function clear_tab_cache( $tab ) {
 
-		if ( defined( 'PREMIUM_API_DEBUG' ) && true === PREMIUM_API_DEBUG ) {
-			return true;
-		} else {
-			return false;
+		$keys = array(
+			$this->templates_key(),
+			$this->categories_key(),
+			$this->keywords_key(),
+		);
+
+		foreach ( $keys as $key ) {
+
+			$cached = get_transient( $key );
+
+			if ( ! is_array( $cached ) || ! isset( $cached[ $tab ] ) ) {
+				continue;
+			}
+
+			unset( $cached[ $tab ] );
+
+			set_transient( $key, $cached, $this->transient_lifetime() );
 		}
 	}
 
@@ -205,6 +166,11 @@ abstract class Premium_Templates_Source_Base {
 	}
 
 	/**
+	 * TODO(cross-domain-copy): consolidate engine — this and the on_import glue
+	 * below are duplicated in includes/helpers/element-transfer.php and
+	 * includes/extras/cross-copy-paste.php. Delegate to Element_Transfer once the
+	 * copy/paste abilities are verified.
+	 *
 	 * @since 3.6.0
 	 * @access protected
 	 */
@@ -259,9 +225,9 @@ abstract class Premium_Templates_Source_Base {
 	 * @since 3.6.0
 	 * @access protected
 	 *
-	 * @param Controls_Stack $element
-	 * @param string         $method
-	 * @param string         $with_media include templates media.
+	 * @param \Elementor\Element_Base $element
+	 * @param string                  $method
+	 * @param string                  $with_media include templates media.
 	 *
 	 * @return array Processed element data.
 	 */
@@ -316,7 +282,7 @@ abstract class Premium_Templates_Source_Base {
 
 	public function on_import_media( $settings, $media ) {
 
-		if ( empty( $settings['url'] ) || false != strpos( $settings['url'], 'placeholder' ) ) {
+		if ( empty( $settings['url'] ) || false !== strpos( $settings['url'], 'placeholder' ) ) {
 			return $settings;
 		}
 

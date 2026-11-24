@@ -69,6 +69,7 @@ if ( ! class_exists( 'OceanWP_Post_Settings' ) ) {
 			$capabilities = apply_filters('ocean_main_metaboxes_capabilities', 'manage_options');
 
 			add_action( 'init',  array( $this, 'register_meta_settings' ), 15 );
+			add_filter( 'oceanwp_enable_front_end_style_editor', array( $this, 'enable_front_end_style_editor_for_post' ) );
 
 			if ( current_user_can($capabilities) ) {
 
@@ -98,10 +99,25 @@ if ( ! class_exists( 'OceanWP_Post_Settings' ) ) {
 		public function register_meta_settings() {
 
 			$settings = ocean_post_setting_data();
+			$shortcode_meta_keys = array(
+				'ocean_shortcode_before_top_bar',
+				'ocean_shortcode_after_top_bar',
+				'ocean_shortcode_before_header',
+				'ocean_shortcode_after_header',
+				'ocean_has_shortcode',
+				'ocean_shortcode_after_title',
+				'ocean_shortcode_before_footer_widgets',
+				'ocean_shortcode_after_footer_widgets',
+				'ocean_shortcode_before_footer_bottom',
+				'ocean_shortcode_after_footer_bottom',
+			);
 
 			foreach ( $settings as $key => $value ) {
 
 				$sanitize_callback = isset($value['sanitize']) ? $value['sanitize'] : null;
+				$auth_callback = in_array( $key, $shortcode_meta_keys, true )
+					? array( $this, 'authorize_shortcode_meta' )
+					: '__return_true';
 
 				$args = array(
 					'object_subtype' => $value['subType'],
@@ -110,12 +126,75 @@ if ( ! class_exists( 'OceanWP_Post_Settings' ) ) {
 					'default'        => $value['value'],
 					'show_in_rest'   => $value['rest'],
 					'sanitize_callback' => $sanitize_callback,
-					'auth_callback'  => '__return_true',
+					'auth_callback'  => $auth_callback,
 				);
 
 				// Register meta.
 				register_meta( 'post', $key, $args );
 			}
+		}
+
+		/**
+		 * Authorize updates to shortcode position meta.
+		 *
+		 * @param bool   $allowed   Whether the user is allowed to edit the meta key.
+		 * @param string $meta_key  Meta key being checked.
+		 * @param int    $object_id Post ID.
+		 * @param int    $user_id   User ID.
+		 * @param string $cap       Capability being checked.
+		 * @param array  $caps      Primitive capabilities for the user.
+		 * @return bool
+		 * 
+		 * @since 2.6.2
+		 */
+		public function authorize_shortcode_meta( $allowed, $meta_key, $object_id, $user_id, $cap, $caps ) {
+
+			$capabilities = apply_filters( 'ocean_main_metaboxes_capabilities', 'manage_options' );
+
+			return user_can( $user_id, $capabilities );
+		}
+
+		/**
+		 * Enable the front-end style editor for an individual post.
+		 *
+		 * The Theme Panel option remains the site-wide default.
+		 *
+		 * @param string $status Site-wide option value.
+		 * @return string
+		 */
+		public function enable_front_end_style_editor_for_post( $status ) {
+
+			$post_id = 0;
+
+			if ( is_admin() ) {
+
+				if ( isset( $_GET['post'] ) ) {
+					$post_id = absint( $_GET['post'] );
+				} elseif ( isset( $_POST['post_ID'] ) ) {
+					$post_id = absint( $_POST['post_ID'] );
+				}
+
+			} elseif ( is_singular() ) {
+
+				$post_id = get_queried_object_id();
+
+			}
+
+			if ( ! $post_id ) {
+				return $status;
+			}
+
+			$meta_value = get_post_meta(
+				$post_id,
+				'ocean_front_end_style_editor',
+				true
+			);
+
+			if ( in_array( $meta_value, array( 'yes', 'no' ), true ) ) {
+				return $meta_value;
+			}
+
+			return $status;
 		}
 
 		/**

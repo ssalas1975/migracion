@@ -1,7 +1,7 @@
 === Di Restaurant ===
 Contributors: dithemes
 Requires at least: 5.2
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -20,6 +20,15 @@ Navigate to WordPress Dashboard > Appearance > Customize
 
 
 == Changelog ==
+
+= 1.9 =
+* Tested up to WP 7.0
+
+= 1.8 =
+* Tested up to WP 6.9
+* Add appearance-tools Support
+* Minor CSS Fix
+* Remove html5shiv and respond - deprecated
 
 = 1.7 =
 * Fix: PHP Notice
@@ -102,7 +111,7 @@ Navigate to WordPress Dashboard > Appearance > Customize
 
 == Upgrade Notice ==
 
-= 1.7 =
+= 1.8 =
 * Normal release.
 
 == Resources ==
@@ -122,8 +131,6 @@ GNU General Public License for more details.
 
 * Di Restaurant Theme © 2018-2024 DiThemes, GPLv2 or later
 * bootstrap.css and bootstrap.js © 2011-2019 Twitter Inc, MIT
-* html5shiv.js © 2014 Alexander Farkas, MIT and GPL2
-* respond.js © 2012 Scott Jehl, MIT
 * Open Source Fonts © 2019 Google Fonts, MIT/GPL2
 * class-tgm-plugin-activation.php © 2011 Thomas Griffin, GPL-2.0+
 * font-awesome.css © 2018 davegandy, MIT

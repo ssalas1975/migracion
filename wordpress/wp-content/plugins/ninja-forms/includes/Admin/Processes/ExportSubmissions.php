@@ -145,8 +145,7 @@ class NF_Admin_Processes_ExportSubmissions extends NF_Abstracts_BatchProcess
         }
         $filtered_labels = $csv_array[0][0];
 
-        $glue = $this->enclosure . $this->delimiter . $this->enclosure;
-        $constructed = $this->enclosure . implode($glue, $filtered_labels) . $this->enclosure . $this->terminator;
+        $constructed = WPN_Helper::csv_row($filtered_labels, $this->delimiter, $this->enclosure, $this->terminator);
         fwrite($file, $constructed);
         fclose($file);
     }
@@ -168,17 +167,34 @@ class NF_Admin_Processes_ExportSubmissions extends NF_Abstracts_BatchProcess
      * @since 3.5.0
      * @return  void
      */
+    /**
+     * Write every batch of the export, then report it finished.
+     *
+     * Each batch is written in turn from this one call. The batches used to
+     * recurse, so the whole export ran as a single deepening chain of calls
+     * inside one request and nothing an earlier batch held could be released
+     * while the later ones ran. Memory therefore only grew across the export,
+     * and a form with a few thousand submissions reached PHP's memory limit
+     * before the file was written.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8388
+     * @return void
+     */
     public function process()
     {
-        if($this->currentPosition >= $this->sub_count){
-            $this->batch_complete();
-            return;
+        while ($this->currentPosition < $this->sub_count) {
+            $positionBeforeBatch = $this->currentPosition;
+
+            $this->writeBatch();
+
+            if ($this->currentPosition <= $positionBeforeBatch) {
+                // The batch read nothing, so there is nothing further to
+                // write. Stop rather than ask for the same position again.
+                break;
+            }
         }
 
-        $this->writeBatch();
-
-        // Continue looping until end
-        $this->process();
+        $this->batch_complete();
     }
 
     /** 
@@ -249,10 +265,8 @@ class NF_Admin_Processes_ExportSubmissions extends NF_Abstracts_BatchProcess
             return;
         }
 
-        $glue = $this->enclosure . $this->delimiter . $this->enclosure;
-
         foreach ($csv_array[1][0] as $filtered_row) {
-            $constructed = $this->enclosure . implode($glue, $filtered_row) . $this->enclosure . $this->terminator;
+            $constructed = WPN_Helper::csv_row($filtered_row, $this->delimiter, $this->enclosure, $this->terminator);
             fwrite($file, $constructed);
         }
 
@@ -319,7 +333,12 @@ class NF_Admin_Processes_ExportSubmissions extends NF_Abstracts_BatchProcess
         }
 
         $file_path = trailingslashit($upload_dir['basedir']) . 'ninja-forms-tmp/' . $filename . '.' . $this->format;
-        $this->fileUrl = trailingslashit($upload_dir['baseurl']) . 'ninja-forms-tmp/' . $filename . '.' . $this->format;
+        // Fix mixed content: ensure download URL uses same protocol as current request (Issue #6287)
+        $uploadUrl = $upload_dir['baseurl'];
+        if (is_ssl()) {
+            $uploadUrl = set_url_scheme($uploadUrl, 'https');
+        }
+        $this->fileUrl = trailingslashit($uploadUrl) . 'ninja-forms-tmp/' . $filename . '.' . $this->format;
         return $file_path;
     }
 

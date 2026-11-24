@@ -7,6 +7,7 @@ use Imagely\NGG\DataMappers\DisplayedGallery as DisplayedGalleryMapper;
 use Imagely\NGG\DataTypes\DisplayedGallery;
 use Imagely\NGG\DisplayType\ControllerFactory;
 use Imagely\NGG\Display\DisplayManager;
+use Imagely\NGG\Display\PreviewAssets;
 use Imagely\NGG\Settings\Settings;
 use Imagely\NGG\Util\Router;
 use Imagely\NGG\Util\Transient;
@@ -320,7 +321,30 @@ class Renderer {
 			);
 		}
 
+		// A private gallery outside its client page: nothing for visitors, a notice for managers.
+		$private_notice = \Imagely\NGG\PrivateGalleries\Visibility::get_render_notice( $displayed_gallery );
+		if ( $private_notice && $private_notice['fully_hidden'] ) {
+			if ( ! $return_output ) {
+				echo $private_notice['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in Visibility::notice_html().
+			}
+			return $private_notice['html'];
+		}
+
 		$retval = '';
+
+		if ( $private_notice ) {
+			$retval = $private_notice['html'];
+
+			// Templates name the first requested gallery, so a hidden one must not stay in the list.
+			$displayed_gallery->container_ids = array_values(
+				array_filter(
+					(array) $displayed_gallery->container_ids,
+					static function ( $id ) use ( $private_notice ) {
+						return ! in_array( (int) $id, $private_notice['hidden'], true );
+					}
+				)
+			);
+		}
 
 		if ( is_null( $displayed_gallery->id() ) ) {
 			$displayed_gallery->id( md5( wp_json_encode( $displayed_gallery->get_entity() ) ) );
@@ -355,18 +379,24 @@ class Renderer {
   // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		if ( is_array( $displayed_gallery->container_ids ) && in_array( 'All', $displayed_gallery->container_ids ) ) {
 			$lookup = false;
-		} elseif ( $displayed_gallery->source == 'albums' && ( $app->get_parameter( 'gallery' ) ) || $app->get_parameter( 'album' ) ) {
+		} elseif ( ( $displayed_gallery->source == 'albums' && ( $app->get_parameter( 'gallery' ) ) ) || $app->get_parameter( 'album' ) ) {
 			$lookup = false;
   // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		} elseif ( in_array( $displayed_gallery->source, [ 'random', 'random_images' ] ) ) {
 			$lookup = false;
 		} elseif ( $app->get_parameter( 'show' ) ) {
 			$lookup = false;
+		} elseif ( $app->get_parameter( 'ajax_pagination_referrer' ) ) {
+			// The cache key does not include the request body, so output built from this parameter must not be cached.
+			$lookup = false;
 		} elseif ( $controller->is_cachable() === false ) {
 			$lookup = false;
 		} elseif ( ! NGG_RENDERING_CACHE_ENABLED ) {
 			$lookup = false;
 		}
+
+		// A page builder that injects this markup into a page that is already loaded needs the assets to come with it.
+		$preview_assets = PreviewAssets::is_needed() ? PreviewAssets::snapshot() : null;
 
 		// Just in case M_Gallery_Display could not find this displayed gallery during wp_enqueue_scripts (most likely
 		// because this displayed gallery was created through do_shortcode) we'll enqueue it now. This may potentially
@@ -379,13 +409,19 @@ class Renderer {
 			$controller->enqueue_frontend_resources( $displayed_gallery );
 		}
 
+		// Enqueue trigger assets outside the dedup block so they survive a cache hit.
+		if ( ( ! defined( 'NGG_SKIP_LOAD_SCRIPTS' ) || ! NGG_SKIP_LOAD_SCRIPTS )
+		&& ! $this->is_rest_request() ) {
+			TriggerManager::get_instance()->enqueue_trigger_assets( $displayed_gallery );
+		}
+
 		// Try cache lookup, if we're to do so.
 		$key  = null;
 		$html = false;
 		if ( $lookup ) {
 			// The display type may need to output some things even when serving from the cache.
 			if ( method_exists( $controller, 'cache_action' ) ) {
-				$retval = $controller->cache_action( $displayed_gallery );
+				$retval .= $controller->cache_action( $displayed_gallery );
 			}
 
 			if ( method_exists( $controller, 'index_action' ) ) {
@@ -457,6 +493,10 @@ class Renderer {
 
 		$retval .= $html;
 
+		if ( null !== $preview_assets ) {
+			$retval .= PreviewAssets::render( $preview_assets );
+		}
+
 		if ( ! $return_output ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $retval contains safe HTML from gallery rendering
 			echo $retval;
@@ -469,7 +509,6 @@ class Renderer {
 		if ( self::$has_done_app_rewrite ) {
 			return;
 		}
-		self::$has_done_app_rewrite = true;
 
 		$do_rewrites = false;
 		$app         = null;
@@ -543,5 +582,28 @@ class Renderer {
 		if ( $do_rewrites && $app ) {
 			$app->do_rewrites();
 		}
+
+		// Rewrites run once per request, but only an album has any. Marking them done
+		// for whichever gallery rendered first meant an album placed after another
+		// display (a Pro search form, a thumbnail gallery) never had its URLs
+		// rewritten, so each album link appended its slugs to the current URL again.
+		if ( $do_rewrites || self::is_album_display( $displayed_gallery ) ) {
+			self::$has_done_app_rewrite = true;
+		}
+	}
+
+	/**
+	 * Whether a displayed gallery is an album, or a gallery opened from one.
+	 *
+	 * Covers the Pro album types too, whose rewrites run on the ngg_do_app_rewrites action.
+	 *
+	 * @param DisplayedGallery $displayed_gallery The displayed gallery.
+	 * @return bool
+	 */
+	protected static function is_album_display( $displayed_gallery ) {
+		$original_display_type = isset( $displayed_gallery->display_settings['original_display_type'] ) ? $displayed_gallery->display_settings['original_display_type'] : '';
+
+		return false !== strpos( (string) $displayed_gallery->display_type, '_album' )
+			|| false !== strpos( (string) $original_display_type, '_album' );
 	}
 }

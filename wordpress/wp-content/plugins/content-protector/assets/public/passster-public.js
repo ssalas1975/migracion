@@ -25,13 +25,13 @@ jQuery( document ).ready( function( $ ) {
 	}
 
 	// Hash password via REST API.
-	async function hashPassword( password ) {
+	async function hashPassword( password, postId ) {
 		try {
 			const response = await fetch( restUrl + '/hash', {
 				method: 'POST',
 				credentials: 'same-origin',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify( { password } ),
+				body: JSON.stringify( { password, post_id: postId } ),
 			} );
 			const data = await response.json();
 			return data.hash || '';
@@ -51,8 +51,8 @@ jQuery( document ).ready( function( $ ) {
 	}
 
 	// Set hashed cookie (appends to existing hashes).
-	async function setHashedCookie( password ) {
-		const hash = await hashPassword( password );
+	async function setHashedCookie( password, postId ) {
+		const hash = await hashPassword( password, postId );
 		if ( hash ) {
 			const hashes = getExistingHashes();
 			// Only add if not already present
@@ -79,11 +79,7 @@ jQuery( document ).ready( function( $ ) {
 	}
 
 	// Handle successful unlock.
-	function handleSuccess( data, $form, redirect, cookieValue ) {
-		if ( ! ps_ajax.disable_cookie && cookieValue ) {
-			setCookie( cookieValue );
-		}
-
+	function handleSuccess( data, $form, redirect ) {
 		if ( data.redirect ) {
 			window.location.replace( data.redirect );
 			return;
@@ -123,7 +119,7 @@ jQuery( document ).ready( function( $ ) {
 	if ( ps_ajax.link_pass ) {
 		if ( ! ps_ajax.disable_cookie ) {
 			if ( ps_ajax.link_pass.length < 25 ) {
-				setHashedCookie( atob( ps_ajax.link_pass ) ).then( () => {
+				setHashedCookie( atob( ps_ajax.link_pass ), ps_ajax.post_id ).then( () => {
 					window.location.replace( ps_ajax.permalink + '?pts=' + Math.floor( Date.now() / 1000 ) );
 				} );
 			} else {
@@ -160,6 +156,7 @@ jQuery( document ).ready( function( $ ) {
 		const acf = $button.attr( 'data-acf' ) || '';
 		const redirect = $button.attr( 'data-redirect' ) || '';
 		const termId = parseInt( $button.attr( 'data-term-id' ) ) || 0;
+		const postType = $button.attr( 'data-post-type' ) || '';
 
 		// Get block ID from parent wrapper if exists.
 		const $wrapper = $form.closest( '.passster-protected-content' );
@@ -184,16 +181,14 @@ jQuery( document ).ready( function( $ ) {
 					acf,
 					redirect,
 					term_id: termId,
+					post_type: postType,
 				} ),
 			} );
 
 			const data = await response.json();
 			$form.find( '.ps-loader' ).css( 'display', 'none' );
 			if ( data.success ) {
-				if ( ! ps_ajax.disable_cookie ) {
-					await setHashedCookie( password );
-				}
-				handleSuccess( data, $form, redirect, null );
+				handleSuccess( data, $form, redirect );
 			} else {
 				showError( $form, data.error );
 				$input.val( '' );
@@ -224,7 +219,7 @@ jQuery( document ).ready( function( $ ) {
 			const data = await response.json();
 
 			if ( data.success ) {
-				handleSuccess( data, $form, redirect, type.replace( '_v2', '' ).replace( '_v3', '' ) );
+				handleSuccess( data, $form, redirect );
 			} else {
 				showError( $form, data.error );
 			}
@@ -297,21 +292,34 @@ jQuery( document ).ready( function( $ ) {
 	} );
 
 	// Turnstile
+	let turnstileToken = '';
 	if ( $( '.turnstile-form' ).length > 0 && window.turnstile ) {
 		window.turnstile.ready( function() {
 			window.turnstile.render( '.passster-turnstile', {
 				sitekey: ps_ajax.turnstile_key,
 				callback( token ) {
-					const $btn = $( '.passster-submit-turnstile' );
-					const psId = $btn.attr( 'data-psid' );
-					const $form = $( '#' + psId );
-					const areaId = parseInt( $btn.attr( 'data-area' ) ) || 0;
-					const redirect = $btn.attr( 'data-redirect' ) || '';
-					const protection = $btn.attr( 'data-protection' ) || '';
-
-					validateCaptcha( token, 'turnstile', $form, psId, areaId, redirect, protection );
+					turnstileToken = token;
 				},
 			} );
+		} );
+
+		$( '.turnstile-form' ).on( 'submit', function( event ) {
+			event.preventDefault();
+
+			const $thisForm = $( this );
+			const $btn = $thisForm.find( '.passster-submit-turnstile' );
+			const psId = $btn.attr( 'data-psid' );
+			const $form = $( '#' + psId );
+			const areaId = parseInt( $btn.attr( 'data-area' ) ) || 0;
+			const redirect = $btn.attr( 'data-redirect' ) || '';
+			const protection = $btn.attr( 'data-protection' ) || '';
+
+			if ( ! turnstileToken ) {
+				showError( $form, 'Please complete the verification.' );
+				return;
+			}
+
+			validateCaptcha( turnstileToken, 'turnstile', $form, psId, areaId, redirect, protection );
 		} );
 	}
 

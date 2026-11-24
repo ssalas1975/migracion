@@ -126,6 +126,8 @@ class PUM_Admin_Popups {
 		$count   = 0;
 		$skipped = 0;
 
+		self::prime_bulk_action_caches( $post_ids );
+
 		foreach ( $post_ids as $post_id ) {
 			// Check user can edit this popup.
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -158,6 +160,44 @@ class PUM_Admin_Popups {
 		);
 
 		return $redirect_url;
+	}
+
+	/**
+	 * Prime popup objects used by a bulk state change.
+	 *
+	 * @param int[] $post_ids Selected post IDs.
+	 * @return void
+	 */
+	private static function prime_bulk_action_caches( $post_ids ) {
+		$popup_ids = wp_parse_id_list( $post_ids );
+
+		if ( empty( $popup_ids ) ) {
+			return;
+		}
+
+		$cached_posts       = wp_cache_get_multiple( $popup_ids, 'posts' );
+		$uncached_popup_ids = [];
+
+		foreach ( $popup_ids as $popup_id ) {
+			if ( ! array_key_exists( $popup_id, $cached_posts ) || false === $cached_posts[ $popup_id ] ) {
+				$uncached_popup_ids[] = $popup_id;
+			}
+		}
+
+		if ( empty( $uncached_popup_ids ) ) {
+			return;
+		}
+
+		\PopupMaker\plugin( 'popups' )->query_posts(
+			[
+				'post_status'            => array_keys( get_post_stati() ),
+				'post__in'               => $uncached_popup_ids,
+				'posts_per_page'         => count( $uncached_popup_ids ),
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			]
+		);
 	}
 
 	/**
@@ -464,7 +504,7 @@ class PUM_Admin_Popups {
 			return;
 		}
 
-		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || isset( $_REQUEST['bulk_edit'] ) ) {
+		if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_doing_ajax() || isset( $_REQUEST['bulk_edit'] ) ) {
 			return;
 		}
 
@@ -491,20 +531,26 @@ class PUM_Admin_Popups {
 			$popup->update_meta( 'popup_title', $title );
 		}
 
-		// Ignored because this is a dynamic array and has sanitization applid to keys before usage.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		$settings = ! empty( $_POST['popup_settings'] ) ? $_POST['popup_settings'] : [];
+		// Only update settings if the field was actually submitted. A save_post
+		// fired by a page builder or the block editor does not include our
+		// popup_settings field, and treating that absence as "clear everything"
+		// would erase the popup's triggers, conditions, and display settings.
+		if ( isset( $_POST['popup_settings'] ) ) {
+			// Ignored because this is a dynamic array and has sanitization applid to keys before usage.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$settings = ! empty( $_POST['popup_settings'] ) ? $_POST['popup_settings'] : [];
 
-		// Sanitize JSON values.
-		$settings['conditions'] = isset( $settings['conditions'] ) ? self::sanitize_meta( $settings['conditions'] ) : [];
-		$settings['triggers']   = isset( $settings['triggers'] ) ? self::sanitize_meta( $settings['triggers'] ) : [];
-		$settings['cookies']    = isset( $settings['cookies'] ) ? self::sanitize_meta( $settings['cookies'] ) : [];
+			// Sanitize JSON values.
+			$settings['conditions'] = isset( $settings['conditions'] ) ? self::sanitize_meta( $settings['conditions'] ) : [];
+			$settings['triggers']   = isset( $settings['triggers'] ) ? self::sanitize_meta( $settings['triggers'] ) : [];
+			$settings['cookies']    = isset( $settings['cookies'] ) ? self::sanitize_meta( $settings['cookies'] ) : [];
 
-		$settings = apply_filters( 'pum_popup_setting_pre_save', $settings, $post->ID );
+			$settings = apply_filters( 'pum_popup_setting_pre_save', $settings, $post->ID );
 
-		$settings = self::sanitize_settings( $settings );
+			$settings = self::sanitize_settings( $settings );
 
-		$popup->update_settings( $settings, false );
+			$popup->update_settings( $settings, false );
+		}
 
 		// TODO Remove this and all other code here. This should be clean and all code more compartmentalized.
 		foreach ( self::deprecated_meta_fields() as $field ) {
@@ -1272,7 +1318,7 @@ class PUM_Admin_Popups {
 								<br />
 								<small>
 									<strong><?php esc_html_e( 'Last Reset', 'popup-maker' ); ?>:</strong> <?php echo esc_html( function_exists( 'wp_date' ) ? wp_date( 'm-d-Y H:i', $reset['timestamp'] ) : gmdate( 'm-d-Y H:i', $reset['timestamp'] ) ); ?>
-									<br /> <strong><?php esc_html_e( 'Previous Opens', 'popup-maker' ); ?>:</strong> <?php echo esc_html( $reset['views'] ?? 0 ); ?>
+									<br /> <strong><?php esc_html_e( 'Previous Opens', 'popup-maker' ); ?>:</strong> <?php echo esc_html( $reset['opens'] ?? $reset['views'] ?? 0 ); ?>
 
 									<?php if ( ( $reset['conversions'] ?? 0 ) > 0 ) : ?>
 										<br />
@@ -1593,24 +1639,26 @@ class PUM_Admin_Popups {
 
 		// Checks if the current post type is 'popup'
 		if ( 'popup' === $typenow ) {
+			$filter_nonce_is_valid = isset( $_GET['pum_filter_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_GET['pum_filter_nonce'] ) ), 'pum-popup-filter-nonce' );
+			$has_filters           = false;
+
 			if ( get_taxonomy( 'popup_category' ) ) {
 				$terms = get_terms( 'popup_category' );
 
 				if ( count( $terms ) > 0 ) {
-					$category = '';
+					$has_filters = true;
+					$category    = '';
 
-					if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'pum-popup-filter-nonce' ) ) {
+					if ( $filter_nonce_is_valid ) {
 						$category = isset( $_GET['popup_category'] ) ? sanitize_key( wp_unslash( $_GET['popup_category'] ) ) : '';
 					}
 
 					echo "<select name='popup_category' id='popup_category' class='postform'>";
 					echo "<option value=''>" . esc_html__( 'Show all categories', 'popup-maker' ) . '</option>';
 					foreach ( $terms as $term ) {
-						$selected = $category === $term->slug ? 'selected="selected"' : '';
-						echo '<option value="' . esc_attr( $term->slug ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $term->name ) . ' (' . esc_html( $term->count ) . ')</option>';
+						echo '<option value="' . esc_attr( $term->slug ) . '" ' . selected( $category, $term->slug, false ) . '>' . esc_html( $term->name ) . ' (' . esc_html( $term->count ) . ')</option>';
 					}
 					echo '</select>';
-					wp_nonce_field( 'pum-popup-filter-nonce' );
 				}
 			}
 
@@ -1618,21 +1666,24 @@ class PUM_Admin_Popups {
 				$terms = get_terms( 'popup_tag' );
 
 				if ( count( $terms ) > 0 ) {
-					$tag = '';
+					$has_filters = true;
+					$tag         = '';
 
-					if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'pum-popup-filter-nonce' ) ) {
+					if ( $filter_nonce_is_valid ) {
 						$tag = isset( $_GET['popup_tag'] ) ? sanitize_key( wp_unslash( $_GET['popup_tag'] ) ) : '';
 					}
 
 					echo "<select name='popup_tag' id='popup_tag' class='postform'>";
 					echo "<option value=''>" . esc_html__( 'Show all tags', 'popup-maker' ) . '</option>';
 					foreach ( $terms as $term ) {
-						$selected = $tag === $term->slug ? 'selected="selected"' : '';
-						echo '<option value="' . esc_attr( $term->slug ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $term->name ) . ' (' . esc_html( $term->count ) . ')</option>';
+						echo '<option value="' . esc_attr( $term->slug ) . '" ' . selected( $tag, $term->slug, false ) . '>' . esc_html( $term->name ) . ' (' . esc_html( $term->count ) . ')</option>';
 					}
 					echo '</select>';
-					wp_nonce_field( 'pum-popup-filter-nonce' );
 				}
+			}
+
+			if ( $has_filters ) {
+				wp_nonce_field( 'pum-popup-filter-nonce', 'pum_filter_nonce' );
 			}
 		}
 	}
@@ -1640,7 +1691,7 @@ class PUM_Admin_Popups {
 	/**
 	 * Prepends Popup ID to the action row on All Popups
 	 *
-	 * @param array         $actions The row actions.
+	 * @param array $actions The row actions.
 	 * @param $post The post
 	 *
 	 * @return array The new actions.

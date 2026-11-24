@@ -23,19 +23,33 @@ class NF_Fields_ListSelect extends NF_Abstracts_List
     {
         parent::__construct();
 
-        $this->_nicename = esc_html__( 'Select', 'ninja-forms' );
+        $this->_nicename = esc_html_x( 'Select', 'field type name: dropdown list', 'ninja-forms' );
 
         add_filter( 'ninja_forms_merge_tag_calc_value_' . $this->_type, array( $this, 'get_calc_value' ), 10, 2 );
     }
 
+    /**
+     * Get calculation value for merge tag.
+     *
+     * Returns the configured calc value for matched options,
+     * or 0 if no match (fail closed for security).
+     *
+     * @param mixed $value Submitted field value.
+     * @param array $field Field settings including options.
+     * @return float Calculation value.
+     */
     public function get_calc_value( $value, $field )
     {
-        if( isset( $field[ 'options' ] ) ) {
-            foreach ($field['options'] as $option ) {
-                if( ! isset( $option[ 'value' ] ) || $value != $option[ 'value' ] || ! isset( $option[ 'calc' ] ) ) continue;
-                return $option[ 'calc' ];
+        if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+            foreach ( $field['options'] as $option ) {
+                if ( ! isset( $option['value'], $option['calc'] ) ) {
+                    continue;
+                }
+                if ( (string) $value === (string) $option['value'] && is_numeric( trim( $option['calc'] ) ) ) {
+                    return (float) $option['calc'];
+                }
             }
         }
-        return $value;
+        return 0;
     }
 }

@@ -32,13 +32,15 @@ class Base {
 	}
 
 	public function init() {
+		HappyAddons_Classes\Extensions_Manager::register_extension_filters();
+
 		$this->include_files();
 
 		// Register custom category
 		add_action( 'elementor/elements/categories_registered', [ $this, 'add_category' ] );
 
 		// Register custom controls
-		add_action( 'elementor/controls/controls_registered', [ $this, 'register_controls' ] );
+		add_action( 'elementor/controls/register', [ $this, 'register_controls' ] );
 
 		add_action( 'init', [ $this, 'include_on_init' ] );
 
@@ -103,6 +105,9 @@ class Base {
 		add_action('elementor/widgets/register', [ HappyAddons_Classes\Widgets_Manager::class, 'register'] );
 		add_action('elementor/frontend/before_render', [ HappyAddons_Classes\Widgets_Manager::class, 'add_global_widget_render_attributes'] );
 
+		/* Atomic_Manager (Elementor V4) */
+		add_action( 'elementor/init', [ HappyAddons_Classes\Atomic_Manager::class, 'init' ] );
+
 		/* Assets_Manager */
 		// Frontend scripts
 		add_action('wp_enqueue_scripts', [HappyAddons_Classes\Assets_Manager::class, 'frontend_register']);
@@ -110,6 +115,7 @@ class Base {
 		add_action('elementor/css-file/post/enqueue', [HappyAddons_Classes\Assets_Manager::class, 'frontend_enqueue_exceptions']);
 		// Edit and preview enqueue
 		add_action('elementor/preview/enqueue_styles', [HappyAddons_Classes\Assets_Manager::class, 'enqueue_preview_styles']);
+		add_action('elementor/preview/enqueue_scripts', [HappyAddons_Classes\Assets_Manager::class, 'enqueue_preview_scripts']);
 		// Enqueue editor & editorv2 scripts
 		add_action('elementor/editor/after_enqueue_scripts', [HappyAddons_Classes\Assets_Manager::class, 'editor_enqueue']);
 		// Paragraph toolbar registration
@@ -148,7 +154,9 @@ class Base {
 			add_filter( 'plugin_action_links_' . plugin_basename( HAPPY_ADDONS__FILE__ ), [ HappyAddons_Classes\Dashboard::class, 'add_action_links' ] );
 			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'save_widgets_data' ], 1);
 			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'save_features_data' ] );
+			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'save_extensions_data' ] );
 			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'save_credentials_data' ] );
+			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'save_atomic_data' ] );
 			add_action( 'happyaddons_save_dashboard_data', [ HappyAddons_Classes\Dashboard::class, 'disable_unused_widget' ], 10);
 			add_action( 'in_admin_header', [ HappyAddons_Classes\Dashboard::class, 'remove_all_notices' ], PHP_INT_MAX );
 
@@ -224,7 +232,7 @@ class Base {
 			'happy_addons_category',
 			[
 				'title' => __( 'Happy Addons', 'happy-elementor-addons' ),
-				'icon' => 'fa fa-smile-o',
+				'icon' => 'far fa-smile',
 			]
 		);
 	}
@@ -235,8 +243,10 @@ class Base {
 	 * @param Controls_Manager $controls_Manager
 	 */
 	public function register_controls( Controls_Manager $controls_Manager ) {
-		$Foreground = __NAMESPACE__ . '\Controls\Group_Control_Foreground';
-		$controls_Manager->add_group_control( $Foreground::get_type(), new $Foreground() );
+		if ( ! class_exists( __NAMESPACE__ . '\Extensions\Foreground_Overlay' ) || ha_is_foreground_overlay_enabled() ) {
+			$Foreground = __NAMESPACE__ . '\Controls\Group_Control_Foreground';
+			$controls_Manager->add_group_control( $Foreground::get_type(), new $Foreground() );
+		}
 
 		$Select2 = __NAMESPACE__ . '\Controls\Select2';
 		ha_elementor()->controls_manager->register( new $Select2() );
@@ -321,7 +331,19 @@ class Base {
 
 		//For Widget class load
 		if ( 0 === strpos( $class_name, __NAMESPACE__ . '\Widget\\' ) ) {
-			$file = HAPPY_ADDONS_DIR_PATH . '/' . str_replace( 'widget', 'widgets', $file_name ) . '/widget.php';
+			// Widget classes extend Base, which is otherwise only loaded by the widgets manager
+			// (not available e.g. under WP-CLI or direct class_exists() calls).
+			$base_file = HAPPY_ADDONS_DIR_PATH . '/base/widget-base.php';
+			if ( __NAMESPACE__ . '\Widget\Base' === $class_name ) {
+				if ( ! class_exists( $class_name, false ) && class_exists( '\Elementor\Widget_Base' ) && is_readable( $base_file ) ) {
+					include_once $base_file;
+				}
+				return;
+			}
+			if ( ! class_exists( __NAMESPACE__ . '\Widget\Base', false ) && class_exists( '\Elementor\Widget_Base' ) && is_readable( $base_file ) ) {
+				include_once $base_file;
+			}
+			$file =HAPPY_ADDONS_DIR_PATH . '/' . str_replace( 'widget', 'widgets', $file_name ) . '/widget.php';
 			if ( ! class_exists( $class_name ) && is_readable( $file ) ) {
 				include_once $file;
 			}

@@ -5,6 +5,9 @@
 
 namespace PremiumAddons\Admin\Includes;
 
+use PremiumAddons\Includes\Abilities\Bootstrap;
+use PremiumAddons\Includes\Abilities\Connection_Log;
+use PremiumAddons\Includes\Abilities\OAuth;
 use PremiumAddons\Includes\Helper_Functions;
 use PremiumAddons\Includes\Assets_Manager;
 use Elementor\Modules\Usage\Module;
@@ -18,6 +21,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Admin_Helper
  */
 class Admin_Helper {
+
+	/**
+	 * Posts processed per usage-scan request.
+	 *
+	 * @since 4.11.95
+	 */
+	const SCAN_BATCH_SIZE = 20;
 
 	/**
 	 * Admin settings tabs
@@ -69,6 +79,13 @@ class Admin_Helper {
 	public static $integrations_settings = null;
 
 	/**
+	 * AI abilities settings.
+	 *
+	 * @var array|null
+	 */
+	public static $ai_abilities_settings = null;
+
+	/**
 	 * Elements Names
 	 *
 	 * @var elements_names
@@ -102,12 +119,16 @@ class Admin_Helper {
 		add_action( 'wp_ajax_pa_save_elements_settings', array( $this, 'pa_save_elements_settings' ) );
 		add_action( 'wp_ajax_pa_disable_elementor_mc_template', array( $this, 'pa_disable_elementor_mc_template' ) );
 		add_action( 'wp_ajax_pa_save_additional_settings', array( $this, 'pa_save_additional_settings' ) );
-		add_action( 'wp_ajax_pa_get_unused_widgets', array( $this, 'pa_get_unused_widgets' ) );
+		add_action( 'wp_ajax_pa_save_ai_abilities', array( $this, 'pa_save_ai_abilities' ) );
+		add_action( 'wp_ajax_pa_mcp_connection_check', array( $this, 'pa_mcp_connection_check' ) );
+		add_action( 'wp_ajax_pa_mcp_revoke_connection', array( $this, 'pa_mcp_revoke_connection' ) );
+		add_action( 'wp_ajax_pa_enable_oauth_connect', array( $this, 'pa_enable_oauth_connect' ) );
+		add_action( 'wp_ajax_pa_extend_oauth_window', array( $this, 'pa_extend_oauth_window' ) );
+		add_action( 'wp_ajax_pa_scan_widgets_usage', array( $this, 'pa_scan_widgets_usage' ) );
+		add_action( 'wp_ajax_pa_disable_unused_widgets', array( $this, 'pa_disable_unused_widgets' ) );
 		add_action( 'wp_ajax_pa_get_menu_item_settings', array( $this, 'pa_get_menu_item_settings' ) );
 		add_action( 'wp_ajax_pa_save_menu_item_settings', array( $this, 'pa_save_menu_item_settings' ) );
 		add_action( 'wp_ajax_pa_save_mega_item_content', array( $this, 'pa_save_mega_item_content' ) );
-		add_action( 'wp_ajax_pa_check_unused_widgets', array( $this, 'pa_check_unused_widgets' ) );
-		add_action( 'wp_ajax_pa_hide_unused_widgets_dialog', array( $this, 'pa_hide_unused_widgets_dialog' ) );
 
 		// Used to empty dynamic assets dir on plugin update to make sure new assets are generated.
 		add_action( 'upgrader_process_complete', array( $this, 'pa_handle_upgrade' ), 10, 2 );
@@ -152,11 +173,12 @@ class Admin_Helper {
 	 * @since 2.6.8
 	 *
 	 * @param string $action action.
+	 * @param mixed  ...$args optional further parameters, typically an object ID (for meta capabilities like edit_post).
 	 *
 	 * @return boolean
 	 */
-	public static function check_user_can( $action ) {
-		return current_user_can( $action );
+	public static function check_user_can( $action, ...$args ) {
+		return current_user_can( $action, ...$args );
 	}
 
 	/**
@@ -261,13 +283,21 @@ class Admin_Helper {
 			'all'
 		);
 
-		wp_enqueue_style(
-			'pa-admin',
-			PREMIUM_ADDONS_URL . 'admin/assets/css/admin.css',
-			array(),
-			PREMIUM_ADDONS_VERSION,
-			'all'
-		);
+		// admin.css only styles the PA pages, the nav-menu mega menu modal and the
+		// deactivation popup on plugins.php. Everywhere else it is dead weight.
+		$is_pa_admin_screen = false !== strpos( $hook, 'premium-addons' )
+			|| 'nav-menus.php' === $hook
+			|| 'plugins.php' === $hook;
+
+		if ( $is_pa_admin_screen ) {
+			wp_enqueue_style(
+				'pa-admin',
+				PREMIUM_ADDONS_URL . 'admin/assets/css/admin.css',
+				array(),
+				PREMIUM_ADDONS_VERSION,
+				'all'
+			);
+		}
 
 		if ( false !== strpos( $hook, 'premium-addons' ) ) {
 
@@ -317,8 +347,26 @@ class Admin_Helper {
 					'isSecondRun'       => $is_second_run,
 					'theme'             => $theme_slug,
 					'i18n'              => array(
-						'successMsg' => __( 'Your submission was successful.', 'premium-addons-for-elementor' ),
-						'failMsg'    => __( 'Your submission failed because of an error', 'premium-addons-for-elementor' ),
+						'successMsg'            => __( 'Your submission was successful.', 'premium-addons-for-elementor' ),
+						'failMsg'               => __( 'Your submission failed because of an error', 'premium-addons-for-elementor' ),
+						'aiAbilitiesSaving'     => __( 'Saving AI ability settings…', 'premium-addons-for-elementor' ),
+						'aiAbilitiesSaveFailed' => __( 'AI ability settings could not be saved.', 'premium-addons-for-elementor' ),
+						'oauthEnabling'         => __( 'Enabling OAuth…', 'premium-addons-for-elementor' ),
+						'oauthRequestFailed'    => __( 'The request failed. Please try again.', 'premium-addons-for-elementor' ),
+						'checkRunning'          => __( 'Checking…', 'premium-addons-for-elementor' ),
+						'revokeConfirm'         => __( 'Revoke this connection? The client stops working right away.', 'premium-addons-for-elementor' ),
+						'revoking'              => __( 'Revoking…', 'premium-addons-for-elementor' ),
+						'revokeFailed'          => __( 'The connection could not be revoked. Please try again.', 'premium-addons-for-elementor' ),
+						'unusedButton'          => __( 'Scan & Disable Unused Widgets', 'premium-addons-for-elementor' ),
+						'unusedScanning'        => __( 'Scanning your site…', 'premium-addons-for-elementor' ),
+						'unusedFailed'          => __( 'Scan Failed', 'premium-addons-for-elementor' ),
+						'unusedFailedText'      => __( 'The scan could not be completed. Please try again.', 'premium-addons-for-elementor' ),
+						/* translators: %d: number of widgets that were disabled */
+						'unusedDisabledTitle'   => __( '%d Widgets Disabled!', 'premium-addons-for-elementor' ),
+						'unusedDisabledText'    => __( 'Your Elementor editor should load faster now.', 'premium-addons-for-elementor' ),
+						'unusedNothingTitle'    => __( 'Nothing to Disable', 'premium-addons-for-elementor' ),
+						'unusedAlreadyOffText'  => __( 'Every unused widget was already switched off.', 'premium-addons-for-elementor' ),
+						'unusedAllInUseText'    => __( 'All of your Premium Addons widgets are in use.', 'premium-addons-for-elementor' ),
 					),
 				),
 				'premiumRollBackConfirm' => array(
@@ -557,23 +605,20 @@ class Admin_Helper {
 		// Create the Settings link that points to the plugin's settings page.
 		$settings_link = sprintf( '<a href="%1$s">%2$s</a>', admin_url( 'admin.php?page=' . self::$page_slug . '#tab=elements' ), __( 'Settings', 'premium-addons-for-elementor' ) );
 
-		// Create the Rollback link with nonce for security (currently not used in the final array).
-		$rollback_link = sprintf( '<a href="%1$s">%2$s%3$s</a>', wp_nonce_url( admin_url( 'admin-post.php?action=premium_addons_rollback' ), 'premium_addons_rollback' ), __( 'Rollback to v', 'premium-addons-for-elementor' ), PREMIUM_ADDONS_STABLE_VERSION );
-
 		// Initialize the new links array with the Settings link.
 		$new_links = array( $settings_link );
 
 		// If PRO version is not active, add a promotional link to upgrade.
 		if ( ! $is_papro_active ) {
 
-			// Get the campaign link for the Black Friday deal.
+			// Get the campaign link for the deal.
 			$link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/pro/#get-pa-pro', 'plugins-page', 'wp-dash', 'get-pro' );
 
 			// Create a styled promotional link encouraging users to save money by upgrading.
-			$pro_link = sprintf( '<a href="%s" target="_blank" style="color: #FF6000; font-weight: bold;">%s</a>', $link, __( 'Save 20%', 'premium-addons-for-elementor' ) );
+			$pro_link = sprintf( '<a href="%s" target="_blank" style="color: #FF6000; font-weight: bold;">%s</a>', $link, __( 'Save 40%', 'premium-addons-for-elementor' ) );
 
 			// Add the promotional link to the array.
-			array_push( $new_links, $pro_link );
+			$new_links[] = $pro_link;
 		}
 
 		// Merge the original links with our new custom links.
@@ -657,7 +702,7 @@ class Admin_Helper {
 			'addons'          => array(
 				'id'       => 'addons',
 				'slug'     => $slug . '#tab=addons',
-				'title'    => __( 'Global Addons', 'premium-addons-for-elementor' ),
+				'title'    => __( 'Features', 'premium-addons-for-elementor' ),
 				'href'     => '#tab=addons',
 				'template' => PREMIUM_ADDONS_PATH . 'admin/includes/templates/addons',
 			),
@@ -689,6 +734,26 @@ class Admin_Helper {
 				'href'     => '#tab=system-info',
 				'template' => PREMIUM_ADDONS_PATH . 'admin/includes/templates/info',
 			),
+		);
+
+		// AI Abilities dashboard tab. Always registered — it owns the feature
+		// switcher, so it has to be reachable while the feature is off. Inserted right
+		// after the Features tab so it sits with the other feature settings instead of
+		// after System Info / License.
+		$position = array_search( 'addons', array_keys( self::$tabs ), true ) + 1;
+
+		self::$tabs = array_merge(
+			array_slice( self::$tabs, 0, $position, true ),
+			array(
+				'ai-abilities' => array(
+					'id'       => 'ai-abilities',
+					'slug'     => $slug . '#tab=ai-abilities',
+					'title'    => __( 'MCP Config & AI Abilities', 'premium-addons-for-elementor' ),
+					'href'     => '#tab=ai-abilities',
+					'template' => PREMIUM_ADDONS_PATH . 'admin/includes/templates/ai-abilities',
+				),
+			),
+			array_slice( self::$tabs, $position, null, true )
 		);
 
 		if ( ! Helper_Functions::check_papro_version() ) {
@@ -764,8 +829,8 @@ class Admin_Helper {
 			call_user_func(
 				'add_submenu_page',
 				self::$page_slug,
-				'<span style="color: #FF6000;" class="pa_pro_upgrade">Get PRO (Up to 20% OFF)</span>',
-				'<span style="color: #FF6000;" class="pa_pro_upgrade">Get PRO (Up to 20% OFF)</span>',
+				'<span style="color: #FF6000;" class="pa_pro_upgrade">Get PRO (Up to 40% OFF)</span>',
+				'<span style="color: #FF6000;" class="pa_pro_upgrade">Get PRO (Up to 40% OFF)</span>',
 				'manage_options',
 				'https://premiumaddons.com/pro/#get-pa-pro',
 				''
@@ -798,6 +863,19 @@ class Admin_Helper {
 	 * @since 3.20.8
 	 */
 	public function render_setting_tabs() {
+
+		// Reaching this page means manage_options. Treat the visit as consent to
+		// accept new MCP client registrations for a short window; see
+		// OAuth\Bootstrap::open_registration_window().
+		if ( ! empty( self::get_enabled_elements()['premium-ai-abilities'] ) ) {
+			// The request path trusts an autoloaded flag rather than querying for
+			// the OAuth tables. Confirm them here, where two extra queries do not
+			// matter, so a site whose tables were dropped stops reporting OAuth as
+			// installed from the next page load on.
+			OAuth\Store::verify_tables();
+
+			OAuth\Bootstrap::open_registration_window();
+		}
 
 		// add the PRO popup template.
 		include_once PREMIUM_ADDONS_PATH . 'admin/includes/templates/pro-popup.php';
@@ -890,6 +968,30 @@ class Admin_Helper {
 	}
 
 	/**
+	 * Gets the license tier. PAPRO without a valid license counts as free.
+	 *
+	 * @since 4.11.106
+	 * @access public
+	 *
+	 * @return string 'free' | 'pro' | 'lifetime'.
+	 */
+	public static function get_license_tier() {
+
+		if ( ! Helper_Functions::check_papro_version() ) {
+			return 'free';
+		}
+
+		$info = get_transient( 'pa_license_info' );
+
+		if ( ! is_array( $info ) || empty( $info['status'] ) || 'valid' !== $info['status'] ) {
+			return 'free';
+		}
+
+		// Plan id 4 is the only lifetime plan.
+		return ( isset( $info['id'] ) && '4' === (string) $info['id'] ) ? 'lifetime' : 'pro';
+	}
+
+	/**
 	 * Retrieves banner strings.
 	 *
 	 * @access public
@@ -897,28 +999,30 @@ class Admin_Helper {
 	 */
 	public function get_banner_strings() {
 
-		$license_info = get_transient( 'pa_license_info' );
+		$tier = self::get_license_tier();
 
-		if ( ! Helper_Functions::check_papro_version() || ! $license_info ) {
+		if ( 'free' === $tier ) {
 			return array(
-				'title' => __( 'Spring SALE 2026', 'premium-addons-for-elementor' ),
-				'desc'  => __( 'Supercharge your Elementor with PRO Widgets & Addons that you won\'t find anywhere else.', 'premium-addons-for-elementor' ) . '<span class="papro-sale-notice">' . __( 'save up to 20%!', 'premium-addons-for-elementor' ) . '</span>',
+				'title' => __( 'Black Friday SALE 2026', 'premium-addons-for-elementor' ),
+				'desc'  => __( 'Supercharge your Elementor with PRO Widgets & Addons that you won\'t find anywhere else.', 'premium-addons-for-elementor' ) . '<span class="papro-sale-notice">' . __( 'save up to 40%!', 'premium-addons-for-elementor' ) . '</span>',
 				'btn'   => __( 'Get Pro', 'premium-addons-for-elementor' ),
 				'cta'   => 'https://premiumaddons.com/get/papro/#get-pa-pro',
 			);
+		}
 
-		} if ( isset( $license_info['id'] ) && '4' !== $license_info['id'] ) {
+		if ( 'pro' === $tier ) {
 
-			$upgrade_link = Helper_Functions::get_campaign_link( 'http://premiumaddons.com/docs/upgrade-premium-addons-license/', 'dashboard-banner', 'wp-dash', 'upgrade-pro' );
+			$upgrade_link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/upgrade-to-premium-addons-pro-lifetime-license/', 'dashboard-banner', 'wp-dash', 'upgrade-pro' );
 
 			return array(
 				'title' => __( 'Upgrade to Lifetime!', 'premium-addons-for-elementor' ),
-				'desc'  => __( 'Pay only the difference and enjoy an <span class="papro-sale-notice"> EXTRA 20% OFF</span> when you upgrade your Premium Addons Pro license to Lifetime — no renewals, no hassle, just lifetime access forever.', 'premium-addons-for-elementor' ),
+				'desc'  => __( 'Pay only the difference and enjoy an <span class="papro-sale-notice"> EXTRA 40% OFF</span> when you upgrade your Premium Addons Pro license to Lifetime — no renewals, no hassle, just lifetime access forever.', 'premium-addons-for-elementor' ),
 				'btn'   => __( 'Upgrade Now', 'premium-addons-for-elementor' ),
 				'cta'   => $upgrade_link,
 			);
-
 		}
+
+		return null;
 	}
 
 	/**
@@ -945,13 +1049,14 @@ class Admin_Helper {
 
 		$defaults = self::get_default_keys();
 
-		$elements = array_fill_keys( array_keys( array_intersect_key( $settings, $defaults ) ), true );
+		// Full-replace semantics: a key present in the posted form is enabled,
+		// every other known key is disabled.
+		$enabled_map = array();
+		foreach ( $defaults as $key => $value ) {
+			$enabled_map[ $key ] = isset( $settings[ $key ] );
+		}
 
-		update_option( 'pa_save_settings', $elements );
-
-		// Clear cache and static property.
-		wp_cache_delete( 'pa_elements', 'premium_addons' );
-		self::$enabled_elements = null;
+		self::persist_elements_settings( $enabled_map );
 
 		// Save the global addons only if it's the second run.
 		$is_second_run = get_option( 'pa_complete_wizard' ) ? false : true;
@@ -961,8 +1066,6 @@ class Admin_Helper {
 			update_option( 'pa_complete_wizard', false );
 		}
 
-		// Remove all files in the dynamic assets folder.
-		Assets_Manager::delete_assets_files();
 		wp_send_json_success();
 	}
 
@@ -986,12 +1089,451 @@ class Admin_Helper {
 
 		$features = array();
 		foreach ( $global_addons as $feature ) {
-			if ( isset( $settings[ $feature ] ) && 'on' === $settings[ $feature ] ) {
+			if ( ! empty( $settings[ $feature ] ) ) {
 				$features[] = $feature;
 			}
 		}
 
 		update_option( 'pa_saved_features', $features );
+	}
+
+	/**
+	 * Persist the elements settings option.
+	 *
+	 * Shared low-level writer for the enabled-elements store (pa_save_settings):
+	 * stores the option in its canonical shape (only enabled keys, each => true),
+	 * clears the cache, and purges the generated dynamic assets. Both the AJAX
+	 * save handler and the update_elements_settings() service funnel through here
+	 * so the stored shape and its side-effects never drift.
+	 *
+	 * @since 4.11.74
+	 * @access private
+	 *
+	 * @param array $enabled_map full key => bool map of every known elements key.
+	 */
+	private static function persist_elements_settings( $enabled_map ) {
+
+		$elements = array_fill_keys( array_keys( array_filter( $enabled_map ) ), true );
+
+		update_option( 'pa_save_settings', $elements );
+
+		// Clear cache and static property.
+		wp_cache_delete( 'pa_elements', 'premium_addons' );
+		self::$enabled_elements = null;
+
+		// Remove all files in the dynamic assets folder.
+		Assets_Manager::delete_assets_files();
+	}
+
+	/**
+	 * Update elements settings.
+	 *
+	 * Read-merge-write service for the enabled-elements store (widgets, addons,
+	 * global features). Reads the current normalized state, overlays the passed
+	 * partial change set (keys it does not own are ignored and reported back),
+	 * persists the result, and recomputes the saved global-features option.
+	 * Untouched keys keep their current values.
+	 *
+	 * @since 4.11.74
+	 * @access public
+	 *
+	 * @param array $changes key => bool partial change set.
+	 *
+	 * @return array {
+	 *     @type array $updated List of { key, value, previous_value } for owned keys.
+	 *     @type array $unknown Keys this store does not own.
+	 * }
+	 */
+	public static function update_elements_settings( $changes ) {
+
+		$current = self::get_enabled_elements();
+
+		$owned   = array_intersect_key( $changes, $current );
+		$unknown = array_keys( array_diff_key( $changes, $current ) );
+
+		if ( empty( $owned ) ) {
+			return array(
+				'updated' => array(),
+				'unknown' => $unknown,
+			);
+		}
+
+		$updated = array();
+		$merged  = $current;
+
+		foreach ( $owned as $key => $value ) {
+
+			$value = is_bool( $value ) ? $value : filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+
+			$updated[]      = array(
+				'key'            => $key,
+				'value'          => $value,
+				'previous_value' => $current[ $key ],
+			);
+			$merged[ $key ] = $value;
+		}
+
+		self::persist_elements_settings( $merged );
+
+		self::update_global_addons_option( $merged );
+
+		return array(
+			'updated' => $updated,
+			'unknown' => $unknown,
+		);
+	}
+
+	/**
+	 * Update integrations settings.
+	 *
+	 * Read-merge-write service for the maps/integrations store
+	 * (pa_maps_save_settings). Overlays the passed partial change set onto the
+	 * current settings — whitelisting and type-sanitizing each key — then writes
+	 * the result and clears the cache. Keys outside the whitelist are ignored and
+	 * reported back. Untouched keys keep their current values.
+	 *
+	 * @since 4.11.74
+	 * @access public
+	 *
+	 * @param array $changes key => value partial change set.
+	 *
+	 * @return array {
+	 *     @type array $updated List of { key, value, previous_value } for owned keys.
+	 *     @type array $unknown Keys this store does not own.
+	 * }
+	 */
+	public static function update_integrations_settings( $changes ) {
+
+		$int_keys  = array( 'premium-map-disable-api', 'premium-map-cluster', 'premium-wp-optimize-exclude', 'is-beta-tester' );
+		$whitelist = array_merge( $int_keys, array( 'premium-map-api', 'premium-youtube-api', 'premium-map-locale' ) );
+
+		$current = self::get_integrations_settings();
+
+		$owned   = array_intersect_key( $changes, array_flip( $whitelist ) );
+		$unknown = array_keys( array_diff_key( $changes, array_flip( $whitelist ) ) );
+
+		if ( empty( $owned ) ) {
+			return array(
+				'updated' => array(),
+				'unknown' => $unknown,
+			);
+		}
+
+		$updated = array();
+		$merged  = $current;
+
+		foreach ( $owned as $key => $value ) {
+
+			$value = in_array( $key, $int_keys, true ) ? (int) (bool) $value : sanitize_text_field( $value );
+
+			$updated[]      = array(
+				'key'            => $key,
+				'value'          => $value,
+				'previous_value' => $current[ $key ],
+			);
+			$merged[ $key ] = $value;
+		}
+
+		update_option( 'pa_maps_save_settings', $merged );
+
+		// Clear cache and static property.
+		wp_cache_delete( 'pa_integrations', 'premium_addons' );
+		self::$integrations_settings = null;
+
+		return array(
+			'updated' => $updated,
+			'unknown' => $unknown,
+		);
+	}
+
+	/**
+	 * Replace the disabled AI abilities set.
+	 *
+	 * @param array     $disabled    Full ability names to disable.
+	 * @param bool|null $third_party Third-party widgets switch; null preserves the stored value.
+	 * @return array
+	 */
+	public static function save_ai_abilities_settings( array $disabled, $third_party = null ) {
+		$abilities_list  = Bootstrap::get_instance()->get_abilities_catalog();
+		$abilities_names = wp_list_pluck( $abilities_list, 'full_name' );
+
+		$clean_disabled = array();
+		foreach ( wp_unslash( $disabled ) as $full_name ) {
+
+			$full_name = sanitize_text_field( $full_name );
+
+			if ( in_array( $full_name, $abilities_names, true ) ) {
+				$clean_disabled[] = $full_name;
+			}
+		}
+
+		$clean_disabled = array_values( array_unique( $clean_disabled ) );
+
+		// Preserve the current value on an ability-only save (or a Pro-inactive
+		// save where the locked switch is never posted).
+		if ( null === $third_party ) {
+			$current     = self::get_ai_abilities_settings();
+			$third_party = ! empty( $current['third_party_widgets'] );
+		}
+
+		update_option(
+			'pa_ai_abilities',
+			array(
+				'disabled_abilities'  => $clean_disabled,
+				'third_party_widgets' => (bool) $third_party,
+			)
+		);
+
+		wp_cache_delete( 'pa_ai_abilities', 'premium_addons' );
+		self::$ai_abilities_settings = null;
+
+		return $clean_disabled;
+	}
+
+	/**
+	 * Save AI ability switcher settings.
+	 *
+	 * @return void
+	 */
+	public function pa_save_ai_abilities() {
+
+		check_ajax_referer( 'pa-settings-tab', 'security' );
+
+		if ( ! self::check_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You are not allowed to do this action.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+
+		if ( ! isset( $_POST['disabled'] ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'No AI ability settings were provided.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+
+		$disabled_abilities = wp_unslash( $_POST['disabled'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Decoded values are sanitized and catalog-whitelisted before storage.
+		$disabled           = is_array( $disabled_abilities ) ? $disabled_abilities : json_decode( $disabled_abilities, true );
+
+		if ( ! is_array( $disabled ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'The AI ability settings could not be saved.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+
+		$third_party = isset( $_POST['third_party'] ) ? ( '1' === sanitize_text_field( wp_unslash( $_POST['third_party'] ) ) ) : null;
+
+		$disabled = self::save_ai_abilities_settings( $disabled, $third_party );
+
+		wp_send_json_success(
+			array(
+				'message'            => __( 'AI ability settings saved.', 'premium-addons-for-elementor' ),
+				'disabled_abilities' => $disabled,
+			)
+		);
+	}
+
+	/**
+	 * Run the MCP connection check and return its rows. Nothing is cached:
+	 * every click runs the checks again.
+	 *
+	 * @since 4.11.107
+	 * @return void
+	 */
+	public function pa_mcp_connection_check() {
+
+		check_ajax_referer( 'pa-settings-tab', 'security' );
+
+		if ( ! self::check_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You are not allowed to do this action.', 'premium-addons-for-elementor' ),
+				),
+				403
+			);
+		}
+
+		wp_send_json_success( array( 'rows' => MCP_Settings::run_connection_check() ) );
+	}
+
+	/**
+	 * Revoke one of the current user's Premium Addons MCP connections. The row
+	 * must be in that user's own list, which is the ownership check.
+	 *
+	 * @since 4.11.108
+	 *
+	 * @return void
+	 */
+	public function pa_mcp_revoke_connection() {
+
+		check_ajax_referer( 'pa-settings-tab', 'security' );
+
+		if ( ! self::check_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You are not allowed to do this action.', 'premium-addons-for-elementor' ),
+				),
+				403
+			);
+		}
+
+		$kind = isset( $_POST['kind'] ) ? sanitize_key( $_POST['kind'] ) : '';
+		$id   = isset( $_POST['id'] ) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
+
+		if ( ! in_array( $kind, array( 'password', 'oauth' ), true ) || '' === $id ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid connection.', 'premium-addons-for-elementor' ),
+				),
+				400
+			);
+		}
+
+		$user_id    = get_current_user_id();
+		$connection = wp_list_filter(
+			Connection_Log::get_connections( $user_id ),
+			array(
+				'kind' => $kind,
+				'id'   => $id,
+			)
+		);
+
+		if ( empty( $connection ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'That connection no longer exists. Reload the page.', 'premium-addons-for-elementor' ),
+				),
+				404
+			);
+		}
+
+		$revoked = 'password' === $kind
+			? true === \WP_Application_Passwords::delete_application_password( $user_id, $id )
+			: OAuth\Store::revoke_token( (int) $id );
+
+		if ( ! $revoked ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'The connection could not be revoked. Try again.', 'premium-addons-for-elementor' ),
+				),
+				500
+			);
+		}
+
+		// The wp_delete_application_password hook runs this too, but only while
+		// the abilities feature is on, and OAuth has no core hook at all.
+		Connection_Log::forget( $user_id );
+
+		wp_send_json_success(
+			array(
+				'remaining' => count( Connection_Log::get_connections( $user_id ) ),
+				'connected' => Connection_Log::is_connected(),
+			)
+		);
+	}
+
+	/**
+	 * Enable the OAuth connect method: install the tables, set the flag, and
+	 * verify anonymous REST is actually reachable.
+	 *
+	 * @since 4.11.90
+	 * @return void
+	 */
+	public function pa_enable_oauth_connect() {
+
+		check_ajax_referer( 'pa-settings-tab', 'security' );
+
+		if ( ! self::check_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You are not allowed to do this action.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+
+		$reason = OAuth\Bootstrap::unavailable_reason();
+
+		if ( '' !== $reason ) {
+			wp_send_json_error( array( 'message' => $reason ) );
+		}
+
+		// Check if a plugin blocks unauthenticated REST requests. If so, surface the error.
+		$auth_probe = OAuth\Bootstrap::rest_lock_error();
+
+		if ( null !== $auth_probe ) {
+			wp_send_json_error(
+				array(
+					'message' => sprintf(
+						/* translators: %s: error message from the REST authentication filter. */
+						__( 'A password-protection or firewall plugin on this site blocks unauthenticated REST API requests, which OAuth needs: %s', 'premium-addons-for-elementor' ),
+						$auth_probe->get_error_message()
+					),
+				)
+			);
+		}
+
+		if ( ! OAuth\Store::maybe_install() ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'OAuth tables could not be created. Confirm that your database user can create tables, then try again.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+		update_option( OAuth\Bootstrap::OPTION_ENABLED, true );
+
+		// Open the client-registration window now. The dashboard render that
+		// normally opens it ran before the opt-in flag existed, and
+		// Bootstrap::is_registered() was already memoized as false on init in
+		// this request, so open_registration_window() would return early —
+		// the option is written directly instead. Without this the first
+		// connect attempt after enabling fails at registration until the
+		// dashboard is reloaded.
+		update_option( OAuth\Bootstrap::DCR_WINDOW, time() + OAuth\Bootstrap::DCR_WINDOW_TTL, true );
+
+		if ( ! wp_next_scheduled( OAuth\Bootstrap::CRON_HOOK ) ) {
+			wp_schedule_event( time(), 'daily', OAuth\Bootstrap::CRON_HOOK );
+		}
+
+		// A cached pre-opt-in 404 of the discovery documents would break the
+		// handshake with nothing surfaced anywhere.
+		OAuth\Bootstrap::flush_page_caches();
+
+		wp_send_json_success(
+			array(
+				'message' => __( 'OAuth connection enabled. Connect your AI client with the configuration below.', 'premium-addons-for-elementor' ),
+			)
+		);
+	}
+
+	/**
+	 * Re-open the client-registration window. Fired when an administrator
+	 * copies a connection detail from the OAuth branch, so the 30 minutes count
+	 * from the moment the endpoint was grabbed rather than from the page load
+	 * that may have happened long before. No-op while OAuth is off.
+	 *
+	 * @since 4.11.101
+	 * @return void
+	 */
+	public function pa_extend_oauth_window() {
+
+		check_ajax_referer( 'pa-settings-tab', 'security' );
+
+		if ( ! self::check_user_can( 'manage_options' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You are not allowed to do this action.', 'premium-addons-for-elementor' ),
+				)
+			);
+		}
+
+		OAuth\Bootstrap::open_registration_window();
+
+		wp_send_json_success();
 	}
 
 	/**
@@ -1016,21 +1558,19 @@ class Admin_Helper {
 
 		parse_str( sanitize_text_field( wp_unslash( $_POST['fields'] ) ), $settings );
 
-		$new_settings = array(
-			'premium-map-api'             => sanitize_text_field( $settings['premium-map-api'] ),
-			'premium-youtube-api'         => sanitize_text_field( $settings['premium-youtube-api'] ),
-			'premium-map-disable-api'     => intval( $settings['premium-map-disable-api'] ? 1 : 0 ),
-			'premium-map-cluster'         => intval( $settings['premium-map-cluster'] ? 1 : 0 ),
-			'premium-wp-optimize-exclude' => intval( $settings['premium-wp-optimize-exclude'] ? 1 : 0 ),
-			'premium-map-locale'          => sanitize_text_field( $settings['premium-map-locale'] ),
-			'is-beta-tester'              => intval( $settings['is-beta-tester'] ? 1 : 0 ),
+		// Pass the full whitelist as a change set; the service whitelists,
+		// type-sanitizes and persists. Absent checkbox keys resolve to 0.
+		$changes = array(
+			'premium-map-api'             => $settings['premium-map-api'] ?? '',
+			'premium-youtube-api'         => $settings['premium-youtube-api'] ?? '',
+			'premium-map-disable-api'     => $settings['premium-map-disable-api'] ?? '',
+			'premium-map-cluster'         => $settings['premium-map-cluster'] ?? '',
+			'premium-wp-optimize-exclude' => $settings['premium-wp-optimize-exclude'] ?? '',
+			'premium-map-locale'          => $settings['premium-map-locale'] ?? '',
+			'is-beta-tester'              => $settings['is-beta-tester'] ?? '',
 		);
 
-		update_option( 'pa_maps_save_settings', $new_settings );
-
-		// Clear cache and static property.
-		wp_cache_delete( 'pa_integrations', 'premium_addons' );
-		self::$integrations_settings = null;
+		self::update_integrations_settings( $changes );
 
 		wp_send_json_success( $settings );
 	}
@@ -1080,16 +1620,19 @@ class Admin_Helper {
 
 		foreach ( $elements as $elem ) {
 
-			array_push( $keys, $elem['key'] );
+			$keys[] = $elem['key'];
 
 			if ( isset( $elem['draw_svg'] ) ) {
-				array_push( $keys, 'svg_' . $elem['key'] );
+				$keys[] = 'svg_' . $elem['key'];
 			}
 		}
 
 		$default_keys = array_fill_keys( $keys, true );
 
 		$default_keys['pa_mc_temp'] = false;
+
+		// AI Abilities is opt-in: it must stay OFF until the user enables it.
+		$default_keys['premium-ai-abilities'] = false;
 
 		return $default_keys;
 	}
@@ -1105,6 +1648,12 @@ class Admin_Helper {
 	 */
 	public static function get_pro_elements() {
 
+		static $pro_elements = null;
+
+		if ( null !== $pro_elements ) {
+			return $pro_elements;
+		}
+
 		$elements = self::get_elements_list();
 
 		$pro_elements = array();
@@ -1115,7 +1664,7 @@ class Admin_Helper {
 			foreach ( $all_elements['elements'] as $elem ) {
 				if ( isset( $elem['is_pro'] ) && ! isset( $elem['is_global'] ) ) {
 					$elem['categories'] = '["premium-elements"]';
-					array_push( $pro_elements, $elem );
+					$pro_elements[]     = $elem;
 				}
 			}
 		}
@@ -1134,6 +1683,12 @@ class Admin_Helper {
 	 */
 	public static function get_free_widgets_names() {
 
+		static $pa_elements = null;
+
+		if ( null !== $pa_elements ) {
+			return $pa_elements;
+		}
+
 		$elements = self::get_elements_list()['cat-1']['elements'];
 
 		$pa_elements = array();
@@ -1141,7 +1696,7 @@ class Admin_Helper {
 		if ( count( $elements ) ) {
 			foreach ( $elements as $elem ) {
 				if ( ! isset( $elem['is_pro'] ) && ! isset( $elem['is_global'] ) && isset( $elem['name'] ) ) {
-					array_push( $pa_elements, $elem['name'] );
+					$pa_elements[] = $elem['name'];
 				}
 			}
 		}
@@ -1179,34 +1734,6 @@ class Admin_Helper {
 	}
 
 	/**
-	 * Get Global Elements Switchers.
-	 * Construct an associative array of addon_switcher => 'yes' pairs
-	 * Example :
-	 *      + array( 'premium_gradient_switcher' => yes').
-	 *
-	 * @since 4.6.1
-	 * @access public
-	 *
-	 * @return array
-	 */
-	public static function get_global_elements_switchers() {
-
-		$elements = self::get_elements_list()['cat-4'];
-
-		$global_elems = array();
-
-		if ( count( $elements['elements'] ) ) {
-			foreach ( $elements['elements'] as $elem ) {
-				if ( isset( $elem['is_pro'] ) && isset( $elem['is_global'] ) ) {
-					$global_elems[ str_replace( '-', '_', $elem['key'] ) . '_switcher' ] = 'yes';
-				}
-			}
-		}
-
-		return $global_elems;
-	}
-
-	/**
 	 * Get Default Integrations
 	 *
 	 * @since 3.20.9
@@ -1232,7 +1759,7 @@ class Admin_Helper {
 	 * @since 3.20.9
 	 * @access public
 	 *
-	 * @return array $enabled_keys enabled elements
+	 * @return array $enabled_keys enabled elements as a key => bool map (true = enabled, false = disabled).
 	 */
 	public static function get_enabled_elements() {
 
@@ -1253,12 +1780,15 @@ class Admin_Helper {
 
 		$enabled_keys = get_option( 'pa_save_settings', $defaults );
 
+		// Keys that default to OFF and must only turn on when the saved option says so.
+		$opt_in_keys = array( 'pa_mc_temp', 'premium-ai-abilities' );
+
 		foreach ( $defaults as $key => $value ) {
 
-			if ( 'pa_mc_temp' !== $key && ! isset( $enabled_keys[ $key ] ) ) {
-				$defaults[ $key ] = 0;
-			} elseif ( 'pa_mc_temp' === $key && isset( $enabled_keys[ $key ] ) && $enabled_keys[ $key ] ) {
-				$defaults[ $key ] = 1;
+			if ( ! in_array( $key, $opt_in_keys, true ) && ! isset( $enabled_keys[ $key ] ) ) {
+				$defaults[ $key ] = false;
+			} elseif ( in_array( $key, $opt_in_keys, true ) ) {
+				$defaults[ $key ] = ( isset( $enabled_keys[ $key ] ) && $enabled_keys[ $key ] ) ? true : false;
 			}
 		}
 
@@ -1416,6 +1946,57 @@ class Admin_Helper {
 	}
 
 	/**
+	 * Get normalized AI abilities settings.
+	 *
+	 * @return array
+	 */
+	public static function get_ai_abilities_settings() {
+
+		$cached_settings = wp_cache_get( 'pa_ai_abilities', 'premium_addons' );
+
+		if ( false !== $cached_settings ) {
+			self::$ai_abilities_settings = $cached_settings;
+			return self::$ai_abilities_settings;
+		}
+
+		if ( null !== self::$ai_abilities_settings ) {
+			return self::$ai_abilities_settings;
+		}
+
+		$stored_settings = get_option( 'pa_ai_abilities', array( 'disabled_abilities' => array() ) );
+		$stored_settings = is_array( $stored_settings ) ? $stored_settings : array();
+
+		$disabled = isset( $stored_settings['disabled_abilities'] ) && is_array( $stored_settings['disabled_abilities'] )
+			? array_values( array_filter( $stored_settings['disabled_abilities'], 'is_string' ) )
+			: array();
+
+		// Default-on: a missing key reads as enabled so existing Pro users are unaffected.
+		$third_party_widgets = ! array_key_exists( 'third_party_widgets', $stored_settings )
+			|| ! empty( $stored_settings['third_party_widgets'] );
+
+		self::$ai_abilities_settings = array(
+			'disabled_abilities'  => $disabled,
+			'third_party_widgets' => $third_party_widgets,
+		);
+
+		wp_cache_set( 'pa_ai_abilities', self::$ai_abilities_settings, 'premium_addons' );
+
+		return self::$ai_abilities_settings;
+	}
+
+	/**
+	 * Check whether an ability is enabled.
+	 *
+	 * @param string $full_name Full ability name.
+	 * @return bool
+	 */
+	public static function is_ability_enabled( $full_name ) {
+		$settings = self::get_ai_abilities_settings();
+
+		return ! in_array( $full_name, $settings['disabled_abilities'], true );
+	}
+
+	/**
 	 * Run PA Rollback
 	 *
 	 * Trigger PA Rollback actions
@@ -1447,78 +2028,6 @@ class Admin_Helper {
 				'response' => 200,
 			)
 		);
-	}
-
-	/**
-	 * Disable unused widgets.
-	 *
-	 * @access public
-	 * @since 4.5.8
-	 */
-	public function pa_get_unused_widgets() {
-
-		check_ajax_referer( 'pa-disable-unused', 'security' );
-
-		if ( ! self::check_user_can( 'install_plugins' ) ) {
-			wp_send_json_error();
-		}
-
-		$pa_elements = self::get_pa_elements_names();
-
-		$used_widgets = self::get_used_widgets();
-
-		$unused_widgets = array_diff( $pa_elements, array_keys( $used_widgets ) );
-
-		wp_send_json_success( $unused_widgets );
-	}
-
-	public function pa_check_unused_widgets() {
-
-		check_ajax_referer( 'pa-disable-unused', 'security' );
-
-		$did_check = get_option( 'pa_unused_widget_dialog' );
-
-		if ( ! $did_check ) {
-
-			update_option( 'pa_unused_widget_dialog', true );
-
-			// Get days between now and install time.
-			$install_time = get_option( 'pa_install_time' );
-
-			// If install time is not set, set it now and exit.
-			if ( ! $install_time ) {
-				$current_time = gmdate( 'j F, Y', time() );
-				update_option( 'pa_install_time', $current_time );
-				wp_send_json_error( 'Installation time set.' );
-			}
-
-			// Convert to days.
-			$days_diff = ( time() - strtotime( $install_time ) ) / DAY_IN_SECONDS;
-
-			// If 7 days have passed since installation, proceed.
-			if ( $days_diff >= 7 ) {
-				wp_send_json_success();
-			} else {
-				wp_send_json_error( 'Not enough days since installation.' );
-			}
-		}
-
-		wp_send_json_error( 'Already checked, or canceled' );
-	}
-
-	/**
-	 * Hide Unused Widgets Dialog.
-	 *
-	 * @access public
-	 * @since 4.5.8
-	 */
-	public function pa_hide_unused_widgets_dialog() {
-
-		check_ajax_referer( 'pa-disable-unused', 'security' );
-
-		update_option( 'pa_unused_widget_dialog', true );
-
-		wp_send_json_success( 'Option updated.' );
 	}
 
 	/**
@@ -1602,6 +2111,9 @@ class Admin_Helper {
 	/**
 	 * Get used widgets.
 	 *
+	 * An empty result means "never scanned" as often as it means "nothing is used";
+	 * has_usage_data() separates the two.
+	 *
 	 * @access public
 	 * @since 4.5.8
 	 *
@@ -1614,8 +2126,6 @@ class Admin_Helper {
 		if ( class_exists( 'Elementor\Modules\Usage\Module' ) ) {
 
 			$module = Module::instance();
-
-			$module->recalc_usage();
 
 			$elements = $module->get_formatted_usage( 'raw' );
 
@@ -1644,6 +2154,184 @@ class Admin_Helper {
 	}
 
 	/**
+	 * Whether a usage scan has ever run — which get_used_widgets() cannot report.
+	 *
+	 * @access public
+	 * @since 4.11.95
+	 *
+	 * @return bool
+	 */
+	public static function has_usage_data() {
+
+		if ( ! class_exists( 'Elementor\Modules\Usage\Module' ) ) {
+			return false;
+		}
+
+		return ! empty( get_option( Module::OPTION_NAME, array() ) );
+	}
+
+	/**
+	 * Recalculate one batch of the site's Elementor usage data.
+	 *
+	 * Deliberately not Elementor's recalc_usage(): that ends in wp_cache_flush(), which
+	 * empties a shared Redis/Memcached store for the whole site. It flushes to bound
+	 * memory across an unbounded loop; batching bounds it per request instead.
+	 *
+	 * @access public
+	 * @since 4.11.95
+	 *
+	 * @param int $offset Posts already processed.
+	 * @param int $limit  Posts to process in this batch.
+	 *
+	 * @return array|false Progress counters, or false when Elementor is unavailable.
+	 */
+	public static function scan_widgets_usage( $offset = 0, $limit = self::SCAN_BATCH_SIZE ) {
+
+		if ( ! class_exists( 'Elementor\Modules\Usage\Module' ) ) {
+			return false;
+		}
+
+		$module = Module::instance();
+
+		// Fallback for a future Elementor without after_document_save(): unbatched, and
+		// it flushes the cache — kept only so the feature does not break outright.
+		if ( ! method_exists( $module, 'after_document_save' ) ) {
+
+			$processed = $module->recalc_usage();
+
+			return array(
+				'processed' => $processed,
+				'total'     => $processed,
+				'done'      => true,
+			);
+		}
+
+		if ( 0 === $offset ) {
+			delete_option( Module::OPTION_NAME );
+		}
+
+		$query = new \WP_Query(
+			array(
+				'fields'         => 'ids',
+				'meta_key'       => '_elementor_data', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- matches the post set Elementor's own recalc walks.
+				'post_type'      => get_post_types( array( 'public' => true ) ),
+				'post_status'    => array( 'publish', 'private' ),
+				'posts_per_page' => $limit,
+				'offset'         => $offset,
+			)
+		);
+
+		foreach ( $query->posts as $post_id ) {
+
+			$document = Plugin::$instance->documents->get( $post_id );
+
+			if ( $document ) {
+				$module->after_document_save( $document );
+			}
+		}
+
+		$processed = $offset + count( $query->posts );
+
+		return array(
+			'processed' => $processed,
+			'total'     => $query->found_posts,
+			'done'      => $processed >= $query->found_posts,
+		);
+	}
+
+	/**
+	 * Get the settings keys of every unused Premium Addons widget.
+	 *
+	 * Usage is reported by widget name and settings are keyed by settings key; the two
+	 * differ across the premium-addon-* family, so the diff happens in name space.
+	 *
+	 * @access public
+	 * @since 4.11.95
+	 *
+	 * @return array
+	 */
+	public static function get_unused_element_keys() {
+
+		$unused_names = array_diff(
+			self::get_pa_elements_names(),
+			array_keys( self::get_used_widgets() )
+		);
+
+		$keys = array();
+
+		foreach ( self::get_elements_list()['cat-1']['elements'] as $element ) {
+
+			if ( isset( $element['name'], $element['key'] ) && in_array( $element['name'], $unused_names, true ) ) {
+				$keys[] = $element['key'];
+			}
+		}
+
+		return $keys;
+	}
+
+	/**
+	 * Scan one batch of the site's Elementor usage data.
+	 *
+	 * @access public
+	 * @since 4.11.95
+	 */
+	public function pa_scan_widgets_usage() {
+
+		check_ajax_referer( 'pa-disable-unused', 'security' );
+
+		if ( ! self::check_user_can( 'install_plugins' ) ) {
+			wp_send_json_error( __( 'You are not allowed to do this action', 'premium-addons-for-elementor' ) );
+		}
+
+		$offset = isset( $_POST['offset'] ) ? absint( wp_unslash( $_POST['offset'] ) ) : 0;
+
+		$progress = self::scan_widgets_usage( $offset );
+
+		if ( ! $progress ) {
+			wp_send_json_error( __( 'Elementor usage data is not available on this site.', 'premium-addons-for-elementor' ) );
+		}
+
+		wp_send_json_success( $progress );
+	}
+
+	/**
+	 * Disable every Premium Addons widget the last scan found unused.
+	 *
+	 * @access public
+	 * @since 4.11.95
+	 */
+	public function pa_disable_unused_widgets() {
+
+		check_ajax_referer( 'pa-disable-unused', 'security' );
+
+		if ( ! self::check_user_can( 'install_plugins' ) ) {
+			wp_send_json_error( __( 'You are not allowed to do this action', 'premium-addons-for-elementor' ) );
+		}
+
+		$unused   = self::get_unused_element_keys();
+		$disabled = array();
+
+		if ( ! empty( $unused ) ) {
+
+			$result = self::update_elements_settings( array_fill_keys( $unused, false ) );
+
+			// Report only the widgets this call switched off, not the ones already off.
+			foreach ( $result['updated'] as $change ) {
+				if ( $change['previous_value'] ) {
+					$disabled[] = $change['key'];
+				}
+			}
+		}
+
+		wp_send_json_success(
+			array(
+				'unused'   => $unused,
+				'disabled' => $disabled,
+			)
+		);
+	}
+
+	/**
 	 * Subscribe Newsletter
 	 *
 	 * Adds an email to Premium Addons subscribers list
@@ -1661,6 +2349,31 @@ class Admin_Helper {
 		}
 
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+
+		$result = self::subscribe_newsletter_request( $email );
+
+		wp_send_json_success( $result['response'] );
+	}
+
+	/**
+	 * Subscribe Newsletter Request.
+	 *
+	 * Pure newsletter-subscribe service: sends the email to the Premium Addons
+	 * MailChimp endpoint and returns the decoded response. Shared by the AJAX
+	 * handler and the premium-addons/subscribe-newsletter ability so both hit
+	 * the exact same remote call and never drift.
+	 *
+	 * @since 4.11.74
+	 * @access public
+	 *
+	 * @param string $email subscriber email address.
+	 *
+	 * @return array {
+	 *     @type bool  $success  Whether the request reached the endpoint with an HTTP 200.
+	 *     @type array $response Decoded remote response body ( [] when unavailable ).
+	 * }
+	 */
+	public static function subscribe_newsletter_request( $email ) {
 
 		$api_url = 'https://premiumaddons.com/wp-json/mailchimp/v2/add';
 
@@ -1682,7 +2395,10 @@ class Admin_Helper {
 		$body = wp_remote_retrieve_body( $response );
 		$body = json_decode( $body, true );
 
-		wp_send_json_success( $body );
+		return array(
+			'success'  => ! is_wp_error( $response ) && 200 === (int) wp_remote_retrieve_response_code( $response ),
+			'response' => is_array( $body ) ? $body : array(),
+		);
 	}
 
 	/**

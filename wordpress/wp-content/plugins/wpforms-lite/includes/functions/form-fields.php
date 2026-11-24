@@ -529,6 +529,7 @@ function wpforms_get_payments_fields(): array {
 		'payment-coupon',
 		'credit-card', // Legacy Credit Card field.
 		'authorize_net',
+		'mercado_pago',
 		'paypal-commerce',
 		'square',
 		'stripe-credit-card',
@@ -671,6 +672,7 @@ function wpforms_get_multi_fields(): array {
 		'checkbox',
 		'select',
 		'payment-checkbox',
+		'ranking',
 	];
 }
 
@@ -767,4 +769,81 @@ function wpforms_get_icon_svg( string $icon, string $style, int $size ): string 
 	$width  = $height * 1.25; // Icon width is equal or 25% larger/smaller than height. We force the largest value for all icons.
 
 	return str_replace( 'viewBox=', 'width="' . $width . '" height="' . $height . '" viewBox=', $svg );
+}
+
+/**
+ * Get the list of scalar values stored in a field value.
+ *
+ * Malformed entries can store a list of files where a string is expected.
+ *
+ * @since 2.0.1
+ *
+ * @param mixed $value Field value.
+ *
+ * @return array
+ */
+function wpforms_get_field_value_list( $value ): array {
+
+	if ( ! is_array( $value ) ) {
+		return [ is_scalar( $value ) || $value === null ? (string) $value : '' ];
+	}
+
+	// A single file array holds its URL in the `value` key.
+	if ( isset( $value['value'] ) && is_scalar( $value['value'] ) ) {
+		return [ (string) $value['value'] ];
+	}
+
+	$values = array_column( $value, 'value' );
+	$values = $values ? $values : $value;
+
+	return array_values( array_filter( $values, 'is_scalar' ) );
+}
+
+/**
+ * Flatten a field value to a string.
+ *
+ * Multi-value entry field values are stored as newline-separated strings.
+ *
+ * @since 2.0.1
+ *
+ * @param mixed $value Field value.
+ *
+ * @return string
+ */
+function wpforms_flatten_field_value( $value ): string {
+
+	return implode( "\n", wpforms_get_field_value_list( $value ) );
+}
+
+/**
+ * Check if a field type supports the "Other" choice option.
+ *
+ * This function determines whether a given field type can have an "Other" choice
+ * that allows users to enter custom text. By default, Radio and Checkbox fields
+ * support this feature.
+ *
+ * @since 2.0.3
+ *
+ * @param array $field Field data.
+ *
+ * @return bool True if a field type supports the Other option, false otherwise.
+ */
+function wpforms_field_supports_other_choice( array $field ): bool {
+
+	$supported_types = [ 'radio', 'checkbox' ];
+
+	/**
+	 * Filter the list of field types that support the "Other" choice option.
+	 *
+	 * This allows addons or custom field types to add or remove support for
+	 * the Other choice feature.
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param array $supported_types Array of field type slugs that support Other choice.
+	 * @param array $field           Field settings.
+	 */
+	$supported_types = (array) apply_filters( 'wpforms_field_supports_other_choice', $supported_types, $field );
+
+	return in_array( $field['type'], $supported_types, true );
 }

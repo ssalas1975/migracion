@@ -6,6 +6,11 @@ use \Essential_Addons_Elementor\Classes\Helper;
  *
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // Exit if accessed directly
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 echo '<article class="eael-better-docs-category-grid-post" data-id="' . esc_attr( get_the_ID() ) . '">
     <div class="eael-bd-cg-inner">';
         if ($settings['show_header'] === 'true') {
@@ -15,7 +20,7 @@ echo '<article class="eael-better-docs-category-grid-post" data-id="' . esc_attr
 
                         $cat_icon_id = get_term_meta($term->term_id, 'doc_category_image-id', true);
                         if ($cat_icon_id) {
-                            $cat_icon = wp_get_attachment_image($cat_icon_id, 'thumbnail', true, ['alt' => esc_attr( get_post_meta($cat_icon_id, '_wp_attachment_image_alt', true))]);
+                            $cat_icon = wp_get_attachment_image($cat_icon_id, 'thumbnail', true, ['alt' => Helper::get_image_alt(['id' => $cat_icon_id])]);
                         } else {
                             $cat_icon = '<img src="' . EAEL_PLUGIN_URL . 'assets/front-end/img/betterdocs-cat-icon.svg" alt="betterdocs-category-grid-icon">';
                         }
@@ -226,3 +231,4 @@ echo '<article class="eael-better-docs-category-grid-post" data-id="' . esc_attr
         echo '</div>';
     echo '</div>';
 echo '</article>';
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

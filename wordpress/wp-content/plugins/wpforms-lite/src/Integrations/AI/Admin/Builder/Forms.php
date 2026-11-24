@@ -274,7 +274,7 @@ class Forms {
 			'waiting'             => esc_html__( 'Just a minute...', 'wpforms-lite' ),
 			'errors'              => [
 				'default'    => esc_html__( 'An error occurred while generating form.', 'wpforms-lite' ),
-				'rate_limit' => esc_html__( 'Sorry, you\'ve reached your daily limit for generating forms.', 'wpforms-lite' ),
+				'rate_limit' => esc_html__( 'You\'ve hit your daily AI request limit.', 'wpforms-lite' ),
 			],
 			'footer'              => [
 				esc_html__( 'What do you think of the form I created for you? If you’re happy with it, you can use this form. Otherwise, make changes by entering additional prompts.', 'wpforms-lite' ),
@@ -305,7 +305,7 @@ class Forms {
 				),
 				'rate_limit' => sprintf(
 					wp_kses( /* translators: %s - WPForms contact support link. */
-						__( 'You may only generate forms 50 times per day. If you believe this is an error, <a href="%s" target="_blank" rel="noopener noreferrer">please contact WPForms support</a>.', 'wpforms-lite' ),
+						__( 'You can make up to 50 AI requests per day. If you believe this is an error, <a href="%s" target="_blank" rel="noopener noreferrer">please contact WPForms support</a>.', 'wpforms-lite' ),
 						[
 							'a' => [
 								'href'   => [],
@@ -345,7 +345,8 @@ class Forms {
 				[
 					'icon'   => 'wpforms-ai-chat-sample-quiz-capitals',
 					'title'  => esc_html__( 'How well do you know world capitals?', 'wpforms-lite' ),
-					'prompt' => esc_html__( 'Create a graded quiz on the topic of "How well do you know world capitals?" with 10 questions and 3 answers each. Randomize the choices. Collect the user\'s name and email address. Create 4 outcomes set to Graded Quiz type with appropriate text for each grade and utilize the available smart tags. The graded outcomes should be if Quiz Grade is A, if Quiz Grade is B, if Quiz Grade is C, if Quiz Grade is D, and if Quiz Grade is F.', 'wpforms-lite' ),
+					/* translators: Keep the grade letters A, B, C, D, and F untranslated; they match the Quiz addon default grading scale. */
+					'prompt' => esc_html__( 'Create a graded quiz on the topic of "How well do you know world capitals?" with 10 questions and 3 answers each. Randomize the choices. Collect the user\'s name and email address. Create 5 outcomes set to Graded Quiz type with appropriate text for each grade and utilize the available smart tags. The graded outcomes should be if Quiz Grade is A, if Quiz Grade is B, if Quiz Grade is C, if Quiz Grade is D, and if Quiz Grade is F.', 'wpforms-lite' ),
 				],
 				[
 					'icon'   => 'wpforms-ai-chat-sample-quiz-learn',

@@ -7,7 +7,7 @@
  */
 class A_MVC_Factory extends Mixin
 {
-    public function mvc_view($template, $params = array(), $engine = 'php', $context = false, $new_template_path = '')
+    public function mvc_view($template, $params = [], $engine = 'php', $context = false, $new_template_path = '')
     {
         return new C_MVC_View($template, $params, $engine, $context, $new_template_path);
     }
@@ -199,7 +199,7 @@ abstract class C_MVC_Controller extends C_Component
      * @param bool   $return_output (optional).
      * @return string
      */
-    public function render_view($name, $vars = array(), $return_output = false)
+    public function render_view($name, $vars = [], $return_output = false)
     {
         $this->object->render();
         return $this->object->render_partial($name, $vars, $return_output);
@@ -214,7 +214,7 @@ abstract class C_MVC_Controller extends C_Component
      * @param string $new_template_path Path to the new non-POPE file located under the plugin root's '/templates' directory.
      * @return mixed
      */
-    public function render_partial($template, $params = array(), $return_output = false, $context = null, $new_template_path = '')
+    public function render_partial($template, $params = [], $return_output = false, $context = null, $new_template_path = '')
     {
         /**
          * View instance.
@@ -293,7 +293,7 @@ class Mixin_MVC_Controller_Instance_Methods extends Mixin
      * @param string $new_template_path Path to the new non-POPE file located under the plugin root's '/templates' directory.
      * @return mixed
      */
-    public function create_view($template, $params = array(), $context = null, $new_template_path = '')
+    public function create_view($template, $params = [], $context = null, $new_template_path = '')
     {
         if (!$context) {
             $context = $this->object->context;
@@ -327,20 +327,20 @@ class C_MVC_View extends C_Component
      *
      * @var array
      */
-    public $_params = array();
+    public $_params = [];
     /**
      * Queue array.
      *
      * @var array
      */
-    public $_queue = array();
+    public $_queue = [];
     /**
      * New template path.
      *
      * @var string
      */
     public $_new_template = '';
-    public function __construct($template, $params = array(), $engine = 'php', $context = false, $new_template_path = '')
+    public function __construct($template, $params = [], $engine = 'php', $context = false, $new_template_path = '')
     {
         $this->_template = $template;
         $this->_params = (array) $params;
@@ -456,7 +456,10 @@ class C_MVC_View extends C_Component
             if ($__target == $__image_after_target) {
                 $this->end_element();
             }
-            extract($__params);
+            // EXTR_SKIP keeps the already-resolved $__target (and the other local
+            // render state) from being overwritten by a caller-supplied key of the
+            // same name, so the path validated above is the path that is included.
+            extract($__params, EXTR_SKIP);
             include $__target;
             if ($__target == $__image_before_target) {
                 $__image = isset($__params['image']) ? $__params['image'] : null;
@@ -536,8 +539,8 @@ class C_MVC_View extends C_Component
     /**
      * Gets the template override absolute path.
      *
-     * @param $module
-     * @param $filename
+     * @param string $module The module name.
+     * @param string $filename The template filename.
      * @return string|null
      */
     public function get_template_override_abspath($module, $filename)
@@ -595,8 +598,8 @@ class Mixin_Mvc_View_Instance_Methods extends Mixin
     /**
      * Adds a template parameter
      *
-     * @param $key
-     * @param $value
+     * @param string $key The parameter key.
+     * @param mixed  $value The parameter value.
      */
     public function set_param($key, $value)
     {
@@ -605,7 +608,7 @@ class Mixin_Mvc_View_Instance_Methods extends Mixin
     /**
      * Removes a template parameter
      *
-     * @param $key
+     * @param string $key The parameter key.
      */
     public function remove_param($key)
     {
@@ -614,8 +617,8 @@ class Mixin_Mvc_View_Instance_Methods extends Mixin
     /**
      * Gets the value of a template parameter
      *
-     * @param $key
-     * @param null $default_value
+     * @param string $key The parameter key.
+     * @param mixed  $default_value The default value.
      * @return mixed
      */
     public function get_param($key, $default_value = null)

@@ -45,7 +45,7 @@ class nggMeta {
 
 		$imagePath = \Imagely\NGG\DataStorage\Manager::get_instance()->get_image_abspath( $this->image );
 
-		if ( !file_exists( $imagePath ) ) {
+		if ( ! $imagePath || ! file_exists( $imagePath ) ) {
 			return false;
 		}
 
@@ -99,7 +99,7 @@ class nggMeta {
 
 		// return one element if requested
 		if ($object) {
-			return $meta[$object];
+			return $this->maybe_escape( $meta[$object] );
 		}
 
 		// removed saved parameter we don't need that to show
@@ -113,11 +113,7 @@ class nggMeta {
 		}
 
 		// on request sanitize the output
-		if ( $this->sanitize == true ) {
-			array_walk( $meta, 'esc_html' );
-		}
-
-		return $meta;
+		return $this->maybe_escape( $meta );
 	}
 
 	/**
@@ -221,15 +217,11 @@ class nggMeta {
 		// return one element if requested
 		if ( $object == true ) {
 			$value = isset( $this->exif_array[$object] ) ? $this->exif_array[$object] : false;
-			return $value;
+			return $this->maybe_escape( $value );
 		}
 
 		// on request sanitize the output
-		if ( $this->sanitize == true ) {
-			array_walk( $this->exif_array, 'esc_html' );
-		}
-
-		return $this->exif_array;
+		return $this->maybe_escape( $this->exif_array );
 	}
 
 	/**
@@ -316,15 +308,11 @@ class nggMeta {
 
 		// return one element if requested
 		if ($object) {
-			return ( isset( $this->iptc_array[$object] ) ) ? $this->iptc_array[$object] : null;
+			return $this->maybe_escape( isset( $this->iptc_array[$object] ) ? $this->iptc_array[$object] : null );
 		}
 
 		// on request sanitize the output
-		if ( $this->sanitize == true ) {
-			array_walk( $this->iptc_array, 'esc_html' );
-		}
-
-		return $this->iptc_array;
+		return $this->maybe_escape( $this->iptc_array );
 	}
 
 	/**
@@ -438,17 +426,21 @@ class nggMeta {
 
 			// --------- Some values from the XMP format--------- //
 			$xmpTags = array(
-				'xap:CreateDate'            => 'created_timestamp',
-				'xap:ModifyDate'            => 'last_modfied',
-				'xap:CreatorTool'           => 'tool',
-				'dc:format'                 => 'format',
-				'dc:title'                  => 'title',
-				'dc:creator'                => 'author',
-				'dc:subject'                => 'keywords',
-				'dc:description'            => 'caption',
-				'photoshop:AuthorsPosition' => 'position',
-				'photoshop:City'            => 'city',
-				'photoshop:Country'         => 'country',
+				'xap:CreateDate'                   => 'created_timestamp',
+				'xap:ModifyDate'                   => 'last_modfied',
+				'xap:CreatorTool'                  => 'tool',
+				'dc:format'                        => 'format',
+				'dc:title'                         => 'title',
+				// IPTC-aware tools write accessibility alt text to this XMP extension property.
+				// It is the dedicated alt-text field, so it takes priority over dc:title when
+				// populating the image alttext.
+				'Iptc4xmpExt:AltTextAccessibility' => 'title',
+				'dc:creator'                       => 'author',
+				'dc:subject'                       => 'keywords',
+				'dc:description'                   => 'caption',
+				'photoshop:AuthorsPosition'        => 'position',
+				'photoshop:City'                   => 'city',
+				'photoshop:Country'                => 'country',
 			);
 
 			foreach ($xmpTags as $key => $value) {
@@ -469,15 +461,11 @@ class nggMeta {
 
 		// return one element if requested
 		if ($object != false ) {
-			return isset( $this->xmp_array[$object] ) ? $this->xmp_array[$object] : false;
+			return $this->maybe_escape( isset( $this->xmp_array[$object] ) ? $this->xmp_array[$object] : false );
 		}
 
 		// on request sanitize the output
-		if ( $this->sanitize == true ) {
-			array_walk( $this->xmp_array, 'esc_html' );
-		}
-
-		return $this->xmp_array;
+		return $this->maybe_escape( $this->xmp_array );
 	}
 
 	/**
@@ -588,7 +576,7 @@ class nggMeta {
 		$date = $this->exif_date2ts( $this->get_META( 'created_timestamp' ) );
 		if (!$date) {
 			$image_path = \Imagely\NGG\DataStorage\Manager::get_instance()->get_backup_abspath( $this->image );
-			if (file_exists( $image_path )) {
+			if ( $image_path && file_exists( $image_path ) ) {
 				$date = filectime( $image_path );
 			}
 		}
@@ -643,8 +631,8 @@ class nggMeta {
 		}
 
 		// let's add now the size of the image
-		$meta['width']  = $this->size[0];
-		$meta['height'] = $this->size[1];
+		$meta['width']  = $this->size[0] ?? null;
+		$meta['height'] = $this->size[1] ?? null;
 
 		return $meta;
 	}
@@ -659,7 +647,30 @@ class nggMeta {
 	}
 
 	/**
-	 * Wrapper to utf8_encode() that avoids double encoding.
+	 * HTML-escapes string meta values when sanitize() was requested.
+	 *
+	 * SECURITY (#1109): see Imagely\NGG\DataStorage\MetaData::maybe_escape(). The
+	 * old array_walk( $arr, 'esc_html' ) discarded esc_html()'s return value, so
+	 * sanitize() never escaped anything. Returns an escaped copy; the cached
+	 * arrays stay raw.
+	 *
+	 * @param mixed $value Meta value or array of values.
+	 * @return mixed
+	 */
+	protected function maybe_escape( $value ) {
+		if ( ! $this->sanitize ) {
+			return $value;
+		}
+
+		if ( is_array( $value ) ) {
+			return array_map( array( $this, 'maybe_escape' ), $value );
+		}
+
+		return is_string( $value ) ? esc_html( $value ) : $value;
+	}
+
+	/**
+	 * Converts a string to UTF-8 via mb_convert_encoding(), avoiding double encoding.
 	 *
 	 * Regex adapted from http://www.w3.org/International/questions/qa-forms-utf-8.en.php
 	 * to determine if the given string is already UTF-8. mb_detect_encoding() is not
@@ -682,8 +693,8 @@ class nggMeta {
             )*$%xs',
 			$str
 		);
-		if (!$is_utf8) {
-			utf8_encode( $str );
+		if (!$is_utf8 && function_exists('mb_convert_encoding')) {
+			$str = mb_convert_encoding( $str, 'UTF-8', 'ISO-8859-1' );
 		}
 		return $str;
 	}

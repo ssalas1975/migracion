@@ -1,5 +1,48 @@
 == Changelog ==
 
+= 2.6.4 - NOV 20 2026 =
+- Improved: Setup Wizard: Layout, style, and descriptions for a smoother UX.
+- Fixed: Setup Wizard: Using 'Exit to WP dashboard' option on first screen displays a blank screen in the Wizard and doesn't redirect to the WordPress dashboard.
+- Fixed: Setup Wizard: The modal window on the templates selection screen reappears during the same session even after being dismissed.
+- Fixed: Security: Potential vulnerability patched. Wordfence report from November 14, 2026.
+
+= 2.6.3 - OCT 13 2026 =
+- Updated: Freemius SDK to its latest version.
+
+= 2.6.2 - SEP 21 2026 =
+- Improved: Metabox Settings: Access control consistency for all Shortcode options.
+- Improved: Menu Icons: Icon selector loading and rendering performance.
+- Improved: Standardized file access checks across plugin files.
+
+= 2.6.1 - SEP 10 2026 =
+- Fixed: Potential vulnerability patched. Report by Wordfence from September 8, 2026.
+
+= 2.6.0 - SEP 8 2026 =
+- Added: Shortcode: Current User: Support for 'first_name', 'last_name', and 'nickname' display options.
+- Improved: Shortcode: Current User: Data handling and output processing.
+- Improved: Shortcode: Woo Cart: Custom color value validation.
+- Improved: Shortcode: Breadcrumbs: Custom color value validation.
+- Improved: Shortcode: Free Shipping Left: AJAX cart refresh handling.
+- Improved: My Library: Nested shortcode rendering stability.
+- Fixed: Potential vulnerability patched. Report by Wordfence from September 3, 2026.
+
+= 2.5.9 - AUG 18 2026 =
+- Added: Compatibility: WordPress 7.1.
+- Improved: Customizer: Panels and options rendering logic for improved Customizer speed.
+- Improved: Minified CSS files: Encoding changed from 'UTF-8 with BOM' to 'UTF-8' to avoid issues with CSS file combination features delivered by optimization plugins.
+- Improved: Opengraph: Logic to avoid empty 'og:url' tag generation.
+- Improved: Opengraph: Logic to avoid returning WP errors as 'og:url' tag.
+
+= 2.5.8 - JUL 28 2026 =
+- Added: Gutenberg Block Editor: Posts & Pages: Editor Style: Front-End Style in Editor option: Display website's front-end style (typography, colors, etc.) inside the editor.
+
+= 2.5.7 - JUN 29 2026 =
+- Added: Customizer: Icon for the new OceanWP 'Accessibility - A11Y' panel. Requires latest OceanWP 4.2.0 version.
+- Improved: Widgets: Flickr: Script handling when widget not in use.
+
+= 2.5.6 - MAY 20 2026 =
+- Updated: Compatibility: WordPress version number.
+
 = 2.5.5 - MAR 31 2026 =
 - Updated: Setup Wizard: Optional newsletter integration provider changed in favor of a self-hosted solution. Remains strictly opt-in.
 - Fixed: Hooks: Hook condition on product category pages. Also relates to the exact same problem in Ocean Hooks plugin.

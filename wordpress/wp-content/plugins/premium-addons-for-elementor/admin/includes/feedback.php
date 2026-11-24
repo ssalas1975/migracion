@@ -45,11 +45,14 @@ class Feedback {
 
 		$data = array_map( 'sanitize_text_field', wp_unslash( $_POST['data'] ) );
 
+		$reason      = '';
+		$suggestions = null;
+		$anonymous   = false;
+
 		if ( isset( $data['feedback'] ) ) {
 			$reason      = $data['feedback'];
 			$suggestions = isset( $data['suggestions'] ) ? $data['suggestions'] : null;
 			$anonymous   = isset( $data['anonymous'] ) ? (bool) $data['anonymous'] : false;
-
 		}
 
 		if ( ! is_string( $reason ) || empty( $reason ) ) {
@@ -119,7 +122,7 @@ class Feedback {
 		$plugin_data = get_plugin_data( PREMIUM_ADDONS_FILE );
 
 		?>
-			<div class="pa-deactivation-popup hidden" data-type="wrapper" data-slug="<?php echo $plugin_data['TextDomain']; ?>">
+			<div class="pa-deactivation-popup hidden" data-type="wrapper" data-slug="<?php echo esc_attr( $plugin_data['TextDomain'] ); ?>">
 				<div class="overlay">
 					<div class="close"><i class="dashicons dashicons-no"></i></div>
 					<div class="body">
@@ -185,8 +188,8 @@ class Feedback {
 							<p class="options-wrap pa-info-notice">
 								<?php
 								$link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/fix-elementor-editor-panel-loading-issues/', 'plugins-page', 'wp-dash', 'deactivate-form' );
-								echo __( 'Having speed issues or Elementor editor not loading? Your website PHP limits might be the reason. Here\'s ', 'premium-addons-for-elementor' ) .
-										sprintf( '<a target="_blank" href="%s">%s</a>', $link, __( 'how to increase the PHP limits', 'premium-addons-for-elementor' ) );
+								echo esc_html__( 'Having speed issues or Elementor editor not loading? Your website PHP limits might be the reason. Here\'s ', 'premium-addons-for-elementor' ) .
+										sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( $link ), esc_html__( 'how to increase the PHP limits', 'premium-addons-for-elementor' ) );
 								?>
 							</p>
 
@@ -200,7 +203,8 @@ class Feedback {
 						</section>
 
 						<section class="buttons-wrap clearfix">
-							<button class="pa-deactivate-btn" data-action="deactivation"><?php echo esc_html( __( 'Deactivate', 'premium-addons-for-elementor' ) ); ?></button>
+							<button class="pa-deactivate-btn pa-submit-btn" data-action="deactivation"><?php echo esc_html( __( 'Submit & Deactivate', 'premium-addons-for-elementor' ) ); ?></button>
+							<button class="pa-deactivate-btn pa-skip-btn" data-action="skip"><?php echo esc_html( __( 'Skip & Deactivate', 'premium-addons-for-elementor' ) ); ?></button>
 						</section>
 					</div>
 
@@ -250,7 +254,6 @@ class Feedback {
 			include ABSPATH . '/wp-admin/includes/plugin.php';
 		}
 
-		// $plugins   = get_plugins();
 		$option = get_option( 'active_plugins', array() );
 		$active = array();
 
@@ -277,34 +280,10 @@ class Feedback {
 		$theme = wp_get_theme();
 
 		return array(
-			// 'installed' => self::get_installed_themes(),
 			'active' => array(
 				'name' => $theme->get( 'Name' ),
 			),
 		);
-	}
-
-	/**
-	 * Get an array of installed themes
-	 *
-	 * @return array
-	 */
-	private static function get_installed_themes() {
-		$installed = wp_get_themes();
-		$theme     = get_stylesheet();
-		$data      = array();
-
-		foreach ( $installed as $slug => $info ) {
-			if ( $slug === $theme ) {
-				continue;
-			}
-
-			$data[ $slug ] = array(
-				'name' => $info->get( 'Name' ),
-			);
-		}
-
-		return $data;
 	}
 
 	/**

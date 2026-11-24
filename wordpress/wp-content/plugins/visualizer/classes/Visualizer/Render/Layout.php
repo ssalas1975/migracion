@@ -95,7 +95,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 					echo sprintf(
 						// translators: %1$s - HTML link tag, %2$s - HTML closing link tag.
 						__( 'For examples of queries and links to resources that you can use with this feature, please click %1$shere%2$s', 'visualizer' ),
-						'<a href="' . VISUALIZER_DB_QUERY_DOC_URL . '" target="_blank">',
+						'<a href="' . esc_url( tsdk_utmify( VISUALIZER_DB_QUERY_DOC_URL, 'sample-queries', 'chart-editor' ) ) . '" target="_blank">',
 						'</a>'
 					);
 					?>
@@ -188,8 +188,13 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 		}
 		$methods = apply_filters( 'visualizer_json_request_methods', array( 'GET', 'POST' ) );
 
+		$auth          = isset( $headers['auth'] ) ? $headers['auth'] : '';
+		$auth_username = is_array( $auth ) && isset( $auth['username'] ) ? $auth['username'] : '';
+		$auth_password = is_array( $auth ) && isset( $auth['password'] ) ? $auth['password'] : '';
+		$auth_string   = is_string( $auth ) ? $auth : '';
+
 		// open the headers by default?
-		$headers_open = $headers && array_key_exists( 'auth', $headers ) && ( array_key_exists( 'username', $headers['auth'] ) && ! empty( $headers['auth']['username'] ) ) || ( ! empty( $headers['auth'] ) && is_string( $headers['auth'] ) );
+		$headers_open = ! empty( $auth_username ) || ! empty( $auth_string );
 		?>
 		<div id="visualizer-json-screen" style="display: none">
 			<div class="visualizer-json-form">
@@ -203,7 +208,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 								echo sprintf(
 									// translators: %1$s - HTML link tag, %2$s - HTML closing link tag.
 									__( 'If you want to add authentication or headers to the endpoint or change the request in any way, please refer to our document %1$shere%2$s.', 'visualizer' ),
-									'<a href="https://docs.themeisle.com/article/1043-visualizer-how-to-extend-rest-endpoints-with-json-response" target="_blank">',
+									'<a href="' . esc_url( tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/visualizer-how-to-extend-rest-endpoints-with-json-response', 'rest-endpoints', 'chart-editor' ) ) . '" target="_blank">',
 									'</a>'
 								);
 								?>
@@ -242,7 +247,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 											type="text"
 											id="vz-import-json-username"
 											name="username"
-											value="<?php echo ( array_key_exists( 'auth', $headers ) && array_key_exists( 'username', $headers['auth'] ) ? $headers['auth']['username'] : '' ); ?>"
+											value="<?php echo esc_attr( $auth_username ); ?>"
 											placeholder="<?php esc_html_e( 'Username/Access Key', 'visualizer' ); ?>"
 											class="json-form-element">
 										&
@@ -250,7 +255,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 											type="password"
 											id="vz-import-json-password"
 											name="password"
-											value="<?php echo ( array_key_exists( 'auth', $headers ) && array_key_exists( 'password', $headers['auth'] ) ? $headers['auth']['password'] : '' ); ?>"
+											value="<?php echo esc_attr( $auth_password ); ?>"
 											placeholder="<?php esc_html_e( 'Password/Secret Key', 'visualizer' ); ?>"
 											class="json-form-element">
 									</div>
@@ -266,7 +271,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 											type="text"
 											id="vz-import-json-auth"
 											name="auth"
-											value="<?php echo ( array_key_exists( 'auth', $headers ) && is_string( $headers['auth'] ) ? $headers['auth'] : '' ); ?>"
+											value="<?php echo esc_attr( $auth_string ); ?>"
 											placeholder="<?php esc_html_e( 'e.g. SharedKey <AccountName>:<Signature>', 'visualizer' ); ?>"
 											class="visualizer-input json-form-element">
 									</div>
@@ -274,7 +279,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 								<div class="json-wizard-header">
 									<div class="field-title"><?php esc_html_e( 'Additional headers', 'visualizer' ); ?></div>
 									<div>
-										<textarea name="additional_headers" class="visualizer-input" placeholder="<?php esc_html_e( 'Key:Value, Key2:Value2,...', 'visualizer' ); ?>"><?php echo isset( $headers['additional_headers'] ) ? $headers['additional_headers'] : ''; ?></textarea>
+										<textarea name="additional_headers" class="visualizer-input" placeholder="<?php esc_html_e( 'Key:Value, Key2:Value2,...', 'visualizer' ); ?>"><?php echo esc_textarea( isset( $headers['additional_headers'] ) ? $headers['additional_headers'] : '' ); ?></textarea>
 									</div>
 								</div>
 							</div>
@@ -289,7 +294,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 						<?php
 						if ( ! empty( $root ) ) {
 							?>
-							<option value="<?php echo esc_attr( $root ); ?>"><?php echo str_replace( Visualizer_Source_Json::TAG_SEPARATOR, Visualizer_Source_Json::TAG_SEPARATOR_VIEW, $root ); ?></option>
+							<option value="<?php echo esc_attr( $root ); ?>"><?php echo esc_html( str_replace( Visualizer_Source_Json::TAG_SEPARATOR, Visualizer_Source_Json::TAG_SEPARATOR_VIEW, $root ) ); ?></option>
 							<?php
 						}
 						?>
@@ -307,7 +312,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 								<?php
 								if ( ! empty( $paging ) ) {
 									?>
-									<option value="<?php echo esc_attr( $paging ); ?>"><?php echo sprintf( 'Get results from the first %d pages using %s', apply_filters( 'visualizer_json_fetch_pages', 5, $url ), str_replace( Visualizer_Source_Json::TAG_SEPARATOR, Visualizer_Source_Json::TAG_SEPARATOR_VIEW, $paging ) ); ?></option>
+									<option value="<?php echo esc_attr( $paging ); ?>"><?php echo esc_html( sprintf( 'Get results from the first %d pages using %s', apply_filters( 'visualizer_json_fetch_pages', 5, $url ), str_replace( Visualizer_Source_Json::TAG_SEPARATOR, Visualizer_Source_Json::TAG_SEPARATOR_VIEW, $paging ) ) ); ?></option>
 									<?php
 								}
 								?>
@@ -406,7 +411,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 		}
 		?>
 		<div class="viz-simple-editor-type viz-text-editor">
-			<textarea id="edited_text"><?php echo $data; ?></textarea>
+			<textarea id="edited_text"><?php echo esc_textarea( $data ); ?></textarea>
 		</div>
 		<?php
 	}
@@ -431,7 +436,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 			}
 			$chart      = get_post( $chart_id );
 			$type       = get_post_meta( $chart_id, Visualizer_Plugin::CF_CHART_TYPE, true );
-			$data       = Visualizer_Module::get_chart_data( $chart, $type );
+			$data       = Visualizer_Module::get_chart_data( $chart, $type, true, ! $editable_data );
 		} else {
 			$headers    = array_keys( $data[0] );
 		}
@@ -458,7 +463,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 			if ( $editable_data ) {
 				echo '<th><input type="text" name="header[]" value="' . esc_attr( $header ) . '"></th>';
 			} else {
-				echo '<th>' . $header . '</th>';
+				echo '<th>' . esc_html( $header ) . '</th>';
 			}
 		}
 		?>
@@ -474,8 +479,8 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 			if ( $editable_data ) {
 				echo '<select name="type[]">';
 			} else {
-				echo '<input name="header[]" type="hidden" value="' . $header . '">';
-				echo '<select name="type[' . $header . ']"  class="viz-select-data-type">';
+				echo '<input name="header[]" type="hidden" value="' . esc_attr( $header ) . '">';
+				echo '<select name="type[' . esc_attr( $header ) . ']"  class="viz-select-data-type">';
 			}
 			echo '<option value="" title="' . __( 'Exclude from chart', 'visualizer' ) . '">' . __( 'Exclude', 'visualizer' ) . '</option>';
 			echo '<option value="0" disabled title="' . __( 'Include in chart and select data type', 'visualizer' ) . '">--' . __( 'OR', 'visualizer' ) . '--</option>';
@@ -531,7 +536,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 		$chart_id = $args[1];
 
 		// ignore for unit tests because Travis throws the error "Indirect modification of overloaded property Visualizer_Render_Page_Data::$permissions has no effect".
-		if ( defined( 'WP_TESTS_DOMAIN' ) ) {
+		if ( defined( 'WP_TESTS_DOMAIN' ) && function_exists( 'tests_add_filter' ) ) {
 			return;
 		}
 
@@ -616,7 +621,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 					array( 'visualizer-permission', 'visualizer-permission-specific', 'visualizer-permission-edit-specific' )
 				);
 			Visualizer_Render_Sidebar::_renderSectionEnd();
-			echo apply_filters( 'visualizer_pro_upsell', '', 'chart-permissions', 'https://docs.themeisle.com/article/1280-how-to-customize-permissions' );
+			echo apply_filters( 'visualizer_pro_upsell', '', 'chart-permissions', tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/how-to-customize-permissions', 'chart-permissions', 'chart-editor' ) );
 			echo '</div>';
 		Visualizer_Render_Sidebar::_renderGroupEnd();
 	}
@@ -684,15 +689,15 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 		Visualizer_Render_Sidebar::_renderGroupStart( esc_html__( 'Documentation', 'visualizer' ), '', 'open' );
 			Visualizer_Render_Sidebar::_renderSectionStart( esc_html__( 'General', 'visualizer' ), true );
 		?>
-				<h4><span class="dashicons dashicons-editor-help"></span><a href="<?php echo VISUALIZER_MAIN_DOC; ?>" target="_blank"><?php _e( 'Main documentation page', 'visualizer' ); ?></a></h4>
-				<h4><span class="dashicons dashicons-media-code"></span><a href="<?php echo VISUALIZER_CODE_SNIPPETS_URL; ?>" target="_blank"><?php _e( 'Custom code snippets', 'visualizer' ); ?></a></h4>
+				<h4><span class="dashicons dashicons-editor-help"></span><a href="<?php echo esc_url( tsdk_utmify( VISUALIZER_MAIN_DOC, 'documentation', 'chart-editor' ) ); ?>" target="_blank"><?php _e( 'Main documentation page', 'visualizer' ); ?></a></h4>
+				<h4><span class="dashicons dashicons-media-code"></span><a href="<?php echo esc_url( tsdk_utmify( VISUALIZER_CODE_SNIPPETS_URL, 'code-snippets', 'chart-editor' ) ); ?>" target="_blank"><?php _e( 'Custom code snippets', 'visualizer' ); ?></a></h4>
 		<?php
 			Visualizer_Render_Sidebar::_renderSectionEnd();
 			// translators: %s - the chart type.
 			Visualizer_Render_Sidebar::_renderSectionStart( sprintf( __( '%s chart', 'visualizer' ), ucwords( $displayType ) ), true );
 		?>
 				<h4><span class="dashicons dashicons-video-alt2"></span>&nbsp;<a href="<?php echo str_replace( '#', "$type-chart", VISUALIZER_DEMO_URL ); ?>" target="_blank"><?php _e( 'View demo', 'visualizer' ); ?></a></h4>
-				<h4><span class="dashicons dashicons-search"></span><a href="<?php echo str_replace( '#', $type, VISUALIZER_DOC_COLLECTION ); ?>" target="_blank">
+				<h4><span class="dashicons dashicons-search"></span><a href="<?php echo esc_url( tsdk_utmify( str_replace( '#', $type, VISUALIZER_DOC_COLLECTION ), 'chart-type-articles', 'chart-editor' ) ); ?>" target="_blank">
 					<?php
 					echo sprintf(
 						// translators: %s - the chart type.
@@ -849,7 +854,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 													echo sprintf(
 														// translators: %1$s - HTML link tag, %2$s - HTML closing link tag.
 														__( 'You can use this to import data from a remote CSV or Excel (XLSX) file, or %1$sGoogle Spreadsheet%2$s.', 'visualizer' ),
-														'<a href="https://docs.themeisle.com/article/607-how-can-i-populate-data-from-google-spreadsheet" target="_blank" >',
+														'<a href="' . esc_url( tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/how-can-i-populate-data-from-google-spreadsheet', 'google-sheets', 'chart-editor' ) ) . '" target="_blank" >',
 														'</a>'
 													);
 													?>
@@ -912,7 +917,16 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 										<span class="viz-section-title visualizer_source_json" role="button" tabindex="0"><?php _e( 'Import from JSON', 'visualizer' ); ?></span>
 										<div class="only-pro-anchor">	
 											<div class="viz-section-items section-items">
-												<p class="viz-group-description"><?php _e( 'You can choose here to import/synchronize your chart data with a remote JSON source. For more info check <a href="https://docs.themeisle.com/article/1052-how-to-generate-charts-from-json-data-rest-endpoints" target="_blank" >this</a> tutorial', 'visualizer' ); ?></p>
+												<p class="viz-group-description">
+													<?php
+													echo sprintf(
+														// translators: %1$s - HTML link tag, %2$s - HTML closing link tag.
+														__( 'You can choose here to import/synchronize your chart data with a remote JSON source. For more info check %1$sthis%2$s tutorial', 'visualizer' ),
+														'<a href="' . esc_url( tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/how-to-generate-charts-from-json-data-rest-endpoints', 'json-data', 'chart-editor' ) ) . '" target="_blank" >',
+														'</a>'
+													);
+													?>
+												</p>
 												<form id="vz-import-json" action="<?php echo $upload_link; ?>" method="post" target="thehole" enctype="multipart/form-data">
 													<div class="remote-file-section">
 															<?php
@@ -1084,7 +1098,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 												</div>
 											</div>
 										</form>
-										<?php echo apply_filters( 'visualizer_pro_upsell', '', 'import-wp', 'https://docs.themeisle.com/article/1278-how-to-import-data-from-wordpress' ); ?>
+										<?php echo apply_filters( 'visualizer_pro_upsell', '', 'import-wp', tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/how-to-create-charts-from-your-wordpress-posts', 'wordpress-posts', 'chart-editor' ) ); ?>
 									</div>
 								</div>
 							</li>
@@ -1243,7 +1257,7 @@ ORDER BY YEAR(post_date) DESC, MONTH(post_date) DESC;';
 											<input type="button" id="db-chart-save-button" class="button button-primary" value="<?php _e( 'Save Schedule', 'visualizer' ); ?>">
 										</div>
 									</div>
-									<?php echo apply_filters( 'visualizer_pro_upsell', '', 'db-query', 'https://docs.themeisle.com/article/1279-how-to-import-data-from-a-database' ); ?>
+									<?php echo apply_filters( 'visualizer_pro_upsell', '', 'db-query', tsdk_utmify( 'https://docs.themeisle.com/visualizer-charts-and-graphs/how-to-generate-charts-from-the-database', 'database-query', 'chart-editor' ) ); ?>
 								</form>
 							</div>
 							</div>

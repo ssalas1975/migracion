@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 } // Exit if accessed directly
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $thumbnail_html = '';
 if ( $settings['eael_show_image'] == 'yes' ) {
 	$settings[ 'eael_image_size_customize' ] = [
@@ -29,19 +30,21 @@ if ( $settings['eael_show_image'] == 'yes' ) {
 }
 
 
-global $authordata;
 $author_link = $author_name = $author_url = '';
-if ( is_object( $authordata ) ) {
-    $author_name = $authordata->display_name;
 
-    if ( ! $author_name && isset( $authordata->first_name ) ) {
-        $author_name = $authordata->first_name;
-		if ( isset( $authordata->last_name ) ) {
-			$author_name .= ' ' . $authordata->last_name;
-		}
-	}
+// Resolve the author through the filterable template tags (get_the_author_meta),
+// not a raw $authordata property read, so author plugins such as PublishPress Authors
+// and Co-Authors Plus (which filter these tags rather than touching post_author) show
+// the assigned author. With no such plugin this returns exactly the previous values.
+$author_id   = (int) get_the_author_meta( 'ID' );
+$author_name = get_the_author_meta( 'display_name' );
 
-    $author_url = get_author_posts_url( $authordata->ID, $authordata->user_nicename );
+if ( ! $author_name ) {
+	$author_name = trim( get_the_author_meta( 'first_name' ) . ' ' . get_the_author_meta( 'last_name' ) );
+}
+
+if ( $author_name ) {
+    $author_url = get_author_posts_url( $author_id );
     $author_link = sprintf(
 		'<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
 		esc_url( $author_url ),
@@ -210,7 +213,7 @@ if ( $settings['eael_post_grid_preset_style'] === 'two' ) {
 
                         echo '<div class="eael-entry-overlay ' . esc_attr( $settings['eael_post_grid_hover_animation'] ) . '">';
                             if (isset($settings['eael_post_grid_bg_hover_icon_new']['url'])) {
-                                echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(get_post_meta($settings['eael_post_grid_bg_hover_icon_new']['id'], '_wp_attachment_image_alt', true)) . '" />';
+                                echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(Helper::get_image_alt( $settings['eael_post_grid_bg_hover_icon_new'] )) . '" />';
                             } else {
                                 echo '<i class="' . esc_attr( $settings['eael_post_grid_bg_hover_icon_new']['value'] ) . '" aria-hidden="true"></i>';
                             }
@@ -301,7 +304,7 @@ if ( $settings['eael_post_grid_preset_style'] === 'two' ) {
         echo '<div class="eael-entry-overlay ' . esc_attr( $settings['eael_post_grid_hover_animation'] ) . '">';
 
         if (isset($settings['eael_post_grid_bg_hover_icon_new']['url'])) {
-            echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(get_post_meta($settings['eael_post_grid_bg_hover_icon_new']['id'], '_wp_attachment_image_alt', true)) . '" />';
+            echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(Helper::get_image_alt( $settings['eael_post_grid_bg_hover_icon_new'] )) . '" />';
         } else {
             echo '<i class="' . esc_attr( $settings['eael_post_grid_bg_hover_icon_new']['value'] ) . '" aria-hidden="true"></i>';
         }
@@ -417,10 +420,10 @@ if ( $settings['eael_post_grid_preset_style'] === 'two' ) {
         echo '<div class="eael-entry-overlay ' . esc_attr( $settings['eael_post_grid_hover_animation'] ) . '">';
 
         if (isset($settings['eael_post_grid_bg_hover_icon_new']['url'])) {
-            echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(get_post_meta($settings['eael_post_grid_bg_hover_icon_new']['id'], '_wp_attachment_image_alt', true)) . '" />';
+            echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['url']) . '" alt="' . esc_attr(Helper::get_image_alt( $settings['eael_post_grid_bg_hover_icon_new'] )) . '" />';
         } else {
             if (($settings['eael_post_grid_bg_hover_icon_new']['library']) == 'svg') {
-                echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['value']['url']) . '" alt="' . esc_attr(get_post_meta($settings['eael_post_grid_bg_hover_icon_new']['value']['id'], '_wp_attachment_image_alt', true)) . '" />';
+                echo '<img src="' . esc_url($settings['eael_post_grid_bg_hover_icon_new']['value']['url']) . '" alt="' . esc_attr(Helper::get_image_alt( $settings['eael_post_grid_bg_hover_icon_new']['value'] )) . '" />';
             } else {
                 echo '<i class="' . esc_attr( $settings['eael_post_grid_bg_hover_icon_new']['value'] ) . '" aria-hidden="true"></i>';
             }
@@ -437,3 +440,4 @@ if ( $settings['eael_post_grid_preset_style'] === 'two' ) {
         </div>
     </article>';
 }
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

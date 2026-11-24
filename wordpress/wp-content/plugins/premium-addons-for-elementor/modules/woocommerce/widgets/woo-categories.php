@@ -84,7 +84,7 @@ class Woo_Categories extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'posts', 'grid', 'item', 'loop', 'woocommerce', 'listing' );
@@ -327,7 +327,7 @@ class Woo_Categories extends Widget_Base {
 					'all'     => __( 'Show All', 'premium-addons-for-elementor' ),
 					'top'     => __( 'Show Top Level', 'premium-addons-for-elementor' ),
 					'include' => __( 'Match Categories', 'premium-addons-for-elementor' ),
-					'exclude' => __( 'Exclude Categories', 'premium-addons-for-elementor' ),
+					'exclude' => __( 'Exclude Categories', 'premium-addons-for-elementor' ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- select option key, not a query arg.
 				),
 			)
 		);
@@ -353,12 +353,11 @@ class Woo_Categories extends Widget_Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'name',
 				'options' => array(
-					'name'       => __( 'Name', 'premium-addons-for-elementor' ),
-					'slug'       => __( 'Slug', 'premium-addons-for-elementor' ),
-					'date'       => __( 'Date', 'premium-addons-for-elementor' ),
-					'desc'       => __( 'Description', 'premium-addons-for-elementor' ),
-					'count'      => __( 'Count', 'premium-addons-for-elementor' ),
-					'menu_order' => __( 'Menu Order', 'premium-addons-for-elementor' ),
+					'name'        => __( 'Name', 'premium-addons-for-elementor' ),
+					'slug'        => __( 'Slug', 'premium-addons-for-elementor' ),
+					'description' => __( 'Description', 'premium-addons-for-elementor' ),
+					'count'       => __( 'Count', 'premium-addons-for-elementor' ),
+					'menu_order'  => __( 'Menu Order', 'premium-addons-for-elementor' ),
 				),
 			)
 		);
@@ -1055,9 +1054,9 @@ class Woo_Categories extends Widget_Base {
 
 		?>
 
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'categories_wrap' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'categories_wrap' ); ?>>
 
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'list_wrap' ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'list_wrap' ); ?>>
 
 				<?php echo $this->render_product_categories(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
@@ -1082,7 +1081,7 @@ class Woo_Categories extends Widget_Base {
 		);
 
 		if ( 'top' === $settings['category_filter_rule'] ) {
-			$atts['parent'] = 0;
+			$args['parent'] = 0;
 		} elseif ( 'include' === $settings['category_filter_rule'] && is_array( $settings['category_filter'] ) ) {
 			$include_ids = array_filter( array_map( 'trim', $settings['category_filter'] ) );
 
@@ -1091,7 +1090,7 @@ class Woo_Categories extends Widget_Base {
 		} elseif ( 'exclude' === $settings['category_filter_rule'] && is_array( $settings['category_filter'] ) ) {
 			$exclude_ids = array_filter( array_map( 'trim', $settings['category_filter'] ) );
 
-			$args['exclude'] = $exclude_ids;
+			$args['exclude'] = $exclude_ids; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- get_terms() exclusion, not a posts query.
 		}
 
 		$categories = get_terms( $args );
@@ -1220,7 +1219,7 @@ class Woo_Categories extends Widget_Base {
 		}
 
 		?>
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'content_wrap' . $index ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'content_wrap' . $index ); ?>>
 				<<?php echo wp_kses_post( $text_tag ); ?> class="woocommerce-loop-category__title">
 					<span><?php echo wp_kses_post( $category->name ); ?></span>
 					<?php

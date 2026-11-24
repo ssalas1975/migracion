@@ -974,8 +974,7 @@ final class Utilities {
 	public static function timestamp_from_UTC( ?int $timestamp = null ) {
 		$timestamp = is_null( $timestamp ) ? time() : $timestamp;
 		$timestamp = strlen( $timestamp ) === 13 ? $timestamp / 1000 : $timestamp;
-		$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'U' ); // Validación preventiva para PHP 8.4
-		$date_time = $is_valid_format ? DateTime::createFromFormat( 'U', $timestamp, new DateTimeZone( 'UTC' ) ) :
+		$date_time = DateTime::createFromFormat( 'U', $timestamp, new DateTimeZone( 'UTC' ) );
 
 		$date_time->setTimezone( new DateTimeZone( wp_timezone_string() ) );
 
@@ -1000,11 +999,9 @@ final class Utilities {
 		$date_time = null;
 
 		if ( strlen( $microtime ) === 10 ) {
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'U' ); // Validación preventiva para PHP 8.4
-			$date_time = $is_valid_format ? DateTime::createFromFormat( 'U', $microtime ) : false;
+			$date_time = DateTime::createFromFormat( 'U', $microtime );
 		} elseif ( strlen( $microtime ) === 13 ) {
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'U.u' ); // Validación preventiva para PHP 8.4
-			$date_time = $is_valid_format ? DateTime::createFromFormat( 'U.u', $microtime ) : false;
+			$date_time = DateTime::createFromFormat( 'U.u', $microtime );
 		} else {
 			return null;
 		}
@@ -1266,5 +1263,33 @@ final class Utilities {
 	 */
 	public static function process_extensive( $param = null ) {
 		return apply_filters( 'wpmudev_blc_process_extensive', false, $param );
+	}
+
+	/**
+	 * Converts a time string to a timestamp.
+	 *
+	 * @param string      $time_string The time string to convert.
+	 * @param string|null $time_zone   Optional. The time zone to use. Defaults to the WordPress timezone.
+	 *
+	 * @return int The timestamp.
+	 */
+	public static function str_to_time( $time_string, $time_zone = null ) {
+		if ( empty( $time_string ) ) {
+			return 0;
+		}
+
+		if ( is_null( $time_zone ) ) {
+			$time_zone = wp_timezone_string();
+		}
+
+		try {
+			$timezone = new \DateTimeZone( $time_zone );
+		} catch ( \Exception $e ) {
+			$timezone = new \DateTimeZone( 'UTC' );
+		}
+
+		$date_time = new \DateTimeImmutable( $time_string, $timezone );
+
+		return $date_time->getTimestamp();
 	}
 }

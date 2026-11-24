@@ -41,7 +41,7 @@ class Custom_Permalinks_Form {
 		 */
 		$this->js_file_suffix = '-' . CUSTOM_PERMALINKS_VERSION . '.min.js';
 
-		add_action( 'add_meta_boxes', array( $this, 'permalink_edit_box' ) );
+		add_action( 'add_meta_boxes', array( $this, 'permalink_edit_box' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
 		add_action( 'pmxi_saved_post', array( $this, 'pmxi_post_permalink' ), 10, 3 );
 		add_action(
@@ -55,9 +55,9 @@ class Custom_Permalinks_Form {
 		add_action( 'category_edit_form', array( $this, 'term_options' ) );
 		add_action( 'post_tag_add_form', array( $this, 'term_options' ) );
 		add_action( 'post_tag_edit_form', array( $this, 'term_options' ) );
-		add_action( 'created_term', array( $this, 'save_term' ), 10, 3 );
-		add_action( 'edited_term', array( $this, 'save_term' ), 10, 3 );
-		add_action( 'delete_term', array( $this, 'delete_term_permalink' ), 10, 3 );
+		add_action( 'created_term', array( $this, 'save_term' ) );
+		add_action( 'edited_term', array( $this, 'save_term' ) );
+		add_action( 'delete_term', array( $this, 'delete_term_permalink' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_edit_form' ) );
 		add_action(
 			'update_option_page_on_front',
@@ -73,6 +73,43 @@ class Custom_Permalinks_Form {
 			2
 		);
 		add_filter( 'is_protected_meta', array( $this, 'protect_meta' ), 10, 2 );
+
+		// Refresh the admin permalink lists whenever a permalink changes.
+		add_action( 'added_post_meta', array( $this, 'post_meta_changed' ), 10, 3 );
+		add_action( 'updated_post_meta', array( $this, 'post_meta_changed' ), 10, 3 );
+		add_action( 'deleted_post_meta', array( $this, 'post_meta_changed' ), 10, 3 );
+		add_action( 'add_option_custom_permalink_table', array( $this, 'clear_list_cache' ) );
+		add_action( 'update_option_custom_permalink_table', array( $this, 'clear_list_cache' ) );
+	}
+
+	/**
+	 * Clear the admin permalink list cache when a post permalink changes.
+	 *
+	 * @since 3.3.0
+	 * @access public
+	 *
+	 * @param int|array $meta_id   Meta ID(s).
+	 * @param int       $object_id Post ID.
+	 * @param string    $meta_key  Meta key.
+	 *
+	 * @return void
+	 */
+	public function post_meta_changed( $meta_id, $object_id, $meta_key ) {
+		if ( 'custom_permalink' === $meta_key ) {
+			$this->clear_list_cache();
+		}
+	}
+
+	/**
+	 * Invalidate the cached admin permalink lists.
+	 *
+	 * @since 3.3.0
+	 * @access public
+	 *
+	 * @return void
+	 */
+	public function clear_list_cache() {
+		wp_cache_delete( 'last_changed', 'custom_permalinks' );
 	}
 
 	/**
@@ -86,7 +123,7 @@ class Custom_Permalinks_Form {
 	 * return bool Whether Custom Permalink is customizable or not.
 	 */
 	private function is_permalink_customizable( $post ) {
-		if ( ! is_object( $post ) ) {
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return false;
 		}
 
@@ -145,9 +182,15 @@ class Custom_Permalinks_Form {
 	 * @since 1.4.0
 	 * @access public
 	 *
+	 * @param string $post_type Post type.
+	 * @param mixed  $post      Post being edited.
+	 *
 	 * @return void
 	 */
-	public function permalink_edit_box() {
+	public function permalink_edit_box( $post_type = '', $post = null ) {
+		// Pin the edited post; global $post may be changed by other loops before render.
+		$post_id = $post instanceof WP_Post ? $post->ID : 0;
+
 		add_meta_box(
 			'custom-permalinks-edit-box',
 			__( 'Custom Permalinks', 'custom-permalinks' ),
@@ -157,6 +200,7 @@ class Custom_Permalinks_Form {
 			'high',
 			array(
 				'__back_compat_meta_box' => false,
+				'post_id'                => $post_id,
 			)
 		);
 	}
@@ -232,8 +276,15 @@ class Custom_Permalinks_Form {
 		// Restore octets.
 		$permalink = preg_replace( '|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $permalink );
 
-		if ( 'en' === $language_code || strpos( $language_code, 'en_' ) === 0 ) {
-			if ( seems_utf8( $permalink ) ) {
+		if ( preg_match( '/^en(?:[-_]|$)/', $language_code ) ) {
+			if ( function_exists( 'wp_is_valid_utf8' ) ) {
+				$is_utf8 = wp_is_valid_utf8( $permalink );
+			} else {
+				// phpcs:ignore WordPress.WP.DeprecatedFunctions.seems_utf8Found -- Fallback for WP < 6.9.
+				$is_utf8 = seems_utf8( $permalink );
+			}
+
+			if ( $is_utf8 ) {
 				if ( ! $allow_accents ) {
 					if ( function_exists( 'mb_strtolower' ) ) {
 						if ( ! $allow_caps ) {
@@ -304,7 +355,7 @@ class Custom_Permalinks_Form {
 		$permalink = preg_replace( '/&.+?;/', '', $permalink );
 
 		// Avoid removing characters of other languages like persian etc.
-		if ( 'en' === $language_code || strpos( $language_code, 'en_' ) === 0 ) {
+		if ( preg_match( '/^en(?:[-_]|$)/', $language_code ) ) {
 			// Allow Alphanumeric and few symbols only.
 			if ( ! $allow_caps ) {
 				$permalink = preg_replace( '/[^%a-z0-9 \.\/_-]/', '', $permalink );
@@ -449,7 +500,14 @@ class Custom_Permalinks_Form {
 
 			// Check URL should not be duplicated in any post Permalink.
 			if ( empty( $check_exist_url ) ) {
-				$existing_post_id = url_to_postid( $permalink );
+				// Only check native permalinks to prevent an infinite loop.
+				Custom_Permalinks_Frontend::$skip_url_to_postid = true;
+				try {
+					$existing_post_id = url_to_postid( $permalink );
+				} finally {
+					Custom_Permalinks_Frontend::$skip_url_to_postid = false;
+				}
+
 				if ( 0 === $existing_post_id || $post_id === $existing_post_id ) {
 					break;
 				}
@@ -479,10 +537,15 @@ class Custom_Permalinks_Form {
 	 */
 	private function clear_post_permalink_cache( $cached_permalink ) {
 		if ( ! empty( $cached_permalink ) ) {
-			$cache_name   = 'cp$_' . str_replace( '/', '-', $cached_permalink ) . '_#cp';
-			$cache_exists = wp_cache_get( $cache_name, 'custom_permalinks' );
-			if ( false !== $cache_exists ) {
-				wp_cache_delete( $cache_name, 'custom_permalinks' );
+			// Match the slash-trimmed keys used by query_post_exact() in the frontend.
+			$cached_permalink = trim( $cached_permalink, '/' );
+			$cached_keys      = array_unique( array( $cached_permalink, rawurldecode( $cached_permalink ) ) );
+			foreach ( $cached_keys as $cached_key ) {
+				$cache_name   = 'cp$e_' . str_replace( '/', '-', $cached_key ) . '_#cp';
+				$cache_exists = wp_cache_get( $cache_name, 'custom_permalinks' );
+				if ( false !== $cache_exists ) {
+					wp_cache_delete( $cache_name, 'custom_permalinks' );
+				}
 			}
 		}
 	}
@@ -555,28 +618,45 @@ class Custom_Permalinks_Form {
 		}
 
 		/*
-		 * Make sure that the post saved from quick edit form or from regeneration
-		 * code so, just make the $_REQUEST['custom_permalink'] same as
-		 * $current_permalink to regenerate permalink if applicable.
+		 * Use a local copy of the requested permalink instead of mutating the
+		 * `$_REQUEST` superglobal. Bulk actions (e.g. WooCommerce/WordPress
+		 * bulk edit) call `wp_update_post()` for every selected post within
+		 * the same request, so writing back to `$_REQUEST` here would leak
+		 * one post's permalink into the next post processed in that request.
 		 */
-		if ( ! isset( $_REQUEST['custom_permalink'] ) || false === $update ) {
-			$_REQUEST['custom_permalink'] = $current_permalink;
+		$requested_permalink = isset( $_REQUEST['custom_permalink'] )
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			? $_REQUEST['custom_permalink']
+			: null;
+
+		/*
+		 * Make sure that the post saved from quick edit form or from regeneration
+		 * code so, just make the $requested_permalink same as $current_permalink
+		 * to regenerate permalink if applicable.
+		 */
+		if ( null === $requested_permalink || false === $update ) {
+			$requested_permalink = $current_permalink;
 		}
 
 		$is_regenerated = false;
 		if ( 'trash' !== $post->post_status
-			&& $current_permalink === $_REQUEST['custom_permalink']
+			&& $current_permalink === $requested_permalink
 			&& 1 === (int) $is_refresh
 		) {
-			$cp_post_permalinks = new Custom_Permalinks_Generate_Post_Permalinks();
-			$is_regenerated     = $cp_post_permalinks->generate( $post_id, $post );
+			$cp_post_permalinks  = new Custom_Permalinks_Generate_Post_Permalinks();
+			$generated_permalink = $cp_post_permalinks->generate( $post_id, $post );
+
+			if ( false !== $generated_permalink ) {
+				$requested_permalink = $generated_permalink;
+				$is_regenerated      = true;
+			}
 		}
 
 		$cp_frontend   = new Custom_Permalinks_Frontend();
 		$original_link = $cp_frontend->original_post_link( $post_id );
-		if ( ! empty( $_REQUEST['custom_permalink'] )
-			&& $_REQUEST['custom_permalink'] !== $original_link
-			&& $_REQUEST['custom_permalink'] !== $current_permalink
+		if ( ! empty( $requested_permalink )
+			&& $requested_permalink !== $original_link
+			&& $requested_permalink !== $current_permalink
 		) {
 			$language_code = apply_filters(
 				'wpml_element_language_code',
@@ -594,7 +674,7 @@ class Custom_Permalinks_Form {
 
 			$permalink = $this->sanitize_permalink(
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				wp_unslash( $_REQUEST['custom_permalink'] ),
+				wp_unslash( $requested_permalink ),
 				$language_code
 			);
 			$permalink = $this->check_permalink_exists( $post_id, $permalink, $language_code );
@@ -616,6 +696,12 @@ class Custom_Permalinks_Form {
 				// Delete to prevent generating permalink on updating the post.
 				delete_post_meta( $post_id, 'custom_permalink_regenerate_status' );
 			}
+		} elseif ( '' === $requested_permalink && '' !== $current_permalink ) {
+			delete_post_meta( $post_id, 'custom_permalink' );
+			delete_metadata( 'post', $post_id, 'custom_permalink_language' );
+			delete_post_meta( $post_id, 'custom_permalink_regenerate_status' );
+
+			$this->clear_post_permalink_cache( $current_permalink );
 		}
 	}
 
@@ -627,7 +713,7 @@ class Custom_Permalinks_Form {
 	 *
 	 * @param int              $post_id   The ID of the item (post/user/taxonomy) saved or updated.
 	 * @param SimpleXMLElement $xml_node  The libxml resource of the current XML element.
-	 * @param bool             $is_update Returns 0 for new item 1 for updated item.
+	 * @param int|bool         $is_update Returns 0 for new item 1 for updated item.
 	 *
 	 * @return void
 	 */
@@ -635,7 +721,7 @@ class Custom_Permalinks_Form {
 		$post = get_post( $post_id );
 		if ( is_object( $post ) && isset( $post->post_type ) ) {
 			$updated = false;
-			if ( 1 === $is_update ) {
+			if ( $is_update ) {
 				$updated = true;
 			}
 
@@ -767,7 +853,7 @@ class Custom_Permalinks_Form {
 	 *
 	 * @param object $post WP Post Object.
 	 *
-	 * @return void.
+	 * @return void
 	 */
 	private function get_permalink_meta_html( $post ) {
 		$cp_frontend = new Custom_Permalinks_Frontend();
@@ -870,11 +956,16 @@ class Custom_Permalinks_Form {
 	 *
 	 * @access public
 	 *
-	 * @param object $post WP Post Object.
+	 * @param object $post    WP Post Object.
+	 * @param array  $metabox Meta box arguments.
 	 *
 	 * @return void
 	 */
-	public function meta_edit_form( $post ) {
+	public function meta_edit_form( $post, $metabox = array() ) {
+		if ( ! empty( $metabox['args']['post_id'] ) ) {
+			$post = get_post( $metabox['args']['post_id'] );
+		}
+
 		$is_customizable = $this->is_permalink_customizable( $post );
 		if ( false === $is_customizable ) {
 			wp_enqueue_script(
@@ -896,7 +987,7 @@ class Custom_Permalinks_Form {
 			echo '<input value="add" type="hidden" name="custom-permalinks-add" id="custom-permalinks-add" />';
 		}
 
-		$this->get_permalink_meta_html( $post, true );
+		$this->get_permalink_meta_html( $post );
 	}
 
 	/**
@@ -996,7 +1087,7 @@ class Custom_Permalinks_Form {
 			<table class="form-table" id="custom_permalink_form">
 				<tr>
 					<th scope="row">
-						<?php esc_html_e( 'Custom Permalink', 'custom-permalinks' ); ?>
+						<label for="custom-permalinks-post-slug"><?php esc_html_e( 'Custom Permalink', 'custom-permalinks' ); ?></label>
 					</th>
 					<td>
 			<?php
@@ -1069,15 +1160,15 @@ class Custom_Permalinks_Form {
 	 * @since 1.6.0
 	 * @access public
 	 *
-	 * @param string $term_id Term ID.
+	 * @param int $term_id Term ID.
 	 *
 	 * @return void
 	 */
 	public function save_term( $term_id ) {
 		$term = get_term( $term_id );
 
-		if ( ! isset( $_REQUEST['_custom_permalinks_term_nonce'] )
-			&& ! isset( $_REQUEST['custom_permalink'] )
+		if ( ! isset( $_REQUEST['custom_permalink'] )
+			|| ! isset( $_REQUEST['_custom_permalinks_term_nonce'] )
 		) {
 			return;
 		}
@@ -1110,7 +1201,7 @@ class Custom_Permalinks_Form {
 				// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				// phpcs:enable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
-				if ( empty( $new_permalink ) || '' === $new_permalink ) {
+				if ( empty( $new_permalink ) ) {
 					return;
 				}
 
@@ -1195,7 +1286,7 @@ class Custom_Permalinks_Form {
 	 */
 	public function check_conflicts( $requested_url = '' ) {
 		if ( '' === $requested_url ) {
-			return;
+			return $requested_url;
 		}
 
 		// Check if the Polylang Plugin is installed so, make changes in the URL.

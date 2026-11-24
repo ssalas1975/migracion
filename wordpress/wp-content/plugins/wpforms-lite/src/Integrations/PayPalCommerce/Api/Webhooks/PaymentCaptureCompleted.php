@@ -31,7 +31,7 @@ class PaymentCaptureCompleted extends Base {
 
 		// Update the status if it wasn't updated already.
 		// Update only if payment has COMPLETED status.
-		if ( $this->db_payment->status !== 'processed' || $this->data->status !== 'COMPLETED' ) {
+		if ( ! in_array( $this->db_payment->status, [ 'processed', 'pending' ], true ) || $this->data->status !== 'COMPLETED' ) {
 			return false;
 		}
 
@@ -42,12 +42,20 @@ class PaymentCaptureCompleted extends Base {
 			return false;
 		}
 
+		$update_data = [
+			'status'           => 'completed',
+			'date_updated_gmt' => gmdate( 'Y-m-d H:i:s' ),
+		];
+
+		// Backfill the transaction_id for async captures (Pay Later, PayPal Credit) where the
+		// capture id is not present in the order response at submission time.
+		if ( empty( $this->db_payment->transaction_id ) ) {
+			$update_data['transaction_id'] = sanitize_text_field( $this->data->id ?? '' );
+		}
+
 		$updated_payment = wpforms()->obj( 'payment' )->update(
 			$this->db_payment->id,
-			[
-				'status'           => 'completed',
-				'date_updated_gmt' => gmdate( 'Y-m-d H:i:s' ),
-			]
+			$update_data
 		);
 
 		if ( ! $updated_payment ) {

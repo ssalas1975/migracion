@@ -4,12 +4,11 @@
  * Plugin Name: Happy Elementor Addons
  * Plugin URI: https://happyaddons.com/
  * Description: <a href="https://happyaddons.com/">Happy Addons for Elementor</a> Is the Best Elementor Addons Comes With 44+ Free Elementor Widgets Including Table Builder, Testimonial, Event Calendar,Slider,News Ticker, Image Grid, etc & Features Like Elementor Equal Height, Text Stroke, Shape Dividers, Floating Effect, Grid Layout, 500+ Elementor Icons, 450+ Template Packs & More.
- * Version: 3.21.2
+ * Version: 3.53.0
  * Author: Leevio
  * Author URI: https://happyaddons.com/
- * Requires Plugins: elementor
- * Elementor tested up to: 4.0
- * Elementor Pro tested up to: 4.0
+ * Elementor tested up to: 4.4
+ * Elementor Pro tested up to: 4.4
  * License: GPLv2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: happy-elementor-addons
@@ -33,16 +32,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-Copyright 2019 HappyMonster <http://happymonster.me>
+Copyright 2019 Leevio <http://leevio.com>
 */
 
 defined('ABSPATH') || die();
 
 
 if ( defined( 'HAPPY_ADDONS_DEV' ) && true == HAPPY_ADDONS_DEV ) {
-	define('HAPPY_ADDONS_VERSION', '3.21.2' . time() );
+ 	define('HAPPY_ADDONS_VERSION', '3.53.0' . time() );
 } else {
-	define( 'HAPPY_ADDONS_VERSION', '3.21.2' );
+ 	define( 'HAPPY_ADDONS_VERSION', '3.53.0' );
 }
 define('HAPPY_ADDONS__FILE__', __FILE__);
 define('HAPPY_ADDONS_DIR_PATH', plugin_dir_path(HAPPY_ADDONS__FILE__));
@@ -52,7 +51,7 @@ define('HAPPY_ADDONS_REDIRECTION_FLAG', 'happyaddons_do_activation_direct');
 define('HAPPY_ADDONS_WIZARD_REDIRECTION_FLAG', 'happyaddons_do_wizard_direct');
 
 define('HAPPY_ADDONS_MINIMUM_ELEMENTOR_VERSION', '3.7.0');
-define('HAPPY_ADDONS_MINIMUM_PHP_VERSION', '7.4');
+define('HAPPY_ADDONS_MINIMUM_PHP_VERSION', '8.1');
 
 /**
  * The journey of a thousand miles starts here.

@@ -1,63 +1,5 @@
-<style type="text/css">
-    .tab_wrap {
-        background-color: #FFFFFF;
-        border: 1px solid #CCCCCC;
-        padding: 10px;
-        min-width: 763px;
-    }
-
-    .redi_required {
-        color: #DD0000;
-    }
-
-    .redi-admin-left {
-        float: left;
-        width: 68%;
-    }
-
-    .redi-admin-right {
-        width: 30%;
-        margin-top: 35px;
-        float: right;
-    }
-
-    .postbox h3 {
-        font-size: 14px;
-        line-height: 1.4;
-        margin: 0;
-        padding: 8px 12px;
-    }
-
-    .nav-tab-basic {
-        background-color: #78DD88;
-    }
-
-    .nav-tab-basic:hover {
-        background-color: #7FFF8E;
-    }
-</style>
-
-<?php require_once(REDI_RESTAURANT_TEMPLATE. '../js/hotjar.js');?>
-
+<!-- Revision: 20261108 -->
 <script type="text/javascript">
-    // Include the UserVoice JavaScript SDK (only needed once on a page)
-    UserVoice = window.UserVoice || [];
-    (function () {
-        var uv = document.createElement('script');
-        uv.type = 'text/javascript';
-        uv.async = true;
-        uv.src = '//widget.uservoice.com/gDfKlRGSIwZxjtqDE5rg.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(uv, s)
-    })();
-    UserVoice.push(['set', {locale: '<?php echo get_locale()?>'}]);
-    UserVoice.push(['identify', {
-        email: '<?php echo get_option('admin_email');?>',
-        name: '<?php echo get_option('blogname');?>',
-        type: 'ReDi Restaurant Reservation',
-    }]);
-    UserVoice.push(['addTrigger', {mode: 'smartvote', trigger_position: 'bottom-right'}]);
-
     var remainder_name = <?php echo wp_json_encode(__('Reminder', 'redi-restaurant-reservation')); ?>;
     var newsletter_name = <?php echo wp_json_encode(__('Newsletter', 'redi-restaurant-reservation')); ?>;
     var sms_confirmation_name = <?php echo wp_json_encode(__('SMS', 'redi-restaurant-reservation')); ?>;
@@ -115,17 +57,20 @@
     })
 </script>
 <?php $admin_slug = 'redi-restaurant-reservation-settings' ?>
+<?php $redi_pro_url = $this->get_trial_start_url('teaser'); ?>
 <div class="wrap"><h2 style="display:none;"></h2></div>
 <div class="wrap rr_setting_page">
-
     <?php if (get_option($this->_name . '_settings_saved') == false): ?>
         <div class="notice notice-warning"><p><?php _e('<strong>Attention</strong>: New settings are available for review and saving, please take a moment to update your preferences or fill out the required settings and click on the save button.', 'redi-restaurant-reservation') ?></p></div>    
     <?php endif ?>
 
+    <div class="redi-settings-tabs">
     <a class="nav-tab <?php if (!isset($_GET['sm']) || (isset($_GET['sm']) && $_GET['sm'] == 'free')): ?> nav-tab-active<?php endif; ?>"
        href="admin.php?page=<?php echo $admin_slug ?>&amp;sm=free"><?php _e('Free package settings', 'redi-restaurant-reservation') ?></a>
     <a class="nav-tab <?php if ((isset($_GET['sm']) && $_GET['sm'] == 'cancel')): ?> nav-tab-active<?php endif; ?>"
        href="admin.php?page=<?php echo $admin_slug ?>&amp;sm=cancel"><?php _e('Cancel reservation', 'redi-restaurant-reservation') ?></a>
+    <span class="redi-tab-teaser"><?php _e('Reservation management →', 'redi-restaurant-reservation'); ?> <a href="<?php echo esc_url(add_query_arg('teaser', 'reservations', $redi_pro_url)); ?>"><?php _e('Paid settings', 'redi-restaurant-reservation'); ?></a></span>
+    </div>
     <div class="redi-admin-parent">
     <?php if (!isset($_GET['sm']) || (isset($_GET['sm']) && $_GET['sm'] == 'free')): ?>
         <div class="redi-admin-right">
@@ -140,7 +85,9 @@
             </div>
             <div class="redi_admin_info">
                 <h4><?php _e('Name', 'redi-restaurant-reservation') ?>: <?php _e('Redi Restaurant Reservation', 'redi-restaurant-reservation'); ?></h4>
-                <p><?php _e('Version', 'redi-restaurant-reservation') ?>: <?php echo $this->version ?></p>
+                <p><?php _e('Version', 'redi-restaurant-reservation') ?>: <?php echo esc_html(REDI_PLUGIN_VERSION); ?></p>
+                <p><?php _e('Your shortcode', 'redi-restaurant-reservation'); ?>: <code style="font-style: normal; padding:0">[redirestaurant]</code></p>
+                <p class="description"><?php _e('For a single restaurant with no customization, only this shortcode is needed. Paste it into any page to show the reservation form.', 'redi-restaurant-reservation'); ?></p>
                 <div class="text">
                     <ul>
                         <li>
@@ -152,13 +99,10 @@
                     <li>
                         <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/2910760.png'); ?> "><a target="_blank" href="https://redi.atlassian.net/wiki/spaces/REDIPLUGINDOCS/overview"><?php _e('User guide', 'redi-restaurant-reservation'); ?></a></li>
                     <li>
-                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/2951114.png'); ?>"><a target="_blank" href="https://reservationdiary-wp-plugin.uservoice.com/clients/widgets/classic_widget?referrer=wordpress-redirestaurant-reservation-apikey-<?php echo $this->ApiKey; ?>#contact_us"><?php _e('Create a support ticket', 'redi-restaurant-reservation'); ?></a>
+                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/2951114.png'); ?>"><a href="#redi-support-issue-modal" class="redi-open-support-issue"><?php _e('Report a problem', 'redi-restaurant-reservation'); ?></a>
                     </li>
                     <li>
                         <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/email.png'); ?>"><a target="_blank" href="mailto:info@reservationdiary.eu">info@reservationdiary.eu</a>
-                    </li>
-                    <li>
-                        <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/mobile.png'); ?>"><a target="_blank" href="tel:+3725165285">+372 51 65 285 (10AM - 10PM UTC)</a>
                     </li>
                     <li>
                         <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/2504845.png'); ?>"><a href="https://wa.me/+3725165285" target="_blank"> +372 51 65 285 (10AM - 10PM UTC)</a>
@@ -167,6 +111,7 @@
                         <img src="<?php echo esc_url(plugin_dir_url(__DIR__).'img/rate.png'); ?>"> <a href="https://wordpress.org/support/plugin/redi-restaurant-reservation/reviews/" target="_blank"><?php _e('Rate the plugin, help us grow', 'redi-restaurant-reservation');?></a>
                     </li>
                 </ul>
+                <p><a href="<?php echo esc_url(add_query_arg('teaser', 'billing', $redi_pro_url)); ?>"><?php _e('Manage plan & billing →', 'redi-restaurant-reservation'); ?></a></p>
                 </div>
             </div>
             </div>
@@ -175,14 +120,14 @@
     <div class="tab_wrap <?php echo isset($_GET['sm']) ? htmlspecialchars($_GET['sm']) : ""; if (!isset($_GET['sm']) || (isset($_GET['sm']) && $_GET['sm'] == 'free')): ?>redi-admin-left<?php endif ?>">
 
         <?php if (isset($settings_saved) && $settings_saved): ?>
-            <div class="updated" id="message">
+            <div class="notice notice-success is-dismissible" id="message">
                 <p>
                     <?php _e('Your settings have been saved!', 'redi-restaurant-reservation') ?>
                 </p>
             </div>
         <?php endif ?>
         <?php if (isset($cancel_success) && !empty($cancel_success)): ?>
-            <div class="updated">
+            <div class="notice notice-success is-dismissible">
                 <p>
                     <?php echo $cancel_success; ?>
                 </p>
@@ -190,7 +135,7 @@
         <?php endif; ?>
         <?php if (isset($errors)): ?>
             <?php foreach ((array)$errors as $error): ?>
-                <div class="error">
+                <div class="notice notice-error">
                     <p>
                         <?php echo $error; ?>
                     </p>
@@ -218,18 +163,17 @@
                                 <option value="Default_v1"
                                         <?php if ($theme == ReDiTheme::Default_v1): ?>selected="selected" <?php endif; ?>><?php _e('Default theme', 'redi-restaurant-reservation'); ?></option>
                                 <option value="Design25_v2"
-                                        <?php if ($theme == ReDiTheme::Design25_v2): ?>selected="selected" <?php endif; ?>><?php _e('Zeplin 25 theme (BETA)', 'redi-restaurant-reservation'); ?></option>
+                                        <?php if ($theme == ReDiTheme::Design25_v2): ?>selected="selected" <?php endif; ?>><?php _e('Zeplin 25 theme', 'redi-restaurant-reservation'); ?></option>
                                 <option value="DesignR25_v3"
-                                        <?php if ($theme == ReDiTheme::DesignR25_v3): ?>selected="selected" <?php endif; ?>><?php _e('React 25 theme (BETA)', 'redi-restaurant-reservation'); ?></option>
+                                        <?php if ($theme == ReDiTheme::DesignR25_v3): ?>selected="selected" <?php endif; ?>><?php _e('React 25 theme', 'redi-restaurant-reservation'); ?></option>
                             </select>
                         </td>
                         <td style="width:75%">
                             <p class="description">
                                 <?php _e('Choose the appearance of the plugin.', 'redi-restaurant-reservation'); ?><br>
                                 <strong><?php _e('Default theme', 'redi-restaurant-reservation'); ?></strong>: <?php _e('Adapts to your website\'s theme, ensuring seamless integration. However, some adjustments may be needed to match your design preferences.', 'redi-restaurant-reservation'); ?><br>
-                                <strong><?php _e('Zeplin 25 theme (BETA)', 'redi-restaurant-reservation'); ?></strong>: <?php _e('A pre-designed style requiring minimal customization for a polished look. Please note that this option is still in beta testing  and some features are not copied over from Default theme.', 'redi-restaurant-reservation'); ?><br>
-                                <strong><?php _e('React 25 theme (BETA)', 'redi-restaurant-reservation'); ?></strong>: <?php _e('A pre-designed style requiring minimal customization for a polished look. The form is build with React. Please note that this option is still in beta testing and some features are not copied over from Default theme.', 'redi-restaurant-reservation'); ?><br>
-                                <?php _e('Please contact info@reservationdiary.eu for any issues or missing features in Beta themes so we can prioritize them.', 'redi-restaurant-reservation'); ?>
+                                <strong><?php _e('Zeplin 25 theme', 'redi-restaurant-reservation'); ?></strong>: <?php _e('A pre-designed style requiring minimal customization for a polished look.', 'redi-restaurant-reservation'); ?><br>
+                                <strong><?php _e('React 25 theme', 'redi-restaurant-reservation'); ?></strong>: <?php _e('A pre-designed style requiring minimal customization for a polished look. The form is build with React.', 'redi-restaurant-reservation'); ?>
                             </p>
                         </td>
                 </tr>
@@ -790,7 +734,29 @@
                             </p>
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="redi-captcha-dependent">
+                        <th scope="row">
+                            <label for="CaptchaVersion">
+                                <?php _e('Captcha version', 'redi-restaurant-reservation'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="CaptchaVersion" name="CaptchaVersion">
+                                <option value="v2" <?php selected(isset($captchaVersion) ? $captchaVersion : 'v2', 'v2'); ?>>
+                                    <?php _e('reCAPTCHA v2 (checkbox)', 'redi-restaurant-reservation'); ?>
+                                </option>
+                                <option value="v3" <?php selected(isset($captchaVersion) ? $captchaVersion : 'v2', 'v3'); ?>>
+                                    <?php _e('reCAPTCHA v3 (invisible)', 'redi-restaurant-reservation'); ?>
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <p class="description">
+                                <?php _e('v2 shows the "I\'m not a robot" checkbox. v3 is invisible and uses a score. The React theme always uses v3. Keys must match the selected version.', 'redi-restaurant-reservation'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr class="redi-captcha-dependent">
                         <th scope="row">
                         <label for="CaptchaKey">
                                 <?php _e('Captcha key', 'redi-restaurant-reservation'); ?>
@@ -802,7 +768,37 @@
                         </td>
                         <td>
                             <p class="description">
-                                <?php _e('Obtain your captcha key from Google.', 'redi-restaurant-reservation'); ?> <a target='_blank' href='https://www.google.com/recaptcha/admin/create'><?php _e('Visit Google site', 'redi-restaurant-reservation'); ?></a>
+                                <?php _e('Google reCAPTCHA site key (public).', 'redi-restaurant-reservation'); ?> <a target='_blank' href='https://www.google.com/recaptcha/admin/create'><?php _e('Visit Google site', 'redi-restaurant-reservation'); ?></a>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr class="redi-captcha-dependent">
+                        <th scope="row">
+                            <label for="CaptchaSecret">
+                                <?php _e('Captcha secret key', 'redi-restaurant-reservation'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input id="CaptchaSecret" type="text" value="<?php echo esc_attr(isset($captchaSecret) ? $captchaSecret : ''); ?>" name="CaptchaSecret"/>
+                        </td>
+                        <td>
+                            <p class="description">
+                                <?php _e('Google reCAPTCHA secret key. Required to verify tokens on the server. Required for v3; recommended for v2.', 'redi-restaurant-reservation'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr class="redi-captcha-dependent redi-captcha-v3-only">
+                        <th scope="row">
+                            <label for="CaptchaScore">
+                                <?php _e('Captcha score', 'redi-restaurant-reservation'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input id="CaptchaScore" type="number" min="0" max="1" step="0.1" value="<?php echo esc_attr(isset($captchaScore) ? $captchaScore : '0.5'); ?>" name="CaptchaScore"/>
+                        </td>
+                        <td>
+                            <p class="description">
+                                <?php _e('Minimum reCAPTCHA v3 score to accept (0.0 to 1.0). Default is 0.5. Lower is more lenient.', 'redi-restaurant-reservation'); ?>
                             </p>
                         </td>
                     </tr>
@@ -894,6 +890,7 @@
                                 <option value="Disabled"
                                         <?php if ($emailFrom == ReDiSendEmailFromOptions::Disabled): ?>selected="selected" <?php endif; ?>><?php _e('Disable confirmation email', 'redi-restaurant-reservation'); ?></option>
                             </select>
+                            <a target="_blank" href="https://redi.atlassian.net/wiki/spaces/REDIPLUGINDOCS/pages/2702966785/Troubleshooting+Emails"><?php _e('Email troubleshooting', 'redi-restaurant-reservation'); ?></a>
                         </td>
                         <td style="width:75%">
                             <p class="description">
@@ -903,7 +900,7 @@
                                 - <?php _e('The confirmation email will be sent out from your email set in WordPress.', 'redi-restaurant-reservation') ?>
                                 <br/>
                                 <b><?php _e('From Custom SMTP', 'redi-restaurant-reservation') ?></b>
-                                - <?php _e('Emails will be sent via SMTP server that is configured in Basic settings.', 'redi-restaurant-reservation') ?>                                
+                                - <?php _e('Emails will be sent via SMTP server that is configured in Basic settings.', 'redi-restaurant-reservation') ?> <a class="redi-pro-badge" href="<?php echo esc_url(add_query_arg('teaser', 'email-from', $redi_pro_url)); ?>">Basic →</a>
                                 <br/>
                                 <b><?php _e('From ReservationDiary.eu', 'redi-restaurant-reservation') ?></b>
                                 - <?php _e('The confirmation email will be sent out from info@reservationdiary.eu. When the client replies to confirmation email, you will receive it.', 'redi-restaurant-reservation') ?>
@@ -911,6 +908,20 @@
                                 <b><?php _e('Disable confirmation email', 'redi-restaurant-reservation') ?></b>
                                 - <?php _e('With this option, confirmation email is not sent to the client.', 'redi-restaurant-reservation') ?>
                             </p>
+                        </td>
+                    </tr>
+                    <tr class="redi-pro-row">
+                        <th><label><?php _e('Notifications', 'redi-restaurant-reservation'); ?> <span class="redi-pro-badge">Basic</span></label></th>
+                        <td colspan="2">
+                            <?php _e('Email reminders and admin alerts. SMS and WhatsApp are in Full.', 'redi-restaurant-reservation'); ?>
+                            <a class="redi-pro-link" href="<?php echo esc_url(add_query_arg('teaser', 'notifications', $redi_pro_url)); ?>"><?php esc_html_e('Try free →', 'redi-restaurant-reservation'); ?></a>
+                        </td>
+                    </tr>
+                    <tr class="redi-pro-row">
+                        <th><label><?php _e('Email Templates', 'redi-restaurant-reservation'); ?> <span class="redi-pro-badge">Basic</span></label></th>
+                        <td colspan="2">
+                            <?php _e('Customize the subject and body of every email sent to guests.', 'redi-restaurant-reservation'); ?>
+                            <a class="redi-pro-link" href="<?php echo esc_url(add_query_arg('teaser', 'email-templates', $redi_pro_url)); ?>"><?php esc_html_e('Try free →', 'redi-restaurant-reservation'); ?></a>
                         </td>
                     </tr>
                     <tr>
@@ -930,6 +941,13 @@
                             <p class="description">
                                 <?php _e('If you want to customize confirmation page or have a separated page for marketing purposes, then select custom reservation confirmation page. If not specified, then built in confirmation page will be used.', 'redi-restaurant-reservation') ?>
                                 <?php _e('In order to display reservation id on that page, install plugin GET Params and add following short code: [display-get-param name="reservation_id"]', 'redi-restaurant-reservation') ?></p>
+                        </td>
+                    </tr>
+                    <tr class="redi-pro-row">
+                        <th><label><?php _e('More reservation settings', 'redi-restaurant-reservation'); ?> <span class="redi-pro-badge">Basic</span></label></th>
+                        <td colspan="2">
+                            <?php _e('Add buffer time between bookings, limit how many guests or parties may enter in a time window, stop online reservations after a set hour (with a custom message), and extend seating until closing after the kitchen shuts. Checking availability by table capacity instead of total seats is in Full.', 'redi-restaurant-reservation'); ?>
+                            <a class="redi-pro-link" href="<?php echo esc_url(add_query_arg('teaser', 'reservation-settings', $redi_pro_url)); ?>"><?php esc_html_e('Try free →', 'redi-restaurant-reservation'); ?></a>
                         </td>
                     </tr>
                 </table>
@@ -993,13 +1011,31 @@
                 <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/OTRZHOUWzCg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
                 <br/>
                 <div id="ajaxed">
-                    <?php self::ajaxed_admin_page($placeID, $categoryID, $settings_saved); ?>
+                    <?php self::ajaxed_admin_page($placeID, $categoryID, $settings_saved, isset($invalid_time_fields) ? $invalid_time_fields : array(), isset($serviceTimesDisplay) ? $serviceTimesDisplay : array()); ?>
                 </div>
 
                 <div>
                 <input type="hidden" name="action" />
                 <input class="button-save button-save-all" type="submit"
                        value="<?php _e('Save Changes', 'redi-restaurant-reservation') ?>" name="submit">
+
+                <h2><?php _e('Reservations', 'redi-restaurant-reservation'); ?></h2>
+                <table class="form-table">
+                    <tr class="redi-pro-row">
+                        <th><label><?php _e('View reservations', 'redi-restaurant-reservation'); ?></label></th>
+                        <td colspan="2">
+                            <?php _e('Reservations can be seen here. Same screen as Reservations in the plugin menu.', 'redi-restaurant-reservation'); ?>
+                            <a class="redi-pro-link" href="<?php echo esc_url($this->redi->getReservationUrl(self::lang())); ?>"><?php _e('Open Reservations →', 'redi-restaurant-reservation'); ?></a>
+                        </td>
+                    </tr>
+                    <tr class="redi-pro-row">
+                        <th><label><?php _e('Host Dashboard', 'redi-restaurant-reservation'); ?> <span class="redi-pro-badge">Basic</span></label></th>
+                        <td colspan="2">
+                            <?php _e('The everyday Host Dashboard. Keep it open on a computer or tablet throughout the day to see today\'s bookings. Tables can be auto-assigned during reservation, and assigned or reassigned in the dashboard.', 'redi-restaurant-reservation'); ?>
+                            <a class="redi-pro-link" href="<?php echo esc_url($this->redi->getWaiterDashboardUrl(self::lang())); ?>"><?php _e('Open Host Dashboard →', 'redi-restaurant-reservation'); ?></a>
+                        </td>
+                    </tr>
+                </table>
             </form>
         <?php elseif ((isset($_GET['sm']) && $_GET['sm'] == 'cancel')): ?>
             <div id="icon-admin" class="icon32">
@@ -1041,3 +1077,5 @@
         </div>
     </div>
 </div>
+
+<?php require_once(REDI_RESTAURANT_TEMPLATE . 'support_issue_form.php'); ?>

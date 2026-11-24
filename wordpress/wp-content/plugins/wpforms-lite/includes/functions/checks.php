@@ -45,12 +45,14 @@ function wpforms_is_url( $url ): bool {
  * @see https://www.rfc-editor.org/rfc/inline-errata/rfc3696.html
  *
  * @since 1.7.3
+ * @since 2.0.4 Added the `$allow_smart_tags` parameter.
  *
- * @param string $email Email address to verify.
+ * @param string $email            Email address to verify.
+ * @param bool   $allow_smart_tags Whether to accept a value with smart tags as is. Pass false for submitted values.
  *
  * @return string|false Returns a valid email address on success, false on failure.
  */
-function wpforms_is_email( $email ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
+function wpforms_is_email( $email, bool $allow_smart_tags = true ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
 
 	static $punycode;
 
@@ -60,7 +62,7 @@ function wpforms_is_email( $email ) { // phpcs:ignore Generic.Metrics.Cyclomatic
 	}
 
 	// Allow smart tags in the email address.
-	if ( preg_match( '/{.+?}/', $email ) ) {
+	if ( $allow_smart_tags && preg_match( '/{.+?}/', $email ) ) {
 		return $email;
 	}
 
@@ -113,7 +115,12 @@ function wpforms_is_email( $email ) { // phpcs:ignore Generic.Metrics.Cyclomatic
 	 * For verification, phpMailer sends the email address where the domain part is punycode encoded only.
 	 * We follow here the same principle.
 	 */
-	$email_check = $local . '@' . $punycode->encode( $domain );
+	try {
+		$email_check = $local . '@' . $punycode->encode( $domain );
+	} catch ( Exception $e ) {
+		// An IDN label may exceed 63 octets only once encoded.
+		return false;
+	}
 
 	// Other limitations are checked by the native WordPress function is_email().
 	return is_email( $email_check ) ? $local . '@' . $domain : false;
@@ -548,10 +555,15 @@ function wpforms_is_form_template( $form ): bool {
  * Checks if the current screen is using the block editor.
  *
  * @since 1.8.8
+ * @since 2.0.5 Returns false on the front end, where WordPress does not load the screen API.
  *
  * @return bool True if the current screen is using the block editor, false otherwise.
  */
 function wpforms_is_block_editor(): bool {
+
+	if ( ! function_exists( 'get_current_screen' ) ) {
+		return false;
+	}
 
 	$screen = get_current_screen();
 
@@ -599,4 +611,18 @@ function wpforms_is_elementor_editor(): bool {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 	return ( ! empty( $_POST['action'] ) && $_POST['action'] === 'elementor_ajax' ) || ( ! empty( $_GET['action'] ) && $_GET['action'] === 'elementor' );
+}
+
+/**
+ * Determine whether the current WordPress version is at least the given version.
+ *
+ * @since 1.10.2
+ *
+ * @param string $version Minimum WordPress version to compare against.
+ *
+ * @return bool
+ */
+function wpforms_is_wp_version_at_least( string $version ): bool {
+
+	return version_compare( $GLOBALS['wp_version'], $version, '>=' );
 }

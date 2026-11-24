@@ -84,7 +84,11 @@ class Description {
 			}
 
 			if ( is_attachment() ) {
-				$post    = empty( $post ) ? aioseo()->helpers->getPost() : $post;
+				$post = empty( $post ) ? aioseo()->helpers->getPost() : $post;
+				if ( empty( $post ) ) {
+					return '';
+				}
+
 				$caption = wp_get_attachment_caption( $post->ID );
 
 				return $caption ? $this->helpers->prepare( $caption ) : $this->helpers->prepare( $post->post_content );
@@ -105,7 +109,7 @@ class Description {
 
 			$author = get_queried_object();
 
-			return $author ? $this->helpers->prepare( get_the_author_meta( 'description', $author->ID ) ) : '';
+			return $author ? $this->helpers->prepare( aioseo()->tags->escapeTags( get_the_author_meta( 'description', $author->ID ) ) ) : '';
 		}
 
 		if ( is_date() ) {
@@ -275,7 +279,8 @@ class Description {
 
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
 		if ( ! $description && $dynamicOptions->searchAppearance->taxonomies->has( $term->taxonomy ) ) {
-			$description = $this->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->taxonomies->{$term->taxonomy}->metaDescription, false, $default );
+			$metaDescription = aioseo()->dynamicOptions->searchAppearance->taxonomies->{$term->taxonomy}->metaDescription;
+			$description     = $this->helpers->prepare( aioseo()->tags->replaceTermTags( $metaDescription, $term ), false, $default );
 		}
 
 		$terms[ $term->term_id ] = $description ? $description : $this->helpers->prepare( term_description( $term->term_id ), false, $default );

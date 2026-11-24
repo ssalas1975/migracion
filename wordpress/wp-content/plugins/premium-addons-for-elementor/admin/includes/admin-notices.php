@@ -38,18 +38,37 @@ class Admin_Notices {
 	private static $elementor = 'elementor';
 
 	/**
-	 * PAPRO Slug
-	 *
-	 * @var papro
-	 */
-	private static $papro = 'premium-addons-pro';
-
-	/**
 	 * Notices Keys
 	 *
 	 * @var notices
 	 */
 	private static $notices = null;
+
+	/**
+	 * Review-notice state, held in one autoloaded option so the check costs no
+	 * query. '1' means the user opted out for good; any other numeric value is a
+	 * timestamp to stay quiet until; '0' means show it.
+	 *
+	 * @var string
+	 */
+	const REVIEW_OPTION = 'pa_review_notice';
+
+	/**
+	 * Dashboard news cache. Deliberately not keyed on the plugin version: the
+	 * feed is not version-specific, and including it invalidated the cache on
+	 * every update, so the first Dashboard load after each one blocked on a
+	 * remote request.
+	 *
+	 * @var string
+	 */
+	const STORIES_TRANSIENT = 'pa_stories_bf';
+
+	/**
+	 * Connect AI notice key. Changing it shows the notice again to admins who dismissed an older version.
+	 *
+	 * @var string
+	 */
+	const CONNECT_AI_NOTICE = 'pa-connect-ai-bf26-not';
 
 	/**
 	 * Constructor for the class
@@ -68,7 +87,7 @@ class Admin_Notices {
 
 		self::$notices = array(
 			'pa-review',
-			'bf25-last-not',
+			self::CONNECT_AI_NOTICE,
 		);
 
 		if ( Helper_Functions::check_hide_notifications() ) {
@@ -76,6 +95,8 @@ class Admin_Notices {
 		}
 
 		add_action( 'wp_dashboard_setup', array( $this, 'show_story_widget' ), 111 );
+
+		include_once PREMIUM_ADDONS_PATH . 'admin/includes/promotion-pointer.php';
 	}
 
 	/**
@@ -89,6 +110,10 @@ class Admin_Notices {
 	 * @access public
 	 */
 	public function init() {
+
+		if ( wp_doing_ajax() ) {
+			return;
+		}
 
 		$this->handle_review_notice();
 
@@ -121,24 +146,20 @@ class Admin_Notices {
 
 		$this->required_plugins_check();
 
-		// Make sure "Already did" was not clicked before.
-		$show_review = get_option( 'pa_review_notice' );
-		if ( '1' !== $show_review ) {
+		// Make sure "Already did" was not clicked before, and that the notice is
+		// not snoozed. Both live in one autoloaded option: an absent option costs
+		// a lookup on every admin page view, and a transient costs two.
+		$review_state = self::get_notice_state( self::REVIEW_OPTION );
 
-			$cache_key = 'pa_review_notice';
-
-			$response = get_transient( $cache_key );
-
-			if ( false == $response ) {
-				$this->show_review_notice();
-			}
+		if ( '1' !== $review_state && (int) $review_state < time() ) {
+			$this->show_review_notice();
 		}
 
 		if ( Helper_Functions::check_hide_notifications() ) {
 			return;
 		}
 
-		// $this->get_black_friday_notice();
+		$this->get_connect_ai_notice();
 	}
 
 	/**
@@ -155,10 +176,12 @@ class Admin_Notices {
 			return;
 		}
 
-		if ( 'opt_out' === $_GET['pa_review'] ) {
+		$pa_review = sanitize_text_field( wp_unslash( $_GET['pa_review'] ) );
+
+		if ( 'opt_out' === $pa_review ) {
 			check_admin_referer( 'opt_out' );
 
-			update_option( 'pa_review_notice', '1' );
+			update_option( self::REVIEW_OPTION, '1', true );
 		}
 
 		wp_safe_redirect( remove_query_arg( 'pa_review' ) );
@@ -269,85 +292,146 @@ class Admin_Notices {
 		<?php
 	}
 
-	public function get_black_friday_notice() {
+	/**
+	 * Read a notice-state option, seeding it when absent.
+	 *
+	 * An option that does not exist is not in the autoloaded set, so every read
+	 * costs a query. Writing the default once means every later read is served
+	 * from the options cache.
+	 *
+	 * @since 4.11.90
+	 * @access private
+	 *
+	 * @param string $option Option name.
+	 * @return string Current state.
+	 */
+	private static function get_notice_state( $option ) {
 
-		$time = time();
+		$state = get_option( $option );
 
-		if ( $time > 1765497600 || '1' === get_option( 'bf25-last-not' ) ) {
-			return;
+		if ( false === $state ) {
+			add_option( $option, '0', '', true );
+			$state = '0';
 		}
 
-		$is_papro_active = Helper_Functions::check_papro_version();
-
-		$license_key = get_option( 'papro_license_key' );
-
-		$link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/black-friday/#bfdeals', 'wp-dash', 'bf25-notification', 'cm25' );
-
-		$promotion_type = 'new';
-
-		if ( $is_papro_active ) {
-
-			$license_data = get_transient( 'pa_license_info' );
-
-			if ( isset( $license_data['status'] ) && 'valid' === $license_data['status'] ) {
-
-				if ( isset( $license_data['id'] ) && '4' === $license_data['id'] ) {
-					return;
-				} else {
-
-					$promotion_type = 'upgrade';
-
-					$link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/upgrade-premium-addons-license/', 'wp-dash', 'bf25-notification', 'cm25' );
-				}
-			}
-		}
-
-		$message = $this->get_promotion_message( $promotion_type );
-
-		?>
-
-		<div class="error pa-notice-wrap pa-new-feature-notice pa-review-notice">
-			<div class="pa-img-wrap">
-				<img src="<?php echo PREMIUM_ADDONS_URL . 'admin/images/pa-logo-symbol.png'; ?>">
-			</div>
-			<div class="pa-text-wrap">
-				<p>
-					<?php echo wp_kses_post( $message['message'] ); ?>
-					<a class="button pa-cta-btn button-primary" href="<?php echo esc_url( $link ); ?>" target="_blank">
-						<span><?php echo wp_kses_post( $message['cta'] ); ?></span>
-					</a>
-				</p>
-			</div>
-			<div class="pa-notice-close" data-notice="bf25-last-not">
-				<span class="dashicons dashicons-dismiss"></span>
-			</div>
-		</div>
-
-		<?php
+		return (string) $state;
 	}
 
 	/**
-	 * Get Promotion Message
+	 * Keep the review notice quiet until $seconds from now.
 	 *
-	 * @since 4.11.43
+	 * @since 4.11.97
+	 * @access public
+	 *
+	 * @param int $seconds Quiet period length.
+	 * @return void
+	 */
+	public static function snooze_review_notice( $seconds ) {
+
+		update_option( self::REVIEW_OPTION, (string) ( time() + $seconds ), true );
+	}
+
+	/**
+	 * Checks if the current user dismissed a per-user notice.
+	 *
+	 * @since 4.11.106
 	 * @access private
 	 *
-	 * @param string $type promotion type.
-	 * @return array
+	 * @param string $key notice key.
+	 * @return bool
 	 */
-	private function get_promotion_message( $type = 'new' ) {
+	private static function is_dismissed_by_user( $key ) {
 
-		if ( 'upgrade' === $type ) {
-			return array(
-				'message' => __( 'Get a <b>FLAT 35% OFF</b> when you upgrade to <b>Premium Addons Pro Lifetime</b>. Use code <b>BFUL2025</b> at checkout – <b>expires soon!</b>', 'premium-addons-for-elementor' ),
-				'cta'     => __( 'Upgrade Now', 'premium-addons-for-elementor' ),
-			);
+		$dismissed = get_user_meta( get_current_user_id(), 'pa_dismissed_notices', true );
 
+		return is_array( $dismissed ) && in_array( $key, $dismissed, true );
+	}
+
+	/**
+	 * Points admins to the ChatGPT/Claude connection guides, with the sale CTA per license tier.
+	 * Admins only, dismissed per user.
+	 *
+	 * @since 4.11.100
+	 * @access private
+	 *
+	 * @return void
+	 */
+	private function get_connect_ai_notice() {
+
+		$notice_key = self::CONNECT_AI_NOTICE;
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
 
-		return array(
-			'message' => __( '<b>Cyber Monday – Save Up To $105 on Premium Addons Pro</b>.', 'premium-addons-for-elementor' ),
-			'cta'     => __( 'Catch The Deal', 'premium-addons-for-elementor' ),
+		if ( self::is_dismissed_by_user( $notice_key ) ) {
+			return;
+		}
+
+		$tier = Admin_Helper::get_license_tier();
+
+		$chatgpt_link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/connect-chatgpt-to-wordpress-elementor-website/', 'connect-ai-notification', 'wp-dash', 'connect-ai', $tier );
+		$claude_link  = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/connect-claude-to-build-wordpress-elementor-pages/', 'connect-ai-notification', 'wp-dash', 'connect-ai', $tier );
+		$mcp_link     = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/elementor-mcp-and-ai-abilities/', 'connect-ai-notification', 'wp-dash', 'connect-ai', $tier );
+
+		$label     = __( 'New:', 'premium-addons-for-elementor' );
+		$sale_line = '';
+		$sale_btn  = '';
+
+		if ( 'free' === $tier ) {
+
+			$label     = __( 'Black Friday:', 'premium-addons-for-elementor' );
+			$sale_link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/get/papro/#get-pa-pro', 'connect-ai-notification', 'wp-dash', 'bf26', 'free' );
+			$sale_line = __( 'Go Pro and they can build with any widget you\'ve installed, including ones from Elementor Pro and other plugins. Up to 40% off.', 'premium-addons-for-elementor' );
+			$sale_btn  = __( 'Get Pro – Up to 40% Off', 'premium-addons-for-elementor' );
+
+		} elseif ( 'pro' === $tier ) {
+
+			$label     = __( 'Black Friday:', 'premium-addons-for-elementor' );
+			$sale_link = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/upgrade-to-premium-addons-pro-lifetime-license/', 'connect-ai-notification', 'wp-dash', 'bf26', 'pro' );
+			$sale_line = __( 'Let your AI build on every site you own. Upgrade to Unlimited Lifetime, pay only the difference, up to 40% off.', 'premium-addons-for-elementor' );
+			$sale_btn  = __( 'Go Unlimited Lifetime', 'premium-addons-for-elementor' );
+		}
+
+		$html  = '<div class="pa-notice-row">';
+		$html .= '<img class="pa-notice-logo" src="' . esc_url( PREMIUM_ADDONS_URL . 'admin/images/pa-logo-symbol.png' ) . '" alt="" width="40" height="40">';
+		$html .= '<div class="pa-notice-text">';
+		$html .= '<span class="pa-notice-desc"><strong>' . esc_html( $label ) . '</strong> ';
+		$html .= sprintf(
+			/* translators: 1: ChatGPT guide link opening tag, 2: Claude guide link opening tag, 3: link closing tag. */
+			esc_html__( '%1$sChatGPT%3$s and %2$sClaude%3$s can build Elementor pages for you.', 'premium-addons-for-elementor' ),
+			'<a href="' . esc_url( $chatgpt_link ) . '" target="_blank" rel="noopener">',
+			'<a href="' . esc_url( $claude_link ) . '" target="_blank" rel="noopener">',
+			'</a>'
+		);
+		$html .= '</span>';
+
+		if ( '' !== $sale_line ) {
+			$html .= '<span class="pa-notice-sub">' . esc_html( $sale_line ) . '</span>';
+		}
+
+		$html .= '</div>';
+		$html .= '<div class="pa-notice-actions">';
+
+		if ( '' !== $sale_btn ) {
+			$html .= '<a class="button button-primary" href="' . esc_url( $sale_link ) . '" target="_blank" rel="noopener">' . esc_html( $sale_btn ) . '</a>';
+		}
+
+		$learn_more_class = '' !== $sale_btn ? 'button' : 'button button-primary';
+
+		$html .= '<a class="' . $learn_more_class . '" href="' . esc_url( $mcp_link ) . '" target="_blank" rel="noopener">' . esc_html__( 'Check it Out!', 'premium-addons-for-elementor' ) . '</a>';
+		$html .= '</div>';
+		$html .= '</div>';
+
+		wp_admin_notice(
+			$html,
+			array(
+				'type'               => 'info',
+				'dismissible'        => true,
+				'paragraph_wrap'     => false,
+				'additional_classes' => array( 'pa-notice', 'pa-connect-ai-notice' ),
+				'attributes'         => array( 'data-notice' => $notice_key ),
+			)
 		);
 	}
 
@@ -425,9 +509,7 @@ class Admin_Notices {
 
 		if ( ! empty( $key ) && in_array( $key, self::$notices, true ) ) {
 
-			$cache_key = 'pa_review_notice';
-
-			set_transient( $cache_key, true, WEEK_IN_SECONDS );
+			self::snooze_review_notice( WEEK_IN_SECONDS );
 
 			wp_send_json_success();
 
@@ -458,12 +540,28 @@ class Admin_Notices {
 
 		if ( ! empty( $key ) && in_array( $key, self::$notices, true ) ) {
 
-			// Make sure new features notices will not appear again.
-			if ( false != strpos( $key, 'not' ) ) {
-				update_option( $key, '1' );
-			} else {
-				set_transient( $key, true, 20 * DAY_IN_SECONDS );
+			if ( self::CONNECT_AI_NOTICE === $key ) {
 
+				// Per user: other admins keep seeing it.
+				$uid       = get_current_user_id();
+				$dismissed = get_user_meta( $uid, 'pa_dismissed_notices', true );
+				$dismissed = is_array( $dismissed ) ? $dismissed : array();
+
+				if ( ! in_array( $key, $dismissed, true ) ) {
+					$dismissed[] = $key;
+					update_user_meta( $uid, 'pa_dismissed_notices', $dismissed );
+				}
+
+				wp_send_json_success();
+			}
+
+			// Make sure new features notices will not appear again.
+			if ( false !== strpos( $key, 'not' ) ) {
+				update_option( $key, '1', true );
+			} else {
+				// Was set_transient( 'pa-review', ... ), a key nothing ever read —
+				// the review notice reappeared immediately after dismissal.
+				self::snooze_review_notice( 20 * DAY_IN_SECONDS );
 			}
 
 			wp_send_json_success();
@@ -473,46 +571,6 @@ class Admin_Notices {
 			wp_send_json_error();
 
 		}
-	}
-
-	/**
-	 * Check Status
-	 *
-	 * @since 4.10.15
-	 * @access public
-	 */
-	public function check_status( $key ) {
-
-		$status = false;
-
-		$api_params = array(
-			'edd_action' => 'check_license',
-			'license'    => $key,
-			'item_id'    => 361,
-		);
-
-		$response = wp_remote_get(
-			'http://my.leap13.com',
-			array(
-				'timeout'   => 15,
-				'sslverify' => false,
-				'body'      => $api_params,
-			)
-		);
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-
-		$body = json_decode( $body, true );
-
-		if ( isset( $body['license'] ) && 'valid' === $body['license'] ) {
-			$status = true;
-		}
-
-		return $status;
 	}
 
 	/**
@@ -526,7 +584,7 @@ class Admin_Notices {
 	 */
 	public function get_pa_stories() {
 
-		$stories = get_transient( 'pa_stories_' . PREMIUM_ADDONS_VERSION );
+		$stories = get_transient( self::STORIES_TRANSIENT );
 
 		if ( ! $stories ) {
 
@@ -535,20 +593,20 @@ class Admin_Notices {
 			$response = wp_remote_get(
 				$api_url,
 				array(
-					'timeout'   => 15,
+					'timeout'   => 3,
 					'sslverify' => true,
 				)
 			);
 
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				set_transient( 'pa_stories_' . PREMIUM_ADDONS_VERSION, true, WEEK_IN_SECONDS );
+				set_transient( self::STORIES_TRANSIENT, true, DAY_IN_SECONDS );
 				return false;
 			}
 
 			$body    = wp_remote_retrieve_body( $response );
 			$stories = json_decode( $body, true );
 
-			set_transient( 'pa_stories_' . PREMIUM_ADDONS_VERSION, $stories, WEEK_IN_SECONDS );
+			set_transient( self::STORIES_TRANSIENT, $stories, WEEK_IN_SECONDS );
 
 		}
 
@@ -585,23 +643,18 @@ class Admin_Notices {
 
 		$papro_path = 'premium-addons-pro/premium-addons-pro-for-elementor.php';
 
-		$license_data = get_transient( 'pa_license_info' );
-		$highlight    = false;
+		$highlight = false;
 
-		if ( isset( $license_data['status'] ) && 'valid' === $license_data['status'] ) {
+		if ( 'pro' === Admin_Helper::get_license_tier() ) {
 
-			if ( isset( $license_data['id'] ) && '4' !== $license_data['id'] ) {
-
-				$highlight = true;
-				array_unshift(
-					$stories['posts'],
-					array(
-						'title' => 'Switch to Premium Addons Pro Lifetime, Pay the Difference & Save 20% Today!',
-						'link'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/upgrade-premium-addons-license/', 'wp-dash', 'spring26-dash-widget', 'spring26' ),
-					)
-				);
-
-			}
+			$highlight = true;
+			array_unshift(
+				$stories['posts'],
+				array(
+					'title' => 'Upgrade to Premium Addons Pro Lifetime, Pay the Difference & Save 40% Today!',
+					'link'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/upgrade-to-premium-addons-pro-lifetime-license/', 'wp-dash', 'bf26-dash-widget', 'bf26' ),
+				)
+			);
 		}
 
 		?>
@@ -670,7 +723,7 @@ class Admin_Notices {
 							<div class="pa-story-img-container">
 								<img src="<?php echo esc_url( $banner['image'] ); ?>" alt="<?php echo esc_attr( $banner['description'] ); ?>">
 							</div>
-							<a href="<?php echo esc_url( Helper_Functions::get_campaign_link( $banner['link'], 'wp-dash', 'dash-widget', 'spring26' ) ); ?>" target="_blank" title="<?php echo esc_attr( $banner['description'] ); ?>"></a>
+							<a href="<?php echo esc_url( Helper_Functions::get_campaign_link( $banner['link'], 'wp-dash', 'dash-widget', 'bf26' ) ); ?>" target="_blank" title="<?php echo esc_attr( $banner['description'] ); ?>"></a>
 						</div>
 
 					<?php endif; ?>

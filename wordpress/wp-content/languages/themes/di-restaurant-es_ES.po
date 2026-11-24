@@ -2,36 +2,38 @@
 # This file is distributed under the same license as the Themes - Di Restaurant package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-12-07 17:07:23+0000\n"
+"PO-Revision-Date: 2024-09-10 05:49:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"X-Generator: GlotPress/4.0.3\n"
 "Language: es\n"
 "Project-Id-Version: Themes - Di Restaurant\n"
 
 #. Theme Name of the theme
+#: style.css
+#, gp-priority: high
 msgid "Di Restaurant"
 msgstr "Di Restaurant"
 
-#: inc/kirki/kirki-options.php:1230
+#: inc/kirki/kirki-options.php:1214
 msgid "Show/Hide header icons (for Small Devices)"
 msgstr "Mostrar/Ocultar iconos de cabecera (en dispositivos pequeños)"
 
-#: inc/kirki/kirki-options.php:1229
+#: inc/kirki/kirki-options.php:1213
 msgid "Hide Header Icons for Small Devices"
 msgstr "Ocultar los iconos de la cabecera en dispositivos pequeños"
 
-#: inc/kirki/kirki-options.php:235
+#: inc/kirki/kirki-options.php:229
 msgid "Social Icons"
 msgstr "Iconos de redes sociales"
 
-#: inc/kirki/kirki-options.php:244
+#: inc/kirki/kirki-options.php:238
 msgid "Open Links in New Tab?"
 msgstr "¿Abrir los enlaces en una nueva pestaña?"
 
-#: inc/kirki/kirki-options.php:236
+#: inc/kirki/kirki-options.php:230
 msgid "Enable/Disable Social Icons"
 msgstr "Activar/Desactivar los iconos sociales"
 
@@ -45,7 +47,7 @@ msgstr "%1$s se ha instalado y activado correctamente."
 msgid "%1$s installed successfully."
 msgstr "%1$s se ha instalado correctamente."
 
-#: inc/kirki/kirki/deprecated/functions.php:19
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/deprecated/functions.php:20
 msgid "%1$s or %2$s"
 msgstr "%1$s o %2$s"
 
@@ -87,13 +89,13 @@ msgstr "Activar %2$s"
 msgid "Active"
 msgstr "Activo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:419
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:423
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:486
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:490
 msgid "Add File"
 msgstr "Añadir archivo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:387
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:391
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:454
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:458
 msgid "Add Image"
 msgstr "Añadir Imagen"
 
@@ -102,7 +104,7 @@ msgid "Add Menu"
 msgstr "Añadir menú"
 
 #. translators: %s represents the label of the row.
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:86
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:104
 msgid "Add new %s"
 msgstr "Añadir nuevo %s"
 
@@ -142,7 +144,7 @@ msgctxt "plugin A *and* plugin B"
 msgid "and"
 msgstr "y"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:106
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:196
 msgid "Auto"
 msgstr "Automático"
 
@@ -150,37 +152,33 @@ msgstr "Automático"
 msgid "Available version:"
 msgstr "Versión disponible:"
 
-#: inc/kirki/kirki-options.php:1177
+#: inc/kirki/kirki-options.php:1161
 msgid "Back To Top Button"
 msgstr "Botón Volver arriba"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:113
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:222
 msgid "Background Attachment"
 msgstr "Adjunto de fondo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:48
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:84
 msgid "Background Color"
 msgstr "Color de fondo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:54
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:103
 msgid "Background Image"
 msgstr "Imagen de fondo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:81
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:152
 msgid "Background Position"
 msgstr "Posición de fondo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:70
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:119
 msgid "Background Repeat"
 msgstr "Repetir fondo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:97
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:190
 msgid "Background Size"
 msgstr "Tamaño de fondo"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:87
-msgid "Backup Font"
-msgstr "Copia de seguridad de la fuente"
 
 #: inc/tgm/class-tgm-plugin-activation.php:380
 msgid "Begin activating plugin"
@@ -204,20 +202,19 @@ msgstr[1] "Comenzar a actualizar los plugins"
 msgid "Blog"
 msgstr "Blog"
 
-#: inc/kirki/kirki-options.php:598
+#: inc/kirki/kirki-options.php:592
 msgid "Blog Options"
 msgstr "Opciones del blog"
 
-#: inc/core/class-di-restaurant-engine.php:182
+#: inc/core/class-di-restaurant-engine.php:175
 msgid "Blog Sidebar"
 msgstr "Barra lateral del blog"
 
-#: inc/kirki/kirki-options.php:27
+#: inc/kirki/kirki-options.php:53
 msgid "Body Typography"
 msgstr "Tipografía del cuerpo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:130
-#: inc/kirki/kirki/field/class-kirki-field-spacing.php:33
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:66
 msgid "Bottom"
 msgstr "Inferior"
 
@@ -225,109 +222,88 @@ msgstr "Inferior"
 msgid "Cart"
 msgstr "Carrito"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:133
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:151
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:69
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:352
 msgid "Center"
 msgstr "Centro"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:91
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:122
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:161
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:58
 msgid "Center Bottom"
 msgstr "Centro inferior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:90
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:121
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:160
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:57
 msgid "Center Center"
 msgstr "Centro centro"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:89
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:120
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:159
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:56
 msgid "Center Top"
 msgstr "Centro superior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:419
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:421
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:486
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:488
 msgid "Change File"
 msgstr "Cambiar archivo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:387
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:389
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:454
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:456
 msgid "Change Image"
 msgstr "Cambiar imagen"
 
-#: inc/kirki/kirki/controls/views/image.php:35
-#: inc/kirki/kirki/field/class-kirki-field-image.php:48
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:112
 msgid "Change image"
 msgstr "Cambiar imagen"
 
-#: inc/kirki/kirki/controls/views/image.php:40
-#: inc/kirki/kirki/field/class-kirki-field-image.php:53
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:117
 msgid "Choose image"
 msgstr "Elegir imagen"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:221
-msgid "Color"
-msgstr "Color"
-
 #: inc/core/class-di-restaurant-actions-filters.php:118
 #: inc/core/class-di-restaurant-actions-filters.php:135
-#: inc/kirki/kirki-options.php:517
+#: inc/kirki/kirki-options.php:511
 msgid "Color Options"
 msgstr "Opciones de color"
 
 #. translators: %1$s represents the field ID where the error occurs. %2$s is
 #. the URL in the documentation site.
-#. translators: %1$s represents the field ID where the error occurs. %2$s is
-#. the URL in the documentation site.
-#: inc/kirki/kirki/core/class-kirki-field.php:257
-#: inc/kirki/kirki/core/class-kirki-field.php:267
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Field.php:272
 msgid "Config not defined for field %1$s - See %2$s for details on how to properly add fields."
 msgstr "Configuración no definida para el campo %1$s - Consulta %2$s para obtener detalles sobre cómo añadir campos correctamente."
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:103
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:195
 msgid "Contain"
 msgstr "Contener"
 
-#: inc/kirki/kirki-options.php:628
-msgid "Contents Typography"
-msgstr "Tipografía de los contenidos"
-
-#: inc/core/class-di-restaurant-actions-filters.php:394
+#: inc/core/class-di-restaurant-actions-filters.php:410
 msgid "Continue reading"
 msgstr "Seguir leyendo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:100
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:194
 msgid "Cover"
 msgstr "Cubrir"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:138
-msgid "CSS Defaults"
-msgstr "Valores por defecto de CSS"
-
-#: inc/kirki/kirki/modules/custom-sections/sections/class-kirki-sections-nested-section.php:61
+#: inc/kirki/kirki/packages/kirki-framework/module-sections/src/Section_Types/Nested.php:62
 msgid "Customizing"
 msgstr "Personalizando"
 
 #. translators: The title.
-#: inc/kirki/kirki/modules/custom-sections/sections/class-kirki-sections-nested-section.php:64
+#: inc/kirki/kirki/packages/kirki-framework/module-sections/src/Section_Types/Nested.php:65
 msgid "Customizing &#9656; %s"
 msgstr "Personalizando &#9656; %s"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:134
-#: inc/kirki/kirki/controls/views/image.php:36
-#: inc/kirki/kirki/field/class-kirki-field-image.php:49
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Control/Image.php:87
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:113
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:852
 msgid "Default"
 msgstr "Por defecto"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:139
-msgid "Default Browser Font-Family"
-msgstr "Familia tipográfica por defecto del navegador"
-
-#: inc/kirki/kirki-options.php:1247
+#: inc/kirki/kirki-options.php:1231
 msgid "Di Restaurant Demo"
 msgstr "Demo de Di Restaurant"
 
-#: inc/kirki/kirki-options.php:1255
+#: inc/kirki/kirki-options.php:1239
 msgid "Di Restaurant Docs"
 msgstr "Documentación del tema Di Restaurant"
 
@@ -338,8 +314,8 @@ msgstr "Opciones de Di Restaurant"
 #: inc/core/class-di-restaurant-actions-filters.php:103
 #: inc/core/class-di-restaurant-actions-filters.php:120
 #: inc/core/class-di-restaurant-actions-filters.php:137
-#: inc/core/class-di-restaurant-actions-filters.php:366
 #: inc/core/class-di-restaurant-actions-filters.php:382
+#: inc/core/class-di-restaurant-actions-filters.php:398
 msgid "Di Restaurant Pro"
 msgstr "Di Restaurant Pro"
 
@@ -347,7 +323,7 @@ msgstr "Di Restaurant Pro"
 msgid "Di Restaurant Pro Features: "
 msgstr "Características de Di Restaurant Pro: "
 
-#: inc/core/class-di-restaurant-actions-filters.php:374
+#: inc/core/class-di-restaurant-actions-filters.php:390
 msgid "Di Restaurant Support"
 msgstr "Soporte de Di Restaurant"
 
@@ -368,19 +344,19 @@ msgstr "Tema de WordPress Di Restaurant"
 msgid "Dismiss this notice"
 msgstr "Ocultar este aviso"
 
-#: inc/kirki/kirki-options.php:657
+#: inc/kirki/kirki-options.php:606
 msgid "Display Content"
 msgstr "Mostrar contenido"
 
-#: inc/kirki/kirki-options.php:656
+#: inc/kirki/kirki-options.php:605
 msgid "Display Excerpt"
 msgstr "Mostrar extracto"
 
-#: inc/kirki/kirki-options.php:728
+#: inc/kirki/kirki-options.php:676
 msgid "Display List or Grid?"
 msgstr "¿Mostrar una lista o una cuadrícula?"
 
-#: inc/tgm/tgm-options.php:23
+#: inc/tgm/tgm-options.php:17
 msgid "Elementor Page Builder"
 msgstr "Elementor Page Builder"
 
@@ -388,7 +364,7 @@ msgstr "Elementor Page Builder"
 msgid "Error 404"
 msgstr "Error 404"
 
-#: inc/kirki/kirki-options.php:665
+#: inc/kirki/kirki-options.php:614
 msgid "Excerpt Length"
 msgstr "Longitud del extracto"
 
@@ -400,11 +376,11 @@ msgstr "Fuente externa"
 msgid "Facebook"
 msgstr "Facebook"
 
-#: inc/kirki/kirki-options.php:260
+#: inc/kirki/kirki-options.php:254
 msgid "Facebook Link"
 msgstr "Enlace de Facebook"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:119
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:228
 msgid "Fixed"
 msgstr "Fijo"
 
@@ -412,60 +388,60 @@ msgstr "Fijo"
 msgid "Flickr"
 msgstr "Flickr"
 
-#: inc/kirki/kirki-options.php:420
+#: inc/kirki/kirki-options.php:414
 msgid "Flickr Link"
 msgstr "Enlace de Flickr"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:82
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:274
 msgid "Font Family"
 msgstr "Familia tipográfica"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:123
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:102
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:59
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:323
 msgid "Font Size"
 msgstr "Tamaño de fuente"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:126
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:62
 msgid "Font Style"
 msgstr "Estilo de fuente"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:124
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:60
 msgid "Font Weight"
 msgstr "Grosor de fuente"
 
-#: inc/kirki/kirki-options.php:1140
+#: inc/kirki/kirki-options.php:1103
 msgid "Footer Center"
 msgstr "Pie de página centro"
 
-#: inc/kirki/kirki-options.php:1116
+#: inc/kirki/kirki-options.php:1079
 msgid "Footer Left"
 msgstr "Pie de página izquierdo"
 
-#: inc/core/class-di-restaurant-actions-filters.php:364
+#: inc/core/class-di-restaurant-actions-filters.php:380
 msgid "Footer Right"
 msgstr "Pie de página derecho"
 
-#: inc/core/class-di-restaurant-engine.php:241
+#: inc/core/class-di-restaurant-engine.php:234
 msgid "Footer Widget "
 msgstr "Widget de pie de página "
 
-#: inc/core/class-di-restaurant-engine.php:220
+#: inc/core/class-di-restaurant-engine.php:213
 msgid "Footer Widget 1"
 msgstr "Widget de pie de página 1"
 
-#: inc/core/class-di-restaurant-engine.php:230
+#: inc/core/class-di-restaurant-engine.php:223
 msgid "Footer Widget 2"
 msgstr "Widget de pie de página 2"
 
-#: inc/kirki/kirki-options.php:1003
+#: inc/kirki/kirki-options.php:986
 msgid "Footer Widget Layout"
 msgstr "Diseño de widget del pie de página"
 
-#: inc/kirki/kirki-options.php:994
+#: inc/kirki/kirki-options.php:977
 msgid "Footer Widgets"
 msgstr "Widgets del pie de página"
 
-#: inc/kirki/kirki-options.php:827
+#: inc/kirki/kirki-options.php:819
 msgid "Gallery Slider"
 msgstr "Carrusel de galería"
 
@@ -473,15 +449,14 @@ msgstr "Carrusel de galería"
 msgid "Get Premium Support"
 msgstr "Obtener soporte premium"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:137
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:882
 msgid "Google Fonts"
 msgstr "Google Fonts"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:137
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:73
 msgid "Height"
 msgstr "Altura"
 
-#. translators: 1: plugin name.
 #. translators: 1: plugin name.
 #: inc/tgm/class-tgm-plugin-activation.php:3509
 #: inc/tgm/class-tgm-plugin-activation.php:3517
@@ -496,14 +471,7 @@ msgstr "Inicio"
 msgid "Important Upgrade Notice:"
 msgstr "Aviso importante de actualización:"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:139
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:181
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:197
-msgid "Inherit"
-msgstr "Heredar"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:180
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:196
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:350
 msgid "Initial"
 msgstr "Inicial"
 
@@ -511,7 +479,7 @@ msgstr "Inicial"
 msgid "Instagram"
 msgstr "Instagram"
 
-#: inc/kirki/kirki-options.php:372
+#: inc/kirki/kirki-options.php:366
 msgid "Instagram Link"
 msgstr "Enlace de Instagram"
 
@@ -555,16 +523,16 @@ msgstr "Instalando el plugin %1$s (%2$d/%3$d)"
 msgid "Installing Plugin: %s"
 msgstr "Instalando el plugin: %s"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimension.php:41
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:138
+#: inc/kirki/kirki/packages/kirki-framework/control-dimension/src/Control/Dimension.php:67
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:74
 msgid "Invalid Value"
 msgstr "Valor no válido"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:163
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:354
 msgid "Justify"
 msgstr "Jusfificar"
 
-#: inc/kirki/kirki/core/class-kirki.php:237
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Kirki.php:191
 msgid "Kirki fields should not be added on customize_register. Please add them directly, or on init."
 msgstr "Los campos de Kirki no deben añadirse en customize_register. Por favor, añádelos directamente, o en init."
 
@@ -572,87 +540,82 @@ msgstr "Los campos de Kirki no deben añadirse en customize_register. Por favor,
 msgid "Landing Page for Page Builder"
 msgstr "Página de destino para el maquetador de páginas"
 
-#: inc/kirki/kirki-options.php:261 inc/kirki/kirki-options.php:277
-#: inc/kirki/kirki-options.php:293 inc/kirki/kirki-options.php:309
-#: inc/kirki/kirki-options.php:325 inc/kirki/kirki-options.php:341
-#: inc/kirki/kirki-options.php:357 inc/kirki/kirki-options.php:373
-#: inc/kirki/kirki-options.php:389 inc/kirki/kirki-options.php:405
-#: inc/kirki/kirki-options.php:421 inc/kirki/kirki-options.php:437
-#: inc/kirki/kirki-options.php:453 inc/kirki/kirki-options.php:469
-#: inc/kirki/kirki-options.php:485 inc/kirki/kirki-options.php:501
+#: inc/kirki/kirki-options.php:255 inc/kirki/kirki-options.php:271
+#: inc/kirki/kirki-options.php:287 inc/kirki/kirki-options.php:303
+#: inc/kirki/kirki-options.php:319 inc/kirki/kirki-options.php:335
+#: inc/kirki/kirki-options.php:351 inc/kirki/kirki-options.php:367
+#: inc/kirki/kirki-options.php:383 inc/kirki/kirki-options.php:399
+#: inc/kirki/kirki-options.php:415 inc/kirki/kirki-options.php:431
+#: inc/kirki/kirki-options.php:447 inc/kirki/kirki-options.php:463
+#: inc/kirki/kirki-options.php:479 inc/kirki/kirki-options.php:495
 msgid "Leave empty for disable"
 msgstr "Dejar en blanco para desactivar"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:131
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:145
-#: inc/kirki/kirki/field/class-kirki-field-spacing.php:34
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:67
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:351
 msgid "Left"
 msgstr "Izquierda"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:85
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:116
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:158
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:52
 msgid "Left Bottom"
 msgstr "Izquierda inferior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:84
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:115
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:157
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:51
 msgid "Left Center"
 msgstr "Izquierda centro"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:83
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:114
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:156
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:50
 msgid "Left Top"
 msgstr "Izquierda superior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:127
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:118
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:63
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:407
 msgid "Letter Spacing"
 msgstr "Espaciado de letras"
 
 #. translators: %s represents the number of rows we're limiting the repeater to
 #. allow.
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:227
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:275
 msgid "Limit: %s rows"
 msgstr "Límite: %s filas"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:125
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:110
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:61
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:402
 msgid "Line Height"
 msgstr "Interlineado"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:195
-msgid "Line-Through"
-msgstr "Tachado"
 
 #: template-parts/header-social-icons.php:85
 msgid "Linkedin"
 msgstr "Linkedin"
 
-#: inc/kirki/kirki-options.php:340
+#: inc/kirki/kirki-options.php:334
 msgid "Linkedin Link"
 msgstr "Enlace de Linkedin"
 
-#: inc/kirki/kirki-options.php:732
+#: inc/kirki/kirki-options.php:680
 msgid "List"
 msgstr "Lista"
 
-#: inc/kirki/kirki-options.php:1268
+#: inc/kirki/kirki-options.php:1252
 msgid "Logo Width"
 msgstr "Ancho del logotipo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:179
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:365
 msgid "Lowercase"
 msgstr "Minúscula"
 
-#: inc/kirki/kirki-options.php:78
+#: inc/kirki/kirki-options.php:71
 msgid "Main Menu Typography"
 msgstr "Tipografía del menú principal"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:213
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:427
 msgid "Margin Bottom"
 msgstr "Margen inferior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:205
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:422
 msgid "Margin Top"
 msgstr "Margen superior"
 
@@ -681,13 +644,16 @@ msgstr "Comentarios recientes &rarr;"
 msgid "No action taken. Plugin %1$s was already active."
 msgstr "No se ha realizado ninguna acción. El plugin %1$s ya estaba activo."
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:376
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:381
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:443
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:448
 msgid "No Image Selected"
 msgstr "No se ha seleccionado ninguna imagen"
 
-#: inc/kirki/kirki/controls/views/image.php:38
-#: inc/kirki/kirki/field/class-kirki-field-image.php:51
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Control/Image.php:82
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:115
+#: inc/kirki/kirki/packages/kirki-framework/control-image/dist/control.js:1
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/control.js:100
+#: inc/kirki/kirki/packages/kirki-framework/control-image/dist/control.js:100
 msgid "No image selected"
 msgstr "No se ha seleccionado ninguna imagen"
 
@@ -695,13 +661,13 @@ msgstr "No se ha seleccionado ninguna imagen"
 msgid "No Posts"
 msgstr "No hay entradas"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:72
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:123
 msgid "No Repeat"
 msgstr "No repetir"
 
-#: inc/kirki/kirki-options.php:658 inc/kirki/kirki-options.php:693
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:176
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:192
+#: inc/kirki/kirki-options.php:607 inc/kirki/kirki-options.php:641
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:362
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:382
 msgid "None"
 msgstr "Ninguno"
 
@@ -709,8 +675,7 @@ msgstr "Ninguno"
 msgid "Not Installed"
 msgstr "No instalado"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-switch.php:56
-#: inc/kirki/kirki/field/class-kirki-field-switch.php:40
+#: inc/kirki/kirki/packages/kirki-framework/control-checkbox/src/Control/Checkbox_Switch.php:80
 msgid "Off"
 msgstr "Apagado"
 
@@ -718,16 +683,15 @@ msgstr "Apagado"
 msgid "Ok.ru"
 msgstr "OK.ru"
 
-#: inc/kirki/kirki-options.php:324
+#: inc/kirki/kirki-options.php:318
 msgid "Ok.ru (odnoklassniki) Link"
 msgstr "Enlace de Ok.ru (odnoklassniki)"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-switch.php:52
-#: inc/kirki/kirki/field/class-kirki-field-switch.php:39
+#: inc/kirki/kirki/packages/kirki-framework/control-checkbox/src/Control/Checkbox_Switch.php:79
 msgid "On"
 msgstr "Encendido"
 
-#: inc/core/class-di-restaurant-engine.php:193
+#: inc/core/class-di-restaurant-engine.php:186
 msgid "Page Sidebar"
 msgstr "Barra lateral de la página"
 
@@ -749,7 +713,7 @@ msgstr "Páginas:"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: inc/kirki/kirki-options.php:356
+#: inc/kirki/kirki-options.php:350
 msgid "Pinterest Link"
 msgstr "Enlace de Pinterest"
 
@@ -766,7 +730,7 @@ msgstr "Plugin activado correctamente."
 msgid "Plugin activation failed."
 msgstr "La activación del plugin ha fallado."
 
-#: inc/kirki/kirki-options.php:692
+#: inc/kirki/kirki-options.php:640
 msgid "Post Updated Date"
 msgstr "Fecha de actualización"
 
@@ -774,7 +738,7 @@ msgstr "Fecha de actualización"
 msgid "Pre-Packaged"
 msgstr "Pre-empaquetado"
 
-#: inc/kirki/kirki-options.php:920
+#: inc/kirki/kirki-options.php:912
 msgid "Product Price Color"
 msgstr "Color del precio del producto"
 
@@ -786,33 +750,31 @@ msgstr "Recomendados"
 msgid "Reddit"
 msgstr "Reddit"
 
-#: inc/kirki/kirki-options.php:436
+#: inc/kirki/kirki-options.php:430
 msgid "Reddit Link"
 msgstr "Enlace de Reddit"
 
-#: inc/kirki/kirki-options.php:845
+#: inc/kirki/kirki-options.php:837
 msgid "Related Products"
 msgstr "Productos relacionados"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:62
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:133
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:386
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:418
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:443
-#: inc/kirki/kirki/controls/views/image.php:37
-#: inc/kirki/kirki/field/class-kirki-field-image.php:50
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Control/Image.php:85
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:114
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:453
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:485
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:510
 msgid "Remove"
 msgstr "Eliminar"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:73
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:124
 msgid "Repeat All"
 msgstr "Repetir todo"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:74
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:125
 msgid "Repeat Horizontally"
 msgstr "Repetir horizontalmente"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:75
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:126
 msgid "Repeat Vertically"
 msgstr "Repetir verticalmente"
 
@@ -827,10 +789,6 @@ msgstr "Actualización necesaria no disponible"
 #: inc/tgm/class-tgm-plugin-activation.php:2330
 msgid "Requires Update"
 msgstr "Necesita actualización"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-slider.php:67
-msgid "Reset"
-msgstr "Restablecer"
 
 #: inc/core/class-di-restaurant-topmain-nav-walker.php:131
 msgid "Responsive"
@@ -847,38 +805,26 @@ msgstr "Volver al instalador de plugins obligatorios"
 msgid "Return to the Dashboard"
 msgstr "Volver al escritorio"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:132
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:157
-#: inc/kirki/kirki/field/class-kirki-field-spacing.php:35
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:68
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:353
 msgid "Right"
 msgstr "Derecha"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:77
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:95
 msgid "row"
 msgstr "fila"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:116
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:227
 msgid "Scroll"
 msgstr "Scroll"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:121
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:139
 msgid "Select a Page"
 msgstr "Selecciona una página"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:63
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:135
-msgid "Select File"
-msgstr "Seleccionar archivo"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:83
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:88
-msgid "Select Font Family"
-msgstr "Seleccionar familia tipográfica"
-
-#: inc/kirki/kirki/controls/views/image.php:34
-#: inc/kirki/kirki/controls/views/image.php:39
-#: inc/kirki/kirki/field/class-kirki-field-image.php:47
-#: inc/kirki/kirki/field/class-kirki-field-image.php:52
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Control/Image.php:89
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:111
+#: inc/kirki/kirki/packages/kirki-framework/control-image/src/Field/Image.php:116
 msgid "Select image"
 msgstr "Seleccionar imagen"
 
@@ -887,25 +833,24 @@ msgid "Shop"
 msgstr "Tienda"
 
 #. translators: 1: plugin name.
-#. translators: 1: plugin name.
 #: inc/tgm/class-tgm-plugin-activation.php:3509
 #: inc/tgm/class-tgm-plugin-activation.php:3517
 msgid "Show Details"
 msgstr "Mostrar detalles"
 
-#: inc/kirki/kirki-options.php:756
+#: inc/kirki/kirki-options.php:704
 msgid "Single Post Layout"
 msgstr "Diseño de la entrada individual"
 
-#: inc/kirki/kirki-options.php:967
+#: inc/kirki/kirki-options.php:951
 msgid "Single Product Page Layout"
 msgstr "Diseño de la página de producto individual"
 
-#: inc/kirki/kirki-options.php:45
+#: inc/kirki/kirki-options.php:21
 msgid "Site Title Typography"
 msgstr "Tipografía del título del sitio"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:134
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:70
 msgid "Size"
 msgstr "Tamaño"
 
@@ -918,7 +863,7 @@ msgstr "Saltar al contenido"
 msgid "Skype"
 msgstr "Skype"
 
-#: inc/kirki/kirki-options.php:500
+#: inc/kirki/kirki-options.php:494
 msgid "Skype Id"
 msgstr "Id de Skype"
 
@@ -926,7 +871,7 @@ msgstr "Id de Skype"
 msgid "Snapchat"
 msgstr "Snapchat"
 
-#: inc/kirki/kirki-options.php:227
+#: inc/kirki/kirki-options.php:221
 msgid "Social Profile"
 msgstr "Perfil social"
 
@@ -938,11 +883,11 @@ msgstr "Ha habido un fallo en la API de plugins."
 msgid "Source"
 msgstr "Origen"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:135
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:71
 msgid "Spacing"
 msgstr "Espaciado"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:136
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:877
 msgid "Standard Fonts"
 msgstr "Fuentes estándar"
 
@@ -954,19 +899,19 @@ msgstr "Estado"
 msgid "Telegram"
 msgstr "Telegram"
 
-#: inc/kirki/kirki-options.php:388
+#: inc/kirki/kirki-options.php:382
 msgid "Telegram Link"
 msgstr "Enlace de Telegram"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:134
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:347
 msgid "Text Align"
 msgstr "Alineación del texto"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:189
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:379
 msgid "Text Decoration"
 msgstr "Decoración del texto"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:173
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:359
 msgid "Text Transform"
 msgstr "Transformación del texto"
 
@@ -984,7 +929,7 @@ msgstr "Ha fallado la instalación de %1$s."
 msgid "Theme Demo"
 msgstr "Demo del tema"
 
-#: inc/kirki/kirki-options.php:1239
+#: inc/kirki/kirki-options.php:1223
 msgid "Theme Info"
 msgstr "Información del tema"
 
@@ -1020,8 +965,7 @@ msgid_plural "To Install <span class=\"count\">(%s)</span>"
 msgstr[0] "Para instalar <span class=\"count\">(%s)</span>"
 msgstr[1] "Para instalar <span class=\"count\">(%s)</span>"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:129
-#: inc/kirki/kirki/field/class-kirki-field-spacing.php:32
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:65
 msgid "Top"
 msgstr "Arriba"
 
@@ -1029,7 +973,7 @@ msgstr "Arriba"
 msgid "Tumblr"
 msgstr "Tumblr"
 
-#: inc/kirki/kirki-options.php:452
+#: inc/kirki/kirki-options.php:446
 msgid "Tumblr Link"
 msgstr "Enlace de Tumblr"
 
@@ -1037,7 +981,7 @@ msgstr "Enlace de Tumblr"
 msgid "Twitter"
 msgstr "Twitter"
 
-#: inc/kirki/kirki-options.php:276
+#: inc/kirki/kirki-options.php:270
 msgid "Twitter Link"
 msgstr "Enlace de Twitter"
 
@@ -1046,15 +990,15 @@ msgid "Type"
 msgstr "Tipo"
 
 #. translators: %s represents the field ID where the error occurs.
-#: inc/kirki/kirki/core/class-kirki-field.php:248
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Field.php:261
 msgid "Typo found in field %s - setting instead of settings."
 msgstr "Errata en el campo %s - setting en lugar de settings."
 
-#: inc/kirki/kirki-options.php:19
+#: inc/kirki/kirki-options.php:45
 msgid "Typography Options"
 msgstr "Opciones de tipografía"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:193
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:383
 msgid "Underline"
 msgstr "Subrayar"
 
@@ -1101,13 +1045,9 @@ msgstr "Actualizando el plugin: %s"
 msgid "Upgrade message from the plugin author:"
 msgstr "Mensaje de actualización del autor del plugin:"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:178
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:364
 msgid "Uppercase"
 msgstr "Mayúscula"
-
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:93
-msgid "Variant"
-msgstr "Variante"
 
 #: inc/tgm/class-tgm-plugin-activation.php:2553
 msgid "Version"
@@ -1117,7 +1057,7 @@ msgstr "Versión"
 msgid "VK"
 msgstr "VK"
 
-#: inc/kirki/kirki-options.php:308
+#: inc/kirki/kirki-options.php:302
 msgid "VK Link"
 msgstr "Enlace de VK"
 
@@ -1126,44 +1066,43 @@ msgstr "Enlace de VK"
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
-#: inc/kirki/kirki-options.php:484
+#: inc/kirki/kirki-options.php:478
 msgid "WhatsApp Number"
 msgstr "Número de WhatsApp"
 
-#: inc/core/class-di-restaurant-engine.php:243
+#: inc/core/class-di-restaurant-engine.php:236
 msgid "Widgets for footer "
 msgstr "Widgets para el pie de página "
 
-#: inc/core/class-di-restaurant-engine.php:222
+#: inc/core/class-di-restaurant-engine.php:215
 msgid "Widgets for footer 1"
 msgstr "Widgets para el pie de página 1"
 
-#: inc/core/class-di-restaurant-engine.php:232
+#: inc/core/class-di-restaurant-engine.php:225
 msgid "Widgets for footer 2"
 msgstr "Widgets para el pie de página 2"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:136
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:72
 msgid "Width"
 msgstr "Ancho"
 
-#: inc/tgm/tgm-options.php:29
+#: inc/tgm/tgm-options.php:23
 msgid "WooCommerce (For E-Commerce)"
 msgstr "WooCommerce (para comercio electrónico)"
 
-#: inc/kirki/kirki-options.php:774
+#: inc/kirki/kirki-options.php:766
 msgid "WooCommerce Options"
 msgstr "Opciones de WooCommerce"
 
-#: inc/core/class-di-restaurant-engine.php:204
+#: inc/core/class-di-restaurant-engine.php:197
 msgid "WooCommerce Sidebar"
 msgstr "Barra lateral de WooCommerce"
 
-#: inc/tgm/tgm-options.php:41
+#: inc/tgm/tgm-options.php:35
 msgid "WooCommerce Wishlist Plugin"
 msgstr "Plugin WooCommerce Wishlist"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:128
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:126
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:64
 msgid "Word Spacing"
 msgstr "Espacio entre palabras"
 
@@ -1175,7 +1114,7 @@ msgstr "Repositorio de WordPress"
 msgid "Yelp"
 msgstr "Yelp"
 
-#: inc/kirki/kirki-options.php:468
+#: inc/kirki/kirki-options.php:462
 msgid "Yelp Link"
 msgstr "Enlace de Yelp"
 
@@ -1183,27 +1122,27 @@ msgstr "Enlace de Yelp"
 msgid "YouTube"
 msgstr "YouTube"
 
-#: inc/kirki/kirki-options.php:292
+#: inc/kirki/kirki-options.php:286
 msgid "YouTube Link"
 msgstr "Enlace de YouTube"
 
-#: inc/tgm/tgm-options.php:47
+#: inc/tgm/tgm-options.php:41
 msgid "Contact Form 7 (For Forms)"
 msgstr "Contact Form 7 (para formularios)"
 
-#: inc/kirki/kirki-options.php:733
+#: inc/kirki/kirki-options.php:681
 msgid "Grid 2 Column"
 msgstr "Cuadrícula de 2 columnas"
 
-#: inc/kirki/kirki-options.php:734
+#: inc/kirki/kirki-options.php:682
 msgid "Grid 3 Column"
 msgstr "Cuadrícula de 3 columnas"
 
-#: inc/kirki/kirki-options.php:735
+#: inc/kirki/kirki-options.php:683
 msgid "Masonry 2 Column"
 msgstr "Muro de 2 columnas"
 
-#: inc/kirki/kirki-options.php:736
+#: inc/kirki/kirki-options.php:684
 msgid "Masonry 3 Column"
 msgstr "Muro de 3 columnas"
 
@@ -1211,7 +1150,7 @@ msgstr "Muro de 3 columnas"
 msgid "SEO Friendly"
 msgstr "Optimizado para SEO"
 
-#: inc/kirki/kirki-options.php:404
+#: inc/kirki/kirki-options.php:398
 msgid "Snapchat Link"
 msgstr "Enlace de Snapchat"
 
@@ -1219,19 +1158,19 @@ msgstr "Enlace de Snapchat"
 msgid "Theme Docs"
 msgstr "Documentación del tema"
 
-#: inc/core/class-di-restaurant-engine.php:75
+#: inc/core/class-di-restaurant-engine.php:76
 msgid "Top Main Menu"
 msgstr "Menú principal superior"
 
-#: inc/tgm/tgm-options.php:35
+#: inc/tgm/tgm-options.php:29
 msgid "YITH WooCommerce Quick View"
 msgstr "YITH WooCommerce Quick View"
 
-#: inc/kirki/kirki-options.php:1257
+#: inc/kirki/kirki-options.php:1241
 msgid "You can check documentation of "
 msgstr "Puedes consultar la documentación de"
 
-#: inc/kirki/kirki-options.php:1186
+#: inc/kirki/kirki-options.php:1170
 msgid "Page Loading Icon"
 msgstr "Icono de carga de página"
 
@@ -1242,11 +1181,11 @@ msgid_plural "The following plugins were activated successfully:"
 msgstr[0] "El siguiente plugin se ha activado correctamente:"
 msgstr[1] "Los siguientes plugins se han activado correctamente:"
 
-#: inc/kirki/kirki-options.php:46
+#: inc/kirki/kirki-options.php:22
 msgid "If not using logo"
 msgstr "Si no usas logotipo"
 
-#: inc/core/class-di-restaurant-actions-filters.php:376
+#: inc/core/class-di-restaurant-actions-filters.php:392
 msgid "If you want our support, Please"
 msgstr "Si necesitas nuestra ayuda, por favor"
 
@@ -1270,31 +1209,7 @@ msgstr "No hay plugins para instalar, actualizar o activar."
 msgid "One"
 msgstr "Uno"
 
-#: inc/kirki/kirki-options.php:99
-msgid "H1 / Headline 1 Typography"
-msgstr "Tipografía H1 / Titular 1"
-
-#: inc/kirki/kirki-options.php:121
-msgid "H2 / Headline 2 Typography"
-msgstr "Tipografía H2 / Titular 2"
-
-#: inc/kirki/kirki-options.php:142
-msgid "H3 / Headline 3 Typography"
-msgstr "Tipografía H3 / Titular 3"
-
-#: inc/kirki/kirki-options.php:164
-msgid "H4 / Headline 4 Typography"
-msgstr "Tipografía H4 / Titular 4"
-
-#: inc/kirki/kirki-options.php:185
-msgid "H5 / Headline 5 Typography"
-msgstr "Tipografía H5 / Titular 5"
-
-#: inc/kirki/kirki-options.php:206
-msgid "H6 / Headline 6 Typography"
-msgstr "Tipografía H6 / Titular 6"
-
-#: inc/kirki/kirki-options.php:791
+#: inc/kirki/kirki-options.php:783
 msgid "Cart Icon in Menu"
 msgstr "Icono de carrito en el menú"
 
@@ -1303,29 +1218,25 @@ msgstr "Icono de carrito en el menú"
 msgid "Color options are available in"
 msgstr "Las opciones de color están disponibles en"
 
-#: inc/kirki/kirki-options.php:1141
+#: inc/kirki/kirki-options.php:1104
 msgid "Content of Footer Center Side"
 msgstr "Contenido del pie de página central"
 
-#: inc/kirki/kirki-options.php:1117
+#: inc/kirki/kirki-options.php:1080
 msgid "Content of Footer Left Side"
 msgstr "Contenido del pie de página izquierdo"
 
-#: inc/kirki/kirki-options.php:651
+#: inc/kirki/kirki-options.php:600
 msgid "Contents on Archive"
 msgstr "Contenidos en el archivo"
 
-#: inc/core/class-di-restaurant-actions-filters.php:376
+#: inc/core/class-di-restaurant-actions-filters.php:392
 msgid "Create a Support Topic"
 msgstr "Abre un debate de soporte"
 
-#: inc/kirki/kirki-options.php:525
+#: inc/kirki/kirki-options.php:519
 msgid "Default Links Color"
 msgstr "Color de los enlaces por defecto"
-
-#: inc/kirki/kirki-options.php:556
-msgid "Default Links Color Mouse Over"
-msgstr "Color de los enlaces por defecto al pasar el cursor"
 
 #: inc/core/class-di-restaurant-theme-page.php:77
 msgid "Di Restaurant is a responsive, fast to load, SEO friendly, WooCommerce ready and customizable WordPress theme for Informational, eCommerce, Restaurants and Hotels websites."
@@ -1339,74 +1250,60 @@ msgstr "Opciones del tema Di Restaurant para esta página"
 msgid "Di Restaurant Theme Options for this Post"
 msgstr "Opciones del tema Di Restaurant para esta entrada"
 
-#: inc/kirki/kirki-options.php:836
+#: inc/kirki/kirki-options.php:828
 msgid "Display Order Again Button?"
 msgstr "¿Mostrar el botón Hacer otro pedido?"
 
-#: inc/kirki/kirki-options.php:1178
+#: inc/kirki/kirki-options.php:1162
 msgid "Enable/Disable Back To Top Button"
 msgstr "Activar/Desactivar botón Volver arriba"
 
-#: inc/kirki/kirki-options.php:792
+#: inc/kirki/kirki-options.php:784
 msgid "Enable/Disable cart icon in menu."
 msgstr "Activar/Desactivar icono del carrito en el menú."
 
-#: inc/kirki/kirki-options.php:995
+#: inc/kirki/kirki-options.php:978
 msgid "Enable/Disable Footer Widgets."
 msgstr "Activar/Desactivar widgets del pie de página."
 
-#: inc/kirki/kirki-options.php:629
-msgid "Excerpt or contents typography"
-msgstr "Tipografía del extracto o los contenidos"
-
-#: inc/kirki/kirki-options.php:1087
+#: inc/kirki/kirki-options.php:1071
 msgid "Footer Copyright Options"
 msgstr "Opciones del copyright del pie de página"
 
-#: inc/kirki/kirki-options.php:1095
+#: inc/kirki/kirki-options.php:1129
 msgid "Footer Copyright Typography"
 msgstr "Tipografía del copyright del pie de página"
 
-#: inc/kirki/kirki-options.php:985
+#: inc/kirki/kirki-options.php:968
 msgid "Footer Widget Options"
 msgstr "Opciones del widget del pie de página"
-
-#: inc/kirki/kirki-options.php:1055
-msgid "Footer Widgets Headline Typography"
-msgstr "Tipografía del titular de los widgets del pie de página"
-
-#: inc/kirki/kirki-options.php:1027
-msgid "Footer Widgets Typography"
-msgstr "Tipografía de los widgets del pie de página"
 
 #. Template Name of the theme
 msgid "Full Width for Page Builder"
 msgstr "Ancho completo para el maquetador de páginas"
 
-#: inc/kirki/kirki-options.php:869
-msgid "How much products you want to display in single line?"
+#: inc/kirki/kirki-options.php:861
+msgid "How many products you want to display in single line?"
 msgstr "¿Cuántos productos quieres mostrar en una sola línea?"
 
-#: inc/kirki/kirki-options.php:855
-msgid "How much products you want to display on loop page?"
+#: inc/kirki/kirki-options.php:847
+msgid "How many products you want to display on loop page?"
 msgstr "¿Cuántos productos quieres mostrar en la página del bucle?"
 
-#: inc/kirki/kirki-options.php:666
-msgid "How much words of content, you want to display on Archive page?"
+#: inc/kirki/kirki-options.php:615
+msgid "How many words of content, you want to display on Archive page?"
 msgstr "¿Cuántas palabras de contenido quieres mostrar en la página de archivo?"
 
-#: inc/kirki/kirki-options.php:1169
+#: inc/kirki/kirki-options.php:1153
 msgid "MISC Options"
 msgstr "Opciones variadas"
 
-#: inc/kirki/kirki-options.php:800
+#: inc/kirki/kirki-options.php:792
 msgid "My Account Icon in Menu"
 msgstr "Icono de mi cuenta en el menú"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:59
-#: inc/kirki/kirki/controls/php/class-kirki-control-base.php:132
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:408
-#: inc/kirki/kirki/controls/php/class-kirki-control-repeater.php:413
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:475
+#: inc/kirki/kirki/packages/kirki-framework/control-repeater/src/Control/Repeater.php:480
 msgid "No File Selected"
 msgstr "Ningún archivo seleccionado"
 
@@ -1422,11 +1319,11 @@ msgstr "No has seleccionado ningún plugin para instalar. No se ha realizado nin
 msgid "No plugins were selected to be updated. No action taken."
 msgstr "No has seleccionado ningún plugin para actualizar. No se ha realizado ninguna acción."
 
-#: inc/kirki/kirki-options.php:854
+#: inc/kirki/kirki-options.php:846
 msgid "Number of products display on loop page"
 msgstr "Número de productos que se muestran en la página del bucle"
 
-#: inc/kirki/kirki-options.php:868
+#: inc/kirki/kirki-options.php:860
 msgid "Number of products display per column"
 msgstr "Número de productos que se muestran por columna"
 
@@ -1439,11 +1336,7 @@ msgstr "Por favor, contacta con el administrador de este sitio para recibir ayud
 msgid "Please contact the plugin provider and ask them to package their plugin according to the WordPress guidelines."
 msgstr "Por favor, contacta con los desarrolladores del plugin y pídeles que lo empaqueten de acuerdo con las directrices de WordPress."
 
-#: inc/kirki/kirki-options.php:606
-msgid "Post Headline Typography"
-msgstr "Tipografía del titular de las entradas"
-
-#: inc/kirki/kirki-options.php:691
+#: inc/kirki/kirki-options.php:639
 msgid "Post Publish Date"
 msgstr "Fecha de publicación de las entradas"
 
@@ -1451,43 +1344,43 @@ msgstr "Fecha de publicación de las entradas"
 msgid "Posts Not Found"
 msgstr "No se han encontrado entradas"
 
-#: inc/kirki/kirki-options.php:727
+#: inc/kirki/kirki-options.php:675
 msgid "Posts View on Archive"
 msgstr "Vista de entradas en el archivo"
 
-#: inc/core/class-di-restaurant-actions-filters.php:384
+#: inc/core/class-di-restaurant-actions-filters.php:400
 msgid "Premium Features:<br />- All Color Options<br />- Option to Update Footer Right Credit<br />- Widget Creation and Selection<br />- Advance Header Image<br />- Slider in Header<br />- Premium Support<br />"
 msgstr "Características premium:<br />- Todas las opciones de color<br />- Opción para actualizar los agradecimientos del pie de página derecho<br />- Creación y selección de widgets<br />- Imagen de cabecera avanzada<br />- Carrusel en la cabecera<br />- Soporte premium<br />"
 
-#: inc/kirki/kirki-options.php:1004
+#: inc/kirki/kirki-options.php:987
 msgid "Save and go to Widgets page to add."
 msgstr "Guardar e ir a la página de widgets para añadir."
 
-#: inc/kirki/kirki-options.php:953
+#: inc/kirki/kirki-options.php:938
 msgid "Shop / Archive Page Layout"
 msgstr "Diseño de la página de compra / archivo"
 
-#: inc/kirki/kirki-options.php:782
+#: inc/kirki/kirki-options.php:774
 msgid "Shop Icon in Menu"
 msgstr "Icono de tienda en el menú"
 
-#: inc/kirki/kirki-options.php:1119 template-parts/footer-copyright.php:6
+#: inc/kirki/kirki-options.php:1082 template-parts/footer-copyright.php:6
 msgid "Site Title, Some rights reserved."
 msgstr "Título del sitio, Algunos derechos reservados."
 
-#: inc/kirki/kirki-options.php:1211
+#: inc/kirki/kirki-options.php:1195
 msgid "Sticky Menu for Large Devices"
 msgstr "Menú fijo en dispositivos grandes"
 
-#: inc/kirki/kirki-options.php:1220
+#: inc/kirki/kirki-options.php:1204
 msgid "Sticky Menu for Small Devices"
 msgstr "Menú fijo en dispositivos pequeños"
 
-#: inc/kirki/kirki-options.php:718
+#: inc/kirki/kirki-options.php:666
 msgid "Tags on Single Post"
 msgstr "Etiquetas en las entradas individuales"
 
-#: inc/kirki/kirki-options.php:1143 template-parts/footer-copyright.php:11
+#: inc/kirki/kirki-options.php:1106 template-parts/footer-copyright.php:11
 msgid "Terms of Use - Privacy Policy"
 msgstr "Términos de uso - Política de privacidad"
 
@@ -1501,47 +1394,35 @@ msgstr "¿Quieres ocultar los widgets del pie de página?"
 msgid "Want to hide header image? "
 msgstr "¿Quieres ocultar la imagen de cabecera?"
 
-#: inc/kirki/kirki-options.php:1249
+#: inc/kirki/kirki-options.php:1233
 msgid "You can check demo of "
 msgstr "Puede echar un vistazo a la demo de "
 
-#: inc/kirki/kirki-options.php:743
+#: inc/kirki/kirki-options.php:691
 msgid "Archive / Loop Layout"
 msgstr "Diseño del archivo / bucle"
 
-#: inc/kirki/kirki-options.php:685
+#: inc/kirki/kirki-options.php:634
 msgid "Date to Display?"
 msgstr "¿Fecha a mostrar?"
 
-#: inc/kirki/kirki-options.php:1249 inc/kirki/kirki-options.php:1257
+#: inc/kirki/kirki-options.php:1233 inc/kirki/kirki-options.php:1241
 msgid "Di Restaurant Theme Here"
 msgstr "Tema Di Restaurant aquí"
 
-#: inc/kirki/kirki-options.php:652
+#: inc/kirki/kirki-options.php:601
 msgid "Display excerpt, contents or hide."
 msgstr "Mostrar extracto, contenidos u ocultar."
 
-#: inc/kirki/kirki-options.php:686
-msgid "Display post published date, post updated date or hide."
-msgstr "Mostrar fecha de publicación, fecha de actualización u ocultar."
-
-#: inc/kirki/kirki-options.php:709
-msgid "Footer navigation on Single Post"
-msgstr "Navegación a pie de página en las entradas individuales"
-
-#: inc/kirki/kirki-options.php:700
-msgid "Footer pagination on archive"
-msgstr "Paginación a pie de página en el archivo"
-
-#: inc/core/class-di-restaurant-actions-filters.php:366
+#: inc/core/class-di-restaurant-actions-filters.php:382
 msgid "Footer Right Option and Color Options are available in"
 msgstr "La opción del pie de página derecho y las opciones de color están disponibles en"
 
-#: inc/kirki/kirki-options.php:818
+#: inc/kirki/kirki-options.php:810
 msgid "Gallery Light Box"
 msgstr "Caja de luz de la galería"
 
-#: inc/core/class-di-restaurant-actions-filters.php:384
+#: inc/core/class-di-restaurant-actions-filters.php:400
 #: inc/core/class-di-restaurant-theme-page.php:104
 msgid "Get Di Restaurant Pro"
 msgstr "Consigue Di Restaurant Pro"
@@ -1556,15 +1437,15 @@ msgstr "Información: Esto ocultará la sección del widget del pie de página, 
 msgid "Info: This will hide header image. if you are using header image."
 msgstr "Información: Esto ocultará la imagen de la cabecera. si estás utilizando imagen de cabecera."
 
-#: inc/kirki/kirki-options.php:1196
+#: inc/kirki/kirki-options.php:1180
 msgid "It will replace default loading icon."
 msgstr "Reemplazará el icono de carga por defecto."
 
-#: inc/kirki/kirki-options.php:837
+#: inc/kirki/kirki-options.php:829
 msgid "It will show / hide order again button on singe order page."
 msgstr "Mostrará / Ocultará el botón de hacer otro pedido en la página de pedido individual."
 
-#: inc/kirki/kirki-options.php:940 inc/kirki/kirki-options.php:947
+#: inc/kirki/kirki-options.php:932
 msgid "Layouts: For Cart, Checkout and My Account pages layout, use: Template option under Page Attributes on page edit screen."
 msgstr "Diseños: Para el diseño de las páginas del carrito, pago y mi cuenta, usa la opción Plantilla en Atributos de página en la pantalla de edición de página."
 
@@ -1580,57 +1461,37 @@ msgid_plural "There are updates available for the following plugins: %1$s."
 msgstr[0] "Hay una actualización disponible para: %1$s."
 msgstr[1] "Hay actualizaciones disponibles para los siguientes plugins: %1$s."
 
-#: inc/kirki/kirki-options.php:954
-msgid "This layout will apply on shop, archive, search (products loop) pages."
-msgstr "Este diseño se aplicará en las páginas de tienda, archivo, búsqueda (bucle de productos)."
-
-#: inc/kirki/kirki-options.php:968
-msgid "This layout will apply on single product page."
-msgstr "Este diseño se aplicará en una la página de producto individual."
-
 #: inc/tgm/class-tgm-plugin-activation.php:522
 msgid "This plugin needs to be updated to be compatible with your theme."
 msgstr "Este plugin tiene que actualizarse para que sea compatible con el tema."
 
-#: inc/kirki/kirki-options.php:557
+#: inc/kirki/kirki-options.php:551
 msgid "This will be color of all default links on mouse over."
 msgstr "Este será el color de todos los enlaces por defecto al pasar el cursor."
 
-#: inc/kirki/kirki-options.php:526
+#: inc/kirki/kirki-options.php:520
 msgid "This will be color of all default links."
 msgstr "Este será el color de todos los enlaces por defecto."
 
-#: inc/kirki/kirki-options.php:921
+#: inc/kirki/kirki-options.php:913
 msgid "This will be color of product price."
 msgstr "Este será el color del precio del producto."
 
-#: inc/kirki/kirki-options.php:1269
+#: inc/kirki/kirki-options.php:1253
 msgid "To resize selected logo image."
 msgstr "Para redimensionar la imagen de logotipo seleccionada."
 
-#: inc/kirki/kirki-options.php:79
+#: inc/kirki/kirki-options.php:72
 msgid "Top main menu typography."
 msgstr "Tipografía del menú principal superior."
 
-#: inc/kirki/kirki-options.php:100
-msgid "Used as Headline of Single Post and page."
-msgstr "Se utiliza como titular en las entradas individuales y las páginas."
-
-#: inc/kirki/kirki-options.php:143
-msgid "Used as Headline of Widgets, Posts on Archive, Comment Box."
-msgstr "Se utiliza como titular en los widgets, entradas en el archivo, cuadro de comentarios."
-
-#: inc/kirki/kirki/core/class-kirki-init.php:289
-msgid "We detected you're using Kirki_Init::get_variables(). Please use Kirki_Util::get_variables() instead."
-msgstr "Hemos detectado que usas Kirki_Init::get_variables(). Utiliza Kirki_Util::get_variables() en su lugar."
-
 #. translators: 1: p tag open, 2: p tag close, 3: a tag open and FA icon, 4: a
 #. tag close
-#: inc/core/class-di-restaurant-actions-filters.php:402
+#: inc/core/class-di-restaurant-actions-filters.php:418
 msgid "%1$sWordPress %3$s Di Restaurant%4$s Theme%2$s"
 msgstr "%1$sTema %3$s Di Restaurant%4$s de WordPress%2$s"
 
-#: inc/kirki/kirki-options.php:809
+#: inc/kirki/kirki-options.php:801
 msgid "Gallery Zoom"
 msgstr "Zoom de la galería"
 
@@ -1653,15 +1514,15 @@ msgstr "El paquete remoto del plugin está compuesto por más de un archivo, per
 msgid "There are one or more required or recommended plugins to install, update or activate."
 msgstr "Hay uno o más plugins necesarios o recomendados para instalar, actualizar o activar."
 
-#: inc/kirki/kirki-options.php:819
+#: inc/kirki/kirki-options.php:811
 msgid "Enable/Disable gallery light box support on single product."
 msgstr "Activar/Desactivar el soporte de caja de luz de la galería en el producto individual."
 
-#: inc/kirki/kirki-options.php:828
+#: inc/kirki/kirki-options.php:820
 msgid "Enable/Disable gallery slider support on single product."
 msgstr "Activar/Desactivar el soporte de carrusel de la galería en el producto individual."
 
-#: inc/kirki/kirki-options.php:810
+#: inc/kirki/kirki-options.php:802
 msgid "Enable/Disable gallery zoom support on single product."
 msgstr "Activar/Desactivar el soporte de zoom de la galería en el producto individual."
 
@@ -1669,15 +1530,15 @@ msgstr "Activar/Desactivar el soporte de zoom de la galería en el producto indi
 msgid "Thank you for activating Di Restaurant Theme. Let start from <a target=\"_blank\" href=\"%1$s\">Documentation</a> | <a target=\"_blank\" href=\"%2$s\">Visit Demo</a> | <a target=\"_blank\" href=\"%3$s\">Customize Now</a> | <a href=\"%4$s\">Hide it</a>"
 msgstr "Gracias por activar el tema Di Restaurant. Empecemos por la <a target=\"_blank\" href=\"%1$s\">documentación</a> | <a target=\"_blank\" href=\"%2$s\">Visita la demo</a> | <a target=\"_blank\" href=\"%3$s\">Personaliza ahora</a> | <a href=\"%4$s\">Ocúltalo</a>"
 
-#: inc/core/class-di-restaurant-engine.php:184
+#: inc/core/class-di-restaurant-engine.php:177
 msgid "Widgets for Blog sidebar. If you are using Full Width Layout in customize, then this sidebar will not display."
 msgstr "Widgets para la barra lateral del blog. Si estás utilizando el diseño de ancho completo en el personalizador, esta barra lateral no se mostrará."
 
-#: inc/core/class-di-restaurant-engine.php:195
+#: inc/core/class-di-restaurant-engine.php:188
 msgid "Widgets for Page sidebar. Choose Sidebar Template to display it. Page edit screen > Page Attributes > Template."
 msgstr "Widgets para la barra lateral de la página. Elige la plantilla de barra lateral para mostrarla. Pantalla de edición de página > Atributos de página > Plantilla."
 
-#: inc/core/class-di-restaurant-engine.php:206
+#: inc/core/class-di-restaurant-engine.php:199
 msgid "Widgets for WooCommerce Pages (For:- Product Loop, Product Search and Product Single Page). If you are using Full Width Layout in customize, then this sidebar will not display."
 msgstr "Widgets para páginas de WooCommerce (Para:- Bucle de productos, búsqueda de productos y pagina de producto individual). Si estás utilizando el diseño de ancho completo en el personalizador, esta barra lateral no se mostrará."
 
@@ -1685,22 +1546,22 @@ msgstr "Widgets para páginas de WooCommerce (Para:- Bucle de productos, búsque
 msgid "Widget Area Creation and Selection, Advance Header Image Options, Slider in Header, All Color Options, Options to Update Footer Front Credit Link, Premium Support."
 msgstr "Creación y selección de áreas de widgets, opciones avanzadas de imagen de cabecera, carrusel en la cabecera, todas las opciones de color, opciones para actualizar el enlace de agradecimientos del pie de página, soporte premium."
 
-#: inc/kirki/kirki-options.php:1195
+#: inc/kirki/kirki-options.php:1179
 msgid "Upload Custom Loading Icon"
 msgstr "Subir un icono de carga personalizado"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:88
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:119
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:164
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:55
 msgid "Right Bottom"
 msgstr "Derecha inferior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:86
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:117
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:162
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:53
 msgid "Right Top"
 msgstr "Derecha superior"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-background.php:87
-#: inc/kirki/kirki/controls/php/class-kirki-control-dimensions.php:118
+#: inc/kirki/kirki/packages/kirki-framework/field-background/src/Background.php:163
+#: inc/kirki/kirki/packages/kirki-framework/field-dimensions/src/Dimensions.php:54
 msgid "Right Center"
 msgstr "Derecha centro"
 
@@ -1726,20 +1587,6 @@ msgid_plural "The following recommended plugins are currently inactive: %1$s."
 msgstr[0] "El siguiente plugin recomendado está desactivado actualmente: %1$s."
 msgstr[1] "Los siguientes plugins recomendados están desactivados actualmente: %1$s."
 
-#: inc/kirki/kirki/field/class-kirki-field-color.php:52
-msgid "Do not use \"alpha\" as an argument in color controls. Use \"choices[alpha]\" instead."
-msgstr "No uses «alpha» como argumento en los controles de color. Usa «choices[alpha]» en su lugar."
-
-#. translators: %1$s represents the field ID where the error occurs. %2%s is
-#. buttonset/image.
-#: inc/kirki/kirki/field/class-kirki-field-radio.php:37
-msgid "Error in field %1$s. The \"mode\" argument has been deprecated since Kirki v0.8. Use the \"radio-%2$s\" type instead."
-msgstr "Error en el campo %1$s. El argumento «mode» ha quedado obsoleto desde Kirki v0.8. Usa el tipo «radio-%2$s» en su lugar."
-
-#: inc/core/class-di-restaurant-theme-page.php:79
-msgid "Theme Features: One Click Demo Import, Typography Options, Blog Options, Social Icons, WooCommerce Icons, Footer Widget with 6 Layouts, Footer Copyright Section, Left Sidebar Layout, Right Sidebar Layout, Full Width Layout, Full Width Page Builder Template, Page Builder Plugins Ready, Elementor Page Builder Compatibility, Contact Form 7 Ready, Translation Ready, Sticky Menu and Options, Back to Top Icons, Page Preloader Icon and Options, Quick View, Wishlist, Blog Sidebar, Page Sidebar, WooCommerce Sidebar and much more."
-msgstr "Características del tema: Importación de demos con un solo clic, opciones de tipografía, opciones de blog, iconos de redes sociales, iconos de WooCommerce, widget de pie de página con 6 diseños, sección de copyright a pie de página, diseño con barra lateral a la izquierda, diseño con barra lateral a la derecha, diseño de ancho completo, plantilla para maquetadores de páginas de ancho completo, compatible con plugins de maquetación de páginas, compatibilidad con el maquetador de páginas Elementor, compatible con Contact Form 7, listo para traducir, opciones para menú fijo, iconos de volver arriba, icono y opciones del precarga de páginas, vista rápida, lista de deseos, barra lateral del blog, barra lateral de las páginas, barra lateral de WooCommerce y mucho más."
-
 #: 404.php:14
 msgid "Page does not exist, Maybe try a search?"
 msgstr "La página no existe. ¿Y si pruebas con una búsqueda?"
@@ -1748,67 +1595,73 @@ msgstr "La página no existe. ¿Y si pruebas con una búsqueda?"
 msgid "Maybe try a search?"
 msgstr "¿Y si pruebas con una búsqueda?"
 
-#: inc/kirki/kirki-options.php:801
+#: inc/kirki/kirki-options.php:793
 msgid "Enable/Disable my account icon in menu."
 msgstr "Activar/Desactivar el icono de mi cuenta en el menú."
 
-#: inc/kirki/kirki-options.php:710
+#: inc/kirki/kirki-options.php:658
 msgid "Enable/Disable navigation on single post"
 msgstr "Activar/Desactivar la navegación en las entradas individuales"
 
-#: inc/kirki/kirki-options.php:1187
+#: inc/kirki/kirki-options.php:1171
 msgid "Enable/Disable Page Loading Icon"
 msgstr "Activar/Desactivar el icono de carga de la página"
 
-#: inc/kirki/kirki-options.php:701
+#: inc/kirki/kirki-options.php:649
 msgid "Enable/Disable pagination on archive"
 msgstr "Activar/Desactivar la paginación en el archivo"
 
-#: inc/kirki/kirki-options.php:783
+#: inc/kirki/kirki-options.php:775
 msgid "Enable/Disable shop icon in menu."
 msgstr "Activar/Desactivar el icono de tienda en el menú."
 
-#: inc/kirki/kirki-options.php:1212
+#: inc/kirki/kirki-options.php:1196
 msgid "Enable/Disable Sticky Menu (for Large Devices)"
 msgstr "Activar/Desactivar el menú fijo (en dispositivos grandes)"
 
-#: inc/kirki/kirki-options.php:1221
+#: inc/core/class-di-restaurant-theme-page.php:79
+msgid "Theme Features: One Click Demo Import, Typography Options, Blog Options, Social Icons, WooCommerce Icons, Footer Widget with 6 Layouts, Footer Copyright Section, Left Sidebar Layout, Right Sidebar Layout, Full Width Layout, Full Width Page Builder Template, Page Builder Plugins Ready, Elementor Page Builder Compatibility, Contact Form 7 Ready, Translation Ready, Sticky Menu and Options, Back to Top Icons, Page Preloader Icon and Options, Quick View, Wishlist, Blog Sidebar, Page Sidebar, WooCommerce Sidebar and much more."
+msgstr "Características del tema: Importación de demos con un solo clic, opciones de tipografía, opciones de blog, iconos de redes sociales, iconos de WooCommerce, widget de pie de página con 6 diseños, sección de copyright a pie de página, diseño con barra lateral a la izquierda, diseño con barra lateral a la derecha, diseño de ancho completo, plantilla para maquetadores de páginas de ancho completo, compatible con plugins de maquetación de páginas, compatibilidad con el maquetador de páginas Elementor, compatible con Contact Form 7, listo para traducir, opciones para menú fijo, iconos de volver arriba, icono y opciones del precarga de páginas, vista rápida, lista de deseos, barra lateral del blog, barra lateral de las páginas, barra lateral de WooCommerce y mucho más."
+
+#: inc/kirki/kirki-options.php:1205
 msgid "Enable/Disable Sticky Menu (for Small Devices)"
 msgstr "Activar/Desactivar el menú fijo (en dispositivos pequeños)"
 
-#: inc/kirki/kirki-options.php:719
+#: inc/kirki/kirki-options.php:667
 msgid "Enable/Disable tags on single post"
 msgstr "Activar/Desactivar las etiquetas en las entradas individuales"
 
-#: inc/kirki/kirki-options.php:846
+#: inc/kirki/kirki-options.php:838
 msgid "Enable/Disable WooCommerce Related Products,"
 msgstr "Activar/Desactivar los productos relacionados de WooCommerce."
 
-#: inc/kirki/kirki-options.php:902
+#: inc/kirki/kirki-options.php:894
 msgid "This will be background color of OnSale Sign of products."
 msgstr "Este será el color de fondo del rótulo «En oferta» de los productos."
 
-#: inc/kirki/kirki-options.php:883
+#: inc/kirki/kirki-options.php:875
 msgid "This will be color of OnSale Sign of products."
 msgstr "Este será el color del rótulo «En oferta» de los productos."
 
-#: inc/kirki/kirki-options.php:901
+#: inc/kirki/kirki-options.php:893
 msgid "OnSale Sign Background Color"
 msgstr "Color de fondo del rótulo «En oferta»"
 
-#: inc/kirki/kirki-options.php:882
+#: inc/kirki/kirki-options.php:874
 msgid "OnSale Sign Color"
 msgstr "Color del rótulo «En oferta»"
 
 #. translators: The field ID where the error occurs.
-#. translators: The field ID where the error occurs.
-#: inc/kirki/kirki/core/class-kirki-field.php:498
-#: inc/kirki/kirki/core/class-kirki-field.php:509
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Field.php:514
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Field.php:525
+#: inc/kirki/kirki/packages/kirki-framework/module-css/src/CSS.php:133
+#: inc/kirki/kirki/packages/kirki-framework/module-css/src/CSS.php:144
+#: inc/kirki/kirki/packages/kirki-framework/module-postmessage/src/Postmessage.php:69
 msgid "\"output\" invalid format in field %s. The \"output\" argument should be defined as an array of arrays."
 msgstr "Formato no válido de «output» en el campo %s. El argumento «output» tiene que estar definido como un array de arrays."
 
 #. translators: %1$s represents the field ID where the error occurs.
-#: inc/kirki/kirki/core/class-kirki-field.php:375
+#: inc/kirki/kirki/packages/kirki-framework/compatibility/src/Field.php:388
 msgid "\"partial_refresh\" invalid entry in field %s"
 msgstr "Entrada no válida `partial_refresh` en el campo %s"
 
@@ -1816,22 +1669,28 @@ msgstr "Entrada no válida `partial_refresh` en el campo %s"
 msgid "Di Themes Demo Site Importer"
 msgstr "Di Themes Demo Site Importer"
 
-#: inc/tgm/tgm-options.php:53
+#: inc/tgm/tgm-options.php:47
 msgid "Regenerate Thumbnails"
 msgstr "Regenerate Thumbnails"
 
-#: inc/kirki/kirki/controls/php/class-kirki-control-typography.php:194
+#: inc/kirki/kirki/packages/kirki-framework/field-typography/src/Field/Typography.php:385
 msgid "Overline"
 msgstr "Raya superior"
 
 #. Author of the theme
+#: style.css
+#, gp-priority: low
 msgid "dithemes"
 msgstr "dithemes"
 
 #. Author URI of the theme
+#: style.css
+#, gp-priority: low
 msgid "https://dithemes.com/"
 msgstr "https://dithemes.com/"
 
 #. Theme URI of the theme
+#: style.css
+#, gp-priority: low
 msgid "https://dithemes.com/di-restaurant-free-wordpress-theme/"
 msgstr "https://dithemes.com/di-restaurant-free-wordpress-theme/"

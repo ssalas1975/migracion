@@ -1,3 +1,4 @@
+<!-- Revision: 20261018 -->
 <div style="clear:both"></div>
 <div class="wrap">
     <div class="redi_box">
@@ -26,78 +27,56 @@
                 <a href="https://wa.me/+3725165285" target="_blank"><img src="<?php echo esc_url(plugin_dir_url(__DIR__)."img/whatsapp.svg"); ?>" alt="<?php _e('whatsapp', 'redi-restaurant-reservation'); ?>"></a>
         </div>
         <p>
-    		<a target="_blank" href="https://reservationdiary-wp-plugin.uservoice.com/clients/widgets/classic_widget?referrer=wordpress-redirestaurant-reservation-apikey-56a3263a-41e6-4d97-aba2-fded1c329091#contact_us" class="button-primary1"><?php _e('Submit an issue or suggest a feature', 'redi-restaurant-reservation') ?></a>
+    		<a href="#redi-support-issue-modal" class="button-primary1 redi-open-support-issue"><?php _e('Report a problem', 'redi-restaurant-reservation') ?></a>
     	</p>
     </div>
+    <?php
+    $redi_trial_bottom_url = $this->get_trial_start_url('bottom');
+    $redi_pricing_url = add_query_arg(
+        array(
+            'ref' => $this->ApiKey,
+            'utm_source' => 'wp_settings',
+        ),
+        'https://reservationdiary.eu/pricing/'
+    );
+    ?>
     <div class="redi_box">
-        <h2><?php _e('Basic package functionality (paid version)', 'redi-restaurant-reservation'); ?></h2>
+        <h2><?php esc_html_e('Try every paid feature free for 30 days', 'redi-restaurant-reservation'); ?></h2>
+        <p><?php esc_html_e('No card needed. After the trial you stay on the Free plan unless you subscribe.', 'redi-restaurant-reservation'); ?></p>
+        <p>
+            <a class="button-primary1" href="<?php echo esc_url($redi_trial_bottom_url); ?>"><?php esc_html_e('Try all paid features free for 30 days →', 'redi-restaurant-reservation'); ?></a>
+        </p>
+    </div>
+    <div class="redi_box">
+        <h2><?php esc_html_e('Basic', 'redi-restaurant-reservation'); ?></h2>
         <p class="description">
-            ◾ <?php _e('View your upcoming reservations from your Mobile/Tablet PC and never miss your customer. This page should be open on a Tablet PC and so hostess can see all upcoming reservations for today. Page refreshes every 15 min and shows reservations that in past for 3 hours as well as upcoming reservations for next 24 hours. By clicking on reservation you will see reservation details. Demo version can be accessed for 30 days using this link: ', 'redi-restaurant-reservation'); ?>
-            <a href="http://upcoming.reservationdiary.eu/Entry/<?php echo $this->ApiKey ?>"
-               target="_blank"><?php _e('Open upcoming reservations', 'redi-restaurant-reservation'); ?></a><br/>
-            ◾ <?php _e('Setup maximum available seats for online reservation by week day', 'redi-restaurant-reservation'); ?>
-            <br/>
+            ◾ <?php _e('Open Host Dashboard from your mobile or tablet and never miss a guest. Keep this page open on a tablet so the host can see all reservations for today. The page refreshes every 15 min and shows reservations from the past 3 hours as well as the next 24 hours. Click a reservation to see its details. A demo can be accessed for 30 days using this link: ', 'redi-restaurant-reservation'); ?>
+            <a href="<?php echo esc_url($this->redi->getWaiterDashboardUrl(self::lang())); ?>"
+               target="_blank"><?php _e('Open Host Dashboard →', 'redi-restaurant-reservation'); ?></a><br/>
             ◾ <?php _e('Open times. This option will enable you to choose between various working hours whichever is most convenient to you.', 'redi-restaurant-reservation'); ?>
-            <br/>
-            ◾ <?php _e('Support for multiple places. Number of places depends on number of subscriptions.', 'redi-restaurant-reservation'); ?>
             <br/>
             ◾ <?php _e('Blocked Time. Define time range when online reservation should not be accepted. Specify a reason why reservations are not accepted at this time to keep your clients happy.', 'redi-restaurant-reservation'); ?>
             <br/>
-            ◾ <?php _e('Send client reservation confirmation emails from WordPress account.', 'redi-restaurant-reservation'); ?>
-            <br/>
             ◾ <?php _e('Email template customization for all supported languages.', 'redi-restaurant-reservation'); ?><br/>
         </p>
-        <?php _e('Basic package price is 19 EUR per month per place. To subscribe please use following PayPal link:') ?>
-        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R2KJQFCXB7EMN&item_name=ReDi Restaurant Reservation subscription fee, Api Key: <?php echo($this->ApiKey); ?>"
-           target="_blank"><?php _e('Subscribe to basic package') ?></a><br/>
-        <?php _e('Please allow 1 business day for us to confirm your payment and upgrade your account.', 'redi-restaurant-reservation'); ?>
-        
-    </div>
-    <div class="redi_box">
-        <h2><?php _e('Additional services (by request)', 'redi-restaurant-reservation'); ?></h2>
+        <h2><?php esc_html_e('Full', 'redi-restaurant-reservation'); ?></h2>
         <p class="description">
-            ◾ <?php _e('We can offer you white labeled restaurant reservation application for Facebook Application, iPhone/iPad Application, Windows Phone Application or Android Application.', 'redi-restaurant-reservation'); ?>
+            ◾ <?php _e('Support for multiple places. Number of places depends on number of subscriptions.', 'redi-restaurant-reservation'); ?>
             <br/>
-            ◾ <?php _e('Enhance your business experience by using our Facebook integration service where we try to provide you with profile pictures of your customers if found. You can amaze your customer by knowing him by face when he visits you, especially at the time of first visit.', 'redi-restaurant-reservation'); ?>
+            ◾ <?php _e('Table management', 'redi-restaurant-reservation'); ?>
             <br/>
-            ◾ <?php _e('Do you want to know what your client thinks about his last visit? We will collect it for you.', 'redi-restaurant-reservation'); ?>
+            ◾ <?php _e('Use table capacity instead of total seats', 'redi-restaurant-reservation'); ?>
             <br/>
-            ◾ <?php _e('Remind your customer about upcoming reservation via Email or by SMS', 'redi-restaurant-reservation'); ?>
-            <br/>
-            ◾ <?php _e('Collect pre-payment for reservations.', 'redi-restaurant-reservation'); ?><br/>
-            ◾ <?php _e('If you are building a catalogue of restaurants and looking for the perfect reservation plugin for it, we can provide it to you.', 'redi-restaurant-reservation'); ?>
-            <br/>
-            ◾ <?php _e('Do you want to write your own module? We have an API. Contact us to get more information.', 'redi-restaurant-reservation'); ?>
-            <br/>
+            ◾ <?php _e('Note: SMS and WhatsApp notifications are included in Full.', 'redi-restaurant-reservation'); ?><br/>
         </p>
-        <?php _e('If you would like to add some new functionality or have any other queries, please contact us by email: ', 'redi-restaurant-reservation'); ?>
-        <a href="mailto:info@reservationdiary.eu">info@reservationdiary.eu</a><br/>
+        <p class="redi-subscribe-option">
+            <a href="<?php echo esc_url($redi_pricing_url); ?>"
+               class="button-primary2"
+               target="_blank" rel="noopener noreferrer"><?php esc_html_e('See prices & subscribe →', 'redi-restaurant-reservation'); ?></a>
+        </p>
+        <p><?php esc_html_e('Your account is upgraded automatically after payment.', 'redi-restaurant-reservation'); ?></p>
+        <p>
+            <a href="mailto:info@reservationdiary.eu"><?php esc_html_e('Need something custom? Contact us', 'redi-restaurant-reservation'); ?></a>
+        </p>
     </div>
-
-<div class="redi_box">
-    <h2><?php _e('Partner Offers', 'redi-restaurant-reservation'); ?></h2>
-    <p class="description">
-        <?php _e('We proudly collaborate with selected partners who share our vision of helping restaurants grow, simplify operations, and succeed in the digital age.', 'redi-restaurant-reservation'); ?>
-    </p>
-
-    <div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 1em;">
-        <div>
-            <img style="width: 100px;" src="<?php echo esc_url(plugin_dir_url(__DIR__) . 'img/mobal.png'); ?>" alt="<?php _e('Mobal', 'redi-restaurant-reservation'); ?>">
-        </div>
-        <div>
-            <h3 style="margin-top: 0; font-weight: bold;"><?php _e('Mobal', 'redi-restaurant-reservation'); ?></h3>
-            <p class="description" style="margin-top: 0;">
-                <?php _e('Mobal is our trusted partner in helping restaurants turn online searches into real reservations.', 'redi-restaurant-reservation'); ?><br/><br/>
-                <?php _e('Together, we support restaurants in:', 'redi-restaurant-reservation'); ?><br/>
-                &ndash; <?php _e('Getting discovered on Google, Apple, Facebook, and more', 'redi-restaurant-reservation'); ?><br/>
-                &ndash; <?php _e('Building trust with powerful review tools', 'redi-restaurant-reservation'); ?><br/>
-                &ndash; <?php _e('Keeping online listings accurate and up to date — without the tech stress', 'redi-restaurant-reservation'); ?><br/><br/>
-                <?php _e('Thousands of restaurants use Mobal to stand out online and attract more guests.', 'redi-restaurant-reservation'); ?><br/>
-                🡺 <a href="https://redi-plugin.short.gy/mobal" target="_blank"><?php _e('Learn more at mobal.io', 'redi-restaurant-reservation'); ?></a>
-            </p>
-        </div>
-    </div>
-</div>
-
-
 </div>

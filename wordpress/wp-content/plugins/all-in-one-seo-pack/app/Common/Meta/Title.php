@@ -44,6 +44,8 @@ class Title {
 	public function filterPageTitle( $wpTitle = '' ) {
 		$title = $this->getTitle();
 
+		// Load-bearing: core echoes the title unescaped and sanitize()'s entity decoding is capped,
+		// so this encode is all that separates a query-derived title from stored XSS.
 		return ! empty( $title ) ? aioseo()->helpers->encodeOutputHtml( $title ) : $wpTitle;
 	}
 
@@ -241,8 +243,7 @@ class Title {
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
 		if ( ! $title && $dynamicOptions->searchAppearance->taxonomies->has( $term->taxonomy ) ) {
 			$newTitle = aioseo()->dynamicOptions->searchAppearance->taxonomies->{$term->taxonomy}->title;
-			$newTitle = preg_replace( '/#taxonomy_title/', aioseo()->helpers->escapeRegexReplacement( $term->name ), (string) $newTitle );
-			$title    = $this->helpers->prepare( $newTitle, $term->term_id, $default );
+			$title    = $this->helpers->prepare( aioseo()->tags->replaceTermTags( $newTitle, $term ), $term->term_id, $default );
 		}
 
 		$terms[ $term->term_id ] = $title;

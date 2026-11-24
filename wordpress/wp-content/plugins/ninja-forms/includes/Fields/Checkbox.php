@@ -45,6 +45,21 @@ class NF_Fields_Checkbox extends NF_Abstracts_Input
     }
 
     /**
+     * Has Display Value
+     * Determines whether a checked/unchecked display value setting was given a
+     * value by the form author. A value of "0" is a real value and must not be
+     * replaced with the built-in Checked/Unchecked labels.
+     * @since 3.16.2
+     *
+     * @param mixed $setting checked_value or unchecked_value setting
+     * @return bool
+     */
+    protected function has_display_value( $setting )
+    {
+        return null !== $setting && '' !== $setting;
+    }
+
+    /**
      * Admin Form Element
      * Display the checkbox on the edit submissions area.
      * @since 3.0
@@ -114,27 +129,41 @@ class NF_Fields_Checkbox extends NF_Abstracts_Input
      */
     public function filter_merge_tag_value( $value, $field )
     {
-        $default_checked = esc_html__( 'Checked', 'ninja-forms' );
-        $default_unchecked = esc_html__( 'Unchecked', 'ninja-forms' );
+        $settings = ( isset( $field[ 'settings' ] ) && is_array( $field[ 'settings' ] ) )
+            ? $field[ 'settings' ]
+            : array();
 
-        // Check for display values first, fall back to calc values
-        if( $value ) {
-            // Checkbox is checked
-            if ( isset( $field[ 'settings' ][ 'checked_value' ] ) && ! empty( $field[ 'settings' ][ 'checked_value' ] ) && $field[ 'settings' ][ 'checked_value' ] !== $default_checked ) {
-                return $field[ 'settings' ][ 'checked_value' ];
-            } elseif ( isset( $field[ 'settings' ][ 'checked_calc_value' ] ) && $field[ 'settings' ][ 'checked_calc_value' ] !== '' ) {
-                return $field[ 'settings' ][ 'checked_calc_value' ];
-            }
-            return $default_checked;
-        } else {
-            // Checkbox is unchecked
-            if ( isset( $field[ 'settings' ][ 'unchecked_value' ] ) && ! empty( $field[ 'settings' ][ 'unchecked_value' ] ) && $field[ 'settings' ][ 'unchecked_value' ] !== $default_unchecked ) {
-                return $field[ 'settings' ][ 'unchecked_value' ];
-            } elseif ( isset( $field[ 'settings' ][ 'unchecked_calc_value' ] ) && $field[ 'settings' ][ 'unchecked_calc_value' ] !== '' ) {
-                return $field[ 'settings' ][ 'unchecked_calc_value' ];
-            }
-            return $default_unchecked;
+        return $this->resolve_display_wording( $settings, (bool) $value );
+    }
+
+    /**
+     * Resolve Display Wording
+     * Gives the words a merge tag prints for a checkbox: the wording the form
+     * author typed into Checked Value or Unchecked Value, and otherwise the
+     * built-in label.
+     *
+     * Calculation values are deliberately not consulted. They are numbers for
+     * calculations, and standing in for the wording here turned a customer's
+     * "Checked" line into "100" in their email notification.
+     *
+     * @since 3.16.2
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/7633
+     *
+     * @param array $settings field settings
+     * @param bool $is_checked whether the checkbox was checked
+     * @return string
+     */
+    protected function resolve_display_wording( $settings, $is_checked )
+    {
+        $setting_name = $is_checked ? 'checked_value' : 'unchecked_value';
+
+        if ( isset( $settings[ $setting_name ] ) && $this->has_display_value( $settings[ $setting_name ] ) ) {
+            return $settings[ $setting_name ];
         }
+
+        return $is_checked
+            ? esc_html__( 'Checked', 'ninja-forms' )
+            : esc_html__( 'Unchecked', 'ninja-forms' );
     }
 
     /**
@@ -150,11 +179,21 @@ class NF_Fields_Checkbox extends NF_Abstracts_Input
     {
         // If checkbox is checked (using same logic as filter_merge_tag_value)...
         if ( ! empty( $value ) ) {
-            // ...return the checked calc value of the field model.
-            return $field[ 'checked_calc_value' ];
+            // Return checked calc value with defensive fallback for different field structures
+            if ( isset( $field['checked_calc_value'] ) ) {
+                return $field['checked_calc_value'];
+            } elseif ( isset( $field['settings']['checked_calc_value'] ) ) {
+                return $field['settings']['checked_calc_value'];
+            }
+            return 1; // Default calc value for checked
         } else {
-            // ...else return the unchecked calc value of the field model.
-            return $field[ 'unchecked_calc_value' ];
+            // Return unchecked calc value with defensive fallback
+            if ( isset( $field['unchecked_calc_value'] ) ) {
+                return $field['unchecked_calc_value'];
+            } elseif ( isset( $field['settings']['unchecked_calc_value'] ) ) {
+                return $field['settings']['unchecked_calc_value'];
+            }
+            return 0; // Default calc value for unchecked
         }
     }
 
@@ -165,40 +204,61 @@ class NF_Fields_Checkbox extends NF_Abstracts_Input
      *
      * @param $value checkbox field value
      * @param $field checkbox field model
-     * @return string|void
+     * @return string
      */
     public function export_value( $value, $field )
     {
+        // If value is redacted, return it unchanged.
+        if ( '(redacted)' === $value ) {
+            return $value;
+        }
+
         // @TODO: Why were these values translated in the first place?
         // If value is equal to checked or unchecked return the value
-        if ( __( 'checked', 'ninja-forms' ) == $value ||
-            __( 'unchecked', 'ninja-forms' ) == $value ) return $value;
+        if ( 'checked' === $value ||
+            'unchecked' === $value ) return $value;
 
         // Creating settings variables for our check.
         if( is_array( $field ) ) {
             // The email action sends teh field variable as an array
-            $checked_setting    = $field[ 'setting' ][ 'checked_value' ];
-            $unchecked_setting  = $field[ 'setting' ][ 'unchecked_value' ];
+            $checked_setting    = $field[ 'settings' ][ 'checked_value' ] ?? '';
+            $unchecked_setting  = $field[ 'settings' ][ 'unchecked_value' ] ?? '';
         } else {
             $checked_setting    = $field->get_setting( 'checked_value' );
             $unchecked_setting  = $field->get_setting( 'unchecked_value' );
         }
 
+        /*
+         * The stored value is a flag, not words. Numbers, null and booleans
+         * read as they always have, but a string that is not numeric never
+         * matches a flag: before PHP 8 a loose 0 == $value was true for any
+         * non-numeric string, which swallowed a value already stored as a
+         * display word and reported it as unchecked.
+         */
+        $is_numeric   = is_numeric( $value );
+        $is_checked   = 'on' === $value || true === $value || ( $is_numeric && 1 == $value );
+        $is_unchecked = null === $value || false === $value || ( $is_numeric && 0 == $value );
+
         // If the the value and check to see if we have checked and unchecked settings...
-        if ( ( 1 == $value || 'on' == $value ) && ! empty( $checked_setting ) ) {
+        if ( $is_checked && $this->has_display_value( $checked_setting ) ) {
             // ...if we do return checked setting
             return $checked_setting;
-        } elseif ( 0 == $value && ! empty( $unchecked_setting ) ) {
+        } elseif ( $is_unchecked && $this->has_display_value( $unchecked_setting ) ) {
             // ...else return unchecked setting.
             return $unchecked_setting;
         /*
          * These checks are for checkbox fields that were created before version 3.2.7.
          */
-        } elseif ( 1 == $value || 'on' == $value ) {
-            return esc_html__( 'checked', 'ninja-forms' );
-        } elseif ( 0 == $value ) {
-            return esc_html__( 'unchecked', 'ninja-forms' );
+        } elseif ( $is_checked ) {
+            return esc_html__( 'Checked', 'ninja-forms' );
+        } elseif ( $is_unchecked ) {
+            return esc_html__( 'Unchecked', 'ninja-forms' );
         }
+
+        // Nothing above matched, so the stored value is already a display word:
+        // one saved while the site ran in another language, for example. Show it
+        // as it is, escaped the way the display values above are.
+        return esc_html( $value );
     }
 
     /**
@@ -214,25 +274,14 @@ class NF_Fields_Checkbox extends NF_Abstracts_Input
      */
     public function localize_field( $field )
     {
-        $default_checked = esc_html__( 'Checked', 'ninja-forms' );
-        $default_unchecked = esc_html__( 'Unchecked', 'ninja-forms' );
+        $settings = ( isset( $field['settings'] ) && is_array( $field['settings'] ) )
+            ? $field['settings']
+            : array();
 
-        // Check for display values first, fall back to calc values if not set
-        if ( isset( $field['settings']['checked_value'] ) && ! empty( $field['settings']['checked_value'] ) && $field['settings']['checked_value'] !== $default_checked ) {
-            $field['checked_value'] = $field['settings']['checked_value'];
-        } elseif ( isset( $field['settings']['checked_calc_value'] ) && $field['settings']['checked_calc_value'] !== '' ) {
-            $field['checked_value'] = $field['settings']['checked_calc_value'];
-        } else {
-            $field['checked_value'] = $default_checked;
-        }
-
-        if ( isset( $field['settings']['unchecked_value'] ) && ! empty( $field['settings']['unchecked_value'] ) && $field['settings']['unchecked_value'] !== $default_unchecked ) {
-            $field['unchecked_value'] = $field['settings']['unchecked_value'];
-        } elseif ( isset( $field['settings']['unchecked_calc_value'] ) && $field['settings']['unchecked_calc_value'] !== '' ) {
-            $field['unchecked_value'] = $field['settings']['unchecked_calc_value'];
-        } else {
-            $field['unchecked_value'] = $default_unchecked;
-        }
+        // The front end shows the same wording an Action prints, so the page
+        // and the email notification cannot disagree.
+        $field['checked_value']   = $this->resolve_display_wording( $settings, true );
+        $field['unchecked_value'] = $this->resolve_display_wording( $settings, false );
 
         return $field;
     }

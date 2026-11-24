@@ -8,11 +8,9 @@
 namespace PremiumAddons\Addons;
 
 // PremiumAddons Classes.
-use PremiumAddons\Admin\Includes\Admin_Helper;
 use PremiumAddons\Includes\Helper_Functions;
 
 // Elementor Classes.
-use Elementor\Repeater;
 use Elementor\Controls_Manager;
 use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
 
@@ -32,14 +30,14 @@ class Floating_Effects {
 	/**
 	 * Load Script
 	 *
-	 * @var $load_script
+	 * @var bool|null
 	 */
 	private static $load_script = null;
 
 	/**
 	 * Class object
 	 *
-	 * @var instance
+	 * @var self|null
 	 */
 	private static $instance = null;
 
@@ -53,9 +51,10 @@ class Floating_Effects {
 
 		// Creates Premium Floating Effects tab at the end of advanced tab.
 		add_action( 'elementor/element/common/_section_style/after_section_end', array( $this, 'register_controls' ), 10 );
+		add_action( 'elementor/element/container/section_layout/after_section_end', array( $this, 'register_controls' ), 10 );
 
 		// Check if scripts should be loaded.
-		add_action( 'elementor/frontend/widget/before_render', array( $this, 'check_script_enqueue' ) );
+		add_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
 	}
 
 	/**
@@ -131,6 +130,20 @@ class Floating_Effects {
 				),
 				'condition'          => array(
 					'premium_fe_switcher' => 'yes',
+				),
+				'frontend_available' => true,
+			)
+		);
+
+		$element->add_control(
+			'premium_fe_hover_return',
+			array(
+				'label'              => __( 'Return To Start On Hover Out', 'premium-addons-for-elementor' ),
+				'type'               => Controls_Manager::SWITCHER,
+				'description'        => __( 'Smoothly returns the element to its starting state when the mouse leaves, instead of pausing it in place.', 'premium-addons-for-elementor' ),
+				'condition'          => array(
+					'premium_fe_switcher' => 'yes',
+					'premium_fe_trigger'  => 'hover',
 				),
 				'frontend_available' => true,
 			)
@@ -409,6 +422,28 @@ class Floating_Effects {
 				),
 				'scales'             => 1,
 				'handles'            => 'range',
+				'condition'          => array(
+					'premium_fe_switcher'        => 'yes',
+					'premium_fe_rotate_switcher' => 'yes',
+				),
+				'frontend_available' => true,
+			)
+		);
+
+		$element->add_control(
+			'premium_fe_perspective',
+			array(
+				'label'              => __( 'Perspective', 'premium-addons-for-elementor' ),
+				'type'               => Controls_Manager::SLIDER,
+				'description'        => __( 'Gives Rotate X / Y a 3D depth. Lower values exaggerate the effect.', 'premium-addons-for-elementor' ),
+				'size_units'         => array( 'px' ),
+				'range'              => array(
+					'px' => array(
+						'min'  => 0,
+						'max'  => 2000,
+						'step' => 50,
+					),
+				),
 				'condition'          => array(
 					'premium_fe_switcher'        => 'yes',
 					'premium_fe_rotate_switcher' => 'yes',
@@ -1113,12 +1148,29 @@ class Floating_Effects {
 		);
 
 		$element->add_control(
+			'premium_fe_disable_on',
+			array(
+				'label'              => __( 'Disable On', 'premium-addons-for-elementor' ),
+				'type'               => Controls_Manager::SELECT2,
+				'description'        => __( 'Floating effects will not run on the selected devices.', 'premium-addons-for-elementor' ),
+				'multiple'           => true,
+				'options'            => Helper_Functions::get_all_breakpoints(),
+				'label_block'        => true,
+				'separator'          => 'before',
+				'render_type'        => 'template',
+				'condition'          => array(
+					'premium_fe_switcher' => 'yes',
+				),
+				'frontend_available' => true,
+			)
+		);
+
+		$element->add_control(
 			'premium_fe_disable_safari',
 			array(
 				'label'        => __( 'Disable Floating Effects On Safari', 'premium-addons-for-elementor' ),
 				'type'         => Controls_Manager::SWITCHER,
 				'prefix_class' => 'premium-disable-fe-',
-				'separator'    => 'before',
 				'condition'    => array(
 					'premium_fe_switcher' => 'yes',
 				),
@@ -1150,7 +1202,7 @@ class Floating_Effects {
 
 			self::$load_script = true;
 
-			remove_action( 'elementor/frontend/widget/before_render', array( $this, 'check_script_enqueue' ) );
+			remove_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
 		}
 	}
 

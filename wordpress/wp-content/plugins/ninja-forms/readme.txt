@@ -1,333 +1,702 @@
-=== Ninja Forms - The Contact Form Builder That Grows With You ===
+=== Ninja Forms - Contact Form Builder with Calculators, Quizzes, Signatures & AI Form Builder ===
 Contributors: wpninjasllc, kstover, jameslaws, kbjohnson90, klhall1987, krmoorhouse, jmcelhaney, wpnzach, ericwindhamsd, mrpritchett, stuartsequeira, nahuelmahe
-Tags: forms, form builder, contact form, lead form, registration form
+Tags: forms, form builder, contact form, lead form, calculator form
 
-Requires at least: 6.7
-Tested up to: 6.9
-Stable tag: 3.14.2
+Requires at least: 6.9
+Tested up to: 7.1
+Stable tag: 3.16.2
 Requires PHP: 7.4
 
 License: GPLv2 or later
 
-The 100% beginner friendly WordPress form builder. Drag & drop form fields to build beautiful, professional contact forms in minutes.
+Free WordPress form builder with calculations, signatures, star ratings, unlimited submissions stored on your site, and an AI form builder.
 
 == Description ==
 
-= Forms that grow with your business =
-As one of WordPress’ oldest form builders, we’re proud to serve users from around the world, from all walks of life, and from different stages of online growth. From the small businesses and local nonprofits that make up the core Ninja Forms user base to universities, hospitals, and even Fortune 500 companies, we’ll scale with you from startup to wherever you’re aiming for.
+Ninja Forms is a free WordPress form builder plugin. Build contact forms, lead generation forms, calculators, quizzes, surveys, applications, event registration, and booking request forms with a drag and drop builder, or describe the form you want and let the built-in AI form builder draft it for you. Every submission is stored in your own WordPress database, with no limit on forms or submissions and nothing to pay to see them.
 
-We’re committed to offering as many free, open source tools as we can get away with to back you up in the extremely price-conscious early days. As you grow, pick and choose only the premium features you need as you need them. We’ll grow with you from there for as far as you want to take us.
+= The form builder that grows with you =
 
-We’re also committed to respecting your privacy and time. No unsolicited emails or aggressive marketing. No paywalling basic features or scraping private data. We offer a fully staffed team of support experts and a comprehensive library of plugin documentation for all users, free and paid, to help keep you collecting the submissions that move your business forward.
+Ninja Forms has been part of WordPress since 2011. It started as a volunteer project for a local nonprofit and today it powers classrooms, clinics, nonprofits, online stores, farms, agencies, and government offices, from a single contact form to advanced business workflows.
 
-We look forward to seeing where you’ll take us!
+The free plugin is the complete product for getting started, not a teaser. Calculations, signatures, star ratings, repeatable field groups, spam protection, submission management, and the AI form builder all ship in core. When you need more, premium features come as individual add-ons you can buy one at a time, and memberships bundle them for the moment when buying them one by one stops making sense. We only grow when the sites running Ninja Forms do.
 
-= All the basics without the paywalls =
+We also respect your privacy and your time. No unsolicited emails, no aggressive marketing, no paywalling of basic features, and we never see or collect the data your forms collect. Our support team helps every user, free or paid.
 
-When you’re starting out, even little expenses add up quickly. That’s why Ninja Forms core will always be free and open source. It’s why we try to offer as much in core as we can to cover your basic needs at no cost. Here’s a peek at some of what core has to offer.
+= Free in Ninja Forms, paid almost everywhere else =
 
-**Form Building Features**
-- 24+ FREE drag-and-drop form fields
-- Customize fields with default values, specialty text, and much more
-- Favorite and reuse any customized field
-- Calculations: assign values to fields and calculate totals
-- Merge tag system for pre-populating fields and passing field data between forms
-- Configurable per-field submission storage for easy GDPR compliance
-- Email notifications on submission (as many as you like, free!)
-- Customizable success messages (supports links and downloads!)
-- Redirect to new page after submission
-- Customize callbacks to WP action hooks on submit
-- Spam Protection: full integration with Google reCAPTCHA & Akismet
-- Configurable form display settings
-- Form restriction settings
-- Unique field validation
-- Unlimited forms & submissions
-- Form Templates
-- Form Import / Export
-- Shareable forms (share the form via link without it being attached to a page)
-- No aggressive marketing, pushy review asks, constant popups, or unsolicited emails
-- Responsive and mobile friendly
-- SEO friendly
+Several features that other form builders reserve for paid plans are part of the free Ninja Forms plugin:
 
-**Submission Management Features**
-- Unlimited FREE submissions
-- Configurable submissions display
-- Search and filter by field
-- Search and filter by submitted value
-- Search and filter by submission date
-- Edit submitted values
-- Refire any email notification from any submission
-- Export to CSV
-- Bulk submissions export
-- Automated WordPress GDPR integration for export & delete data requests
-- Mark fields as PII and selectively not store specific data
-- All submissions stored locally on YOUR server only unless you specify otherwise
-- We never see or collect your field or submission data
+- **Calculations.** Assign values to fields and options, combine them with formulas, and show running totals for quotes, order forms, quizzes, and every kind of calculator.
+- **Lead capture.** Every submission lands in your inbox the moment it arrives and in your WordPress dashboard for export, with honeypot, reCAPTCHA, hCaptcha, Turnstile, and Akismet spam protection built in.
+- **Signatures.** A typed or drawn signature field for agreements, waivers, and applications.
+- **Repeatable fieldsets.** Let visitors add another guest, another line item, or another reference without you predicting how many they need.
+- **Star ratings.** A clickable rating scale for feedback and survey forms.
+- **Your submissions, on your site.** Every submission is saved to your WordPress database. View, search, filter, edit, resend notifications, and export to CSV, for every form, with no entry limit.
+- **AI form builder.** Describe the form you want in plain language and the builder drafts it, then refine it in conversation. It runs on the WordPress AI Client with a provider you connect, so your prompts go where you choose.
 
-**Dozens of buildable form types**
-- Contact form
-- Email form
-- Calculation form
-- Lead form
-- Quiz form
-- Mortgage or Payment Calculator forms
-- Quote and Cost Calculator forms
-- Health and Fitness Calculator forms
-- Polling form
-- Survey form
-- Lead Magnet Download form
-- Event Registration form
-- Sales form
-- Appointment form
-- Booking form
-- Entry form
-- Order form
-- Lesson Plan form
-- Job Application form
-- RSVP form
-- Request form
-- Feedback form
-- Support form
-- GDPR Export or Delete Data Request forms
-…and many more!
+= 31 form fields, all free =
 
-**You get more than just a plugin**
-- Fully documented
-- Regular updates
-- FREE technical support
-- Privacy and security minded
-- Accessibility focused
-- Translated into 24+ languages by the WordPress Polyglots team
-- Long term partners of WPML for even more translations!
-- Ecosystem aware: we know it’s not just you and Ninja Forms. We do our best to communicate and play nice with others.
+- **Text and numbers:** Single Line Text, Paragraph Text, Number, Date and Time, Confirm, Hidden
+- **Choices:** Single Checkbox, Checkbox List, Radio List, Select, Multi-Select, Select Image, Star Rating
+- **Contact details:** First Name, Last Name, Email, Phone, Address, City, US States, Country, Zip
+- **Signature and structure:** Signature, Repeatable Fieldset, HTML, Divider, Submit
+- **Spam protection:** Anti-Spam, reCAPTCHA, hCaptcha, Cloudflare Turnstile
 
-= Pick and choose just what you need as you need it =
+Customize any field with default values, placeholders, input masks, required and unique-value rules, and custom CSS classes, then save it as a favorite to reuse on any other form.
 
-As you start to grow, so does what you need out of your forms. But there’s no need to dive into the deep end right away and spend more than is practical. All premium features are contained in add-ons to the core form builder and can be purchased independently. When you find yourself wanting just one or two things, you can grab just what you need without paying for extras.
+= Emails, confirmations, and actions =
 
-When you’re ready for more, our [membership plans](https://ninjaforms.com/pricing/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Pricing) bundle popular features together in budget friendly packages.
+- Send any number of email notifications to any number of recipients on every submission, each with its own subject, message, reply-to, CC, and BCC, in HTML or plain text.
+- Show a custom success message (links and download links included), or redirect to any page.
+- Fire a Google Analytics 4 event on submission for conversion tracking.
+- Use merge tags to drop field values, calculation results, and site data into emails, messages, and other fields.
+- Call your own WordPress action hook on submission when you need custom code.
 
-Select from 40+ add-ons across multiple categories:
+= Spam protection on every form =
 
-**Advanced Form Features**
-- [Advanced Datepicker](https://ninjaforms.com/extensions/advanced-datepicker/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Advanced+Datepicker)
-- [Conditional Logic](https://ninjaforms.com/extensions/conditional-logic/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Conditional+Logic)
-- [File Uploads](https://ninjaforms.com/extensions/file-uploads/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=File+Uploads)
-- [Layout & Styles](https://ninjaforms.com/extensions/layout-styles/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Layout+and+Styles)
-- [Multi Step Forms](https://ninjaforms.com/extensions/multi-step-forms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Multi+Step+Forms)
-- [Save Progress](https://ninjaforms.com/extensions/save-progress/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Save+Progress)
-- [User Analytics](https://ninjaforms.com/extensions/user-analytics/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=User+Analytics)
-- [User Management](https://ninjaforms.com/extensions/user-management/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=User+Management)
+A honeypot is active on every form automatically. Add an Anti-Spam question, Google reCAPTCHA v2 or v3, hCaptcha, or Cloudflare Turnstile when you want more, and run submissions through Akismet if the Akismet plugin is installed on your site.
 
-**Submissions Extended**
-- [Excel Export](https://ninjaforms.com/extensions/excel-export/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Excel+Export)
-- [Front End Posting](https://ninjaforms.com/extensions/front-end-posting/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Front+End+Posting)
-- [PDF Form Submissions](https://ninjaforms.com/extensions/pdf-form-submission/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=PDF+Form+Submission)
-- [Scheduled Submissions Export](https://ninjaforms.com/extensions/scheduled-submissions-export/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Scheduled+Submission+Export)
+= Privacy tools built in =
 
-**Accept Payments**
-- [Authorize.net](https://ninjaforms.com/extensions/authorize-net/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Authorize)
-- [Elavon](https://ninjaforms.com/extensions/elavon/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Elavon)
-- [PayPal official partner](https://ninjaforms.com/extensions/paypal-checkout/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=PayPal)
-- [Recurly](https://ninjaforms.com/extensions/recurly/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Recurly)
-- [Stripe](https://ninjaforms.com/extensions/stripe/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Stripe)
+- All submission data stays on your server. Ninja Forms never transmits it and never sees it.
+- Flag any field as personally identifiable information and choose not to store its value.
+- Automated export and erase support for the WordPress privacy tools, plus front-end Export Data Request and Delete Data Request actions so visitors can serve themselves.
 
-**Email Marketing**
-- [Active Campaign](https://ninjaforms.com/extensions/active-campaign/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Active+Campaign)
-- [AWeber](https://ninjaforms.com/extensions/aweber/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=AWeber)
-- [Campaign Monitor](https://ninjaforms.com/extensions/campaign-monitor/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Campaign+Monitor)
-- [CleverReach](https://ninjaforms.com/extensions/cleverreach/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=CleverReach)
-- [Constant Contact](https://ninjaforms.com/extensions/constant-contact/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Constant+Contact)
-- [ConvertKit](https://ninjaforms.com/extensions/convertkit/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=ConvertKit)
-- [EmailOctopus](https://ninjaforms.com/extensions/emailoctopus/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=EmailOctopus)
-- [Emma](https://ninjaforms.com/extensions/emma/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Emma)
-- [Mailchimp](https://ninjaforms.com/extensions/mailchimp/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Mailchimp)
-- [MailPoet](https://ninjaforms.com/extensions/mailpoet/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=MailPoet)
+= Control who can submit and where forms appear =
 
-**CRMs**
-- [Capsule](https://ninjaforms.com/extensions/capsule-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Capsule)
-- [CiviCRM](https://ninjaforms.com/extensions/civicrm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=CiviCRM)
-- [HubSpot *official partners](https://ninjaforms.com/extensions/hubspot-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=HubSpot)
-- [Insightly](https://ninjaforms.com/extensions/insightly-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Insightly)
-- [OnePageCRM](https://ninjaforms.com/extensions/onepage-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=OnePageCRM)
-- [PipelineDeals](https://ninjaforms.com/extensions/pipelinedeals-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Pipeline)
-- [Salesforce](https://ninjaforms.com/extensions/salesforce-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Salesforce)
-- [Zoho CRM](https://ninjaforms.com/extensions/zoho-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Zoho+CRM)
+- Restrict a form to logged-in visitors, reject duplicate values in any field (one submission per email address, for example), or cap the total number of submissions.
+- Embed a form with the Ninja Forms block, a shortcode, a widget, or by appending it to any post or page.
+- Share a form by public link with no page at all.
+- Choose title display, heading level, label position, and what happens after a submission, per form.
 
-**Notifications & Workflow**
-- [ClickSend SMS](https://ninjaforms.com/extensions/clicksend-sms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=ClickSend)
-- [Help Scout](https://ninjaforms.com/extensions/help-scout/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Help+Scout)
-- [Slack](https://ninjaforms.com/extensions/slack/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Slack)
-- [Trello](https://ninjaforms.com/extensions/trello/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Trello)
-- [Twilio SMS](https://ninjaforms.com/extensions/twilio-sms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Twilio)
+= Start faster =
 
-**Automation**
-- [Webhooks](https://ninjaforms.com/extensions/webhooks/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Webhooks)
-- [Zapier official partners](https://ninjaforms.com/extensions/zapier/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Feature+List&utm_content=Zapier)
+- Nine templates built into the plugin (Contact Us, General Enquiry, Quote Request, Event Registration, Collect Feedback, Questionnaire, Job Application, Export Data Request, Delete Data Request), plus a [library of 100 ready-to-import templates](https://ninjaforms.com/templates/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Templates) on ninjaforms.com, from reservation and food order forms to applications, surveys, and registrations. Download one, import it, and it is ready to edit. Every template page says which add-ons it uses, if any; a few tiles in the plugin's own picker need a specific add-on and say so when you open them.
+- Duplicate any form, and import or export forms and favorite fields between sites.
+- A rich text editor for HTML fields and email messages.
 
+= Built for AI agents and developers =
 
-The sky’s the limit on what you can build with add-on features, but here are some of the most popular forms we see in the wild:
+Ninja Forms supports the WordPress Abilities API, so an AI assistant connected to your site through the WordPress MCP Adapter can build, edit, and check forms, manage submissions, and change settings through 29 permission-checked abilities, the same operations the dashboard performs. Three destructive abilities stay off unless an administrator opts in. Developers get WP-CLI commands, a WordPress action hook on submission, an extensive filter and action ecosystem, and a full documentation library.
 
-- Payment forms
-- Donation forms
-- Signup forms
-- User Registration form
-- Newsletter forms
-- CRM forms
-- User Registration form
-- Login forms
-- Upload forms
-- Google Sheets forms
-- Post Creation forms
+= Accessibility =
 
+Accessible forms are a core value, not an add-on. Front-end forms are built to our internal standards based on WCAG 2, audited by external accessibility professionals, and regression tested on every update. It is ongoing work; you can read our full [Accessibility Statement](https://ninjaforms.com/accessibility-statement/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Accessibility) on ninjaforms.com.
 
-== Notes ==
+= Where add-ons come in =
 
-We've been standing by our product and our users for over a decade, working to make your experience the best it can be. We're one of the only form builders around that offers support for all users, whether you've made a purchase or not.
+Some capabilities are add-ons rather than part of the free plugin: conditional logic, file uploads, multi-step forms, payments for order, donation, and event forms, save and resume, layout and styling controls, PDF submissions, user registration, front-end posting, and integrations with email marketing, CRM, and messaging services. Each is purchased on its own, or bundled in a [membership](https://ninjaforms.com/pricing/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Pricing).
 
-If you have any questions or suggestions, we’re always happy to hear from you. We have a dedicated support team with team members that span four continents standing by to help with technical questions every Monday to Friday. General feedback is always welcome too. It’s a big part of how we figure out what to do next, so chime in any time!
+- **Form features:** [Conditional Logic](https://ninjaforms.com/extensions/conditional-logic/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Conditional+Logic), [File Uploads](https://ninjaforms.com/extensions/file-uploads/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=File+Uploads), [Multi Step Forms](https://ninjaforms.com/extensions/multi-step-forms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Multi+Step+Forms), [Layout & Styles](https://ninjaforms.com/extensions/layout-styles/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Layout+and+Styles), [Save Progress](https://ninjaforms.com/extensions/save-progress/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Save+Progress), [Advanced Datepicker](https://ninjaforms.com/extensions/advanced-datepicker/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Advanced+Datepicker), [User Analytics](https://ninjaforms.com/extensions/user-analytics/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=User+Analytics), [User Management](https://ninjaforms.com/extensions/user-management/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=User+Management)
+- **Submissions:** [PDF Form Submissions](https://ninjaforms.com/extensions/pdf-form-submission/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=PDF+Form+Submission), [Excel Export](https://ninjaforms.com/extensions/excel-export/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Excel+Export), [Scheduled Submissions Export](https://ninjaforms.com/extensions/scheduled-submissions-export/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Scheduled+Submissions+Export), [Front End Posting](https://ninjaforms.com/extensions/front-end-posting/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Front+End+Posting)
+- **Payments:** [PayPal Checkout](https://ninjaforms.com/extensions/paypal-checkout/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=PayPal+Checkout) (official partner), [Stripe](https://ninjaforms.com/extensions/stripe/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Stripe), [Authorize.net](https://ninjaforms.com/extensions/authorize-net/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Authorize.net), [Elavon](https://ninjaforms.com/extensions/elavon/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Elavon), [Recurly](https://ninjaforms.com/extensions/recurly/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Recurly)
+- **Email marketing:** [Mailchimp](https://ninjaforms.com/extensions/mailchimp/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Mailchimp), [ActiveCampaign](https://ninjaforms.com/extensions/active-campaign/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=ActiveCampaign), [Constant Contact](https://ninjaforms.com/extensions/constant-contact/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Constant+Contact), [ConvertKit](https://ninjaforms.com/extensions/convertkit/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=ConvertKit), [AWeber](https://ninjaforms.com/extensions/aweber/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=AWeber), [Campaign Monitor](https://ninjaforms.com/extensions/campaign-monitor/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Campaign+Monitor), [CleverReach](https://ninjaforms.com/extensions/cleverreach/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=CleverReach), [EmailOctopus](https://ninjaforms.com/extensions/emailoctopus/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=EmailOctopus), [Emma](https://ninjaforms.com/extensions/emma/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Emma), [MailPoet](https://ninjaforms.com/extensions/mailpoet/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=MailPoet)
+- **CRM:** [HubSpot](https://ninjaforms.com/extensions/hubspot-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=HubSpot) (official partner), [Salesforce](https://ninjaforms.com/extensions/salesforce-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Salesforce), [Zoho CRM](https://ninjaforms.com/extensions/zoho-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Zoho+CRM), [Capsule](https://ninjaforms.com/extensions/capsule-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Capsule), [CiviCRM](https://ninjaforms.com/extensions/civicrm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=CiviCRM), [Insightly](https://ninjaforms.com/extensions/insightly-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Insightly), [OnePageCRM](https://ninjaforms.com/extensions/onepage-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=OnePageCRM), [PipelineDeals](https://ninjaforms.com/extensions/pipelinedeals-crm/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=PipelineDeals)
+- **Notifications and automation:** [Zapier](https://ninjaforms.com/extensions/zapier/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Zapier) (official partner), [Webhooks](https://ninjaforms.com/extensions/webhooks/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Webhooks), [Slack](https://ninjaforms.com/extensions/slack/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Slack), [Trello](https://ninjaforms.com/extensions/trello/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Trello), [Help Scout](https://ninjaforms.com/extensions/help-scout/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Help+Scout), [Twilio SMS](https://ninjaforms.com/extensions/twilio-sms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=Twilio+SMS), [ClickSend SMS](https://ninjaforms.com/extensions/clicksend-sms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Add-ons&utm_content=ClickSend+SMS)
 
-[You’ll always have a direct line to us right here!](https://ninjaforms.com/contact/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Support)
+= More than a plugin =
+
+Free technical support for every user, whether or not you have bought anything, from a team spanning four continents, Monday to Friday. A full documentation library. Regular updates. Translated into more than 24 languages by the WordPress Polyglots community, with WPML as a long-term partner for more. And an ecosystem-aware approach: we know it is not just you and Ninja Forms, so we work to play well with the rest of your site.
+
+[You will always have a direct line to us right here.](https://ninjaforms.com/contact/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Support)
+
+== Payments ==
+
+Accept payments and donations on your forms by connecting your own PayPal account. There is no upfront cost and no monthly fee. Ninja Forms adds a 1.9% per-transaction fee on top of PayPal's standard processing fees.
+
+== External Services ==
+
+This plugin's payment features use a connection service at paypal.ninjaforms.com, operated by Saturday Drive, Inc., the makers of Ninja Forms. The plugin contacts this service when you connect a PayPal account and when a visitor makes a payment on your form. It sends the payment amount, the currency, your PayPal merchant ID, and your site's return address, which the service uses to create the order with PayPal. The contents of form submissions are never sent to this service.
+
+Terms of use: https://ninjaforms.com/terms-conditions/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=External+Services&utm_content=Terms
+Privacy policy: https://ninjaforms.com/privacy-policy/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=External+Services&utm_content=Privacy
 
 == Additional Branding and Trademark Information ==
 
-Ninja Forms&reg; is a registered trademark of Saturday Drive INC. We are a WordPress forms or WP forms builder, not to be confused with the independent WPForms brand for WordPress. All official Ninja Forms [add-ons](https://ninjaforms.com/add-ons/?utm_source=WordPress&utm_medium=readme) and [memberships](https://ninjaforms.com/pricing/?utm_source=WordPress&utm_medium=readme) can be found on our official website, ninjaforms.com.
+Ninja Forms&reg; is a registered trademark of Saturday Drive INC. We are a WordPress forms builder, not to be confused with the independent WPForms brand for WordPress. All official Ninja Forms [add-ons](https://ninjaforms.com/add-ons/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Trademark) and [memberships](https://ninjaforms.com/pricing/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Trademark) can be found on our official website, ninjaforms.com.
 
 == Frequently Asked Questions ==
 
 = Do I have to pay to see my form submissions? =
-No, Ninja Forms does not paywall submissions. You can view, edit, export, and more from Ninja Forms > Submissions with the core, free plugin. No purchase necessary.
 
-= What free form fields are included in the form builder? =
-- Date/Time
+No. Ninja Forms does not paywall submissions. View, search, edit, and export every submission from Ninja Forms > Submissions with the free plugin, with no limit on how many you collect.
+
+= Is Ninja Forms free? =
+
+Yes. The core plugin is free and open source, and it is the complete form builder: 31 field types, calculations, signatures, star ratings, repeatable fieldsets, unlimited forms and submissions, email notifications, spam protection, privacy tools, and the AI form builder. Premium features such as conditional logic, file uploads, multi-step forms, payments, and integrations are add-ons you can buy individually or as a membership. See "Which features are add-ons?" below.
+
+= What form fields are included in the free plugin? =
+
+All 31 of them:
+
+- Single Line Text
+- Paragraph Text
+- Number
+- Date and Time
+- Confirm
+- Hidden
 - Single Checkbox
 - Checkbox List
 - Radio List
-- Select List
-- Multi-Select List
-- Select Image List
-- Single Line Text
-- Paragraph Text
-- Submit
+- Select
+- Multi-Select
+- Select Image
+- Star Rating
 - First Name
 - Last Name
-- Email Address
-- Phone Number
+- Email
+- Phone
 - Address
 - City
 - US States
 - Country
-- Zip Code
+- Zip
+- Signature
+- Repeatable Fieldset
 - HTML
 - Divider
-- Repeatable Fieldset
-- Confirm
-- Hidden
-- Number
+- Submit
+- Anti-Spam
 - reCAPTCHA
-- Anti Spam
-- Star Rating
+- hCaptcha
+- Cloudflare Turnstile
 
+= Does the free plugin include calculations, signatures, and star ratings? =
+
+Yes, all three. Calculations combine field values with formulas for quotes, orders, and quizzes. The Signature field accepts a typed or drawn signature. Star Rating gives you a clickable rating scale. None of them require an add-on.
+
+= Can an AI build my forms? =
+
+Two ways. Inside the plugin, the AI form builder drafts a form from a plain-language description and lets you refine it in conversation; it uses the WordPress AI Client with an AI provider you connect, and it can be switched off entirely in Settings. Outside the plugin, an AI assistant connected to your site through the WordPress MCP Adapter can build, edit, and manage forms through Ninja Forms' Abilities API, with 29 abilities available by default and every operation subject to the same permission checks as the dashboard.
+
+= Can I build a lead generation form? =
+
+Yes. Add the fields you want to collect, and every lead is emailed to you the moment it arrives, stored in your WordPress dashboard, and exportable to CSV, with spam protection built in. Sending leads on to Mailchimp, HubSpot, Zapier, or a CRM is handled by add-ons.
+
+= Which features are add-ons? =
+
+Conditional logic, file uploads, multi-step forms, payments (PayPal Checkout, Stripe, Authorize.net, Elavon, Recurly), save and resume, layout and styling controls, PDF submissions, Excel and scheduled exports, user registration and login, front-end posting, and integrations with email marketing, CRM, messaging, and automation services. Each is sold on its own or in a [membership](https://ninjaforms.com/pricing/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=Pricing).
 
 = Is Ninja Forms GDPR compliant? =
 
-Yes. All user submitted data is stored locally on your server only, unless you expressly configure the plugin to send it elsewhere, for example via an email action. We never see or collect any user submitted data, nor do we act as Data Controllers or Data Processors per GDPR Article 4 for any data submitted by users of the forms you create. Your forms can be configured to flag and/or not record Personally Identifiable Information (PII) on a per form basis. If you do collect PII using Ninja Forms, you can [automate export or delete data requests](https://ninjaforms.com/docs/gdpr-compliance-ninja-forms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=GDPR).
+Yes. All user submitted data is stored locally on your server only, unless you expressly configure the plugin to send it elsewhere, for example via an email action. We never see or collect any user submitted data, and we do not act as a Data Controller or Data Processor per GDPR Article 4 for any data submitted through the forms you create. Your forms can flag and choose not to store personally identifiable information per field, and you can [automate export or delete data requests](https://ninjaforms.com/docs/gdpr-compliance-ninja-forms/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=GDPR).
 
 = Is Ninja Forms HIPAA compliant? =
 
-Ninja Forms can be and is used on sites that require HIPAA compliance, but overall compliance depends on factors outside of the control of any WordPress form builder.
+Ninja Forms can be and is used on sites that require HIPAA compliance, but overall compliance depends on factors outside the control of any WordPress form builder.
 
 = Can I send email with Ninja Forms? =
 
-Yes! Any number of emails can be sent to any number of recipients anytime a contact form is submitted. Every email triggered by a contact form submission can be customized in the form builder, including the presentation of the form submission data. Attachments are supported (and can include [file uploads](https://ninjaforms.com/extensions/file-uploads/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=File+Uploads) from the form). These form emails can also be [sent conditionally](https://ninjaforms.com/extensions/conditional-logic/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=Conditional+Logic) based on specific triggers, and can be set up to include a [PDF copy](https://ninjaforms.com/extensions/pdf-form-submission/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=PDF+Form+Submission) of the form.
+Yes. Any number of emails can be sent to any number of recipients every time a form is submitted. Each email is customized in the form builder, including how the submission data is presented. Emails can include file attachments (with the [File Uploads](https://ninjaforms.com/extensions/file-uploads/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=File+Uploads) add-on), be sent [conditionally](https://ninjaforms.com/extensions/conditional-logic/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=Conditional+Logic), and carry a [PDF copy](https://ninjaforms.com/extensions/pdf-form-submission/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=PDF+Form+Submission) of the submission.
 
-= What types of forms can I build with Ninja Forms? =
+= Can I connect Ninja Forms to my CRM or email marketing service? =
 
-- Contact form
-- Email form
-- Calculation form
-- Lead form
-- Quiz form
-- Mortgage or Payment Calculator forms
-- Quote and Cost Calculator forms
-- Health and Fitness Calculator forms
-- Polling form
-- Survey form
-- Lead Magnet Download form
-- Event Registration form
-- Sales form
-- Appointment form
-- Booking form
-- Entry form
-- Order form
-- Lesson Plan form
-- Job Application form
-- RSVP form
-- Request form
-- Feedback form
-- Support form
-- Export or Delete Data Request forms
-- Payment forms
-- Donation forms
-- Signup form
-- User Registration form
-- Newsletter forms
-- CRM forms
-- Conditional lead form
-- Scorable lead form
-- User Registration form
-- Paid registration form
-- Login forms
-- Upload forms
-- Google Sheets forms
-- Post Creation forms
-…and many more!
+Yes, through add-ons for Mailchimp, Constant Contact, ActiveCampaign, HubSpot, Salesforce, Insightly, Zoho, and more, plus more than 1,000 other services through the Zapier add-on.
 
-= Can I connect Ninja Forms to my CRM or Email Marketing service? =
+= Are there form templates? =
 
-Almost certainly. The contact form builder integrates directly with over a dozen email marketing and CRM services including MailChimp, Constant Contact, ActiveCampaign, HubSpot, Salesforce, Insightly, Zoho, and many more.
+Yes. Nine templates are built into the plugin, and the [template library](https://ninjaforms.com/templates/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=Templates) on ninjaforms.com has 100 more, each downloadable as a file you import from Ninja Forms > Import / Export and edit like any form. Each template page lists the add-ons it uses, if any.
 
-Ninja Forms also integrates with 1,000+ other popular services through our Zapier integration.
+= Can I import and export forms? =
 
-= Can I import / export forms and fields with Ninja Forms? =
+Yes. Forms and favorite fields can be exported and imported between sites from Ninja Forms > Import / Export.
 
-Yes, both forms and custom fields (any field you customize and designate as a favorite field) can be exported and imported between sites.
+= Are Ninja Forms forms accessible? =
 
+Front-end forms are built to our internal standards based on WCAG 2, audited by external accessibility professionals, and regression tested on every update. It is ongoing work; you can read our full [Accessibility Statement](https://ninjaforms.com/accessibility-statement/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=FAQ&utm_content=Accessibility) on ninjaforms.com.
 
 == Installation ==
+
 This section describes how to install the plugin and get it working.
+
 1. Upload the `ninja-forms` plugin folder to your `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Visit the 'Ninja Forms' menu item in your admin sidebar
 
-[Further Installation Documentation](https://ninjaforms.com/docs/installation/?utm_source=WordPress&utm_medium=readme)
+[Further Installation Documentation](https://ninjaforms.com/docs/installation/?utm_source=WordPress.org&utm_medium=Plugin+readme&utm_campaign=Installation)
 
 == Screenshots ==
-1. The most intuitive and beautiful form building experience
-2. Field Options
-3. Emails and Actions
-4. Advanced Settings
-5. Beautiful Forms Every Time!
+
+1. The form builder: drag and drop 31 free fields into place
+2. Start from a template or describe your form to the AI form builder
+3. Field settings: labels, defaults, validation, and calculation values
+4. Emails and actions: unlimited notifications, success messages, redirects
+5. Submissions: view, search, filter, edit, and export every entry on your site
+6. Calculations: combine field values with a formula and show a live total
+7. A finished form on the front end, with a live total, a star rating, and a signature
 
 == Upgrade Notice ==
-= 3.14.2 (04 March 2026) =
+= 3.16.2 (23 November 2026) =
 
 *Bug Fixes:*
 
-- fix missing payment data and blank CSV issues in submission exports
-- prevent premature deletion of submissions less than 24 hours old
-- checkbox merge tags now display custom values instead of 1/0
-- fix merge tag population when retriggering emails from Submissions page
-- decode HTML entities for Rich Text Editor fields in CSV exports
-- fix invalid date display in Dashboard for imported/duplicated forms
-- fix calculation merge tags with extra text in hidden fields
+- send events from the Google Analytics 4 action again, for both its GA4 and Tag Manager methods
+- save the correct result for a calculation that uses another calculation listed below it
+- use a Hidden field's saved value in calculations and payment totals, unless a Conditional Logic rule sets it
+- count submissions the same way in calculations as in emails, including the submission being made and leaving out trashed submissions
+- number uploaded files with the entry's own number when {submission:sequence} is used in the file name
+- fill Form merge tags such as {submission:sequence} in Hidden field default values
+- fill post data merge tags in action settings with the page the form was submitted from
+- apply a changed submission limit straight away, and always show the limit message when a submission is refused
+- keep a Single Checkbox Checked or Unchecked value of 0 instead of replacing it with the built-in label
+- show the Checked or Unchecked wording, not the calculation value, for Single Checkbox merge tags in actions
+- give each {other:random} merge tag its own value when it is used more than once in the same text
+- refuse submissions when the hidden anti-spam field is filled in, including by scripts that don't use jQuery
+- show a form notice instead of "This is a required field" when an Invisible reCAPTCHA v2 can't load
+- load reCAPTCHA v3 on pages where Elementor Pro or another plugin registers Google's reCAPTCHA script
+- show forms placed in Elementor popups and other areas added to the page after it loads
+- fill merge tags in field descriptions, including on Signature fields
+- keep help text working on a field that Conditional Logic shows again
+- show every year from the Start Year to the End Year in the Date field calendar
+- show the year in the date picker on sites whose styles change how dropdowns display
+- wrap the Date field label in a label element, like other fields
+- stop adding autocomplete="on" to fields with no matching autocomplete type
+- remove the empty space left by Hidden fields
+- place Single Checkbox descriptions under the checkbox when the label is on the right
+- line up Date/Time, list, Star Rating and Signature labels with other labels when Label Position is Left of Element
+- stack column helper classes, such as two-col-list and one-half, on screens 767px wide and narrower
+- show the form preview on classic themes that use a page builder such as Divi
+- prevent an "Automatic conversion of false to array" deprecation notice when a form is submitted
+- show list field answers without "<br />" text on the legacy Submissions page
+- delete a field's answers from submissions when the field, or a Repeatable Fieldset field, is deleted
+- show options added with the ninja_forms_render_options filter when editing a submission
+- put Repeatable Fieldset answers under the right columns in the Email action's CSV when a fieldset has more than 10 fields
+- prevent Download All Submissions running out of memory on forms with a Country field
+- keep text colours in HTML field content when a form is imported or saved
+- remove style and script blocks whole when a form is imported, instead of leaving their code as visible text, and show a notice
+- keep HTML in field labels when a form is imported as a Trusted source
+- show quotation marks in a field's Default Value correctly in the form builder
+- delete options from a duplicated list or Select Image field without reloading the form builder
+- show WordPress versions below 6.9 as Not Supported in System Status
+
+*Enhancements:*
+
+- show grab and pointer cursors on the drag, merge tag and delete icons of calculation and option rows
+- leave field settings the browser doesn't use out of published forms, with a new ninja_forms_backend_only_field_settings filter to add one back
+
+
+== Changelog ==
+= 3.16.2 (23 November 2026) =
+
+*Bug Fixes:*
+
+- send events from the Google Analytics 4 action again, for both its GA4 and Tag Manager methods
+- save the correct result for a calculation that uses another calculation listed below it
+- use a Hidden field's saved value in calculations and payment totals, unless a Conditional Logic rule sets it
+- count submissions the same way in calculations as in emails, including the submission being made and leaving out trashed submissions
+- number uploaded files with the entry's own number when {submission:sequence} is used in the file name
+- fill Form merge tags such as {submission:sequence} in Hidden field default values
+- fill post data merge tags in action settings with the page the form was submitted from
+- apply a changed submission limit straight away, and always show the limit message when a submission is refused
+- keep a Single Checkbox Checked or Unchecked value of 0 instead of replacing it with the built-in label
+- show the Checked or Unchecked wording, not the calculation value, for Single Checkbox merge tags in actions
+- give each {other:random} merge tag its own value when it is used more than once in the same text
+- refuse submissions when the hidden anti-spam field is filled in, including by scripts that don't use jQuery
+- show a form notice instead of "This is a required field" when an Invisible reCAPTCHA v2 can't load
+- load reCAPTCHA v3 on pages where Elementor Pro or another plugin registers Google's reCAPTCHA script
+- show forms placed in Elementor popups and other areas added to the page after it loads
+- fill merge tags in field descriptions, including on Signature fields
+- keep help text working on a field that Conditional Logic shows again
+- show every year from the Start Year to the End Year in the Date field calendar
+- show the year in the date picker on sites whose styles change how dropdowns display
+- wrap the Date field label in a label element, like other fields
+- stop adding autocomplete="on" to fields with no matching autocomplete type
+- remove the empty space left by Hidden fields
+- place Single Checkbox descriptions under the checkbox when the label is on the right
+- line up Date/Time, list, Star Rating and Signature labels with other labels when Label Position is Left of Element
+- stack column helper classes, such as two-col-list and one-half, on screens 767px wide and narrower
+- show the form preview on classic themes that use a page builder such as Divi
+- prevent an "Automatic conversion of false to array" deprecation notice when a form is submitted
+- show list field answers without "<br />" text on the legacy Submissions page
+- delete a field's answers from submissions when the field, or a Repeatable Fieldset field, is deleted
+- show options added with the ninja_forms_render_options filter when editing a submission
+- put Repeatable Fieldset answers under the right columns in the Email action's CSV when a fieldset has more than 10 fields
+- prevent Download All Submissions running out of memory on forms with a Country field
+- keep text colours in HTML field content when a form is imported or saved
+- remove style and script blocks whole when a form is imported, instead of leaving their code as visible text, and show a notice
+- keep HTML in field labels when a form is imported as a Trusted source
+- show quotation marks in a field's Default Value correctly in the form builder
+- delete options from a duplicated list or Select Image field without reloading the form builder
+- show WordPress versions below 6.9 as Not Supported in System Status
+
+*Enhancements:*
+
+- show grab and pointer cursors on the drag, merge tag and delete icons of calculation and option rows
+- leave field settings the browser doesn't use out of published forms, with a new ninja_forms_backend_only_field_settings filter to add one back
+
+= 3.16.1 (09 November 2026) =
+
+*Bug Fixes:*
+
+- let a form be submitted again after a form-level message, such as a cancelled payment, without reloading the page
+- show a message and release the Submit button when a submission fails because of a lost connection or an unreadable server reply
+- clear a typed date that doesn't match the field's format and show the invalid date message, instead of silently changing it to a different date
+- show the invalid date message the first time an invalid date is typed
+- write the long date format in the word order of the site's language
+- update an HTML field as a Paragraph Text field it shows is typed in, keeping line breaks
+- stop showing a passing checkmark on a required Checkbox List field when no option is ticked
+- apply a field's custom Element class to each option of Checkbox List, Radio List and Select Image fields
+- move the cursor to the first field of a newly added Repeatable Fieldset set
+- run reCAPTCHA v3 and Akismet spam checks before any other form action, so rejected submissions no longer trigger WP Hook or add-on actions
+- prevent the Public Link page returning a 404 after the site's permalink rules are rebuilt
+- show the Public Link page without an "Archives" heading on themes that have no page template, such as Twenty Twenty
+- prevent a critical error on forms whose First Name, Last Name or Email field has a legacy "User Meta" default type
+- prevent a fatal "Cannot redeclare wp_session_cleanup()" error alongside plugins such as Charitable Pro
+- show rich text Paragraph Text answers as formatted text instead of HTML tags in the Submissions table
+- show each paragraph and list item of a rich text answer on its own line when editing a submission, and keep them when saving
+- show only the ticked options in Checkbox List cells, and let Submissions table cells grow instead of scrolling
+- keep the status, search and date filters when paging or changing page size on the Submissions page
+- show the correct hour for Date fields set to 24 hour mode on the Submissions page
+- export rich text Paragraph Text answers as readable text, without formatting tags, in Download All Submissions
+- leave reCAPTCHA and other hidden system fields out of the CSV attached to Email actions
+- place new fields where they are dropped in a Repeatable Fieldset in the form builder
+- stop the form builder going blank when a Date field's Minute Increment is 0
+- hide the Placeholder setting on Date/Time fields set to Time Only, where it had no effect
+- sort the Dashboard forms list by Date Created and Title on the first click
+- prevent errors when previewing unpublished changes on a form that has never been published
+- refresh the Add-Ons list after a bulk plugin update wherever Ninja Forms falls in the batch
+- keep each form when the create-form ability is called more than once in a request
+
+*Enhancements:*
+
+- open the Submissions Table block's settings when the block is clicked before any fields are chosen
+- list Ninja Forms deprecation notices in the Error logs section of Get Help
+- delete abandoned submission export files after 24 hours with a daily cleanup
+
+= 3.16.0 (02 November 2026) =
+
+*Bug Fixes:*
+
+- show translated text in places that stayed in English because of incorrect text domains or missing script translation folders
+- show Ninja Forms in each user's profile language when it differs from the site language
+- stop WordPress 6.7 and later logging a "translation loading was triggered too early" notice for Ninja Forms
+- export a Checkbox field value that was saved as a word in another language exactly as it was saved
+- list Timor-Leste once in country lists, and sort countries with accented names in alphabetical order
+
+*Enhancements:*
+
+- connect a PayPal account from the new Payments page and take payments on forms without an add-on
+- bundle translations for 41 languages, using WordPress.org's wording where it exists and the bundled translation where it doesn't
+- make every Ninja Forms string translatable on WordPress.org again, including those added since 3.6.9
+- reword English strings so they translate accurately
+
+= 3.15.7 (2 November 2026) =
 
 *Security Enhancements:*
 
-- protect block token/refresh endpoint against unauthorized access
-- add capability check to render_callback for blocks
+- verify the license server's certificate when checking and activating licenses
+- apply the site's unfiltered HTML restriction to the Not Logged-In and Limit Reached messages
+- show option labels in form builder dropdown settings as plain text
+- harden merge tag handling of submitted values, visitor IP address, referring page and post details
+- enforce the "Require user to be logged in" setting when a form is submitted
 
-== Changelog ==
+*Bug Fixes:*
+
+- keep hand-coded tables intact in the Email action message editor
+- load the Email action rich text editor correctly when a message contains older table markup
+- keep Checkbox List calculations working when an option has a blank calc value
+- count only typed characters toward the character limit on fields with an input mask
+- show an error when a favorite field could not be deleted instead of appearing to remove it
+- keep a form's display name when it is imported
+- fill in {submission:sequence} in emails re-sent from the Submissions page
+- keep date values in the correct format when editing a submission
+- keep calculated values in an HTML field when an unrelated field in it changes
+- let Date fields created before date modes existed pass required validation
+- register the first keystroke or paste in an empty rich text Paragraph Text field
+- remove PHP warnings when a form contains a field from a deactivated add-on
+- prevent a fatal error on submission when a Collect Payment action's payment add-on is inactive
+- keep spacing intact when Paragraph Text reaches its word limit
+- remove PHP warnings when exporting submissions with an empty Repeatable Fieldset
+- stop the form builder freezing when adding or moving fields in a large Repeatable Fieldset
+- prevent a page error when a {querystring:} merge tag receives a list value
+
+= 3.15.6 (15 October 2026) =
+
+*Security Enhancements:*
+
+- protect HTML fields against script injection through query string merge tag values
+- block shortcode execution through submitted field values in Success Message merge tags
+- block shortcode execution through the {wp:user_display_name} merge tag
+- protect stored submission data against cross-site scripting
+- give each Email action CSV attachment its own private file
+- always escape field values in Email and Success Message actions, regardless of how the action was saved
+
+*Bug Fixes:*
+
+- restore the Quote Request form template
+- make the resize handle work in the Email action HTML source editor
+- return the correct URL from {wp:post_url} when a form is on the home page
+- remove the "Undefined variable $errors" PHP warning from Confirm fields
+- show Repeatable Fieldset values on the Submissions page after switching forms
+- keep List field values from being copied into new entries when a form has more than one Repeatable Fieldset
+- keep the page at the new entry after adding another Repeatable Fieldset entry
+- keep field values containing special characters intact in emails and success messages
+- leave out deleted Repeatable Fieldset fields when re-sending an email action
+- handle merge tags in Email action To, CC and BCC fields as valid address lists
+- make "Add New Terms" work on the front end for Terms List fields
+- show term names instead of term IDs in Terms List submissions
+- show field labels that contain HTML as readable text on the New Submissions page
+- use one translatable message for required-field errors
+- return a 404 for public link URLs with invalid keys
+- keep forms loading when another script replaces the page's Underscore library
+- show Time Only and Date & Time values inside Repeatable Fieldsets correctly when editing a submission
+- use Single Checkbox custom values in Email action CSV attachments and remove the related PHP warnings
+- remove the legacy ninja_forms_load_deprecated option
+- regularly clean up expired session data
+- look up newsletter lists only in the form builder instead of on every page view
+- improve reliability of opt-in usage data and limit how much is stored when reports are not acknowledged
+
+= 3.15.5 (28 September 2026) =
+
+*Security Enhancements:*
+
+- strengthen sanitization of Paragraph Text (Rich Text) field submissions against stored cross-site scripting
+
+*Bug Fixes:*
+
+- save File Upload and other fields inside a Repeatable Fieldset correctly
+- remove "Undefined array key fields-save-toggle" PHP warning when saving submissions
+- remove foreach() PHP warnings when a repeatable fieldset is left blank
+- display calculation values with the correct locale separator in form actions
+- stop embedded-page forms from reflecting unsaved builder changes
+- hide unknown fields from merge tag name search results
+- stop the "Congratulations" popup from appearing after every builder action
+- send opt-in telemetry only once
+- fix the AM/PM indicator for long date/time formats
+- prevent an unnecessary redirect with GET parameters on a second submission
+- fix the broken Front End Posting documentation link
+- support reCAPTCHA v3 when the same form is embedded multiple times on a page
+- show copied fields in the merge tag list
+- allow number fields to be pre-populated via query strings
+- add the {other:formatted_date} merge tag to core
+- rename the "Disable Browser Autocomplete" setting for clarity and note that browsers may still autofill
+- reject list fields created without options through the abilities API
+
+= 3.15.4 (21 September 2026) =
+
+*Security Enhancements:*
+
+- strengthen output escaping in admin submission edit screen; responsibly reported by Venkateswara Reddy Challa
+- protect CSV export against object injection in stored submission data
+- enforce server-side option validation for list fields
+
+*Bug Fixes:*
+
+- add CSS class setting to Hidden fields
+- make Select Image field mobile responsive
+- use relative paths for image URLs in Select Image field
+- fix JavaScript error when deleting forms in dashboard
+- resolve PHP warning for undefined reCAPTCHA settings key
+- display form title correctly when heading level is unset
+- return proper error when submission abilities reference nonexistent submission
+- prevent fatal memory error on Get Help page with large debug logs
+- silence PHP 8 warning from add-on update checker when store returns no record
+
+= 3.15.3 (07 September 2026) =
+
+*Security Enhancements:*
+
+- strengthen input validation for unserialize() operations
+
+*Bug Fixes:*
+
+- preserve newsletter action list selection when provider connection is temporarily unavailable
+- encode special characters correctly in CSV submission exports
+- allow optional and hidden Date/Time fields to pass validation
+- keep rich text editor scrollbar visible and functional in all views
+
+= 3.15.2 (31 August 2026) =
+
+*Security Enhancements:*
+
+- enforce granular two-tier permission model in Abilities API, responsibly reported by ChinhNguyen
+- neutralize shortcode brackets in IP address and referer URL merge tags, responsibly reported by Jakub Herman
+- validate repeater child field entries against server-side definitions
+- apply context-correct output escaping in legacy submissions admin
+- ensure shortcode neutralization callback is accessible for array inputs
+
+*Bug Fixes:*
+
+- fix fatal error when Date/Time field is included in a CSV email attachment
+- show correct Developer Mode status notice in form builder settings drawer
+
+= 3.15.1 (24 August 2026) =
+
+*Security Enhancements:*
+
+- strengthen input validation for list field option imports
+
+*Bug Fixes:*
+
+- allow non-Latin characters and special symbols in list field option values
+- preserve HTML formatting in checkbox and radio list option labels after editing
+- capture time values correctly when Date/Time field is inside a Repeater
+- preserve user-authored HTML in rich text editor without restructuring on toggle
+- preserve HTML comments in Email Message field through Source/Visual toggles
+- keep heading-formatted text inside table cells in rich text editor
+- preserve nested div elements in HTML field editor
+- prevent editor from marking field as changed on initial load
+- display rich text editor toolbar icons for logged-out users
+- prevent fatal error when marketing feed data is corrupted
+- delay Date/Time required validation until user finishes entering time
+- make Date/Time field Hour and Minute placeholder text translatable
+- resolve critical error on non-English sites running PHP 8+
+- fix TypeError when Custom Input Mask contains only numbers
+- show correct AI provider status when Ollama connector is configured
+
+= 3.15.0 (12 August 2026) =
+
+*Enhancements:*
+
+- add AI Form Builder: generate forms from natural language prompts via the Abilities API
+
+*Bug Fixes:*
+
+- fix typed signatures with periods appearing incomplete after switching fields
+- prevent form from rendering multiple times when using "Append a Ninja Form" with other plugins
+- allow terms list field to be set as required
+
+= 3.14.12 (10 August 2026) =
+
+*Bug Fixes:*
+
+- tables inserted via toolbar now have visible borders and padding
+- preserve hand-coded table HTML in Email Message field
+- resolve TypeError when nf-behavioral.js file is missing
+- validation error on Time Only field now clears correctly
+- required field asterisk displays correctly on multi-form pages
+- form builder loads correctly when marketing filter is disabled
+- repeatable fieldset data now displays in email summaries
+
+*Security Enhancements:*
+
+- strengthen SQL query parameter handling
+
+= 3.14.11 (23 July 2026) =
+
+*Bug Fixes:*
+
+- fix CSV export column alignment for fields placed after repeatable fieldsets
+- preserve <br>, <hr>, and <pre> tags in HTML field editor
+- clear validation error on Time Only field when user corrects input
+- fix ninja_forms_render_options filter breaking form validation
+
+= 3.14.10 (20 July 2026) =
+
+*Bug Fixes:*
+
+- fix anchor tag URLs breaking when merge tags are used as querystrings in HTML fields
+- fix date field required validation not triggering for Date & Time mode
+- fix {other:date} merge tag reporting dates in UTC instead of local timezone
+
+*Enhancements:*
+
+- add banner-led partner cards to Partner Apps & Services tab
+
+*Security Enhancements:*
+
+- protect against SQL injection in import settings key
+- block unauthenticated shortcode execution; responsibly reported by Meher Sudhakar Abbireddi
+
+= 3.14.9 (09 July 2026) =
+
+*Bug Fixes:*
+
+- restore visibility of "Almost there..." heading in new-form drawer
+- add descender allowance for typed signature fonts in PDF
+
+*Security Enhancements:*
+
+- protect against unauthorized multisite data deletion
+- protect against stored XSS in Repeatable Fieldset
+- protect against field metadata override
+- protect against calc value injection in list fields
+- protect against unauthorized access to submissions via block insertion
+
+= 3.14.8 (230 June 2026) =
+
+*Bug Fixes:*
+
+- fix merge tag picker falsely triggering for calculation tags with slash in name
+- fix phone field truncating last digit when browser autofill includes country code
+- fix PHP warning for array offset on null in Model.php
+- fix opinionated styles CSS not loading for logged-out users
+- fix Gutenberg block editor iframe not loading (add API version 3)
+- fix personal data export failing with PHP fatal error in UserDataRequests.php
+- fix invisible reCAPTCHA v2 not working due to block scope bug
+- fix form builder sidebar not closing when screen width expands
+- fix {fields_table} incorrectly including unchecked checkbox fields
+
+= 3.14.7 (18 June 2026) =
+
+*Bug Fixes:*
+
+- fix date field "default to current date" displaying wrong date with conditional logic
+- fix date/date-time field value corruption when editing via submissions backend
+- fix checkbox fields not being redacted from record submissions
+- fix time display on single submission page for date/time fields
+- fix decimal precision loss in calculations
+
+*Enhancements:*
+
+- increase default visible columns in legacy submissions from 5 to 10
+- remove survey promo from admin
+
+*Security Enhancements:*
+
+- protect against PHP object injection in form import
+
+= 3.14.6 (10 June 2026) =
+
+*Bug Fixes:*
+
+- fix PHP warnings when retriggering emails from submissions page
+- fix bulk export returning no results when selecting a single day
+
+= 3.14.5 (19 May 2026) =
+
+*Bug Fixes:*
+
+- fix Rich Text Editor content displaying as raw HTML in submissions modal
+- fix HTML entity decoding in Rich Text Editor fields
+- fix Quill Rich Text Editor inline text alignment not being preserved
+- fix unordered list content being stripped in Quill Rich Text Editor
+- fix ordered list items getting unwanted markup injected in Quill Rich Text Editor
+- limit telemetry to admin only
+
+= 3.14.4 (11 May 2026) =
+
+*Bug Fixes:*
+
+- fix repeater field data showing as "Array" in email CSV attachments
+- fix mixed content blocking CSV downloads
+- fix CSV export with multiple repeater fields
+- fix repeater fieldset data misalignment in CSV exports
+- fix phone numbers with plus sign getting apostrophe prefix in CSV
+- fix decimal precision loss in number fields
+- fix form title showing blank for accessibility compliance
+- fix Quill Rich Text Editor placeholder initialization
+- fix merge tags with spaces in names not being recognized
+- fix PHP 8.4 nullable type deprecation warnings
+
+= 3.14.3 (29 April 2026) =
+
+*Bug Fixes:*
+
+- fix Quill.js Rich Text Editor table functionality not working properly
+- fix HTML being sanitized/stripped when saving Quill.js RTE content
+- fix Quill.js CSS conflicts with certain add-ons
+- fix ESC key removing HTML content from success messages with calculations
+- fix PHP warning for undefined array key "payment_total_type"
+- fix radio and checkbox field alignment for RTL languages
+
+*Enhancements:*
+
+- improve color contrast for form names on dashboard to meet WCAG 2.2 AA standards
+- improve color contrast for "Add New" button on dashboard to meet WCAG AA standards
+- add ARIA attributes, keyboard navigation, and focus styles to Quill.js RTE
+
 = 3.14.2 (04 March 2026) =
 
 *Bug Fixes:*

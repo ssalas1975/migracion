@@ -245,7 +245,7 @@ class BackWPup_Page_BackWPup {
 			<div id="backwpup-thank-you" class="metabox-holder postbox backwpup-cleared-postbox backwpup-max-width">
 				<h3 class="hndle"><span><?php echo esc_html_x( 'Thank you for using BackWPup!', 'Pro teaser box', 'backwpup' ); ?></span></h3>
 				<div class="inside">
-                    <p><a href="<?php echo esc_url( __( 'http://backwpup.com', 'backwpup' ) ); ?>"><img class="backwpup-banner-img" src="<?php echo esc_url( BackWPup::get_plugin_data('URL') ); ?>/assets/images/banner.png" alt="<?php esc_attr_e('BackWPup banner', 'backwpup'); ?>" /></a></p>
+                    <p><a href="<?php echo esc_url( __( 'https://backwpup.com', 'backwpup' ) ); ?>"><img class="backwpup-banner-img" src="<?php echo esc_url( BackWPup::get_plugin_data('URL') ); ?>/assets/images/banner.png" alt="<?php esc_attr_e('BackWPup banner', 'backwpup'); ?>" /></a></p>
 					<h3 class="backwpup-text-center"><?php echo esc_html_x( 'Get access to:', 'Pro teaser box', 'backwpup' ); ?></h3>
 					<ul class="backwpup-text-center">
 						<li><?php echo wp_kses_post( _x( 'First-class <strong>dedicated support</strong> at backwpup.com.', 'Pro teaser box', 'backwpup' ) ); ?></li>
@@ -253,11 +253,11 @@ class BackWPup_Page_BackWPup {
 						<li><?php echo esc_html_x('Easy-peasy wizards to create and schedule backup jobs.', 'Pro teaser box', 'backwpup'); ?></li>
 						<li><?php printf(
 								'<a href="%s">%s</a>',
-								esc_url( __( 'http://backwpup.com', 'backwpup' ) ),
+								esc_url( __( 'https://backwpup.com', 'backwpup' ) ),
 								esc_html_x( 'And more…', 'Pro teaser box, link text', 'backwpup' )
 							); ?></li>
 					</ul>
-					<p class="backwpup-text-center"><a href="<?php echo esc_url( __( 'http://backwpup.com', 'backwpup' ) ); ?>" class="button button-primary button-primary-bwp" title="<?php echo esc_attr_x( 'Get BackWPup Pro now', 'Pro teaser box, link title', 'backwpup' ); ?>"><?php echo esc_html_x( 'Get BackWPup Pro now', 'Pro teaser box, link text', 'backwpup' ); ?></a></p>
+					<p class="backwpup-text-center"><a href="<?php echo esc_url( __( 'https://backwpup.com', 'backwpup' ) ); ?>" class="button button-primary button-primary-bwp" title="<?php echo esc_attr_x( 'Get BackWPup Pro now', 'Pro teaser box, link title', 'backwpup' ); ?>"><?php echo esc_html_x( 'Get BackWPup Pro now', 'Pro teaser box, link text', 'backwpup' ); ?></a></p>
 				</div>
 			</div>
 			<?php } ?>
@@ -385,11 +385,7 @@ class BackWPup_Page_BackWPup {
 						echo '<tr class="alternate">';
 						$alternate = false;
 					}
-					echo '<td>' . sprintf(
-						esc_html__( '%1$s at %2$s', 'backwpup' ),
-						esc_html( date_i18n( get_option( 'date_format' ), $logdata['logtime'] ) ),
-						esc_html( date_i18n( get_option( 'time_format' ), $logdata['logtime'] ) )
-					) . '</td>';
+					echo '<td>' . esc_html( self::format_log_datetime( (int) $logdata['logtime'] ) ) . '</td>';
 					$log_name = str_replace( [ '.html', '.gz' ], '', $logfile->getBasename() );
 					echo '<td><a class="thickbox" href="' . esc_url( admin_url( 'admin-ajax.php?action=backwpup_view_log&log=' . $log_name . '&_ajax_nonce=' . wp_create_nonce( 'view-log_' . $log_name ) . '&TB_iframe=true&width=640&height=440' ) ) . '" title="' . esc_attr( $logfile->getBasename() ) . '">' . esc_html( $logdata['name'] ) . '</i></a></td>';
 					echo '<td>';
@@ -431,4 +427,24 @@ class BackWPup_Page_BackWPup {
 		</table>
 		<?php
     }
+
+	/**
+	 * Format a UTC timestamp for the site timezone.
+	 *
+	 * @param int $timestamp UTC timestamp.
+	 *
+	 * @return string
+	 */
+	private static function format_log_datetime( int $timestamp ): string {
+		$container = wpm_apply_filters_typed( '?object', 'backwpup_container', null );
+		if ( is_object( $container ) && method_exists( $container, 'has' ) && $container->has( 'log_facade' ) ) {
+			$log_facade = $container->get( 'log_facade' );
+			if ( is_object( $log_facade ) && method_exists( $log_facade, 'format_datetime' ) ) {
+				return $log_facade->format_datetime( $timestamp );
+			}
+		}
+
+		$log_facade = new \WPMedia\BackWPup\Log\LogFacade();
+		return $log_facade->format_datetime( $timestamp );
+	}
 }

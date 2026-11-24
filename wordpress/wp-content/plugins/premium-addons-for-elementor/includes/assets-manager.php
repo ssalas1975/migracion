@@ -10,8 +10,6 @@ use PremiumAddons\Includes\Helper_Functions;
 use PremiumAddons\Admin\Includes\Admin_Helper;
 use PremiumAddons\Admin\Includes\Admin_Bar;
 
-require_once PREMIUM_ADDONS_PATH . 'widgets/dep/urlopen.php';
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -83,6 +81,10 @@ class Assets_Manager {
 
 			add_action( 'elementor/editor/after_save', array( $this, 'handle_post_save' ), 10, 2 );
 
+			// Elementor data written outside the editor: WPML/Polylang translations, WP-CLI, importers.
+			add_action( 'updated_post_meta', array( $this, 'maybe_invalidate_assets' ), 10, 3 );
+			add_action( 'added_post_meta', array( $this, 'maybe_invalidate_assets' ), 10, 3 );
+
 			add_action( 'elementor/theme/register_locations', array( $this, 'get_asset_per_location' ), 20 );
 			add_filter( 'elementor/files/file_name', array( $this, 'load_asset_per_file' ) );
 
@@ -92,6 +94,10 @@ class Assets_Manager {
 			add_action( 'wp_trash_post', array( $this, 'delete_trashed_post_data' ) );
 
 			add_action( 'elementor/frontend/before_enqueue_styles', array( $this, 'before_enqueue_styles' ) );
+
+			if ( $this->integrations['premium-wp-optimize-exclude'] ) {
+				add_filter( 'wp-optimize-minify-default-exclusions', array( $this, 'exclude_pa_assets_from_wp_optimize' ) );
+			}
 
 			// Add admin bar tools for dynamic assets clear.
 			$row_meta = Helper_Functions::is_hide_row_meta();
@@ -235,7 +241,7 @@ class Assets_Manager {
 			'pafe' . $dynamic_asset_id,
 			Helper_Functions::get_safe_url( PREMIUM_ASSETS_URL . '/' . 'pafe' . $dynamic_asset_id . '.css' ),
 			array(),
-			time()
+			get_post_modified_time()
 		);
 
 		// If no JS file found, then generate it.
@@ -249,7 +255,7 @@ class Assets_Manager {
 				'pafe' . $dynamic_asset_id,
 				Helper_Functions::get_safe_url( PREMIUM_ASSETS_URL . '/' . 'pafe' . $dynamic_asset_id . '.js' ),
 				array(),
-				time(),
+				get_post_modified_time(),
 				true
 			);
 		}
@@ -287,6 +293,53 @@ class Assets_Manager {
 
 		$widget_list = $this->extract_pa_elements( $data );
 		$this->save_pa_widgets_list( $post_id, $widget_list );
+	}
+
+	/**
+	 * Maybe Invalidate Assets.
+	 *
+	 * Drops the cached widgets list and the asset files on writes the editor save
+	 * hook never sees - WPML/Polylang, WP-CLI, importers. Rebuilt on the next
+	 * front-end request by get_pa_elements_list().
+	 *
+	 * @access public
+	 * @since 4.11.102
+	 *
+	 * @param int    $meta_id  meta row ID.
+	 * @param int    $post_id  post ID.
+	 * @param string $meta_key meta key.
+	 *
+	 * @return void
+	 */
+	public function maybe_invalidate_assets( $meta_id, $post_id, $meta_key ) {
+
+		if ( '_elementor_data' !== $meta_key ) {
+			return;
+		}
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$post_id = intval( $post_id );
+
+		if ( ! $post_id ) {
+			return;
+		}
+
+		// Revisions and autosaves hold their own copy of the data, the parent post is untouched.
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
+		// Nothing cached yet for this post, get_pa_elements_list() will build it.
+		if ( ! $this->has_assets_data( $post_id ) ) {
+			return;
+		}
+
+		delete_post_meta( $post_id, self::ASSETS_KEY );
+
+		self::delete_assets_files( $post_id );
 	}
 
 	/**
@@ -334,7 +387,7 @@ class Assets_Manager {
 
 						if ( in_array( $widget_type, $pa_names, true ) && ! in_array( $widget_type, $pa_elems, true ) ) {
 
-							array_push( $pa_elems, $widget_type );
+							$pa_elems[] = $widget_type;
 
 						}
 					}
@@ -523,6 +576,7 @@ class Assets_Manager {
 				'premium-smart-post-listing',
 				'premium-notifications',
 				'premium-site-logo',
+				'premium-tcloud',
 			);
 
 		}
@@ -668,6 +722,12 @@ class Assets_Manager {
 	 */
 	public function get_pro_widgets_names() {
 
+		static $pro_names = null;
+
+		if ( null !== $pro_names ) {
+			return $pro_names;
+		}
+
 		$pro_elements = Admin_Helper::get_pro_elements();
 		$pro_names    = array();
 
@@ -718,6 +778,26 @@ class Assets_Manager {
 			wp_send_json_error( __( 'You are not allowed to do this action', 'premium-addons-for-elementor' ) );
 		}
 
+		self::clear_dynamic_assets( $id );
+	}
+
+	/**
+	 * Clear Dynamic Assets.
+	 *
+	 * Pure dynamic-assets clearer: clears Elementor's file cache, deletes the
+	 * generated asset files (site-wide when $id is empty, otherwise for a single
+	 * post) and purges the LiteSpeed cache. Shared by clear_dynamic_assets_data()
+	 * (AJAX, permission-checked) and the premium-addons/clear-dynamic-assets
+	 * ability (permission-gated via its permission_callback) so the two never
+	 * drift.
+	 *
+	 * @since 4.11.74
+	 * @access public
+	 *
+	 * @param string $id post ID. Empty clears the assets site-wide.
+	 */
+	public static function clear_dynamic_assets( $id = '' ) {
+
 		if ( Helper_Functions::check_elementor_version() ) {
 			Plugin::$instance->files_manager->clear_cache();
 		}
@@ -726,10 +806,10 @@ class Assets_Manager {
 			delete_post_meta( $id, self::ASSETS_KEY );
 		}
 
-		// Purge All LS Cache
+		// Purge All LS Cache.
 		do_action( 'litespeed_purge_all', 'Premium Addons for Elementor' );
 
-		$this->delete_assets_files( $id );
+		self::delete_assets_files( $id );
 	}
 
 	/**
@@ -770,12 +850,15 @@ class Assets_Manager {
 
 				unlink( Helper_Functions::get_safe_path( $file->getPathname() ) );
 			}
-		} else {
 
-			foreach ( glob( PREMIUM_ASSETS_PATH . '/*' . $id . '*' ) as $file ) {
-				if ( is_file( $file ) ) {
-					unlink( Helper_Functions::get_safe_path( $file ) );
-				}
+			return;
+		}
+
+		foreach ( array( 'css', 'js' ) as $ext ) {
+			$file = Helper_Functions::get_safe_path( $path . '/pafe-' . $id . '.' . $ext );
+
+			if ( file_exists( $file ) ) {
+				unlink( $file );
 			}
 		}
 	}
@@ -828,11 +911,11 @@ class Assets_Manager {
 
 		$documents = is_object( Plugin::$instance->documents ) ? Plugin::$instance->documents->get( $post_id ) : array();
 
-		if ( ! in_array( get_post_status( $post_id ), array( 'publish', 'private' ) ) || ( is_object( $documents ) && ! $documents->is_built_with_elementor() ) ) {
+		if ( ! in_array( get_post_status( $post_id ), array( 'publish', 'private' ), true ) || ( is_object( $documents ) && ! $documents->is_built_with_elementor() ) ) {
 			return false;
 		}
 
-		if ( in_array( get_post_meta( $post_id, '_elementor_template_type', true ), array( 'kit' ) ) ) {
+		if ( in_array( get_post_meta( $post_id, '_elementor_template_type', true ), array( 'kit' ), true ) ) {
 			return false;
 		}
 
@@ -899,16 +982,23 @@ class Assets_Manager {
 	}
 
 	/**
-	 * Exclude PA assets from WP Optimize
+	 * Exclude the generated dynamic assets from WP-Optimize minification.
+	 *
+	 * WP-Optimize matches each entry as a case-insensitive substring of the asset URL,
+	 * so the uploads directory fragment covers every pafe[-{postID}].css/js.
 	 *
 	 * @since 4.10.73
 	 * @access public
+	 *
+	 * @param array $exclusions WP-Optimize minify exclusions.
+	 *
+	 * @return array
 	 */
-	function exclude_pa_assets_from_wp_optimize( $excluded_handles ) {
+	public function exclude_pa_assets_from_wp_optimize( $exclusions ) {
 
-		$excluded_handles[] = 'pa-frontend';
+		$exclusions[] = '/premium-addons-elementor/';
 
-		return $excluded_handles;
+		return $exclusions;
 	}
 
 	/**
@@ -921,6 +1011,14 @@ class Assets_Manager {
 
 		$dir    = Helper_Functions::get_styles_dir();
 		$suffix = Helper_Functions::get_assets_suffix();
+
+		wp_register_style(
+			'pa-common',
+			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/common' . $suffix . '.css',
+			array(),
+			PREMIUM_ADDONS_VERSION,
+			'all'
+		);
 
 		wp_register_style(
 			'font-awesome-5-all',
@@ -947,6 +1045,14 @@ class Assets_Manager {
 		wp_register_style(
 			'pa-btn',
 			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/button-line' . $suffix . '.css',
+			array(),
+			PREMIUM_ADDONS_VERSION,
+			'all'
+		);
+
+		wp_register_style(
+			'pa-mask',
+			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/minimal-mask' . $suffix . '.css',
 			array(),
 			PREMIUM_ADDONS_VERSION,
 			'all'
@@ -1034,7 +1140,10 @@ class Assets_Manager {
 
 		if ( ! $this->enabled_elements['premium-assets-generator'] ) {
 
-			wp_enqueue_style(
+			// Registered, not enqueued: every widget lists this handle in get_style_depends(), and Elementor
+			// enqueues it from the _elementor_page_assets meta before wp_head. Pages carrying no PA widget
+			// therefore skip the bundle entirely.
+			wp_register_style(
 				'premium-addons',
 				PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/premium-addons' . $suffix . '.css',
 				array(),
@@ -1202,6 +1311,14 @@ class Assets_Manager {
 		);
 
 		wp_register_script(
+			'pa-tcloud',
+			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/premium-tcloud' . $suffix . '.js',
+			array( 'jquery' ),
+			PREMIUM_ADDONS_VERSION,
+			true
+		);
+
+		wp_register_script(
 			'lottie-js',
 			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/lottie' . $suffix . '.js',
 			array( 'jquery' ),
@@ -1237,7 +1354,8 @@ class Assets_Manager {
 			'pa-headroom',
 			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/headroom' . $suffix . '.js',
 			array( 'jquery' ),
-			PREMIUM_ADDONS_VERSION
+			PREMIUM_ADDONS_VERSION,
+			true
 		);
 
 		wp_register_script(
@@ -1285,7 +1403,8 @@ class Assets_Manager {
 			'pa-flipster',
 			PREMIUM_ADDONS_URL . 'assets/frontend/' . $dir . '/flipster' . $suffix . '.js',
 			array( 'jquery' ),
-			PREMIUM_ADDONS_VERSION
+			PREMIUM_ADDONS_VERSION,
+			true
 		);
 
 		wp_register_script(
@@ -1467,14 +1586,7 @@ class Assets_Manager {
 				)
 			);
 
-			/**
-			 * Localize the $product_added_to_cart flag to mini cart script.
-			 * The transient is deleted to be used only once.
-			 */
-			$product_added_to_cart = get_transient( 'pa_product_added_to_cart' );
-			if ( $product_added_to_cart ) {
-				delete_transient( 'pa_product_added_to_cart' );
-			}
+			$product_added_to_cart = $this->consume_mini_cart_auto_open_flag();
 
 			wp_localize_script(
 				'premium-mini-cart',
@@ -1486,7 +1598,7 @@ class Assets_Manager {
 					'mini_cart_nonce'    => wp_create_nonce( 'pa-mini-cart-nonce' ),
 					'qv_nonce'           => wp_create_nonce( 'pa-woo-qv-nonce' ),
 					'stock_msg'          => __( '*The current stock is only ', 'premium-addons-for-elementor' ),
-					'productAddedToCart' => (bool) $product_added_to_cart,
+					'productAddedToCart' => $product_added_to_cart,
 				)
 			);
 
@@ -1545,6 +1657,42 @@ class Assets_Manager {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Reads and clears this visitor's pending mini cart auto open.
+	 *
+	 * This used to be a transient, which is site wide: one shopper's add to cart opened the mini
+	 * cart for every other visitor on the site for the next minute. Visitors with no WooCommerce
+	 * session simply never auto open — creating a session here would hand every anonymous page
+	 * view a cookie and defeat full page caching.
+	 *
+	 * Runs on every front end page view, so the flag is consumed whether or not that page renders
+	 * a mini cart. Elementor enqueues widget script dependencies at render time, long after this
+	 * point, so there is nothing cheap to test here.
+	 *
+	 * @since 4.11.106
+	 * @access private
+	 *
+	 * @return bool
+	 */
+	private function consume_mini_cart_auto_open_flag() {
+
+		$session = WC()->session;
+
+		if ( ! $session ) {
+			return false;
+		}
+
+		$added_at = absint( $session->get( 'pa_product_added_to_cart' ) );
+
+		if ( ! $added_at ) {
+			return false;
+		}
+
+		$session->set( 'pa_product_added_to_cart', null );
+
+		return ( time() - $added_at ) < MINUTE_IN_SECONDS;
 	}
 
 	/**

@@ -29,13 +29,25 @@ $gallery_id      = null;
 if ( isset( $displayed_gallery->container_ids ) && ! empty( $displayed_gallery->container_ids ) ) {
 	$gallery_id = reset( $displayed_gallery->container_ids );
 }
-$data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
+$data_gallery_id   = $gallery_id ? $gallery_id : $displayed_gallery->id();
+$data_gallery_name = '';
+if ( isset( $gallery ) && ! empty( $gallery->title ) ) {
+	$data_gallery_name = $gallery->title;
+} elseif ( $gallery_id ) {
+	$_ngg_ib_gallery = \Imagely\NGG\DataMappers\Gallery::get_instance()->find( intval( $gallery_id ) );
+	if ( $_ngg_ib_gallery ) {
+		$data_gallery_name = $_ngg_ib_gallery->title;
+	}
+}
 ?>
 <?php $this->start_element( 'nextgen_gallery.gallery_container', 'container', $displayed_gallery ); ?>
 	<div class='ngg-imagebrowser default-view'
 		id='<?php print esc_attr( $anchor ); ?>'
-		data-nextgen-gallery-id="<?php print esc_attr( (string) $displayed_gallery->id() ); ?>"
-		data-gallery-id="<?php print esc_attr( (string) $data_gallery_id ); ?>">
+		data-nextgen-gallery-id="<?php echo esc_attr( $displayed_gallery->id() ); ?>"
+		data-gallery-id="<?php echo esc_attr( $data_gallery_id ); ?>"
+		<?php if ( $data_gallery_name ) : ?>
+		data-gallery-name="<?php echo esc_attr( $data_gallery_name ); ?>"
+		<?php endif; ?>>
 
 		<h3><?php print \Imagely\NGG\Display\I18N::ngg_decode_sanitized_html_content( $image->alttext ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></h3>
 
@@ -51,9 +63,10 @@ $data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
 		?>
 		<a href='<?php print esc_attr( $storage->get_image_url( $image ) ); ?>'
 			title='<?php print esc_attr( $image->description ); ?>'
-			data-src="<?php print esc_attr( $storage->get_image_url( $image ) ); ?>"
-			data-thumbnail="<?php print esc_attr( $storage->get_image_url( $image, 'thumb' ) ); ?>"
+			data-src="<?php print esc_attr( $storage->get_cache_busted_image_url( $image ) ); ?>"
+			data-thumbnail="<?php print esc_attr( $storage->get_cache_busted_image_url( $image, 'thumb' ) ); ?>"
 			data-image-id="<?php print esc_attr( $image->{$image->id_field} ); ?>"
+			data-image-name="<?php print esc_attr( $image->filename ?? '' ); ?>"
 			data-title="<?php print esc_attr( $image->alttext ); ?>"
 			data-description="<?php print esc_attr( stripslashes( $image->description ?? '' ) ); ?>"
 			<?php if ( ! empty( $image->meta_data['imagely_tiktok_play_url'] ) ) : ?>
@@ -72,9 +85,9 @@ $data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
 			<?php if ( $show_tiktok_play_button || ! empty( $image->meta_data['video_link'] ) ) { ?>
 				<span class="ngg-video-play-overlay" aria-hidden="true"></span>
 			<?php } ?>
-			<img title='<?php print esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>'
+			<img<?php echo \Imagely\NGG\Display\GalleryImage::attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributes() escapes each attribute with esc_attr(). ?> title='<?php print esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>'
 				alt='<?php print esc_attr( \Imagely\NGG\Display\I18N::ngg_plain_text_alt_title_attributes( $image->alttext ) ); ?>'
-				src='<?php print esc_attr( $storage->get_computed_image_url( $image ) ); ?>'/>
+				src='<?php print esc_attr( $storage->get_cache_busted_image_url( $image ) ); ?>'/>
 		</a>
 
 		<?php $this->include_template( 'GalleryDisplay/ImageAfter', $template_params ); ?>
@@ -85,7 +98,7 @@ $data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
 				<a class='ngg-browser-prev'
 					id='ngg-prev-<?php print esc_attr( $previous_pid ); ?>'
 					href='<?php print esc_url( $previous_image_link ); ?>'>
-					<i class="fa fa-chevron-left" aria-hidden="true"></i>
+					<i class="fas fa-chevron-left" aria-hidden="true"></i>
 				</a>
 			</div>
 
@@ -93,7 +106,7 @@ $data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
 				<a class='ngg-browser-next'
 					id='ngg-next-<?php print esc_attr( $next_pid ); ?>'
 					href='<?php print esc_url( $next_image_link ); ?>'>
-					<i class="fa fa-chevron-right" aria-hidden="true"></i>
+					<i class="fas fa-chevron-right" aria-hidden="true"></i>
 				</a>
 			</div>
 
@@ -116,6 +129,5 @@ $data_gallery_id = $gallery_id ? $gallery_id : $displayed_gallery->id();
 			<p><?php print \Imagely\NGG\Display\I18N::ngg_decode_sanitized_html_content( $image->description ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 		</div>
 
-	</div>		</div>
 	</div>
 <?php $this->end_element(); ?>

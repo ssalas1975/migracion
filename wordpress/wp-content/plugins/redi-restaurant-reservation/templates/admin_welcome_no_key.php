@@ -1,4 +1,3 @@
-<?php require_once(REDI_RESTAURANT_TEMPLATE. '../js/hotjar.js');?>
 <div class="wrap">
     <h3><?php _e('Welcome to the ReDi Restaurant Reservation plugin', 'redi-restaurant-reservation'); ?></h3>
     <div id="account_activation_container">

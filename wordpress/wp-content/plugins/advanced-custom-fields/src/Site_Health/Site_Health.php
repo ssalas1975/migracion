@@ -349,6 +349,7 @@ class Site_Health {
 			'field_groups_with_multiple_block_rules',
 			'field_groups_with_blocks_and_other_rules',
 			'all_location_rules',
+			'field_groups_by_post_type',
 		);
 
 		foreach ( $fields_to_unset as $field ) {
@@ -566,9 +567,10 @@ class Site_Health {
 			);
 		}
 
-		$all_fields   = array();
-		$object_types = array();
-		$all_rules    = array();
+		$all_fields                 = array();
+		$object_types               = array();
+		$all_rules                  = array();
+		$field_groups_per_post_type = array();
 
 		foreach ( $field_groups as $field_group ) {
 			$all_fields = array_merge( $all_fields, acf_get_fields( $field_group ) );
@@ -582,6 +584,12 @@ class Site_Health {
 					$operator    = ! empty( $rule['operator'] ) ? $rule['operator'] : '';
 					$value       = ! empty( $rule['value'] ) ? $rule['value'] : '';
 					$all_rules[] = $rule['param'] . $operator . $value;
+
+					if ( 'post_type' === $rule['param']
+						&& '==' === ( $rule['operator'] ?? '' )
+						&& ! empty( $rule['value'] ) ) {
+						$field_groups_per_post_type[ $rule['value'] ][ $field_group['key'] ] = true;
+					}
 
 					if ( ! $is_pro ) {
 						continue;
@@ -601,6 +609,19 @@ class Site_Health {
 		$fields['all_location_rules'] = array(
 			'label' => __( 'All Location Rules', 'acf' ),
 			'value' => array_values( array_unique( $all_rules ) ),
+		);
+
+		ksort( $field_groups_per_post_type );
+		$by_post_type = array();
+		foreach ( $field_groups_per_post_type as $post_type => $group_keys ) {
+			$by_post_type[] = array(
+				'post_type'         => $post_type,
+				'field_group_count' => count( $group_keys ),
+			);
+		}
+		$fields['field_groups_by_post_type'] = array(
+			'label' => __( 'Field Groups by Post Type', 'acf' ),
+			'value' => $by_post_type,
 		);
 
 		if ( $is_pro ) {
@@ -923,26 +944,26 @@ class Site_Health {
 			'debug' => count( $load_paths ),
 		);
 
-		$ai_enabled = acf_get_setting( 'enable_acf_ai' );
+		$abilities_enabled = acf_get_setting( 'enable_abilities' );
 
-		$fields['ai_enabled'] = array(
-			'label' => __( 'AI Support', 'acf' ),
-			'value' => ! empty( $ai_enabled ) ? $enabled : $disabled,
-			'debug' => $ai_enabled,
+		$fields['abilities_enabled'] = array(
+			'label' => __( 'Abilities API Support', 'acf' ),
+			'value' => ! empty( $abilities_enabled ) ? $enabled : $disabled,
+			'debug' => $abilities_enabled,
 		);
 
 		// Add AI usage metrics if enabled and the Abilities API is available (WP 6.9+).
 		$abilities_api_available = function_exists( 'wp_register_ability' );
 
-		if ( $ai_enabled && ! $abilities_api_available ) {
-			$fields['ai_abilities_api'] = array(
+		if ( $abilities_enabled && ! $abilities_api_available ) {
+			$fields['abilities_api'] = array(
 				'label' => __( 'Abilities API', 'acf' ),
 				'value' => __( 'Not available (requires WordPress 6.9+)', 'acf' ),
 				'debug' => 'unavailable',
 			);
 		}
 
-		if ( $ai_enabled && $abilities_api_available ) {
+		if ( $abilities_enabled && $abilities_api_available ) {
 			$ai_ready_counts = $this->ai_usage->get_ai_ready_counts( $field_groups, $post_types, $taxonomies );
 			$ai_usage        = $this->ai_usage->get_usage_metrics();
 
@@ -1002,6 +1023,15 @@ class Site_Health {
 			),
 			'debug' => $schema_objects,
 		);
+
+		if ( $is_pro ) {
+			$datastore_enabled           = function_exists( 'acf_is_using_datastore' ) && acf_is_using_datastore();
+			$fields['datastore_enabled'] = array(
+				'label' => __( 'Datastore Enabled', 'acf' ),
+				'value' => $datastore_enabled ? $enabled : $disabled,
+				'debug' => $datastore_enabled,
+			);
+		}
 
 		return $fields;
 	}

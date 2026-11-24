@@ -104,6 +104,7 @@ trait Woo_Checkout_Helper {
 	 */
 	public static function ea_order_pay( $order_id ) {
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action( 'before_woocommerce_pay' );
 
 		$order_id = absint( $order_id );
@@ -249,6 +250,7 @@ trait Woo_Checkout_Helper {
 			wc_print_notice( __( 'Invalid order.', 'essential-addons-for-elementor-lite' ), 'error' );
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action( 'after_woocommerce_pay' );
 	}
 
@@ -275,7 +277,7 @@ trait Woo_Checkout_Helper {
                     <p><?php echo esc_html( $settings['ea_woo_checkout_coupon_form_content'] ); ?></p>
 
                     <p class="form-row form-row-first">
-                        <input type="text" name="coupon_code" class="input-text" placeholder="<?php esc_attr( $settings['ea_woo_checkout_coupon_placeholder_text'] ); ?>" id="coupon_code" value="" />
+                        <input type="text" name="coupon_code" class="input-text" placeholder="<?php echo esc_attr( $settings['ea_woo_checkout_coupon_placeholder_text'] ); ?>" id="coupon_code" value="" />
                     </p>
 
                     <p class="form-row form-row-last">

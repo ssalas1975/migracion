@@ -10,6 +10,7 @@ namespace PremiumAddons\Addons;
 // PremiumAddons Classes.
 use PremiumAddons\Includes\Helper_Functions;
 use PremiumAddons\Includes\PA_Controls_Handler;
+use PremiumAddons\Includes\PA_Display_Conditions\Conditions\Return_Visitor;
 
 // Elementor Classes.
 use Elementor\Repeater;
@@ -31,24 +32,28 @@ class Display_Conditions {
 	/**
 	 * Load Script
 	 *
-	 * @var $load_script
+	 * @var bool|null
 	 */
 	private static $load_script = null;
 
 	/**
 	 * Class object
 	 *
-	 * @var instance
+	 * @var self|null
 	 */
 	private static $instance = null;
+
+	/**
+	 * IDs of condition-gated elements, and their descendants, for the document save in progress.
+	 *
+	 * @var array
+	 */
+	private $gated_elements = array();
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
-
-		// Enqueue the required JS file.
-		add_action( 'elementor/preview/enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		add_action( 'elementor/element/section/section_advanced/after_section_end', array( $this, 'register_controls' ), 10 );
 		add_action( 'elementor/element/column/section_advanced/after_section_end', array( $this, 'register_controls' ), 10 );
@@ -57,6 +62,88 @@ class Display_Conditions {
 		add_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
 
 		add_action( 'elementor/element/container/section_layout/after_section_end', array( $this, 'register_controls' ), 10 );
+
+		// Elementor renders every widget into post_content on save, outside the
+		// should_render filters, so gated content would reach excerpts, feeds and search.
+		add_action( 'elementor/document/before_save', array( $this, 'collect_gated_elements' ), 10, 2 );
+		add_filter( 'elementor/widget/render_content', array( $this, 'strip_gated_plain_content' ), 10, 2 );
+		add_action( 'elementor/document/after_save', array( $this, 'reset_gated_elements' ) );
+
+		if ( function_exists( 'wp_add_cookie_info' ) ) {
+			add_action( 'init', array( Return_Visitor::class, 'register_cookie_info' ) );
+		}
+	}
+
+	/**
+	 * Collects condition-gated element IDs before Elementor writes the post_content copy.
+	 *
+	 * @since 4.11.118
+	 * @access public
+	 *
+	 * @param object $document Elementor document.
+	 * @param array  $data     Document data being saved.
+	 */
+	public function collect_gated_elements( $document, $data ) {
+
+		if ( ! empty( $data['elements'] ) ) {
+			$this->walk_gated_elements( $data['elements'] );
+		}
+	}
+
+	/**
+	 * Walks the elements tree, marking gated elements and everything inside them.
+	 *
+	 * @since 4.11.118
+	 * @access private
+	 *
+	 * @param array $elements Elements data.
+	 * @param bool  $gated    Whether an ancestor has Display Conditions enabled.
+	 */
+	private function walk_gated_elements( $elements, $gated = false ) {
+
+		foreach ( $elements as $element ) {
+
+			$is_gated = $gated || 'yes' === ( $element['settings']['pa_display_conditions_switcher'] ?? '' );
+
+			if ( $is_gated ) {
+				$this->gated_elements[ $element['id'] ] = true;
+			}
+
+			if ( ! empty( $element['elements'] ) ) {
+				$this->walk_gated_elements( $element['elements'], $is_gated );
+			}
+		}
+	}
+
+	/**
+	 * Leaves gated widgets out of the post_content copy while a document save is in progress.
+	 *
+	 * @since 4.11.118
+	 * @access public
+	 *
+	 * @param string $content Widget markup.
+	 * @param object $widget  Elementor widget.
+	 *
+	 * @return string
+	 */
+	public function strip_gated_plain_content( $content, $widget ) {
+
+		if ( isset( $this->gated_elements[ $widget->get_id() ] ) ) {
+			return '';
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Clears the gated element IDs once the document save is done.
+	 *
+	 * @since 4.11.118
+	 * @access public
+	 */
+	public function reset_gated_elements() {
+
+		$this->gated_elements = array();
 	}
 
 	/**
@@ -102,9 +189,9 @@ class Display_Conditions {
 			)
 		);
 
-		$controls_obj = new PA_Controls_Handler();
+		$controls_obj = PA_Controls_Handler::get_instance();
 
-		$options = PA_Controls_Handler::$conditions;
+		$options = PA_Controls_Handler::get_conditions();
 
 		$options['acf'] = array(
 			'label'   => __( 'ACF (PRO)', 'premium-addons-for-elementor' ),
@@ -136,26 +223,26 @@ class Display_Conditions {
 		$element->add_control(
 			'pa_display_conditions_switcher',
 			array(
-				'label'              => __( 'Enable Display Conditions', 'premium-addons-for-elementor' ),
-				'type'               => Controls_Manager::SWITCHER,
-				'return_value'       => 'yes',
-				'render_type'        => 'template',
-				'prefix_class'       => 'pa-display-conditions-',
-				'frontend_available' => true,
+				'label'        => __( 'Enable Display Conditions', 'premium-addons-for-elementor' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+				'render_type'  => 'ui',
+				'prefix_class' => 'pa-display-conditions-',
 			)
 		);
 
 		$element->add_control(
 			'pa_display_action',
 			array(
-				'label'     => __( 'Action', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::SELECT,
-				'default'   => 'show',
-				'options'   => array(
+				'label'       => __( 'Action', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => 'show',
+				'render_type' => 'none',
+				'options'     => array(
 					'show' => __( 'Show Element', 'premium-addons-for-elementor' ),
 					'hide' => __( 'Hide Element', 'premium-addons-for-elementor' ),
 				),
-				'condition' => array(
+				'condition'   => array(
 					'pa_display_conditions_switcher' => 'yes',
 				),
 			)
@@ -164,14 +251,15 @@ class Display_Conditions {
 		$element->add_control(
 			'pa_display_when',
 			array(
-				'label'     => __( 'Display When', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::SELECT,
-				'default'   => 'any',
-				'options'   => array(
+				'label'       => __( 'Display When', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => 'any',
+				'render_type' => 'none',
+				'options'     => array(
 					'any' => __( 'Any Condition is Met', 'premium-addons-for-elementor' ),
 					'all' => __( 'All Conditions Are Met', 'premium-addons-for-elementor' ),
 				),
-				'condition' => array(
+				'condition'   => array(
 					'pa_display_conditions_switcher' => 'yes',
 				),
 			)
@@ -244,6 +332,25 @@ class Display_Conditions {
 			)
 		);
 
+		$repeater->add_control(
+			'pa_condition_validate',
+			array(
+				'label'       => __( 'Compare', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => 'default',
+				'label_block' => true,
+				'options'     => array(
+					'default' => __( 'Default', 'premium-addons-for-elementor' ),
+					'after'   => __( 'After', 'premium-addons-for-elementor' ),
+					'before'  => __( 'Before', 'premium-addons-for-elementor' ),
+				),
+				'condition'   => array(
+					'pa_condition_key'      => 'date',
+					'pa_condition_operator' => 'is',
+				),
+			)
+		);
+
 		$controls_obj->add_repeater_compare_controls( $repeater );
 
 		$repeater->add_control(
@@ -263,7 +370,7 @@ class Display_Conditions {
 			)
 		);
 
-		$values = $repeater->get_controls();
+		$fields = $this->without_editor_render( $repeater->get_controls() );
 
 		$element->add_control(
 			'pa_condition_repeater',
@@ -271,7 +378,8 @@ class Display_Conditions {
 				'label'         => __( 'Conditions', 'premium-addons-for-elementor' ),
 				'type'          => Controls_Manager::REPEATER,
 				'label_block'   => true,
-				'fields'        => $values,
+				'render_type'   => 'none',
+				'fields'        => $fields,
 				'title_field'   => '<# print( pa_condition_key.replace(/_/g, " ").split(" ").map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(" ")) #>',
 				'prevent_empty' => false,
 				'condition'     => array(
@@ -283,6 +391,26 @@ class Display_Conditions {
 		$this->add_helpful_information( $element );
 
 		$element->end_controls_section();
+	}
+
+	/**
+	 * Stop repeater fields from re-rendering the element in the editor.
+	 *
+	 * Conditions are only evaluated on the frontend, so editing them changes nothing on the canvas.
+	 *
+	 * @since 4.11.114
+	 * @access private
+	 * @param array $fields repeater controls.
+	 *
+	 * @return array
+	 */
+	private function without_editor_render( $fields ) {
+
+		foreach ( $fields as $key => $field ) {
+			$fields[ $key ]['render_type'] = 'none';
+		}
+
+		return $fields;
 	}
 
 	/**
@@ -355,15 +483,13 @@ class Display_Conditions {
 			return;
 		}
 
-		$settings = $element->get_active_settings();
-
-		if ( ! empty( $settings['pa_display_conditions_switcher'] ) ) {
+		if ( 'yes' === $element->get_settings( 'pa_display_conditions_switcher' ) ) {
 
 			$this->enqueue_scripts();
 
 			self::$load_script = true;
 
-			// remove_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
+			remove_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
 		}
 	}
 

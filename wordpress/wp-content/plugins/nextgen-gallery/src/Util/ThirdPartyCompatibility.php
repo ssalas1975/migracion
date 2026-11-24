@@ -157,6 +157,22 @@ class ThirdPartyCompatibility {
 	 * @return array
 	 */
 	public function add_rankmath_seo_images( $images, $post_ID ) {
+		// Sitemaps are public: private galleries stay out whoever builds them.
+		return \Imagely\NGG\PrivateGalleries\Visibility::strictly(
+			function () use ( $images, $post_ID ) {
+				return $this->collect_rankmath_seo_images( $images, $post_ID );
+			}
+		);
+	}
+
+	/**
+	 * Collects the NextGEN images of a post for RankMath.
+	 *
+	 * @param array $images
+	 * @param int   $post_ID
+	 * @return array
+	 */
+	private function collect_rankmath_seo_images( $images, $post_ID ) {
 		$post = get_post( $post_ID );
 		preg_match_all(
 			'/' . get_shortcode_regex() . '/',
@@ -283,6 +299,16 @@ class ThirdPartyCompatibility {
 			return;
 		}
 
+		// The skope is the post being viewed, so this walk enqueues the galleries of
+		// the current post. A post whose password the visitor has not entered shows
+		// them a form, not its content, so its galleries must not be enqueued —
+		// that localizes the gallery's image data into a page anyone can read.
+		// \post_password_required() honours the wp-postpass cookie, so a visitor who
+		// entered the password still gets the gallery.
+		if ( \is_singular() && \post_password_required( \get_queried_object_id() ) ) {
+			return;
+		}
+
 		$global_sections = \Nimble\sek_get_skoped_seks( NIMBLE_GLOBAL_SKOPE_ID );
 		$local_sections  = \Nimble\sek_get_skoped_seks( $skope_id );
 		$raw_content     = \Nimble\sek_sniff_and_decode_richtext(
@@ -328,11 +354,27 @@ class ThirdPartyCompatibility {
 
 		$post = \get_post( $post_id );
 
-		// Assign our own shortcode handle.
+		// Assign our own shortcode handle, only while this post is scanned. This filter runs once per
+		// sitemap entry, so the registrations are put back afterwards: leaving them removed broke
+		// every other plugin's shortcode (Envira, Soliloquy, ...) and NextGEN's own [ngg] for the
+		// rest of the request. The handler is registered with WordPress directly, not through the
+		// shortcode manager, so the manager's [ngg] / [ngg_images] callbacks are never replaced.
+		global $shortcode_tags;
+		$registered_shortcodes = $shortcode_tags;
 		\remove_all_shortcodes();
-		Shortcodes::add( 'ngg', [ $this, 'wpseo_shortcode_handler' ] );
-		Shortcodes::add( 'ngg_images', [ $this, 'wpseo_shortcode_handler' ] );
-		\do_shortcode( $post->post_content );
+		\add_shortcode( 'ngg', [ $this, 'wpseo_shortcode_handler' ] );
+		\add_shortcode( 'ngg_images', [ $this, 'wpseo_shortcode_handler' ] );
+
+		try {
+			// Sitemaps are public: private galleries stay out whoever builds them.
+			\Imagely\NGG\PrivateGalleries\Visibility::strictly(
+				static function () use ( $post ) {
+					\do_shortcode( $post->post_content );
+				}
+			);
+		} finally {
+			$shortcode_tags = $registered_shortcodes; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the registrations saved above.
+		}
 
 		return $this->wpseo_images;
 	}

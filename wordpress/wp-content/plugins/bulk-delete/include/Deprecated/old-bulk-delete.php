@@ -211,7 +211,7 @@ final class Bulk_Delete {
     static function sidebar(){
         echo '<div class="sidebar-box pro-ad-box">
             <p class="text-center"><a style="margin-left: -50px;" href="#" data-pro-feature="sidebar-box-logo" class="open-pro-dialog sidebar-box-logo">
-            <img src="' . esc_url(BULK_DELETE_URL . 'assets/img/bulkwp-logo.png') . '" alt="Bulk Delete PRO" title="Bulk Delete PRO">WP Bulk Delete PRO</a><br><b>Save time &amp; money when cleaning your site!</b></p>
+            <img src="' . esc_url(BULK_DELETE_URL . 'assets/img/bulkwp-logo.png') . '" alt="Bulk Delete PRO" title="Bulk Delete PRO">WP Bulk Delete PRO</a><br><b>Save time &amp; money when cleaning your site for ONLY $9.99</b></p>
             <ul class="plain-list">
                 <li>Delete posts by any advanced property or parametar</li>
                 <li>Bulk delete any WP object with advanced rules</li>
@@ -223,7 +223,7 @@ final class Bulk_Delete {
                 <li>Email support directly from plugin developers</li>
             </ul>
 
-            <p class="text-center"><a href="#" class="open-pro-dialog button button-buy" data-pro-feature="sidebar-box-btn">Get a license Now</a></p>
+            <p class="text-center"><a href="#" class="open-pro-dialog button button-buy" data-pro-feature="sidebar-box-btn">Get PRO Now</a></p>
             </div>';
 
         if (!defined('EPS_REDIRECT_VERSION') && !defined('WF301_PLUGIN_FILE')) {
@@ -319,12 +319,14 @@ final class Bulk_Delete {
             </tr>
 
             <tr>
-            <td><a class="button button-buy" data-href-org="https://bulkwp.com/buy/?product=personal-yearly&ref=pricing-table" href="https://bulkwp.com/buy/?product=personal-yearly&ref=pricing-table" target="_blank">BUY NOW</a><br>- or -<br><a data-href-org="https://bulkwp.com/buy/?product=personal-ltd-launch&ref=pricing-table" href="https://bulkwp.com/buy/?product=personal-ltd-launch&ref=pricing-table" target="_blank">Only <del>$159</del> $89 for a lifetime license</a>
+            <td><a class="button button-buy" data-href-org="https://bulkwp.com/buy/?product=personal-yearly&ref=pricing-table" href="https://bulkwp.com/buy/?product=personal-yearly&ref=pricing-table" target="_blank">BUY NOW</a>
             <td><a class="button button-buy" data-href-org="https://bulkwp.com/buy/?product=team-yearly&ref=pricing-table" href="https://bulkwp.com/buy/?product=team-yearly&ref=pricing-table" target="_blank">BUY NOW</a></td>
             <td><a class="button button-buy" data-href-org="https://bulkwp.com/buy/?product=agency-yearly&ref=pricing-table" href="https://bulkwp.com/buy/?product=agency-yearly&ref=pricing-table" target="_blank">BUY NOW</a></td>
             </tr>
 
             </table>
+
+            <div class="upsell-footer-2 center">Need the plugin only for a <b>short period of time</b>? <a class="button-buy" target="_blank" data-href-org="https://bulkwp.com/buy/?product=personal-monthly&ref=pricing-table" href="https://bulkwp.com/buy/?product=personal-monthly&ref=pricing-table"><b>Get it for ONLY $9.99</b><small> /month</small></a> &amp; cancel any time!</div>
 
             <div class="center footer"><b>100% No-Risk Money Back Guarantee!</b> If you don\'t like the plugin over the next 7 days, we will happily refund 100% of your money. No questions asked! Payments are processed by our merchant of records - <a href="https://paddle.com/" target="_blank">Paddle</a>.</div>';
     }

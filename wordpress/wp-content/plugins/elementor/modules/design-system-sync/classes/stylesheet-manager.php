@@ -20,8 +20,16 @@ class Stylesheet_Manager extends Base_File {
 		parent::__construct( self::FILE_NAME );
 	}
 
-	public function generate(): array {
+	public function generate(): ?array {
 		$this->update();
+
+		if ( ! file_exists( $this->get_path() ) ) {
+			return null;
+		}
+
+		if ( 0 === filesize( $this->get_path() ) ) {
+			return null;
+		}
 
 		return [
 			'url' => $this->get_url(),
@@ -38,12 +46,47 @@ class Stylesheet_Manager extends Base_File {
 			return;
 		}
 
+		if ( 0 === filesize( $this->get_path() ) ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'elementor-design-system-sync',
 			$this->get_url(),
 			[],
 			$this->get_meta( 'time' )
 		);
+	}
+
+	public function update() {
+		$content = $this->parse_content();
+
+		if ( '' !== $content ) {
+			parent::update();
+
+			return;
+		}
+
+		$path = $this->get_path();
+
+		if ( file_exists( $path ) && 0 === filesize( $path ) ) {
+			return;
+		}
+
+		$dir = dirname( $path );
+
+		if ( ! wp_mkdir_p( $dir ) || ! is_writable( $dir ) ) {
+			return;
+		}
+
+		if ( false === file_put_contents( $path, '' ) ) {
+			return;
+		}
+
+		$meta = $this->get_meta();
+		$meta['time'] = time();
+
+		$this->update_meta( $meta );
 	}
 
 	protected function parse_content(): string {

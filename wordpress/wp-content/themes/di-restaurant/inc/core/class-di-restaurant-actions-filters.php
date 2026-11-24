@@ -229,10 +229,6 @@ class Di_Restaurant_Actions_Filter {
 					position: sticky;
 					top: var(--wp-admin--admin-bar--height, 0px);
 				}
-
-				.header-img-otr {
-					min-height: 50px;
-				}
 			}
 			";
 		}
@@ -248,10 +244,6 @@ class Di_Restaurant_Actions_Filter {
 				.sticky_menu_top {
 					position: sticky;
 					top: var(--wp-admin--admin-bar--height, 0px);
-				}
-
-				.header-img-otr {
-					min-height: 50px;
 				}
 			}
 			";

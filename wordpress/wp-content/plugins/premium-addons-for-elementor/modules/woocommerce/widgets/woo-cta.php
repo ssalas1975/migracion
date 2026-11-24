@@ -90,7 +90,7 @@ class Woo_CTA extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium woo cta', 'product', 'woocommerce', 'cart', 'wishlist', 'compare' );
@@ -1007,7 +1007,7 @@ class Woo_CTA extends Widget_Base {
 					),
 					'selectors'  => array(
 						'{{WRAPPER}} .premium-woo-cta-button i' => 'color: {{VALUE}};',
-						'{{WRAPPER}} .premium-woo-btn-icon *' => 'fill: {{VALUE}}',
+						'{{WRAPPER}} .premium-woo-btn-icon:not(.premium-lottie-animation) *' => 'fill: {{VALUE}}',
 					),
 					'conditions' => array(
 						'relation' => 'or',
@@ -1039,7 +1039,7 @@ class Woo_CTA extends Widget_Base {
 						'default' => Global_Colors::COLOR_ACCENT,
 					),
 					'selectors'  => array(
-						'{{WRAPPER}} .premium-woo-btn-icon *' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} .premium-woo-btn-icon:not(.premium-lottie-animation) *' => 'stroke: {{VALUE}};',
 					),
 					'conditions' => array(
 						'relation' => 'or',
@@ -1051,12 +1051,9 @@ class Woo_CTA extends Widget_Base {
 										'value' => 'yes',
 									),
 									array(
-										'name'  => 'icon_type',
-										'value' => 'icon',
-									),
-									array(
-										'name'  => 'icon_type',
-										'value' => 'svg',
+										'name'     => 'icon_type',
+										'operator' => 'in',
+										'value'    => array( 'icon', 'svg' ),
 									),
 								),
 							),
@@ -1172,7 +1169,7 @@ class Woo_CTA extends Widget_Base {
 				),
 				'selectors'  => array(
 					'{{WRAPPER}} .premium-woo-cta-button:hover i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .premium-woo-cta-button:hover .premium-woo-btn-icon *' => 'fill: {{VALUE}}',
+					'{{WRAPPER}} .premium-woo-cta-button:hover .premium-woo-btn-icon:not(.premium-lottie-animation) *' => 'fill: {{VALUE}}',
 				),
 				'conditions' => array(
 					'relation' => 'or',
@@ -2017,7 +2014,7 @@ class Woo_CTA extends Widget_Base {
 		}
 		?>
 
-		<img <?php echo wp_kses_post( $this->get_render_attribute_string( 'icon_img' ) ); ?>>
+		<img <?php $this->print_render_attribute_string( 'icon_img' ); ?>>
 
 		<?php
 	}
@@ -2292,7 +2289,10 @@ class Woo_CTA extends Widget_Base {
 							<tr><th>Product</th><th>Price</th><th>Quantity</th></tr>
 							<?php
 							foreach ( $child_products as $child_id ) {
-								$child_product  = wc_get_product( $child_id );
+								$child_product = wc_get_product( $child_id );
+								if ( ! $child_product ) {
+									continue;
+								}
 								$stock_quantity = $child_product->get_stock_quantity();
 								$max_stock      = $stock_quantity ? $stock_quantity : '';
 								if ( $max_stock && ! empty( $product_quantity_message ) ) {
@@ -2314,7 +2314,7 @@ class Woo_CTA extends Widget_Base {
 									<td>
 									<div class='pa-qty-wrapper'>
 										<div class="quantity-grouped-wrapper">
-											<input type="number" class="grouped_product_qty" name="<?php echo wp_kses_post( $child_id ); ?>" value="0" min="0" max="<?php echo esc_attr( $max_stock ); ?>" aria-label="Product quantity">
+											<input type="number" class="grouped_product_qty" name="<?php echo esc_attr( $child_id ); ?>" value="0" min="0" max="<?php echo esc_attr( $max_stock ); ?>" aria-label="Product quantity">
 											<div class="add-to-cart-icons-quantity-wrapper">
 												<i type="button" class="fas fa-plus quantity-button g-plus" aria-hidden="true"></i>
 												<i type="button" class="fas fa-minus quantity-button g-minus" aria-hidden="true"></i>
@@ -2334,15 +2334,15 @@ class Woo_CTA extends Widget_Base {
 							<?php foreach ( $attributes as $attribute_name => $terms ) : ?>
 								<tr>
 									<th class="label">
-										<label for="<?php echo wp_kses_post( $attribute_name ); ?>">
+										<label for="<?php echo esc_attr( $attribute_name ); ?>">
 											<?php echo wp_kses_post( wc_attribute_label( $attribute_name ) ); ?>
 										</label>
 									</th>
 									<td class="value">
-										<select id="<?php echo wp_kses_post( $attribute_name ); ?>" class="product-attribute" name="attribute_<?php echo wp_kses_post( $attribute_name ); ?>" data-attribute_name="attribute_<?php echo wp_kses_post( $attribute_name ); ?>" data-show_option_none="yes">
+										<select id="<?php echo esc_attr( $attribute_name ); ?>" class="product-attribute" name="attribute_<?php echo esc_attr( $attribute_name ); ?>" data-attribute_name="attribute_<?php echo esc_attr( $attribute_name ); ?>" data-show_option_none="yes">
 											<option value="">Choose an option</option>
 												<?php foreach ( $terms as $term ) : ?>
-											<option value="<?php echo wp_kses_post( is_object( $term ) ? $term->slug : $term ); ?>" class="attached enabled">
+											<option value="<?php echo esc_attr( is_object( $term ) ? $term->slug : $term ); ?>" class="attached enabled">
 													<?php echo wp_kses_post( is_object( $term ) ? $term->name : $term ); ?>
 											</option>
 												<?php endforeach; ?>
@@ -2398,10 +2398,7 @@ class Woo_CTA extends Widget_Base {
 							<?php
 							else :
 
-								echo Helper_Functions::get_svg_by_icon(
-									$settings['icon'],
-									$this->get_render_attribute_string( 'icon' )
-								); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								echo Helper_Functions::get_svg_by_icon( $settings['icon'], $this->get_render_attributes( 'icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_svg_by_icon() returns sanitized inline SVG/icon markup.
 
 							endif;
 

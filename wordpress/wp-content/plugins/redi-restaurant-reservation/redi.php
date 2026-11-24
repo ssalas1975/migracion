@@ -33,6 +33,9 @@ if ( ! defined( 'REDI_API_REMINDER' ) ) {
 if ( ! defined( 'REDI_RESTAURANT_API' ) ) {
 	define( 'REDI_RESTAURANT_API', 'https://api.reservationdiary.eu/service/' );
 }
+if ( ! defined( 'REDI_API_REQUEST_TIMEOUT' ) ) {
+	define( 'REDI_API_REQUEST_TIMEOUT', 60 );
+}
 if ( ! defined( 'REDI_MAX_CUSTOM_FIELDS' ) ) {
 	define( 'REDI_MAX_CUSTOM_FIELDS', 11 );
 }
@@ -59,7 +62,44 @@ if ( ! class_exists( 'ReDi' ) ) {
         public function __construct( $ApiKey ) {
             $this->ApiKey = $ApiKey;
             add_action( 'admin_footer', array( $this, '_add_deactivation_feedback_popup' ) );
+            self::register_http_timeout_filters();
         }
+
+		/**
+		 * Register HTTP timeout filters once; scoped to Reservation Diary API only.
+		 */
+		private static function register_http_timeout_filters() {
+			if ( has_filter( 'http_request_timeout', array( __CLASS__, 'filter_http_request_timeout' ) ) ) {
+				return;
+			}
+			add_filter( 'http_request_timeout', array( __CLASS__, 'filter_http_request_timeout' ), 10, 2 );
+			add_filter( 'http_request_args', array( __CLASS__, 'filter_http_request_args' ), 100, 2 );
+		}
+
+		public static function filter_http_request_timeout( $timeout, $url = '' ) {
+			if ( self::is_reservation_diary_api_url( $url ) ) {
+				return REDI_API_REQUEST_TIMEOUT;
+			}
+			return $timeout;
+		}
+
+		public static function filter_http_request_args( $args, $url = '' ) {
+			if ( self::is_reservation_diary_api_url( $url ) ) {
+				$args['timeout'] = REDI_API_REQUEST_TIMEOUT;
+			}
+			return $args;
+		}
+
+		private static function is_reservation_diary_api_url( $url ) {
+			if ( ! is_string( $url ) || $url === '' ) {
+				return false;
+			}
+			static $api_host = null;
+			if ( $api_host === null ) {
+				$api_host = wp_parse_url( REDI_RESTAURANT_API, PHP_URL_HOST );
+			}
+			return $api_host && strpos( $url, $api_host ) !== false;
+		}
 		public function Redi( $ApiKey ) {
 			$this->ApiKey = $ApiKey;
 		}
@@ -94,8 +134,49 @@ if ( ! class_exists( 'ReDi' ) ) {
 			return 'https://upcoming.reservationdiary.eu/Entry/' . $this->ApiKey . '?ReturnUrl=' . get_admin_url();
 		}
 
-		public function getBasicPackageSettingsUrl($lang) {
-			return 'https://wp.reservationdiary.eu/' . $lang . '/' . $this->ApiKey . '?ReturnUrl=' . get_admin_url();
+		/**
+		 * Paid settings (WPProvider) entry URL.
+		 *
+		 * @param string      $lang   Language code.
+		 * @param string      $entry  Where the click came from: menu|teaser|banner|bottom|notice|plugins_list|host_dashboard.
+		 * @param string|null $teaser Optional teaser slug (e.g. reservations, billing).
+		 * @param string|null $start  Optional action, e.g. demo. Sanitized, max 40 chars.
+		 * @return string
+		 */
+		public function getBasicPackageSettingsUrl( $lang, $entry = 'menu', $teaser = null, $start = null ) {
+			$url = 'https://wp.reservationdiary.eu/' . $lang . '/' . $this->ApiKey;
+			$args = array(
+				'ReturnUrl' => get_admin_url(),
+				'entry'     => self::sanitize_tracking_param( $entry, 'menu' ),
+			);
+			$teaser = self::sanitize_tracking_param( $teaser );
+			if ( $teaser !== '' ) {
+				$args['teaser'] = $teaser;
+			}
+			$start = self::sanitize_tracking_param( $start );
+			if ( $start !== '' ) {
+				$args['start'] = $start;
+			}
+			return add_query_arg( $args, $url );
+		}
+
+		/**
+		 * Sanitize short tracking keys (no PII): [a-z0-9-], max 40 chars.
+		 *
+		 * @param string|null $value   Raw value.
+		 * @param string      $default Fallback when empty/invalid.
+		 * @return string
+		 */
+		public static function sanitize_tracking_param( $value, $default = '' ) {
+			if ( $value === null || $value === '' ) {
+				return $default;
+			}
+			$value = sanitize_key( $value );
+			$value = preg_replace( '/[^a-z0-9\-]/', '', $value );
+			if ( strlen( $value ) > 40 ) {
+				$value = substr( $value, 0, 40 );
+			}
+			return $value === '' ? $default : $value;
 		}
 
 		public function getEmailContent( $reservationID, $type, $params ) {
@@ -266,12 +347,20 @@ if ( ! class_exists( 'ReDi' ) ) {
 		private function request( $url, $method = REDI_METHOD_GET, $params_string = null ) {
 			$request = new WP_Http;
 			$curTime = microtime( true );
+
+			$plugin_version = defined( 'REDI_PLUGIN_VERSION' ) ? REDI_PLUGIN_VERSION : 'unknown';
+			if ( defined( 'REDI_PLUGIN_REVISION' ) && REDI_PLUGIN_REVISION !== '' ) {
+				$plugin_version .= '+' . REDI_PLUGIN_REVISION;
+			}
+
 			$req     = array(
 				'method'  => $method,
 				'body'    => (($method === REDI_METHOD_GET || $method === REDI_METHOD_DELETE ) ? null : $params_string),
 				'headers' => array(
-					'Content-Type'   => 'application/json; charset=utf-8',
-					'Content-Length' => ($method === REDI_METHOD_GET || $method === REDI_METHOD_DELETE ) ? 0 : strlen( $params_string )
+					'Content-Type'            => 'application/json; charset=utf-8',
+					'Content-Length'          => ($method === REDI_METHOD_GET || $method === REDI_METHOD_DELETE ) ? 0 : strlen( $params_string ),
+					'X-ReDi-Plugin-Version'   => $plugin_version,
+					'X-ReDi-Install-Id'       => class_exists( 'ReDiInstall' ) ? ReDiInstall::id() : '',
 				)
 			);
 			$output  = $request->request(

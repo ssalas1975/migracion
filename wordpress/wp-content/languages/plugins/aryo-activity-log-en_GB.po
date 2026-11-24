@@ -1,0 +1,1289 @@
+# Translation of Plugins - Activity Log – Monitor User and Agent Changes - Stable (latest release) in English (UK)
+# This file is distributed under the same license as the Plugins - Activity Log – Monitor User and Agent Changes - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-11-22 13:58:01+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: en_GB\n"
+"Project-Id-Version: Plugins - Activity Log – Monitor User and Agent Changes - Stable (latest release)\n"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:114
+msgid "note_added"
+msgstr "note_added"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:112
+msgid "refunded"
+msgstr "refunded"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:110
+msgid "status_changed"
+msgstr "status_changed"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:108
+msgid "shop_coupon"
+msgstr "shop_coupon"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:106
+msgid "product_variation"
+msgstr "product_variation"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:104
+msgid "product"
+msgstr "product"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:102
+msgid "shop_order"
+msgstr "shop_order"
+
+#: i18n/strings.php:100
+msgid "WooCommerce"
+msgstr "WooCommerce"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "File updated".
+#: i18n/strings.php:62
+msgid "file_updated"
+msgstr "file_updated"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Personal data erased".
+#: i18n/strings.php:51
+msgid "personal_data_erased"
+msgstr "personal_data_erased"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Password reset".
+#: i18n/strings.php:48
+msgid "password_reset"
+msgstr "password_reset"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Password reset requested".
+#: i18n/strings.php:46
+msgid "password_reset_requested"
+msgstr "password_reset_requested"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "App password revoked".
+#: i18n/strings.php:44
+msgid "app_password_revoked"
+msgstr "app_password_revoked"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "App password created".
+#: i18n/strings.php:42
+msgid "app_password_created"
+msgstr "app_password_created"
+
+#: classes/class-aal-privacy.php:195
+msgid "When you request erasure of your personal data, your activity log entries are anonymized and a record of the erasure request is kept."
+msgstr "When you request erasure of your personal data, your activity log entries are anonymised and a record of the erasure request is kept."
+
+#: classes/class-aal-export.php:115
+msgid "Action Key"
+msgstr "Action Key"
+
+#: classes/class-aal-export.php:114
+msgid "Object ID"
+msgstr "Object ID"
+
+#: classes/class-aal-export.php:112
+msgid "Time (ISO 8601)"
+msgstr "Time (ISO 8601)"
+
+#: classes/class-aal-abilities.php:362 classes/class-aal-abilities.php:454
+#: classes/class-aal-rest.php:302
+msgid "Use next_after_id from the previous response as after_id to fetch only new events."
+msgstr "Use next_after_id from the previous response as after_id to fetch only new events."
+
+#: classes/class-aal-privacy.php:194
+msgid "If you are a registered user, we save your content activity like create/update/delete posts and comments. When a profile or comment is updated, we may also store the previous and new values of the changed fields (for example email address or display name) in the activity log."
+msgstr "If you are a registered user, we save your content activity like create/update/delete posts and comments. When a profile or comment is updated, we may also store the previous and new values of the changed fields (for example email address or display name) in the activity log."
+
+#: classes/class-aal-export.php:111 assets/js/admin/build/index.js:1
+msgid "Changes"
+msgstr "Changes"
+
+#: classes/class-aal-dashboard-widget.php:35
+msgid "Recent Activity"
+msgstr "Recent Activity"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:277
+msgid "upload_url_path"
+msgstr "upload_url_path"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:275
+msgid "upload_path"
+msgstr "upload_path"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:267
+msgid "medium_large_size_h"
+msgstr "medium_large_size_h"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:265
+msgid "medium_large_size_w"
+msgstr "medium_large_size_w"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:245
+msgid "show_comments_cookies_opt_in"
+msgstr "show_comments_cookies_opt_in"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:243
+msgid "disallowed_keys"
+msgstr "disallowed_keys"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:235
+msgid "comment_previously_approved"
+msgstr "comment_previously_approved"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:161
+msgid "site_icon"
+msgstr "site_icon"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:153
+msgid "gmt_offset"
+msgstr "gmt_offset"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:143
+msgid "new_admin_email"
+msgstr "new_admin_email"
+
+#: classes/class-aal-rest.php:164
+msgid "When enabled, read-only Activity Log abilities are exposed via the WordPress Abilities REST API and MCP Adapter (requires WordPress 6.9+). Log data may include usernames, object names, and other personal information. IP addresses are not included in ability responses."
+msgstr "When enabled, read-only Activity Log abilities are exposed via the WordPress Abilities REST API and MCP Adapter (requires WordPress 6.9+). Log data may include usernames, object names, and other personal information. IP addresses are not included in ability responses."
+
+#: classes/class-aal-rest.php:162
+msgid "Expose activity log to AI agents"
+msgstr "Expose activity log to AI agents"
+
+#: classes/class-aal-log-query.php:813
+msgid "Invalid date_from or date_to value."
+msgstr "Invalid date_from or date_to value."
+
+#: classes/class-aal-log-query.php:789
+msgid "Invalid period value."
+msgstr "Invalid period value."
+
+#: classes/class-aal-log-query.php:754
+msgid "The date range may not exceed 90 days."
+msgstr "The date range may not exceed 90 days."
+
+#: classes/class-aal-log-query.php:745
+msgid "date_from must not be after date_to."
+msgstr "date_from must not be after date_to."
+
+#: classes/class-aal-log-query.php:728
+msgid "date_from and date_to must both be set."
+msgstr "date_from and date_to must both be set."
+
+#: classes/class-aal-log-query.php:719
+msgid "Provide either period or date_from/date_to, not both."
+msgstr "Provide either period or date_from/date_to, not both."
+
+#: classes/class-aal-abilities.php:545
+msgid "Last matching event time in ISO-8601 format (site timezone)."
+msgstr "Last matching event time in ISO-8601 format (site time zone)."
+
+#: classes/class-aal-abilities.php:541
+msgid "First matching event time in ISO-8601 format (site timezone)."
+msgstr "First matching event time in ISO-8601 format (site time zone)."
+
+#: classes/class-aal-abilities.php:517
+msgid "Suspicious rule keys to evaluate (default: all)."
+msgstr "Suspicious rule keys to evaluate (default: all)."
+
+#: classes/class-aal-abilities.php:479
+msgid "Range end date (ISO-8601 Y-m-d, site timezone). Max 90 days from date_from."
+msgstr "Range end date (ISO-8601 Y-m-d, site time zone). Max 90 days from date_from."
+
+#: classes/class-aal-abilities.php:474
+msgid "Range start date (ISO-8601 Y-m-d, site timezone)."
+msgstr "Range start date (ISO-8601 Y-m-d, site time zone)."
+
+#: classes/class-aal-abilities.php:468
+msgid "Relative time window (default 24h when input is empty)."
+msgstr "Relative time window (default 24h when input is empty)."
+
+#: classes/class-aal-abilities.php:418
+msgid "Optional structured metadata (e.g. ability name)."
+msgstr "Optional structured metadata (e.g. ability name)."
+
+#: classes/class-aal-abilities.php:414
+msgid "Application Password name when the request used an app password."
+msgstr "Application Password name when the request used an app password."
+
+#: classes/class-aal-abilities.php:410
+msgid "Request channel (rest, abilities, cli, etc.)."
+msgstr "Request channel (rest, abilities, CLI, etc.)."
+
+#: classes/class-aal-abilities.php:398
+msgid "Event time in ISO-8601 format (site timezone)."
+msgstr "Event time in ISO-8601 format (site time zone)."
+
+#: classes/class-aal-abilities.php:379
+msgid "Activity log entry ID (histid)."
+msgstr "Activity log entry ID (histid)."
+
+#: classes/class-aal-abilities.php:357
+msgid "Search object name or subtype."
+msgstr "Search object name or subtype."
+
+#: classes/class-aal-abilities.php:342
+msgid "Date filter: today, yesterday, week, month, or dd/mm/yyyy."
+msgstr "Date filter: today, yesterday, week, month, or dd/mm/yyyy."
+
+#: classes/class-aal-abilities.php:338
+msgid "Filter by request channel."
+msgstr "Filter by request channel."
+
+#: classes/class-aal-abilities.php:333
+msgid "Filter by user role/cap slug stored in user_caps."
+msgstr "Filter by user role/cap slug stored in user_caps."
+
+#: classes/class-aal-abilities.php:328
+msgid "Filter by user ID."
+msgstr "Filter by user ID."
+
+#: classes/class-aal-abilities.php:323
+msgid "Filter by action."
+msgstr "Filter by action."
+
+#: classes/class-aal-abilities.php:318
+msgid "Filter by object_type."
+msgstr "Filter by object_type."
+
+#: classes/class-aal-abilities.php:312
+msgid "Sort direction."
+msgstr "Sort direction."
+
+#: classes/class-aal-abilities.php:305
+msgid "Number of entries per page (max 100)."
+msgstr "Number of entries per page (max 100)."
+
+#: classes/class-aal-abilities.php:298
+msgid "Page number (1-based)."
+msgstr "Page number (1-based)."
+
+#: classes/class-aal-abilities.php:237
+msgid "Activity log entry not found."
+msgstr "Activity log entry not found."
+
+#: classes/class-aal-abilities.php:148
+msgid "Scans activity log entries for suspicious patterns (failed login bursts, sensitive options, off-hours agent activity)."
+msgstr "Scans activity log entries for suspicious patterns (failed login bursts, sensitive options, off-hours agent activity)."
+
+#: classes/class-aal-abilities.php:147
+msgid "Detect suspicious events"
+msgstr "Detect suspicious events"
+
+#: classes/class-aal-abilities.php:134
+msgid "Returns aggregated activity statistics for a time range (counts by action, type, user, channel, and time buckets)."
+msgstr "Returns aggregated activity statistics for a time range (counts by action, type, user, channel, and time buckets)."
+
+#: classes/class-aal-abilities.php:133
+msgid "Summarize activity"
+msgstr "Summarise activity"
+
+#: classes/class-aal-abilities.php:120
+msgid "Returns available filter values (users, roles, topics, actions, sources) for the current user."
+msgstr "Returns available filter values (users, roles, topics, actions, sources) for the current user."
+
+#: classes/class-aal-abilities.php:119
+msgid "Get activity log filters"
+msgstr "Get activity log filters"
+
+#: classes/class-aal-abilities.php:106
+msgid "Returns a single activity log entry by ID."
+msgstr "Returns a single activity log entry by ID."
+
+#: classes/class-aal-abilities.php:105
+msgid "Get activity log entry"
+msgstr "Get activity log entry"
+
+#: classes/class-aal-abilities.php:92
+msgid "Returns paginated activity log entries with the same filters as the Activity Log admin list."
+msgstr "Returns paginated activity log entries with the same filters as the Activity Log admin list."
+
+#: classes/class-aal-abilities.php:91
+msgid "Query activity logs"
+msgstr "Query activity logs"
+
+#: classes/class-aal-abilities.php:80
+msgid "Read-only access to site activity log entries for auditing and monitoring."
+msgstr "Read-only access to site activity log entries for auditing and monitoring."
+
+#: classes/class-aal-rest.php:246
+msgid "Log erasure is disabled."
+msgstr "Log erasure is disabled."
+
+#: classes/class-aal-rest.php:225
+msgid "Invalid IP source."
+msgstr "Invalid IP source."
+
+#. translators: %s: option key name
+#: classes/class-aal-rest.php:214
+msgid "%s must be \"yes\" or \"no\"."
+msgstr "%s must be \"yes\" or \"no\"."
+
+#: classes/class-aal-rest.php:199
+msgid "logs_lifespan must be a non-negative number or empty."
+msgstr "logs_lifespan must be a non-negative number or empty."
+
+#: classes/class-aal-rest.php:146
+msgid "Select the source of the visitor IP address. For example, if you are using Cloudflare, select HTTP_CF_CONNECTING_IP. Please note: if you choose \"Do not collect IP\", the IP column will be hidden in the log."
+msgstr "Select the source of the visitor IP address. For example, if you are using Cloudflare, select HTTP_CF_CONNECTING_IP. Please note: if you choose \"Do not collect IP\", the IP column will be hidden in the log."
+
+#: classes/class-aal-rest.php:92
+msgid "Invalid or missing settings nonce."
+msgstr "Invalid or missing settings nonce."
+
+#: classes/class-aal-rest.php:82
+msgid "You do not have permission to manage settings."
+msgstr "You do not have permission to manage settings."
+
+#. Plugin Name of the plugin
+#: aryo-activity-log.php
+msgid "Activity Log – Monitor User and Agent Changes"
+msgstr "Activity Log – Monitor User and Agent Changes"
+
+#: classes/class-aal-rest.php:455
+msgid "Invalid promotion ID."
+msgstr "Invalid promotion ID."
+
+#: classes/class-aal-rest.php:73
+msgid "You do not have permission to view activity logs."
+msgstr "You do not have permission to view activity logs."
+
+#: classes/class-aal-admin-ui.php:39 classes/class-aal-settings.php:58
+msgid "Activity Log: admin assets are not built. Run `npm run build` in the plugin directory."
+msgstr "Activity Log: admin assets are not built. Run `npm run build` in the plugin directory."
+
+#. translators: %s: Class name.
+#: aryo-activity-log.php:147
+msgid "Unserializing instances of the singleton \"%s\" class is forbidden."
+msgstr "Unserialising instances of the singleton \"%s\" class is forbidden."
+
+#. translators: %s: Class name.
+#: aryo-activity-log.php:127
+msgid "Cloning instances of the singleton \"%s\" class is forbidden."
+msgstr "Cloning instances of the singleton \"%s\" class is forbidden."
+
+#: classes/class-aal-maintenance.php:240
+msgid "Run Database Upgrade"
+msgstr "Run Database Upgrade"
+
+#: classes/class-aal-maintenance.php:239
+msgid "This operation may take a while on large tables. Continue?"
+msgstr "This operation may take a while on large tables. Continue?"
+
+#: classes/class-aal-maintenance.php:237
+msgid "We've updated Activity Log with new features and database optimizations. Because your activity log table is large, please run the manual upgrade to complete the update."
+msgstr "We've updated Activity Log with new features and database optimisations. Because your activity log table is large, please run the manual upgrade to complete the update."
+
+#: classes/class-aal-maintenance.php:236
+msgid "Activity Log: Database Update Required"
+msgstr "Activity Log: Database Update Required"
+
+#: classes/class-aal-maintenance.php:217
+msgid "Activity Log: Database upgrade failed. Please try again."
+msgstr "Activity Log: Database upgrade failed. Please try again."
+
+#: classes/class-aal-maintenance.php:209
+msgid "The database update process is now complete. Thank you for updating to the latest version!"
+msgstr "The database update process is now complete. Thank you for updating to the latest version!"
+
+#: classes/class-aal-api.php:372
+msgid "WP-Cron"
+msgstr "WP-Cron"
+
+#: classes/class-aal-api.php:371
+msgid "WP-CLI"
+msgstr "WP-CLI"
+
+#: classes/class-aal-api.php:370
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+#: classes/class-aal-api.php:369
+msgid "REST API"
+msgstr "REST API"
+
+#: classes/class-aal-api.php:368
+msgid "WP Abilities"
+msgstr "WP Abilities"
+
+#: classes/class-aal-export.php:105 classes/class-aal-log-query.php:678
+#: classes/class-aal-privacy.php:216 classes/class-aal-privacy.php:218
+msgid "App Password"
+msgstr "App Password"
+
+#: i18n/strings.php:49
+msgid "Application Password"
+msgstr "Application Password"
+
+#: classes/class-aal-cli.php:98 classes/class-aal-export.php:106
+#: classes/class-aal-privacy.php:167 assets/js/admin/build/index.js:1
+msgid "Source"
+msgstr "Source"
+
+#: classes/class-aal-rest.php:533
+msgid "Install Plugin"
+msgstr "Install Plugin"
+
+#: classes/class-aal-rest.php:532
+msgid "Activate Plugin"
+msgstr "Activate Plugin"
+
+#: classes/class-aal-rest.php:483
+msgid "Reduce image sizes without losing quality and improve your site speed."
+msgstr "Reduce image sizes without losing quality and improve your site speed."
+
+#: classes/class-aal-rest.php:482
+msgid "Optimize Your Images for a Faster Website!"
+msgstr "Optimise Your Images for a Faster Website!"
+
+#: classes/class-aal-rest.php:477
+msgid "Use Site Mailer for improved email deliverability, detailed email logs, and an easy setup."
+msgstr "Use Site Mailer for improved email deliverability, detailed email logs, and an easy setup."
+
+#: classes/class-aal-rest.php:476
+msgid "Ensure your emails avoid the spam folder!"
+msgstr "Ensure your emails avoid the spam folder!"
+
+#: i18n/strings.php:90
+msgid "All New Versions"
+msgstr "All New Versions"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:68
+msgid "auto_update_enabled"
+msgstr "auto_update_enabled"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:66
+msgid "auto_update_disabled"
+msgstr "auto_update_disabled"
+
+#: classes/class-aal-rest.php:139
+msgid "Don't Keep"
+msgstr "Don't keep"
+
+#: classes/class-aal-rest.php:135
+msgid "Keep Email Logs"
+msgstr "Keep email logs"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:97
+msgid "failed"
+msgstr "failed"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:95
+msgid "sent"
+msgstr "sent"
+
+#: i18n/strings.php:93
+msgid "Emails"
+msgstr "Emails"
+
+#. Description of the plugin
+#: aryo-activity-log.php
+msgid "This top rated Activity Log plugin helps you monitor & log all changes and actions on your WordPress site, so you can remain secure and organized."
+msgstr "This top rated Activity Log plugin helps you monitor and log all changes and actions on your WordPress site, so you can remain secure and organised."
+
+#: classes/class-aal-rest.php:157
+msgid "Do not collect IP"
+msgstr "Do not collect IP"
+
+#: classes/class-aal-rest.php:144
+msgid "Visitor IP Detected"
+msgstr "Visitor IP detected"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:289
+msgid "wp_page_for_privacy_policy"
+msgstr "wp_page_for_privacy_policy"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:149
+msgid "WPLANG"
+msgstr "WPLANG"
+
+#: i18n/strings.php:84
+msgid "Taxonomies"
+msgstr "Taxonomies"
+
+#: i18n/strings.php:81
+msgid "Menus"
+msgstr "Menus"
+
+#: i18n/strings.php:75
+msgid "Widgets"
+msgstr "Widgets"
+
+#: i18n/strings.php:71
+msgid "Themes"
+msgstr "Themes"
+
+#: i18n/strings.php:25
+msgid "Attachments"
+msgstr "Attachments"
+
+#: i18n/strings.php:12
+msgid "Posts"
+msgstr "Posts"
+
+#: classes/class-aal-log-presenter.php:373
+msgid "Username:"
+msgstr "Username:"
+
+#: classes/class-aal-cli.php:102 classes/class-aal-export.php:109
+#: classes/class-aal-privacy.php:153 assets/js/admin/build/index.js:1
+msgid "Meta"
+msgstr "Meta"
+
+#: classes/class-aal-cli.php:101 classes/class-aal-export.php:108
+#: classes/class-aal-privacy.php:149 assets/js/admin/build/index.js:1
+msgid "Context"
+msgstr "Context"
+
+#: classes/class-aal-cli.php:100 classes/class-aal-export.php:107
+#: classes/class-aal-privacy.php:145 assets/js/admin/build/index.js:1
+msgid "Topic"
+msgstr "Topic"
+
+#: classes/class-aal-rest.php:130
+msgid "Don't Keep (Not recommended)"
+msgstr "Don't Keep (Not recommended)"
+
+#: classes/class-aal-rest.php:129 classes/class-aal-rest.php:138
+msgid "Keep"
+msgstr "Keep"
+
+#: classes/class-aal-rest.php:126
+msgid "Keep Failed Login Logs"
+msgstr "Keep Failed Login Logs"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:40
+msgid "removed"
+msgstr "removed"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:38
+msgid "registered"
+msgstr "registered"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:36
+msgid "failed_login"
+msgstr "failed_login"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:27
+msgid "uploaded"
+msgstr "uploaded"
+
+#. Author URI of the plugin
+#: aryo-activity-log.php
+msgid "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash"
+msgstr "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash"
+
+#. Author of the plugin
+#: aryo-activity-log.php
+msgid "Activity Log Team"
+msgstr "Activity Log Team"
+
+#. Plugin URI of the plugin
+#: aryo-activity-log.php
+msgid "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
+msgstr "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
+
+#: classes/class-aal-privacy.php:137
+msgid "Time"
+msgstr "Time"
+
+#: classes/class-aal-privacy.php:27 classes/class-aal-privacy.php:35
+msgid "Activity Log Plugin"
+msgstr "Activity Log Plugin"
+
+#: classes/class-aal-admin-ui.php:11 classes/class-aal-admin-ui.php:23
+msgctxt "Page and Menu Title"
+msgid "Activity Log"
+msgstr "Activity Log"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:22
+msgid "restored"
+msgstr "restored"
+
+#: classes/class-aal-export.php:113
+msgid "User ID"
+msgstr "User ID"
+
+#: i18n/strings.php:30
+msgid "Users"
+msgstr "Users"
+
+#: classes/class-aal-cli.php:95
+msgid "ID"
+msgstr "ID"
+
+#: i18n/strings.php:54
+msgid "Plugins"
+msgstr "Plugins"
+
+#: classes/class-aal-log-presenter.php:265 classes/class-aal-log-query.php:619
+#: classes/class-aal-log-query.php:861 classes/class-aal-log-query.php:1257
+msgid "N/A"
+msgstr "N/A"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:294
+msgid "downloaded"
+msgstr "downloaded"
+
+#: i18n/strings.php:292
+msgid "Export"
+msgstr "Export"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:285
+msgid "tag_base"
+msgstr "tag_base"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:283
+msgid "category_base"
+msgstr "category_base"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:281
+msgid "permalink_structure"
+msgstr "permalink_structure"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:273
+msgid "uploads_use_yearmonth_folders"
+msgstr "uploads_use_yearmonth_folders"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:271
+msgid "large_size_h"
+msgstr "large_size_h"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:269
+msgid "large_size_w"
+msgstr "large_size_w"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:263
+msgid "medium_size_h"
+msgstr "medium_size_h"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:261
+msgid "medium_size_w"
+msgstr "medium_size_w"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:259
+msgid "thumbnail_crop"
+msgstr "thumbnail_crop"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:257
+msgid "thumbnail_size_h"
+msgstr "thumbnail_size_h"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:255
+msgid "thumbnail_size_w"
+msgstr "thumbnail_size_w"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:251
+msgid "avatar_default"
+msgstr "avatar_default"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:249
+msgid "avatar_rating"
+msgstr "avatar_rating"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:247
+msgid "show_avatars"
+msgstr "show_avatars"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:241
+msgid "blacklist_keys"
+msgstr "blacklist_keys"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:239
+msgid "moderation_keys"
+msgstr "moderation_keys"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:237
+msgid "comment_max_links"
+msgstr "comment_max_links"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:233
+msgid "comment_whitelist"
+msgstr "comment_whitelist"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:231
+msgid "comment_moderation"
+msgstr "comment_moderation"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:229
+msgid "moderation_notify"
+msgstr "moderation_notify"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:227
+msgid "comments_notify"
+msgstr "comments_notify"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:225
+msgid "comment_order"
+msgstr "comment_order"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:223
+msgid "default_comments_page"
+msgstr "default_comments_page"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:221
+msgid "comments_per_page"
+msgstr "comments_per_page"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:219
+msgid "page_comments"
+msgstr "page_comments"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:217
+msgid "thread_comments_depth"
+msgstr "thread_comments_depth"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:215
+msgid "thread_comments"
+msgstr "thread_comments"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:213
+msgid "close_comments_days_old"
+msgstr "close_comments_days_old"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:211
+msgid "close_comments_for_old_posts"
+msgstr "close_comments_for_old_posts"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:209
+msgid "comment_registration"
+msgstr "comment_registration"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:207
+msgid "require_name_email"
+msgstr "require_name_email"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:205
+msgid "default_comment_status"
+msgstr "default_comment_status"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:203
+msgid "default_ping_status"
+msgstr "default_ping_status"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:201
+msgid "default_pingback_flag"
+msgstr "default_pingback_flag"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:197
+msgid "blog_public"
+msgstr "blog_public"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:195
+msgid "rss_use_excerpt"
+msgstr "rss_use_excerpt"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:193
+msgid "posts_per_rss"
+msgstr "posts_per_rss"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:191
+msgid "posts_per_page"
+msgstr "posts_per_page"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:189
+msgid "page_for_posts"
+msgstr "page_for_posts"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:187
+msgid "page_on_front"
+msgstr "page_on_front"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:185
+msgid "show_on_front"
+msgstr "show_on_front"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:181
+msgid "ping_sites"
+msgstr "ping_sites"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:179
+msgid "default_email_category"
+msgstr "default_email_category"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:177
+msgid "mailserver_pass"
+msgstr "mailserver_pass"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:175
+msgid "mailserver_login"
+msgstr "mailserver_login"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:173
+msgid "mailserver_url"
+msgstr "mailserver_url"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:171
+msgid "default_post_format"
+msgstr "default_post_format"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:169
+msgid "default_category"
+msgstr "default_category"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:167
+msgid "use_balanceTags"
+msgstr "use_balanceTags"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:165
+msgid "use_smilies"
+msgstr "use_smilies"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:159
+msgid "start_of_week"
+msgstr "start_of_week"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:157
+msgid "time_format"
+msgstr "time_format"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:155
+msgid "date_format"
+msgstr "date_format"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:151
+msgid "timezone_string"
+msgstr "timezone_string"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:147
+msgid "default_role"
+msgstr "default_role"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:145
+msgid "users_can_register"
+msgstr "users_can_register"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:141
+msgid "admin_email"
+msgstr "admin_email"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:139
+msgid "home"
+msgstr "home"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:137
+msgid "siteurl"
+msgstr "siteurl"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:135
+msgid "blogdescription"
+msgstr "blogdescription"
+
+#. translators: WordPress option name shown in the activity log. Translate as a
+#. readable setting name.
+#: i18n/strings.php:133
+msgid "blogname"
+msgstr "blogname"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:129
+msgid "unspammed"
+msgstr "unspammed"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:127
+msgid "spammed"
+msgstr "spammed"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:125
+msgid "untrashed"
+msgstr "undeleted"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:20
+msgid "trashed"
+msgstr "binned"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:123
+msgid "unapproved"
+msgstr "unapproved"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:121
+msgid "approved"
+msgstr "approved"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:119
+msgid "pending"
+msgstr "pending"
+
+#: i18n/strings.php:117
+msgid "Comments"
+msgstr "Comments"
+
+#: i18n/strings.php:89
+msgid "WordPress Auto Updated"
+msgstr "WordPress Auto Updated"
+
+#: i18n/strings.php:88
+msgid "WordPress Updated"
+msgstr "WordPress Updated"
+
+#: i18n/strings.php:87
+msgid "Core"
+msgstr "Core"
+
+#: i18n/strings.php:304
+msgid "Taxonomy"
+msgstr "Taxonomy"
+
+#: i18n/strings.php:303
+msgid "Menu"
+msgstr "Menu"
+
+#: i18n/strings.php:78
+msgid "Options"
+msgstr "Options"
+
+#: i18n/strings.php:302
+msgid "Widget"
+msgstr "Widget"
+
+#: i18n/strings.php:72
+msgid "Theme Customizer"
+msgstr "Theme Customiser"
+
+#: i18n/strings.php:301
+msgid "Theme"
+msgstr "Theme"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:60
+msgid "installed"
+msgstr "installed"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:58
+msgid "deactivated"
+msgstr "deactivated"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:56
+msgid "activated"
+msgstr "activated"
+
+#: i18n/strings.php:300
+msgid "Plugin"
+msgstr "Plugin"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:34
+msgid "logged_in"
+msgstr "logged_in"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:32
+msgid "logged_out"
+msgstr "logged_out"
+
+#: i18n/strings.php:298
+msgid "Attachment"
+msgstr "Attachment"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:18 i18n/strings.php:64
+msgid "deleted"
+msgstr "deleted"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:16
+msgid "updated"
+msgstr "updated"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:14
+msgid "created"
+msgstr "created"
+
+#: i18n/strings.php:297
+msgid "Post"
+msgstr "Post"
+
+#: i18n/strings.php:9
+msgid "Editor"
+msgstr "Editor"
+
+#: i18n/strings.php:8
+msgid "Administrator"
+msgstr "Administrator"
+
+#: i18n/strings.php:6
+msgid "Get aware of any activities that are taking place on your dashboard! Imagine it like a black-box for your WordPress site. e.g. post was deleted, plugin was activated, user logged in or logged out - it's all these for you to see."
+msgstr "Get aware of any activities that are taking place on your dashboard! Imagine it like a black-box for your WordPress site. e.g. post was deleted, plugin was activated, user logged in or logged out - it's all these for you to see."
+
+#: hooks/class-aal-hook-posts.php:12
+msgid "(no title)"
+msgstr "(no title)"
+
+#: classes/class-aal-cli.php:97 classes/class-aal-export.php:104
+#: i18n/strings.php:299 assets/js/admin/build/index.js:1
+msgid "User"
+msgstr "User"
+
+#: classes/class-aal-rest.php:166
+msgid "No"
+msgstr "No"
+
+#: classes/class-aal-rest.php:167
+msgid "Yes"
+msgstr "Yes"
+
+#: classes/class-aal-maintenance.php:246
+msgid "You do not have sufficient permissions to access this page."
+msgstr "You do not have sufficient permissions to access this page."
+
+#: classes/class-aal-rest.php:121
+msgid "Maximum number of days to keep activity log. Leave blank to keep activity log forever (not recommended)."
+msgstr "Maximum number of days to keep activity log. Leave blank to keep activity log forever (not recommended)."
+
+#: classes/class-aal-rest.php:122
+msgid "days."
+msgstr "days."
+
+#: classes/class-aal-rest.php:119
+msgid "Keep logs for"
+msgstr "Keep logs for"
+
+#: classes/class-aal-settings.php:38 classes/class-aal-settings.php:115
+msgid "Activity Log Settings"
+msgstr "Activity Log Settings"
+
+#: classes/class-aal-settings.php:24 classes/class-aal-settings.php:39
+msgid "Settings"
+msgstr "Settings"
+
+#: classes/class-aal-abilities.php:79 classes/class-aal-privacy.php:130
+#: classes/class-aal-privacy.php:198 classes/class-aal-settings.php:21
+#: i18n/strings.php:5
+msgid "Activity Log"
+msgstr "Activity Log"
+
+#: classes/class-aal-log-presenter.php:379
+msgid "All"
+msgstr "All"
+
+#: classes/class-aal-log-presenter.php:246
+msgid "Unknown"
+msgstr "Unknown"
+
+#. translators: %s: human time diff
+#: classes/class-aal-log-presenter.php:225
+msgid "%s ago"
+msgstr "%s ago"
+
+#: classes/class-aal-cli.php:103 classes/class-aal-export.php:110
+#: classes/class-aal-privacy.php:141 assets/js/admin/build/index.js:1
+msgid "Action"
+msgstr "Action"
+
+#: classes/class-aal-cli.php:99 classes/class-aal-export.php:247
+#: classes/class-aal-privacy.php:157
+msgid "IP"
+msgstr "IP"
+
+#: classes/class-aal-cli.php:96 classes/class-aal-export.php:103
+#: assets/js/admin/build/index.js:1
+msgid "Date"
+msgstr "Date"

@@ -48,6 +48,7 @@ if ( ! class_exists( 'acf_field_image' ) ) :
 
 			// filters
 			add_filter( 'get_media_item_args', array( $this, 'get_media_item_args' ) );
+			add_filter( 'acf/validate_attachment/type=image', 'acf_validate_is_image_attachment', 10, 5 );
 		}
 
 
@@ -109,10 +110,19 @@ if ( ! class_exists( 'acf_field_image' ) ) :
 			// Detect value.
 			if ( $field['value'] && is_numeric( $field['value'] ) ) {
 				$image = wp_get_attachment_image_src( $field['value'], $field['preview_size'] );
+				$alt   = get_post_meta( $field['value'], '_wp_attachment_image_alt', true );
+
+				// Non-image attachments are allowed when acf/is_image_field returns false. Preview them
+				// with their mime type icon so the value is kept in the input and isn't lost on save.
+				if ( ! $image && ! acf_is_image_field( $field ) && 'attachment' === get_post_type( $field['value'] ) ) {
+					$image = wp_get_attachment_image_src( $field['value'], $field['preview_size'], true );
+					$alt   = $alt ? $alt : get_post_field( 'post_title', $field['value'] );
+				}
+
 				if ( $image ) {
 					$value               = $field['value'];
 					$img_attrs['src']    = $image[0];
-					$img_attrs['alt']    = get_post_meta( $field['value'], '_wp_attachment_image_alt', true );
+					$img_attrs['alt']    = $alt;
 					$div_attrs['class'] .= ' has-value';
 				}
 			}
@@ -151,13 +161,27 @@ if ( ! class_exists( 'acf_field_image' ) ) :
 			<?php endif; ?>
 			<label class="acf-basic-uploader">
 				<?php
-				acf_file_input(
-					array(
-						'name' => $field['name'],
-						'id'   => $field['id'],
-						'key'  => $field['key'],
-					)
+				$args = array(
+					'name' => $field['name'],
+					'id'   => $field['id'],
+					'key'  => $field['key'],
 				);
+
+				if ( ! empty( $field['mime_types'] ) ) {
+					$extensions        = str_replace( array( ' ', '.' ), '', $field['mime_types'] );
+					$extensions        = array_filter( explode( ',', $extensions ) );
+					$accept_extensions = array();
+
+					foreach ( $extensions as $extension ) {
+						$accept_extensions[] = '.' . $extension;
+					}
+
+					$args['accept'] = implode( ',', $accept_extensions );
+				} else {
+					$args['accept'] = 'image/*';
+				}
+
+				acf_file_input( $args );
 				?>
 			</label>
 		<?php else : ?>
@@ -430,6 +454,25 @@ if ( ! class_exists( 'acf_field_image' ) ) :
 		 * @return boolean The validity status.
 		 */
 		public function validate_value( $valid, $value, $field, $input ) {
+			if ( $valid !== true ) {
+				return $valid;
+			}
+
+			if ( empty( $value ) ) {
+				return $valid;
+			}
+
+			if ( is_numeric( $value ) ) {
+				if ( acf_is_image_field( $field ) ) {
+					if ( ! acf_is_valid_image_attachment_id( $value ) ) {
+						return __( 'File must be a valid image.', 'acf' );
+					}
+				} elseif ( 'attachment' !== get_post_type( (int) $value ) ) {
+					/* translators: %s: field label */
+					return sprintf( __( '%s requires a valid attachment ID.', 'acf' ), $field['label'] );
+				}
+			}
+
 			return acf_get_field_type( 'file' )->validate_value( $valid, $value, $field, $input );
 		}
 

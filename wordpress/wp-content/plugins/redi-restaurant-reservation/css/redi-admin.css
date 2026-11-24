@@ -1,12 +1,29 @@
 /* Warning sign when some action has to be completed */
 .redi-menu-warning{display:inline-block;vertical-align:top;box-sizing:border-box;margin:1px 0 -1px 2px;padding:0 5px;min-width:18px;height:18px;border-radius:9px;background-color:darkorange;color:#fff;font-size:11px;line-height:1.6;text-align:center;z-index:26;}
+#adminmenu .redi-menu-pro{background-color:#1da867;color:#fff;}
+#adminmenu li a:hover .redi-menu-pro,#adminmenu li.current a .redi-menu-pro,#adminmenu li.wp-has-current-submenu a .redi-menu-pro{background-color:#1da867;color:#fff;}
+#adminmenu #toplevel_page_redi-restaurant-reservation-reservations .wp-submenu a{position:relative;}
+#adminmenu .redi-menu-popup{display:none;position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);width:220px;padding:8px 12px;background:#1d2327;color:#f0f0f1;font-size:12px;font-weight:400;line-height:1.4;white-space:normal;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:100000;pointer-events:none;}
+#adminmenu .redi-menu-popup::before{content:"";position:absolute;right:100%;top:50%;margin-top:-6px;border:6px solid transparent;border-right-color:#1d2327;}
+#adminmenu #toplevel_page_redi-restaurant-reservation-reservations .wp-submenu a:hover .redi-menu-popup,
+#adminmenu #toplevel_page_redi-restaurant-reservation-reservations .wp-submenu a:focus .redi-menu-popup{display:block;color:#f0f0f1;background:#1d2327;}
+.rtl #adminmenu .redi-menu-popup{left:auto;right:calc(100% + 10px);}
+.rtl #adminmenu .redi-menu-popup::before{right:auto;left:100%;border-right-color:transparent;border-left-color:#1d2327;}
 .social_my_list{display:inline-flex;gap:11px;margin-bottom:15px;}
 .social_my_list a{display:inline-flex;}
+.tab_wrap {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    padding: 10px;
+    min-width: 763px;
+}
 .tab_wrap.cancel{width:100%;margin-right:auto;}
 .button-primary1{background:#1b335f;display:inline-block;width:auto;padding:10px 15px;color:#fff;font-size:14px;text-decoration:none;margin-right:10px;font-weight:600;border:1px solid #1b335f;transition:0.4s all ease;}
 .button-primary1:hover,.rr_setting_page .button-primary:hover{background:#fff;color:#1b335f;}
 .button-primary2{background:transparent;border:1px solid #1b335f;display:inline-block;width:auto;padding:10px 15px;color:#1b335f;font-size:14px;font-weight:600;text-decoration:none;transition:0.4s all ease;}
 .button-primary2:hover{background:#1b335f;color:#fff;}
+.redi-subscribe-option{margin:16px 0;}
+.redi-subscribe-option .button-primary1,.redi-subscribe-option .button-primary2{margin-top:8px;}
 .redi_box{background:#fff;border-spacing:0!important;box-shadow:0px 0px 5px 0px rgb(0 0 0 / 35%);margin-top:20px;width:100%!important;padding:15px 15px;}
 .redi_box H2{background:#1b335f;padding:10px 15px!important;display:block;color:#fff;font-size:17px!important;margin-top:0;}
 .redi_box input#key_edit{border-radius:0;}
@@ -29,7 +46,11 @@
 .redi_notice .redi-notice-button{background:#127DB8;border-radius:3px;color:#fff;text-decoration:none;height:auto;line-height:20px;padding:0.4375rem 0.75rem;text-transform:capitalize;}
 .redi_notice p{margin:0.2em 0;}
 .redi_notice .link_wrapper{display:block;margin-block-start:12px;}
-.redi-admin-right{position:relative;min-width:255px;}
+.redi-admin-left {
+    float: left;
+    width: 68%;
+}
+.redi-admin-right{position:relative;min-width:255px;width:30%;margin-top:35px;float:right;}
 .redi_admin_head{margin-bottom:20px;margin-top:20px;}
 .redi_admin_head .image{width:90px;height:90px;background:#a1a1a1;border-radius:50%;margin:0 auto;overflow:hidden;}
 .redi_admin_info h3{font-size:18px;margin:0;color:#1b335f;line-height:24px;}
@@ -56,4 +77,187 @@
 .button-save-all
 {
     height: 80px;
+}
+
+/* WordPress core spinner sits next to Save; override admin float:right. */
+.rr_setting_page .button-save + .spinner,
+#redi-reservation-cancel .button-secondary + .spinner {
+    float: none;
+    display: none;
+    vertical-align: middle;
+    margin: 0 0 4px 8px;
+}
+.rr_setting_page .button-save + .spinner.is-active,
+#redi-reservation-cancel .button-secondary + .spinner.is-active {
+    display: inline-block;
+    visibility: visible;
+}
+
+.redi-settings-saving {
+    position: fixed;
+    z-index: 100000;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.redi-settings-saving__notice {
+    margin: 0;
+    padding: 12px 20px 12px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);
+}
+.redi-settings-saving__notice p {
+    display: flex;
+    align-items: center;
+    margin: 0.5em 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.redi-settings-saving .spinner {
+    float: none;
+    display: inline-block;
+    margin: 0 10px 0 0;
+    visibility: visible;
+}
+body.redi-is-saving {
+    cursor: wait;
+}
+
+.redi-support-issue-modal .radi-modal-body label {
+    font-weight: 600;
+}
+.redi-support-issue-modal .radi-modal-body input[type="email"],
+.redi-support-issue-modal .radi-modal-body textarea {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 6px;
+}
+.redi-support-issue-modal .radi-modal-body textarea {
+    min-height: 140px;
+}
+.redi-support-issue-modal #redi-support-issue-message {
+    margin: 12px 0 0;
+}
+.redi-support-issue-modal .redi_required,
+.redi_required {
+    color: #dd0000;
+}
+
+.rr_setting_page .postbox h3 {
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 8px 12px;
+}
+
+.nav-tab-basic {
+    background-color: #78DD88;
+}
+
+.nav-tab-basic:hover {
+    background-color: #7FFF8E;
+}
+
+.redi-pro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #f0b429;
+    color: #5c3d00;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 9px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.redi-pro-badge:hover {
+    filter: brightness(0.95);
+}
+.redi-pro-badge.redi-badge-full {
+    background: #1da867;
+    color: #fff;
+}
+.redi-pro-list .head + ul + .head {
+    margin-top: 10px;
+}
+
+tr.redi-pro-row .name {
+    font-weight: 600;
+}
+tr.redi-pro-row .redi-pro-link {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #2b5c8a;
+    text-decoration: none;
+}
+tr.redi-pro-row .redi-pro-link:hover {
+    text-decoration: underline;
+}
+
+.redi-pro-list {
+    background: #f8fafc;
+    border: 1px solid #dcdcde;
+    border-top: none;
+    padding: 14px 16px;
+    font-size: 12.5px;
+}
+.redi-pro-list .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.redi-pro-list .head span {
+    font-weight: 600;
+    font-size: 13px;
+}
+.redi-pro-list .head a {
+    color: #2b5c8a;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 12.5px;
+}
+.redi-pro-list .head a:hover {
+    text-decoration: underline;
+}
+.redi-pro-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2;
+    column-gap: 24px;
+    color: #646970;
+}
+.redi-pro-list li {
+    padding: 3px 0;
+    break-inside: avoid;
+}
+.redi-pro-list li::before {
+    content: "— ";
+    color: #c9a227;
+}
+
+.redi-settings-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+}
+.redi-settings-tabs .nav-tab {
+    float: none;
+    margin-bottom: 0;
+}
+.redi-settings-tabs .redi-tab-teaser {
+    margin-left: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #1d2327;
+}
+
+#selected_place_id {
+    font-weight: bold;
 }

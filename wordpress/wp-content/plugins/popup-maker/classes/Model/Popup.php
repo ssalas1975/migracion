@@ -97,6 +97,100 @@ class PUM_Model_Popup extends PUM_Abstract_Model_Post {
 	public $settings = null;
 
 	/**
+	 * Whether the current settings were loaded from WordPress metadata.
+	 *
+	 * @var bool
+	 */
+	private $settings_loaded_from_meta = false;
+
+	/**
+	 * Hash of the popup settings entry in the WordPress metadata cache.
+	 *
+	 * @var string
+	 */
+	private $settings_meta_cache_hash = '';
+
+	/**
+	 * Last filtered settings value loaded from WordPress metadata.
+	 *
+	 * @var mixed
+	 */
+	private $settings_loaded_value;
+
+	/**
+	 * Hash the current popup settings metadata cache state.
+	 *
+	 * @return string
+	 */
+	private function get_settings_meta_cache_hash() {
+		$meta_cache = wp_cache_get( $this->ID, 'post_meta' );
+
+		if ( ! is_array( $meta_cache ) ) {
+			update_meta_cache( 'post', [ $this->ID ] );
+			$meta_cache = wp_cache_get( $this->ID, 'post_meta' );
+		}
+
+		$cache_data = [
+			'loaded'   => is_array( $meta_cache ),
+			'settings' => is_array( $meta_cache ) && isset( $meta_cache['popup_settings'] ) ? $meta_cache['popup_settings'] : null,
+		];
+
+		return hash( 'sha256', maybe_serialize( $cache_data ) );
+	}
+
+	/**
+	 * Resolve popup settings with the same precedence as WordPress metadata.
+	 *
+	 * @return array{settings: mixed, from_metadata: bool}
+	 */
+	private function get_settings_metadata() {
+		if ( $this->mock ) {
+			return [
+				'settings'      => false,
+				'from_metadata' => false,
+			];
+		}
+
+		if ( __CLASS__ !== get_class( $this ) ) {
+			return [
+				'settings'      => $this->get_meta( 'popup_settings' ),
+				'from_metadata' => false,
+			];
+		}
+
+		$settings = apply_filters( 'get_post_metadata', null, $this->ID, 'popup_settings', true, 'post' );
+
+		if ( null !== $settings ) {
+			if ( is_array( $settings ) && [ 0 ] === array_keys( $settings ) && is_array( $settings[0] ) ) {
+				$settings = $settings[0];
+			}
+
+			return [
+				'settings'      => $settings,
+				'from_metadata' => false,
+			];
+		}
+
+		$meta_cache = wp_cache_get( $this->ID, 'post_meta' );
+
+		if ( ! is_array( $meta_cache ) ) {
+			update_meta_cache( 'post', [ $this->ID ] );
+			$meta_cache = wp_cache_get( $this->ID, 'post_meta' );
+		}
+
+		if ( is_array( $meta_cache ) && isset( $meta_cache['popup_settings'][0] ) ) {
+			$settings = maybe_unserialize( $meta_cache['popup_settings'][0] );
+		} else {
+			$settings = get_metadata_default( 'post', $this->ID, 'popup_settings', true );
+		}
+
+		return [
+			'settings'      => $settings,
+			'from_metadata' => true,
+		];
+	}
+
+	/**
 	 * Used to hackishly insert title for generated popups not stored in DB. (Shortcodes).
 	 *
 	 * @var string
@@ -165,16 +259,25 @@ class PUM_Model_Popup extends PUM_Abstract_Model_Post {
 	 * @return array
 	 */
 	public function get_settings() {
+		if ( isset( $this->settings ) && $this->settings_loaded_from_meta && $this->settings === $this->settings_loaded_value && $this->settings_meta_cache_hash !== $this->get_settings_meta_cache_hash() ) {
+			$this->settings = null;
+		}
+
 		if ( ! isset( $this->settings ) ) {
 			// This hack is here to allow creating popups on the fly without saved meta.
-			$settings = isset( $this->settings ) ? $this->settings : $this->get_meta( 'popup_settings' );
+			$settings_metadata         = $this->get_settings_metadata();
+			$settings                  = $settings_metadata['settings'];
+			$settings_loaded_from_meta = $settings_metadata['from_metadata'];
 
 			if ( ! is_array( $settings ) ) {
 				$settings = [];
 			}
 
 			// Review: the above should be removed and replaced with a hooked filter here to supply defaults when $settings === false.
-			$this->settings = apply_filters( 'pum_popup_settings', $settings, $this->ID );
+			$this->settings                  = apply_filters( 'pum_popup_settings', $settings, $this->ID );
+			$this->settings_loaded_from_meta = $settings_loaded_from_meta;
+			$this->settings_loaded_value     = $this->settings;
+			$this->settings_meta_cache_hash  = $this->get_settings_meta_cache_hash();
 		}
 
 		return $this->settings;
@@ -210,18 +313,76 @@ class PUM_Model_Popup extends PUM_Abstract_Model_Post {
 	}
 
 	/**
+	 * Settings keys that carry no user configuration on their own.
+	 *
+	 * A record containing only these keys is considered "empty" for the purpose
+	 * of detecting destructive writes, because update_settings() always stamps
+	 * them automatically.
+	 *
+	 * @var string[]
+	 */
+	private static $incidental_setting_keys = [ 'theme_id', 'theme_slug' ];
+
+	/**
+	 * Whether a settings array holds real, user-configured data.
+	 *
+	 * @param mixed $settings Settings array to inspect.
+	 *
+	 * @return bool
+	 */
+	public static function settings_have_content( $settings ) {
+		if ( ! is_array( $settings ) || empty( $settings ) ) {
+			return false;
+		}
+
+		$meaningful = array_diff_key( $settings, array_flip( self::$incidental_setting_keys ) );
+
+		return ! empty( $meaningful );
+	}
+
+	/**
+	 * Whether writing $proposed over $stored would destructively drop data.
+	 *
+	 * Returns true only when the stored record has real content and the proposed
+	 * record would strip it away, leaving nothing but incidental (theme) keys.
+	 * This is the signature of a save that ran against an empty/partial base.
+	 *
+	 * @param mixed $stored   Settings currently stored for the popup.
+	 * @param mixed $proposed Settings about to be written.
+	 *
+	 * @return bool
+	 */
+	public static function is_destructive_settings_write( $stored, $proposed ) {
+		// Nothing meaningful stored yet: any write is safe (new popup).
+		if ( ! self::settings_have_content( $stored ) ) {
+			return false;
+		}
+
+		// Stored had content but the proposed record does not: destructive.
+		return ! self::settings_have_content( $proposed );
+	}
+
+	/**
 	 * Update multiple settings at once.
 	 *
 	 * @param array $new_settings Array of new setting key=>value pairs.
 	 * @param bool  $merge Wheher to merge values or replace them.
 	 *
-	 * @return bool|int
+	 * @return bool|int|\WP_Error Meta ID / true on success, false on no change,
+	 *                            WP_Error when a destructive write is refused.
 	 */
 	public function update_settings( $new_settings = [], $merge = true ) {
-		$settings = $this->get_settings();
+		// Read the base straight from stored meta rather than the per-request
+		// cache. A cache poisoned by an earlier failed/premature read would
+		// otherwise seed a merge that silently drops everything not resubmitted.
+		$stored = $this->get_meta( 'popup_settings' );
+		if ( ! is_array( $stored ) ) {
+			$stored = [];
+		}
 
 		// TODO Once fields have been merged into the model itself, add automatic validation here.
 		if ( $merge ) {
+			$settings = $stored;
 			foreach ( $new_settings as $key => $value ) {
 				$settings[ $key ] = $value;
 			}
@@ -237,7 +398,27 @@ class PUM_Model_Popup extends PUM_Abstract_Model_Post {
 			$settings['theme_slug'] = get_post_field( 'post_name', $settings['theme_id'] );
 		}
 
-		return $this->update_meta( 'popup_settings', $settings );
+		// Guard against wiping a populated record down to nothing. This is the
+		// core protection against the "popup settings deleted / reset" reports.
+		if ( self::is_destructive_settings_write( $stored, $settings ) ) {
+			if ( function_exists( 'pum_log_message' ) ) {
+				pum_log_message( sprintf( 'Refused destructive popup_settings write for popup #%d (would have erased all settings).', $this->ID ) );
+			}
+
+			return new WP_Error(
+				'pum_destructive_settings_write',
+				__( 'Popup settings were not saved because the change would have erased existing triggers, conditions, and display settings. Please reload the popup and try again.', 'popup-maker' )
+			);
+		}
+
+		$updated = $this->update_meta( 'popup_settings', $settings );
+
+		// Re-read the normalized stored value and refresh its cache provenance.
+		$this->settings                  = null;
+		$this->settings_loaded_from_meta = false;
+		$this->get_settings();
+
+		return $updated;
 	}
 
 	/**
@@ -591,7 +772,15 @@ class PUM_Model_Popup extends PUM_Abstract_Model_Post {
 
 		if ( false === $theme_slug ) {
 			$theme_slug = get_post_field( 'post_name', $this->get_theme_id() );
-			$this->update_setting( 'theme_slug', $theme_slug );
+
+			// Only backfill the slug when the popup already has real settings to
+			// attach it to. Persisting during a render against an empty settings
+			// base would otherwise write a theme-only record and lose everything
+			// else. update_setting() is also guarded, but skipping avoids a
+			// needless write on every front-end render.
+			if ( self::settings_have_content( $this->get_settings() ) ) {
+				$this->update_setting( 'theme_slug', $theme_slug );
+			}
 		}
 
 		return $theme_slug;

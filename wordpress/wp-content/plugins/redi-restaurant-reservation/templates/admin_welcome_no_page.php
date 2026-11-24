@@ -1,4 +1,3 @@
-<?php require_once(REDI_RESTAURANT_TEMPLATE. '../js/hotjar.js');?>
 <div class="wrap">
     <h3><?php _e('Welcome to the ReDi Restaurant Reservation plugin', 'redi-restaurant-reservation'); ?></h3>
     <div id="account_activation_container">
@@ -9,7 +8,9 @@
                 </div>
                 <div class="redi-setting-body">
                     <div class="redi-body-form-inputs">
-                        <p><span><?php _e('You can create dedicated reservation page below, or you can skip this step and create page manually. When you create page manually, insert [redireservation] shortcode to the page.', 'redi-restaurant-reservation'); ?></span></p>
+                        <p><span><?php _e('You can create a dedicated reservation page below, or skip this step and create a page manually.', 'redi-restaurant-reservation'); ?></span></p>
+                        <p><span><?php _e('Your shortcode', 'redi-restaurant-reservation'); ?>: <code style="font-style: normal; padding:0">[redirestaurant]</code></span></p>
+                        <p><span><?php _e('For a single restaurant with no customization, only this shortcode is needed. Paste it into any page to show the reservation form.', 'redi-restaurant-reservation'); ?></span></p>
                         <label for="reservation-page-input"><?php _e('Page name', 'redi-restaurant-reservation'); ?>*
                             <input type="text" name="reservation-page-input" id="reservation-page-create" placeholder="" value="<?php echo esc_attr(__('reservation', 'redi-restaurant-reservation')); ?>">
                         </label>

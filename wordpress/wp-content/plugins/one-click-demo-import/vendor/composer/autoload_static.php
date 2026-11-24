@@ -7,22 +7,22 @@ namespace Composer\Autoload;
 class ComposerStaticInit4b1f58a56fbbaf4e9b8758a48d6ee77f
 {
     public static $prefixLengthsPsr4 = array (
-        'O' => 
+        'O' =>
         array (
             'OCDI\\' => 5,
         ),
-        'A' => 
+        'A' =>
         array (
             'AwesomeMotive\\WPContentImporter2\\' => 33,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'OCDI\\' => 
+        'OCDI\\' =>
         array (
             0 => __DIR__ . '/../..' . '/inc',
         ),
-        'AwesomeMotive\\WPContentImporter2\\' => 
+        'AwesomeMotive\\WPContentImporter2\\' =>
         array (
             0 => __DIR__ . '/..' . '/awesomemotive/wp-content-importer-v2/src',
         ),

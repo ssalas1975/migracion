@@ -8,6 +8,40 @@ function addSpace(n) {
     });
 }
 
+function rediCaptchaEnabled() {
+    return !!(typeof redi_restaurant_reservation !== 'undefined' && parseInt(redi_restaurant_reservation.captcha_enabled, 10));
+}
+
+function rediCaptchaVersion() {
+    return (typeof redi_restaurant_reservation !== 'undefined' && redi_restaurant_reservation.captcha_version) ? redi_restaurant_reservation.captcha_version : 'v2';
+}
+
+function rediGetCaptchaToken(callback) {
+    if (!rediCaptchaEnabled()) {
+        callback('');
+        return;
+    }
+
+    if (rediCaptchaVersion() === 'v3') {
+        var siteKey = redi_restaurant_reservation.captcha_key || '';
+        if (!siteKey || typeof grecaptcha === 'undefined' || typeof grecaptcha.ready !== 'function') {
+            callback(null);
+            return;
+        }
+        grecaptcha.ready(function () {
+            grecaptcha.execute(siteKey, { action: 'reservation' }).then(function (token) {
+                callback(token);
+            }).catch(function () {
+                callback(null);
+            });
+        });
+        return;
+    }
+
+    var recaptchaResponse = document.querySelector('.g-recaptcha-response');
+    callback(recaptchaResponse ? recaptchaResponse.value : '');
+}
+
 function waitlistTimeButton($this){
 
     jQuery('.redi-restaurant-time-button').each(function () {
@@ -128,6 +162,7 @@ jQuery(function () {
     updatePersons();
 
     function hideSteps() {
+        resetSelectedTime();
         jQuery('#step2').hide('slow'); // if user clicks again first button we hide the other steps
         jQuery('#step3').hide('slow');
         jQuery('#step2busy').hide('slow');
@@ -135,6 +170,14 @@ jQuery(function () {
         if (hidesteps) {
             jQuery('#step1busy').hide();
         }
+    }
+
+    function resetSelectedTime() {
+        jQuery('#redi-restaurant-startTimeHidden').val('');
+        jQuery('#redi-restaurant-duration').val('');
+        jQuery('.redi-restaurant-time-button').removeAttr('select');
+        jQuery('#step3').hide();
+        jQuery('#redi-restaurant-step3').prop('disabled', true);
     }
 
     function updatePersons() {
@@ -162,6 +205,10 @@ jQuery(function () {
     jQuery('#redi-restaurant-startMinute').change(updateTime);
     jQuery('#persons, #children').change(function () {
 
+        resetSelectedTime();
+        jQuery('#buttons').html('');
+        jQuery('#step2').hide();
+        jQuery('#step1buttons').hide();
 
         // show large group message
         if (jQuery(this).val() === 'group' || jQuery('#persons').val() === '0') {
@@ -175,12 +222,7 @@ jQuery(function () {
                 jQuery('#large_groups_message').hide();
             }
 
-            jQuery('#step1buttons').hide('slow');
             jQuery('#message-waitlist-form').hide('slow');
-
-            if (!hidesteps) {
-                jQuery('#step2').hide();
-            }
         } else 
         // load calendar information
         {
@@ -288,6 +330,7 @@ jQuery(function () {
         onChangeMonthYear: function (year, month) {
             jQuery('#redi-restaurant-startDate').val('');
             jQuery('#step2').hide();
+            resetSelectedTime();
 
             calendarDateFrom = moment({ year, month: month - 1, day: 1 });
             calendarDateTo = moment({ year, month: month - 1, day: 1 });
@@ -360,6 +403,7 @@ jQuery(function () {
 
         jQuery('#redi-restaurant-startTimeHidden').val(jQuery(this).val());
         jQuery('#redi-restaurant-duration').val(jQuery(this).data('reservation-duration'));
+        jQuery('#redi-restaurant-step3').prop('disabled', false);
 
         if (displayLeftSeats) {
             var left = jQuery(this).parent().find(".services-left");
@@ -412,7 +456,7 @@ jQuery(function () {
             }
         }
 
-        if (jQuery('#redi-captcha').length) {
+        if (rediCaptchaEnabled() && rediCaptchaVersion() !== 'v3' && jQuery('#redi-captcha').length) {
             var recaptchaResponse = document.querySelector('.g-recaptcha-response');
             if (recaptchaResponse && !recaptchaResponse.value) {
                 error += redi_restaurant_reservation.captcha_not_valid + '<br/>';
@@ -441,6 +485,10 @@ jQuery(function () {
 
         if (error) {
             jQuery('#step3errors').html(error).show('slow');
+            return false;
+        }
+
+        if (!jQuery('#redi-restaurant-startTimeHidden').val()) {
             return false;
         }
 
@@ -497,7 +545,17 @@ jQuery(function () {
         jQuery('#step3load').show();
         jQuery('#step3errors').hide('slow');
         jQuery('#redi-restaurant-step3').attr('disabled', true);
-        jQuery.post(redi_restaurant_reservation.ajaxurl, data, function (response) {
+        rediGetCaptchaToken(function (token) {
+            if (rediCaptchaEnabled() && !token) {
+                jQuery('#redi-restaurant-step3').attr('disabled', false);
+                jQuery('#step3load').hide();
+                jQuery('#step3errors').html(redi_restaurant_reservation.captcha_not_valid).show('slow');
+                return;
+            }
+            if (token) {
+                data.captcha_token = token;
+            }
+            jQuery.post(redi_restaurant_reservation.ajaxurl, data, function (response) {
             jQuery('#redi-restaurant-step3').attr('disabled', false);
             jQuery('#step3load').hide();
 
@@ -536,7 +594,10 @@ jQuery(function () {
         }, 'json')
             .error(function (xhr) {
                 jQuery('#step3errors').html(xhr.responseText).show('slow');
+                jQuery('#redi-restaurant-step3').attr('disabled', false);
+                jQuery('#step3load').hide();
             });
+        });
         return false;
     });
     jQuery(document).on('click', '#step1button', function () {
@@ -566,6 +627,7 @@ jQuery(function () {
 
         calendarInitiated = false;
         resetDatepickerToCurrentMonth();
+        resetSelectedTime();
 
         showFirstAvailableMonthAndSelectDay();
 
@@ -697,7 +759,8 @@ jQuery(function () {
 
     function step1call(fullDate) {
         if (jQuery('#persons').val() === 'group' || jQuery('#persons').val() === '0') return;
-        hideSteps();
+
+        resetSelectedTime();
 
         // Calculate adults based on totalSelection
         var personsValue = parseInt(jQuery('#persons').val());
@@ -713,18 +776,20 @@ jQuery(function () {
         }   
 
         jQuery('#redi-restaurant-startDateISO').val(fullDate);
-        jQuery('#step2').hide('slow'); // if user clicks again first button we hide the other steps
-        jQuery('#step3').hide('slow');
-        jQuery('#step1load').show();
-        jQuery('#step1errors').hide('slow');
-        jQuery('#message-waitlist-form').hide('slow');
+
+        jQuery('#step2').stop(true, true).hide();
+        jQuery('#step3').stop(true, true).hide();
+        jQuery('#buttons').html('').show();
+        jQuery('#step1buttons').empty().hide();
+        jQuery('#time2label').hide();
+        jQuery('#step2busy').hide();
+        jQuery('#step1busy').hide();
+        jQuery('#step1errors').hide();
+        jQuery('#message-waitlist-form').hide();
         jQuery('#step1times').hide();
         jQuery('#all_busy_error').hide();
-        
-        // Show loading message in buttons area
-        if (!hidesteps) {
-            jQuery('#step2').show();
-        }
+        jQuery('#step1load').show();
+
         var data = {
             action: 'redi_restaurant-submit',
             get: 'step1',
@@ -778,7 +843,7 @@ jQuery(function () {
                                 if (response[res] !== undefined) {
 
                                     jQuery('#buttons').append(
-                                        '<button ' + (response[res]['Available'] ? '' : 'title="' + redi_restaurant_reservation.tooltip + '"') +
+                                        '<button type="button" ' + (response[res]['Available'] ? '' : 'title="' + redi_restaurant_reservation.tooltip + '"') +
                                         ' class="redi-restaurant-time-button button ' + (response[res]['Available'] ? '' : 'disabled') +
                                         ' ' + response[res]['DiscountClass'] +
                                         '" value="' + response[res]['StartTimeISO'] + '" ' +
@@ -834,7 +899,7 @@ jQuery(function () {
                                             var duration = b['Duration'];
 
                                             if (waitlist == 'specific_time') {
-                                                html += '<button ' +
+                                                html += '<button type="button" ' +
                                                     'data-reservation-duration="' + duration + '"' +
                                                     'data-time-services-left="' + b['ServicesLeft'] + '"' + 
                                                     (b['Available'] ? '' : ' data-tooltip="' + b['Reason'] + '"') +
@@ -845,7 +910,7 @@ jQuery(function () {
                                                     (b['Select'] ? 'select="select"' : '') + ' onclick=" return waitlistTimeButton(this) ">' +
                                                     dispalytime + '</button>';
                                             } else {
-                                                html += '<button ' +
+                                                html += '<button type="button" ' +
                                                     'data-reservation-duration="' + duration + '"' +
                                                     'data-time-services-left="' + b['ServicesLeft'] + '"' +
                                                     (b['Available'] ? '' : ' data-tooltip="' + b['Reason'] + '"') +
@@ -888,7 +953,7 @@ jQuery(function () {
                                             } else {
                                                 step1buttons_html += 'available"'; //close class bracket
                                             }
-                                            step1buttons_html += ' type="submit">';
+                                            step1buttons_html += ' type="button">';
                                         }
                                     }
                                     current++;
@@ -923,7 +988,7 @@ jQuery(function () {
                         var duration = response[res]['Duration'];
 
                         jQuery('#buttons').append(
-                            '<button class="redi-restaurant-button redi-restaurant-time-button normal" value="' +
+                            '<button type="button" class="redi-restaurant-button redi-restaurant-time-button normal" value="' +
                             response[res]['StartTimeISO'] + '" ' +
                             'data-reservation-duration="' + duration + '"' +
                             (response[res]['Available'] ? '' : 'disabled="disabled"') +
@@ -934,7 +999,7 @@ jQuery(function () {
                 }
 
 
-                jQuery('#redi-restaurant-startTimeHidden').val(response['StartTimeISO']);
+                jQuery('#redi-restaurant-startTimeHidden').val('');
                 if (!hidesteps) {
                     jQuery('#step2').show('slow');
                     // if selected time is available make it bold and show fields
@@ -1057,7 +1122,9 @@ function getCustomFields() {
 
     function showStep3Error(msg) {
         jQuery('#step3errors').html(msg).show();
-        jQuery('#redi-restaurant-step3').prop('disabled', false);
+        if (jQuery('#redi-restaurant-startTimeHidden').val()) {
+            jQuery('#redi-restaurant-step3').prop('disabled', false);
+        }
     }
 
     jQuery.ajax({
@@ -1091,7 +1158,9 @@ function getCustomFields() {
         // Success
         customFieldsRenderer.renderFields(data, placeId);
         jQuery('#RediCustomFields').hide();
-        jQuery('#redi-restaurant-step3').prop('disabled', false);
+        if (jQuery('#redi-restaurant-startTimeHidden').val()) {
+            jQuery('#redi-restaurant-step3').prop('disabled', false);
+        }
     })
     .fail(function (xhr, status) {
         console.warn('AJAX fail:', status, xhr && xhr.responseText);

@@ -19,35 +19,38 @@
 */
 
     $url_img = CDP_MANTENIMIENTO_URL_FRONTAL . '/img';
-    $class = "fondo$plantilla";
+    $class = 'fondo' . absint( $plantilla );
+    $site_name = get_bloginfo( 'name' );
+    $site_description = get_bloginfo( 'description' );
+    $mensaje_seguro = \cdp_mweb\ModoMantenimiento::sanear_mensaje_html( $mensaje );
 
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
     <!-- cdp_mantenimiento_web -->
-    <meta charset="<?php bloginfo( 'charset' ); ?>" />
-    <title><?php echo get_bloginfo('title')?></title>
+    <meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>" />
+    <title><?php echo esc_html( $site_name ); ?></title>
     <?php
     if (function_exists('wp_site_icon')) {
         wp_site_icon();
     }
     ?>
     <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, minimum-scale=1">
-    <meta name="description" content="<?php echo get_bloginfo('description')?>"/>
+    <meta name="description" content="<?php echo esc_attr( $site_description ); ?>"/>
     <meta http-equiv="X-UA-Compatible" content="" />
-    <meta property="og:site_name" content="<?php echo get_bloginfo('title') . ' - ' . get_bloginfo('description')?>"/>
-    <meta property="og:title" content="<?php echo get_bloginfo('title')?>"/>
+    <meta property="og:site_name" content="<?php echo esc_attr( $site_name . ' - ' . $site_description ); ?>"/>
+    <meta property="og:title" content="<?php echo esc_attr( $site_name ); ?>"/>
     <meta property="og:type" content="Maintenance"/>
-    <meta property="og:url" content="<?php echo site_url(); ?>"/>
-    <meta property="og:description" content="<?php echo get_bloginfo('description')?>"/>
+    <meta property="og:url" content="<?php echo esc_url( site_url() ); ?>"/>
+    <meta property="og:description" content="<?php echo esc_attr( $site_description ); ?>"/>
     <?php if( !empty( $logo ) ) { ?>
-        <meta property="og:image" content="<?php echo $logo; ?>" />
-        <meta property="og:image:url" content="<?php echo $logo; ?>"/>
-        <meta property="og:image:secure_url" content="<?php echo $logo; ?>"/>
-        <meta property="og:image:type" content="<?php echo $logo_ext; ?>"/>
+        <meta property="og:image" content="<?php echo esc_url( $logo ); ?>" />
+        <meta property="og:image:url" content="<?php echo esc_url( $logo ); ?>"/>
+        <meta property="og:image:secure_url" content="<?php echo esc_url( $logo ); ?>"/>
+        <meta property="og:image:type" content="<?php echo esc_attr( $logo_ext ); ?>"/>
     <?php } ?>
     <link rel="profile" href="http://gmpg.org/xfn/11" />
-    <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
+    <link rel="pingback" href="<?php echo esc_url( get_bloginfo( 'pingback_url' ) ); ?>" />
     <style type="text/css">
 
         /* layout */
@@ -67,7 +70,7 @@
             background-color: #00b59b;
         }
         body.fondo1 .cdp-contenido {
-            background: url("<?php echo $url_img?>/fondo-mantenimiento-1.jpg") top right no-repeat #00b59b;
+            background: url("<?php echo esc_url( $url_img . '/fondo-mantenimiento-1.jpg' ); ?>") top right no-repeat #00b59b;
         }
         body.fondo1 .cdp-texto {
             padding: 100px 20px 0 20px;
@@ -87,7 +90,7 @@
             background-color: #ffffff;
         }
         body.fondo2 .cdp-contenido {
-            background: url("<?php echo $url_img?>/fondo-mantenimiento-2.jpg") top center no-repeat #ffffff;
+            background: url("<?php echo esc_url( $url_img . '/fondo-mantenimiento-2.jpg' ); ?>") top center no-repeat #ffffff;
         }
         body.fondo2 .cdp-texto {
             text-align: center;
@@ -106,7 +109,7 @@
             background-color: #ffffff;
         }
         body.fondo2 .cdp-contenido {
-            background: url("<?php echo $url_img?>/fondo-mantenimiento-2.jpg") top center no-repeat #ffffff;
+            background: url("<?php echo esc_url( $url_img . '/fondo-mantenimiento-2.jpg' ); ?>") top center no-repeat #ffffff;
         }
         body.fondo2 .cdp-texto {
             text-align: center;
@@ -125,7 +128,7 @@
             background-color: #80b1ec;
         }
         body.fondo3 .cdp-contenido {
-            background: url("<?php echo $url_img?>/fondo-mantenimiento-3.jpg") top center no-repeat #80b1ec;
+            background: url("<?php echo esc_url( $url_img . '/fondo-mantenimiento-3.jpg' ); ?>") top center no-repeat #80b1ec;
         }
         body.fondo3 .cdp-texto {
             text-align: center;
@@ -188,11 +191,11 @@
     }
     ?>
 </head>
-<body class="<?php echo $class?>">
+<body class="<?php echo esc_attr( $class ); ?>">
 <div class="cdp-contenedor-ppal">
     <div class="cdp-contenido">
         <div class="cdp-texto">
-            <?php echo $mensaje?>
+            <?php echo $mensaje_seguro; ?>
         </div>
     </div>
 </div>

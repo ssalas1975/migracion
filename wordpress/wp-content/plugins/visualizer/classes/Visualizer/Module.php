@@ -190,7 +190,7 @@ class Visualizer_Module {
 			$settings = get_post_meta( $chart_id, Visualizer_Plugin::CF_SETTINGS, true );
 			$rows   = array();
 			$series = get_post_meta( $chart_id, Visualizer_Plugin::CF_SERIES, true );
-			$data = self::get_chart_data( $chart, $type, false );
+			$data = self::get_chart_data( $chart, $type, false, 'print' === $type );
 			if ( ! empty( $series ) ) {
 				$row = array();
 				foreach ( $series as $array ) {
@@ -285,11 +285,11 @@ class Visualizer_Module {
 		// support for MS Excel
 		fprintf( $fp, $bom );
 		foreach ( $rows as $row ) {
-			fputcsv( $fp, $row );
+			fputcsv( $fp, $row, ',', '"', VISUALIZER_CSV_ESCAPE );
 		}
 		rewind( $fp );
 		$csv = '';
-		$array = fgetcsv( $fp );
+		$array = fgetcsv( $fp, 0, ',', '"', VISUALIZER_CSV_ESCAPE );
 		while ( $array !== false ) {
 			if ( strlen( $csv ) > 0 ) {
 				$csv .= PHP_EOL;
@@ -307,7 +307,7 @@ class Visualizer_Module {
 				$array = $temp_array;
 			}
 			$csv  .= implode( ',', $array );
-			$array = fgetcsv( $fp );
+			$array = fgetcsv( $fp, 0, ',', '"', VISUALIZER_CSV_ESCAPE );
 		}
 		fclose( $fp );
 
@@ -650,7 +650,7 @@ class Visualizer_Module {
 				$class_name = $id . $name;
 				$properties = implode( ' !important; ', array_filter( $attributes ) );
 				if ( ! empty( $properties ) ) {
-					$css    .= '.' . $class_name . ' {' . $properties . ' !important;}';
+					$css    .= wp_strip_all_tags( '.' . $class_name . ' {' . $properties . ' !important;}' );
 					$classes[ $name ] = $class_name;
 				}
 			}
@@ -723,6 +723,27 @@ class Visualizer_Module {
 	}
 
 	/**
+	 * Checks whether the current user may edit a specific chart.
+	 *
+	 * @param int $chart_id Chart ID.
+	 * @return bool
+	 */
+	public static function can_edit_chart( $chart_id ) {
+		$chart_id = absint( $chart_id );
+		if ( ! $chart_id ) {
+			return false;
+		}
+
+		$chart = get_post( $chart_id );
+		return $chart
+			&& Visualizer_Plugin::CPT_VISUALIZER === $chart->post_type
+			&& (
+				current_user_can( 'edit_post', $chart_id )
+				|| ( (int) $chart->post_author === get_current_user_id() && current_user_can( 'edit_posts' ) )
+			);
+	}
+
+	/**
 	 * Checks if the PRO version is active.
 	 *
 	 * @since 3.3.0
@@ -779,9 +800,94 @@ class Visualizer_Module {
 	}
 
 	/**
-	 * Gets the chart content after common manipulations.
+	 * Safely unserialize chart/source content, blocking PHP object injection.
+	 *
+	 * Single guarded chokepoint shared by chart/source content sinks so the
+	 * allowed_classes guard cannot be dropped from one call site independently.
+	 *
+	 * @param mixed $content The serialized content (only strings are decoded).
+	 * @return mixed The decoded value (array for valid chart data), or false.
 	 */
-	public static function get_chart_data( $chart, $type, $run_filter = true ) {
+	public static function decode_content( $content ) {
+		if ( ! is_string( $content ) ) {
+			return false;
+		}
+		$value = unserialize( trim( $content ), array( 'allowed_classes' => false ) );
+		if ( self::contains_references( $value ) ) {
+			return false;
+		}
+		return self::strip_incomplete_objects( $value );
+	}
+
+	/**
+	 * Check decoded arrays for references before recursively processing them.
+	 *
+	 * Cyclic serialized arrays necessarily contain a reference. Rejecting all
+	 * references also prevents shared references from becoming cycles later,
+	 * so strip_incomplete_objects() cannot recurse without terminating.
+	 *
+	 * @param mixed $value The decoded value.
+	 * @return bool Whether the value contains an array reference.
+	 */
+	private static function contains_references( $value ) {
+		if ( ! is_array( $value ) ) {
+			return false;
+		}
+		foreach ( array_keys( $value ) as $key ) {
+			if ( null !== ReflectionReference::fromArrayElement( $value, $key ) ) {
+				return true;
+			}
+			if ( is_array( $value[ $key ] ) && self::contains_references( $value[ $key ] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Remove the __PHP_Incomplete_Class stubs the allowed_classes guard leaves
+	 * behind; they crash map_deep() when the decoded value is written back to
+	 * post meta. Legitimate chart content is nested arrays/scalars only.
+	 *
+	 * @param mixed $value The decoded value.
+	 * @return mixed The value without object stubs; false for a top-level stub.
+	 */
+	private static function strip_incomplete_objects( $value ) {
+		if ( $value instanceof __PHP_Incomplete_Class ) {
+			return false;
+		}
+		if ( is_array( $value ) ) {
+			foreach ( $value as $key => $item ) {
+				if ( $item instanceof __PHP_Incomplete_Class ) {
+					unset( $value[ $key ] );
+				} elseif ( is_array( $item ) ) {
+					$value[ $key ] = self::strip_incomplete_objects( $item );
+				}
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Object-injection-safe drop-in for maybe_unserialize().
+	 *
+	 * @param mixed $value Raw meta/content value.
+	 * @return mixed The decoded value for serialized input, the value unchanged otherwise.
+	 */
+	public static function maybe_decode_content( $value ) {
+		return is_serialized( $value ) ? self::decode_content( $value ) : $value;
+	}
+
+	/**
+	 * Gets the chart content after common manipulations.
+	 *
+	 * @param WP_Post|object $chart      The chart post.
+	 * @param string         $type       The chart type passed to the data filter.
+	 * @param bool           $run_filter Whether to run the chart data filter.
+	 * @param bool           $sanitize   Whether to prepare the cells for HTML-capable renderers; exports and editors need the stored values.
+	 * @return mixed The chart data.
+	 */
+	public static function get_chart_data( $chart, $type, $run_filter = true, $sanitize = true ) {
 		// change HTML entities
 		$post_content = html_entity_decode( htmlentities( $chart->post_content ) );
 		$post_content = preg_replace_callback(
@@ -793,7 +899,7 @@ class Visualizer_Module {
 			},
 			$post_content
 		);
-		$data = unserialize( $post_content );
+		$data = self::decode_content( $post_content );
 		$altered = array();
 		if ( ! empty( $data ) ) {
 			foreach ( $data as $index => $array ) {
@@ -812,9 +918,47 @@ class Visualizer_Module {
 			$altered = $data;
 		}
 		if ( $run_filter ) {
-			return apply_filters( Visualizer_Plugin::FILTER_GET_CHART_DATA, $altered, $chart->ID, $type );
+			$altered = apply_filters( Visualizer_Plugin::FILTER_GET_CHART_DATA, $altered, $chart->ID, $type );
 		}
-		return $altered;
+
+		return $sanitize ? self::sanitize_chart_data( $altered ) : $altered;
+	}
+
+	/**
+	 * Saves a chart's JSON endpoint, recording the user who changes it as the WooCommerce report user.
+	 *
+	 * A scheduled refresh of the endpoint then uses this user's report access,
+	 * not the access of whoever authorized an earlier endpoint.
+	 *
+	 * @param int    $chart_id The chart ID.
+	 * @param string $url      The JSON endpoint.
+	 * @return void
+	 */
+	public static function update_json_url( $chart_id, $url ) {
+		if ( get_post_meta( $chart_id, Visualizer_Plugin::CF_JSON_URL, true ) !== $url ) {
+			update_post_meta( $chart_id, Visualizer_Plugin::CF_WOOCOMMERCE_REPORT_USER, get_current_user_id() );
+		}
+		update_post_meta( $chart_id, Visualizer_Plugin::CF_JSON_URL, $url );
+	}
+
+	/**
+	 * Sanitize chart data before passing it to HTML-capable renderers.
+	 *
+	 * @param mixed $data Chart data.
+	 * @return mixed Sanitized chart data.
+	 */
+	public static function sanitize_chart_data( $data ) {
+		// Preserve normal text and supported formatting while removing active
+		// markup from imports, scheduled remote sources, and filtered data.
+		return map_deep(
+			$data,
+			static function ( $value ) {
+				if ( ! is_string( $value ) || ! preg_match( '/<\s*\/?\s*[a-zA-Z!]/', $value ) ) {
+					return $value;
+				}
+				return wp_kses_post( $value );
+			}
+		);
 	}
 
 	/**

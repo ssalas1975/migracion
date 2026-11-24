@@ -114,7 +114,7 @@ class Robots {
 			return $this->metaHelper();
 		}
 
-		if ( is_home() && 'page' !== get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$this->globalValues();
 
 			return $this->metaHelper();
@@ -155,7 +155,8 @@ class Robots {
 	 *
 	 * Acts as a helper for meta().
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage guardrail now follows {@see isHomePage()}.
 	 *
 	 * @param  bool         $array Whether or not to return the value as an array.
 	 * @return array|string        The robots meta tag value.
@@ -179,12 +180,12 @@ class Robots {
 		}
 
 		// Never allow users to noindex the first page of the homepage.
-		if ( is_front_page() && 1 === $pageNumber ) {
+		if ( aioseo()->helpers->isHomePage() && 1 === $pageNumber ) {
 			$this->attributes['noindex'] = '';
 		}
 
 		// Because we prevent WordPress Core from outputting a robots tag in disableWpRobotsCore(), we need to noindex/nofollow non-public sites ourselves.
-		if ( ! get_option( 'blog_public' ) ) {
+		if ( aioseo()->helpers->isSearchEnginesDiscouraged() ) {
 			$this->attributes['noindex']  = 'noindex';
 			$this->attributes['nofollow'] = 'nofollow';
 		}
@@ -237,11 +238,63 @@ class Robots {
 
 		if ( $dynamicOptions->searchAppearance->taxonomies->has( $term->taxonomy ) ) {
 			$this->globalValues( [ 'taxonomies', $term->taxonomy ], true );
-
-			return;
+		} else {
+			$this->globalValues();
 		}
 
-		$this->globalValues();
+		$this->noindexEmptyCategory( $term );
+	}
+
+	/**
+	 * Sets noindex on empty category archives when the "noindex empty categories" option is enabled.
+	 *
+	 * @since   5.0.4
+	 *
+	 * @param  \WP_Term|null $term The term being evaluated.
+	 * @return void
+	 */
+	protected function noindexEmptyCategory( $term ) {
+		// Empty categories add no value in search results, so honour the option when set.
+		if (
+			is_a( $term, 'WP_Term' ) &&
+			'category' === $term->taxonomy &&
+			aioseo()->options->searchAppearance->advanced->noIndexEmptyCat &&
+			! $this->categoryHasPosts( $term )
+		) {
+			$this->attributes['noindex'] = 'noindex';
+		}
+	}
+
+	/**
+	 * Checks whether a category archive lists any posts.
+	 *
+	 * NOTE: $term->count only covers directly assigned posts, but the archive also lists every descendant's.
+	 *
+	 * @since 5.0.4
+	 *
+	 * @param  \WP_Term $term The category.
+	 * @return bool           True if the category or any of its descendants has posts.
+	 */
+	protected function categoryHasPosts( $term ) {
+		if ( ! empty( $term->count ) ) {
+			return true;
+		}
+
+		$descendantIds = get_term_children( $term->term_id, 'category' );
+		if ( empty( $descendantIds ) || is_wp_error( $descendantIds ) ) {
+			return false;
+		}
+
+		$nonEmptyIds = get_terms( [
+			'taxonomy'     => 'category',
+			'include'      => $descendantIds,
+			'hide_empty'   => true,
+			'hierarchical' => false,
+			'fields'       => 'ids',
+			'number'       => 1
+		] );
+
+		return ! empty( $nonEmptyIds ) && ! is_wp_error( $nonEmptyIds );
 	}
 
 	/**
@@ -287,10 +340,19 @@ class Robots {
 				$this->attributes['noindex'] = 'noindex';
 			}
 
-			if ( ! isset( $options->advanced->robotsMeta ) ) {
+			// Probe with has() rather than a chained isset(): the latter runs both __isset()
+			// and __get(), each pushing the sub-group, so the traversal lands on
+			// `advanced.advanced` and the object's own robots meta is never found.
+			$hasRobotsMeta = $options->has( 'advanced', false );
+			if ( $hasRobotsMeta ) {
+				$options       = $options->advanced;
+				$hasRobotsMeta = $options->has( 'robotsMeta', false );
+			}
+
+			if ( ! $hasRobotsMeta ) {
 				$robotsMeta = aioseo()->options->searchAppearance->advanced->globalRobotsMeta->all();
 			} else {
-				$robotsMeta = $options->advanced->robotsMeta->all();
+				$robotsMeta = $options->robotsMeta->all();
 				if ( $robotsMeta['default'] ) {
 					$robotsMeta = aioseo()->options->searchAppearance->advanced->globalRobotsMeta->all();
 				}

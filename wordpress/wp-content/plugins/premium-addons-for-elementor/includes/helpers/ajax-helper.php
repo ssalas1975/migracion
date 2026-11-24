@@ -9,6 +9,7 @@ namespace PremiumAddons\Includes\Helpers;
 
 use PremiumAddons\Includes\Helper_Functions;
 use PremiumAddons\Includes\Helpers\Query_Helper;
+use PremiumAddons\Includes\Helpers\Document_Helper;
 use PremiumAddons\Includes\Premium_Template_Tags;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,6 +29,10 @@ trait AJAX_Helper {
 		add_action( 'wp_ajax_premium_update_filter', array( $this, 'get_posts_list' ) );
 		add_action( 'wp_ajax_premium_update_tax', array( $this, 'get_related_tax' ) );
 		add_action( 'wp_ajax_pa_acf_options', array( $this, 'get_acf_options' ) );
+
+		// Shape Divider AJAX Handlers.
+		add_action( 'wp_ajax_pa_get_shape_svgs', array( $this, 'get_shape_svgs' ) );
+		add_action( 'wp_ajax_get_shape_divider_svg', array( $this, 'get_shape_divider_svg' ) );
 
 		// Template Content AJAX Handlers.
 		add_action( 'wp_ajax_get_elementor_template_content', array( $this, 'get_template_content' ) );
@@ -62,12 +67,21 @@ trait AJAX_Helper {
 
 		check_ajax_referer( 'pa-blog-widget-nonce', 'nonce' );
 
-		$post_type = isset( $_POST['post_type'] ) ? wp_unslash( $_POST['post_type'] ) : '';
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( __( 'Insufficient user permission.', 'premium-addons-for-elementor' ), 403 );
+		}
 
-		$post_type = array_map( 'sanitize_text_field', $post_type );
+		if ( empty( $_POST['post_type'] ) || ! is_array( $_POST['post_type'] ) ) {
+			wp_send_json_error( __( 'Empty Post Type.', 'premium-addons-for-elementor' ), 400 );
+		}
 
+		$allowed_types = array_keys( Query_Helper::get_posts_types() );
+
+		$post_type = array_values( array_intersect( array_map( 'sanitize_key', wp_unslash( $_POST['post_type'] ) ), $allowed_types ) );
+
+		// Sources like 'main' or 'related' are not post types; the editor expects an empty list for them.
 		if ( empty( $post_type ) ) {
-			wp_send_json_error( __( 'Empty Post Type.', 'premium-addons-for-elementor' ) );
+			wp_send_json_success( wp_json_encode( array() ) );
 		}
 
 		$args = array(
@@ -79,7 +93,8 @@ trait AJAX_Helper {
 
 		// Exclude the premium-grid and loop-items templates for 'elementor_library' source.
 		if ( in_array( 'elementor_library', $post_type, true ) ) {
-			$args['meta_query'] = array(
+			// Not the elementor_library_type term: templates inserted without the editor carry only the meta.
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- editor-only request.
 				array(
 					'key'     => '_elementor_template_type',
 					'value'   => array( 'premium-grid', 'loop-item' ),
@@ -114,6 +129,10 @@ trait AJAX_Helper {
 	public function get_related_tax() {
 
 		check_ajax_referer( 'pa-blog-widget-nonce', 'nonce' );
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( __( 'Insufficient user permission.', 'premium-addons-for-elementor' ), 403 );
+		}
 
 		$post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : '';
 
@@ -151,7 +170,9 @@ trait AJAX_Helper {
 			wp_send_json_error( 'Insufficient user permission' );
 		}
 
-		$query_options = isset( $_POST['query_options'] ) ? array_map( 'strip_tags', $_POST['query_options'] ) : ''; // phpcs:ignore
+		$query_options = isset( $_POST['query_options'] ) && is_array( $_POST['query_options'] )
+			? array_map( 'sanitize_text_field', wp_unslash( $_POST['query_options'] ) )
+			: array();
 
 		$query = new \WP_Query(
 			array(
@@ -163,6 +184,52 @@ trait AJAX_Helper {
 		$results = ACF_Helper::format_acf_query_result( $query->posts, $query_options );
 
 		wp_send_json_success( wp_json_encode( $results ) );
+	}
+
+	/**
+	 * Get Shape SVGs.
+	 *
+	 * Get the whole SVG shapes library for the shapes picker.
+	 *
+	 * @since 4.11.95
+	 * @access public
+	 */
+	public function get_shape_svgs() {
+
+		check_ajax_referer( 'pa-blog-widget-nonce', 'nonce' );
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( __( 'Unauthorized', 'premium-addons-for-elementor' ), 403 );
+		}
+
+		wp_send_json_success( array( 'shapes' => Helper_Functions::get_svg_shapes() ) );
+	}
+
+	/**
+	 * Get Shape Divider SVG
+	 *
+	 * Get a single shape SVG for the editor preview.
+	 *
+	 * @since 4.11.32
+	 * @access public
+	 */
+	public function get_shape_divider_svg() {
+
+		check_ajax_referer( 'pa-shape-nonce', 'nonce' );
+
+		if ( ! isset( $_POST['shape'] ) ) {
+			wp_send_json_error( 'No shape selected' );
+		}
+
+		$shape = sanitize_text_field( wp_unslash( $_POST['shape'] ) );
+
+		$svg_shape = Helper_Functions::get_svg_shapes( $shape );
+
+		if ( empty( $svg_shape ) ) {
+			wp_send_json_error( 'Invalid shape' );
+		}
+
+		wp_send_json_success( array( 'shape' => $svg_shape ) );
 	}
 
 	/**
@@ -189,15 +256,8 @@ trait AJAX_Helper {
 			wp_send_json_error( 'Invalid Template ID' );
 		}
 
-		// Check if post is published or user has permission to view
-		if ( 'publish' !== $post->post_status ) {
-			$current_user_id = get_current_user_id();
-			$is_author       = ( $current_user_id === (int) $post->post_author );
-			$is_admin        = current_user_can( 'manage_options' );
-
-			if ( ! $is_admin && ! $is_author ) {
-				wp_send_json_error( 'Permission denied' );
-			}
+		if ( ! Document_Helper::can_read_document( $post->ID ) ) {
+			wp_send_json_error( 'Permission denied', 403 );
 		}
 
 		$template_content = Helper_Functions::render_elementor_template( $template, $is_ID );
@@ -253,22 +313,24 @@ trait AJAX_Helper {
 
 		check_ajax_referer( 'pa-blog-widget-nonce', 'nonce' );
 
-		if ( ! isset( $_GET['token'] ) ) {
-			wp_send_json_error();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( __( 'Insufficient user permission.', 'premium-addons-for-elementor' ), 403 );
 		}
 
-		$token = sanitize_text_field( wp_unslash( $_GET['token'] ) );
+		if ( empty( $_POST['token'] ) ) {
+			wp_send_json_error( __( 'Missing token.', 'premium-addons-for-elementor' ), 400 );
+		}
 
-		$transient_name = 'pa_pinterest_boards_' . substr( $token, 0, 15 );
+		$token = sanitize_text_field( wp_unslash( $_POST['token'] ) );
+
+		$transient_name = 'pa_pinterest_boards_' . md5( $token );
 
 		$body = get_transient( $transient_name );
 
 		if ( false === $body ) {
 
-			$api_url = 'https://api.pinterest.com/v5/boards?page_size=60';
-
 			$response = wp_remote_get(
-				$api_url,
+				'https://api.pinterest.com/v5/boards?page_size=60',
 				array(
 					'headers' => array(
 						'Authorization' => 'Bearer ' . $token,
@@ -276,16 +338,18 @@ trait AJAX_Helper {
 				)
 			);
 
-			$body = wp_remote_retrieve_body( $response );
-			$body = json_decode( $body, true );
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) || ! isset( $body['items'] ) ) {
+				wp_send_json_error( __( 'Could not load Pinterest boards.', 'premium-addons-for-elementor' ), 502 );
+			}
 
 			set_transient( $transient_name, $body, 30 * MINUTE_IN_SECONDS );
-
 		}
 
 		$boards = array();
 
-		foreach ( $body['items'] as $index => $board ) {
+		foreach ( $body['items'] as $board ) {
 			$boards[ $board['id'] ] = $board['name'];
 		}
 

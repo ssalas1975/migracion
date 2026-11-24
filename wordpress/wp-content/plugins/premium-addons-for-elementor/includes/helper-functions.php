@@ -14,6 +14,8 @@ use Elementor\Icons_Manager;
 use Elementor\Core\Settings\Manager as SettingsManager;
 use Elementor\Plugin;
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Image_Size;
+use Elementor\Control_Media;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -412,25 +414,6 @@ class Helper_Functions {
 	}
 
 	/**
-	 * Check Plugin Active
-	 *
-	 * @since 4.2.5
-	 * @access public
-	 *
-	 * @param string $slug plugin slug.
-	 *
-	 * @return boolean $is_active plugin active.
-	 */
-	public static function check_plugin_active( $slug = '' ) {
-
-		include_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-		$is_active = in_array( $slug, (array) get_option( 'active_plugins', array() ), true );
-
-		return $is_active;
-	}
-
-	/**
 	 * Check if script debug mode enabled.
 	 *
 	 * @since 3.11.1
@@ -547,40 +530,42 @@ class Helper_Functions {
 
 		$vimeo_data = get_transient( 'premium_vimeo_' . $video_id );
 
-		if ( $vimeo_data === false ) {
+		if ( false === $vimeo_data ) {
 
-			$vimeo_data = wp_remote_get(
-				'http://www.vimeo.com/api/v2/video/' . intval( $video_id ) . '.php',
+			$response = wp_remote_get(
+				'https://vimeo.com/api/oembed.json?url=' . rawurlencode( 'https://vimeo.com/' . intval( $video_id ) ) . '&width=1280',
 				array(
 					'timeout'   => 5,
 					'sslverify' => true,
 				)
 			);
 
-			if ( is_wp_error( $vimeo_data ) ) {
+			if ( is_wp_error( $response ) ) {
 				return false;
 			}
 
-			if ( isset( $vimeo_data['response']['code'] ) ) {
+			$status_code = wp_remote_retrieve_response_code( $response );
 
-				if ( 200 === $vimeo_data['response']['code'] ) {
+			if ( 200 === $status_code ) {
 
-					$response  = maybe_unserialize( $vimeo_data['body'] );
-					$thumbnail = isset( $response[0]['thumbnail_large'] ) ? $response[0]['thumbnail_large'] : false;
+				$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-					$data = array(
-						'src'      => $thumbnail,
-						'url'      => $response[0]['user_url'],
-						'portrait' => $response[0]['user_portrait_huge'],
-						'title'    => $response[0]['title'],
-						'user'     => $response[0]['user_name'],
-					);
-
-					set_transient( 'premium_vimeo_' . $video_id, $data, WEEK_IN_SECONDS );
-
-					return $data;
-
+				if ( ! is_array( $body ) ) {
+					return false;
 				}
+
+				$vimeo_data = array(
+					'src'      => isset( $body['thumbnail_url'] ) ? $body['thumbnail_url'] : false,
+					'url'      => isset( $body['author_url'] ) ? $body['author_url'] : false,
+					'portrait' => false,
+					'title'    => isset( $body['title'] ) ? $body['title'] : false,
+					'user'     => isset( $body['author_name'] ) ? $body['author_name'] : false,
+				);
+
+				set_transient( 'premium_vimeo_' . $video_id, $vimeo_data, WEEK_IN_SECONDS );
+
+				return $vimeo_data;
+
 			}
 		}
 
@@ -601,7 +586,7 @@ class Helper_Functions {
 	 */
 	public static function get_video_thumbnail( $video_id, $type, $size = '' ) {
 
-		$thumbnail_src = 'transparent';
+		$thumbnail_src = '';
 
 		if ( 'youtube' === $type ) {
 			if ( '' === $size ) {
@@ -621,7 +606,8 @@ class Helper_Functions {
 
 			$thumbnail_src = get_transient( $cache_key );
 
-			if ( false === $thumbnail_src ) {
+			// Before 4.11.110 failures were cached for a week as 'transparent'; refetch those instead of serving them.
+			if ( false === $thumbnail_src || 'transparent' === $thumbnail_src ) {
 
 				$video_data = wp_remote_get(
 					'https://api.dailymotion.com/video/' . $video_id . '?fields=thumbnail_url',
@@ -632,15 +618,15 @@ class Helper_Functions {
 				);
 
 				if ( is_wp_error( $video_data ) || 200 !== wp_remote_retrieve_response_code( $video_data ) ) {
-					$thumbnail_src = 'transparent';
+					$thumbnail_src = '';
 				} else {
 					$video_data = wp_remote_retrieve_body( $video_data );
 					$video_data = json_decode( $video_data );
 
-					$thumbnail_src = isset( $video_data->thumbnail_url ) ? $video_data->thumbnail_url : 'transparent';
+					$thumbnail_src = isset( $video_data->thumbnail_url ) ? $video_data->thumbnail_url : '';
 				}
 
-				set_transient( $cache_key, $thumbnail_src, WEEK_IN_SECONDS );
+				set_transient( $cache_key, $thumbnail_src, '' === $thumbnail_src ? 5 * MINUTE_IN_SECONDS : WEEK_IN_SECONDS );
 
 			}
 		}
@@ -658,7 +644,7 @@ class Helper_Functions {
 	 *
 	 * @param string $period transient expiration period.
 	 *
-	 * @return string $expire_time expire time in seconds.
+	 * @return int $expire_time expire time in seconds.
 	 */
 	public static function transient_expire( $period ) {
 
@@ -700,10 +686,11 @@ class Helper_Functions {
 	 * @param string $source source.
 	 * @param string $medium  media.
 	 * @param string $campaign campaign name.
+	 * @param string $content content identifier, becomes utm_content.
 	 *
 	 * @return string $link campaign URL
 	 */
-	public static function get_campaign_link( $link, $source, $medium, $campaign = '' ) {
+	public static function get_campaign_link( $link, $source, $medium, $campaign = '', $content = '' ) {
 
 		if ( null === self::$current_theme ) {
 			self::get_installed_theme();
@@ -714,6 +701,7 @@ class Helper_Functions {
 			'utm_medium'   => $medium,
 			'utm_campaign' => $campaign,
 			'utm_term'     => self::$current_theme,
+			'utm_content'  => $content,
 		);
 
 		$args = array_filter( $args );
@@ -790,9 +778,9 @@ class Helper_Functions {
 	 * @since 0.0.1
 	 * @access public
 	 *
-	 * @param int    $image_id Image ID.
-	 * @param string $image_url Image URL.
-	 * @param array  $image_size Image sizes array.
+	 * @param int          $image_id Image ID.
+	 * @param string       $image_url Image URL.
+	 * @param string|array $image_size Image size name or [ width, height ] array.
 	 *
 	 * @return array $data image data.
 	 */
@@ -978,6 +966,7 @@ class Helper_Functions {
 	 * Get IP location data.
 	 *
 	 * Uses multi-layered caching (object cache + transients) to optimize performance.
+	 * A failed lookup is cached as an empty array so a down endpoint is not retried on every call.
 	 *
 	 * @access public
 	 * @since 4.11.54
@@ -992,6 +981,12 @@ class Helper_Functions {
 			return false;
 		}
 
+		static $request_memo = array();
+
+		if ( isset( $request_memo[ $ip_address ] ) ) {
+			return $request_memo[ $ip_address ];
+		}
+
 		$cache_key = 'pa_ip_loc_' . md5( $ip_address );
 
 		$location_data = wp_cache_get( $cache_key, 'premium_addons' );
@@ -1003,26 +998,29 @@ class Helper_Functions {
 			if ( false === $location_data ) {
 
 				$response = wp_remote_get(
-					'https://api.findip.net/' . $ip_address . '/?token=e21d68c353324af0af206c907e77ff97',
+					'https://api.findip.net/' . $ip_address . '/?token=e6624afe9983128700bc94e55d5227cb',
 					array(
-						'timeout'   => 15,
+						'timeout'   => 3,
 						'sslverify' => true,
 					)
 				);
 
 				if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-					return false;
+					$location_data = array();
+
+					set_transient( $cache_key, $location_data, 5 * MINUTE_IN_SECONDS );
+				} else {
+					$location_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+					set_transient( $cache_key, $location_data, 24 * HOUR_IN_SECONDS );
 				}
-
-				$location_data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-				set_transient( $cache_key, $location_data, 24 * HOUR_IN_SECONDS );
-
 			}
 
 			wp_cache_set( $cache_key, $location_data, 'premium_addons' );
 
 		}
+
+		$request_memo[ $ip_address ] = $location_data;
 
 		return $location_data;
 	}
@@ -1157,7 +1155,7 @@ class Helper_Functions {
 			foreach ( $product_categories as $key => $category ) {
 
 				$cat_id                 = 'slug' === $id ? $category->slug : $category->term_id;
-				$product_cat[ $cat_id ] = $category->name;
+				$product_cat[ $cat_id ] = wp_specialchars_decode( $category->name, ENT_QUOTES );
 
 			}
 		}
@@ -1289,7 +1287,7 @@ class Helper_Functions {
 			'section',
 		);
 
-		return in_array( $template_name, $template_list );
+		return in_array( $template_name, $template_list, true );
 	}
 
 	/**
@@ -1370,10 +1368,10 @@ class Helper_Functions {
 
 		if ( count( $devices ) ) {
 			foreach ( $devices as $index => $device ) {
-				array_push( $classes, 'elementor-hidden-' . $device );
+				$classes[] = 'elementor-hidden-' . $device;
 			}
 
-			array_push( $classes, 'premium-addons-element' );
+			$classes[] = 'premium-addons-element';
 		}
 
 		return $classes;
@@ -1664,7 +1662,7 @@ class Helper_Functions {
 					'type'        => Controls_Manager::NOTICE,
 					'notice_type' => 'info',
 					'dismissible' => false,
-					'content'     => __( '<b>Build smarter and faster</b> with premium widgets, 580+ container blocks, and advanced customization controls — all available in the <a href="' . esc_url( $pro_link ) . '" target="_blank">PA Pro</a>. <b>Save up to 20%!</b>.', 'premium-addons-for-elementor' ),
+					'content'     => __( '<b>Build smarter and faster</b> with premium widgets, 580+ container blocks, and advanced customization controls — all available in the <a href="' . esc_url( $pro_link ) . '" target="_blank">PA Pro</a>. <b>Save up to 40%!</b>.', 'premium-addons-for-elementor' ),
 				)
 			);
 
@@ -1722,7 +1720,7 @@ class Helper_Functions {
 
 		$papro_activated = self::check_papro_version();
 
-		if ( ! $papro_activated && ! in_array( $settings['premium_button_hover_effect'], array( 'none', 'style1', 'style2' ) ) ) {
+		if ( ! $papro_activated && ! in_array( $settings['premium_button_hover_effect'], array( 'none', 'style1', 'style2' ), true ) ) {
 			return '';
 		}
 
@@ -1835,10 +1833,24 @@ class Helper_Functions {
 			return '';
 		}
 
+		// PA Pro below 2.9.70 still passes rendered attribute strings.
+		$is_legacy_string = is_string( $attributes ) && self::check_papro_version() && version_compare( PREMIUM_PRO_ADDONS_VERSION, '2.9.70', '<' );
+
+		if ( ! $is_legacy_string ) {
+			// Arrays only: parsing a rendered string with parse_str() splits on & and URL-decodes, so values could forge attributes.
+			$attributes = array_filter(
+				is_array( $attributes ) ? $attributes : array(),
+				function ( $key ) {
+					return (bool) preg_match( '/^[a-zA-Z0-9_:-]+$/', $key );
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+		}
+
 		// If icon library is SVG, then go to Elementor. Used for widgets where this function is called in all cases.
 		if ( false === strpos( $icon['library'], 'fa-' ) ) {
 
-			if ( is_string( $attributes ) ) {
+			if ( $is_legacy_string ) {
 				$attributes = str_replace( '"', '', $attributes );
 			}
 
@@ -1863,9 +1875,16 @@ class Helper_Functions {
 
 		$view_box = '0 0 ' . $icon['width'] . ' ' . $icon['height'];
 
-		if ( is_array( $attributes ) ) {
+		if ( $is_legacy_string ) {
+
+			$svg_html .= str_replace( 'class="', 'class="svg-inline--' . $i_class . ' ', $attributes );
+
+		} else {
 
 			foreach ( $attributes as $key => $value ) {
+
+				// Elementor render attributes store each value as an array.
+				$value = esc_attr( is_array( $value ) ? implode( ' ', $value ) : $value );
 
 				if ( 'class' === $key ) {
 
@@ -1875,11 +1894,6 @@ class Helper_Functions {
 					$svg_html .= " {$key}='{$value}' ";
 				}
 			}
-		} else {
-
-			$attributes = str_replace( 'class="', 'class="svg-inline--' . $i_class . ' ', $attributes );
-
-			$svg_html .= $attributes;
 		}
 
 		$svg_html .= " aria-hidden='true' xmlns='http://www.w3.org/2000/svg' viewBox='{$view_box}'>";
@@ -1919,7 +1933,7 @@ class Helper_Functions {
 			'post_status'      => 'publish',
 			'posts_per_page'   => 1,
 			'title'            => $title,
-			'suppress_filters' => true,
+			'suppress_filters' => true, // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.SuppressFilters_suppress_filters -- match the title in any language; wpml_object_id translates the id after.
 		);
 
 		$query = new \WP_Query( $args );
@@ -2098,18 +2112,23 @@ class Helper_Functions {
 	 */
 	public static function get_enabled_widgets_names() {
 
+		static $names_list = null;
+
 		$enabled_elements = self::get_enabled_widgets();
 
 		$enabled_names = array();
 
-		$map_file = PREMIUM_ADDONS_PATH . 'includes/helpers/widget-name-map.php';
+		if ( null === $names_list ) {
 
-		if ( file_exists( $map_file ) ) {
+			$map_file = PREMIUM_ADDONS_PATH . 'includes/helpers/widget-name-map.php';
 
-			$map        = include $map_file;
-			$names_list = is_array( $map ) ? $map : array();
-		} else {
-			$names_list = array();
+			if ( file_exists( $map_file ) ) {
+
+				$map        = include $map_file;
+				$names_list = is_array( $map ) ? $map : array();
+			} else {
+				$names_list = array();
+			}
 		}
 
 		foreach ( $enabled_elements as $key ) {
@@ -2237,10 +2256,34 @@ class Helper_Functions {
 				'class'     => array(),
 				'id'        => array(),
 				'style'     => array(),
+				'clip-path' => array(),
 			),
 			'defs'     => array(
 				'class' => array(),
 				'id'    => array(),
+			),
+			// Illustrator/Affinity/Boxy exports keep their class rules in <defs><style>.
+			// wp_kses filters style="" attributes through safe_style_css, but never the CSS inside a <style> block.
+			'style'    => array(
+				'type'  => array(),
+				'class' => array(),
+			),
+			'clippath' => array(
+				'class' => array(),
+				'id'    => array(),
+			),
+			'image'    => array(
+				'x'                   => array(),
+				'y'                   => array(),
+				'width'               => array(),
+				'height'              => array(),
+				'href'                => array(),
+				'xlink:href'          => array(),
+				'preserveaspectratio' => array(),
+				'opacity'             => array(),
+				'class'               => array(),
+				'id'                  => array(),
+				'style'               => array(),
 			),
 			'text'     => array(
 				'x'           => array(),
@@ -2268,6 +2311,186 @@ class Helper_Functions {
 			'desc'     => array(),
 		);
 
-		return wp_kses( $svg, $allowed_tags );
+		// SVG presentation properties are not on WordPress' safe_style_css
+		// allow-list, so wp_kses() would strip them out of inline style
+		// attributes (e.g. fill:none, stroke-width) and break SVGs exported
+		// by Illustrator/Affinity/Boxy SVG. Allow them for this call only.
+		$svg_css_props = array(
+			'fill',
+			'fill-rule',
+			'fill-opacity',
+			'stroke',
+			'stroke-width',
+			'stroke-linecap',
+			'stroke-linejoin',
+			'stroke-miterlimit',
+			'stroke-dasharray',
+			'stroke-dashoffset',
+			'stroke-opacity',
+			'clip-rule',
+			'color',
+			'opacity',
+			'stop-color',
+			'stop-opacity',
+			'vector-effect',
+			'paint-order',
+			'transform',
+			'transform-origin',
+		);
+
+		$allow_svg_css = function ( $styles ) use ( $svg_css_props ) {
+			return array_merge( $styles, $svg_css_props );
+		};
+
+		add_filter( 'safe_style_css', $allow_svg_css );
+
+		$sanitized = wp_kses( $svg, $allowed_tags );
+
+		remove_filter( 'safe_style_css', $allow_svg_css );
+
+		return $sanitized;
+	}
+
+	/**
+	 * Resolve the per-item badge text for a given post.
+	 *
+	 * @since 4.11.78
+	 * @param int   $post_id  Post ID to resolve terms for.
+	 * @param array $settings Parent widget's settings array.
+	 * @return false|string
+	 */
+	public static function get_per_item_badge_text( $post_id, $settings ) {
+
+		if ( 'yes' !== ( $settings['premium_global_badge_switcher'] ?? '' ) ) {
+			return false;
+		}
+
+		if ( 'yes' !== ( $settings['pa_badge_per_item'] ?? '' ) ) {
+			return false;
+		}
+
+		$taxonomy = isset( $settings['pa_badge_per_item_source'] ) && '' !== $settings['pa_badge_per_item_source']
+			? $settings['pa_badge_per_item_source']
+			: 'category';
+
+		$terms = get_the_terms( $post_id, $taxonomy );
+
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return '';
+		}
+
+		$names = wp_list_pluck( $terms, 'name' );
+
+		return implode( ', ', $names );
+	}
+
+	/**
+	 * Get attachment image HTML.
+	 *
+	 * A fork of Elementor's `Group_Control_Image_Size::get_attachment_image_html()`
+	 * that accepts a `$classes` argument, so the rendered `<img>` can be targeted by
+	 * a dedicated class instead of a `> img` selector that image-optimization plugins
+	 * break when they rewrite the tag into `<picture><img></picture>`. It also handles
+	 * the `get_image_data()` shape used by repeaters, which carries the size on the
+	 * image array rather than in a sibling `<key>_size` setting.
+	 *
+	 * Note that some widgets use the same key for the media control that allows
+	 * the image selection and for the image size control that allows the user
+	 * to select the image size, in this case the third parameter should be null
+	 * or the same as the second parameter. But when the widget uses different
+	 * keys for the media control and the image size control, when calling this
+	 * method you should pass the keys.
+	 *
+	 * The returned markup is not escaped. Print it through
+	 * `Utils::print_wp_kses_extended( $html, array( 'image' ) )`.
+	 *
+	 * @since 4.11.102
+	 * @access public
+	 * @static
+	 *
+	 * @param array  $settings       Control settings.
+	 * @param string $image_size_key Optional. Settings key for image size.
+	 *                               Default is `image`.
+	 * @param string $image_key      Optional. Settings key for image. Default
+	 *                               is null. If not defined uses image size key
+	 *                               as the image key.
+	 * @param string $classes        Optional. Classes list to be added to the image HTML markup.
+	 *
+	 * @return string Image HTML.
+	 */
+	public static function get_attachment_image_html( $settings, $image_size_key = 'image', $image_key = null, $classes = '' ) {
+
+		if ( ! $image_key ) {
+			$image_key = $image_size_key;
+		}
+
+		$image = $settings[ $image_key ];
+
+		$is_repeater = ! isset( $settings[ $image_size_key . '_size' ] );
+
+		if ( $is_repeater ) {
+			// Used with get_image_data() method which is used with repeaters.
+			$size = isset( $image['image_size'] ) ? $image['image_size'] : 'full';
+		} else {
+			$size = $settings[ $image_size_key . '_size' ];
+		}
+
+		/**
+		 * Performance Optimization: Cache image sizes to avoid redundant
+		 * 'get_intermediate_image_sizes' calls for every image.
+		 */
+		static $image_sizes = null;
+
+		if ( null === $image_sizes ) {
+			$image_sizes   = get_intermediate_image_sizes();
+			$image_sizes[] = 'full';
+		}
+
+		if ( ! empty( $image['id'] ) && ! wp_attachment_is_image( $image['id'] ) ) {
+			$image['id'] = '';
+		}
+
+		$is_lazyload_disabled = apply_filters( 'pa_disable_image_lazyload', false );
+
+		$html = '';
+
+		if ( ! empty( $image['id'] ) && in_array( $size, $image_sizes, true ) ) {
+
+			$image_attr = array(
+				'class' => trim( "attachment-$size size-$size wp-image-{$image['id']} " . $classes ),
+			);
+
+			if ( $is_lazyload_disabled ) {
+				$image_attr['loading'] = false;
+			}
+
+			$html = wp_get_attachment_image( $image['id'], $size, false, $image_attr );
+
+		} else { // Custom size.
+
+			// If repeater, then we should pass the data for the current image, not the settings object.
+			$size_key = $is_repeater ? 'image' : $image_size_key;
+			$source   = $is_repeater ? $image : $settings;
+
+			$image_src = Group_Control_Image_Size::get_attachment_image_src( $image['id'], $size_key, $source );
+
+			if ( ! $image_src && isset( $image['url'] ) ) {
+				$image_src = $image['url'];
+			}
+
+			if ( ! empty( $image_src ) ) {
+
+				$html = sprintf(
+					'<img src="%1$s" title="%2$s" alt="%3$s"%4$s%5$s />',
+					esc_url( $image_src ),
+					esc_attr( Control_Media::get_image_title( $image ) ),
+					esc_attr( Control_Media::get_image_alt( $image ) ),
+					! empty( $classes ) ? ' class="' . esc_attr( $classes ) . '"' : '',
+					$is_lazyload_disabled ? '' : ' loading="lazy"'
+				);
+			}
+		}
+
+		return $html;
 	}
 }

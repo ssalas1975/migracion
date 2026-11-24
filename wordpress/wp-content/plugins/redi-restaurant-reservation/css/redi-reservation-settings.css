@@ -123,12 +123,13 @@
 .rr_setting_page table.form-table tbody tr{display:flex;align-items:flex-start;flex-wrap:wrap;padding: 10px 15px;width:100%!important;}
 .rr_setting_page table.form-table input[type=checkbox]::before{background:#b7b7b7;width:50px!important;border-radius:30px;height:22px!important;content:""!important;display:flex!important;align-items:center;margin:0!important;border:1px solid #b7b7b7!important;}
 .rr_setting_page table.form-table input[type=checkbox]::after{background:white;width:20px;height:20px;display:block;content:"";border-radius:50%;z-index:1;position:absolute;left:3px;top:2px;transition:all 0.5s ease;}
-.rr_setting_page table.form-table input[type=checkbox]{position:relative;width:50px!important;border-radius:30px;height:22px!important;border:0!important;outline:0!important;margin:0!important;}
+.rr_setting_page table.form-table input[type=checkbox]{position:relative;width:50px!important;border-radius:30px;height:22px!important;min-height:22px!important;border:0!important;outline:0!important;margin:0!important;background:transparent!important;box-shadow:none!important;-webkit-appearance:none;appearance:none;}
+.rr_setting_page table.form-table input[type=checkbox]:checked{background:transparent!important;border-color:transparent!important;box-shadow:none!important;}
 .rr_setting_page table.form-table input[type=checkbox]:checked:after{left:29px;}
 .rr_setting_page table.form-table td:nth-child(2) select{border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;max-width:100%;min-height:38px;margin: 0;}
 .rr_setting_page table.form-table input[type=checkbox]:checked:before{background: #2271b1;border: 1px solid #2271b1 !important;}
-.rr_setting_page table.form-table td:nth-child(2) input{border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;min-height:38px;}
-.rr_setting_page input{border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;min-height:38px;}
+.rr_setting_page table.form-table td:nth-child(2) input:not([type=checkbox]){border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;min-height:38px;}
+.rr_setting_page input:not([type=checkbox]){border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;min-height:38px;}
 .rr_setting_page table.form-table td:nth-child(2) input:invalid { border: 1px solid red;}
 .rr_setting_page form label {
     
@@ -167,6 +168,8 @@
 }
 
 .rr_setting_page .form-table.redi_working_time input[type="text"]{border:1px solid #c1c1c1;border-radius:0px!important;width:100%;outline:0!important;box-shadow:none!important;min-height:38px;}
+.rr_setting_page .form-table.redi_working_time input[type="text"].redi-time-invalid,
+.rr_setting_page .form-table.redi_working_time input[type="text"][aria-invalid="true"]{border-color:#d63638!important;box-shadow:0 0 0 1px #d63638!important;background:#fff8f8;}
 .rr_setting_page .form-table.redi_working_time tbody tr:nth-child(1) td{font-size:16px;font-weight:600;color:#fff;padding: 15px 10px;width: 33.33%;}
 .rr_setting_page .form-table.redi_working_time tbody tr:nth-child(1){background:#1b335f;}
 .rr_setting_page table.form-table.redi_custom_fields th:nth-child(1){width:20%!important;}

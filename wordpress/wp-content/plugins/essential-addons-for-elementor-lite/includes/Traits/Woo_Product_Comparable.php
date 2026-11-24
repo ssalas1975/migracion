@@ -18,6 +18,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 trait Woo_Product_Comparable {
+	/**
+	 * Comparison values per product ID, filled by get_products_list() /
+	 * static_get_products_list() and read by render_compare_table(). Kept here
+	 * rather than as a dynamic property on the WC_Product object, which PHP 8.2+
+	 * deprecates.
+	 *
+	 * @var array
+	 */
+	protected static $eael_wcpc_product_fields = [];
+
+	/**
+	 * Comparison values of one product, as built for the current table.
+	 *
+	 * @param \WC_Product $product Product.
+	 *
+	 * @return array
+	 */
+	public static function eael_wcpc_get_product_fields( $product ) {
+		$product_id = $product instanceof \WC_Product ? $product->get_id() : 0;
+
+		return isset( self::$eael_wcpc_product_fields[ $product_id ] ) ? self::$eael_wcpc_product_fields[ $product_id ] : [];
+	}
+
 	public function get_style_depends() {
 		return [
 			'font-awesome-5-all',
@@ -279,15 +302,16 @@ trait Woo_Product_Comparable {
 			'label'   => __( 'Fields Icon', 'essential-addons-for-elementor-lite' ),
 			'type'    => Controls_Manager::ICONS,
 		] );
-        if ( 'eicon-woocommerce' === $this->get_name()) {
-            $this->add_control( "no_products_found_text", [
-                'label'       => __( 'Text for "No products are found to compare"', 'essential-addons-for-elementor-lite' ),
-                'default' => __( 'No products are added to Compare. Please add products to compare.', 'essential-addons-for-elementor-lite' ),
-                'type'        => Controls_Manager::TEXTAREA,
-                'label_block' => true,
-                'placeholder' => __( 'Eg. No products are added to Compare.', 'essential-addons-for-elementor-lite' ),
-            ] );
-		}
+        // Both widgets that use this trait (the standalone Compare widget, and
+        // Product Grid's own "Add to Compare" table) can show an empty list,
+        // so both need this message, not just one of them.
+        $this->add_control( "no_products_found_text", [
+            'label'       => __( 'Text for "No products are found to compare"', 'essential-addons-for-elementor-lite' ),
+            'default' => __( 'No products are added to Compare. Please add products to compare.', 'essential-addons-for-elementor-lite' ),
+            'type'        => Controls_Manager::TEXTAREA,
+            'label_block' => true,
+            'placeholder' => __( 'Eg. No products are added to Compare.', 'essential-addons-for-elementor-lite' ),
+        ] );
 
 		$this->end_controls_section();
 	}
@@ -1827,6 +1851,7 @@ trait Woo_Product_Comparable {
 							 * @var WC_Product $product
 							 */
 							foreach ( $products as $product_id => $product ) {
+								$product_fields = self::eael_wcpc_get_product_fields( $product );
 								$is_highlighted = $product_id === $highlighted_product_id;
 								$highlighted    = $is_highlighted ? 'featured' : '';
 								$product_class  = ( $index % 2 == 0 ? 'odd' : 'even' ) . " col_{$index} product_{$product_id} $highlighted" ?>
@@ -1845,15 +1870,15 @@ trait Woo_Product_Comparable {
                                     }
 
 									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                    echo ! empty( $product->fields[ $field ] ) ? $product->fields[ $field ] : '&nbsp;';
+                                    echo ! empty( $product_fields[ $field ] ) ? $product_fields[ $field ] : '&nbsp;';
 
                                     if ( $field === 'image' ) {
 	                                    if ( 'yes' === $linkable_img ) {
 		                                    echo '</a>';
 	                                    }
 	                                    if ( 'theme-4' === $theme ) {
-		                                    echo ! empty( $product->fields['title'] ) ? sprintf( "<p class='product-title'>%s</p>", wp_kses( $product->fields['title'], HelperClass::eael_allowed_tags() ) ) : '&nbsp;';
-		                                    echo ! empty( $product->fields['price'] ) ? wp_kses_post( $product->fields['price'] ) : '&nbsp;';
+		                                    echo ! empty( $product_fields['title'] ) ? sprintf( "<p class='product-title'>%s</p>", wp_kses( $product_fields['title'], HelperClass::eael_allowed_tags() ) ) : '&nbsp;';
+		                                    echo ! empty( $product_fields['price'] ) ? wp_kses_post( $product_fields['price'] ) : '&nbsp;';
 	                                    }
 	                                    echo '</span>';
                                     }
@@ -1887,9 +1912,10 @@ trait Woo_Product_Comparable {
 							<?php
 							$index             = 0;
 							foreach ( $products as $product_id => $product ) :
+								$product_fields = self::eael_wcpc_get_product_fields( $product );
 								$highlighted = $product_id === $highlighted_product_id ? 'featured' : '';
 								$product_class = ( $index % 2 == 0 ? 'odd' : 'even' ) . " col_{$index} product_{$product_id} $highlighted" ?>
-                                <td class="<?php echo esc_attr( $product_class ) ?>"><?php echo wp_kses_post( $product->fields['price'] ); ?></td>
+                                <td class="<?php echo esc_attr( $product_class ) ?>"><?php echo wp_kses_post( $product_fields['price'] ?? '' ); ?></td>
 								<?php
 								++ $index;
 							endforeach; ?>
@@ -1963,45 +1989,60 @@ trait Woo_Product_Comparable {
 		if ( ! empty( $products ) && is_array( $products ) ) {
 			foreach ( $products as $product_id ) {
 				/** @type WC_Product $product WooCommerce Product */
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 				$product = wc_get_product( $product_id );
 				if ( ! $product ) {
 					continue;
 				}
 
-				$product->fields = [];
+				// SECURITY FIX: do not expose non-published / inaccessible products to unauthenticated callers.
+				// Mirrors the quickview handler guards (CVE-2026-1004).
+				$compare_post = get_post( $product_id );
+				if ( ! $product->is_visible() ) {
+					continue;
+				}
+				if ( ! current_user_can( 'edit_post', $product_id ) && ( ! $compare_post || 'publish' !== $compare_post->post_status ) ) {
+					continue;
+				}
+				if ( ! current_user_can( 'edit_post', $product_id ) && post_password_required( $compare_post ) ) {
+					continue;
+				}
+
+				self::$eael_wcpc_product_fields[ $product_id ] = [];
+				$product_fields = &self::$eael_wcpc_product_fields[ $product_id ];
 
 				// custom attributes
 				foreach ( $fields as $field => $name ) {
 					switch ( $field ) {
 						case 'title':
-							$product->fields[ $field ] = HelperClass::eael_wp_kses($product->get_title());
+							$product_fields[ $field ] = HelperClass::eael_wp_kses($product->get_title());
 							break;
 						case 'price':
-							$product->fields[ $field ] = $product->get_price_html();
+							$product_fields[ $field ] = $product->get_price_html();
 							break;
 						case 'add-to-cart':
 							ob_start();
 							woocommerce_template_loop_add_to_cart();
-							$product->fields[ $field ] = ob_get_clean();
+							$product_fields[ $field ] = ob_get_clean();
 							break;
 						case 'image':
-							$product->fields[ $field ] = $product->get_image();
+							$product_fields[ $field ] = $product->get_image();
 							break;
 						case 'description':
 							$description               = apply_filters( 'woocommerce_short_description', $product->get_short_description() ? $product->get_short_description() : wc_trim_string( $product->get_description(), 400 ) );
-							$product->fields[ $field ] = apply_filters( 'eael/wcpc/woocommerce_short_description', $description );
+							$product_fields[ $field ] = apply_filters( 'eael/wcpc/woocommerce_short_description', $description );
 							break;
 						case 'stock':
 							$availability = $product->get_availability();
 							if ( empty( $availability['availability'] ) ) {
 								$availability['availability'] = __( 'In stock', 'essential-addons-for-elementor-lite' );
 							}
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $availability['availability'] ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $availability['availability'] ) );
 							break;
 						case 'sku':
 							$sku = $product->get_sku();
 							! $sku && $sku = '-';
-							$product->fields[ $field ] = $sku;
+							$product_fields[ $field ] = esc_html( $sku );
 							break;
 						case 'weight':
 							if ( $weight = $product->get_weight() ) {
@@ -2009,37 +2050,39 @@ trait Woo_Product_Comparable {
 							} else {
 								$weight = '-';
 							}
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $weight ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $weight ) );
 							break;
 						case 'dimension':
 							$dimensions = function_exists( 'wc_format_dimensions' ) ? wc_format_dimensions( $product->get_dimensions( false ) ) : $product->get_dimensions();
 							! $dimensions && $dimensions = '-';
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $dimensions ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $dimensions ) );
 							break;
 						default:
 							if ( taxonomy_exists( $field ) ) {
-								$product->fields[ $field ] = [];
+								$product_fields[ $field ] = [];
 								$terms                     = get_the_terms( $product_id, $field );
 								if ( ! empty( $terms ) && is_array( $terms ) ) {
 									foreach ( $terms as $term ) {
 										$term                        = sanitize_term( $term, $field );
-										$product->fields[ $field ][] = $term->name;
+										$product_fields[ $field ][] = esc_html( $term->name );
 									}
 								}
-								if ( ! empty( $product->fields[ $field ] ) ) {
-									$product->fields[ $field ] = implode( ', ', $product->fields[ $field ] );
+								if ( ! empty( $product_fields[ $field ] ) ) {
+									$product_fields[ $field ] = implode( ', ', $product_fields[ $field ] );
 								} else {
-									$product->fields[ $field ] = '-';
+									$product_fields[ $field ] = '-';
 								}
 							} else {
 								do_action( 'eael/wcpc/compare_field_' . $field, [
 									$product,
-									&$product->fields,
+									&$product_fields,
 								] );
 							}
 							break;
 					}
 				}
+
+				unset( $product_fields );
 
 				$products_list[ $product_id ] = $product;
 			}
@@ -2208,45 +2251,60 @@ trait Woo_Product_Comparable {
 		if ( ! empty( $products ) && is_array( $products ) ) {
 			foreach ( $products as $product_id ) {
 				/** @type WC_Product $product WooCommerce Product */
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 				$product = wc_get_product( $product_id );
 				if ( ! $product ) {
 					continue;
 				}
 
-				$product->fields = [];
+				// SECURITY FIX: do not expose non-published / inaccessible products to unauthenticated callers.
+				// Mirrors the quickview handler guards (CVE-2026-1004).
+				$compare_post = get_post( $product_id );
+				if ( ! $product->is_visible() ) {
+					continue;
+				}
+				if ( ! current_user_can( 'edit_post', $product_id ) && ( ! $compare_post || 'publish' !== $compare_post->post_status ) ) {
+					continue;
+				}
+				if ( ! current_user_can( 'edit_post', $product_id ) && post_password_required( $compare_post ) ) {
+					continue;
+				}
+
+				self::$eael_wcpc_product_fields[ $product_id ] = [];
+				$product_fields = &self::$eael_wcpc_product_fields[ $product_id ];
 
 				// custom attributes
 				foreach ( $fields as $field => $name ) {
 					switch ( $field ) {
 						case 'title':
-							$product->fields[ $field ] = HelperClass::eael_wp_kses($product->get_title());
+							$product_fields[ $field ] = HelperClass::eael_wp_kses($product->get_title());
 							break;
 						case 'price':
-							$product->fields[ $field ] = $product->get_price_html();
+							$product_fields[ $field ] = $product->get_price_html();
 							break;
 						case 'add-to-cart':
 							ob_start();
 							woocommerce_template_loop_add_to_cart();
-							$product->fields[ $field ] = ob_get_clean();
+							$product_fields[ $field ] = ob_get_clean();
 							break;
 						case 'image':
-							$product->fields[ $field ] = $product->get_image();
+							$product_fields[ $field ] = $product->get_image();
 							break;
 						case 'description':
 							$description               = apply_filters( 'woocommerce_short_description', $product->get_short_description() ? $product->get_short_description() : wc_trim_string( $product->get_description(), 400 ) );
-							$product->fields[ $field ] = apply_filters( 'eael/wcpc/woocommerce_short_description', $description );
+							$product_fields[ $field ] = apply_filters( 'eael/wcpc/woocommerce_short_description', $description );
 							break;
 						case 'stock':
 							$availability = $product->get_availability();
 							if ( empty( $availability['availability'] ) ) {
 								$availability['availability'] = __( 'In stock', 'essential-addons-for-elementor-lite' );
 							}
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $availability['availability'] ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $availability['availability'] ) );
 							break;
 						case 'sku':
 							$sku = $product->get_sku();
 							! $sku && $sku = '-';
-							$product->fields[ $field ] = $sku;
+							$product_fields[ $field ] = esc_html( $sku );
 							break;
 						case 'weight':
 							if ( $weight = $product->get_weight() ) {
@@ -2254,40 +2312,42 @@ trait Woo_Product_Comparable {
 							} else {
 								$weight = '-';
 							}
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $weight ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $weight ) );
 							break;
 						case 'dimension':
 							$dimensions = function_exists( 'wc_format_dimensions' ) ? wc_format_dimensions( $product->get_dimensions( false ) ) : $product->get_dimensions();
 							if ( empty( $dimensions ) ) {
 								$dimensions = '-';
 							}
-							$product->fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $dimensions ) );
+							$product_fields[ $field ] = sprintf( '<span>%s</span>', esc_html( $dimensions ) );
 							break;
 						default:
 							if ( taxonomy_exists( $field ) ) {
-								$product->fields[ $field ] = [];
+								$product_fields[ $field ] = [];
 								$terms                     = get_the_terms( $product_id, $field );
 								if ( ! empty( $terms ) && is_array( $terms ) ) {
 									foreach ( $terms as $term ) {
 										$term                        = sanitize_term( $term, $field );
-										$product->fields[ $field ][] = $term->name;
+										$product_fields[ $field ][] = esc_html( $term->name );
 									}
 								}
 
-								if ( ! empty( $product->fields[ $field ] ) ) {
-									$product->fields[ $field ] = implode( ', ', $product->fields[ $field ] );
+								if ( ! empty( $product_fields[ $field ] ) ) {
+									$product_fields[ $field ] = implode( ', ', $product_fields[ $field ] );
 								} else {
-									$product->fields[ $field ] = '-';
+									$product_fields[ $field ] = '-';
 								}
 							} else {
 								do_action( 'eael/wcpc/compare_field_' . $field, [
 									$product,
-									&$product->fields,
+									&$product_fields,
 								] );
 							}
 							break;
 					}
 				}
+
+				unset( $product_fields );
 
 				$products_list[ $product_id ] = $product;
 			}

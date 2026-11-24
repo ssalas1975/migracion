@@ -1,0 +1,450 @@
+# Translation of Plugins - Query Monitor - Stable (latest release) in English (UK)
+# This file is distributed under the same license as the Plugins - Query Monitor - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-10-26 17:30:17+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: en_GB\n"
+"Project-Id-Version: Plugins - Query Monitor - Stable (latest release)\n"
+
+#. Description of the plugin
+#: query-monitor.php
+msgid "The developer tools panel for WordPress and WooCommerce."
+msgstr "The developer tools panel for WordPress and WooCommerce."
+
+#. translators: %s: Context for the toggle button, e.g. a function name.
+#: output/Html.php:269
+msgid "Toggle more information for %s"
+msgstr "Toggle more information for %s"
+
+#. translators: 1: PHP class name, 2: Version number.
+#: classes/Deprecated_Class_Run.php:35
+msgid "Class %1$s is deprecated since version %2$s with no alternative available."
+msgstr "Class %1$s is deprecated since version %2$s with no alternative available."
+
+#. translators: 1: PHP class name, 2: Version number, 3: Alternative class or
+#. function name.
+#: classes/Deprecated_Class_Run.php:26
+msgid "Class %1$s is deprecated since version %2$s! Use %3$s instead."
+msgstr "Class %1$s is deprecated since version %2$s! Use %3$s instead."
+
+#: collectors/logger.php:171
+msgid "Assertion failed"
+msgstr "Assertion failed"
+
+#. translators: %s: Assertion message
+#: collectors/logger.php:167
+msgid "Assertion failed: %s"
+msgstr "Assertion failed: %s"
+
+#: collectors/logger.php:159
+msgid "Assertion passed"
+msgstr "Assertion passed"
+
+#. translators: %s: Assertion message
+#: collectors/logger.php:155
+msgid "Assertion passed: %s"
+msgstr "Assertion passed: %s"
+
+#: classes/Collector.php:107 assets/build/query-monitor.js:32
+msgid "empty string"
+msgstr "empty string"
+
+#. translators: %s: Drop-in plugin file name
+#: classes/Component_Dropin.php:12
+msgid "Drop-in: %s"
+msgstr "Drop-in: %s"
+
+#: output/html/hooks.php:36 assets/build/query-monitor.js:32
+msgid "Hooks, Actions, & Filters"
+msgstr "Hooks, Actions, & Filters"
+
+#: output/html/doing_it_wrong.php:27 assets/build/query-monitor.js:30
+msgid "Doing it Wrong"
+msgstr "Doing it Wrong"
+
+#. translators: 1: WordPress hook name, 2: Version number, 3: Optional message
+#. regarding the change.
+#: classes/Deprecated_Hook_Run.php:38
+msgid "Hook %1$s is deprecated since version %2$s with no alternative available. %3$s"
+msgstr "Hook %1$s is deprecated since version %2$s with no alternative available. %3$s"
+
+#. translators: 1: WordPress hook name, 2: Version number, 3: Alternative hook
+#. name, 4: Optional message regarding the change.
+#: classes/Deprecated_Hook_Run.php:28
+msgid "Hook %1$s is deprecated since version %2$s! Use %3$s instead. %4$s"
+msgstr "Hook %1$s is deprecated since version %2$s! Use %3$s instead. %4$s"
+
+#. translators: 1: PHP function name, 2: Version number.
+#: classes/Deprecated_Argument_Run.php:35
+msgid "Function %1$s was called with an argument that is deprecated since version %2$s with no alternative available."
+msgstr "Function %1$s was called with an argument that is deprecated since version %2$s with no alternative available."
+
+#. translators: 1: PHP function name, 2: Version number, 3: Optional message
+#. regarding the change.
+#: classes/Deprecated_Argument_Run.php:26
+msgid "Function %1$s was called with an argument that is deprecated since version %2$s! %3$s"
+msgstr "Function %1$s was called with an argument that is deprecated since version %2$s! %3$s"
+
+#. translators: 1: PHP file name, 2: Version number, 3: Optional message
+#. regarding the change.
+#: classes/Deprecated_File_Included.php:38
+msgid "File %1$s is deprecated since version %2$s with no alternative available. %3$s"
+msgstr "File %1$s is deprecated since version %2$s with no alternative available. %3$s"
+
+#. translators: 1: PHP file name, 2: Version number, 3: Alternative file name,
+#. 4: Optional message regarding the change.
+#: classes/Deprecated_File_Included.php:28
+msgid "File %1$s is deprecated since version %2$s! Use %3$s instead. %4$s"
+msgstr "File %1$s is deprecated since version %2$s! Use %3$s instead. %4$s"
+
+#. translators: 1: PHP class name, 2: PHP parent class name, 3: Version number,
+#. 4: __construct() method.
+#: classes/Deprecated_Constructor_Run.php:26
+msgid "The called constructor method for %1$s class in %2$s is deprecated since version %3$s! Use %4$s instead."
+msgstr "The called constructor method for %1$s class in %2$s is deprecated since version %3$s! Use %4$s instead."
+
+#. translators: 1: PHP class name, 2: Version number, 3: __construct() method.
+#: classes/Deprecated_Constructor_Run.php:36
+msgid "The called constructor method for %1$s class is deprecated since version %2$s! Use %3$s instead."
+msgstr "The called constructor method for %1$s class is deprecated since version %2$s! Use %3$s instead."
+
+#. translators: 1: PHP function name, 2: Version number, 3: Alternative
+#. function name.
+#: classes/Deprecated_Function_Run.php:26
+msgid "Function %1$s is deprecated since version %2$s! Use %3$s instead."
+msgstr "Function %1$s is deprecated since version %2$s! Use %3$s instead."
+
+#. translators: 1: PHP function name, 2: Version number.
+#: classes/Deprecated_Function_Run.php:35
+msgid "Function %1$s is deprecated since version %2$s with no alternative available."
+msgstr "Function %1$s is deprecated since version %2$s with no alternative available."
+
+#. translators: Developer debugging message. 1: PHP function name, 2:
+#. Explanatory message, 3: WordPress version number.
+#: classes/Doing_It_Wrong_Run.php:33
+msgid "Function %1$s was called incorrectly. %2$s %3$s"
+msgstr "Function %1$s was called incorrectly. %2$s %3$s"
+
+#. translators: %s: Version number.
+#: classes/Doing_It_Wrong_Run.php:26
+msgid "(This message was added in version %s.)"
+msgstr "(This message was added in version %s.)"
+
+#. translators: A closure is an anonymous PHP function
+#: output/html/hooks.php:167
+msgid "Unknown closure"
+msgstr "Unknown closure"
+
+#: classes/Component_Core.php:10 output/html/hooks.php:57
+#: assets/build/query-monitor.js:4
+msgid "WordPress Core"
+msgstr "WordPress core"
+
+#: classes/QueryMonitor.php:83
+msgctxt "verb"
+msgid "Sponsor"
+msgstr "Sponsor"
+
+#. translators: %s: Dependency name
+#: classes/Component_Altis_Vendor.php:12
+msgid "Dependency: %s"
+msgstr "Dependency: %s"
+
+#. translators: %s: Plugin or theme name
+#: dispatchers/WP_Die.php:124
+msgid "This message was triggered by %s."
+msgstr "This message was triggered by %s."
+
+#: output/html/headers.php:34
+msgid "Request Data"
+msgstr "Request Data"
+
+#. translators: 1: Query Monitor, 2: Required PHP version number, 3: Current
+#. PHP version number, 4: URL of PHP update help page
+#: classes/PHP.php:32
+msgid "The %1$s plugin requires PHP version %2$s or higher. This site is running PHP version %3$s. <a href=\"%4$s\">Learn about updating PHP</a>."
+msgstr "The %1$s plugin requires PHP version %2$s or higher. This site is running PHP version %3$s. <a href=\"%4$s\">Learn about updating PHP</a>."
+
+#: output/Html.php:273
+msgid "Toggle more information"
+msgstr "Toggle more information"
+
+#: output/html/hooks.php:122
+msgid "Filter"
+msgstr "Filter"
+
+#: dispatchers/Html.php:344 assets/build/query-monitor.js:4
+msgid "Hooks in Use"
+msgstr "Hooks in Use"
+
+#: classes/QueryMonitor.php:60
+msgid "Add-ons"
+msgstr "Add-ons"
+
+#: classes/Collector_Assets.php:449
+msgid "Insecure content"
+msgstr "Insecure content"
+
+#: output/html/block_editor.php:30 assets/build/query-monitor.js:4
+msgid "Blocks"
+msgstr "Blocks"
+
+#: classes/QueryMonitor.php:216
+msgctxt "Human readable label for the user capability required to view Query Monitor."
+msgid "View Query Monitor"
+msgstr "View Query Monitor"
+
+#: output/raw/logger.php:21 assets/build/query-monitor.js:52
+#: assets/build/query-monitor.js:74
+msgid "Logs"
+msgstr "Logs"
+
+#: output/html/logger.php:30
+msgid "Logger"
+msgstr "Logger"
+
+#: collectors/timing.php:152
+msgid "Timer not stopped"
+msgstr "Timer not stopped"
+
+#: collectors/timing.php:89 collectors/timing.php:112
+msgid "Timer not started"
+msgstr "Timer not started"
+
+#: output/html/timing.php:30 assets/build/query-monitor.js:88
+msgid "Timing"
+msgstr "Timing"
+
+#. translators: %d: Multisite network ID
+#: collectors/request.php:192
+msgid "Current Network: #%d"
+msgstr "Current Network: #%d"
+
+#. translators: %s: Timing lap number
+#: classes/Timer.php:97
+msgid "Lap %s"
+msgstr "Lap %s"
+
+#. translators: No user
+#: collectors/request.php:169
+msgctxt "user"
+msgid "None"
+msgstr "None"
+
+#. translators: %d: User ID
+#: collectors/request.php:164 assets/build/query-monitor.js:76
+msgid "Current User: #%d"
+msgstr "Current User: #%d"
+
+#: output/html/caps.php:30 assets/build/query-monitor.js:4
+#: assets/build/query-monitor.js:6
+msgid "Capability Checks"
+msgstr "Capability Checks"
+
+#: output/html/http.php:30 output/raw/http.php:21
+#: assets/build/query-monitor.js:34 assets/build/query-monitor.js:68
+msgid "HTTP API Calls"
+msgstr "HTTP API Calls"
+
+#: output/html/hooks.php:33 assets/build/query-monitor.js:32
+msgid "Hooks & Actions"
+msgstr "Hooks & Actions"
+
+#. translators: 1: Post type name, 2: Post ID
+#: collectors/request.php:240
+msgid "Single %1$s: #%2$d"
+msgstr "Single %1$s: #%2$d"
+
+#. translators: %d: Multisite site ID
+#: collectors/request.php:181 assets/build/query-monitor.js:78
+msgid "Current Site: #%d"
+msgstr "Current Site: #%d"
+
+#. translators: Undefined PHP constant
+#: classes/Collector.php:105
+msgid "undefined"
+msgstr "undefined"
+
+#: output/html/cache.php:30 output/raw/cache.php:21
+#: assets/build/query-monitor.js:68
+msgid "Object Cache"
+msgstr "Object Cache"
+
+#: output/html/db_dupes.php:30 assets/build/query-monitor.js:6
+#: assets/build/query-monitor.js:24
+msgid "Duplicate Queries"
+msgstr "Duplicate Queries"
+
+#. translators: %s: Plugin name
+#: classes/Component_MU_Plugin.php:12 classes/Component_MU_Vendor.php:12
+msgid "MU Plugin: %s"
+msgstr "MU Plugin: %s"
+
+#: output/html/languages.php:30 assets/build/query-monitor.js:44
+msgid "Languages"
+msgstr "Languages"
+
+#. Author of the plugin
+#: query-monitor.php
+msgid "John Blackbourn"
+msgstr "John Blackbourn"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: query-monitor.php
+msgid "https://querymonitor.com/"
+msgstr "https://querymonitor.com/"
+
+#. translators: %s: Symlink file location
+#: classes/QueryMonitor.php:184
+msgid "The symlink at %s is no longer pointing to the correct location. Please remove the symlink, then deactivate and reactivate Query Monitor."
+msgstr "The symlink at %s is no longer pointing to the correct location. Please remove the symlink, then deactivate and reactivate Query Monitor."
+
+#: output/html/multisite.php:24 assets/build/query-monitor.js:54
+#: assets/build/query-monitor.js:76
+msgid "Multisite"
+msgstr "Multisite"
+
+#. translators: %s: Error message text
+#: output/html/hooks.php:178 assets/build/query-monitor.js:42
+msgid "Error: %s"
+msgstr "Error: %s"
+
+#. translators: %s: Action name
+#: output/html/hooks.php:114 assets/build/query-monitor.js:34
+msgid "Warning: The %s action is extremely resource intensive. Try to avoid using it."
+msgstr "Warning: The %s action is extremely resource intensive. Try to avoid using it."
+
+#: output/html/hooks.php:122 assets/build/query-monitor.js:34
+msgid "Action"
+msgstr "Action"
+
+#: classes/QueryMonitor.php:61 assets/build/query-monitor.js:30
+#: assets/build/query-monitor.js:32
+msgid "Help"
+msgstr "Help"
+
+#: dispatchers/WP_Die.php:131
+msgid "Call stack:"
+msgstr "Call stack:"
+
+#: output/html/assets_styles.php:30
+msgid "Styles"
+msgstr "Styles"
+
+#: output/html/assets_scripts.php:30
+msgid "Scripts"
+msgstr "Scripts"
+
+#. Plugin Name of the plugin
+#: query-monitor.php classes/QueryMonitor.php:198 classes/QueryMonitor.php:231
+#: dispatchers/Html.php:147 dispatchers/WP_Die.php:136
+#: assets/build/query-monitor.js:4
+msgid "Query Monitor"
+msgstr "Query Monitor"
+
+#: output/html/transients.php:30 output/raw/transients.php:21
+#: assets/build/query-monitor.js:88
+msgid "Transients"
+msgstr "Transients"
+
+#: collectors/request.php:275
+msgid "Unknown queried object"
+msgstr "Unknown queried object"
+
+#. translators: %s: Post type name
+#: collectors/request.php:268
+msgid "Post type archive: %s"
+msgstr "Post type archive: %s"
+
+#. translators: %s: Taxonomy term name
+#: collectors/request.php:259
+msgid "Term archive: %s"
+msgstr "Term archive: %s"
+
+#. translators: %s: Author name
+#: collectors/request.php:250
+msgid "Author archive: %s"
+msgstr "Author archive: %s"
+
+#: output/html/request.php:30 assets/build/query-monitor.js:74
+msgid "Request"
+msgstr "Request"
+
+#: output/html/php_errors.php:30 assets/build/query-monitor.js:74
+msgid "PHP Errors"
+msgstr "PHP Errors"
+
+#: output/html/overview.php:30 assets/build/query-monitor.js:54
+#: assets/build/query-monitor.js:58
+msgid "Overview"
+msgstr "Overview"
+
+#: output/html/environment.php:30 assets/build/query-monitor.js:32
+msgid "Environment"
+msgstr "Environment"
+
+#: output/html/db_queries.php:38 output/raw/db_queries.php:29
+#: assets/build/query-monitor.js:6 assets/build/query-monitor.js:24
+#: assets/build/query-monitor.js:68 assets/build/query-monitor.js:74
+msgid "Database Queries"
+msgstr "Database Queries"
+
+#: output/html/db_components.php:30 assets/build/query-monitor.js:6
+msgid "Queries by Component"
+msgstr "Queries by Component"
+
+#: output/html/db_callers.php:30 assets/build/query-monitor.js:6
+msgid "Queries by Caller"
+msgstr "Queries by Caller"
+
+#: output/html/conditionals.php:30 output/raw/conditionals.php:21
+#: assets/build/query-monitor.js:6
+msgid "Conditionals"
+msgstr "Conditionals"
+
+#: output/html/admin.php:30 assets/build/query-monitor.js:4
+msgid "Admin Screen"
+msgstr "Admin Screen"
+
+#. translators: A closure is an anonymous PHP function. 1: Line number, 2: File
+#. name
+#: output/Html.php:396 output/html/hooks.php:161
+msgid "Closure on line %1$d of %2$s"
+msgstr "Closure on line %1$d of %2$s"
+
+#: classes/Component_Unknown.php:10 assets/build/query-monitor.js:4
+#: assets/build/query-monitor.js:30 assets/build/query-monitor.js:32
+#: assets/build/query-monitor.js:44 assets/build/query-monitor.js:62
+#: assets/build/query-monitor.js:82 assets/build/query-monitor.js:84
+#: assets/build/query-monitor.js:86
+msgid "Unknown"
+msgstr "Unknown"
+
+#: classes/Component_Template.php:10 assets/build/query-monitor.js:86
+msgid "Parent Theme"
+msgstr "Parent Theme"
+
+#: classes/Component_Stylesheet.php:14 output/html/theme.php:30
+#: assets/build/query-monitor.js:86
+msgid "Theme"
+msgstr "Theme"
+
+#: classes/Component_Stylesheet.php:11
+msgid "Child Theme"
+msgstr "Child Theme"
+
+#. translators: %s: Plugin name
+#: classes/Component_VIP_Plugin.php:12
+msgid "VIP Plugin: %s"
+msgstr "VIP Plugin: %s"
+
+#. translators: %s: Plugin name
+#: classes/Component_Plugin.php:12
+msgid "Plugin: %s"
+msgstr "Plugin: %s"

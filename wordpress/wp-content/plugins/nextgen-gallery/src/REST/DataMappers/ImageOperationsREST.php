@@ -11,6 +11,7 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
 use Imagely\NGG\DataMappers\Image as ImageMapper;
+use Imagely\NGG\DataMappers\Gallery as GalleryMapper;
 use Imagely\NGG\DataTypes\Image;
 use Imagely\NGG\Util\Security;
 use Imagely\NGG\DataStorage\Manager as StorageManager;
@@ -50,7 +51,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'create_new_thumbnail' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -93,7 +94,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'rotate_image' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id'       => [
 						'required'          => true,
@@ -116,7 +117,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'create_thumbnail' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id'            => [
 						'required'          => true,
@@ -137,7 +138,8 @@ class ImageOperationsREST {
 					],
 					'fix_dimension' => [
 						'type'        => 'boolean',
-						'default'     => false,
+						// No default: the handler has to tell "omitted" from "false" so that
+						// omitting it keeps the saved cropping setting.
 						'description' => 'Whether to ignore aspect ratio (true) or maintain it (false)',
 					],
 				],
@@ -151,7 +153,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'resize_image' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -169,7 +171,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'set_watermark' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -187,7 +189,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'recover_image' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -205,7 +207,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'import_metadata' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -223,7 +225,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'strip_orientation_tag' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -351,7 +353,7 @@ class ImageOperationsREST {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'crop_image' ],
-				'permission_callback' => [ self::class, 'check_edit_permission' ],
+				'permission_callback' => [ self::class, 'check_image_edit_permission' ],
 				'args'                => [
 					'id' => [
 						'required'          => true,
@@ -444,12 +446,79 @@ class ImageOperationsREST {
 	}
 
 	/**
+	 * Check if user has permission to edit a specific image (single-image operation routes).
+	 *
+	 * @param WP_REST_Request $request The REST request object.
+	 * @return bool|\WP_Error
+	 */
+	public static function check_image_edit_permission( WP_REST_Request $request ) {
+		if ( ! Security::is_allowed( 'NextGEN Manage gallery' ) ) {
+			return false;
+		}
+
+		$url_params = $request->get_url_params();
+		$image_id   = isset( $url_params['id'] ) ? (int) $url_params['id'] : 0;
+		if ( $image_id <= 0 ) {
+			return false;
+		}
+
+		return ImageREST::current_user_can_manage_image( $image_id );
+	}
+
+	/**
 	 * Check if user has permission to edit images
 	 *
+	 * @param \WP_REST_Request|null $request Optional REST request — when supplied with an `id`, per-image ownership is enforced.
 	 * @return bool
 	 */
-	public static function check_edit_permission() {
-		return Security::is_allowed( 'NextGEN Manage gallery' );
+	public static function check_edit_permission( $request = null ) {
+		if ( ! Security::is_allowed( 'NextGEN Manage gallery' ) ) {
+			return false;
+		}
+
+		if ( null === $request ) {
+			return true;
+		}
+
+		$image_id = $request->get_param( 'id' );
+		if ( $image_id ) {
+			return self::current_user_owns_image( (int) $image_id );
+		}
+
+		// Bulk endpoints accept arrays of image ids; per-row ownership is enforced inside the handler.
+		return true;
+	}
+
+	/**
+	 * Resolve an image id to its parent gallery's author and verify the current user may edit it.
+	 *
+	 * Returns true when the user owns the parent gallery or holds 'NextGEN Manage others gallery'.
+	 * Missing image returns true so the handler can emit a 404 instead of a 403.
+	 *
+	 * @param int $image_id NGG image id (pid).
+	 * @return bool
+	 */
+	public static function current_user_owns_image( $image_id ) {
+		$image = ImageMapper::get_instance()->find( $image_id );
+		if ( ! $image ) {
+			return true;
+		}
+
+		$gallery_id = isset( $image->galleryid ) ? (int) $image->galleryid : 0;
+		if ( $gallery_id <= 0 ) {
+			return Security::is_allowed( 'NextGEN Manage others gallery' );
+		}
+
+		$gallery = GalleryMapper::get_instance()->find( $gallery_id );
+		if ( ! $gallery ) {
+			return Security::is_allowed( 'NextGEN Manage others gallery' );
+		}
+
+		if ( get_current_user_id() === (int) $gallery->author ) {
+			return true;
+		}
+
+		return Security::is_allowed( 'NextGEN Manage others gallery' );
 	}
 
 	/**
@@ -493,6 +562,8 @@ class ImageOperationsREST {
 			$result = $storage->generate_thumbnail( $image_id, $params );
 
 			if ( $result ) {
+				$storage->flush_image_cache( $image_id );
+
 				return new WP_REST_Response(
 					[
 						'message' => __( 'Thumbnail created successfully', 'nggallery' ),
@@ -544,8 +615,10 @@ class ImageOperationsREST {
 			}
 
 			if ( $result ) {
-				// Recreate the thumbnail after rotation
 				\nggAdmin::create_thumbnail( $image_id );
+
+				$storage = StorageManager::get_instance();
+				$storage->flush_image_cache( $image_id );
 
 				return new WP_REST_Response(
 					[
@@ -580,35 +653,23 @@ class ImageOperationsREST {
 		$height        = $request->get_param( 'height' );
 		$fix_dimension = $request->get_param( 'fix_dimension' );
 
+		// Dimensions go straight to the generator: round-tripping them through the
+		// site-wide options would write a setting the options capability governs.
+		// A request that omits fix_dimension leaves crop null so the generator keeps
+		// using the saved setting, rather than being told not to crop.
+		$crop = ( null === $fix_dimension ) ? null : (bool) $fix_dimension;
+
 		try {
-			// If custom parameters are provided, temporarily update the global settings
-			$original_options = null;
-			if ( $width || $height || $fix_dimension !== null ) {
-				$ngg_options      = get_option( 'ngg_options', [] );
-				$original_options = $ngg_options;
+			$result = \nggAdmin::create_thumbnail( $image_id, (int) $width, (int) $height, $crop );
 
-				if ( $width ) {
-					$ngg_options['thumbwidth'] = $width;
-				}
-				if ( $height ) {
-					$ngg_options['thumbheight'] = $height;
-				}
-				// Always set fix_dimension if it's provided (even if false)
-				if ( $fix_dimension !== null ) {
-					$ngg_options['thumbfix'] = $fix_dimension ? 1 : 0;
-				}
+			// The generator reports failure by returning its error message, which is
+			// truthy, so the success marker has to be compared exactly.
+			if ( '1' === $result ) {
+				// Matches the sibling operations in this class: the thumbnail is rebuilt
+				// under thumbs/, and the dynamic derivatives keep serving the old size
+				// until the gallery's cache is dropped.
+				StorageManager::get_instance()->flush_image_cache( $image_id );
 
-				update_option( 'ngg_options', $ngg_options );
-			}
-
-			$result = \nggAdmin::create_thumbnail( $image_id );
-
-			// Restore original settings if they were modified
-			if ( $original_options !== null ) {
-				update_option( 'ngg_options', $original_options );
-			}
-
-			if ( $result ) {
 				return new WP_REST_Response(
 					[
 						'message' => __( 'Thumbnail created successfully', 'nggallery' ),
@@ -618,15 +679,10 @@ class ImageOperationsREST {
 
 			return new WP_Error(
 				'thumbnail_creation_failed',
-				__( 'Failed to create thumbnail', 'nggallery' ),
+				is_string( $result ) ? $result : __( 'Failed to create thumbnail', 'nggallery' ),
 				[ 'status' => 500 ]
 			);
 		} catch ( \Exception $e ) {
-			// Restore original settings in case of exception
-			if ( isset( $original_options ) && $original_options !== null ) {
-				update_option( 'ngg_options', $original_options );
-			}
-
 			return new WP_Error(
 				'thumbnail_creation_failed',
 				$e->getMessage(),
@@ -647,7 +703,11 @@ class ImageOperationsREST {
 		try {
 			$result = \nggAdmin::resize_image( $image_id );
 
-			if ( $result ) {
+			// resize_image() returns '1' on success and a translated error string on failure.
+			if ( '1' === $result ) {
+				$storage = StorageManager::get_instance();
+				$storage->flush_image_cache( $image_id );
+
 				return new WP_REST_Response(
 					[
 						'message' => __( 'Image resized successfully', 'nggallery' ),
@@ -657,7 +717,7 @@ class ImageOperationsREST {
 
 			return new WP_Error(
 				'resize_failed',
-				__( 'Failed to resize image', 'nggallery' ),
+				is_string( $result ) && '' !== $result ? $result : __( 'Failed to resize image', 'nggallery' ),
 				[ 'status' => 500 ]
 			);
 		} catch ( \Exception $e ) {
@@ -681,7 +741,13 @@ class ImageOperationsREST {
 		try {
 			$result = \nggAdmin::set_watermark( $image_id );
 
-			if ( $result ) {
+			// set_watermark() returns '1' on success and an error message otherwise; the
+			// message is a non-empty string, so a truthiness check reported every failure
+			// as "applied successfully" (#1104).
+			if ( '1' === $result ) {
+				$storage = StorageManager::get_instance();
+				$storage->flush_image_cache( $image_id );
+
 				return new WP_REST_Response(
 					[
 						'message' => __( 'Watermark applied successfully', 'nggallery' ),
@@ -689,9 +755,21 @@ class ImageOperationsREST {
 				);
 			}
 
+			// The watermark is on, but stale cached copies remain (#1236): still clear what the
+			// cache flush can reach, and report it as its own error rather than a failed watermark.
+			if ( \nggAdmin::cached_copies_not_deleted_message() === $result ) {
+				StorageManager::get_instance()->flush_image_cache( $image_id );
+
+				return new WP_Error(
+					'watermark_cached_copies_not_deleted',
+					$result,
+					[ 'status' => 500 ]
+				);
+			}
+
 			return new WP_Error(
 				'watermark_failed',
-				__( 'Failed to apply watermark', 'nggallery' ),
+				is_string( $result ) && '' !== $result ? $result : __( 'Failed to apply watermark', 'nggallery' ),
 				[ 'status' => 500 ]
 			);
 		} catch ( \Exception $e ) {
@@ -716,6 +794,9 @@ class ImageOperationsREST {
 			$result = \nggAdmin::recover_image( $image_id );
 
 			if ( $result ) {
+				$storage = StorageManager::get_instance();
+				$storage->flush_image_cache( $image_id );
+
 				return new WP_REST_Response(
 					[
 						'message' => __( 'Image recovered successfully', 'nggallery' ),
@@ -782,10 +863,12 @@ class ImageOperationsREST {
 		$storage  = StorageManager::get_instance();
 
 		try {
-			$image_path  = $storage->get_image_abspath( $image_id );
-			$backup_path = $image_path . '_backup';
+			$image_path = $storage->get_image_abspath( $image_id );
+			// The untouched original is the better metadata source, and since #1107 it no longer
+			// sits beside the served file - resolve_backup_abspath() finds it in either location.
+			$backup_path = $storage->resolve_backup_abspath( $image_id );
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			$exif_abspath = @file_exists( $backup_path ) ? $backup_path : $image_path;
+			$exif_abspath = ( $backup_path && @file_exists( $backup_path ) ) ? $backup_path : $image_path;
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$exif_iptc = @EXIFWriter::read_metadata( $exif_abspath );
 
@@ -839,19 +922,8 @@ class ImageOperationsREST {
 		$resize_width  = $width > 0 ? $width : $settings->get( 'imgWidth' );
 		$resize_height = $height > 0 ? $height : $settings->get( 'imgHeight' );
 
-		// TODO This is temp
-		// Update global settings if custom dimensions were provided
-		if ( $width > 0 || $height > 0 ) {
-			$ngg_options = get_option( 'ngg_options', [] );
-			if ( $width > 0 ) {
-				$ngg_options['imgWidth'] = $resize_width;
-			}
-			if ( $height > 0 ) {
-				$ngg_options['imgHeight'] = $resize_height;
-			}
-			update_option( 'ngg_options', $ngg_options );
-		}
-
+		// Dimensions are passed to each resize call below, so this handler never writes
+		// them to the site-wide options and no snapshot has to survive a mid-loop fatal.
 		try {
 			// Process each image
 			foreach ( $image_ids as $image_id ) {
@@ -861,6 +933,14 @@ class ImageOperationsREST {
 					$failed_resizes[] = [
 						'id'    => $image_id,
 						'error' => __( 'Invalid image ID', 'nggallery' ),
+					];
+					continue;
+				}
+
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_resizes[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to edit this image', 'nggallery' ),
 					];
 					continue;
 				}
@@ -877,10 +957,23 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				// Verify user can manage this image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_resizes[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Attempt to resize the image using the legacy method
 				$result = \nggAdmin::resize_image( $image_id, $resize_width, $resize_height );
 
 				if ( '1' === $result ) {
+					$storage = StorageManager::get_instance();
+					$storage->flush_image_cache( $image_id );
+
 					$successful_resizes[] = [
 						'id'      => $image_id,
 						'width'   => $resize_width,
@@ -941,6 +1034,12 @@ class ImageOperationsREST {
 	/**
 	 * Crop an image and regenerate all sizes
 	 *
+	 * The full-size file is cropped in place, the way rotate and resize change it, and every other
+	 * size is then rebuilt from the cropped file. When the crop fails the full-size file is put back
+	 * exactly as this request found it, from a snapshot taken just before the crop. The upload
+	 * backup is never used for that: it holds the image as uploaded, so restoring it would also
+	 * undo every rotate, resize or watermark applied since (#1179).
+	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -951,6 +1050,12 @@ class ImageOperationsREST {
 		$w        = $request->get_param( 'w' );
 		$h        = $request->get_param( 'h' );
 		$rr       = $request->get_param( 'rr' );
+
+		$image         = null;
+		$meta_before   = null;
+		$original_path = null;
+		$snapshot_path = null;
+		$cropped       = false;
 
 		try {
 			$storage = StorageManager::get_instance();
@@ -964,22 +1069,9 @@ class ImageOperationsREST {
 				);
 			}
 
-			// Calculate the crop frame using the resize ratio
-			$x = round( $x * $rr, 0 );
-			$y = round( $y * $rr, 0 );
-			$w = round( $w * $rr, 0 );
-			$h = round( $h * $rr, 0 );
-
-			$crop_frame = [
-				'x'      => $x,
-				'y'      => $y,
-				'width'  => $w,
-				'height' => $h,
-			];
-
 			// Get the original image path
 			$original_path = $storage->get_image_abspath( $image_id );
-			if ( ! file_exists( $original_path ) ) {
+			if ( ! $original_path || ! file_exists( $original_path ) ) {
 				return new WP_Error(
 					'original_not_found',
 					__( 'Original image file not found', 'nggallery' ),
@@ -987,10 +1079,97 @@ class ImageOperationsREST {
 				);
 			}
 
-			// Create a backup of the original
-			$backup_path = $original_path . '_backup';
-			if ( ! file_exists( $backup_path ) ) {
-				copy( $original_path, $backup_path );
+			$dimensions = @getimagesize( $original_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( ! $dimensions ) {
+				return new WP_Error(
+					'crop_failed',
+					__( 'The image file could not be read', 'nggallery' ),
+					[ 'status' => 500 ]
+				);
+			}
+
+			// Calculate the crop frame using the resize ratio
+			$x = (int) round( $x * $rr, 0 );
+			$y = (int) round( $y * $rr, 0 );
+			$w = (int) round( $w * $rr, 0 );
+			$h = (int) round( $h * $rr, 0 );
+
+			// A frame that starts off the image, or has no area, has nothing to crop, and a zero width
+			// or height divides by zero in the generator. One that runs past the far edge (a rounding
+			// overshoot from the resize ratio, typically) is trimmed to the edge.
+			if ( $x < 0 || $y < 0 || $x >= $dimensions[0] || $y >= $dimensions[1] ) {
+				return self::invalid_crop_frame_error();
+			}
+
+			$w = min( $w, $dimensions[0] - $x );
+			$h = min( $h, $dimensions[1] - $y );
+
+			if ( $w < 1 || $h < 1 ) {
+				return self::invalid_crop_frame_error();
+			}
+
+			// The generator scales the frame by its width over final_width; equal values crop the
+			// frame as given, and the output is the frame's own size.
+			$crop_frame = [
+				'x'            => $x,
+				'y'            => $y,
+				'width'        => $w,
+				'height'       => $h,
+				'final_width'  => $w,
+				'final_height' => $h,
+			];
+
+			// Back the original up before cropping over it. This goes to the originals root
+			// outside the web root, not beside the served image: written there it would be an
+			// anonymously fetchable copy of the uncropped master (#1107).
+			//
+			// Fail closed, unlike the other backup sites. backup_image() and
+			// generate_image_size() lose nothing by skipping a backup, but this endpoint crops
+			// over the full-size image, so proceeding without one destroys the only copy of the
+			// user's master. get_backup_write_abspath() returns null when the originals directory
+			// cannot be created, which is a real outcome on a host that only makes uploads
+			// writable, and the restore paths below cannot help once the source is gone.
+			$backup_path = $storage->resolve_backup_abspath( $image_id );
+
+			if ( ! $backup_path || ! file_exists( $backup_path ) ) {
+				$backup_path = $storage->get_backup_write_abspath( $image_id );
+
+				// Whether anything was already at the write target, captured immediately before
+				// the copy: a copy that fails part-way leaves a truncated file there, and
+				// resolve_backup_abspath() would hand that back on the next attempt as though it
+				// were a real original. The crop would then proceed over the master and the
+				// restore below would put the truncated file back.
+				$backup_pre_existed = $backup_path && file_exists( $backup_path );
+
+				if ( ! $backup_path || ! copy( $original_path, $backup_path ) ) {
+					// Only our own part-written file is removed. A backup that was already there
+					// is somebody's real original and must never be touched on a failure path.
+					if ( $backup_path && ! $backup_pre_existed ) {
+						@unlink( $backup_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.unlink_unlink
+					}
+
+					return new WP_Error(
+						'backup_failed',
+						__( 'The original image could not be backed up, so it was not cropped. Check that the uploads directory is writable.', 'nggallery' ),
+						[ 'status' => 500 ]
+					);
+				}
+
+				$storage->discard_legacy_backup( $image_id );
+			}
+
+			// The state to return to if the crop fails. It lives in the system temp directory rather
+			// than beside the image, so it is never served from the gallery directory.
+			if ( ! function_exists( 'wp_tempnam' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			$snapshot_path = wp_tempnam( 'ngg-crop-' . $image_id );
+			if ( ! $snapshot_path || ! copy( $original_path, $snapshot_path ) ) {
+				return new WP_Error(
+					'crop_failed',
+					__( 'The image could not be prepared for cropping. Check that the temporary directory is writable.', 'nggallery' ),
+					[ 'status' => 500 ]
+				);
 			}
 
 			// Crop the original image
@@ -999,46 +1178,113 @@ class ImageOperationsREST {
 				'reflection' => false,
 				'crop'       => true,
 				'crop_frame' => $crop_frame,
+				'width'      => $w,
+				'height'     => $h,
 			];
 
 			// Crop and save the original
-			$result = $storage->generate_image( $image_id, $params );
+			$meta_before = $image->meta_data;
+			$result      = $storage->generate_image_size( $image, 'full', $params );
 			if ( ! $result ) {
-				// Restore from backup if crop fails
-				if ( file_exists( $backup_path ) ) {
-					copy( $backup_path, $original_path );
-				}
+				self::restore_crop_snapshot( $snapshot_path, $original_path, $image, $meta_before );
 				return new WP_Error(
 					'crop_failed',
 					__( 'Failed to crop image', 'nggallery' ),
 					[ 'status' => 500 ]
 				);
 			}
+			if ( is_object( $result ) ) {
+				$result->destruct();
+			}
+			$cropped = true;
 
-			// Regenerate all sizes
-			$sizes = $storage->get_image_sizes( $image_id );
-			foreach ( $sizes as $size ) {
-				if ( 'backup' === $size ) {
+			// Every stored crop frame, including the one just recorded for the full size, is in the
+			// coordinates of the uncropped image. Left in place, the next thumbnail rebuild would cut
+			// that old area out of the new, smaller file.
+			if ( is_array( $image->meta_data ) ) {
+				$frames_cleared = false;
+				foreach ( $image->meta_data as $size => $size_meta ) {
+					if ( is_array( $size_meta ) && isset( $size_meta['crop_frame'] ) ) {
+						unset( $image->meta_data[ $size ]['crop_frame'] );
+						$frames_cleared = true;
+					}
+				}
+				if ( $frames_cleared ) {
+					ImageMapper::get_instance()->save( $image );
+				}
+			}
+
+			// Regenerate every other size from the cropped file, each with its own settings.
+			foreach ( $storage->get_image_sizes( $image ) as $size ) {
+				if ( 'full' === $size || 'backup' === $size ) {
 					continue;
 				}
-				$storage->generate_image( $image_id, $params, $size );
+				$sized = $storage->generate_image_size( $image, $size );
+				if ( is_object( $sized ) ) {
+					$sized->destruct();
+				}
 			}
+
+			$storage->flush_image_cache( $image_id );
 
 			return new WP_REST_Response(
 				[
 					'message' => __( 'Image cropped and all sizes regenerated successfully', 'nggallery' ),
 				]
 			);
-		} catch ( \Exception $e ) {
-			// Restore from backup if any error occurs
-			if ( isset( $backup_path ) && file_exists( $backup_path ) ) {
-				copy( $backup_path, $original_path );
+		} catch ( \Throwable $e ) {
+			// Once the crop is saved the full-size file and its stored dimensions agree, so a failure
+			// while rebuilding the other sizes must not put the uncropped file back under them.
+			if ( ! $cropped ) {
+				self::restore_crop_snapshot( $snapshot_path, $original_path, $image, $meta_before );
 			}
 			return new WP_Error(
 				'crop_failed',
 				$e->getMessage(),
 				[ 'status' => 500 ]
 			);
+		} finally {
+			if ( $snapshot_path && file_exists( $snapshot_path ) ) {
+				wp_delete_file( $snapshot_path );
+			}
+		}
+	}
+
+	/**
+	 * The error for a crop frame that does not select part of the image.
+	 *
+	 * @return WP_Error
+	 */
+	private static function invalid_crop_frame_error() {
+		return new WP_Error(
+			'invalid_crop_frame',
+			__( 'The crop area must have a width and height and start inside the image.', 'nggallery' ),
+			[ 'status' => 400 ]
+		);
+	}
+
+	/**
+	 * Put the full-size file, and the dimensions stored for it, back as they were before the crop.
+	 *
+	 * The generator saves the new dimensions before its ngg_generated_image action runs, so a failure
+	 * raised from that action would otherwise leave the restored file described as the cropped one.
+	 *
+	 * @param string|null       $snapshot_path Copy of the full-size file taken before the crop.
+	 * @param string|null       $original_path The full-size file.
+	 * @param Image|object|null $image         The image being cropped.
+	 * @param array|null        $meta_before   Its meta_data before the crop.
+	 */
+	private static function restore_crop_snapshot( $snapshot_path, $original_path, $image, $meta_before ) {
+		if ( ! $snapshot_path || ! $original_path || ! file_exists( $snapshot_path ) ) {
+			return;
+		}
+
+		copy( $snapshot_path, $original_path );
+		clearstatcache( true, $original_path );
+
+		if ( $image && null !== $meta_before && $image->meta_data !== $meta_before ) {
+			$image->meta_data = $meta_before;
+			ImageMapper::get_instance()->save( $image );
 		}
 	}
 
@@ -1076,6 +1322,14 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_imports[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to edit this image', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Verify image exists
 				$image_mapper = ImageMapper::get_instance();
 				$image        = $image_mapper->find( $image_id );
@@ -1084,6 +1338,16 @@ class ImageOperationsREST {
 					$failed_imports[] = [
 						'id'    => $image_id,
 						'error' => __( 'Image not found', 'nggallery' ),
+					];
+					continue;
+				}
+
+				// Verify user can manage this image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_imports[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
 					];
 					continue;
 				}
@@ -1173,6 +1437,12 @@ class ImageOperationsREST {
 			);
 		}
 
+		// Verify user can manage the destination gallery.
+		$can_manage_dest = ImageREST::current_user_can_manage_gallery( $destination_gallery_id );
+		if ( is_wp_error( $can_manage_dest ) || ! $can_manage_dest ) {
+			return new WP_Error( 'rest_forbidden', __( 'You do not have permission to add images to this gallery.', 'nggallery' ), [ 'status' => 403 ] );
+		}
+
 		try {
 			// Initialize counters
 			$successful_copies = [];
@@ -1193,6 +1463,14 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_copies[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to access this image', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Verify image exists
 				$image = $image_mapper->find( $image_id );
 
@@ -1204,19 +1482,30 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				// Verify user can manage the source image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_copies[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
+					];
+					continue;
+				}
+
 				$valid_images[] = $image;
 			}
 
 			// Copy all valid images at once using the storage manager
 			if ( ! empty( $valid_images ) ) {
+				// Keyed by source image id, not position - a skipped source shifts nothing.
 				$copied_image_ids = $storage->copy_images( $valid_images, $destination_gallery_id );
 
 				// Mark successful copies
-				foreach ( $valid_images as $index => $image ) {
-					if ( isset( $copied_image_ids[ $index ] ) && $copied_image_ids[ $index ] > 0 ) {
+				foreach ( $valid_images as $image ) {
+					if ( isset( $copied_image_ids[ $image->pid ] ) && $copied_image_ids[ $image->pid ] > 0 ) {
 						$successful_copies[] = [
 							'original_id' => $image->pid,
-							'new_id'      => $copied_image_ids[ $index ],
+							'new_id'      => $copied_image_ids[ $image->pid ],
 							'message'     => __( 'Image copied successfully', 'nggallery' ),
 						];
 					} else {
@@ -1300,6 +1589,12 @@ class ImageOperationsREST {
 			);
 		}
 
+		// Verify user can manage the destination gallery.
+		$can_manage_dest = ImageREST::current_user_can_manage_gallery( $destination_gallery_id );
+		if ( is_wp_error( $can_manage_dest ) || ! $can_manage_dest ) {
+			return new WP_Error( 'rest_forbidden', __( 'You do not have permission to add images to this gallery.', 'nggallery' ), [ 'status' => 403 ] );
+		}
+
 		try {
 			// Initialize counters
 			$successful_moves = [];
@@ -1320,6 +1615,14 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_moves[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to move this image', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Verify image exists
 				$image = $image_mapper->find( $image_id );
 
@@ -1331,19 +1634,30 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				// Verify user can manage the source image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_moves[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
+					];
+					continue;
+				}
+
 				$valid_images[] = $image;
 			}
 
 			// Move all valid images at once using the storage manager
 			if ( ! empty( $valid_images ) ) {
+				// Keyed by source image id, not position - a skipped source shifts nothing.
 				$moved_image_ids = $storage->move_images( $valid_images, $destination_gallery_id );
 
 				// Mark successful moves
-				foreach ( $valid_images as $index => $image ) {
-					if ( isset( $moved_image_ids[ $index ] ) && $moved_image_ids[ $index ] > 0 ) {
+				foreach ( $valid_images as $image ) {
+					if ( isset( $moved_image_ids[ $image->pid ] ) && $moved_image_ids[ $image->pid ] > 0 ) {
 						$successful_moves[] = [
 							'original_id' => $image->pid,
-							'new_id'      => $moved_image_ids[ $index ],
+							'new_id'      => $moved_image_ids[ $image->pid ],
 							'message'     => __( 'Image moved successfully', 'nggallery' ),
 						];
 					} else {
@@ -1424,6 +1738,28 @@ class ImageOperationsREST {
 			);
 		}
 
+		// Force each tag to a sanitized scalar string; blocks array/object injection into wp_set_object_terms and strips control chars.
+		$tags = array_values(
+			array_filter(
+				array_map(
+					static function ( $t ) {
+						return is_scalar( $t ) ? sanitize_text_field( (string) $t ) : '';
+					},
+					$tags
+				),
+				static function ( $t ) {
+					return '' !== $t;
+				}
+			)
+		);
+		if ( empty( $tags ) ) {
+			return new WP_Error(
+				'invalid_tags',
+				__( 'Invalid or empty tags array', 'nggallery' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		try {
 			// Initialize counters
 			$successful_additions = [];
@@ -1441,6 +1777,14 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_additions[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to edit this image', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Verify image exists
 				$image_mapper = ImageMapper::get_instance();
 				$image        = $image_mapper->find( $image_id );
@@ -1449,6 +1793,16 @@ class ImageOperationsREST {
 					$failed_additions[] = [
 						'id'    => $image_id,
 						'error' => __( 'Image not found', 'nggallery' ),
+					];
+					continue;
+				}
+
+				// Verify user can manage this image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_additions[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
 					];
 					continue;
 				}
@@ -1543,6 +1897,14 @@ class ImageOperationsREST {
 					continue;
 				}
 
+				if ( ! self::current_user_owns_image( $image_id ) ) {
+					$failed_removals[] = [
+						'id'    => $image_id,
+						'error' => __( 'You are not allowed to edit this image', 'nggallery' ),
+					];
+					continue;
+				}
+
 				// Verify image exists
 				$image_mapper = ImageMapper::get_instance();
 				$image        = $image_mapper->find( $image_id );
@@ -1551,6 +1913,16 @@ class ImageOperationsREST {
 					$failed_removals[] = [
 						'id'    => $image_id,
 						'error' => __( 'Image not found', 'nggallery' ),
+					];
+					continue;
+				}
+
+				// Verify user can manage this image.
+				$can_manage = ImageREST::current_user_can_manage_image( $image_id );
+				if ( is_wp_error( $can_manage ) || ! $can_manage ) {
+					$failed_removals[] = [
+						'id'    => $image_id,
+						'error' => __( 'Permission denied', 'nggallery' ),
 					];
 					continue;
 				}

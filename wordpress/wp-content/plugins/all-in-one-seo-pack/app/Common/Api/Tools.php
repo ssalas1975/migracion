@@ -20,6 +20,7 @@ class Tools {
 	 *
 	 * @since   4.0.0
 	 * @version 4.4.2
+	 * @version 5.0.5 Return a 403 when a non-super admin targets another site or the network.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
@@ -30,6 +31,19 @@ class Tools {
 		$source = ! empty( $body['source'] ) ? $body['source'] : '';
 		$text   = ! empty( $body['text'] ) ? sanitize_textarea_field( $body['text'] ) : '';
 		$url    = ! empty( $body['url'] ) ? sanitize_url( $body['url'], [ 'http', 'https' ] ) : '';
+
+		// The route's capability is checked on the current site only, so writing elsewhere needs a super admin.
+		if (
+			is_multisite() &&
+			! is_super_admin() &&
+			$blogId &&
+			( 'network' === $blogId || get_current_blog_id() !== (int) $blogId )
+		) {
+			return new \WP_REST_Response( [
+				'success' => false,
+				'message' => 'You do not have permission to access this site.'
+			], 403 );
+		}
 
 		try {
 			if ( is_multisite() && 'network' !== $blogId ) {
@@ -234,7 +248,7 @@ class Tools {
 		if ( empty( $htaccess ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( '.htaccess file is empty.', 'all-in-one-seo-pack' )
+				'message' => __( 'The .htaccess editor is empty. Saving an empty file would remove all of your rewrite rules and can break your site. Add your content before saving.', 'all-in-one-seo-pack' ) // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 			], 400 );
 		}
 
@@ -243,7 +257,7 @@ class Tools {
 		if ( ! $saveHtaccess->success ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => $saveHtaccess->message ? $saveHtaccess->message : __( 'An error occurred while trying to write to the .htaccess file. Please try again later.', 'all-in-one-seo-pack' ),
+				'message' => $saveHtaccess->message ? $saveHtaccess->message : __( 'We couldn\'t write to the .htaccess file. This is usually a file permission or server-side restriction — check your server logs or contact your host, then try again.', 'all-in-one-seo-pack' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 				'reason'  => $saveHtaccess->reason
 			], 400 );
 		}

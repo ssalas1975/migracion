@@ -20,40 +20,43 @@
 
     $url_css = CDP_MANTENIMIENTO_URL_FRONTAL_FX . '/css/burbujas.css';
     $url_js = CDP_MANTENIMIENTO_URL_FRONTAL_FX . '/js/burbujas.js';
+    $site_name = get_bloginfo( 'name' );
+    $site_description = get_bloginfo( 'description' );
+    $mensaje_seguro = \cdp_mweb\ModoMantenimiento::sanear_mensaje_html( $mensaje );
 
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>" />
-    <title><?php echo get_bloginfo('title')?></title>
+    <meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>" />
+    <title><?php echo esc_html( $site_name ); ?></title>
     <?php
     if (function_exists('wp_site_icon')) {
         wp_site_icon();
     }
     ?>
     <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, minimum-scale=1">
-    <meta name="description" content="<?php echo get_bloginfo('description')?>"/>
+    <meta name="description" content="<?php echo esc_attr( $site_description ); ?>"/>
     <meta http-equiv="X-UA-Compatible" content="" />
-    <meta property="og:site_name" content="<?php echo get_bloginfo('title') . ' - ' . get_bloginfo('description')?>"/>
-    <meta property="og:title" content="<?php echo get_bloginfo('title')?>"/>
+    <meta property="og:site_name" content="<?php echo esc_attr( $site_name . ' - ' . $site_description ); ?>"/>
+    <meta property="og:title" content="<?php echo esc_attr( $site_name ); ?>"/>
     <meta property="og:type" content="Maintenance"/>
-    <meta property="og:url" content="<?php echo site_url(); ?>"/>
-    <meta property="og:description" content="<?php echo get_bloginfo('description')?>"/>
+    <meta property="og:url" content="<?php echo esc_url( site_url() ); ?>"/>
+    <meta property="og:description" content="<?php echo esc_attr( $site_description ); ?>"/>
     <?php if( !empty( $logo ) ) { ?>
-        <meta property="og:image" content="<?php echo $logo; ?>" />
-        <meta property="og:image:url" content="<?php echo $logo; ?>"/>
-        <meta property="og:image:secure_url" content="<?php echo $logo; ?>"/>
-        <meta property="og:image:type" content="<?php echo $logo_ext; ?>"/>
+        <meta property="og:image" content="<?php echo esc_url( $logo ); ?>" />
+        <meta property="og:image:url" content="<?php echo esc_url( $logo ); ?>"/>
+        <meta property="og:image:secure_url" content="<?php echo esc_url( $logo ); ?>"/>
+        <meta property="og:image:type" content="<?php echo esc_attr( $logo_ext ); ?>"/>
     <?php } ?>
     <link rel="profile" href="http://gmpg.org/xfn/11" />
-    <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
-    <link rel="stylesheet" type="text/css" href="<?php echo $url_css?>" media="all"/>
-    <script src="<?php echo CDP_MANTENIMIENTO_URL_FRONTAL_FX?>/js/matter.0.18.min.js"></script>
-    <script src="<?php echo CDP_MANTENIMIENTO_URL_FRONTAL_FX?>/js/jquery-1.7.1.min.js"></script>
+    <link rel="pingback" href="<?php echo esc_url( get_bloginfo( 'pingback_url' ) ); ?>" />
+    <link rel="stylesheet" type="text/css" href="<?php echo esc_url( $url_css ); ?>" media="all"/>
+    <script src="<?php echo esc_url( CDP_MANTENIMIENTO_URL_FRONTAL_FX . '/js/matter.0.18.min.js' ); ?>"></script>
+    <script src="<?php echo esc_url( CDP_MANTENIMIENTO_URL_FRONTAL_FX . '/js/jquery-1.7.1.min.js' ); ?>"></script>
     <script>
-        var url = "<?php echo CDP_MANTENIMIENTO_URL_FRONTAL_FX?>";
+        var url = <?php echo wp_json_encode( esc_url_raw( CDP_MANTENIMIENTO_URL_FRONTAL_FX ) ); ?>;
     </script>
-    <script src="<?php echo $url_js?>"></script>
+    <script src="<?php echo esc_url( $url_js ); ?>"></script>
     <?php 
     $id_ga = \cdp_mweb\ModoMantenimiento::dame_id_google_analytics();
     if( $id_ga )
@@ -77,7 +80,7 @@
 </head>
 <body>
     <div id="cdp-texto">
-        <?php echo $mensaje?>
+        <?php echo $mensaje_seguro; ?>
     </div>
 </div>
 </body>

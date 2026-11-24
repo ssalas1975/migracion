@@ -56,6 +56,13 @@
 .premium-testimonial-job {
   font-size: 18px;
 }
+.premium-testimonial-job .premium-testimonial-company-link {
+  font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: inherit;
+}
 
 .premium-testimonial-container {
   position: relative;
@@ -119,12 +126,12 @@
   order: 3;
 }
 .premium-testimonial__skin1 .premium-testimonial-upper-quote {
-  top: 0;
-  left: 12px;
+  top: 15px;
+  left: 15px;
 }
 .premium-testimonial__skin1 .premium-testimonial-lower-quote {
-  bottom: 3px;
-  right: 12px;
+  bottom: 15px;
+  right: 15px;
 }
 .premium-testimonial__skin1 .premium-testimonial__rating-wrapper {
   -webkit-order: 4;
@@ -244,4 +251,29 @@
 
 .elementor-widget-premium-addon-testimonials {
   width: 100%;
+}
+
+/**
+* Tilt Effect
+*/
+.premium-testimonial__tilt-yes .premium-testimonial-container,
+.premium-testimonial__tilt-hover .premium-testimonial-container {
+  -webkit-transition: -webkit-transform 0.3s ease-in-out;
+  transition: -webkit-transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, -webkit-transform 0.3s ease-in-out;
+}
+
+.premium-testimonial__tilt-yes .premium-testimonial-container,
+.premium-testimonial__tilt-hover .premium-testimonial-container:hover {
+  -webkit-transform: rotate(-1.2deg) translateY(-3px);
+  -ms-transform: rotate(-1.2deg) translateY(-3px);
+  transform: rotate(-1.2deg) translateY(-3px);
+}
+
+.premium-testimonial__tilt-yes .premium-testimonial-container:nth-child(even),
+.premium-testimonial__tilt-hover .premium-testimonial-container:nth-child(even):hover {
+  -webkit-transform: rotate(1.2deg) translateY(-3px);
+  -ms-transform: rotate(1.2deg) translateY(-3px);
+  transform: rotate(1.2deg) translateY(-3px);
 }

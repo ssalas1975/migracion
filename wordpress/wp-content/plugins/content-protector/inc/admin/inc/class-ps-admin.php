@@ -167,27 +167,28 @@ class PS_Admin {
             'not_found_in_trash' => __( 'No Protected Areas found in Trash.', 'content-protector' ),
         );
         $args = array(
-            'labels'             => $labels,
-            'description'        => __( 'Manageable protected areas', 'content-protector' ),
-            'public'             => false,
-            'publicly_queryable' => false,
-            'show_ui'            => true,
-            'show_in_menu'       => 'passster',
-            'query_var'          => true,
-            'rewrite'            => false,
-            'capability_type'    => 'post',
-            'has_archive'        => false,
-            'hierarchical'       => false,
-            'menu_position'      => null,
-            'supports'           => array('title', 'editor'),
-            'show_in_rest'       => true,
+            'labels'                => $labels,
+            'description'           => __( 'Manageable protected areas', 'content-protector' ),
+            'public'                => false,
+            'publicly_queryable'    => false,
+            'show_ui'               => true,
+            'show_in_menu'          => 'passster',
+            'query_var'             => true,
+            'rewrite'               => false,
+            'capability_type'       => 'post',
+            'has_archive'           => false,
+            'hierarchical'          => false,
+            'menu_position'         => null,
+            'supports'              => array('title', 'editor'),
+            'show_in_rest'          => true,
+            'rest_controller_class' => PS_Protected_Areas_Rest_Controller::class,
         );
         if ( current_user_can( 'administrator' ) && (is_plugin_active( 'elementor/elementor.php' ) || is_plugin_active( 'fusion-builder/fusion-builder.php' ) || is_plugin_active( 'livecanvas/livecanvas-plugin-index.php' ) || is_plugin_active( 'divi-builder/divi-builder.php' ) || is_plugin_active( 'oxygen/functions.php' )) ) {
             $args['public'] = true;
             $args['publicly_queryable'] = true;
         }
         $theme = wp_get_theme();
-        if ( current_user_can( 'administrator' ) && 'Divi' == $theme->name || 'Divi' == $theme->parent_theme ) {
+        if ( current_user_can( 'administrator' ) && ('Divi' == $theme->name || 'Divi' == $theme->parent_theme) ) {
             $args['public'] = true;
             $args['publicly_queryable'] = true;
         }
@@ -219,6 +220,11 @@ class PS_Admin {
             case 'protected':
                 $protected = get_post_meta( $post_id, 'passster_activate_protection', true );
                 if ( $protected ) {
+                    // The list table also shows posts the current user can't edit.
+                    if ( !current_user_can( 'edit_post', $post_id ) ) {
+                        esc_html_e( 'Protected', 'content-protector' );
+                        break;
+                    }
                     $protection_type = get_post_meta( $post_id, 'passster_protection_type', true );
                     $password = get_post_meta( $post_id, 'passster_password', true );
                     echo esc_html( $password );
@@ -227,13 +233,14 @@ class PS_Admin {
                     $term_data = PS_Category_Lock::get_instance()->get_protected_term_for_post( $post_id );
                     if ( $term_data ) {
                         $term = get_term( $term_data['term_id'] );
-                        $edit_url = get_edit_term_link( $term_data['term_id'], $term_data['taxonomy'] );
                         echo '<span class="dashicons dashicons-category" style="font-size:14px;width:14px;height:14px;color:#007cba;vertical-align:middle;"></span> ';
-                        echo '<a href="' . esc_url( $edit_url ) . '" title="' . esc_attr__( 'Edit category protection', 'content-protector' ) . '">';
-                        echo esc_html( $term->name );
-                        echo '</a><br>';
-                        $protection_type = ( get_term_meta( $term_data['term_id'], 'passster_protection_type', true ) ?: 'password' );
-                        echo esc_html( get_term_meta( $term_data['term_id'], 'passster_password', true ) );
+                        if ( current_user_can( 'edit_term', $term_data['term_id'] ) ) {
+                            echo '<a href="' . esc_url( get_edit_term_link( $term_data['term_id'], $term_data['taxonomy'] ) ) . '" title="' . esc_attr__( 'Edit category protection', 'content-protector' ) . '">';
+                            echo esc_html( $term->name );
+                            echo '</a>';
+                        } else {
+                            echo esc_html( $term->name );
+                        }
                     }
                 }
                 break;
@@ -400,15 +407,20 @@ class PS_Admin {
                 );
                 // Build the edit link if it's a password list.
                 if ( 'password_list' === $type ) {
+                    // No edit link when the password_lists post type isn't registered (free version).
                     $edit_link = get_edit_post_link( $protection_types[$type] );
-                    ?>
+                    if ( $edit_link ) {
+                        ?>
                     <a target="_blank"
                        href="<?php 
-                    echo esc_url( $edit_link );
-                    ?>"><?php 
-                    echo esc_html( $protection_types[$type] );
-                    ?></a>
-					<?php 
+                        echo esc_url( $edit_link );
+                        ?>"><?php 
+                        echo esc_html( $protection_types[$type] );
+                        ?></a>
+						<?php 
+                    } else {
+                        echo esc_html( $protection_types[$type] );
+                    }
                 } elseif ( 'password_lists' === $type ) {
                     $password_list_ids = get_post_meta( $post_id, 'passster_password_lists', true );
                     $lists_string = '';
@@ -416,7 +428,7 @@ class PS_Admin {
                         $edit_url = admin_url( 'post.php?post=' . esc_html( $password_list_id ) . '&action=edit', 'https' );
                         $lists_string .= '<a href="' . esc_url( $edit_url ) . '">' . esc_html( $password_list_id ) . '</a> | ';
                     }
-                    echo rtrim( $lists_string, " |" );
+                    echo wp_kses_post( rtrim( $lists_string, " |" ) );
                 } else {
                     echo esc_html( $protection_types[$type] );
                 }
@@ -441,7 +453,7 @@ class PS_Admin {
                 }
                 break;
             case 'redirect':
-                $redirect = get_post_meta( $post_id, 'passster_redirect_url', true );
+                $redirect = PS_Helper::get_redirect_url( $post_id );
                 if ( !empty( $redirect ) ) {
                     echo '<a href="' . esc_url( $redirect ) . '">' . esc_url( $redirect ) . '</a>';
                 } else {

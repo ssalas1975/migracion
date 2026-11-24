@@ -96,6 +96,14 @@ class PUM_Analytics {
 			return;
 		}
 
+		// The analytics endpoints are intentionally public (tracking pixels fire for
+		// logged-out visitors), so they cannot use a nonce. Apply a lightweight
+		// per-visitor rate limit to blunt automated counter inflation while leaving
+		// legitimate tracking untouched.
+		if ( self::is_rate_limited( (int) $args['pid'], $event ) ) {
+			return;
+		}
+
 		$popup->increase_event_count( $event );
 
 		if ( has_action( 'pum_analytics_' . $event ) ) {
@@ -103,6 +111,70 @@ class PUM_Analytics {
 		}
 
 		do_action( 'pum_analytics_event', $args );
+	}
+
+	/**
+	 * Determine whether the current visitor has exceeded the analytics rate limit
+	 * for a given popup + event.
+	 *
+	 * The analytics endpoints are unauthenticated by design, so this provides a
+	 * coarse per-visitor throttle to limit automated counter inflation. The cap is
+	 * deliberately high so it never drops a real visitor's events; only abusive
+	 * volumes are blocked.
+	 *
+	 * @param int    $pid   Popup ID.
+	 * @param string $event Event key.
+	 * @return bool True when the request should be dropped.
+	 */
+	protected static function is_rate_limited( $pid, $event ) {
+		/**
+		 * Filters the analytics rate limit window (seconds) and max events per window.
+		 *
+		 * @param array $limits [ 'window' => int seconds, 'max' => int events ].
+		 */
+		$limits = apply_filters(
+			'popup_maker/analytics/rate_limit',
+			[
+				'window' => 5 * MINUTE_IN_SECONDS,
+				'max'    => 30,
+			]
+		);
+
+		// A non-positive max disables rate limiting entirely.
+		if ( empty( $limits['max'] ) || $limits['max'] < 1 ) {
+			return false;
+		}
+
+		$visitor = self::get_visitor_hash();
+		$key     = 'pum_alrl_' . md5( $visitor . '|' . $pid . '|' . $event );
+
+		$count = (int) get_transient( $key );
+
+		if ( $count >= (int) $limits['max'] ) {
+			return true;
+		}
+
+		set_transient( $key, $count + 1, (int) $limits['window'] );
+
+		return false;
+	}
+
+	/**
+	 * Build a privacy-preserving identifier for the current visitor.
+	 *
+	 * Hashes the client IP together with the auth salt so no raw IP is ever stored
+	 * in a transient key. Logged-in users are keyed by user ID.
+	 *
+	 * @return string
+	 */
+	protected static function get_visitor_hash() {
+		if ( is_user_logged_in() ) {
+			return 'u' . get_current_user_id();
+		}
+
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+
+		return wp_hash( $ip );
 	}
 
 	/**
@@ -147,15 +219,125 @@ class PUM_Analytics {
 	public static function analytics_endpoint( WP_REST_Request $request ) {
 		$args = $request->get_params();
 
-		if ( ! $args || empty( $args['pid'] ) ) {
-			return new WP_Error( 'missing_params', __( 'Missing Parameters.', 'default' ), [ 'status' => 404 ] );
+		if ( $request->has_param( 'events' ) ) {
+			$events = self::parse_batch_events( $args );
+
+			if ( is_wp_error( $events ) ) {
+				return $events;
+			}
+		} else {
+			$events = [ $args ];
 		}
 
-		self::track( $args );
+		$validated_events = [];
 
-		self::serve_no_content();
+		// Validate the complete payload before tracking to prevent partial batches.
+		foreach ( $events as $event_args ) {
+			$validated_event = self::validate_event( $event_args );
 
-		return true;
+			if ( is_wp_error( $validated_event ) ) {
+				return $validated_event;
+			}
+
+			$validated_events[] = $validated_event;
+		}
+
+		foreach ( $validated_events as $event_args ) {
+			self::track( $event_args );
+		}
+
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			self::serve_no_content();
+		}
+
+		return new WP_REST_Response( null, 204 );
+	}
+
+	/**
+	 * Extract a batch of event payloads from the request, if present.
+	 *
+	 * Accepts an `events` parameter that is either a JSON-encoded array
+	 * (sendBeacon FormData can only carry strings) or an already-decoded array.
+	 *
+	 * @param array $args Parsed params.
+	 * @return array<int,array>|WP_Error Array of event payloads or an error.
+	 */
+	protected static function parse_batch_events( $args ) {
+		$error  = new WP_Error( 'invalid_events', __( 'Invalid analytics events payload.', 'popup-maker' ), [ 'status' => 400 ] );
+		$events = isset( $args['events'] ) ? $args['events'] : null;
+
+		if ( is_string( $events ) ) {
+			$decoded = json_decode( $events );
+
+			if ( JSON_ERROR_NONE !== json_last_error() || ! is_array( $decoded ) ) {
+				return $error;
+			}
+
+			$events = json_decode( $events, true );
+		}
+
+		if ( ! is_array( $events ) || empty( $events ) ) {
+			return $error;
+		}
+
+		// Require a list of event objects, not an associative single event.
+		if ( array_values( $events ) !== $events ) {
+			return $error;
+		}
+
+		/**
+		 * Filters the maximum number of events accepted in one REST request.
+		 *
+		 * @param int $limit Maximum number of events.
+		 */
+		$batch_limit = max( 1, absint( apply_filters( 'pum_analytics_rest_batch_limit', 100 ) ) );
+
+		if ( count( $events ) > $batch_limit ) {
+			return $error;
+		}
+
+		foreach ( $events as $event ) {
+			if ( ! is_array( $event ) ) {
+				return $error;
+			}
+		}
+
+		return $events;
+	}
+
+	/**
+	 * Validate and normalize one analytics event before tracking.
+	 *
+	 * @param mixed $args Event arguments.
+	 * @return array|WP_Error Normalized event arguments or an error.
+	 */
+	protected static function validate_event( $args ) {
+		if ( ! is_array( $args ) || empty( $args['event'] ) || empty( $args['pid'] ) ) {
+			return new WP_Error( 'missing_params', __( 'Missing Parameters.', 'default' ), [ 'status' => 400 ] );
+		}
+
+		if ( ! is_string( $args['event'] ) || ! self::endpoint_absint( $args['pid'] ) ) {
+			return new WP_Error( 'invalid_params', __( 'Invalid analytics event parameters.', 'popup-maker' ), [ 'status' => 400 ] );
+		}
+
+		$args['event'] = sanitize_text_field( $args['event'] );
+		$args['pid']   = absint( $args['pid'] );
+
+		if ( empty( $args['pid'] ) || ! in_array( $args['event'], self::valid_events(), true ) ) {
+			return new WP_Error( 'invalid_params', __( 'Invalid analytics event parameters.', 'popup-maker' ), [ 'status' => 400 ] );
+		}
+
+		$popup = pum_get_popup( $args['pid'] );
+
+		if ( ! pum_is_popup( $popup ) ) {
+			return new WP_Error( 'invalid_params', __( 'Invalid analytics event parameters.', 'popup-maker' ), [ 'status' => 400 ] );
+		}
+
+		if ( array_key_exists( 'eventData', $args ) ) {
+			$args['eventData'] = self::sanitize_event_data( $args['eventData'] );
+		}
+
+		return $args;
 	}
 
 	/**
@@ -164,7 +346,13 @@ class PUM_Analytics {
 	 * @return bool
 	 */
 	public static function endpoint_absint( $param ) {
-		return is_numeric( $param );
+		if ( ! is_numeric( $param ) ) {
+			return false;
+		}
+
+		$integer = absint( $param );
+
+		return 0 < $integer && (float) $integer === (float) $param;
 	}
 
 	/**
@@ -206,16 +394,20 @@ class PUM_Analytics {
 					'permission_callback' => '__return_true',
 					'args'                => [
 						'event'     => [
-							'required'    => true,
+							'required'    => false,
 							'description' => __( 'Event Type', 'popup-maker' ),
 							'type'        => 'string',
 						],
 						'pid'       => [
-							'required'            => true,
-							'description'         => __( 'Popup ID', 'popup-maker' ),
-							'type'                => 'integer',
-							'validation_callback' => [ __CLASS__, 'endpoint_absint' ],
-							'sanitize_callback'   => 'absint',
+							'required'          => false,
+							'description'       => __( 'Popup ID', 'popup-maker' ),
+							'type'              => 'integer',
+							'validate_callback' => [ __CLASS__, 'endpoint_absint' ],
+							'sanitize_callback' => 'absint',
+						],
+						'events'    => [
+							'required'    => false,
+							'description' => __( 'Analytics events (JSON or array)', 'popup-maker' ),
 						],
 						'eventData' => [
 							'required'          => false,

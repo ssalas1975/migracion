@@ -72,7 +72,7 @@ if ( ! function_exists( 'password_protected_cookie' ) ) {
 					case 'default':
 					default:
 						if ( isset( $_COOKIE[ $args['name'] ] ) && ! empty( $_COOKIE[ $args['name'] ] ) ) {
-							$k = $_COOKIE[ $args['name'] ];
+							$k = sanitize_text_field( wp_unslash( $_COOKIE[ $args['name'] ] ) );
 						}
 						break;
 				}
@@ -83,12 +83,29 @@ if ( ! function_exists( 'password_protected_cookie' ) ) {
 	}
 }
 
-if ( ! function_exists('pp__add_dynamic_arg') ) {
+if ( ! function_exists( 'pp__add_dynamic_arg' ) ) {
+	/**
+	 * Append a dynamic query argument to bust full-page caches when enabled.
+	 *
+	 * @param string $url URL to modify.
+	 * @return string
+	 */
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Legacy public API used by Pro.
 	function pp__add_dynamic_arg( $url ) {
-		if ( ! function_exists( 'pp_pro__add_dynamic_arg' ) ) {
+		$is_enabled = get_option( 'pp_enable_dynamic_args', false );
+		if ( 'yes' !== $is_enabled ) {
 			return $url;
 		}
 
-		return pp_pro__add_dynamic_arg( $url );
+		if ( ! is_string( $url ) ) {
+			return $url;
+		}
+
+		return add_query_arg(
+			array(
+				wp_rand( 0, 99999 ) => time(),
+			),
+			$url
+		);
 	}
 }

@@ -43,6 +43,9 @@ trait Ajax_Handler {
 		add_action( 'wp_ajax_eael_product_add_to_cart', array( $this, 'eael_product_add_to_cart' ) );
 		add_action( 'wp_ajax_nopriv_eael_product_add_to_cart', array( $this, 'eael_product_add_to_cart' ) );
 
+		add_action( 'wp_ajax_eael_ajax_add_to_cart',        [ $this, 'eael_ajax_add_to_cart' ] );
+		add_action( 'wp_ajax_nopriv_eael_ajax_add_to_cart', [ $this, 'eael_ajax_add_to_cart' ] );
+
 		add_action( 'wp_ajax_woo_checkout_update_order_review', [ $this, 'woo_checkout_update_order_review' ] );
 		add_action( 'wp_ajax_nopriv_woo_checkout_update_order_review', [ $this, 'woo_checkout_update_order_review' ] );
 
@@ -78,6 +81,40 @@ trait Ajax_Handler {
 	 * @return array of content and found posts count without AJAX call.
 	 * @since 3.1.0
 	 */
+	/**
+	 * Limit load-more query args that do not carry a valid server signature.
+	 *
+	 * Only post types a visitor can view are queried, and meta query vars are
+	 * dropped: without the signature they come from the visitor, and a meta
+	 * query can be used to read private custom fields one test at a time.
+	 *
+	 * @param array $args Query args from the request.
+	 * @return array
+	 */
+	protected function eael_restrict_unsigned_load_more_args( $args ) {
+		$viewable  = array_values( array_filter( get_post_types( [ 'public' => true ] ), 'is_post_type_viewable' ) );
+		$requested = isset( $args['post_type'] ) ? array_map( 'strval', (array) $args['post_type'] ) : [ 'post' ];
+
+		if ( in_array( 'any', $requested, true ) ) {
+			$requested = $viewable;
+		}
+
+		$post_types        = array_values( array_intersect( $requested, $viewable ) );
+		$args['post_type'] = $post_types ? $post_types : 'post';
+
+		foreach ( [ 'meta_query', 'meta_key', 'meta_value', 'meta_value_num', 'meta_compare', 'meta_compare_key', 'meta_type', 'meta_type_key' ] as $key ) {
+			unset( $args[ $key ] );
+		}
+
+		// Unsigned requests also cannot ask for an unbounded page size (#947).
+		$max_per_page           = max( 1, (int) apply_filters( 'eael/load_more/unsigned_posts_per_page_max', 50 ) );
+		$per_page               = isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 10;
+		$args['posts_per_page'] = ( $per_page < 1 || $per_page > $max_per_page ) ? $max_per_page : $per_page;
+		unset( $args['nopaging'], $args['numberposts'] );
+
+		return $args;
+	}
+
 	public function ajax_load_more() {
 		$ajax = wp_doing_ajax();
 		//phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
@@ -85,7 +122,31 @@ trait Ajax_Handler {
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing
 		wp_parse_str( $_POST['args'], $args );
+
+		// Args the widget rendered carry a server signature (Helper::eael_signed_load_more_args()).
+		// Anything else (edited by the client, or a page cached before signing existed) is
+		// limited to viewable post types and loses client-supplied meta queries.
+		$signed_args = HelperClass::eael_verify_load_more_args( $args );
+		unset( $args[ HelperClass::LOAD_MORE_ARGS_SIGNATURE_KEY ] );
+		if ( ! $signed_args ) {
+			$args = $this->eael_restrict_unsigned_load_more_args( $args );
+		}
+
+		// $args comes from the client; coerce ID-list query vars (author__not_in, post__in, …)
+		// to int arrays before they reach WP_Query, else a string payload injects raw SQL.
+		$args = $this->eael_sanitize_query_args( $args );
+
+		// NOTE: $args comes from client ($_POST['args']); strip visibility-widening keys (e.g., post_status, perm) to prevent nopriv access to non-public content.
+		unset( $args['post_status'], $args['perm'], $args['suppress_filters'] );
 		$args['post_status'] = 'publish';
+
+		if ( isset( $args['post__in'] ) ) {
+			// Cap to a sane bound to prevent abuse.
+			$args['post__in'] = array_slice( $args['post__in'], 0, 1000 );
+		}
+		if ( isset( $args['post__not_in'] ) ) {
+			$args['post__not_in'] = array_slice( $args['post__not_in'], 0, 1000 );
+		}
 
 		if ( isset( $args['date_query']['relation'] ) ) {
 			$args['date_query']['relation'] = HelperClass::eael_sanitize_relation( $args['date_query']['relation'] );
@@ -142,7 +203,7 @@ trait Ajax_Handler {
 		$html                       = '';
 		$class                      = !empty( $_REQUEST['class'] ) ? '\\' . str_replace( '\\\\', '\\', sanitize_text_field( wp_unslash( $_REQUEST['class'] ) ) ) : '';
 		$page = !empty(  $_REQUEST['page'] ) ? absint( $_REQUEST['page'] ) : 1;
-		$args['offset']             = (int) $args['offset'] + ( ( (int) $page - 1 ) * (int) $args['posts_per_page'] );
+		$args['offset']             = ( isset( $args['offset'] ) ? (int) $args['offset'] : 0 ) + ( ( (int) $page - 1 ) * ( isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 0 ) );
 
 		if ( isset( $_REQUEST['taxonomy'] ) && isset( $_REQUEST['taxonomy']['taxonomy'] ) && $_REQUEST['taxonomy']['taxonomy'] != 'all' ) {
 			$args['tax_query'] = [
@@ -155,8 +216,9 @@ trait Ajax_Handler {
 		}
 
 		if ( $class == '\Essential_Addons_Elementor\Elements\Post_Grid' ) {
-			$settings['read_more_button_text']       = get_transient( 'eael_post_grid_read_more_button_text_' . $widget_id );
-			$settings['excerpt_expanison_indicator'] = get_transient( 'eael_post_grid_excerpt_expanison_indicator_' . $widget_id );
+			$eael_lang_suffix = HelperClass::eael_lang_suffix( $page_id );
+			$settings['read_more_button_text']       = get_transient( 'eael_post_grid_read_more_button_text_' . $widget_id . $eael_lang_suffix );
+			$settings['excerpt_expanison_indicator'] = get_transient( 'eael_post_grid_excerpt_expanison_indicator_' . $widget_id . $eael_lang_suffix );
 
 			if ( $settings['orderby'] === 'rand' && ! empty( $_REQUEST['post__not_in'] ) ) {
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -174,81 +236,56 @@ trait Ajax_Handler {
 		if ( $class === '\Essential_Addons_Elementor\Elements\Woo_Product_List' ) {
 			do_action( 'eael/woo-product-list/before-product-loop' );
 		}
-		// ensure control name compatibility to old code if it is post block
-		if ( $class === '\Essential_Addons_Elementor\Pro\Elements\Post_Block' ) {
-			$settings ['post_block_hover_animation']    = $settings['eael_post_block_hover_animation'];
-			$settings ['show_read_more_button']         = $settings['eael_show_read_more_button'];
-			$settings ['eael_post_block_bg_hover_icon'] = ( isset( $settings['__fa4_migrated']['eael_post_block_bg_hover_icon_new'] ) || empty( $settings['eael_post_block_bg_hover_icon'] ) ) ? $settings['eael_post_block_bg_hover_icon_new']['value'] : $settings['eael_post_block_bg_hover_icon'];
-			$settings ['expanison_indicator']           = $settings['excerpt_expanison_indicator'];
+		$wc_catalog_ordering_applied = false;
+
+		if ( $class === '\Essential_Addons_Elementor\Elements\Woo_Product_Gallery' ) {
+			// Safety net for page markup cached before build_archive_load_more_args()
+			// existed: that payload shipped the archive main query's raw vars, in which
+			// post_type is an empty string. WP_Query only resolves it to `product` while
+			// a product taxonomy var survives the round trip — otherwise it silently
+			// falls back to the `post` type and the gallery loads nothing.
+			if ( empty( $args['post_type'] ) ) {
+				$args['post_type'] = 'product';
+			}
+
+			// Re-apply WooCommerce's clause-based catalog ordering (price / popularity /
+			// rating) for this request, so Load More keeps the order the archive is
+			// showing instead of falling back to date and repeating products.
+			if ( ! empty( $args['eael_wc_catalog_orderby'] ) && function_exists( 'WC' ) && ! empty( WC()->query ) ) {
+				$wc_ordering = WC()->query->get_catalog_ordering_args(
+					sanitize_key( $args['eael_wc_catalog_orderby'] ),
+					( ! empty( $args['order'] ) && 'DESC' === strtoupper( $args['order'] ) ) ? 'DESC' : 'ASC'
+				);
+
+				$wc_catalog_ordering_applied = true;
+
+				$args['orderby'] = $wc_ordering['orderby'];
+				$args['order']   = $wc_ordering['order'];
+
+				if ( ! empty( $wc_ordering['meta_key'] ) ) {
+					$args['meta_key'] = $wc_ordering['meta_key'];
+				}
+			}
+
+			unset( $args['eael_wc_catalog_orderby'] );
 		}
 		if ( $class === '\Essential_Addons_Elementor\Elements\Post_Timeline' ) {
 			$settings ['expanison_indicator'] = $settings['excerpt_expanison_indicator'];
 		}
-		if ( $class === '\Essential_Addons_Elementor\Pro\Elements\Dynamic_Filterable_Gallery' ) {
-			$settings['eael_section_fg_zoom_icon'] = ( isset( $settings['__fa4_migrated']['eael_section_fg_zoom_icon_new'] ) || empty( $settings['eael_section_fg_zoom_icon'] ) ? $settings['eael_section_fg_zoom_icon_new']['value'] : $settings['eael_section_fg_zoom_icon'] );
-			$settings['eael_section_fg_link_icon'] = ( isset( $settings['__fa4_migrated']['eael_section_fg_link_icon_new'] ) || empty( $settings['eael_section_fg_link_icon'] ) ? $settings['eael_section_fg_link_icon_new']['value'] : $settings['eael_section_fg_link_icon'] );
-			$settings['show_load_more_text']       = $settings['eael_fg_loadmore_btn_text'];
-			$settings['layout_mode']               = isset( $settings['layout_mode'] ) ? $settings['layout_mode'] : 'masonry';
+		// Load-more preparation for widgets that belong to Essential Addons Pro
+		// (Post Block, Dynamic Gallery) is owned by Pro and runs through the
+		// `eael/load_more/prepare_query` filter. Pro releases that do this declare it
+		// with `eael/load_more/pro_prepares_own_widgets`. For older Pro releases the
+		// legacy copy keeps load-more working on sites that update only Lite.
+		$pro_prepares_own_widgets = (bool) apply_filters( 'eael/load_more/pro_prepares_own_widgets', false );
+		if ( ! $pro_prepares_own_widgets ) {
+			list( $settings, $args ) = $this->legacy_pro_load_more_prepare( $settings, $args, $class );
+		}
 
-			if ( ! empty( $args['fetch_acf_image'] ) && 'yes' === $args['fetch_acf_image'] && ! empty( $args['post__in'] ) ) {
-				$args['post_status'] = 'any';
-				$args['post_type'] = 'any';
-			}
-
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$exclude_ids = json_decode( html_entity_decode( stripslashes ( $_POST['exclude_ids'] ) ) );
-			$args['post__not_in'] = ( !empty( $_POST['exclude_ids'] ) ) ? array_map( 'intval', array_unique($exclude_ids) ) : array();
-			$active_term_id = ( !empty( $_POST['active_term_id'] ) ) ? intval( $_POST['active_term_id'] ) : 0;
-			$active_taxonomy = ( !empty( $_POST['active_taxonomy'] ) ) ? sanitize_text_field( wp_unslash( $_POST['active_taxonomy'] ) ) : '';
-
-			// Check if this is a hybrid/combined query with ACF gallery
-			// Also check settings for hybrid query flag as backup (in case args encoding failed)
-			$is_hybrid_query = ( ! empty( $args['eael_dfg_enable_combined_query'] ) && 'yes' === $args['eael_dfg_enable_combined_query'] )
-				|| ( ! empty( $settings['eael_dfg_enable_combined_query'] ) && 'yes' === $settings['eael_dfg_enable_combined_query'] && 'yes' === $settings['fetch_acf_image_gallery'] );
-
-			if ( $is_hybrid_query && class_exists( 'ACF' ) && ! empty( $settings['eael_acf_gallery_keys'] ) ) {
-				// Build taxonomy map for ACF gallery attachments
-				$taxonomy_map = $this->build_dfg_acf_taxonomy_map( $args, $settings, $active_term_id, $active_taxonomy );
-
-				// Store globally for templates
-				global $eael_dfg_attachment_taxonomy_map;
-				$eael_dfg_attachment_taxonomy_map = $taxonomy_map['taxonomy_map'];
-
-				// Update args with the filtered post IDs
-				if ( ! empty( $taxonomy_map['post_ids'] ) ) {
-					$args['post__in'] = $taxonomy_map['post_ids'];
-					$args['post_type'] = 'any';
-					$args['post_status'] = 'any';
-					$args['tax_query'] = [];
-					$args['orderby'] = 'post__in';
-				}
-
-				// Apply exclusions
-				if ( ! empty( $args['post__not_in'] ) && ! empty( $args['post__in'] ) ) {
-					$args['post__in'] = array_values( array_diff( $args['post__in'], array_unique( $args['post__not_in'] ) ) );
-				}
-			} else {
-				// Standard ACF gallery handling (non-hybrid)
-				if ( ! empty( $args['fetch_acf_image'] ) && 'yes' === $args['fetch_acf_image'] && ! empty( $args['post__in'] ) ) {
-					$args['post_status'] = 'any';
-					$args['post_type'] = 'any';
-				}
-
-				if ( ! empty( $args['post__not_in'] ) && ! empty( $args['post__in'] ) ) {
-					$args['post__in'] = array_diff( $args['post__in'], array_unique( $args['post__not_in'] ) );
-				}
-
-				if( 0 < $active_term_id &&
-					!empty( $active_taxonomy ) &&
-					!empty($args['tax_query'])
-				) {
-					foreach ($args['tax_query'] as $key => $taxonomy) {
-						if (isset($taxonomy['taxonomy']) && $taxonomy['taxonomy'] === $active_taxonomy) {
-							$args['tax_query'][$key]['terms'] = [$active_term_id];
-						}
-					}
-				}
-			}
+		$prepared = apply_filters( 'eael/load_more/prepare_query', [ 'settings' => $settings, 'args' => $args ], $class );
+		if ( is_array( $prepared ) && isset( $prepared['settings'], $prepared['args'] ) && is_array( $prepared['settings'] ) && is_array( $prepared['args'] ) ) {
+			$settings = $prepared['settings'];
+			$args     = $prepared['args'];
 		}
 
 		$link_settings = [
@@ -268,6 +305,13 @@ trait Ajax_Handler {
 			if ( $template_info['dir'] === 'theme' ) {
 				$dir_path = $this->retrive_theme_path();
 			} else if ( $template_info['dir'] === 'pro' ) {
+				// `dir` arrives from the request, so this branch is reachable on a
+				// Lite-only install where EAEL_PRO_PLUGIN_PATH was never defined.
+				// Reject cleanly instead of fataling on an undefined constant.
+				if ( ! defined( 'EAEL_PRO_PLUGIN_PATH' ) ) {
+					wp_send_json_error( 'Invalid template', 'invalid_template', 400 );
+				}
+
 				$dir_path = sprintf( "%sincludes", EAEL_PRO_PLUGIN_PATH );
 			} else {
 				$dir_path = sprintf( "%sincludes", EAEL_PLUGIN_PATH );
@@ -287,6 +331,14 @@ trait Ajax_Handler {
 			if ( $file_path ) {
 				// wp_send_json( $args );
 				$query = new \WP_Query( $args );
+
+				// The catalog ordering above works through `posts_clauses`; detach it as
+				// soon as the SQL is built so it cannot leak into any later query.
+				if ( $wc_catalog_ordering_applied ) {
+					WC()->query->remove_ordering_args();
+					$wc_catalog_ordering_applied = false;
+				}
+
 				$found_posts = $query->found_posts;
 				$iterator = 0;
 
@@ -315,7 +367,9 @@ trait Ajax_Handler {
 						$this->change_add_woo_checkout_update_order_reviewto_cart_text( $add_to_cart_text );
 					}
 
-					if ( $class === '\Essential_Addons_Elementor\Pro\Elements\Dynamic_Filterable_Gallery' ) {
+					$html .= (string) apply_filters( 'eael/load_more/before_items_html', '', $class, $found_posts, $settings );
+					// Legacy: older Pro releases do not add this marker themselves.
+					if ( ! $pro_prepares_own_widgets && $class === '\Essential_Addons_Elementor\Pro\Elements\Dynamic_Filterable_Gallery' ) {
 						$html .= "<div class='found_posts' style='display: none;'>{$found_posts}</div>";
 					}
 
@@ -357,6 +411,124 @@ trait Ajax_Handler {
 			echo wp_kses_post( $html );
 		}
 		wp_die();
+	}
+
+	/**
+	 * Legacy load-more preparation for Essential Addons Pro widgets.
+	 *
+	 * Pro owns this logic and ships it in Pro\Traits\Load_More, hooked to
+	 * `eael/load_more/prepare_query`. This copy runs only when the active Pro release
+	 * does not declare `eael/load_more/pro_prepares_own_widgets`, so sites that update
+	 * Lite but stay on an older Pro keep working. Remove it (together with
+	 * build_dfg_acf_taxonomy_map() and get_dfg_post_taxonomy_classes()) once those
+	 * Pro releases are no longer supported.
+	 *
+	 * @param array  $settings Widget settings.
+	 * @param array  $args     WP_Query args.
+	 * @param string $class    Widget class named by the load-more request.
+	 * @return array { 0: array $settings, 1: array $args }
+	 */
+	protected function legacy_pro_load_more_prepare( $settings, $args, $class ) {
+		// ensure control name compatibility to old code if it is post block
+		if ( $class === '\Essential_Addons_Elementor\Pro\Elements\Post_Block' ) {
+			$settings ['post_block_hover_animation']    = $settings['eael_post_block_hover_animation'];
+			$settings ['show_read_more_button']         = $settings['eael_show_read_more_button'];
+			$settings ['eael_post_block_bg_hover_icon'] = ( isset( $settings['__fa4_migrated']['eael_post_block_bg_hover_icon_new'] ) || empty( $settings['eael_post_block_bg_hover_icon'] ) ) ? $settings['eael_post_block_bg_hover_icon_new']['value'] : $settings['eael_post_block_bg_hover_icon'];
+			$settings ['expanison_indicator']           = $settings['excerpt_expanison_indicator'];
+		}
+		if ( $class === '\Essential_Addons_Elementor\Pro\Elements\Dynamic_Filterable_Gallery' ) {
+			$settings['eael_section_fg_zoom_icon'] = ( isset( $settings['__fa4_migrated']['eael_section_fg_zoom_icon_new'] ) || empty( $settings['eael_section_fg_zoom_icon'] ) ? $settings['eael_section_fg_zoom_icon_new']['value'] : $settings['eael_section_fg_zoom_icon'] );
+			$settings['eael_section_fg_link_icon'] = ( isset( $settings['__fa4_migrated']['eael_section_fg_link_icon_new'] ) || empty( $settings['eael_section_fg_link_icon'] ) ? $settings['eael_section_fg_link_icon_new']['value'] : $settings['eael_section_fg_link_icon'] );
+			$settings['show_load_more_text']       = $settings['eael_fg_loadmore_btn_text'];
+			$settings['layout_mode']               = isset( $settings['layout_mode'] ) ? $settings['layout_mode'] : 'masonry';
+
+			// NOTE: Use server-trusted whitelists; ACF gallery needs broader post_status/type for attachments (inherit), but never 'any'—it would expose private/draft posts to unauthenticated users.
+			//NOTE: The inherit status is intentionally allowed to ensure access to attachments, since the same attachment may be associated with both private and public pages.
+			$dfg_safe_post_status = [ 'publish', 'inherit' ];
+			$dfg_safe_post_types = [ 'attachment' ];
+			if ( ! empty( $settings['post_type'] ) && is_string( $settings['post_type'] ) ) {
+				if ( 'by_id' === $settings['post_type'] ) {
+					// NOTE: Manual selection allows all public post types (to include ACF gallery parents) but excludes internal types (e.g., revision, oembed_cache, nav_menu_item) that 'any' would expose.
+					$dfg_safe_post_types = array_values( array_unique( array_merge(
+						$dfg_safe_post_types,
+						(array) get_post_types( [ 'public' => true ] )
+					) ) );
+				} else {
+					$dfg_safe_post_types[] = sanitize_key( $settings['post_type'] );
+				}
+			}
+
+			if ( ! empty( $args['fetch_acf_image'] ) && 'yes' === $args['fetch_acf_image'] && ! empty( $args['post__in'] ) ) {
+				// SECURITY: previously set to 'any'/'any' which let unauthenticated
+				// callers read drafts/private posts by passing arbitrary post__in IDs.
+				$args['post_status'] = $dfg_safe_post_status;
+				$args['post_type']   = $dfg_safe_post_types;
+			}
+
+			// phpcs:disable WordPress.Security.NonceVerification.Missing -- Only reached from ajax_load_more(), after its nonce check.
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			$exclude_ids = json_decode( html_entity_decode( stripslashes ( $_POST['exclude_ids'] ) ) );
+			$args['post__not_in'] = ( !empty( $_POST['exclude_ids'] ) ) ? array_map( 'intval', array_unique( (array) $exclude_ids ) ) : array();
+			$active_term_id = ( !empty( $_POST['active_term_id'] ) ) ? intval( $_POST['active_term_id'] ) : 0;
+			$active_taxonomy = ( !empty( $_POST['active_taxonomy'] ) ) ? sanitize_text_field( wp_unslash( $_POST['active_taxonomy'] ) ) : '';
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+			// Check if this is a hybrid/combined query with ACF gallery
+			// Also check settings for hybrid query flag as backup (in case args encoding failed)
+			$is_hybrid_query = ( ! empty( $args['eael_dfg_enable_combined_query'] ) && 'yes' === $args['eael_dfg_enable_combined_query'] )
+				|| ( ! empty( $settings['eael_dfg_enable_combined_query'] ) && 'yes' === $settings['eael_dfg_enable_combined_query'] && 'yes' === $settings['fetch_acf_image_gallery'] );
+
+			if ( $is_hybrid_query && class_exists( 'ACF' ) && ! empty( $settings['eael_acf_gallery_keys'] ) ) {
+				// Build taxonomy map for ACF gallery attachments
+				$taxonomy_map = $this->build_dfg_acf_taxonomy_map( $args, $settings, $active_term_id, $active_taxonomy );
+
+				// Store globally for templates
+				global $eael_dfg_attachment_taxonomy_map;
+				$eael_dfg_attachment_taxonomy_map = $taxonomy_map['taxonomy_map'];
+
+				// Update args with the filtered post IDs
+				if ( ! empty( $taxonomy_map['post_ids'] ) ) {
+					// post_ids here are server-derived (parent post IDs + their ACF
+					// attachment IDs from build_dfg_acf_taxonomy_map), so they are
+					// trustworthy. Still constrain post_type/post_status to the
+					// whitelist so a stale entry can't leak non-public content.
+					$args['post__in']    = $taxonomy_map['post_ids'];
+					$args['post_type']   = $dfg_safe_post_types;
+					$args['post_status'] = $dfg_safe_post_status;
+					$args['tax_query']   = [];
+					$args['orderby']     = 'post__in';
+				}
+
+				// Apply exclusions
+				if ( ! empty( $args['post__not_in'] ) && ! empty( $args['post__in'] ) ) {
+					$args['post__in'] = array_values( array_diff( $args['post__in'], array_unique( $args['post__not_in'] ) ) );
+				}
+			} else {
+				// Standard ACF gallery handling (non-hybrid)
+				if ( ! empty( $args['fetch_acf_image'] ) && 'yes' === $args['fetch_acf_image'] && ! empty( $args['post__in'] ) ) {
+					// SECURITY: same rationale as above — never use 'any'.
+					$args['post_status'] = $dfg_safe_post_status;
+					$args['post_type']   = $dfg_safe_post_types;
+				}
+
+				if ( ! empty( $args['post__not_in'] ) && ! empty( $args['post__in'] ) ) {
+					$args['post__in'] = array_diff( $args['post__in'], array_unique( $args['post__not_in'] ) );
+				}
+
+				if( 0 < $active_term_id &&
+					!empty( $active_taxonomy ) &&
+					!empty($args['tax_query'])
+				) {
+					foreach ($args['tax_query'] as $key => $taxonomy) {
+						if (isset($taxonomy['taxonomy']) && $taxonomy['taxonomy'] === $active_taxonomy) {
+							$args['tax_query'][$key]['terms'] = [$active_term_id];
+						}
+					}
+				}
+			}
+		}
+
+		return [ $settings, $args ];
 	}
 
 	/**
@@ -581,6 +753,7 @@ trait Ajax_Handler {
 		$settings['eael_widget_id'] = $widget_id;
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		wp_parse_str( $_REQUEST['args'], $args );
+		$args = $this->eael_sanitize_query_args( $args );
 
 		// Convert WP_Query args to WC_Product_Query args if needed
 		$wc_args = $this->convert_pagination_args_to_wc_product_query( $args, $settings );
@@ -649,6 +822,70 @@ trait Ajax_Handler {
 	}
 
 	/**
+	 * Harden client-supplied WP_Query args parsed from $_POST/$_REQUEST['args'].
+	 *
+	 * wp_parse_str() yields these as strings, and several WP_Query ID-list vars
+	 * are only absint()'d by core when they arrive as an array (e.g.
+	 * author__not_in — class-wp-query.php only maps absint inside `if ( is_array() )`).
+	 * A string value like "0)and 1=1 -- -" therefore lands raw in the SQL WHERE
+	 * clause → blind boolean SQL injection on the nopriv load_more endpoints.
+	 *
+	 * Coercing each of these to an array of absint both neutralises the payload
+	 * and forces core down its already-sanitised array branch. post_status is
+	 * intentionally left to each caller (it still overrides to 'publish').
+	 *
+	 * @param array $args Parsed query args (by value).
+	 * @return array Sanitised args.
+	 */
+	private function eael_sanitize_query_args( $args ) {
+		if ( ! is_array( $args ) ) {
+			return [];
+		}
+
+		// Vars that must be arrays of post/term/user IDs.
+		$id_list_keys = [
+			'author__in', 'author__not_in',
+			'post__in', 'post__not_in',
+			'post_parent__in', 'post_parent__not_in',
+			'category__in', 'category__not_in', 'category__and',
+			'tag__in', 'tag__not_in', 'tag__and',
+			'tag_slug__in', 'tag_slug__and',
+		];
+		foreach ( $id_list_keys as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				if ( in_array( $key, [ 'tag_slug__in', 'tag_slug__and' ], true ) ) {
+					$args[ $key ] = array_values( array_filter( array_map( 'sanitize_title', (array) $args[ $key ] ) ) );
+				} else {
+					$args[ $key ] = array_values( array_filter( array_map( 'absint', (array) $args[ $key ] ) ) );
+				}
+			}
+		}
+
+		// Comma-list ID vars: preserve the list but force every token to an int.
+		// (Core already intval()s these, but harden here too for defense-in-depth.)
+		foreach ( [ 'author', 'cat' ] as $key ) {
+			if ( isset( $args[ $key ] ) && ! is_array( $args[ $key ] ) ) {
+				$args[ $key ] = implode( ',', array_filter( array_map( 'absint', explode( ',', (string) $args[ $key ] ) ) ) );
+			}
+		}
+
+		// Scalar single-int vars.
+		// NOTE: an empty string is left untouched on purpose. WP_Query reads '' as
+		// "not set" for these vars, but reads 0 as a real filter — casting '' to 0
+		// here would silently append `menu_order = 0`, `post_parent = 0` and a
+		// `DATE_FORMAT( post_date, '%H.%i%s' ) = 0` clause to the query, which is how
+		// widgets that ship raw main-query vars lost every result past page one.
+		$int_keys = [ 'tag_id', 'p', 'page_id', 'post_parent', 'offset', 'paged', 'page', 'posts_per_page', 'numberposts', 'menu_order', 'w', 'year', 'monthnum', 'day', 'hour', 'minute', 'second' ];
+		foreach ( $int_keys as $key ) {
+			if ( isset( $args[ $key ] ) && ! is_array( $args[ $key ] ) && '' !== $args[ $key ] ) {
+				$args[ $key ] = (int) $args[ $key ];
+			}
+		}
+
+		return $args;
+	}
+
+	/**
 	 * Convert pagination arguments to WC_Product_Query arguments
 	 * @param array $args Original arguments from pagination
 	 * @param array $settings Widget settings
@@ -660,10 +897,12 @@ trait Ajax_Handler {
 			'return' => 'objects',
 		];
 
-		// Map common WP_Query args to WC_Product_Query args
+		// Map common WP_Query args to WC_Product_Query args.
+		// NOTE: post_status is deliberately NOT mapped from client $args — status is
+		// derived server-side from the saved widget settings below and capability-clamped,
+		// so an unauthenticated caller cannot request pending/future/draft products.
 		$arg_mapping = [
 			'posts_per_page' => 'limit',
-			'post_status' => 'status',
 			'post__in' => 'include',
 			'post__not_in' => 'exclude',
 			'author__in' => 'author',
@@ -715,12 +954,16 @@ trait Ajax_Handler {
 			$wc_args['meta_query'][] = $meta_query;
 		}
 
-		// Set product status from settings (handle both Product_Grid and Woo_Product_List)
+		// Set product status from settings (handle both Product_Grid and Woo_Product_List),
+		// capability-clamped so non-public statuses never reach unauthenticated viewers.
 		if ( ! empty( $settings['eael_product_grid_products_status'] ) ) {
-			$wc_args['status'] = array_intersect( (array) $settings['eael_product_grid_products_status'], [ 'publish', 'draft', 'pending', 'future' ] );
+			$status_setting = $settings['eael_product_grid_products_status'];
 		} elseif ( ! empty( $settings['eael_product_list_products_status'] ) ) {
-			$wc_args['status'] = array_intersect( (array) $settings['eael_product_list_products_status'], [ 'publish', 'draft', 'pending', 'future' ] );
+			$status_setting = $settings['eael_product_list_products_status'];
+		} else {
+			$status_setting = [ 'publish' ];
 		}
+		$wc_args['status'] = HelperClass::eael_validate_product_statuses( $status_setting );
 
 		// Set visibility
 		$wc_args['visibility'] = 'visible';
@@ -763,6 +1006,7 @@ trait Ajax_Handler {
 		$settings['eael_page_id'] = $page_id;
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		wp_parse_str( $_REQUEST['args'], $args );
+		$args = $this->eael_sanitize_query_args( $args );
 
 		if ( isset( $args['date_query']['relation'] ) ) {
 			$args['date_query']['relation'] = HelperClass::eael_sanitize_relation( $args['date_query']['relation'] );
@@ -885,7 +1129,16 @@ trait Ajax_Handler {
 			foreach ( $_POST['product_data'] as $item ) {
 				$product_id   = isset( $item['product_id'] ) ? sanitize_text_field( wp_unslash( $item['product_id'] ) ) : 0;
 				$variation_id = isset( $item['variation_id'] ) ? sanitize_text_field( wp_unslash( $item['variation_id'] ) ) : 0;
-				$quantity     = isset( $item['quantity'] ) ? sanitize_text_field( wp_unslash( $item['quantity'] ) ) : 0;
+
+				// SECURITY: normalise the client-supplied quantity the way WooCommerce's own
+				// add-to-cart callers do (wc_stock_amount()), and refuse anything that is not a
+				// positive amount. sanitize_text_field() alone keeps a fractional value such as
+				// "0.01" intact, and WC()->cart->add_to_cart() rejects only quantities <= 0, so
+				// the line would be priced at a fraction of the product price (0.01 => 1%).
+				$quantity = isset( $item['quantity'] ) ? wc_stock_amount( wp_unslash( $item['quantity'] ) ) : 0;
+				if ( ! is_numeric( $quantity ) || $quantity <= 0 ) {
+					continue;
+				}
 
 				if ( $variation_id ) {
 					WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $variation );
@@ -955,6 +1208,7 @@ trait Ajax_Handler {
 		}
 
 		global $post, $product;
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 		$product = wc_get_product( $product_id );
 		$post    = get_post( $product_id );
 
@@ -966,6 +1220,11 @@ trait Ajax_Handler {
 		// Also verify post status for non-admin users
 		$post = get_post( $product_id );
 		if ( ! current_user_can( 'edit_post', $product_id ) && $post->post_status !== 'publish' ) {
+			wp_send_json_error( __( 'Product not found or not accessible', 'essential-addons-for-elementor-lite' ) );
+		}
+
+		// Block password-protected products for users who cannot edit them
+		if ( ! current_user_can( 'edit_post', $product_id ) && post_password_required( $post ) ) {
 			wp_send_json_error( __( 'Product not found or not accessible', 'essential-addons-for-elementor-lite' ) );
 		}
 
@@ -994,6 +1253,7 @@ trait Ajax_Handler {
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing
 		wp_parse_str( $_POST['args'], $args );
+		$args                = $this->eael_sanitize_query_args( $args );
 		$args['post_status'] = 'publish';
 		$args['offset']      = $args['offset'] ?? 0;
 
@@ -1053,7 +1313,7 @@ trait Ajax_Handler {
 		$settings['eael_widget_id'] = $widget_id;
 		$settings['eael_page_id']   = $page_id;
 		$page = !empty(  $_REQUEST['page'] ) ? absint( $_REQUEST['page'] ) : 1;
-		$args['offset']             = (int) $args['offset'] + ( ( (int) $page - 1 ) * (int) $args['posts_per_page'] );
+		$args['offset']             = ( isset( $args['offset'] ) ? (int) $args['offset'] : 0 ) + ( ( (int) $page - 1 ) * ( isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 0 ) );
 
 		if ( isset( $_REQUEST['taxonomy'] ) && isset( $_REQUEST['taxonomy']['taxonomy'] ) && $_REQUEST['taxonomy']['taxonomy'] != 'all' ) {
 			$args['tax_query'] = [
@@ -1111,6 +1371,13 @@ trait Ajax_Handler {
 			if ( $template_info['dir'] === 'theme' ) {
 				$dir_path = $this->retrive_theme_path();
 			} else if ( $template_info['dir'] === 'pro' ) {
+				// `dir` arrives from the request, so this branch is reachable on a
+				// Lite-only install where EAEL_PRO_PLUGIN_PATH was never defined.
+				// Reject cleanly instead of fataling on an undefined constant.
+				if ( ! defined( 'EAEL_PRO_PLUGIN_PATH' ) ) {
+					wp_send_json_error( 'Invalid template', 'invalid_template', 400 );
+				}
+
 				$dir_path = sprintf( "%sincludes", EAEL_PRO_PLUGIN_PATH );
 			} else {
 				$dir_path = sprintf( "%sincludes", EAEL_PLUGIN_PATH );
@@ -1220,7 +1487,8 @@ trait Ajax_Handler {
 	 * @since 4.0.0
 	 */
 	public function select2_ajax_posts_filter_autocomplete() {
-		if ( empty( $_POST['nonce'] ) ||  ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'eael_select2' ) ) {
+		// These back an Elementor editor control, so only users who can edit content may use them (#956).
+		if ( empty( $_POST['nonce'] ) ||  ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'eael_select2' ) || ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( ['error'=> esc_html__( 'Unauthorized', 'essential-addons-for-elementor-lite' )] );
 		}
 		$post_type   = 'post';
@@ -1290,7 +1558,8 @@ trait Ajax_Handler {
 	 */
 	public function select2_ajax_get_posts_value_titles() {
 
-		if ( empty( $_POST['nonce'] ) ||  ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'eael_select2' ) ) {
+		// These back an Elementor editor control, so only users who can edit content may use them (#956).
+		if ( empty( $_POST['nonce'] ) ||  ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'eael_select2' ) || ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( ['error'=> esc_html__( 'Unauthorized', 'essential-addons-for-elementor-lite' )] );
 		}
 
@@ -1321,6 +1590,11 @@ trait Ajax_Handler {
 				$response = wp_list_pluck( get_terms( $args ), 'name', 'term_id' );
 				break;
 			case 'user':
+				if ( ! current_user_can( 'list_users' ) ) {
+					$response = [];
+					break;
+				}
+
 				$users = [];
 
 				foreach ( get_users( [ 'include' => $ids ] ) as $user ) {
@@ -1440,6 +1714,12 @@ trait Ajax_Handler {
 
 		if ( isset( $settings['lr_custom_profile_fields'] ) ) {
 			update_option( 'eael_custom_profile_fields', sanitize_text_field( $settings['lr_custom_profile_fields'] ) );
+		}
+
+		// Only save when request is from LR modal (lr_recaptcha_sitekey always present).
+		// Without this guard the main "Save Settings" POST (no lr_* keys) would wipe the option.
+		if ( array_key_exists( 'lr_recaptcha_sitekey', $settings ) ) {
+			update_option( 'eael_lr_admin_approval', isset( $settings['lr_admin_approval'] ) ? sanitize_text_field( $settings['lr_admin_approval'] ) : '' );
 		}
 
 		if ( isset( $settings['lr_custom_profile_fields_text'] ) ) {
@@ -1605,6 +1885,77 @@ trait Ajax_Handler {
 		add_filter( 'option_yith_wcwl_ajax_enable', function ( $data ) {
 			return 'no';
 		} );
+	}
+
+	public function eael_ajax_add_to_cart() {
+		check_ajax_referer( 'eael-ajax-add-to-cart', 'nonce' );
+
+		if ( ! function_exists( 'WC' ) ) {
+			wp_send_json_error( [ 'message' => esc_html__( 'WooCommerce is not active.', 'essential-addons-for-elementor-lite' ) ] );
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- nonce already checked above
+		$product_id   = isset( $_POST['product_id'] )   ? absint( $_POST['product_id'] )   : 0;
+		$product_type = isset( $_POST['product_type'] ) ? sanitize_key( $_POST['product_type'] ) : 'simple';
+		// phpcs:enable
+
+		if ( ! $product_id ) {
+			wp_send_json_error( [ 'message' => esc_html__( 'Invalid product.', 'essential-addons-for-elementor-lite' ) ] );
+		}
+
+		$added = false;
+
+		if ( 'grouped' === $product_type ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; every key and value is absint()-ed below.
+			$quantities = isset( $_POST['quantity'] ) && is_array( $_POST['quantity'] ) ? $_POST['quantity'] : [];
+			foreach ( $quantities as $child_id => $qty ) {
+				$child_id = absint( $child_id );
+				$qty      = absint( $qty );
+				if ( $child_id > 0 && $qty > 0 ) {
+					WC()->cart->add_to_cart( $child_id, $qty );
+					$added = true;
+				}
+			}
+		} elseif ( 'variable' === $product_type ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Missing
+			$variation_id = isset( $_POST['variation_id'] ) ? absint( $_POST['variation_id'] ) : 0;
+			$quantity     = isset( $_POST['quantity'] )     ? absint( $_POST['quantity'] )     : 1;
+			$attributes   = [];
+			foreach ( $_POST as $key => $value ) {
+				if ( strpos( $key, 'attribute_' ) === 0 ) {
+					$attributes[ sanitize_key( $key ) ] = sanitize_text_field( wp_unslash( $value ) );
+				}
+			}
+			// phpcs:enable
+			if ( $variation_id ) {
+				$added = WC()->cart->add_to_cart( $product_id, $quantity, $variation_id, $attributes );
+			}
+		} else {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$quantity = isset( $_POST['quantity'] ) ? absint( $_POST['quantity'] ) : 1;
+			$added    = WC()->cart->add_to_cart( $product_id, $quantity );
+		}
+
+		if ( false === $added ) {
+			ob_start();
+			wc_print_notices();
+			$notices_html = ob_get_clean();
+			wp_send_json_error( [ 'notices' => $notices_html ] );
+		}
+
+		WC()->cart->calculate_totals();
+		$fragments = apply_filters( 'woocommerce_add_to_cart_fragments', [] );
+
+		ob_start();
+		wc_print_notices();
+		$notices_html = ob_get_clean();
+
+		wp_send_json_success( [
+			'fragments'  => $fragments,
+			'cart_hash'  => WC()->cart->get_cart_hash(),
+			'cart_count' => WC()->cart->get_cart_contents_count(),
+			'notices'    => $notices_html,
+		] );
 	}
 
 }

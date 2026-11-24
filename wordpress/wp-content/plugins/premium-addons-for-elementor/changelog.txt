@@ -1,5 +1,353 @@
 == Changelog ==
 
+= 4.11.121 - 19/11/2026 =
+
+- Fixed: Improved code security enforcement.
+- Fixed: Missing container notice not showing in Modal Box widget.
+- Fixed: JS error in Vertical Scroll widget when using Flexbox containers.
+- Fixed: Divider showing after the last item in Bullet List widget.
+
+= 4.11.120 - 16/11/2026 =
+
+- Tweak: Returning Visitor display condition is now compatible with WP Consent API.
+- Tweak: Counter widget now renders the final number in the page HTML for search engines and AI crawlers.
+- Fixed: Security issue in Lottie animations.
+- Fixed: Product title not showing after pagination or Load More in Woo Products widget.
+
+= 4.11.119 - 12/11/2026 =
+
+- Fixed: Some texts not translatable with WPML in Heading, Dual Heading, Image Scroll, Search Form, Tags Cloud, Post Ticker, Countdown and Video Box widgets and Global Tooltip addon.
+- Fixed: Page, Post and category display conditions not working on WPML translated pages.
+- Fixed: "Is Not" operator not working as expected in some display conditions.
+
+= 4.11.118 - 11/11/2026 =
+
+- Tweak: Compatibility with Elementor v4.4.
+- Fixed: Layout shift on page load in Mega Menu widget.
+- Fixed: SEO issue caused by an empty link in Heading widget.
+- Fixed: Author job alignment ignored when the text wraps in Testimonial widget.
+- Fixed: Author job line height option not working in Testimonial widget.
+- Fixed: Improved code security enforcement in Display Conditions addon and widget icons.
+
+= 4.11.117 - 26/10/2026 =
+
+- Tweak: Upload Media AI ability can now upload files from the AI agent's computer, not only public URLs.
+- Fixed: Mega Menu dropdown closing while moving the cursor from a menu item to its mega content.
+- Fixed: "Undefined array key" warning showing above Shape Divider addon on the frontend.
+- Fixed: Improved code security enforcement in Upload Media AI ability.
+
+= 4.11.116 - 23/10/2026 =
+
+- Tweak: Headroom and Flipster scripts now load in the footer for better page performance in Mega Menu and Media Wheel widgets.
+- Fixed: "Purchased" option not working as expected in WooCommerce Category display condition.
+- Fixed: Improved code security enforcement.
+
+= 4.11.115 - 22/10/2026 =
+
+- Tweak: Upload Media AI ability now supports videos.
+- Fixed: Elementor MCP widget schema tools failing when Carousel, Media Wheel, Modal Box or Vertical Scroll widgets are enabled.
+- Fixed: Icons overlapping the Load More button in Media Grid widget.
+
+= 4.11.114 - 19/10/2026 =
+
+- Tweak: Added Slides Direction option to Carousel widget.
+- Tweak: Improved editor performance by loading Isotope and Luxon libraries only when they're used on the page.
+- Tweak: Improved editor performance for Display Conditions, Shape Divider and Wrapper Link addons.
+- Fixed: Vertical navigation arrows not centered in Carousel widget.
+- Fixed: Headline height jumping while typing in Animated Text widget when cursor is hidden.
+- Fixed: Space between titles removed in Dual Heading widget when Minimal mask animation is enabled.
+- Fixed: Equal Height addon slowing down the editor after editing the element multiple times.
+- Fixed: Shape Divider not adjusting on window resize when multiple dividers are used on the same page.
+
+= 4.11.113 - 15/10/2026 =
+
+- Tweak: Improved Premium Templates library loading speed in the editor.
+- Tweak: Improved editor performance by loading Lottie library only when it's used on the page.
+- Tweak: Improved editor performance for Global Tooltips addon.
+- Fixed: Disabled widgets getting enabled again after saving settings from Premium Addons dashboard.
+- Fixed: Icon color and stroke styles applied to Lottie animations in Heading, Image Separator, Counter, Progress Bar, Icon List, Pricing Table, Recent Posts Notification, Post Ticker, Modal Box and Woo CTA widgets.
+- Fixed: Global Tooltips not removed in the editor after disabling it or changing the CSS selector.
+
+= 4.11.112 - 13/10/2026 =
+
+- New: Added Floating Effects support for Containers.
+- New: Added Perspective option for 3D Rotate effects in Floating Effects addon.
+- New: Added Disable On option to turn off Floating Effects on selected devices.
+- New: Added Return To Start On Hover Out option in Floating Effects addon.
+- Tweak: Security enhancements in Media Wheel, Media Grid, Search Form, Blog, Woo Products and Pinterest Feed widgets, Cross Domain Copy & Paste feature and AI abilities.
+- Fixed: Floating Effects animation stopping in the editor after changing settings.
+- Fixed: Opacity effect not applied after Floating Effects animation stops.
+
+= 4.11.111 - 9/10/2026 =
+
+- Tweak: Security enhancements in Google Maps widget.
+- Fixed: Slides To Scroll option ignoring responsive values in TikTok Feed widget.
+- Fixed: Order By option showing incorrect values in Woo Categories widget.
+- Fixed: Incorrect documentation link for Woo Categories widget.
+- Fixed: Special characters showing as HTML entities in product category names in WooCommerce widgets and Display Conditions.
+
+= 4.11.110 - 1/10/2026 =
+
+- New: Added Menus AI abilities to list, create and edit WordPress menus and set up Mega Menu items and their content templates.
+- Tweak: Security enhancements for video and lightbox URLs in Video Box widget.
+- Tweak: Removed unused style controls from Mini Cart and Woo Products widgets.
+- Fixed: Sticky video size and aspect ratio not applied correctly in Video Box widget.
+- Fixed: Sticky video not removing the mask and drop shadow in Video Box widget.
+- Fixed: Privacy Mode not applied to YouTube videos opened in a lightbox in Video Box widget.
+- Fixed: Advanced Border Radius option not applied in Video Box widget.
+- Fixed: Layout 2 columns issue in Video Box playlist.
+- Fixed: Navigation arrows height and position options not working in Weather widget.
+- Fixed: Icon Stroke Color option not showing in Woo CTA widget.
+
+= 4.11.109 - 28/9/2026 =
+
+- Tweak: Added a notice in Google Maps widget explaining how to style maps that use a Map ID.
+- Tweak: Google Maps widget no longer passes JSON styles when a Map ID is set, to avoid console warnings.
+- Tweak: License tab redesigned in Premium Addons dashboard.
+
+= 4.11.108 - 24/9/2026 =
+
+- New: Added Generate Password button in MCP Config & AI Abilities tab to create the application password for your AI client in one click.
+- New: Added Manage Connections section in MCP Config & AI Abilities tab to view and revoke the application passwords and OAuth connections used by your AI clients.
+- Tweak: Premium Addons AI Abilities are now enabled automatically when Elementor MCP is turned on.
+
+= 4.11.107 - 23/9/2026 =
+
+- New: Added Connection check button in MCP Config & AI Abilities tab that reports what blocks an AI client from connecting.
+- Tweak: Premium Addons abilities now compatible with Elementor MCP.
+- Tweak: MCP Config & AI Abilities tab rebuilt for a better experience.
+- Tweak: Compatibility with Elementor v4.3.
+
+= 4.11.106 - 21/9/2026 =
+
+- Fixed: Mini Cart widget opening automatically for visitors who did not add anything to the cart when Open on Cart Update option is enabled.
+- Fixed: Mini Cart widget not opening after a product is added to the cart when Open on Cart Update option is enabled.
+- Fixed: Masonry layout not working in Elementor editor on Chrome in Media Grid, Blog, Testimonials, Pinterest Feed and TikTok Feed widgets.
+- Fixed: Improved code security enforcement in Video Box, Lottie Animations, Bullet List, Mega Menu and Woo CTA widgets, and in Premium Templates library.
+
+= 4.11.105 - 15/9/2026 =
+
+- Fixed: SVG icons losing their colors and styles when the SVG file keeps its CSS inside a style tag.
+- Fixed: Heading and Dual Heading widgets missing the freemium badge in Premium Addons dashboard and setup wizard.
+
+= 4.11.104 - 13/9/2026 =
+
+- Tweak: Added Compare option to the Date condition in Display Conditions addon to show or hide elements before or after a specific date.
+- Tweak: Premium Addons AI Abilities are now available on Elementor MCP, so AI clients connected to Elementor can use Premium Addons widgets and templates without a separate connection.
+
+= 4.11.103 - 8/9/2026 =
+
+- New: Added Custom Words source in Premium Tags Cloud widget to show your own words with links and weights instead of taxonomy terms - [here](https://premiumaddons.com/elementor-tags-cloud-widget/?utm_source=wp-repo&utm_medium=link&utm_campaign=readme&utm_content=tcloud).
+- Tweak: Updated claude.ai connection steps in Premium Addons MCP settings to match the new Customize > Connectors location.
+
+= 4.11.102 - 3/9/2026 =
+
+- New: Added compatibility with Angie plugin, Angie can now use Premium Addons widgets and pre-made templates while building your pages - [here](https://premiumaddons.com/docs/angie-premium-addons-elementor/?utm_source=wp-repo&utm_medium=link&utm_campaign=readme&utm_content=angie).
+- Tweak: Added Refresh option in Premium Templates library to reload templates when they are outdated or fail to load.
+- Tweak: Improved dynamic assets compatibility with WPML and Polylang translated pages.
+- Tweak: AI agents now ask for approval before inserting a Premium Addons pre-made template.
+- Fixed: Pagination and Load More showing wrong posts on archive pages when the Main Query source is used in Premium Blog widget.
+- Fixed: Image options not working in Premium Banner widget when an image optimization plugin converts the image tag into a picture tag.
+
+= 4.11.101 - 27/8/2026 =
+
+- Tweak: Added Above option to the Icon Position control in Premium Button and Premium Image Button widgets.
+- Fixed: OAuth connection window not opening on the first load of Premium Addons MCP settings page.
+- Fixed: OAuth connection not working on hosting servers that serve .well-known files statically from disk.
+- Fixed: Overlay image not showing in Premium Video Box widget.
+
+= 4.11.100 - 25/8/2026 =
+
+- New: AI agents can now browse and insert Premium Addons pre-made templates into your pages through AI Abilities.
+- Tweak: AI agents now suggest matching pre-made templates while building pages for higher quality designs.
+- Tweak: Updated ChatGPT connection instructions in Premium Addons MCP settings.
+- Tweak: Added a message in Premium Addons MCP settings when the OAuth connection is blocked by a REST API authentication restriction.
+- Fixed: Text Indent option not applied on list items in Premium Pricing Table widget.
+
+= 4.11.99 - 20/8/2026 =
+
+- New: Added ChatGPT to the AI clients supported by the OAuth connection method in AI Abilities.
+- Tweak: Added Disable Page Scroll option in Premium Modal Box widget.
+- Tweak: Added X Anchor Point and Y Anchor Point options to control the rotation origin in Premium Dual Heading widget.
+- Tweak: Added step by step configuration instructions for each AI client in Premium Addons MCP settings.
+- Fixed: Contact Form 7 widget not showing the selected form on WordPress 7.1.
+- Fixed: Gradient angle option not working in Shape Divider addon.
+- Fixed: Edit Mega Content button not working on Chrome in Premium Mega Menu widget.
+- Fixed: SVG icon hover color not working in Premium Image Button widget.
+- Fixed: Use This Password button reloading the AI Abilities page with all setup steps collapsed.
+- Fixed: Claude Desktop configuration code not working on Windows in Premium Addons MCP settings.
+
+= 4.11.98 - 13/8/2026 =
+
+- Tweak: Added Label option to show a text label above, below or over the image in Image Scroll widget.
+- Tweak: Added Tilt Effect option in Image Gallery, Pinterest Feed, Team Members and Testimonials widgets.
+- Tweak: AI Abilities can now be used by any MCP client or MCP plugin, not only the Premium Addons MCP.
+
+= 4.11.97 - 11/8/2026 =
+
+- Tweak: Improved design guidelines used by AI agents when building Elementor pages through AI Abilities.
+- Tweak: Code refactored for better performance and loading speed.
+- Fixed: Review notice showing right after installing the plugin on a fresh site.
+
+= 4.11.96 - 7/8/2026 =
+
+- Tweak: Improved assets loading by preventing Premium Addons main CSS file from loading on pages that don't include Premium Addons widgets.
+- Fixed: Page freezing caused by an infinite loop in Premium Pinterest Feed widget carousel.
+
+= 4.11.95 - 5/8/2026 =
+
+- Tweak: Added TikTok social icon in Team Members widget.
+- Tweak: Updated Twitter icon to X in Team Members widget.
+- Tweak: Added responsive Margin option for Description in Team Members widget.
+- Tweak: Code refactored for better performance and loading speed.
+- Fixed: HTML tags in post title rendered as plain text in Blog widget.
+- Fixed: Empty links with no anchor text in post rendering widgets (Blog, AJAX Search, Smart Post Listing).
+- Fixed: Background Image option conflict with ShortPixel Adaptive Images plugin's Generate noscript Tag option in Video Box widget.
+- Fixed: Loader not showing in Mega Menu live content editor.
+
+= 4.11.94 - 3/8/2026 =
+
+- Tweak: Code refactored for better performance and loading speed.
+- Fixed: False security warning reported by security plugins on the AI Abilities dashboard tab.
+
+= 4.11.93 - 31/7/2026 =
+
+- Fixed: PHP error in Woo Products Listing widget after v4.11.92.
+
+= 4.11.92 - 31/7/2026 =
+
+- Tweak: Improved Premium Templates loading by loading templates classes in the editor only for better performance.
+- Tweak: Modified default shadow style for Analog skin in World Clock widget.
+- Tweak: Code refactored for better performance and security.
+- Fixed: Tooltip animation wiggle when the tooltip content is updated in Global Tooltips addon.
+
+= 4.11.91 - 29/7/2026 =
+
+- Fixed: AI Abilities OAuth connection not working on sites using Redis object cache.
+
+= 4.11.90 - 29/7/2026 =
+
+- New: Added OAuth connection method for AI Abilities to make connecting AI clients easier and more secure.
+- Tweak: Added Animated Gradient option for custom menu items in Mega Menu widget.
+- Tweak: Added Preload and Poster options in Video Box widget.
+- Tweak: Improved Display Conditions loading by loading condition files on demand for better performance.
+- Tweak: Improved admin notices code for better performance.
+- Tweak: Added demo page and documentation links in AI Abilities dashboard tab.
+- Tweak: Removed Shadow Position option from Text Shadow control in Heading widget.
+- Fixed: Autoplay on Viewport conflict with Elementor Sticky effect in Video Box widget.
+- Fixed: AI abilities catalog saved as an autoloaded option affecting performance.
+- Fixed: Dashboard assets not being cached.
+- Fixed: Tooltip text alignment in Global Tooltips addon.
+
+= 4.11.89 - 25/7/2026 =
+
+- Tweak: Improved AI abilities to guide AI models to fetch the design guide for more consistent designs.
+
+= 4.11.88 - 23/7/2026 =
+
+- Tweak: Improved the AI abilities to improve the quality of designs built by AI.
+- Tweak: Added new AI abilities to export/import Elementor sections and pages between different sites, list and upload images to media.
+- Tweak: Added new AI abilities to get information about active theme and its style variation to build more consistent designs.
+- Tweak: MCP Configuration and AI Abilities dashboard tabs merged into one for a better UX.
+- Tweak: Show MCP Connection status for a better UX.
+- Fixed: Hover background outline with Grow effect in Button widget.
+- Fixed: Text Shadow not working in Heading widget when gradient background is enabled.
+
+= 4.11.87 - 19/7/2026 =
+
+- Tweak: Added new AI abilities to apply/customize all addons in the plugin (wrapper link, floating effects, tooltips, etc.), creating an Elementor template, duplicating a page/post, changing a post status, removing an Elementor element and more.
+- Tweak: Improved AI Abilities loading to prevent loading abilities files on the dashboard.
+- Tweak: Improved AI Abilities and MCP Configuration dashboard pages.
+- Tweak: Added Skip & Deactivate button in the plugin deactivation form.
+- Tweak: Show play icon by default in Advanced Carousel widget.
+- Fixed: Slider conflict with JetEngine Slider.
+- Fixed: Empty links appearing in post rendering widgets (Blog, AJAX Search, Recent Posts Notifications).
+
+= 4.11.86 - 12/7/2026 =
+
+- Tweak: Added AI abilities to add Elementor Container/Flexbox element, insert an Elementor widget to a page, post or template, get Elementor page structure and more.
+
+= 4.11.85 - 6/7/2026 =
+
+- New: Added AI Abilities integration using the WordPress Abilities API - requires WordPress v7.0 or higher.
+- Fixed: On Side skin not displayed as column on mobile extra breakpoints in Blog widget.
+
+= 4.11.84 - 29/6/2026 =
+
+- Fixed: Improved code security enforcement in widgets have Mask effect.
+- Fixed: Object Fit option not visible unless Minimum Height is set on desktop in Banner widget.
+
+= 4.11.83 - 28/6/2026 =
+
+- Tweak: Added blur/highlight text effect option in Search Form widget.
+- Tweak: Added Navigation Arrows Custom Vertical Position option in Search Form widget.
+- Tweak: Search now applies on the entire page when CSS Selector is not set in Search Form widget.
+- Tweak: Added Vertical Alignment and Tooltip Position options in Pricing Table widget.
+- Tweak: Improved Map ID control placement in Maps widget.
+- Tweak: Global addons code refactored for better performance and security.
+- Fixed: IP Location Display Condition not working.
+- Fixed: Google Maps not working when Get User Location is enabled.
+- Fixed: Custom SVGs containing image and clip-path tags not rendered.
+- Fixed: Animated SVG line height not working in Modal Box widget.
+- Fixed: Feature list icon size decreasing in small spaces in Pricing Table widget.
+- Fixed: Minimal Mask effect overriding focused word styling in Heading widget.
+- Fixed: Glitch effect not working correctly on focused word in Heading widget.
+- Fixed: Improved code security enforcement in Global Tooltips.
+- Deprecated: Filter By Post Rule option in Search Form widget.
+
+= 4.11.82 - 11/6/2026 =
+
+- Tweak: Global addons code refactored for better performance and security.
+
+= 4.11.81 - 10/6/2026 =
+
+- Tweak: Removed unused file.
+
+= 4.11.80 - 10/6/2026 =
+
+- Tweak: Added Meta Position option in Blog widget.
+- Tweak: Code refactored for better performance and security.
+- Fixed: Generated dynamic assets not being cached.
+
+= 4.11.79 - 4/6/2026 =
+
+- Tweak: Added Max Value option in Progress Bar widget to allow values above 100.
+- Tweak: Added Icon option in Banner widget.
+- Tweak: Added Loop Times option in Lottie Animations widget.
+- Tweak: Added File Source for Lottie Animation icon in Progress Bar widget.
+- Tweak: Image Caption option now always available when source is set to Image Gallery in Carousel widget.
+- Fixed: Lottie Animations not working when Loop is disabled and Reverse is enabled.
+
+= 4.11.78 - 25/5/2026 =
+
+- Tweak: Add option to show Image Caption in Carousel widget when source is set to Image Gallery.
+- Tweak: News Ticker improved on RTL sites.
+
+= 4.11.77 - 14/5/2026 =
+
+- Tweak: Code refactored for better performance and security.
+- Fixed: Metro layout not working in Media Grid with Elementor extra breakpoints feature.
+- Fixed: Carousel widget navigation options not working correctly.
+
+= 4.11.76 - 10/5/2026 =
+
+- Tweak: Code refactored for better performance and security.
+- Fixed: PHP warnings and fatal errors in plugin core.
+
+= 4.11.75 - 26/4/2026 =
+
+- Tweak: Added option to autoplay video in active slide in Advanced Carousel widget.
+- Tweak: Added Description option in Heading and Dual Heading widgets.
+- Tweak: Code refactored for better performance and security.
+- Fixed: Load More button not working correctly in TikTok Feed widget.
+
+= 4.11.74 - 16/4/2026 =
+
+- Tweak: Remove deprecated Vimeo API in Video Box widget.
+- Tweak: Core improved for security.
+- Fixed: Badge not showing correctly in Bullet List widget.
+- Fixed: Active menu item border radius not applied with Background Grow animation in Mega Menu widget.
+
 = 4.11.73 - 8/4/2026 =
 
 - Fixed: Pinterest Feed widget not working correctly.

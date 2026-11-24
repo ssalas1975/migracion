@@ -51,10 +51,13 @@ class PUM_Integration_Form_KaliForms extends PUM_Abstract_Integration_Form {
 	public function get_forms() {
 		$forms = get_posts(
 			[
-				'post_type'      => 'kaliforms_forms',
-				'posts_per_page' => -1,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
+				'post_type'              => 'kaliforms_forms',
+				'posts_per_page'         => -1,
+				'orderby'                => 'title',
+				'order'                  => 'ASC',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
 			]
 		);
 
@@ -128,8 +131,11 @@ class PUM_Integration_Form_KaliForms extends PUM_Abstract_Integration_Form {
 
 		$popup_id = $this->get_popup_id();
 
-		if ( $popup_id ) {
+		// popup_id comes from a forgeable public form field; only count real popups.
+		if ( $popup_id && pum_is_popup( $popup_id ) ) {
 			$this->increase_conversion( $popup_id );
+		} else {
+			$popup_id = false;
 		}
 
 		pum_integrated_form_submission(
@@ -152,14 +158,14 @@ class PUM_Integration_Form_KaliForms extends PUM_Abstract_Integration_Form {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$raw_data = wp_unslash( $_POST['data'] );
 
-			// Handle JSON data first.
-			$json_data = json_decode( $raw_data, true );
-			if ( is_array( $json_data ) && isset( $json_data['pum_form_popup_id'] ) ) {
-				return absint( $json_data['pum_form_popup_id'] );
-			}
-
-			// Parse the data if it's a URL-encoded string.
+			// data[]=x arrives as an array and would fatal in json_decode/parse_str.
 			if ( is_string( $raw_data ) ) {
+				$json_data = json_decode( $raw_data, true );
+				if ( is_array( $json_data ) && isset( $json_data['pum_form_popup_id'] ) ) {
+					return absint( $json_data['pum_form_popup_id'] );
+				}
+
+				// Parse the data if it's a URL-encoded string.
 				// Parse first to preserve URL encoding, then sanitize individual values.
 				parse_str( $raw_data, $data );
 

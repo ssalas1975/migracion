@@ -4,10 +4,7 @@
   transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
 }
 .eael-simple-menu-container.eael-simple-menu--loading > ul {
-  display: -webkit-box !important;
-  display: -ms-flexbox !important;
-  display: flex !important;
-  list-style: none !important;
+  list-style: none;
 }
 .eael-simple-menu-container.eael-simple-menu--loading li ul {
   visibility: hidden !important;
@@ -764,4 +761,17 @@
 }
 .eael-simple-menu-container .eael-simple-menu-responsive.eael-hamburger-right li a {
   text-align: right !important;
+}
+.eael-simple-menu-link-auto .eael-simple-menu.eael-simple-menu-responsive li a {
+  display: inline-block;
+  width: auto;
+}
+.eael-simple-menu-link-auto .eael-simple-menu.eael-simple-menu-responsive li.eael-simple-menu-align-center {
+  text-align: center;
+}
+.eael-simple-menu-link-auto .eael-simple-menu.eael-simple-menu-responsive li.eael-simple-menu-align-right {
+  text-align: right;
+}
+.eael-simple-menu-link-auto .eael-simple-menu.eael-simple-menu-responsive li.eael-simple-menu-align-left {
+  text-align: left;
 }

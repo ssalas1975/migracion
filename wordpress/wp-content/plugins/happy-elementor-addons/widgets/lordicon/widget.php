@@ -9,10 +9,13 @@
 	use Elementor\Controls_Manager;
 	use Elementor\Group_Control_Border;
 	use Elementor\Group_Control_Box_Shadow;
+	use Happy_Addons\Elementor\Traits\Lordicon_Sanitizer;
 
 	defined( 'ABSPATH' ) || die();
 
-class LordIcon extends Base {
+	class LordIcon extends Base {
+
+		use Lordicon_Sanitizer;
 
 	/**
 	 * Get widget title.
@@ -74,6 +77,22 @@ class LordIcon extends Base {
 				],
 				'default'     => 'cdn',
 				'label_block' => true,
+				'assets'      => [
+					'scripts' => [
+						[
+							'name'       => 'lord-icon',
+							'conditions' => [
+								'terms' => [
+									[
+										'name'     => 'icon_method',
+										'operator' => 'in',
+										'value'    => [ 'cdn', 'file' ],
+									],
+								],
+							],
+						],
+					],
+				],
 			]
 		);
 		$this->add_control(
@@ -338,6 +357,8 @@ class LordIcon extends Base {
 	protected function render() {
 		$settings    = $this->get_settings_for_display();
 
+		wp_enqueue_script( 'lord-icon' );
+
 		//for manage loard icon global colors only
 		$primary_color = $settings['primary_color'];
 		if( isset($settings['__globals__']) && !empty($settings['__globals__']['primary_color']) ) {
@@ -374,14 +395,14 @@ class LordIcon extends Base {
 		$icon_stroke = $settings['icon_stroke'];
 
 		if ( 'file' == $method ) {
-			$json_url = $settings['icon_json']['url'];
+			$json_url = $this->sanitize_animation_url( $settings['icon_json']['url'], true );
 		} else {
-			$json_url = $settings['icon_cdn'];
+			$json_url = $this->sanitize_animation_url( $settings['icon_cdn'] );
 		}
 		$target_class = '';
 
 		if ( 'custom' == $target ) {
-			$target_class = $settings['custom_target'];
+			$target_class = $this->sanitize_target_selector( $settings['custom_target'] );
 		} elseif ( 'column' == $target ) {
 			$target_class = '.elementor-column';
 		} elseif ( 'section' == $target ) {
@@ -390,6 +411,10 @@ class LordIcon extends Base {
 			$target_class = '.ha-lordicon-wrapper';
 		}
 		$pulse_effect = ( 'yes' == $settings['pulse_effect'] ) ? ' pulse_effect' : '';
+
+		if ( '' === $json_url ) {
+			return;
+		}
 
 		?>
 			<div class="ha-lordicon-wrapper<?php echo esc_attr( $pulse_effect ); ?>">

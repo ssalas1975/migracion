@@ -1,6 +1,7 @@
 <?php
 namespace Elementor;
 
+use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
 use Elementor\Core\Files\Fonts\Google_Font;
 use Elementor\Core\Utils\Collection;
 
@@ -21,6 +22,17 @@ class Utils {
 	const DEPRECATION_RANGE = 0.4;
 
 	const EDITOR_BREAK_LINES_OPTION_KEY = 'elementor_editor_break_lines';
+
+	const CUSTOM_ATTRIBUTE_NAME_PATTERN = '/^[a-zA-Z0-9_-]+$/D';
+
+	const CUSTOM_ATTRIBUTE_PAIR_PATTERN = '/([a-zA-Z0-9_-]+)\s*=\s*(["\'])(.*?)\2/s';
+
+	const EVENT_HANDLER_ATTRIBUTE_NAME_PATTERN = '/^on[a-z]*$/iD';
+	const BLOCKED_CUSTOM_ATTRIBUTE_NAME_PREFIXES = [ 'x-' ];
+
+	const URL_CUSTOM_ATTRIBUTE_NAMES = [ 'action', 'formaction', 'href', 'src' ];
+
+	const HTML_CUSTOM_ATTRIBUTE_NAMES = [ 'srcdoc' ];
 
 	/**
 	 * A list of safe tags for `validate_html_tag` method.
@@ -45,6 +57,27 @@ class Utils {
 		'p',
 		'section',
 		'span',
+	];
+
+	/**
+	 * Tags that must never be usable as an HTML wrapper tag, regardless of what
+	 * `elementor/allowed_html_wrapper_tags` filters return. These are the classic
+	 * script-execution / markup-injection vectors (XSS), so they're enforced as a
+	 * hard denylist rather than left to filter authors to avoid re-adding them.
+	 */
+	const FORBIDDEN_HTML_WRAPPER_TAGS = [
+		'script',
+		'iframe',
+		'object',
+		'embed',
+		'style',
+		'link',
+		'meta',
+		'base',
+		'noscript',
+		'template',
+		'svg',
+		'math',
 	];
 
 	const EXTENDED_ALLOWED_HTML_TAGS = [
@@ -638,6 +671,22 @@ class Utils {
 		return defined( 'ELEMENTOR_PRO_VERSION' );
 	}
 
+	public static function is_license_active(): bool {
+		return class_exists( '\ElementorPro\License\API' ) && \ElementorPro\License\API::is_license_active();
+	}
+
+	public static function is_license_expired(): bool {
+		return class_exists( '\ElementorPro\License\API' ) && \ElementorPro\License\API::is_license_expired();
+	}
+
+	public static function get_license_access_tier(): string {
+		if ( ! self::is_license_active() ) {
+			return ConnectModule::ACCESS_TIER_FREE;
+		}
+
+		return (string) \ElementorPro\License\API::get_access_tier();
+	}
+
 	public static function is_pro_installed_and_not_active(): bool {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -646,7 +695,15 @@ class Utils {
 		$file_path = self::get_elementor_pro_file_path();
 		$installed_plugins = get_plugins();
 
-		return isset( $installed_plugins[ $file_path ] );
+		if ( ! isset( $installed_plugins[ $file_path ] ) ) {
+			return false;
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		return ! is_plugin_active( $file_path );
 	}
 
 	private static function get_elementor_pro_file_path(): string {
@@ -724,17 +781,101 @@ class Utils {
 		return $result;
 	}
 
+	public static function is_allowed_custom_attribute_name( $name, bool $allow_unfiltered_names = false ): bool {
+		if ( ! is_string( $name ) || ! preg_match( self::CUSTOM_ATTRIBUTE_NAME_PATTERN, $name ) ) {
+			return false;
+		}
+
+		if ( $allow_unfiltered_names ) {
+			return true;
+		}
+
+		$normalized_name = strtolower( $name );
+
+		if ( self::is_html_custom_attribute_name( $normalized_name ) ) {
+			return false;
+		}
+
+		if ( preg_match( self::EVENT_HANDLER_ATTRIBUTE_NAME_PATTERN, $name ) ) {
+			return false;
+		}
+
+		foreach ( self::BLOCKED_CUSTOM_ATTRIBUTE_NAME_PREFIXES as $prefix ) {
+			if ( 0 === strpos( $normalized_name, $prefix ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static function is_html_custom_attribute_name( string $name ): bool {
+		return in_array( strtolower( $name ), self::HTML_CUSTOM_ATTRIBUTE_NAMES, true );
+	}
+
+	private static function escape_custom_attribute_value( string $name, string $value ): string {
+		if ( self::is_html_custom_attribute_name( $name ) ) {
+			return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8', true );
+		}
+
+		return esc_attr( $value );
+	}
+
+	public static function sanitize_custom_attribute_value( string $name, string $value ): string {
+		$normalized_name = strtolower( $name );
+
+		if ( in_array( $normalized_name, self::URL_CUSTOM_ATTRIBUTE_NAMES, true ) ) {
+			return wp_kses_bad_protocol( $value, wp_allowed_protocols() );
+		}
+
+		if ( self::is_html_custom_attribute_name( $normalized_name ) ) {
+			return wp_kses_post( $value );
+		}
+
+		return $value;
+	}
+
+	public static function sanitize_custom_attributes_string( $attributes_string, bool $allow_unfiltered_names = false ): string {
+		if ( ! is_string( $attributes_string ) || '' === $attributes_string ) {
+			return '';
+		}
+
+		preg_match_all( self::CUSTOM_ATTRIBUTE_PAIR_PATTERN, $attributes_string, $matches, PREG_SET_ORDER );
+
+		$sanitized = [];
+
+		foreach ( $matches as $match ) {
+			$name = $match[1];
+
+			if ( ! self::is_allowed_custom_attribute_name( $name, $allow_unfiltered_names ) ) {
+				continue;
+			}
+
+			$value = html_entity_decode( $match[3], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+			$value = self::sanitize_custom_attribute_value( $name, $value );
+			$sanitized[] = $name . '="' . self::escape_custom_attribute_value( $name, $value ) . '"';
+		}
+
+		return implode( ' ', $sanitized );
+	}
+
 	public static function find_element_recursive( $elements, $id ) {
 		foreach ( $elements as $element ) {
 			if ( $id === $element['id'] ) {
 				return $element;
 			}
 
-			if ( ! empty( $element['elements'] ) ) {
-				$element = self::find_element_recursive( $element['elements'], $id );
+			$inner_elements = apply_filters(
+				'elementor/utils/find_element_recursive/inner_elements',
+				$element['elements'] ?? [],
+				$element
+			);
 
-				if ( $element ) {
-					return $element;
+			if ( ! empty( $inner_elements ) ) {
+				$found = self::find_element_recursive( $inner_elements, $id );
+
+				if ( $found ) {
+					return $found;
 				}
 			}
 		}
@@ -766,6 +907,43 @@ class Utils {
 	}
 
 	/**
+	 * @var string[]|null
+	 */
+	private static $resolved_allowed_html_wrapper_tags;
+
+	/**
+	 * Get allowed HTML wrapper tags.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string[]
+	 */
+	public static function get_allowed_html_wrapper_tags(): array {
+		if ( null !== self::$resolved_allowed_html_wrapper_tags ) {
+			return self::$resolved_allowed_html_wrapper_tags;
+		}
+
+		/**
+		 * Allowed HTML wrapper tags.
+		 *
+		 * Filters the list of allowed HTML tag names used by `validate_html_tag()`.
+		 *
+		 * Note: tags in `Utils::FORBIDDEN_HTML_WRAPPER_TAGS` (e.g. `script`, `iframe`,
+		 * `object`) are always stripped after this filter runs and cannot be re-added,
+		 * to prevent XSS via a wrapper tag that executes script or embeds external content.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string[] $tags A list of lowercase HTML tag name strings.
+		 */
+		$tags = apply_filters( 'elementor/allowed_html_wrapper_tags', self::ALLOWED_HTML_WRAPPER_TAGS );
+
+		self::$resolved_allowed_html_wrapper_tags = self::normalize_allowed_html_wrapper_tags( $tags );
+
+		return self::$resolved_allowed_html_wrapper_tags;
+	}
+
+	/**
 	 * Validate an HTML tag against a safe allowed list.
 	 *
 	 * @param string $tag
@@ -773,7 +951,32 @@ class Utils {
 	 * @return string
 	 */
 	public static function validate_html_tag( $tag ) {
-		return $tag && in_array( strtolower( $tag ), self::ALLOWED_HTML_WRAPPER_TAGS ) ? $tag : 'div';
+		return $tag && in_array( strtolower( $tag ), self::get_allowed_html_wrapper_tags(), true ) ? $tag : 'div';
+	}
+
+	/**
+	 * @param array $tags
+	 *
+	 * @return string[]
+	 */
+	private static function normalize_allowed_html_wrapper_tags( array $tags ): array {
+		$normalized_tags = [];
+
+		foreach ( $tags as $tag ) {
+			if ( ! is_string( $tag ) ) {
+				continue;
+			}
+
+			$tag = strtolower( $tag );
+
+			if ( in_array( $tag, self::FORBIDDEN_HTML_WRAPPER_TAGS, true ) ) {
+				continue;
+			}
+
+			$normalized_tags[] = $tag;
+		}
+
+		return array_values( array_unique( $normalized_tags ) );
 	}
 
 	/**
@@ -828,6 +1031,12 @@ class Utils {
 		}
 
 		echo wp_kses( $text, $allowed_html );
+	}
+
+	public static function kses_post_deep( $data ) {
+		return map_deep( $data, function ( $value ) {
+			return is_string( $value ) ? wp_kses_post( $value ) : $value;
+		} );
 	}
 
 	public static function is_elementor_path( $path ) {
@@ -923,8 +1132,8 @@ class Utils {
 	}
 
 	public static function is_sale_time(): bool {
-		$sale_start_time = gmmktime( 12, 0, 0, 11, 25, 2025 );
-		$sale_end_time = gmmktime( 3, 59, 0, 12, 3, 2025 );
+		$sale_start_time = gmmktime( 10, 0, 0, 6, 15, 2026 );
+		$sale_end_time = gmmktime( 3, 59, 0, 6, 17, 2026 );
 
 		$now_time = gmdate( 'U' );
 
@@ -972,5 +1181,18 @@ class Utils {
 
 	public static function encode_string( string $decoded_string ): string {
 		return base64_encode( $decoded_string );
+	}
+
+	public static function html_to_plain_text( string $html ): string {
+		if ( empty( $html ) ) {
+			return '';
+		}
+
+		$text = preg_replace( '#<br\s*/?\s*>#i', ' ', $html );
+		$text = preg_replace( '#</?[a-z][^>]*>#i', ' ', $text );
+		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+		$text = str_replace( "\xE2\x80\x8B", '', $text );
+
+		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }

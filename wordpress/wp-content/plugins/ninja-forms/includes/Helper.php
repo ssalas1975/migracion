@@ -217,6 +217,319 @@ class WPN_Helper
         return $value;
     }
 
+
+    /**
+     * Remove <style> and <script> elements, contents included, from rich text content.
+     *
+     * wp_kses_post() removes a disallowed tag but keeps the text between the tags. For
+     * nearly every tag that is right: the inner text is content the customer wrote. For
+     * <style> and <script> the inner text is code, so kses leaves CSS rules behind as
+     * visible text on the form - a customer's ".nf-promo{color:red}" rendering above
+     * their own content after an import (issue #8162).
+     *
+     * This runs before wp_kses_post(), not instead of it. Nothing new is allowed
+     * through; the allowlist still has the final word.
+     *
+     * A block is only removed when its closing tag is present. An opening tag with no
+     * partner is reported and left completely alone: guessing where it was meant to end
+     * would mean deleting content the customer may still want. The caller tells them
+     * instead, so they can fix the source and import again.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8162
+     *
+     * @param string $value Rich text content.
+     * @return array{content:string,removed:bool,unclosed:bool} The cleaned content,
+     *               whether anything was removed, and whether an unclosed tag was seen.
+     */
+    public static function strip_code_blocks( $value )
+    {
+        $report = array(
+            'content'  => $value,
+            'removed'  => false,
+            'unclosed' => false,
+        );
+
+        if ( ! is_string( $value ) || '' === $value ) {
+            return $report;
+        }
+
+        foreach ( array( 'style', 'script' ) as $tag ) {
+            $matched = 0;
+            $stripped = preg_replace(
+                '#<' . $tag . '\b[^>]*>.*?</\s*' . $tag . '\s*>#is',
+                '',
+                $report[ 'content' ],
+                -1,
+                $matched
+            );
+
+            // preg_replace returns null on failure; keep the original in that case.
+            if ( null !== $stripped && $matched > 0 ) {
+                $report[ 'content' ] = $stripped;
+                $report[ 'removed' ] = true;
+            }
+
+            // Whatever opening tag is still here has no closing partner.
+            if ( preg_match( '#<' . $tag . '\b[^>]*>#i', $report[ 'content' ] ) ) {
+                $report[ 'unclosed' ] = true;
+            }
+        }
+
+        return $report;
+    }
+
+
+    /**
+     * Prepare a value a site visitor submitted for storage.
+     *
+     * A visitor typing into a form field is writing text, not markup. Running
+     * the safe-HTML allowlist over that text does two things customers have
+     * reported since 2019 (issue #4003): it rewrites a bare ampersand as
+     * &amp;, and it deletes anything that looks like a tag it does not allow,
+     * so "Try to understand <redacted>" reaches the database as
+     * "Try to understand ". Encoding instead of allowlisting loses nothing and
+     * leaves nothing a browser could parse: every character survives, and it
+     * survives as text.
+     *
+     * Entities are deliberately double-encoded. Someone writing about HTML who
+     * types the literal characters "&amp;" is storing five characters, and must
+     * read those five characters back rather than a bare ampersand.
+     *
+     * A field that stores markup on purpose - the Paragraph field with its rich
+     * text editor on - passes $allow_html and keeps the allowlist.
+     *
+     * Pair this with decode_submission_value(), which is applied once wherever a
+     * stored value is read back out.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/4003
+     *
+     * @param mixed $value      Submitted value; arrays are handled per item.
+     * @param bool  $allow_html Whether the field legitimately stores markup.
+     * @return array|string
+     */
+    public static function encode_submission_value( $value, $allow_html = false )
+    {
+        if ( is_array( $value ) ) {
+            $encoded = array();
+            foreach ( $value as $key => $item ) {
+                $encoded[ $key ] = self::encode_submission_value( $item, $allow_html );
+            }
+            return $encoded;
+        }
+
+        if ( ! is_string( $value ) ) return $value;
+
+        if ( $allow_html ) return wp_kses_post( $value );
+
+        return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8', true );
+    }
+
+
+    /**
+     * Whether a field legitimately stores markup rather than plain text.
+     *
+     * Almost every field holds what a visitor typed, and that is text: encoding
+     * it loses nothing and leaves nothing a browser could parse (issue #4003).
+     * Two fields genuinely hold markup - the Paragraph field with its rich text
+     * editor enabled, and the Signature field, whose value is an image. Those
+     * keep the safe-HTML allowlist.
+     *
+     * A field that cannot be read is treated as plain text, because the safe
+     * answer when we do not know is the one that stores nothing parsable.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/4003
+     *
+     * @param mixed $field Field object, or its settings array.
+     * @return bool
+     */
+    public static function field_stores_html( $field )
+    {
+        if ( is_object( $field ) && method_exists( $field, 'get_setting' ) ) {
+            $type = $field->get_setting( 'type' );
+            $rte  = $field->get_setting( 'textarea_rte' );
+        } elseif ( is_array( $field ) ) {
+            $settings = isset( $field[ 'settings' ] ) && is_array( $field[ 'settings' ] ) ? $field[ 'settings' ] : $field;
+            $type     = isset( $settings[ 'type' ] ) ? $settings[ 'type' ] : '';
+            $rte      = isset( $settings[ 'textarea_rte' ] ) ? $settings[ 'textarea_rte' ] : false;
+        } else {
+            return false;
+        }
+
+        if ( 'signature' === $type ) return true;
+
+        return 'textarea' === $type && (bool) $rte;
+    }
+
+    /**
+     * Whether a field's submissions-column formatter builds its own markup.
+     *
+     * The choice fields do not display the value a visitor submitted. Their
+     * ninja_forms_custom_columns formatter looks the chosen values up in the
+     * form's own option list and returns the matching labels, already escaped,
+     * joined by a line break so several answers read on separate lines. That
+     * return value is markup the plugin composed, not visitor text, so
+     * encoding it again prints the separator and the escaping as characters
+     * (issue #8174). Those columns keep the safe-HTML allowlist instead.
+     *
+     * This says nothing about what the field stores; a Checkbox List still
+     * stores plain text, and every other consumer of that value still treats
+     * it as text.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8174
+     *
+     * @param mixed $field Field object, or its settings array.
+     * @return bool
+     */
+    public static function field_column_builds_markup( $field )
+    {
+        if ( is_object( $field ) && method_exists( $field, 'get_setting' ) ) {
+            $type = $field->get_setting( 'type' );
+        } elseif ( is_array( $field ) ) {
+            $settings = isset( $field[ 'settings' ] ) && is_array( $field[ 'settings' ] ) ? $field[ 'settings' ] : $field;
+            $type     = isset( $settings[ 'type' ] ) ? $settings[ 'type' ] : '';
+        } else {
+            return false;
+        }
+
+        $list_types = array(
+            'listradio',
+            'listselect',
+            'listcheckbox',
+            'listmultiselect',
+            'liststate',
+            'listimage',
+        );
+
+        return in_array( $type, $list_types, true );
+    }
+
+    /**
+     * Turn a stored field value back into the characters the visitor typed.
+     *
+     * Applied once per read, wherever a submission value leaves storage, so the
+     * submissions screen, the CSV exports, and email notifications all show the
+     * same thing. Submissions saved before issue #4003 was fixed already carry
+     * entities in the database, and this repairs them on the way out without
+     * rewriting any stored data.
+     *
+     * Decoding runs exactly once. A stored "&amp;amp;" yields the literal text
+     * "&amp;" and stops there, so a value cannot drift each time it is read.
+     *
+     * Callers displaying the result on an HTML page must still escape it for
+     * that page. This returns text, not markup.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/4003
+     *
+     * @param mixed $value Stored value; arrays are handled per item.
+     * @return array|string
+     */
+    public static function decode_submission_value( $value )
+    {
+        if ( is_array( $value ) ) {
+            $decoded = array();
+            foreach ( $value as $key => $item ) {
+                $decoded[ $key ] = self::decode_submission_value( $item );
+            }
+            return $decoded;
+        }
+
+        if ( ! is_string( $value ) ) return $value;
+
+        return html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+    }
+
+    /**
+     * Apply the safe-HTML allowlist to a list field's option labels.
+     *
+     * Labels are user-facing and may legitimately carry basic formatting, so
+     * they are allowlisted rather than escaped or stripped. Option values are
+     * identifiers rather than markup and are left untouched here — they are
+     * escaped where they are displayed instead.
+     *
+     * wp_kses_post() normalises a bare ampersand to &amp;. Labels are edited in
+     * a plain text box, so a re-encoded ampersand resurfaces to the person
+     * editing the form as a literal "&amp;" and survives every subsequent save.
+     * Restoring just the ampersand keeps the round trip stable. Angle brackets
+     * deliberately stay encoded: anything wp_kses_post left behind as &lt; is
+     * text, and decoding it would let it be parsed as markup again.
+     *
+     * @param $options array Option rows, each optionally carrying a 'label'.
+     * @return array|mixed The options with their labels cleaned.
+     */
+    public static function kses_list_options( $options )
+    {
+        if( ! is_array( $options ) ) return $options;
+
+        foreach( $options as $index => $option ) {
+
+            if( ! is_array( $option ) ) continue;
+            if( ! isset( $option[ 'label' ] ) ) continue;
+            if( ! is_string( $option[ 'label' ] ) || '' === $option[ 'label' ] ) continue;
+
+            $options[ $index ][ 'label' ] = str_replace(
+                '&amp;',
+                '&',
+                wp_kses_post( $option[ 'label' ] )
+            );
+        }
+
+        return $options;
+    }
+
+    /**
+     * Form settings that hold rich text and are printed as HTML on the front end.
+     *
+     * @since 3.15.7
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8254
+     */
+    const FORM_HTML_SETTINGS = array( 'not_logged_in_msg', 'sub_limit_msg' );
+
+    /**
+     * Apply the safe-HTML allowlist to a form's rich-text message settings.
+     *
+     * Callers decide when to apply it, using the same unfiltered_html policy
+     * as field settings. Other settings and non-string values are untouched.
+     * Shortcodes survive as text and still run when the message is displayed.
+     *
+     * @since 3.15.7
+     *
+     * @param array|mixed $settings Form settings keyed by setting name.
+     * @return array|mixed The settings with their rich-text messages cleaned.
+     */
+    public static function sanitize_form_html_settings( $settings )
+    {
+        if( ! is_array( $settings ) ) return $settings;
+
+        foreach( self::FORM_HTML_SETTINGS as $setting_name ) {
+            if( isset( $settings[ $setting_name ] ) && is_string( $settings[ $setting_name ] ) ) {
+                $settings[ $setting_name ] = wp_kses_post( $settings[ $setting_name ] );
+            }
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Clean a stored rich-text form message before display on sites that
+     * disallow unfiltered HTML.
+     *
+     * On those sites no one may store scripts, so this also neutralises any
+     * stored before 3.15.7. Elsewhere the message is returned unchanged.
+     * Apply it to the stored message before do_shortcode(), so shortcode
+     * output is not filtered.
+     *
+     * @since 3.15.7
+     *
+     * @param mixed $message Stored message.
+     * @return mixed The message, cleaned when unfiltered HTML is disallowed.
+     */
+    public static function maybe_kses_form_message( $message )
+    {
+        if( ! is_string( $message ) || ! self::maybe_disallow_unfiltered_html_for_escaping() ) return $message;
+
+        return wp_kses_post( $message );
+    }
+
     /**
      * @param $value
      * @return array|string
@@ -289,6 +602,49 @@ class WPN_Helper
         return $returnString;
     }
 
+
+    /**
+     * Build one enclosed CSV line from a row of values.
+     *
+     * A CSV field wrapped in the enclosure character must double any occurrence
+     * of that character inside it, or the reader ends the field early and every
+     * later cell on the row shifts left. The bulk export used to wrap and join
+     * these values by hand without that step; the fault was invisible only for
+     * as long as submissions stored `&quot;` in place of a quote, and surfaced
+     * as soon as issue #4003 let real quotes through.
+     *
+     * Commas and newlines inside a value need no escaping once the value is
+     * enclosed, and are deliberately left alone.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/4003
+     *
+     * @param array  $values     Cell values for this row.
+     * @param string $delimiter  Character between cells.
+     * @param string $enclosure  Character wrapping each cell.
+     * @param string $terminator End-of-line sequence.
+     * @return string
+     */
+    public static function csv_row( array $values, $delimiter = ',', $enclosure = '"', $terminator = "\n" )
+    {
+        $cells = array();
+
+        foreach ( $values as $value ) {
+            if ( is_array( $value ) ) {
+                $value = implode( ' ', $value );
+            } elseif ( is_bool( $value ) ) {
+                $value = $value ? 'true' : 'false';
+            } elseif ( is_null( $value ) ) {
+                $value = '';
+            }
+
+            $value = (string) $value;
+
+            $cells[] = $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $value ) . $enclosure;
+        }
+
+        return implode( $delimiter, $cells ) . $terminator;
+    }
+
     public static function get_query_string( $key, $default = FALSE )
     {
         if( ! isset( $_GET[ $key ] ) ) return $default;
@@ -330,13 +686,64 @@ class WPN_Helper
         if ( is_serialized( $original ) ){
             // Ported with php5.2 support from https://magp.ie/2014/08/13/php-unserialize-string-after-non-utf8-characters-stripped-out/
             $parsed = preg_replace_callback( '!s:(\d+):"(.*?)";!s', 'WPN_Helper::parse_utf8_serialized' , $original );
-            $parsed = @unserialize( $parsed );
+            $parsed = @unserialize( $parsed, ['allowed_classes' => false] );
 
-            return ( $parsed ) ? $parsed : unserialize( $original ); // Fallback if parse error.
+            return ( $parsed ) ? $parsed : unserialize( $original, ['allowed_classes' => false] ); // Fallback if parse error.
         }
         return $original;
     }
     
+    /**
+     * A form's submission limit, read from the form's own saved row.
+     *
+     * A request is otherwise served the cached working copy of the form, which
+     * NF_Abstracts_ModelFactory layers over the form model on construction.
+     * For most settings a copy that lags a builder change is cosmetic. The
+     * submission limit is the exception: a lagging limit leaves the form on the
+     * page taking submissions that are then refused, so the visitor appears to
+     * succeed while nothing is recorded.
+     *
+     * Both the display check, which withholds the form, and the submission
+     * check, which refuses an attempt, read the limit through here, so a
+     * visitor is never offered a form on terms the server will not honour.
+     *
+     * Both settings live in the form meta table; neither is one of the form
+     * model's own columns.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/7466
+     *
+     * @param int|string $form_id The form's ID.
+     * @return array Keys 'number' (the limit, '' when there is none) and
+     *               'message' (the limit reached message, '' when unset).
+     */
+    public static function get_saved_sub_limit( $form_id )
+    {
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT `key`, `value`
+            FROM `{$wpdb->prefix}nf3_form_meta`
+            WHERE `parent_id` = %d
+            AND `key` IN ( 'sub_limit_number', 'sub_limit_msg' )",
+            $form_id
+        ), 'ARRAY_A' );
+
+        $saved = array( 'number' => '', 'message' => '' );
+
+        if ( ! $rows ) {
+            return $saved;
+        }
+
+        $keys = array( 'sub_limit_number' => 'number', 'sub_limit_msg' => 'message' );
+
+        foreach ( $rows as $row ) {
+            if ( ! isset( $keys[ $row[ 'key' ] ] ) ) continue;
+            $saved[ $keys[ $row[ 'key' ] ] ] = (string) static::maybe_unserialize( $row[ 'value' ] );
+        }
+
+        return $saved;
+    }
+
     /**
      * Function to fetch our cache from the upgrades table (if it exists there).
      * 
@@ -628,6 +1035,235 @@ class WPN_Helper
         return $outgoing;
     }
 
+
+    /**
+     * Runs rich text field content through wp_kses_post() without losing the
+     * colours the customer picked.
+     *
+     * WordPress's safe-HTML filter accepts `color:#e60000` and `color:red`, but
+     * discards `color:rgb(230, 0, 0)` because `rgb` is missing from its list of
+     * trusted CSS functions. Our Quill configuration writes colour and highlight
+     * as inline styles, and a browser always serialises a picked colour into the
+     * rgb() form, so every colour a customer picked was being thrown away on
+     * import (issue #7579).
+     *
+     * Colours are rewritten into the hex spelling WordPress already accepts and
+     * the filter then runs at full strength. Nothing about the filter is relaxed.
+     *
+     * Anything that isn't text (null, an array) goes to wp_kses_post() unchanged,
+     * exactly as it did before this helper existed.
+     *
+     * @param mixed $value Rich text content as authored.
+     * @return mixed Filtered content with picked colours intact.
+    */
+    public static function kses_post_rich_text($value) {
+
+        if ( ! is_string( $value ) ) {
+            return wp_kses_post( $value );
+        }
+
+        return wp_kses_post(self::hexify_css_color_functions($value));
+    }
+
+    /**
+     * Rewrites rgb()/rgba()/hsl()/hsla() colours inside style attributes into
+     * their hex equivalent.
+     *
+     * Only style attribute contents are touched, and only these four colour
+     * functions within them. A value that cannot be parsed as a colour is left
+     * exactly as authored for the safe-HTML filter to deal with as it does today.
+     *
+     * @param string $value Markup that may carry style attributes.
+     * @return string Same markup with colour functions expressed as hex.
+    */
+    public static function hexify_css_color_functions($value):string {
+
+        if ('' === $value || false === stripos($value, 'style')) {
+            return $value;
+        }
+
+        $hexified = preg_replace_callback(
+            '/style\s*=\s*(["\'])(.*?)\1/is',
+            function ($attribute) {
+                $declarations = preg_replace_callback(
+                    '/\b(rgba?|hsla?)\(([^()]*)\)/i',
+                    function ($color) {
+                        $hex = WPN_Helper::css_color_function_to_hex($color[1], $color[2]);
+
+                        return '' === $hex ? $color[0] : $hex;
+                    },
+                    $attribute[2]
+                );
+
+                return 'style=' . $attribute[1] . $declarations . $attribute[1];
+            },
+            $value
+        );
+
+        return null === $hexified ? $value : $hexified;
+    }
+
+    /**
+     * Converts the arguments of a CSS colour function into a hex colour.
+     *
+     * Handles both the legacy comma syntax browsers emit (`rgb(230, 0, 0)`) and
+     * the space syntax with an optional slash alpha (`rgb(230 0 0 / 35%)`).
+     * Transparency becomes the 8-digit hex form, which WordPress accepts.
+     *
+     * @param string $function Colour function name: rgb, rgba, hsl or hsla.
+     * @param string $arguments Raw arguments from between the parentheses.
+     * @return string Hex colour, or an empty string when the value is not a
+     *                colour we can express exactly.
+    */
+    public static function css_color_function_to_hex($function, $arguments):string {
+
+        $parts = preg_split('#[\s,/]+#', trim($arguments), -1, PREG_SPLIT_NO_EMPTY);
+
+        if (! is_array($parts) || count($parts) < 3 || count($parts) > 4) {
+            return '';
+        }
+
+        $alpha = 1.0;
+        if (4 === count($parts)) {
+            $alpha = self::css_alpha_to_fraction(array_pop($parts));
+            if (null === $alpha) {
+                return '';
+            }
+        }
+
+        $function = strtolower($function);
+
+        if ('rgb' === $function || 'rgba' === $function) {
+            $channels = array();
+            foreach ($parts as $part) {
+                $channel = self::css_rgb_channel_to_int($part);
+                if (null === $channel) {
+                    return '';
+                }
+                $channels[] = $channel;
+            }
+        } else {
+            $channels = self::css_hsl_to_rgb_channels($parts);
+            if (null === $channels) {
+                return '';
+            }
+        }
+
+        $hex = '#';
+        foreach ($channels as $channel) {
+            $hex .= str_pad(dechex($channel), 2, '0', STR_PAD_LEFT);
+        }
+
+        if ($alpha < 1.0) {
+            $hex .= str_pad(dechex((int) round($alpha * 255)), 2, '0', STR_PAD_LEFT);
+        }
+
+        return $hex;
+    }
+
+    /**
+     * Reads one red, green or blue channel, as a 0-255 number or a percentage.
+     *
+     * @param string $part Single channel argument.
+     * @return int|null Channel value 0-255, or null when it is not a number.
+    */
+    private static function css_rgb_channel_to_int($part)
+    {
+        if (! preg_match('/^(-?\d*\.?\d+)(%?)$/', trim($part), $matches)) {
+            return null;
+        }
+
+        $number = (float) $matches[1];
+        if ('%' === $matches[2]) {
+            $number = $number * 255 / 100;
+        }
+
+        return (int) round(max(0, min(255, $number)));
+    }
+
+    /**
+     * Reads a CSS alpha argument, given either as a fraction or a percentage.
+     *
+     * @param string $part Alpha argument.
+     * @return float|null Alpha as a 0-1 fraction, or null when unreadable.
+    */
+    private static function css_alpha_to_fraction($part)
+    {
+        if (! preg_match('/^(-?\d*\.?\d+)(%?)$/', trim($part), $matches)) {
+            return null;
+        }
+
+        $number = (float) $matches[1];
+        if ('%' === $matches[2]) {
+            $number = $number / 100;
+        }
+
+        return max(0.0, min(1.0, $number));
+    }
+
+    /**
+     * Converts hue, saturation and lightness arguments into rgb channels.
+     *
+     * @param array $parts Three arguments: hue, saturation, lightness.
+     * @return array|null Three 0-255 channels, or null when unreadable.
+    */
+    private static function css_hsl_to_rgb_channels($parts)
+    {
+        if (! preg_match('/^(-?\d*\.?\d+)(deg)?$/', trim($parts[0]), $hue)) {
+            return null;
+        }
+
+        $saturation = self::css_percentage_to_fraction($parts[1]);
+        $lightness = self::css_percentage_to_fraction($parts[2]);
+
+        if (null === $saturation || null === $lightness) {
+            return null;
+        }
+
+        $hue = fmod((float) $hue[1], 360);
+        if ($hue < 0) {
+            $hue += 360;
+        }
+
+        $chroma = (1 - abs(2 * $lightness - 1)) * $saturation;
+        $segment = $hue / 60;
+        $second = $chroma * (1 - abs(fmod($segment, 2) - 1));
+        $match = $lightness - $chroma / 2;
+
+        $sequences = array(
+            array($chroma, $second, 0),
+            array($second, $chroma, 0),
+            array(0, $chroma, $second),
+            array(0, $second, $chroma),
+            array($second, 0, $chroma),
+            array($chroma, 0, $second),
+        );
+
+        $sequence = $sequences[(int) floor($segment) % 6];
+
+        $channels = array();
+        foreach ($sequence as $component) {
+            $channels[] = (int) round(($component + $match) * 255);
+        }
+
+        return $channels;
+    }
+
+    /**
+     * Reads a CSS percentage argument as a 0-1 fraction.
+     *
+     * @param string $part Percentage argument.
+     * @return float|null Fraction, or null when unreadable.
+    */
+    private static function css_percentage_to_fraction($part)
+    {
+        if (! preg_match('/^(-?\d*\.?\d+)%?$/', trim($part), $matches)) {
+            return null;
+        }
+
+        return max(0.0, min(1.0, (float) $matches[1] / 100));
+    }
+
     /**
      * Sanitizes string values for field settings 
      * 
@@ -697,10 +1333,117 @@ class WPN_Helper
         if( 0 < strlen($value ) ) {
             $first_char = substr( $value, 0, 1 );
             if( in_array( $first_char, array( '=', '@', '+', '-' ) ) ) {
+                // For values starting with +, check if it's a valid international phone number
+                // Pattern: + followed by digit, then optional digits/spaces/parentheses/dots/hyphens
+                if( '+' === $first_char && preg_match( '/^\+[0-9][0-9\s().\-]*$/', $value ) ) {
+                    // Valid international phone number - do not escape
+                    return $value;
+                }
                 $value = "'" . $value;
             }
         }
         return $value;
     }
     
+    /**
+     * Run a field default value through do_shortcode(), keeping it unchanged
+     * when a shortcode echoes rather than returns its output.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function process_default_value_shortcodes( $value )
+    {
+        if ( is_array( $value ) ) {
+            return $value;
+        }
+
+        ob_start();
+        do_shortcode( $value );
+        $ob = ob_get_clean();
+
+        if ( ! $ob ) {
+            $value = do_shortcode( $value );
+        }
+
+        // Substituted merge-tag values arrive with their brackets entity-encoded
+        // so they can't form a shortcode. Shortcode processing is done, so show
+        // them as the characters they are.
+        if ( is_string( $value ) ) {
+            $value = str_replace( array( '&#91;', '&#93;' ), array( '[', ']' ), $value );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Build the long date format for the language the site is running in.
+     *
+     * The date field's verbose format option is the only one that spells out
+     * the month and day names, so it is the only one whose word order has to
+     * follow the site's language. It used to be the hardcoded English
+     * 'l, F d Y', which rendered a French site's date as
+     * "Samedi, Janvier 20 2018" while the builder's own French sample promised
+     * "Vendredi 18 novembre 2019". See issue #3308.
+     *
+     * WordPress already carries each language's date arrangement in its own
+     * translation of 'F j, Y', so take the arrangement from there and put the
+     * day name in front of it rather than maintaining a per-language table.
+     *
+     * @return string A PHP/flatpickr date format, e.g. 'l, F j, Y' in English
+     *                and 'l j F Y' in French.
+     */
+    public static function get_long_date_format()
+    {
+        // WordPress core's own arrangement for the active locale: 'F j, Y' in
+        // English, 'j F Y' in French,
+        // 'j \d\e F \d\e Y' in Spanish, and year-first in Japanese.
+        $arrangement = __( 'F j, Y' );
+
+        // Month-first languages separate the day name with a comma
+        // ("Friday, November 18, 2019"); the rest simply run on
+        // ("Samedi 20 Janvier 2018").
+        $separator = self::arrangement_leads_with_month( $arrangement ) ? ', ' : ' ';
+
+        return 'l' . $separator . $arrangement;
+    }
+
+    /**
+     * Whether a date arrangement names the month before the day or the year.
+     *
+     * Reads the first meaningful format character, skipping any escaped
+     * literal, so Spanish's 'j \d\e F \d\e Y' is read as day-first rather
+     * than being misled by the 'd' of the literal word "de".
+     *
+     * @param string $arrangement A PHP date format string.
+     * @return bool
+     */
+    private static function arrangement_leads_with_month( $arrangement )
+    {
+        $month_tokens = array( 'F', 'M', 'm', 'n' );
+        $other_tokens = array( 'd', 'j', 'D', 'l', 'Y', 'y', 'o' );
+        $length       = strlen( $arrangement );
+
+        for ( $index = 0; $index < $length; $index++ ) {
+            $character = $arrangement[ $index ];
+
+            // A backslash makes the next character a literal, not a token.
+            if ( '\\' === $character ) {
+                $index++;
+                continue;
+            }
+
+            if ( in_array( $character, $month_tokens, true ) ) {
+                return true;
+            }
+
+            if ( in_array( $character, $other_tokens, true ) ) {
+                return false;
+            }
+        }
+
+        // Nothing recognisable: read it the way English does.
+        return true;
+    }
+
 } // End Class WPN_Helper

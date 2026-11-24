@@ -1,6 +1,6 @@
 <?php // Google Analytics - Show Support Panel
 
-if (!function_exists('add_action')) die();
+if (!defined('ABSPATH')) die();
 
 function ga_google_analytics_wp_resources() {
 	
@@ -127,9 +127,9 @@ function ga_google_analytics_wp_resources() {
 		</div>
 		<div class="project-blurb">
 			<p><strong><?php esc_html_e('Please Donate', 'ga-google-analytics'); ?></strong></p>
-			<p><?php echo $donate; ?></p>
+			<p><?php echo esc_html($donate); ?></p>
 			<ul>
-				<li><a target="_blank" rel="noopener noreferrer" href="<?php echo $url3; ?>" title="<?php echo $title3; ?>"><?php esc_html_e('Make a donation&nbsp;&raquo;', 'ga-google-analytics'); ?></a></li>
+				<li><a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url($url3); ?>" title="<?php echo esc_attr($title3); ?>"><?php esc_html_e('Make a donation&nbsp;&raquo;', 'ga-google-analytics'); ?></a></li>
 			</ul>
 		</div>
 	</div>

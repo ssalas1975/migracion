@@ -220,7 +220,7 @@ class Pricing_Table extends Widget_Base
         /**
          * Condition: 'eael_pricing_table_style' => 'style-2'
          */
-        $subtitles_fields = apply_filters('pricing_table_subtitle_field_for', ['style-2']);
+        $subtitles_fields = apply_filters('pricing_table_subtitle_field_for', ['style-2']); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
         $this->add_control(
             'eael_pricing_table_sub_title',
             [
@@ -254,12 +254,12 @@ class Pricing_Table extends Widget_Base
                     'library' => 'fa-solid',
                 ],
                 'condition'        => [
-                    'eael_pricing_table_style' => apply_filters('eael_pricing_table_icon_supported_style', ['style-2']),
+                    'eael_pricing_table_style' => apply_filters('eael_pricing_table_icon_supported_style', ['style-2']), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                 ],
             ]
         );
 
-        do_action('add_pricing_table_settings_control', $this);
+        do_action('add_pricing_table_settings_control', $this); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
         $this->end_controls_section();
 
@@ -345,7 +345,7 @@ class Pricing_Table extends Widget_Base
             ]
         );
 
-        do_action('pricing_table_currency_position', $this);
+        do_action('pricing_table_currency_position', $this); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
         $this->add_control(
             'eael_pricing_table_price_period',
@@ -2573,7 +2573,8 @@ class Pricing_Table extends Widget_Base
         <?php if ('style-1' === $settings['eael_pricing_table_style']) : ?>
             <div class="eael-pricing-item <?php echo esc_attr($featured_class); ?>">
                 <div class="header">
-                    <<?php echo esc_html($settings['eael_pricing_table_title_tag']); ?> class="title"><?php echo wp_kses( $settings['eael_pricing_table_title'], HelperClass::eael_allowed_tags() ); ?></<?php echo esc_html($settings['eael_pricing_table_title_tag']); ?>>
+                    <?php $eael_pricing_table_title_tag = HelperClass::eael_validate_html_tag( $settings['eael_pricing_table_title_tag'] ); ?>
+                    <<?php echo esc_html( $eael_pricing_table_title_tag ); ?> class="title"><?php echo wp_kses( $settings['eael_pricing_table_title'], HelperClass::eael_allowed_tags() ); ?></<?php echo esc_html( $eael_pricing_table_title_tag ); ?>>
                 </div>
                 <div class="eael-pricing-tag">
                     <?php 
@@ -2621,7 +2622,8 @@ class Pricing_Table extends Widget_Base
                 </div>
                 <div class="header">
                     <?php 
-                    $header_html = '<' . $settings['eael_pricing_table_title_tag'] . ' class="title">' . $settings['eael_pricing_table_title'] . '</' . $settings['eael_pricing_table_title_tag'] . '>';
+                    $eael_pricing_table_title_tag = HelperClass::eael_validate_html_tag( $settings['eael_pricing_table_title_tag'] );
+                    $header_html = '<' . $eael_pricing_table_title_tag . ' class="title">' . $settings['eael_pricing_table_title'] . '</' . $eael_pricing_table_title_tag . '>';
                     $header_html .= '<span class="subtitle">' . $settings['eael_pricing_table_sub_title'] . '</span>';
                     echo wp_kses( $header_html, HelperClass::eael_allowed_tags() );
                     ?>
@@ -2661,7 +2663,7 @@ class Pricing_Table extends Widget_Base
         <?php endif; ?>
         <?php
         $depricated_param = $featured_class;
-        do_action('add_pricing_table_style_block', $settings, $this, $pricing, $button_url, $featured_class, $depricated_param );
+        do_action('add_pricing_table_style_block', $settings, $this, $pricing, $button_url, $featured_class, $depricated_param ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
         ?>
     </div>
     <?php

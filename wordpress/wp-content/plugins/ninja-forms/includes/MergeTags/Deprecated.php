@@ -19,7 +19,7 @@ final class NF_MergeTags_Deprecated extends NF_Abstracts_MergeTags
 
         if ( is_admin() && defined( 'DOING_AJAX' ) && DOING_AJAX ) {
             // If we are doing AJAX, use the referer to get the Post ID.
-            $post_id = url_to_postid( wp_get_referer() );
+            $post_id = $this->viewable_referer_post_id( url_to_postid( wp_get_referer() ) );
         } elseif( $post ) {
             $post_id = $post->ID;
         } else {
@@ -125,20 +125,34 @@ final class NF_MergeTags_Deprecated extends NF_Abstracts_MergeTags
         return date( $format, time() );
     }
 
-    protected function system_ip()
+    /**
+     * Neutralize shortcode brackets to prevent shortcode injection.
+     *
+     * Converts [ and ] to HTML entities so they display correctly
+     * but are not interpreted as shortcodes by do_shortcode().
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/8123
+     *
+     * @param mixed $value The value to sanitize.
+     * @return mixed The sanitized value with brackets converted to entities.
+     */
+    protected function neutralize_shortcodes( $value )
     {
-        $ip = '127.0.0.1';
-        if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-            //check ip from share internet
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-            //to check ip is pass from proxy
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } elseif( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+        if ( ! is_string( $value ) ) {
+            return $value;
         }
 
-        return apply_filters( 'ninja_forms-get_ip', apply_filters( 'nf_get_ip', $ip ) );
+        $value = str_replace( '[', '&#91;', $value );
+        $value = str_replace( ']', '&#93;', $value );
+
+        return $value;
+    }
+
+    protected function system_ip()
+    {
+        // Neutralize shortcode brackets to prevent shortcode injection.
+        // @see https://github.com/Saturday-Drive/ninja-forms/issues/8123
+        return $this->neutralize_shortcodes( $this->get_client_ip() );
     }
 
 

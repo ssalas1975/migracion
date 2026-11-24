@@ -85,7 +85,7 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 				$key   = '';
 			}
 
-			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic ) ) {
+			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic, 'post_object' ) ) {
 				die();
 			}
 
@@ -180,17 +180,28 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 				}
 			}
 
+			$args['perm']                 = 'readable';
+			$args['acf_field_post_types'] = acf_get_array( $field['post_type'] );
+			$args                         = acf_ensure_perm_readable_post_status( $args );
+
 			// filters
 			$args = apply_filters( 'acf/fields/post_object/query', $args, $field, $options['post_id'] );
 			$args = apply_filters( 'acf/fields/post_object/query/name=' . $field['name'], $args, $field, $options['post_id'] );
 			$args = apply_filters( 'acf/fields/post_object/query/key=' . $field['key'], $args, $field, $options['post_id'] );
 
-			// get posts grouped by post type
-			$groups = acf_get_grouped_posts( $args );
+			// Re-normalize in case a filter reset `post_status` to 'any' while leaving `perm=readable`.
+			$args = acf_ensure_perm_readable_post_status( $args );
 
-			// bail early if no posts
+			// get posts grouped by post type
+			$readable = acf_remove_unreadable_grouped_posts( acf_get_grouped_posts( $args ), $args, $field );
+			$groups   = $readable['groups'];
+
+			// bail early if no posts, but keep paging if this page's posts were all removed
 			if ( empty( $groups ) ) {
-				return false;
+				return $readable['more'] ? array(
+					'results' => array(),
+					'more'    => true,
+				) : false;
 			}
 
 			// loop
@@ -233,6 +244,7 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 			// vars
 			$response = array(
 				'results' => $results,
+				'more'    => $readable['more'],
 				'limit'   => $args['posts_per_page'],
 			);
 
@@ -317,6 +329,9 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 		 * @return void
 		 */
 		public function render_field( $field ) {
+			// Read checks need the Post Object field, not the select it's rendered as.
+			$post_object_field = $field;
+
 			// Change Field into a select
 			$field['type']    = 'select';
 			$field['ui']      = 1;
@@ -334,7 +349,7 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 					$post = acf_extract_var( $posts, $i );
 
 					// append to choices
-					$field['choices'][ $post->ID ] = $this->get_post_title( $post, $field );
+					$field['choices'][ $post->ID ] = acf_current_user_can_read_post( $post, $post_object_field ) ? $this->get_post_title( $post, $field ) : acf_get_restricted_post_title();
 				}
 			}
 
@@ -490,7 +505,7 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 		 * @return mixed $value
 		 */
 		public function format_value( $value, $post_id, $field ) {
-			$value = acf_get_numeric( $value );
+			$value = acf_remove_unreadable_formatted_post_ids( acf_get_numeric( $value ), $post_id, $field );
 
 			// bail early if no value
 			if ( empty( $value ) ) {
@@ -541,6 +556,8 @@ if ( ! class_exists( 'acf_field_post_object' ) ) :
 			} else {
 				$value = acf_idval( $value );
 			}
+
+			$value = acf_remove_disallowed_post_ids( $value, $post_id, $field );
 
 			acf_update_bidirectional_values( acf_get_array( $value ), $post_id, $field );
 

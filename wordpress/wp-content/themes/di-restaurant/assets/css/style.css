@@ -47,16 +47,19 @@ body a:hover {
 
 /* full alignment */
 
-.excerpt-or-content-typog .alignfull {
-	margin-left: calc( -55.5vw / 2 + 100% / 2 );
-	margin-right: calc( -55.7vw / 2 + 100% / 2 );
-	max-width: 100vw;
+.excerpt-or-content-typog .alignfull, .entry-content .alignfull {
+	margin-left  : calc( -100vw / 2 + 100% / 2 );
+	margin-right : calc( -100vw / 2 + 100% / 2 );
+	max-width    : 100vw;
 }
 
 .excerpt-or-content-typog .alignwide {
+	/*
+	Keep same alignwide = contents.
 	margin-left: calc( -55.5vw / 2 + 100% / 2 );
 	margin-right: calc( -55.7vw / 2 + 100% / 2 );
 	max-width: 100vw;
+	*/
 }
 
 /* full alignment END */
@@ -2131,7 +2134,7 @@ Drop down menu background color hover + active
 body .entry-content a:not( .elementor-element a ),
 body .widget_text a,
 body .comment-meta.commentmetadata + p a {
-	text-decoration: underline;
+	text-decoration: inherit;
 }
 
 /* Underline links in text section requirement END */

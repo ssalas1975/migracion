@@ -31,7 +31,7 @@ class Banner {
 	 * @since 2.0.0
 	 * @var string
 	 */
-	private $version = '2.0.0';
+	private $version = '2.1.0';
 
 	/**
 	 * Campaign URL.
@@ -47,7 +47,7 @@ class Banner {
 	 * @since 2.0.0
 	 * @var string
 	 */
-	private $utm_campaign = 'BF-Plugins-2025-banner';
+	private $utm_campaign = 'BF-Plugins-2026-banner';
 
 	/**
 	 * Option name to store data.
@@ -55,7 +55,7 @@ class Banner {
 	 * @since 1.0
 	 * @var string $option_name
 	 */
-	protected $option_name = 'wpmudev_black_friday_2025_flag';
+	protected $option_name = 'wpmudev_black_friday_2026_flag';
 
 	/**
 	 * DOM element ID for the banner.
@@ -87,7 +87,7 @@ class Banner {
 	 * @since 2.0.0
 	 * @var string
 	 */
-	private $utm_content = 'BF-Plugins-2025';
+	private $utm_content = 'BF-Plugins-2026';
 
 	/**
 	 * Constructor.
@@ -155,6 +155,17 @@ class Banner {
 			array(),
 			$this->script_version
 		);
+
+		// Hide the banner while the plugin shows a full screen view, eg Smush's onboarding wizard.
+		// The plugin adds the body class in PHP, so the banner is hidden from the first paint, and shows again if the class is removed.
+		$hidden_body_class = sanitize_html_class( Utils::get_current_page_plugin()['banner_hidden_body_class'] ?? '' );
+
+		if ( ! empty( $hidden_body_class ) ) {
+			wp_add_inline_style(
+				'wpmudev-bf-common',
+				sprintf( 'body.%s #wpbody-content .wpmudev-bf-banner { display: none !important; }', $hidden_body_class )
+			);
+		}
 	}
 
 	/**
@@ -176,7 +187,8 @@ class Banner {
 				'wp-dom-ready',
 			);
 
-		$utm_source   = Utils::get_current_page_utm_source();
+		$plugin_data  = Utils::get_current_page_plugin();
+		$utm_source   = $plugin_data['utm_source'] ?? '';
 		$campaign_url = add_query_arg(
 			array(
 				'utm_source'   => $utm_source,
@@ -184,7 +196,7 @@ class Banner {
 				'utm_campaign' => $utm_source . '-' . $this->utm_campaign,
 				'utm_content'  => $this->utm_content,
 			),
-			$this->campaign_url
+			Utils::get_campaign_url( $plugin_data, $this->campaign_url )
 		);
 
 		wp_enqueue_script(
@@ -195,17 +207,27 @@ class Banner {
 			true
 		);
 
-		wp_localize_script(
-			'wpmudev-bf-common',
-			'wpmudevBFBanner',
-			array(
-				'nonce'             => wp_create_nonce( $this->nonce ),
-				'campaign_url'      => $campaign_url,
-				'dom_element_id'    => $this->dom_element_id,
-				'translation_texts' => $this->translation_texts(),
-				'root_url'          => esc_url( WPMUDEV_MODULE_BLACK_FRIDAY_URL ),
-			)
+		$data = array(
+			'nonce'             => wp_create_nonce( $this->nonce ),
+			'campaign_url'      => $campaign_url,
+			'dom_element_id'    => $this->dom_element_id,
+			'container'         => Utils::get_current_page_plugin()['banner_container'] ?? '',
+			'translation_texts' => $this->translation_texts(),
+			'root_url'          => esc_url( WPMUDEV_MODULE_BLACK_FRIDAY_URL ),
 		);
+
+		/**
+		 * Filters the banner data, eg its texts or campaign URL.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param array $data The banner script data.
+		 */
+		$data = (array) apply_filters( 'wpmudev_blackfriday_banner_data', $data );
+
+		$data['campaign_url'] = esc_url_raw( $data['campaign_url'] ?? '' );
+
+		wp_localize_script( 'wpmudev-bf-common', 'wpmudevBFBanner', $data );
 	}
 
 	/**
@@ -247,7 +269,7 @@ class Banner {
 		}
 
 		// Check user capabilities, if banner/notice has been dismissed (closed) and if current page is one of our plugins admin pages.
-		if ( ! current_user_can( 'manage_options' ) || $this->is_dismissed() || ! $this->is_allowed_page() ) {
+		if ( ! Utils::current_user_can_view() || $this->is_dismissed() || ! $this->is_allowed_page() ) {
 			$can_display = false;
 		} else {
 			$can_display = true;
@@ -314,6 +336,11 @@ class Banner {
 	public function dismiss_banner() {
 		// Verify nonce.
 		check_ajax_referer( $this->nonce, 'nonce' );
+
+		// Anyone who can see the banner can dismiss it, for everyone.
+		if ( ! Utils::current_user_can_view() ) {
+			wp_send_json_error( array( 'success' => false ), 403 );
+		}
 
 		// Dismiss notice.
 		update_site_option( $this->option_name, true );
@@ -393,12 +420,24 @@ class Banner {
 	 * @return array The translation texts.
 	 */
 	protected function translation_texts() {
+		/**
+		 * Filters the deal price shown in the banner subtext.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param string $price The deal price, eg $3.33/m.
+		 */
+		$price = apply_filters( 'wpmudev_blackfriday_deal_price', '$3.33/m' );
+
 		return array(
-			'dismiss_button' => __( 'Dismiss', 'wpmudev-black-friday' ),
-			'black_friday'   => __( 'Black Friday', 'wpmudev-black-friday' ),
-			'sale'           => __( 'Sale', 'wpmudev-black-friday' ),
-			'subtext'        => __( 'Get 11 months for free', 'wpmudev-black-friday' ),
-			'button_text'    => __( 'See the Deal', 'wpmudev-black-friday' ),
+			'dismiss_button'       => __( 'Dismiss', 'wpmudev-black-friday' ),
+			'black_friday_special' => __( 'Black Friday Special', 'wpmudev-black-friday' ),
+			'subtext'              => sprintf(
+				/* translators: %s: The deal price, eg $3.33/m. */
+				__( '%s for unlimited sites', 'wpmudev-black-friday' ),
+				$price
+			),
+			'button_text'          => __( 'See the deal', 'wpmudev-black-friday' ),
 		);
 	}
 }

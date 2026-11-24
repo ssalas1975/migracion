@@ -43,6 +43,13 @@ class Album extends TableDriver {
 	public $custom_post_name = 'mixin_nextgen_table_extras';
 
 	/**
+	 * WP object cache group.
+	 *
+	 * @var string
+	 */
+	protected $object_cache_group = 'ngg_albums';
+
+	/**
 	 * Constructor.
 	 *
 	 * Defines the database table structure and initializes the mapper.
@@ -62,7 +69,7 @@ class Album extends TableDriver {
 		$this->define_column( 'date_modified', 'DATETIME' );
 
 		// Add display type related columns
-		$this->define_column( 'display_type', 'VARCHAR(255)', 'photocrati-nextgen_basic_thumbnails' );
+		$this->define_column( 'display_type', 'VARCHAR(255)', 'photocrati-nextgen_basic_compact_album' );
 		$this->define_column( 'display_type_settings', 'MEDIUMTEXT' );
 
 		$this->add_serialized_column( 'sortorder' );
@@ -108,14 +115,30 @@ class Album extends TableDriver {
 		}
 		$entity->date_modified = $current_time;
 
-		// Initialize display type settings before saving
-		$this->initialize_display_type_settings( $entity );
-
+		// Defaults are not baked into per-album settings here; absent types inherit global at render.
 		$retval = parent::save_entity( $entity );
 
 		if ( $retval ) {
 			\do_action( 'ngg_album_updated', $entity );
 			Transient::flush( 'displayed_gallery_rendering' );
+			Transient::flush( 'rest_albums' );
+		}
+
+		return $retval;
+	}
+
+	/**
+	 * Destroys an album entity.
+	 *
+	 * @param int|\Imagely\NGG\DataTypes\Album $entity The album ID or entity to destroy.
+	 * @return bool True if successfully destroyed, false otherwise.
+	 */
+	public function destroy( $entity ) {
+		$retval = parent::destroy( $entity );
+
+		if ( $retval ) {
+			Transient::flush( 'displayed_gallery_rendering' );
+			Transient::flush( 'rest_albums' );
 		}
 
 		return $retval;
@@ -146,33 +169,31 @@ class Album extends TableDriver {
 	}
 
 	/**
-	 * Ensures display type settings are properly initialized with defaults
+	 * Fills missing display types in the given per-album settings with the current global defaults.
+	 * Presentation-only (admin UI); never persisted onto the album.
 	 *
-	 * @param object $entity The album entity
-	 * @return void
+	 * @param array $settings Stored per-album display type settings keyed by display type name.
+	 * @return array Settings with missing display types and untouched keys filled from current global.
 	 */
-	private function initialize_display_type_settings( $entity ) {
-		// Initialize display type settings if not set
-		if ( ! is_array( $entity->display_type_settings ) ) {
-			$entity->display_type_settings = [];
+	public function with_display_type_defaults( $settings ) {
+		$settings = is_array( $settings ) ? $settings : [];
+
+		foreach ( $this->get_all_display_type_defaults() as $type_name => $defaults ) {
+			$sanitized_defaults = array_map(
+				static function ( $value ) {
+					return is_bool( $value ) ? (int) $value : $value;
+				},
+				$defaults
+			);
+
+			// Fill at the key level so a partially-customized type keeps its stored values but has its
+			// untouched keys filled from the current global (not stale client-side defaults).
+			$settings[ $type_name ] = isset( $settings[ $type_name ] ) && is_array( $settings[ $type_name ] )
+				? array_merge( $sanitized_defaults, $settings[ $type_name ] )
+				: $sanitized_defaults;
 		}
 
-		// Get defaults for all display types
-		$all_defaults = $this->get_all_display_type_defaults();
-
-		// Ensure all display types have settings
-		foreach ( $all_defaults as $type_name => $defaults ) {
-			if ( ! isset( $entity->display_type_settings[ $type_name ] ) ) {
-				$sanitized_defaults = array_map(
-					function ( $value ) {
-						return is_bool( $value ) ? (int) $value : $value;
-					},
-					$defaults
-				);
-
-				$entity->display_type_settings[ $type_name ] = $sanitized_defaults;
-			}
-		}
+		return $settings;
 	}
 
 	/**
@@ -184,6 +205,7 @@ class Album extends TableDriver {
 		$this->set_default_value( $entity, 'name', '' );
 		$this->set_default_value( $entity, 'albumdesc', '' );
 		$this->set_default_value( $entity, 'sortorder', [] );
+		$this->set_default_value( $entity, 'pageid', 0 );
 		$this->set_default_value( $entity, 'previewpic', 0 );
 		$this->set_default_value( $entity, 'exclude', 0 );
 

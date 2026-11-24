@@ -2,7 +2,7 @@
 /**
  * Class Password Protected Activity Report Settings
  *
- * @package Password Protected Pro
+ * @package Password_Protected
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -15,16 +15,12 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 			add_action( 'admin_init', array( $this, 'update_database' ), -1 );
 			add_action( 'admin_init', array( $this, 'settings_fields' ), 10 );
 			add_action( 'password_protected_subtab_activity-report_content', array( $this, 'activity_report' ) );
+			add_action( 'password_protected_subtab_activity_logs_content', array( $this, 'activity_logs_admin' ) );
+			add_action( 'load-toplevel_page_password-protected', array( $this, 'maybe_register_activity_logs_screen_option' ) );
 
+            add_action( 'password_protected_register_activity_logging', array( $this, 'register_default_activity_logging' ), 10 );
+            add_action( 'plugins_loaded', array( $this, 'dispatch_activity_logging_registration' ), 20 );
 			if ( self::is_activity_report_enabled() ) {
-				if ( ! class_exists( 'Password_Protected_Pro' ) ) {
-					require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-activity-logs.php';
-
-					add_action( 'password_protected_success_login_attempt', array( $this, 'success_attempt' ), 10, 3 );
-					add_action( 'password_protected_failure_login_attempt', array( $this, 'failure_attempt' ), 10, 3 );
-					add_action( 'password_protected_after_login_form', array( $this, 'login_enqueue_scripts' ) );
-					add_action( 'password_protected_below_password_field', array( $this, 'add_new_field_after_password_field' ) );
-				}
 
 				require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-send-email-notification.php';
 			}
@@ -49,10 +45,39 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 					PRIMARY KEY ( `id` )
 				) ' . $charset_collate . ';';
 
-				maybe_create_table( $table_name, $sql );
-				update_option( 'password_protected_1.5_update_database', true );
-			}
+			maybe_create_table( $table_name, $sql );
+			update_option( 'password_protected_1.5_update_database', true );
 		}
+
+            $database_updated = get_option( 'pp_activity_logs_db_updated' );
+            if ( ! $database_updated ) {
+                if ( ! function_exists( 'maybe_add_column' ) ) {
+                    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+                }
+
+                global $wpdb;
+                $table_name      = $wpdb->prefix . 'pp_activity_logs';
+                $used_password_col = maybe_add_column(
+                    $table_name,
+                    'used_password',
+                    'ALTER TABLE ' . $table_name . ' ADD `used_password` VARCHAR ( 255 ) NULL AFTER `status`'
+                );
+                $password_id_col   = maybe_add_column(
+                    $table_name,
+                    'password_id',
+                    'ALTER TABLE ' . $table_name . ' ADD `password_id` VARCHAR( 255 ) NULL AFTER `id`'
+                );
+                $object_type_col   = maybe_add_column(
+                    $table_name,
+                    'object_type',
+                    'ALTER TABLE ' . $table_name . ' ADD `object_type` VARCHAR( 255 ) NULL AFTER `status`'
+                );
+
+                if ( $used_password_col && $password_id_col && $object_type_col ) {
+                    update_option( 'pp_activity_logs_db_updated', true );
+                }
+            }
+	}
 
 		public function settings_fields() {
 			register_setting(
@@ -84,25 +109,19 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 		}
 
 		public function sanitize_report_fields( $fields ) {
-			if ( empty( $fields ) ) {
-				return 'no';
-			}
-
-			return $fields;
+			return ( ! empty( $fields ) && 'yes' === $fields ) ? 'yes' : 'no';
 		}
 
 		public function activity_report_field_callback( $args ) {
-			$checked = get_option( 'password_protected_activity_report_enable', 'no' );
-			$checked = 'yes' === $checked ? 'checked' : '';
 			echo '<div class="pp-toggle-wrapper">
-				<input id="' . esc_attr( $args['label_for'] ) . '" value="yes" name="password_protected_activity_report_enable" type="checkbox" ' . $checked . ' />
+				<input id="' . esc_attr( $args['label_for'] ) . '" value="yes" name="password_protected_activity_report_enable" type="checkbox" ' . checked( get_option( 'password_protected_activity_report_enable', 'no' ), 'yes', false ) . ' />
 				<label for="' . esc_attr( $args['label_for'] ) . '" class="pp-toggle">
 					<span class="pp-toggle-slider"></span>
 				</label>
 			</div>
 			<p class="description">
 				<label for="' . esc_attr( $args['label_for'] ) . '">
-					' . __( 'Enable this option to receive weekly activity report on your email.', 'password-protected' ) . '
+					' . esc_html__( 'Enable this option to receive weekly activity report on your email.', 'password-protected' ) . '
 				</label>
 			</p>';
 		}
@@ -123,6 +142,81 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 			echo '</form>';
 		}
 
+		/**
+		 * Activity logs list table (Free); defer to Pro when the extension is active.
+		 */
+		public function activity_logs_admin() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+
+			if ( is_plugin_active( 'password-protected-pro/password-protected-pro.php' ) ) {
+				return;
+			}
+
+			require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-activity-logs.php';
+			require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-activity-logs-list-table.php';
+			Password_Protected_Activity_Logs_List_Table::display_table();
+		}
+
+		/**
+		 * Per-page screen option on the activity logs sub-tab.
+		 */
+		public function maybe_register_activity_logs_screen_option() {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Admin screen bootstrap.
+			if ( ! isset( $_GET['page'], $_GET['tab'], $_GET['sub-tab'] ) ) {
+				return;
+			}
+
+			if ( 'password-protected' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+				return;
+			}
+
+			if ( 'logs' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+				return;
+			}
+
+			if ( 'activity_logs' !== sanitize_text_field( wp_unslash( $_GET['sub-tab'] ) ) ) {
+				return;
+			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+			require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-activity-logs-list-table.php';
+			Password_Protected_Activity_Logs_List_Table::register_screen_option();
+		}
+
+		/**
+		 * Dispatch activity logging registration after all plugins have loaded.
+		 *
+		 * @return void
+		 */
+		public function dispatch_activity_logging_registration() {
+			/**
+			 * Fires when activity report login logging should be registered.
+			 *
+			 * @since 2.8.5
+			 */
+			do_action( 'password_protected_register_activity_logging' );
+		}
+
+		/**
+		 * Register default Free activity report login logging hooks.
+		 *
+		 * @return void
+		 */
+		public function register_default_activity_logging() {
+			require_once PASSWORD_PROTECTED_DIR . 'includes/activity-report-email/class-password-protected-activity-logs.php';
+
+			add_action( 'password_protected_success_login_attempt', array( $this, 'success_attempt' ), 10, 3 );
+			add_action( 'password_protected_failure_login_attempt', array( $this, 'failure_attempt' ), 10, 3 );
+			add_action( 'password_protected_after_login_form', array( $this, 'login_enqueue_scripts' ) );
+			add_action( 'password_protected_below_password_field', array( $this, 'add_new_field_after_password_field' ) );
+		}
+
 		public function success_attempt( $form_type, $password, $password_id ) {
 			$this->log_password_attempt( "Success", $form_type, $password, $password_id );
 		}
@@ -141,21 +235,23 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 			echo '<input type="hidden" name="password_protected_user_agent" value="" />';
 		}
 
-		private function log_password_attempt( $success_or_failure, $form_type, $password, $password_id ) {
-			$log = $this->prepare_entry_log();
-			extract( $log );
-			Password_Protected_Activity_Logs::add_item(
-				array(
-					'ip'            => $IP,
-					'browser'       => $browser,
-					'status'        => $success_or_failure,
-					'created_at'    => current_time( "timestamp" ),
-					'password_id'   => $password_id,
-					'object_type'   => $form_type,
-					'used_password' => $password,
-				)
-			);
-		}
+	private function log_password_attempt( $success_or_failure, $form_type, $password, $password_id ) {
+		$log = $this->prepare_entry_log();
+		$IP      = isset( $log['IP'] ) ? $log['IP'] : '';
+		$browser = isset( $log['browser'] ) ? $log['browser'] : '';
+
+		Password_Protected_Activity_Logs::add_item(
+			array(
+				'ip'            => $IP,
+				'browser'       => $browser,
+				'status'        => $success_or_failure,
+				'created_at'    => current_time( "timestamp" ),
+				'password_id'   => $password_id,
+				'object_type'   => $form_type,
+				'used_password' => is_string( $password ) ? $password : '',
+			)
+		);
+	}
 
 		private function prepare_entry_log() {
 			$IP      = self::get_client_ip();
@@ -163,35 +259,43 @@ if ( ! class_exists( 'Password_protected_Activity_Report_Settings' ) ) {
 			return compact( 'IP', 'browser' );
 		}
 
-		public static function get_client_ip() {
-			$ipaddress = 'UNKNOWN';
-			$keys      = array(
-				'HTTP_CLIENT_IP',
-				'HTTP_X_FORWARDED_FOR',
-				'HTTP_X_FORWARDED',
-				'HTTP_FORWARDED_FOR',
-				'HTTP_FORWARDED',
-				'REMOTE_ADDR',
-			);
-
-			foreach ( $keys as $key ) {
-				if ( isset( $_SERVER[ $key ] ) ) {
-					$ipaddress = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-					break;
-				}
-			}
-
-			if ( '::1' === $ipaddress ) {
-				$ipaddress = '127.0.1.6';
-			}
-
-			return $ipaddress;
+	public static function get_client_ip() {
+		// Delegate to the canonical trusted-proxy-aware resolver (SEC-003).
+		if ( function_exists( 'pp_resolve_client_ip' ) ) {
+			return pp_resolve_client_ip();
 		}
 
+		// Fallback if transient-functions.php is not loaded.
+		$ipaddress = 'UNKNOWN';
+		$keys      = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+			'REMOTE_ADDR',
+		);
+
+		foreach ( $keys as $key ) {
+			if ( isset( $_SERVER[ $key ] ) ) {
+				$ipaddress = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+				break;
+			}
+		}
+
+		if ( '::1' === $ipaddress ) {
+			$ipaddress = '127.0.1.6';
+		}
+
+		return $ipaddress;
+	}
+
 		public static function get_browser() {
+			// phpcs:disable WordPress.Security.NonceVerification.Missing
 			if ( isset( $_POST['password_protected_user_agent'] ) ) {
 				return sanitize_text_field( wp_unslash( $_POST['password_protected_user_agent'] ) );
 			}
+			// phpcs:enable
 
 			return 'UNKNOWN';
 		}

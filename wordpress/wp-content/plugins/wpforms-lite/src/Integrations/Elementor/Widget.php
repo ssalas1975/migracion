@@ -10,6 +10,8 @@ namespace WPForms\Integrations\Elementor;
 use Elementor\Plugin;
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+use WPForms\Frontend\EmbedContext;
+use WPForms\Frontend\ThemesEditor;
 
 /**
  * WPForms widget for Elementor page builder.
@@ -140,21 +142,7 @@ class Widget extends Widget_Base {
 		$forms = $this->get_forms();
 
 		if ( empty( $forms ) ) {
-			$this->add_control(
-				'add_form_notice',
-				[
-					'show_label'      => false,
-					'type'            => Controls_Manager::RAW_HTML,
-					'raw'             => wp_kses(
-						__( '<b>You haven\'t created a form yet.</b><br> What are you waiting for?', 'wpforms-lite' ),
-						[
-							'b'  => [],
-							'br' => [],
-						]
-					),
-					'content_classes' => 'elementor-panel-alert elementor-panel-alert-info wpforms-elementor-no-forms-notice',
-				]
-			);
+			$this->add_empty_forms_notice();
 		}
 
 		$this->add_control(
@@ -210,18 +198,21 @@ class Widget extends Widget_Base {
 			]
 		);
 
-		$this->add_control(
-			'add_form_btn',
-			[
-				'show_label'  => false,
-				'label_block' => false,
-				'type'        => Controls_Manager::BUTTON,
-				'button_type' => 'default',
-				'separator'   => 'before',
-				'text'        => '<b>+</b>' . esc_html__( 'New form', 'wpforms-lite' ),
-				'event'       => 'elementorWPFormsAddFormBtnClick',
-			]
-		);
+		// The button opens the Form Builder, so it is only offered to users allowed to create forms.
+		if ( wpforms_current_user_can( 'create_forms' ) ) {
+			$this->add_control(
+				'add_form_btn',
+				[
+					'show_label'  => false,
+					'label_block' => false,
+					'type'        => Controls_Manager::BUTTON,
+					'button_type' => 'default',
+					'separator'   => 'before',
+					'text'        => '<b>+</b>' . esc_html__( 'New form', 'wpforms-lite' ),
+					'event'       => 'elementorWPFormsAddFormBtnClick',
+				]
+			);
+		}
 
 		$this->add_legacy_styles_notice();
 
@@ -271,6 +262,45 @@ class Widget extends Widget_Base {
 	}
 
 	/**
+	 * Add the notice explaining why the form selector has no options.
+	 *
+	 * A user who may not view forms gets an empty selector for a different reason than a user who
+	 * has no forms yet, so the two states are worded differently.
+	 *
+	 * @since 2.0.1
+	 *
+	 * @noinspection PhpUndefinedMethodInspection
+	 */
+	private function add_empty_forms_notice() {
+
+		// The no-permission wording is composed of the two sentences the block editor already uses,
+		// so both surfaces read the same and share their translations.
+		$notice = $this->current_user_can_view_forms()
+			? __( '<b>You haven\'t created a form yet.</b><br> What are you waiting for?', 'wpforms-lite' )
+			: sprintf(
+				'<b>%1$s</b><br> %2$s',
+				__( 'You don’t have permission to use WPForms.', 'wpforms-lite' ),
+				__( 'Contact your site administrator for access.', 'wpforms-lite' )
+			);
+
+		$this->add_control(
+			'add_form_notice',
+			[
+				'show_label'      => false,
+				'type'            => Controls_Manager::RAW_HTML,
+				'raw'             => wp_kses(
+					$notice,
+					[
+						'b'  => [],
+						'br' => [],
+					]
+				),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info wpforms-elementor-no-forms-notice',
+			]
+		);
+	}
+
+	/**
 	 * Add legacy styles notice.
 	 *
 	 * @since 1.9.6
@@ -280,14 +310,10 @@ class Widget extends Widget_Base {
 	 */
 	private function add_legacy_styles_notice() {
 
-		$is_modern      = wpforms_get_render_engine() === 'modern';
-		$is_full_styles = (int) wpforms_setting( 'disable-css', '1' ) === 1;
+		$editor      = wpforms()->obj( 'themes_editor' );
+		$notice_text = $editor instanceof ThemesEditor ? $editor->get_support()->get_legacy_styling_reason() : '';
 
-		if ( ! $is_modern || ! $is_full_styles ) {
-			$notice_text = ! $is_modern
-				? __( 'Upgrade your forms to use our modern markup and unlock extensive style controls.', 'wpforms-lite' )
-				: __( 'Update your forms to use base and form theme styling and unlock extensive style controls.', 'wpforms-lite' );
-
+		if ( $notice_text !== '' ) {
 			$this->add_control(
 				'legacy_styling_notice',
 				[
@@ -346,7 +372,14 @@ class Widget extends Widget_Base {
 		if ( count( $this->get_forms() ) < 2 ) {
 
 			// No forms block.
-			echo wpforms_render( 'integrations/elementor/no-forms' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wpforms_render( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				'integrations/elementor/no-forms',
+				[
+					'can_view_forms'   => $this->current_user_can_view_forms(),
+					'can_create_forms' => wpforms_current_user_can( 'create_forms' ),
+				],
+				true
+			);
 
 			return;
 		}
@@ -399,11 +432,51 @@ class Widget extends Widget_Base {
 	 */
 	public function render_form() {
 
+		$embed_context = wpforms()->obj( 'embed_context' );
+
+		if ( $embed_context instanceof EmbedContext ) {
+			$embed_context->set(
+				[
+					'type'    => EmbedContext::TYPE_ELEMENTOR,
+					'id'      => (string) $this->get_id(),
+					'form_id' => (int) $this->get_settings_for_display( 'form_id' ),
+					'legacy'  => $this->get_legacy_styles(),
+				]
+			);
+		}
+
 		wpforms_display(
 			$this->get_settings_for_display( 'form_id' ),
 			$this->get_settings_for_display( 'display_form_name' ) === 'yes',
 			$this->get_settings_for_display( 'display_form_description' ) === 'yes'
 		);
+	}
+
+	/**
+	 * Get the styles the embed renders with, for the themes editor.
+	 *
+	 * @since 2.0.5
+	 *
+	 * @return array
+	 */
+	protected function get_legacy_styles(): array {
+
+		return (array) $this->get_settings_for_display();
+	}
+
+	/**
+	 * Determine whether the current user is entitled to view forms.
+	 *
+	 * Exposed on the widget because the form selector AJAX handler asks the same question before
+	 * answering. See wpforms_current_user_can_view_forms() for the Lite and Pro difference.
+	 *
+	 * @since 2.0.1
+	 *
+	 * @return bool
+	 */
+	public function current_user_can_view_forms(): bool {
+
+		return wpforms_current_user_can_view_forms();
 	}
 
 	/**
@@ -417,16 +490,30 @@ class Widget extends Widget_Base {
 
 		static $forms_list = [];
 
-		if ( empty( $forms_list ) ) {
-			$forms_obj = wpforms()->obj( 'form' );
-			$forms     = $forms_obj ? $forms_obj->get() : null;
+		// This runs from the editor preview iframe and from admin-ajax, where the Pro owner-scoping
+		// filter ( wpforms_get_multiple_forms_args ) is not registered because the request's HTTP
+		// referer is not an admin one. Authorize and scope explicitly so the list never depends on
+		// a client-controlled header. The capability check precedes the memo because the memo is
+		// process-wide and not keyed by user.
+		if ( ! $this->current_user_can_view_forms() ) {
+			return [];
+		}
 
-			if ( ! empty( $forms ) ) {
-				$forms_list[0] = esc_html__( 'Select a form', 'wpforms-lite' );
+		if ( ! empty( $forms_list ) ) {
+			return $forms_list;
+		}
 
-				foreach ( $forms as $form ) {
-					$forms_list[ $form->ID ] = mb_strlen( $form->post_title ) > 100 ? mb_substr( $form->post_title, 0, 97 ) . '...' : $form->post_title;
-				}
+		// Reproduce the owner scoping the Pro filter would apply, since it is not registered here.
+		$args = wpforms_get_viewable_forms_args();
+
+		$forms_obj = wpforms()->obj( 'form' );
+		$forms     = $forms_obj ? $forms_obj->get( '', $args ) : null;
+
+		if ( ! empty( $forms ) ) {
+			$forms_list[0] = esc_html__( 'Select a form', 'wpforms-lite' );
+
+			foreach ( $forms as $form ) {
+				$forms_list[ $form->ID ] = mb_strlen( $form->post_title ) > 100 ? mb_substr( $form->post_title, 0, 97 ) . '...' : $form->post_title;
 			}
 		}
 

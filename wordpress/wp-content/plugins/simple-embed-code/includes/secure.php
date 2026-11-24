@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param int    $object_id  Post ID.
  * @param string $meta_key   Meta key being written.
  * @param mixed  $meta_value Meta value being written.
- * @return mixed             Null (to proceed with the write).
+ * @return mixed             Null to allow the write to proceed, or true to short-circuit it.
  */
 function sec_sanitize_meta_on_write( $check, $object_id, $meta_key, $meta_value ) {
 
@@ -41,11 +41,25 @@ function sec_sanitize_meta_on_write( $check, $object_id, $meta_key, $meta_value 
 	$prefix = $options['keyword_ident'];
 
 	// Only act on meta keys that belong to this plugin.
-	if ( substr( $meta_key, 0, strlen( $prefix ) ) !== $prefix ) {
+	if ( 0 !== stripos( $meta_key, $prefix ) ) {
+		return $check;
+	}
+
+	// Embed names are letters, numbers, underscores and hyphens only. Refuse any other key from an
+	// untrusted writer, as it could only be used to build a token that spans HTML.
+	if ( ! preg_match( '/^[A-Za-z0-9_-]*$/', substr( $meta_key, strlen( $prefix ) ) ) ) {
+		return false;
+	}
+
+	// wp_kses_post() only accepts strings. A non-string value (e.g. an array) is not embed
+	// markup and is neutralized on output, so let the write proceed without sanitizing here.
+	if ( ! is_string( $meta_value ) ) {
 		return $check;
 	}
 
 	// Strip dangerous markup while preserving safe HTML.
+	// Quotes in plain text are allowed on purpose - tokens placed inside an HTML tag are
+	// removed at render time by ce_strip_tokens_from_tags().
 	$clean = wp_kses_post( $meta_value );
 
 	if ( $clean === $meta_value ) {

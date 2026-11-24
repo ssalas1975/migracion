@@ -26,7 +26,28 @@ class PUM_Admin_Settings {
 	public static function init() {
 		add_action( 'admin_notices', [ __CLASS__, 'notices' ] );
 		add_action( 'admin_init', [ __CLASS__, 'save' ] );
-		add_action( 'pum_save_settings', [ __CLASS__, 'process_license_operation' ], 10, 1 );
+
+		if ( did_action( 'plugins_loaded' ) ) {
+			// The handler rechecks compatibility before processing the request.
+			add_action( 'pum_save_settings', [ __CLASS__, 'process_license_operation' ], 10, 1 );
+		} else {
+			add_action( 'plugins_loaded', [ __CLASS__, 'maybe_register_legacy_license_operation' ], 100 );
+		}
+	}
+
+	/**
+	 * Register old Pro's settings operation only when compatibility is active.
+	 *
+	 * @since 1.23.0
+	 *
+	 * @deprecated 1.23.0 Temporary Pro 1.1.0 compatibility. Scheduled for removal in Core 1.25.0.
+	 *
+	 * @return void
+	 */
+	public static function maybe_register_legacy_license_operation() {
+		if ( \PopupMaker\plugin()->should_run_legacy_license_compatibility() ) {
+			add_action( 'pum_save_settings', [ __CLASS__, 'process_license_operation' ], 10, 1 );
+		}
 	}
 
 	// display default admin notice
@@ -60,9 +81,6 @@ class PUM_Admin_Settings {
 					echo esc_html( $notice['message'] );
 					?>
 					</strong></p>
-					<button type="button" class="notice-dismiss">
-						<span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'popup-maker' ); ?></span>
-					</button>
 				</div>
 				<?php
 			}
@@ -100,8 +118,14 @@ class PUM_Admin_Settings {
 
 	/**
 	 * Process license activation when hooked to pum_save_settings.
+	 *
+	 * @deprecated 1.23.0 Temporary Pro 1.1.0 compatibility. Scheduled for removal in Core 1.25.0.
 	 */
 	public static function process_license_operation() {
+		if ( ! \PopupMaker\plugin()->should_run_legacy_license_compatibility() ) {
+			return;
+		}
+
 		// Handle license operations.
 		if (
 			! isset( $_POST['pum_license_operation_nonce'] ) ||
@@ -316,8 +340,13 @@ class PUM_Admin_Settings {
 	public static function fields() {
 
 		static $fields;
+		static $legacy_license_compatibility;
 
-		if ( ! isset( $fields ) ) {
+		$current_legacy_license_compatibility = \PopupMaker\plugin()->should_run_legacy_license_compatibility();
+
+		if ( ! isset( $fields ) || $legacy_license_compatibility !== $current_legacy_license_compatibility ) {
+			$legacy_license_compatibility = $current_legacy_license_compatibility;
+
 			$fields = [
 				'general' => [
 					'main' => [
@@ -371,37 +400,37 @@ class PUM_Admin_Settings {
 							],
 							'default_success_message'     => [
 								'label' => __( 'Success Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user when successfuly subscribed.', 'popup-maker' ),
+								'desc'  => __( 'Displays when successfully subscribed.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'You have been subscribed!', 'popup-maker' ),
 							],
 							'default_empty_email_message' => [
 								'label' => __( 'Empty Email Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user when no email is entered.', 'popup-maker' ),
+								'desc'  => __( 'Displays when the email field is empty.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'Please enter a valid email.', 'popup-maker' ),
 							],
 							'default_invalid_email_message' => [
 								'label' => __( 'Invalid Email Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user when an invalid email is entered.', 'popup-maker' ),
+								'desc'  => __( 'Displays when an invalid email is entered.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'Email provided is not a valid email address.', 'popup-maker' ),
 							],
 							'default_error_message'       => [
 								'label' => __( 'Error Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user when an error has occurred.', 'popup-maker' ),
+								'desc'  => __( 'Displays when there is an error.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'Error occurred when subscribing. Please try again.', 'popup-maker' ),
 							],
 							'default_already_subscribed_message' => [
 								'label' => __( 'Already Subscribed Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user who is already subscribed.', 'popup-maker' ),
+								'desc'  => __( 'Displays when the user is already subscribed.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'You are already a subscriber.', 'popup-maker' ),
 							],
 							'default_consent_required_message' => [
 								'label' => __( 'Consent Required Message', 'popup-maker' ),
-								'desc'  => __( 'Message to show user who is already subscribed.', 'popup-maker' ),
+								'desc'  => __( 'Displays when the user needs to give consent.', 'popup-maker' ),
 								'type'  => 'text',
 								'std'   => __( 'You must agree to continue.', 'popup-maker' ),
 							],
@@ -423,8 +452,13 @@ class PUM_Admin_Settings {
 						'main'  => [
 							'disable_popup_open_tracking' => [
 								'type'  => 'checkbox',
-								'label' => __( 'Disables popup open tracking?', 'popup-maker' ),
+								'label' => __( 'Disable popup open tracking?', 'popup-maker' ),
 								'desc'  => __( 'This will disable the built in analytics functionality.', 'popup-maker' ),
+							],
+							'disable_pid_url_params'      => [
+								'type'  => 'checkbox',
+								'label' => __( 'Disable URL tracking parameters?', 'popup-maker' ),
+								'desc'  => __( 'Stops adding tracking parameters (pid) to links inside popups. Link clicks will be tracked via browser beacons instead (less reliable but non-invasive).', 'popup-maker' ),
 							],
 						],
 						'forms' => [
@@ -601,10 +635,6 @@ class PUM_Admin_Settings {
 								'type'  => 'checkbox',
 								'label' => __( 'Disable Popup Maker occasionally showing random tips to improve your popups.', 'popup-maker' ),
 							],
-							'disable_notices'            => [
-								'type'  => 'checkbox',
-								'label' => __( 'Disable Popup Maker occasionally showing community notices such as security alerts, new features or sales on our extensions.', 'popup-maker' ),
-							],
 							'complete_uninstall'         => [
 								'type'     => 'checkbox',
 								'label'    => __( 'Delete all Popup Maker data on deactivation', 'popup-maker' ),
@@ -645,6 +675,15 @@ class PUM_Admin_Settings {
 				]
 			);
 
+			if ( ! $legacy_license_compatibility ) {
+				unset( $fields['go-pro']['main']['popup_maker_pro_license_key'] );
+				$fields['go-pro']['main']['popup_maker_pro_placeholder'] = [
+					'type'    => 'html',
+					'content' => '',
+					'class'   => 'pum-go-pro-placeholder',
+				];
+			}
+
 			$fields = apply_filters( 'pum_settings_fields', $fields );
 
 			$fields = PUM_Admin_Helpers::parse_tab_fields(
@@ -663,51 +702,95 @@ class PUM_Admin_Settings {
 	 * @return string
 	 */
 	public static function field_pum_styles() {
-		$core_styles = file_get_contents( Popup_Maker::$DIR . 'dist/assets/site' . ( is_rtl() ? '-rtl' : '' ) . '.css' );
-
-		$user_styles = PUM_AssetCache::generate_font_imports() . PUM_AssetCache::generate_popup_theme_styles() . PUM_AssetCache::generate_popup_styles();
-
-		// Prevent both raw and HTML-encoded variations of textarea tag
-		// This regex prevents both HTML and HTML-encoded textarea tags:
-		// (<\/?\s*|&lt;\/?\s*) - Matches either < or &lt; optionally followed by /, with optional whitespace
-		// t\s*e\s*x\s*t\s*a\s*r\s*e\s*a\b - Matches "textarea" with optional whitespace between letters
-		// /i flag makes it case-insensitive
-		$safe_user_styles = preg_replace(
-			'/(<\/?\s*|&lt;\/?\s*)t\s*e\s*x\s*t\s*a\s*r\s*e\s*a\b/i',
-			'',
-			$user_styles
-		);
-
 		ob_start();
 
 		?>
-		<button type="button" id="show_pum_styles" onclick="jQuery('#pum_style_output').slideDown();jQuery(this).hide();"><?php esc_html_e( 'Show Popup Maker CSS', 'popup-maker' ); ?></button>
-		<p class="pum-desc desc"><?php __( "Use this to quickly copy Popup Maker's CSS to your own stylesheet.", 'popup-maker' ); ?></p>
+		<div class="pum-css-viewer">
+			<button type="button" class="button" id="show_pum_styles" aria-controls="pum_style_output" aria-expanded="false"><?php esc_html_e( 'Show Popup Maker CSS', 'popup-maker' ); ?></button>
+			<p class="pum-desc desc"><?php esc_html_e( "Use this to quickly copy Popup Maker's CSS to your own stylesheet.", 'popup-maker' ); ?></p>
+			<p class="pum-css-viewer__status" role="status" aria-live="polite" hidden></p>
 
-		<div id="pum_style_output" style="display:none;">
-			<label for="pum_core_styles"><?php esc_html_e( 'Core Styles', 'popup-maker' ); ?></label> <br />
+			<div id="pum_style_output" hidden>
+				<fieldset class="pum-css-viewer__formats">
+					<legend class="screen-reader-text"><?php esc_html_e( 'Core CSS format', 'popup-maker' ); ?></legend>
+					<button type="button" class="button button-primary" data-pum-css-format="minified" aria-pressed="true"><?php esc_html_e( 'Minified (recommended)', 'popup-maker' ); ?></button>
+					<button type="button" class="button" data-pum-css-format="readable" aria-pressed="false"><?php esc_html_e( 'Readable', 'popup-maker' ); ?></button>
+				</fieldset>
 
-			<textarea id="pum_core_styles" wrap="off" style="white-space: pre; width: 100%; min-height: 200px;" readonly="readonly">
-				<?php
-				// Ignored because this is generated CSS.
-				echo esc_html( $core_styles );
-				?>
-			</textarea>
+				<label for="pum_core_styles"><?php esc_html_e( 'Core Styles', 'popup-maker' ); ?></label>
+				<textarea id="pum_core_styles" wrap="off" readonly="readonly"></textarea>
 
-			<br /> <br />
-
-			<label for="pum_generated_styles"><?php esc_html_e( 'Generated Popup & Popup Theme Styles', 'popup-maker' ); ?></label> <br />
-
-			<textarea id="pum_generated_styles" wrap="off" style="white-space: pre; width: 100%; min-height: 200px;" readonly="readonly">
-				<?php
-				echo esc_html( $safe_user_styles );
-				?>
-			</textarea>
+				<label for="pum_generated_styles"><?php esc_html_e( 'Generated Popup & Popup Theme Styles', 'popup-maker' ); ?></label>
+				<textarea id="pum_generated_styles" wrap="off" readonly="readonly"></textarea>
+			</div>
 		</div>
 
 		<?php
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Return the CSS displayed by the settings viewer.
+	 *
+	 * @return array{core:array{minified:string,readable:string},generated:string,readable_available:bool}|WP_Error
+	 */
+	public static function get_css_styles() {
+		$asset_name      = 'site' . ( is_rtl() ? '-rtl' : '' );
+		$asset_directory = Popup_Maker::$DIR . 'dist/assets/';
+		$minified_path   = $asset_directory . $asset_name . '.css';
+		$readable_path   = $asset_directory . $asset_name . '-readable.css';
+		$minified_styles = is_readable( $minified_path ) ? file_get_contents( $minified_path ) : false;
+		$readable_styles = is_readable( $readable_path ) ? file_get_contents( $readable_path ) : false;
+
+		if ( false === $minified_styles ) {
+			return new WP_Error( 'pum_missing_core_styles', __( 'Popup Maker core styles could not be loaded.', 'popup-maker' ) );
+		}
+
+		$readable_available = false !== $readable_styles;
+		$user_styles        = PUM_AssetCache::generate_font_imports() . PUM_AssetCache::generate_popup_theme_styles() . PUM_AssetCache::generate_popup_styles();
+		$safe_user_styles   = preg_replace(
+			'/(<\/?\s*|&lt;\/?\s*)t\s*e\s*x\s*t\s*a\s*r\s*e\s*a\b/i',
+			'',
+			$user_styles
+		);
+
+		// Fail closed if the historical textarea-breakout hardening cannot run.
+		if ( ! is_string( $safe_user_styles ) ) {
+			$safe_user_styles = '';
+		}
+
+		return [
+			'core'               => [
+				'minified' => $minified_styles,
+				'readable' => $readable_available ? $readable_styles : $minified_styles,
+			],
+			'generated'          => $safe_user_styles,
+			'readable_available' => $readable_available,
+		];
+	}
+
+	/**
+	 * Load the CSS viewer data only when requested from the settings page.
+	 *
+	 * @return void
+	 */
+	public static function ajax_get_css_styles() {
+		if ( ! check_ajax_referer( 'pum_get_css_styles', 'nonce', false ) ) {
+			wp_send_json_error( [ 'message' => __( 'The CSS viewer request expired. Refresh the page and try again.', 'popup-maker' ) ], 403 );
+		}
+
+		if ( ! current_user_can( \PopupMaker\plugin()->get_permission( 'manage_settings' ) ) ) {
+			wp_send_json_error( [ 'message' => __( 'You do not have permission to view these styles.', 'popup-maker' ) ], 403 );
+		}
+
+		$styles = self::get_css_styles();
+
+		if ( is_wp_error( $styles ) ) {
+			wp_send_json_error( [ 'message' => $styles->get_error_message() ], 500 );
+		}
+
+		wp_send_json_success( $styles );
 	}
 
 	/**
@@ -759,12 +842,25 @@ class PUM_Admin_Settings {
 			</div>
 
 			<div class="pum-go-pro-hero__footer">
-				<a href="<?php echo esc_url( \PopupMaker\generate_upgrade_url( 'settings-hero', 'get-pro-cta' ) ); ?>"
-				   target="_blank" rel="noopener"
-				   class="pum-go-pro-hero__cta">
-					<?php esc_html_e( 'Increase My Conversion Rate', 'popup-maker' ); ?>
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-				</a>
+				<div class="pum-go-pro-hero__actions">
+					<a
+						href="<?php echo esc_url( \PopupMaker\generate_upgrade_url( 'settings-hero', 'get-pro-cta' ) ); ?>"
+						target="_blank"
+						rel="noopener"
+						class="pum-go-pro-hero__cta"
+					>
+						<?php esc_html_e( 'Increase My Conversion Rate', 'popup-maker' ); ?>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+					</a>
+					<a
+						href="<?php echo esc_url( 'https://wppopupmaker.com/account/file-downloads/?utm_source=plugin-settings&utm_medium=go-pro&utm_campaign=wordpress-org' ); ?>"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="pum-go-pro-hero__download-link"
+					>
+						<?php esc_html_e( 'Already own Pro? Download it', 'popup-maker' ); ?>
+					</a>
+				</div>
 				<span class="pum-go-pro-hero__price-note"><?php esc_html_e( 'Upgrade to Pro — $99/yr', 'popup-maker' ); ?></span>
 			</div>
 		</div>
@@ -786,7 +882,9 @@ class PUM_Admin_Settings {
 		// Detect integrations for contextual messaging.
 		$integrations    = PUM_Admin_Helpers::get_detected_integrations();
 		$has_woocommerce = isset( $integrations['woocommerce'] );
-		$has_edd         = isset( $integrations['edd'] );
+		// The flat helper derives the slug from the label ("Easy Digital
+		// Downloads" => "easy_digital_downloads"); accept the legacy "edd" key too.
+		$has_edd         = isset( $integrations['edd'] ) || isset( $integrations['easy_digital_downloads'] );
 		$has_lms         = isset( $integrations['lifterlms'] );
 		$has_ecommerce   = $has_woocommerce || $has_edd;
 		// Check individual Pro+ addon status — show bar when platform detected but addon missing.
@@ -886,6 +984,12 @@ class PUM_Admin_Settings {
 	 */
 	public static function page() {
 
+		// Also reachable via the edit_posts-gated "Go Pro" submenu, and it dumps all
+		// settings into inline JS — enforce the settings capability here.
+		if ( ! current_user_can( \PopupMaker\plugin()->get_permission( 'manage_settings' ) ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'popup-maker' ), 403 );
+		}
+
 		$settings = PUM_Utils_Options::get_all();
 
 		if ( empty( $settings ) ) {
@@ -946,7 +1050,7 @@ class PUM_Admin_Settings {
 					;
 				</script>
 
-				<button class="button-primary bottom" style="margin-left: 156px;"><?php esc_html_e( 'Save', 'popup-maker' ); ?></button>
+				<button id="pum-settings-save" class="button-primary bottom pum-settings-save" style="margin-left: 156px;"><?php esc_html_e( 'Save', 'popup-maker' ); ?></button>
 
 			</form>
 
@@ -954,7 +1058,7 @@ class PUM_Admin_Settings {
 
 		<?php
 		// Output upsell template — hero for free users, Pro+ bars for anyone missing addons.
-		$upsell_hero     = \PopupMaker\plugin( 'license' )->is_license_active() ? '' : self::field_go_pro_hero();
+		$upsell_hero     = \PopupMaker\plugin()->is_license_active() ? '' : self::field_go_pro_hero();
 		$upsell_features = self::field_go_pro_features();
 
 		// Only output template if there's something to show.
@@ -1071,7 +1175,7 @@ class PUM_Admin_Settings {
 					'licenses'      => __( 'Licenses', 'popup-maker' ),
 					'privacy'       => __( 'Privacy', 'popup-maker' ),
 					'misc'          => __( 'Misc', 'popup-maker' ),
-					'go-pro'        => \PopupMaker\plugin( 'license' )->is_license_active() ? __( 'Pro', 'popup-maker' ) : __( 'Go Pro', 'popup-maker' ),
+					'go-pro'        => \PopupMaker\plugin()->is_license_active() ? __( 'Pro', 'popup-maker' ) : __( 'Go Pro', 'popup-maker' ),
 				]
 			);
 
@@ -1112,7 +1216,7 @@ class PUM_Admin_Settings {
 					'assets' => __( 'Assets', 'popup-maker' ),
 				],
 				'go-pro'        => [
-					'main' => \PopupMaker\plugin( 'license' )->is_license_active() ? __( 'Pro', 'popup-maker' ) : __( 'Go Pro', 'popup-maker' ),
+					'main' => \PopupMaker\plugin()->is_license_active() ? __( 'Pro', 'popup-maker' ) : __( 'Go Pro', 'popup-maker' ),
 				],
 			]
 		);
@@ -1194,11 +1298,12 @@ class PUM_Admin_Settings {
 
 						$using_pro_license = ! empty( $field['options']['using_pro_license'] );
 						$pro_license_tier  = ! empty( $field['options']['pro_license_tier'] ) ? $field['options']['pro_license_tier'] : '';
+						$product_name      = ! empty( $field['options']['product_name'] ) ? $field['options']['product_name'] : null;
 
 						$settings[ $key ] = [
 							'key'               => \PopupMaker\plugin( 'license' )->star_key( trim( $value ) ),
 							'status'            => PUM_Licensing::get_status( $license, ! empty( $value ) ),
-							'messages'          => PUM_Licensing::get_status_messages( $license, trim( $value ) ),
+							'messages'          => PUM_Licensing::get_status_messages( $license, trim( $value ), $product_name ),
 							'expires'           => PUM_Licensing::get_license_expiration( $license ),
 							'classes'           => PUM_Licensing::get_status_classes( $license ),
 							'using_pro_license' => $using_pro_license,

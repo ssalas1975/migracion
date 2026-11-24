@@ -150,7 +150,7 @@ class Premium_Nav_Menu extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'premium mega menu', 'menu', 'nav', 'navigation', 'mega menu', 'header' );
@@ -218,7 +218,7 @@ class Premium_Nav_Menu extends Widget_Base {
 
 		$this->get_menu_content_controls();
 
-		$this->add_random_badges_section( $this );
+		$this->add_random_badges_section();
 
 		$this->add_helpful_docs_section();
 
@@ -734,6 +734,67 @@ class Premium_Nav_Menu extends Widget_Base {
 							'value'    => 'link',
 						),
 					),
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'item_gradient_switcher',
+			array(
+				'label'       => __( 'Animated Gradient', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'render_type' => 'template',
+				'separator'   => 'before',
+				'conditions'  => array(
+					'relation' => 'or',
+					'terms'    => array(
+						array(
+							'name'     => 'item_type',
+							'operator' => '==',
+							'value'    => 'menu',
+						),
+						array(
+							'name'     => 'menu_content_type',
+							'operator' => '==',
+							'value'    => 'link',
+						),
+					),
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'item_gradient_speed',
+			array(
+				'label'     => __( 'Animation Speed (sec)', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::SLIDER,
+				'range'     => array(
+					'px' => array(
+						'min'  => 0,
+						'max'  => 10,
+						'step' => .1,
+					),
+				),
+				'default'   => array(
+					'size' => 8,
+				),
+				'selectors' => array(
+					'{{WRAPPER}} {{CURRENT_ITEM}} .premium-menu-text' => 'animation-duration: {{SIZE}}s;',
+				),
+				'condition' => array(
+					'item_gradient_switcher' => 'yes',
+				),
+			)
+		);
+
+		$repeater->add_group_control(
+			Premium_Background::get_type(),
+			array(
+				'name'      => 'item_text_gradient',
+				'types'     => array( 'gradient' ),
+				'selector'  => '{{WRAPPER}} {{CURRENT_ITEM}} .premium-menu-text',
+				'condition' => array(
+					'item_gradient_switcher' => 'yes',
 				),
 			)
 		);
@@ -1979,7 +2040,6 @@ class Premium_Nav_Menu extends Widget_Base {
 				'selectors'   => array(
 					'{{WRAPPER}} .premium-nav-widget-container ' => '--pa-menu-width: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}}.premium-ham-dropdown .premium-main-mobile-menu, {{WRAPPER}}.premium-nav-dropdown .premium-main-mobile-menu' => 'width: {{SIZE}}{{UNIT}};',
-					// '{{WRAPPER}}.premium-ham-slide .premium-mobile-menu-outer-container, {{WRAPPER}}.premium-nav-slide .premium-mobile-menu-outer-container' => 'width: {{SIZE}}{{UNIT}}; transform:translateX(' . $transform_sign . '{{SIZE}}{{UNIT}} );',
 				),
 				'condition'   => array(
 					'pa_toggle_full!' => 'yes',
@@ -3571,8 +3631,15 @@ class Premium_Nav_Menu extends Widget_Base {
 		$this->add_group_control(
 			Group_Control_Text_Shadow::get_type(),
 			array(
-				'name'     => 'pa_nav_item_shadow',
-				'selector' => '{{WRAPPER}} .premium-main-nav-menu > .premium-nav-menu-item > .premium-menu-link',
+				'name'           => 'pa_nav_item_shadow',
+				'fields_options' => array(
+					'text_shadow' => array(
+						'selectors' => array(
+							'{{WRAPPER}} .premium-main-nav-menu > .premium-nav-menu-item:not(.pa-item-gradient) > .premium-menu-link' => 'text-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}};',
+							'{{WRAPPER}} .premium-main-nav-menu > .premium-nav-menu-item.pa-item-gradient > .premium-menu-link > .premium-item-text-wrapper' => 'filter: drop-shadow({{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}});',
+						),
+					),
+				),
 			)
 		);
 
@@ -3824,7 +3891,8 @@ class Premium_Nav_Menu extends Widget_Base {
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', 'em', '%' ),
 				'selectors'  => array(
-					'{{WRAPPER}} .premium-main-nav-menu > .premium-active-item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}',
+					'{{WRAPPER}} .premium-main-nav-menu > .premium-active-item'                => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}',
+					'{{WRAPPER}} .premium-main-nav-menu > .premium-active-item > .premium-menu-link' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}',
 				),
 			)
 		);
@@ -4814,15 +4882,6 @@ class Premium_Nav_Menu extends Widget_Base {
 
 		$is_hover = 'hover' === $settings['pa_ver_toggle_event'];
 
-		if ( 'wordpress_menu' === $menu_type ) {
-
-			$menu_list = $this->get_menu_list();
-
-			if ( ! $menu_list ) {
-				return;
-			}
-		}
-
 		$div_end = '';
 
 		$menu_settings = array(
@@ -4903,7 +4962,7 @@ class Premium_Nav_Menu extends Widget_Base {
 		 * Hamburger Menu Button.
 		 */
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'wrapper' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'wrapper' ); ?>>
 			<div class="premium-ver-inner-container">
 				<?php if ( $render_mobile_menu ) { ?>
 					<div class="premium-hamburger-toggle premium-mobile-menu-icon" role="button" aria-label="Toggle Menu">
@@ -4948,7 +5007,7 @@ class Premium_Nav_Menu extends Widget_Base {
 					}
 				} else {
 					?>
-					<div class="premium-nav-menu-container">
+					<div class="premium-nav-menu-container premium-nav-default">
 						<ul class="premium-nav-menu premium-main-nav-menu">
 							<?php
 							$menu_html = $this->get_custom_menu();
@@ -5080,7 +5139,7 @@ class Premium_Nav_Menu extends Widget_Base {
 	 * @access private.
 	 *
 	 * @param string     $menu_html desktop menu html.
-	 * @param stirng|int $menu_id menu id.
+	 * @param string|int $menu_id menu id.
 	 *
 	 * @return string
 	 */
@@ -5178,16 +5237,18 @@ class Premium_Nav_Menu extends Widget_Base {
 			$this->add_render_attribute(
 				'menu-item-' . $index,
 				array(
-					// 'id'    => 'premium-nav-menu-item-' . $item['_id'],
 					'class' => array(
 						'menu-item',
 						'premium-nav-menu-item',
 						'elementor-repeater',
 						'elementor-repeater-item-' . $item['_id'],
-						// $is_active_item ? 'premium-active-item' : ''
 					),
 				)
 			);
+
+			if ( isset( $item['item_gradient_switcher'] ) && 'yes' === $item['item_gradient_switcher'] ) {
+				$this->add_render_attribute( 'menu-item-' . $index, 'class', 'pa-item-gradient' );
+			}
 
 			if ( 'submenu' === $item['item_type'] ) {
 
@@ -5215,7 +5276,7 @@ class Premium_Nav_Menu extends Widget_Base {
 
 					$html_output .= $this->get_icon_html( $item, 'sub-' );
 
-					$html_output .= esc_html( $item['text'] );
+					$html_output .= $this->get_menu_item_text_html( $item );
 
 					$html_output .= $this->get_badge_html( $item, 'sub-' );
 
@@ -5304,7 +5365,7 @@ class Premium_Nav_Menu extends Widget_Base {
 
 				$html_output .= $this->get_icon_html( $item );
 
-				$html_output .= esc_html( $item['text'] );
+				$html_output .= $this->get_menu_item_text_html( $item );
 
 				if ( array_key_exists( $index + 1, $menu_items ) ) {
 					$has_icon = ! empty( $settings['submenu_icon']['value'] );
@@ -5328,6 +5389,32 @@ class Premium_Nav_Menu extends Widget_Base {
 		}
 
 		return $html_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Get Menu Item Text HTML.
+	 *
+	 * Wraps the item text in a `.premium-menu-text` span. When the item's
+	 * Animated Gradient option is enabled, an extra `.premium-item-text-wrapper`
+	 * span is added to carry the drop-shadow filter (the gradient clip and its
+	 * hue-rotate animation live on the inner span).
+	 *
+	 * @access private
+	 * @since 4.11.90
+	 *
+	 * @param array $item repeater item.
+	 *
+	 * @return string
+	 */
+	private function get_menu_item_text_html( $item ) {
+
+		$text = esc_html( $item['text'] );
+
+		if ( isset( $item['item_gradient_switcher'] ) && 'yes' === $item['item_gradient_switcher'] ) {
+			$text = '<span class="premium-item-text-wrapper"><span class="premium-menu-text">' . $text . '</span></span>';
+		}
+
+		return $text;
 	}
 
 	/**
@@ -5372,10 +5459,10 @@ class Premium_Nav_Menu extends Widget_Base {
 			}
 		} elseif ( 'image' === $icon_type ) {
 
-			$html .= '<img class="' . esc_attr( $class ) . '" src="' . esc_attr( $item['item_image']['url'] ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $item['item_image'] ) ) . '">';
+			$html .= '<img class="' . esc_attr( $class ) . '" src="' . esc_url( $item['item_image']['url'] ) . '" alt="' . esc_attr( Control_Media::get_image_alt( $item['item_image'] ) ) . '">';
 		} else {
 
-			$html .= '<div class="premium-lottie-animation ' . esc_attr( $class ) . '" data-lottie-url="' . esc_attr( $item['lottie_url'] ) . '" data-lottie-loop="true"></div>';
+			$html .= '<div class="premium-lottie-animation ' . esc_attr( $class ) . '" data-lottie-url="' . esc_url( $item['lottie_url'] ) . '" data-lottie-loop="true"></div>';
 		}
 
 		return $html;

@@ -126,7 +126,7 @@ class Premium_Maps extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'premium google maps', 'marker', 'pin', 'tooltip', 'location' );
@@ -167,7 +167,7 @@ class Premium_Maps extends Widget_Base {
 
 		$settings = Admin_Helper::get_integrations_settings();
 
-		if ( empty( $settings['premium-map-api'] ) || '1' == $settings['premium-map-api'] ) { // phpcs:ignore WordPress.PHP.StrictComparisons
+		if ( empty( $settings['premium-map-api'] ) || '1' === $settings['premium-map-api'] ) { // phpcs:ignore WordPress.PHP.StrictComparisons
 			$this->add_control(
 				'premium_maps_api_url',
 				array(
@@ -177,6 +177,31 @@ class Premium_Maps extends Widget_Base {
 				)
 			);
 		}
+
+		$this->add_control(
+			'map_id_notice',
+			array(
+				'type'            => Controls_Manager::RAW_HTML,
+				'raw'             => sprintf(
+					/* translators: %s: Google Maps "Map ID" documentation link. */
+					esc_html__( 'To prevent having console errors/warnings, get the Google Map ID from %s. You can leave it empty, but this will use the old Google Maps API.', 'premium-addons-for-elementor' ),
+					'<a href="https://developers.google.com/maps/documentation/javascript/map-ids/get-map-id" target="_blank">' . esc_html__( 'here', 'premium-addons-for-elementor' ) . '</a>'
+				),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+			)
+		);
+
+		$this->add_control(
+			'premium_map_id',
+			array(
+				'label'       => __( 'Map ID', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::TEXT,
+				'label_block' => true,
+				'ai'          => array(
+					'active' => false,
+				),
+			)
+		);
 
 		$this->add_control(
 			'premium_map_ip_location',
@@ -475,21 +500,6 @@ class Premium_Maps extends Widget_Base {
 		);
 
 		$this->add_control(
-			'premium_map_id',
-			array(
-				'label'       => __( 'Map ID', 'premium-addons-for-elementor' ),
-				'type'        => Controls_Manager::TEXT,
-				'description' => sprintf(
-					esc_html__( 'Get the Google Map ID from %s. You can leave it empty, but this will use the old Google Maps API.', 'premium-addons-for-elementor' ),
-					'<a href="https://developers.google.com/maps/documentation/javascript/map-ids/get-map-id" target="_blank">' . esc_html__( 'here', 'premium-addons-for-elementor' ) . '</a>'
-				),
-				'ai'          => array(
-					'active' => false,
-				),
-			)
-		);
-
-		$this->add_control(
 			'premium_maps_map_type',
 			array(
 				'label'   => __( 'Map Type', 'premium-addons-for-elementor' ),
@@ -707,6 +717,27 @@ class Premium_Maps extends Widget_Base {
 				'label_block' => true,
 				'ai'          => array(
 					'active' => false,
+				),
+				'condition'   => array(
+					'premium_map_id' => '',
+				),
+			)
+		);
+
+		$map_style_doc = Helper_Functions::get_campaign_link( 'https://premiumaddons.com/docs/google-maps-widget-tutorial/#snazzy-maps-with-map-id', 'maps-widget', 'wp-editor', 'get-support' );
+
+		$this->add_control(
+			'map_style_cloud_notice',
+			array(
+				'type'            => Controls_Manager::RAW_HTML,
+				'raw'             => sprintf(
+					/* translators: %s: link to the Google Maps widget documentation. */
+					esc_html__( 'Google doesn\'t apply JSON styles to a map that has a Map ID. Style this map from Map Styles in your Google Cloud Console, then link the style to your Map ID. %s', 'premium-addons-for-elementor' ),
+					'<a href="' . esc_url( $map_style_doc ) . '" target="_blank">' . esc_html__( 'Learn how', 'premium-addons-for-elementor' ) . '</a>'
+				),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+				'condition'       => array(
+					'premium_map_id!' => '',
 				),
 			)
 		);
@@ -1206,7 +1237,7 @@ class Premium_Maps extends Widget_Base {
 			$marker_cluster = 'yes' === $settings['premium_maps_map_option_cluster'];
 
 			if ( $marker_cluster ) {
-				$cluster_icon      = $settings['cluster_icon']['url'];
+				$cluster_icon      = esc_url_raw( $settings['cluster_icon']['url'] );
 				$cluster_icon_size = $settings['cluster_icon_size']['size'];
 			}
 		}
@@ -1260,7 +1291,8 @@ class Premium_Maps extends Widget_Base {
 			array(
 				'class'         => array( 'premium_maps_map_height', 'premium-addons__v-hidden' ),
 				'data-settings' => wp_json_encode( $map_settings ),
-				'data-style'    => $settings['premium_maps_custom_styling'],
+				// Google ignores JSON styles when a Map ID is set, so skip them to avoid a console warning.
+				'data-style'    => empty( $settings['premium_map_id'] ) ? $settings['premium_maps_custom_styling'] : '',
 			)
 		);
 
@@ -1270,7 +1302,7 @@ class Premium_Maps extends Widget_Base {
 
 		<?php if ( count( $map_pins ) ) { ?>
 
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'style_wrapper' ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'style_wrapper' ); ?>>
 				<?php
 				foreach ( $map_pins as $index => $pin ) {
 
@@ -1347,7 +1379,7 @@ class Premium_Maps extends Widget_Base {
 
 		?>
 
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( $key ) ); ?>>
+			<div <?php $this->print_render_attribute_string( $key ); ?>>
 				<?php if ( ! empty( $pin['pin_title'] ) || ! empty( $pin['pin_desc'] ) ) : ?>
 					<div class='premium-maps-info-container'>
 
@@ -1387,9 +1419,9 @@ class Premium_Maps extends Widget_Base {
 
 		?>
 
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( $key ) ); ?>>
+			<div <?php $this->print_render_attribute_string( $key ); ?>>
 				<?php if ( ! empty( $pin['pin_title'] ) || ! empty( $pin['pin_desc'] ) ) : ?>
-					<div <?php echo wp_kses_post( $this->get_render_attribute_string( $info_key ) ); ?>>
+					<div <?php $this->print_render_attribute_string( $info_key ); ?>>
 
 						<div class='premium-maps-info-close'>
 							<i class='eicon-close' aria-hidden='true'></i>
@@ -1400,14 +1432,14 @@ class Premium_Maps extends Widget_Base {
 						<?php endif; ?>
 
 						<div class='premium-maps-info-img'>
-							<img src='<?php echo esc_attr( $pin['pin_img']['url'] ); ?>' alt='<?php echo esc_attr( isset( $pin['pin_img']['alt'] ) ? $pin['pin_img']['alt'] : '' ); ?>'>
+							<img src='<?php echo esc_url( $pin['pin_img']['url'] ); ?>' alt='<?php echo esc_attr( isset( $pin['pin_img']['alt'] ) ? $pin['pin_img']['alt'] : '' ); ?>'>
 						</div>
 
 
 						<div class='premium-maps-title-wrap'>
 							<p class='premium-maps-info-title'><?php echo wp_kses_post( $pin['pin_title'] ); ?></p>
 
-							<?php if ( in_array( $pin['marker_skin'], array( 'skin1', 'skin3' ) ) ) : ?>
+							<?php if ( in_array( $pin['marker_skin'], array( 'skin1', 'skin3' ), true ) ) : ?>
 								<?php if ( 'skin1' === $pin['marker_skin'] ) : ?>
 								<div class='premium-maps-location-directions'>
 								<?php endif; ?>

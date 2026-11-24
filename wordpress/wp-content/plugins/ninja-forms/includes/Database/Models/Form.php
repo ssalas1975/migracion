@@ -29,7 +29,20 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
 
     public function __construct( $db, $id = '' )
     {
-        add_action( 'ninja_forms_before_import_form', array( $this, 'import_form_backwards_compatibility' ) );
+        /*
+         * Every model shares one listener. The callback keeps no per-form state, and a
+         * blank-id factory is built per call (#8177), so a listener per object would
+         * retain each one and run the conversion once per object on every import.
+         * WordPress keeps one entry for a repeated object callback, so re-adding it
+         * here is safe, and survives the hook being reset.
+         */
+        static $import_listener = null;
+
+        if ( null === $import_listener ) {
+            $import_listener = $this;
+        }
+
+        add_action( 'ninja_forms_before_import_form', array( $import_listener, 'import_form_backwards_compatibility' ) );
         parent::__construct( $db, $id );
     }
 
@@ -116,7 +129,53 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
 		return $sql;
 	}
 
+    /**
+     * Sequence numbers handed out before the submission row exists, keyed by
+     * form ID. A submission's file name is built while its fields are
+     * processed, which is before the submission is saved, so the number has to
+     * be claimed then and reused by the save. See issue #6859.
+     *
+     * @var array
+     */
+    protected static $reserved_sub_seq = array();
+
+    /**
+     * Claim this submission's sequence number before the submission is saved.
+     *
+     * Repeated calls within one request return the same number, so every merge
+     * tag in one submission sees the number the stored entry will keep.
+     *
+     * @param string|int $form_id Form ID.
+     * @return int The claimed sequence number.
+     */
+    public static function reserve_sub_seq( $form_id )
+    {
+        if ( ! isset( self::$reserved_sub_seq[ $form_id ] ) ) {
+            self::$reserved_sub_seq[ $form_id ] = self::increment_sub_seq( $form_id );
+        }
+
+        return self::$reserved_sub_seq[ $form_id ];
+    }
+
     public static function get_next_sub_seq( $form_id )
+    {
+        if ( isset( self::$reserved_sub_seq[ $form_id ] ) ) {
+            $reserved = self::$reserved_sub_seq[ $form_id ];
+            unset( self::$reserved_sub_seq[ $form_id ] );
+
+            return $reserved;
+        }
+
+        return self::increment_sub_seq( $form_id );
+    }
+
+    /**
+     * Advance the form's sequence counter and return the number taken.
+     *
+     * @param string|int $form_id Form ID.
+     * @return int
+     */
+    protected static function increment_sub_seq( $form_id )
     {
         global $wpdb;
 
@@ -307,13 +366,25 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
         }
 
         // Duplicate the Form Object.
+        //
+        // The new title is built here rather than with CONCAT inside the query,
+        // because the whole phrase is one translatable string and the title's
+        // position within it varies by language. It is passed to the query as a
+        // prepared value, never concatenated into the SQL.
+        $source_title = $wpdb->get_var( $wpdb->prepare(
+            "SELECT `title` FROM {$wpdb->prefix}nf3_forms WHERE id = %d", $form_id
+        ) );
+
+        /* translators: %s is the title of the form that was duplicated. */
+        $new_form_title = sprintf( esc_html__( '%s - copy', 'ninja-forms' ), $source_title );
+
         $wpdb->query( $wpdb->prepare(
             "
                 INSERT INTO {$wpdb->prefix}nf3_forms ( `title`, `created_at` )
-                SELECT CONCAT( `title`, ' - ', %s ), %s
+                SELECT %s, %s
                 FROM {$wpdb->prefix}nf3_forms
                 WHERE  id = %d;
-            ", esc_html__( 'copy', 'ninja-forms' ), current_time( 'mysql' ), $form_id
+            ", $new_form_title, current_time( 'mysql' ), $form_id
         ) );
         $new_form_id = $wpdb->insert_id;
 
@@ -659,9 +730,11 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
             unset( $import[ 'notifications' ] );
         }
 
-        // Rename `form_title` to `title`
+        // Rename legacy `form_title` to `title`, keeping a current `title` when the export has one.
         if( isset( $import[ 'settings' ][ 'form_title' ] ) ){
-            $import[ 'settings' ][ 'title' ] = $import[ 'settings' ][ 'form_title' ];
+            if( empty( $import[ 'settings' ][ 'title' ] ) ){
+                $import[ 'settings' ][ 'title' ] = $import[ 'settings' ][ 'form_title' ];
+            }
             unset( $import[ 'settings' ][ 'form_title' ] );
         }
 
@@ -749,7 +822,7 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
 
                     // Convert Tokenizer
                     $token = 'field_' . $field_id;
-                    if( ! is_array( $value ) ) {
+                    if( is_string( $value ) ) {
                         if (FALSE !== strpos($value, $token)) {
                             $value = str_replace($token, '{field:' . $field_key . '}', $value);
                         }
@@ -757,7 +830,7 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
 
                     // Convert Shortcodes
                     $shortcode = "[ninja_forms_field id=$field_id]";
-                    if( ! is_array( $value ) ) {
+                    if( is_string( $value ) ) {
                         if ( FALSE !== strpos( $value, $shortcode ) ) {
                             $value = str_replace( $shortcode, '{field:' . $field_key . '}', $value );
                         }
@@ -766,13 +839,13 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
 
                 //Checks for the nf_sub_seq_num short code and replaces it with the submission sequence merge tag
                 $sub_seq = '[nf_sub_seq_num]';
-                if( ! is_array( $value ) ) {
+                if( is_string( $value ) ) {
                     if( FALSE !== strpos( $value, $sub_seq ) ){
                         $value = str_replace( $sub_seq, '{submission:sequence}', $value );
                     }
                 }
 
-                if( ! is_array( $value ) ) {
+                if( is_string( $value ) ) {
                     if (FALSE !== strpos($value, '[ninja_forms_all_fields]')) {
                         $value = str_replace('[ninja_forms_all_fields]', '{field:all_fields}', $value);
                     }
@@ -995,7 +1068,8 @@ final class NF_Database_Models_Form extends NF_Abstracts_Model
             $passwordconfirm = array_merge( $field, array(
                 'id' => '',
                 'type' => 'passwordconfirm',
-                'label' => $field[ 'label' ] . ' ' . esc_html__( 'Confirm', 'ninja-forms' ),
+                /* translators: %s is the label of the field that must be typed a second time, for example "Email". */
+                'label' => sprintf( esc_html__( 'Confirm %s', 'ninja-forms' ), $field[ 'label' ] ),
                 'confirm_field' => 'password_' . $field[ 'id' ]
             ));
             $field[ 'new_fields' ][] = $passwordconfirm;

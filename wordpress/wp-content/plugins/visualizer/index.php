@@ -3,7 +3,7 @@
 	Plugin Name: Visualizer: Tables and Charts for WordPress
 	Plugin URI: https://themeisle.com/plugins/visualizer-charts-and-graphs/
 	Description: Effortlessly create and embed responsive charts and tables with Visualizer, a powerful WordPress plugin that enhances data presentation from multiple sources.
-	Version: 4.0.1
+	Version: 4.0.11
 	Author: Themeisle
 	Author URI: http://themeisle.com
 	License: GPL v2.0 or later
@@ -81,6 +81,9 @@ function visualizer_launch() {
 	if ( ! defined( 'VISUALIZER_CSV_ENCLOSURE' ) ) {
 		define( 'VISUALIZER_CSV_ENCLOSURE', '"' );
 	}
+	if ( ! defined( 'VISUALIZER_CSV_ESCAPE' ) ) {
+		define( 'VISUALIZER_CSV_ESCAPE', '\\' );
+	}
 	if ( ! defined( 'VISUALIZER_DEBUG' ) ) {
 		define( 'VISUALIZER_DEBUG', false );
 	}
@@ -91,11 +94,11 @@ function visualizer_launch() {
 	define( 'VISUALIZER_ENABLE_BETA_FEATURES', '' );
 
 	// the link to pre-build queries.
-	define( 'VISUALIZER_DB_QUERY_DOC_URL', 'https://docs.themeisle.com/article/970-visualizer-sample-queries-to-generate-charts' );
-	define( 'VISUALIZER_MAIN_DOC', 'https://docs.themeisle.com/category/657-visualizer' );
+	define( 'VISUALIZER_DB_QUERY_DOC_URL', 'https://docs.themeisle.com/visualizer-charts-and-graphs/visualizer-sample-queries-to-generate-charts' );
+	define( 'VISUALIZER_MAIN_DOC', 'https://docs.themeisle.com/visualizer-charts-and-graphs/' );
 	define( 'VISUALIZER_DOC_COLLECTION', 'https://docs.themeisle.com/visualizer-charts-and-graphs/?query=#' );
 	define( 'VISUALIZER_DEMO_URL', 'https://demo.themeisle.com/visualizer/#' );
-	define( 'VISUALIZER_CODE_SNIPPETS_URL', 'https://docs.themeisle.com/category/726-visualizer' );
+	define( 'VISUALIZER_CODE_SNIPPETS_URL', 'https://docs.themeisle.com/visualizer-charts-and-graphs/' );
 	define( 'VISUALIZER_SUBSCRIBE_API', 'https://api.themeisle.com/tracking/subscribe' );
 	define( 'VISUALIZER_AGENTS_URL', 'https://ai.themeisle.com' );
 
@@ -145,6 +148,9 @@ function visualizer_launch() {
 	// AI Chart Builder module (AJAX endpoints for the React wizard).
 	$plugin->setModule( Visualizer_Module_AIBuilder::NAME );
 
+	// Abilities API integration (no-op when the API is not available).
+	$plugin->setModule( Visualizer_Module_Abilities::NAME );
+
 	$vendor_file = VISUALIZER_ABSPATH . '/vendor/autoload.php';
 	if ( is_readable( $vendor_file ) ) {
 		include_once $vendor_file;
@@ -152,9 +158,12 @@ function visualizer_launch() {
 
 	$action_scheduler_file = VISUALIZER_ABSPATH . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 
-	if ( is_readable( $action_scheduler_file ) ) {
+	if ( visualizer_can_use_action_scheduler() && is_readable( $action_scheduler_file ) ) {
 		require_once $action_scheduler_file;
 	}
+
+	// After Action Scheduler's own data controller, which sets the class at 100.
+	add_filter( 'action_scheduler_store_class', 'visualizer_action_scheduler_store_class', 200 );
 
 	add_filter( 'themeisle_sdk_products', 'visualizer_register_sdk', 10, 1 );
 	add_filter( 'pirate_parrot_log', 'visualizer_register_parrot', 10, 1 );
@@ -177,6 +186,26 @@ function visualizer_launch() {
 				'has_upgrade_menu' => ! Visualizer_Module::is_pro(),
 				'upgrade_text'     => esc_html__( 'Get Visualizer Pro', 'visualizer' ),
 				'upgrade_link'     => esc_url( tsdk_utmify( Visualizer_Plugin::PRO_TEASER_URL, 'sidebarMenuUpgrade', 'index' ) ),
+			);
+		}
+	);
+	add_filter( 'visualizer_support_hub_metadata', 'visualizer_support_hub_metadata' );
+	add_filter(
+		'visualizer_ai_connect_metadata',
+		function () {
+			return array(
+				'name'         => 'Visualizer',
+				'notice_cases' => array(
+					__( 'build a chart from your numbers', 'visualizer' ),
+					__( 'update a table with new data', 'visualizer' ),
+					__( 'refresh charts from their data source', 'visualizer' ),
+				),
+				'prompts'      => array(
+					__( 'Create a Visualizer pie chart "Traffic by channel" with Organic 5400, Direct 2100 and Social 1300, and add it to my Analytics page.', 'visualizer' ),
+					__( 'Refresh every chart that pulls from a remote CSV, JSON or database source.', 'visualizer' ),
+					__( 'Change my "Monthly sales" chart to a bar chart and add September: 12,400.', 'visualizer' ),
+				),
+				'ability_prefix'    => 'visualizer',
 			);
 		}
 	);
@@ -215,6 +244,67 @@ function visualizer_launch() {
 			}
 		);
 	}
+}
+
+/**
+ * Whether the bundled Action Scheduler can run against this wpdb.
+ *
+ * The bundled library calls wpdb::db_server_info() unguarded when it claims a
+ * queue batch, and core only added that method in WordPress 5.5. Loading it
+ * without the method available fatals, so those sites stay on WP-Cron instead.
+ *
+ * @return bool
+ */
+function visualizer_can_use_action_scheduler() {
+	global $wpdb;
+
+	return isset( $wpdb ) && is_callable( array( $wpdb, 'db_server_info' ) );
+}
+
+/**
+ * Use a store that survives a lost race when marking an action failed.
+ *
+ * Only replaces Action Scheduler's own database store. Another plugin's store
+ * and the legacy post store, which does not have the problem, are left alone.
+ *
+ * @param string $class_name Store class Action Scheduler resolved.
+ *
+ * @return string
+ */
+function visualizer_action_scheduler_store_class( $class_name ) {
+	return 'ActionScheduler_DBStore' === $class_name ? 'Visualizer_ActionScheduler_Store' : $class_name;
+}
+
+/**
+ * Opts into the SDK Support Hub: one Help button on the plugin's own screens
+ * and the deactivation window.
+ *
+ * Visualizer Pro registers nothing here: it has no admin screens of its own
+ * and the SDK shows one Help button per screen, so the free plugin owns the
+ * hub for both and tags the message as pro from the Pro license status.
+ *
+ * The plugin screens need no `pages` entry: each one fires
+ * `themeisle_internal_page`, which the SDK already treats as a product screen.
+ *
+ * @return array{is_pro: bool, license_namespace: string, links: array<int, array{icon: string, text: string, url: string}>}
+ */
+function visualizer_support_hub_metadata() {
+	return array(
+		'is_pro'            => Visualizer_Module::is_pro(),
+		'license_namespace' => 'visualizer',
+		'links'             => array(
+			array(
+				'icon' => 'book-alt',
+				'text' => __( 'Docs', 'visualizer' ),
+				'url'  => VISUALIZER_MAIN_DOC,
+			),
+			array(
+				'icon' => 'groups',
+				'text' => __( 'Forum', 'visualizer' ),
+				'url'  => 'https://wordpress.org/support/plugin/visualizer/',
+			),
+		),
+	);
 }
 
 /**

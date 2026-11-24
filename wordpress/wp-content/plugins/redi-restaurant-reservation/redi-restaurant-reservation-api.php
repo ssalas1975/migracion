@@ -20,6 +20,38 @@ trait ReDiAPIHelperMethods
     }
 
     /**
+     * Verify guest ownership: email, phone, or name must match, with both sides non-empty
+     * after sanitization (blocks empty-email bypass via sanitize_email of non-email input).
+     *
+     * @param array  $reservation   Reservation from API
+     * @param string $personal_info Email, phone, or name supplied by the guest
+     * @return bool
+     */
+    protected function reservation_personal_info_matches( $reservation, $personal_info ) {
+        $personal_info = trim( (string) $personal_info );
+        if ( $personal_info === '' || ! is_array( $reservation ) ) {
+            return false;
+        }
+
+        $stored_email = isset( $reservation['Email'] ) ? trim( (string) $reservation['Email'] ) : '';
+        $stored_phone = isset( $reservation['Phone'] ) ? str_replace( array( ' ' ), '', trim( (string) $reservation['Phone'] ) ) : '';
+        $stored_name  = isset( $reservation['Name'] ) ? trim( (string) $reservation['Name'] ) : '';
+
+        $input_email = strtolower( sanitize_email( $personal_info ) );
+        $input_phone = str_replace( array( ' ' ), '', sanitize_text_field( $personal_info ) );
+        $input_name  = strtolower( sanitize_text_field( $personal_info ) );
+
+        $email_match = $input_email !== '' && $stored_email !== ''
+            && hash_equals( strtolower( $stored_email ), $input_email );
+        $phone_match = $input_phone !== '' && $stored_phone !== ''
+            && hash_equals( $stored_phone, $input_phone );
+        $name_match = $input_name !== '' && $stored_name !== ''
+            && hash_equals( strtolower( $stored_name ), $input_name );
+
+        return $email_match || $phone_match || $name_match;
+    }
+
+    /**
      * Decode the redi_attribution cookie into an associative array.
      * Do not pass the raw cookie through sanitize_text_field(): WordPress strips percent-encoded
      * byte sequences (%7B, %22, …), which destroys URL-encoded JSON before json_decode.
@@ -37,6 +69,83 @@ trait ReDiAPIHelperMethods
             $data = json_decode( rawurldecode( $raw ), true );
         }
         return is_array( $data ) ? $data : null;
+    }
+
+    /**
+     * reCAPTCHA v2 for classic themes unless admin selected v3; React theme is always v3.
+     */
+    protected function get_captcha_version() {
+        if ($this->GetOption('Theme', ReDiTheme::Default_v1) === ReDiTheme::DesignR25_v3) {
+            return ReDiCaptchaVersion::V3;
+        }
+        $version = $this->GetOption('CaptchaVersion', ReDiCaptchaVersion::V2);
+        return $version === ReDiCaptchaVersion::V3 ? ReDiCaptchaVersion::V3 : ReDiCaptchaVersion::V2;
+    }
+
+    /**
+     * Verify a reCAPTCHA token. Returns an error message or null on success.
+     * v2 without a secret key keeps the legacy client-only check (non-empty token).
+     * v3 always requires siteverify + score + action.
+     */
+    protected function verify_recaptcha_or_error($token) {
+        if (!$this->GetOption('Captcha')) {
+            return null;
+        }
+
+        $token = is_string($token) ? trim($token) : '';
+        if ($token === '') {
+            return __('Captcha is not valid.', 'redi-restaurant-reservation');
+        }
+
+        $version = $this->get_captcha_version();
+        $secret = $this->GetOption('CaptchaSecret', '');
+
+        if ($secret === '' || $secret === null) {
+            if ($version !== ReDiCaptchaVersion::V3) {
+                return null;
+            }
+            return __('Captcha is not valid.', 'redi-restaurant-reservation');
+        }
+
+        $remote_ip = '';
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
+            $remote_ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+        }
+
+        $response = wp_remote_post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            array(
+                'timeout' => 10,
+                'body' => array(
+                    'secret' => $secret,
+                    'response' => $token,
+                    'remoteip' => $remote_ip,
+                ),
+            )
+        );
+
+        if (is_wp_error($response)) {
+            return __('Captcha is not valid.', 'redi-restaurant-reservation');
+        }
+
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        if (!is_array($body) || empty($body['success'])) {
+            return __('Captcha is not valid.', 'redi-restaurant-reservation');
+        }
+
+        if ($version === ReDiCaptchaVersion::V3) {
+            $score = isset($body['score']) ? (float) $body['score'] : 0;
+            $threshold = (float) $this->GetOption('CaptchaScore', 0.5);
+            if ($threshold < 0 || $threshold > 1) {
+                $threshold = 0.5;
+            }
+            $action = isset($body['action']) ? $body['action'] : '';
+            if ($score < $threshold || $action !== 'reservation') {
+                return __('Captcha is not valid.', 'redi-restaurant-reservation');
+            }
+        }
+
+        return null;
     }
 
     
@@ -363,13 +472,7 @@ trait ReDiAPIHelperMethods
         }
 
         // Verify reservation ownership using provided personal information
-        $personal_info = trim($personal_info);
-        $email_match = !empty($personal_info) && strtolower(sanitize_email($personal_info)) == strtolower($reservation['Email']);
-        $phone_match = !empty($personal_info) && str_replace([' '], '', sanitize_text_field($personal_info)) == $reservation['Phone'];
-        $name_match = !empty($personal_info) && strtolower(sanitize_text_field($personal_info)) == strtolower($reservation['Name']);
-
-        // Check if any verification method matches
-        if (!$email_match && !$phone_match && !$name_match) {
+        if ( ! $this->reservation_personal_info_matches( $reservation, $personal_info ) ) {
             return new WP_Error(
                 'redi_reservation_not_found',
                 __('Unable to find reservation with provided information. Please verify that provided reservation number and personal information (email, phone, or name) is correct.', 'redi-restaurant-reservation'),
@@ -419,6 +522,21 @@ trait ReDiAPIHelperMethods
             'ID' => '123456789',
             'Message' => __('This is a simulated reservation.', 'redi-restaurant-reservation')
         ), 200);*/
+
+        $captcha_token = '';
+        if (!empty($reservation['captcha_token']) && is_string($reservation['captcha_token'])) {
+            $captcha_token = $reservation['captcha_token'];
+        } elseif (!empty($reservation['g-recaptcha-response']) && is_string($reservation['g-recaptcha-response'])) {
+            $captcha_token = $reservation['g-recaptcha-response'];
+        }
+        $captcha_error = $this->verify_recaptcha_or_error($captcha_token);
+        if ($captcha_error !== null) {
+            return new WP_Error(
+                'redi_api_error',
+                $captcha_error,
+                array('status' => 200)
+            );
+        }
 
         // Map ReservationObject fields from $reservation array
         $date = isset($reservation['date']) ? $reservation['date'] : '';
@@ -647,6 +765,20 @@ trait ReDiAPIHelperMethods
 
         $language = !empty($lang) ? str_replace('_', '-', $lang) : str_replace('_', '-', get_locale());
 
+        $reservation = $this->redi->findReservation( $language, $reservation_id );
+        $error_response = $this->handle_api_response_error( $reservation );
+        if ( is_wp_error( $error_response ) ) {
+            return $error_response;
+        }
+
+        if ( ! $this->reservation_personal_info_matches( $reservation, $personalInformation ) ) {
+            return new WP_Error(
+                'redi_reservation_not_found',
+                __( 'Unable to find reservation with provided information. Please verify that provided reservation number and personal information (email, phone, or name) is correct.', 'redi-restaurant-reservation' ),
+                array( 'status' => 404 )
+            );
+        }
+
         $params = array(
             'ID' => urlencode($reservation_id),
             'personalInformation' => $personalInformation,
@@ -726,10 +858,7 @@ trait ReDiAPIHelperMethods
             return $error_response;
         }
 
-        $email_match = strtolower(sanitize_email($personal_info)) === strtolower($reservation['Email']);
-        $phone_match = str_replace([' '], '', sanitize_text_field($personal_info)) === $reservation['Phone'];
-        $name_match = strtolower(sanitize_text_field($personal_info)) === strtolower($reservation['Name']);
-        if (!$email_match && !$phone_match && !$name_match) {
+        if ( ! $this->reservation_personal_info_matches( $reservation, $personal_info ) ) {
             return new WP_Error(
                 'redi_reservation_not_found',
                 __('Unable to find reservation with provided information.', 'redi-restaurant-reservation'),

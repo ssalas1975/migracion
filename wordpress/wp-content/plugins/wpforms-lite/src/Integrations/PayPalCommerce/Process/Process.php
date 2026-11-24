@@ -102,14 +102,8 @@ class Process extends Base {
 			return;
 		}
 
-		if (
-			empty( $entry['fields'][ $this->field['id'] ]['orderID'] )
-			&& empty( $entry['fields'][ $this->field['id'] ]['subscriptionProcessorID'] )
-			&& empty( $entry['fields'][ $this->field['id'] ]['subscriptionID'] )
-		) {
-			$this->display_errors();
-
-			$this->maybe_add_conditional_logic_log();
+		if ( ! $this->has_payment_identifier( $entry ) ) {
+			$this->stop_without_payment_identifier();
 
 			return;
 		}
@@ -163,12 +157,11 @@ class Process extends Base {
 			return;
 		}
 
-		$order_data = $order_response->get_body();
+		$order_data     = $order_response->get_body();
+		$capture_status = $order_data['purchase_units'][0]['payments']['captures'][0]['status'] ?? '';
 
-		// Validate card payment status.
-		if (
-			empty( $order_data['purchase_units'][0]['payments']['captures'][0]['status'] ) || $order_data['purchase_units'][0]['payments']['captures'][0]['status'] !== 'COMPLETED'
-		) {
+		// A PENDING capture is held by PayPal (e.g. PENDING_REVIEW), not declined; the capture webhooks settle it later.
+		if ( ! in_array( $capture_status, [ 'COMPLETED', 'PENDING' ], true ) ) {
 			$error_title    = esc_html__( 'This payment cannot be processed because it was declined by payment processor.', 'wpforms-lite' );
 			$this->errors[] = $error_title;
 
@@ -371,6 +364,20 @@ class Process extends Base {
 	}
 
 	/**
+	 * Whether PayPal put the order's first capture on hold.
+	 *
+	 * @since 2.0.5
+	 *
+	 * @param array $order Order data containing the capture array.
+	 *
+	 * @return bool
+	 */
+	private function is_capture_pending( array $order ): bool {
+
+		return ( $order['purchase_units'][0]['payments']['captures'][0]['status'] ?? '' ) === 'PENDING';
+	}
+
+	/**
 	 * Get order data.
 	 *
 	 * @since 1.10.0
@@ -477,7 +484,7 @@ class Process extends Base {
 			$payment_data['transaction_id'] = sanitize_text_field( $order_data['purchase_units'][0]['payments']['captures'][0]['id'] );
 			$payment_data['title']          = $this->get_payment_title( $order_data, $form_data );
 
-			return $this->add_generic_payment_data( $payment_data );
+			return $this->add_generic_payment_data( $payment_data, $order_data );
 		}
 
 		$subscription_processor_data = $this->get_subscription_processor_data();
@@ -489,7 +496,7 @@ class Process extends Base {
 			$payment_data['subscription_id']     = sanitize_text_field( $subscription_processor_data['id'] );
 			$payment_data['customer_id']         = sanitize_text_field( $subscription_processor_data['payment_source']['paypal']['account_id'] );
 
-			return $this->add_generic_payment_data( $payment_data );
+			return $this->add_generic_payment_data( $payment_data, $subscription_processor_data );
 		}
 
 		// Determine whether it is a subscription.
@@ -574,6 +581,8 @@ class Process extends Base {
 				)
 			);
 
+			$payment_meta[ PayPalCommerce::PAYPAL_ORDER_ID_META_KEY ] = sanitize_text_field( $order_data['id'] ?? '' );
+
 			return $payment_meta;
 		}
 
@@ -638,8 +647,7 @@ class Process extends Base {
 		$subscription_processor_data = $this->get_subscription_processor_data();
 
 		if ( ! empty( $subscription_processor_data ) ) {
-
-			$this->add_processed_log( $payment_id, $subscription_processor_data['purchase_units'][0]['payments']['captures'][0]['id'] );
+			$this->maybe_add_processed_log( $payment_id, $subscription_processor_data );
 
 			return;
 		}
@@ -651,7 +659,39 @@ class Process extends Base {
 			return;
 		}
 
-		$this->add_processed_log( $payment_id, $order_data['purchase_units'][0]['payments']['captures'][0]['id'] );
+		$this->maybe_add_processed_log( $payment_id, $order_data );
+	}
+
+	/**
+	 * Log the capture outcome once the capture id is available.
+	 *
+	 * @since 1.10.2
+	 *
+	 * @param int   $payment_id Payment ID.
+	 * @param array $order      Order data containing the capture array.
+	 */
+	private function maybe_add_processed_log( int $payment_id, array $order ): void {
+
+		$capture_id = $order['purchase_units'][0]['payments']['captures'][0]['id'] ?? '';
+
+		if ( $capture_id === '' ) {
+			return;
+		}
+
+		if ( $this->is_capture_pending( $order ) ) {
+			wpforms()->obj( 'payment_meta' )->add_log(
+				$payment_id,
+				sprintf(
+					'PayPal Commerce payment is on hold by PayPal. (Reason: %s, Transaction ID: %s)',
+					$order['purchase_units'][0]['payments']['captures'][0]['status_details']['reason'] ?? 'UNKNOWN',
+					$capture_id
+				)
+			);
+
+			return;
+		}
+
+		$this->add_processed_log( (string) $payment_id, $capture_id );
 	}
 
 	/**
@@ -814,12 +854,13 @@ class Process extends Base {
 	 * @since 1.10.0
 	 *
 	 * @param array $payment_data Payment data.
+	 * @param array $order        Captured order data, empty for a subscription without a capture.
 	 *
 	 * @return array
 	 */
-	private function add_generic_payment_data( array $payment_data ): array {
+	private function add_generic_payment_data( array $payment_data, array $order = [] ): array {
 
-		$payment_data['status']  = 'processed';
+		$payment_data['status']  = $this->is_capture_pending( $order ) ? 'pending' : 'processed';
 		$payment_data['gateway'] = PayPalCommerce::SLUG;
 		$payment_data['mode']    = Helpers::is_sandbox_mode() ? 'test' : 'live';
 
@@ -974,6 +1015,56 @@ class Process extends Base {
 	}
 
 	/**
+	 * Whether the submission carries a PayPal identifier for the payment to process.
+	 *
+	 * @since 2.0.2.2
+	 *
+	 * @param array $entry Copy of the original $_POST.
+	 *
+	 * @return bool
+	 */
+	private function has_payment_identifier( array $entry ): bool {
+
+		$submitted = $entry['fields'][ $this->field['id'] ?? null ] ?? [];
+
+		if ( ! is_array( $submitted ) ) {
+			return false;
+		}
+
+		foreach ( [ 'orderID', 'subscriptionProcessorID', 'subscriptionID' ] as $key ) {
+			if ( ! empty( $submitted[ $key ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Stop a submission that reached the server without a PayPal identifier.
+	 *
+	 * @since 2.0.2.2
+	 */
+	private function stop_without_payment_identifier(): void {
+
+		if ( ! $this->is_card_field_visibility_ok() || $this->is_payment_stopped_by_conditional_logic() ) {
+			$this->maybe_add_conditional_logic_log();
+
+			return;
+		}
+
+		wpforms()->obj( 'process' )->errors[ $this->form_id ][ $this->field['id'] ] = wpforms_get_required_label();
+
+		$this->log_errors(
+			'PayPal Commerce payment stopped, missing payment identifier.',
+			[
+				'field_id' => $this->field['id'],
+				'amount'   => $this->amount,
+			]
+		);
+	}
+
+	/**
 	 * Display form errors.
 	 *
 	 * @since 1.10.0
@@ -984,17 +1075,13 @@ class Process extends Base {
 			return;
 		}
 
-		// Check if the form contains a required credit card. If it does
-		// and there was an error, return the error to the user and prevent
-		// the form from being submitted. This should not occur under normal
-		// circumstances.
+		// A payment error must always block the submission, whether or not the field is marked as
+		// required in the builder: an entry completed without its payment is never acceptable.
 		if ( empty( $this->field ) || empty( $this->form_data['fields'][ $this->field['id'] ] ) ) {
 			return;
 		}
 
-		if ( ! empty( $this->form_data['fields'][ $this->field['id'] ]['required'] ) ) {
-			wpforms()->obj( 'process' )->errors[ $this->form_id ]['footer'] = implode( '<br>', $this->errors );
-		}
+		wpforms()->obj( 'process' )->errors[ $this->form_id ]['footer'] = implode( '<br>', $this->errors );
 	}
 
 	/**
@@ -1084,6 +1171,19 @@ class Process extends Base {
 	 * @since 1.10.0
 	 */
 	protected function maybe_add_conditional_logic_log(): void {
+	}
+
+	/**
+	 * Determine whether the form's payment-level conditional logic stops every PayPal Commerce payment, one-time and recurring.
+	 * Core has no payment rule evaluator, so it defaults to a payment being expected, and the addon overrides it.
+	 *
+	 * @since 2.0.5.1
+	 *
+	 * @return bool
+	 */
+	protected function is_payment_stopped_by_conditional_logic(): bool {
+
+		return false;
 	}
 
 	/**
@@ -1253,7 +1353,7 @@ class Process extends Base {
 				'name'        => wp_html_excerpt( $name . ': ' . $choice_name, 124, '...' ), // Limit to 127 characters.
 				'quantity'    => $quantity,
 				'unit_amount' => [
-					'value'         => Helpers::format_amount_for_api_call( wpforms_sanitize_amount( $field['choices'][ $choice ]['value'] ) ),
+					'value'         => Helpers::format_amount_for_api_call( wpforms_sanitize_form_amount( $field['choices'][ $choice ]['value'], $this->form_data ) ),
 					'currency_code' => $this->currency,
 				],
 			];

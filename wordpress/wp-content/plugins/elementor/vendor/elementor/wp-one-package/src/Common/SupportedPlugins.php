@@ -17,4 +17,6 @@ class SupportedPlugins extends BasicEnum {
 	const SITE_MAILER = 'site-mailer';
 	const IMAGE_OPTIMIZATION = 'image-optimization';
 	const POJO_ACCESSIBILITY = 'pojo-accessibility';
+	const COOKIEZ = 'cookiez';
+	const ARYO_ACTIVITY_LOG = 'aryo-activity-log';
 }

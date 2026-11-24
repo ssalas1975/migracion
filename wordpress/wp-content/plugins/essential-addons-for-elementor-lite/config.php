@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // Exit if accessed directly
+
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $config = [
     'elements' => [
         'post-grid' => [
@@ -24,7 +29,7 @@ $config = [
                 ],
                 'js' => [
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -282,7 +287,12 @@ $config = [
                 ],
                 'js' => [
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'file' => EAEL_PLUGIN_PATH . '/assets/front-end/js/lib-view/dom-purify/purify.min.js',
+                        'type' => 'lib',
+                        'context' => 'view',
+                    ],
+                    [
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -316,7 +326,7 @@ $config = [
                 ],
                 'js' => [
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -418,7 +428,7 @@ $config = [
                         'context' => 'view',
                     ],
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -587,7 +597,7 @@ $config = [
                 ],
                 'js'  => [
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -636,7 +646,7 @@ $config = [
                 ],
                 'js'  => [
                     [
-                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+                        'handle' => 'imagesloaded',
                         'type' => 'lib',
                         'context' => 'view',
                     ],
@@ -663,12 +673,60 @@ $config = [
                 ],
             ],
         ],
+        'woo-product-title' => [
+            'class' => '\Essential_Addons_Elementor\Elements\Woo_Product_Title',
+            'dependency' => [
+                'css' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-product-title.min.css',
+                        'type' => 'self',
+                        'context' => 'view',
+                    ],
+                ],
+            ],
+        ],
         'woo-product-price' => [
             'class' => '\Essential_Addons_Elementor\Elements\Woo_Product_Price',
             'dependency' => [
                 'css' => [
                     [
                         'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-product-price.min.css',
+                        'type' => 'self',
+                        'context' => 'view',
+                    ],
+                ],
+            ],
+        ],
+        'woo-product-tabs' => [
+            'class' => '\Essential_Addons_Elementor\Elements\Woo_Product_Tabs',
+            'dependency' => [
+                'css' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-product-tabs.min.css',
+                        'type' => 'self',
+                        'context' => 'view',
+                    ],
+                ],
+            ],
+        ],
+        'woo-product-short-description' => [
+            'class' => '\Essential_Addons_Elementor\Elements\Woo_Product_Short_Description',
+            'dependency' => [
+                'css' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-product-short-description.min.css',
+                        'type' => 'self',
+                        'context' => 'view',
+                    ],
+                ],
+            ],
+        ],
+        'woo-product-description' => [
+            'class' => '\Essential_Addons_Elementor\Elements\Woo_Product_Description',
+            'dependency' => [
+                'css' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-product-description.min.css',
                         'type' => 'self',
                         'context' => 'view',
                     ],
@@ -783,6 +841,13 @@ $config = [
                 'css' => [
                     [
                         'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/woo-add-to-cart.min.css',
+                        'type' => 'self',
+                        'context' => 'view',
+                    ],
+                ],
+                'js' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/view/woo-add-to-cart.min.js',
                         'type' => 'self',
                         'context' => 'view',
                     ],
@@ -928,7 +993,7 @@ $config = [
                 ],
                 'js' => [
 	                [
-		                'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+		                'handle' => 'imagesloaded',
 		                'type' => 'lib',
 		                'context' => 'view',
 	                ],
@@ -1030,6 +1095,11 @@ $config = [
                         'type' => 'self',
                         'context' => 'view',
                     ],
+                    [
+                        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/edit/event-calendar.min.js',
+                        'type' => 'self',
+                        'context' => 'edit',
+                    ],
                 ],
             ],
         ],
@@ -1091,6 +1161,11 @@ $config = [
                 ],
                 'js' => [
                     [
+                        'file' => EAEL_PLUGIN_PATH . '/assets/front-end/js/lib-view/dom-purify/purify.min.js',
+                        'type' => 'lib',
+                        'context' => 'view',
+                    ],
+                    [
                         'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/view/login-register.min.js',
                         'type' => 'self',
                         'context' => 'view',
@@ -1134,17 +1209,6 @@ $config = [
 				    ],
 			    ],
 			    'js'  => [
-                    //gsap
-				    // [
-					//     'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/gsap/gsap.min.js',
-					//     'type' => 'lib',
-					//     'context' => 'view',
-				    // ],
-                    // [
-					//     'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/gsap/Draggable.min.js',
-					//     'type' => 'lib',
-					//     'context' => 'view',
-				    // ],
                     // //marquee
                     // [
                     //     'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/marquee/marquee.min.js',
@@ -1176,11 +1240,43 @@ $config = [
 		        ],
 		        'js'  => [
 			        [
+				        'file' => EAEL_PLUGIN_PATH . '/assets/front-end/js/lib-view/dom-purify/purify.min.js',
+				        'type' => 'lib',
+				        'context' => 'view',
+			        ],
+			        [
 				        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/view/simple-menu.min.js',
 				        'type' => 'self',
 				        'context' => 'view',
 			        ],
 		        ],
+	        ],
+        ],
+        'mega-menu' => [
+	        'class' => '\Essential_Addons_Elementor\Elements\Mega_Menu',
+	        'dependency' => [
+		        'css' => [
+			        [
+				        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/css/view/mega-menu.min.css',
+				        'type' => 'self',
+				        'context' => 'view',
+			        ],
+		        ],
+		        'js'  => [
+			        [
+				        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/view/mega-menu.min.js',
+				        'type' => 'self',
+				        'context' => 'view',
+			        ],
+		        ],
+	        ],
+	        // Mega Menu extends Elementor's Widget_Nested_Base (Elementor 3.8+).
+	        // Skip registration entirely when that API is missing so the class is
+	        // never autoloaded on older Elementor versions.
+	        'condition' => [
+		        'class_exists',
+		        '\Elementor\Modules\NestedElements\Base\Widget_Nested_Base',
+		        false,
 	        ],
         ],
         'woo-product-gallery' => [
@@ -1205,7 +1301,7 @@ $config = [
 		        ],
 		        'js'  => [
 			        [
-				        'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js',
+				        'handle' => 'imagesloaded',
 				        'type' => 'lib',
 				        'context' => 'view',
 			        ],
@@ -1275,6 +1371,11 @@ $config = [
                     ],
                 ],
                 'js' => [
+                    [
+                        'file' => EAEL_PLUGIN_PATH . '/assets/front-end/js/lib-view/dom-purify/purify.min.js',
+                        'type' => 'lib',
+                        'context' => 'view',
+                    ],
                     [
                         'file' => EAEL_PLUGIN_PATH . 'assets/front-end/js/view/nft-gallery.min.js',
                         'type' => 'self',

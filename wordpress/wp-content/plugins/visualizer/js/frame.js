@@ -67,9 +67,11 @@
                 break;
         }
 
-        if($('span.viz-gvlink').length > 0) {
-            $('span.viz-gvlink').html($('span.viz-gvlink').html().replace('?', chart_type_in_api_link));
-        }
+        // Only the Google API link has the "gallery/?" placeholder. Other links in the
+        // description (e.g. Common Snippets) carry UTM query strings and must stay as they are.
+        $('span.viz-gvlink a[href*="/chart/interactive/docs/gallery/?"]').attr('href', function (i, href) {
+            return href.replace('gallery/?', 'gallery/' + chart_type_in_api_link);
+        });
 
         $('.type-radio').change(function () {
             $('.type-label-selected').removeClass('type-label-selected');
@@ -478,6 +480,34 @@
         $( '#visualizer-db-query' ).css("z-index", "-1").hide();
 
         init_db_import_component();
+
+        var settings_button = document.querySelector( '#settings-button' );
+        if ( settings_button ) {
+            settings_button.addEventListener( 'click', function( event ){
+                $('body').trigger('visualizer:db:query:update', {});
+                if( $( '#db-chart-button' ).attr( 'data-current' ) !== 'filter' || $( '.visualizer-db-query' ).val().length === 0 ){
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                var query_saved = false;
+                var resume_save = function(){
+                    query_saved = true;
+                    settings_button.click();
+                };
+
+                $('body').one( 'visualizer:render:currentchart:update', resume_save );
+                $( '#thehole' ).one( 'load', function(){
+                    $('body').off( 'visualizer:render:currentchart:update', resume_save );
+                    if ( ! query_saved ) {
+                        $( '#db-chart-button' ).trigger( 'click' );
+                    }
+                } );
+                $( '#db-chart-button' ).trigger( 'click' );
+            }, true );
+        }
 
         $('#visualizer-query-fetch').on('click', function(e){
 

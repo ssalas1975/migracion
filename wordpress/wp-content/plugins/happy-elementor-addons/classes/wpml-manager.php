@@ -210,7 +210,7 @@ class WPML_Manager {
 			/**
 			 * Event Calendar
 			 */
-			'events-calendar' => [
+			'event-calendar' => [
 				'fields' => [
 					[
 						'field'       => 'allday_text',
@@ -374,6 +374,11 @@ class WPML_Manager {
 						'type'        => __( 'Image Hover Effect: Title', 'happy-elementor-addons' ),
 						'editor_type' => 'AREA',
 					],
+					[
+						'field'       => 'hover_description',
+						'type'        => __( 'Image Hover Effect: Description', 'happy-elementor-addons' ),
+						'editor_type' => 'AREA',
+					],
 					'hover_link' => [
 						'field'       => 'url',
 						'type'        => __( 'Image Hover Effect: Link URL', 'happy-elementor-addons' ),
@@ -388,7 +393,7 @@ class WPML_Manager {
 			'image-stack-group' => [
 				'fields' => [],
 				'integration-class' => [
-					'Happy_Addons\Elementor\Wpml\Image_Stack_Group_Images',
+					'Happy_Addons\Elementor\Wpml\Image_Stack_Group',
 				]
 			],
 
@@ -484,6 +489,16 @@ class WPML_Manager {
 						'type'        => __( 'Team Member: Short Bio', 'happy-elementor-addons' ),
 						'editor_type' => 'AREA',
 					],
+					[
+						'field'       => 'button_text',
+						'type'        => __( 'Team Member: Button Text', 'happy-elementor-addons' ),
+						'editor_type' => 'LINE',
+					],
+					'button_link' => [
+						'field'       => 'url',
+						'type'        => __( 'Team Member: Button Link', 'happy-elementor-addons' ),
+						'editor_type' => 'LINK',
+					],
 				],
 			],
 
@@ -532,7 +547,7 @@ class WPML_Manager {
 			'photo-stack' => [
 				'fields' => [],
 				'integration-class' => [
-					'Happy_Addons\Elementor\Wpml\Photo_Stack_Image_List',
+					'Happy_Addons\Elementor\Wpml\Photo_Stack',
 				]
 			],
 
@@ -542,7 +557,7 @@ class WPML_Manager {
 			'post-info' => [
 				'fields' => [],
 				'integration-class' => [
-					'Happy_Addons\Elementor\Wpml\Post_Info_Icon_List',
+					'Happy_Addons\Elementor\Wpml\Post_Info',
 				]
 			],
 
@@ -932,15 +947,180 @@ class WPML_Manager {
 				],
 			],
 
+		/**
+		 * Text Scroll
+		 */
+		'text-scroll' => [
+			'fields' => [
+				[
+					'field'       => 'scroll_text',
+					'type'        => __( 'Text Scroll: Scroll Text', 'happy-elementor-addons' ),
+					'editor_type' => 'AREA',
+				],
+			],
+		],
+
+		/**
+		 * Image Cycle
+		 */
+		'image-cycle' => [
+			'fields' => [
+				[
+					'field'       => 'ha_ic_title',
+					'type'        => __( 'Image Cycle: Title', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'ha_ic_title_second',
+					'type'        => __( 'Image Cycle: Title Second Line', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'ha_ic_subtitle',
+					'type'        => __( 'Image Cycle: Subtitle', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+			],
+			'integration-class' => [
+				'Happy_Addons\Elementor\Wpml\Image_Cycle',
+			]
+		],
+
+		/**
+		 * Calendly
+		 */
+		'calendly' => [
+			'fields' => [
+				[
+					'field'       => 'calendly_username',
+					'type'        => __( 'Calendly: Username', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		],
+
+		/**
+		 * LordIcon
+		 */
+		'lordicon' => [
+			'fields' => [
+				[
+					'field'       => 'icon_cdn',
+					'type'        => __( 'LordIcon: Icon CDN URL', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		],
+
+		/**
+		 * SVG Line Draw
+		 */
+		'svg-draw' => [
+			'fields' => [
+				'link' => [
+					'field'       => 'url',
+					'type'        => __( 'SVG Line Draw: Link', 'happy-elementor-addons' ),
+					'editor_type' => 'LINK',
+				],
+			],
+		],
+
+		/**
+		 * WhatsApp Button
+		 */
+		'whatsapp-button' => [
+			'fields' => [
+				[
+					'field'       => 'phone_number',
+					'type'        => __( 'WhatsApp Button: Phone Number', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'pre_filled_message',
+					'type'        => __( 'WhatsApp Button: Pre-filled Message', 'happy-elementor-addons' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'button_text',
+					'type'        => __( 'WhatsApp Button: Button Text', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'agent_name',
+					'type'        => __( 'WhatsApp Button: Agent Name', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'custom_agent_status',
+					'type'        => __( 'WhatsApp Button: Custom Status Text', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'chat_initial_message',
+					'type'        => __( 'WhatsApp Button: Initial Message', 'happy-elementor-addons' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'chat_button_text',
+					'type'        => __( 'WhatsApp Button: Chat Button Text', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'tooltip_text',
+					'type'        => __( 'WhatsApp Button: Tooltip Text', 'happy-elementor-addons' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		],
+
 			/**
-			 * Text Scroll
+			 * Post Excerpt
 			 */
-			'text-scroll' => [
+			'post-excerpt' => [
 				'fields' => [
 					[
-						'field'       => 'scroll_text',
-						'type'        => __( 'Text Scroll: Scroll Text', 'happy-elementor-addons' ),
-						'editor_type' => 'AREA',
+						'field'       => 'read_more',
+						'type'        => __( 'Post Excerpt: Read More Text', 'happy-elementor-addons' ),
+						'editor_type' => 'LINE',
+					],
+				],
+			],
+
+			/**
+			 * Page Title
+			 */
+			'page-title' => [
+				'fields' => [
+					'custom_link' => [
+						'field'       => 'url',
+						'type'        => __( 'Page Title: Custom Link', 'happy-elementor-addons' ),
+						'editor_type' => 'LINK',
+					],
+				],
+			],
+
+			/**
+			 * Post Title
+			 */
+			'post-title' => [
+				'fields' => [
+					'custom_link' => [
+						'field'       => 'url',
+						'type'        => __( 'Post Title: Custom Link', 'happy-elementor-addons' ),
+						'editor_type' => 'LINK',
+					],
+				],
+			],
+
+			/**
+			 * Post Featured Image
+			 */
+			'post-featured-image' => [
+				'fields' => [
+					'custom_link' => [
+						'field'       => 'url',
+						'type'        => __( 'Post Featured Image: Custom Link', 'happy-elementor-addons' ),
+						'editor_type' => 'LINK',
 					],
 				],
 			],
@@ -961,6 +1141,40 @@ class WPML_Manager {
 			}
 
 			$widgets[ $widget_name ] = $entry;
+		}
+
+		/**
+		 * Cross-widget feature strings: Advanced Tooltip and Custom Mouse
+		 * Cursor are attached to every element, so their text must be
+		 * translatable on every widget type. Sections, columns and
+		 * containers are not widget types and remain outside this filter.
+		 */
+		$cross_widget_fields = [];
+
+		$inactive_features = Extensions_Manager::get_inactive_features();
+
+		if ( ! in_array( 'advanced-tooltip', $inactive_features, true ) ) {
+			$cross_widget_fields[] = [
+				'field'       => 'ha_advanced_tooltip_content',
+				'type'        => __( 'Happy Addons: Advanced Tooltip Content', 'happy-elementor-addons' ),
+				'editor_type' => 'AREA',
+			];
+		}
+
+		if ( ! in_array( 'custom-mouse-cursor', $inactive_features, true ) ) {
+			$cross_widget_fields[] = [
+				'field'       => 'ha_cmc_text',
+				'type'        => __( 'Happy Addons: Mouse Cursor Text', 'happy-elementor-addons' ),
+				'editor_type' => 'LINE',
+			];
+		}
+
+		if ( ! empty( $cross_widget_fields ) ) {
+			foreach ( $widgets as $widget_name => $entry ) {
+				if ( isset( $entry['fields'] ) && is_array( $entry['fields'] ) ) {
+					$widgets[ $widget_name ]['fields'] = array_merge( $entry['fields'], $cross_widget_fields );
+				}
+			}
 		}
 
 		return $widgets;

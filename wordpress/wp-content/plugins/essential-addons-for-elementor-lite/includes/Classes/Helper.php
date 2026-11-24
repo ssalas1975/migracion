@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 } // Exit if accessed directly
 
 use \Elementor\Controls_Manager;
+use Elementor\Control_Media;
 use Elementor\Icons_Manager;
 use Elementor\Plugin;
 
@@ -176,6 +177,54 @@ class Helper
         return $settings;
     }
 
+    /**
+     * Filter product query args by the current MultiVendorX (5.0+) store.
+     *
+     * MultiVendorX 5.0 replaced the legacy vendor taxonomy archive with a virtual
+     * store page and links products to stores via the `multivendorx_store_id`
+     * post meta. When a product widget renders on a store page, limit the query
+     * to that store's products so each seller's page shows only their items.
+     *
+     * @since 6.7.0
+     * @param array $args WP_Query arguments.
+     * @return array
+     */
+    public static function eael_multivendorx_store_query_args( $args ) {
+        if ( ! function_exists( 'MultiVendorX' ) || ! class_exists( '\MultiVendorX\Store\Store' ) ) {
+            return $args;
+        }
+
+        $store_query_var = 'store';
+        if ( is_callable( [ MultiVendorX()->setting, 'get_setting' ] ) ) {
+            $store_query_var = MultiVendorX()->setting->get_setting( 'store_url', 'store' ) ?: 'store';
+        }
+
+        $store_slug = get_query_var( $store_query_var );
+        if ( empty( $store_slug ) || ! is_string( $store_slug ) ) {
+            return $args;
+        }
+
+        $store = \MultiVendorX\Store\Store::get_store( $store_slug, 'slug' );
+        if ( empty( $store ) || ! $store->get_id() ) {
+            return $args;
+        }
+
+        $store_id_meta_key = defined( '\MultiVendorX\Utill::POST_META_SETTINGS' ) && ! empty( \MultiVendorX\Utill::POST_META_SETTINGS['store_id'] )
+            ? \MultiVendorX\Utill::POST_META_SETTINGS['store_id']
+            : 'multivendorx_store_id';
+
+        if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+            $args['meta_query'] = [ 'relation' => 'AND' ];
+        }
+
+        $args['meta_query'][] = [
+            'key'   => $store_id_meta_key,
+            'value' => $store->get_id(),
+        ];
+
+        return apply_filters( 'eael/multivendorx/store_query_args', $args, $store );
+    }
+
     public static function get_query_args($settings = [], $post_type = 'post')
     {
 	    $settings = wp_parse_args( $settings, [
@@ -266,8 +315,88 @@ class Helper
             $args['meta_query'] = array_filter( apply_filters( 'woocommerce_product_query_meta_query', $args['meta_query'], new \WC_Query() ) );
         }
 
+	    // Polylang: pin the query to the language of the page/document the widget is
+	    // on, instead of the ambient (cookie / last-page-load) current language. In
+	    // the editor the ambient language flips on every page load, which made the
+	    // Post Grid show the wrong language's posts. Skip manual ("by_id") selections
+	    // and post types Polylang isn't translating.
+	    if ( function_exists( 'pll_get_post_language' ) && 'by_id' !== $settings['post_type'] ) {
+		    $eael_is_translated = ! function_exists( 'pll_is_translated_post_type' );
+		    if ( ! $eael_is_translated ) {
+			    foreach ( (array) $args['post_type'] as $eael_pt ) {
+				    if ( 'any' !== $eael_pt && pll_is_translated_post_type( $eael_pt ) ) {
+					    $eael_is_translated = true;
+					    break;
+				    }
+			    }
+		    }
+
+		    if ( $eael_is_translated ) {
+			    $eael_lang = self::eael_get_current_language();
+			    // Allow integrators to override the pinned language.
+			    $eael_lang = apply_filters( 'eael/post_grid/query_lang', $eael_lang, $settings, $args );
+			    if ( ! empty( $eael_lang ) ) {
+				    $args['lang'] = $eael_lang;
+			    }
+		    }
+	    }
+
         return $args;
     }
+
+	/**
+	 * Resolve the Polylang language slug a widget's query/content should be pinned
+	 * to.
+	 *
+	 * The Elementor editor (and admin-ajax) "current language" is ambient global
+	 * state driven by the pll_language cookie, which flips on every page load. That
+	 * made the Post Grid and template widgets follow the last-loaded language rather
+	 * than the language of the page the widget actually lives on. We instead derive
+	 * the language from the current document/page id so it is deterministic.
+	 *
+	 * @param int $post_id Optional page/post id to read the language from.
+	 *
+	 * @return string Language slug, or '' when Polylang is inactive/undeterminable.
+	 */
+	public static function eael_get_current_language( $post_id = 0 ) {
+		if ( ! function_exists( 'pll_get_post_language' ) ) {
+			return '';
+		}
+
+		if ( ! $post_id && class_exists( '\Elementor\Plugin' ) ) {
+			$document = \Elementor\Plugin::$instance->documents->get_current();
+			if ( $document ) {
+				$post_id = $document->get_main_id();
+			}
+		}
+
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+
+		$lang = $post_id ? pll_get_post_language( $post_id ) : '';
+
+		if ( ! $lang && function_exists( 'pll_current_language' ) ) {
+			$lang = pll_current_language();
+		}
+
+		return $lang ? $lang : '';
+	}
+
+	/**
+	 * Build a language-specific cache-key suffix so translated pages that share a
+	 * widget id (e.g. created via Polylang "copy content") don't collide in the
+	 * Post Grid transients.
+	 *
+	 * @param int $post_id Optional page/post id to read the language from.
+	 *
+	 * @return string e.g. "_lang_es", or '' when no language is resolved.
+	 */
+	public static function eael_lang_suffix( $post_id = 0 ) {
+		$lang = self::eael_get_current_language( $post_id );
+
+		return $lang ? '_lang_' . sanitize_key( $lang ) : '';
+	}
 
     /**
      * Go Premium
@@ -671,6 +800,261 @@ class Helper
 
 
 
+    /**
+     * Resolve the data provider Ninja Tables will fetch a table's rows through.
+     *
+     * Mirrors ninjaTablesGetTablesDataByID(), which collapses both CSV providers
+     * onto the single `csv` row handler before firing the fetch filter.
+     *
+     * @param int $table_id
+     *
+     * @return string
+     */
+    public static function get_ninja_table_provider($table_id)
+    {
+        if (!function_exists('ninja_table_get_data_provider')) {
+            return '';
+        }
+
+        $provider = ninja_table_get_data_provider($table_id);
+
+        return in_array($provider, ['csv', 'google-csv'], true) ? 'csv' : $provider;
+    }
+
+    /**
+     * Whether Advanced Data Table can actually render a given Ninja Table.
+     *
+     * Ninja Tables returns rows through a per-provider `ninja_tables_fetching_table_rows_*`
+     * filter and falls back to an empty array when nothing is hooked to it. Drag & Drop
+     * tables never register a handler — they persist a finished markup blob rather than
+     * queryable rows — and neither do providers whose handler ships in an add-on that is
+     * not active. Both cases would otherwise render as a bare "No content found".
+     *
+     * @param int $table_id
+     *
+     * @return bool
+     */
+    public static function is_ninja_table_supported($table_id)
+    {
+        $provider = self::get_ninja_table_provider($table_id);
+
+        if (empty($provider)) {
+            return false;
+        }
+
+        // Drag & Drop tables never register a row handler — the builder persists its
+        // grid as post meta instead of queryable rows — but Advanced Data Table reads
+        // that grid directly. An empty one is a table still being built, not an
+        // unsupported one, so it reports as supported and renders "No content found".
+        if ('drag_and_drop' === $provider) {
+            return true;
+        }
+
+        return (bool) has_filter('ninja_tables_fetching_table_rows_' . $provider);
+    }
+
+    /**
+     * The saved grid of a Ninja Tables Drag & Drop table.
+     *
+     * @param int $table_id
+     *
+     * @return array Empty when the table was never built or is not a builder table.
+     */
+    public static function get_ninja_builder_table_data($table_id)
+    {
+        $table_data = get_post_meta($table_id, '_ninja_table_builder_table_data', true);
+
+        if (empty($table_data['data']) || !is_array($table_data['data'])) {
+            return [];
+        }
+
+        return $table_data;
+    }
+
+    /**
+     * The markup Ninja Tables' Drag & Drop builder saved for a table.
+     *
+     * Written by the builder on save, so it is empty for a table created from a
+     * ready-made template and never opened — callers must have a fallback.
+     *
+     * @param int $table_id
+     *
+     * @return string
+     */
+    public static function get_ninja_builder_table_html($table_id)
+    {
+        $markup = get_post_meta($table_id, '_ninja_table_builder_table_html', true);
+
+        if (!is_string($markup) || '' === trim($markup)) {
+            return '';
+        }
+
+        // The builder resolves icon masks against the Pro plugin URL in JavaScript, so
+        // on a site without Ninja Tables Pro every icon is saved pointing at the literal
+        // string "null". Repoint those at whichever plugin actually ships the icon.
+        $icons_base = defined('NINJAPROPLUGIN_URL') ? NINJAPROPLUGIN_URL : (defined('NINJA_TABLES_DIR_URL') ? NINJA_TABLES_DIR_URL : '');
+
+        if ($icons_base) {
+            $markup = str_replace('null/assets/libs/icons/', rtrim($icons_base, '/') . '/assets/libs/icons/', $markup);
+        }
+
+        return $markup;
+    }
+
+    /**
+     * URL of a Drag & Drop builder icon, by the name the builder stored.
+     *
+     * The full icon set ships with Ninja Tables Pro; the free plugin carries a small
+     * subset. An already absolute value (a custom image) is returned as-is.
+     *
+     * @param string $name
+     *
+     * @return string Empty when there is nowhere to load the icon from.
+     */
+    public static function get_ninja_builder_icon_url($name)
+    {
+        if (!is_string($name) || '' === $name) {
+            return '';
+        }
+
+        if (preg_match('#^(https?:)?//#', $name)) {
+            return $name;
+        }
+
+        $base = defined('NINJAPROPLUGIN_URL') ? NINJAPROPLUGIN_URL : (defined('NINJA_TABLES_DIR_URL') ? NINJA_TABLES_DIR_URL : '');
+
+        if (!$base) {
+            return '';
+        }
+
+        return rtrim($base, '/') . '/assets/libs/icons/' . rawurlencode($name) . '.svg';
+    }
+
+    /**
+     * Tags allowed when printing Ninja Tables Drag & Drop builder markup.
+     *
+     * Adds what the builder's own components emit on top of the widget allowlist:
+     * inline SVG for star ratings, and styled buttons.
+     *
+     * @return array
+     */
+    public static function eael_ninja_builder_allowed_tags()
+    {
+        return self::eael_allowed_tags([
+            // DOMDocument lowercases attribute names, so accept both spellings of viewBox.
+            'svg'    => [
+                'xmlns'       => [],
+                'viewbox'     => [],
+                'viewBox'     => [],
+                'width'       => [],
+                'height'      => [],
+                'fill'        => [],
+                'style'       => [],
+                'class'       => [],
+                'aria-hidden' => [],
+            ],
+            'path'   => [
+                'd'            => [],
+                'fill'         => [],
+                'stroke'       => [],
+                'stroke-width' => [],
+            ],
+            'g'      => [
+                'fill'      => [],
+                'stroke'    => [],
+                'transform' => [],
+            ],
+            'button' => [
+                'style'         => [],
+                'aria-disabled' => [],
+            ],
+            'span'   => [ 'role' => [] ],
+            'div'    => [ 'role' => [] ],
+        ]);
+    }
+
+    /**
+     * Sanitise Ninja Tables Drag & Drop builder markup for output.
+     *
+     * The builder bakes a table's whole appearance into inline styles — `mask-image`
+     * for icons, `background` and `border` written as rgb(), flex alignment — and
+     * WordPress's default CSS filter drops every one of those, which is what leaves
+     * the table unstyled and its icons invisible. Widen the CSS property allowlist for
+     * this one call while keeping the tag and attribute allowlist, so wp_kses still
+     * strips scripts and event handlers.
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    public static function eael_ninja_builder_kses($html)
+    {
+        $allowed_properties = static function ($properties) {
+            return array_merge((array) $properties, [
+                'mask', 'mask-image', 'mask-size', 'mask-repeat', 'mask-position',
+                '-webkit-mask-image', '-webkit-mask-size', '-webkit-mask-repeat', '-webkit-mask-position',
+                'display', 'flex', 'flex-direction', 'flex-wrap', 'gap', 'align-items', 'justify-content',
+                'position', 'top', 'right', 'bottom', 'left', 'z-index',
+                'transform', 'box-shadow', 'filter', 'opacity', 'transition',
+                'overflow', 'overflow-x', 'overflow-y', 'overflow-wrap', 'word-break', 'white-space',
+                'text-decoration', 'list-style-type', 'vertical-align', 'line-height',
+                'border-collapse', 'border-spacing', 'table-layout', 'stroke', 'fill',
+            ]);
+        };
+
+        // rgb()/hsl() colours and url() icon masks are the only CSS functions the builder
+        // emits that core's check rejects. Allow those, still refusing anything else and
+        // any url() that is not a plain asset reference.
+        $allow_css = static function ($allowed, $css_test_string) {
+            if ($allowed) {
+                return $allowed;
+            }
+
+            if (preg_match_all('/url\(\s*([\'"]?)([^)\'"]*)\1\s*\)/i', $css_test_string, $urls)) {
+                foreach ($urls[2] as $url) {
+                    $url = trim($url);
+
+                    if ('' === $url || wp_kses_bad_protocol($url, ['http', 'https']) !== $url) {
+                        return false;
+                    }
+                }
+            }
+
+            $stripped = preg_replace('/\b(?:rgba?|hsla?|url)\((?:[^()]|\([^()]*\))*\)/i', '', $css_test_string);
+
+            return null !== $stripped && 0 === preg_match('%[\\\(&=}]|/\*%', $stripped);
+        };
+
+        add_filter('safe_style_css', $allowed_properties);
+        add_filter('safecss_filter_attr_allow_css', $allow_css, 10, 2);
+
+        $html = wp_kses($html, self::eael_ninja_builder_allowed_tags(), self::eael_allowed_protocols());
+
+        remove_filter('safecss_filter_attr_allow_css', $allow_css, 10);
+        remove_filter('safe_style_css', $allowed_properties);
+
+        return $html;
+    }
+
+    /**
+     * Human readable name for a Ninja Tables data provider, for use in notices.
+     *
+     * @param string $provider
+     *
+     * @return string
+     */
+    public static function get_ninja_table_provider_label($provider)
+    {
+        $labels = [
+            'drag_and_drop' => __('Drag & Drop', 'essential-addons-for-elementor-lite'),
+            'csv'           => __('CSV', 'essential-addons-for-elementor-lite'),
+            'fluent-form'   => __('Fluent Forms', 'essential-addons-for-elementor-lite'),
+            'wp_fct'        => __('FluentCart', 'essential-addons-for-elementor-lite'),
+        ];
+
+        return isset($labels[$provider]) ? $labels[$provider] : $provider;
+    }
+
     public static function get_ninja_tables_list()
     {
         $tables = get_posts([
@@ -679,11 +1063,28 @@ class Helper
             'posts_per_page' => '-1',
         ]);
 
-        if (!empty($tables)) {
-            return wp_list_pluck($tables, 'post_title', 'ID');
+        if (empty($tables)) {
+            return [];
         }
 
-        return [];
+        $options = [];
+
+        foreach ($tables as $table) {
+            $title = $table->post_title;
+
+            if (!self::is_ninja_table_supported($table->ID)) {
+                $title = sprintf(
+                    /* translators: 1: Ninja Table title, 2: Ninja Tables data provider name, e.g. "Drag & Drop". */
+                    __('%1$s (%2$s, not supported)', 'essential-addons-for-elementor-lite'),
+                    $title,
+                    self::get_ninja_table_provider_label(self::get_ninja_table_provider($table->ID))
+                );
+            }
+
+            $options[$table->ID] = $title;
+        }
+
+        return $options;
     }
 
     public static function get_terms_as_list($term_type = 'category', $length = 1)
@@ -893,7 +1294,7 @@ class Helper
 
         $query = "select post_title,ID  from $wpdb->posts where post_status = 'publish' $where $limit";
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $results = $wpdb->get_results($query);
         if (!empty($results)) {
             foreach ($results as $row) {
@@ -903,7 +1304,52 @@ class Helper
         return $data;
     }
 
+    /**
+     * Whether a page's widget settings may be served to the current request.
+     *
+     * The settings can hold secrets (API tokens, keys) and private-page content, so a
+     * public (nopriv) request must only reach a published, non-password page; anything
+     * else requires edit access to that page. Guards the AJAX settings lookups that
+     * take a client-supplied page_id (#settings-disclosure).
+     *
+     * @param int $page_id Post ID.
+     *
+     * @return bool
+     */
+    public static function eael_widget_settings_readable( $page_id ) {
+        $page_id = (int) $page_id;
+        if ( ! $page_id ) {
+            return false;
+        }
+
+        // SECURITY: never serve widget settings read from a revision to a public
+        // request. A revision keeps post_status='inherit' and a copy of the parent's
+        // _elementor_data, so a prior-but-reverted value (e.g. an elevated
+        // register_user_role, or disabled OTP/reCAPTCHA/Turnstile gates) survives in it.
+        // The Login|Register form always posts the main page id (get_main_id()), never a
+        // revision, so this cannot reject a legitimate submission. (#settings-disclosure)
+        if ( wp_is_post_revision( $page_id ) ) {
+            return current_user_can( 'edit_post', $page_id );
+        }
+
+        if ( current_user_can( 'edit_post', $page_id ) ) {
+            return true;
+        }
+
+        $post = get_post( $page_id );
+        if ( ! $post ) {
+            return false;
+        }
+
+        $public_status = in_array( get_post_status( $post ), [ 'publish', 'inherit' ], true );
+
+        return $public_status && ! post_password_required( $post );
+    }
+
     public static function eael_get_widget_settings( $page_id, $widget_id ) {
+        if ( ! self::eael_widget_settings_readable( $page_id ) ) {
+            return [];
+        }
         $document = Plugin::$instance->documents->get( $page_id );
         $settings = [];
         if ( $document ) {
@@ -973,15 +1419,18 @@ class Helper
 			'name'      => $settings['eael_widget_name']
 		];
 
-        if ( ! empty( $settings['eael_dynamic_template_Layout'] ) ) {
+        // Template file names are simple slugs. Only accept slug-safe values so an
+        // untrusted saved setting cannot inject characters into the data-template attribute below.
+        $eael_template_slug = '/^[A-Za-z0-9_-]+$/';
+        if ( ! empty( $settings['eael_dynamic_template_Layout'] ) && preg_match( $eael_template_slug, $settings['eael_dynamic_template_Layout'] ) ) {
             $template_info['file_name'] = $settings['eael_dynamic_template_Layout'];
-        } else if ( ! empty( $settings['eael_product_grid_template'] ) ) {
+        } else if ( ! empty( $settings['eael_product_grid_template'] ) && preg_match( $eael_template_slug, $settings['eael_product_grid_template'] ) ) {
             $template_info['file_name'] = $settings['eael_product_grid_template'];
         }
 
 		if( $pagination_Paginationlist > 0 ){
 
-			$setPagination .="<nav id='{$widget_id}-eael-pagination' class='eael-woo-pagination' data-plimit='$paginationLimit' data-totalpage ='{$args['total_post']}' data-widgetid='{$widget_id}' data-pageid='$page_id' data-args='".http_build_query( $args )."'  data-template='".json_encode( $template_info, 1 )."'>";
+			$setPagination .="<nav id='{$widget_id}-eael-pagination' class='eael-woo-pagination' data-plimit='$paginationLimit' data-totalpage ='{$args['total_post']}' data-widgetid='{$widget_id}' data-pageid='$page_id' data-args='".http_build_query( $args )."'  data-template='".esc_attr( wp_json_encode( $template_info ) )."'>";
 			    $setPagination .="<ul class='page-numbers'>";
 
                     if ( $pagination_Paginationlist < 7 + ($adjacents * 2) ){
@@ -1024,6 +1473,27 @@ class Helper
             printf('<%1$s class="eael-product-quick-view-title product_title entry-title">%2$s</%1$s>',esc_html( $tag ), wp_kses( get_the_title(), Helper::eael_allowed_tags() ));
         }, 5 );
 
+        // Quick View Buy Now button — rendered inside form.cart via woocommerce_after_add_to_cart_button hook
+        $qv_buy_now_enabled = isset( $settings['eael_product_carousel_qv_buy_now'] ) && 'yes' === $settings['eael_product_carousel_qv_buy_now'];
+        if ( $qv_buy_now_enabled && $product->is_purchasable() && $product->is_in_stock() ) {
+            $qv_buy_now_text = ! empty( $settings['eael_product_carousel_qv_buy_now_text'] ) ? $settings['eael_product_carousel_qv_buy_now_text'] : '';
+            $qv_buy_now_icon = ! empty( $settings['eael_product_carousel_qv_buy_now_icon'] ) ? $settings['eael_product_carousel_qv_buy_now_icon'] : [];
+            $qv_checkout_url = wc_get_checkout_url();
+
+            add_action( 'woocommerce_after_add_to_cart_button', function () use ( $qv_buy_now_text, $qv_buy_now_icon, $qv_checkout_url ) {
+                ?>
+                <button type="button" class="eael-popup-buy-now-button" data-checkout-url="<?php echo esc_url( $qv_checkout_url ); ?>" aria-label="<?php echo esc_attr( $qv_buy_now_text ? $qv_buy_now_text : __( 'Buy Now', 'essential-addons-for-elementor-lite' ) ); ?>">
+                    <?php if ( ! empty( $qv_buy_now_icon['value'] ) ) {
+                        Icons_Manager::render_icon( $qv_buy_now_icon, [ 'aria-hidden' => 'true' ] );
+                    } ?>
+                    <?php if ( ! empty( $qv_buy_now_text ) ) { ?>
+                        <span class="eael-buy-now-text"><?php echo esc_html( $qv_buy_now_text ); ?></span>
+                    <?php } ?>
+                </button>
+                <?php
+            } );
+        }
+
         $popup_classes = array();
 
         if ( isset( $settings['eael_product_quick_view_hide_categories'] ) && 'yes' === $settings['eael_product_quick_view_hide_categories'] ) {
@@ -1038,7 +1508,7 @@ class Helper
 		eael-product-zoom-in woocommerce">
 			<div class="eael-product-modal-bg"></div>
 			<div class="eael-product-popup-details <?php echo esc_attr( implode( ' ', $popup_classes ) ); ?>">
-				<div id="product-<?php esc_attr( get_the_ID() ); ?>" <?php post_class( 'product' ); ?>>
+				<div id="product-<?php echo esc_attr( get_the_ID() ); ?>" <?php post_class( 'product' ); ?>>
 					<div class="eael-product-image-wrap">
 						<?php
                         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -1094,6 +1564,137 @@ class Helper
     public static function eael_validate_html_tag( $tag ){
 	    return in_array( strtolower( (string) $tag ), self::EAEL_ALLOWED_HTML_TAGS ) ? $tag : 'div';
     }
+
+	/**
+	 * Post meta holding the last logged-in user who wrote the post's `_elementor_data`.
+	 * Set by Login_Registration::eael_record_register_settings_author().
+	 */
+	const ELEMENTOR_DATA_AUTHOR_KEY = '_eael_elementor_data_author';
+
+	/**
+	 * Protected meta holding, per Login | Register widget, the role that was approved
+	 * when it was written. Lives here rather than on the Login_Registration trait because
+	 * PHP only allows constants in traits from 8.2 onward, and the plugin supports 7.0+.
+	 */
+	const LR_ROLE_STATE_KEY = '_eael_lr_role_state';
+
+	/**
+	 * Users who control a post's widget settings: the post author, the last wp-admin
+	 * editor (`_edit_last`) and the last user who wrote `_elementor_data` on any path
+	 * (REST and imports do not update `_edit_last`). Features that act on widget
+	 * settings with elevated trust must require a capability of every one of them.
+	 *
+	 * @param int $page_id Post ID.
+	 * @return int[] Empty when nobody can be identified.
+	 */
+	public static function eael_page_responsible_user_ids( $page_id ) {
+		$page_id = (int) $page_id;
+		if ( ! $page_id ) {
+			return [];
+		}
+
+		return array_values( array_unique( array_filter( array_map( 'intval', [
+			get_post_meta( $page_id, '_edit_last', true ),
+			get_post_field( 'post_author', $page_id ),
+			get_post_meta( $page_id, self::ELEMENTOR_DATA_AUTHOR_KEY, true ),
+		] ) ) ) );
+	}
+
+	/**
+	 * Users who control the settings of a widget type rendered on a page.
+	 *
+	 * The page's own responsible users, plus those of every Elementor Pro global widget
+	 * template the page embeds that contains this widget type: a global widget's
+	 * settings are stored in its template, not in the page (#345 follow-up).
+	 *
+	 * @param int    $page_id     Page the widget is rendered on.
+	 * @param string $widget_type Widget type, e.g. `eael-login-register`.
+	 * @return int[] Empty when some contributing post has nobody identifiable.
+	 */
+	public static function eael_widget_settings_responsible_user_ids( $page_id, $widget_type ) {
+		$post_ids = [ (int) $page_id ];
+		$document = class_exists( '\Elementor\Plugin' ) ? Plugin::$instance->documents->get( (int) $page_id ) : null;
+
+		if ( $document ) {
+			self::eael_collect_global_template_ids( $document->get_elements_data(), (string) $widget_type, $post_ids );
+		}
+
+		$user_ids = [];
+		foreach ( $post_ids as $post_id ) {
+			$ids = self::eael_page_responsible_user_ids( $post_id );
+			if ( empty( $ids ) ) {
+				return [];
+			}
+			$user_ids = array_merge( $user_ids, $ids );
+		}
+
+		return array_values( array_unique( $user_ids ) );
+	}
+
+	/**
+	 * Collect IDs of global widget templates in an element tree that contain a widget type.
+	 *
+	 * @param array  $elements    Element tree.
+	 * @param string $widget_type Widget type to look for in each template.
+	 * @param int[]  $post_ids    Collected IDs (by reference).
+	 */
+	private static function eael_collect_global_template_ids( $elements, $widget_type, &$post_ids ) {
+		foreach ( (array) $elements as $element ) {
+			if ( isset( $element['widgetType'] ) && 'global' === $element['widgetType'] && ! empty( $element['templateID'] ) ) {
+				$template_id = (int) $element['templateID'];
+				if ( ! in_array( $template_id, $post_ids, true ) && false !== strpos( (string) get_post_meta( $template_id, '_elementor_data', true ), $widget_type ) ) {
+					$post_ids[] = $template_id;
+				}
+			}
+
+			if ( ! empty( $element['elements'] ) ) {
+				self::eael_collect_global_template_ids( $element['elements'], $widget_type, $post_ids );
+			}
+		}
+	}
+
+	/**
+	 * Query-string key that carries the signature of load-more query args.
+	 */
+	const LOAD_MORE_ARGS_SIGNATURE_KEY = 'eael_args_sig';
+
+	/**
+	 * Serialise WP_Query args for a load-more button's `data-args`, signed so the
+	 * `load_more` AJAX handler can tell server-built args from client-edited ones.
+	 *
+	 * @param array $args WP_Query args built from the widget's settings.
+	 * @return string
+	 */
+	public static function eael_signed_load_more_args( $args ) {
+		$query = http_build_query( (array) $args );
+
+		return $query . '&' . self::LOAD_MORE_ARGS_SIGNATURE_KEY . '=' . self::eael_load_more_args_signature( $query );
+	}
+
+	/**
+	 * Is the signature inside these parsed load-more args valid?
+	 *
+	 * @param array $args Args parsed from the request, signature key included.
+	 * @return bool
+	 */
+	public static function eael_verify_load_more_args( $args ) {
+		if ( ! is_array( $args ) || empty( $args[ self::LOAD_MORE_ARGS_SIGNATURE_KEY ] ) || ! is_string( $args[ self::LOAD_MORE_ARGS_SIGNATURE_KEY ] ) ) {
+			return false;
+		}
+
+		$signature = $args[ self::LOAD_MORE_ARGS_SIGNATURE_KEY ];
+		unset( $args[ self::LOAD_MORE_ARGS_SIGNATURE_KEY ] );
+
+		return hash_equals( self::eael_load_more_args_signature( http_build_query( $args ) ), $signature );
+	}
+
+	/**
+	 * @param string $query Serialised query args.
+	 * @return string
+	 */
+	private static function eael_load_more_args_signature( $query ) {
+		return hash_hmac( 'sha256', 'eael_load_more|' . $query, wp_salt( 'nonce' ) );
+	}
 
 	/**
      *
@@ -1727,6 +2328,63 @@ class Helper
         ];
     }
 
+    /**
+     * Allowlist for wp_kses() when rendering a user-supplied raw SVG
+     * (e.g. SVG Draw's custom SVG textarea). Covers the shape/structure
+     * elements SVG Draw needs while excluding <script>, <foreignObject>,
+     * <use> (can reference external content) and any on* event handler
+     * attribute.
+     */
+    public static function eael_allowed_svg_draw_tags() {
+        $common_attrs = [
+            'id'              => [],
+            'class'           => [],
+            'style'           => [],
+            'fill'            => [],
+            'fill-rule'       => [],
+            'fill-opacity'    => [],
+            'stroke'          => [],
+            'stroke-width'    => [],
+            'stroke-linecap'  => [],
+            'stroke-linejoin' => [],
+            'stroke-dasharray' => [],
+            'stroke-dashoffset' => [],
+            'stroke-opacity' => [],
+            'opacity'         => [],
+            'transform'       => [],
+            'clip-rule'       => [],
+            'clip-path'       => [],
+        ];
+
+        return [
+            'svg'            => array_merge( $common_attrs, [
+                'xmlns'   => [],
+                'width'   => [],
+                'height'  => [],
+                'viewbox' => [],
+                'role'    => [],
+                'aria-hidden' => [],
+                'aria-labelledby' => [],
+                'preserveaspectratio' => [],
+            ] ),
+            'g'              => $common_attrs,
+            'defs'           => $common_attrs,
+            'title'          => [ 'class' => [] ],
+            'desc'           => [ 'class' => [] ],
+            'path'           => array_merge( $common_attrs, [ 'd' => [] ] ),
+            'circle'         => array_merge( $common_attrs, [ 'cx' => [], 'cy' => [], 'r' => [] ] ),
+            'ellipse'        => array_merge( $common_attrs, [ 'cx' => [], 'cy' => [], 'rx' => [], 'ry' => [] ] ),
+            'rect'           => array_merge( $common_attrs, [ 'x' => [], 'y' => [], 'width' => [], 'height' => [], 'rx' => [], 'ry' => [] ] ),
+            'line'           => array_merge( $common_attrs, [ 'x1' => [], 'y1' => [], 'x2' => [], 'y2' => [] ] ),
+            'polyline'       => array_merge( $common_attrs, [ 'points' => [] ] ),
+            'polygon'        => array_merge( $common_attrs, [ 'points' => [] ] ),
+            'lineargradient' => array_merge( $common_attrs, [ 'x1' => [], 'y1' => [], 'x2' => [], 'y2' => [], 'gradientunits' => [], 'gradienttransform' => [] ] ),
+            'radialgradient' => array_merge( $common_attrs, [ 'cx' => [], 'cy' => [], 'r' => [], 'fx' => [], 'fy' => [], 'gradientunits' => [], 'gradienttransform' => [] ] ),
+            'stop'           => array_merge( $common_attrs, [ 'offset' => [], 'stop-color' => [], 'stop-opacity' => [] ] ),
+            'clippath'       => $common_attrs,
+        ];
+    }
+
     public static function eael_fetch_color_or_global_color($settings, $control_name=''){
         if( !isset($settings[$control_name])) {
             return '';
@@ -1745,6 +2403,15 @@ class Helper
         }
 
         return $color;
+    }
+
+    /**
+     * Strip characters that could break out of an inline <style> block or
+     * inject new CSS rules/declarations from a user-supplied CSS value
+     * (e.g. a color/size setting interpolated raw into a <style> tag).
+     */
+    public static function eael_sanitize_css_value( $value ) {
+        return str_replace( [ '<', '>', '{', '}', ';' ], '', (string) $value );
     }
 
 	/**
@@ -1792,6 +2459,13 @@ class Helper
 
         $icon_name  = str_replace( [ 'fas fa-', 'fab fa-', 'far fa-' ], '', $icon['value'] );
         $library    = str_replace( 'fa-', '', $icon['library'] );
+        // The library name is interpolated into a filesystem path, so strip anything
+        // that is not a plain icon-set token. This blocks "../" traversal from a
+        // settings-derived value (the path read is otherwise an existence/read oracle).
+        $library    = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $library );
+        if ( '' === $library ) {
+            return $svg_html;
+        }
         $svg_object = file_get_contents( EAEL_PLUGIN_PATH . "assets/front-end/js/lib-view/icons/{$library}.json" );
         $svg_object = json_decode( $svg_object, true );
         $i_class    = str_replace(' ', '-', $icon['value']);
@@ -2050,6 +2724,15 @@ class Helper
     //Get revision id by post id
     public static function current_revision_id( $post_id = null ) {
 		$current_revision_id = $post_id ?? get_the_ID();
+
+		// Utils::get_post_autosave() dereferences get_post() without a null check and
+		// builds its WHERE clause by hand, so a missing id turns into an unbounded
+		// `SELECT * FROM wp_posts` (every row buffered by wpdb) plus a PHP 8 warning.
+		// Bail out before that when there is no real post to look up.
+		if ( empty( $current_revision_id ) || ! get_post( $current_revision_id ) ) {
+			return $current_revision_id;
+		}
+
 		$autosave = Utils::get_post_autosave( $current_revision_id );
 
 		if ( is_object( $autosave ) ) {
@@ -2063,5 +2746,249 @@ class Helper
 		$template_id = absint( $template_id );
 
 		return get_post_status( $template_id ) === 'publish' && get_post_type( $template_id ) === 'elementor_library';
+	}
+
+	/**
+	 * Clamp a product-query post_status list to what the current viewer may see.
+	 *
+	 * Non-public statuses (draft/pending/future/private) are only honoured for
+	 * users who can edit others' products (shop managers / admins). Everyone else
+	 * — including logged-out visitors — is forced to 'publish'. This prevents the
+	 * WooCommerce listing widgets (Product Grid / Woo Product List / Carousel)
+	 * from leaking pending/scheduled/draft products through a saved or default
+	 * post_status control value on an anonymous render.
+	 *
+	 * @param mixed  $statuses Requested status(es) — array or single string.
+	 * @param string $context  Reserved for future per-widget filtering.
+	 *
+	 * @return array Sanitized, capability-clamped status list (never empty).
+	 */
+	/**
+	 * Render a saved Elementor template only when it is a *published* elementor_library
+	 * post. Every widget/extension that echoes a settings-selected template id must go
+	 * through here so a draft/private/pending template — or an id injected via Elementor
+	 * copy-paste / JSON import by a low-privilege editor — can never be rendered to
+	 * front-end (including anonymous) visitors.
+	 *
+	 * @param int  $template_id Selected template id.
+	 * @param bool $with_css    Pass-through to Frontend::get_builder_content().
+	 * @param bool $for_display Use get_builder_content_for_display() instead (Offcanvas et al.).
+	 *
+	 * @return string Rendered content, or '' when the id is not a published template.
+	 */
+	public static function eael_render_published_template( $template_id, $with_css = true, $for_display = false ) {
+		if ( ! static::is_elementor_publish_template( $template_id ) ) {
+			return '';
+		}
+
+		if ( $for_display ) {
+			return Plugin::$instance->frontend->get_builder_content_for_display( $template_id );
+		}
+
+		return Plugin::$instance->frontend->get_builder_content( $template_id, $with_css );
+	}
+
+	public static function eael_validate_product_statuses( $statuses, $context = '' ) {
+		$statuses = array_filter( array_map( 'sanitize_key', (array) $statuses ) );
+
+		if ( current_user_can( 'edit_others_products' ) ) {
+			$allowed = [ 'publish', 'draft', 'pending', 'future', 'private' ];
+		} else {
+			$allowed = [ 'publish' ];
+		}
+
+		$statuses = array_values( array_intersect( $statuses, $allowed ) );
+
+		return empty( $statuses ) ? [ 'publish' ] : $statuses;
+	}
+
+	/**
+	 * eael_wpml_translate_media
+	 *
+	 * Resolve an Elementor MEDIA control value (image/video) to its
+	 * WPML-translated attachment so the correct media is shown per language.
+	 * Safe to call when WPML / WPML Media Translation is inactive — the
+	 * `wpml_object_id` filter simply returns the original id unchanged.
+	 *
+	 * @param array $media Elementor MEDIA control value (expects 'id' and 'url').
+	 *
+	 * @return array The media array with translated 'id' and 'url' when available.
+	 */
+	public static function eael_wpml_translate_media( $media ) {
+		if ( ! is_array( $media ) || empty( $media['id'] ) ) {
+			return $media;
+		}
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$translated_id = apply_filters( 'wpml_object_id', $media['id'], 'attachment', true );
+
+		if ( $translated_id && (int) $translated_id !== (int) $media['id'] ) {
+			$media['id']  = $translated_id;
+			$media['url'] = wp_get_attachment_url( $translated_id );
+		}
+
+		return $media;
+	}
+
+	/**
+	 * Get the alt text for a media control value.
+	 *
+	 * Elementor stores alt text in two different places depending on how the image was
+	 * added: media library images keep it in the `_wp_attachment_image_alt` post meta,
+	 * while "Insert from URL" images have no attachment and carry it in the control
+	 * value's own `alt` key. Reading the post meta alone therefore drops the alt text
+	 * for every externally hosted image.
+	 *
+	 * Deliberately narrower than `Control_Media::get_image_alt()` for attachments: that
+	 * helper falls back to the attachment's excerpt and then its title when the alt meta
+	 * is empty, which would rewrite the alt text of library images that are already
+	 * rendering correctly. Only the "Insert from URL" gap is closed here, so output for
+	 * every image that works today stays byte-for-byte identical.
+	 *
+	 * @param array  $image    Media control value, e.g. `[ 'id' => 42, 'url' => '...', 'alt' => '...' ]`.
+	 * @param string $fallback Used when no alt text is stored anywhere.
+	 *
+	 * @return string Unescaped alt text; escape at the point of output.
+	 */
+	public static function get_image_alt( $image, $fallback = '' ) {
+		if ( ! is_array( $image ) ) {
+			return $fallback;
+		}
+
+		if ( ! empty( $image['id'] ) ) {
+			$alt = get_post_meta( $image['id'], '_wp_attachment_image_alt', true );
+		} else {
+			// Delegated so we keep following Elementor if it moves where the alt text of a
+			// URL-inserted image lives. Its return value has already been through esc_attr(),
+			// so decode it: escaping it again would render "Jane's photo" as
+			// "Jane&amp;#039;s photo" at the call sites, which all escape on output.
+			$alt = wp_specialchars_decode( Control_Media::get_image_alt( $image ), ENT_QUOTES );
+		}
+
+		return '' !== $alt ? $alt : $fallback;
+	}
+
+	/**
+	 * Whether a control id is already registered on a widget's control stack.
+	 *
+	 * Lets shared control helpers stay idempotent: registering the same id twice makes
+	 * Elementor emit a `_doing_it_wrong()` notice and silently drop the second control.
+	 *
+	 * @param \Elementor\Controls_Stack $wb         Widget/controls-stack instance.
+	 * @param string                    $control_id Control id to look for.
+	 *
+	 * @return bool
+	 */
+	public static function eael_control_exists( $wb, $control_id ) {
+		if ( ! $wb instanceof \Elementor\Controls_Stack ) {
+			return false;
+		}
+
+		$stack = Plugin::$instance->controls_manager->get_element_stack( $wb );
+
+		return is_array( $stack ) && isset( $stack['controls'][ $control_id ] );
+	}
+
+	/**
+	 * Renders an admin notice when ACF is not installed/activated.
+	 * Ported for ACF Repeater data-source support (Feature List, etc.).
+	 *
+	 * A widget may need this notice in more than one section (e.g. Advanced Accordion,
+	 * where EA Pro adds a second ACF source for the media layout). Pass a distinct
+	 * control id as an optional third argument in that case — reusing the default id
+	 * makes Elementor bail out with "Cannot redeclare control with same name" and drops
+	 * the second notice.
+	 *
+	 * The third argument is deliberately NOT in the signature: EA Pro's
+	 * `Pro\Classes\Helper` extends this class and overrides this method with the
+	 * two-argument signature. PHP requires a child method to declare every parameter
+	 * the parent declares — optional ones included — so adding a third parameter here
+	 * fatals every site running an older Pro build. Read it via func_get_args() so the
+	 * inherited signature stays two arguments wide.
+	 *
+	 * @param \Elementor\Widget_Base $wb        Widget instance.
+	 * @param array                  $condition Elementor control condition array.
+	 *
+	 * @internal param string $control_id Optional third arg: control id for the notice.
+	 */
+	public static function eael_acf_notice_controls( $wb, $condition ) {
+		$args       = func_get_args();
+		$control_id = isset( $args[2] ) && is_string( $args[2] ) && '' !== $args[2] ? $args[2] : 'eael_acf_notice_controls';
+
+		if ( self::eael_control_exists( $wb, $control_id ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'acf_get_field_groups' ) ) {
+			$wb->add_control(
+				$control_id,
+				[
+					'type'            => Controls_Manager::RAW_HTML,
+					'raw'             => __( '<strong>Advanced Custom Fields (ACF)</strong> is not installed/activated on your site. Please install and activate <a href="plugin-install.php?s=advanced-custom-fields&tab=search&type=term" target="_blank">ACF</a> first.', 'essential-addons-for-elementor-lite' ),
+					'content_classes' => 'eael-warning',
+					'condition'       => $condition,
+				]
+			);
+		}
+	}
+
+	/**
+	 * Returns a SELECT-ready options map of every ACF repeater field across all field groups.
+	 *
+	 * @return array [ '' => 'Select Repeater Field', field_name => 'Label (Group Title)', ... ]
+	 */
+	public static function eael_get_acf_repeater_options() {
+		$acf_repeater_options = [ '' => esc_html__( 'Select Repeater Field', 'essential-addons-for-elementor-lite' ) ];
+
+		if ( function_exists( 'acf_get_field_groups' ) && function_exists( 'acf_get_fields' ) ) {
+			$field_groups = acf_get_field_groups();
+			foreach ( $field_groups as $group ) {
+				$fields = acf_get_fields( $group['key'] );
+				if ( ! is_array( $fields ) ) {
+					continue;
+				}
+				foreach ( $fields as $field ) {
+					if ( 'repeater' !== $field['type'] ) {
+						continue;
+					}
+					$acf_repeater_options[ $field['name'] ] = $field['label'] . ' (' . $group['title'] . ')';
+				}
+			}
+		}
+
+		return $acf_repeater_options;
+	}
+
+	/**
+	 * Returns, per ACF repeater field, a SELECT-ready options map of its sub-fields.
+	 *
+	 * @return array [ repeater_field_name => [ '' => 'Select', sub_field_name => sub_field_label, ... ], ... ]
+	 */
+	public static function eael_get_acf_repeater_sub_fields() {
+		$acf_sub_fields_by_repeater = [];
+
+		if ( function_exists( 'acf_get_field_groups' ) && function_exists( 'acf_get_fields' ) ) {
+			$field_groups = acf_get_field_groups();
+			foreach ( $field_groups as $group ) {
+				$fields = acf_get_fields( $group['key'] );
+				if ( ! is_array( $fields ) ) {
+					continue;
+				}
+				foreach ( $fields as $field ) {
+					if ( 'repeater' !== $field['type'] ) {
+						continue;
+					}
+					$sub_field_options = [ '' => esc_html__( 'Select', 'essential-addons-for-elementor-lite' ) ];
+					if ( ! empty( $field['sub_fields'] ) && is_array( $field['sub_fields'] ) ) {
+						foreach ( $field['sub_fields'] as $sf ) {
+							$sub_field_options[ $sf['name'] ] = $sf['label'];
+						}
+					}
+					$acf_sub_fields_by_repeater[ $field['name'] ] = $sub_field_options;
+				}
+			}
+		}
+
+		return $acf_sub_fields_by_repeater;
 	}
 }

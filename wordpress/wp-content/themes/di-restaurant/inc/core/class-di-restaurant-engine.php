@@ -63,7 +63,8 @@ class Di_Restaurant_Engine {
 		add_theme_support( 'align-wide' );
 		add_theme_support( 'wp-block-styles' );
 		add_theme_support( 'responsive-embeds' );
-		add_theme_support('custom-spacing');
+		add_theme_support( 'custom-spacing' );
+		add_theme_support( 'appearance-tools' );
 		remove_theme_support( 'widgets-block-editor' );
 
 		add_theme_support( 'customize-selective-refresh-widgets' );
@@ -124,14 +125,6 @@ class Di_Restaurant_Engine {
 
 		// Load script file.
 		wp_enqueue_script( 'di-restaurant-script', get_template_directory_uri() . '/assets/js/script.js', array( 'jquery' ), DI_RESTAURANT_VERSION, true );
-
-		// Load html5shiv.
-		wp_enqueue_script( 'html5shiv', get_template_directory_uri() . '/assets/js/html5shiv.js', array(), '3.7.3', false );
-		wp_script_add_data( 'html5shiv', 'conditional', 'lt IE 9' );
-
-		// Load respond js.
-		wp_enqueue_script( 'respond', get_template_directory_uri() . '/assets/js/respond.js', array(), DI_RESTAURANT_VERSION, false );
-		wp_script_add_data( 'respond', 'conditional', 'lt IE 9' );
 
 		// load comment-reply js.
 		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {

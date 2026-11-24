@@ -19,7 +19,7 @@ class Password_Protected_Free_allCaptchas {
 	public $settings      = array();
 
 	public function __construct() {
-		$this->settings = get_option( $this->options_name );
+		$this->settings = get_option( $this->options_name, 'none' );
 		add_action( 'admin_init', array( $this, 'register_all_captchas_settings' ), 6 );
 		add_action( 'password_protected_subtab_all-captchas_content', array( $this, 'all_captchas_settings' ) );
 	}
@@ -36,14 +36,14 @@ class Password_Protected_Free_allCaptchas {
 
 		add_settings_section(
 			$this->options_group,
-			__( ' ', 'password-protected-pro' ),
+			'',
 			'__return_null',
 			$this->tab
 		);
 
 		add_settings_field(
 			'password_protected_enable_allcaptchas',
-			__( '', 'password-protected-pro' ),
+			'',
 			array( $this, 'all_captchas_enable' ),
 			$this->tab,
 			$this->options_group
@@ -51,20 +51,58 @@ class Password_Protected_Free_allCaptchas {
         
         add_settings_field(
 			'password_protected_show_captcha_fields',
-			__( ' ', 'password-protected-pro' ),
+			'',
 			array( $this, 'show_captchas_fields' ),
 			$this->tab,
 			$this->options_group
 		);
 
-		register_setting( $this->options_group, $this->options_name, array( 'type' => 'array' ) );
+		register_setting(
+			$this->options_group,
+			$this->options_name,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_captcha_provider' ),
+				'default'           => 'none',
+			)
+		);
 
+	}
+
+	/**
+	 * Allowlist captcha provider slug.
+	 *
+	 * @param mixed $value Submitted provider.
+	 * @return string
+	 */
+	public function sanitize_captcha_provider( $value ) {
+		$allowed = array( 'recaptcha', 'none' );
+		$value   = is_string( $value ) ? sanitize_key( $value ) : 'none';
+
+		/**
+		 * Filter allowed captcha provider slugs before saving.
+		 *
+		 * @param string[] $allowed Allowed provider slugs.
+		 */
+		$allowed = apply_filters( 'password_protected_allowed_captcha_providers', $allowed );
+
+		if ( ! is_array( $allowed ) ) {
+			$allowed = array( 'recaptcha', 'none' );
+		}
+
+		$allowed = array_map( 'sanitize_key', $allowed );
+
+		if ( in_array( $value, $allowed, true ) ) {
+			return $value;
+		}
+
+		return 'none';
 	}
 
 	public function all_captchas_settings() {
 		?>
         <div class="wrap allCaptchaTabsTable">
-            <h1 class="enableCaptchaHeading"><?php _e( 'Enable Captcha', 'password-protected-pro' ); ?></h1>
+            <h1 class="enableCaptchaHeading"><?php esc_html_e( 'Enable Captcha', 'password-protected' ); ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields( $this->options_group );
@@ -76,63 +114,28 @@ class Password_Protected_Free_allCaptchas {
         <?php
     }
 
-    public function pro_version_verify() {
-
-        global $Password_Protected_Pro;
-
-        if ( isset( $Password_Protected_Pro->version ) && version_compare( $Password_Protected_Pro->version, '1.9', '>=' ) ) {
-            return true;
-        }
-
-        return false;
-
-    }
-
 	public function all_captchas_enable() {
         
                 $captcha_providers = array(
                     'recaptcha' => array(
                         'label' => 'reCAPTCHA',
-                        'pro'   => false,
                     ),
-                    'hcaptcha' => array(
-                        'label' => 'hCaptcha',
-                        'pro'   => true,
-                    ),
-                    'turnstile' => array(
-                        'label' => 'Turnstile',
-                        'pro'   => true,
-                    ),
-                    'none' => array(
+                    'none'      => array(
                         'label' => 'None',
-                        'pro'   => false,
                     ),
                 );
+                $captcha_providers = apply_filters( 'password_protected_captcha_providers', $captcha_providers );
                 $i = 1;
-
-                if ( $this->pro_version_verify() ) {
-                    $captcha_providers['hcaptcha']['pro']   = false;
-                    $captcha_providers['turnstile']['pro']  = false;
-                }     
                 ?>
                 <span class="captcha-setting-field">
                 <?php
                 foreach ( $captcha_providers as $value => $provider ) {
-                        $input_id   = 'captcha-setting-captcha-provider[' . $i . ']';
-                        $input_name = 'captcha_provider'; // common name for radio group
-                        $label      = $provider['label'];
-                        $is_pro     = $provider['pro'];
+                        $input_id = 'captcha-setting-captcha-provider[' . $i . ']';
+                        $label    = $provider['label'];
 
-                        $checked = ( $this->settings === $value ) ? 'checked="checked"' : '';
-
-                        echo '<span class="captcha-settings-field-radio-wrapper' . ( $is_pro ? ' click-to-display-purchase-popup' : '' ) . '">';
-                        echo '<input type="radio" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $this->options_name ) . '" value="' . esc_attr( $value ) . '" '. $checked .' />';
-                        echo '<label for="' . esc_attr( $input_id ) . '" class="option-' . esc_attr( strtolower( $value ) ) . '' . ( $is_pro ? '-free' : '' ) . '">' . esc_html( $label ) . '</label>';
-
-                        if ( $is_pro ) {
-                            echo '<span class="pro-badge captchaProBadge"><a class="actionDisable" href="https://passwordprotectedwp.com/pricing/">PRO</a></span>';
-                        }
-
+                        echo '<span class="captcha-settings-field-radio-wrapper">';
+                        echo '<input type="radio" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $this->options_name ) . '" value="' . esc_attr( $value ) . '" ' . checked( $this->settings === $value, true, false ) . ' />';
+                        echo '<label for="' . esc_attr( $input_id ) . '" class="option-' . esc_attr( strtolower( $value ) ) . '">' . esc_html( $label ) . '</label>';
                         echo '</span>';
 
                     $i++;
@@ -144,7 +147,7 @@ class Password_Protected_Free_allCaptchas {
 
     public function show_captchas_fields() {
         
-        echo do_action( 'password_protected_all_captchas' );
+        do_action( 'password_protected_all_captchas' );
         echo '
             <div class="noneTab"></div>
         ';

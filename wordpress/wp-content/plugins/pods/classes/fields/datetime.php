@@ -732,12 +732,10 @@ class PodsField_DateTime extends PodsField {
 		try {
 			if ( method_exists( 'DateTime', 'createFromFormat' ) ) {
 
-				$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', $format ); // Validación preventiva para PHP 8.4
-				$datetime = $is_valid_format ? DateTime::createFromFormat( $format, (string) $date ) : false;
+				$datetime = DateTime::createFromFormat( $format, (string) $date );
 
 				if ( false === $datetime ) {
-					$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', static::$storage_format ); // Validación preventiva para PHP 8.4
-					$datetime = $is_valid_format ? DateTime::createFromFormat( static::$storage_format, (string) $date ) : false;
+					$datetime = DateTime::createFromFormat( static::$storage_format, (string) $date );
 				}
 
 				if ( false !== $datetime && $return_timestamp ) {

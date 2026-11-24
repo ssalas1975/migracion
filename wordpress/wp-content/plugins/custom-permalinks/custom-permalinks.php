@@ -2,17 +2,16 @@
 /**
  * Plugin Name: Custom Permalinks
  * Plugin URI: https://www.custompermalinks.com/
- * Description: Set custom permalinks on a per-post basis.
- * Version: 3.1.2
- * Requires at least: 2.6
- * Requires PHP: 7.0
+ * Description: Set custom permalinks, add automatic redirects, and use dynamic tags for full control over your site's URLs and SEO.
+ * Version: 3.3.3
+ * Requires at least: 5.9
+ * Requires PHP: 7.4
  * Author: Sami Ahmed Siddiqui
  * Author URI: https://www.linkedin.com/in/sami-ahmed-siddiqui/
  * License: GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
  * Text Domain: custom-permalinks
- * Domain Path: /languages/
  *
  * @package CustomPermalinks
  */

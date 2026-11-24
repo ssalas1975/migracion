@@ -81,7 +81,7 @@ if ( ! class_exists( 'She_Notice_Main' ) ) {
 				}
 
 				$update_plugin[] = $plugin;
-			} elseif ( is_plugin_active( $pluginslug ) ) {
+			} else {
 				$plugin['status'] = 'active';
 				$update_plugin[]  = $plugin;
 			}
@@ -96,9 +96,35 @@ if ( ! class_exists( 'She_Notice_Main' ) ) {
 		 */
 		public function she_load() {
 			if ( is_admin() && current_user_can( 'manage_options' ) ) {
-				// include SHE_HEADER_PATH . 'includes/notices/class-she-banner-notice.php';
-				// include SHE_HEADER_PATH . 'includes/notices/class-she-plugin-page.php';
-				include SHE_HEADER_PATH . 'includes/notices/class-she-deactivate-feedback.php';
+				/*
+				 * The legacy deactivation dialog (class-she-deactivate-feedback.php) was deleted in 2.2.1.
+				 *
+				 * Its replacement is the shared SDK's Posimyth_Deactivation_Survey, wired up in
+				 * she_posimyth_analytics_boot() in the main plugin file. Do NOT include a second dialog
+				 * here: both bound the Plugins screen's Deactivate link, so two modals stacked on one
+				 * click — the same bug Nexter Extension and The Plus Addons for Elementor each shipped
+				 * until their legacy popups were deleted.
+				 *
+				 * The old one also found the link by `[data-slug="…"]`, which WordPress derives from the
+				 * TRANSLATED plugin name, so on a non-English locale it silently matched nothing; depended
+				 * on elementorCommon, so it did nothing at all when Elementor was inactive; and posted the
+				 * reason plus the current user's email address to api.posimyth.com/she/v2 with no opt-in
+				 * surface and no white-label suppression. The SDK dialog matches the link by href, needs no
+				 * Elementor, is suppressed on rebranded installs, and only attaches an email address when
+				 * the user ticks the contact box.
+				 */
+				/*
+				 * The 20% off Pro sale notice supersedes the Pro-launch notice
+				 * (class-she-pro-launch-notice.php, kept for later reuse). Only one
+				 * dark upsell banner shows at a time so the admin screens are not
+				 * stacked with two notices for the same non-Pro user.
+				 */
+				include SHE_HEADER_PATH . 'includes/notices/class-she-sale-notice.php';
+
+				// Join Community notice (30 days after install) — skip once dismissed.
+				if ( ! get_option( 'she_join_community_notice' ) ) {
+					include SHE_HEADER_PATH . 'includes/notices/class-she-join-community-notice.php';
+				}
 
 				$ele_pro_plugin = array(
 					'name'        => 'elementor-pro',
@@ -106,16 +132,9 @@ if ( ! class_exists( 'She_Notice_Main' ) ) {
 					'plugin_slug' => 'elementor-pro/elementor-pro.php',
 				);
 
-				$tpae_plugin = array(
-					'name'        => 'the-plus-addons-for-elementor-page-builder',
-					'status'      => '',
-					'plugin_slug' => 'the-plus-addons-for-elementor-page-builder/theplus_elementor_addon.php',
-				);
-
 				$ele_pro_details = $this->tpae_check_plugins_depends( $ele_pro_plugin );
-				$tpae_details    = $this->tpae_check_plugins_depends( $tpae_plugin );
 			  	
-				if( ! empty( $ele_pro_details[0]['status'] ) && 'unavailable' == $ele_pro_details[0]['status'] ) {
+				if ( ! empty( $ele_pro_details[0]['status'] ) && 'unavailable' === $ele_pro_details[0]['status'] ) {
 					include SHE_HEADER_PATH . 'includes/notices/class-she-nexter-extension-promo.php';
 				}
 			}

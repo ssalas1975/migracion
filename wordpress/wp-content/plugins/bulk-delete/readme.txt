@@ -3,8 +3,8 @@ Contributors: WebFactory
 Tags: bulk, bulk delete, delete, clean database, bulk clean
 Requires PHP: 5.3
 Requires at least: 5.0
-Tested up to: 6.9
-Stable tag: 6.11
+Tested up to: 7.1
+Stable tag: 6.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -211,6 +211,9 @@ You can contact us by posting about it in our [support forum](https://bulkwp.com
 
 
 == Changelog ==
+
+= 2026-07-22 - v6.12 =
+- minor update
 
 = 2025-12-23 - v6.11 =
 - major rewrite and cleanup

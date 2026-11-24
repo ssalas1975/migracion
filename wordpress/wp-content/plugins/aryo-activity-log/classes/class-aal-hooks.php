@@ -14,6 +14,7 @@ class AAL_Hooks {
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-menus.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-options.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-plugins.php' );
+		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-woocommerce.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-posts.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-taxonomies.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-themes.php' );
@@ -22,12 +23,14 @@ class AAL_Hooks {
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-export.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-comments.php' );
 		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-emails.php' );
+		include( plugin_dir_path( ACTIVITY_LOG__FILE__ ) . '/hooks/class-aal-hook-file-editor.php' );
 
 		new AAL_Hook_Users();
 		new AAL_Hook_Attachments();
 		new AAL_Hook_Menus();
 		new AAL_Hook_Options();
 		new AAL_Hook_Plugins();
+		new AAL_Hook_WooCommerce();
 		new AAL_Hook_Posts();
 		new AAL_Hook_Taxonomies();
 		new AAL_Hook_Themes();
@@ -36,5 +39,6 @@ class AAL_Hooks {
 		new AAL_Hook_Export();
 		new AAL_Hook_Comments();
 		new AAL_Hook_Emails();
+		new AAL_Hook_File_Editor();
 	}
 }

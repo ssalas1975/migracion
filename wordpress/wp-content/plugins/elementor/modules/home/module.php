@@ -3,8 +3,6 @@ namespace Elementor\Modules\Home;
 
 use Elementor\Core\Base\App as BaseApp;
 use Elementor\Includes\EditorAssetsAPI;
-use Elementor\Settings;
-use Elementor\Plugin;
 use Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,10 +23,21 @@ class Module extends BaseApp {
 		add_filter( 'elementor/document/urls/edit', [ $this, 'add_active_document_to_edit_link' ] );
 	}
 
+	public function enqueue_fonts(): void {
+		wp_enqueue_style(
+			'elementor-home-screen-fonts',
+			'https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap',
+			[],
+			ELEMENTOR_VERSION
+		);
+	}
+
 	public function enqueue_home_screen_scripts(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		$this->enqueue_fonts();
 
 		$min_suffix = Utils::is_script_debug() ? '' : '.min';
 
@@ -62,8 +71,8 @@ class Module extends BaseApp {
 	}
 
 	public function add_active_document_to_edit_link( $edit_link ) {
-		$active_document = Utils::get_super_global_value( $_GET, 'active-document' ) ?? null;
-		$active_tab = Utils::get_super_global_value( $_GET, 'active-tab' ) ?? null;
+		$active_document = absint( Utils::get_super_global_value( $_GET, 'active-document' ) ?? 0 );
+		$active_tab = sanitize_key( Utils::get_super_global_value( $_GET, 'active-tab' ) ?? '' );
 
 		if ( $active_document ) {
 			$edit_link = add_query_arg( 'active-document', $active_document, $edit_link );
@@ -81,6 +90,8 @@ class Module extends BaseApp {
 		$api = new API( $editor_assets_api );
 
 		$config = $api->get_home_screen_items();
+
+		$config['wpRestNonce'] = wp_create_nonce( 'wp_rest' );
 
 		return $config;
 	}

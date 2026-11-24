@@ -34,14 +34,6 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		private static $instance = null;
 
 		/**
-		 *
-		 * Get User Data.
-		 *
-		 * @var instance
-		 * @since 2.0
-		 */
-		public $onbording_api = 'https://api.posimyth.com/wp-json/she/v2/she_store_user_data';
-		/**
 		 * This instance is used to load class
 		 *
 		 * @since 2.0
@@ -73,7 +65,7 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 
 			if ( ! check_ajax_referer( 'she-db-nonce', 'nonce', false ) ) {
 
-				$response = $this->she_set_response( false, 'Invalid nonce.', 'The security check failed. Please refresh the page and try again.' );
+				$response = $this->she_set_response( false, 'Permission denied.', 'You do not have permission to perform this action.' );
 
 				wp_send_json( $response );
 				wp_die();
@@ -124,6 +116,15 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 					break;
 				case 'she_user_meta_data':
 					$response = $this->she_user_meta_data();
+					break;
+				case 'she_feature_toggle':
+					$response = $this->she_feature_toggle();
+					break;
+				case 'she_analytics_consent':
+					$response = $this->she_analytics_consent();
+					break;
+				case 'she_dismiss_review':
+					$response = $this->she_dismiss_review();
 					break;
 				default:
 					$response = $this->she_set_response( false, 'Invalid type.', 'Something went wrong.' );
@@ -237,7 +238,7 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 					}
 
 					$update_plugin[] = $plugin;
-				} elseif ( is_plugin_active( $pluginslug ) ) {
+				} else {
 					$plugin['status'] = 'active';
 					$update_plugin[]  = $plugin;
 				}
@@ -290,19 +291,26 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		 */
 		public function she_activate_theme() {
 
+			if ( ! current_user_can( 'switch_themes' ) ) {
+				return $this->she_set_response( false, 'Permission denied.', 'You do not have permission to switch themes.' );
+			}
+
 			$theme_slug = isset( $_POST['theme_slug'] ) ? sanitize_text_field( wp_unslash( $_POST['theme_slug'] ) ) : '';
 
 			$active_theme = wp_get_theme();
 			$theme_name   = $active_theme->get( 'Name' );
 
-			if ( file_exists( WP_CONTENT_DIR . '/themes/' . $theme_slug ) && 'Nexter' !== $theme_name ) {
+			$theme = wp_get_theme( $theme_slug );
+			if ( $theme->exists() && 'Nexter' !== $theme_name ) {
 
-				switch_theme( $theme_slug );
+				switch_theme( $theme->get_stylesheet() );
 				return array(
 					'name'   => $theme_slug,
 					'status' => 'Activated',
 				);
 			}
+
+			return $this->she_set_response( false, 'Activation failed.', 'Theme not found or already active.' );
 		}
 
 		/**
@@ -369,11 +377,15 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		 */
 		public function she_rollback_check() {
 
+			if ( ! current_user_can( 'update_plugins' ) ) {
+				return $this->she_set_response( false, 'Permission denied.', 'You do not have permission to update plugins.' );
+			}
+
 			$current_ver = isset( $_POST['version'] ) ? sanitize_text_field( wp_unslash( $_POST['version'] ) ) : '';
 
 			$rv = $this->she_prev_version();
-			if ( empty( $current_ver ) || ! in_array( $current_ver, $rv ) ) {
-				return $this->she_set_response( false, 'Invalid nonce.', 'Try selecting another version.' );
+			if ( empty( $current_ver ) || ! in_array( $current_ver, $rv, true ) ) {
+				return $this->she_set_response( false, 'Invalid version.', 'Try selecting another version.' );
 			}
 
 			$plugin_slug = basename( SHE_HEADER_PLUGIN_BASE, '.php' );
@@ -408,13 +420,11 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-			$logo_url = SHE_HEADER_URL . 'assets/images/theplus-logo-small.png';
-
 			$args = array(
 				'url'    => 'update.php?action=upgrade-plugin&plugin=' . rawurlencode( $this_pluginname ),
 				'plugin' => $this_pluginname,
 				'nonce'  => 'upgrade-plugin_' . $this_pluginname,
-				'title'  => '<img src="' . esc_url( $logo_url ) . '" alt="theplus-logo"><div class="theplus-rb-subtitle">' . esc_html__( 'Rollback to Previous Version', 'she-header' ) . '</div>',
+				'title'  => '<div class="theplus-rb-subtitle">' . esc_html__( 'Rollback to Previous Version', 'she-header' ) . '</div>',
 			);
 
 			$upgrader_plugin = new \Plugin_Upgrader( new \Plugin_Upgrader_Skin( $args ) );
@@ -452,10 +462,8 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		 */
 		public function she_plugin_install() {
 
-			add_action( 'wp_ajax_she_dashboard_ajax_call', array( $this, 'she_dashboard_ajax_call' ) );
-
 			if ( ! current_user_can( 'install_plugins' ) ) {
-				$response = $this->she_set_response( false, 'Invalid nonce.', 'The security check failed. Please refresh the page and try again.' );
+				$response = $this->she_set_response( false, 'Permission denied.', 'You do not have permission to perform this action.' );
 				return $response;
 			}
 
@@ -472,27 +480,21 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
 			include_once ABSPATH . 'wp-admin/includes/class-plugin-upgrader.php';
 
-			$result   = array();
-			$response = wp_remote_post(
-				'http://api.wordpress.org/plugins/info/1.0/',
+			$result = array();
+
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+			$plugin_info = plugins_api(
+				'plugin_information',
 				array(
-					'body' => array(
-						'action'  => 'plugin_information',
-						'request' => serialize(
-							(object) array(
-								'slug'   => $name,
-								'fields' => array(
-									'version' => false,
-								),
-							)
-						),
+					'slug'   => $name,
+					'fields' => array(
+						'version' => false,
 					),
 				)
 			);
 
-			$plugin_info = unserialize( wp_remote_retrieve_body( $response ) );
-
-			if ( ! $plugin_info ) {
+			if ( is_wp_error( $plugin_info ) || ! isset( $plugin_info->download_link ) ) {
 				wp_send_json_error( array( 'content' => __( 'Failed to retrieve plugin information.', 'she-header' ) ) );
 			}
 
@@ -504,6 +506,11 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 			if ( ! isset( $installed_plugins[ $plugin_basename ] ) && empty( $installed_plugins[ $plugin_basename ] ) ) {
 
 				$installed         = $upgrader->install( $plugin_info->download_link );
+
+				if ( is_wp_error( $installed ) || ! $installed ) {
+					return $this->she_set_response( false, 'Install failed.', 'Plugin could not be installed.' );
+				}
+
 				$activation_result = activate_plugin( $plugin_basename );
 
 				$success = null === $activation_result;
@@ -537,81 +544,43 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		public function she_theme_install() {
 
 			if ( ! current_user_can( 'install_themes' ) ) {
-				$response = $this->she_set_response( false, 'Invalid nonce.', 'The security check failed. Please refresh the page and try again.' );
-				return $response;
+				return $this->she_set_response( false, 'Invalid nonce.', 'The security check failed. Please refresh the page and try again.' );
 			}
 
 			$name = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-
-			$theme_slug    = $name;
-			$theme_api_url = 'https://api.wordpress.org/themes/info/1.0/';
-
-			// Parameters for the request
-			$args = array(
-				'body' => array(
-					'action'  => 'theme_information',
-					'request' => serialize(
-						(object) array(
-							'slug'   => $name,
-							'fields' => array(
-								'description'     => false,
-								'sections'        => false,
-								'rating'          => true,
-								'ratings'         => false,
-								'downloaded'      => true,
-								'download_link'   => true,
-								'last_updated'    => true,
-								'homepage'        => true,
-								'tags'            => true,
-								'template'        => true,
-								'active_installs' => false,
-								'parent'          => false,
-								'versions'        => false,
-								'screenshot_url'  => true,
-							),
-						)
-					),
-				),
-			);
-
-			// Make the request
-			$response = wp_remote_post( $theme_api_url, $args );
-			// Check for errors
-			if ( is_wp_error( $response ) ) {
-				$error_message = $response->get_error_message();
-
-				$result = $this->she_set_response( false, 'oops', 'oops', '' );
-			} else {
-				$theme_info    = unserialize( $response['body'] );
-				$theme_name    = $theme_info->name;
-				$theme_zip_url = $theme_info->download_link;
-
-				global $wp_filesystem;
-				// Install the theme
-				$theme = wp_remote_get( $theme_zip_url );
-
-				if ( ! function_exists( 'WP_Filesystem' ) ) {
-					require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/file.php' );
-				}
-
-				WP_Filesystem();
-
-				$active_theme = wp_get_theme();
-				$theme_name   = $active_theme->get( 'Name' );
-
-				$wp_filesystem->put_contents( WP_CONTENT_DIR . '/themes/' . $theme_slug . '.zip', $theme['body'] );
-				$zip = new ZipArchive();
-				if ( $zip->open( WP_CONTENT_DIR . '/themes/' . $theme_slug . '.zip' ) === true ) {
-					$zip->extractTo( WP_CONTENT_DIR . '/themes/' );
-					$zip->close();
-				}
-
-				$wp_filesystem->delete( WP_CONTENT_DIR . '/themes/' . $theme_slug . '.zip' );
-
-				$result = $this->she_set_response( true, "Success $name", "Success $name", '' );
+			if ( ! $name ) {
+				return $this->she_set_response( false, 'Theme slug not found.', 'Something went wrong.' );
 			}
 
-			return $result;
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
+			require_once ABSPATH . 'wp-admin/includes/theme-install.php';
+
+			$theme_info = themes_api(
+				'theme_information',
+				array(
+					'slug'   => $name,
+					'fields' => array(
+						'download_link' => true,
+					),
+				)
+			);
+
+			if ( is_wp_error( $theme_info ) || empty( $theme_info->download_link ) ) {
+				return $this->she_set_response( false, 'oops', 'Could not retrieve theme information.', '' );
+			}
+
+			$skin      = new \Automatic_Upgrader_Skin();
+			$upgrader  = new \Theme_Upgrader( $skin );
+			$installed = $upgrader->install( $theme_info->download_link );
+
+			if ( is_wp_error( $installed ) || ! $installed ) {
+				return $this->she_set_response( false, 'Install failed.', 'Theme could not be installed.', '' );
+			}
+
+			/* translators: %s: theme name */
+			return $this->she_set_response( true, sprintf( __( 'Success %s', 'she-header' ), esc_html( $name ) ), '', '' );
 		}
 
 		/**
@@ -622,15 +591,40 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		public function she_api_call() {
 
 			$method  = isset( $_POST['method'] ) ? sanitize_text_field( wp_unslash( $_POST['method'] ) ) : 'POST';
-			$api_url = isset( $_POST['api_url'] ) ? sanitize_text_field( wp_unslash( $_POST['api_url'] ) ) : '';
+			$api_url = isset( $_POST['api_url'] ) ? esc_url_raw( wp_unslash( $_POST['api_url'] ) ) : '';
 			$body    = isset( $_POST['url_body'] ) ? json_decode( wp_unslash( $_POST['url_body'] ) ) : array();
+
+			// Whitelist allowed external domains to prevent SSRF.
+			$allowed_hosts = array( 'stickyheadereffects.com', 'api.posimyth.com', 'posimyth.com', 'wdesignkit.com' );
+			$parsed_url    = wp_parse_url( $api_url );
+			$parsed_host   = isset( $parsed_url['host'] ) ? strtolower( (string) $parsed_url['host'] ) : '';
+			$parsed_host   = preg_replace( '/^www\./', '', $parsed_host );
+			$parsed_scheme = isset( $parsed_url['scheme'] ) ? strtolower( $parsed_url['scheme'] ) : '';
+			if ( empty( $api_url ) || ! in_array( $parsed_host, $allowed_hosts, true ) ) {
+				return $this->she_set_response( false, 'Invalid URL.', 'Only requests to approved domains are allowed.' );
+			}
+
+			// Force HTTPS and reject any non-standard port to further harden against SSRF.
+			if ( 'https' !== $parsed_scheme || isset( $parsed_url['port'] ) ) {
+				return $this->she_set_response( false, 'Invalid URL.', 'Only standard HTTPS requests are allowed.' );
+			}
+
+			// Only accept a decoded JSON object/array as the request body.
+			if ( ! is_array( $body ) && ! is_object( $body ) ) {
+				$body = array();
+			}
+
+			// Only POST and GET are supported.
+			if ( ! in_array( $method, array( 'POST', 'GET' ), true ) ) {
+				return $this->she_set_response( false, 'Invalid method.', 'Only GET and POST are supported.' );
+			}
 
 			$header_template = isset( $_POST['store'] ) ? sanitize_text_field( wp_unslash( $_POST['store'] ) ) : '';
 
 			if ( 'header_template' === $header_template ) {
 				$she_header_template = get_transient( 'she_header_template' );
 
-				if ( $she_header_template != false ) {
+				if ( false !== $she_header_template ) {
 					return get_option( 'she_header_template' );
 				}
 
@@ -649,6 +643,8 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 				$args['body'] = wp_json_encode( $body );
 			}
 
+			$response = null;
+
 			if ( 'POST' === $method ) {
 				$response = wp_remote_post( $api_url, $args );
 			}
@@ -657,18 +653,23 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 				$response = wp_remote_get( $api_url, $args );
 			}
 
+			if ( is_wp_error( $response ) ) {
+				return $this->she_set_response( false, 'Request failed.', $response->get_error_message() );
+			}
+
 			$status_code = wp_remote_retrieve_response_code( $response );
 			$getdataone  = wp_remote_retrieve_body( $response );
 			$statuscode  = array( 'HTTP_CODE' => $status_code );
 
 			$response = json_decode( $getdataone, true );
+			$final    = $statuscode;
 
 			if ( is_array( $statuscode ) && is_array( $response ) ) {
 				$final = array_merge( $statuscode, $response );
 
-				if ( 200 == $status_code ) {
+				if ( 200 === (int) $status_code ) {
 					if ( 'header_template' === $header_template ) {
-						add_option( 'she_header_template', $final );
+						add_option( 'she_header_template', $final, '', 'no' );
 						set_transient( 'she_header_template', 'header_template', 24 * HOUR_IN_SECONDS );
 						// set_transient('she_header_template', 'header_template', 120);
 					}
@@ -685,7 +686,11 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 		 * @since 2.0
 		 */
 		public function she_create_page() {
-			$post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( $_POST['post_type'] ) : 'elementor_library';
+			$post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : 'elementor_library';
+
+			if ( ! in_array( $post_type, array( 'elementor_library', 'nxt_builder' ), true ) ) {
+				$post_type = 'elementor_library';
+			}
 
 			$post_args = array(
 				'post_type'   => $post_type,
@@ -706,7 +711,6 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 				}
 			}
 
-			// $elementor_edit_url = admin_url( 'post.php?post=' . $post_id . '&action=elementor' );
 			$elementor_edit_url = admin_url( 'post.php?post=' . $post_id . '&action=elementor&she_onload=true' );
 
 			return $this->she_set_response(
@@ -749,33 +753,242 @@ if ( ! class_exists( 'She_Dashboard_Ajax' ) ) {
 			return $response;
 		}
 
+		/**
+		 * Persist the user's dismissal of the dashboard review ask.
+		 *
+		 * @since 2.2.1
+		 */
+		public function she_dismiss_review() {
+
+			update_option( 'she_review_notice', 'hide' );
+
+			return $this->she_set_response( true, 'Review dismissed', 'Review dismissed', '' );
+		}
+
 
 		/**
-		 * User Meta Data
+		 * User Meta Data — retained as a no-op so the dashboard's existing call still resolves.
+		 *
+		 * The legacy onboarding telemetry this used to perform was removed in 2.2.1. It POSTed the site's
+		 * admin_email to api.posimyth.com/wp-json/she/v2/she_store_user_data on every call, with no opt-in
+		 * surface, no white-label suppression and no way for anyone to decline — an email address is
+		 * personal data, and the consent copy this plugin now shows explicitly promises none is sent.
+		 *
+		 * Reporting is the shared SDK's job now (Posimyth_Tracker_SHE, booted from the main plugin file)
+		 * and is gated on the sharing opt-in. Its payload carries no email at all; the single exception is
+		 * the deactivation dialog's "I agree to be contacted" box, which is off by default.
+		 *
+		 * Consent is deliberately NOT written here either. Nothing in this handler represents the user
+		 * agreeing to anything — the dashboard calls it as part of loading — so treating it as consent
+		 * would switch sharing on for people who were never asked, which is the pattern being removed.
+		 *
+		 * The endpoint keeps answering because build/index.js still calls it and a removed case would
+		 * return "Invalid type" to a dashboard that has no reason to show an error.
 		 *
 		 * @since 2.0
+		 * @version 2.2.1
+		 *
+		 * @return array
 		 */
 		public function she_user_meta_data() {
+			return $this->she_set_response( true, 'success', '', array( 'onBoarding' => true ) );
+		}
 
-			global $wpdb;
+		/**
+		 * Capability required to answer the analytics sharing question.
+		 *
+		 * On multisite the consent is ONE answer for the whole network — the SDK stores it as a site
+		 * option and Posimyth_Consent_Notice gates its own notice on manage_network_options. This screen
+		 * has to require the same thing, or a subsite administrator could decide for every other blog on
+		 * the network through the dashboard even though the notice refuses to let them.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @return string
+		 */
+		private function she_analytics_capability() {
+			return is_multisite() ? 'manage_network_options' : 'manage_options';
+		}
 
-			$user_data = array();
-
-			$user_data['email'] = get_option( 'admin_email' );
-
-			$response = wp_remote_post(
-				$this->onbording_api,
-				array(
-					'method' => 'POST',
-					'body'   => wp_json_encode( $user_data ),
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				wp_send_json( array( 'onBoarding' => false ) );
-			} else {
-				$status_one = wp_remote_retrieve_response_code( $response );
+		/**
+		 * Whether the analytics feature exists on this install at all.
+		 *
+		 * A white-labelled install never boots the tracker (see she_posimyth_is_white_labelled() in the
+		 * main plugin file), so the dashboard must not offer a switch that cannot do anything.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @return bool
+		 */
+		private function she_analytics_available() {
+			if ( ! function_exists( 'she_posimyth_is_white_labelled' ) ) {
+				return false;
 			}
+
+			return ! she_posimyth_is_white_labelled();
+		}
+
+		/**
+		 * Current analytics state, for the dashboard to render from.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @return array
+		 */
+		public function she_analytics_state() {
+			return array(
+				// False on a rebranded install: hide the control entirely rather than showing a dead one.
+				'available'  => $this->she_analytics_available(),
+				'enabled'    => (bool) get_site_option( 'posimyth_she_share_analytics', false ),
+				// False for a subsite admin on multisite — show the state, but read-only.
+				'can_manage' => current_user_can( $this->she_analytics_capability() ),
+			);
+		}
+
+		/**
+		 * Records an explicit yes/no to analytics sharing.
+		 *
+		 * Three things have to happen together, and each fails silently on its own:
+		 *
+		 * 1. SITE options, not per-blog options. Posimyth_Tracker_Base::has_consent() reads with
+		 *    get_site_option(), so update_option() would write somewhere the SDK never looks — on
+		 *    multisite the switch would appear to work while nothing was ever sent. On single site
+		 *    get_site_option() falls back to the plain option, so this is equivalent there.
+		 *
+		 * 2. The suite-wide "answered" flag is set for BOTH answers. Posimyth_Consent_Notice::
+		 *    should_show() treats "opt-in empty and never dismissed" as unanswered, so switching sharing
+		 *    OFF here without this would bring the admin notice straight back to ask again — immediately
+		 *    after the user deliberately said no.
+		 *
+		 * 3. Turning it on sends something now. Without a ping the hub does not learn about this install
+		 *    until the weekly cron happens to fire.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param bool $enable Whether sharing is being switched on.
+		 * @return void
+		 */
+		private function she_store_analytics_consent( $enable ) {
+
+			$enable = (bool) $enable;
+
+			update_site_option( 'posimyth_she_share_analytics', $enable ? 1 : 0 );
+			update_site_option( 'posi_consent_dismissed_she_suite', 1 );
+
+			if ( ! $enable || ! class_exists( 'Posimyth_Tracker_SHE' ) ) {
+				return;
+			}
+
+			/*
+			 * report_activation() sends `activate` at most once per active period, so a user who switches
+			 * sharing off and later back on would otherwise send nothing at all and stay invisible until
+			 * the weekly heartbeat. Send the activation on the first opt-in, and a heartbeat on a
+			 * re-opt-in — that reports current state now without inflating the hub's activation count,
+			 * which is exactly what the once-per-period guard exists to protect.
+			 */
+			$already_reported = get_option( 'posimyth_she_activate_reported' );
+
+			Posimyth_Tracker_SHE::send_first_ping();
+
+			if ( $already_reported ) {
+				Posimyth_Tracker_SHE::do_request( 'heartbeat' );
+			}
+		}
+
+		/**
+		 * Read or set the analytics sharing consent from the dashboard.
+		 *
+		 * Nonce and the logged-in manage_options check are already done by she_dashboard_ajax_call();
+		 * this adds the network-scope capability on top — see she_analytics_capability().
+		 *
+		 * Deliberately its own endpoint. Consent has to be written as a site option, has to set the
+		 * suite-wide answered flag and has to ping, none of which a generic option writer does — and a
+		 * consent flag should not be reachable through a general-purpose read/write API in the first
+		 * place.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @return array
+		 */
+		public function she_analytics_consent() {
+
+			if ( ! $this->she_analytics_available() ) {
+				return $this->she_set_response( false, 'Unavailable.', 'Data sharing is not available on this installation.' );
+			}
+
+			if ( ! current_user_can( $this->she_analytics_capability() ) ) {
+				return $this->she_set_response( false, 'Invalid Permission.', 'You do not have permission to change this setting.' );
+			}
+
+			$operation = isset( $_POST['operation'] ) ? strtolower( sanitize_text_field( wp_unslash( $_POST['operation'] ) ) ) : 'get';
+
+			if ( 'set' === $operation ) {
+
+				if ( ! isset( $_POST['share_analytics'] ) ) {
+					return $this->she_set_response( false, 'No data found.', 'Please send valid data.' );
+				}
+
+				// Accept the truthy spellings a JS client may send; anything else — including the strings
+				// "false" and "0", which are both truthy in PHP — counts as off.
+				$raw = strtolower( sanitize_text_field( wp_unslash( $_POST['share_analytics'] ) ) );
+
+				$this->she_store_analytics_consent( in_array( $raw, array( '1', 'true', 'on', 'yes' ), true ) );
+			}
+
+			return $this->she_set_response( true, 'Data Found.', 'Data Found Successfully.', $this->she_analytics_state() );
+		}
+
+		/**
+		 * Enable / disable Free sub-features and Pro modules from the dashboard
+		 * "Features" tab. Accepts either a single { slug, status } pair or a
+		 * bulk { features: JSON map } payload (used by Enable All / Disable All
+		 * and the per-group toggles), persists it, and clears Elementor's CSS
+		 * cache so removed Free controls stop emitting styles.
+		 *
+		 * @since 2.2.1
+		 */
+		public function she_feature_toggle() {
+
+			if ( ! class_exists( 'She_Features' ) ) {
+				include_once SHE_HEADER_PATH . 'includes/features/class-she-features.php';
+			}
+
+			if ( ! class_exists( 'She_Features' ) ) {
+				return $this->she_set_response( false, 'Unavailable.', 'Feature manager could not be loaded.' );
+			}
+
+			$map = array();
+
+			if ( isset( $_POST['features'] ) ) {
+				$decoded = json_decode( sanitize_text_field( wp_unslash( $_POST['features'] ) ), true );
+				if ( is_array( $decoded ) ) {
+					foreach ( $decoded as $slug => $value ) {
+						$slug         = sanitize_text_field( $slug );
+						$map[ $slug ] = ( 'off' === $value ) ? 'off' : 'on';
+					}
+				}
+			} elseif ( isset( $_POST['slug'] ) ) {
+				$slug          = sanitize_text_field( wp_unslash( $_POST['slug'] ) );
+				$status        = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'on';
+				$map[ $slug ]  = ( 'off' === $status ) ? 'off' : 'on';
+			}
+
+			if ( empty( $map ) ) {
+				return $this->she_set_response( false, 'Invalid request.', 'No features supplied.' );
+			}
+
+			$status = She_Features::save_status( $map );
+
+			// Removed Free controls no longer emit their selectors; regenerate
+			// Elementor's cached CSS so disabled effects stop on the frontend.
+			if ( class_exists( '\Elementor\Plugin' ) ) {
+				$elementor = \Elementor\Plugin::instance();
+				if ( isset( $elementor->files_manager ) ) {
+					$elementor->files_manager->clear_cache();
+				}
+			}
+
+			return $this->she_set_response( true, 'Features updated.', '', array( 'features' => $status ) );
 		}
 
 		/**

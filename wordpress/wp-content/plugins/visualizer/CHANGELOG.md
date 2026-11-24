@@ -1,3 +1,64 @@
+##### [Version 4.0.11](https://github.com/Codeinwp/visualizer/compare/v4.0.10...v4.0.11) (2026-11-15)
+
+- Added a Help panel to make it easier to contact support and find answers
+- Enhanced security
+- Updated dependencies
+
+##### [Version 4.0.10](https://github.com/Codeinwp/visualizer/compare/v4.0.9...v4.0.10) (2026-10-26)
+
+- Fixed queue cleanup to skip actions another process removed or failed.
+- Improved compatibility with newest PHP versions
+- Updated dependencies
+
+##### [Version 4.0.9](https://github.com/Codeinwp/visualizer/compare/v4.0.8...v4.0.9) (2026-09-30)
+
+- Fixed scheduled chart updates crashing on WordPress versions before 5.5.
+- Fixed the Visualizer readme with the current version and recent changelog entries.
+- Added AI agent support: let AI assistants read and change your Visualizer charts and settings.
+- Fixed database chart refreshes stopping after an interrupted run.
+- Improved Visualizer guidance for finding scheduled database refresh actions.
+- Updated dependencies
+- Added AI agent support: let AI assistants read and change your Visualizer charts and settings.
+
+##### [Version 4.0.8](https://github.com/Codeinwp/visualizer/compare/v4.0.7...v4.0.8) (2026-09-11)
+
+- Fixed an error usage of a chart's settings were stored as a string instead of an array.
+- Update dependencies
+- Fixed frontend chart failures when saved series settings are invalid.
+- Fixed script execution from saved JSON chart credentials. Thanks Yaswanth Reddy Sunkara for the report.
+- Updated dependencies
+
+##### [Version 4.0.7](https://github.com/Codeinwp/visualizer/compare/v4.0.6...v4.0.7) (2026-07-30)
+
+- Fixed charts using a database source saving the results of the previous query, so a saved chart no longer differs from the data shown in the editor.
+- Updated dependencies
+- Enhanced security — fixed unauthorized chart_data REST access.
+
+##### [Version 4.0.6](https://github.com/Codeinwp/visualizer/compare/v4.0.5...v4.0.6) (2026-07-22)
+
+- Fixed scheduled imports from remote CSV files so charts continue to refresh automatically in the background.
+- Fixed an issue where charts using lazy rendering could remain blank when their scripts finished loading in the wrong order.
+- Improved the overall security of the product. Thanks to **creeper_kirby** for responsibly reporting the issue.
+- Updated dependencies.
+
+##### [Version 4.0.5](https://github.com/Codeinwp/visualizer/compare/v4.0.4...v4.0.5) (2026-07-10)
+
+- Enhanced security
+
+##### [Version 4.0.4](https://github.com/Codeinwp/visualizer/compare/v4.0.3...v4.0.4) (2026-06-30)
+
+- Enhanced security
+
+##### [Version 4.0.3](https://github.com/Codeinwp/visualizer/compare/v4.0.2...v4.0.3) (2026-06-09)
+
+- Improved layout compatibility with WP 7.0
+
+##### [Version 4.0.2](https://github.com/Codeinwp/visualizer/compare/v4.0.1...v4.0.2) (2026-05-19)
+
+- Fixed broken candlestick chart
+- Updated dependencies
+- Enhanced security
+
 ##### [Version 4.0.1](https://github.com/Codeinwp/visualizer/compare/v4.0.0...v4.0.1) (2026-03-31)
 
 - Internal update to ensure compatibility and improve system consistency.

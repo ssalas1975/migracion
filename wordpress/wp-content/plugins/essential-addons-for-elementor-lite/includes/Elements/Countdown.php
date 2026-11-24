@@ -11,6 +11,7 @@ use \Elementor\Group_Control_Border;
 use \Elementor\Group_Control_Box_Shadow;
 use \Elementor\Group_Control_Typography;
 use \Elementor\Plugin;
+use \Elementor\Core\Kits\Documents\Tabs\Global_Colors;
 use \Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 use \Elementor\Widget_Base;
 
@@ -56,6 +57,11 @@ class Countdown extends Widget_Base {
     }
 
     protected function is_dynamic_content():bool {
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
         if( Plugin::$instance->editor->is_edit_mode() ) {
             return false;
         }
@@ -820,6 +826,13 @@ class Countdown extends Widget_Base {
                 'selectors' => [
                     '{{WRAPPER}} .eael-countdown-label' => 'color: {{VALUE}};',
                 ],
+                // The frontend stylesheet sets this label to white for use on dark
+                // countdown backgrounds; on a plain/light background that leaves it
+                // invisible. Default to the kit's text color instead of a fixed hex,
+                // same as this plugin's other label/description color controls.
+                'global'    => [
+                    'default' => Global_Colors::COLOR_TEXT,
+                ],
             ]
         );
 
@@ -1343,12 +1356,15 @@ class Countdown extends Widget_Base {
                     if ( ! empty( $settings['countdown_expiry_templates'] ) && Helper::is_elementor_publish_template( $settings['countdown_expiry_templates'] ) ) {
                         // WPML Compatibility
                         if ( ! is_array( $settings['countdown_expiry_templates'] ) ) {
-                            $settings['countdown_expiry_templates'] = apply_filters( 'wpml_object_id', $settings['countdown_expiry_templates'], 'wp_template', true );
+                            $settings['countdown_expiry_templates'] = apply_filters( 'wpml_object_id', $settings['countdown_expiry_templates'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                         }
 
-	                    Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['countdown_expiry_templates'] );
-	                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                        echo Plugin::$instance->frontend->get_builder_content( $settings['countdown_expiry_templates'], true );
+	                    // Re-validate the translated template is a published elementor_library post before rendering.
+	                    if ( Helper::is_elementor_publish_template( $settings['countdown_expiry_templates'] ) ) {
+		                    Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['countdown_expiry_templates'] );
+		                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	                        echo Plugin::$instance->frontend->get_builder_content( $settings['countdown_expiry_templates'], true );
+	                    }
                     } ?>
                <?php else: ?>
                     <ul id="eael-countdown-<?php echo esc_attr( $this->get_id() ); ?>" class="eael-countdown-items" data-date="<?php echo esc_attr( "{$due_date} {$gmt_offset}" ); ?>">
@@ -1363,12 +1379,15 @@ class Countdown extends Widget_Base {
                             if ( ! empty( $settings['countdown_expiry_templates'] ) && Helper::is_elementor_publish_template( $settings['countdown_expiry_templates'] ) ) {
                                 // WPML Compatibility
                                 if ( ! is_array( $settings['countdown_expiry_templates'] ) ) {
-                                    $settings['countdown_expiry_templates'] = apply_filters( 'wpml_object_id', $settings['countdown_expiry_templates'], 'wp_template', true );
+                                    $settings['countdown_expiry_templates'] = apply_filters( 'wpml_object_id', $settings['countdown_expiry_templates'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                                 }
 
-	                            Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['countdown_expiry_templates'] );
-                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                echo Plugin::$instance->frontend->get_builder_content( $settings['countdown_expiry_templates'], true );
+	                            // Re-validate the translated template is a published elementor_library post before rendering.
+	                            if ( Helper::is_elementor_publish_template( $settings['countdown_expiry_templates'] ) ) {
+		                            Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['countdown_expiry_templates'] );
+	                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	                                echo Plugin::$instance->frontend->get_builder_content( $settings['countdown_expiry_templates'], true );
+	                            }
                             }
                         }
                         ?>

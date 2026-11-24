@@ -78,7 +78,9 @@ class Query_Helper {
 	 */
 	public static function get_query_args( $settings, $target_post_type = '' ) {
 
-		$paged     = self::get_paged();
+		// Non-paginated widgets (e.g. ticker) must not inherit the main query's page number,
+		// otherwise they return empty results when the archive is on page 2+.
+		$paged     = ( isset( $settings['widget_type'] ) && 'premium-post-ticker' === $settings['widget_type'] ) ? 1 : self::get_paged();
 		$tax_count = 0;
 
 		$post_type = $settings['post_type_filter'];
@@ -92,6 +94,12 @@ class Query_Helper {
 
 			return $main_query->query_vars;
 
+		}
+
+		// The target type comes from the request, so only public searchable types may pass.
+		if ( ! empty( $target_post_type ) ) {
+			$searchable       = array_keys( self::get_searchable_post_types() );
+			$target_post_type = array_values( array_intersect( (array) $target_post_type, $searchable ) );
 		}
 
 		$post_args = array(
@@ -116,7 +124,7 @@ class Query_Helper {
 		$post_args['order']   = $settings['premium_blog_order'];
 
 		if ( 'meta_value' === $settings['premium_blog_order_by'] ) {
-			$post_args['meta_key'] = $settings['premium_blog_meta_key'];
+			$post_args['meta_key'] = $settings['premium_blog_meta_key']; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- user-selected order by meta value.
 		}
 
 		if ( isset( $settings['posts_from'] ) ) {
@@ -142,7 +150,7 @@ class Query_Helper {
 
 		if ( ! empty( $settings['premium_blog_posts_exclude'] ) && 'post' === $post_type ) {
 
-			if ( 'post__in' === $settings['posts_filter_rule'] ) {
+			if ( 'premium-search-form' !== $settings['widget_type'] && 'post__in' === $settings['posts_filter_rule'] ) {
 				$post_args['post__in'] = $settings['premium_blog_posts_exclude'];
 			} else {
 				$excluded_posts = $settings['premium_blog_posts_exclude'];
@@ -184,7 +192,7 @@ class Query_Helper {
 		}
 
 		if ( 'related' !== $post_type ) {
-			// Get all the taxanomies associated with the post type.
+			// Get all the taxonomies associated with the post type.
 			$taxonomy = self::get_taxnomies( $post_type );
 
 			if ( ! empty( $taxonomy ) && ! is_wp_error( $taxonomy ) ) {
@@ -241,17 +249,17 @@ class Query_Helper {
 
 		if ( isset( $settings['ignore_sticky_posts'] ) ) {
 			if ( 'yes' === $settings['ignore_sticky_posts'] ) {
-				$excluded_posts = array_merge( $excluded_posts, get_option( 'sticky_posts' ) );
+				$excluded_posts = array_merge( $excluded_posts, get_option( 'sticky_posts', array() ) );
 			} else {
 				$post_args['ignore_sticky_posts'] = true;
 			}
 		}
 
 		if ( ( isset( $settings['query_exclude_current'] ) && 'yes' === $settings['query_exclude_current'] ) || 'related' === $post_type ) {
-			array_push( $excluded_posts, $post_id );
+			$excluded_posts[] = $post_id;
 		}
 
-		$post_args['post__not_in'] = $excluded_posts;
+		$post_args['post__not_in'] = $excluded_posts; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- user-selected exclusions.
 
 		return $post_args;
 	}
@@ -314,7 +322,7 @@ class Query_Helper {
 		$cats_ids  = array();
 
 		foreach ( $prod_cats as $index => $cat ) {
-			array_push( $cats_ids, $cat->term_id );
+			$cats_ids[] = $cat->term_id;
 		}
 
 		return $cats_ids;
@@ -341,12 +349,13 @@ class Query_Helper {
 
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- get_posts() would load full post objects for every post; result is cached below.
 		$list = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish'",
 				$post_type
 			)
-		); // phpcs:ignore
+		);
 
 		$options = array();
 
@@ -362,9 +371,9 @@ class Query_Helper {
 	}
 
 	/**
-	 * Get taxnomies.
+	 * Get taxonomies.
 	 *
-	 * Get post taxnomies for post type
+	 * Get post taxonomies for post type
 	 *
 	 * @since 3.20.3
 	 * @access public
@@ -415,6 +424,42 @@ class Query_Helper {
 		foreach ( $post_types as $post_type ) {
 
 			if ( 'attachment' === $post_type->name ) {
+				continue;
+			}
+
+			$options[ $post_type->name ] = $post_type->label;
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get searchable post types
+	 *
+	 * Public post types that are not excluded from search.
+	 *
+	 * @since 4.11.112
+	 * @access public
+	 *
+	 * @param array $excluded post types to leave out.
+	 *
+	 * @return array post type name => label.
+	 */
+	public static function get_searchable_post_types( $excluded = array() ) {
+
+		$post_types = get_post_types(
+			array(
+				'public'              => true,
+				'exclude_from_search' => false,
+			),
+			'objects'
+		);
+
+		$options = array();
+
+		foreach ( $post_types as $post_type ) {
+
+			if ( 'attachment' === $post_type->name || in_array( $post_type->name, $excluded, true ) ) {
 				continue;
 			}
 

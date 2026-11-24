@@ -1,10 +1,9 @@
 <?php
-error_reporting( 0 );
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-$login_Version = unserialize( get_option( 'Admin_custome_login_Version' ) );
+$login_Version = maybe_unserialize(get_option( 'Admin_custome_login_Version' ));
 
 if ( ! isset( $login_Version['Version'] ) ) :
 

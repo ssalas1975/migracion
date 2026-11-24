@@ -197,6 +197,37 @@ class Utils {
 	}
 
 	/**
+	 * Get the plugin's campaign URL, or the shared one if it has none.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param array  $plugin_data The plugin data from the plugins list.
+	 * @param string $default_url The shared campaign URL.
+	 *
+	 * @return string The campaign URL, without UTM parameters.
+	 */
+	public static function get_campaign_url( array $plugin_data, string $default_url ): string {
+		return ! empty( $plugin_data['campaign_url'] ) ? (string) $plugin_data['campaign_url'] : $default_url;
+	}
+
+	/**
+	 * Checks if the current user can see and dismiss the campaign.
+	 *
+	 * Single site: admins. Multisite: super admins, on the main site and network admin only.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view(): bool {
+		if ( is_multisite() ) {
+			return is_main_site() && is_super_admin();
+		}
+
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
 	 * Get UTM source for the current admin page.
 	 *
 	 * @since 2.0.0
@@ -204,23 +235,36 @@ class Utils {
 	 * @return string The UTM source.
 	 */
 	public static function get_current_page_utm_source(): string {
-		$current_screen = get_current_screen();
-		$plugins_list   = self::get_plugins_list();
+		$plugin_data = self::get_current_page_plugin();
+
+		return $plugin_data['utm_source'] ?? '';
+	}
+
+	/**
+	 * Get the plugin data for the current admin page.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @return array The plugin data from plugins-list.php, empty if the page doesn't belong to any plugin.
+	 */
+	public static function get_current_page_plugin(): array {
+		$current_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		if ( empty( $current_screen ) || empty( $current_screen->id ) ) {
-			return '';
+			return array();
 		}
 
 		$current_page = $current_screen->id;
 
-		foreach ( $plugins_list as $plugin_key => $plugin_data ) {
-			$admin_url_page = $plugin_data['admin_url_page'] ?? '';
-
-			if ( is_string( $admin_url_page ) && str_contains( $current_page, $admin_url_page ) ) {
-				return $plugin_data['utm_source'] ?? '';
+		foreach ( self::get_plugins_list() as $plugin_data ) {
+			// Can be a string or an array of page slugs, eg Defender.
+			foreach ( (array) ( $plugin_data['admin_url_page'] ?? array() ) as $admin_url_page ) {
+				if ( is_string( $admin_url_page ) && '' !== $admin_url_page && str_contains( $current_page, $admin_url_page ) ) {
+					return $plugin_data;
+				}
 			}
 		}
 
-		return '';
+		return array();
 	}
 }

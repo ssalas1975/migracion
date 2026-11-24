@@ -54,7 +54,7 @@ class Action_Links {
 	 * @since 2.0.0
 	 * @var string
 	 */
-	private $utm_content = 'BF-Plugins-2025';
+	private $utm_content = 'BF-Plugins-2026';
 
 	/**
 	 * UTM campaign for the menu.
@@ -62,7 +62,7 @@ class Action_Links {
 	 * @since 2.0.0
 	 * @var string
 	 */
-	private $utm_campaign = 'BF-Plugins-2025-plugins-list';
+	private $utm_campaign = 'BF-Plugins-2026-plugins-list';
 
 	/**
 	 * Constructor.
@@ -105,10 +105,11 @@ class Action_Links {
 			$action_links_hook = ( is_multisite() && is_network_admin() ) ? 'network_admin_plugin_action_links_' : 'plugin_action_links_';
 			$plugin_path       = $plugin_data['path'];
 			$plugin_utm_source = $plugin_data['utm_source'];
+			$plugin_base_url   = Utils::get_campaign_url( $plugin_data, $this->campaign_url );
 
 			add_filter(
 				$action_links_hook . $plugin_path,
-				function ( $actions ) use ( $plugin_utm_source ) {
+				function ( $actions ) use ( $plugin_utm_source, $plugin_base_url ) {
 					// Modify the campaign URL to include the correct UTM source.
 					$campaign_url = add_query_arg(
 						array(
@@ -117,12 +118,12 @@ class Action_Links {
 							'utm_medium'   => 'plugin',
 							'utm_content'  => $this->utm_content,
 						),
-						$this->campaign_url
+						$plugin_base_url
 					);
 
 					// Create Black Friday link.
 					$black_friday_link = sprintf(
-						'<a href="%s" target="_blank" rel="noopener noreferrer" class="wpmudev-bf-action-link">%s</a>',
+						'<a href="%s" target="_blank" rel="noopener noreferrer" class="wpmudev-bf-action-link"><span>%s</span></a>',
 						esc_url( $campaign_url ),
 						esc_html( $this->link_text )
 					);
@@ -153,7 +154,7 @@ class Action_Links {
 	 * @return array Modified array of plugin action links.
 	 */
 	public function handle_action_links( $actions ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Utils::current_user_can_view() ) {
 			return $actions;
 		}
 
@@ -207,23 +208,28 @@ class Action_Links {
 			return;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Utils::current_user_can_view() ) {
 			return;
 		}
 
 		$custom_css = '
-			.wpmudev-bf-action-link {
-				color: #B1FF65 !important;
-				background: #000 !important;
+			.wpmudev-bf-action-link > span {
+				color: #00ff00 !important;
+				background: #000000 !important;
 				line-height: 16px !important;
 				font-weight: 500 !important;
-				padding: 3px 5px !important;
-				transition: background 0.5s ease !important;
+				padding: 3px 6px !important;
+				margin: 4px 0 !important;
+				border-radius: 2px !important;
+				white-space: nowrap !important;
+				font-size: inherit !important;
+				display: inline-block !important;
+				transition: background-color 0.3s ease, color 0.3s ease !important;
 			}
-			.wpmudev-bf-action-link:hover,
-			.wpmudev-bf-action-link:focus {
-				background: #B1FF65 !important;
-				color: #000 !important;
+			.wpmudev-bf-action-link:hover > span,
+			.wpmudev-bf-action-link:focus > span {
+				background: #00ff00 !important;
+				color: #000000 !important;
 			}
 		';
 

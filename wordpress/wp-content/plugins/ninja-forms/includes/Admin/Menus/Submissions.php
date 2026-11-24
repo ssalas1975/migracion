@@ -92,7 +92,7 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
      */
     public function remove_legacy_submissions_page( $screen ) {
         if ( "nf_sub" === $screen->post_type && $screen->id === "edit-nf_sub") {
-            $form_id = !empty($_GET["form_id"]) ? "&form_id=" . $_GET["form_id"] : "";
+            $form_id = !empty($_GET["form_id"]) ? "&form_id=" . absint($_GET["form_id"]) : "";
             wp_safe_redirect( admin_url( "admin.php?page=nf-submissions" . $form_id ), 302, "Ninja Forms");
             exit;
         }
@@ -393,19 +393,26 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
                     $redirect = urlencode( remove_query_arg( array( 'download_all', 'download_file' ) ) );
                     $url = admin_url( 'admin.php?page=nf-processing&action=download_all_subs&form_id=' . absint( $_REQUEST['form_id'] ) . '&redirect=' . $redirect . '&security=' . wp_create_nonce( 'ninja_forms_batch_nonce' ) );
                     $url = esc_url( $url );
+                    // Build HTML string in PHP, then JSON-encode for safe JS output.
+                    // @see https://github.com/Saturday-Drive/ninja-forms/issues/8103
+                    $button_html = '<a href="' . esc_attr( $url ) . '" class="button-secondary nf-download-all">' . esc_html__( 'Download All Submissions', 'ninja-forms' ) . '</a>';
                     ?>
-                    var button = '<a href="<?php echo $url; ?>" class="button-secondary nf-download-all"><?php echo esc_html__( 'Download All Submissions', 'ninja-forms' ); ?></a>';
+                    var button = <?php echo wp_json_encode( $button_html, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
                     <?php
                 }
 
                 if ( isset ( $_REQUEST['download_all'] ) && $_REQUEST['download_all'] != '' ) {
-                    $redirect = esc_url_raw( add_query_arg( array( 
-                        'download_file' => esc_html( $_REQUEST['download_all'] ),
+                    // Use sanitize_text_field for URL parameter value, not esc_html.
+                    // @see https://github.com/Saturday-Drive/ninja-forms/issues/8103
+                    $redirect = esc_url_raw( add_query_arg( array(
+                        'download_file' => sanitize_text_field( $_REQUEST['download_all'] ),
                         '_wpnonce' => wp_create_nonce( 'ninja_forms_download_submission_nonce' )
                     ) ) );
                     $redirect = remove_query_arg( array( 'download_all' ), $redirect );
+                    // Use wp_json_encode for JS context - provides proper escaping for string literals.
+                    // @see https://github.com/Saturday-Drive/ninja-forms/issues/8103
                     ?>
-                    document.location.href = "<?php echo $redirect; ?>";
+                    document.location.href = <?php echo wp_json_encode( $redirect, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
                     <?php
                 }
 
@@ -611,7 +618,7 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
                     Ninja_Forms::$url . 'build/submissions.js',  $submissions_asset_php["dependencies"], $submissions_asset_php["version"], false );
 
                 wp_enqueue_script( 'ninja_forms_admin_submissions_actions' );
-                wp_set_script_translations( "ninja_forms_admin_submissions_actions", "ninja-forms", plugin_dir_path( __FILE__ ) . 'lang' );
+                wp_set_script_translations( "ninja_forms_admin_submissions_actions", "ninja-forms", Ninja_Forms::$dir . 'lang' );
 
                 //Get all forms, to base form selector on.
                 $forms = Ninja_Forms()->form()->get_forms();
@@ -640,6 +647,10 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
                 wp_localize_script('ninja_forms_admin_submissions_actions', 'nf_submissions', [
                     'forms'         =>  $forms,//array keys escaped above
                     'dateFormat'    =>  esc_attr( Ninja_Forms()->get_setting('date_format') ),
+                    // Submission editing parses the stored date with this
+                    // format, so it has to be the same arrangement the form
+                    // itself writes. See issue #3308.
+                    'longDateFormat' => WPN_Helper::get_long_date_format(),
                     'timeFormat'    =>  esc_attr( get_option('time_format') ),
                     'siteUrl'       =>  esc_url_raw( site_url() ),
                     'adminUrl'      =>  esc_url_raw( admin_url() ),
@@ -714,7 +725,7 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
                 //Register Submission script
                 wp_register_script( 'ninja_forms_admin_submissions_actions', Ninja_Forms::$url . 'build/submissions.js',  $submissions_asset_php["dependencies"], $submissions_asset_php["version"], false );
                 wp_enqueue_script( 'ninja_forms_admin_submissions_actions' );
-                wp_set_script_translations( "ninja_forms_admin_submissions_actions", "ninja-forms", plugin_dir_path( __FILE__ ) . 'lang' );
+                wp_set_script_translations( "ninja_forms_admin_submissions_actions", "ninja-forms", Ninja_Forms::$dir . 'lang' );
                 //Enqueue Submissions style
                 wp_enqueue_style( 'ninja_forms_admin_submissions_style', Ninja_Forms::$url . 'build/submissions.scss.css',  [], $submissions_asset_scss_version );
 
@@ -758,6 +769,10 @@ final class NF_Admin_Menus_Submissions extends NF_Abstracts_Submenu
                 $localized_data_array = apply_filters("ninja_forms_submissions_view_localize_data", [
                     'forms'                 =>  $forms,//array keys escaped above
                     'dateFormat'            =>  esc_attr( $date_format ),
+                    // Submission editing parses the stored date with this
+                    // format, so it has to be the same arrangement the form
+                    // itself writes. See issue #3308.
+                    'longDateFormat'        =>  WPN_Helper::get_long_date_format(),
                     'timeFormat'            =>  esc_attr( get_option('time_format') ),
                     'siteUrl'               =>  esc_url_raw( site_url() ),
                     'adminUrl'              =>  esc_url_raw( admin_url() ),

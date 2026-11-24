@@ -17,6 +17,14 @@ function ocean_post_setting_data() {
 	$defaults = array(
 
 		// General.
+		'ocean_front_end_style_editor' => array(
+			'type'     => 'string',
+			'single'   => true,
+			'rest'     => true,
+			'subType'  => '',
+			'value'    => get_option( 'oe_display_front_end_style_editor_active_status', 'no' ),
+			'sanitize' => 'sanitize_key',
+		),
 		'ocean_post_layout' => array(
 			'type'   => 'string',
 			'single' => true,
@@ -652,7 +660,7 @@ function ocean_post_setting_data() {
 			'rest'   => true,
 			'subType' => '',
 			'value' => '',
-			'sanitize' => 'wp_kses_post',
+			'sanitize' => 'ops_sanitize_hex_color',
 		),
 		'ocean_breadcrumbs_separator_color' => array(
 			'type'   => 'string',
@@ -660,7 +668,7 @@ function ocean_post_setting_data() {
 			'rest'   => true,
 			'subType' => '',
 			'value' => '',
-			'sanitize' => 'wp_kses_post',
+			'sanitize' => 'ops_sanitize_hex_color',
 		),
 		'ocean_breadcrumbs_links_color' => array(
 			'type'   => 'string',
@@ -668,7 +676,7 @@ function ocean_post_setting_data() {
 			'rest'   => true,
 			'subType' => '',
 			'value' => '',
-			'sanitize' => 'wp_kses_post',
+			'sanitize' => 'ops_sanitize_hex_color',
 		),
 		'ocean_breadcrumbs_links_hover_color' => array(
 			'type'   => 'string',
@@ -676,7 +684,7 @@ function ocean_post_setting_data() {
 			'rest'   => true,
 			'subType' => '',
 			'value' => '',
-			'sanitize' => 'wp_kses_post',
+			'sanitize' => 'ops_sanitize_hex_color',
 		),
 
 		// Footer.

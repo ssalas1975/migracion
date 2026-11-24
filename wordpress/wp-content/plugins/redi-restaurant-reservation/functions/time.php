@@ -227,5 +227,117 @@ class ReDiTime
         // Return the default time format if file doesn't exist, JSON is invalid, or key not found
         return $default_time_format;
     }
+
+    /**
+     * Parse a user-entered time into 24h "HH:MM", or false if invalid.
+     * Empty / whitespace-only input returns "" (closed day — not an error).
+     *
+     * Accepts: 21:00, 9:00, 09:00, 9:00 am, 9:00am, 9:00 AM, 9 pm, 9pm,
+     * 9.00 pm, 9:00 p.m., 21.00, extra spaces. 12:00 am → 00:00,
+     * 12:00 pm → 12:00, 24:00 → 00:00.
+     *
+     * @param mixed $value
+     * @return string|false
+     */
+    public static function normalize_time($value)
+    {
+        return redi_normalize_time($value);
+    }
+
+    /**
+     * Format a stored 24h "HH:MM" time for admin display using WordPress time_format.
+     *
+     * @param string $hhmm
+     * @param string|null $format Optional PHP date format; defaults to get_option('time_format').
+     * @return string
+     */
+    public static function format_working_time_for_display($hhmm, $format = null)
+    {
+        if ($hhmm === null || $hhmm === '') {
+            return '';
+        }
+
+        $normalized = redi_normalize_time($hhmm);
+        if ($normalized === false || $normalized === '') {
+            return (string) $hhmm;
+        }
+
+        if ($format === null || $format === '') {
+            $format = function_exists('get_option') ? get_option('time_format', 'H:i') : 'H:i';
+        }
+
+        if ($format === null || $format === '') {
+            $format = 'H:i';
+        }
+
+        $timestamp = strtotime('1970-01-01 ' . $normalized . ' UTC');
+        if ($timestamp === false) {
+            return $normalized;
+        }
+
+        return gmdate($format, $timestamp);
+    }
+}
+
+/**
+ * Parse a user-entered time into 24h "HH:MM".
+ *
+ * @param mixed $value
+ * @return string|false Empty string for blank input; "HH:MM" when valid; false when invalid.
+ */
+function redi_normalize_time($value)
+{
+    if ($value === null) {
+        return '';
+    }
+
+    $value = is_string($value) ? $value : (string) $value;
+    $value = trim($value);
+
+    if ($value === '') {
+        return '';
+    }
+
+    // Collapse internal whitespace and normalize separators / am-pm markers.
+    $value = preg_replace('/\s+/u', ' ', $value);
+    $value = str_ireplace(array('a.m.', 'p.m.'), array('am', 'pm'), $value);
+    $value = str_replace(',', ':', $value);
+
+    // 24h or 12h with optional minutes and optional am/pm. Dot or colon as separator.
+    $pattern = '/^(\d{1,2})(?:[:.](\d{1,2}))?\s*(am|pm)?$/i';
+    if (!preg_match($pattern, $value, $matches)) {
+        return false;
+    }
+
+    $hour = (int) $matches[1];
+    $minute = isset($matches[2]) && $matches[2] !== '' ? (int) $matches[2] : 0;
+    $ampm = isset($matches[3]) ? strtolower($matches[3]) : '';
+
+    if ($minute < 0 || $minute > 59) {
+        return false;
+    }
+
+    if ($ampm !== '') {
+        if ($hour < 1 || $hour > 12) {
+            return false;
+        }
+        if ($ampm === 'am') {
+            $hour = ($hour === 12) ? 0 : $hour;
+        } else {
+            $hour = ($hour === 12) ? 12 : $hour + 12;
+        }
+    } else {
+        // Allow 24:00 as midnight; otherwise 0–23 only.
+        if ($hour === 24) {
+            if ($minute !== 0) {
+                return false;
+            }
+            $hour = 0;
+        } elseif ($hour < 0 || $hour > 23) {
+            return false;
+        }
+    }
+
+    return sprintf('%02d:%02d', $hour, $minute);
 }
 ?>

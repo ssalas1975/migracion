@@ -58,7 +58,7 @@ if ( ! function_exists( 'pa_render_layout_1' ) ) {
 
 						if ( count( $words ) > 10 ) {
 							array_pop( $words );
-							array_push( $words, '…' );
+							$words[] = '…';
 						}
 
 							$product_name = implode( ' ', $words );
@@ -74,7 +74,7 @@ if ( ! function_exists( 'pa_render_layout_1' ) ) {
 				<div class="pa-woo-mc__price-row">
 					<div class="pa-woo-mc__item-qty">
 						<svg class="pa-woo-mc__qty-btn minus <?php echo esc_attr( $disabled_cls ); ?>" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="21.5" height="21.5" viewBox="0 0 21.5 21.5"><defs><style>.pa-qty-minus{fill:#333;}</style></defs><g id="Minus"><path class="pa-qty-minus" d="M16.75,11.5H4.75c-.41,0-.75-.34-.75-.75s.34-.75.75-.75h12c.41,0,.75.34.75.75s-.34.75-.75.75Z"/></g></svg>
-						<input class="pa-woo-mc__input" type="number" name="cart-<?php echo $cart_item_key; ?>" value="<?php echo esc_attr( $cart_item['quantity'] ); ?>" min="1" step="1" max="<?php echo esc_attr( $_product->get_stock_quantity() ); ?>">
+						<input class="pa-woo-mc__input" type="number" name="cart-<?php echo esc_attr( $cart_item_key ); ?>" value="<?php echo esc_attr( $cart_item['quantity'] ); ?>" min="1" step="1" max="<?php echo esc_attr( $_product->get_stock_quantity() ); ?>">
 						<svg class="pa-woo-mc__qty-btn plus" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="21.5" height="21.5" viewBox="0 0 21.5 21.5"><defs><style>.pa-qty-plus{fill:#333;}</style></defs><g id="Plus"><path class="pa-qty-plus" d="M17.5,10.75c0,.41-.34.75-.75.75h-5.25v5.25c0,.41-.34.75-.75.75s-.75-.34-.75-.75v-5.25h-5.25c-.41,0-.75-.34-.75-.75s.34-.75.75-.75h5.25v-5.25c0-.41.34-.75.75-.75s.75.34.75.75v5.25h5.25c.41,0,.75.34.75.75Z"/></g></svg>
 					</div>
 
@@ -119,7 +119,7 @@ if ( ! function_exists( 'pa_render_layout_2' ) ) {
 
 					if ( count( $words ) > 10 ) {
 						array_pop( $words );
-						array_push( $words, '…' );
+						$words[] = '…';
 					}
 
 						$product_name = implode( ' ', $words );
@@ -184,7 +184,7 @@ if ( ! function_exists( 'pa_render_layout_3' ) ) {
 
 					if ( count( $words ) > 10 ) {
 						array_pop( $words );
-						array_push( $words, '…' );
+						$words[] = '…';
 					}
 
 						$product_name = implode( ' ', $words );
@@ -237,7 +237,7 @@ if ( ! function_exists( 'pa_render_layout_4' ) ) {
 
 					if ( count( $words ) > 10 ) {
 						array_pop( $words );
-						array_push( $words, '…' );
+						$words[] = '…';
 					}
 
 						$product_name = implode( ' ', $words );
@@ -274,7 +274,10 @@ if ( ! function_exists( 'pa_render_cross_sells' ) ) {
 				<div class="pa-woo-mc__cross-sells">
 					<?php
 					foreach ( $products_ids as $product_id ) {
-						$product      = wc_get_product( $product_id );
+						$product = wc_get_product( $product_id );
+						if ( ! $product ) {
+							continue;
+						}
 						$thumbnail    = $product->get_image();
 						$permalink    = get_permalink( $product_id );
 						$product_name = $product->get_name();
@@ -300,7 +303,7 @@ if ( ! function_exists( 'pa_render_cross_sells' ) ) {
 
 										if ( count( $words ) > 10 ) {
 											array_pop( $words );
-											array_push( $words, '…' );
+											$words[] = '…';
 										}
 
 										$product_name = implode( ' ', $words );
@@ -330,11 +333,14 @@ $cart_items = WC()->cart->get_cart();
 		<?php
 		if ( empty( $cart_items ) ) {
 			$image_url = PREMIUM_ADDONS_URL . 'modules/woocommerce/icons/empty-cart-icon.png';
+			$image_url = apply_filters( 'pa_woo_mc_empty_cart_image', $image_url );
+			$empty_msg = apply_filters( 'pa_woo_mc_empty_cart_message', __( 'Your cart is currently empty!', 'woocommerce' ) );
+			$btn_msg   = apply_filters( 'pa_woo_mc_empty_cart_btn_message', __( 'Return to Shop', 'premium-addons-for-elementor' ) );
 			?>
 		<div class="pa-woo-mc__empty-msg-wrapper">
 			<img src="<?php echo esc_url( $image_url ); ?>" alt="empty cart" class="pa-woo-mc__empty-msg-img">
-			<span class="pa-woo-mc__empty-msg"><?php echo __( 'Your cart is currently empty!', 'woocommerce' ); ?></span>
-			<a class="pa-woo-mc__empty-msg-btn" href="<?php echo esc_url( get_permalink( wc_get_page_id( 'shop' ) ) ); ?>" aria-label="<?php echo __( 'Return to Shop', 'premium-addons-for-elementor' ); ?>"><?php echo __( 'Return to Shop', 'premium-addons-for-elementor' ); ?></a>
+			<span class="pa-woo-mc__empty-msg"><?php echo esc_html( $empty_msg ); ?></span>
+			<a class="pa-woo-mc__empty-msg-btn" href="<?php echo esc_url( get_permalink( wc_get_page_id( 'shop' ) ) ); ?>" aria-label="<?php echo esc_html( $btn_msg ); ?>"><?php echo esc_html( $btn_msg ); ?></a>
 		</div>
 			<?php
 		} else {

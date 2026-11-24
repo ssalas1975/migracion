@@ -45,6 +45,11 @@ class Loader {
 			'Stripe\Stripe',
 			'UncannyAutomator\UncannyAutomator',
 			'UsageTracking\UsageTracking',
+			'UsageTracking\AbilitiesStats',
+			'ProductApi\ProductEvents',
+			'ProductApi\Events\FormEvents',
+			'ProductApi\Events\SubmissionEvents',
+			'ProductApi\Events\AdminEvents',
 			'DefaultThemes\DefaultThemes',
 			'Translations\Translations',
 			'DefaultContent\DefaultContent',
@@ -52,9 +57,11 @@ class Loader {
 			'WooCommerce\Notifications',
 			'AI\AI',
 			'ConstantContact\V3\ConstantContact',
+			'Drip\Drip',
 			'Square\Square',
 			'MotoPress\MotoPress',
 			'Abilities\Abilities',
+			'AiMcp\AiMcp',
 			'PayPalCommerce\PayPalCommerce',
 		];
 

@@ -21,14 +21,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PUM_Telemetry {
 
 	/**
+	 * Alert code for the 50 billion popup views campaign.
+	 *
+	 * @var string
+	 */
+	const OPTIN_ALERT_CODE = 'pum_telemetry_50_billion_notice';
+
+	/**
+	 * Alert code used by the original telemetry prompt.
+	 *
+	 * @var string
+	 */
+	const LEGACY_OPTIN_ALERT_CODE = 'pum_telemetry_notice';
+
+	/**
 	 * Initialization method
 	 */
 	public static function init() {
 		add_action( 'pum_daily_scheduled_events', [ __CLASS__, 'track_check' ] );
-		if ( is_admin() && current_user_can( 'manage_options' ) ) {
-			add_filter( 'pum_alert_list', [ __CLASS__, 'optin_alert' ] );
-			add_action( 'pum_alert_dismissed', [ __CLASS__, 'optin_alert_check' ], 10, 2 );
-		}
+		// Register the alert filter unconditionally — the alert itself
+		// is gated by `should_show_alert()` (capability + install age).
+		// Restricting to is_admin() meant the WP REST `pum_alert_list`
+		// surface didn't see this alert, so the notifications panel
+		// showed "all caught up" while the sidebar [!] kept counting it.
+		add_filter( 'pum_alert_list', [ __CLASS__, 'optin_alert' ] );
+		add_action( 'pum_alert_dismissed', [ __CLASS__, 'optin_alert_check' ], 10, 2 );
 	}
 
 	/**
@@ -245,7 +262,7 @@ class PUM_Telemetry {
 	}
 
 	/**
-	 * Adds admin notice if we haven't asked before.
+	 * Adds the telemetry opt-in campaign alert when tracking is disabled.
 	 *
 	 * @param array $alerts The alerts currently in the alert system.
 	 * @return array Alerts for the alert system.
@@ -257,9 +274,11 @@ class PUM_Telemetry {
 		}
 
 		$alerts[] = [
-			'code'        => 'pum_telemetry_notice',
+			'code'        => self::OPTIN_ALERT_CODE,
+			'title'       => '🎉 ' . __( 'The countdown to 50 billion popup views is on', 'popup-maker' ),
 			'type'        => 'info',
-			'message'     => esc_html__( "We are constantly improving Popup Maker but that's difficult to do if we don't know how it's being used. Please allow data sharing so that we can receive a little information on how it is used. You can change this setting at any time on our Settings page. No user data is sent to our servers. No sensitive data is tracked.", 'popup-maker' ),
+			'category'    => 'announcement',
+			'message'     => esc_html__( "We're closing in on an estimated 50 billion popup views! Enable usage tracking to include your site's views in a more accurate estimate, show us which features matter most, and help us build even better ones. The more sites that join in, the sooner we can reach—and celebrate—the milestone together. No visitor data or popup content is collected.", 'popup-maker' ),
 			'priority'    => 10,
 			'dismissible' => true,
 			'global'      => false,
@@ -268,13 +287,13 @@ class PUM_Telemetry {
 					'primary' => true,
 					'type'    => 'action',
 					'action'  => 'pum_optin_check_allow',
-					'text'    => __( 'Allow', 'popup-maker' ),
+					'text'    => __( 'Count my popup views', 'popup-maker' ),
 				],
 				[
 					'primary' => false,
 					'type'    => 'action',
 					'action'  => 'dismiss',
-					'text'    => __( 'Do not allow', 'popup-maker' ),
+					'text'    => __( 'Not now', 'popup-maker' ),
 				],
 				[
 					'primary' => false,
@@ -297,15 +316,21 @@ class PUM_Telemetry {
 	 * @since 1.11.0
 	 */
 	public static function optin_alert_check( $code, $action ) {
-		if ( 'pum_telemetry_notice' === $code ) {
-			if ( 'pum_optin_check_allow' === $action ) {
-				pum_update_option( 'telemetry', true );
-			}
+		if ( ! in_array( $code, [ self::OPTIN_ALERT_CODE, self::LEGACY_OPTIN_ALERT_CODE ], true ) || 'pum_optin_check_allow' !== $action ) {
+			return;
 		}
+
+		// The alert dismiss handler only requires edit_posts.
+		// Enabling telemetry is a settings-level decision.
+		if ( ! current_user_can( \PopupMaker\plugin()->get_permission( 'manage_settings' ) ) ) {
+			return;
+		}
+
+		pum_update_option( 'telemetry', true );
 	}
 
 	/**
-	 * Whether or not we should show optin alert
+	 * Whether or not we should show the opt-in alert.
 	 *
 	 * @since 1.11.0
 	 * @return bool True if alert should be shown

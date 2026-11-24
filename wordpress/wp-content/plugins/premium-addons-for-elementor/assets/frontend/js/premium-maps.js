@@ -1,11 +1,9 @@
 function initMap() {
-	console.log('Google API Loaded');
+	console.log("Google API Loaded");
 }
 
 jQuery(window).on("elementor/frontend/init", function () {
-
 	var PremiumMapsHandler = function ($scope, $) {
-
 		var $linkedCarouselWidget = null,
 			mapElement = $scope.find(".premium_maps_map_height"),
 			computedStyle = getComputedStyle($scope[0]),
@@ -14,49 +12,51 @@ jQuery(window).on("elementor/frontend/init", function () {
 			premiumMapMarkers = [],
 			premiumMapPopups = [];
 
-		mapSettings.zoom = parseFloat(computedStyle.getPropertyValue('--pa-map-zoom'));
+		if (!mapSettings) return;
+
+		mapSettings.zoom = parseFloat(
+			computedStyle.getPropertyValue("--pa-map-zoom"),
+		);
 
 		var checkGoogleMapsLoaded = setInterval(function () {
-			if (typeof google !== "undefined" &&
+			if (
+				typeof google !== "undefined" &&
 				typeof google.maps !== "undefined" &&
-				typeof google.maps.Map === "function") {
+				typeof google.maps.Map === "function"
+			) {
 				clearInterval(checkGoogleMapsLoaded);
 				// Once Google API is loaded, trigger the maps handler.
 				setTimeout(function () {
 					triggerMap();
 				}, 150);
-
 			}
 		}, 100);
 
 		function triggerMap() {
-
 			if (mapSettings.loadScroll) {
+				var $closestSection = $scope.closest(".elementor-top-section, .e-con");
 
-				var $closestSection = $scope.closest('.elementor-top-section, .e-con');
-
-				var eleObserver = new IntersectionObserver(function (entries) {
-					entries.forEach(function (entry) {
-						if (entry.isIntersecting) {
-							premiumMap = newMap(mapElement, mapSettings, mapStyle);
-							eleObserver.unobserve(entry.target); // to only execute the callback func once.
-						}
-					});
-				}, {
-					rootMargin: '-70% 0px 0px 0px'
-				});
+				var eleObserver = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							if (entry.isIntersecting) {
+								premiumMap = newMap(mapElement, mapSettings, mapStyle);
+								eleObserver.unobserve(entry.target); // to only execute the callback func once.
+							}
+						});
+					},
+					{
+						rootMargin: "-70% 0px 0px 0px",
+					},
+				);
 
 				eleObserver.observe($closestSection[0]);
-
 			} else {
-
 				premiumMap = newMap(mapElement, mapSettings, mapStyle);
 			}
-
 		}
 
 		function newMap(map, settings, mapStyle) {
-
 			var scrollwheel = settings.scrollwheel,
 				streetViewControl = settings.streetViewControl,
 				fullscreenControl = settings.fullScreen,
@@ -68,7 +68,7 @@ jQuery(window).on("elementor/frontend/init", function () {
 				hoverOpen = settings.hoverOpen,
 				hoverClose = settings.hoverClose,
 				args = {
-					mapId: settings.mapId || '',
+					mapId: settings.mapId || "",
 					zoom: settings["zoom"],
 					mapTypeId: settings["maptype"],
 					center: { lat: centerLat, lng: centerLong },
@@ -77,95 +77,105 @@ jQuery(window).on("elementor/frontend/init", function () {
 					fullscreenControl: fullscreenControl,
 					zoomControl: zoomControl,
 					mapTypeControl: mapTypeControl,
-					styles: mapStyle
 				};
 
-			if ("yes" === mapSettings.drag)
-				args.gestureHandling = "none";
+			// Google ignores JSON styles when a Map ID is set, and logs a warning if both are passed.
+			if (!args.mapId && mapStyle) args.styles = mapStyle;
+
+			if ("yes" === mapSettings.drag) args.gestureHandling = "none";
 
 			var markers = map.find(".premium-pin");
 
 			var map = new google.maps.Map(map[0], args);
 
 			//Show the maps when it's ready.
-			mapElement.removeClass('premium-addons__v-hidden');
+			mapElement.removeClass("premium-addons__v-hidden");
 
 			map.markers = [];
 
-			$linkedCarouselWidget = settings.linkedCarouselId ? $("#" + settings.linkedCarouselId + " .premium-carousel-wrapper") : [];
+			$linkedCarouselWidget = settings.linkedCarouselId
+				? $("#" + settings.linkedCarouselId + " .premium-carousel-wrapper")
+				: [];
 
 			// add markers
 			markers.each(function (index) {
-				addMarker(jQuery(this), map, autoOpen, hoverOpen, hoverClose, index, args.mapId);
+				addMarker(
+					jQuery(this),
+					map,
+					autoOpen,
+					hoverOpen,
+					hoverClose,
+					index,
+					args.mapId,
+				);
 			});
 
 			if ($linkedCarouselWidget.length > 0) {
+				$linkedCarouselWidget
+					.find(".premium-carousel-inner")
+					.on("afterChange", function (event, slick, currentSlide) {
+						premiumMapPopups.map(function (popup, index) {
+							popup.close();
+						});
 
-				$linkedCarouselWidget.find(".premium-carousel-inner").on("afterChange", function (event, slick, currentSlide) {
-
-					premiumMapPopups.map(function (popup, index) {
-
-						popup.close();
+						if (premiumMapPopups[currentSlide])
+							premiumMapPopups[currentSlide].open(
+								map,
+								map.markers[currentSlide],
+							);
 					});
-
-					if (premiumMapPopups[currentSlide])
-						premiumMapPopups[currentSlide].open(map, map.markers[currentSlide]);
-
-				});
-
 			}
 
 			if (mapSettings.cluster && window.markerClusterer && args.mapId) {
-
 				// Initialize MarkerClusterer
 				new markerClusterer.MarkerClusterer({
 					map: map,
 					markers: premiumMapMarkers,
 					renderer: {
 						render: function (options) {
-							var count = options.count;
-							var position = options.position;
-							var clusterIcon = document.createElement("div");
-							var iconSize = mapSettings.cluster_icon_size || 50;
-							var iconUrl = mapSettings.cluster_icon || "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png";
+							var clusterIcon = document.createElement("div"),
+								img = document.createElement("img"),
+								countLabel = document.createElement("div"),
+								iconSize = mapSettings.cluster_icon_size || 50;
 
-							// Customize cluster icon appearance
-							clusterIcon.innerHTML =
-								'<img src="' + iconUrl + '" ' +
-								'width="' + iconSize + '" ' +
-								'height="' + iconSize + '" ' +
-								'style="position: absolute; transform: translate(-50%, -50%);">' +
-								'<div style="position: absolute; ' +
-								'top: 50%; ' +
-								'left: 50%; ' +
-								'transform: translate(-50%, -50%); ' +
-								'color: white; ' +
-								'font-weight: bold; ' +
-								'font-size: 11px;">' +
-								count +
-								'</div>';
+							img.src =
+								mapSettings.cluster_icon ||
+								"https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png";
+							img.width = iconSize;
+							img.height = iconSize;
+							img.style.cssText =
+								"position: absolute; transform: translate(-50%, -50%);";
+
+							countLabel.style.cssText =
+								"position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; font-size: 11px;";
+							countLabel.textContent = options.count;
+
+							clusterIcon.append(img, countLabel);
 
 							var clusterMarker = new google.maps.marker.AdvancedMarkerElement({
-								position: position,
+								position: options.position,
 								content: clusterIcon,
 							});
 
 							return clusterMarker;
-
 						},
-					}
-
+					},
 				});
-
-
 			}
 
 			return map;
 		}
 
 		var activeInfoWindow = null;
-		function addMarker(pin, map, autoOpen, hoverOpen, hoverClose, zIndex, mapID) {
-
+		function addMarker(
+			pin,
+			map,
+			autoOpen,
+			hoverOpen,
+			hoverClose,
+			zIndex,
+			mapID,
+		) {
 			var latlng = new google.maps.LatLng(pin.data("lat"), pin.data("lng")),
 				iconImg = pin.data("icon"),
 				maxWidth = pin.data("max-width"),
@@ -174,10 +184,9 @@ jQuery(window).on("elementor/frontend/init", function () {
 				iconSize = parseInt(pin.data("icon-size"));
 
 			if (!mapID) {
-
 				if (iconImg) {
 					var icon = {
-						url: iconImg
+						url: iconImg,
 					};
 
 					if (iconSize) {
@@ -192,13 +201,10 @@ jQuery(window).on("elementor/frontend/init", function () {
 					position: latlng,
 					map: map,
 					icon: icon,
-					zIndex: zIndex
+					zIndex: zIndex,
 				});
-
 			} else {
-
 				if (iconImg) {
-
 					var markerContent = document.createElement("div"),
 						img = document.createElement("img");
 
@@ -217,39 +223,38 @@ jQuery(window).on("elementor/frontend/init", function () {
 					zIndex: zIndex,
 					content: markerContent,
 				});
-
 			}
 
 			//Used with Carousel Custom Navigation option
 			if (customID) {
-
 				google.maps.event.addListener(marker, "click", function () {
-
 					if ($linkedCarouselWidget.length > 0) {
-
 						var carouselSettings = $linkedCarouselWidget.data("settings");
 
 						if (carouselSettings.navigation) {
-
 							if (-1 != carouselSettings.navigation.indexOf("#" + customID)) {
-								var slideIndex = carouselSettings.navigation.indexOf("#" + customID);
-								$linkedCarouselWidget.find(".premium-carousel-inner").slick("slickGoTo", slideIndex);
+								var slideIndex = carouselSettings.navigation.indexOf(
+									"#" + customID,
+								);
+								$linkedCarouselWidget
+									.find(".premium-carousel-inner")
+									.slick("slickGoTo", slideIndex);
 							}
 						}
-
-
 					}
-
 				});
 			}
 
 			// if marker contains HTML, add it to an infoWindow
-			if (pin.find(".premium-maps-info-title").html() || pin.find(".premium-maps-info-desc").html()) {
+			if (
+				pin.find(".premium-maps-info-title").html() ||
+				pin.find(".premium-maps-info-desc").html()
+			) {
 				// create info window
 
 				var infowindow = new google.maps.InfoWindow({
 					maxWidth: maxWidth,
-					content: pin.html()
+					content: pin.html(),
 				});
 
 				//Opened by default.
@@ -259,19 +264,15 @@ jQuery(window).on("elementor/frontend/init", function () {
 
 				//Open on hover.
 				if (hoverOpen) {
-
 					var isTouch = checkTouchDevice(),
 						triggerEvent = isTouch ? "click" : "mouseover";
 
 					google.maps.event.addListener(marker, triggerEvent, function () {
-
-						if (activeInfoWindow)
-							activeInfoWindow.close();
+						if (activeInfoWindow) activeInfoWindow.close();
 
 						activeInfoWindow = infowindow;
 
 						infowindow.open(map, marker);
-
 					});
 
 					//Close on mouse out.
@@ -284,68 +285,57 @@ jQuery(window).on("elementor/frontend/init", function () {
 
 				// Show info window when marker is clicked
 				google.maps.event.addListener(marker, "click", function () {
-
-					if (activeInfoWindow)
-						activeInfoWindow.close();
+					if (activeInfoWindow) activeInfoWindow.close();
 
 					//Used with Carousel Custom Navigation option
 					if (customID) {
-
 						if ($linkedCarouselWidget.length) {
-
 							var carouselSettings = $linkedCarouselWidget.data("settings");
 
 							if (carouselSettings.navigation) {
 								if (-1 != carouselSettings.navigation.indexOf("#" + customID)) {
-									var slideIndex = carouselSettings.navigation.indexOf("#" + customID);
-									$linkedCarouselWidget.find(".premium-carousel-inner").slick("slickGoTo", slideIndex);
+									var slideIndex = carouselSettings.navigation.indexOf(
+										"#" + customID,
+									);
+									$linkedCarouselWidget
+										.find(".premium-carousel-inner")
+										.slick("slickGoTo", slideIndex);
 								}
 							}
-
-
 						}
-
 					}
 
 					activeInfoWindow = infowindow;
 
 					infowindow.open(map, marker);
-
 				});
 
-				infowindow.addListener('visible', function () {
+				infowindow.addListener("visible", function () {
+					if (pin.find(".advanced-pin").length > 0)
+						$(".gm-ui-hover-effect").remove();
 
-					if (pin.find('.advanced-pin').length > 0)
-						$('.gm-ui-hover-effect').remove();
-
-					$scope.find('.premium-maps-info-close').on('click', function () {
+					$scope.find(".premium-maps-info-close").on("click", function () {
 						infowindow.close(map, marker);
-					})
-				})
+					});
+				});
 
-
-				if ($linkedCarouselWidget.length > 0)
-					premiumMapPopups.push(infowindow);
-
-
+				if ($linkedCarouselWidget.length > 0) premiumMapPopups.push(infowindow);
 			}
 
 			// add to array
 			map.markers.push(marker);
 			premiumMapMarkers.push(marker);
-
 		}
 
 		function checkTouchDevice() {
-
 			var currentDevice = elementorFrontend.getCurrentDeviceMode();
 
-			return !['desktop', 'widescreen', 'laptop'].includes(currentDevice);
-
+			return !["desktop", "widescreen", "laptop"].includes(currentDevice);
 		}
-
 	};
 
-	elementorFrontend.hooks.addAction("frontend/element_ready/premium-addon-maps.default", PremiumMapsHandler);
-
+	elementorFrontend.hooks.addAction(
+		"frontend/element_ready/premium-addon-maps.default",
+		PremiumMapsHandler,
+	);
 });

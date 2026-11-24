@@ -61,6 +61,11 @@ class Cta_Box extends Widget_Base
     }
 
     protected function is_dynamic_content():bool {
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
         if( Plugin::$instance->editor->is_edit_mode() ) {
             return false;
         }
@@ -2134,18 +2139,21 @@ class Cta_Box extends Widget_Base
 		        $eael_template_id = $settings['eael_primary_templates'];
 		        // WPML Compatibility
 		        if ( ! is_array( $eael_template_id ) ) {
-			        $eael_template_id = apply_filters( 'wpml_object_id', $eael_template_id, 'wp_template', true );
+			        $eael_template_id = apply_filters( 'wpml_object_id', $eael_template_id, 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		        }
 
-		        if ( Plugin::$instance->editor->is_edit_mode() ) {
-			        $contentMarkup .= '<div class="eael-cta-template-wrapper">';
-		        }
+		        // Re-validate the translated template is a published elementor_library post before rendering.
+		        if ( Helper::is_elementor_publish_template( $eael_template_id ) ) {
+			        if ( Plugin::$instance->editor->is_edit_mode() ) {
+				        $contentMarkup .= '<div class="eael-cta-template-wrapper">';
+			        }
 
-		        $contentMarkup .= Helper::eael_onpage_edit_template_markup( get_the_ID(), $eael_template_id, true );
-		        $contentMarkup .= Plugin::$instance->frontend->get_builder_content( $eael_template_id, true );
+			        $contentMarkup .= Helper::eael_onpage_edit_template_markup( get_the_ID(), $eael_template_id, true );
+			        $contentMarkup .= Plugin::$instance->frontend->get_builder_content( $eael_template_id, true );
 
-		        if ( Plugin::$instance->editor->is_edit_mode() ) {
-			        $contentMarkup .= '</div>';
+			        if ( Plugin::$instance->editor->is_edit_mode() ) {
+				        $contentMarkup .= '</div>';
+			        }
 		        }
 	        }
         }
@@ -2236,7 +2244,7 @@ class Cta_Box extends Widget_Base
 	    <div class="icon">
 			<?php if ($icon_is_new || $icon_migrated) {?>
 				<?php if (isset($settings['eael_cta_flex_grid_icon_new']['value']['url'])): ?>
-					<img src="<?php echo esc_url( $settings['eael_cta_flex_grid_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(get_post_meta($settings['eael_cta_flex_grid_icon_new']['value']['id'], '_wp_attachment_image_alt', true)); ?>" />
+					<img src="<?php echo esc_url( $settings['eael_cta_flex_grid_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $settings['eael_cta_flex_grid_icon_new']['value'] )); ?>" />
 				<?php else:
                     Icons_Manager::render_icon( $settings['eael_cta_flex_grid_icon_new'] );
 

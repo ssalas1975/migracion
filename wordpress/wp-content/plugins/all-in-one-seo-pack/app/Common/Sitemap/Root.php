@@ -163,7 +163,8 @@ class Root {
 	/**
 	 * Returns the additional page indexes.
 	 *
-	 * @since 4.2.1
+	 * @since   4.2.1
+	 * @version 5.0.3 Homepage entry now follows {@see Helpers::shouldIncludeHomepage()}.
 	 *
 	 * @return array
 	 */
@@ -191,8 +192,7 @@ class Root {
 			$entries = apply_filters( 'aioseo_sitemap_additional_pages', $entries );
 		}
 
-		$postTypes             = aioseo()->sitemap->helpers->includedPostTypes();
-		$shouldIncludeHomepage = 'posts' === get_option( 'show_on_front' ) || ! in_array( 'page', $postTypes, true );
+		$shouldIncludeHomepage = aioseo()->sitemap->helpers->shouldIncludeHomepage();
 		if ( ! $shouldIncludeHomepage && ! count( $entries ) ) {
 			return [];
 		}
@@ -265,7 +265,8 @@ class Root {
 	/**
 	 * Builds the author archive indexes.
 	 *
-	 * @since 4.3.1
+	 * @since   4.3.1
+	 * @version 4.9.9 Use getAuthorPostTypes() instead of includedPostTypes() for consistent lastmod with author-sitemap.xml.
 	 *
 	 * @param  integer $amountOfAuthors The amount of author archives.
 	 * @return array                    The indexes.
@@ -275,7 +276,7 @@ class Root {
 			return [];
 		}
 
-		$postTypes = aioseo()->sitemap->helpers->includedPostTypes();
+		$postTypes = aioseo()->sitemap->helpers->getAuthorPostTypes();
 		$filename  = aioseo()->sitemap->filename;
 		$chunks    = $amountOfAuthors / aioseo()->sitemap->linksPerIndex;
 		if ( $chunks < 1 ) {
@@ -315,7 +316,9 @@ class Root {
 	/**
 	 * Builds indexes for all eligible posts of a given post type.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Order default-priority posts by their resolved default value.
+	 * @version 5.0.2 Match excluded term IDs through term_taxonomy.
 	 *
 	 * @param  string $postType The post type.
 	 * @return array            The indexes.
@@ -337,9 +340,10 @@ class Root {
 		$excludedTermIds = aioseo()->sitemap->helpers->excludedTerms();
 		if ( ! empty( $excludedTermIds ) ) {
 			$excludedTermIds = explode( ', ', $excludedTermIds );
-			$excludedPostIds = aioseo()->core->db->start( 'term_relationships' )
-				->select( 'object_id' )
-				->whereIn( 'term_taxonomy_id', $excludedTermIds )
+			$excludedPostIds = aioseo()->core->db->start( 'term_relationships as tr' )
+				->select( 'tr.object_id' )
+				->join( 'term_taxonomy as tt', '`tt`.`term_taxonomy_id` = `tr`.`term_taxonomy_id`', 'INNER' )
+				->whereIn( 'tt.term_id', $excludedTermIds )
 				->run()
 				->result();
 
@@ -372,17 +376,17 @@ class Root {
 			aioseo()->helpers->isWooCommerceActive() &&
 			'product' === $postType
 		) {
+			// Exclude products when excluded from both catalog and search.
 			$whereClause .= " AND p.ID NOT IN (
 				SELECT CONVERT(tr.object_id, unsigned) AS object_id
 				FROM {$termRelationshipsTable} AS tr
 				JOIN {$termTaxonomyTable} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
 				JOIN {$termsTable} AS t ON tt.term_id = t.term_id
-				WHERE t.name = 'exclude-from-catalog'
+				WHERE t.name IN ('exclude-from-catalog', 'exclude-from-search')
+				GROUP BY tr.object_id
+				HAVING COUNT(DISTINCT t.name) = 2
 			)";
 		}
-
-		// Exclude posts with custom canonical URLs pointing to different URLs.
-		$whereClause .= " AND (ap.canonical_url IS NULL OR ap.canonical_url = '')";
 
 		// Include the blog page in the posts post type unless manually excluded.
 		$blogPageId = (int) get_option( 'page_for_posts' );
@@ -393,6 +397,10 @@ class Root {
 		) {
 			$whereClause .= " OR `p`.`ID` = $blogPageId ";
 		}
+
+		// Keep this ordering in sync with the content query in Query::posts() so the index
+		// page boundaries match the posts that actually land on each sub-sitemap page.
+		$priorityColumn = aioseo()->sitemap->query->priorityOrderColumn( $postType );
 
 		$posts = aioseo()->core->db->execute(
 			aioseo()->core->db->db->prepare(
@@ -408,7 +416,7 @@ class Root {
 							AND p.post_password = ''
 							AND (ap.robots_noindex IS NULL OR ap.robots_default = 1 OR ap.robots_noindex = 0)
 							{$whereClause}
-						ORDER BY ap.priority DESC, p.post_modified_gmt DESC
+						ORDER BY {$priorityColumn} DESC, p.post_modified_gmt DESC
 					) AS x
 					CROSS JOIN (SELECT @row := 0) AS vars
 					ORDER BY post_modified_gmt DESC
@@ -514,7 +522,8 @@ class Root {
 	 *
 	 * Acts as a helper function for buildIndexesPostTypes() and buildIndexesTaxonomies().
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Match term IDs through term_taxonomy for the lastmod lookup.
 	 *
 	 * @param  string $name    The name of the object parent.
 	 * @param  array  $entries The sitemap entries.
@@ -562,6 +571,7 @@ class Root {
 			$termIds = implode( "', '", $termIds );
 
 			$termRelationshipsTable = aioseo()->core->db->db->prefix . 'term_relationships';
+			$termTaxonomyTable      = aioseo()->core->db->db->prefix . 'term_taxonomy';
 
 			$lastModified = null;
 			if ( ! apply_filters( 'aioseo_sitemap_lastmod_disable', false ) ) {
@@ -573,7 +583,8 @@ class Root {
 						(
 							SELECT CONVERT(`tr`.`object_id`, unsigned)
 							FROM `$termRelationshipsTable` as tr
-							WHERE `tr`.`term_taxonomy_id` IN ( '$termIds' )
+							JOIN `$termTaxonomyTable` as tt ON `tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`
+							WHERE `tt`.`term_id` IN ( '$termIds' )
 						)
 					)" )
 					->run()

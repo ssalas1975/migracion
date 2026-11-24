@@ -1,5 +1,3 @@
-<?php require_once(REDI_RESTAURANT_TEMPLATE. '../js/hotjar.js');?>
-
 <div class="wrap" style="display: none;">
     <div><?php _e('You plugin is active. Your API Key is', 'redi-restaurant-reservation'); ?> <b><?php echo $this->ApiKey; ?></b></div>
 </div>
@@ -14,6 +12,8 @@
             <div class="redi-setting-body">
                 <p><?php _e('ReDi restaurant reservation plugin is ready to use', 'redi-restaurant-reservation'); ?> </p>
                 <p><?php _e('Your API key is', 'redi-restaurant-reservation'); ?>: <b><?php echo $this->ApiKey; ?></b> </p>
+                <p><?php _e('Your shortcode', 'redi-restaurant-reservation'); ?>: <code style="font-style: normal; padding:0">[redirestaurant]</code></p>
+                <p><?php _e('For a single restaurant with no customization, only this shortcode is needed. Paste it into any page to show the reservation form.', 'redi-restaurant-reservation'); ?></p>
 
                 <p><?php _e('Next step is to configure the plugin, please watch following videos and click on Next to open Settings page', 'redi-restaurant-reservation'); ?></p>
 

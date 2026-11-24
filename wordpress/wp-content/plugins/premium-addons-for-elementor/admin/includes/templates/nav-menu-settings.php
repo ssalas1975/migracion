@@ -56,8 +56,8 @@
 								<?php
 									printf(
 										/* translators: 1: Premium Mega Menu */
-										__( 'Please note that these settings are related to %1$s widget. You need to search for "%1$s" in Elementor editor panel.', 'premium-addons-for-elementor' ),
-										'<strong>' . __( 'Premium Mega Menu', 'premium-addons-for-elementor' ) . '</strong>'
+										esc_html__( 'Please note that these settings are related to %1$s widget. You need to search for "%1$s" in Elementor editor panel.', 'premium-addons-for-elementor' ),
+										'<strong>' . esc_html__( 'Premium Mega Menu', 'premium-addons-for-elementor' ) . '</strong>'
 									);
 									?>
 								</p>
@@ -82,7 +82,7 @@
 								</div>
 								<div class="premium-menu-control" id="pa-megamenu-content-pos">
 									<select id="pa-megamenu-position">
-										<option value="default">Default</option>
+										<option value="default">Centered</option>
 										<option value="relative">Relative</option>
 									</select>
 								</div>
@@ -214,20 +214,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="dialog-loading dialog-lightbox-loading" style="display: block;">
-					<div id="elementor-template-library-loading">
-						<div class="elementor-loader-wrapper">
-							<div class="elementor-loader">
-								<div class="elementor-loader-boxes">
-									<div class="elementor-loader-box"></div>
-									<div class="elementor-loader-box"></div>
-									<div class="elementor-loader-box"></div>
-									<div class="elementor-loader-box"></div>
-								</div>
-							</div>
-							<div class="elementor-loading-title"><?php esc_html_e( 'Loading', 'premium-addons-for-elementor' ); ?></div>
-						</div>
-					</div>
+				<div class="pa-dialog-loading  pa-dialog-lightbox-loading" style="display: block;">
+					<div class="premium-loader"></div>
 				</div>
 			</div>
 			<div class="dialog-buttons-wrapper dialog-lightbox-buttons-wrapper"></div>

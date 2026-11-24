@@ -71,8 +71,9 @@ trait WpUri {
 		}
 
 		global $wp;
-		// Permalink url without the query string.
-		$url = user_trailingslashit( home_url( $wp->request ) );
+		// Permalink url without the query string. A raw "#" from the request line can't be a
+		// fragment here, and left as is it would start a smart tag when the schema is parsed.
+		$url = user_trailingslashit( home_url( str_replace( '#', '%23', (string) $wp->request ) ) );
 
 		// If permalinks are not being used we need to append the query string to the home url.
 		if ( ! $this->usingPermalinks() ) {
@@ -85,7 +86,8 @@ trait WpUri {
 	/**
 	 * Gets the canonical URL for the current page/post.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Use getTermLink() so orphaned ancestors cannot break the URL.
 	 *
 	 * @return string $url The canonical URL.
 	 */
@@ -112,12 +114,7 @@ trait WpUri {
 
 		if ( is_category() || is_tag() || is_tax() ) {
 			$metaData     = aioseo()->meta->metaData->getMetaData( $queriedObject );
-			$url[ $hash ] = get_term_link( $queriedObject, $queriedObject->taxonomy ?? '' );
-
-			// If the term link is a WP_Error, set it to an empty string.
-			if ( ! is_string( $url[ $hash ] ) ) {
-				$url[ $hash ] = '';
-			}
+			$url[ $hash ] = aioseo()->helpers->getTermLink( $queriedObject, $queriedObject->taxonomy ?? '' );
 
 			// Add pagination to the URL. We need to do this here because get_term_link() doesn't handle pagination.
 			// We'll strip it further down if no pagination for canonical is enabled.
@@ -252,7 +249,10 @@ trait WpUri {
 	* Retrieves a post by its given path.
 	* Based on the built-in get_page_by_path() function, but only checks ancestry if the post type is actually hierarchical.
 	*
-	* @since 4.1.4
+	* @since   4.1.4
+	* @version 4.9.9 Validate URL prefix against the post type's rewrite slug.
+	*
+	* NOTE: Expects a path relative to the home URL; on subdirectory installs the caller strips the home path.
 	*
 	* @param  string       $path     The path.
 	* @param  string       $output   The output type. OBJECT, ARRAY_A, or ARRAY_N.
@@ -279,8 +279,9 @@ trait WpUri {
 			return get_post( $cached, $output );
 		}
 
-		$path          = rawurlencode( urldecode( $path ) );
-		$path          = str_replace( '%2F', '/', $path );
+		// post_name is stored lowercase while rawurlencode() emits uppercase hex, so percent-encoded (non-Latin) slugs need the lowercase.
+		$path          = strtolower( rawurlencode( urldecode( $path ) ) );
+		$path          = str_replace( '%2f', '/', $path );
 		$path          = str_replace( '%20', ' ', $path );
 		$parts         = explode( '/', trim( $path, '/' ) );
 		$reversedParts = array_reverse( $parts );
@@ -327,7 +328,7 @@ trait WpUri {
 
 				if (
 					0 === (int) $p->post_parent &&
-					( ! is_post_type_hierarchical( $p->post_type ) || count( $reversedParts ) === $count + 1 ) &&
+					$this->urlPathMatchesPostType( $post, $reversedParts, $count ) &&
 					$p->post_name === $reversedParts[ $count ]
 				) {
 					$foundId = $post->ID;
@@ -348,6 +349,47 @@ trait WpUri {
 		wp_cache_set( $cacheKey, $foundId, 'aioseo_posts_by_path' );
 
 		return $foundId ? get_post( $foundId, $output ) : false;
+	}
+
+	/**
+	 * Checks that a candidate post's real permalink matches the requested URL path.
+	 *
+	 * Validating against the candidate's own permalink — rather than a type-level prefix — is correct
+	 * under every permalink structure, including date/category fronts where a post's prefix is per-post,
+	 * while still preventing a built-in Post from shadowing a CPT that shares its slug.
+	 *
+	 * @since   4.9.9
+	 * @version 5.0.3 Validate against the candidate's real permalink instead of a type-level prefix.
+	 *
+	 * @param  \WP_Post|object $post          The candidate post.
+	 * @param  array           $reversedParts The path segments in reverse order.
+	 * @param  int             $count         The ancestry depth already consumed.
+	 * @return bool                           True if the URL path resolves to the candidate.
+	 */
+	private function urlPathMatchesPostType( $post, $reversedParts, $count ) {
+		$permalink = get_permalink( $post->ID );
+
+		// Pretty permalinks: compare the candidate's own permalink path to the requested path.
+		if ( false === strpos( (string) $permalink, '?' ) ) {
+			$permalinkPath = $this->decodeUrl( trim( str_replace( home_url(), '', $permalink ), '/' ) );
+			$requestedPath = $this->decodeUrl( implode( '/', array_reverse( $reversedParts ) ) );
+
+			return $permalinkPath === $requestedPath;
+		}
+
+		// Plain permalinks (e.g. `?p=123`) expose no pretty path; fall back to the type-level prefix.
+		$expectedPrefix = $this->getPostTypeUrlPrefix( $post->post_type );
+
+		// Not served from a pretty path (e.g. built-in `page`, rewrite-less CPTs): keep historical behavior.
+		if ( null === $expectedPrefix ) {
+			return is_post_type_hierarchical( $post->post_type )
+				? count( $reversedParts ) === $count + 1
+				: true;
+		}
+
+		$actualPrefix = implode( '/', array_reverse( array_slice( $reversedParts, $count + 1 ) ) );
+
+		return $actualPrefix === $expectedPrefix;
 	}
 
 	/**
@@ -449,12 +491,13 @@ trait WpUri {
 	/**
 	 * Returns the home URL.
 	 *
-	 * @since 4.7.3
+	 * @since   4.7.3
+	 * @version 5.0.2 Changed visibility to public.
 	 *
 	 * @param  bool   $unfiltered Whether to get the unfiltered value.
 	 * @return string             The home URL.
 	 */
-	private function getHomeUrl( $unfiltered = false ) {
+	public function getHomeUrl( $unfiltered = false ) {
 		$homeUrl = home_url();
 		if ( $unfiltered ) {
 			// We want to get this value straight from the DB to prevent plugins like WPML from filtering it.
@@ -518,12 +561,17 @@ trait WpUri {
 	 *
 	 * @since   1.2.3 Moved from aioseo-redirects.
 	 * @version 4.5.8
+	 * @version 5.0.3 Added $ignoreCase and $homePath parameters; the home path is now regex-escaped.
 	 *
-	 * @param  string $path The original path.
-	 * @return string       The path without WP's home path.
+	 * @param  string      $path       The original path.
+	 * @param  bool        $ignoreCase Whether to match the home path ignoring case, as WP::parse_request() does.
+	 * @param  string|null $homePath   The home path to remove. Defaults to {@see getHomePath()}.
+	 * @return string                  The path without WP's home path.
 	 */
-	public function excludeHomePath( $path ) {
-		return preg_replace( '@^' . $this->getHomePath() . '@', '/', (string) $path );
+	public function excludeHomePath( $path, $ignoreCase = false, $homePath = null ) {
+		$homePath = null === $homePath ? $this->getHomePath() : $homePath;
+
+		return preg_replace( '@^' . preg_quote( $homePath, '@' ) . '@' . ( $ignoreCase ? 'i' : '' ), '/', (string) $path );
 	}
 
 	/**
@@ -532,7 +580,8 @@ trait WpUri {
 	 * posts with paginated comment pages return the wrong canonical URL due to how WordPress sets the cpage var.
 	 * We can remove this once trac ticket 60806 is resolved.
 	 *
-	 * @since 4.6.9
+	 * @since   4.6.9
+	 * @version 5.0.2 Paginated static front page now uses the /page/N/ format instead of /N/.
 	 *
 	 * @param  \WP_Post|int|null $post The post object or ID.
 	 * @return string|false            The post's canonical URL, or false if the post is not published.
@@ -556,6 +605,11 @@ trait WpUri {
 			if ( $page >= 2 ) {
 				if ( ! get_option( 'permalink_structure' ) ) {
 					$canonicalUrl = add_query_arg( 'page', $page, $canonicalUrl );
+				} elseif ( (int) get_option( 'page_on_front' ) === $post->ID ) {
+					// The static front page paginates at /page/N/, not /N/, since its permalink is home_url('/').
+					global $wp_rewrite; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+					$pagedSegment = $wp_rewrite->pagination_base . '/' . $page; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+					$canonicalUrl = trailingslashit( $canonicalUrl ) . user_trailingslashit( $pagedSegment, 'paged' );
 				} else {
 					$canonicalUrl = trailingslashit( $canonicalUrl ) . user_trailingslashit( $page, 'single_paged' );
 				}

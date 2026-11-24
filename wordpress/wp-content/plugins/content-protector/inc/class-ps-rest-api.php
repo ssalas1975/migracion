@@ -111,6 +111,11 @@ class PS_Rest_API {
                     'type'              => 'integer',
                     'sanitize_callback' => 'absint',
                 ),
+                'post_type'  => array(
+                    'required'          => false,
+                    'type'              => 'string',
+                    'sanitize_callback' => 'sanitize_key',
+                ),
             ),
         ) );
         // Hash password endpoint.
@@ -125,6 +130,11 @@ class PS_Rest_API {
                     'sanitize_callback' => function ( $value ) {
                         return wp_unslash( $value );
                     },
+                ),
+                'post_id'  => array(
+                    'required'          => true,
+                    'type'              => 'integer',
+                    'sanitize_callback' => 'absint',
                 ),
             ),
         ) );
@@ -204,11 +214,24 @@ class PS_Rest_API {
         $protection = $request->get_param( 'protection' );
         $acf = $request->get_param( 'acf' );
         $term_id = absint( $request->get_param( 'term_id' ) );
+        $post_type_param = sanitize_key( (string) $request->get_param( 'post_type' ) );
         // Default error response.
         $error_message = $options['error'] ?? __( 'Invalid password.', 'content-protector' );
         $remove_spaces = apply_filters( 'passster_remove_spaces_from_list', true );
+        if ( '' === trim( (string) $input ) ) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'error'   => $error_message,
+            ), 200);
+        }
         if ( empty( $protection ) ) {
             $protection = false;
+        }
+        if ( !$this->can_receive_content( $post_id, $area_id, $protection ) ) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'error'   => $error_message,
+            ), 200);
         }
         // Category archive protection: term_id is passed directly from the form.
         if ( $term_id > 0 ) {
@@ -224,6 +247,7 @@ class PS_Rest_API {
             );
             if ( $result['valid'] ) {
                 do_action( 'passster_validation_success', $input );
+                PS_Helper::remember_unlock( hash_hmac( 'sha256', $input, get_option( 'passster_secure_key' ) ) );
                 $term_redirect = get_term_meta( $term_id, 'passster_redirect_url', true );
                 if ( !empty( $term_redirect ) ) {
                     return new \WP_REST_Response(array(
@@ -238,7 +262,38 @@ class PS_Rest_API {
             }
             return new \WP_REST_Response(array(
                 'success' => false,
-                'error'   => $error_message,
+                'error'   => $result['error'] ?? $error_message,
+            ), 200);
+        }
+        // Post type archive protection: post_type is passed directly from the form
+        // (no single post ID exists to key an unlock request off of on an archive page).
+        if ( !empty( $post_type_param ) && class_exists( 'passster\\PS_Post_Type_Lock' ) && PS_Post_Type_Lock::is_post_type_protected( $post_type_param ) ) {
+            $post_type_config = PS_Post_Type_Lock::get_post_type_config( $post_type_param );
+            $result = $this->validate_post_type_unlock(
+                $input,
+                $type,
+                $post_type_config,
+                null,
+                '',
+                $remove_spaces
+            );
+            if ( $result['valid'] ) {
+                do_action( 'passster_validation_success', $input );
+                PS_Helper::remember_unlock( hash_hmac( 'sha256', $input, get_option( 'passster_secure_key' ) ) );
+                if ( !empty( $post_type_config['passster_activate_misc_settings'] ) && !empty( $post_type_config['passster_redirect_url'] ) ) {
+                    return new \WP_REST_Response(array(
+                        'success'  => true,
+                        'redirect' => esc_url_raw( $post_type_config['passster_redirect_url'] ),
+                    ), 200);
+                }
+                return new \WP_REST_Response(array(
+                    'success'         => true,
+                    'requires_reload' => true,
+                ), 200);
+            }
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'error'   => $result['error'] ?? $error_message,
             ), 200);
         }
         // Parent page protection inheritance.
@@ -263,8 +318,11 @@ class PS_Rest_API {
         // Category/taxonomy protection: if the post itself has no protection,
         // check if it belongs to a protected category and validate against term meta.
         $post_protection = get_post_meta( $post_id, 'passster_activate_protection', true );
-        if ( !$post_protection && 'full' === $protection && class_exists( 'passster\\PS_Category_Lock' ) ) {
-            $term_data = PS_Category_Lock::get_instance()->get_protected_term_for_post( $post_id );
+        $term_data = null;
+        if ( !$post_protection && 'full' === $protection ) {
+            if ( class_exists( 'passster\\PS_Category_Lock' ) ) {
+                $term_data = PS_Category_Lock::get_instance()->get_protected_term_for_post( $post_id );
+            }
             if ( $term_data ) {
                 // Use term redirect if no redirect was sent from the frontend.
                 if ( empty( $redirect ) ) {
@@ -300,13 +358,59 @@ class PS_Rest_API {
                         'full'
                     );
                     do_action( 'passster_validation_success', $input );
+                    PS_Helper::remember_unlock( hash_hmac( 'sha256', $input, get_option( 'passster_secure_key' ) ) );
                     return new \WP_REST_Response($response_data, 200);
                 }
                 // Category protection exists but validation failed.
                 return new \WP_REST_Response(array(
                     'success' => false,
-                    'error'   => $error_message,
+                    'error'   => $result['error'] ?? $error_message,
                 ), 200);
+            }
+            // Post type level protection: applies only when the post has neither its
+            // own protection nor a protected category/term (both take precedence).
+            if ( class_exists( 'passster\\PS_Post_Type_Lock' ) ) {
+                $post_type = get_post_type( $post_id );
+                if ( $post_type && PS_Post_Type_Lock::is_post_type_protected( $post_type ) ) {
+                    $config = PS_Post_Type_Lock::get_post_type_config( $post_type );
+                    if ( empty( $redirect ) && !empty( $config['passster_activate_misc_settings'] ) && !empty( $config['passster_redirect_url'] ) ) {
+                        $redirect = $config['passster_redirect_url'];
+                    }
+                    $result = $this->validate_post_type_unlock(
+                        $input,
+                        $type,
+                        $config,
+                        $post,
+                        $content,
+                        $remove_spaces
+                    );
+                    if ( $result['valid'] ) {
+                        $response_data = array(
+                            'success' => true,
+                        );
+                        if ( !empty( $redirect ) ) {
+                            $response_data['redirect'] = $redirect;
+                        } elseif ( $this->content_uses_page_builder( $result['content'], $post_id ) ) {
+                            $response_data['requires_reload'] = true;
+                        } else {
+                            $response_data['content'] = apply_filters( 'the_content', str_replace( '{post-id}', $post_id, $result['content'] ) );
+                        }
+                        do_action(
+                            'passsster_track_record',
+                            $post_id,
+                            $input,
+                            'full'
+                        );
+                        do_action( 'passster_validation_success', $input );
+                        PS_Helper::remember_unlock( hash_hmac( 'sha256', $input, get_option( 'passster_secure_key' ) ) );
+                        return new \WP_REST_Response($response_data, 200);
+                    }
+                    // Post type protection exists but validation failed.
+                    return new \WP_REST_Response(array(
+                        'success' => false,
+                        'error'   => $result['error'] ?? $error_message,
+                    ), 200);
+                }
             }
         }
         // Validate based on type.
@@ -326,10 +430,7 @@ class PS_Rest_API {
                     $result = $this->get_block_passwords( $post_id, $block_id );
                     if ( !empty( $result['passwords'] ) ) {
                         $passwords_str = $result['passwords'];
-                        if ( $remove_spaces ) {
-                            $passwords_str = str_replace( ' ', '', $passwords_str );
-                        }
-                        $passwords = explode( ',', $passwords_str );
+                        $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
                         if ( in_array( $input, $passwords, true ) ) {
                             $valid = true;
                             $result_content = $result['content'];
@@ -422,7 +523,7 @@ class PS_Rest_API {
         if ( !$valid ) {
             return new \WP_REST_Response(array(
                 'success' => false,
-                'error'   => $error_message,
+                'error'   => $result['error'] ?? $error_message,
             ), 200);
         }
         // Success - prepare response.
@@ -459,6 +560,7 @@ class PS_Rest_API {
             $source
         );
         do_action( 'passster_validation_success', $input );
+        PS_Helper::remember_unlock( hash_hmac( 'sha256', $input, get_option( 'passster_secure_key' ) ) );
         return new \WP_REST_Response($response_data, 200);
     }
 
@@ -561,10 +663,7 @@ class PS_Rest_API {
         switch ( $protection ) {
             case 'full':
                 $passwords_str = get_post_meta( $post_id, 'passster_passwords', true );
-                if ( $remove_spaces ) {
-                    $passwords_str = str_replace( ' ', '', $passwords_str );
-                }
-                $passwords = explode( ',', $passwords_str );
+                $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
                 if ( !empty( $passwords ) && in_array( $input, $passwords, true ) ) {
                     if ( $post && 'publish' === $post->post_status ) {
                         return array(
@@ -577,10 +676,7 @@ class PS_Rest_API {
             case 'area':
                 if ( !empty( $area_id ) ) {
                     $passwords_str = get_post_meta( $area_id, 'passster_passwords', true );
-                    if ( $remove_spaces ) {
-                        $passwords_str = str_replace( ' ', '', $passwords_str );
-                    }
-                    $passwords = explode( ',', $passwords_str );
+                    $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
                     if ( !empty( $passwords ) && in_array( $input, $passwords, true ) ) {
                         $area = get_post( $area_id );
                         if ( $area && 'protected_areas' === $area->post_type && 'publish' === $area->post_status ) {
@@ -648,10 +744,7 @@ class PS_Rest_API {
             );
         }
         $passwords_str = get_post_meta( $list_id, 'passster_passwords', true );
-        if ( $remove_spaces ) {
-            $passwords_str = str_replace( ' ', '', $passwords_str );
-        }
-        $passwords = explode( ',', $passwords_str );
+        $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
         return $this->validate_single_list(
             $input,
             $passwords,
@@ -699,12 +792,10 @@ class PS_Rest_API {
             );
         }
         $password_list_ids = explode( '|', $lists );
+        $list_error = null;
         foreach ( $password_list_ids as $pid ) {
             $passwords_str = get_post_meta( $pid, 'passster_passwords', true );
-            if ( $remove_spaces ) {
-                $passwords_str = str_replace( ' ', '', $passwords_str );
-            }
-            $passwords = explode( ',', $passwords_str );
+            $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
             $result = $this->validate_single_list(
                 $input,
                 $passwords,
@@ -719,10 +810,14 @@ class PS_Rest_API {
             if ( $result['valid'] ) {
                 return $result;
             }
+            if ( !empty( $result['error'] ) ) {
+                $list_error = $result['error'];
+            }
         }
         return array(
             'valid'   => false,
             'content' => '',
+            'error'   => $list_error,
         );
     }
 
@@ -753,6 +848,13 @@ class PS_Rest_API {
     ) {
         $valid = false;
         $result_content = '';
+        if ( !empty( $passwords ) && in_array( $input, $passwords, true ) && PS_Conditional::is_password_list_past_fixed_expiration__premium_only( $list_id ) ) {
+            return array(
+                'valid'   => false,
+                'content' => '',
+                'error'   => __( 'This password has expired. Please contact the site owner.', 'content-protector' ),
+            );
+        }
         switch ( $protection ) {
             case 'full':
                 if ( !empty( $passwords ) && in_array( $input, $passwords, true ) ) {
@@ -934,6 +1036,112 @@ class PS_Rest_API {
         );
     }
 
+    /**
+     * Validate unlock for posts protected wholesale via post type level protection
+     * (password stored in the post type's configuration, not on the post itself).
+     *
+     * @param string   $input         User input.
+     * @param string   $type          Protection type (password, passwords, password_list, password_lists).
+     * @param array    $config        Post type configuration.
+     * @param \WP_Post $post          Post object.
+     * @param string   $content       Post content.
+     * @param bool     $remove_spaces Whether to remove spaces from password lists.
+     * @return array
+     */
+    private function validate_post_type_unlock(
+        $input,
+        $type,
+        array $config,
+        $post,
+        $content,
+        $remove_spaces
+    ) {
+        // $post is null for archive-level unlocks, where there's no single post to check.
+        if ( $post && 'publish' !== $post->post_status ) {
+            return array(
+                'valid'   => false,
+                'content' => '',
+            );
+        }
+        switch ( $type ) {
+            case 'password':
+                if ( !empty( $config['passster_password'] ) && $input === $config['passster_password'] ) {
+                    return array(
+                        'valid'   => true,
+                        'content' => $content,
+                    );
+                }
+                break;
+            case 'passwords':
+                $passwords_str = $config['passster_passwords'];
+                $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
+                if ( !empty( $passwords ) && in_array( $input, $passwords, true ) ) {
+                    return array(
+                        'valid'   => true,
+                        'content' => $content,
+                    );
+                }
+                break;
+            case 'password_list':
+                $list_id = $config['passster_password_list'];
+                if ( !empty( $list_id ) ) {
+                    $passwords_str = get_post_meta( $list_id, 'passster_passwords', true );
+                    $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
+                    if ( in_array( $input, $passwords, true ) ) {
+                        if ( PS_Conditional::is_password_list_past_fixed_expiration__premium_only( $list_id ) ) {
+                            return array(
+                                'valid'   => false,
+                                'content' => '',
+                                'error'   => __( 'This password has expired. Please contact the site owner.', 'content-protector' ),
+                            );
+                        }
+                        do_action(
+                            'passster_validation_success_list',
+                            $input,
+                            $list_id,
+                            ( $post ? $post->ID : 0 )
+                        );
+                        PS_Conditional::maybe_expire_password_from_list__premium_only( $input, $passwords, $list_id );
+                        return array(
+                            'valid'   => true,
+                            'content' => $content,
+                        );
+                    }
+                }
+                break;
+            case 'password_lists':
+                foreach ( (array) $config['passster_password_lists'] as $list_id ) {
+                    $passwords_str = get_post_meta( $list_id, 'passster_passwords', true );
+                    $passwords = PS_Helper::parse_password_list( $passwords_str, $remove_spaces );
+                    if ( in_array( $input, $passwords, true ) ) {
+                        if ( PS_Conditional::is_password_list_past_fixed_expiration__premium_only( $list_id ) ) {
+                            return array(
+                                'valid'   => false,
+                                'content' => '',
+                                'error'   => __( 'This password has expired. Please contact the site owner.', 'content-protector' ),
+                            );
+                        }
+                        do_action(
+                            'passster_validation_success_list',
+                            $input,
+                            $list_id,
+                            ( $post ? $post->ID : 0 )
+                        );
+                        PS_Conditional::maybe_expire_password_from_list__premium_only( $input, $passwords, $list_id );
+                        return array(
+                            'valid'   => true,
+                            'content' => $content,
+                        );
+                    }
+                }
+                break;
+        }
+        return array(
+            'valid'   => false,
+            'content' => '',
+        );
+    }
+
     private function get_block_password( $post_id, $block_id ) {
         $post = get_post( $post_id );
         if ( !$post ) {
@@ -1066,7 +1274,16 @@ class PS_Rest_API {
      */
     public function hash_password( \WP_REST_Request $request ) {
         $password = $request->get_param( 'password' );
+        $post_id = $request->get_param( 'post_id' );
+        $real_password = get_post_meta( $post_id, 'passster_password', true );
+        if ( empty( $real_password ) || !hash_equals( $real_password, $password ) ) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'error'   => __( 'Invalid password.', 'content-protector' ),
+            ), 200);
+        }
         $hashed = hash_hmac( 'sha256', $password, get_option( 'passster_secure_key' ) );
+        PS_Helper::remember_unlock( $hashed );
         return new \WP_REST_Response(array(
             'success' => true,
             'hash'    => $hashed,
@@ -1096,6 +1313,12 @@ class PS_Rest_API {
             $captcha_id = str_replace( array('_v2', '_v3'), '', $type );
         }
         $error_message = $options['error'] ?? __( 'Captcha validation failed.', 'content-protector' );
+        if ( !$this->can_receive_content( $post_id, $area_id, $protection ) ) {
+            return new \WP_REST_Response(array(
+                'success' => false,
+                'error'   => $error_message,
+            ), 200);
+        }
         // Validate captcha based on type.
         $valid = false;
         switch ( $type ) {
@@ -1118,11 +1341,14 @@ class PS_Rest_API {
         }
         // Get content based on protection type (mirrors AJAX logic).
         $content = '';
+        $requires_reload = false;
+        $captcha_protection_types = array('recaptcha', 'turnstile');
         if ( 'full' !== $protection ) {
             if ( 'area' === $protection ) {
                 if ( !empty( $area_id ) ) {
                     $area = get_post( $area_id );
-                    if ( $area && 'protected_areas' === $area->post_type && 'publish' === $area->post_status ) {
+                    $area_protection_type = get_post_meta( $area_id, 'passster_protection_type', true );
+                    if ( $area && 'protected_areas' === $area->post_type && 'publish' === $area->post_status && in_array( $area_protection_type, $captcha_protection_types, true ) ) {
                         $content = apply_filters( 'passster_compatibility_actions', $area->post_content, $area_id );
                     }
                 }
@@ -1131,14 +1357,17 @@ class PS_Rest_API {
                 $post = get_post( $post_id );
                 if ( $post ) {
                     $post_content = apply_filters( 'passster_compatibility_actions', $post->post_content, $post_id );
-                    $content = apply_filters( 'passster_compatibility_actions', PS_Helper::get_shortcode_content( $post_content, $captcha_id ) );
+                    $content = apply_filters( 'passster_compatibility_actions', PS_Helper::get_shortcode_content( $post_content, $captcha_id, 'captcha' ) );
                 }
             }
         } else {
-            // Full page protection - return full post content.
             $post = get_post( $post_id );
-            if ( $post ) {
+            $post_protection = get_post_meta( $post_id, 'passster_activate_protection', true );
+            $post_protection_type = get_post_meta( $post_id, 'passster_protection_type', true );
+            if ( $post && 'publish' === $post->post_status && $post_protection && in_array( $post_protection_type, $captcha_protection_types, true ) ) {
                 $content = apply_filters( 'passster_compatibility_actions', $post->post_content, $post_id );
+            } elseif ( $post && 'publish' === $post->post_status && !$post_protection && class_exists( 'passster\\PS_Category_Lock' ) && PS_Category_Lock::get_instance()->get_protected_term_for_post( $post_id ) ) {
+                $requires_reload = true;
             }
         }
         // Track record.
@@ -1158,12 +1387,29 @@ class PS_Rest_API {
         $response_data = array(
             'success' => true,
         );
+        PS_Helper::remember_unlock( hash_hmac( 'sha256', 'captcha-verified', get_option( 'passster_secure_key' ) ) );
         if ( !empty( $redirect ) ) {
             $response_data['redirect'] = $redirect;
+        } elseif ( $requires_reload ) {
+            $response_data['requires_reload'] = true;
         } else {
             $response_data['content'] = $content;
         }
         return new \WP_REST_Response($response_data, 200);
+    }
+
+    /**
+     * Global Protection check for the object whose content the endpoint would send.
+     * An area isn't tied to the page it's shown on, so it's judged on its own.
+     *
+     * @param int         $post_id    Requested post ID.
+     * @param int         $area_id    Requested area ID.
+     * @param string|bool $protection Protection type.
+     * @return bool
+     */
+    private function can_receive_content( $post_id, $area_id, $protection ) {
+        $object_id = ( 'area' === $protection ? $area_id : $post_id );
+        return PS_Global_Protection::can_receive_content( absint( $object_id ) );
     }
 
     /**

@@ -118,11 +118,11 @@ class Testimonial extends Widget_Base {
 						'image' => $image_path . 'icon-img-right-content.png'
 					],
 					'content-top-icon-title-inline' => [
-						'title' => esc_html__('Content Top | Icon Title Inline', 'essential-addons-for-elementor-lite'),
+						'title' => esc_html__('Content Bottom | Icon Title Inline', 'essential-addons-for-elementor-lite'),
 						'image' => $image_path . 'content-bottom-icon-title-inline.png'
 					],
 					'content-bottom-icon-title-inline' => [
-						'title' => esc_html__('Content Bottom | Icon Title Inline', 'essential-addons-for-elementor-lite'),
+						'title' => esc_html__('Content Top | Icon Title Inline', 'essential-addons-for-elementor-lite'),
 						'image' => $image_path . 'content-top-icon-title-inline.png'
 					],
 					'simple-layout' => [
@@ -901,6 +901,7 @@ class Testimonial extends Widget_Base {
 
 	protected function render_testimonial_image() {
 		$settings = $this->get_settings();
+		$settings['image'] = HelperClass::eael_wpml_translate_media( $settings['image'] ); // WPML Media Translation compatibility
 		$image = Group_Control_Image_Size::get_attachment_image_html( $settings );
 		if( ! empty($image) && ! empty($settings['eael_testimonial_enable_avatar']) ) {
 			ob_start();
@@ -920,9 +921,14 @@ class Testimonial extends Widget_Base {
 		$settings = $this->get_settings_for_display('eael_testimonial_enable_rating');
 
 		if ( $settings == 'yes' ) :
+			$ratings = [ 'rating-one' => 1, 'rating-two' => 2, 'rating-three' => 3, 'rating-four' => 4, 'rating-five' => 5 ];
+			$rating  = $this->get_settings_for_display( 'eael_testimonial_rating_number' );
+			$rating  = isset( $ratings[ $rating ] ) ? $ratings[ $rating ] : 5;
+			/* translators: %d: star rating, from 1 to 5. */
+			$rating_label = sprintf( __( 'Rated %d out of 5', 'essential-addons-for-elementor-lite' ), $rating );
 			ob_start();
 		?>
-		<ul class="testimonial-star-rating">
+		<ul class="testimonial-star-rating" role="img" aria-label="<?php echo esc_attr( $rating_label ); ?>">
 			<li><i class="fas fa-star" aria-hidden="true"></i></li>
 			<li><i class="fas fa-star" aria-hidden="true"></i></li>
 			<li><i class="fas fa-star" aria-hidden="true"></i></li>
@@ -943,6 +949,7 @@ class Testimonial extends Widget_Base {
 
 	protected function testimonial_desc() {
 		$settings = $this->get_settings_for_display();
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<div class="eael-testimonial-text">'. $this->parse_text_editor( wp_kses( $settings['eael_testimonial_description'], HelperClass::eael_allowed_tags() ) ) .'</div>';
 	}
 
@@ -1098,8 +1105,12 @@ class Testimonial extends Widget_Base {
 						$this->render_testimonial_rating();
 					}
 				?>
-				<h3 class="eael-testimonial-user"><?php echo wp_kses( $settings['eael_testimonial_name'], HelperClass::eael_allowed_tags() ); ?></h3>
-				<p class="eael-testimonial-user-company"><?php echo wp_kses( $settings['eael_testimonial_company_title'], HelperClass::eael_allowed_tags() ); ?></p>
+				<?php if ( ! empty( $settings['eael_testimonial_name'] ) ) : ?>
+					<h3 class="eael-testimonial-user"><?php echo wp_kses( $settings['eael_testimonial_name'], HelperClass::eael_allowed_tags() ); ?></h3>
+				<?php endif; ?>
+				<?php if ( ! empty( $settings['eael_testimonial_company_title'] ) ) : ?>
+					<p class="eael-testimonial-user-company"><?php echo wp_kses( $settings['eael_testimonial_company_title'], HelperClass::eael_allowed_tags() ); ?></p>
+				<?php endif; ?>
 				<?php
 				if ( 'default' === $settings['eael_testimonial_rating_position'] ) {
 					$this->render_testimonial_rating();

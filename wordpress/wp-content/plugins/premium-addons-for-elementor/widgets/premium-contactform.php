@@ -16,7 +16,6 @@ use Elementor\Group_Control_Text_Shadow;
 
 // PremiumAddons Classes.
 use PremiumAddons\Includes\Helper_Functions;
-use PremiumAddons\Includes\Controls\Premium_Image_Choose;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // If this file is called directly, abort.
@@ -77,7 +76,7 @@ class Premium_Contactform extends Widget_Base {
 	 * @since 1.0.0
 	 * @access public
 	 *
-	 * @return string Widget keywords.
+	 * @return array Widget keywords.
 	 */
 	public function get_keywords() {
 		return array( 'pa', 'premium', 'premium contact form', 'form7', 'contact' );
@@ -1421,10 +1420,10 @@ class Premium_Contactform extends Widget_Base {
 		$this->add_responsive_control(
 			'button_align',
 			array(
-				'label'        => __( 'Alignment', 'premium-addons-for-elementor' ),
-				'type'         => Controls_Manager::CHOOSE,
-				'default'      => 'left',
-				'options'      => array(
+				'label'     => __( 'Alignment', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::CHOOSE,
+				'default'   => 'left',
+				'options'   => array(
 					'left'   => array(
 						'title' => __( 'Left', 'premium-addons-for-elementor' ),
 						'icon'  => 'eicon-h-align-left',
@@ -1438,9 +1437,11 @@ class Premium_Contactform extends Widget_Base {
 						'icon'  => 'eicon-h-align-right',
 					),
 				),
-				'prefix_class' => 'premium-cf7-button-align-',
-				'condition'    => array(
+				'condition' => array(
 					'button_full_width!' => 'yes',
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .premium-cf7-container p.premium-cf-submit' => 'text-align: {{VALUE}}',
 				),
 			)
 		);
@@ -1794,8 +1795,7 @@ class Premium_Contactform extends Widget_Base {
 		$result = array();
 
 		foreach ( $forms as $item ) {
-			$key            = sprintf( '%1$s::%2$s', $item->id(), $item->title() );
-			$result[ $key ] = $item->title();
+			$result[ $item->id() ] = $item->title();
 		}
 
 		return $result;
@@ -1834,16 +1834,20 @@ class Premium_Contactform extends Widget_Base {
 			}
 		}
 
-		$form_id = 'existing' === $source ? $settings['premium_wpcf7_form'] : $settings['form_id'];
+		// Values saved before 4.11.99 were "<id>::<title>", which WordPress 7.1 get_post() rejects as a non-numeric ID.
+		$existing_form_id = explode( '::', $settings['premium_wpcf7_form'] )[0];
+
+		$form_id = 'existing' === $source ? $existing_form_id : $settings['form_id'];
 
 		if ( ! empty( $form_id ) ) {
+
+			$title_tag = Helper_Functions::validate_html_tag( $settings['title_tag'] );
 
 			if ( 'yes' === $settings['form_title'] ) {
 
 				$this->add_inline_editing_attributes( 'title_text' );
 				$this->add_render_attribute( 'title_text', 'class', 'premium-cf7-title' );
 
-				$title_tag = Helper_Functions::validate_html_tag( $settings['title_tag'] );
 			}
 
 			if ( 'yes' === $settings['form_description'] ) {
@@ -1879,7 +1883,7 @@ class Premium_Contactform extends Widget_Base {
 					<?php endif; ?>
 
 					<?php if ( ! empty( $settings['description_text'] ) ) : ?>
-						<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'description_text' ) ); ?>>
+						<div <?php $this->print_render_attribute_string( 'description_text' ); ?>>
 							<?php echo wp_kses_post( $settings['description_text'] ); ?>
 						</div>
 					<?php endif; ?>
@@ -1888,7 +1892,7 @@ class Premium_Contactform extends Widget_Base {
 
 			<?php endif; ?>
 
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'container' ) ); ?>>
+			<div <?php $this->print_render_attribute_string( 'container' ); ?>>
 				<?php echo do_shortcode( '[contact-form-7 id="' . $form_id . '" ]' ); ?>
 			</div>
 

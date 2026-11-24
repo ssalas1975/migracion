@@ -153,14 +153,25 @@ class Visualizer_Module_Frontend extends Visualizer_Module {
 					),
 				),
 				'permission_callback' => function ( WP_REST_Request $request ) {
-					$chart_id   = filter_var( sanitize_text_field( $request->get_param( 'chart' ), FILTER_VALIDATE_INT ) );
-					if ( ! empty( $chart_id ) && in_array( $request->get_param( 'type' ), array( 'save', 'cancel' ), true ) ) {
-						// let save and cancel go without any check as past version of pro
-						// did not send the X-WP-Nonce
-						// we can change this at a later date.
-						return true;
+					$chart_id = absint( $request->get_param( 'chart' ) );
+					if ( ! $chart_id ) {
+						return false;
 					}
-					return ! empty( $chart_id ) && apply_filters( 'visualizer_pro_show_chart', true, $chart_id );
+
+					$chart = get_post( $chart_id );
+					if ( ! $chart || Visualizer_Plugin::CPT_VISUALIZER !== $chart->post_type ) {
+						return false;
+					}
+
+					if ( in_array( $request->get_param( 'type' ), array( 'save', 'cancel' ), true ) ) {
+						return current_user_can( 'edit_post', $chart_id );
+					}
+
+					if ( 'publish' !== $chart->post_status ) {
+						return current_user_can( 'edit_post', $chart_id );
+					}
+
+					return apply_filters( 'visualizer_pro_show_chart', true, $chart_id );
 				},
 				'callback' => array( $this, 'perform_action' ),
 			)
@@ -739,7 +750,7 @@ class Visualizer_Module_Frontend extends Visualizer_Module {
 			$series                = get_post_meta( $chart->ID, Visualizer_Plugin::CF_SERIES, true );
 			$is_woocommerce_report = get_post_meta( $chart->ID, Visualizer_Plugin::CF_IS_WOOCOMMERCE_SOURCE, true );
 
-			if ( isset( $settings['series'] ) && ! ( count( $settings['series'] ) - count( $series ) > 1 ) ) {
+			if ( isset( $settings['series'] ) && is_array( $settings['series'] ) && is_array( $series ) && ! ( count( $settings['series'] ) - count( $series ) > 1 ) ) {
 				$diff_total_series = abs( count( $settings['series'] ) - count( $series ) );
 				if ( $diff_total_series ) {
 					foreach ( range( 1, $diff_total_series ) as $k => $diff_series ) {
@@ -792,14 +803,20 @@ class Visualizer_Module_Frontend extends Visualizer_Module {
 
 			function visualizerLoadScripts() {
 				document.querySelectorAll("script[data-visualizer-script]").forEach(function(elem) {
-					jQuery.getScript( elem.getAttribute("data-visualizer-script") )
-					.done( function( script, textStatus ) {
-						elem.setAttribute("src", elem.getAttribute("data-visualizer-script"));
-						elem.removeAttribute("data-visualizer-script");
+					// Replace the placeholder with a real script tag using async=false:
+					// scripts download in parallel but execute in insertion order, which
+					// preserves the WordPress dependency order. Parallel jQuery.getScript
+					// calls could execute render-facade.js before the chart renderer had
+					// registered its render event listener, leaving charts blank.
+					var script = document.createElement("script");
+					script.src = elem.getAttribute("data-visualizer-script");
+					script.async = false;
+					script.onload = function() {
 						setTimeout( function() {
 							visualizerRefreshChart();
 						} );
-					} );
+					};
+					elem.parentNode.replaceChild(script, elem);
 				});
 			}
 

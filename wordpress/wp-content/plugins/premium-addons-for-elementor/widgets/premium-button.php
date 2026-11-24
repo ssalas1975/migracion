@@ -127,7 +127,8 @@ class Premium_Button extends Widget_Base {
 			$settings = $this->get_settings();
 
 			if ( 'yes' === $settings['draw_svg'] ) {
-				array_push( $scripts, 'pa-tweenmax', 'pa-motionpath' );
+				$scripts[] = 'pa-tweenmax';
+				$scripts[] = 'pa-motionpath';
 			}
 
 			if ( 'animation' === $settings['icon_type'] || 'animation' === $settings['slide_icon_type'] ) {
@@ -527,36 +528,47 @@ class Premium_Button extends Widget_Base {
 		$this->add_control(
 			'icon_type',
 			array(
-				'label'       => __( 'Icon Type', 'premium-addons-for-elementor' ),
-				'type'        => Controls_Manager::SELECT,
-				'options'     => array(
-					'icon'      => __( 'Icon', 'premium-addons-for-elementor' ),
-					'animation' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
-					'svg'       => __( 'SVG Code', 'premium-addons-for-elementor' ),
+				'label'     => __( 'Icon Type', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::CHOOSE,
+				'options'   => array(
+					'icon'      => array(
+						'title' => __( 'Icon', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-icon',
+					),
+					'animation' => array(
+						'title' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-lottie',
+					),
+					'svg'       => array(
+						'title' => __( 'SVG Code', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-code',
+					),
 				),
-				'default'     => 'icon',
-				'label_block' => true,
-				'condition'   => $common_conditions,
+				'default'   => 'icon',
+				'skin'      => 'inline',
+				'condition' => $common_conditions,
 			)
 		);
 
 		$this->add_control(
 			'premium_button_icon_selection_updated',
 			array(
-				'label'            => __( 'Icon', 'premium-addons-for-elementor' ),
-				'type'             => Controls_Manager::ICONS,
-				'fa4compatibility' => 'premium_button_icon_selection',
-				'default'          => array(
+				'label'                  => __( 'Icon', 'premium-addons-for-elementor' ),
+				'type'                   => Controls_Manager::ICONS,
+				'fa4compatibility'       => 'premium_button_icon_selection',
+				'default'                => array(
 					'value'   => 'fas fa-star',
 					'library' => 'fa-solid',
 				),
-				'condition'        => array_merge(
+				'exclude_inline_options' => 'none',
+				'skin'                   => 'inline',
+				'label_block'            => false,
+				'condition'              => array_merge(
 					$common_conditions,
 					array(
 						'icon_type' => 'icon',
 					)
 				),
-				'label_block'      => true,
 			)
 		);
 
@@ -888,14 +900,24 @@ class Premium_Button extends Widget_Base {
 			'premium_button_icon_position',
 			array(
 				'label'                => __( 'Icon Position', 'premium-addons-for-elementor' ),
-				'type'                 => Controls_Manager::SELECT,
+				'type'                 => Controls_Manager::CHOOSE,
 				'prefix_class'         => 'pa-icon-pos-',
 				'default'              => 'before',
+				'toggle'               => false,
 				'options'              => array(
-					'before' => __( 'Before', 'premium-addons-for-elementor' ),
-					'after'  => __( 'After', 'premium-addons-for-elementor' ),
+					'before' => array(
+						'title' => __( 'Before', 'premium-addons-for-elementor' ),
+						'icon'  => is_rtl() ? 'eicon-order-end' : 'eicon-order-start',
+					),
+					'after'  => array(
+						'title' => __( 'After', 'premium-addons-for-elementor' ),
+						'icon'  => is_rtl() ? 'eicon-order-start' : 'eicon-order-end',
+					),
+					'top'    => array(
+						'title' => __( 'Above', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-v-align-top',
+					),
 				),
-				'label_block'          => true,
 				'condition'            => array(
 					'premium_button_icon_switcher' => 'yes',
 					'premium_button_hover_effect!' => 'style4',
@@ -903,6 +925,7 @@ class Premium_Button extends Widget_Base {
 				'selectors_dictionary' => array(
 					'before' => 'row',
 					'after'  => 'row-reverse',
+					'top'    => 'column',
 				),
 				'selectors'            => array(
 					'{{WRAPPER}} .premium-button-text-icon-wrapper' => 'flex-direction: {{VALUE}}',
@@ -977,7 +1000,6 @@ class Premium_Button extends Widget_Base {
 				'type'      => Controls_Manager::SLIDER,
 				'condition' => array(
 					'premium_button_icon_switcher' => 'yes',
-					// 'premium_button_icon_position' => 'before',
 					'premium_button_hover_effect'  => 'style3',
 				),
 				'range'     => array(
@@ -987,7 +1009,7 @@ class Premium_Button extends Widget_Base {
 					),
 				),
 				'selectors' => array(
-					'{{WRAPPER}} .premium-button-style3:hover i, {{WRAPPER}} .premium-button-style3:hover svg' => '-webkit-transform: translateX({{SIZE}}{{UNIT}}); transform: translateX({{SIZE}}{{UNIT}})',
+					'{{WRAPPER}}' => '--pa-btn-style3-translate: {{SIZE}}{{UNIT}}',
 				),
 			)
 		);
@@ -1067,7 +1089,7 @@ class Premium_Button extends Widget_Base {
 		);
 
 		// Allow admins only to add JS.
-		if ( current_user_can( 'administrator' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			$this->add_control(
 				'premium_button_event_switcher',
 				array(
@@ -1521,7 +1543,7 @@ class Premium_Button extends Widget_Base {
 					'default' => Global_Colors::COLOR_TEXT,
 				),
 				'selectors' => array(
-					'{{WRAPPER}} .premium-button-none:hover, {{WRAPPER}} .premium-button-style8:hover, {{WRAPPER}} .premium-button-style1:before, {{WRAPPER}} .premium-button-style2-shutouthor:before, {{WRAPPER}} .premium-button-style2-shutoutver:before, {{WRAPPER}} .premium-button-style2-shutinhor, {{WRAPPER}} .premium-button-style2-shutinver, {{WRAPPER}} .premium-button-style2-dshutinhor:before, {{WRAPPER}} .premium-button-style2-dshutinver:before, {{WRAPPER}} .premium-button-style2-scshutouthor:before, {{WRAPPER}} .premium-button-style2-scshutoutver:before, {{WRAPPER}} .premium-button-style3-after:hover, {{WRAPPER}} .premium-button-style3-before:hover, {{WRAPPER}} .premium-button-style4-icon-wrapper, {{WRAPPER}} .premium-button-style5-radialin, {{WRAPPER}} .premium-button-style5-radialout:before, {{WRAPPER}} .premium-button-style5-rectin, {{WRAPPER}} .premium-button-style5-rectout:before, {{WRAPPER}} .premium-button-style6-bg, {{WRAPPER}} .premium-button-style6:before' => 'background-color: {{VALUE}}',
+					'{{WRAPPER}} .premium-button-none:hover, {{WRAPPER}} .premium-button-style8:hover, {{WRAPPER}} .premium-button-style1:before, {{WRAPPER}} .premium-button-style2-shutouthor:before, {{WRAPPER}} .premium-button-style2-shutoutver:before, {{WRAPPER}} .premium-button-style2-shutinhor, {{WRAPPER}} .premium-button-style2-shutinver, {{WRAPPER}} .premium-button-style2-dshutinhor:before, {{WRAPPER}} .premium-button-style2-dshutinver:before, {{WRAPPER}} .premium-button-style2-scshutouthor:before, {{WRAPPER}} .premium-button-style2-scshutoutver:before, {{WRAPPER}} .premium-button-style3-after:hover, {{WRAPPER}} .premium-button-style3-before:hover, {{WRAPPER}} .premium-button-style4-icon-wrapper, {{WRAPPER}} .premium-button-style5-radialin, {{WRAPPER}} .premium-button-style5-radialout:before, {{WRAPPER}} .premium-button-style5-rectin, {{WRAPPER}} .premium-button-style5-rectout:before, {{WRAPPER}} .premium-button-style6-bg, {{WRAPPER}} .premium-button-style6:hover, {{WRAPPER}} .premium-button-style6:hover::before' => 'background-color: {{VALUE}}',
 				),
 				'condition' => array(
 					'premium_button_hover_effect!' => 'style7',
@@ -1842,7 +1864,7 @@ class Premium_Button extends Widget_Base {
 		?>
 
 
-		<a <?php echo wp_kses_post( $this->get_render_attribute_string( 'button' ) ); ?>>
+		<a <?php $this->print_render_attribute_string( 'button' ); ?>>
 			<div class="premium-button-text-icon-wrapper">
 				<?php if ( 'yes' === $settings['premium_button_icon_switcher'] ) : ?>
 
@@ -1850,24 +1872,21 @@ class Premium_Button extends Widget_Base {
 						<?php if ( 'icon' === $icon_type ) : ?>
 							<?php
 
-								echo Helper_Functions::get_svg_by_icon(
-									$settings['premium_button_icon_selection_updated'],
-									$this->get_render_attribute_string( 'icon' )
-								);// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								echo Helper_Functions::get_svg_by_icon( $settings['premium_button_icon_selection_updated'], $this->get_render_attributes( 'icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_svg_by_icon() returns sanitized inline SVG/icon markup.
 
 							?>
 						<?php elseif ( 'svg' === $icon_type ) : ?>
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'icon' ) ); ?>>
-								<?php echo Helper_Functions::sanitize_svg( $this->get_settings_for_display( 'custom_svg' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_svg passes through wp_kses with a strict SVG allowlist ?>
+							<div <?php $this->print_render_attribute_string( 'icon' ); ?>>
+								<?php echo Helper_Functions::sanitize_svg( $this->get_settings_for_display( 'custom_svg' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_svg() returns wp_kses-sanitized SVG markup. ?>
 							</div>
 						<?php else : ?>
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'lottie' ) ); ?>></div>
+							<div <?php $this->print_render_attribute_string( 'lottie' ); ?>></div>
 						<?php endif; ?>
 					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php if ( ! empty( $button_text ) ) : ?>
-					<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_button_text' ) ); ?>>
+					<span <?php $this->print_render_attribute_string( 'premium_button_text' ); ?>>
 						<?php echo wp_kses_post( $button_text ); ?>
 					</span>
 				<?php endif; ?>
@@ -1881,13 +1900,13 @@ class Premium_Button extends Widget_Base {
 							Icons_Manager::render_icon( $settings['premium_button_style4_icon_selection_updated'], array( 'aria-hidden' => 'true' ) );
 						?>
 					<?php else : ?>
-						<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'slide_lottie' ) ); ?>></div>
+						<div <?php $this->print_render_attribute_string( 'slide_lottie' ); ?>></div>
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 
 			<?php if ( 'style6' === $settings['premium_button_hover_effect'] && 'yes' === $mouse_detect ) : ?>
-				<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'style6' ) ); ?>></span>
+				<span <?php $this->print_render_attribute_string( 'style6' ); ?>></span>
 			<?php endif; ?>
 
 			<?php if ( 'style8' === $settings['premium_button_hover_effect'] ) : ?>

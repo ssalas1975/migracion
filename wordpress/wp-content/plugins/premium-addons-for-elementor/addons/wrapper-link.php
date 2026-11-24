@@ -11,8 +11,6 @@ namespace PremiumAddons\Addons;
 use Elementor\Controls_Manager;
 
 // Premium Addons Classes.
-use PremiumAddons\Admin\Includes\Admin_Helper;
-use PremiumAddons\Includes\Helper_Functions;
 use PremiumAddons\Includes\Controls\Premium_Post_Filter;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,14 +25,14 @@ class Wrapper_Link {
 	/**
 	 * Load Script
 	 *
-	 * @var $load_script
+	 * @var bool|null
 	 */
 	private static $load_script = null;
 
 	/**
 	 * Class object
 	 *
-	 * @var instance
+	 * @var self|null
 	 */
 	private static $instance = null;
 
@@ -42,9 +40,6 @@ class Wrapper_Link {
 	 * Class Constructor Function.
 	 */
 	public function __construct() {
-
-		// Enqueue the required JS file.
-		add_action( 'elementor/preview/enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		// Creates Premium Wrapper Link tab at the end of layout/content tab.
 		add_action( 'elementor/element/section/section_layout/after_section_end', array( $this, 'register_controls' ) );
@@ -112,6 +107,7 @@ class Wrapper_Link {
 				),
 				'default'     => 'url',
 				'label_block' => true,
+				'render_type' => 'none',
 				'condition'   => array(
 					'premium_wrapper_link_switcher' => 'yes',
 				),
@@ -127,6 +123,7 @@ class Wrapper_Link {
 					'active' => true,
 				),
 				'placeholder' => 'https://example.com',
+				'render_type' => 'none',
 				'condition'   => array(
 					'premium_wrapper_link_switcher'  => 'yes',
 					'premium_wrapper_link_selection' => 'url',
@@ -142,6 +139,7 @@ class Wrapper_Link {
 				'label_block' => true,
 				'multiple'    => false,
 				'source'      => array( 'post', 'page' ),
+				'render_type' => 'none',
 				'condition'   => array(
 					'premium_wrapper_link_switcher'  => 'yes',
 					'premium_wrapper_link_selection' => 'link',
@@ -164,31 +162,32 @@ class Wrapper_Link {
 	 */
 	public function before_render( $element ) {
 
+		if ( 'yes' !== $element->get_settings( 'premium_wrapper_link_switcher' ) ) {
+			return;
+		}
+
 		$settings = $element->get_settings_for_display();
 
-		if ( 'yes' === $element->get_settings_for_display( 'premium_wrapper_link_switcher' ) ) {
+		if ( 'link' === $settings['premium_wrapper_link_selection'] ) {
+			$href = get_permalink( $settings['premium_wrapper_existing_link'] );
+		} else {
+			$href = $settings['premium_wrapper_link']['url'];
+		}
 
-			if ( 'link' === $settings['premium_wrapper_link_selection'] ) {
-				$href = get_permalink( $settings['premium_wrapper_existing_link'] );
-			} else {
-				$href = $settings['premium_wrapper_link']['url'];
-			}
+		$link_settings = array(
+			'type' => $settings['premium_wrapper_link_selection'],
+			'link' => $settings['premium_wrapper_link'],
+			'href' => esc_url( $href ),
+		);
 
-			$link_settings = array(
-				'type' => $settings['premium_wrapper_link_selection'],
-				'link' => $settings['premium_wrapper_link'],
-				'href' => esc_url( $href ),
+		if ( ! empty( $href ) ) {
+			$element->add_render_attribute(
+				'_wrapper',
+				array(
+					'data-premium-element-link' => wp_json_encode( $link_settings ),
+					'style'                     => 'cursor: pointer',
+				)
 			);
-
-			if ( ! empty( $href ) ) {
-				$element->add_render_attribute(
-					'_wrapper',
-					array(
-						'data-premium-element-link' => wp_json_encode( $link_settings ),
-						'style'                     => 'cursor: pointer',
-					)
-				);
-			}
 		}
 	}
 
@@ -221,7 +220,7 @@ class Wrapper_Link {
 			return;
 		}
 
-		if ( 'yes' === $element->get_settings_for_display( 'premium_wrapper_link_switcher' ) ) {
+		if ( 'yes' === $element->get_settings( 'premium_wrapper_link_switcher' ) ) {
 
 			$this->enqueue_scripts();
 

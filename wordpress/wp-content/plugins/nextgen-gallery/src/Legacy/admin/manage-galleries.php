@@ -33,17 +33,22 @@ function nggallery_manage_gallery_main() {
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-	$gallery_mapper            = \Imagely\NGG\DataMappers\Gallery::get_instance();
-	$total_number_of_galleries = $gallery_mapper->count();
-
-	$query = $gallery_mapper->select();
+	$gallery_mapper = \Imagely\NGG\DataMappers\Gallery::get_instance();
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for search
 	if ( ! empty( $_GET['gs'] ) ) {
-		$gs = sanitize_text_field( wp_unslash( $_GET['gs'] ) );
-		$query->where( [ 'title LIKE %s', '%' . trim( $gs ) . '%' ] );
+		$gs     = sanitize_text_field( wp_unslash( $_GET['gs'] ) );
+		$search = [ 'title LIKE %s', '%' . trim( $gs ) . '%' ];
+
+		// Pager total must match the filtered rows.
+		$count                     = $gallery_mapper->select( 'COUNT(*) AS counter' )->where( $search )->run_query( false, false, true );
+		$total_number_of_galleries = isset( $count[0]->counter ) ? (int) $count[0]->counter : 0;
+
+		$query = $gallery_mapper->select()->where( $search );
 	} else {
-		$gs = null;
+		$gs                        = null;
+		$total_number_of_galleries = $gallery_mapper->count();
+		$query                     = $gallery_mapper->select();
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
@@ -537,6 +542,14 @@ function nggallery_manage_gallery_main() {
 						<strong><?php esc_html_e( 'Resize Images to', 'nggallery' ); ?>:</strong>
 					</td>
 					<td>
+						<?php
+						// The dimensions are site-wide settings, so editing them needs the options
+						// capability (issue #966). The resize itself only needs gallery management,
+						// so the fields become read-only rather than the action disappearing - the
+						// server refuses the write in post_processor_galleries() either way, and
+						// this stops a delegated manager typing values that are then ignored.
+						if ( \Imagely\NGG\Util\Security::is_allowed( 'NextGEN Change options' ) ) :
+							?>
 						<input type="text"
 								size="5"
 								name="imgWidth"
@@ -548,6 +561,11 @@ function nggallery_manage_gallery_main() {
 								value="<?php echo esc_attr( $ngg->options['imgHeight'] ); ?>"/>
 						<br/>
 						<small><?php esc_html_e( 'Width x height (in pixel). NextGEN Gallery will keep ratio size', 'nggallery' ); ?></small>
+						<?php else : ?>
+						<strong><?php echo esc_html( $ngg->options['imgWidth'] . ' x ' . $ngg->options['imgHeight'] ); ?></strong>
+						<br/>
+						<small><?php esc_html_e( 'Images will be resized to the saved dimensions. Changing them needs the "NextGEN Change options" capability, so these fields are read-only for your role.', 'nggallery' ); ?></small>
+						<?php endif; ?>
 					</td>
 				</tr>
 				<tr align="right">
@@ -601,7 +619,18 @@ function nggallery_manage_gallery_main() {
 						<?php esc_html_e( 'Width x height (in pixel)', 'nggallery' ); ?>
 					</th>
 					<td>
-						<?php include __DIR__ . '/thumbnails-template.php'; ?>
+						<?php
+						// See the note on the resize dialog above - same capability, same reason.
+						if ( \Imagely\NGG\Util\Security::is_allowed( 'NextGEN Change options' ) ) {
+							include __DIR__ . '/thumbnails-template.php';
+						} else {
+							?>
+						<strong><?php echo esc_html( $ngg->options['thumbwidth'] . ' x ' . $ngg->options['thumbheight'] ); ?></strong>
+						<br/>
+						<small><?php esc_html_e( 'Thumbnails will be created at the saved dimensions. Changing them needs the "NextGEN Change options" capability, so these fields are read-only for your role.', 'nggallery' ); ?></small>
+							<?php
+						}
+						?>
 					</td>
 				</tr>
 
@@ -610,12 +639,18 @@ function nggallery_manage_gallery_main() {
 						<?php esc_html_e( 'Set fix dimension', 'nggallery' ); ?>
 					</th>
 					<td>
+						<?php if ( \Imagely\NGG\Util\Security::is_allowed( 'NextGEN Change options' ) ) : ?>
 						<input type="checkbox"
 								name="thumbfix"
 								value="1"
 							<?php checked( '1', $ngg->options['thumbfix'] ); ?>/>
 						<br/>
 						<small><?php esc_html_e( 'Ignore the aspect ratio, no portrait thumbnails', 'nggallery' ); ?></small>
+						<?php else : ?>
+						<strong><?php echo $ngg->options['thumbfix'] ? esc_html__( 'On', 'nggallery' ) : esc_html__( 'Off', 'nggallery' ); ?></strong>
+						<br/>
+						<small><?php esc_html_e( 'Read-only for your role - changing it needs the "NextGEN Change options" capability.', 'nggallery' ); ?></small>
+						<?php endif; ?>
 					</td>
 				</tr>
 

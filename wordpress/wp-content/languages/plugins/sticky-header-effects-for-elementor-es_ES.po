@@ -1,0 +1,669 @@
+# Translation of Plugins - Sticky Header Effects for Elementor - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Sticky Header Effects for Elementor - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-09-24 18:29:51+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Sticky Header Effects for Elementor - Stable (latest release)\n"
+
+#: includes/preset/class-she-preset.php:169
+msgid "You do not have permission to install or activate plugins."
+msgstr "No tienes permisos para instalar o activar plugins."
+
+#: includes/preset/class-she-preset.php:169
+msgid "Permission Denied"
+msgstr "Permiso denegado"
+
+#: includes/preset/class-she-preset.php:295
+msgid "Sticky Header Templates"
+msgstr "Plantillas de encabezado fijo"
+
+#: includes/preset/class-she-preset.php:294
+msgid "Import 50+ Pre-Designed "
+msgstr "Importa más de 50 prediseñados "
+
+#: includes/preset/class-she-preset.php:354
+msgid "Install WDesignKit Plugin for Templates"
+msgstr "Instalar el plugin WDesignKit para plantillas"
+
+#: includes/preset/class-she-preset.php:347
+msgid "Nav Menu"
+msgstr "Menú de navegación"
+
+#: includes/preset/class-she-preset.php:339
+msgid "Navigation Menu Widget"
+msgstr "Widget de menú de navegación"
+
+#: includes/notices/class-she-nexter-extension-promo.php:143
+msgid "Enable FREE Theme Builder"
+msgstr "Activar Constructor de temas GRATUITO"
+
+#. translators: %s: the linked "Nexter Extension Plugin" name
+#: includes/notices/class-she-nexter-extension-promo.php:141
+msgid "Install <a href=\"https://nexterwp.com/nexter-extension/?utm_source=wpbackend&utm_medium=banner&utm_campaign=links\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"font-weight: 500; text-decoration: underline;\">%s</a> from Sticky Header Effects for Elementor to use FREE Theme Builder for Elementor."
+msgstr "Instala <a href=\"https://nexterwp.com/nexter-extension/?utm_source=wpbackend&utm_medium=banner&utm_campaign=links\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"font-weight: 500; text-decoration: underline;\">%s</a> desde Sticky Header Effects for Elementor para usar el Constructor de temas GRATUITO para Elementor."
+
+#: includes/notices/class-she-nexter-extension-promo.php:138
+msgid "Create Elementor Header, Footer, Single, Archive, 404 etc for FREE!"
+msgstr "¡Crea encabezado, pie de página, página individual, archivo, 404 y más en Elementor GRATIS!"
+
+#: includes/preset/class-she-preset.php:360
+msgid "Design from Scratch"
+msgstr "Diseñar desde cero"
+
+#: includes/notices/class-she-banner-controller.php:38
+msgid "- Join Discord Now"
+msgstr "- Únete ahora a Discord"
+
+#: includes/notices/class-she-banner-controller.php:33
+msgid "Get early access and exclusive perks!"
+msgstr "¡Consigue acceso anticipado y ventajas exclusivas!"
+
+#: includes/notices/class-she-banner-controller.php:31
+msgid "Join our community to shape the future of"
+msgstr "Únete a nuestra comunidad para dar forma al futuro de"
+
+#: includes/preset/class-she-preset.php:343 build/index.js:1
+msgid "WordPress Menu"
+msgstr "Menú de WordPress"
+
+#: modules/pro-upsell/module.php:422 modules/transparent/module.php:1850
+#: build/index.js:1
+msgid "Read Docs"
+msgstr "Leer la documentación"
+
+#: modules/pro-upsell/module.php:421 modules/transparent/module.php:1849
+#: build/index.js:1
+msgid "Live Demo"
+msgstr "Demostración en vivo"
+
+#: includes/user-experience/class-she-deactivate-survey.php:137
+msgid "Other Reason"
+msgstr "Otra razón"
+
+#: includes/user-experience/class-she-deactivate-survey.php:133
+msgid "Missing Feature"
+msgstr "Característica que falta"
+
+#: includes/user-experience/class-she-deactivate-survey.php:129
+msgid "Compatibility Issues"
+msgstr "Problemas de compatibilidad"
+
+#: includes/user-experience/class-she-deactivate-survey.php:125
+msgid "No Longer Needed"
+msgstr "Ya no es necesario"
+
+#: includes/user-experience/class-she-deactivate-survey.php:117
+msgid "Slow Performance"
+msgstr "Rendimiento lento"
+
+#: includes/user-experience/class-she-deactivate-survey.php:113
+msgid "Plugin Issues"
+msgstr "Problemas de los plugins"
+
+#: includes/user-experience/class-she-deactivate-survey.php:109
+msgid "Just Debugging"
+msgstr "Solo depuración"
+
+#: includes/notices/class-she-pro-launch-notice.php:256
+#: includes/notices/class-she-sale-notice.php:244
+msgid "Insufficient permissions."
+msgstr "Permisos insuficientes."
+
+#: includes/meta/class-she-meta.php:78
+#: includes/notices/class-she-banner-controller.php:25 build/index.js:1
+msgid "Request Feature"
+msgstr "Solicitar una característica"
+
+#: includes/meta/class-she-meta.php:74
+msgid "Docs"
+msgstr "Documentación"
+
+#: includes/meta/class-she-meta.php:76
+msgid "Join Community"
+msgstr "Únete a la comunidad"
+
+#: includes/meta/class-she-meta.php:77 build/index.js:1
+msgid "What's New?"
+msgstr "¿Que hay de nuevo?"
+
+#: includes/meta/class-she-meta.php:99 build/index.js:1
+msgid "Settings"
+msgstr "Ajustes"
+
+#: includes/meta/class-she-meta.php:79
+msgid "Share Review"
+msgstr "Compartir una reseña"
+
+#: includes/meta/class-she-meta.php:103 build/index.js:1
+msgid "Need Help?"
+msgstr "¿Necesitas ayuda?"
+
+#: includes/posimyth-sdk/class-posimyth-deactivation-survey.php:439
+msgid "I agree to be contacted via email for support with this plugin."
+msgstr "Acepto que se pongan en contacto conmigo mediante correo electrónico para obtener ayuda con este plugin."
+
+#: includes/meta/class-she-meta.php:75
+msgid "Video Tutorials"
+msgstr "Videotutoriales"
+
+#. Author URI of the plugin
+#: sticky-header-effects-for-elementor.php
+msgid "https://posimyth.com/"
+msgstr "https://posimyth.com/"
+
+#: includes/dashboard/class-she-dashboard-ajax.php:498
+#: includes/preset/class-she-preset.php:195
+msgid "Failed to retrieve plugin information."
+msgstr "No se ha podido recuperar la información del plugin."
+
+#: includes/dashboard/class-she-dashboard-ajax.php:427
+msgid "Rollback to Previous Version"
+msgstr "Retroceder a la versión anterior"
+
+#: includes/dashboard/class-she-dashboard-ajax.php:206
+#: includes/dashboard/class-she-dashboard-ajax.php:207
+msgid "success"
+msgstr "correcto"
+
+#: includes/preset/class-she-preset.php:333
+msgid "Supports Widgets :"
+msgstr "Admite widgets:"
+
+#: includes/preset/class-she-preset.php:326
+msgid "Explore Versatile Layout Options"
+msgstr "Explora opciones de diseño versátiles"
+
+#: includes/preset/class-she-preset.php:320
+msgid "Time-Saving and Efficient Workflow"
+msgstr "Flujo de trabajo eficiente y que ahorra tiempo"
+
+#: includes/preset/class-she-preset.php:312
+msgid "Fully Customizable for Any Style"
+msgstr "Totalmente personalizable para cualquier estilo"
+
+#: includes/preset/class-she-preset.php:306
+msgid "Design Quickly without starting from Scratch"
+msgstr "Diseña rápidamente sin empezar desde cero"
+
+#: includes/preset/class-she-preset.php:299
+msgid "Uniquely designed Elementor Templates for every website type made with Elementor & The Plus Addons for Elementor Widgets."
+msgstr "Plantillas de Elementor diseñadas de forma única para cada tipo de sitio web, creadas con Elementor y los widgets de The Plus Addons for Elementor."
+
+#: includes/user-experience/class-she-deactivate-survey.php:121
+msgid "Switched to Alternative"
+msgstr "Cambiado a alternativa"
+
+#. Author of the plugin
+#: sticky-header-effects-for-elementor.php
+msgid "POSIMYTH"
+msgstr "POSIMYTH"
+
+#. Description of the plugin
+#: sticky-header-effects-for-elementor.php
+msgid "Create stunning sticky headers with multiple scroll effects like shrink, fade, slide, and blur. Packed with 50+ ready-to-import templates and fully customizable using Elementor."
+msgstr "Crea impresionantes encabezados fijos con múltiples efectos de desplazamiento como reducir, desvanecer, deslizar y desenfocar, con más de 50 plantillas listas para importar y totalmente personalizables con Elementor."
+
+#: modules/transparent/module.php:476
+msgid "Adjust properties once Status will be changed to Sticky."
+msgstr "Ajusta las propiedades una vez que el estado cambie a fijo."
+
+#: modules/transparent/module.php:456
+msgid "Padding"
+msgstr "Relleno"
+
+#: modules/transparent/module.php:402
+msgid "Offset"
+msgstr "Desplazamiento"
+
+#: modules/transparent/module.php:382
+msgid "Custom"
+msgstr "Personalizado"
+
+#: modules/transparent/module.php:381
+msgid "Default"
+msgstr "Por defecto"
+
+#: modules/transparent/module.php:379 modules/transparent/module.php:394
+msgid "After Sticky"
+msgstr "Tras quedar fijo"
+
+#: modules/transparent/module.php:1002
+msgid "Gap"
+msgstr "Espacio"
+
+#: includes/abilities/class-she-abilities.php:304
+#: modules/transparent/module.php:429 modules/transparent/module.php:901
+msgid "Width"
+msgstr "Anchura"
+
+#: modules/transparent/module.php:855
+msgid "Weight"
+msgstr "Peso"
+
+#: modules/transparent/module.php:1211
+msgid "Blur"
+msgstr "Desenfoque"
+
+#: modules/transparent/module.php:1188
+msgid "Vertical"
+msgstr "Vertical"
+
+#: includes/features/class-she-features.php:144
+#: modules/transparent/module.php:1151
+msgid "Bottom Shadow"
+msgstr "Sombra inferior"
+
+#: modules/transparent/module.php:1049
+msgid "Radius"
+msgstr "Radio"
+
+#: modules/transparent/module.php:560
+msgid "Gradient"
+msgstr "Degradado"
+
+#: modules/transparent/module.php:546
+msgid "Background Type"
+msgstr "Tipo de fondo"
+
+#: modules/transparent/module.php:1612
+msgid "Saturation Amount"
+msgstr "Cantidad de saturación"
+
+#: modules/transparent/module.php:1588
+msgid "Blur Amount (Px)"
+msgstr "Cantidad de desenfoque (Px)"
+
+#: modules/transparent/module.php:1575
+msgid "Tip: Low saturation works best with no background color<br><br>DEFAULTS: Blur 20px, Saturation 1.80"
+msgstr "Consejo: La saturación baja funciona mejor sin color de fondo<br><br>VALORES POR DEFECTO: Desenfoque 20px, Saturación 1,80"
+
+#: modules/transparent/module.php:1162
+msgid "Choose bottom shadow options after scrolling"
+msgstr "Elige las opciones de sombra inferior después de desplazarte"
+
+#: modules/transparent/module.php:834
+msgid "Only 2"
+msgstr "Solo 2"
+
+#: modules/transparent/module.php:598 modules/transparent/module.php:634
+msgid "Location"
+msgstr "Ubicación"
+
+#: modules/transparent/module.php:845
+msgid "If 3 is too many, try only 2"
+msgstr "Si 3 son demasiados, prueba con solo 2"
+
+#: modules/transparent/module.php:1234
+msgid "Spread"
+msgstr "Extender"
+
+#: modules/transparent/module.php:948
+msgid "Active Width(Close Button)"
+msgstr "Anchura activa (Botón cerrar)"
+
+#: modules/transparent/module.php:821
+msgid "<b>Dots/Squares</b><br>Line weight and width are equal with an adjustable width for the active(close button) lines"
+msgstr "<b>Puntos/Cuadros</b><br>El peso y la anchura de las líneas son iguales, con una anchura ajustable para las líneas activas (botón de cerrar)"
+
+#: modules/transparent/module.php:808
+msgid "<b>Lines</b><br>Separately adjustable line weight and width"
+msgstr "<b>Líneas</b><br>Peso y anchura de línea ajustables por separado"
+
+#: modules/transparent/module.php:794
+msgid "Dots/Squares"
+msgstr "Puntos/Cuadrados"
+
+#: modules/transparent/module.php:789
+msgid "Lines"
+msgstr "Líneas"
+
+#: modules/transparent/module.php:784
+msgid "Toggle Button Type"
+msgstr "Tipo de botón de alternar"
+
+#: modules/transparent/module.php:771
+msgid "This option ONLY works on the WordPress menu widget hamburger icon.<br><br>Tip: Set the nav menu toggle button size first. All of these settings are scaled off of that size"
+msgstr "Esta opción SOLO funciona en el icono de hamburguesa del widget de menú de WordPress.<br><br>Consejo: Establece primero el tamaño del botón de alternar del menú de navegación. Todos estos ajustes se escalan a partir de ese tamaño."
+
+#: modules/transparent/module.php:743
+msgid "Customize and add animation to the Elementor menu icon<br>*Only supports Elementor nav menu"
+msgstr "Personaliza y añade animación al icono del menú de Elementor<br>*Solo es compatible con el menú nav de Elementor"
+
+#: modules/transparent/module.php:732
+msgid "Custom Menu Toggle Button"
+msgstr "Botón de alternar de menú personalizado"
+
+#: modules/transparent/module.php:222 modules/transparent/module.php:713
+msgid "Bottom Right"
+msgstr "Abajo a la derecha"
+
+#: modules/transparent/module.php:223 modules/transparent/module.php:712
+msgid "Bottom Left"
+msgstr "Abajo a la izquierda"
+
+#: modules/transparent/module.php:711
+msgid "Bottom Center"
+msgstr "Abajo en el centro"
+
+#: modules/transparent/module.php:710
+msgid "Top Right"
+msgstr "Arriba a la derecha"
+
+#: modules/transparent/module.php:709
+msgid "Top Left"
+msgstr "Arriba a la izquierda"
+
+#: modules/transparent/module.php:708
+msgid "Top Center"
+msgstr "Arriba en el centro"
+
+#: modules/transparent/module.php:707
+msgid "Center Right"
+msgstr "Centro a la derecha"
+
+#: modules/transparent/module.php:706
+msgid "Center Left"
+msgstr "Centro a la izquierda"
+
+#: modules/transparent/module.php:705
+msgid "Center Center"
+msgstr "Centro centrado"
+
+#: modules/transparent/module.php:218 modules/transparent/module.php:702
+msgid "Position"
+msgstr "Posición"
+
+#: modules/transparent/module.php:674
+msgid "Angle"
+msgstr "Ángulo"
+
+#: modules/transparent/module.php:658
+msgid "Radial"
+msgstr "Radial"
+
+#: modules/transparent/module.php:657
+msgid "Linear"
+msgstr "Lineal"
+
+#: modules/transparent/module.php:654
+msgid "Type"
+msgstr "Tipo"
+
+#: modules/transparent/module.php:618
+msgid "Second Color"
+msgstr "Segundo color"
+
+#: modules/transparent/module.php:585
+msgid "Please note that gradients will not be transitioned"
+msgstr "Ten en cuenta que los degradados no se transicionan"
+
+#: modules/transparent/module.php:556
+msgid "Classic"
+msgstr "Clásico"
+
+#: modules/transparent/module.php:511
+msgid ""
+"This will make the header overlap the main page so extra spacing at the top of sections may be needed<br><br>\n"
+"\t\t\t\tDoes NOT work on/override elementor sticky settings"
+msgstr ""
+"Esto hará que la cabecera se solape con la página principal, por lo que puede ser necesario un espaciado extra en la parte superior de las secciones<br><br>\n"
+"\t\t\t\tNO funciona con/sobreescribe los ajustes de fijado de elementor"
+
+#: modules/transparent/module.php:1363
+msgid "Please select <b>only 1 option</b> for each tab"
+msgstr "Por favor, selecciona <b>solo 1 opción</b> para cada pestaña"
+
+#: modules/transparent/module.php:1139
+msgid "Note: A border size(even 0px) must be set on the header for the transition to work both ways"
+msgstr "Nota: Se debe establecer un tamaño de borde (incluso 0px) en la cabecera para que la transición funcione en ambos sentidos."
+
+#: modules/transparent/module.php:1307
+msgid "Resize logo after scrolling"
+msgstr "Cambiar el tamaño del logo tras hacer scroll"
+
+#: modules/transparent/module.php:1654
+msgid "WARNING: This might break section/container entrance animations"
+msgstr "ADVERTENCIA: Esto podría romper las animaciones de entrada de la sección/contenedor"
+
+#: modules/transparent/module.php:1679
+msgid "Choose the scroll distance to start hiding the header"
+msgstr "Elige la distancia de scroll para comenzar a ocultar la cabecera"
+
+#: includes/abilities/class-she-abilities.php:398
+#: modules/transparent/module.php:1635
+msgid "Hide header on scroll down"
+msgstr "Ocultar la cabecera al hacer scroll hacia abajo"
+
+#: includes/features/class-she-features.php:130
+#: modules/transparent/module.php:1553
+msgid "Blur Background"
+msgstr "Desenfoque del fondo"
+
+#: modules/transparent/module.php:1531
+msgid "Removes all filters to allow a full color logo image"
+msgstr "Elimina todos los filtros para permitir una imagen del logotipo a todo color"
+
+#: modules/transparent/module.php:1524
+msgid "Full Color Logo"
+msgstr "Logotipo a todo color"
+
+#: modules/transparent/module.php:1455
+msgid "After Scrolling"
+msgstr "Después del scroll"
+
+#: modules/transparent/module.php:1425 modules/transparent/module.php:1496
+msgid "Black Logo"
+msgstr "Logotipo negro"
+
+#: modules/transparent/module.php:1397 modules/transparent/module.php:1468
+msgid "White Logo"
+msgstr "Logotipo blanco"
+
+#: modules/transparent/module.php:1351
+msgid "Change the logo image color before or after the user reaches the scroll distance set above"
+msgstr "Cambia el color de la imagen del logotipo antes o después de que el usuario alcance la distancia de scroll establecida anteriormente."
+
+#: includes/features/class-she-features.php:116
+#: modules/transparent/module.php:1299
+msgid "Shrink Logo"
+msgstr "Reducción del logotipo"
+
+#: includes/features/class-she-features.php:109
+#: modules/transparent/module.php:1257
+msgid "Shrink Header"
+msgstr "Reducción de la cabecera"
+
+#: modules/transparent/module.php:539
+msgid "Choose what color to change the background to after scrolling"
+msgstr "Elige a qué color cambiar el fondo después de hacer scroll"
+
+#: modules/transparent/module.php:504
+msgid "Sets the header position to \"absolute\" so negative margins are not needed"
+msgstr "Establece la posición de la cabecera en «absoluta», por lo que no se necesitan márgenes negativos"
+
+#: modules/transparent/module.php:1565
+msgid "Add a modern blur effect to a semi-transparent header background color after scrolling"
+msgstr "Añade un moderno efecto de desenfoque a un color de fondo semitransparente de la cabecera después de hacer scroll"
+
+#: modules/transparent/module.php:1432 modules/transparent/module.php:1503
+msgid "Change the logo to black"
+msgstr "Cambiar el logotipo a negro"
+
+#: modules/transparent/module.php:1404 modules/transparent/module.php:1475
+msgid "Change the logo to white"
+msgstr "Cambiar el logotipo a blanco"
+
+#: includes/features/class-she-features.php:123
+#: modules/transparent/module.php:1343
+msgid "Change Logo Color"
+msgstr "Cambiar el color del logotipo"
+
+#: modules/transparent/module.php:1287
+msgid "Remember: The header cannot shrink smaller than the elements inside of it"
+msgstr "Recuerda: la cabecera no puede reducirse a un tamaño más pequeño que los elementos que contiene"
+
+#: modules/transparent/module.php:1643
+msgid "Hides the header if scrolling down, and shows header if scrolling up"
+msgstr "Oculta la cabecera al desplazarse hacia abajo y la muestra al desplazarse hacia arriba"
+
+#: modules/transparent/module.php:1384
+msgid "Before scrolling"
+msgstr "Antes de desplazarse"
+
+#: modules/transparent/module.php:1275
+msgid "Header Height (px)"
+msgstr "Altura de la cabecera (px)"
+
+#: modules/transparent/module.php:1127
+msgid "Bottom Border Thickness (px)"
+msgstr "Grosor del borde inferior (px)"
+
+#: modules/transparent/module.php:1317
+msgid "Logo Height (%)"
+msgstr "Altura del logo (%)"
+
+#: includes/features/class-she-features.php:102
+#: modules/transparent/module.php:352 modules/transparent/module.php:528
+msgid "Background Color"
+msgstr "Color de fondo"
+
+#. Plugin URI of the plugin
+#: sticky-header-effects-for-elementor.php
+msgid "https://stickyheadereffects.com"
+msgstr "https://stickyheadereffects.com"
+
+#. Plugin Name of the plugin
+#: sticky-header-effects-for-elementor.php
+#: includes/notices/class-she-join-community-notice.php:105
+msgid "Sticky Header Effects for Elementor"
+msgstr "Sticky Header Effects for Elementor"
+
+#: sticky-header-effects-for-elementor.php:531
+msgid "Update Elementor Now"
+msgstr "Actualizar Elementor ahora"
+
+#: sticky-header-effects-for-elementor.php:503
+msgid "Install Elementor Now"
+msgstr "Instalar Elementor ahora"
+
+#: sticky-header-effects-for-elementor.php:423
+msgid "Sticky Header Effects not working because you are using an old version of Elementor."
+msgstr "Sticky Header Effects no está funcionando porque estás utilizando una versión antigua de Elementor."
+
+#: sticky-header-effects-for-elementor.php:494
+msgid "Activate Elementor Now"
+msgstr "Activar Elementor ahora"
+
+#: modules/transparent/module.php:1265
+msgid "Choose header height after scrolling"
+msgstr "Elige altura para la cabecera después de hacer scroll"
+
+#: modules/transparent/module.php:1106
+msgid "Choose bottom border size and color"
+msgstr "Elige tamaño y color para el borde inferior"
+
+#: includes/features/class-she-features.php:137
+#: modules/transparent/module.php:1095
+msgid "Bottom Border"
+msgstr "Borde inferior"
+
+#: modules/transparent/module.php:571 modules/transparent/module.php:1113
+#: modules/transparent/module.php:1173
+msgid "Color"
+msgstr "Color"
+
+#: includes/features/class-she-features.php:95
+#: modules/transparent/module.php:489
+msgid "Transparent Header"
+msgstr "Cabecera transparente"
+
+#: modules/transparent/module.php:103 modules/transparent/module.php:1667
+msgid "Scroll Distance (px)"
+msgstr "Distancia de scroll (px)"
+
+#: modules/transparent/module.php:90
+msgid "Mobile"
+msgstr "Móvil"
+
+#: modules/transparent/module.php:89
+msgid "Tablet"
+msgstr "Tableta"
+
+#: modules/transparent/module.php:82
+msgid "Enable On"
+msgstr "Activar en"
+
+#: modules/pro-upsell/module.php:461 modules/transparent/module.php:52
+#: modules/transparent/module.php:142 modules/transparent/module.php:185
+#: modules/transparent/module.php:204 modules/transparent/module.php:493
+#: modules/transparent/module.php:532 modules/transparent/module.php:736
+#: modules/transparent/module.php:837 modules/transparent/module.php:1099
+#: modules/transparent/module.php:1155 modules/transparent/module.php:1261
+#: modules/transparent/module.php:1303 modules/transparent/module.php:1347
+#: modules/transparent/module.php:1400 modules/transparent/module.php:1428
+#: modules/transparent/module.php:1471 modules/transparent/module.php:1499
+#: modules/transparent/module.php:1527 modules/transparent/module.php:1557
+#: modules/transparent/module.php:1639
+msgid "Off"
+msgstr "Desactivado"
+
+#: modules/pro-upsell/module.php:460 modules/transparent/module.php:51
+#: modules/transparent/module.php:141 modules/transparent/module.php:184
+#: modules/transparent/module.php:203 modules/transparent/module.php:492
+#: modules/transparent/module.php:531 modules/transparent/module.php:735
+#: modules/transparent/module.php:836 modules/transparent/module.php:1098
+#: modules/transparent/module.php:1154 modules/transparent/module.php:1260
+#: modules/transparent/module.php:1302 modules/transparent/module.php:1346
+#: modules/transparent/module.php:1399 modules/transparent/module.php:1427
+#: modules/transparent/module.php:1470 modules/transparent/module.php:1498
+#: modules/transparent/module.php:1526 modules/transparent/module.php:1556
+#: modules/transparent/module.php:1638
+msgid "On"
+msgstr "Activado"
+
+#: modules/transparent/module.php:49
+msgid "Enable"
+msgstr "Activar"
+
+#: includes/abilities/class-she-abilities.php:64
+#: includes/dashboard/class-she-wp-menu.php:75
+#: includes/dashboard/class-she-wp-menu.php:76
+#: includes/notices/class-she-pro-launch-notice.php:171
+#: includes/notices/class-she-sale-notice.php:162
+#: modules/transparent/module.php:41 plugin.php:111
+msgid "Sticky Header Effects"
+msgstr "Sticky Header Effects"
+
+#: modules/transparent/module.php:88
+msgid "Desktop"
+msgstr "Sobremesa"
+
+#: base/module-base.php:31 base/module-base.php:42 plugin.php:43 plugin.php:54
+msgid "Cheatin&#8217; huh?"
+msgstr "Haciendo trampas, ¿eh?"
+
+#: modules/transparent/module.php:126
+msgid "Remember: The settings below will not be applied until the page is scrolled the distance set above"
+msgstr "Recuerda: los siguientes ajustes no se aplicarán hasta que la página se desplace a la distancia establecida arriba"
+
+#: modules/transparent/module.php:115
+msgid "Choose the scroll distance to enable Sticky Header Effects"
+msgstr "Elige la distancia de scroll para activar los efectos de la cabecera fija"
+
+#: sticky-header-effects-for-elementor.php:493
+msgid "Sticky Header Effects not working because you need to activate the Elementor plugin."
+msgstr "Sticky Header Effects no está funcionando porque tienes que activar el plugin Elementor."
+
+#: sticky-header-effects-for-elementor.php:502
+msgid "Sticky Header Effects is not working because you need to install the Elementor plugin"
+msgstr "Sticky Header Effects no está funcionando porque tienes que instalar el plugin Elementor"
+
+#: sticky-header-effects-for-elementor.php:436
+msgid "A new version of Elementor is available. For better performance and compatibility of Sticky Header Effects, we recommend updating to the latest version."
+msgstr "Hay disponible una nueva versión de Elementor. Para un mejor rendimiento y compatibilidad con Sticky Header Effects, recomendamos actualizar a la última versión."

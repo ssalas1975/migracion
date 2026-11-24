@@ -59,6 +59,11 @@ class Data_Table extends Widget_Base {
     }
 
 	protected function is_dynamic_content():bool {
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
         if( Plugin::$instance->editor->is_edit_mode() ) {
             return false;
         }
@@ -1406,7 +1411,7 @@ class Data_Table extends Widget_Base {
 							<?php if( $header_title['eael_data_table_header_col_icon_enabled'] == 'true' && $header_title['eael_data_table_header_icon_type'] == 'icon' ) : ?>
 								<?php if (empty($header_title['eael_data_table_header_col_icon']) || isset($header_title['__fa4_migrated']['eael_data_table_header_col_icon_new'])) { ?>
 									<?php if( isset($header_title['eael_data_table_header_col_icon_new']['value']['url']) ) : ?>
-										<img class="data-header-icon data-table-header-svg-icon" src="<?php echo esc_url( $header_title['eael_data_table_header_col_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(get_post_meta($header_title['eael_data_table_header_col_icon_new']['value']['id'], '_wp_attachment_image_alt', true)); ?>" />
+										<img class="data-header-icon data-table-header-svg-icon" src="<?php echo esc_url( $header_title['eael_data_table_header_col_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $header_title['eael_data_table_header_col_icon_new']['value'] )); ?>" />
 									<?php else : ?>
 										<i class="<?php echo esc_attr( $header_title['eael_data_table_header_col_icon_new']['value'] ); ?> data-header-icon"></i>
 									<?php endif; ?>
@@ -1416,11 +1421,12 @@ class Data_Table extends Widget_Base {
 			            	<?php endif; ?>
 							<?php
 								if( $header_title['eael_data_table_header_col_icon_enabled'] == 'true' && $header_title['eael_data_table_header_icon_type'] == 'image' ) :
+									$header_title['eael_data_table_header_col_img'] = Helper::eael_wpml_translate_media( $header_title['eael_data_table_header_col_img'] ); // WPML Media Translation compatibility
 									$this->add_render_attribute('data_table_th_img'.$i, [
 										'src'	=> esc_url( $header_title['eael_data_table_header_col_img']['url'] ),
 										'class'	=> 'eael-data-table-th-img',
 										'style'	=> "width:{$header_title['eael_data_table_header_col_img_size']}px;",
-										'alt'	=> esc_attr(get_post_meta($header_title['eael_data_table_header_col_img']['id'], '_wp_attachment_image_alt', true))
+										'alt'	=> esc_attr(Helper::get_image_alt( $header_title['eael_data_table_header_col_img'] ))
 									]);
 							?><img <?php $this->print_render_attribute_string('data_table_th_img'.$i); ?>><?php endif; ?><span class="data-table-header-text"><?php echo wp_kses( $header_title['eael_data_table_header_col'], Helper::eael_allowed_tags() ); ?></span></th>
 			        	<?php $i++; endforeach; ?>
@@ -1473,12 +1479,15 @@ class Data_Table extends Widget_Base {
 													if ( Helper::is_elementor_publish_template( $table_td[ $j ]['template'] ) ) {
 														// WPML Compatibility
 														if ( ! is_array( $table_td[ $j ]['template'] ) ) {
-															$table_td[ $j ]['template'] = apply_filters( 'wpml_object_id', $table_td[ $j ]['template'], 'wp_template', true );
+															$table_td[ $j ]['template'] = apply_filters( 'wpml_object_id', $table_td[ $j ]['template'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 														}
 
-														Helper::eael_onpage_edit_template_markup( get_the_ID(), $table_td[ $j ]['template'] );
-														// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-														echo Plugin::$instance->frontend->get_builder_content( intval( $table_td[ $j ]['template'] ), true );
+														// Re-validate the translated template is a published elementor_library post before rendering.
+														if ( Helper::is_elementor_publish_template( $table_td[ $j ]['template'] ) ) {
+															Helper::eael_onpage_edit_template_markup( get_the_ID(), $table_td[ $j ]['template'] );
+															// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+															echo Plugin::$instance->frontend->get_builder_content( intval( $table_td[ $j ]['template'] ), true );
+														}
 													}
 													?>
 												</div>
@@ -1487,7 +1496,9 @@ class Data_Table extends Widget_Base {
 										<?php else: ?>
 											<td <?php $this->print_render_attribute_string('table_inside_td'.$i.$j); ?>>
 												<div class="td-content-wrapper"><div <?php $this->print_render_attribute_string('td_content'); ?>>
-													<?php echo $this->parse_text_editor( wp_kses( $table_td[$j]['title'], Helper::eael_allowed_tags() ) ); ?>
+													<?php 
+													// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+													echo $this->parse_text_editor( wp_kses( $table_td[$j]['title'], Helper::eael_allowed_tags() ) ); ?>
 												</div></div>
 											</td>
 										<?php endif; ?>

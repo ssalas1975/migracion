@@ -84,7 +84,15 @@ class Custom_Permalinks_Post_Types_Settings {
 				if ( isset( $saved_data['save_changes_flush_cache'] ) ) {
 					// Remove rewrite rules and then recreate rewrite rules.
 					flush_rewrite_rules();
-					wp_cache_flush_group( 'custom_permalinks' );
+
+					// Group flushing needs WP 6.1+ and a cache that supports it.
+					if ( function_exists( 'wp_cache_supports' ) && function_exists( 'wp_cache_flush_group' )
+						&& wp_cache_supports( 'flush_group' )
+					) {
+						wp_cache_flush_group( 'custom_permalinks' );
+					} else {
+						wp_cache_flush();
+					}
 
 					$notifications[] = __( 'Post Types Permalinks Settings are updated and cache cleared.', 'custom-permalinks' );
 				} else {
@@ -209,10 +217,10 @@ class Custom_Permalinks_Post_Types_Settings {
 						?>
 
 						<tr valign="top" class="<?php echo esc_attr( $tr_class ); ?>">
-							<th scope="row"><?php echo esc_html( $single->labels->name ); ?></th>
+							<th scope="row"><label for="custom-permalinks-structure-<?php echo esc_attr( $post_type_name ); ?>"><?php echo esc_html( $single->labels->name ); ?></label></th>
 							<td>
-								<?php echo esc_url( site_url() ); ?>/
-								<input type="text" name="post_type[<?php echo esc_attr( $post_type_name ); ?>]" value="<?php echo esc_attr( $post_setting ); ?>" class="<?php echo esc_attr( $input_classes ); ?>" />
+								<?php echo esc_url( untrailingslashit( set_url_scheme( get_option( 'home' ) ) ) ); ?>/
+								<input type="text" id="custom-permalinks-structure-<?php echo esc_attr( $post_type_name ); ?>" name="post_type[<?php echo esc_attr( $post_type_name ); ?>]" value="<?php echo esc_attr( $post_setting ); ?>" class="<?php echo esc_attr( $input_classes ); ?>" />
 							</td>
 						</tr>
 
@@ -235,8 +243,11 @@ class Custom_Permalinks_Post_Types_Settings {
 										<li><button type="button" class="button button-secondary" data-name="%parents_postnames%">parents_postnames</button></li>
 										<li><button type="button" class="button button-secondary" data-name="%title%">title</button></li>
 										<li><button type="button" class="button button-secondary" data-name="%ctax_TAXONOMY_NAME%">ctax_TAXONOMY_NAME</button></li>
+										<li><button type="button" class="button button-secondary" data-name="%ctax_TAXONOMY_NAME_name%">ctax_TAXONOMY_NAME_name</button></li>
 										<li><button type="button" class="button button-secondary" data-name="%ctax_parent_TAXONOMY_NAME%">ctax_parent_TAXONOMY_NAME</button></li>
+										<li><button type="button" class="button button-secondary" data-name="%ctax_parent_TAXONOMY_NAME_name%">ctax_parent_TAXONOMY_NAME_name</button></li>
 										<li><button type="button" class="button button-secondary" data-name="%ctax_parents_TAXONOMY_NAME%">ctax_parents_TAXONOMY_NAME</button></li>
+										<li><button type="button" class="button button-secondary" data-name="%ctax_parents_TAXONOMY_NAME_name%">ctax_parents_TAXONOMY_NAME_name</button></li>
 										<li><button type="button" class="button button-secondary" data-name="%custom_permalinks_TAG_NAME%">custom_permalinks_TAG_NAME</button></li>
 									</ul>
 								</td>

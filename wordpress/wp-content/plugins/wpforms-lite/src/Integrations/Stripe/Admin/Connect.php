@@ -2,6 +2,7 @@
 
 namespace WPForms\Integrations\Stripe\Admin;
 
+use WPForms\Admin\Payments\BuilderReturnNotice;
 use WPForms\Integrations\Stripe\Api\DomainManager;
 use WPForms\Integrations\Stripe\Api\WebhooksManager;
 use WPForms\Integrations\Stripe\Helpers;
@@ -74,6 +75,18 @@ class Connect {
 	private function hooks() {
 
 		add_action( 'admin_init', [ $this, 'handle_oauth_handshake' ] );
+		add_action( 'admin_init', [ $this, 'maybe_queue_builder_return_notice' ], 20 );
+	}
+
+	/**
+	 * Queue the "Return to your form" success notice after the user completes
+	 * the Stripe Connect flow that they started from the form builder.
+	 *
+	 * @since 1.10.1.1
+	 */
+	public function maybe_queue_builder_return_notice(): void {
+
+		BuilderReturnNotice::maybe_queue_oauth( 'stripe', __( 'Stripe', 'wpforms-lite' ) );
 	}
 
 	/**
@@ -115,6 +128,11 @@ class Connect {
 		// In case of switching accounts existing account data needs to be cleared.
 		unset( $this->accounts[ $mode ] );
 
+		// A new live connection counts as not onboarded until the account fetch below confirms it.
+		if ( $mode === 'live' ) {
+			update_option( "wpforms_stripe_{$mode}_account_details_submitted", '0' );
+		}
+
 		Helpers::set_stripe_key( $credentials['stripe_publishable_key'], 'publishable', $mode );
 		Helpers::set_stripe_key( $credentials['access_token'], 'secret', $mode );
 
@@ -123,7 +141,18 @@ class Connect {
 		$this->webhooks_manager->connect();
 		$this->domain_manager->validate();
 
-		$settings_url = $this->get_payments_settings_url( false );
+		$settings_url   = $this->get_payments_settings_url( false );
+		$return_form_id = isset( $_GET['wpforms_return_form_id'] ) ? absint( $_GET['wpforms_return_form_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $return_form_id > 0 ) {
+			$settings_url = add_query_arg(
+				[
+					'wpforms_connected'      => 'stripe',
+					'wpforms_return_form_id' => $return_form_id,
+				],
+				$settings_url
+			);
+		}
 
 		wp_safe_redirect( $settings_url );
 		exit;
@@ -323,6 +352,36 @@ class Connect {
 		}
 
 		$this->accounts[ $mode ] = $account;
+
+		// Test mode accepts test charges before onboarding is finished, so only live readiness is tracked.
+		if ( $mode !== 'live' ) {
+			return;
+		}
+
+		// Persisted so admin readiness checks can spot an abandoned onboarding without an API call.
+		update_option( "wpforms_stripe_{$mode}_account_details_submitted", ! empty( $account->details_submitted ) ? '1' : '0' );
+	}
+
+	/**
+	 * Whether the connected Stripe account finished onboarding, as of the last account fetch.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @param string $mode Stripe mode (e.g. 'live' or 'test').
+	 *
+	 * @return bool
+	 */
+	public function is_onboarding_complete( string $mode = '' ): bool {
+
+		$mode = Helpers::validate_stripe_mode( $mode );
+
+		// Test mode takes test charges before onboarding is finished.
+		if ( $mode !== 'live' ) {
+			return true;
+		}
+
+		// A missing flag means the account was not fetched since this check shipped, so it is treated as ready.
+		return (bool) get_option( "wpforms_stripe_{$mode}_account_details_submitted", true );
 	}
 
 	/**
@@ -452,15 +511,25 @@ class Connect {
 	 * Get Stripe Connect button URL.
 	 *
 	 * @since 1.8.2
+	 * @since 1.10.1.1 Added `$return_form_id` parameter to round-trip the
+	 *                  source form ID through the OAuth callback.
 	 *
-	 * @param string $mode Stripe mode (e.g. 'live' or 'test').
+	 * @param string $mode           Stripe mode (e.g. 'live' or 'test').
+	 * @param int    $return_form_id Optional. Form ID the user came from in the
+	 *                               builder. Carried through the OAuth callback
+	 *                               so the Payments settings page can show a
+	 *                               "Return to your form" notice.
 	 *
 	 * @return string
 	 */
-	public function get_connect_with_stripe_url( $mode = '' ) {
+	public function get_connect_with_stripe_url( $mode = '', int $return_form_id = 0 ) {
 
 		$mode         = Helpers::validate_stripe_mode( $mode );
 		$settings_url = $this->get_payments_settings_url();
+
+		if ( $return_form_id > 0 ) {
+			$settings_url = add_query_arg( 'wpforms_return_form_id', $return_form_id, $settings_url );
+		}
 
 		return add_query_arg(
 			[
@@ -486,16 +555,13 @@ class Connect {
 	 */
 	private function get_payments_settings_url( bool $include_nonce = true, string $action = 'wpforms_stripe_connect' ): string {
 
-		$args = [
-			'page' => 'wpforms-settings',
-			'view' => 'payments',
-		];
+		$url = Helpers::get_settings_page_url();
 
 		if ( $include_nonce ) {
-			$args['_wpnonce'] = wp_create_nonce( $action );
+			$url = add_query_arg( '_wpnonce', wp_create_nonce( $action ), $url );
 		}
 
-		return add_query_arg( $args, admin_url( 'admin.php' ) );
+		return $url;
 	}
 
 	/**
@@ -570,9 +636,22 @@ class Connect {
 		Helpers::set_stripe_key( '', 'publishable', $mode );
 		Helpers::set_stripe_key( '', 'secret', $mode );
 
+		$this->delete_connected_account( $mode );
+	}
+
+	/**
+	 * Delete the account connected in a mode, leaving the API keys in the settings alone.
+	 *
+	 * @since 2.0.4
+	 *
+	 * @param string $mode Stripe mode (e.g. 'live' or 'test').
+	 */
+	public function delete_connected_account( string $mode ): void {
+
 		// Clean user ID and other saved options.
 		delete_option( "wpforms_stripe_{$mode}_connect_user_id" );
 		delete_option( "wpforms_stripe_{$mode}_account_country" );
+		delete_option( "wpforms_stripe_{$mode}_account_details_submitted" );
 		delete_option( DomainManager::STATUS_OPTION );
 		delete_option( WebhooksHealthCheck::ENDPOINT_OPTION );
 

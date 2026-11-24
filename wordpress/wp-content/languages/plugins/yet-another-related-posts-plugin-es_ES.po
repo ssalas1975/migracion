@@ -2,14 +2,18 @@
 # This file is distributed under the same license as the Plugins - YARPP &#8211; Yet Another Related Posts Plugin - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-10-13 06:30:34+0000\n"
+"PO-Revision-Date: 2023-12-29 16:10:56+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"X-Generator: GlotPress/4.0.1\n"
 "Language: es\n"
 "Project-Id-Version: Plugins - YARPP &#8211; Yet Another Related Posts Plugin - Stable (latest release)\n"
+
+#: classes/YARPP_Meta_Box.php:114
+msgid "random"
+msgstr "aleatorio"
 
 #: classes/YARPP_Meta_Box.php:14
 msgid "This advanced option gives you full power to easily customize the look and feel of YARPP. YARPP Custom Templates are written in PHP and saved in your active theme folder. %1$sLearn more about YARPP Custom Templates%2$s."
@@ -131,7 +135,6 @@ msgstr "Por favor, contacta con tu alojamiento para actualizar MySQL a la últim
 msgid "Because full-text indexing is not supported by your current table engine, \"%1$s\", YARPP cannot compare posts based on their Titles or Bodies."
 msgstr "Como el indexado de texto completo no es compatible con tu motor de tablas actual, «%1$s», YARPP no puede comparar entradas basándose en sus títulos y cuerpos."
 
-#. translators: icon to expand
 #. translators: icon to expand
 #: classes/YARPP_Meta_Box_Relatedness.php:38
 #: classes/YARPP_Meta_Box_Relatedness.php:96
@@ -279,15 +282,15 @@ msgstr "Grupo de usuarios de YARPP en Facebook"
 msgid "No error recorded."
 msgstr "No se ha registrado ningún error."
 
-#: classes/YARPP_Core.php:2186
+#: classes/YARPP_Core.php:2221
 msgid "month(s)"
 msgstr "mes(es)"
 
-#: classes/YARPP_Core.php:2185
+#: classes/YARPP_Core.php:2220
 msgid "week(s)"
 msgstr "semana(s)"
 
-#: classes/YARPP_Core.php:2184
+#: classes/YARPP_Core.php:2219
 msgid "day(s)"
 msgstr "día(s)"
 
@@ -296,182 +299,185 @@ msgstr "día(s)"
 msgid "Powered by <a href='%s' title='WordPress Related Posts Plugin' target='_blank'>YARPP</a>."
 msgstr "Funciona gracias a <a href='%s' title='WordPress Related Posts Plugin' target='_blank'>YARPP</a>."
 
-#: classes/YARPP_Core.php:1664
+#: classes/YARPP_Core.php:1684
 msgid "Powered by <a href='%s' title='WordPress Related Posts' target='_blank'>YARPP</a>."
 msgstr "Funciona gracias a <a href='%s' title='WordPress Related Posts' target='_blank'>YARPP</a>."
 
 #. translators: %s: yarpp template name
-#: classes/YARPP_Core.php:735
+#: classes/YARPP_Core.php:745
 msgid "Custom: %s"
 msgstr "Personalizado: %s"
 
-#: classes/YARPP_Core.php:730
+#: classes/YARPP_Core.php:740
 msgid "Thumbnail"
 msgstr "Miniatura"
 
-#: classes/YARPP_Core.php:729
+#: classes/YARPP_Core.php:739
 msgid "List"
 msgstr "Lista"
 
-#: classes/YARPP_Admin.php:1047
+#: classes/YARPP_Admin.php:1081
 msgid "If you would like to tell us more, please leave your email here. We will be in touch (only for product feedback, nothing else)."
 msgstr "Si te gustaría contarnos algo más, por favor, deja aquí tu correo electrónico. Estaremos en contacto (solo para comentarios sobre el producto, nada más)."
 
-#: classes/YARPP_Admin.php:1039
+#: classes/YARPP_Admin.php:1073
 msgid "Have you visited %1$sthe support forum%2$s and %3$sread the FAQs%2$s for help?"
 msgstr "¡Has visitado el %1$sforo de soporte%2$s y %3$sleído las FAQs%2$s para obtener ayuda?"
 
-#: classes/YARPP_Admin.php:1037
+#: classes/YARPP_Admin.php:1071
 msgid "Thank you!"
 msgstr "¡Gracias!"
 
-#: classes/YARPP_Admin.php:1036
+#: classes/YARPP_Admin.php:1070
 msgid "Please wait..."
 msgstr "Por favor, espera…"
 
-#: classes/YARPP_Admin.php:1035
+#: classes/YARPP_Admin.php:1069
 msgid "Submit &amp; Deactivate"
 msgstr "Enviar y desactivar"
 
-#: classes/YARPP_Admin.php:1034
+#: classes/YARPP_Admin.php:1068
 msgid "Skip &amp; Deactivate"
 msgstr "Omitir y desactivar"
 
-#: classes/YARPP_Admin.php:1033
+#: classes/YARPP_Admin.php:1067
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: classes/YARPP_Admin.php:1029
+#: classes/YARPP_Admin.php:1063
 msgid "Please share anything you think might be helpful. The more we know about your problem, the faster we'll be able to fix it."
 msgstr "Por favor, comparte cualquier cosa que pienses que pueda ser útil. Cuanto más sepamos de tu problema más rápido podremos corregirlo."
 
-#: classes/YARPP_Admin.php:1025
+#: classes/YARPP_Admin.php:1059
 msgid "If you would be kind enough, please tell us why you are deactivating the plugin:"
 msgstr "Si eres tan amable, por favor, dinos por qué estás desactivando el plugin:"
 
-#: classes/YARPP_Admin.php:1024
+#: classes/YARPP_Admin.php:1058
 msgid "Quick Feedback"
 msgstr "Comentario rápido"
 
-#: classes/YARPP_Admin.php:1015
+#: classes/YARPP_Admin.php:1049
 msgid "Other"
 msgstr "Otro"
 
-#: classes/YARPP_Admin.php:1014
+#: classes/YARPP_Admin.php:1048
 msgid "Temporarily deactivating or troubleshooting"
 msgstr "Desactivación temporal o diagnóstico"
 
-#: classes/YARPP_Admin.php:1013
+#: classes/YARPP_Admin.php:1047
 msgid "I don't want to signup"
 msgstr "No quiero registrarme"
 
-#: classes/YARPP_Admin.php:1012
+#: classes/YARPP_Admin.php:1046
 msgid "It's too slow or inefficient"
 msgstr "Es demasiado lento o ineficaz"
 
-#: classes/YARPP_Admin.php:1011
+#: classes/YARPP_Admin.php:1045
 msgid "I couldn't figure out how to do something"
 msgstr "No he podido averiguar cómo hacer algo"
 
-#: classes/YARPP_Admin.php:1010
+#: classes/YARPP_Admin.php:1044
 msgid "It's missing a feature I need"
 msgstr "Es por una característica que necesito"
 
-#: classes/YARPP_Admin.php:1009
+#: classes/YARPP_Admin.php:1043
 msgid "I think I found a bug"
 msgstr "Creo que he encontrado un fallo"
 
-#: classes/YARPP_Admin.php:643
+#: classes/YARPP_Admin.php:677
 msgid "Related posts will be displayed once you save this post"
 msgstr "Las entradas relacionadas se mostrarán cuando guardes esta entrada"
 
-#: classes/YARPP_Admin.php:638
+#: classes/YARPP_Admin.php:672
 msgid "If this is unchecked, then YARPP will not automatically insert the related posts at the end of this post."
 msgstr "Si esto está sin marcar entonces YARPP no insertará automáticamente las entradas relacionadas al final de esta entrada."
 
-#: classes/YARPP_Admin.php:636
+#: classes/YARPP_Admin.php:670
 msgid "Automatically display related content on this post"
 msgstr "Mostrar automáticamente contenido relacionado en esta entrada"
 
-#: classes/YARPP_Admin.php:562
+#: classes/YARPP_Admin.php:594
 msgid "Hide Code"
 msgstr "Ocultar código"
 
-#: classes/YARPP_Admin.php:561 classes/YARPP_Meta_Box_Display_Web.php:126
+#: classes/YARPP_Admin.php:593 classes/YARPP_Meta_Box_Display_Web.php:126
 msgid "Show Code"
 msgstr "Mostrar código"
 
-#: classes/YARPP_Admin.php:560
+#: classes/YARPP_Admin.php:592
 msgid "There is some error. Please refresh the page and try again!"
 msgstr "¡Hay algún error! ¡Por favor, recarga la página e inténtalo de nuevo!"
 
-#: classes/YARPP_Admin.php:559
+#: classes/YARPP_Admin.php:591
 msgid "You left this page open for too long. Please refresh the page and try again!"
 msgstr "Dejaste esta página abierta demasiado tiempo. ¡Por favor, recarga la página e inténtalo de nuevo!"
 
-#: classes/YARPP_Admin.php:558
+#: classes/YARPP_Admin.php:590
 msgid "You are not allowed to do this!"
 msgstr "¡No tienes permisos para hacer esto!"
 
-#: classes/YARPP_Admin.php:555
+#: classes/YARPP_Admin.php:587
 msgid "Cache cleared successfully!"
 msgstr "¡Caché vaciada correctamente!"
 
-#: classes/YARPP_Admin.php:554
+#: classes/YARPP_Admin.php:586
 msgid "YARPP Cache"
 msgstr "Caché de YARPP"
 
-#: classes/YARPP_Admin.php:553
+#: classes/YARPP_Admin.php:585
 msgid "This will clear all of YARPP’s cached related results.<br> Are you sure?"
 msgstr "Esto vaciará todos los resultados relacionados en la caché de YARPP.<br> ¿Estás seguro?"
 
-#: classes/YARPP_Admin.php:257
+#: classes/YARPP_Admin.php:289
 msgid "YARPP: Related Posts"
 msgstr "YARPP: Entradas relacionadas"
 
-#: classes/YARPP_Admin.php:212
+#: classes/YARPP_Admin.php:244
 msgid "Dismiss"
 msgstr "Descartar"
 
-#: classes/YARPP_Admin.php:211
+#: classes/YARPP_Admin.php:243
 msgid "I already did"
 msgstr "Ya lo hice"
 
-#: classes/YARPP_Admin.php:210
+#: classes/YARPP_Admin.php:242
 msgid "No, not good enough"
 msgstr "No, no es lo suficientemente bueno"
 
-#: classes/YARPP_Admin.php:209
+#: classes/YARPP_Admin.php:241
 msgid "Ok, you deserve it"
 msgstr "Vale, lo mereces"
 
-#: classes/YARPP_Admin.php:206
+#: classes/YARPP_Admin.php:238
 msgid "Could you please do us a BIG favor and give us a quick 5-star rating on WordPress? It will boost our motivation and spread the word. We would really appreciate it 🤗 — Team YARPP"
 msgstr "¿Podrías, por favor, hacernos un GRAN favor y darnos una rápida valoración de 5 estrellas en WordPress? Lanzará nuestra motivación y difundirá la palabra. Realmente lo agradecemos 🤗 — El equipo de YARPP"
 
-#: classes/YARPP_Admin.php:206
+#: classes/YARPP_Admin.php:238
 msgid "Hey there! We noticed that you have had success using "
 msgstr "¡Hola! Nos hemos dado cuenta de que has tenido éxito usando"
 
 #. Author of the plugin
-#: classes/YARPP_Block.php:241
+#: yarpp.php classes/YARPP_Block.php:241
 msgid "YARPP"
 msgstr "YARPP"
 
 #. Description of the plugin
+#: yarpp.php
 msgid "Adds related posts to your site and in RSS feeds, based on a powerful, customizable algorithm."
 msgstr "Añade entradas relacionadas a tu sitio y a los feeds RSS, basado en un algoritmo potente y personalizable."
 
 #. Plugin URI of the plugin
 #. Author URI of the plugin
+#: yarpp.php
 msgid "https://yarpp.com/"
 msgstr "https://yarpp.com/"
 
 #. Plugin Name of the plugin
+#: yarpp.php
 msgid "Yet Another Related Posts Plugin (YARPP)"
 msgstr "Yet Another Related Posts Plugin (YARPP)"
 
-#: includes/yarpp_options.php:178
+#: includes/yarpp_options.php:180
 msgid "Options saved!"
 msgstr "Opciones guardadas!"
 
@@ -637,16 +643,16 @@ msgstr "considerar"
 msgid "do not consider"
 msgstr "no considerar"
 
-#: classes/YARPP_Core.php:195 classes/YARPP_Core.php:205
-#: classes/YARPP_Core.php:828 classes/YARPP_Core.php:839
+#: classes/YARPP_Core.php:205 classes/YARPP_Core.php:215
+#: classes/YARPP_Core.php:838 classes/YARPP_Core.php:849
 #: includes/template_widget.php:13
 msgid "No related posts."
 msgstr "Publicaciones no relacionadas."
 
-#: classes/YARPP_Core.php:193 classes/YARPP_Core.php:203
-#: classes/YARPP_Core.php:233 classes/YARPP_Core.php:235
-#: classes/YARPP_Core.php:826 classes/YARPP_Core.php:837
-#: classes/YARPP_Core.php:1304
+#: classes/YARPP_Core.php:203 classes/YARPP_Core.php:213
+#: classes/YARPP_Core.php:243 classes/YARPP_Core.php:245
+#: classes/YARPP_Core.php:836 classes/YARPP_Core.php:847
+#: classes/YARPP_Core.php:1314
 msgid "Related posts:"
 msgstr "Publicaciones relacionadas:"
 
@@ -654,31 +660,31 @@ msgstr "Publicaciones relacionadas:"
 msgid "Example post "
 msgstr "Ejemplo de Publicación "
 
-#: classes/YARPP_Admin.php:578
+#: classes/YARPP_Admin.php:612
 msgid "Settings"
 msgstr "Ajustes"
 
-#: classes/YARPP_Admin.php:469
+#: classes/YARPP_Admin.php:501
 msgid "Thank you for installing <span>Yet Another Related Posts Plugin</span>!"
 msgstr "¡Gracias por instalar <span>el plugin Yet Another Related Posts</span>!"
 
-#: classes/YARPP_Admin.php:465
+#: classes/YARPP_Admin.php:497
 msgid "%1$s updated successfully."
 msgstr "%1$s actualizado con éxito."
 
-#: classes/YARPP_Admin.php:382
+#: classes/YARPP_Admin.php:414
 msgid "In addition, YARPP also loads an invisible pixel image with your YARPP results to know how often YARPP is being used."
 msgstr "Además, YARPP también carga una imagen de píxel invisible con tus resultados YARPP para saber cuán a menudo se usa YARPP."
 
-#: classes/YARPP_Admin.php:378
+#: classes/YARPP_Admin.php:410
 msgid "The following information is sent back to YARPP:"
 msgstr "La siguiente información se envía a YARPP:"
 
-#: classes/YARPP_Admin.php:369
+#: classes/YARPP_Admin.php:401
 msgid "Contributing this data will help make YARPP better for you and for other YARPP users."
 msgstr "Compartir estos datos ayudará a hacer que YARPP sea mejor para ti y para otros usuarios de YARPP."
 
-#: classes/YARPP_Admin.php:361
+#: classes/YARPP_Admin.php:393
 msgid ""
 "This information will be used to improve YARPP in the future and help decide future development\n"
 "                decisions for YARPP."
@@ -686,7 +692,7 @@ msgstr ""
 "Esta información se usará para mejorar YARPP en el futuro y nos ayudará a decidir las decisiones del desarrollo\n"
 "                futuro de YARPP."
 
-#: classes/YARPP_Admin.php:350
+#: classes/YARPP_Admin.php:382
 msgid ""
 "With your permission, YARPP will send information about YARPP's settings, usage, and environment\n"
 "                    back to a central server at "
@@ -694,14 +700,14 @@ msgstr ""
 "Con tu permiso, YARPP enviará información sobre tus ajustes, uso y entorno de YARPP\n"
 "                    a  un servidor central en "
 
-#: classes/YARPP_Admin.php:304
+#: classes/YARPP_Admin.php:336
 msgid "Optional Data Collection"
 msgstr "Recopilación de datos opcional"
 
-#: classes/YARPP_Admin.php:296 classes/YARPP_Admin.php:341
+#: classes/YARPP_Admin.php:328 classes/YARPP_Admin.php:373
 msgid "Developing with YARPP"
 msgstr "Desarrollando con YARPP"
 
-#: classes/YARPP_Admin.php:288 classes/YARPP_Admin.php:325
+#: classes/YARPP_Admin.php:320 classes/YARPP_Admin.php:357
 msgid "Frequently Asked Questions"
 msgstr "Preguntas frecuentes"

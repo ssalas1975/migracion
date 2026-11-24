@@ -21,8 +21,6 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 	 */
 	class Premium_Templates_Manager {
 
-		private static $instance = null;
-
 		private $sources = array();
 
 		/**
@@ -56,7 +54,7 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 		 * @since 3.6.0
 		 * @access public
 		 *
-		 * @return [type] [description]
+		 * @return array
 		 */
 		public function localize_tabs( $data ) {
 
@@ -129,16 +127,6 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 		}
 
 		/**
-		 * Returns needed source instance
-		 *
-		 * @return object
-		 */
-		public function get_source( $slug = null ) {
-			return isset( $this->sources[ $slug ] ) ? $this->sources[ $slug ] : false;
-		}
-
-
-		/**
 		 * Get template
 		 *
 		 * Get templates grid data.
@@ -160,6 +148,12 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 				$tab = 'premium_section';
 			}
 
+			$force_refresh = isset( $_GET['force'] ) && filter_var( wp_unslash( $_GET['force'] ), FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+			if ( $force_refresh ) {
+				check_ajax_referer( 'pa-templates-nonce', 'nonce' );
+			}
+
 			$result = array(
 				'templates'  => array(),
 				'categories' => array(),
@@ -171,6 +165,11 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 				$source = isset( $this->sources[ $source_slug ] ) ? $this->sources[ $source_slug ] : false;
 
 				if ( $source ) {
+
+					if ( $force_refresh ) {
+						$source->clear_tab_cache( $tab );
+					}
+
 					$result['templates']  = array_merge( $result['templates'], $source->get_items( $tab ) );
 					$result['categories'] = array_merge( $result['categories'], $source->get_categories( $tab ) );
 					$result['keywords']   = array_merge( $result['keywords'], $source->get_keywords( $tab ) );
@@ -258,9 +257,11 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 			}
 
 			$source       = $this->sources['premium-api'];
-			$insert_media = isset( $_REQUEST['withMedia'] ) ? $_REQUEST['withMedia'] : true;
+			$insert_media = isset( $_REQUEST['withMedia'] )
+				? filter_var( wp_unslash( $_REQUEST['withMedia'] ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE ) ?? true
+				: true;
 
-			if ( ! $source || ! $template_id ) {
+			if ( ! $source ) {
 				wp_send_json_error();
 			}
 
@@ -284,7 +285,7 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 				);
 			}
 
-			wp_send_json_success( $template );
+			wp_send_json_success();
 		}
 
 		/**
@@ -376,21 +377,6 @@ if ( ! class_exists( 'Premium_Templates_Manager' ) ) {
 			$template = $source->get_item( $data['template_id'], $data['tab'], $insert_media );
 
 			return $template;
-		}
-
-		/**
-		 * Returns the instance.
-		 *
-		 * @since  3.6.0
-		 * @return object
-		 */
-		public static function get_instance() {
-
-			// If the single instance hasn't been set, set it now.
-			if ( null == self::$instance ) {
-				self::$instance = new self();
-			}
-			return self::$instance;
 		}
 	}
 

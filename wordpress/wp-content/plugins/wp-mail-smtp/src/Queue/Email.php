@@ -478,8 +478,7 @@ class Email {
 			$timezone   = new DateTimeZone( 'UTC' );
 
 			if ( $valid_date ) {
-				$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', WP::datetime_mysql_format() ); // Validación preventiva para PHP 8.4
-				$datetime = $is_valid_format ? DateTime::createFromFormat( WP::datetime_mysql_format(), $datetime, $timezone ) :
+				$datetime = DateTime::createFromFormat( WP::datetime_mysql_format(), $datetime, $timezone );
 			} else {
 				$datetime = new DateTime( 'now', $timezone );
 			}

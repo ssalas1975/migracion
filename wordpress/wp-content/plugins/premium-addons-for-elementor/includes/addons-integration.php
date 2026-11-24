@@ -21,6 +21,18 @@ class Addons_Integration {
 	use AJAX_Helper;
 
 	/**
+	 * Vendor script handles the editor preview loads only when an element needs them,
+	 * keyed by the name pa-preview-libs.js loads them by.
+	 *
+	 * @var array
+	 */
+	const PREVIEW_ON_DEMAND_LIBS = array(
+		'isotope' => 'isotope-js',
+		'lottie'  => 'lottie-js',
+		'luxon'   => 'pa-luxon',
+	);
+
+	/**
 	 * Class instance
 	 *
 	 * @var instance
@@ -70,8 +82,8 @@ class Addons_Integration {
 
 		$this->load_extensions();
 
-		// Promote PAPRO Elements.
-		add_filter( 'elementor/editor/localize_settings', array( $this, 'add_papro_elements' ) );
+		// Promote PAPRO Elements. Runs late because Elementor overwrites `v4Promotions` at priority 10.
+		add_filter( 'elementor/editor/localize_settings', array( $this, 'add_papro_elements' ), 20 );
 
 		// Handle everything related to widgets assets.
 		Assets_Manager::get_instance( self::$modules, self::$integrations );
@@ -87,6 +99,9 @@ class Addons_Integration {
 
 		// Load Editor CSS Files.
 		add_action( 'elementor/preview/enqueue_styles', array( $this, 'enqueue_preview_styles' ) );
+
+		// Runs after every widget and addon has enqueued its preview scripts.
+		add_action( 'elementor/preview/enqueue_scripts', array( $this, 'load_preview_libs_on_demand' ), 999 );
 		add_action( 'elementor/editor/before_enqueue_styles', array( $this, 'enqueue_editor_styles' ) );
 
 		// Load Editor JS Files.
@@ -225,6 +240,59 @@ class Addons_Integration {
 	}
 
 	/**
+	 * Load the PREVIEW_ON_DEMAND_LIBS libraries in the editor preview only when an element needs them.
+	 *
+	 * Elementor enqueues the script dependencies of every registered widget in the
+	 * preview, so these libraries loaded on every editor load. Consumers now either ask
+	 * paPreviewLibs.load() for them or call a stand-in that loads the real library
+	 * ($.fn.isotope in pa-preview-libs.js, premiumLottieAnimations in pa-lottie-loader.js).
+	 *
+	 * @since 4.11.114
+	 * @access public
+	 */
+	public function load_preview_libs_on_demand() {
+
+		$sources = array();
+
+		foreach ( self::PREVIEW_ON_DEMAND_LIBS as $name => $handle ) {
+
+			if ( ! wp_script_is( $handle, 'enqueued' ) ) {
+				continue;
+			}
+
+			$script = wp_scripts()->query( $handle, 'registered' );
+
+			wp_dequeue_script( $handle );
+
+			$sources[ $name ] = add_query_arg( 'ver', $script->ver, $script->src );
+		}
+
+		if ( empty( $sources ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'pa-preview-libs',
+			PREMIUM_ADDONS_URL . 'assets/editor/js/pa-preview-libs.js',
+			array( 'jquery' ),
+			PREMIUM_ADDONS_VERSION,
+			true
+		);
+
+		wp_localize_script( 'pa-preview-libs', 'paPreviewLibsSrc', $sources );
+
+		if ( isset( $sources['lottie'] ) ) {
+			wp_enqueue_script(
+				'pa-lottie-loader',
+				PREMIUM_ADDONS_URL . 'assets/editor/js/pa-lottie-loader.js',
+				array( 'jquery', 'pa-preview-libs' ),
+				PREMIUM_ADDONS_VERSION,
+				true
+			);
+		}
+	}
+
+	/**
 	 * Register Widgets Category
 	 *
 	 * Register a new category for Premium Addons widgets
@@ -276,10 +344,6 @@ class Addons_Integration {
 
 	public function load_widget_files( $class ) {
 
-		if ( 'PremiumAddons\Widgets\Premium_Videobox' === $class || 'PremiumAddons\Widgets\Premium_Weather' === $class ) {
-			require_once PREMIUM_ADDONS_PATH . 'widgets/dep/urlopen.php';
-		}
-
 		if ( 'PremiumAddons\Widgets\Premium_Weather' === $class ) {
 			require_once PREMIUM_ADDONS_PATH . 'widgets/dep/pa-weather-handler.php';
 		}
@@ -311,22 +375,6 @@ class Addons_Integration {
 			PREMIUM_ADDONS_VERSION,
 			true
 		);
-
-		$data = array(
-			'ajaxurl'             => esc_url( admin_url( 'admin-ajax.php' ) ),
-			'nonce'               => wp_create_nonce( 'pa-disable-unused' ),
-			'disable_unused_link' => add_query_arg(
-				array(
-					'page'      => 'premium-addons',
-					'pa-action' => 'unused',
-					'#tab'      => 'elements',
-				),
-				esc_url( admin_url( 'admin.php' ) )
-			),
-
-		);
-
-		wp_localize_script( 'pa-editor-behavior', 'paEditorBehaviorSettings', $data );
 
 		$map_enabled = isset( self::$modules['premium-maps'] ) ? self::$modules['premium-maps'] : 1;
 
@@ -428,6 +476,8 @@ class Addons_Integration {
 
 		Extras\Live_Editor::get_instance();
 
+		Extras\Angie_Integration::get_instance();
+
 		if ( self::$modules['premium-equal-height'] ) {
 			\PremiumAddons\Addons\Equal_Height::get_instance();
 		}
@@ -437,7 +487,6 @@ class Addons_Integration {
 		}
 
 		if ( self::$modules['pa-display-conditions'] ) {
-			require_once PREMIUM_ADDONS_PATH . 'widgets/dep/urlopen.php';
 			require_once PREMIUM_ADDONS_PATH . 'includes/pa-display-conditions/pa-controls-handler.php';
 			\PremiumAddons\Addons\Display_Conditions::get_instance();
 		}
@@ -499,21 +548,47 @@ class Addons_Integration {
 
 		$pro_elements = Admin_Helper::get_pro_elements();
 
-		$pro_elements = array_merge( $promotion_widgets, $pro_elements );
+		$config['promotionWidgets'] = array_merge( $promotion_widgets, $pro_elements );
 
-		$config['promotionWidgets'] = $pro_elements;
+		$v4_promotions = isset( $config['v4Promotions'] ) ? $config['v4Promotions'] : array();
 
-		// Fix promotion box not showing when Elementor Pro is active.
-		if ( defined( 'ELEMENTOR_PRO_VERSION' ) ) {
-			$config['promotion']['elements']['action_button'] = array(
-				'text' => 'Connect & Activate',
-				'url'  => 'https://go.elementor.com/',
-			);
-		}
+		$config['v4Promotions'] = array_merge( $v4_promotions, $this->get_papro_promotion_cards( $pro_elements ) );
 
 		return $config;
 	}
 
+	/**
+	 * Get PAPRO Promotion Cards
+	 *
+	 * Builds the panel promotion card shown when a free user clicks a PAPRO widget.
+	 * Elementor matches `v4Promotions` keys against the widget name with dashes and
+	 * underscores stripped, and falls back to its own Elementor Pro card when no key matches.
+	 *
+	 * @since 4.11.97
+	 * @access private
+	 *
+	 * @param array $elements PAPRO elements.
+	 *
+	 * @return array
+	 */
+	private function get_papro_promotion_cards( $elements ) {
+
+		$cards = array();
+
+		foreach ( $elements as $element ) {
+
+			$cards[ $element['name'] ] = array(
+				/* translators: %s: Widget title. */
+				'title'   => sprintf( __( 'Premium %s', 'premium-addons-for-elementor' ), $element['title'] ),
+				/* translators: %s: Widget title. */
+				'content' => sprintf( __( 'Get Premium %s widget and more pro widgets and addons to build better sites, faster.', 'premium-addons-for-elementor' ), $element['title'] ),
+				'ctaText' => __( 'Get PRO (40% OFF)', 'premium-addons-for-elementor' ),
+				'ctaUrl'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/pro/#pro-pricing-section', 'panel-' . $element['key'], 'wp-editor', 'get-pro' ),
+			);
+		}
+
+		return $cards;
+	}
 
 	/**
 	 *

@@ -1533,12 +1533,16 @@ class Caldera_Forms extends Widget_Base
                         <?php }?>
                         <?php if ($settings['form_description_custom'] != '') {?>
                             <div class="eael-contact-form-description eael-caldera-form-description">
-                                <?php echo $this->parse_text_editor( wp_kses( $settings['form_description_custom'], Helper::eael_allowed_tags() ) ); ?>
+                                <?php
+                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.Security.EscapeOutput.OutputNotEscaped
+                                echo $this->parse_text_editor( wp_kses( $settings['form_description_custom'], Helper::eael_allowed_tags() ) );
+                                ?>
                             </div>
                         <?php }?>
                     </div>
                 <?php }?>
-                <?php echo do_shortcode('[caldera_form id="' . esc_attr( $settings['contact_form_list'] ) . '" ]'); ?>
+                <?php // Caldera form IDs are strings such as "CF5c8e...", so allow only ID characters. ?>
+                <?php echo do_shortcode('[caldera_form id="' . preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $settings['contact_form_list'] ) . '" ]'); ?>
             </div>
             <?php
         }

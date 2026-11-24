@@ -2,9 +2,9 @@
   'root' => 
   array (
     'name' => 'popupmaker/popup-maker',
-    'pretty_version' => '1.22.0',
-    'version' => '1.22.0.0',
-    'reference' => '238daf2b36bdb497140d2866610edd2b2814b2fa',
+    'pretty_version' => 'dev-master',
+    'version' => 'dev-master',
+    'reference' => '5709c29f3787e1ce46a6b73e8f29af91a0f3e5e9',
     'type' => 'wordpress-plugin',
     'install_path' => __DIR__ . '/../',
     'aliases' => 
@@ -40,9 +40,9 @@
     ),
     'pimple/pimple' => 
     array (
-      'pretty_version' => 'v3.5.0',
-      'version' => '3.5.0.0',
-      'reference' => 'a94b3a4db7fb774b3d78dad2315ddc07629e1bed',
+      'pretty_version' => 'v3.6.2',
+      'version' => '3.6.2.0',
+      'reference' => '8cfe7f74ac22a433d303914eba9ea4c2a834edce',
       'type' => 'library',
       'install_path' => __DIR__ . '/../pimple/pimple',
       'aliases' => 

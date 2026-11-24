@@ -57,20 +57,21 @@ class Assets_Manager {
 			null,
 			HAPPY_ADDONS_VERSION
 		);
-
-		wp_register_style(
-			'huge-icons',
-			HAPPY_ADDONS_ASSETS . 'fonts/huge-icons/huge-icons.min.css',
-			null,
-			HAPPY_ADDONS_VERSION
-		);
-
+		
 		// Image comparasion
 		wp_register_style(
 			'twentytwenty',
 			HAPPY_ADDONS_ASSETS . 'vendor/twentytwenty/css/twentytwenty.css',
 			null,
 			HAPPY_ADDONS_VERSION
+		);
+
+		wp_register_script(
+			'ha-whatsapp-button',
+			HAPPY_ADDONS_ASSETS . 'js/whatsapp-button'.$suffix.'js',
+			['jquery'],
+			HAPPY_ADDONS_VERSION,
+			true
 		);
 
 		wp_register_script(
@@ -332,14 +333,6 @@ class Assets_Manager {
 			true
 		);
 
-		// mouse follower css
-		wp_register_style(
-			'mouse-follower',
-			HAPPY_ADDONS_ASSETS . 'vendor/mouse-follower/mouse-follower.min.css',
-			[],
-			HAPPY_ADDONS_VERSION
-		);
-
 		// mouse follower js
 		wp_register_script(
 			'mouse-follower',
@@ -353,6 +346,33 @@ class Assets_Manager {
 		wp_register_script(
 			'scroll-trigger',
 			HAPPY_ADDONS_ASSETS . 'vendor/scroll-trigger/scroll-trigger.min.js',
+			['gsap'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+		
+		// Morph SVG Plugin
+		wp_register_script(
+			'morph-svg-plugin',
+			HAPPY_ADDONS_ASSETS . 'vendor/morph-svg-plugin/morph-svg-plugin.min.js',
+			['gsap'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+		
+		// Draw SVGP SVG Plugin
+		wp_register_script(
+			'draw-svg-plugin',
+			HAPPY_ADDONS_ASSETS . 'vendor/draw-svg/draw-svg-plugin.min.js',
+			['gsap'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+		
+		// Motion Path Plugin
+		wp_register_script(
+			'motion-path-plugin',
+			HAPPY_ADDONS_ASSETS . 'vendor/motion-path-plugin/MotionPathPlugin.min.js',
 			['gsap'],
 			HAPPY_ADDONS_VERSION,
 			true
@@ -376,21 +396,39 @@ class Assets_Manager {
 			true
 		);
 
+		// Split Text
+		wp_register_script(
+			'split-text',
+			HAPPY_ADDONS_ASSETS . 'vendor/split-text/split-text.min.js',
+			['gsap'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+
+		// imagesloaded.pkgd.min.js
+		wp_register_script(
+			'imagesloaded',
+			HAPPY_ADDONS_ASSETS . 'vendor/imagesloaded.pkgd.min.js',
+			['jquery'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+		
+		// gsap observer js
+		wp_register_script(
+			'observer',
+			HAPPY_ADDONS_ASSETS . 'vendor/gsap-observer/observer.min.js',
+			['gsap'],
+			HAPPY_ADDONS_VERSION,
+			true
+		);
+
 		// Main assets
 		wp_register_style(
 			'happy-elementor-addons',
 			HAPPY_ADDONS_ASSETS . 'css/main' . $suffix . 'css',
 			['elementor-frontend'],
 			HAPPY_ADDONS_VERSION
-		);
-
-		// mouse follower js
-		wp_register_script(
-			'mouse-follower',
-			HAPPY_ADDONS_ASSETS . 'vendor/mouse-follower/mouse-follower.min.js',
-			['gsap'],
-			HAPPY_ADDONS_VERSION,
-			true
 		);
 
 		// mouse follower css
@@ -507,6 +545,18 @@ class Assets_Manager {
 	}
 
 	/**
+	 * Enqueue preview scripts.
+	 *
+	 * Loads vendor scripts that are handled conditionally on the frontend
+	 * so widgets still render correctly inside the editor preview.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_preview_scripts() {
+		wp_enqueue_script( 'lord-icon' );
+	}
+
+	/**
 	 * Enqueue editor assets
 	 *
 	 * @return void
@@ -518,13 +568,6 @@ class Assets_Manager {
 		wp_enqueue_style(
 			'happy-icons',
 			HAPPY_ADDONS_ASSETS . 'fonts/style.min.css',
-			null,
-			HAPPY_ADDONS_VERSION
-		);
-
-		wp_enqueue_style(
-			'huge-icons',
-			HAPPY_ADDONS_ASSETS . 'fonts/huge-icons/huge-icons.min.css',
 			null,
 			HAPPY_ADDONS_VERSION
 		);

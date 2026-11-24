@@ -32,6 +32,40 @@ function addSpace(n) {
     });
 }
 
+function rediCaptchaEnabled() {
+    return !!(typeof redi_restaurant_reservation !== 'undefined' && parseInt(redi_restaurant_reservation.captcha_enabled, 10));
+}
+
+function rediCaptchaVersion() {
+    return (typeof redi_restaurant_reservation !== 'undefined' && redi_restaurant_reservation.captcha_version) ? redi_restaurant_reservation.captcha_version : 'v2';
+}
+
+function rediGetCaptchaToken(callback) {
+    if (!rediCaptchaEnabled()) {
+        callback('');
+        return;
+    }
+
+    if (rediCaptchaVersion() === 'v3') {
+        var siteKey = redi_restaurant_reservation.captcha_key || '';
+        if (!siteKey || typeof grecaptcha === 'undefined' || typeof grecaptcha.ready !== 'function') {
+            callback(null);
+            return;
+        }
+        grecaptcha.ready(function () {
+            grecaptcha.execute(siteKey, { action: 'reservation' }).then(function (token) {
+                callback(token);
+            }).catch(function () {
+                callback(null);
+            });
+        });
+        return;
+    }
+
+    var recaptchaResponse = document.querySelector('.g-recaptcha-response');
+    callback(recaptchaResponse ? recaptchaResponse.value : '');
+}
+
 
 const setParentContainerClass = () => {
   const app = document.getElementsByClassName('redi-app')[0];
@@ -624,6 +658,17 @@ const handleStepForm = () => {
 
         if (Object.keys(window.validation.key).length === 0 || hasTrueValue)
           return;
+
+        if (rediCaptchaEnabled() && rediCaptchaVersion() !== 'v3') {
+          var recaptchaResponse = document.querySelector('.g-recaptcha-response');
+          if (!recaptchaResponse || !recaptchaResponse.value) {
+            cancelOrderMessageError(
+              redi_restaurant_reservation.captcha_not_valid,
+              'contacts_error_message'
+            );
+            return;
+          }
+        }
 
         // Show loading indicator and hide form
         const stepContainer = document.querySelector('.redi-step-form__step[data-redi-step="3"]');
@@ -2579,6 +2624,17 @@ const makeReservationSet = (successCallback, errorCallback) => {
 
   Object.assign(data, populateCustomFieldsValues(acf));
 
+  rediGetCaptchaToken(function (token) {
+    if (rediCaptchaEnabled() && !token) {
+      if (typeof successCallback === 'function') {
+        successCallback({ Error: redi_restaurant_reservation.captcha_not_valid });
+      }
+      return;
+    }
+    if (token) {
+      data.captcha_token = token;
+    }
+
   jQuery
     .post(
       redi_restaurant_reservation.ajaxurl,
@@ -2596,6 +2652,7 @@ const makeReservationSet = (successCallback, errorCallback) => {
         errorCallback(textStatus, errorThrown);
       }
     });
+  });
 };
 
 // reservation cancel

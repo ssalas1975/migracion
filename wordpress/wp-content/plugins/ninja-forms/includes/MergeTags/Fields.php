@@ -161,6 +161,23 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
             // TODO: Skip hidden fields, ie conditionally hidden.
             if (isset($field['visible']) && false === $field['visible']) continue;
 
+            // Skip unchecked single checkbox fields - they represent no user input
+            // Must check BEFORE the filter transforms raw value to display text
+            // Fixes #7908 (regression) and #7909 (longstanding)
+            if ($field['type'] === 'checkbox') {
+                // Check raw value (standard case: 0, '', false, null = unchecked)
+                if (!$field['value']) {
+                    continue;
+                }
+                // Also check if value matches unchecked_value (handles pre-transformed data)
+                $unchecked_value = isset($field['settings']['unchecked_value'])
+                    ? $field['settings']['unchecked_value']
+                    : '';
+                if ($unchecked_value !== '' && $field['value'] === $unchecked_value) {
+                    continue;
+                }
+            }
+
             // Check to see if the type is a list field and if it is...
             if (in_array($field['type'], array_values($list_fields_types))) {
                 // If we have a comma separated value...
@@ -174,8 +191,13 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
 
             $field['value'] = apply_filters('ninja_forms_merge_tag_value_' . $field['type'], $field['value'], $field);
 
-            // Skip fields without values.
-            if (!$field['value']) continue;
+            // Skip fields without values. A checkbox display value of "0" is a
+            // value the form author chose, so only an empty one is skipped.
+            if ('checkbox' === $field['type']) {
+                if ('' === $field['value'] || null === $field['value']) continue;
+            } elseif (!$field['value']) {
+                continue;
+            }
 
             if (is_array($field['value']) && $field['type'] !== "repeater") $field['value'] = implode(', ', $field['value']);
 
@@ -213,6 +235,21 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
 
     public function add_field($field)
     {
+        // Ensure field settings are available with fallback to database for repeater fields
+        if (isset($field['type']) && 'repeater' === $field['type']) {
+            if (!isset($field['settings']['fields']) || !is_array($field['settings']['fields'])) {
+                $fieldObj = Ninja_Forms()->form()->get_field($field['id']);
+                if ($fieldObj) {
+                    $freshSettings = $fieldObj->get_settings();
+                    // Merge fresh settings with existing to preserve any runtime additions
+                    $field['settings'] = array_merge(
+                        isset($field['settings']) ? $field['settings'] : array(),
+                        $freshSettings
+                    );
+                }
+            }
+        }
+
         // set boolean check for isRepetater field type
         $isRepeater = isset($field['settings']['type'])
         && isset($field['key'])
@@ -341,6 +378,14 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
     {
         $field_key =  $field['key'];
 
+        // Ensure field settings are available with fallback to database
+        if (!isset($field['settings']['fields']) || !is_array($field['settings']['fields'])) {
+            $fieldObj = Ninja_Forms()->form()->get_field($field['id']);
+            if ($fieldObj) {
+                $field['settings'] = $fieldObj->get_settings();
+            }
+        }
+
         // Create merge tag for table output
         $tableBase = 'table';
         $tableCallback = 'field_' . $field_key.'_'.$tableBase;
@@ -360,17 +405,39 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
         $outgoingValue = '';
 
         $list_fields_types = array('listcheckbox', 'listmultiselect', 'listradio', 'listselect');
-        
+
         // Handle fieldset repeater
-        $array = Ninja_Forms()->fieldsetRepeater->extractSubmissions($field['id'], $field['value'], $field['settings']);
+        // Ensure field settings are available with fallback to database
+        $fieldSettings = isset($field['settings']) ? $field['settings'] : array();
+
+        // If settings don't contain the nested fields definition, fetch fresh from database
+        if (!isset($fieldSettings['fields']) || !is_array($fieldSettings['fields'])) {
+            $fieldObj = Ninja_Forms()->form()->get_field($field['id']);
+            if ($fieldObj) {
+                $fieldSettings = $fieldObj->get_settings();
+            }
+        }
+
+        $array = Ninja_Forms()->fieldsetRepeater->extractSubmissions($field['id'], $field['value'], $fieldSettings);
+
+        // A submission keeps every value it was given, so it still holds values
+        // for fieldset fields deleted from the form since. Those fields have no
+        // label or type left to render, and re-triggering an email action must
+        // not reintroduce data the form no longer collects (#7509).
+        $currentFieldsetFieldIds = $this->getCurrentFieldsetFieldIds($fieldSettings);
 
         // Iterate submission indexes (each repeated fieldset in the submission)
         foreach ($array as $submissionIndex => $fieldsetArray) {
             $fieldsetNumber = $submissionIndex + 1;
-            $outgoingValue .= '<tr><td><b>' . $field['label'] . ' #:' . $fieldsetNumber . '</b></td></tr>';
+            $fieldsetRows = '';
 
             // Iterate each field within a submission index
             foreach ($fieldsetArray as $fieldsetFieldId => $submissionValueArray) {
+
+                // Skip values whose field is no longer part of the fieldset
+                if (!in_array((string) $fieldsetFieldId, $currentFieldsetFieldIds, true)) {
+                    continue;
+                }
 
                 // Check to see if the type is a list field and if it is...
                 if (in_array($submissionValueArray['type'], array_values($list_fields_types))) {
@@ -385,13 +452,58 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
                 $fieldValue = $submissionValueArray['value'];
                 if ( isset( $submissionValueArray['type'] ) ) {
                     $fieldValue = apply_filters( 'ninja_forms_merge_tag_value_' . $submissionValueArray['type'], $fieldValue, $submissionValueArray );
+
+                    $fieldValue = Ninja_Forms()->fieldsetRepeater->formatFieldsetFieldValue(
+                        $fieldsetFieldId,
+                        $fieldValue,
+                        $submissionValueArray['type'],
+                        $fieldSettings
+                    );
                 }
                 
-                $outgoingValue .= '<tr><td valign="top">' . apply_filters('ninja_forms_merge_label', $submissionValueArray['label'], $field, $this->form_id) . ':</td><td>' . $fieldValue . '</td></tr>';
+                $fieldsetRows .= '<tr><td valign="top">' . apply_filters('ninja_forms_merge_label', $submissionValueArray['label'], $field, $this->form_id) . ':</td><td>' . $fieldValue . '</td></tr>';
             }
+
+            // A fieldset whose fields were all deleted contributes no heading
+            if ('' === $fieldsetRows) {
+                continue;
+            }
+
+            $outgoingValue .= '<tr><td><b>' . $field['label'] . ' #:' . $fieldsetNumber . '</b></td></tr>' . $fieldsetRows;
         }
 
         return $outgoingValue;
+    }
+
+    /**
+     * Return the ids of the fields the fieldset currently holds
+     *
+     * Submission values are keyed on the fieldset field id alone, while the
+     * field settings reference each field as {fieldsetRepeaterFieldId}.{fieldsetFieldId},
+     * so the settings references are parsed down to the same form.
+     *
+     * @param array $fieldSettings Repeatable fieldset field settings
+     * @return array
+     */
+    protected function getCurrentFieldsetFieldIds($fieldSettings)
+    {
+        $fieldsetFieldIds = array();
+
+        if (!isset($fieldSettings['fields']) || !is_array($fieldSettings['fields'])) {
+            return $fieldsetFieldIds;
+        }
+
+        foreach ($fieldSettings['fields'] as $fieldsetField) {
+            if (!isset($fieldsetField['id'])) {
+                continue;
+            }
+
+            $parsed = Ninja_Forms()->fieldsetRepeater->parseFieldsetFieldReference($fieldsetField['id']);
+
+            $fieldsetFieldIds[] = (string) $parsed['fieldsetFieldId'];
+        }
+
+        return $fieldsetFieldIds;
     }
 
 
@@ -493,7 +605,7 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
 
         $outgoing = $incoming; // Initialize with incoming value to prevent undefined variable warning
 
-        if('repeater'===$type) {
+        if('repeater'===$type && is_array($incoming)) {
             // Iterate each repeater value
             foreach($incoming as $fieldsetFieldId=>$fieldsetFieldSubmissionValue ){
                 
@@ -504,24 +616,13 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
                     // individual value
                     if(is_array($fieldsetFieldSubmissionValue['value'])){
 
-                        //Detect date field value in RFF
-                        if(isset($fieldsetFieldSubmissionValue['value']['date'])){
-
-                            // initialize outgoing datefield value as empty string
-                            $outgoing[$fieldsetFieldId]['value'] = "";
-
-                            foreach($fieldsetFieldSubmissionValue['value'] as $dateFieldKey => $dateElement) {
-                                //Discard date index for time only fields
-                                if(strpos($dateElement, ":") === false) {
-                                    $outgoing[$fieldsetFieldId]['value'] .= $dateFieldKey . ": " . strip_shortcodes($dateElement) . "<br>";
-                                }
-                            }
-                            
-                        } else {
-                            // value is array but not a date array
-                            // use array_map to strip shortcodes from each value in indexed array
-                            $outgoing[$fieldsetFieldId]['value']=array_map('strip_shortcodes',$fieldsetFieldSubmissionValue['value']);
-                        }
+                        /*
+                         * Strip each individual value, keeping the array shape.
+                         * A date field's parts must survive as parts so they can
+                         * be combined for display further down; flattening them
+                         * here left the raw parts in the output. See #7440.
+                         */
+                        $outgoing[$fieldsetFieldId]['value']=array_map('strip_shortcodes',$fieldsetFieldSubmissionValue['value']);
                     }else{
                         // If value is not array, strip shortcode
                         $outgoing[$fieldsetFieldId]['value']=strip_shortcodes($fieldsetFieldSubmissionValue['value']);
@@ -543,7 +644,7 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
     }
 
     /**
-     * Strip tags in value
+     * Render a submitted value as literal, inert text
      *
      * @param int|string $id
      * @param mixed $incoming
@@ -565,30 +666,58 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
                         // individual value
                         if(is_array($fieldsetFieldSubmissionValue['value'])){
                             // If value is not array, strip tag       
-                            $outgoing[$fieldsetFieldId]['value']=array_map('strip_tags',$fieldsetFieldSubmissionValue['value']);                    
+                            $outgoing[$fieldsetFieldId]['value']=array_map(array($this, 'makeValueInert'),$fieldsetFieldSubmissionValue['value']);                    
                         }else{
                             // If value is not array, strip shortcode
 
-                            $outgoing[$fieldsetFieldId]['value']=strip_tags($fieldsetFieldSubmissionValue['value']);
+                            $outgoing[$fieldsetFieldId]['value']=$this->makeValueInert($fieldsetFieldSubmissionValue['value']);
                         }
                     }else{
                         // fallback strip tag (all repeater values should be
                         // array so this should not fire)                  
-                        $outgoing[$fieldsetFieldId]['value']=strip_tags($incoming[$fieldsetFieldId]['value']);
+                        $outgoing[$fieldsetFieldId]['value']=$this->makeValueInert($incoming[$fieldsetFieldId]['value']);
                     }
                 }
             }
         }else{
             // Strip tags for non-repeater values
             if(is_array($incoming)){
-                $outgoing = array_map('strip_tags',$incoming);
+                $outgoing = array_map(array($this, 'makeValueInert'),$incoming);
             }else{
 
-                $outgoing = strip_tags($incoming);
+                $outgoing = $this->makeValueInert($incoming);
             }
         }
 
         return $outgoing;
+    }
+
+
+    /**
+     * Render a submitted value as literal, inert text
+     *
+     * A submitted value is data, not markup. strip_tags() reads a `<` as the
+     * start of a tag and discards everything after it, so a submission
+     * containing `<` reached the recipient truncated. Escaping instead keeps
+     * every submitted character while ensuring nothing a customer typed is
+     * acted on as markup by a mail client or a browser.
+     *
+     * htmlspecialchars() is called directly, with double encoding enabled, so
+     * that a customer who literally types `&amp;` receives `&amp;` and not
+     * `&`; esc_html() leaves an existing entity untouched and would lose it.
+     *
+     * @see Saturday-Drive/ninja-forms#7279
+     *
+     * @param mixed $value
+     * @return mixed Escaped string, or the value unchanged when not a string
+     */
+    protected function makeValueInert($value)
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return htmlspecialchars($value, ENT_QUOTES, 'UTF-8', true);
     }
 
     /**
@@ -610,15 +739,17 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
         } else {
             $type = '';
 
-            foreach ($this->merge_tags['all_fields']['fields'] as $field) {
+            if ( isset( $this->merge_tags['all_fields']['fields'] ) && is_array( $this->merge_tags['all_fields']['fields'] ) ) {
+                foreach ($this->merge_tags['all_fields']['fields'] as $field) {
 
-                if (
-                    isset($field['key'])
-                    && $field['key'] == $id
-                    && isset($field['type'])
-                ) {
-                    $type = $field['type'];
-                    break;
+                    if (
+                        isset($field['key'])
+                        && $field['key'] == $id
+                        && isset($field['type'])
+                    ) {
+                        $type = $field['type'];
+                        break;
+                    }
                 }
             }
         }
@@ -630,7 +761,7 @@ class NF_MergeTags_Fields extends NF_Abstracts_MergeTags
 
     private function get_fields_sorted()
     {
-        $fields = $this->merge_tags['all_fields']['fields'];
+        $fields = isset( $this->merge_tags['all_fields']['fields'] ) ? $this->merge_tags['all_fields']['fields'] : array();
         $sorted = array();
 
         // Filterable Sorting for Add-ons (ie Layout and Multi-Part ).

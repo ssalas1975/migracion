@@ -2,11 +2,11 @@
 Contributors: wpchill, silkalns
 Tags: password protect, password, restrict content, sitewide, password protection
 Requires at least: 6.5
-Tested up to: 7.0
+Tested up to: 7.2
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 4.3.3
+Stable tag: 4.3.27
 
 == Description ==
 ## Password Protect Pages, Posts & Content in WordPress
@@ -110,6 +110,99 @@ Passster is simple to install:
 6. Customise your settings and your good to go!
 
 == Changelog ==
+= 4.3.27 - 24.11.2026 =
+* Fixed: Search performance.
+
+= 4.3.26 - 23.11.2026 =
+* Fixed: Security update.
+
+= 4.3.25 - 19.11.2026 =
+* Fixed: Random content links (WordPress 7.2) revealing posts from protected areas of the site.
+
+= 4.3.24 - 18.11.2026 =
+* Fixed: Security update.
+* Fixed: Default form texts not being translated on new installs.
+
+= 4.3.23 - 16.11.2026 =
+* Fixed: Extra paragraphs breaking the layout of tables and other shortcodes inside protected content.
+= 4.3.22 - 10.11.2026 =
+* Fixed: Security update.
+
+= 4.3.21 - 09.11.2026 =
+* Fixed: Security update.
+
+= 4.3.20 - 23.10.2026 =
+* Added: Password Lists can now be set to expire at a specific date and time.
+* Added: Body classes on locked pages.
+* Fixed: Unlocked content asking for the password again after refresh when the password list contained spaces.
+* Fixed: Single-use passwords from password lists losing access after refresh.
+* Fixed: Redirect after unlock being applied even when Advanced Options was disabled.
+* Fixed: Unlocked visitors being redirected to the protection page by cached redirects.
+* Fixed: Security update.
+* Updated Freemius SDK to the latest version.
+
+= 4.3.19 - 15.10.2026 =
+* Fixed: Security update.
+
+= 4.3.18 - 14.10.2026 =
+* Fixed: Error in the WooCommerce email preview for the Passster password email.
+
+= 4.3.17 - 02.10.2026 =
+* Fixed: Blocks from plugins like Kadence Blocks not displaying inside Protected Areas after unlock.
+* Fixed: Error when using multiple password lists without any list selected.
+
+= 4.3.16 - 18.09.2026 =
+* Added: Post Type Level Protection: password-protect an entire post type at once.
+* Fixed: Unlock link redirects on archive pages.
+
+= 4.3.15 - 10.09.2026 =
+* Fixed: Compatibility issue with some page builders.
+
+= 4.3.14 - 03.09.2026 =
+* Fixed: Security update.
+* Fixed: Minor admin UI improvements.
+
+= 4.3.13 - 02.09.2026 =
+* Fixed: Security update.
+
+= 4.3.12 - 01.09.2026 =
+* Fixed: Security update.
+
+= 4.3.11 - 25.08.2026 =
+* Fixed: Some Design settings were not being applied to the password form.
+
+= 4.3.10 - 21.08.2026 =
+* Fixed: Various password validation and unlock reliability improvements.
+
+= 4.3.9 - 13.08.2026 =
+* Fixed: Security issue (thanks to WPScan).
+* Fixed: Block editor freezing when selecting a block built with page builders like Spectra.
+* Changed: Hid noisy Freemius notices (opt-in reminder, premium activation, plan upgrade messages).
+* Changed: Updated Freemius SDK to 2.13.4.
+
+= 4.3.8 - 03.08.2026 =
+* Fixed: Security issue.
+* Fixed: Block editor freezing on pages built with Elementor.
+* Changed: Improved Protected Content block toolbar performance on pages with many blocks.
+
+= 4.3.7 - 27.07.2026 =
+* Fixed: Security issue (thanks to Pierre Rudloff).
+
+= 4.3.6 - 23.07.2026 =
+* Added: "Show Password" label is now customizable from the General settings tab.
+* Fixed: Per-page form text being used even when "Overwrite Defaults" is disabled.
+* Fixed: Instruction text showing as garbled characters when using the Protected Area block.
+* Fixed: Security issues (thanks to Revanth Hari Narayana Matte).
+
+= 4.3.5 - 02.06.2026 =
+* Fixed: hCaptcha cookie not being recognized on subsequent page loads.
+* Fixed: Unlock links with special characters in instructions could cause encoding errors.
+* Fixed: Pass parameter being lost during global protection redirect.
+
+= 4.3.4 - 08.05.2026 =
+* Fixed: Replaced non-functional license activation button on free version with installation guide for Passster PRO.
+* Fixed: Category lock not showing password form on regular post category archive pages.
+
 = 4.3.3 - 03.04.2026 =
 * Changed: Enhance PS_Rest_Handler to allow public access to additional Passster endpoints for guest users.
 

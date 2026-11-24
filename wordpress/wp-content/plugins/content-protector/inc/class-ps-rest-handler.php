@@ -29,22 +29,31 @@ class PS_Rest_Handler {
 	 * Constructor for PS_Rest_Handler
 	 */
 	public function __construct() {
-		add_filter( 'rest_authentication_errors', array( $this, 'restrict_rest_access' ) );
-		add_filter( 'rest_prepare_post', array( $this, 'filter_rest_response' ), 10, 3 );
-
+		add_filter( 'rest_pre_dispatch', array( $this, 'restrict_rest_access' ), 10, 3 );
+		add_action( 'rest_api_init', array( $this, 'register_response_filters' ) );
 		add_action( 'rest_api_init', array( $this, 'register_nonce_routes' ) );
 	}
 
-	public function restrict_rest_access( $result ) {
+	/**
+	 * Hook the response filter on every post type exposed in the REST API.
+	 *
+	 * @return void
+	 */
+	public function register_response_filters() {
+		foreach ( get_post_types( array( 'show_in_rest' => true ) ) as $post_type ) {
+			add_filter( "rest_prepare_{$post_type}", array( $this, 'filter_rest_response' ) );
+		}
+	}
 
-		// If a previous authentication check was applied,
+	public function restrict_rest_access( $result, $server, $request ) {
+
+		// If a previous plugin already short-circuited dispatch,
 		// pass that result along without modification.
-		if ( true === $result || is_wp_error( $result ) ) {
+		if ( null !== $result ) {
 			return $result;
 		}
 
-		// Allow Passster public endpoints (unlock flow must work for guests).
-		$request_uri           = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// Public so guests can pass the protection page; endpoints that send content check Global Protection themselves.
 		$public_passster_paths = array(
 			'/passster/v1/nonces',
 			'/passster/v1/unlock',
@@ -52,31 +61,17 @@ class PS_Rest_Handler {
 			'/passster/v1/captcha',
 			'/passster/v1/logout',
 		);
-		foreach ( $public_passster_paths as $path ) {
-			if ( strpos( $request_uri, $path ) !== false ) {
-				return $result;
-			}
+		if ( in_array( $request->get_route(), $public_passster_paths, true ) ) {
+			return null;
 		}
 
 		// Check if request is coming from a frontend page builder.
 		if ( current_user_can( 'manage_options' ) && ( is_plugin_active( 'elementor/elementor.php' ) || is_plugin_active( 'livecanvas/livecanvas-plugin-index.php' ) || is_plugin_active( 'divi-builder/divi-builder.php' ) || is_plugin_active( 'oxygen/functions.php' ) || is_plugin_active( 'pagelayer/pagelayer.php' ) ) ) {
-			return $result;
+			return null;
 		}
 
-		// Global protection activated?
-		$settings           = get_option( 'passster' );
-		$protection_enabled = $settings['activate_global_protection'] ?? false;
-
-		// Check if access is allowed.
-		$valid = false;
-
-		if ( ! empty( $settings['global_protection_id'] ) ) {
-			$page_id = esc_attr( $settings['global_protection_id'] );
-			$atts    = array( 'password' => get_post_meta( $page_id, 'passster_password', true ) );
-			$valid   = PS_Conditional::is_valid( $atts );
-		}
-
-		if ( $protection_enabled && ! $valid && ! is_user_logged_in() ) {
+		// Editors keep the block and page builder editors: the dashboard already shows them all posts. Don't widen to edit_posts.
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_others_posts' ) && PS_Global_Protection::is_visitor_locked() ) {
 			return new \WP_Error(
 				'rest_not_logged_in',
 				__( 'You are not allowed to access this content. Please authenticate with a password first.', 'content-protector' ),
@@ -84,18 +79,16 @@ class PS_Rest_Handler {
 			);
 		}
 
-		return $result;
+		return null;
 	}
 
 	/**
 	 * Filter REST API response to hide sensitive password data from unauthenticated users
 	 *
 	 * @param \WP_REST_Response $response The response object.
-	 * @param \WP_Post          $post     The post object.
-	 * @param \WP_REST_Request  $request  The request object.
 	 * @return \WP_REST_Response
 	 */
-	public function filter_rest_response( $response, $post, $request ) {
+	public function filter_rest_response( $response ) {
 		// Only filter for unauthenticated users or users without proper permissions
 		if ( is_user_logged_in() && current_user_can( 'manage_options' ) ) {
 			return $response;

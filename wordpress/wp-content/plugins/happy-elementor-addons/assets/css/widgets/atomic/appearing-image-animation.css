@@ -1,0 +1,34 @@
+/* Appearing Image Animation (Elementor V4): the image is wrapped by the
+   runtime in .ha-aia-wrap so clip-path / slices never touch the image box. */
+.ha-aia-wrap {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+}
+.ha-aia-wrap img {
+  display: block;
+  will-change: transform, clip-path;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+}
+.ha-aia-wrap .ha-aia-slice {
+  position: absolute;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ha-aia-wrap {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  .ha-aia-wrap img {
+    -webkit-transform: none !important;
+        -ms-transform: none !important;
+            transform: none !important;
+    -webkit-clip-path: none !important;
+            clip-path: none !important;
+  }
+}

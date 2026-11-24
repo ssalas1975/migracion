@@ -12,11 +12,13 @@
     width: 80%;
 }
 .wrap-col-25 {
-    flex: 0 1 15%;
+    flex: 0 1 20%;
+    width: 20%;
 }
 .wrap-row {
     display: flex;
     justify-content: space-between;
+    gap: 20px;
 }
 h2.nav-tab-wrapper {
     display: inline-block;
@@ -81,8 +83,59 @@ a.nav-tab.getpro.nav-tab {
     border-color: #ffab4a;
 }
 
-input#password_protected_password_new, input#password_protected_password_confirm, input#password_protected_remember_me_lifetime, textarea#password_protected_allowed_ip_addresses {
+input#password_protected_remember_me_lifetime, textarea#password_protected_allowed_ip_addresses {
     width: 50% !important;
+}
+
+.pp-pwd-toggle-wrap {
+    display: inline-flex;
+    align-items: stretch;
+    width: 50%;
+}
+
+.pp-pwd-toggle-wrap input[type="password"],
+.pp-pwd-toggle-wrap input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.pp-pwd-toggle {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    padding: 0 8px;
+    margin-left: -1px;
+    border: 1px solid #8c8f94;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+    background: #f6f7f7;
+    color: #50575e;
+    box-shadow: none;
+    line-height: 1;
+}
+
+.pp-pwd-toggle:hover {
+    background: #e0e0e0;
+    color: #1d2327;
+}
+
+.pp-pwd-toggle:focus {
+    box-shadow: none;
+    outline: 1px solid #2271b1;
+    outline-offset: -1px;
+}
+
+.pp-pwd-toggle .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    pointer-events: none;
 }
 
 .template-container {
@@ -228,11 +281,12 @@ input#password_protected_password_new, input#password_protected_password_confirm
 }
 
 .pp-nav-tab {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
     display: inline-block;
     border-right: 1px solid #d9dce3;
     background: #f6f6f6;
+    margin-bottom: 5px;
 }
 
 .pp-nav-tab a {
@@ -262,6 +316,10 @@ input#password_protected_password_new, input#password_protected_password_confirm
 
 .pp-nav-tab:hover {
     background: #fff;
+}
+
+.pp-pro-tab:hover{
+    background: #8076ff !important;
 }
 
 .pp-nav-tab a:hover {
@@ -401,19 +459,26 @@ input#password_protected_password_new, input#password_protected_password_confirm
 
 .pp-pro-tab span {
     color: #fcc045;
-    margin-right: 10px;
+    margin: -7px -8px 0px 0px;
     font-size: 30px;
 }
-
+.pp-get-pro-tab-icon img.pro-tab-icon{
+    width: 80%;
+   margin-bottom: -12px;
+}
 
 
 /**
  * Adding css for pro banner
  */
 .pp-pro-banner {
-    width: 800px;
-    height: 484px;
-    background-image:  url( "../images/banner-background.png" );
+    width: 80%;
+    height: auto;
+    background-image: url(../images/banner-background.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 15px;
 }
 
 .pp-pro-banner * {
@@ -424,34 +489,49 @@ input#password_protected_password_new, input#password_protected_password_confirm
     padding: 20px;
 }
 
-.pp-wrapper:has( .pp-pro-banner ) {
+@media (max-width: 1024px) {
+    .pp-pro-banner {
+        width: 100%;
+    }   
 }
+
+@media (max-width: 767px) {
+    .pp-pro-banner {
+        width: 100%;
+    } 
+    .pp-banner-body{
+        display: grid !important;
+    }
+    .pp-cols{
+        width: 100% !important;
+    }
+    .pp-banner-header .pp-head-wt-pro-tag .pp-pro-tag{
+        margin: 26px 0px 0px 5px !important;
+    }
+    .pp-banner-header .heading-1{
+        font-size: 30px !important;
+        line-height: 29px !important;
+        margin-top: 5px !important;
+        text-align: left !important;
+    }
+}
+
+/* .pp-wrapper:has( .pp-pro-banner ) {
+} */
 
 .pp-content-wrapper:has( .pp-pro-banner ) {
-    padding: 20px 20px 20px 20px;
-}
-
-.pp-pro-banner .pp-container .heading-1 {
-    font-size: 16px;
-    font-weight: 400;
-    padding: 0;
-    margin: 0;
-}
-
-.pp-pro-banner .pp-container .heading-2 {
-    font-size: 24px;
-    font-weight: 700;
-    padding: 0;
-    margin: 0;
-}
-
-.pp-pro-banner .pp-container .heading-2 span {
-    color: #8076FF;
+    padding: 10px;
+    background: #f0f0f1;
+    box-shadow: none;
 }
 
 .pp-banner-body {
-    margin: 20px 0;
-    width: 100%;
+    width: 78%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .pp-cols {
@@ -462,7 +542,6 @@ input#password_protected_password_new, input#password_protected_password_confirm
 .pp-cols div {
     font-size: 14px;
     font-weight: 400;
-    margin-bottom: 25px;
     color: #2D3748;
 }
 
@@ -492,25 +571,110 @@ input#password_protected_password_new, input#password_protected_password_confirm
 .pp-sidebar-footer a,
 .pp-banner-footer a {
     display: inline-block;
-    background: #8076FF;
-    padding: 10px 20px;
+    background: linear-gradient(0deg, #FFA402 0%, #FCC21B 100%);
+    padding: 12px 20px;
     border-radius: 50px;
     font-size: 14px;
     font-weight: 600;
-    color: #fff;
+    color: #000;
     text-decoration: none;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-.pp-sidebar-footer a {
-    font-size: 12px;
+.pp-banner-footer{
+   display: grid;
+    justify-content: center;
+        margin: 30px 0px;
+}
+
+.pp-banner-footer a{
+    width: auto !important;
+}
+
+.pp-banner-header {
+    text-align: center;
+        margin-top: 15px;
+}
+
+.pp-banner-header .heading-1 {
+    font-weight: 700;
+    padding: 0;
+    margin: 0;
+    font-size: 38px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin-top: -9px;
+    background: linear-gradient(180deg, #8076FF 40%, #6F68C6 60%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pp-banner-header .pp-row{
+    display:inline-flex
+}
+
+.pp-banner-header .pp-crown-icon img{
+    width:85px;
+    padding-right:15px;
+    margin-top: 8px;
+}
+
+.pp-banner-header .pp-head-wt-pro-tag{
+    display: flex;
+}
+
+.pp-banner-header .pp-head-wt-pro-tag .pp-pro-tag{
+    letter-spacing: 0.6px;
+    background: linear-gradient(269deg, #eb9702 0%, #FCC21B 100%);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 22px;
+    padding: 0px 6px;
+    border-radius: 5px;
+    color: black;
+    margin: 6px 0px 0px 5px;
+    display: inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.pp-banner-header .pp-sm-txt-heading{
+    font-size: 14px;
+    margin: 6px 0px 0px 0px;
+    color: #27292C;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.pp-features-list-banner {
+    display: flex;
+    align-items: center;
+}
+
+.pp-features-list-banner img{
+    width: 17px;
+    padding-right: 7px;
+}
+
+.pp-features-list-banner p{
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 7px;
+    color: #2D3748;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+.pp-features-list-banner a:hover{
+    text-decoration: underline !important;
+    font-weight: 500;
+    color: #8076FF;
+    text-decoration-color: #8076FF !important;
 }
 
 .pp-sidebar-widget {
     float: right;
     margin-top: 15px;
     position: relative;
-    width: 250px;
-    background: linear-gradient(180deg, #dad7ff 0%, #fff 100%);
+    width: 100%;
+    background: radial-gradient(ellipse at center, #FFFFFF 0%, #DDDAFF 100%);
     background-position-x: right;
     background-position-y: bottom;
 
@@ -519,21 +683,29 @@ input#password_protected_password_new, input#password_protected_password_confirm
 }
 
 .pp-sidebar-widget .pp-container {
-    padding: 20px;
+    padding: 20px 15px;
 }
 
 .pp-sidebar-header .heading-1 {
-    font-size: 16px;
     font-weight: 400;
     padding: 0;
     margin: 0;
+    font-size: 25px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin-top: -9px;
+    background: linear-gradient(180deg, #8076FF 0%, #6a63c2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .pp-sidebar-header .heading-2 {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     padding: 0;
     margin: 0;
+    color: #6a63c2;
+    line-height: 22px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .pp-sidebar-header .heading-2 img {
@@ -544,6 +716,70 @@ input#password_protected_password_new, input#password_protected_password_confirm
 .pp-sidebar-header .heading-2 span {
     color: #8076FF;
 }
+
+.pp-sidebar-header .pp-row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.pp-sidebar-header .pp-crown-icon img{
+    width:57px;
+    padding-right:10px;
+    margin-top: 5px;
+}
+
+.pp-sidebar-header .pp-head-wt-pro-tag{
+    display: flex;
+}
+
+.pp-sidebar-header .pp-head-wt-pro-tag .pp-pro-tag{
+    letter-spacing: 0.6px;
+    background: linear-gradient(269deg, #eb9702 0%, #FCC21B 100%);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 22px;
+    padding: 0px 6px;
+    border-radius: 5px;
+    color: black;
+    margin: 0px 0px 0px 5px;
+    display: inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.pp-sidebar-header .pp-sm-txt-under-head{
+    font-size: 9px;
+    margin-top: 3px;
+    color: #27292C;
+    font-weight: 500;
+}
+
+
+.pp-sidebar-body ul {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0px;
+    padding: 0;
+    margin: 0;
+}
+
+.pp-sidebar-body ul li {
+    list-style: none;
+}
+
+@media (max-width: 1024px) {
+    .pp-sidebar-body ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .pp-sidebar-body ul {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 .pp-sidebar-body {
     margin: 20px 0;
@@ -566,13 +802,15 @@ input#password_protected_password_new, input#password_protected_password_confirm
 
 .pp-sidebar-body ul li {
     font-weight: 400;
-    font-size: 14px;
-    margin-bottom: 15px;
+    font-size: 13px;
+    margin-bottom: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 .pp-sidebar-footer {
     text-align: center;
     width: 100%;
+    display: flex;
 }
 
 .pp-docs-link {
@@ -614,7 +852,9 @@ input#password_protected_password_new, input#password_protected_password_confirm
 
 @media screen and ( max-width: 1589px ) {
     .pp-nav-tab a {
-        padding: 8px 10px;
+        padding: 5px 10px;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
     }
 }
 
@@ -659,6 +899,19 @@ input#password_protected_password_new, input#password_protected_password_confirm
     float: left;
 }
 
+.pp-sidebar-new-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #22c55e;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 16px;
+    vertical-align: middle;
+}
+
 .pp-sidebar-widget li:has( .sidebar-body-text-container ), .pp-sidebar-widget li:has( .sidebar-body-image-container ) {
     clear: both;
     display: table;
@@ -683,6 +936,7 @@ input#password_protected_password_new, input#password_protected_password_confirm
     position:fixed;
     top: 0;
     left: 0;
+    z-index: 100000;
     background: rgba( 0, 0, 0, 0.05 );
     backdrop-filter: blur( 1px );
     display: flex;
@@ -696,8 +950,13 @@ input#password_protected_password_new, input#password_protected_password_confirm
     position:relative;
     padding: 15px;
     border: 1px solid #DAD7FF;
-    background: linear-gradient(175deg, #DAD7FF 0%, #FFFFFF 100%);
+    /* background: linear-gradient(175deg, #DAD7FF 0%, #FFFFFF 100%); */
+    background: radial-gradient(ellipse at center, #FFFFFF 0%, #DDDAFF 100%);
     border-radius: 8px;
+}
+
+.pp-pro-popup-logo{
+    width: 35%;
 }
 
 #pro-upgrade-popup .pp-container {
@@ -730,9 +989,11 @@ input#password_protected_password_new, input#password_protected_password_confirm
 #pro-popup .pp-body .pp-description, #pro-upgrade-popup .pp-body .pp-description {
     text-align: center;
     color: #2D3748;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 400;
-    line-height: 24px;
+    line-height: 10px;
+    margin-top: -6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 #pro-popup .pp-body .pp-link, #pro-upgrade-popup .pp-body .pp-pro-link {
@@ -740,7 +1001,7 @@ input#password_protected_password_new, input#password_protected_password_confirm
     display: inline-block;
     padding: 16px 32px;
     border-radius: 24px;
-    background: #8076FF;
+    background: linear-gradient(180deg, #8076FF 0%, #6F68C6 100%);
     color: #fff;
     font-weight: 600;
     font-size: 16px;
@@ -748,15 +1009,24 @@ input#password_protected_password_new, input#password_protected_password_confirm
     text-decoration: none;
 }
 
-#pro-popup .pp-heading__title {
+.pp-heading__title {
     color: #171219;
-
     text-align: center;
-    font-family: Poppins;
-    font-size: 17px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 24px;
     font-style: normal;
-    font-weight: 400;
-    line-height: 24px;
+    font-weight: 600;
+    line-height: 28px;
+}
+
+#pro-popup .pp-body .pp-pro-popup-heading{
+    color: #171219;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px;
 }
 
 .clearfix::after {
@@ -902,4 +1172,368 @@ label.option-hcaptcha-free, label.option-turnstile-free {
 .actionDisable{
   pointer-events: none;
   cursor: default;
+}
+
+.pp-customization-screen-wrapper {
+    padding: 36px 24px 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.pp-customization-screen-header {
+    max-width: 760px;
+    margin: 0 auto 16px;
+    text-align: center;
+}
+
+.pp-customization-screen-title {
+    margin: 0 0 11px 0 !important;
+    color: #1d2327;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.35;
+}
+
+.pp-customization-screen-desc {
+    margin: 0 auto 24px auto;
+    max-width: 680px;
+    color: #50575e;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.pp-customization-screen-desc .pp-customization-screen-link {
+    color: #2271b1;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.pp-customization-screen-desc .pp-customization-screen-link:hover,
+.pp-customization-screen-desc .pp-customization-screen-link:focus {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+.pp-customization-screen-content {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.pp-customizer-mockup {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dcdcde;
+    border-radius: 10px;
+    background: #f0f0f1;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    line-height: 0;
+}
+
+.pp-customizer-mockup.click-to-display-upgrade-popup {
+    cursor: pointer;
+}
+
+.pp-customizer-mockup__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: blur(2px);
+    transform: scale(1.02);
+}
+
+.pp-customizer-mockup__lock-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #8076ff;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translate(-50%, -50%);
+    line-height: 1;
+    pointer-events: none;
+}
+
+@media screen and (max-width: 782px) {
+    .pp-customization-screen-wrapper {
+        padding: 24px 12px 20px;
+    }
+
+    .pp-customization-screen-title {
+        font-size: 20px !important;
+    }
+
+    .pp-customizer-mockup__lock-badge {
+        width: 60px;
+        height: 60px;
+    }
+
+    .pp-customizer-mockup__lock-badge svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+.password-protected-pro-integrations {
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
+	padding: 20px;
+}
+
+.password-protected-pro-integrations .integrations-title {
+	color: #000;
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 4px;
+}
+
+.password-protected-pro-integrations .integrations-desc {
+	color: #000;
+	font-size: 12px;
+	font-weight: 400;
+	margin: 0 0 22px;
+}
+
+.password-protected-pro-integrations .integrations-search {
+	width: 400px;
+	max-width: 100%;
+	height: 32px;
+	border-radius: 4px;
+	border: 1px solid #e2e2e2;
+	padding: 0 15px;
+	margin-bottom: 20px;
+	display: flex;
+	align-items: center;
+}
+
+.password-protected-pro-integrations .integrations-search input {
+	width: 100%;
+	height: 32px;
+	display: block;
+	border: none;
+	padding: 0;
+	margin: 0;
+	outline: none;
+	box-shadow: none;
+	background: transparent;
+	color: #6e7376;
+	font-size: 10px;
+	font-weight: 400;
+}
+
+.password-protected-pro-integrations .integrations-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin-top: 0;
+}
+
+.password-protected-pro-integrations .integrations-item {
+	width: calc(33.333% - 11px);
+	min-width: 260px;
+	flex: 1 1 260px;
+	max-width: calc(33.333% - 11px);
+	border-radius: 4px;
+	border: 1px solid #e2e2e2;
+	background: #fff;
+	position: relative;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-card {
+	display: flex;
+	flex-direction: column;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-card .integrations-item-inner {
+	flex: 1 1 auto;
+}
+
+.password-protected-pro-integrations .integrations-item .integrations-item-inner {
+	padding: 15px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-height: 129px;
+}
+
+.password-protected-pro-integrations .integrations-item-inner h3 {
+	color: #000;
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.password-protected-pro-integrations .integrations-item-inner h3 img {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+}
+
+.password-protected-pro-integrations .integrations-item-inner p.desc {
+	color: #1e1e1e;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.4;
+	margin: 0;
+}
+
+.password-protected-pro-integrations .pp-integration-read-more {
+	color: #8076ff;
+	font-weight: 700;
+}
+
+.password-protected-pro-integrations .pp-coming-soon {
+	position: absolute;
+	top: 22px;
+	right: -44px;
+	width: 150px;
+	transform: rotate(45deg);
+	background: #dbd8ff;
+	text-align: center;
+	color: #3d3790;
+	font-size: 9px;
+	font-weight: 700;
+	padding: 5px 0;
+	line-height: 1.2;
+	z-index: 2;
+	pointer-events: none;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background: radial-gradient(96.54% 96.54% at 50% 50%, #fff 0%, #dddaff 100%), #f7f6ff;
+	border-color: #dbd8ff;
+	padding: 15px;
+	min-height: 159px;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest h3 {
+	margin: 0 0 10px;
+	justify-content: center;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest p {
+	margin: 0 0 16px;
+	text-align: center;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest a,
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest .pp-integration-suggest-btn {
+	border-radius: 5px;
+	border: 1px solid #8076ff;
+	background: #fff;
+	padding: 7px 10px;
+	text-decoration: none;
+	color: #48419e;
+	font-size: 10px;
+	font-weight: 600;
+}
+
+.password-protected-pro-integrations .integrations-item.pp-integration-suggest .pp-integration-suggest-btn.is-disabled {
+	pointer-events: none;
+	cursor: not-allowed;
+	opacity: 0.65;
+}
+
+.password-protected-pro-integrations .pp-integration-requires-notice {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+	margin-top: auto;
+	margin-bottom: 0;
+	padding: 10px 15px;
+	background: #eef4ff;
+	color: #1d4ed8;
+	border-top: 1px solid #dbeafe;
+	border-radius: 0;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.password-protected-pro-integrations .pp-integration-requires-notice .pp-integration-requires-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	flex: 0 0 18px;
+	border-radius: 50%;
+	background: #2563eb;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	font-style: italic;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (max-width: 1200px) {
+	.password-protected-pro-integrations .integrations-item {
+		flex: 1 1 calc(50% - 8px);
+		max-width: calc(50% - 8px);
+		width: auto;
+		min-width: 240px;
+	}
+}
+
+@media (max-width: 782px) {
+	.password-protected-pro-integrations .integrations-item {
+		flex: 1 1 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	.password-protected-pro-integrations .integrations-search {
+		width: 100%;
+	}
+}
+
+.pp-activity-log-password {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.35em;
+}
+
+.pp-activity-log-password-mask {
+	font-family: monospace;
+	letter-spacing: 0.05em;
+}
+
+.pp-activity-log-password-value {
+	word-break: break-all;
+}
+
+.pp-activity-log-password-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	min-width: 24px;
+	height: 24px;
+	vertical-align: middle;
+}
+
+.pp-activity-log-password-toggle .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
 }

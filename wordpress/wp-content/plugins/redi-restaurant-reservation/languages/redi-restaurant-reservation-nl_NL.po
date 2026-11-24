@@ -12,13 +12,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _e;__\n"
-"X-Poedit-Basepath: ..\n"
-"X-Poedit-SearchPath-0: .\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Loco-Version: 2.6.3; wp-6.1.1"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.3; wp-6.1.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: redi-restaurant-reservation.php:872
 #, fuzzy
@@ -95,8 +95,8 @@ msgstr ""
 #: functions/notice.php:75
 #, php-format
 msgid ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
-"not created a page with reservation form. Finilize setup wizard now for "
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have"
+" not created a page with reservation form. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
 "<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is actief, maar u "
@@ -112,25 +112,25 @@ msgid ""
 "seamless bookings. Visit the %1$s to finilize configuration and start "
 "impress your clients!</p> %2$s"
 msgstr ""
-"<p>U hebt geen wijzigingen in de instellingen aangebracht sinds u de plug-in "
-"hebt geïnstalleerd. Finilize <b>ReDi Restaurant Reservation Plugin</b> stelt "
-"nu in voor naadloze boekingen. Bezoek de %1$s om de configuratie af te "
-"ronden en indruk te maken op uw klanten!</p> %2$s"
+"<p>U hebt geen wijzigingen in de instellingen aangebracht sinds u de plug-in"
+" hebt geïnstalleerd. Finilize <b>ReDi Restaurant Reservation Plugin</b> "
+"stelt nu in voor naadloze boekingen. Bezoek de %1$s om de configuratie af te"
+" ronden en indruk te maken op uw klanten!</p> %2$s"
 
 #: templates/admin.php:122
 msgid ""
-"<strong>Attention</strong>: New settings are available for review and saving,"
-" please take a moment to update your preferences or fill out the required "
-"settings and click on the save button."
+"<strong>Attention</strong>: New settings are available for review and "
+"saving, please take a moment to update your preferences or fill out the "
+"required settings and click on the save button."
 msgstr ""
 "<strong>Let op</strong>: Er zijn nieuwe instellingen beschikbaar om te "
-"bekijken en op te slaan, neem even de tijd om uw voorkeuren bij te werken of "
-"de vereiste instellingen in te vullen en klik op de knop Opslaan."
+"bekijken en op te slaan, neem even de tijd om uw voorkeuren bij te werken of"
+" de vereiste instellingen in te vullen en klik op de knop Opslaan."
 
 #: templates/frontend.php:338
 msgid ""
-"A confirmation email has been sent to you, should you not receive it, please "
-"rest assured that your booking has been received and is confirmed. If you "
+"A confirmation email has been sent to you, should you not receive it, please"
+" rest assured that your booking has been received and is confirmed. If you "
 "wish you may contact us by phone to confirm."
 msgstr ""
 "Bedankt voor uw reservering. Er is een bevestigingsmail naar u gestuurd. "
@@ -143,8 +143,8 @@ msgid ""
 "rest assured that your booking has been confirmed. You may contact the "
 "restaurant directly if you need to make any changes to your reservation."
 msgstr ""
-"Er is een bevestigingsmail naar u verzonden. Als u het niet ontvangt, kunt u "
-"er zeker van zijn dat uw boeking is bevestigd. U kunt rechtstreeks contact "
+"Er is een bevestigingsmail naar u verzonden. Als u het niet ontvangt, kunt u"
+" er zeker van zijn dat uw boeking is bevestigd. U kunt rechtstreeks contact "
 "opnemen met het restaurant als u wijzigingen in uw reservering wilt "
 "aanbrengen."
 
@@ -165,19 +165,20 @@ msgid ""
 "been approved. You may contact the restaurant directly if you need to make "
 "any changes to your reservation request."
 msgstr ""
-"Een bevestigingsmail ontvangt u zodra uw reserveringsaanvraag is goedgekeurd."
-" U kunt rechtstreeks contact opnemen met het restaurant als u wijzigingen "
-"wilt aanbrengen in uw reserveringsaanvraag."
+"Een bevestigingsmail ontvangt u zodra uw reserveringsaanvraag is "
+"goedgekeurd. U kunt rechtstreeks contact opnemen met het restaurant als u "
+"wijzigingen wilt aanbrengen in uw reserveringsaanvraag."
 
 #: templates/admin.php:230
 msgid ""
 "A pre-designed style requiring minimal customization for a polished look. "
-"Please note that this option is still in beta testing  and some features are "
-"not copied over from Default theme."
+"Please note that this option is still in beta testing  and some features are"
+" not copied over from Default theme."
 msgstr ""
 "Een vooraf ontworpen stijl die minimale aanpassingen vereist voor een "
-"gepolijste look. Houd er rekening mee dat deze optie zich nog in de bètatest "
-"bevindt en dat sommige functies niet zijn gekopieerd van het standaardthema."
+"gepolijste look. Houd er rekening mee dat deze optie zich nog in de bètatest"
+" bevindt en dat sommige functies niet zijn gekopieerd van het "
+"standaardthema."
 
 #: templates/admin.php:231
 msgid ""
@@ -187,13 +188,13 @@ msgid ""
 msgstr ""
 "Een vooraf ontworpen stijl die minimale aanpassingen vereist voor een "
 "gepolijste look. De vorm is opgebouwd met React. Houd er rekening mee dat "
-"deze optie zich nog in de bètatest bevindt en dat sommige functies niet zijn "
-"gekopieerd van het standaardthema."
+"deze optie zich nog in de bètatest bevindt en dat sommige functies niet zijn"
+" gekopieerd van het standaardthema."
 
 #: templates/admin.php:229
 msgid ""
-"Adapts to your website's theme, ensuring seamless integration. However, some "
-"adjustments may be needed to match your design preferences."
+"Adapts to your website's theme, ensuring seamless integration. However, some"
+" adjustments may be needed to match your design preferences."
 msgstr ""
 "Past zich aan het thema van uw website aan en zorgt voor een naadloze "
 "integratie. Er kunnen echter enkele aanpassingen nodig zijn om aan uw "
@@ -253,7 +254,8 @@ msgstr "Toestaan om informatie over de plug-in te verzenden"
 
 #: templates/admin.php:703
 msgid ""
-"Allow users to fill the Wait List when all time slots for the day are booked."
+"Allow users to fill the Wait List when all time slots for the day are "
+"booked."
 msgstr ""
 "Sta gebruikers toe om de wachtlijst te vullen wanneer alle tijdvakken voor "
 "de dag zijn geboekt."
@@ -272,10 +274,11 @@ msgstr "Whatsapp toestaan"
 #: templates/admin.php:799
 msgid ""
 "Allows to show or hide comments section on the reservation form. Enabled by "
-"default. If you see that your guests misuse the comments section, disable it."
+"default. If you see that your guests misuse the comments section, disable "
+"it."
 msgstr ""
-"Maakt het mogelijk om opmerkingen op het reserveringsformulier weer te geven "
-"of te verbergen. Standaard ingeschakeld. Als u ziet dat uw gasten misbruik "
+"Maakt het mogelijk om opmerkingen op het reserveringsformulier weer te geven"
+" of te verbergen. Standaard ingeschakeld. Als u ziet dat uw gasten misbruik "
 "maken van het opmerkingengedeelte, schakelt u het uit."
 
 #: templates/admin.php:619
@@ -319,24 +322,24 @@ msgstr "Api sleutel"
 
 #: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
 msgid ""
-"Apologies for the inconvenience, but we encountered an issue while trying to "
-"make your reservation. It seems there was a technical glitch on our end. Our "
-"team is actively working to resolve this issue. Please try again in a few "
-"minutes, and if the problem persists, feel free to reach out to our customer "
-"support for assistance. Additionally, if you could please send a screenshot "
-"of the error message to {emailLink}, it would greatly help us in diagnosing "
-"and resolving the issue more efficiently. We appreciate your patience and "
-"cooperation. Response:"
+"Apologies for the inconvenience, but we encountered an issue while trying to"
+" make your reservation. It seems there was a technical glitch on our end. "
+"Our team is actively working to resolve this issue. Please try again in a "
+"few minutes, and if the problem persists, feel free to reach out to our "
+"customer support for assistance. Additionally, if you could please send a "
+"screenshot of the error message to {emailLink}, it would greatly help us in "
+"diagnosing and resolving the issue more efficiently. We appreciate your "
+"patience and cooperation. Response:"
 msgstr ""
-"Excuses voor het ongemak, maar we zijn een probleem tegengekomen tijdens het "
-"maken van uw reservering. Het lijkt erop dat er een technische storing aan "
+"Excuses voor het ongemak, maar we zijn een probleem tegengekomen tijdens het"
+" maken van uw reservering. Het lijkt erop dat er een technische storing aan "
 "onze kant was. Ons team werkt actief aan het oplossen van dit probleem. "
 "Probeer het over een paar minuten opnieuw, en als het probleem zich blijft "
 "voordoen, neem dan gerust contact op met onze klantenservice voor hulp. "
 "Bovendien, als u een screenshot van de foutmelding naar {emailLink} zou "
 "kunnen sturen, zou dit ons enorm helpen bij het diagnosticeren en oplossen "
-"van het probleem efficiënter. Wij stellen uw geduld en medewerking op prijs. "
-"Antwoord:"
+"van het probleem efficiënter. Wij stellen uw geduld en medewerking op prijs."
+" Antwoord:"
 
 #: redi-restaurant-reservation.php:2010
 msgid "April"
@@ -349,8 +352,8 @@ msgid ""
 "using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
 "here to provide the support you need."
 msgstr ""
-"Heeft u problemen met het configureren van de plug-in? Maak je niet druk! We "
-"bieden gratis persoonlijke assistentie om je te helpen. U kunt een sessie "
+"Heeft u problemen met het configureren van de plug-in? Maak je niet druk! We"
+" bieden gratis persoonlijke assistentie om je te helpen. U kunt een sessie "
 "met ons plannen via Calendly of contact met ons opnemen via Skype, WhatsApp "
 "of Facebook. We zijn er om je de ondersteuning te bieden die je nodig hebt."
 
@@ -389,7 +392,8 @@ msgstr ""
 "Functionaliteiten in het basispakket (betaalde versie)\n"
 "\n"
 
-#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+#: templates/admin_welcome_no_key.php:32
+#: templates/admin_welcome_no_page.php:28
 msgid "Below is your API Key, please use it when you ask for a support. "
 msgstr ""
 "Hieronder vindt u uw API-sleutel, gebruik deze wanneer u om ondersteuning "
@@ -406,8 +410,8 @@ msgstr "Verjaardag (dd/mm)"
 #: templates/basicpackage.php:44
 msgid ""
 "Blocked Time. Define time range when online reservation should not be "
-"accepted. Specify a reason why reservations are not accepted at this time to "
-"keep your clients happy."
+"accepted. Specify a reason why reservations are not accepted at this time to"
+" keep your clients happy."
 msgstr ""
 "Geblokkeerde tijd. Definieer het tijdsbestek waarin online reserveringen "
 "niet geaccepteerd mogen worden. Geef een reden op waarom reserveringen op "
@@ -636,11 +640,11 @@ msgid ""
 "field, type of field, the constraint whether it is a required field or not "
 "and the error message for the required field."
 msgstr ""
-"Aangepaste velden zijn bedoeld om gebruikers in staat te stellen aanvullende "
-"velden te definiëren voor het verzamelen van meer informatie van klanten. U "
-"kunt de naam van het veld, het type veld en kiezen of het een verplicht veld "
-"is of niet instellen evenals de foutmelding voor als het veld verkeerd wordt "
-"ingevuld kiezen."
+"Aangepaste velden zijn bedoeld om gebruikers in staat te stellen aanvullende"
+" velden te definiëren voor het verzamelen van meer informatie van klanten. U"
+" kunt de naam van het veld, het type veld en kiezen of het een verplicht "
+"veld is of niet instellen evenals de foutmelding voor als het veld verkeerd "
+"wordt ingevuld kiezen."
 
 #: templates/admin.php:244
 msgid "Data Input Appearance"
@@ -700,7 +704,8 @@ msgstr "Geen bevestiging email"
 msgid "Disabled"
 msgstr "Invalide"
 
-#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+#: redi-restaurant-reservation-api.php:447
+#: redi-restaurant-reservation.php:2607
 msgid "Discount"
 msgstr "Korting"
 
@@ -711,12 +716,10 @@ msgstr "Geef lege stoelen aan"
 #: templates/admin.php:664
 msgid ""
 "Displays the available time with time step to the clients. For instance, if "
-"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
-"30, etc."
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, "
+"10:30, etc."
 msgstr ""
-"Toon de beschikbare tijd met een tijdslot voor de klanten. Als u "
-"bijvoorbeeld een tijdslot van 15 minuten selecteert, is de alternatieve tijd "
-"10:00, 10:15, 10:30, enz.\n"
+"Toon de beschikbare tijd met een tijdslot voor de klanten. Als u bijvoorbeeld een tijdslot van 15 minuten selecteert, is de alternatieve tijd 10:00, 10:15, 10:30, enz.\n"
 "\n"
 
 #: templates/admin.php:701
@@ -728,16 +731,16 @@ msgid ""
 "Do you want to know what your client thinks about his last visit? We will "
 "collect it for you."
 msgstr ""
-"Wilt u weten wat uw klant vindt van zijn laatste bezoek? Wij vragen het voor "
-"je op."
+"Wilt u weten wat uw klant vindt van zijn laatste bezoek? Wij vragen het voor"
+" je op."
 
 #: templates/basicpackage.php:70
 msgid ""
-"Do you want to write your own module? We have an API. Contact us to get more "
-"information."
+"Do you want to write your own module? We have an API. Contact us to get more"
+" information."
 msgstr ""
-"Wil je je eigen module schrijven? We hebben een API. Neem contact met ons op "
-"voor meer informatie."
+"Wil je je eigen module schrijven? We hebben een API. Neem contact met ons op"
+" voor meer informatie."
 
 #: templates/admin_welcome.php:27
 msgid ""
@@ -769,11 +772,11 @@ msgstr "Duur"
 #: templates/admin_ajaxed.php:449
 msgid ""
 "Duration of reservation in minutes. This is the time allocated for each "
-"reservation so the reservation system can calculate availability. Enter here "
-"average time that guests stays in."
+"reservation so the reservation system can calculate availability. Enter here"
+" average time that guests stays in."
 msgstr ""
-"Duur van de reservering in minuten. Dit is de tijd die voor elke reservering "
-"is toegewezen, zodat het reserveringssysteem de beschikbaarheid kan "
+"Duur van de reservering in minuten. Dit is de tijd die voor elke reservering"
+" is toegewezen, zodat het reserveringssysteem de beschikbaarheid kan "
 "berekenen. Voer hier de gemiddelde tijd in dat gasten verblijven."
 
 #: templates/admin_ajaxed.php:479
@@ -876,9 +879,9 @@ msgstr "Vervolgkeuzelijst Kinderen inschakelen/uitschakelen"
 #: templates/basicpackage.php:61
 msgid ""
 "Enhance your business experience by using our Facebook integration service "
-"where we try to provide you with profile pictures of your customers if found."
-" You can amaze your customer by knowing him by face when he visits you, "
-"especially at the time of first visit."
+"where we try to provide you with profile pictures of your customers if "
+"found. You can amaze your customer by knowing him by face when he visits "
+"you, especially at the time of first visit."
 msgstr ""
 "Verbeter uw zakelijke ervaring door gebruik te maken van onze Facebook-"
 "integratieservice, waarbij we u proberen te voorzien van profielfoto's van "
@@ -890,8 +893,8 @@ msgid ""
 "Enter any personal information from reservation like name, email or phone "
 "number"
 msgstr ""
-"Voer alle persoonlijke gegevens van de reservering in, zoals naam, e-"
-"mailadres of telefoonnummer"
+"Voer alle persoonlijke gegevens van de reservering in, zoals naam, "
+"e-mailadres of telefoonnummer"
 
 #: redi-restaurant-reservation.php:2037
 msgid "Error loading custom fields"
@@ -931,8 +934,8 @@ msgstr "Veldtype"
 #: functions/notice.php:137
 #, php-format
 msgid ""
-"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
-"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to"
+" impress your clients, make a test reservation. <b>%1$s</b>%2$s"
 msgstr ""
 "Tot slot, nog een laatste stap in het instellen van <b>de ReDi Restaurant "
 "Reservation Plugin</b> om indruk te maken op uw klanten, maak een "
@@ -977,7 +980,8 @@ msgid ""
 "is not working today, please contact us directly."
 msgstr ""
 "Formulier beveiligingscontrole mislukt met fout: Nonce-controle is mislukt. "
-"Reserveringsformulier werkt vandaag niet, neem dan direct contact met ons op."
+"Reserveringsformulier werkt vandaag niet, neem dan direct contact met ons "
+"op."
 
 #: templates/admin.php:126
 msgid "Free package settings"
@@ -1034,14 +1038,15 @@ msgid ""
 "confirmation. Try it out today and see the difference it can make in just a "
 "few clicks!"
 msgstr ""
-"Laat uw restaurantbedrijf bloeien met de <strong>ReDi Restaurant Reservation-"
-"plug-in</strong>! Onze plug-in vereenvoudigt het reserveringsproces en stelt "
-"uw klanten in staat om eenvoudig online te boeken. Met <strong>directe "
-"reserveringsbevestiging</strong> en aanpasbare instellingen is het beheren "
-"van reserveringen nog nooit zo eenvoudig geweest. Zeg vaarwel tegen het "
-"gedoe van het handmatig bevestigen van reserveringen en hallo tegen het "
-"gemak van automatische bevestiging. Probeer het vandaag nog uit en zie het "
-"verschil dat het in slechts een paar klikken kan maken!"
+"Laat uw restaurantbedrijf bloeien met de <strong>ReDi Restaurant "
+"Reservation-plug-in</strong>! Onze plug-in vereenvoudigt het "
+"reserveringsproces en stelt uw klanten in staat om eenvoudig online te "
+"boeken. Met <strong>directe reserveringsbevestiging</strong> en aanpasbare "
+"instellingen is het beheren van reserveringen nog nooit zo eenvoudig "
+"geweest. Zeg vaarwel tegen het gedoe van het handmatig bevestigen van "
+"reserveringen en hallo tegen het gemak van automatische bevestiging. Probeer"
+" het vandaag nog uit en zie het verschil dat het in slechts een paar klikken"
+" kan maken!"
 
 #: templates/basicpackage.php:92
 msgid "Getting discovered on Google, Apple, Facebook, and more"
@@ -1096,9 +1101,9 @@ msgstr "Ik ga akkoord met de privacy-overeenkomst"
 
 #: templates/admin.php:858
 msgid ""
-"If checkbox is checked then reservations will not be automatically confirmed."
-" You will receive email with reservation request and each reservation needs "
-"to be confirmed or rejected manually."
+"If checkbox is checked then reservations will not be automatically "
+"confirmed. You will receive email with reservation request and each "
+"reservation needs to be confirmed or rejected manually."
 msgstr ""
 "Als het selectievakje is aangevinkt, worden reserveringen niet automatisch "
 "bevestigd. U ontvangt een e-mail met het reserveringsverzoek en elke "
@@ -1125,8 +1130,8 @@ msgid ""
 "Groups\" and upon selection, the specified message would appear."
 msgstr ""
 "Als dit veld gevuld is met een specificeert bericht voor grote groepen "
-"gasten, dan wordt dit bericht getoond als gasten voor een grote groep mensen "
-"wilt reserveren."
+"gasten, dan wordt dit bericht getoond als gasten voor een grote groep mensen"
+" wilt reserveren."
 
 #: templates/basicpackage.php:68
 msgid ""
@@ -1156,11 +1161,11 @@ msgstr ""
 #: templates/admin.php:913
 msgid ""
 "If you want to customize confirmation page or have a separated page for "
-"marketing purposes, then select custom reservation confirmation page. If not "
-"specified, then built in confirmation page will be used."
+"marketing purposes, then select custom reservation confirmation page. If not"
+" specified, then built in confirmation page will be used."
 msgstr ""
-"Als u een bevestigingspagina wilt aanpassen of een aparte pagina wilt hebben "
-"voor marketingdoeleinden, selecteer dan een aangepaste "
+"Als u een bevestigingspagina wilt aanpassen of een aparte pagina wilt hebben"
+" voor marketingdoeleinden, selecteer dan een aangepaste "
 "reserveringsbevestigingspagina. Indien niet opgegeven, wordt de standaard "
 "ingebouwde bevestigingspagina gebruikt."
 
@@ -1174,11 +1179,11 @@ msgstr ""
 
 #: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
 msgid ""
-"In case you need to show it in multiple languages, then use following format "
-"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+"In case you need to show it in multiple languages, then use following format"
+" [locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 msgstr ""
-"Als u het in meerdere talen wilt weergeven, gebruik dan het volgende formaat "
-"[locale]Text[/locale]. Voorbeeld: [en_US]Tekst[/en_US][es_ES]Tekst[/es_ES]"
+"Als u het in meerdere talen wilt weergeven, gebruik dan het volgende formaat"
+" [locale]Text[/locale]. Voorbeeld: [en_US]Tekst[/en_US][es_ES]Tekst[/es_ES]"
 
 #: templates/frontend_v2.php:468
 msgid ""
@@ -1196,8 +1201,8 @@ msgid ""
 "this day, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
 "Als u op de hoogte wilt worden gehouden wanneer iemand de reservering voor "
-"deze dag annuleert, vult u <a class=\"link-waitlist-form\">dit formulier</a> "
-"in."
+"deze dag annuleert, vult u <a class=\"link-waitlist-form\">dit formulier</a>"
+" in."
 
 #: templates/frontend.php:369
 msgid ""
@@ -1298,8 +1303,8 @@ msgid ""
 "Language for internal emails communication. It is specially used for admin "
 "emails. "
 msgstr ""
-"Taal voor interne e-mailcommunicatie. Het wordt speciaal gebruikt voor admin-"
-"e-mails."
+"Taal voor interne e-mailcommunicatie. Het wordt speciaal gebruikt voor "
+"admin-e-mails."
 
 #: templates/admin.php:978
 msgid "Language Path"
@@ -1591,8 +1596,8 @@ msgid ""
 "NOTE: Complex custom fields like Options and Dropdown can be configured in "
 "Basic package settings."
 msgstr ""
-"OPMERKING: Complexe aangepaste velden zoals Opties en Dropdown kunnen worden "
-"geconfigureerd in Basispakketinstellingen."
+"OPMERKING: Complexe aangepaste velden zoals Opties en Dropdown kunnen worden"
+" geconfigureerd in Basispakketinstellingen."
 
 #: templates/admin_ajaxed.php:472
 msgid ""
@@ -1647,23 +1652,23 @@ msgstr "Oktober"
 msgid ""
 "Online reservation service is not available at this time. Try again later or"
 msgstr ""
-"De online reserveringsservice is op dit moment niet beschikbaar. Probeer het "
-"later opnieuw"
+"De online reserveringsservice is op dit moment niet beschikbaar. Probeer het"
+" later opnieuw"
 
 #. %s is a placeholder for a dynamic link.
 #: redi.php:283
 #, php-format
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"%s"
+"Online reservation service is not available at this time. Try again later or"
+" %s"
 msgstr ""
-"De online reservering-service is op dit moment niet beschikbaar. Probeer het "
-"later opnieuw of %s\n"
+"De online reservering-service is op dit moment niet beschikbaar. Probeer het"
+" later opnieuw of %s\n"
 
 #: redi-restaurant-reservation.php:2104
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"contact us directly."
+"Online reservation service is not available at this time. Try again later or"
+" contact us directly."
 msgstr ""
 "Online reserveringsservice is op dit moment niet beschikbaar. Probeer het "
 "later opnieuw of neem direct contact met ons op."
@@ -1681,12 +1686,8 @@ msgid ""
 "Open times. This option will enable you to choose between various working "
 "hours whichever is most convenient to you."
 msgstr ""
-"Openingstijden. Met deze optie kunt u kiezen tussen verschillende werktijden,"
-" afhankelijk van wat u het beste kunt missen."
-
-#: templates/basicpackage.php:37
-msgid "Open upcoming reservations"
-msgstr "Open overzicht aankomende reserveringen"
+"Openingstijden. Met deze optie kunt u kiezen tussen verschillende "
+"werktijden, afhankelijk van wat u het beste kunt missen."
 
 #: templates/admin_ajaxed.php:621
 msgid "Option"
@@ -1764,14 +1765,6 @@ msgstr "Telefoonnummer is verplicht"
 msgid "Place"
 msgstr "Plaats"
 
-#: templates/basicpackage.php:53
-msgid ""
-"Please allow 1 business day for us to confirm your payment and upgrade your "
-"account."
-msgstr ""
-"Geef ons 1 werkdag de tijd om uw betaling te bevestigen en uw account te "
-"upgraden."
-
 #: templates/admin.php:232
 msgid ""
 "Please contact info@reservationdiary.eu for any issues or missing features "
@@ -1796,7 +1789,8 @@ msgstr "Voer een geldig e-mailadres in"
 msgid "Please provide a reason for cancellation"
 msgstr "Geef een reden voor annulering op"
 
-#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+#: templates/admin_welcome_no_key.php:37
+#: templates/admin_welcome_no_page.php:33
 msgid "Please provide your API Key in order to continue using plugin"
 msgstr "Geef uw API-sleutel op om de plug-in te blijven gebruiken"
 
@@ -1822,18 +1816,18 @@ msgstr "Selecteer de waarde uit \"Max kinderen per reservering\""
 
 #: redi-restaurant-reservation.php:883
 msgid "Please select value from \"Monthly guest reservation limit\""
-msgstr ""
-"Selecteer de waarde uit \"Maandelijkse reserveringslimiet voor gasten\""
+msgstr "Selecteer de waarde uit \"Maandelijkse reserveringslimiet voor gasten\""
 
 #: templates/admin.php:841
 msgid ""
 "Please verify you current time. This is important as this time is taken and "
-"used in reservation logic. In case time is differnet than your current time, "
-"please change time zone in Settings -> General -> Time Zone"
+"used in reservation logic. In case time is differnet than your current time,"
+" please change time zone in Settings -> General -> Time Zone"
 msgstr ""
 "Controleer uw huidige tijd. Dit is belangrijk omdat deze tijd wordt "
-"ingenomen en gebruikt in de reserveringslogica. Als de tijd anders is dan uw "
-"huidige tijd, wijzigt u de tijdzone in Instellingen -> Algemeen -> Tijdzone\n"
+"ingenomen en gebruikt in de reserveringslogica. Als de tijd anders is dan uw"
+" huidige tijd, wijzigt u de tijdzone in Instellingen -> Algemeen -> "
+"Tijdzone\n"
 
 #: templates/admin_welcome.php:22
 msgid "Plugin Documentation"
@@ -1888,8 +1882,8 @@ msgid "Rate your reservation experience"
 msgstr "Beoordeel uw reserveringservaring"
 
 #: templates/admin.php:223 templates/admin.php:231
-msgid "React 25 theme (BETA)"
-msgstr "React 25 thema (BETA)"
+msgid "React 25 theme"
+msgstr "React 25 thema"
 
 #: templates/admin.php:1026 templates/cancel.php:40
 #: templates/frontend_v2.php:1707
@@ -1921,33 +1915,26 @@ msgstr "Redi Restaurant Reserveren"
 
 #: redi-restaurant-reservation.php:793
 msgid ""
-"ReDi Restaurant Reservation plugin could not get an API key from the "
-"reservationdiary.eu server when it activated.\n"
-"                        <br/> You can try to fix this by going to the ReDi "
-"Restaurant Reservation \"options\" page.\n"
-"                        <br/>This will cause ReDi Restaurant Reservation "
-"plugin to retry fetching an API key for you.\n"
-"                        <br/>If you keep seeing this error it usually means "
-"that server where you host your web site can't connect to our "
-"reservationdiary.eu server.\n"
-"                        <br/>You can try asking your WordPress host to allow "
-"your WordPress server to connect to api.reservationdiary.eu\n"
-"                        <br/>In case you can not solve this problem yourself,"
-" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"ReDi Restaurant Reservation plugin could not get an API key from the reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means that server where you host your web site can't connect to our reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself, please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 msgstr ""
 "De ReDi Restaurant Reservation-plug-in kon geen API-sleutel van de "
-"reservationdiary.eu-server krijgen toen deze werd geactiveerd.               "
-"         <br/> U kunt proberen dit op te lossen door naar de pagina "
-"\"opties\" van ReDi Restaurant Reservering te gaan.                        "
-"<br/>Dit zorgt ervoor dat de ReDi Restaurant Reservation-plug-in opnieuw "
-"probeert een API-sleutel voor u op te halen.                        <br/>Als "
-"u deze foutmelding blijft zien, betekent dit meestal dat de server waarop u "
-"uw website host, geen verbinding kan maken met onze reservationdiary.eu "
-"server.                        <br/>U kunt proberen uw WordPress-host te "
-"vragen om uw WordPress-server toe te staan verbinding te maken met api."
-"reservationdiary.eu                        <br/>Mocht u dit probleem niet "
-"zelf kunnen oplossen, neem dan direct contact met ons op via <a "
+"reservationdiary.eu-server krijgen toen deze werd geactiveerd."
+"                        <br/> U kunt proberen dit op te lossen door naar de "
+"pagina \"opties\" van ReDi Restaurant Reservering te gaan."
+"                        <br/>Dit zorgt ervoor dat de ReDi Restaurant "
+"Reservation-plug-in opnieuw probeert een API-sleutel voor u op te halen."
+"                        <br/>Als u deze foutmelding blijft zien, betekent "
+"dit meestal dat de server waarop u uw website host, geen verbinding kan "
+"maken met onze reservationdiary.eu server.                        <br/>U "
+"kunt proberen uw WordPress-host te vragen om uw WordPress-server toe te "
+"staan verbinding te maken met api.reservationdiary.eu"
+"                        <br/>Mocht u dit probleem niet zelf kunnen oplossen,"
+" neem dan direct contact met ons op via <a "
 "href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 
 #: templates/admin_welcome.php:15
@@ -2061,8 +2048,8 @@ msgstr "Reservering is in het verleden en kan niet worden gewijzigd."
 msgid ""
 "Reservation is not available on selected day. Please select another day."
 msgstr ""
-"Wij kunnen deze reservering niet verwerken omdat er geen vrije plaatsen meer "
-"zijn."
+"Wij kunnen deze reservering niet verwerken omdat er geen vrije plaatsen meer"
+" zijn."
 
 #: redi-restaurant-reservation.php:1699
 msgid "Reservation is not found."
@@ -2096,10 +2083,10 @@ msgstr "Reserveringsbeperkingen"
 msgid "Reservation settings"
 msgstr "Reservering instellingen"
 
-#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+#: redi-restaurant-reservation-api.php:350
+#: redi-restaurant-reservation.php:2765
 msgid "Reservation that is canceled can not be modified."
-msgstr ""
-"Reservering die is geannuleerd en kan niet meer worden gewijzigd.\n"
+msgstr "Reservering die is geannuleerd en kan niet meer worden gewijzigd.\n"
 
 #: redi-restaurant-reservation.php:1430 redi-restaurant-reservation.php:1431
 msgid "Reservations"
@@ -2107,11 +2094,13 @@ msgstr "Reserveringen"
 
 #: redi-restaurant-reservation.php:2029
 msgid "Reservations can only be made up to ${timeText} in advance"
-msgstr "Reserveringen kunnen alleen tot ${timeText} van tevoren worden gemaakt"
+msgstr ""
+"Reserveringen kunnen alleen tot ${timeText} van tevoren worden gemaakt"
 
 #: redi-restaurant-reservation.php:2028
 msgid "Reservations must be made at least ${timeText} in advance"
-msgstr "Reserveringen moeten ten minste ${timeText} van tevoren worden gemaakt"
+msgstr ""
+"Reserveringen moeten ten minste ${timeText} van tevoren worden gemaakt"
 
 #: redi-restaurant-reservation.php:2024
 msgid "Restaurant is closed"
@@ -2192,16 +2181,15 @@ msgstr "Geselecteerde datum of tijd is niet geldig."
 
 #: templates/admin.php:340
 msgid ""
-"Selecting this option, the calendar is set to popup when the user clicks the "
-"calendar control."
+"Selecting this option, the calendar is set to popup when the user clicks the"
+" calendar control."
 msgstr ""
-"Door deze optie te selecteren, wordt de kalender ingesteld om te verschijnen,"
-" wanneer de gebruiker op het kalenderbesturingselement klikt."
+"Door deze optie te selecteren, wordt de kalender ingesteld om te "
+"verschijnen, wanneer de gebruiker op het kalenderbesturingselement klikt."
 
 #: templates/basicpackage.php:46
 msgid "Send client reservation confirmation emails from WordPress account."
-msgstr ""
-"Stuur reserveringsbevestigings e-mails vanaf WordPress-account.\n"
+msgstr "Stuur reserveringsbevestigings e-mails vanaf WordPress-account.\n"
 
 #: templates/admin.php:865
 msgid "Send confirmation email to client"
@@ -2249,8 +2237,8 @@ msgid ""
 "Settings that have already been changed will be lost. Are you sure you want "
 "to continue?"
 msgstr ""
-"Instellingen die al zijn gewijzigd, gaan verloren. Weet je zeker dat je door "
-"wilt gaan?"
+"Instellingen die al zijn gewijzigd, gaan verloren. Weet je zeker dat je door"
+" wilt gaan?"
 
 #: templates/basicpackage.php:38
 msgid "Setup maximum available seats for online reservation by week day"
@@ -2297,9 +2285,9 @@ msgstr "Speciale verzoeken (optioneel)"
 
 #: templates/admin_ajaxed.php:470
 msgid ""
-"Specify how late customers can make their booking in hours. For example, the "
-"current time is 10:00 and this setting is set to 3 hours then the first time,"
-" when the reservation will be accepted is 13:00."
+"Specify how late customers can make their booking in hours. For example, the"
+" current time is 10:00 and this setting is set to 3 hours then the first "
+"time, when the reservation will be accepted is 13:00."
 msgstr ""
 "Geef op hoe laat klanten hun boeking in uren kunnen maken. De huidige tijd "
 "is bijvoorbeeld 10:00 uur en deze instelling is ingesteld op 3 uur. De "
@@ -2325,12 +2313,12 @@ msgid ""
 "and suggestions to enhance your experience with our plugin. Don't miss out "
 "on the latest features and improvements – opt in now!"
 msgstr ""
-"Blijf op de hoogte! Abonneer u om waardevolle updates, tips en aanbevelingen "
-"met betrekking tot onze plug-in te ontvangen. Door dit vakje aan te vinken, "
-"gaat u ermee akkoord om af en toe e-mails te ontvangen met belangrijke "
-"aankondigingen, nuttige inzichten en suggesties om uw ervaring met onze plug-"
-"in te verbeteren. Mis de nieuwste functies en verbeteringen niet - meld je "
-"nu aan!"
+"Blijf op de hoogte! Abonneer u om waardevolle updates, tips en aanbevelingen"
+" met betrekking tot onze plug-in te ontvangen. Door dit vakje aan te vinken,"
+" gaat u ermee akkoord om af en toe e-mails te ontvangen met belangrijke "
+"aankondigingen, nuttige inzichten en suggesties om uw ervaring met onze "
+"plug-in te verbeteren. Mis de nieuwste functies en verbeteringen niet - meld"
+" je nu aan!"
 
 #: templates/frontend.php:49 templates/frontend.php:68
 #: templates/frontend.php:217 templates/frontend.php:240
@@ -2388,8 +2376,8 @@ msgid ""
 "another reservation for a different date?"
 msgstr ""
 "Bedankt dat je ons op de hoogte hebt gesteld van je annulering - dit helpt "
-"andere gasten om een tafel te vinden! We hopen je snel terug te zien. Wilt u "
-"nog een reservering maken voor een andere datum?"
+"andere gasten om een tafel te vinden! We hopen je snel terug te zien. Wilt u"
+" nog een reservering maken voor een andere datum?"
 
 #: functions/feedback.php:89
 msgid "Thank you for your feedback."
@@ -2453,10 +2441,10 @@ msgid ""
 "enabled, you can continuously enhance the plugin based on user feedback, "
 "ensuring an exceptional reservation experience for restaurant visitors."
 msgstr ""
-"De ingeschakelde optie voor het verzamelen van feedback stelt gebruikers van "
-"het reserveringsformulier in staat om waardevolle input te leveren voor het "
-"verbeteren van de plugin. Door deze optie ingeschakeld te houden, kunt u de "
-"plug-in continu verbeteren op basis van feedback van gebruikers, waardoor "
+"De ingeschakelde optie voor het verzamelen van feedback stelt gebruikers van"
+" het reserveringsformulier in staat om waardevolle input te leveren voor het"
+" verbeteren van de plugin. Door deze optie ingeschakeld te houden, kunt u de"
+" plug-in continu verbeteren op basis van feedback van gebruikers, waardoor "
 "een uitzonderlijke reserveringservaring voor restaurantbezoekers wordt "
 "gegarandeerd."
 
@@ -2479,8 +2467,8 @@ msgstr ""
 
 #: templates/admin.php:882
 msgid ""
-"The way you want confirmation email to be delivered to the client. It can be "
-"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"The way you want confirmation email to be delivered to the client. It can be"
+" \"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
 "SMTP\" or \"Disable confirmation email\"."
 msgstr ""
 "De manier waarop u wilt dat de bevestigingsmail bij de klant wordt "
@@ -2504,16 +2492,6 @@ msgstr "Er kan niet meer gereserveerd worden voor deze tijd."
 #: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1899
 msgid "There are no more reservations can be made for selected day."
 msgstr "Er kunnen geen reserveringen meer gemaakt worden voor deze dag."
-
-#: templates/admin_ajaxed.php:105
-msgid ""
-"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
-"short code for specifying the place of reservation in case of multiple "
-"restaurants. <br/>Example of shortcode:"
-msgstr ""
-"De <b>ID</b> is gekoppeld aan uw plaats. De <b>ID</b> kan worden gebruikt "
-"als een korte code voor het specificeren van de plaats van reservering in "
-"het geval van meerdere restaurants. <br/>Voorbeeld van shortcode:"
 
 #: redi-restaurant-reservation.php:2033
 msgid "This date is in the past and cannot be selected"
@@ -2548,8 +2526,8 @@ msgstr ""
 #: templates/admin.php:543
 msgid ""
 "This is how the available time will be shown. This setting is taken from "
-"generic WordPress settings. You can change it in Settings -> General -> Time "
-"Format"
+"generic WordPress settings. You can change it in Settings -> General -> Time"
+" Format"
 msgstr ""
 "Zo wordt de beschikbare tijd getoond. Deze instelling is afkomstig uit "
 "algemene WordPress-instellingen. U kunt dit wijzigen in Instellingen -> "
@@ -2557,8 +2535,8 @@ msgstr ""
 
 #: templates/admin_ajaxed.php:413
 msgid ""
-"This is the number of maximum persons in restaurant at any time. System will "
-"check automatically availability of free seats and will not allow to go "
+"This is the number of maximum persons in restaurant at any time. System will"
+" check automatically availability of free seats and will not allow to go "
 "beyond this number."
 msgstr ""
 "Dit is het maximum aantal personen in het restaurant op elk moment. Het "
@@ -2627,8 +2605,8 @@ msgstr "TimeShift-modus"
 msgid ""
 "To schedule your session, simply click the image below: We provide "
 "complimentary one-on-one assistance for plugin setup. You can book a call "
-"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
-"Links are below."
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp."
+" Links are below."
 msgstr ""
 "Om uw sessie te plannen, klikt u op de onderstaande afbeelding: We bieden "
 "gratis één-op-één hulp bij het instellen van plug-ins. U kunt een gesprek "
@@ -2654,8 +2632,8 @@ msgstr "Di"
 #: redi-restaurant-reservation-api.php:341
 msgid ""
 "Unable to find reservation with provided information. Please verify that "
-"provided reservation number and personal information (email, phone, or name) "
-"is correct."
+"provided reservation number and personal information (email, phone, or name)"
+" is correct."
 msgstr ""
 "Kan reservering niet vinden met verstrekte informatie. Controleer of het "
 "opgegeven reserveringsnummer en de persoonlijke gegevens (e-mail, "
@@ -2667,8 +2645,8 @@ msgid ""
 "provided reservation number and phone or name or email is correct."
 msgstr ""
 "Kan de reservering niet vinden met de door u gegeven informatie. Controleer "
-"of het opgegeven reserveringsnummer en telefoonnummer of naam en e-mailadres "
-"correct zijn."
+"of het opgegeven reserveringsnummer en telefoonnummer of naam en e-mailadres"
+" correct zijn."
 
 #: templates/admin_ajaxed.php:427
 msgid "Unlimited"
@@ -2716,20 +2694,17 @@ msgstr ""
 
 #: templates/basicpackage.php:35
 msgid ""
-"View your upcoming reservations from your Mobile/Tablet PC and never miss "
-"your customer. This page should be open on a Tablet PC and so hostess can "
-"see all upcoming reservations for today. Page refreshes every 15 min and "
-"shows reservations that in past for 3 hours as well as upcoming reservations "
-"for next 24 hours. By clicking on reservation you will see reservation "
-"details. Demo version can be accessed for 30 days using this link: "
+"Open Host Dashboard from your mobile or tablet and never miss a guest. Keep "
+"this page open on a tablet so the host can see all reservations for today. "
+"The page refreshes every 15 min and shows reservations from the past 3 hours"
+" as well as the next 24 hours. Click a reservation to see its details. A "
+"demo can be accessed for 30 days using this link: "
 msgstr ""
-"Bekijk uw aanstaande reserveringen vanaf uw mobiel/tablet-pc en mis uw klant "
-"nooit. Deze pagina zou geopend moeten zijn op een tablet-pc, zodat de "
-"gastvrouw/gastheer alle komende reserveringen voor vandaag kan zien. De "
-"pagina wordt elke 15 minuten vernieuwd en toont reserveringen die in de "
-"afgelopen 3 uur zijn gemaakt, evenals aankomende reserveringen voor de "
-"komende 24 uur. Door op reserveren te klikken ziet u de reserveringsdetails. "
-"De demoversie is 30 dagen toegankelijk via deze link:"
+"Open Host Dashboard op je telefoon of tablet en mis geen gast. Houd de "
+"pagina open op een tablet zodat de host alle reserveringen van vandaag ziet."
+" De pagina vernieuwt elke 15 min en toont reserveringen van de afgelopen 3 "
+"uur én de komende 24 uur. Klik op een reservering voor details. Een demo is "
+"30 dagen beschikbaar via deze link:"
 
 #: templates/confirm.php:3
 msgid "Visit confirmation"
@@ -2756,8 +2731,14 @@ msgid "Wait List Setting"
 msgstr "Instelling wachtlijst"
 
 #: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
-msgid "Waiter Dashboard"
-msgstr "Ober-dashboard"
+msgid "Host Dashboard on a tablet or phone"
+msgstr "Host Dashboard op tablet of telefoon"
+
+msgid "Host Dashboard"
+msgstr "Host-dashboard"
+
+msgid "Open Host Dashboard →"
+msgstr "Host-dashboard openen →"
 
 #: templates/basicpackage.php:59
 msgid ""
@@ -2771,8 +2752,8 @@ msgstr ""
 
 #: templates/frontend_v2.php:932
 msgid ""
-"We have received your reservation request and are checking availability. You "
-"will be notified as soon as your reservation is approved. Please wait for "
+"We have received your reservation request and are checking availability. You"
+" will be notified as soon as your reservation is approved. Please wait for "
 "the confirmation."
 msgstr ""
 "Wij hebben uw reserveringsaanvraag ontvangen en controleren de "
@@ -2789,8 +2770,8 @@ msgid ""
 "helping restaurants grow, simplify operations, and succeed in the digital "
 "age."
 msgstr ""
-"We werken met trots samen met geselecteerde partners die onze visie delen om "
-"restaurants te helpen groeien, activiteiten te vereenvoudigen en te slagen "
+"We werken met trots samen met geselecteerde partners die onze visie delen om"
+" restaurants te helpen groeien, activiteiten te vereenvoudigen en te slagen "
 "in het digitale tijdperk."
 
 #: templates/frontend.php:336
@@ -2800,8 +2781,8 @@ msgid ""
 "Please wait confirmation of your reservation."
 msgstr ""
 "Bedankt voor uw reservering. We hebben uw aanvraag ontvangen en zullen deze "
-"binnenkort verwerken. Houd er rekening mee dat uw reservering pas definitief "
-"is, nadat u een schriftelijke bevestiging van ons heeft ontvangen."
+"binnenkort verwerken. Houd er rekening mee dat uw reservering pas definitief"
+" is, nadat u een schriftelijke bevestiging van ons heeft ontvangen."
 
 #: templates/confirm.php:4
 msgid ""
@@ -2856,15 +2837,15 @@ msgstr "Whatsapp"
 #: templates/admin.php:754
 #, fuzzy
 #| msgid ""
-#| "When enabled guests has to enter their phone number with country code. "
-#| "This is most useful when there is a good amount of foreing visitors. Also "
-#| "this option has to be enabled when SMS addon is in use, as SMS Providers "
-#| "requires full phone number."
+#| "When enabled guests has to enter their phone number with country code. This "
+#| "is most useful when there is a good amount of foreing visitors. Also this "
+#| "option has to be enabled when SMS addon is in use, as SMS Providers requires"
+#| " full phone number."
 msgid ""
 "When enabled guests has to enter their phone number with country code. This "
 "is most useful when there is a good amount of foreign visitors. Also this "
-"option has to be enabled when SMS addon is in use, as SMS Providers requires "
-"full phone number."
+"option has to be enabled when SMS addon is in use, as SMS Providers requires"
+" full phone number."
 msgstr ""
 "Indien ingeschakeld moeten gasten hun telefoonnummer met landcode invoeren. "
 "Dit is vooral handig als er veel buitenlandse klanten zijn. Deze optie moet "
@@ -2881,8 +2862,8 @@ msgstr "Wanneer een specifieke tijd niet beschikbaar is"
 
 #: templates/admin.php:596
 msgid ""
-"When this enabled, start and end of reservation time will be displayed. This "
-"is useful when you want to inform the guest about fixed reservation time "
+"When this enabled, start and end of reservation time will be displayed. This"
+" is useful when you want to inform the guest about fixed reservation time "
 "frame."
 msgstr ""
 "Als dit is ingeschakeld, wordt het begin en einde van de reserveringstijd "
@@ -2902,8 +2883,8 @@ msgstr ""
 #: templates/admin.php:988
 msgid ""
 "When translating the plugin, save translations in a separate folder outside "
-"the plugin directory. Then, provide the file path with translated strings in "
-"this setting to avoid issues with updates."
+"the plugin directory. Then, provide the file path with translated strings in"
+" this setting to avoid issues with updates."
 msgstr ""
 "Wanneer u de plug-in vertaalt, slaat u vertalingen op in een aparte map "
 "buiten de plug-in-map. Geef vervolgens het bestandspad in deze instelling "
@@ -2929,16 +2910,6 @@ msgstr "Openingstijden"
 msgid "Yes"
 msgstr "Ja"
 
-#: templates/admin_welcome_no_page.php:12
-msgid ""
-"You can create dedicated reservation page below, or you can skip this step "
-"and create page manually. When you create page manually, insert "
-"[redireservation] shortcode to the page."
-msgstr ""
-"U kunt hieronder een speciale reserveringspagina aanmaken, of u kunt deze "
-"stap overslaan en de pagina handmatig aanmaken. Wanneer u een pagina "
-"handmatig aanmaakt, voegt u de shortcode [redireservation] toe aan de pagina."
-
 #: templates/admin_welcome.php:21
 msgid "You can find the documentation for this plugin here"
 msgstr "De documentatie voor deze plugin vind je hier"
@@ -2948,8 +2919,8 @@ msgid ""
 "You can specify the working time of restaurant by setting the opening time "
 "and closing time for each day of the week."
 msgstr ""
-"U kunt de openingstijden van het restaurant specificeren door de opening- en "
-"de sluitingstijd voor elke dag van de week in te stellen."
+"U kunt de openingstijden van het restaurant specificeren door de opening- en"
+" de sluitingstijd voor elke dag van de week in te stellen."
 
 #: redi-restaurant-reservation.php:2883 redi-restaurant-reservation.php:2932
 msgid "You do not have permission to access this call."
@@ -3032,9 +3003,196 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: templates/admin.php:221 templates/admin.php:230
-msgid "Zeplin 25 theme (BETA)"
-msgstr "Zeplin 25 thema (BETA)"
+msgid "Zeplin 25 theme"
+msgstr "Zeplin 25 thema"
 
 #: templates/admin.php:473
 msgid "Сhildren selection"
 msgstr "Kinderen selecteren"
+
+#: templates/admin_welcome_no_page.php:11
+msgid ""
+"You can create a dedicated reservation page below, or skip this step and "
+"create a page manually."
+msgstr ""
+"U kunt hieronder een speciale reserveringspagina aanmaken, of deze stap "
+"overslaan en de pagina handmatig maken."
+
+#: templates/admin_welcome_no_page.php:12 templates/admin_welcome.php:15
+#: templates/admin.php:89
+msgid "Your shortcode"
+msgstr "Uw shortcode"
+
+#: templates/admin_welcome_no_page.php:13 templates/admin_welcome.php:16
+#: templates/admin.php:90
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed. Paste it into any page to show the reservation form."
+msgstr ""
+"Voor één restaurant zonder aanpassingen is alleen deze shortcode nodig. Plak"
+" hem op een willekeurige pagina om het reserveringsformulier te tonen."
+
+#: templates/admin_ajaxed.php:99
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed:"
+msgstr ""
+"Voor één restaurant zonder aanpassingen is alleen deze shortcode nodig:"
+
+#: templates/admin_ajaxed.php:102
+msgid ""
+"This <b>Place ID</b> is associated with your restaurant. Use it in the "
+"shortcode only if you have multiple restaurants or need the form tied to a "
+"specific location."
+msgstr ""
+"Deze <b>Place ID</b> hoort bij uw restaurant. Gebruik hem in de shortcode "
+"alleen als u meerdere restaurants hebt of het formulier aan een specifieke "
+"locatie wilt koppelen."
+
+#: templates/admin_ajaxed.php:103
+msgid "Example for multiple restaurants:"
+msgstr "Voorbeeld voor meerdere restaurants:"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a location first"
+msgstr "Kies eerst een locatie"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of guests first"
+msgstr "Kies eerst het aantal gasten"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of children first"
+msgstr "Kies eerst het aantal kinderen"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a date first"
+msgstr "Kies eerst een datum"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a time first"
+msgstr "Kies eerst een tijd"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a menu first"
+msgstr "Kies eerst een menu"
+
+#: redi-restaurant-reservation.php
+msgid "Closed"
+msgstr "Gesloten"
+
+#: redi-restaurant-reservation.php
+msgid "Out of range"
+msgstr "Buiten bereik"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant"
+msgstr "Restaurant"
+
+#: redi-restaurant-reservation.php
+msgid "Select year"
+msgstr "Selecteer jaar"
+
+#: redi-restaurant-reservation.php
+msgid "Selected date"
+msgstr "Geselecteerde datum"
+
+#: redi-restaurant-reservation.php
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr ""
+"Hallo, kunt u alstublieft een reservering voor mij maken met de volgende "
+"gegevens"
+
+#: redi-restaurant-reservation.php
+msgid ""
+"A confirmation email has been sent to you with your updated reservation "
+"details. You may contact the restaurant directly if you need further "
+"changes."
+msgstr ""
+"Er is een bevestigingsmail naar u gestuurd met uw bijgewerkte "
+"reserveringsgegevens. Neem rechtstreeks contact op met het restaurant als u "
+"verdere wijzigingen nodig heeft."
+
+#: redi-restaurant-reservation.php
+msgid "and"
+msgstr "en"
+
+#: redi-restaurant-reservation.php
+msgid "apply"
+msgstr "toepassen"
+
+#: redi-restaurant-reservation.php
+msgid "Menu"
+msgstr "Menu"
+
+#: redi-restaurant-reservation.php
+msgid "Menu Item"
+msgstr "Menu-item"
+
+#: redi-restaurant-reservation.php
+msgid "Loading menu items"
+msgstr "Menu-items laden"
+
+#: redi-restaurant-reservation.php
+msgid "Selected"
+msgstr "Geselecteerd"
+
+#: redi-restaurant-reservation.php
+msgid "Day"
+msgstr "Dag"
+
+#: redi-restaurant-reservation.php
+msgid "Month"
+msgstr "Maand"
+
+#: redi-restaurant-reservation.php
+msgid "Year"
+msgstr "Jaar"
+
+#: redi-restaurant-reservation.php
+msgid "Error"
+msgstr "Fout"
+
+#: redi-restaurant-reservation.php
+msgid "Info"
+msgstr "Info"
+
+#: redi-restaurant-reservation.php
+msgid "Privacy Policy"
+msgstr "Privacybeleid"
+
+#: redi-restaurant-reservation.php
+msgid "Terms of Service"
+msgstr "Servicevoorwaarden"
+
+#: redi-restaurant-reservation.php
+msgid "Unable to verify you are human. Please try again."
+msgstr "Kon niet verifiëren dat u een mens bent. Probeer het opnieuw."
+
+#: redi-restaurant-reservation.php
+msgid "Please complete the captcha"
+msgstr "Voltooi de captcha"
+
+#: redi-restaurant-reservation.php
+msgid "This site is protected by reCAPTCHA and the Google"
+msgstr "Deze site wordt beschermd door reCAPTCHA en Google"
+
+#: redi-restaurant-reservation.php
+msgid "Update Booking"
+msgstr "Boeking bijwerken"
+
+#: redi-restaurant-reservation.php
+msgid "Updating reservation"
+msgstr "Reservering bijwerken"
+
+#: redi-restaurant-reservation.php
+msgid "Your reservation has been updated!"
+msgstr "Uw reservering is bijgewerkt!"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant not found"
+msgstr "Restaurant niet gevonden"
+
+#: redi-restaurant-reservation.php
+msgid "Request for reservations (Reservation form is not working)"
+msgstr "Verzoek om reserveringen (reserveringsformulier werkt niet)"

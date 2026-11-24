@@ -4,9 +4,9 @@
 Plugin Name: Mantenimiento web
 Plugin URI: https://webartesanal.com/mantenimiento-web/
 Description: Pon tu WordPress en modo mantenimiento para hacer mejoras o reparaciones. Tu página mostrará un aviso "Sitio en construcción" y sólo tú podrás navegar por ella.
-Version: 0.14
+Version: 0.15
 Requires at least: 3.5
-Tested up to: 6.0.2
+Tested up to: 7.0
 Author: Carlos Doral
 Author URI: https://webartesanal.com/mantenimiento-web/
 License: GPLv2 or later

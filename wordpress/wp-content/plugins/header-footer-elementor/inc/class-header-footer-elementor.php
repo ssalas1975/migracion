@@ -140,6 +140,8 @@ class Header_Footer_Elementor {
 			// Filter to change Astra menu positon.
 			add_filter( 'astra_menu_priority', [ $this, 'update_admin_menu_position' ] );
 			// Scripts and styles.
+			// Priority 1 so HFE template IDs reach Elementor's atomic styles registry before anything calls enqueue_styles().
+			add_action( 'wp_enqueue_scripts', [ $this, 'register_atomic_style_posts' ], 1 );
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
@@ -465,7 +467,7 @@ class Header_Footer_Elementor {
 		}
 
 		// Load the Admin Notice Class.
-		require_once HFE_DIR . 'inc/lib/astra-notices/class-astra-notices.php';
+		require_once HFE_DIR . 'inc/lib/astra-notices/class-bsf-admin-notices.php';
 
 		// Load Target rules.
 		require_once HFE_DIR . 'inc/lib/target-rule/class-astra-target-rules-fields.php';
@@ -492,6 +494,7 @@ class Header_Footer_Elementor {
 		
 		// Load the Learn API
 		require_once HFE_DIR . 'inc/class-hfe-learn-api.php';
+
 	}
 
 	/**
@@ -546,12 +549,57 @@ class Header_Footer_Elementor {
 	}
 
 	/**
+	 * Get the published header, footer and before-footer template IDs active on this request.
+	 *
+	 * @since 2.9.6
+	 * @return int[]
+	 */
+	private function get_active_template_ids() {
+		$template_ids = array_filter(
+			[
+				hfe_header_enabled() ? get_hfe_header_id() : null,
+				hfe_footer_enabled() ? get_hfe_footer_id() : null,
+				hfe_is_before_footer_enabled() ? hfe_get_before_footer_id() : null,
+			]
+		);
+
+		// Skip trashed, draft, or otherwise non-published templates whose ID may still be stored in an HFE option.
+		$template_ids = array_filter(
+			array_map( 'intval', $template_ids ),
+			function ( $template_id ) {
+				return 'publish' === get_post_status( $template_id );
+			}
+		);
+
+		return array_values( array_unique( $template_ids ) );
+	}
+
+	/**
+	 * Announce HFE template IDs to Elementor's atomic widget styles pipeline.
+	 *
+	 * Elementor's enqueue_styles() fires `elementor/frontend/after_enqueue_post_styles`, which makes
+	 * Atomic_Styles_Manager render/enqueue CSS for the post IDs collected so far. That method is
+	 * idempotent (static flag), so HFE templates must be registered before anything calls it -
+	 * hence this runs at priority 1 on `wp_enqueue_scripts`.
+	 *
+	 * @since 2.9.6
+	 * @return void
+	 */
+	public function register_atomic_style_posts() {
+		foreach ( $this->get_active_template_ids() as $template_id ) {
+			do_action( 'elementor/post/render', $template_id );
+		}
+	}
+
+	/**
 	 * Enqueue styles and scripts.
 	 *
 	 * @return void
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style( 'hfe-style', HFE_URL . 'assets/css/header-footer-elementor.css', [], HFE_VER );
+
+		$this->enqueue_editor_preview_styles_fix();
 
 		if ( class_exists( '\Elementor\Plugin' ) ) {
 			$elementor = \Elementor\Plugin::instance();
@@ -601,6 +649,48 @@ class Header_Footer_Elementor {
 				$css_file->enqueue();
 			}
 		}
+	}
+
+	/**
+	 * Keep HFE templates' atomic CSS ahead of the editor's base styles in the Elementor preview.
+	 *
+	 * Inside the editor iframe, Elementor injects atomic base styles (e.g. `.elementor .e-flexbox-base`)
+	 * client-side, after the server-rendered stylesheets. It moves `elementor-post-{id}-css` links of
+	 * nested documents below them, but not their atomic `local-{id}-*-css` links, so base styles win
+	 * over the header/footer's own Flexbox direction/padding. The script re-appends those links.
+	 *
+	 * The document being edited is skipped - the editor renders its styles live.
+	 *
+	 * @since 2.9.6
+	 * @return void
+	 */
+	private function enqueue_editor_preview_styles_fix() {
+		if ( ! class_exists( '\Elementor\Plugin' ) ) {
+			return;
+		}
+
+		$preview = \Elementor\Plugin::$instance->preview;
+
+		if ( ! $preview || ! $preview->is_preview_mode() ) {
+			return;
+		}
+
+		$edited_id    = (int) $preview->get_post_id();
+		$template_ids = array_values(
+			array_filter(
+				$this->get_active_template_ids(),
+				function ( $template_id ) use ( $edited_id ) {
+					return $template_id !== $edited_id;
+				}
+			)
+		);
+
+		if ( empty( $template_ids ) ) {
+			return;
+		}
+
+		wp_enqueue_script( 'hfe-editor-preview-styles', HFE_URL . 'assets/js/hfe-editor-preview-styles.js', [], HFE_VER, true );
+		wp_localize_script( 'hfe-editor-preview-styles', 'hfeEditorPreviewStyles', [ 'templateIds' => $template_ids ] );
 	}
 
 	/**
@@ -698,7 +788,7 @@ class Header_Footer_Elementor {
 	 * @return void
 	 */
 	public static function get_header_content() {
-		$header_content = self::$elementor_instance->frontend->get_builder_content_for_display( get_hfe_header_id() );
+		$header_content = self::$elementor_instance->frontend->get_builder_content_for_display( get_hfe_header_id(), true );
 		echo $header_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- If escaped output is not rendered on frontend.
 	}
 
@@ -709,7 +799,7 @@ class Header_Footer_Elementor {
 	 */
 	public static function get_footer_content() {
 		echo "<div class='footer-width-fixer'>";
-		echo self::$elementor_instance->frontend->get_builder_content_for_display( get_hfe_footer_id() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- If escaped output is not rendered on frontend.
+		echo self::$elementor_instance->frontend->get_builder_content_for_display( get_hfe_footer_id(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- If escaped output is not rendered on frontend.
 		echo '</div>';
 	}
 
@@ -720,7 +810,7 @@ class Header_Footer_Elementor {
 	 */
 	public static function get_before_footer_content() {
 		echo "<div class='footer-width-fixer'>";
-		echo self::$elementor_instance->frontend->get_builder_content_for_display( hfe_get_before_footer_id() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- If escaped output is not rendered on frontend.
+		echo self::$elementor_instance->frontend->get_builder_content_for_display( hfe_get_before_footer_id(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- If escaped output is not rendered on frontend.
 		echo '</div>';
 	}
 
@@ -796,11 +886,19 @@ class Header_Footer_Elementor {
 			return '';
 		}
 
-		// Check if the current user has permission to edit posts.
+		// Never expose revisions or autosaves: their 'inherit' status can carry a parent's unpublished content.
+		if ( wp_is_post_revision( $id ) || wp_is_post_autosave( $id ) ) {
+			return '';
+		}
+
+		// Users who can edit the post may preview it in any status. For everyone else - including anonymous
+		// visitors - only render a published post of a publicly viewable type. This replaces the previous
+		// status denylist (which let 'future', 'trash' and custom statuses through) and adds the missing
+		// post-type check (which let non-public custom post types through).
 		if ( ! current_user_can( 'edit_post', $id ) ) {
-			$post_status = get_post_status( $id );
-			// Prevent access to drafts, private, pending, and password-protected posts for unauthorized users.
-			if ( in_array( $post_status, [ 'draft', 'private', 'pending' ], true ) || post_password_required( $id ) ) {
+			if ( 'publish' !== get_post_status( $id )
+				|| ! is_post_type_viewable( get_post_type( $id ) )
+				|| post_password_required( $id ) ) {
 				return ''; // Prevent access to restricted posts.
 			}
 		}

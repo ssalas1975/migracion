@@ -52,7 +52,7 @@ class Shortcode_Preview {
 
 		// Check if user is logged in and has required capability.
 		// Allow users who can manage galleries or upload images to preview.
-		if ( ! current_user_can( 'NextGEN Manage gallery' ) && ! current_user_can( 'NextGEN Upload images' ) ) {
+		if ( ! current_user_can( 'NextGEN Manage gallery' ) && ! current_user_can( 'NextGEN Upload images' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- NextGEN capabilities, registered in Imagely\NGG\Util\Installer::set_role_caps().
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'nggallery' ) );
 		}
 
@@ -90,7 +90,9 @@ class Shortcode_Preview {
 		sort( $sorted );
 		$sorted_shortcode = implode( '<br>', $sorted );
 
-				$output = do_shortcode( $shortcode );
+		// Managers preview their own private galleries here.
+		\Imagely\NGG\PrivateGalleries\Visibility::$preview = true;
+		$output = do_shortcode( $shortcode );
 
 		// Store original GET parameters to append to URLs.
 		$preview_params = [];
@@ -255,7 +257,7 @@ class Shortcode_Preview {
 					<?php echo esc_html( $debug_data['raw_shortcode'] ); ?>
 					<br>
 					<br>
-					<?php echo $debug_data['sorted_shortcode']; //phpcs:ignore ?>
+					<?php echo wp_kses( $debug_data['sorted_shortcode'], [ 'br' => [] ] ); // Fixed: was raw echo of user-derived shortcode params joined by <br>; wp_kses entity-encodes quotes/amps while preserving intended <br> separators. ?>
 				</div>
 				<?php endif; ?>
 			</div>

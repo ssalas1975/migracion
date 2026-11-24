@@ -81,7 +81,7 @@ class Turnstile extends Captcha {
 			'turnstile-secret-key' => [
 				'id'   => 'turnstile-secret-key',
 				'name' => esc_html__( 'Secret Key', 'wpforms-lite' ),
-				'type' => 'text',
+				'type' => 'masked_text',
 			],
 			'turnstile-fail-msg'   => [
 				'id'      => 'turnstile-fail-msg',
@@ -100,6 +100,13 @@ class Turnstile extends Captcha {
 					'light' => esc_html__( 'Light', 'wpforms-lite' ),
 					'dark'  => esc_html__( 'Dark', 'wpforms-lite' ),
 				],
+			],
+			'turnstile-execution'  => [
+				'id'     => 'turnstile-execution',
+				'name'   => esc_html__( 'Run on Interaction', 'wpforms-lite' ),
+				'desc'   => esc_html__( 'Start the verification when a visitor first interacts with the form instead of on page load.', 'wpforms-lite' ),
+				'type'   => 'toggle',
+				'status' => true,
 			],
 		];
 	}

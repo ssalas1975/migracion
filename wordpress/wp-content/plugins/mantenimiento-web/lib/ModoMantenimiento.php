@@ -103,10 +103,46 @@ class ModoMantenimiento
 	}
 
 	/**
+	 * HTML permitido en el mensaje público de mantenimiento.
+	 */
+	static function etiquetas_html_mensaje()
+	{
+		return [
+			'br' => [],
+			'p' => [ 'class' => [] ],
+			'a' => [
+				'href' => [],
+				'class' => [],
+				'target' => [],
+				'rel' => [],
+			],
+			'strong' => [],
+			'em' => [],
+			'h1' => [ 'class' => [] ],
+			'h2' => [ 'class' => [] ],
+			'h3' => [ 'class' => [] ],
+			'h4' => [ 'class' => [] ],
+		];
+	}
+
+	/**
+	 * Sanea el HTML editable antes de guardarlo o pintarlo en portada.
+	 */
+	static function sanear_mensaje_html( $mensaje )
+	{
+		return wp_kses(
+			(string) $mensaje,
+			self::etiquetas_html_mensaje(),
+			[ 'http', 'https', 'mailto', 'tel' ]
+		);
+	}
+
+	/**
 	 *
 	 */
 	static function actualizar_plantilla( $numero )
 	{
+		$numero = absint( $numero );
 		if( !is_numeric( $numero ) || $numero < 1 || $numero > 4 )
 		{
 			Mensajes::error( __( "Plantilla incorrecta", 'cdp_mweb' ) );
@@ -121,15 +157,9 @@ class ModoMantenimiento
 	 */
 	static function actualizar_mensaje_texto( $mensaje )
 	{
-		$tags = [
-			'br' => [], 'p' => [ 'class' => [] ], 'a' => [ 'href' => [], 'class' => [] ],
-			'strong' => [], 
-			'h1' => [ 'class' => [] ], 'h2' => [ 'class' => [] ] ,
-			'h3' => [ 'class' => [] ] , 'h4' => [ 'class' => [] ] 
-		];
 		update_option(
 			self::WP_OPTION_MENSAJE_TEXTO,
-			wp_kses( $mensaje, $tags, [ 'http', 'https', 'mailto', 'tel' ] ) 
+			self::sanear_mensaje_html( $mensaje )
 		);
 		Mensajes::aviso( __( "Mensaje actualizado", 'cdp_mweb' ) );
 	}
@@ -148,8 +178,15 @@ class ModoMantenimiento
 	        return;
 	    }
 	    
-		// Chequeo ID google analytics
-		$id_ga = trim( wp_kses( $id_ga, [] ) );
+		// Chequeo ID google analytics. Se permite vacío para poder borrar el valor.
+		$id_ga = sanitize_text_field( $id_ga );
+		if( $id_ga === '' )
+		{
+			update_option( self::WP_OPTION_ID_GOOGLE_ANALYTICS, '' );
+			Mensajes::aviso( __( "ID actualizado", 'cdp_mweb' ) );
+			return;
+		}
+
 		if( !preg_match( '/^[0-9a-z_\-]+$/i', $id_ga ) )
 		{
 	        Mensajes::error( 
@@ -163,4 +200,3 @@ class ModoMantenimiento
 	    Mensajes::aviso( __( "ID actualizado", 'cdp_mweb' ) );
 	}
 }
-

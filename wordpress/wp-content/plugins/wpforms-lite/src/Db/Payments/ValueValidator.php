@@ -71,6 +71,8 @@ class ValueValidator {
 				'stripe'          => esc_html__( 'Stripe', 'wpforms-lite' ),
 				'square'          => esc_html__( 'Square', 'wpforms-lite' ),
 				'authorize_net'   => esc_html__( 'Authorize.net', 'wpforms-lite' ),
+				'mercado_pago'    => esc_html__( 'Mercado Pago', 'wpforms-lite' ),
+				'paystack'        => esc_html__( 'Paystack', 'wpforms-lite' ),
 			]
 		);
 	}
@@ -113,6 +115,7 @@ class ValueValidator {
 	 * Get allowed subscription statuses.
 	 *
 	 * @since 1.8.2
+	 * @since 2.0.4 Added the `trialing` and `past_due` statuses.
 	 *
 	 * @return array
 	 */
@@ -120,6 +123,8 @@ class ValueValidator {
 
 		return [
 			'active'     => __( 'Active', 'wpforms-lite' ),
+			'trialing'   => __( 'Trialing', 'wpforms-lite' ),
+			'past_due'   => __( 'Past Due', 'wpforms-lite' ),
 			'cancelled'  => __( 'Cancelled', 'wpforms-lite' ),
 			'not-synced' => __( 'Not Synced', 'wpforms-lite' ),
 			'failed'     => __( 'Failed', 'wpforms-lite' ),

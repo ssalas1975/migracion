@@ -8,6 +8,7 @@
 namespace CookieYes\Lite\Admin\Modules\Settings\Includes;
 
 use CookieYes\Lite\Admin\Modules\Settings\Includes\Settings;
+use CookieYes\Lite\Includes\Notice;
 use CookieYes\Lite\Integrations\Cookieyes\Includes\Cloud;
 use WP_Error;
 
@@ -108,6 +109,7 @@ class Controller extends Cloud {
 		}
 		$options['api']['token'] = '';
 		$settings->update( $options );
+		Notice::get_instance()->undismiss( 'affiliate_banner' );
 		do_action( 'cky_after_connect' );
 		return true;
 	}
@@ -124,9 +126,11 @@ class Controller extends Cloud {
 		$banner   = new \CookieYes\Lite\Admin\Modules\Banners\Includes\Banner( $item );
 		/** General Settings */
 		$data['settings']   = array(
-			'plan'       => $settings->get_plan(),
-			'domain'     => home_url(),
-			'consentLog' => array(
+			'plan'              => $settings->get_plan(),
+			'domain'            => home_url(),
+			'installSource'     => cky_get_install_source(),
+			'activationContext' => cky_get_activation_context(),
+			'consentLog'        => array(
 				'status' => true,
 			),
 		);
@@ -223,17 +227,25 @@ class Controller extends Cloud {
 	/**
 	 *  Fetch site info from either locally or from API.
 	 *
+	 * When the request is not a REST (cloud) call but the site is connected,
+	 * load plan data from the web app so admin contexts (e.g. plugin action links)
+	 * match behaviour that relies on `get_info()` (see Vue admin).
+	 *
 	 * @param array $args Array of arguments.
-	 * @return array
+	 * @return array|\WP_Error
 	 */
 	public function get_info( $args = array() ) {
-		$data = array();
-		if ( false === cky_is_cloud_request() ) {
-			$data = $this->get_site_info( $args );
-		} else {
-			$data = $this->get_app_info( $args );
+		if ( cky_is_cloud_request() ) {
+			return $this->get_app_info( $args );
 		}
-		return $data;
+		$settings = new Settings();
+		if ( $settings->is_connected() && $this->get_website_id() ) {
+			$data = $this->get_app_info( $args );
+			if ( ! is_wp_error( $data ) ) {
+				return $data;
+			}
+		}
+		return $this->get_site_info( $args );
 	}
 
 	/**
@@ -253,7 +265,6 @@ class Controller extends Cloud {
 	 */
 	public function get_default() {
 		$settings = new Settings();
-		$scan     = \CookieYes\Lite\Admin\Modules\Scanner\Includes\Controller::get_instance()->get_info();
 		return array(
 			'id'             => '',
 			'url'            => get_site_url(),
@@ -281,8 +292,8 @@ class Controller extends Cloud {
 				'status' => $settings->get_consent_log_status(),
 			),
 			'scans'          => array(
-				'date'   => isset( $scan['date'] ) ? $scan['date'] : '',
-				'status' => isset( $scan['status'] ) ? $scan['status'] : false,
+				'date'   => '',
+				'status' => false,
 			),
 			'languages'      => array(
 				'default' => $settings->get_default_language(),
@@ -448,6 +459,8 @@ class Controller extends Cloud {
 					'overage_view_count' => isset( $response['overage']['overage_view_count'] ) ? absint( $response['overage']['overage_view_count'] ) : 0,
 				),
 			);
+			// Keep the Installed Plugins row in step with the latest plan, e.g. right after an upgrade or downgrade.
+			set_transient( $this->get_plan_cache_key(), $this->get_cacheable_plan( $data['plan'] ), HOUR_IN_SECONDS );
 			return $data;
 		} elseif ( 401 === $response_code ) {
 			return new WP_Error(
@@ -460,6 +473,28 @@ class Controller extends Cloud {
 			'cky_api_fetching_failed',
 			__( 'Failed to fetch data from the API', 'cookie-law-info' ),
 			array( 'status' => 400 )
+		);
+	}
+
+	/**
+	 * Transient key for the connected plan shown in the Installed Plugins row.
+	 *
+	 * @return string
+	 */
+	public function get_plan_cache_key() {
+		return 'cky_plugin_row_plan_' . md5( (string) $this->get_website_id() );
+	}
+
+	/**
+	 * The part of the web app plan the Installed Plugins row needs.
+	 *
+	 * @param array $plan Plan from the web app.
+	 * @return array Array with 'slug' and 'name'.
+	 */
+	public function get_cacheable_plan( $plan ) {
+		return array(
+			'slug' => isset( $plan['slug'] ) ? (string) $plan['slug'] : '',
+			'name' => isset( $plan['name'] ) ? (string) $plan['name'] : '',
 		);
 	}
 

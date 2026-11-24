@@ -376,8 +376,7 @@ abstract class Visualizer_Source {
 		$formats = apply_filters( 'visualizer_date_formats', $formats, $type );
 
 		foreach ( $formats as $format ) {
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', $format ); // Validación preventiva para PHP 8.4
-			$return = $is_valid_format ? DateTime::createFromFormat( $format, $value ) : false;
+			$return = DateTime::createFromFormat( $format, $value );
 			if ( $return !== false && ! is_wp_error( $return ) ) {
 				return $format;
 			}

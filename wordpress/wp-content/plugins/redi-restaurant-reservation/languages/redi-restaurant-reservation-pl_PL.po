@@ -12,15 +12,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10 >= 2 && n%10<=4 &&(n%100<10||n%100 >= 20)? 1 : 2);\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _e;__\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-"
-"reservation\\trunk\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10 >= 2 && n%10<=4 "
-"&&(n%100<10||n%100 >= 20)? 1 : 2);\n"
-"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-reservation\\trunk\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: redi-restaurant-reservation.php:872
 msgid " \"Min Persons\" should be lower than Max Persons"
@@ -85,19 +83,20 @@ msgid ""
 msgstr ""
 "Wtyczka <h3>ReDi Restaurant Reservation Plugin</h3> <p>jest aktywna, ale "
 "klucz API nie został jeszcze wygenerowany, aby korzystać z wtyczki. Zakończ "
-"kreator konfiguracji już teraz, aby zapewnić bezproblemowe rezerwacje.</p> %s"
+"kreator konfiguracji już teraz, aby zapewnić bezproblemowe rezerwacje.</p> "
+"%s"
 
 #. %s is the HTML link to the setup wizard.
 #: functions/notice.php:75
 #, php-format
 msgid ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
-"not created a page with reservation form. Finilize setup wizard now for "
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have"
+" not created a page with reservation form. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
-"Wtyczka <h3>ReDi Restaurant Reservation Plugin</h3> <p>jest aktywna, ale nie "
-"utworzyłeś strony z formularzem rezerwacji. Zakończ kreator konfiguracji już "
-"teraz, aby zapewnić bezproblemowe rezerwacje.</p> %s"
+"Wtyczka <h3>ReDi Restaurant Reservation Plugin</h3> <p>jest aktywna, ale nie"
+" utworzyłeś strony z formularzem rezerwacji. Zakończ kreator konfiguracji "
+"już teraz, aby zapewnić bezproblemowe rezerwacje.</p> %s"
 
 #. %s is the HTML link to the configuration page.
 #: functions/notice.php:98
@@ -109,15 +108,15 @@ msgid ""
 "impress your clients!</p> %2$s"
 msgstr ""
 "<p>Nie wprowadziłeś żadnych zmian w ustawieniach od czasu zainstalowania "
-"wtyczki. Skończ teraz konfigurację <b>wtyczki rezerwacji restauracji ReDi</b>"
-", aby zapewnić bezproblemowe rezerwacje. Odwiedź stronę %1$s, aby dokończyć "
-"konfigurację i zacząć robić wrażenie na swoich klientach!</p> %2$s"
+"wtyczki. Skończ teraz konfigurację <b>wtyczki rezerwacji restauracji "
+"ReDi</b>, aby zapewnić bezproblemowe rezerwacje. Odwiedź stronę %1$s, aby "
+"dokończyć konfigurację i zacząć robić wrażenie na swoich klientach!</p> %2$s"
 
 #: templates/admin.php:122
 msgid ""
-"<strong>Attention</strong>: New settings are available for review and saving,"
-" please take a moment to update your preferences or fill out the required "
-"settings and click on the save button."
+"<strong>Attention</strong>: New settings are available for review and "
+"saving, please take a moment to update your preferences or fill out the "
+"required settings and click on the save button."
 msgstr ""
 "<strong>Uwaga</strong>: Nowe ustawienia są dostępne do przeglądania i "
 "zapisywania, poświęć chwilę na aktualizację swoich preferencji lub "
@@ -125,8 +124,8 @@ msgstr ""
 
 #: templates/frontend.php:338
 msgid ""
-"A confirmation email has been sent to you, should you not receive it, please "
-"rest assured that your booking has been received and is confirmed. If you "
+"A confirmation email has been sent to you, should you not receive it, please"
+" rest assured that your booking has been received and is confirmed. If you "
 "wish you may contact us by phone to confirm."
 msgstr ""
 "Wiadomość e-mail z potwierdzeniem została wysłana do Ciebie, jeśli jej nie "
@@ -169,8 +168,8 @@ msgstr ""
 #: templates/admin.php:230
 msgid ""
 "A pre-designed style requiring minimal customization for a polished look. "
-"Please note that this option is still in beta testing  and some features are "
-"not copied over from Default theme."
+"Please note that this option is still in beta testing  and some features are"
+" not copied over from Default theme."
 msgstr ""
 "Wstępnie zaprojektowany styl wymagający minimalnej personalizacji w celu "
 "uzyskania dopracowanego wyglądu. Należy pamiętać, że ta opcja jest nadal w "
@@ -189,8 +188,8 @@ msgstr ""
 
 #: templates/admin.php:229
 msgid ""
-"Adapts to your website's theme, ensuring seamless integration. However, some "
-"adjustments may be needed to match your design preferences."
+"Adapts to your website's theme, ensuring seamless integration. However, some"
+" adjustments may be needed to match your design preferences."
 msgstr ""
 "Dostosowuje się do motywu Twojej witryny, zapewniając bezproblemową "
 "integrację. Jednak mogą być konieczne pewne korekty, aby dopasować je do "
@@ -250,7 +249,8 @@ msgstr "Zezwól na wysyłanie informacji o wtyczce"
 
 #: templates/admin.php:703
 msgid ""
-"Allow users to fill the Wait List when all time slots for the day are booked."
+"Allow users to fill the Wait List when all time slots for the day are "
+"booked."
 msgstr ""
 "Zezwalaj użytkownikom na wypełnianie listy oczekujących, gdy wszystkie "
 "przedziały czasowe na dany dzień są zarezerwowane."
@@ -269,7 +269,8 @@ msgstr "Zezwól na Whatsapp"
 #: templates/admin.php:799
 msgid ""
 "Allows to show or hide comments section on the reservation form. Enabled by "
-"default. If you see that your guests misuse the comments section, disable it."
+"default. If you see that your guests misuse the comments section, disable "
+"it."
 msgstr ""
 "Umożliwia pokazanie lub ukrycie sekcji komentarzy w formularzu rezerwacji. "
 "Opcja włączona domyślnie. Jeśli zauważysz, że Twoi goście nadużywają sekcji "
@@ -315,14 +316,14 @@ msgstr "Klucz apiKlucz"
 
 #: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
 msgid ""
-"Apologies for the inconvenience, but we encountered an issue while trying to "
-"make your reservation. It seems there was a technical glitch on our end. Our "
-"team is actively working to resolve this issue. Please try again in a few "
-"minutes, and if the problem persists, feel free to reach out to our customer "
-"support for assistance. Additionally, if you could please send a screenshot "
-"of the error message to {emailLink}, it would greatly help us in diagnosing "
-"and resolving the issue more efficiently. We appreciate your patience and "
-"cooperation. Response:"
+"Apologies for the inconvenience, but we encountered an issue while trying to"
+" make your reservation. It seems there was a technical glitch on our end. "
+"Our team is actively working to resolve this issue. Please try again in a "
+"few minutes, and if the problem persists, feel free to reach out to our "
+"customer support for assistance. Additionally, if you could please send a "
+"screenshot of the error message to {emailLink}, it would greatly help us in "
+"diagnosing and resolving the issue more efficiently. We appreciate your "
+"patience and cooperation. Response:"
 msgstr ""
 "Przepraszamy za niedogodności, ale napotkaliśmy problem podczas próby "
 "dokonania rezerwacji. Wygląda na to, że po naszej stronie wystąpiła usterka "
@@ -344,8 +345,8 @@ msgid ""
 "using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
 "here to provide the support you need."
 msgstr ""
-"Czy masz problemy z konfiguracją wtyczki? Nie martw się! Oferujemy bezpłatną "
-"pomoc osobistą, aby Ci pomóc. Możesz umówić się z nami na sesję za pomocą "
+"Czy masz problemy z konfiguracją wtyczki? Nie martw się! Oferujemy bezpłatną"
+" pomoc osobistą, aby Ci pomóc. Możesz umówić się z nami na sesję za pomocą "
 "Calendly lub skontaktować się z nami przez Skype, WhatsApp lub Facebook. "
 "Jesteśmy tutaj, aby zapewnić wsparcie, którego potrzebujesz."
 
@@ -382,7 +383,8 @@ msgstr "Powrót do strony rezerwacji"
 msgid "Basic package functionality (paid version)"
 msgstr "Podstawowa funkcjonalność pakietu (wersja płatna)"
 
-#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+#: templates/admin_welcome_no_key.php:32
+#: templates/admin_welcome_no_page.php:28
 msgid "Below is your API Key, please use it when you ask for a support. "
 msgstr ""
 "Poniżej znajduje się Twój klucz API, użyj go, gdy poprosisz o wsparcie. "
@@ -398,12 +400,12 @@ msgstr "Urodziny (dd/mm)"
 #: templates/basicpackage.php:44
 msgid ""
 "Blocked Time. Define time range when online reservation should not be "
-"accepted. Specify a reason why reservations are not accepted at this time to "
-"keep your clients happy."
+"accepted. Specify a reason why reservations are not accepted at this time to"
+" keep your clients happy."
 msgstr ""
 "Zablokowany czas. Określ przedział czasowy, w którym rezerwacja online nie "
-"powinna zostać przyjęta. Określ powód, dla którego rezerwacje nie są obecnie "
-"przyjmowane, aby Twoi klienci byli zadowoleni."
+"powinna zostać przyjęta. Określ powód, dla którego rezerwacje nie są obecnie"
+" przyjmowane, aby Twoi klienci byli zadowoleni."
 
 #: redi-restaurant-reservation.php:2112
 msgid "Book Now"
@@ -689,7 +691,8 @@ msgstr "Wyłącz wiadomość e-mail z potwierdzeniem"
 msgid "Disabled"
 msgstr "Niepełnosprawny"
 
-#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+#: redi-restaurant-reservation-api.php:447
+#: redi-restaurant-reservation.php:2607
 msgid "Discount"
 msgstr "Rabat"
 
@@ -700,12 +703,12 @@ msgstr "Wyświetlanie lewych siedzeń"
 #: templates/admin.php:664
 msgid ""
 "Displays the available time with time step to the clients. For instance, if "
-"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
-"30, etc."
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, "
+"10:30, etc."
 msgstr ""
 "Wyświetla klientom dostępny czas z krokiem czasowym. Na przykład, jeśli "
-"wybierzesz 15-minutowy krok czasowy, alternatywny czas to 10:00, 10:15, 10:"
-"30 itd."
+"wybierzesz 15-minutowy krok czasowy, alternatywny czas to 10:00, 10:15, "
+"10:30 itd."
 
 #: templates/admin.php:701
 msgid "Do not allow guests to fill the Wait List form."
@@ -721,8 +724,8 @@ msgstr ""
 
 #: templates/basicpackage.php:70
 msgid ""
-"Do you want to write your own module? We have an API. Contact us to get more "
-"information."
+"Do you want to write your own module? We have an API. Contact us to get more"
+" information."
 msgstr ""
 "Chcesz napisać własny moduł? Mamy API. Skontaktuj się z nami, aby uzyskać "
 "więcej informacji."
@@ -757,8 +760,8 @@ msgstr "Czas trwania"
 #: templates/admin_ajaxed.php:449
 msgid ""
 "Duration of reservation in minutes. This is the time allocated for each "
-"reservation so the reservation system can calculate availability. Enter here "
-"average time that guests stays in."
+"reservation so the reservation system can calculate availability. Enter here"
+" average time that guests stays in."
 msgstr ""
 "Czas trwania rezerwacji w minutach. Jest to czas przeznaczony na każdą "
 "rezerwację, dzięki czemu system rezerwacji może obliczyć dostępność. "
@@ -848,8 +851,8 @@ msgstr ""
 "społecznościowych, takich jak Facebook, a następnie formularz rezerwacji "
 "zostanie wstępnie wypełniony danymi osobowymi. Również jeśli użytkownik "
 "zaloguje się za pomocą sieci społecznościowej, ale nie dokończy rezerwacji, "
-"otrzyma przypomnienie o konieczności jej sfinalizowania. Musisz zainstalować "
-"i skonfigurować wtyczkę o nazwie \"Super Socializer\" z katalogu WordPress."
+"otrzyma przypomnienie o konieczności jej sfinalizowania. Musisz zainstalować"
+" i skonfigurować wtyczkę o nazwie \"Super Socializer\" z katalogu WordPress."
 
 #: templates/admin.php:301
 msgid "Enable social network login"
@@ -866,12 +869,12 @@ msgstr "Lista rozwijana Włącz/wyłącz elementy podrzędne"
 #: templates/basicpackage.php:61
 msgid ""
 "Enhance your business experience by using our Facebook integration service "
-"where we try to provide you with profile pictures of your customers if found."
-" You can amaze your customer by knowing him by face when he visits you, "
-"especially at the time of first visit."
+"where we try to provide you with profile pictures of your customers if "
+"found. You can amaze your customer by knowing him by face when he visits "
+"you, especially at the time of first visit."
 msgstr ""
-"Popraw swoje doświadczenia biznesowe, korzystając z naszej usługi integracji "
-"z Facebookiem, w której staramy się dostarczać Ci zdjęcia profilowe Twoich "
+"Popraw swoje doświadczenia biznesowe, korzystając z naszej usługi integracji"
+" z Facebookiem, w której staramy się dostarczać Ci zdjęcia profilowe Twoich "
 "klientów, jeśli zostaną znalezione. Możesz zadziwić swojego klienta, znając "
 "go z bliska, gdy Cię odwiedza, zwłaszcza w czasie pierwszej wizyty."
 
@@ -920,12 +923,12 @@ msgstr "Typ pola"
 #: functions/notice.php:137
 #, php-format
 msgid ""
-"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
-"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to"
+" impress your clients, make a test reservation. <b>%1$s</b>%2$s"
 msgstr ""
 "Na koniec ostatni krok w konfiguracji <b>wtyczki do rezerwacji restauracji "
-"ReDi</b>, aby zaimponować swoim klientom, dokonaj rezerwacji testowej. <b>"
-"%1$s</b>%2$s"
+"ReDi</b>, aby zaimponować swoim klientom, dokonaj rezerwacji testowej. "
+"<b>%1$s</b>%2$s"
 
 #: redi-restaurant-reservation.php:2073
 msgid "Find Reservation"
@@ -1024,12 +1027,12 @@ msgid ""
 "few clicks!"
 msgstr ""
 "Spraw, aby Twój biznes restauracyjny kwitł dzięki <strong>wtyczce ReDi "
-"Restaurant Reservation</strong>! Nasza wtyczka upraszcza proces rezerwacji i "
-"umożliwia Twoim klientom łatwą rezerwację online. Dzięki <strong>"
-"natychmiastowemu potwierdzeniu rezerwacji</strong> i konfigurowalnym "
-"ustawieniom zarządzanie rezerwacjami nigdy nie było łatwiejsze. Pożegnaj się "
-"z kłopotami z ręcznym potwierdzaniem rezerwacji i przywitaj się z wygodą "
-"automatycznego potwierdzania. Wypróbuj go już dziś i przekonaj się, jaką "
+"Restaurant Reservation</strong>! Nasza wtyczka upraszcza proces rezerwacji i"
+" umożliwia Twoim klientom łatwą rezerwację online. Dzięki "
+"<strong>natychmiastowemu potwierdzeniu rezerwacji</strong> i konfigurowalnym"
+" ustawieniom zarządzanie rezerwacjami nigdy nie było łatwiejsze. Pożegnaj "
+"się z kłopotami z ręcznym potwierdzaniem rezerwacji i przywitaj się z wygodą"
+" automatycznego potwierdzania. Wypróbuj go już dziś i przekonaj się, jaką "
 "różnicę może zrobić za pomocą zaledwie kilku kliknięć!"
 
 #: templates/basicpackage.php:92
@@ -1085,9 +1088,9 @@ msgstr "Zgadzam się z polityką prywatności"
 
 #: templates/admin.php:858
 msgid ""
-"If checkbox is checked then reservations will not be automatically confirmed."
-" You will receive email with reservation request and each reservation needs "
-"to be confirmed or rejected manually."
+"If checkbox is checked then reservations will not be automatically "
+"confirmed. You will receive email with reservation request and each "
+"reservation needs to be confirmed or rejected manually."
 msgstr ""
 "Jeśli pole wyboru jest zaznaczone, rezerwacje nie zostaną automatycznie "
 "potwierdzone. Otrzymasz wiadomość e-mail z prośbą o rezerwację, a każda "
@@ -1097,8 +1100,8 @@ msgstr ""
 msgid ""
 "If checkbox is checked then seats left will be shown under selected time."
 msgstr ""
-"Jeśli pole wyboru jest zaznaczone, miejsca po lewej stronie będą wyświetlane "
-"w wybranym czasie."
+"Jeśli pole wyboru jest zaznaczone, miejsca po lewej stronie będą wyświetlane"
+" w wybranym czasie."
 
 #: templates/admin.php:957
 msgid ""
@@ -1129,8 +1132,8 @@ msgid ""
 "If you close next day at night then set closing time on a same day. For "
 "example 18:00 - 3:00"
 msgstr ""
-"Jeśli zamkniesz następnego dnia w nocy, ustaw godzinę zamknięcia tego samego "
-"dnia. Na przykład 18:00 - 3:00"
+"Jeśli zamkniesz następnego dnia w nocy, ustaw godzinę zamknięcia tego samego"
+" dnia. Na przykład 18:00 - 3:00"
 
 #: templates/admin_welcome_no_key.php:22
 msgid ""
@@ -1143,25 +1146,26 @@ msgstr ""
 #: templates/admin.php:913
 msgid ""
 "If you want to customize confirmation page or have a separated page for "
-"marketing purposes, then select custom reservation confirmation page. If not "
-"specified, then built in confirmation page will be used."
+"marketing purposes, then select custom reservation confirmation page. If not"
+" specified, then built in confirmation page will be used."
 msgstr ""
 "Jeśli chcesz dostosować stronę potwierdzenia lub mieć oddzielną stronę do "
-"celów marketingowych, wybierz niestandardową stronę potwierdzenia rezerwacji."
-" Jeśli nie zostanie określony, zostanie użyta wbudowana strona potwierdzenia."
+"celów marketingowych, wybierz niestandardową stronę potwierdzenia "
+"rezerwacji. Jeśli nie zostanie określony, zostanie użyta wbudowana strona "
+"potwierdzenia."
 
 #: templates/basicpackage.php:73
 msgid ""
 "If you would like to add some new functionality or have any other queries, "
 "please contact us by email: "
 msgstr ""
-"Jeśli chcesz dodać nową funkcjonalność lub masz inne pytania, skontaktuj się "
-"z nami przez e-mail: "
+"Jeśli chcesz dodać nową funkcjonalność lub masz inne pytania, skontaktuj się"
+" z nami przez e-mail: "
 
 #: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
 msgid ""
-"In case you need to show it in multiple languages, then use following format "
-"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+"In case you need to show it in multiple languages, then use following format"
+" [locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 msgstr ""
 "Jeśli chcesz wyświetlić go w wielu językach, użyj następującego formatu "
 "[locale]Text[/locale]. Przykład: [en_US]Tekst[/en_US][es_ES]Teksto[/es_ES]"
@@ -1173,7 +1177,8 @@ msgid ""
 "form</a>."
 msgstr ""
 "Jeśli chcesz otrzymać powiadomienie, gdy ktoś anuluje rezerwację na ten "
-"dzień, wypełnij <a href=\"#\" class=\"link-waitlist-form\">ten formularz</a>."
+"dzień, wypełnij <a href=\"#\" class=\"link-waitlist-form\">ten "
+"formularz</a>."
 
 #: templates/frontend.php:199 templates/frontend.php:381
 msgid ""
@@ -1188,8 +1193,8 @@ msgid ""
 "In case you would like to be notified when someone cancels reservation for "
 "this time, please fill <a class=\"link-waitlist-form\">this form</a>."
 msgstr ""
-"Jeśli chcesz otrzymać powiadomienie, gdy ktoś anuluje rezerwację na ten czas,"
-" wypełnij <a class=\"link-waitlist-form\">ten formularz</a>."
+"Jeśli chcesz otrzymać powiadomienie, gdy ktoś anuluje rezerwację na ten "
+"czas, wypełnij <a class=\"link-waitlist-form\">ten formularz</a>."
 
 #: templates/admin.php:914
 msgid ""
@@ -1574,16 +1579,16 @@ msgid ""
 "NOTE: Complex custom fields like Options and Dropdown can be configured in "
 "Basic package settings."
 msgstr ""
-"UWAGA: Złożone pola niestandardowe, takie jak Opcje i Lista rozwijana, można "
-"skonfigurować w podstawowych ustawieniach pakietu."
+"UWAGA: Złożone pola niestandardowe, takie jak Opcje i Lista rozwijana, można"
+" skonfigurować w podstawowych ustawieniach pakietu."
 
 #: templates/admin_ajaxed.php:472
 msgid ""
 "NOTE: If you define Open Time in basic package, then this setting will be "
 "ignored. Use open times settings to define Late Bookings."
 msgstr ""
-"UWAGA: Jeśli zdefiniujesz Czas otwarty w pakiecie podstawowym, to ustawienie "
-"zostanie zignorowane. Użyj ustawień godzin otwarcia, aby zdefiniować późne "
+"UWAGA: Jeśli zdefiniujesz Czas otwarty w pakiecie podstawowym, to ustawienie"
+" zostanie zignorowane. Użyj ustawień godzin otwarcia, aby zdefiniować późne "
 "rezerwacje."
 
 #: templates/admin_ajaxed.php:517
@@ -1628,26 +1633,26 @@ msgstr "Październik"
 msgid ""
 "Online reservation service is not available at this time. Try again later or"
 msgstr ""
-"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później "
-"lub"
+"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później"
+" lub"
 
 #. %s is a placeholder for a dynamic link.
 #: redi.php:283
 #, php-format
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"%s"
+"Online reservation service is not available at this time. Try again later or"
+" %s"
 msgstr ""
-"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później "
-"lub %s"
+"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później"
+" lub %s"
 
 #: redi-restaurant-reservation.php:2104
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"contact us directly."
+"Online reservation service is not available at this time. Try again later or"
+" contact us directly."
 msgstr ""
-"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później "
-"lub skontaktuj się z nami bezpośrednio."
+"Usługa rezerwacji online nie jest obecnie dostępna. Spróbuj ponownie później"
+" lub skontaktuj się z nami bezpośrednio."
 
 #: templates/admin_ajaxed.php:348
 msgid "Open"
@@ -1662,12 +1667,8 @@ msgid ""
 "Open times. This option will enable you to choose between various working "
 "hours whichever is most convenient to you."
 msgstr ""
-"Godziny otwarcia. Ta opcja pozwoli Ci wybrać między różnymi godzinami pracy, "
-"w zależności od tego, która jest dla Ciebie najwygodniejsza."
-
-#: templates/basicpackage.php:37
-msgid "Open upcoming reservations"
-msgstr "Otwórz nadchodzące rezerwacje"
+"Godziny otwarcia. Ta opcja pozwoli Ci wybrać między różnymi godzinami pracy,"
+" w zależności od tego, która jest dla Ciebie najwygodniejsza."
 
 #: templates/admin_ajaxed.php:621
 msgid "Option"
@@ -1745,14 +1746,6 @@ msgstr "Numer telefonu jest wymagany"
 msgid "Place"
 msgstr "Miejsce"
 
-#: templates/basicpackage.php:53
-msgid ""
-"Please allow 1 business day for us to confirm your payment and upgrade your "
-"account."
-msgstr ""
-"Poczekaj 1 dzień roboczy, abyśmy mogli potwierdzić płatność i uaktualnić "
-"konto."
-
 #: templates/admin.php:232
 msgid ""
 "Please contact info@reservationdiary.eu for any issues or missing features "
@@ -1778,7 +1771,8 @@ msgstr "Podaj prawidłowy adres e-mail"
 msgid "Please provide a reason for cancellation"
 msgstr "Podaj powód anulowania rezerwacji"
 
-#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+#: templates/admin_welcome_no_key.php:37
+#: templates/admin_welcome_no_page.php:33
 msgid "Please provide your API Key in order to continue using plugin"
 msgstr "Podaj swój klucz API, aby kontynuować korzystanie z wtyczki"
 
@@ -1809,8 +1803,8 @@ msgstr "Wybierz wartość z \"Miesięczny limit rezerwacji gości\""
 #: templates/admin.php:841
 msgid ""
 "Please verify you current time. This is important as this time is taken and "
-"used in reservation logic. In case time is differnet than your current time, "
-"please change time zone in Settings -> General -> Time Zone"
+"used in reservation logic. In case time is differnet than your current time,"
+" please change time zone in Settings -> General -> Time Zone"
 msgstr ""
 "Sprawdź swój aktualny czas. Jest to ważne, ponieważ ten czas jest brany pod "
 "uwagę i wykorzystywany w logice rezerwacji. W przypadku, gdy czas różni się "
@@ -1870,8 +1864,8 @@ msgid "Rate your reservation experience"
 msgstr "Oceń swoje wrażenia z rezerwacji"
 
 #: templates/admin.php:223 templates/admin.php:231
-msgid "React 25 theme (BETA)"
-msgstr "Motyw React 25 (BETA)"
+msgid "React 25 theme"
+msgstr "Motyw React 25"
 
 #: templates/admin.php:1026 templates/cancel.php:40
 #: templates/frontend_v2.php:1707
@@ -1903,34 +1897,26 @@ msgstr "Rezerwacja restauracji Redi"
 
 #: redi-restaurant-reservation.php:793
 msgid ""
-"ReDi Restaurant Reservation plugin could not get an API key from the "
-"reservationdiary.eu server when it activated.\n"
-"                        <br/> You can try to fix this by going to the ReDi "
-"Restaurant Reservation \"options\" page.\n"
-"                        <br/>This will cause ReDi Restaurant Reservation "
-"plugin to retry fetching an API key for you.\n"
-"                        <br/>If you keep seeing this error it usually means "
-"that server where you host your web site can't connect to our "
-"reservationdiary.eu server.\n"
-"                        <br/>You can try asking your WordPress host to allow "
-"your WordPress server to connect to api.reservationdiary.eu\n"
-"                        <br/>In case you can not solve this problem yourself,"
-" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"ReDi Restaurant Reservation plugin could not get an API key from the reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means that server where you host your web site can't connect to our reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself, please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 msgstr ""
 "Wtyczka ReDi Restaurant Reservation nie mogła pobrać klucza API z serwera "
 "reservationdiary.eu podczas aktywacji.                        <br/> Możesz "
 "spróbować to naprawić, przechodząc do strony \"opcje\" rezerwacji "
 "restauracji ReDi.                        <br/>Spowoduje to, że wtyczka ReDi "
-"Restaurant Reservation spróbuje ponowić próbę pobrania klucza API.           "
-"             <br/>Jeśli ten błąd będzie się powtarzał, zwykle oznacza to, że "
-"serwer, na którym hostujesz swoją witrynę internetową, nie może połączyć się "
-"z naszym serwerem reservationdiary.eu.                        <br/>Możesz "
-"spróbować poprosić hosta WordPress, aby zezwolił serwerowi WordPress na "
-"połączenie się z api.reservationdiary.eu                        <br/>Jeśli "
-"nie możesz samodzielnie rozwiązać tego problemu, skontaktuj się z nami "
-"bezpośrednio przez <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"Restaurant Reservation spróbuje ponowić próbę pobrania klucza API."
+"                        <br/>Jeśli ten błąd będzie się powtarzał, zwykle "
+"oznacza to, że serwer, na którym hostujesz swoją witrynę internetową, nie "
+"może połączyć się z naszym serwerem reservationdiary.eu."
+"                        <br/>Możesz spróbować poprosić hosta WordPress, aby "
+"zezwolił serwerowi WordPress na połączenie się z api.reservationdiary.eu"
+"                        <br/>Jeśli nie możesz samodzielnie rozwiązać tego "
+"problemu, skontaktuj się z nami bezpośrednio przez <a "
+"href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 
 #: templates/admin_welcome.php:15
 msgid "ReDi restaurant reservation plugin is ready to use"
@@ -1946,7 +1932,8 @@ msgstr "Zarejestruj się na listę oczekujących"
 
 #: templates/basicpackage.php:65
 msgid "Remind your customer about upcoming reservation via Email or by SMS"
-msgstr "Przypomnij klientowi o zbliżającej się rezerwacji przez e-mail lub SMS"
+msgstr ""
+"Przypomnij klientowi o zbliżającej się rezerwacji przez e-mail lub SMS"
 
 #: templates/admin.php:61 templates/admin_ajaxed.php:609
 msgid "Reminder"
@@ -2075,7 +2062,8 @@ msgstr "Ograniczenia rezerwacji"
 msgid "Reservation settings"
 msgstr "Ustawienia rezerwacji"
 
-#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+#: redi-restaurant-reservation-api.php:350
+#: redi-restaurant-reservation.php:2765
 msgid "Reservation that is canceled can not be modified."
 msgstr "Anulowana rezerwacja nie może być modyfikowana."
 
@@ -2169,8 +2157,8 @@ msgstr "Wybrana data lub godzina jest nieprawidłowa."
 
 #: templates/admin.php:340
 msgid ""
-"Selecting this option, the calendar is set to popup when the user clicks the "
-"calendar control."
+"Selecting this option, the calendar is set to popup when the user clicks the"
+" calendar control."
 msgstr ""
 "Wybranie tej opcji spowoduje, że kalendarz zostanie ustawiony jako "
 "wyskakujące okienko, gdy użytkownik kliknie kontrolkę kalendarza."
@@ -2274,9 +2262,9 @@ msgstr "Życzenia specjalne (opcjonalnie)"
 
 #: templates/admin_ajaxed.php:470
 msgid ""
-"Specify how late customers can make their booking in hours. For example, the "
-"current time is 10:00 and this setting is set to 3 hours then the first time,"
-" when the reservation will be accepted is 13:00."
+"Specify how late customers can make their booking in hours. For example, the"
+" current time is 10:00 and this setting is set to 3 hours then the first "
+"time, when the reservation will be accepted is 13:00."
 msgstr ""
 "Określ, jak późno klienci mogą dokonać rezerwacji w godzinach. Na przykład, "
 "bieżąca godzina to 10:00 i to ustawienie jest ustawione na 3 godziny, a "
@@ -2391,8 +2379,9 @@ msgid ""
 "The confirmation email will be sent out from info@reservationdiary.eu. When "
 "the client replies to confirmation email, you will receive it."
 msgstr ""
-"Wiadomość e-mail z potwierdzeniem zostanie wysłana z info@reservationdiary."
-"eu. Gdy klient odpowie na wiadomość e-mail z potwierdzeniem, otrzymasz ją."
+"Wiadomość e-mail z potwierdzeniem zostanie wysłana z "
+"info@reservationdiary.eu. Gdy klient odpowie na wiadomość e-mail z "
+"potwierdzeniem, otrzymasz ją."
 
 #: templates/admin.php:885
 msgid ""
@@ -2452,14 +2441,14 @@ msgstr ""
 
 #: templates/admin.php:882
 msgid ""
-"The way you want confirmation email to be delivered to the client. It can be "
-"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"The way you want confirmation email to be delivered to the client. It can be"
+" \"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
 "SMTP\" or \"Disable confirmation email\"."
 msgstr ""
 "Sposób, w jaki chcesz, aby wiadomość e-mail z potwierdzeniem została "
 "dostarczona do klienta. Może to być \"Z konta e-mail WordPress\", \"Z "
-"reservationdiary.eu\", \"Niestandardowy SMTP\" lub \"Wyłącz wiadomość e-mail "
-"z potwierdzeniem\"."
+"reservationdiary.eu\", \"Niestandardowy SMTP\" lub \"Wyłącz wiadomość e-mail"
+" z potwierdzeniem\"."
 
 #: templates/admin_ajaxed.php:188
 msgid "The website address of the restaurant."
@@ -2477,16 +2466,6 @@ msgstr "Na ten czas nie ma już możliwości rezerwacji."
 #: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1899
 msgid "There are no more reservations can be made for selected day."
 msgstr "Nie ma już możliwości rezerwacji na wybrany dzień."
-
-#: templates/admin_ajaxed.php:105
-msgid ""
-"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
-"short code for specifying the place of reservation in case of multiple "
-"restaurants. <br/>Example of shortcode:"
-msgstr ""
-"Ten <b>identyfikator</b> jest powiązany z Twoim miejscem. <b>"
-"Identyfikator</b> może być używany jako krótki kod do określenia miejsca "
-"rezerwacji w przypadku wielu restauracji. <br/>Przykład krótkiego kodu:"
 
 #: redi-restaurant-reservation.php:2033
 msgid "This date is in the past and cannot be selected"
@@ -2519,17 +2498,17 @@ msgstr ""
 #: templates/admin.php:543
 msgid ""
 "This is how the available time will be shown. This setting is taken from "
-"generic WordPress settings. You can change it in Settings -> General -> Time "
-"Format"
+"generic WordPress settings. You can change it in Settings -> General -> Time"
+" Format"
 msgstr ""
-"W ten sposób zostanie pokazany dostępny czas. To ustawienie jest pobierane z "
-"ogólnych ustawień WordPressa. Możesz to zmienić w Ustawienia -> Ogólne -> "
+"W ten sposób zostanie pokazany dostępny czas. To ustawienie jest pobierane z"
+" ogólnych ustawień WordPressa. Możesz to zmienić w Ustawienia -> Ogólne -> "
 "Format czasu"
 
 #: templates/admin_ajaxed.php:413
 msgid ""
-"This is the number of maximum persons in restaurant at any time. System will "
-"check automatically availability of free seats and will not allow to go "
+"This is the number of maximum persons in restaurant at any time. System will"
+" check automatically availability of free seats and will not allow to go "
 "beyond this number."
 msgstr ""
 "Jest to maksymalna liczba osób przebywających w restauracji w dowolnym "
@@ -2597,13 +2576,13 @@ msgstr "Tryb TimeShift"
 msgid ""
 "To schedule your session, simply click the image below: We provide "
 "complimentary one-on-one assistance for plugin setup. You can book a call "
-"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
-"Links are below."
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp."
+" Links are below."
 msgstr ""
 "Aby zaplanować sesję, po prostu kliknij poniższy obrazek: Zapewniamy "
 "bezpłatną indywidualną pomoc w konfiguracji wtyczki. Możesz umówić się na "
-"rozmowę telefoniczną z nami przez Calendly lub skontaktować się z nami przez "
-"Skype, Facebook i Whatsapp. Linki znajdują się poniżej."
+"rozmowę telefoniczną z nami przez Calendly lub skontaktować się z nami przez"
+" Skype, Facebook i Whatsapp. Linki znajdują się poniżej."
 
 #: redi-restaurant-reservation.php:2023 templates/frontend_v2.php:528
 msgid "Today"
@@ -2624,8 +2603,8 @@ msgstr "Wt"
 #: redi-restaurant-reservation-api.php:341
 msgid ""
 "Unable to find reservation with provided information. Please verify that "
-"provided reservation number and personal information (email, phone, or name) "
-"is correct."
+"provided reservation number and personal information (email, phone, or name)"
+" is correct."
 msgstr ""
 "Nie można znaleźć rezerwacji z podanymi informacjami. Sprawdź, czy podany "
 "numer rezerwacji i dane osobowe (adres e-mail, telefon lub imię i nazwisko) "
@@ -2686,20 +2665,17 @@ msgstr ""
 
 #: templates/basicpackage.php:35
 msgid ""
-"View your upcoming reservations from your Mobile/Tablet PC and never miss "
-"your customer. This page should be open on a Tablet PC and so hostess can "
-"see all upcoming reservations for today. Page refreshes every 15 min and "
-"shows reservations that in past for 3 hours as well as upcoming reservations "
-"for next 24 hours. By clicking on reservation you will see reservation "
-"details. Demo version can be accessed for 30 days using this link: "
+"Open Host Dashboard from your mobile or tablet and never miss a guest. Keep "
+"this page open on a tablet so the host can see all reservations for today. "
+"The page refreshes every 15 min and shows reservations from the past 3 hours"
+" as well as the next 24 hours. Click a reservation to see its details. A "
+"demo can be accessed for 30 days using this link: "
 msgstr ""
-"Przeglądaj nadchodzące rezerwacje z telefonu komórkowego/tabletu i nigdy nie "
-"przegap swojego klienta. Ta strona powinna być otwarta na tablecie, aby "
-"hostessa mogła zobaczyć wszystkie nadchodzące rezerwacje na dziś. Strona "
-"odświeża się co 15 minut i pokazuje rezerwacje z przeszłości na 3 godziny, a "
-"także nadchodzące rezerwacje na następne 24 godziny. Klikając na rezerwację "
-"zobaczysz szczegóły rezerwacji. Dostęp do wersji demonstracyjnej jest "
-"możliwy przez 30 dni pod tym linkiem: "
+"Otwórz Host Dashboard na telefonie lub tablecie, aby nie przegapić gościa. "
+"Trzymaj stronę otwartą na tablecie, żeby host widział wszystkie dzisiejsze "
+"rezerwacje. Strona odświeża się co 15 min i pokazuje rezerwacje z ostatnich "
+"3 godzin oraz na następne 24 godziny. Kliknij rezerwację, aby zobaczyć "
+"szczegóły. Demo jest dostępne przez 30 dni pod tym linkiem:"
 
 #: templates/confirm.php:3
 msgid "Visit confirmation"
@@ -2726,8 +2702,14 @@ msgid "Wait List Setting"
 msgstr "Ustawienia listy oczekujących"
 
 #: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
-msgid "Waiter Dashboard"
-msgstr "Pulpit kelnera"
+msgid "Host Dashboard on a tablet or phone"
+msgstr "Host Dashboard na tablecie lub telefonie"
+
+msgid "Host Dashboard"
+msgstr "Pulpit hosta"
+
+msgid "Open Host Dashboard →"
+msgstr "Otwórz pulpit hosta →"
 
 #: templates/basicpackage.php:59
 msgid ""
@@ -2741,8 +2723,8 @@ msgstr ""
 
 #: templates/frontend_v2.php:932
 msgid ""
-"We have received your reservation request and are checking availability. You "
-"will be notified as soon as your reservation is approved. Please wait for "
+"We have received your reservation request and are checking availability. You"
+" will be notified as soon as your reservation is approved. Please wait for "
 "the confirmation."
 msgstr ""
 "Otrzymaliśmy Twoją prośbę o rezerwację i sprawdzamy dostępność. Zostaniesz "
@@ -2770,8 +2752,8 @@ msgid ""
 "Please wait confirmation of your reservation."
 msgstr ""
 "Pragniemy poinformować, że Państwa zapytanie o rezerwację zostało odebrane. "
-"Sprawdzamy dostępność i skontaktujemy się z Tobą tak szybko, jak to możliwe. "
-"Prosimy o oczekiwanie na potwierdzenie rezerwacji."
+"Sprawdzamy dostępność i skontaktujemy się z Tobą tak szybko, jak to możliwe."
+" Prosimy o oczekiwanie na potwierdzenie rezerwacji."
 
 #: templates/confirm.php:4
 msgid ""
@@ -2825,11 +2807,11 @@ msgstr "WhatsApp (Sieć WhatsApp)"
 msgid ""
 "When enabled guests has to enter their phone number with country code. This "
 "is most useful when there is a good amount of foreign visitors. Also this "
-"option has to be enabled when SMS addon is in use, as SMS Providers requires "
-"full phone number."
+"option has to be enabled when SMS addon is in use, as SMS Providers requires"
+" full phone number."
 msgstr ""
-"Gdy ta opcja jest włączona, goście muszą podać swój numer telefonu z numerem "
-"kierunkowym kraju. Jest to najbardziej przydatne, gdy jest duża liczba "
+"Gdy ta opcja jest włączona, goście muszą podać swój numer telefonu z numerem"
+" kierunkowym kraju. Jest to najbardziej przydatne, gdy jest duża liczba "
 "zagranicznych gości. Ponadto ta opcja musi być włączona, gdy używany jest "
 "dodatek SMS, ponieważ dostawcy SMS wymagają pełnego numeru telefonu."
 
@@ -2843,8 +2825,8 @@ msgstr "Gdy określony czas nie jest dostępny"
 
 #: templates/admin.php:596
 msgid ""
-"When this enabled, start and end of reservation time will be displayed. This "
-"is useful when you want to inform the guest about fixed reservation time "
+"When this enabled, start and end of reservation time will be displayed. This"
+" is useful when you want to inform the guest about fixed reservation time "
 "frame."
 msgstr ""
 "Gdy ta opcja jest włączona, zostanie wyświetlony czas rozpoczęcia i "
@@ -2864,12 +2846,12 @@ msgstr ""
 #: templates/admin.php:988
 msgid ""
 "When translating the plugin, save translations in a separate folder outside "
-"the plugin directory. Then, provide the file path with translated strings in "
-"this setting to avoid issues with updates."
+"the plugin directory. Then, provide the file path with translated strings in"
+" this setting to avoid issues with updates."
 msgstr ""
 "Podczas tłumaczenia wtyczki zapisz tłumaczenia w osobnym folderze poza "
-"katalogiem wtyczki. Następnie podaj ścieżkę pliku z przetłumaczonymi ciągami "
-"w tym ustawieniu, aby uniknąć problemów z aktualizacjami."
+"katalogiem wtyczki. Następnie podaj ścieżkę pliku z przetłumaczonymi ciągami"
+" w tym ustawieniu, aby uniknąć problemów z aktualizacjami."
 
 #: templates/admin.php:406
 msgid ""
@@ -2882,8 +2864,8 @@ msgstr ""
 #: templates/admin.php:894
 msgid "With this option, confirmation email is not sent to the client."
 msgstr ""
-"W przypadku tej opcji wiadomość e-mail z potwierdzeniem nie jest wysyłana do "
-"klienta."
+"W przypadku tej opcji wiadomość e-mail z potwierdzeniem nie jest wysyłana do"
+" klienta."
 
 #: templates/admin_ajaxed.php:338
 msgid "Working time"
@@ -2892,16 +2874,6 @@ msgstr "Czas pracy"
 #: redi-restaurant-reservation.php:2039 redi-restaurant-reservation.php:2095
 msgid "Yes"
 msgstr "Tak"
-
-#: templates/admin_welcome_no_page.php:12
-msgid ""
-"You can create dedicated reservation page below, or you can skip this step "
-"and create page manually. When you create page manually, insert "
-"[redireservation] shortcode to the page."
-msgstr ""
-"Możesz utworzyć dedykowaną stronę rezerwacji poniżej lub możesz pominąć ten "
-"krok i utworzyć stronę ręcznie. Podczas ręcznego tworzenia strony wstaw do "
-"niej krótki kod [redireservation]."
 
 #: templates/admin_welcome.php:21
 msgid "You can find the documentation for this plugin here"
@@ -2979,8 +2951,8 @@ msgid ""
 "you receive confirmation."
 msgstr ""
 "Twoja prośba o rezerwację została odebrana i zostanie rozpatrzona przez "
-"personel restauracji. Rezerwacja nie jest gwarantowana, dopóki nie otrzymasz "
-"potwierdzenia."
+"personel restauracji. Rezerwacja nie jest gwarantowana, dopóki nie otrzymasz"
+" potwierdzenia."
 
 #: templates/frontend.php:343 templates/frontend_v2.php:939
 msgid "Your reservation request number for reference:"
@@ -2996,9 +2968,195 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: templates/admin.php:221 templates/admin.php:230
-msgid "Zeplin 25 theme (BETA)"
-msgstr "Motyw Zeplin 25 (BETA)"
+msgid "Zeplin 25 theme"
+msgstr "Motyw Zeplin 25"
 
 #: templates/admin.php:473
 msgid "Сhildren selection"
 msgstr "Wybór dzieci"
+
+#: templates/admin_welcome_no_page.php:11
+msgid ""
+"You can create a dedicated reservation page below, or skip this step and "
+"create a page manually."
+msgstr ""
+"Możesz utworzyć dedykowaną stronę rezerwacji poniżej lub pominąć ten krok i "
+"utworzyć stronę ręcznie."
+
+#: templates/admin_welcome_no_page.php:12 templates/admin_welcome.php:15
+#: templates/admin.php:89
+msgid "Your shortcode"
+msgstr "Twój shortcode"
+
+#: templates/admin_welcome_no_page.php:13 templates/admin_welcome.php:16
+#: templates/admin.php:90
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed. Paste it into any page to show the reservation form."
+msgstr ""
+"Dla jednej restauracji bez dostosowań potrzebny jest tylko ten shortcode. "
+"Wklej go na dowolną stronę, aby wyświetlić formularz rezerwacji."
+
+#: templates/admin_ajaxed.php:99
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed:"
+msgstr ""
+"Dla jednej restauracji bez dostosowań potrzebny jest tylko ten shortcode:"
+
+#: templates/admin_ajaxed.php:102
+msgid ""
+"This <b>Place ID</b> is associated with your restaurant. Use it in the "
+"shortcode only if you have multiple restaurants or need the form tied to a "
+"specific location."
+msgstr ""
+"Ten <b>Place ID</b> jest powiązany z Twoją restauracją. Używaj go w "
+"shortcode tylko wtedy, gdy masz wiele restauracji lub chcesz powiązać "
+"formularz z konkretną lokalizacją."
+
+#: templates/admin_ajaxed.php:103
+msgid "Example for multiple restaurants:"
+msgstr "Przykład dla wielu restauracji:"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a location first"
+msgstr "Najpierw wybierz lokalizację"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of guests first"
+msgstr "Najpierw wybierz liczbę gości"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of children first"
+msgstr "Najpierw wybierz liczbę dzieci"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a date first"
+msgstr "Najpierw wybierz datę"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a time first"
+msgstr "Najpierw wybierz godzinę"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a menu first"
+msgstr "Najpierw wybierz menu"
+
+#: redi-restaurant-reservation.php
+msgid "Closed"
+msgstr "Zamknięte"
+
+#: redi-restaurant-reservation.php
+msgid "Out of range"
+msgstr "Poza zakresem"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant"
+msgstr "Restauracja"
+
+#: redi-restaurant-reservation.php
+msgid "Select year"
+msgstr "Wybierz rok"
+
+#: redi-restaurant-reservation.php
+msgid "Selected date"
+msgstr "Wybrana data"
+
+#: redi-restaurant-reservation.php
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr ""
+"Dzień dobry, czy mógłby Pan/Pani dokonać rezerwacji z następującymi danymi"
+
+#: redi-restaurant-reservation.php
+msgid ""
+"A confirmation email has been sent to you with your updated reservation "
+"details. You may contact the restaurant directly if you need further "
+"changes."
+msgstr ""
+"Wysłaliśmy do Ciebie e-mail potwierdzający ze zaktualizowanymi danymi "
+"rezerwacji. W razie dalszych zmian skontaktuj się bezpośrednio z "
+"restauracją."
+
+#: redi-restaurant-reservation.php
+msgid "and"
+msgstr "i"
+
+#: redi-restaurant-reservation.php
+msgid "apply"
+msgstr "zastosuj"
+
+#: redi-restaurant-reservation.php
+msgid "Menu"
+msgstr "Menu"
+
+#: redi-restaurant-reservation.php
+msgid "Menu Item"
+msgstr "Pozycja menu"
+
+#: redi-restaurant-reservation.php
+msgid "Loading menu items"
+msgstr "Ładowanie pozycji menu"
+
+#: redi-restaurant-reservation.php
+msgid "Selected"
+msgstr "Wybrano"
+
+#: redi-restaurant-reservation.php
+msgid "Day"
+msgstr "Dzień"
+
+#: redi-restaurant-reservation.php
+msgid "Month"
+msgstr "Miesiąc"
+
+#: redi-restaurant-reservation.php
+msgid "Year"
+msgstr "Rok"
+
+#: redi-restaurant-reservation.php
+msgid "Error"
+msgstr "Błąd"
+
+#: redi-restaurant-reservation.php
+msgid "Info"
+msgstr "Info"
+
+#: redi-restaurant-reservation.php
+msgid "Privacy Policy"
+msgstr "Polityka prywatności"
+
+#: redi-restaurant-reservation.php
+msgid "Terms of Service"
+msgstr "Warunki korzystania"
+
+#: redi-restaurant-reservation.php
+msgid "Unable to verify you are human. Please try again."
+msgstr "Nie udało się zweryfikować, że jesteś człowiekiem. Spróbuj ponownie."
+
+#: redi-restaurant-reservation.php
+msgid "Please complete the captcha"
+msgstr "Uzupełnij captcha"
+
+#: redi-restaurant-reservation.php
+msgid "This site is protected by reCAPTCHA and the Google"
+msgstr "Ta strona jest chroniona przez reCAPTCHA i Google"
+
+#: redi-restaurant-reservation.php
+msgid "Update Booking"
+msgstr "Zaktualizuj rezerwację"
+
+#: redi-restaurant-reservation.php
+msgid "Updating reservation"
+msgstr "Aktualizowanie rezerwacji"
+
+#: redi-restaurant-reservation.php
+msgid "Your reservation has been updated!"
+msgstr "Twoja rezerwacja została zaktualizowana!"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant not found"
+msgstr "Nie znaleziono restauracji"
+
+#: redi-restaurant-reservation.php
+msgid "Request for reservations (Reservation form is not working)"
+msgstr "Prośba o rezerwacje (formularz rezerwacji nie działa)"

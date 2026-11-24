@@ -35,11 +35,33 @@
 }
 .premium-button-style3-after:hover i, .premium-button-style3-after:hover svg {
   opacity: 1;
+  -webkit-transform: translateX(var(--pa-btn-style3-translate, 5px));
+  -ms-transform: translateX(var(--pa-btn-style3-translate, 5px));
+  transform: translateX(var(--pa-btn-style3-translate, 5px));
 }
 
 .premium-button-style3-before:hover i,
 .premium-button-style3-before:hover svg {
   opacity: 1;
+  -webkit-transform: translateX(var(--pa-btn-style3-translate, -5px));
+  -ms-transform: translateX(var(--pa-btn-style3-translate, -5px));
+  transform: translateX(var(--pa-btn-style3-translate, -5px));
+}
+
+.premium-button-style3-top i,
+.premium-button-style3-top svg {
+  opacity: 0;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  -webkit-transform: translateY(-5px);
+  -ms-transform: translateY(-5px);
+  transform: translateY(-5px);
+}
+.premium-button-style3-top:hover i, .premium-button-style3-top:hover svg {
+  opacity: 1;
+  -webkit-transform: translateY(var(--pa-btn-style3-translate, -5px));
+  -ms-transform: translateY(var(--pa-btn-style3-translate, -5px));
+  transform: translateY(var(--pa-btn-style3-translate, -5px));
 }
 
 .elementor-widget-premium-addon-button .premium-button-text-icon-wrapper {
@@ -147,6 +169,12 @@
   -webkit-transform: translateX(-5px);
   -ms-transform: translateX(-5px);
   transform: translateX(-5px);
+}
+.rtl .premium-button-style3-after:hover i,
+.rtl .premium-button-style3-after:hover svg {
+  -webkit-transform: translateX(var(--pa-btn-style3-translate, -5px));
+  -ms-transform: translateX(var(--pa-btn-style3-translate, -5px));
+  transform: translateX(var(--pa-btn-style3-translate, -5px));
 }
 .rtl .premium-button-style4-left:hover .premium-button-text-icon-wrapper {
   -webkit-transform: translateX(-100%);

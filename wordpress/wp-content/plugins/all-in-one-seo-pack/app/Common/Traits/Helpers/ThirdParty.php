@@ -217,6 +217,75 @@ trait ThirdParty {
 	}
 
 	/**
+	 * Returns the WooCommerce product facts the TruSEO product identifier and SKU assessments need.
+	 * NOTE: reports the saved product; the editor merges in unsaved field values on top of this.
+	 *
+	 * @since 5.0.0.1
+	 *
+	 * @param  int         $postId The product ID.
+	 * @return array|null          The product data, or null when the post is not a Woo product.
+	 */
+	public function getWooCommerceProductData( $postId ) {
+		if ( ! $this->isWooCommerceActive() || ! function_exists( 'wc_get_product' ) ) {
+			return null;
+		}
+
+		$product = wc_get_product( $postId );
+		if ( ! $product ) {
+			return null;
+		}
+
+		// get_global_unique_id() is the native GTIN/UPC/EAN/ISBN field, added in WooCommerce 9.2.
+		$canRetrieveGlobalIdentifier = method_exists( $product, 'get_global_unique_id' );
+
+		$data = [
+			'productType'                   => $product->get_type(),
+			'hasVariants'                   => false,
+			'canRetrieveGlobalSku'          => true,
+			'hasGlobalSKU'                  => (bool) $product->get_sku(),
+			'canRetrieveGlobalIdentifier'   => $canRetrieveGlobalIdentifier,
+			'hasGlobalIdentifier'           => $canRetrieveGlobalIdentifier && (bool) $product->get_global_unique_id(),
+			// Only meaningful for variable products; overwritten below when variations exist.
+			'canRetrieveVariantSkus'        => true,
+			'canRetrieveVariantIdentifiers' => $canRetrieveGlobalIdentifier,
+			'doAllVariantsHaveSKU'          => true,
+			'doAllVariantsHaveIdentifier'   => true
+		];
+
+		if ( ! $product->is_type( 'variable' ) ) {
+			return $data;
+		}
+
+		$variationIds = $product->get_children();
+		if ( empty( $variationIds ) ) {
+			return $data;
+		}
+
+		$data['hasVariants'] = true;
+
+		foreach ( $variationIds as $variationId ) {
+			$variation = wc_get_product( $variationId );
+			if ( ! $variation ) {
+				continue;
+			}
+
+			if ( ! $variation->get_sku() ) {
+				$data['doAllVariantsHaveSKU'] = false;
+			}
+
+			if (
+				$canRetrieveGlobalIdentifier &&
+				method_exists( $variation, 'get_global_unique_id' ) &&
+				! $variation->get_global_unique_id()
+			) {
+				$data['doAllVariantsHaveIdentifier'] = false;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Checks whether the queried object is a WooCommerce taxonomy page.
 	 *
 	 * @since 4.5.5
@@ -271,17 +340,6 @@ trait ThirdParty {
 	 */
 	public function isWpmlActive() {
 		return class_exists( 'SitePress' );
-	}
-
-	/**
-	 * Checks if TranslatePress is active.
-	 *
-	 * @since 4.7.3
-	 *
-	 * @return bool True if it is, false if not.
-	 */
-	public function isTranslatePressActive() {
-		return class_exists( 'TRP_Translate_Press' );
 	}
 
 	/**
@@ -664,6 +722,61 @@ trait ThirdParty {
 	}
 
 	/**
+	 * Checks if TranslatePress is active.
+	 *
+	 * NOTE: Reads the active plugins option, so plugin load order can't produce a false
+	 * negative the way the memoized {@see self::isPluginActive()} can.
+	 *
+	 * @since   4.7.3
+	 * @version 5.0.2 Also detects via the active plugins option.
+	 *
+	 * @return bool True if it is, false if not.
+	 */
+	public function isTranslatePressActive() {
+		return is_plugin_active( 'translatepress-multilingual/index.php' ) || class_exists( 'TRP_Translate_Press' );
+	}
+
+	/**
+	 * Returns TranslatePress's settings.
+	 *
+	 * NOTE: Memoized per site, so a settings change made mid-request is picked up on the next one.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @return array The settings, or an empty array when TranslatePress isn't active.
+	 */
+	private function getTranslatePressSettings() {
+		static $settings = [];
+
+		$blogId = get_current_blog_id();
+		if ( isset( $settings[ $blogId ] ) ) {
+			return $settings[ $blogId ];
+		}
+
+		if ( ! $this->isTranslatePressActive() ) {
+			return [];
+		}
+
+		$parsed              = maybe_unserialize( get_option( 'trp_settings', [] ) );
+		$settings[ $blogId ] = is_array( $parsed ) ? $parsed : [];
+
+		return $settings[ $blogId ];
+	}
+
+	/**
+	 * Returns TranslatePress's language slugs, keyed by locale.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @return array The slugs.
+	 */
+	private function getTranslatePressSlugs() {
+		$settings = $this->getTranslatePressSettings();
+
+		return isset( $settings['url-slugs'] ) && is_array( $settings['url-slugs'] ) ? $settings['url-slugs'] : [];
+	}
+
+	/**
 	 * Returns the TranslatePress slugs code and slug.
 	 *
 	 * @since 4.7.3
@@ -675,9 +788,94 @@ trait ThirdParty {
 			return [];
 		}
 
-		$settings = maybe_unserialize( get_option( 'trp_settings', [] ) );
+		return $this->getTranslatePressSlugs();
+	}
 
-		return isset( $settings['url-slugs'] ) ? $settings['url-slugs'] : [];
+	/**
+	 * Returns the language slug TranslatePress forces on the default language, if any.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @return string The forced default-language slug, or an empty string when TranslatePress isn't forcing one.
+	 */
+	public function getTranslatePressForcedDefaultLanguageSlug() {
+		$settings = $this->getTranslatePressSettings();
+		if ( 'yes' !== ( $settings['add-subdirectory-to-default-language'] ?? '' ) ) {
+			return '';
+		}
+
+		$defaultLanguage = $settings['default-language'] ?? '';
+		$slugs           = $this->getTranslatePressSlugs();
+
+		return ! empty( $defaultLanguage ) && ! empty( $slugs[ $defaultLanguage ] ) ? $slugs[ $defaultLanguage ] : '';
+	}
+
+	/**
+	 * Applies TranslatePress's forced default-language subdirectory to a site URL (idempotent).
+	 *
+	 * NOTE: TranslatePress omits the subdirectory on admin requests, so URLs built there lack it.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  string $url The site URL.
+	 * @return string      The URL with the forced default-language slug, or unchanged when not applicable.
+	 */
+	public function localizeTranslatePressUrl( $url ) {
+		// Callers pass values straight from get_term_link(), which can be a WP_Error.
+		if ( ! is_string( $url ) ) {
+			return $url;
+		}
+
+		$defaultSlug = $this->getTranslatePressForcedDefaultLanguageSlug();
+		if ( '' === $defaultSlug ) {
+			return $url;
+		}
+
+		// Unfiltered home never carries a TranslatePress slug, so it's a stable anchor.
+		$rawHome = untrailingslashit( (string) $this->getHomeUrl( true ) );
+		if ( 0 !== strpos( $url, $rawHome ) ) {
+			return $url;
+		}
+
+		$afterHome = ltrim( substr( $url, strlen( $rawHome ) ), '/' );
+
+		// Idempotent: leave URLs that already carry any language slug (second language, or values from Google).
+		$slugs = array_filter( array_values( $this->getTranslatePressSlugs() ) );
+		if ( in_array( strtok( $afterHome, '/?#' ), $slugs, true ) ) {
+			return $url;
+		}
+
+		return $rawHome . '/' . $defaultSlug . '/' . $afterHome;
+	}
+
+	/**
+	 * Rebuilds a URL built in this request on TranslatePress's default-language home URL.
+	 *
+	 * NOTE: `home_url()` names the language slug TranslatePress prefixed in this request, if any, so
+	 * it is removed exactly. {@see self::localizeTranslatePressUrl()} has to guess from the URL alone
+	 * and mistakes a page slugged like a language for one.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  string $url The URL, as built by get_permalink(), get_term_link() or home_url() in this request.
+	 * @return string      The URL on the default-language home, or unchanged when it isn't on the home URL.
+	 */
+	public function localizeTranslatePressPermalink( $url ) {
+		// Callers pass values straight from get_term_link(), which can be a WP_Error.
+		if ( ! is_string( $url ) ) {
+			return $url;
+		}
+
+		$rawHome      = untrailingslashit( (string) $this->getHomeUrl( true ) );
+		$filteredHome = untrailingslashit( home_url() );
+		if ( $url !== $filteredHome && 0 !== strpos( $url, $filteredHome . '/' ) ) {
+			return $url;
+		}
+
+		$path        = ltrim( substr( $url, strlen( $filteredHome ) ), '/' );
+		$defaultSlug = $this->getTranslatePressForcedDefaultLanguageSlug();
+
+		return $rawHome . '/' . ( '' !== $defaultSlug ? $defaultSlug . '/' : '' ) . $path;
 	}
 
 	/**
@@ -852,9 +1050,10 @@ trait ThirdParty {
 	 */
 	public function isPluginActive( $slug ) {
 		$mapped = [
-			'buddypress' => 'buddypress/bp-loader.php',
-			'bbpress'    => 'bbpress/bbpress.php',
-			'weglot'     => 'weglot/weglot.php'
+			'buddypress'  => 'buddypress/bp-loader.php',
+			'bbpress'     => 'bbpress/bbpress.php',
+			'weglot'      => 'weglot/weglot.php',
+			'universally' => 'universally-language-translation-multilingual-tool/universally.php'
 		];
 
 		static $output = [];

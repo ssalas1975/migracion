@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 // Sub-module version.
 if ( ! defined( 'WPMUDEV_MODULE_BLACK_FRIDAY_VERSION' ) ) {
-	define( 'WPMUDEV_MODULE_BLACK_FRIDAY_VERSION', '2.0.0' );
+	define( 'WPMUDEV_MODULE_BLACK_FRIDAY_VERSION', '2.1.0' );
 }
 
 // Sub-module directory.
@@ -49,14 +49,14 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 		 *
 		 * @var string
 		 */
-		protected $campaign_start_date = '21-11-2025';
+		protected $campaign_start_date = '16-11-2026';
 
 		/**
 		 * End date of the campaign. Date format : dd-mm-yyyy.
 		 *
 		 * @var string
 		 */
-		protected $campaign_end_date = '03-12-2025';
+		protected $campaign_end_date = '03-12-2026';
 
 		/**
 		 * Construct handler class.
@@ -69,7 +69,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 		 */
 		public function __construct( array $props = array() ) {
 			$props['campaign_url'] = $props['campaign_url'] ?? 'https://wpmudev.com/black-friday/';
-			$props['utm_campaign'] = $props['utm_campaign'] ?? 'black-friday-2025';
+			$props['utm_campaign'] = $props['utm_campaign'] ?? 'black-friday-2026';
 			$props['utm_medium']   = $props['utm_medium'] ?? 'plugin';
 			$props['priority']     = $props['priority'] ?? 10;
 
@@ -89,13 +89,14 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 		 */
 		public function load_modules( array $props = array() ) {
 			static $loaded = false;
+
+			// Load Utils first, can_load() needs it.
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-utils.php';
+
 			if ( $loaded || ! $this->can_load() ) {
 				return;
 			}
 			$loaded = true;
-
-			// Load Utils so other classes can use it.
-			require_once plugin_dir_path( __FILE__ ) . 'includes/class-utils.php';
 
 			require_once 'includes/class-banner.php';
 
@@ -113,6 +114,11 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 			if ( class_exists( 'WPMUDEV\Modules\BlackFriday\Action_Links' ) ) {
 				new Action_Links( $props );
 			}
+
+			require_once 'includes/class-upsell-widget.php';
+			if ( class_exists( 'WPMUDEV\Modules\BlackFriday\Upsell_Widget' ) ) {
+				new Upsell_Widget( $props );
+			}
 		}
 
 		/**
@@ -124,7 +130,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 		 */
 		public function can_load() {
 			if (
-				! current_user_can( 'manage_options' ) ||
+				! Utils::current_user_can_view() ||
 				$this->event_expired() ||
 				$this->dashboard_plugin_installed()
 			) {
@@ -146,7 +152,7 @@ if ( ! class_exists( __NAMESPACE__ . '\\Campaign' ) ) {
 			$start_date   = apply_filters( 'wpmudev_blackfriday_start_date', $this->campaign_start_date );
 			$expire_date  = apply_filters( 'wpmudev_blackfriday_expire_date', $this->campaign_end_date );
 
-			// Expires on 29 Nov 2025.
+			// Expires on 29 Nov 2026.
 			return (
 				date_create( date_i18n( $current_date ) )->getTimestamp() < date_create( date_i18n( $start_date ) )->getTimestamp() ||
 				date_create( date_i18n( $current_date ) )->getTimestamp() >= date_create( date_i18n( $expire_date ) )->getTimestamp()

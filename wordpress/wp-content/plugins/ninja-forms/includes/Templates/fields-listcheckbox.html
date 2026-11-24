@@ -1,5 +1,5 @@
 <script id="tmpl-nf-field-listcheckbox" type="text/template">
-    <ul aria-describedby="<# if( data.desc_text ) { #>nf-description-{{{ data.id }}} <# } #>nf-error-{{{ data.id }}}">
+    <ul<# if ( data.element_class ) { #> class="{{ data.element_class }}"<# } #> aria-describedby="<# if( data.desc_text ) { #>nf-description-{{{ data.id }}} <# } #>nf-error-{{{ data.id }}}">
         {{{ data.renderOptions() }}}
     </ul>
 </script>
@@ -7,7 +7,7 @@
 <script id='tmpl-nf-field-listcheckbox-option' type='text/template'>
     <# if ( ! data.visible ) { return '' } #>
     <li>
-        <input type="checkbox" id="nf-field-{{{ data.fieldID }}}-{{{ data.index }}}" name="nf-field-{{{ data.fieldID }}}" class="{{{ data.classes }}} nf-element {{{ ( data.isSelected ) ? ' nf-checked' : '' }}}" value="{{{ data.value }}}" {{{ ( data.isSelected ) ? 'checked="checked"' : '' }}}
+        <input type="checkbox" id="nf-field-{{{ data.fieldID }}}-{{{ data.index }}}" name="nf-field-{{{ data.fieldID }}}" class="{{{ data.classes }}} nf-element {{{ ( data.isSelected ) ? ' nf-checked' : '' }}}" value="{{{ _.escape( data.value ) }}}" {{{ ( data.isSelected ) ? 'checked="checked"' : '' }}}
         aria-labelledby="nf-label-field-{{{ data.fieldID }}} nf-label-field-{{{ data.fieldID }}}-{{{ data.index }}}" role="checkbox"
             <# if( data.required ) { #>
 			required aria-required="true"

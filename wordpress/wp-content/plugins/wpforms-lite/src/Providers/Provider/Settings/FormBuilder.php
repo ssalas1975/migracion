@@ -223,7 +223,7 @@ abstract class FormBuilder implements FormBuilderInterface {
 									<# } #>
 								</td>
 								<td>
-									<select class="wpforms-builder-provider-connection-field-value"
+									<select class="wpforms-builder-provider-connection-field-value" data-support-subfields="{{ data.isSupportSubfields }}"
 										name="providers[{{ data.provider.slug }}][{{ data.connection.id }}][fields_meta][0][field_id]">
 										<option value=""><?php esc_html_e( '--- Select Form Field ---', 'wpforms-lite' ); ?></option>
 
@@ -308,7 +308,7 @@ abstract class FormBuilder implements FormBuilderInterface {
 	 *
 	 * @since 1.4.7
 	 */
-	public function process_ajax(): void {
+	public function process_ajax(): void { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
 
 		// Run a security check.
 		check_ajax_referer( 'wpforms-builder', 'nonce' );
@@ -352,6 +352,11 @@ abstract class FormBuilder implements FormBuilderInterface {
 			wp_send_json_error( $error );
 		}
 
+		// Object-level authorization: the caller must be able to edit this specific form.
+		if ( ! $this->current_user_can_edit_form( $form_id ) ) {
+			wp_send_json_error( $error );
+		}
+
 		$data = apply_filters( // phpcs:ignore WPForms.Comments.PHPDocHooks.RequiredHookDocumentation, WPForms.PHP.ValidateHooks.InvalidHookName
 			'wpforms_providers_settings_builder_ajax_' . $task . '_' . $this->core->slug,
 			null
@@ -366,6 +371,45 @@ abstract class FormBuilder implements FormBuilderInterface {
 		}
 
 		wp_send_json_error( $error );
+	}
+
+	/**
+	 * Determine whether the current user may edit the given form.
+	 *
+	 * @since 2.0.1
+	 *
+	 * @param int $form_id Form id to check.
+	 *
+	 * @return bool
+	 */
+	protected function current_user_can_edit_form( int $form_id ): bool {
+
+		return wpforms_current_user_can( 'edit_form_single', $form_id );
+	}
+
+	/**
+	 * Determine whether the given account id is attached to one of this form's saved
+	 * connections for the current provider.
+	 *
+	 * This is a helper method for mainly using in addons.
+	 *
+	 * @since 2.0.1
+	 *
+	 * @param string $account_id Account id to check.
+	 *
+	 * @return bool
+	 */
+	protected function account_belongs_to_form( string $account_id ): bool {
+
+		$connections = (array) ( $this->form_data['providers'][ $this->core->slug ] ?? [] );
+
+		foreach ( $connections as $connection ) {
+			if ( is_array( $connection ) && ! empty( $connection['account_id'] ) && (string) $connection['account_id'] === $account_id ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -547,9 +591,10 @@ abstract class FormBuilder implements FormBuilderInterface {
 	/**
 	 * Determine whether the lock field is required.
 	 *
-	 * @WPFormsBackCompat Support Drip v1.7.0 and earlier, support Uncanny Automator.
+	 * @WPFormsBackCompat Support Uncanny Automator.
 	 *
 	 * @since 1.8.9
+	 * @since 2.0.5 Removed the Drip slug.
 	 *
 	 * @param string $provider The provider slug.
 	 *
@@ -557,13 +602,8 @@ abstract class FormBuilder implements FormBuilderInterface {
 	 */
 	protected function is_lock_field_required( string $provider ): bool {
 
-		// Compatibility with the legacy Drip addon versions where the lock field was unnecessary.
 		// Uncanny Automator does not have a lock field.
-		if ( in_array( $provider, [ 'uncanny-automator', 'drip' ], true ) ) {
-			return false;
-		}
-
-		return true;
+		return $provider !== 'uncanny-automator';
 	}
 
 	/**

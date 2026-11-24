@@ -345,19 +345,6 @@ class Image_Accordion extends Base {
         );
 
         $this->add_control(
-            'active_behavior_notice',
-            [
-                'raw' => '<strong>' . esc_html__('Please note!', 'happy-elementor-addons') . '</strong> ' . esc_html__('Active on load won\'t be working with this active behavior.', 'happy-elementor-addons'),
-                'type' => Controls_Manager::RAW_HTML,
-                'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
-                'render_type' => 'ui',
-                'condition' => [
-                    'active_behavior' => 'hover',
-                ],
-            ]
-        );
-
-        $this->add_control(
             'content_text_align',
             [
                 'label' => __('Text Align', 'happy-elementor-addons'),
@@ -447,6 +434,46 @@ class Image_Accordion extends Base {
                 'label_off'    => __('No', 'happy-elementor-addons'),
                 'return_value' => 'yes',
                 'default'      => 'yes',
+            ]
+        );
+
+        $this->add_control(
+            'enable_inactive_content_blur',
+            [
+                'label'        => __('Enable Inactive Content Blur?', 'happy-elementor-addons'),
+                'type'         => Controls_Manager::SWITCHER,
+                'label_on'     => __('Yes', 'happy-elementor-addons'),
+                'label_off'    => __('No', 'happy-elementor-addons'),
+                'return_value' => 'yes',
+                'default'      => 'no',
+                'separator'    => 'before',
+            ]
+        );
+
+        $this->add_control(
+            'inactive_content_blur_value',
+            [
+                'label' => __('Blur Value', 'happy-elementor-addons'),
+                'type' => Controls_Manager::SLIDER,
+                'size_units' => ['px'],
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 20,
+                        'step' => 1,
+                    ],
+                ],
+                'default' => [
+                    'unit' => 'px',
+                    'size' => 5,
+                ],
+                'condition' => [
+                    'enable_inactive_content_blur' => 'yes',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}}.ha-image-accordion-click .ha-ia-gallery-wrap:has(.ha-ia-item.active) .ha-ia-item:not(.active)::after' => '-webkit-backdrop-filter: blur({{SIZE}}{{UNIT}}); backdrop-filter: blur({{SIZE}}{{UNIT}});',
+                    '{{WRAPPER}}.ha-image-accordion-hover .ha-ia-gallery-wrap:has(.ha-ia-item.active) .ha-ia-item:not(:hover):not(.active)::after' => '-webkit-backdrop-filter: blur({{SIZE}}{{UNIT}}); backdrop-filter: blur({{SIZE}}{{UNIT}});',
+                ],
             ]
         );
 
@@ -619,6 +646,7 @@ class Image_Accordion extends Base {
                 'size_units' => ['px', '%', 'em'],
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-gallery-wrap .ha-ia-item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .ha-ia-gallery-wrap .ha-ia-item::after' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -752,6 +780,8 @@ class Image_Accordion extends Base {
                 'size_units' => ['px', '%', 'em'],
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+
+                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title svg' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -764,6 +794,7 @@ class Image_Accordion extends Base {
                 'default' => '#FFFFFF',
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title' => 'color: {{VALUE}}',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title svg' => 'fill: {{VALUE}}',
                 ],
             ]
         );
@@ -785,6 +816,40 @@ class Image_Accordion extends Base {
                     ],
                 ],
                 'selector' => '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title',
+                
+            ]
+        );
+
+
+        $this->add_responsive_control(
+            'title_icon_size',
+            [
+                'label' => __('Icon Size', 'happy-elementor-addons'),
+                'type' => Controls_Manager::SLIDER,
+                'size_units' => ['px', '%'],
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 200,
+                        'step' => 1,
+                    ],
+                    '%' => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                    'default' => [
+                        'unit' => 'px',
+                        'size' => 25,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title i' 
+                        => 'font-size: {{SIZE}}{{UNIT}};',
+
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title svg'
+                        => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+                ],
+
             ]
         );
 
@@ -812,6 +877,9 @@ class Image_Accordion extends Base {
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title.ha-ia-icon-left i + span' => 'margin-left: {{SIZE}}{{UNIT}};',
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title.ha-ia-icon-right i + span' => 'margin-right: {{SIZE}}{{UNIT}};',
+                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title.ha-ia-icon-left svg + span' => 'margin-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-content-icon-title.ha-ia-icon-right svg + span' => 'margin-right: {{SIZE}}{{UNIT}};',
+                
                 ],
             ]
         );
@@ -1255,6 +1323,7 @@ class Image_Accordion extends Base {
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-popup i' => 'color: {{VALUE}}',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-popup svg' => 'fill: {{VALUE}}',
                 ],
             ]
         );
@@ -1292,6 +1361,7 @@ class Image_Accordion extends Base {
                 'separator' => 'before',
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-link i' => 'color: {{VALUE}}',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-link svg' => 'fill: {{VALUE}}',
                 ],
             ]
         );
@@ -1338,6 +1408,7 @@ class Image_Accordion extends Base {
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-popup:hover i' => 'color: {{VALUE}}',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-popup:hover svg' => 'fill: {{VALUE}}',
                 ],
             ]
         );
@@ -1376,6 +1447,7 @@ class Image_Accordion extends Base {
                 'separator' => 'before',
                 'selectors' => [
                     '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-link:hover i' => 'color: {{VALUE}}',
+                    '{{WRAPPER}} .ha-ia-content-wrapper .ha-ia-actions .ha-ia-link:hover svg' => 'fill: {{VALUE}}',
                 ],
             ]
         );
@@ -1426,12 +1498,13 @@ class Image_Accordion extends Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         $animation_class = ( ($settings['content_animation'] == 'yes')? 'ha_fadeInUp': 'ha_noAnimation' );
+        $inactive_blur_class = ( ($settings['enable_inactive_content_blur'] == 'yes') ? 'ha-ia-inactive-blur' : '' );
 ?>
         <div class="ha-image-accordion-wrapper">
             <div class="ha-ia-container">
-                <div class="ha-ia-gallery-wrap">
+                <div class="ha-ia-gallery-wrap <?php echo esc_attr($inactive_blur_class); ?>">
                     <?php foreach ($settings['accordion_items'] as $inx => $item) : ?>
-                        <div style="background-image: url('<?php echo esc_url($item['background_image']['url']); ?>');" class="ha-ia-item <?php echo esc_attr(($item['active'] == 'yes') ? 'active' : ''); ?>">
+                        <div style="background-image: url('<?php echo esc_url($item['background_image']['url']); ?>');" class="ha-ia-item <?php echo esc_attr(($item['active'] == 'yes') ? 'active ha-ia-active-on-load' : ''); ?>">
                             <div class="ha-overlay">
                                 <div class="ha-ia-content-wrapper <?php echo esc_attr($animation_class); ?>">
                                     <?php if ($item['enable_popup'] == 'yes' || $item['enable_link'] == 'yes') : ?>

@@ -83,6 +83,10 @@ class Thumbnails extends ParentController {
 		}
 		$display_settings['number_of_columns'] = $number_of_columns;
 
+		// LegacyImage and prepare_legacy_parameters() read the shared settings, not this copy.
+		$displayed_gallery->display_settings['images_per_page']   = $images_per_page;
+		$displayed_gallery->display_settings['number_of_columns'] = $number_of_columns;
+
 		if ( ! $display_settings['disable_pagination'] ) {
 			$current_page = (int) $router->get_parameter( 'nggpage', $gallery_id, 1 );
 		} else {
@@ -121,7 +125,7 @@ class Thumbnails extends ParentController {
 					$current_page,
 					$total,
 					$images_per_page,
-					urldecode( $router->get_parameter( 'ajax_pagination_referrer' ) ? $router->get_parameter( 'ajax_pagination_referrer' ) : '' )
+					urldecode( $this->get_pagination_referrer() )
 				);
 				$app               = $router->get_routed_app();
 				$app->remove_parameter( 'ajax_pagination_referrer' );
@@ -161,7 +165,7 @@ class Thumbnails extends ParentController {
 			$slideshow_link = '';
 			if ( $display_settings['show_slideshow_link'] ) {
 				// origin_url is necessary for ajax operations. slideshow_link_origin will NOT always exist.
-				$origin_url     = $router->get_parameter( 'ajax_pagination_referrer' );
+				$origin_url     = $this->get_pagination_referrer();
 				$slideshow_link = $this->get_url_for_alternate_display_type(
 					$displayed_gallery,
 					NGG_BASIC_SLIDESHOW,
@@ -173,7 +177,7 @@ class Thumbnails extends ParentController {
 			if ( $display_settings['use_imagebrowser_effect'] ) {
 				if ( ! empty( $displayed_gallery->display_settings['original_display_type'] )
 				&& ! empty( $_SERVER['NGG_ORIG_REQUEST_URI'] ) ) {
-					$origin_url = Router::sanitize_request_uri_for_routing( $_SERVER['NGG_ORIG_REQUEST_URI'] );
+					$origin_url = Router::sanitize_request_uri_for_routing( $_SERVER['NGG_ORIG_REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- sanitize_request_uri_for_routing() unslashes and sanitizes; sanitize_text_field() would strip percent-encoded octets and break routing.
 				}
 
 				$app = $router->get_routed_app();

@@ -37,14 +37,8 @@ final class BackWPup_Option {
 		// Archive format.
 		add_site_option( 'backwpup_archiveformat', '.tar' );
 		$upload_dir   = wp_upload_dir( null, false, true );
-		$logs_dir     = trailingslashit(
-			str_replace(
-			'\\',
-			'/',
-			$upload_dir['basedir']
-		)
-			) . 'backwpup/' . BackWPup::get_plugin_data( 'hash' ) . '/logs/';
-		$content_path = trailingslashit( str_replace( '\\', '/', (string) WP_CONTENT_DIR ) );
+		$logs_dir     = trailingslashit( BackWPup_Path_Fixer::slashify( $upload_dir['basedir'] ) ) . 'backwpup/' . BackWPup::get_plugin_data( 'hash' ) . '/logs/';
+		$content_path = trailingslashit( BackWPup_Path_Fixer::slashify( WP_CONTENT_DIR ) );
 		$logs_dir     = str_replace( $content_path, '', $logs_dir );
 		add_site_option( 'backwpup_cfg_logfolder', $logs_dir );
 		// Network Auth.
@@ -262,6 +256,13 @@ final class BackWPup_Option {
 	}
 
 	/**
+	 * Cache for job default options.
+	 *
+	 * @var array
+	 */
+	private static $defaults_cache = [];
+
+	/**
 	 * Get default option for BackWPup option.
 	 *
 	 * @param string $key Option key.
@@ -273,40 +274,46 @@ final class BackWPup_Option {
 	public static function defaults_job( $key = '' ) {
 		$key = sanitize_key( trim( $key ) );
 
-		// Set defaults.
-		$default                          = [];
-		$default['type']                  = [ 'DBDUMP', 'FILE', 'WPPLUGIN' ];
-		$default['destinations']          = [
-			'FOLDER',
-		];
-		$default['name']                  = __( 'New Job', 'backwpup' );
-		$default['activetype']            = 'wpcron';
-		$default['logfile']               = '';
-		$default['lastbackupdownloadurl'] = '';
-		$default['cronselect']            = 'basic';
-		$default['cron']                  = '0 0 1 * *';
-		$default['frequency']             = 'monthly';
-		$default['mailaddresslog']        = sanitize_email( get_bloginfo( 'admin_email' ) );
-		$default['mailaddresssenderlog']  = 'BackWPup ' . get_bloginfo( 'name' ) . ' <' . sanitize_email( get_bloginfo( 'admin_email' ) ) . '>';
-		$default['mailerroronly']         = true;
-		$default['backuptype']            = 'archive';
-		$default['archivename']           = '%Y-%m-%d_%H-%i-%s_%hash%';
-		$default['archivenamenohash']     = '%Y-%m-%d_%H-%i-%s_%hash%';
-		$default['archiveformat']         = get_site_option( 'backwpup_archiveformat', '.tar' );
-		$default['legacy']                = false;
-		$default['tempjob']               = false;
-		$default['backup_now']            = false;
-		// Defaults for destinations.
-		foreach ( BackWPup::get_registered_destinations() as $dest_key => $dest ) {
-			if ( ! empty( $dest['class'] ) ) {
-				$dest_object = BackWPup::get_destination( $dest_key );
-				$default     = array_merge( $default, $dest_object->option_defaults() );
+		if ( empty( self::$defaults_cache ) ) {
+			// Set defaults.
+			$default                          = [];
+			$default['type']                  = [ 'DBDUMP', 'FILE', 'WPPLUGIN' ];
+			$default['destinations']          = [
+				'FOLDER',
+			];
+			$default['name']                  = __( 'New Job', 'backwpup' );
+			$default['activetype']            = 'wpcron';
+			$default['logfile']               = '';
+			$default['lastbackupdownloadurl'] = '';
+			$default['cronselect']            = 'basic';
+			$default['cron']                  = '0 0 1 * *';
+			$default['frequency']             = 'monthly';
+			$default['mailaddresslog']        = sanitize_email( get_bloginfo( 'admin_email' ) );
+			$default['mailaddresssenderlog']  = 'BackWPup ' . get_bloginfo( 'name' ) . ' <' . sanitize_email( get_bloginfo( 'admin_email' ) ) . '>';
+			$default['mailerroronly']         = true;
+			$default['backuptype']            = 'archive';
+			$default['archivename']           = '%Y-%m-%d_%H-%i-%s_%hash%';
+			$default['archivenamenohash']     = '%Y-%m-%d_%H-%i-%s_%hash%';
+			$default['archiveformat']         = '.tar';
+			$default['legacy']                = false;
+			$default['tempjob']               = false;
+			$default['backup_now']            = false;
+			// Defaults for destinations.
+			foreach ( BackWPup::get_registered_destinations() as $dest_key => $dest ) {
+				if ( ! empty( $dest['class'] ) ) {
+					$dest_object = BackWPup::get_destination( $dest_key );
+					$default     = array_merge( $default, $dest_object->option_defaults() );
+				}
 			}
+			// Defaults for job types.
+			foreach ( BackWPup::get_job_types() as $job_type ) {
+				$default = array_merge( $default, $job_type->option_defaults() );
+			}
+			self::$defaults_cache = $default;
 		}
-		// Defaults for job types.
-		foreach ( BackWPup::get_job_types() as $job_type ) {
-			$default = array_merge( $default, $job_type->option_defaults() );
-		}
+
+		$default                  = self::$defaults_cache;
+		$default['archiveformat'] = get_site_option( 'backwpup_archiveformat', '.tar' );
 
 		// Return all.
 		if ( empty( $key ) ) {
@@ -318,6 +325,28 @@ final class BackWPup_Option {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the list of allowed archive formats.
+	 *
+	 * Managed hosting environments or site developers can limit the list via the
+	 * `backwpup_allowed_archive_formats` filter. The '.tar' format is always
+	 * available and is not passed to the filter. The filter only supports
+	 * removing formats from the default set — adding custom formats is not supported.
+	 *
+	 * @return string[] List of allowed archive format extensions (e.g. '.zip', '.tar', '.tar.gz').
+	 */
+	public static function get_allowed_archive_formats(): array {
+		$all_formats = [ '.zip', '.tar', '.tar.gz' ];
+		$filtered    = wpm_apply_filters_typed(
+			'array',
+			'backwpup_allowed_archive_formats',
+			array_diff( $all_formats, [ '.tar' ] ) // .tar is always available and is not subject to filtering.
+		);
+
+		$filtered[] = '.tar';
+		return array_values( array_intersect( $all_formats, $filtered ) );
 	}
 
 	/**

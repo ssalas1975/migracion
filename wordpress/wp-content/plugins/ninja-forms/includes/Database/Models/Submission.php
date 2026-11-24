@@ -185,15 +185,15 @@ class NF_Database_Models_Submission
     {
         // Bypass existing method if fieldset repeater
         if(Ninja_Forms()->fieldsetRepeater->isRepeaterFieldByFieldReference($field_ref) ){
-            
+
             $parsedField = Ninja_Forms()->fieldsetRepeater
                     ->parseFieldsetFieldReference($field_ref);
-            
+
             $return = $this->get_field_value_for_fieldset_child($parsedField['fieldId'], $parsedField['fieldsetFieldId']);
-            
+
             return $return;
         }
-        
+
         $field_id = ( is_numeric( $field_ref ) ) ? $field_ref : $this->get_field_id_by_key( $field_ref );
 
         $field = '_field_' . $field_id;
@@ -203,7 +203,7 @@ class NF_Database_Models_Submission
         $this->_field_values[ $field ] = get_post_meta($this->_id, $field, TRUE);
         $this->_field_values[ $field_ref ] = get_post_meta($this->_id, $field, TRUE);
 
-        return WPN_Helper::htmlspecialchars( $this->_field_values[ $field ] );
+        return WPN_Helper::decode_submission_value( $this->_field_values[ $field ] );
     }
 
     /**
@@ -309,9 +309,41 @@ class NF_Database_Models_Submission
     {
         $field_id = ( is_numeric( $field_ref ) ) ? $field_ref : $this->get_field_id_by_key( $field_ref );
 
-        $this->_field_values[ $field_id ] = WPN_Helper::kses_post( $value );
+        $this->_field_values[ $field_id ] = WPN_Helper::encode_submission_value(
+            $value,
+            $this->field_stores_html( $field_id )
+        );
 
         return $this;
+    }
+
+
+    /**
+     * Whether a field legitimately stores markup rather than plain text.
+     *
+     * Resolves the field, then defers to WPN_Helper::field_stores_html() so the
+     * storage path and the display path answer this the same way. A field that
+     * cannot be resolved is treated as plain text, because the safe answer when
+     * we do not know is the one that stores nothing parsable. See issue #4003.
+     *
+     * @see https://github.com/Saturday-Drive/ninja-forms/issues/4003
+     *
+     * @param int|string $field_id Field the value belongs to.
+     * @return bool
+     */
+    protected function field_stores_html( $field_id )
+    {
+        if ( ! is_numeric( $field_id ) ) return false;
+
+        try {
+            $field = $this->_form_id
+                ? Ninja_Forms()->form( $this->_form_id )->get_field( $field_id )
+                : Ninja_Forms()->form()->get_field( $field_id );
+        } catch ( \Exception $e ) {
+            return false;
+        }
+
+        return WPN_Helper::field_stores_html( $field );
     }
 
     /**
@@ -517,7 +549,15 @@ class NF_Database_Models_Submission
                        $submissionCount = count($fieldsetFieldSubmissionCollection);
                        
                             foreach ($fieldsetFieldSubmissionCollection as  &$fieldsetFieldSubmission) {
-                                
+
+                                $fieldsetFieldSubmission['value'] = Ninja_Forms()->fieldsetRepeater
+                                        ->formatFieldsetFieldValue(
+                                            $fieldsetFieldId,
+                                            $fieldsetFieldSubmission['value'],
+                                            $fieldType,
+                                            $fieldsetSettings
+                                        );
+
                                 if(is_array($fieldsetFieldSubmission['value'])){
 
                                     $fieldsetFieldSubmission['value']= implode(', ',$fieldsetFieldSubmission['value']);
@@ -538,7 +578,7 @@ class NF_Database_Models_Submission
                       $field_labels[ $field->get_id() ] = WPN_Helper::maybe_escape_csv_column( $field->get_setting( 'label' ) );
                   }
 
-                  $field_value = maybe_unserialize( $sub->get_field_value( $field_id ) );
+                  $field_value = self::safely_deserialize_field_value( $sub->get_field_value( $field_id ) );
 
                   $field_value = apply_filters('nf_subs_export_pre_value', $field_value, $field_id);
                   $field_value = apply_filters('ninja_forms_subs_export_pre_value', $field_value, $field_id, $form_id);
@@ -574,8 +614,13 @@ class NF_Database_Models_Submission
                             // If the column in the row value is a repeater
                             // fieldset field, copy the next submission index value
                             
-                            
-                            $repeatingValueArray[$index][]=$columnValue[$index];
+                            // A submission that left the fieldset empty has no
+                            // value at any index, and the row still needs a cell
+                            // under this column so every later column stays
+                            // under its own header.
+                            $repeatingValueArray[$index][] = isset($columnValue[$index])
+                                ? $columnValue[$index]
+                                : '';
                         }
                     }
                     // at the end of the row value columns, increment the index
@@ -750,5 +795,26 @@ class NF_Database_Models_Submission
         return ( $a->get_setting( 'order' ) < $b->get_setting( 'order' ) ) ? -1 : 1;
     }
 
+    /**
+     * Safely deserialize field values, preventing PHP Object Injection.
+     *
+     * Uses allowed_classes => false to prevent arbitrary object instantiation
+     * during unserialization. Serialized objects become __PHP_Incomplete_Class
+     * which cannot execute magic methods (__wakeup, __destruct).
+     *
+     * @since 3.15.4
+     * @see https://github.com/developer/ninja-forms/issues/8183
+     *
+     * @param mixed $value Potentially serialized value from submission field.
+     * @return mixed Deserialized array/scalar, or original value if not serialized.
+     */
+    protected static function safely_deserialize_field_value( $value )
+    {
+        if ( ! is_serialized( $value ) ) {
+            return $value;
+        }
+
+        return unserialize( $value, [ 'allowed_classes' => false ] );
+    }
 
 } // End NF_Database_Models_Submission

@@ -116,7 +116,8 @@ class Premium_Image_Button extends Widget_Base {
 			$settings = $this->get_settings();
 
 			if ( 'yes' === $settings['draw_svg'] ) {
-				array_push( $scripts, 'pa-tweenmax', 'pa-motionpath' );
+				$scripts[] = 'pa-tweenmax';
+				$scripts[] = 'pa-motionpath';
 			}
 
 			if ( 'animation' === $settings['icon_type'] || 'animation' === $settings['slide_icon_type'] ) {
@@ -516,36 +517,46 @@ class Premium_Image_Button extends Widget_Base {
 		$this->add_control(
 			'icon_type',
 			array(
-				'label'       => __( 'Icon Type', 'premium-addons-for-elementor' ),
-				'type'        => Controls_Manager::SELECT,
-				'options'     => array(
-					'icon'      => __( 'Icon', 'premium-addons-for-elementor' ),
-					'animation' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
-					'svg'       => __( 'SVG Code', 'premium-addons-for-elementor' ),
+				'label'     => __( 'Icon Type', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::CHOOSE,
+				'options'   => array(
+					'icon'      => array(
+						'title' => __( 'Icon', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-icon',
+					),
+					'animation' => array(
+						'title' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-lottie',
+					),
+					'svg'       => array(
+						'title' => __( 'SVG Code', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-code',
+					),
 				),
-				'default'     => 'icon',
-				'label_block' => true,
-				'condition'   => $common_conditions,
+				'default'   => 'icon',
+				'condition' => $common_conditions,
 			)
 		);
 
 		$this->add_control(
 			'premium_image_button_icon_selection_updated',
 			array(
-				'label'            => __( 'Icon', 'premium-addons-for-elementor' ),
-				'type'             => Controls_Manager::ICONS,
-				'fa4compatibility' => 'premium_image_button_icon_selection',
-				'default'          => array(
+				'label'                  => __( 'Icon', 'premium-addons-for-elementor' ),
+				'type'                   => Controls_Manager::ICONS,
+				'fa4compatibility'       => 'premium_image_button_icon_selection',
+				'default'                => array(
 					'value'   => 'fas fa-star',
 					'library' => 'fa-solid',
 				),
-				'condition'        => array_merge(
+				'exclude_inline_options' => 'none',
+				'skin'                   => 'inline',
+				'label_block'            => false,
+				'condition'              => array_merge(
 					$common_conditions,
 					array(
 						'icon_type' => 'icon',
 					)
 				),
-				'label_block'      => true,
 			)
 		);
 
@@ -818,15 +829,20 @@ class Premium_Image_Button extends Widget_Base {
 		$this->add_control(
 			'slide_icon_type',
 			array(
-				'label'       => __( 'Icon Type', 'premium-addons-for-elementor' ),
-				'type'        => Controls_Manager::SELECT,
-				'options'     => array(
-					'icon'      => __( 'Icon', 'premium-addons-for-elementor' ),
-					'animation' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
+				'label'     => __( 'Icon Type', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::CHOOSE,
+				'options'   => array(
+					'icon'      => array(
+						'title' => __( 'Icon', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-icon',
+					),
+					'animation' => array(
+						'title' => __( 'Lottie Animation', 'premium-addons-for-elementor' ),
+						'icon'  => 'divider-type-lottie',
+					),
 				),
-				'default'     => 'icon',
-				'label_block' => true,
-				'condition'   => array(
+				'default'   => 'icon',
+				'condition' => array(
 					'premium_image_button_hover_effect' => 'style4',
 				),
 			)
@@ -835,15 +851,17 @@ class Premium_Image_Button extends Widget_Base {
 		$this->add_control(
 			'premium_image_button_style4_icon_selection_updated',
 			array(
-				'label'            => __( 'Icon', 'premium-addons-for-elementor' ),
-				'type'             => Controls_Manager::ICONS,
-				'fa4compatibility' => 'premium_image_button_style4_icon_selection',
-				'default'          => array(
+				'label'                  => __( 'Icon', 'premium-addons-for-elementor' ),
+				'type'                   => Controls_Manager::ICONS,
+				'fa4compatibility'       => 'premium_image_button_style4_icon_selection',
+				'default'                => array(
 					'value'   => 'fas fa-star',
 					'library' => 'fa-solid',
 				),
-				'label_block'      => true,
-				'condition'        => array(
+				'exclude_inline_options' => 'none',
+				'skin'                   => 'inline',
+				'label_block'            => false,
+				'condition'              => array(
 					'slide_icon_type'                   => 'icon',
 					'premium_image_button_hover_effect' => 'style4',
 				),
@@ -899,14 +917,24 @@ class Premium_Image_Button extends Widget_Base {
 			'premium_image_button_icon_position',
 			array(
 				'label'                => __( 'Icon Position', 'premium-addons-for-elementor' ),
-				'type'                 => Controls_Manager::SELECT,
+				'type'                 => Controls_Manager::CHOOSE,
 				'default'              => 'before',
 				'prefix_class'         => 'pa-icon-pos-',
+				'toggle'               => false,
 				'options'              => array(
-					'before' => __( 'Before', 'premium-addons-for-elementor' ),
-					'after'  => __( 'After', 'premium-addons-for-elementor' ),
+					'before' => array(
+						'title' => __( 'Before', 'premium-addons-for-elementor' ),
+						'icon'  => is_rtl() ? 'eicon-order-end' : 'eicon-order-start',
+					),
+					'after'  => array(
+						'title' => __( 'After', 'premium-addons-for-elementor' ),
+						'icon'  => is_rtl() ? 'eicon-order-start' : 'eicon-order-end',
+					),
+					'top'    => array(
+						'title' => __( 'Above', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-v-align-top',
+					),
 				),
-				'label_block'          => true,
 				'condition'            => array(
 					'premium_image_button_icon_switcher' => 'yes',
 					'premium_image_button_hover_effect!' => 'style4',
@@ -914,6 +942,7 @@ class Premium_Image_Button extends Widget_Base {
 				'selectors_dictionary' => array(
 					'before' => 'row',
 					'after'  => 'row-reverse',
+					'top'    => 'column',
 				),
 				'selectors'            => array(
 					'{{WRAPPER}} .premium-image-button-text-icon-wrapper' => 'flex-direction: {{VALUE}}',
@@ -1029,7 +1058,7 @@ class Premium_Image_Button extends Widget_Base {
 		);
 
 		// Allow admins only to add JS.
-		if ( current_user_can( 'administrator' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			$this->add_control(
 				'premium_image_button_event_switcher',
 				array(
@@ -1077,7 +1106,7 @@ class Premium_Image_Button extends Widget_Base {
 				'doc_' . $doc_index,
 				array(
 					'type'            => Controls_Manager::RAW_HTML,
-					'raw'             => sprintf( '<a href="%s" target="_blank">%s</a>', $doc_url, $title, 'premium-addons-for-elementor' ),
+					'raw'             => sprintf( '<a href="%s" target="_blank">%s</a>', $doc_url, $title ),
 					'content_classes' => 'editor-pa-doc',
 				)
 			);
@@ -1435,7 +1464,7 @@ class Premium_Image_Button extends Widget_Base {
 						// Drawable SVG icons
 						'{{WRAPPER}} .premium-image-button:hover .premium-drawable-icon *' => 'stroke: {{VALUE}};',
 						// Normal SVG icons (exclude Lottie SVGs)
-						'{{WRAPPER}} .premium-image-button:hover svg:not:not(.premium-lottie-animation):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
+						'{{WRAPPER}} .premium-image-button:hover svg:not(.premium-lottie-animation):not(.premium-lottie-animation svg)' => 'stroke: {{VALUE}};',
 					),
 				)
 			);
@@ -1509,23 +1538,6 @@ class Premium_Image_Button extends Widget_Base {
 							'default' => Global_Colors::COLOR_TEXT,
 						),
 					),
-				),
-			)
-		);
-
-		$this->add_control(
-			'premium_image_button_overlay_color',
-			array(
-				'label'     => __( 'Overlay Color', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::COLOR,
-				'global'    => array(
-					'default' => Global_Colors::COLOR_PRIMARY,
-				),
-				'condition' => array(
-					'premium_image_button_overlay_switcher' => 'yes',
-				),
-				'selectors' => array(
-					'{{WRAPPER}} .premium-image-button-squares-effect:before, {{WRAPPER}} .premium-image-button-squares-effect:after,{{WRAPPER}} .premium-image-button-squares-square-container:before, {{WRAPPER}} .premium-image-button-squares-square-container:after' => 'background-color: {{VALUE}};',
 				),
 			)
 		);
@@ -1691,24 +1703,6 @@ class Premium_Image_Button extends Widget_Base {
 
 				$this->add_render_attribute( 'icon', 'class', 'premium-drawable-icon' );
 
-				// if ( 'icon' === $icon_type ) {
-
-				// if ( ! empty( $settings['premium_image_button_icon_selection'] ) ) {
-				// $this->add_render_attribute(
-				// 'icon',
-				// array(
-				// 'class'       => $settings['premium_image_button_icon_selection'],
-				// 'aria-hidden' => 'true',
-				// )
-				// );
-
-				// }
-
-				// $migrated = isset( $settings['__fa4_migrated']['premium_image_button_icon_selection_updated'] );
-				// $is_new   = empty( $settings['premium_image_button_icon_selection'] ) && Icons_Manager::is_migration_allowed();
-
-				// }
-
 				if ( 'yes' === $settings['draw_svg'] ) {
 
 					$this->add_render_attribute(
@@ -1719,12 +1713,6 @@ class Premium_Image_Button extends Widget_Base {
 							'premium-drawer-hover',
 						)
 					);
-
-					// if ( 'icon' === $icon_type ) {
-
-					// $this->add_render_attribute( 'icon', 'class', $settings['premium_image_button_icon_selection_updated']['value'] );
-
-					// }
 
 					$this->add_render_attribute(
 						'icon',
@@ -1792,6 +1780,8 @@ class Premium_Image_Button extends Widget_Base {
 			$style_dir = 'premium-button-' . $settings['underline_style'];
 
 			$this->add_render_attribute( 'button', 'data-text', $button_text );
+		} else {
+			$style_dir = '';
 		}
 
 		if ( 'style8' !== $settings['premium_image_button_hover_effect'] ) {
@@ -1831,7 +1821,7 @@ class Premium_Image_Button extends Widget_Base {
 
 		?>
 
-		<a <?php echo wp_kses_post( $this->get_render_attribute_string( 'button' ) ); ?>>
+		<a <?php $this->print_render_attribute_string( 'button' ); ?>>
 			<div class="premium-image-button-text-icon-wrapper">
 
 				<?php if ( 'yes' === $settings['premium_image_button_icon_switcher'] ) : ?>
@@ -1850,25 +1840,22 @@ class Premium_Image_Button extends Widget_Base {
 
 							else :
 
-								echo Helper_Functions::get_svg_by_icon(
-									$settings['premium_image_button_icon_selection_updated'],
-									$this->get_render_attribute_string( 'icon' )
-								);
+								echo Helper_Functions::get_svg_by_icon( $settings['premium_image_button_icon_selection_updated'], $this->get_render_attributes( 'icon' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_svg_by_icon() returns sanitized inline SVG/icon markup.
 
 							endif;
 							?>
 						<?php elseif ( 'svg' === $icon_type ) : ?>
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'icon' ) ); ?>>
-								<?php echo Helper_Functions::sanitize_svg( $this->get_settings_for_display( 'custom_svg' ) ); ?>
+							<div <?php $this->print_render_attribute_string( 'icon' ); ?>>
+								<?php echo Helper_Functions::sanitize_svg( $this->get_settings_for_display( 'custom_svg' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_svg() returns wp_kses-sanitized SVG markup. ?>
 							</div>
 						<?php else : ?>
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'lottie' ) ); ?>></div>
+							<div <?php $this->print_render_attribute_string( 'lottie' ); ?>></div>
 						<?php endif; ?>
 					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php if ( ! empty( $button_text ) ) : ?>
-					<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_image_button_text' ) ); ?>>
+					<span <?php $this->print_render_attribute_string( 'premium_image_button_text' ); ?>>
 						<?php echo wp_kses_post( $button_text ); ?>
 					</span>
 				<?php endif; ?>
@@ -1885,14 +1872,14 @@ class Premium_Image_Button extends Widget_Base {
 						else :
 							?>
 
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'slide_lottie' ) ); ?>></div>
+							<div <?php $this->print_render_attribute_string( 'slide_lottie' ); ?>></div>
 
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 
 			<?php if ( 'style6' === $settings['premium_image_button_hover_effect'] && 'yes' === $mouse_detect ) : ?>
-				<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'style6' ) ); ?>></span>
+				<span <?php $this->print_render_attribute_string( 'style6' ); ?>></span>
 			<?php endif; ?>
 
 			<?php if ( 'style8' === $settings['premium_image_button_hover_effect'] ) : ?>

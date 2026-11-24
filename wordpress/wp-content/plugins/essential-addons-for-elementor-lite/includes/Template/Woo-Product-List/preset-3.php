@@ -11,14 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 } // Exit if accessed directly
 
 if ( empty( $woo_product_list ) ) {
-    $woo_product_list = Woo_Product_List::get_woo_product_list_settings( $settings );
+    $woo_product_list = Woo_Product_List::get_woo_product_list_settings( $settings ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 }
 
-$product = wc_get_product( get_the_ID() );
+$product = wc_get_product( get_the_ID() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 if ( ! $product ) {
     return;
 }
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $woo_product_list_loop = Woo_Product_List::get_woo_product_list_loop_settings( $product, $settings, $woo_product_list ); // static method as the template is used by read more feature too
 ?>
 <div <?php post_class( 'product' ); ?>>
@@ -76,6 +77,7 @@ $woo_product_list_loop = Woo_Product_List::get_woo_product_list_loop_settings( $
                 <?php if ( $woo_product_list['rating_show'] ) : ?>
                 <div class="eael-product-list-rating">
                     <?php 
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
                     $avg_rating = $product->get_average_rating();
                     if( $avg_rating > 0 ){
                         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -103,6 +105,7 @@ $woo_product_list_loop = Woo_Product_List::get_woo_product_list_loop_settings( $
                 <div class="eael-product-list-excerpt">
                     <?php 
                     if( $woo_product_list['excerpt_words_count'] ){
+                        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
                         $content = wp_trim_words( strip_shortcodes( get_the_excerpt() ), $woo_product_list['excerpt_words_count'], $woo_product_list['excerpt_expanison_indicator'] );
                         echo esc_html( $content );
                     } else {
@@ -128,7 +131,7 @@ $woo_product_list_loop = Woo_Product_List::get_woo_product_list_loop_settings( $
                     <?php if ( $woo_product_list['total_sold_show'] ) : ?>
                     <div class="eael-product-list-progress">
                         <div class="eael-product-list-progress-info">
-                            <h4 class="eael-product-list-progress-count"><?php esc_html( $woo_product_list['total_sold_text'] ); ?> <span><?php echo esc_html( $woo_product_list_loop['total_sales_count'] ); ?></span> <?php esc_html_e('Item', 'essential-addons-for-elementor-lite'); ?></h4>
+                            <h4 class="eael-product-list-progress-count"><?php echo esc_html( $woo_product_list['total_sold_text'] ); ?> <span><?php echo esc_html( $woo_product_list_loop['total_sales_count'] ); ?></span> <?php esc_html_e('Item', 'essential-addons-for-elementor-lite'); ?></h4>
                         </div>
                         <div class="eael-product-list-progress-bar-outer">
                             <div style="width: <?php echo esc_attr( $woo_product_list_loop['total_sold_progress_percentage'] ); ?>%;" class="eael-product-list-progress-bar-inner"></div>

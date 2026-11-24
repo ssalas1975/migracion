@@ -1,8 +1,8 @@
-<!-- ReDi Restaurant Reservation plugin version <?php echo $this->version?> -->
-<!-- Revision: 20260412 -->
+<!-- ReDi Restaurant Reservation plugin version <?php echo esc_html(REDI_PLUGIN_VERSION); ?> -->
+<!-- Revision: <?php echo esc_html(REDI_PLUGIN_REVISION); ?> -->
 <?php require_once(REDI_RESTAURANT_TEMPLATE.'cancel.php');?>
 <?php require_once(REDI_RESTAURANT_TEMPLATE.'modify.php');?>
-<script type="text/javascript">var plugin_name='ReDi Restaurant Reservation version <?php echo $this->version?>';var displayLeftSeats = <?php echo $displayLeftSeats ? 1 : 0; ?>;
+<script type="text/javascript">var plugin_name='ReDi Restaurant Reservation version <?php echo esc_js(REDI_PLUGIN_VERSION); ?>';var displayLeftSeats = <?php echo $displayLeftSeats ? 1 : 0; ?>;
 
 var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; ?>';var timepicker = '<?php echo $timepicker;?>';var date_format = '<?php echo $calendar_date_format ?>';var timepicker_time_format ='<?php echo $timepicker_time_format;?>';var locale = '<?php echo $js_locale?>';var datepicker_locale = '<?php echo $datepicker_locale?>'; var timeshiftmode = '<?php echo $timeshiftmode; ?>'; var hidesteps = <?php echo $hidesteps ? 1 : 0; ?>; var apikeyid = '<?php echo $apiKeyId; ?>'; var waitlist='<?php echo $waitlist; ?>'; var min_persons='<?php echo $minPersons; ?>'; var max_persons = '<?php echo $maxPersons; ?>'; var large_group_message = '<?php echo (!empty($largeGroupsMessage))? __( 'More than [max] people', 'redi-restaurant-reservation' ) : '' ?>'; var totalSelection = <?php echo (isset($totalSelection) && $totalSelection) ? 1 : 0; ?>; var childrenSelection = <?php echo (isset($childrenSelection) && $childrenSelection) ? 1 : 0; ?>;  </script>
 
@@ -30,7 +30,7 @@ var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; 
 		<?php _e('Login with your social media account', 'redi-restaurant-reservation') ?>
 		</h4>
 
-	<?php $url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>
+	<?php $url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>
 				<?php echo do_shortcode('[TheChamp-Login redirect_url="' . $url . '"]') ?>
 				<br/>
 				<?php endif ?>
@@ -175,7 +175,7 @@ var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; 
         <label><?php _e('Duration', 'redi-restaurant-reservation')?>:</label>
       <p>
 			<?php foreach ($custom_duration["durations"] as $duration):?>
-				<button class="redi-restaurant-duration-button button"
+				<button type="button" class="redi-restaurant-duration-button button"
 				value="<?php echo $duration["duration"] ?>" 
 				<?php if($duration["duration"] == $default_reservation_duration):?>
 				select="select"
@@ -196,7 +196,7 @@ var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; 
 			<?php $all_busy = false; ?>
 		<div class="redi-restaurant-button-wrapper">
 		        <?php if($timeshiftmode != 'byshifts'):?>
-					<input class="redi-restaurant-button" id="step1button"style="display:none;" type="submit" value="<?php _e('Check available time', 'redi-restaurant-reservation');?>" name="submit">
+					<input class="redi-restaurant-button" id="step1button"style="display:none;" type="button" value="<?php _e('Check available time', 'redi-restaurant-reservation');?>" name="submit">
 		        <?php endif?>
 		    </div>
 		<?php endif /* normal */ ?>
@@ -250,7 +250,7 @@ var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; 
         <div id="step2errors" style="display: none;" class="redi-reservation-alert-error redi-reservation-alert"></div>
 
 		<?php if ($hidesteps):?>
-			<input class="redi-restaurant-button button" type="submit" id="step2prev" value="<?php _e('Previous', 'redi-restaurant-reservation')?>">
+			<input class="redi-restaurant-button button" type="button" id="step2prev" value="<?php _e('Previous', 'redi-restaurant-reservation')?>">
 		<?php endif ?>
 		<div style="clear:both"></div>
 	</div>
@@ -325,15 +325,19 @@ var redirect_to_confirmation_page = '<?php echo $redirect_to_confirmation_page; 
 		</div>
 		
 
-		<?php if ($captcha):?>			
+		<?php if ($captcha && (!isset($captchaVersion) || $captchaVersion !== 'v3')):?>			
 			<div id="redi-captcha" class="g-recaptcha" data-sitekey="<?php echo esc_attr($captchaKey); ?>"></div>
+		<?php elseif ($captcha && isset($captchaVersion) && $captchaVersion === 'v3'): ?>
+			<p class="redi-recaptcha-notice">
+				<?php _e('This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.', 'redi-restaurant-reservation'); ?>
+			</p>
 		<?php endif ?>
 
 		<div>
 			<?php if ($hidesteps):?>
-				<input class="redi-restaurant-button button" type="submit" id="step3prev" value="<?php _e('Previous', 'redi-restaurant-reservation')?>">
+				<input class="redi-restaurant-button button" type="button" id="step3prev" value="<?php _e('Previous', 'redi-restaurant-reservation')?>">
 			<?php endif ?>
-			<input class="redi-restaurant-button button" type="submit" id="redi-restaurant-step3" name="action" value="<?php 
+			<input class="redi-restaurant-button button" type="submit" id="redi-restaurant-step3" name="action" disabled="disabled" value="<?php 
 			if (isset($manual) && $manual): 
 				_e('Make a reservation request', 'redi-restaurant-reservation'); 
 			else: 

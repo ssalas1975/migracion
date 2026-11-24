@@ -103,7 +103,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 		return array(
 			'pa-glass',
 			'font-awesome-5-all',
-			'pa-btn',
+			'pa-mask',
 			'premium-addons',
 		);
 	}
@@ -128,15 +128,20 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 			$scripts = array_merge( $draw_scripts, array( 'pa-glass', 'lottie-js' ) );
 
+			if ( Helper_Functions::check_papro_version() ) {
+				$scripts[] = 'pa-clip-scroll';
+			}
 		} else {
-			$settings = $this->get_settings();
+			$settings        = $this->get_settings();
+			$papro_activated = Helper_Functions::check_papro_version();
 
 			if ( ! empty( $settings['content'] ) ) {
 				foreach ( $settings['content'] as $item ) {
 
 					if ( 'yes' === $item['draw_svg'] || 'yes' === $item['draw_svg_hov'] ) {
-						array_push( $scripts, 'pa-tweenmax', 'pa-motionpath' );
-						$draw_js = true;
+						$scripts[] = 'pa-tweenmax';
+						$scripts[] = 'pa-motionpath';
+						$draw_js   = true;
 					}
 
 					if ( 'lottie' === $item['item_type'] || 'lottie' === $item['item_type_hov'] ) {
@@ -148,7 +153,12 @@ class Premium_Textual_Showcase extends Widget_Base {
 						$scripts[] = 'pa-glass';
 					}
 
-					if ( isset( $draw_js ) && isset( $lottie_js ) ) {
+					if ( $papro_activated && $this->item_fills_on_scroll( $item ) ) {
+						$scripts[] = 'pa-clip-scroll';
+						$clip_js   = true;
+					}
+
+					if ( isset( $draw_js ) && isset( $lottie_js ) && isset( $clip_js ) ) {
 						break;
 					}
 				}
@@ -428,7 +438,6 @@ class Premium_Textual_Showcase extends Widget_Base {
 			array(
 				'label'       => __( 'Draw Icon', 'premium-addons-for-elementor' ),
 				'type'        => Controls_Manager::SWITCHER,
-				'description' => __( 'Enable this option to make the icon drawable. See ', 'premium-addons-for-elementor' ) . '<a href="https://www.youtube.com/watch?v=ZLr0bRe0RAY" target="_blank">tutorial</a>',
 				'classes'     => $draw_icon ? '' : 'editor-pa-control-disabled',
 				'description' => __( 'Use this option to draw your Font Awesome/SVG Icons.', 'premium-addons-for-elementor' ),
 				'conditions'  => $svg_draw_conds,
@@ -531,7 +540,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 				$repeater,
 				'textual',
 				$svg_draw_conds,
-				'',
+				1,
 				'conditions'
 			);
 		}
@@ -775,9 +784,16 @@ class Premium_Textual_Showcase extends Widget_Base {
 		$repeater->add_group_control(
 			Group_Control_Text_Shadow::get_type(),
 			array(
-				'name'      => 'item_text_shadow',
-				'selector'  => '{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__item-text.pa-txt-sc__main-item',
-				'condition' => array(
+				'name'           => 'item_text_shadow',
+				'fields_options' => array(
+					'text_shadow' => array(
+						'selectors' => array(
+							'{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__item-text.pa-txt-sc__main-item:not(.pa-clipped-scroll)' => 'text-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}};',
+							'{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__item-text.pa-txt-sc__main-item.pa-clipped-scroll .pa-clip-word' => 'filter: drop-shadow({{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}})',
+						),
+					),
+				),
+				'condition'      => array(
 					'item_type' => 'text',
 				),
 			)
@@ -1057,7 +1073,6 @@ class Premium_Textual_Showcase extends Widget_Base {
 			array(
 				'label'       => __( 'Draw Icon', 'premium-addons-for-elementor' ),
 				'type'        => Controls_Manager::SWITCHER,
-				'description' => __( 'Enable this option to make the icon drawable. See ', 'premium-addons-for-elementor' ) . '<a href="https://www.youtube.com/watch?v=ZLr0bRe0RAY" target="_blank">tutorial</a>',
 				'classes'     => $draw_icon ? '' : 'editor-pa-control-disabled',
 				'description' => __( 'Use this option to draw your Font Awesome/SVG Icons.', 'premium-addons-for-elementor' ),
 				'conditions'  => $svg_draw_conds_hov,
@@ -1487,8 +1502,8 @@ class Premium_Textual_Showcase extends Widget_Base {
 				'label'     => __( 'Stroke', 'premium-addons-for-elementor' ),
 				'type'      => Controls_Manager::SWITCHER,
 				'condition' => array(
-					'clipped_bg_hov!' => 'yes',
-					'item_type_hov'   => 'text',
+					'clipped_bg!'   => 'yes',
+					'item_type_hov' => 'text',
 				),
 			)
 		);
@@ -1502,9 +1517,9 @@ class Premium_Textual_Showcase extends Widget_Base {
 					'{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__hov-item' => '-webkit-text-stroke-color: {{VALUE}};',
 				),
 				'condition' => array(
-					'clipped_bg_hov!' => 'yes',
-					'item_type_hov'   => 'text',
-					'stroke_sw_hov'   => 'yes',
+					'clipped_bg!'   => 'yes',
+					'item_type_hov' => 'text',
+					'stroke_sw_hov' => 'yes',
 				),
 			)
 		);
@@ -1522,9 +1537,9 @@ class Premium_Textual_Showcase extends Widget_Base {
 					'{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__hov-item' => '-webkit-text-stroke-width: {{SIZE}}px',
 				),
 				'condition' => array(
-					'clipped_bg_hov!' => 'yes',
-					'item_type_hov'   => 'text',
-					'stroke_sw_hov'   => 'yes',
+					'clipped_bg!'   => 'yes',
+					'item_type_hov' => 'text',
+					'stroke_sw_hov' => 'yes',
 				),
 			)
 		);
@@ -1684,18 +1699,6 @@ class Premium_Textual_Showcase extends Widget_Base {
 		);
 
 		$repeater->add_control(
-			'min_mask_notice',
-			array(
-				'raw'             => __( 'Please note that Minimal Mask Effect works only on Text Elements ', 'premium-addons-for-elementor' ),
-				'type'            => Controls_Manager::RAW_HTML,
-				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
-				'condition'       => array(
-					'enable_background_overlay' => 'yes',
-				),
-			)
-		);
-
-		$repeater->add_control(
 			'effect_color',
 			array(
 				'label'       => __( 'Color', 'premium-addons-for-elementor' ),
@@ -1802,6 +1805,42 @@ class Premium_Textual_Showcase extends Widget_Base {
 							),
 						),
 					),
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'clip_scroll',
+			array(
+				'label'       => apply_filters( 'pa_pro_label', __( 'Fill on Scroll (Pro)', 'premium-addons-for-elementor' ) ),
+				'description' => __( 'Fill the words with the After Fill Color while scrolling. Text Color is the starting color.', 'premium-addons-for-elementor' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'separator'   => 'before',
+				'render_type' => 'template',
+				'condition'   => array(
+					'item_type'   => 'text',
+					'clipped_bg!' => 'yes',
+					'stroke_sw!'  => 'yes',
+					'txt_effect!' => 'min-mask',
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'after_clip_color',
+			array(
+				'label'     => __( 'After Fill Color', 'premium-addons-for-elementor' ),
+				'type'      => Controls_Manager::COLOR,
+				// No global default on purpose: the editor resolves repeater-row globals against the widget container, so a default would override custom picks in the preview. CSS falls back to the accent color instead.
+				'selectors' => array(
+					'{{WRAPPER}} {{CURRENT_ITEM}} .pa-txt-sc__item-text.pa-txt-sc__main-item' => '--pa-clip-after: {{VALUE}};',
+				),
+				'condition' => array(
+					'item_type'   => 'text',
+					'clip_scroll' => 'yes',
+					'clipped_bg!' => 'yes',
+					'stroke_sw!'  => 'yes',
+					'txt_effect!' => 'min-mask',
 				),
 			)
 		);
@@ -1990,6 +2029,15 @@ class Premium_Textual_Showcase extends Widget_Base {
 			)
 		);
 
+		// The effect is enabled per item, which a widget level condition cannot read.
+		do_action(
+			'pa_fill_on_scroll_controls',
+			$this,
+			array(
+				'notice' => __( 'The section stays pinned until every filling item finishes.', 'premium-addons-for-elementor' ),
+			)
+		);
+
 		$this->add_responsive_control(
 			'cont_col_gap',
 			array(
@@ -2065,7 +2113,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 					'fast' => __( 'Fast', 'premium-addons-for-elementor' ),
 				),
 				'condition' => array(
-					'entrance_animation!' => array( '', 'none'),
+					'entrance_animation!' => array( '', 'none' ),
 				),
 			)
 		);
@@ -2078,7 +2126,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 				'default'   => 0,
 				'step'      => 0.1,
 				'condition' => array(
-					'entrance_animation!' => array( '', 'none')
+					'entrance_animation!' => array( '', 'none' ),
 				),
 			)
 		);
@@ -2185,8 +2233,15 @@ class Premium_Textual_Showcase extends Widget_Base {
 		$this->add_group_control(
 			Group_Control_Text_Shadow::get_type(),
 			array(
-				'name'     => 'text_shadow',
-				'selector' => '{{WRAPPER}} .pa-txt-sc__item-text',
+				'name'           => 'text_shadow',
+				'fields_options' => array(
+					'text_shadow' => array(
+						'selectors' => array(
+							'{{WRAPPER}} .pa-txt-sc__item-text:not(.pa-clipped-scroll)' => 'text-shadow: {{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}};',
+							'{{WRAPPER}} .pa-txt-sc__item-text.pa-clipped-scroll .pa-clip-word' => 'filter: drop-shadow({{HORIZONTAL}}px {{VERTICAL}}px {{BLUR}}px {{COLOR}})',
+						),
+					),
+				),
 			)
 		);
 
@@ -2348,13 +2403,22 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 		$this->add_render_attribute( 'container', 'class', 'pa-txt-sc__outer-container pa-trigger-on-' . $settings['trigger'] );
 
+		// The sub-options are registered by the Pro plugin, and the per item Pro notice renders below this.
+		if ( Helper_Functions::check_papro_version() && array_filter( $content, array( $this, 'item_fills_on_scroll' ) ) ) {
+			$this->add_render_attribute( 'container', 'data-clip-speed', $settings['clip_scroll_speed']['size'] );
+
+			if ( 'yes' === $settings['clip_scroll_lock'] ) {
+				$this->add_render_attribute( 'container', 'data-clip-lock', 'true' );
+			}
+		}
+
 		if ( $entrance_animation ) {
 			$anime_dur = 'animated-' . $settings['en_anime_dur'];
 			$this->add_render_attribute( 'container', 'data-list-animation', array( $entrance_animation, $anime_dur ) );
 		}
 
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'container' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'container' ); ?>>
 			<?php
 			foreach ( $content as $index => $item ) {
 
@@ -2362,6 +2426,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 					if ( 'svg' === $item['item_type'] ||
 						( 'text' === $item['item_type'] && 'yes' === $item['clipped_bg'] ) ||
+						$this->item_fills_on_scroll( $item ) ||
 						( 'text' === $item['item_type'] && ! in_array( $item['txt_effect'], array( 'none', 'strikethrough', 'underline' ), true ) ) ||
 						( 'text' !== $item['item_type'] && ! in_array( $item['effect'], array( 'none', 'hvr-pulse-grow', 'rotate' ), true ) )
 					) {
@@ -2435,7 +2500,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 				}
 
 				?>
-					<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'item-container' . $item['_id'] ) ); ?>>
+					<div <?php $this->print_render_attribute_string( 'item-container' . $item['_id'] ); ?>>
 						<?php
 
 							$this->render_item_elements( $index, $item );
@@ -2446,7 +2511,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 						if ( $has_link ) {
 							?>
-									<a <?php echo wp_kses_post( $this->get_render_attribute_string( 'link' . $item['_id'] ) ); ?>></a>
+									<a <?php $this->print_render_attribute_string( 'link' . $item['_id'] ); ?>></a>
 								<?php
 						}
 						?>
@@ -2490,20 +2555,6 @@ class Premium_Textual_Showcase extends Widget_Base {
 			$draw_svg = $draw_icon && 'yes' === $item[ 'draw_svg' . $elem_type ];
 
 			$this->add_render_attribute( 'item-content-' . $item['_id'] . $elem_type, 'class', 'premium-drawable-icon pa-txt-sc__item-' . $type );
-
-			// if ( 'icon' === $type ) {
-			// $icon = $item[ 'icon' . $elem_type ];
-
-			// if ( ! empty( $icon ) ) {
-			// $this->add_render_attribute(
-			// 'item-content-icon' . $item['_id'] . $elem_type,
-			// array(
-			// 'class'       => $icon['value'],
-			// 'aria-hidden' => 'true',
-			// )
-			// );
-			// }
-			// }
 
 			if ( $draw_svg ) {
 				$hov_drawer_cls = ! empty( $elem_type ) ? ' premium-drawer-hover' : '';
@@ -2567,12 +2618,8 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 		if ( $svg_draw ) {
 			?>
-			<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ) ); ?>>
-				<?php
-				echo Helper_Functions::get_svg_by_icon(
-					$item[ 'icon' . $elem_type ]
-				);
-				?>
+			<div <?php $this->print_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ); ?>>
+				<?php echo Helper_Functions::get_svg_by_icon( $item[ 'icon' . $elem_type ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_svg_by_icon() returns sanitized inline SVG/icon markup. ?>
 			</div>
 			<?php
 		} else {
@@ -2603,8 +2650,8 @@ class Premium_Textual_Showcase extends Widget_Base {
 	 */
 	private function render_item_svg( $item, $index, $elem_type ) {
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ) ); ?>>
-			<?php echo Helper_Functions::sanitize_svg( $item['custom_svg' . $elem_type] ); ?>
+		<div <?php $this->print_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ); ?>>
+			<?php echo Helper_Functions::sanitize_svg( $item[ 'custom_svg' . $elem_type ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_svg passes through wp_kses with a strict SVG allowlist. ?>
 		</div>
 		<?php
 	}
@@ -2626,15 +2673,68 @@ class Premium_Textual_Showcase extends Widget_Base {
 
 		$min_mask_cls = empty( $elem_type ) && 'min-mask' === $effect ? 'premium-mask-' . $item['mask_dir'] : '';
 
+		$fills_on_scroll = empty( $elem_type ) && $this->item_fills_on_scroll( $item );
+
 		if ( empty( $elem_type ) && ! in_array( $effect, array( 'none', 'min-mask', 'underline' ), true ) ) {
-			echo $this->get_effect_svg( $effect );
+			echo $this->get_effect_svg( $effect ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_effect_svg() returns a hard-coded inline SVG from a fixed allowlist.
 		}
 
 		$this->add_render_attribute( 'item-content-' . $item['_id'] . $elem_type, 'class', 'pa-txt-sc__item-text ' . $min_mask_cls );
 
+		if ( $fills_on_scroll ) {
+			$this->add_render_attribute( 'item-content-' . $item['_id'] . $elem_type, 'class', 'pa-clipped-scroll' );
+		}
+
 		?>
-			<<?php echo wp_kses_post( $txt_tag . ' ' . $this->get_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ) ); ?>> <?php echo esc_html( $item[ 'item_txt' . $elem_type ] ); ?></<?php echo wp_kses_post( $txt_tag ); ?>>
+			<<?php echo wp_kses_post( $txt_tag . ' ' . $this->get_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ) ); ?>> <?php echo $fills_on_scroll ? wp_kses_post( $this->get_clipped_words( $item[ 'item_txt' . $elem_type ] ) ) : esc_html( $item[ 'item_txt' . $elem_type ] ); ?></<?php echo wp_kses_post( $txt_tag ); ?>>
 		<?php
+	}
+
+	/**
+	 * Check if a repeater item runs the fill on scroll effect.
+	 *
+	 * Re-checks the control conditions because Elementor keeps stale values.
+	 *
+	 * @since 4.11.105
+	 * @access private
+	 *
+	 * @param array $item repeater item settings.
+	 *
+	 * @return bool
+	 */
+	private function item_fills_on_scroll( $item ) {
+		return 'text' === $item['item_type']
+			&& 'yes' === $item['clip_scroll']
+			&& 'yes' !== $item['clipped_bg']
+			&& 'yes' !== $item['stroke_sw']
+			&& 'min-mask' !== $item['txt_effect'];
+	}
+
+	/**
+	 * Wrap each word in its own span so the fill effect can run word by word.
+	 *
+	 * @since 4.11.105
+	 * @access private
+	 *
+	 * @param string $text item text.
+	 *
+	 * @return string words markup.
+	 */
+	private function get_clipped_words( $text ) {
+
+		$words = preg_split( '/\s+/u', trim( $text ), -1, PREG_SPLIT_NO_EMPTY );
+
+		if ( empty( $words ) ) {
+			return '';
+		}
+
+		$words_html = '';
+
+		foreach ( $words as $word ) {
+			$words_html .= '<span class="pa-clip-word">' . esc_html( $word ) . '</span> ';
+		}
+
+		return trim( $words_html );
 	}
 
 	private function get_effect_svg( $effect ) {
@@ -2661,7 +2761,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 	private function render_item_image( $item, $settings, $elem_type ) {
 
 		$image_src  = $item[ 'content_image' . $elem_type ]['url'];
-		$image_id   = attachment_url_to_postid( $image_src );
+		$image_id   = attachment_url_to_postid( $image_src ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid -- Core fn; wpcom_vip_attachment_url_to_postid() only exists on WP VIP.
 		$item_cls   = empty( $elem_type ) ? ' pa-txt-sc__main-item' : ' pa-txt-sc__hov-item';
 		$item_style = empty( $elem_type ) ? '' : 'visibility:hidden;';
 
@@ -2669,7 +2769,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 			$image_html = wp_get_attachment_image(
 				$image_id,
 				$item[ 'thumbnail' . $elem_type . '_size' ],
-				'',
+				false,
 				array(
 					'class'      => 'pa-txt-sc__item-img' . $item_cls,
 					'visibility' => 'hidden',
@@ -2706,7 +2806,7 @@ class Premium_Textual_Showcase extends Widget_Base {
 			)
 		);
 		?>
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ) ); ?>></div>
+		<div <?php $this->print_render_attribute_string( 'item-content-' . $item['_id'] . $elem_type ); ?>></div>
 		<?php
 	}
 }

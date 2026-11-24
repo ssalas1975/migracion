@@ -1,6 +1,6 @@
 <?php
 /**
- * Solid Security config file library.
+ * Kadence Security config file library.
  *
  * Contains the ITSEC_Lib_Config_File class.
  *
@@ -8,9 +8,9 @@
  */
 
 /**
- * Solid Security Config File Library class.
+ * Kadence Security Config File Library class.
  *
- * Utility class for adding, updating, and removing Solid Security modifications from existing config files.
+ * Utility class for adding, updating, and removing Kadence Security modifications from existing config files.
  *
  * @package iThemes_Security
  * @since 1.15.0
@@ -62,7 +62,7 @@ class ITSEC_Lib_Config_File {
 		}
 
 		$comment_delimiter = self::get_comment_delimiter( $server );
-		$modification = "$comment_delimiter " . __( 'Solid Security preserved the following settings as removing them could prevent the site from functioning correctly.', 'better-wp-security' ) . "\n$modification";
+		$modification = "$comment_delimiter " . __( 'Kadence Security preserved the following settings as removing them could prevent the site from functioning correctly.', 'better-wp-security' ) . "\n$modification";
 
 		return self::get_prepared_modification( $modification, $comment_delimiter );
 	}
@@ -96,7 +96,7 @@ class ITSEC_Lib_Config_File {
 	}
 
 	/**
-	 * Add a modification to the server config file without having to rebuild all Solid Security modifications.
+	 * Add a modification to the server config file without having to rebuild all Kadence Security modifications.
 	 *
 	 * By default, this modification is wrapped in comments that allow for removal of the modification when future
 	 * updates occur. Thus, this function should only be used if a future update will include the same changes. If the
@@ -105,7 +105,7 @@ class ITSEC_Lib_Config_File {
 	 * @since 1.15.0
 	 *
 	 * @param string $modification The modification to add to the server config file.
-	 * @param bool   $permanent    Optional. Set to true to prevent Solid Security from removing the change in the
+	 * @param bool   $permanent    Optional. Set to true to prevent Kadence Security from removing the change in the
 	 *                             future. Defaults to false.
 	 * @return bool|WP_Error Boolean true on success or a WP_Error object otherwise.
 	 */
@@ -124,6 +124,7 @@ class ITSEC_Lib_Config_File {
 	 * Write the supplied modification to the appropriate server config file.
 	 *
 	 * @since 1.15.0
+	 * @since 9.0.10 Logs failed updates to the PHP error log.
 	 * @access protected
 	 *
 	 * @param string $server                       The server type of the server config file.
@@ -140,7 +141,7 @@ class ITSEC_Lib_Config_File {
 //			return new WP_Error( 'itsec-lib-config-file-server-config-file-updates-disabled', __( 'Updates to the server config file are disabled via a filter.', 'better-wp-security' ) );
 		}
 
-		return self::update( $file_path, $server, $modification, $clear_existing_modifications );
+		return self::log_failure( self::update( $file_path, $server, $modification, $clear_existing_modifications ) );
 	}
 
 	/**
@@ -176,7 +177,7 @@ class ITSEC_Lib_Config_File {
 		}
 
 		$comment_delimiter = self::get_comment_delimiter( 'wp-config' );
-		$modification = "$comment_delimiter " . __( 'Solid Security preserved the following settings as removing them could prevent the site from functioning correctly.', 'better-wp-security' ) . "\n$modification";
+		$modification = "$comment_delimiter " . __( 'Kadence Security preserved the following settings as removing them could prevent the site from functioning correctly.', 'better-wp-security' ) . "\n$modification";
 
 		return self::get_prepared_modification( $modification, $comment_delimiter );
 	}
@@ -214,18 +215,18 @@ class ITSEC_Lib_Config_File {
 	}
 
 	/**
-	 * Add a modification to the wp-config.php file without having to rebuild all Solid Security modifications.
+	 * Add a modification to the wp-config.php file without having to rebuild all Kadence Security modifications.
 	 *
 	 * By default, this modification is wrapped in comments that allow for removal of the modification when future
 	 * updates occur. Thus, this function should only be used if a future update will include the same changes. If the
 	 * optional $permanent attribute is set to true, the comment wrapper will not be added to the modification. This
-	 * results in Solid Security being unable to manage the modification in the future and should only be used for
+	 * results in Kadence Security being unable to manage the modification in the future and should only be used for
 	 * changes that are one-time in nature and should not be undone, such as changing the Content Directory.
 	 *
 	 * @since 1.15.0
 	 *
 	 * @param string $modification The modification to add to the wp-config.php file.
-	 * @param bool   $permanent    Optional. Set to true to prevent Solid Security from removing the change in the
+	 * @param bool   $permanent    Optional. Set to true to prevent Kadence Security from removing the change in the
 	 *                             future. Defaults to false.
 	 * @return bool|WP_Error Boolean true on success or a WP_Error object otherwise.
 	 */
@@ -242,6 +243,7 @@ class ITSEC_Lib_Config_File {
 	 * Remove matched content from the wp-config.php file.
 	 *
 	 * @since 1.17.0
+	 * @since 9.0.10 Logs failed updates to the PHP error log.
 	 *
 	 * @param array|string $patterns An array of regular expression strings or a string for a regular expression to
 	 *                               match in the file.
@@ -254,13 +256,14 @@ class ITSEC_Lib_Config_File {
 			return new WP_Error( 'itsec-lib-config-file-wp-config-file-updates-disabled', __( 'Updates to <code>wp-config.php</code> are disabled via a filter.', 'better-wp-security' ) );
 		}
 
-		return self::remove( $file_path, $patterns );
+		return self::log_failure( self::remove( $file_path, $patterns ) );
 	}
 
 	/**
 	 * Write the supplied modification to the wp-config.php file.
 	 *
 	 * @since 1.15.0
+	 * @since 9.0.10 Logs failed updates to the PHP error log.
 	 * @access protected
 	 *
 	 * @param string $modification                 The modification to add to the wp-config.php file.
@@ -275,7 +278,7 @@ class ITSEC_Lib_Config_File {
 			return new WP_Error( 'itsec-lib-config-file-wp-config-file-updates-disabled', __( 'Updates to <code>wp-config.php</code> are disabled via a filter.', 'better-wp-security' ) );
 		}
 
-		return self::update( $file_path, 'wp-config', $modification, $clear_existing_modifications );
+		return self::log_failure( self::update( $file_path, 'wp-config', $modification, $clear_existing_modifications ) );
 	}
 
 	/**
@@ -302,9 +305,10 @@ class ITSEC_Lib_Config_File {
 	}
 
 	/**
-	 * Returns the contents of the file with the Solid Security modifications removed.
+	 * Returns the contents of the file with the Kadence Security modifications removed.
 	 *
 	 * @since 1.15.0
+	 * @since 9.0.10 Handles large sections and long lines without regex failures or quadratic slowdowns.
 	 * @access protected
 	 *
 	 * @param string $file Config file to read.
@@ -328,7 +332,7 @@ class ITSEC_Lib_Config_File {
 		$format_version = 0;
 
 		// Attempt to retrieve config file details from the contents.
-		if ( preg_match( '/(?:Solid|iThemes)\s+Security\s+Config\s+Details:\s+([^\s]+)/', $contents, $match ) ) {
+		if ( preg_match( '/(?:Kadence|Solid|iThemes)\s+Security\s+Config\s+Details:\s+([^\s]+)/', $contents, $match ) ) {
 			$details = explode( ':', $match[1] );
 
 			if ( isset( $details[0] ) && ( (string) intval( $details[0] ) === $details[0] ) ) {
@@ -345,12 +349,16 @@ class ITSEC_Lib_Config_File {
 		}
 
 
-		// Create a set of regex patterns to identify existing Solid Security and legacy iThemes Security modifications.
+		// Create a set of regex patterns to identify existing Kadence Security, Solid Security, and legacy iThemes Security modifications.
 		$comment_delimiter = self::get_comment_delimiter( $type );
 		$quoted_comment_delimiter = preg_quote( $comment_delimiter, '/' );
 		$line_ending = self::get_line_ending( $contents );
 
 		$patterns = array(
+			array(
+				'begin' => "$quoted_comment_delimiter+\s*BEGIN\s+Kadence\s+Security",
+				'end'   => "$quoted_comment_delimiter+\s*END\s+Kadence\s+Security",
+			),
 			array(
 				'begin' => "$quoted_comment_delimiter+\s*BEGIN\s+Solid\s+Security",
 				'end'   => "$quoted_comment_delimiter+\s*END\s+Solid\s+Security",
@@ -367,7 +375,7 @@ class ITSEC_Lib_Config_File {
 
 		// Remove matched content.
 		foreach ( $patterns as $pattern ) {
-			$contents = preg_replace( "/\s*{$pattern['begin']}.+?{$pattern['end']}[^\r\n]*\s*/is", "$line_ending$placeholder", $contents );
+			$contents = self::replace_sections( $contents, "/\s*{$pattern['begin']}/i", "/{$pattern['end']}[^\r\n]*\s*/i", "$line_ending$placeholder" );
 		}
 
 
@@ -376,21 +384,24 @@ class ITSEC_Lib_Config_File {
 
 			// If the format is old or could not be detected, assume that cleanup of old modifications is required.
 			if ( version_compare( $format_version, self::FORMAT_VERSION, '<' ) ) {
-				// This code is clumsy, but it's the only way to remove the modifications given that the start and end
-				// were not indicated in older versions.
+				/*
+				 * This code is clumsy, but it's the only way to remove the modifications given that the start and end
+				 * were not indicated in older versions. Each pattern is anchored with ^ in multiline mode so a long line
+				 * is scanned once instead of once per character.
+				 */
 
-				$contents = preg_replace( '/(<\?(?:php)?)?.+BWPS_FILECHECK.+/', "$1$line_ending$placeholder", $contents );
-				$contents = preg_replace( '/(<\?(?:php)?)?.+BWPS_AWAY_MODE.+/', "$1$line_ending$placeholder", $contents );
+				$contents = preg_replace( '/^(<\?(?:php)?)?.+BWPS_FILECHECK.+/m', "$1$line_ending$placeholder", $contents );
+				$contents = preg_replace( '/^(<\?(?:php)?)?.+BWPS_AWAY_MODE.+/m', "$1$line_ending$placeholder", $contents );
 
 				if ( preg_match( '|//\s*The entry below were created by iThemes Security to disable the file editor|', $contents ) ) {
-					$contents = preg_replace( '%(<\?(?:php)?)?.*//\s*The entry below were created by iThemes Security to disable the file editor.*(?:\r\n|\r|\n)%', "$1$line_ending$placeholder", $contents );
-					$contents = preg_replace( '/(<\?(?:php)?)?.+DISALLOW_FILE_EDIT.+(?:\r\r\n|\r\n|\r|\n)/', "$1$line_ending$placeholder", $contents );
+					$contents = preg_replace( '%^(<\?(?:php)?)?.*//\s*The entry below were created by iThemes Security to disable the file editor.*(?:\r\n|\r|\n)%m', "$1$line_ending$placeholder", $contents );
+					$contents = preg_replace( '/^(<\?(?:php)?)?.+DISALLOW_FILE_EDIT.+(?:\r\r\n|\r\n|\r|\n)/m', "$1$line_ending$placeholder", $contents );
 				}
 
 				if ( preg_match( '|//\s*The entries below were created by iThemes Security to enforce SSL|', $contents ) ) {
-					$contents = preg_replace( '%(<\?(?:php)?)?.*//\s*The entries below were created by iThemes Security to enforce SSL.*(?:\r\n|\r|\n)%', "$1$line_ending$placeholder", $contents );
-					$contents = preg_replace( '/(<\?(?:php)?)?.+FORCE_SSL_LOGIN.+(?:\r\r\n|\r\n|\r|\n)/', "$1$line_ending$placeholder", $contents );
-					$contents = preg_replace( '/(<\?(?:php)?)?.+FORCE_SSL_ADMIN.+(?:\r\r\n|\r\n|\r|\n)/', "$1$line_ending$placeholder", $contents );
+					$contents = preg_replace( '%^(<\?(?:php)?)?.*//\s*The entries below were created by iThemes Security to enforce SSL.*(?:\r\n|\r|\n)%m', "$1$line_ending$placeholder", $contents );
+					$contents = preg_replace( '/^(<\?(?:php)?)?.+FORCE_SSL_LOGIN.+(?:\r\r\n|\r\n|\r|\n)/m', "$1$line_ending$placeholder", $contents );
+					$contents = preg_replace( '/^(<\?(?:php)?)?.+FORCE_SSL_ADMIN.+(?:\r\r\n|\r\n|\r|\n)/m', "$1$line_ending$placeholder", $contents );
 				}
 			}
 		}
@@ -412,7 +423,8 @@ class ITSEC_Lib_Config_File {
 		// Fix potentially damaged Windows-style newlines for W3 Total Cache modifications
 		$translated_w3tc_comment = __( 'Added by W3 Total Cache', 'w3-total-cache' );
 
-		if ( preg_match_all( '/[^\r\n]+(?:W3 Total Cache|' . preg_quote( $translated_w3tc_comment, '/' ) . ').*?(?:\r\n|\r|\n)/', $contents, $matches ) ) {
+		// The lookbehind anchors each match to the start of a line, so a long line is scanned once instead of once per character.
+		if ( preg_match_all( '/(?<![^\r\n])[^\r\n]+(?:W3 Total Cache|' . preg_quote( $translated_w3tc_comment, '/' ) . ').*?(?:\r\n|\r|\n)/', $contents, $matches ) ) {
 			foreach ( $matches[0] as $match ) {
 				$new_line = rtrim( $match ) . "\r\n";
 
@@ -432,13 +444,14 @@ class ITSEC_Lib_Config_File {
 	 * If a blank $contents argument is supplied, all modifications will be removed.
 	 *
 	 * @since 1.15.0
+	 * @since 9.0.10 Skips the write when the file already has the expected contents, and returns an error when the contents cannot be processed.
 	 * @access protected
 	 *
 	 * @param string $file                         Config file to update.
 	 * @param string $type                         The type of config file. Valid options are apache, nginx, and
 	 *                                             wp-config.
 	 * @param string $modification                 The contents to add or update the file with. If an empty string is
-	 *                                             supplied, all Solid Security modifications will be removed.
+	 *                                             supplied, all Kadence Security modifications will be removed.
 	 * @param bool   $clear_existing_modifications Optional. Whether or not existing modifications should be removed
 	 *                                             first. Defaults to true.
 	 * @return bool|WP_Error Boolean true on success or a WP_Error object otherwise.
@@ -490,7 +503,7 @@ class ITSEC_Lib_Config_File {
 				$contents = PHP_EOL;
 			}
 
-			return ITSEC_Lib_File::write( $file, $contents );
+			return self::write_if_changed( $file, $contents );
 		}
 
 
@@ -506,8 +519,14 @@ class ITSEC_Lib_Config_File {
 			// Put the placeholder at the beginning of the file, after the <?php tag.
 			$contents = preg_replace( '/^(.*?<\?(?:php)?)\s*(?:\r\r\n|\r\n|\r|\n)/', "\${1}$placeholder", $contents, 1 );
 
-			if ( false === strpos( $contents, $placeholder ) ) {
-				$contents = preg_replace( '/^(.*?<\?(?:php)?)\s*(.+(?:\r\r\n|\r\n|\r|\n))/', "\${1}$placeholder$2", $contents, 1 );
+			if ( null !== $contents && ! str_contains( $contents, $placeholder ) ) {
+				// The lookahead keeps the original "a line break must follow" rule, and its possessive *+ avoids backtracking over a long line.
+				$contents = preg_replace( '/^(.*?<\?(?:php)?)\s*(?=[^\n][^\r\n]*+[\r\n])/', "\${1}$placeholder", $contents, 1 );
+			}
+
+			if ( null === $contents ) {
+				/* translators: 1: File path. 2: PCRE error code. */
+				return new WP_Error( 'itsec-config-file-update-failed::wp-config', sprintf( __( 'Unable to update %1$s. Its contents could not be processed (PCRE error %2$d).', 'better-wp-security' ), $file, preg_last_error() ) );
 			}
 
 			if ( false === strpos( $contents, $placeholder ) ) {
@@ -519,7 +538,7 @@ class ITSEC_Lib_Config_File {
 		}
 
 
-		// Pad away from existing sections when adding Solid Security modifications.
+		// Pad away from existing sections when adding Kadence Security modifications.
 		$line_ending = self::get_line_ending( $contents );
 
 		while ( ! preg_match( "/(?:^|(?:(?<!\r)\n|\r(?!\n)|(?<!\r)\r\n|\r\r\n)(?:(?<!\r)\n|\r(?!\n)|(?<!\r)\r\n|\r\r\n))$placeholder/", $contents ) ) {
@@ -539,14 +558,19 @@ class ITSEC_Lib_Config_File {
 
 			// Exchange the placeholder with the modification.
 			$contents = preg_replace( "/$placeholder/", $modification, $contents );
+
+			if ( null === $contents ) {
+				/* translators: 1: File path. 2: PCRE error code. */
+				return new WP_Error( "itsec-config-file-update-failed::{$type}", sprintf( __( 'Unable to update %1$s. Its contents could not be processed (PCRE error %2$d).', 'better-wp-security' ), $file, preg_last_error() ) );
+			}
 		}
 
 		// Write the new contents to the file and return the results.
-		return ITSEC_Lib_File::write( $file, $contents );
+		return self::write_if_changed( $file, $contents );
 	}
 
 	/**
-	 * Add the identifying comments to the modification to identify them as coming from Solid Security.
+	 * Add the identifying comments to the modification to identify them as coming from Kadence Security.
 	 *
 	 * @since 1.15.0
 	 * @access protected
@@ -554,7 +578,7 @@ class ITSEC_Lib_Config_File {
 	 * @param string $file         Config file to update.
 	 * @param string $type         The type of config file. Valid options are apache, nginx, and wp-config.
 	 * @param string $modification The contents to add or update the file with. If an empty string is supplied, all
-	 *                             Solid Security modifications will be removed.
+	 *                             Kadence Security modifications will be removed.
 	 * @return bool|WP_Error Boolean true on success or a WP_Error object otherwise.
 	 */
 	protected static function get_prepared_modification( $modification, $comment_delimiter ) {
@@ -569,12 +593,12 @@ class ITSEC_Lib_Config_File {
 
 
 		// Update the modification to have the beginning and ending comments in order to identify the section as being
-		// added by Solid Security.
+		// added by Kadence Security.
 		$supplied_modification = $modification;
-		$modification  = "$comment_delimiter BEGIN Solid Security - " . __( 'Do not modify or remove this line', 'better-wp-security' ) . "\n";
-		$modification .= "$comment_delimiter Solid Security Config Details: " . self::FORMAT_VERSION . "\n";
+		$modification  = "$comment_delimiter BEGIN Kadence Security - " . __( 'Do not modify or remove this line', 'better-wp-security' ) . "\n";
+		$modification .= "$comment_delimiter Kadence Security Config Details: " . self::FORMAT_VERSION . "\n";
 		$modification .= "$supplied_modification\n";
-		$modification .= "$comment_delimiter END Solid Security - " . __( 'Do not modify or remove this line', 'better-wp-security' );
+		$modification .= "$comment_delimiter END Kadence Security - " . __( 'Do not modify or remove this line', 'better-wp-security' );
 
 		return $modification;
 	}
@@ -604,6 +628,7 @@ class ITSEC_Lib_Config_File {
 	 * Replace matched content in a file.
 	 *
 	 * @since 1.17.0
+	 * @since 9.0.10 Returns an error when a pattern fails, and skips the write when nothing changed.
 	 *
 	 * @param string       $file         Config file to update.
 	 * @param array|string $replacements An array of regular expression string indexes with replacement string values.
@@ -621,11 +646,17 @@ class ITSEC_Lib_Config_File {
 
 		foreach ( (array) $replacements as $pattern => $replacement ) {
 			$contents = preg_replace( $pattern, $replacement, $contents, -1, $count );
+
+			if ( null === $contents ) {
+				/* translators: 1: File path. 2: Regular expression. 3: PCRE error code. */
+				return new WP_Error( 'itsec-config-file-replace-failed', sprintf( __( 'Unable to update %1$s. The pattern %2$s could not be applied (PCRE error %3$d).', 'better-wp-security' ), $file, $pattern, preg_last_error() ) );
+			}
+
 			$total += $count;
 		}
 
 		// Write the new contents to the file and return the results.
-		return ITSEC_Lib_File::write( $file, $contents );
+		return self::write_if_changed( $file, $contents );
 	}
 
 	/**
@@ -797,6 +828,74 @@ class ITSEC_Lib_Config_File {
 		}
 
 		return apply_filters( 'itsec_filter_wp_config_file_path', $path );
+	}
+
+	/**
+	 * Writes the contents to the file only when they differ from what is already there.
+	 *
+	 * Skipping unchanged files keeps the scheduled flush from rewriting wp-config.php and .htaccess, since every
+	 * rewrite risks damage if the process or server crashes.
+	 *
+	 * @since 9.0.10
+	 *
+	 * @param string $file     Config file to write.
+	 * @param string $contents Contents to write to the file.
+	 * @return true|WP_Error Boolean true on success or a WP_Error object otherwise.
+	 */
+	private static function write_if_changed( string $file, string $contents ) {
+		if ( self::get_file_contents( $file ) === $contents ) {
+			return true;
+		}
+
+		return ITSEC_Lib_File::write( $file, $contents );
+	}
+
+	/**
+	 * Replaces each section that runs from a begin marker to the next end marker.
+	 *
+	 * Finds the markers with two separate searches. A single lazy pattern spanning the section fails with a
+	 * backtrack-limit error once the section grows past about 1 MB, such as a large list of banned hosts.
+	 *
+	 * @since 9.0.10
+	 *
+	 * @param string $contents    Contents to search.
+	 * @param string $begin       Regular expression matching the begin marker, including any whitespace before it.
+	 * @param string $end         Regular expression matching the end marker, including the rest of its line and any whitespace after it.
+	 * @param string $replacement Replacement for each section.
+	 * @return string The contents with each complete section replaced. A begin marker without an end marker is left as-is.
+	 */
+	private static function replace_sections( string $contents, string $begin, string $end, string $replacement ): string {
+		$offset = 0;
+
+		while (
+			preg_match( $begin, $contents, $begin_match, PREG_OFFSET_CAPTURE, $offset )
+			&& preg_match( $end, $contents, $end_match, PREG_OFFSET_CAPTURE, $begin_match[0][1] + strlen( $begin_match[0][0] ) + 1 )
+		) {
+			$section_end = $end_match[0][1] + strlen( $end_match[0][0] );
+			$contents    = substr( $contents, 0, $begin_match[0][1] ) . $replacement . substr( $contents, $section_end );
+			$offset      = $begin_match[0][1] + strlen( $replacement );
+		}
+
+		return $contents;
+	}
+
+	/**
+	 * Logs a failed update to the PHP error log, which is debug.log when WP_DEBUG and WP_DEBUG_LOG are enabled.
+	 *
+	 * Background callers, such as the hourly flush, discard the result, so without this a failure goes unreported.
+	 * A disabled "Write to Files" setting is the user's choice rather than a failure, so it is not logged.
+	 *
+	 * @since 9.0.10
+	 *
+	 * @param true|WP_Error $result Result returned by update() or remove().
+	 * @return true|WP_Error The unchanged result.
+	 */
+	private static function log_failure( $result ) {
+		if ( is_wp_error( $result ) && 'itsec-config-file-update-writes-files-disabled' !== $result->get_error_code() ) {
+			error_log( sprintf( 'Kadence Security: %s (%s)', wp_strip_all_tags( $result->get_error_message() ), $result->get_error_code() ) );
+		}
+
+		return $result;
 	}
 }
 

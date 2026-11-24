@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Admin\Notices\Review as ReviewNotice;
 use AIOSEO\Plugin\Common\Models;
 use AIOSEO\Plugin\Common\Migration;
 
@@ -25,9 +26,19 @@ class Settings {
 	public static $importFile = [];
 
 	/**
+	 * The `advanced` option keys that are surfaced under their own Content Optimization settings tab.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var array
+	 */
+	const CONTENT_OPTIMIZATION_OPTIONS = [ 'truSeo', 'truSeoObjects', 'headlineAnalyzer', 'seoAnalysis', 'spellChecker', 'highlighter', 'highlighterStyle' ];
+
+	/**
 	 * Retrieves the plugin options.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Restore the current blog and refresh the options before returning.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request.
 	 * @return \WP_REST_Response          The response containing all plugin options.
@@ -51,8 +62,19 @@ class Settings {
 
 			aioseo()->helpers->switchToBlog( $siteId );
 
-			// Re-initialize the options for this site.
-			aioseo()->options->init();
+			try {
+				// Re-initialize the options for this site.
+				aioseo()->options->init();
+
+				$options = aioseo()->options->all();
+			} finally {
+				aioseo()->options->refreshAfterRestore();
+			}
+
+			return new \WP_REST_Response( [
+				'success' => true,
+				'options' => $options
+			], 200 );
 		}
 
 		return new \WP_REST_Response([
@@ -72,8 +94,8 @@ class Settings {
 	public static function toggleCard( $request ) {
 		$body  = $request->get_json_params();
 		$card  = ! empty( $body['card'] ) ? sanitize_text_field( $body['card'] ) : null;
-		$cards = aioseo()->settings->toggledCards;
-		if ( array_key_exists( $card, $cards ) ) {
+		$cards = aioseo()->settings->toggledCards ?? [];
+		if ( $card && array_key_exists( $card, $cards ) ) {
 			$cards[ $card ] = ! $cards[ $card ];
 			aioseo()->settings->toggledCards = $cards;
 		}
@@ -95,8 +117,8 @@ class Settings {
 		$body   = $request->get_json_params();
 		$radio  = ! empty( $body['radio'] ) ? sanitize_text_field( $body['radio'] ) : null;
 		$value  = ! empty( $body['value'] ) ? sanitize_text_field( $body['value'] ) : null;
-		$radios = aioseo()->settings->toggledRadio;
-		if ( array_key_exists( $radio, $radios ) ) {
+		$radios = aioseo()->settings->toggledRadio ?? [];
+		if ( $radio && array_key_exists( $radio, $radios ) ) {
 			$radios[ $radio ] = $value;
 			aioseo()->settings->toggledRadio = $radios;
 		}
@@ -117,10 +139,44 @@ class Settings {
 	public static function dismissAlert( $request ) {
 		$body   = $request->get_json_params();
 		$alert  = ! empty( $body['alert'] ) ? sanitize_text_field( $body['alert'] ) : null;
-		$alerts = aioseo()->settings->dismissedAlerts;
-		if ( array_key_exists( $alert, $alerts ) ) {
+		$alerts = aioseo()->settings->dismissedAlerts ?? [];
+		if ( $alert && array_key_exists( $alert, $alerts ) ) {
 			$alerts[ $alert ] = true;
 			aioseo()->settings->dismissedAlerts = $alerts;
+		}
+
+		return new \WP_REST_Response( [
+			'success' => true
+		], 200 );
+	}
+
+	/**
+	 * Dismisses or snoozes the post editor 5-star review CTA.
+	 *
+	 * NOTE: The state is stored in the same user meta as the admin review notice, so acting on
+	 * either prompt silences (or snoozes) both.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  \WP_REST_Request  $request The REST Request.
+	 * @return \WP_REST_Response          The response.
+	 */
+	public static function dismissReviewCta( $request ) {
+		$body = $request->get_json_params();
+
+		// Without the flag we can't tell a snooze from an opt-out, and guessing would silence the
+		// review prompts for good.
+		if ( ! isset( $body['delay'] ) ) {
+			return new \WP_REST_Response( [
+				'success' => false
+			], 400 );
+		}
+
+		// Snoozing brings the prompts back after a week; every other action opts the user out.
+		if ( $body['delay'] ) {
+			ReviewNotice::snooze();
+		} else {
+			update_user_meta( get_current_user_id(), ReviewNotice::DISMISSED_META_KEY, ReviewNotice::DISMISSED_OPTED_OUT );
 		}
 
 		return new \WP_REST_Response( [
@@ -184,7 +240,8 @@ class Settings {
 	/**
 	 * Save options from the front end.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.9.10 Strip option groups the caller cannot manage and gate the network-wide write.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
@@ -197,8 +254,27 @@ class Settings {
 		$networkOptions  = ! empty( $body['networkOptions'] ) ? $body['networkOptions'] : [];
 		$redirectOptions = ! empty( $body['redirectOptions'] ) ? $body['redirectOptions'] : [];
 
+		// Strip the option groups the caller is not allowed to manage (mirrors resetSettings()), so a
+		// non-administrator cannot write privileged groups - e.g. the access-control matrix or the
+		// redirect engine - through this generic save route. Returns [] for admins and on Lite.
+		$notAllowedOptions = aioseo()->access->getNotAllowedOptions();
+		foreach ( $notAllowedOptions as $group ) {
+			unset( $options[ $group ], $dynamicOptions[ $group ] );
+		}
+
+		if ( in_array( 'redirects', $notAllowedOptions, true ) ) {
+			$redirectOptions = [];
+		}
+
 		// If this is the network admin, reset the options.
 		if ( $network ) {
+			// Network-wide options are merged into every site, so require the network-settings capability.
+			if ( ! is_multisite() || ! current_user_can( 'manage_network_options' ) ) {
+				return new \WP_REST_Response( [
+					'success' => false
+				], 403 );
+			}
+
 			aioseo()->networkOptions->sanitizeAndSave( $networkOptions );
 		} else {
 			aioseo()->options->sanitizeAndSave( $options );
@@ -233,7 +309,13 @@ class Settings {
 		$notAllowedOptions = aioseo()->access->getNotAllowedOptions();
 
 		foreach ( $settings as $setting ) {
-			$optionAccess = in_array( $setting, [ 'robots', 'blocker' ], true ) ? 'tools' : $setting;
+			$optionAccess = $setting;
+			if ( in_array( $setting, [ 'robots', 'blocker' ], true ) ) {
+				$optionAccess = 'tools';
+			} elseif ( 'contentOptimization' === $setting ) {
+				// Content Optimization is its own tab, but its options are stored inside the `advanced` group.
+				$optionAccess = 'advanced';
+			}
 
 			if ( in_array( $optionAccess, $notAllowedOptions, true ) ) {
 				continue;
@@ -244,6 +326,20 @@ class Settings {
 					aioseo()->options->tools->robots->reset();
 					aioseo()->options->searchAppearance->advanced->unwantedBots->reset();
 					aioseo()->options->searchAppearance->advanced->searchCleanup->settings->preventCrawling = false;
+					break;
+				case 'advanced':
+					// The Content Optimization tab surfaces some of the `advanced` options as its own settings screen,
+					// so we reset everything else in the group to keep this scoped to what the Advanced tab shows.
+					$advancedKeys = array_values( array_diff( array_keys( aioseo()->options->advanced->all() ), self::CONTENT_OPTIMIZATION_OPTIONS ) );
+					if ( ! empty( $advancedKeys ) ) {
+						aioseo()->options->advanced->reset( $advancedKeys );
+					}
+					break;
+				case 'contentOptimization':
+					aioseo()->options->advanced->reset( self::CONTENT_OPTIMIZATION_OPTIONS );
+					if ( aioseo()->options->has( 'writingAssistant' ) ) {
+						aioseo()->options->writingAssistant->reset();
+					}
 					break;
 				case 'redirects':
 					if ( ! empty( aioseo()->redirects ) ) {
@@ -276,7 +372,8 @@ class Settings {
 	/**
 	 * Import settings from external file.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.5 Return a 400 when the settings or robots rules are not arrays.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request.
 	 * @return \WP_REST_Response          The response.
@@ -325,6 +422,19 @@ class Settings {
 
 		// Import settings.
 		if ( ! empty( self::$importFile['settings'] ) ) {
+			if (
+				! is_array( self::$importFile['settings'] ) ||
+				(
+					isset( self::$importFile['settings']['tools']['robots']['rules'] ) &&
+					! is_array( self::$importFile['settings']['tools']['robots']['rules'] )
+				)
+			) {
+				return new \WP_REST_Response( [
+					'success' => false,
+					'message' => 'The import file contains settings in an invalid format.'
+				], 400 );
+			}
+
 			self::importSettingsFromFile( self::$importFile['settings'] );
 		}
 
@@ -598,7 +708,8 @@ class Settings {
 	/**
 	 * Export post data.
 	 *
-	 * @since 4.7.2
+	 * @since   4.7.2
+	 * @version 5.0.2 Restore the current blog before returning.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request.
 	 * @return \WP_REST_Response          The response.
@@ -678,6 +789,8 @@ class Settings {
 			}
 		} catch ( \Throwable $th ) {
 			$return = false;
+		} finally {
+			aioseo()->helpers->restoreCurrentBlog();
 		}
 
 		return new \WP_REST_Response( [

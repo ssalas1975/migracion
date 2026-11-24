@@ -64,7 +64,8 @@ class NF_Fields_ListImage extends NF_Abstracts_List
             } elseif ($value === $option['value']) {
                 $checked = 'checked';
             }
-            $list .= "<li><label><input type='" . $type . "' value='{$option['value']}' name='fields[$id][]' $checked>{$option['label']}</label></li>";
+            $value = esc_attr( $option['value'] );
+            $list .= "<li><label><input type='" . esc_attr( $type ) . "' value='{$value}' name='fields[$id][]' $checked>" . esc_html( $option['label'] ) . "</label></li>";
         }
 
         return "<input type='hidden' name='fields[$id]' value='0' ><ul>$list</ul>";
@@ -85,17 +86,18 @@ class NF_Fields_ListImage extends NF_Abstracts_List
         $options = apply_filters( 'ninja_forms_render_options', $options, $settings );
         $options = apply_filters( 'ninja_forms_render_options_' . $field->get_setting( 'type' ), $options, $settings );
 
-        $output = '';
+        $labels = array();
         if( ! empty( $options ) ) {
             foreach ($options as $option) {
 
                 if ( ! in_array( $option[ 'value' ], $value ) ) continue;
 
-                $output .= esc_html( $option[ 'label' ] ) . "<br />";
+                $labels[] = esc_html( $option[ 'label' ] );
             }
         }
 
-        return $output;
+        // Joined, not appended: a single answer must not trail a blank line.
+        return implode( "<br />", $labels );
     }
 
     public function get_calc_value($value, $field)
@@ -117,6 +119,10 @@ class NF_Fields_ListImage extends NF_Abstracts_List
             if (isset($img['image_id']) && is_numeric($img['image_id'])) {
                 $post = get_post(intval($img['image_id']));
                 if ($post) {
+                    $image_url = wp_get_attachment_url(intval($img['image_id']));
+                    if ($image_url) {
+                        $field['settings']['image_options'][$index]['image'] = $image_url;
+                    }
                     $img_alt = get_post_meta($img['image_id'], '_wp_attachment_image_alt');
 
                     $field['settings']['image_options'][$index]['img_title'] = esc_attr($post->post_title);

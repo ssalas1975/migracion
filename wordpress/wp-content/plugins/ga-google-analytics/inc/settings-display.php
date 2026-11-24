@@ -1,12 +1,12 @@
 <?php // Google Analytics - Settings Display
 
-if (!function_exists('add_action')) die(); ?>
+if (!defined('ABSPATH')) die(); ?>
 
 <div class="wrap">
 	
-	<h1><?php echo GAP_NAME; ?> <small><?php echo 'v'. GAP_VERSION; ?></small></h1>
+	<h1><?php echo esc_html(GAP_NAME); ?> <small><?php echo 'v'. esc_html(GAP_VERSION); ?></small></h1>
 	
-	<div class="gap-toggle-all"><a href="<?php echo admin_url(GAP_PATH); ?>"><?php esc_html_e('Toggle all panels', 'ga-google-analytics'); ?></a></div>
+	<div class="gap-toggle-all"><a href="<?php echo esc_url(admin_url(GAP_PATH)); ?>"><?php esc_html_e('Toggle all panels', 'ga-google-analytics'); ?></a></div>
 	
 	<form method="post" action="options.php">
 		
@@ -274,7 +274,7 @@ if (!function_exists('add_action')) die(); ?>
 		
 		<div class="gap-credit-info">
 			
-			<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url(GAP_HOME); ?>" title="<?php esc_attr_e('Plugin Homepage', 'ga-google-analytics'); ?>"><?php echo GAP_NAME; ?></a> 
+			<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url(GAP_HOME); ?>" title="<?php esc_attr_e('Plugin Homepage', 'ga-google-analytics'); ?>"><?php echo esc_html(GAP_NAME); ?></a> 
 			<?php esc_attr_e('by', 'ga-google-analytics'); ?> 
 			<a target="_blank" rel="noopener noreferrer" href="https://x.com/perishable" title="<?php esc_attr_e('Jeff Starr on X (Twitter)', 'ga-google-analytics'); ?>">Jeff Starr</a> 
 			<?php esc_attr_e('@', 'ga-google-analytics'); ?> 

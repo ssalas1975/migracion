@@ -66,6 +66,11 @@ class Flip_Box extends Widget_Base
     }
 
     protected function is_dynamic_content():bool {
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
         if( Plugin::$instance->editor->is_edit_mode() ) {
             return false;
         }
@@ -2622,6 +2627,15 @@ class Flip_Box extends Widget_Base
 
         $settings = $this->get_settings_for_display();
         $flipbox_image = $this->get_settings('eael_flipbox_image');
+
+        // WPML Media Translation compatibility
+        if ( ! empty( $flipbox_image['id'] ) ) {
+            $flipbox_image['id'] = apply_filters( 'wpml_object_id', $flipbox_image['id'], 'attachment', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WPML hook.
+            if ( $flipbox_image['id'] ) {
+                $flipbox_image['url'] = wp_get_attachment_url( $flipbox_image['id'] );
+            }
+        }
+
         $flipbox_image_url = Group_Control_Image_Size::get_attachment_image_src($flipbox_image['id'], 'thumbnail', $settings);
 
         if (empty($flipbox_image_url) && !empty($flipbox_image['url'])) {
@@ -2668,14 +2682,25 @@ class Flip_Box extends Widget_Base
         }
 
         $flipbox_image_back = $this->get_settings('eael_flipbox_image_back');
+
+        // WPML Media Translation compatibility
+        if ( ! empty( $flipbox_image_back['id'] ) ) {
+            $flipbox_image_back['id'] = apply_filters( 'wpml_object_id', $flipbox_image_back['id'], 'attachment', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WPML hook.
+            if ( $flipbox_image_back['id'] ) {
+                $flipbox_image_back['url'] = wp_get_attachment_url( $flipbox_image_back['id'] );
+            }
+        }
+
         $flipbox_back_image_url = Group_Control_Image_Size::get_attachment_image_src($flipbox_image_back['id'], 'thumbnail_back', $settings);
-        $flipbox_back_image_url = empty($flipbox_back_image_url) ? $flipbox_back_image_url : $flipbox_back_image_url;
+        if (empty($flipbox_back_image_url) && !empty($flipbox_image_back['url'])) {
+            $flipbox_back_image_url = $flipbox_image_back['url'];
+        }
         if ('img' == $settings['eael_flipbox_img_or_icon_back']) {
             $this->add_render_attribute(
                 'flipbox-back-icon-image-container',
                 [
                     'src' => $flipbox_back_image_url,
-                    'alt' => esc_attr(get_post_meta($flipbox_image_back['id'], '_wp_attachment_image_alt', true)),
+                    'alt' => esc_attr(Helper::get_image_alt( $flipbox_image_back )),
                 ]
             );
         }
@@ -2710,10 +2735,13 @@ class Flip_Box extends Widget_Base
 	                    if ( ! empty( $settings['eael_flipbox_front_templates'] ) && Helper::is_elementor_publish_template( $settings['eael_flipbox_front_templates'] ) ) {
 		                    // WPML Compatibility
 		                    if ( ! is_array( $settings['eael_flipbox_front_templates'] ) ) {
-			                    $settings['eael_flipbox_front_templates'] = apply_filters( 'wpml_object_id', $settings['eael_flipbox_front_templates'], 'wp_template', true );
+			                    $settings['eael_flipbox_front_templates'] = apply_filters( 'wpml_object_id', $settings['eael_flipbox_front_templates'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		                    }
-                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		                    echo Plugin::$instance->frontend->get_builder_content( $settings['eael_flipbox_front_templates'], true );
+		                    // Re-validate the translated template is a published elementor_library post before rendering.
+		                    if ( Helper::is_elementor_publish_template( $settings['eael_flipbox_front_templates'] ) ) {
+                                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			                    echo Plugin::$instance->frontend->get_builder_content( $settings['eael_flipbox_front_templates'], true );
+		                    }
 	                    }
                     } else { ?>
 
@@ -2726,7 +2754,7 @@ class Flip_Box extends Widget_Base
                                             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                                             $this->render_icon($settings); ?>
                                         <?php elseif ('img' === $settings['eael_flipbox_img_or_icon']) : ?>
-                                            <img class="eael-flipbox-image-as-icon" src="<?php echo esc_url($flipbox_image_url); ?>" alt="<?php echo esc_attr(get_post_meta($flipbox_image['id'], '_wp_attachment_image_alt', true)); ?>">
+                                            <img class="eael-flipbox-image-as-icon" src="<?php echo esc_url($flipbox_image_url); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $flipbox_image )); ?>">
                                         <?php endif; ?>
                                     </div>
                                     <?php
@@ -2739,7 +2767,10 @@ class Flip_Box extends Widget_Base
                                     }
                                     ?>
                                     <div class="eael-elements-flip-box-content">
-	                                    <?php echo $this->parse_text_editor( wp_kses( $settings['eael_flipbox_front_text'], Helper::eael_allowed_tags() ) );?>
+	                                    <?php
+                                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.Security.EscapeOutput.OutputNotEscaped
+                                        echo $this->parse_text_editor( wp_kses( $settings['eael_flipbox_front_text'], Helper::eael_allowed_tags() ) );
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -2754,10 +2785,13 @@ class Flip_Box extends Widget_Base
 	                    if ( ! empty( $settings['eael_flipbox_back_templates'] ) && Helper::is_elementor_publish_template( $settings['eael_flipbox_back_templates'] ) ) {
 		                    // WPML Compatibility
 		                    if ( ! is_array( $settings['eael_flipbox_back_templates'] ) ) {
-			                    $settings['eael_flipbox_back_templates'] = apply_filters( 'wpml_object_id', $settings['eael_flipbox_back_templates'], 'wp_template', true );
+			                    $settings['eael_flipbox_back_templates'] = apply_filters( 'wpml_object_id', $settings['eael_flipbox_back_templates'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		                    }
+		                    // Re-validate the translated template is a published elementor_library post before rendering.
+		                    if ( Helper::is_elementor_publish_template( $settings['eael_flipbox_back_templates'] ) ) {
                             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		                    echo Plugin::$instance->frontend->get_builder_content( $settings['eael_flipbox_back_templates'], true );
+		                    }
 	                    }
                     } else { ?>
                         <div class="eael-elements-slider-display-table">
@@ -2776,7 +2810,10 @@ class Flip_Box extends Widget_Base
                                     <<?php echo esc_html( $flipbox_if_html_title_tag ), ' '; $this->print_render_attribute_string('flipbox-title-container'); ?>><?php echo wp_kses( $settings['eael_flipbox_back_title'], Helper::eael_allowed_tags() ); ?></<?php echo esc_html( $flipbox_if_html_title_tag ); ?>>
                                     <?php endif; ?>
                                     <div class="eael-elements-flip-box-content">
-                                        <?php echo $this->parse_text_editor( wp_kses( $settings['eael_flipbox_back_text'], Helper::eael_allowed_tags() ) ); ?>
+                                        <?php
+                                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.Security.EscapeOutput.OutputNotEscaped
+                                        echo $this->parse_text_editor( wp_kses( $settings['eael_flipbox_back_text'], Helper::eael_allowed_tags() ) ); 
+                                        ?>
                                     </div>
 
                                     <?php if ($settings['flipbox_link_type'] == 'button' && !empty($settings['flipbox_button_text'])) : ?>

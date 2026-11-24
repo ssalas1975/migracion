@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The file that defines the core plugin class
  *
@@ -14,15 +15,15 @@
 
 namespace CookieYes\Lite\Includes;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 use CookieYes\Lite\Includes\Loader;
 use CookieYes\Lite\Includes\I18n;
 use CookieYes\Lite\Admin\Admin;
 use CookieYes\Lite\Frontend\Frontend;
 use CookieYes\Lite\Admin\Modules\Settings\Includes\Settings;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * The core plugin class.
@@ -90,7 +91,7 @@ class CLI {
 		if ( defined( 'CLI_VERSION' ) ) {
 			$this->version = CLI_VERSION;
 		} else {
-			$this->version = '3.4.1';
+			$this->version = '3.5.9';
 		}
 		$this->plugin_name = 'cookie-law-info';
 
@@ -100,6 +101,27 @@ class CLI {
 		$this->define_public_hooks();
 		$this->init_license();
 
+	}
+
+	/**
+	 * Initialize the license / cloud request flag.
+	 * Defines CKY_CLOUD_REQUEST so consent logs and other cloud APIs can return data when connected.
+	 *
+	 * @return void
+	 */
+	public function init_license() {
+		$settings  = new Settings();
+		$settings  = $settings->get();
+		$connected = isset( $settings['account']['connected'] ) && true === $settings['account']['connected'];
+		if ( $connected ) {
+			if ( ! defined( 'CKY_CLOUD_REQUEST' ) ) {
+				define( 'CKY_CLOUD_REQUEST', true );
+			}
+		} else {
+			if ( ! defined( 'CKY_CLOUD_REQUEST' ) ) {
+				define( 'CKY_CLOUD_REQUEST', false );
+			}
+		}
 	}
 
 	/**
@@ -213,19 +235,4 @@ class CLI {
 		return $this->version;
 	}
 
-	/**
-	 * Inititialize the license.
-	 *
-	 * @return void
-	 */
-	public function init_license() {
-		$object    = new Settings();
-		$settings  = $object->get();
-		$connected = isset( $settings['account']['connected'] ) && true === $settings['account']['connected'] ? true : false;
-		if ( true === $connected ) {
-			define( 'CKY_CLOUD_REQUEST', true );
-		} else {
-			define( 'CKY_CLOUD_REQUEST', false );
-		}
-	}
 }

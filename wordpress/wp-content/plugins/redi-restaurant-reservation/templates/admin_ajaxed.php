@@ -1,12 +1,4 @@
-<style type="text/css">
-	.redi_required{
-		color: #DD0000;
-	}
-	#selected_place_id{
-		font-weight: bold;
-	}
-
-</style>
+<!-- Revision: 20261108 -->
 <script type="text/javascript">
 	jQuery(function () {
 	    	    //Setting page alert message 
@@ -63,6 +55,7 @@
 
 	}
 </script>
+<?php $redi_pro_url = $this->get_trial_start_url('teaser'); ?>
 <div class="icon32" id="icon-options-general"><br></div>
 	<div class="icon32" id="icon-users"><br></div>
 	<div>
@@ -89,7 +82,8 @@
             </td>
 	        <td style="width:70%">
 		        <p class="description">
-                    <?php _e('This field lets you edit settings for multiple places. Multiple places are available for Basic package users only.', 'redi-restaurant-reservation') ?>
+                    <?php _e('This field lets you edit settings for multiple places. Extra restaurants are a paid add-on: Basic is a single restaurant, Full is for multiple restaurants — you choose how many locations.', 'redi-restaurant-reservation') ?>
+                    <a class="redi-pro-badge" href="<?php echo esc_url(add_query_arg('teaser', 'place', $redi_pro_url)); ?>">Paid →</a>
                 </p>
             </td>
         </tr>
@@ -102,7 +96,12 @@
 			</td>
 			<td style="width:80%;">
 				<p class="description">
-					<?php echo sprintf(__('This <b>ID</b> associated with your place. The <b>ID</b> can be used as a short code for specifying the place of reservation in case of multiple restaurants. <br/>Example of shortcode:', 'redi-restaurant-reservation') . '<br/><code style="font-style: normal; padding:0">[redirestaurant apikeyid="1" apikey1="%s" placeid="%s"]<br/>[redirestaurant apikeyid="2" apikey2="%s" placeid="ID OF SECOND PLACE"]</code>', $apiKey, $placeID, $apiKey); ?>
+					<?php _e('For a single restaurant with no customization, only this shortcode is needed:', 'redi-restaurant-reservation'); ?>
+					<br/><code style="font-style: normal; padding:0">[redirestaurant]</code>
+					<br/><br/>
+					<?php _e('This <b>Place ID</b> is associated with your restaurant. Use it in the shortcode only if you have multiple restaurants or need the form tied to a specific location.', 'redi-restaurant-reservation'); ?>
+					<br/><?php _e('Example for multiple restaurants:', 'redi-restaurant-reservation'); ?>
+					<br/><code style="font-style: normal; padding:0"><?php echo sprintf('[redirestaurant apikeyid="1" apikey1="%s" placeid="%s"]<br/>[redirestaurant apikeyid="2" apikey2="%s" placeid="ID OF SECOND PLACE"]', esc_html($apiKey), esc_html($placeID), esc_html($apiKey)); ?></code>
 				</p>
 			</td>
         </tr>
@@ -353,22 +352,31 @@
 		</tr>
 
 		<?php foreach ($this->weekday as $serviceTimeName): ?>
-			<?php $serviceTimeValue = isset($serviceTimes[$serviceTimeName]) ? $serviceTimes[$serviceTimeName] : ''; ?>
+			<?php
+				$serviceTimeValue = isset($serviceTimes[$serviceTimeName]) ? $serviceTimes[$serviceTimeName] : '';
+				$open_field_id = 'OpenTime_' . $serviceTimeName;
+				$close_field_id = 'CloseTime_' . $serviceTimeName;
+				$open_invalid = isset($invalid_time_fields[$open_field_id]);
+				$close_invalid = isset($invalid_time_fields[$close_field_id]);
+			?>
 
 			<tr style="vertical-align:top">
 				<th >
-					<label for="OpenTime[<?php echo $serviceTimeName ?>]">
-						<?php echo $serviceTimeName ?>
+					<label for="<?php echo esc_attr($open_field_id); ?>">
+						<?php echo esc_html($serviceTimeName); ?>
 					</label>
 				</th>
 				<td>
-					<input id="OpenTime[<?php echo $serviceTimeName ?>]" type="text"
-							value="<?php echo isset($serviceTimeValue['OpenTime'])?$serviceTimeValue['OpenTime']:'' ?>"
-							name="OpenTime[<?php echo $serviceTimeName ?>]"/>
+					<input id="<?php echo esc_attr($open_field_id); ?>" type="text"
+							value="<?php echo isset($serviceTimeValue['OpenTime']) ? esc_attr($serviceTimeValue['OpenTime']) : ''; ?>"
+							name="OpenTime[<?php echo esc_attr($serviceTimeName); ?>]"
+							<?php if ($open_invalid): ?>class="redi-time-invalid" aria-invalid="true"<?php endif; ?>/>
 				</td>
 				<td>
-					<input type="text" value="<?php echo isset($serviceTimeValue['CloseTime'])?$serviceTimeValue['CloseTime']:'' ?>"
-							name="CloseTime[<?php echo $serviceTimeName ?>]"/>
+					<input id="<?php echo esc_attr($close_field_id); ?>" type="text"
+							value="<?php echo isset($serviceTimeValue['CloseTime']) ? esc_attr($serviceTimeValue['CloseTime']) : ''; ?>"
+							name="CloseTime[<?php echo esc_attr($serviceTimeName); ?>]"
+							<?php if ($close_invalid): ?>class="redi-time-invalid" aria-invalid="true"<?php endif; ?>/>
 				</td>
 			</tr>
 		<?php endforeach ?>
@@ -377,16 +385,34 @@
 	<br/>
 
 	<p class="description">
-		<?php _e('You can specify the working time of restaurant by setting the opening time and closing time for each day of the week.', 'redi-restaurant-reservation'); ?>
-		<br/>
-		<?php _e('Specify time in 24h format (00:00 - 23:59).', 'redi-restaurant-reservation'); ?>
-		<br/>
 		<?php _e('If you close next day at night then set closing time on a same day. For example 18:00 - 3:00', 'redi-restaurant-reservation'); ?>
 		<br/>
 		<?php _e('Set Open and Close fields to blank if restaurant is closed.', 'redi-restaurant-reservation'); ?>
 		<br/>
 		<?php _e('Multiple open and close times are available in Basic package. If times are configured in Basic package, then this table is ignored.', 'redi-restaurant-reservation'); ?>
+		<a class="redi-pro-badge" href="<?php echo esc_url(add_query_arg('teaser', 'working-time', $redi_pro_url)); ?>">Basic →</a>
 	</p>
+	<?php if (!empty($invalid_time_fields)): ?>
+	<script>
+		(function () {
+			var firstInvalid = document.querySelector('#service_time_table .redi-time-invalid');
+			if (firstInvalid && typeof firstInvalid.scrollIntoView === 'function') {
+				firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				firstInvalid.focus();
+			}
+		})();
+	</script>
+	<?php endif; ?>
+	<div class="redi-pro-list">
+		<div class="head">
+			<span><?php _e('Also in Basic', 'redi-restaurant-reservation'); ?></span>
+			<a href="<?php echo esc_url(add_query_arg('teaser', 'working-time', $redi_pro_url)); ?>"><?php esc_html_e('Try free →', 'redi-restaurant-reservation'); ?></a>
+		</div>
+		<ul>
+			<li><?php _e('Blocked times', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Special occasions', 'redi-restaurant-reservation'); ?></li>
+		</ul>
+	</div>
             <input class="button-save" type="submit"
                     value="<?php _e('Save Changes', 'redi-restaurant-reservation') ?>" name="submit">
 
@@ -411,25 +437,6 @@
 			<td style="width:80%">
 				<p class="description">
 					<?php _e('This is the number of maximum persons in restaurant at any time. System will check automatically availability of free seats and will not allow to go beyond this number.', 'redi-restaurant-reservation'); ?></br>
-				</p>
-			</td>
-		</tr>
-		<tr style="vertical-align:top">
-			<th style="vertical-align: top;">
-				<label for="MaxGuestsPerMonth">
-					<?php _e('Monthly guest reservation limit', 'redi-restaurant-reservation'); ?><span class="redi_required">*</span>
-				</label>
-			</th>
-			<td style="vertical-align: top;">
-				<select name="MaxGuestsPerMonth" id="MaxGuestsPerMonth" required>
-					<option value="" <?php if ((isset($place['MaxGuestsPerMonth']) &&  $place['MaxGuestsPerMonth'] == '0') ): ?> selected="selected"<?php endif; ?>><?php _e('Select monthly guest reservation limit', 'redi-restaurant-reservation')?></option>					
-					<option value="100" <?php if (isset($place['MaxGuestsPerMonth']) &&  $place['MaxGuestsPerMonth'] == '100'): ?> selected="selected"<?php endif; ?>><?php _e('100 guests', 'redi-restaurant-reservation')?></option>
-					<option value="-1" <?php if (isset($place['MaxGuestsPerMonth']) && $place['MaxGuestsPerMonth'] == '-1'): ?> selected="selected"<?php endif; ?>><?php _e('Unlimited', 'redi-restaurant-reservation')?></option>
-				</select>
-			</td>
-			<td style="width:80%">
-				<p class="description">
-					<?php _e('The free version of our plugin allows you to make reservations for up to 100 guests per month. If you intend to use the Basic version of the plugin without any guest limitations, we recommend selecting the Unlimited option.'); ?></br>
 				</p>
 			</td>
 		</tr>
@@ -498,6 +505,28 @@
 
 
 	</table>
+	<div class="redi-pro-list">
+		<div class="head">
+			<span><?php _e('Also in Basic', 'redi-restaurant-reservation'); ?></span>
+			<a href="<?php echo esc_url(add_query_arg('teaser', 'restrictions', $redi_pro_url)); ?>"><?php esc_html_e('Try free →', 'redi-restaurant-reservation'); ?></a>
+		</div>
+		<ul>
+			<li><?php _e('Seats by weekday', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Cap guests entering per time window', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Cap reservations per time window', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Block reservations after a set time of day', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Custom message when blocked', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Buffer time between reservations', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Extend duration after kitchen closes', 'redi-restaurant-reservation'); ?></li>
+		</ul>
+		<div class="head">
+			<span><?php _e('Also in Full', 'redi-restaurant-reservation'); ?></span>
+		</div>
+		<ul>
+			<li><?php _e('Table management', 'redi-restaurant-reservation'); ?></li>
+			<li><?php _e('Use table capacity instead of total seats', 'redi-restaurant-reservation'); ?></li>
+		</ul>
+	</div>
 
             <input class="button-save" type="submit"
                     value="<?php _e('Save Changes', 'redi-restaurant-reservation') ?>" name="submit">
@@ -517,6 +546,7 @@
 		<b style="color: red"><?php _e('NOTE: Name, Email, Phone and Comments are required fields of reservation form and do not need to be defined here as custom fields.', 'redi-restaurant-reservation') ?></b>
 		<br/>
 		<b style="color: red"><?php _e('NOTE: Complex custom fields like Options and Dropdown can be configured in Basic package settings.', 'redi-restaurant-reservation') ?></b>
+		<a class="redi-pro-badge" href="<?php echo esc_url(add_query_arg('teaser', 'custom-fields', $redi_pro_url)); ?>">Basic →</a>
 	</p>
 	<div class="table_wrapper">
 	<table class="form-table redi_custom_fields" style="width: 90%; text-align: center;">
@@ -652,7 +682,8 @@
 	</div>
 	<!-- /custom fields-->
 	<p class="description">
-		<b style="color: red"><?php _e('Note: To send SMS messages an extra addon needs to be purchased.', 'redi-restaurant-reservation'); ?></b>
+		<b style="color: red"><?php _e('Note: SMS and WhatsApp notifications are included in Full.', 'redi-restaurant-reservation'); ?></b>
+		<a class="redi-pro-badge redi-badge-full" href="<?php echo esc_url(add_query_arg('teaser', 'sms', $redi_pro_url)); ?>">Full →</a>
 	</p>
 
 	<!-- Server-Side Google Tag Manager -->

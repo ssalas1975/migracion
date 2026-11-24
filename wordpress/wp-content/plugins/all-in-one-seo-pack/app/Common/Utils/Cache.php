@@ -58,13 +58,27 @@ class Cache {
 	protected $prefix = '';
 
 	/**
-	 * Whether to use transients as fallback.
+	 * Whether to use transients as fallback, keyed by resolved table name.
 	 *
-	 * @since 4.9.4.2
+	 * Shared across all Cache instances (core, network, redirects) since they
+	 * target the same table; keying by the resolved name keeps it correct when
+	 * a subclass operates against another blog's table on multisite.
 	 *
-	 * @var bool|null
+	 * @since   4.9.4.2
+	 * @version 5.0.1 Made static and keyed by table so the availability check runs once per request.
+	 *
+	 * @var array<string,bool>
 	 */
-	private $useTransientFallback = null;
+	private static $useTransientFallback = [];
+
+	/**
+	 * Resolved table names that have already run checkIfTableExists() this request.
+	 *
+	 * @since 5.0.1
+	 *
+	 * @var array<string,bool>
+	 */
+	private static $tableChecked = [];
 
 	/**
 	 * Class constructor.
@@ -82,11 +96,20 @@ class Cache {
 	 *
 	 * @since   4.7.7.1
 	 * @version 4.9.4.2 Absorb prune logic from CachePrune class.
+	 * @version 5.0.1 Run once per resolved table per request; instances share the same table and hooks.
 	 *
 	 * @return void
 	 */
 	public function checkIfTableExists() {
-		if ( ! aioseo()->core->db->tableExists( $this->table ) ) {
+		global $wpdb;
+		$resolvedTable = $wpdb->prefix . $this->table;
+		if ( isset( self::$tableChecked[ $resolvedTable ] ) ) {
+			return;
+		}
+		self::$tableChecked[ $resolvedTable ] = true;
+
+		// preUpdates isn't loaded during an uninstall, which must not recreate the table anyway.
+		if ( ! empty( aioseo()->preUpdates ) && ! aioseo()->core->db->tableExists( $this->table ) ) {
 			aioseo()->preUpdates->createCacheTable();
 		}
 
@@ -101,11 +124,11 @@ class Cache {
 	}
 
 	/**
-	 * Returns the cache value for a key if it exists and is not expired.
+	 * Returns the cache value for a name if it exists and is not expired.
 	 *
 	 * @since 4.1.5
 	 *
-	 * @param  string     $key            The cache key name. Use a '%' for a like query.
+	 * @param  string     $key            The cache name. Use a '%' for a like query.
 	 * @param  bool|array $allowedClasses Deprecated. No longer used since migrating from serialize to JSON.
 	 * @return mixed                      The value or null if the cache does not exist.
 	 */
@@ -142,14 +165,14 @@ class Cache {
 
 		$result = aioseo()->core->db
 			->start( $this->table )
-			->select( '`key`, `value`, `is_object`' )
+			->select( '`name`, `value`, `is_object`' )
 			->whereRaw( '( `expiration` IS NULL OR `expiration` > \'' . aioseo()->helpers->timeToMysql( time() ) . '\' )' );
 
 		if ( $isLikeGet ) {
-			$result->whereLike( 'key', $key, true );
+			$result->whereLike( 'name', $key, true );
 		} else {
 			$key = esc_sql( $key );
-			$result->where( 'key', $key );
+			$result->where( 'name', $key );
 		}
 
 		$result->output( ARRAY_A )->run();
@@ -185,7 +208,7 @@ class Cache {
 	 *
 	 * @since 4.1.5
 	 *
-	 * @param  string $key        The cache key name.
+	 * @param  string $key        The cache name.
 	 * @param  mixed  $value      The value.
 	 * @param  int    $expiration The expiration time in seconds. Defaults to 24 hours. 0 to no expiration.
 	 * @return void
@@ -215,7 +238,7 @@ class Cache {
 		if ( false === $jsonValue && JSON_ERROR_NONE !== json_last_error() ) {
 			if ( aioseo()->helpers->isDev() ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'AIOSEO Cache: JSON encode failed for key "' . $key . '" - ' . json_last_error_msg() );
+				error_log( 'AIOSEO Cache: JSON encode failed for name "' . $key . '" - ' . json_last_error_msg() );
 			}
 
 			return;
@@ -223,7 +246,7 @@ class Cache {
 
 		aioseo()->core->db->insert( $this->table )
 			->set( [
-				'key'        => $this->prepareKey( $key ),
+				'name'       => $this->prepareKey( $key ),
 				'value'      => $jsonValue,
 				'is_object'  => $isObject,
 				'expiration' => $expiration,
@@ -242,11 +265,11 @@ class Cache {
 	}
 
 	/**
-	 * Deletes the given cache key.
+	 * Deletes the given cache name.
 	 *
-	 * @since 4.1.5
+	 * @since   4.1.5
 	 *
-	 * @param  string $key The cache key.
+	 * @param  string $key The cache name.
 	 * @return void
 	 */
 	public function delete( $key ) {
@@ -261,18 +284,18 @@ class Cache {
 		}
 
 		aioseo()->core->db->delete( $this->table )
-			->where( 'key', $key )
+			->where( 'name', $key )
 			->run();
 
 		$this->clearStatic( $key );
 	}
 
 	/**
-	 * Prepares the key before using the cache.
+	 * Prepares the name before using the cache.
 	 *
-	 * @since 4.1.5
+	 * @since   4.1.5
 	 *
-	 * @param  string $key The key to prepare.
+	 * @param  string $key The name to prepare.
 	 * @return string      The prepared key.
 	 */
 	private function prepareKey( $key ) {
@@ -280,7 +303,7 @@ class Cache {
 		$key = $this->prefix && 0 !== strpos( $key, $this->prefix ) ? $this->prefix . $key : $key;
 
 		if ( aioseo()->helpers->isDev() && 80 < mb_strlen( $key, 'UTF-8' ) ) {
-			throw new \Exception( 'You are using a cache key that is too large, shorten your key and try again: [' . esc_html( $key ) . ']' );
+			throw new \Exception( 'You are using a cache name that is too large, shorten your name and try again: [' . esc_html( $key ) . ']' );
 		}
 
 		return $key;
@@ -356,7 +379,7 @@ class Cache {
 		$this->clearStatic();
 
 		if ( $activationRedirect ) {
-			$this->update( 'activation_redirect', $activationRedirect, 30 );
+			$this->update( 'activation_redirect', $activationRedirect, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -381,7 +404,7 @@ class Cache {
 		}
 
 		aioseo()->core->db->delete( $this->table )
-			->whereLike( 'key', $prefix . '%', true )
+			->whereLike( 'name', $prefix . '%', true )
 			->run();
 
 		$this->clearStaticPrefix( $prefix );
@@ -397,6 +420,12 @@ class Cache {
 	 */
 	private function clearStaticPrefix( $prefix ) {
 		$prefix = $this->prepareKey( $prefix );
+		if ( '' === $prefix ) {
+			$this->clearStatic();
+
+			return;
+		}
+
 		foreach ( array_keys( self::$cache ) as $key ) {
 			if ( 0 === strpos( $key, $prefix ) ) {
 				unset( self::$cache[ $key ] );
@@ -407,9 +436,9 @@ class Cache {
 	/**
 	 * Clears all of our static in-memory cache.
 	 *
-	 * @since 4.1.5
+	 * @since   4.1.5
 	 *
-	 * @param  string $key A key to clear.
+	 * @param  string $key A name to clear.
 	 * @return void
 	 */
 	private function clearStatic( $key = null ) {
@@ -423,11 +452,11 @@ class Cache {
 	}
 
 	/**
-	 * Clears all of our static in-memory cache or the cache for a single given key.
+	 * Clears all of our static in-memory cache or the cache for a single given name.
 	 *
-	 * @since 4.7.1
+	 * @since   4.7.1
 	 *
-	 * @param  string $key   A key to clear (optional).
+	 * @param  string $key  A name to clear (optional).
 	 * @param  string $value A value to update (optional).
 	 * @return void
 	 */
@@ -504,31 +533,46 @@ class Cache {
 	 * @return bool True if table exists and is accessible.
 	 */
 	private function isCacheTableAvailable() {
-		if ( null !== $this->useTransientFallback ) {
-			return ! $this->useTransientFallback;
-		}
-
-		// Check transient first to avoid a DB query on every request.
-		if ( get_transient( 'aioseo_cache_table_exists' ) ) {
-			$this->useTransientFallback = false;
-
-			return true;
-		}
-
-		// Transient not set — check the DB directly (avoids circular dependency with Database::tableExists).
+		// Check the DB directly (avoids circular dependency with Database::tableExists).
 		global $wpdb;
 		$tableName = $wpdb->prefix . $this->table;
+
+		if ( isset( self::$useTransientFallback[ $tableName ] ) ) {
+			return ! self::$useTransientFallback[ $tableName ];
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$tableExists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tableName ) );
 
 		if ( ! $tableExists ) {
-			$this->useTransientFallback = true;
+			self::$useTransientFallback[ $tableName ] = true;
 
 			return false;
 		}
 
-		set_transient( 'aioseo_cache_table_exists', 1, WEEK_IN_SECONDS );
-		$this->useTransientFallback = false;
+		// Verify the table has the expected 'name' column. During upgrades from older versions
+		// (e.g. 4.7.9) the table may still have the legacy 'key' column. If the migration hasn't
+		// run yet (e.g. due to a concurrent request that couldn't acquire the lock), we must fall
+		// back to transients to avoid "Unknown column 'name'" errors.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$nameColumnExists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COLUMN_NAME
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = DATABASE()
+				AND TABLE_NAME = %s
+				AND COLUMN_NAME = 'name'",
+				$tableName
+			)
+		);
+
+		if ( ! $nameColumnExists ) {
+			self::$useTransientFallback[ $tableName ] = true;
+
+			return false;
+		}
+
+		self::$useTransientFallback[ $tableName ] = false;
 
 		return true;
 	}

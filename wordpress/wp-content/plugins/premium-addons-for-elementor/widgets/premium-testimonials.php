@@ -874,6 +874,35 @@ class Premium_Testimonials extends Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'testimonial_tilt_effect',
+			array(
+				'label'        => __( 'Tilt Effect', 'premium-addons-for-elementor' ),
+				'type'         => Controls_Manager::CHOOSE,
+				'toggle'       => false,
+				'prefix_class' => 'premium-testimonial__tilt-',
+				'options'      => array(
+					'disabled' => array(
+						'title' => __( 'Disabled', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-ban',
+					),
+					'yes'      => array(
+						'title' => __( 'Enabled', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-check',
+					),
+					'hover'    => array(
+						'title' => __( 'On Hover', 'premium-addons-for-elementor' ),
+						'icon'  => 'eicon-copy',
+					),
+				),
+				'default'      => 'disabled',
+				'condition'    => array(
+					'multiple' => 'yes',
+					'skin!'    => 'skin4',
+				),
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -1101,9 +1130,9 @@ class Premium_Testimonials extends Widget_Base {
 		$this->add_responsive_control(
 			'job_align',
 			array(
-				'label'     => __( 'Alignment', 'premium-addons-for-elementor' ),
-				'type'      => Controls_Manager::CHOOSE,
-				'options'   => array(
+				'label'                => __( 'Alignment', 'premium-addons-for-elementor' ),
+				'type'                 => Controls_Manager::CHOOSE,
+				'options'              => array(
 					'flex-start' => array(
 						'title' => __( 'Left', 'premium-addons-for-elementor' ),
 						'icon'  => 'eicon-text-align-left',
@@ -1117,10 +1146,15 @@ class Premium_Testimonials extends Widget_Base {
 						'icon'  => 'eicon-text-align-right',
 					),
 				),
-				'default'   => 'center',
-				'toggle'    => false,
-				'selectors' => array(
-					'{{WRAPPER}} .premium-testimonial-author-info' => 'align-items: {{VALUE}}',
+				'selectors_dictionary' => array(
+					'flex-start' => 'align-items: flex-start; text-align: start',
+					'center'     => 'align-items: center; text-align: center',
+					'flex-end'   => 'align-items: flex-end; text-align: end',
+				),
+				'default'              => 'center',
+				'toggle'               => false,
+				'selectors'            => array(
+					'{{WRAPPER}} .premium-testimonial-author-info' => '{{VALUE}}',
 				),
 			)
 		);
@@ -1143,7 +1177,7 @@ class Premium_Testimonials extends Widget_Base {
 			Group_Control_Typography::get_type(),
 			array(
 				'name'     => 'company_name_typography',
-				'selector' => '{{WRAPPER}} .premium-testimonial-company-link',
+				'selector' => '{{WRAPPER}} .premium-testimonial-job',
 			)
 		);
 
@@ -1321,11 +1355,6 @@ class Premium_Testimonials extends Widget_Base {
 				'label'      => __( 'Top Icon Position', 'premium-addons-for-elementor' ),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', 'em', '%' ),
-				// 'default'    => array(
-				// 'top'  => 0,
-				// 'left' => 12,
-				// 'unit' => 'px',
-				// ),
 				'selectors'  => array(
 					'{{WRAPPER}} .premium-testimonial-upper-quote' => 'top: {{TOP}}{{UNIT}}; left:{{LEFT}}{{UNIT}};',
 				),
@@ -1341,11 +1370,6 @@ class Premium_Testimonials extends Widget_Base {
 				'label'      => __( 'Bottom Icon Position', 'premium-addons-for-elementor' ),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => array( 'px', 'em', '%' ),
-				// 'default'    => array(
-				// 'bottom' => 3,
-				// 'right'  => 12,
-				// 'unit'   => 'px',
-				// ),
 				'selectors'  => array(
 					'{{WRAPPER}} .premium-testimonial-lower-quote' => 'right: {{RIGHT}}{{UNIT}}; bottom: {{BOTTOM}}{{UNIT}};',
 				),
@@ -1362,10 +1386,6 @@ class Premium_Testimonials extends Widget_Base {
 			array(
 				'label'      => __( 'Carousel Arrows', 'premium-addons-for-elementor' ),
 				'tab'        => Controls_Manager::TAB_STYLE,
-				// 'condition' => array(
-				// 'carousel' => 'yes',
-				// 'skin!'    => 'skin4',
-				// ),
 				'conditions' => array(
 					'terms' => array(
 						array(
@@ -1821,9 +1841,10 @@ class Premium_Testimonials extends Widget_Base {
 			$this->add_inline_editing_attributes( 'heading' );
 			$this->add_inline_editing_attributes( 'premium_testimonial_content', 'advanced' );
 
-			if ( 'yes' === $show_image ) {
+			$image_src = '';
+			$alt       = '';
 
-				$image_src = '';
+			if ( 'yes' === $show_image ) {
 
 				if ( ! empty( $settings['premium_testimonial_person_image']['url'] ) ) {
 					$image_src = $settings['premium_testimonial_person_image']['url'];
@@ -1842,7 +1863,6 @@ class Premium_Testimonials extends Widget_Base {
 			$testimonials = $settings['multiple_testimonials'];
 
 			$this->add_render_attribute( 'testimonials_container', 'class', 'multiple-testimonials' );
-			// $this->add_render_attribute( 'testimonials_container', 'data-testimonials-equal', $settings['multiple_equal_height'] );
 
 		}
 
@@ -1854,7 +1874,7 @@ class Premium_Testimonials extends Widget_Base {
 
 		if ( $carousel ) {
 
-			$this->add_render_attribute( 'testimonials_container', 'data-carousel', $carousel );
+			$this->add_render_attribute( 'testimonials_container', 'data-carousel', 'true' );
 
 			$this->add_render_attribute(
 				'testimonials_container',
@@ -1874,15 +1894,15 @@ class Premium_Testimonials extends Widget_Base {
 
 			foreach ( $testimonials as $index => $testimonial ) {
 
-				$testionial_image_html = $this->get_author_image( $testimonial );
-				$images_markup        .= '<div class="premium-testimonial__carousel-img premium-testimonial-img-wrapper" data-index="' . $index . '">' . $testionial_image_html . '</div>';
+				$testimonial_image_html = $this->get_author_image( $testimonial );
+				$images_markup         .= '<div class="premium-testimonial__carousel-img premium-testimonial-img-wrapper" data-index="' . $index . '">' . $testimonial_image_html . '</div>';
 			}
 
 			echo '<div class="premium-testimonial__carousel">' . wp_kses_post( $images_markup ) . '</div>';
 		}
 		?>
 
-		<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'testimonials_container' ) ); ?>>
+		<div <?php $this->print_render_attribute_string( 'testimonials_container' ); ?>>
 
 			<?php if ( 'yes' !== $settings['multiple'] ) : ?>
 
@@ -1898,21 +1918,21 @@ class Premium_Testimonials extends Widget_Base {
 
 						<?php if ( ! empty( $settings['heading'] ) ) : ?>
 							<div class="premium-testimonial-heading">
-								<p <?php echo wp_kses_post( $this->get_render_attribute_string( 'heading' ) ); ?>>
+								<p <?php $this->print_render_attribute_string( 'heading' ); ?>>
 									<?php echo wp_kses_post( $settings['heading'] ); ?>
 								</p>
 							</div>
 						<?php endif; ?>
 
 						<div class="premium-testimonial-text-wrapper">
-							<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_content' ) ); ?>>
+							<div <?php $this->print_render_attribute_string( 'premium_testimonial_content' ); ?>>
 								<?php echo $this->parse_text_editor( $settings['premium_testimonial_content'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</div>
 						</div>
 
 						<?php if ( ! empty( $settings['rating'] ) ) : ?>
 							<div class="premium-testimonial__rating-wrapper">
-								<?php echo Helper_Functions::render_rating_stars( $settings['rating'], $settings['fill'], $settings['empty'], $settings['star_size'] ); ?>
+								<?php Helper_Functions::render_rating_stars( $settings['rating'], $settings['fill'], $settings['empty'], $settings['star_size'] ); ?>
 							</div>
 						<?php endif; ?>
 
@@ -1922,7 +1942,7 @@ class Premium_Testimonials extends Widget_Base {
 
 
 							<?php if ( ! empty( $image_src ) ) : ?>
-								<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'img_wrap' ) ); ?>>
+								<div <?php $this->print_render_attribute_string( 'img_wrap' ); ?>>
 									<img src="<?php echo esc_url( $image_src ); ?>" alt="<?php echo esc_attr( $alt ); ?>" class="premium-testimonial-person-image">
 								</div>
 							<?php endif; ?>
@@ -1930,7 +1950,7 @@ class Premium_Testimonials extends Widget_Base {
 
 							<div class="premium-testimonial-author-info">
 								<<?php echo wp_kses_post( $person_title_tag ); ?> class="premium-testimonial-person-name">
-									<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_person_name' ) ); ?>>
+									<span <?php $this->print_render_attribute_string( 'premium_testimonial_person_name' ); ?>>
 										<?php echo wp_kses_post( $settings['premium_testimonial_person_name'] ); ?>
 									</span>
 								</<?php echo wp_kses_post( $person_title_tag ); ?>>
@@ -1938,13 +1958,13 @@ class Premium_Testimonials extends Widget_Base {
 								<?php if ( ! empty( $settings['premium_testimonial_company_name'] ) ) : ?>
 									<<?php echo wp_kses_post( $job_tag ); ?> class="premium-testimonial-job">
 									<?php if ( 'yes' === $settings['premium_testimonial_company_link_switcher'] ) : ?>
-										<a <?php echo wp_kses_post( $this->get_render_attribute_string( 'link' ) ); ?>>
-											<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_company_name' ) ); ?>>
+										<a <?php $this->print_render_attribute_string( 'link' ); ?>>
+											<span <?php $this->print_render_attribute_string( 'premium_testimonial_company_name' ); ?>>
 												<?php echo wp_kses_post( $settings['premium_testimonial_company_name'] ); ?>
 											</span>
 										</a>
 									<?php else : ?>
-										<span class="premium-testimonial-company-link" <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_company_name' ) ); ?>>
+										<span class="premium-testimonial-company-link" <?php $this->print_render_attribute_string( 'premium_testimonial_company_name' ); ?>>
 											<?php echo wp_kses_post( $settings['premium_testimonial_company_name'] ); ?>
 										</span>
 									<?php endif; ?>
@@ -1977,7 +1997,7 @@ class Premium_Testimonials extends Widget_Base {
 				foreach ( $testimonials as $index => $testimonial ) :
 
 					if ( 'yes' === $show_image ) {
-						$testionial_image_html = $this->get_author_image( $testimonial );
+						$testimonial_image_html = $this->get_author_image( $testimonial );
 					}
 
 					if ( 'yes' === $testimonial['link_switcher'] ) {
@@ -2000,21 +2020,21 @@ class Premium_Testimonials extends Widget_Base {
 
 							<?php if ( ! empty( $testimonial['heading'] ) ) : ?>
 								<div class="premium-testimonial-heading">
-									<p <?php echo wp_kses_post( $this->get_render_attribute_string( 'heading' ) ); ?>>
+									<p <?php $this->print_render_attribute_string( 'heading' ); ?>>
 										<?php echo wp_kses_post( $testimonial['heading'] ); ?>
 									</p>
 								</div>
 							<?php endif; ?>
 
 							<div class="premium-testimonial-text-wrapper">
-								<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_content' ) ); ?>>
+								<div <?php $this->print_render_attribute_string( 'premium_testimonial_content' ); ?>>
 									<?php echo $this->parse_text_editor( $testimonial['content'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 								</div>
 							</div>
 
 							<?php if ( ! empty( $testimonial['rating'] ) ) : ?>
 								<div class="premium-testimonial__rating-wrapper">
-									<?php echo Helper_Functions::render_rating_stars( $testimonial['rating'], $settings['fill'], $settings['empty'], $settings['star_size'] ); ?>
+									<?php Helper_Functions::render_rating_stars( $testimonial['rating'], $settings['fill'], $settings['empty'], $settings['star_size'] ); ?>
 								</div>
 							<?php endif; ?>
 
@@ -2023,16 +2043,16 @@ class Premium_Testimonials extends Widget_Base {
 							<?php endif; ?>
 
 								<?php if ( 'skin4' !== $settings['skin'] ) : ?>
-									<?php if ( ! empty( $testionial_image_html ) ) : ?>
-										<div <?php echo wp_kses_post( $this->get_render_attribute_string( 'img_wrap' ) ); ?>>
-											<?php echo wp_kses_post( $testionial_image_html ); ?>
+									<?php if ( ! empty( $testimonial_image_html ) ) : ?>
+										<div <?php $this->print_render_attribute_string( 'img_wrap' ); ?>>
+											<?php echo wp_kses_post( $testimonial_image_html ); ?>
 										</div>
 									<?php endif; ?>
 								<?php endif; ?>
 
 								<div class="premium-testimonial-author-info">
 									<<?php echo wp_kses_post( $person_title_tag ); ?> class="premium-testimonial-person-name">
-										<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_person_name' ) ); ?>>
+										<span <?php $this->print_render_attribute_string( 'premium_testimonial_person_name' ); ?>>
 											<?php echo wp_kses_post( $testimonial['person_name'] ); ?>
 										</span>
 									</<?php echo wp_kses_post( $person_title_tag ); ?>>
@@ -2040,13 +2060,13 @@ class Premium_Testimonials extends Widget_Base {
 									<?php if ( ! empty( $testimonial['company_name'] ) ) : ?>
 										<<?php echo wp_kses_post( $job_tag ); ?> class="premium-testimonial-job">
 										<?php if ( 'yes' === $testimonial['link_switcher'] ) : ?>
-											<a <?php echo wp_kses_post( $this->get_render_attribute_string( 'link_' . $index ) ); ?>>
-												<span <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_company_name' ) ); ?>>
+											<a <?php $this->print_render_attribute_string( 'link_' . $index ); ?>>
+												<span <?php $this->print_render_attribute_string( 'premium_testimonial_company_name' ); ?>>
 													<?php echo wp_kses_post( $testimonial['company_name'] ); ?>
 												</span>
 											</a>
 										<?php else : ?>
-											<span class="premium-testimonial-company-link" <?php echo wp_kses_post( $this->get_render_attribute_string( 'premium_testimonial_company_name' ) ); ?>>
+											<span class="premium-testimonial-company-link" <?php $this->print_render_attribute_string( 'premium_testimonial_company_name' ); ?>>
 												<?php echo wp_kses_post( $testimonial['company_name'] ); ?>
 											</span>
 										<?php endif; ?>
@@ -2114,18 +2134,18 @@ class Premium_Testimonials extends Widget_Base {
 	 */
 	protected function get_author_image( $testimonial ) {
 
-		$testionial_image_html = '';
+		$testimonial_image_html = '';
 		if ( ! empty( $testimonial['person_image']['url'] ) ) {
 
 			$image_src = $testimonial['person_image']['url'];
-			$image_id  = attachment_url_to_postid( $image_src );
+			$image_id  = attachment_url_to_postid( $image_src ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.attachment_url_to_postid_attachment_url_to_postid -- Core fn; wpcom_vip_attachment_url_to_postid() only exists on WP VIP.
 
 			$settings['image_data'] = Helper_Functions::get_image_data( $image_id, $testimonial['person_image']['url'], 'thumbnail' );
-			$testionial_image_html  = Group_Control_Image_Size::get_attachment_image_html( $settings, 'thumbnail', 'image_data' );
+			$testimonial_image_html = Group_Control_Image_Size::get_attachment_image_html( $settings, 'thumbnail', 'image_data' );
 
 		}
 
-		return $testionial_image_html;
+		return $testimonial_image_html;
 	}
 
 	/**

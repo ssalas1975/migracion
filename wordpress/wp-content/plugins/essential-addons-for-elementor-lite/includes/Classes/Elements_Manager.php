@@ -22,6 +22,15 @@ class Elements_Manager {
 	 */
 	const JS_KEY = '_eael_custom_js';
 
+	/**
+	 * Bundled library files replaced by the WordPress core script handle of the
+	 * same library (Guideline 13). Essential Addons Pro still lists these paths
+	 * in its config, so they map to the handle instead of being read from disk.
+	 */
+	const CORE_LIBRARY_FILES = [
+		'assets/front-end/js/lib-view/imagesloaded/imagesloaded.pkgd.min.js' => 'imagesloaded',
+	];
+
 	public $css_print_method;
 	public $js_print_method;
 
@@ -71,15 +80,17 @@ class Elements_Manager {
 	 * get_widget_list
 	 * get widget names
 	 * @param array $data
+	 * @param array $visited_templates Global widget templates already being scanned
+	 *                                 on this path, keyed by id.
 	 *
 	 * @return array
 	 */
-	public function get_widget_list( $data ) {
+	public function get_widget_list( $data, $visited_templates = [] ) {
 		$widget_list = [];
 		$replace     = $this->replace_widget_name();
 
 		if ( is_object( Plugin::$instance->db ) ) {
-			Plugin::$instance->db->iterate_data( $data, function ( $element ) use ( &$widget_list, $replace ) {
+			Plugin::$instance->db->iterate_data( $data, function ( $element ) use ( &$widget_list, $replace, $visited_templates ) {
 
 				if ( empty( $element['widgetType'] ) ) {
 					$type = $element['elType'];
@@ -88,8 +99,17 @@ class Elements_Manager {
 				}
 
 				if ( ! empty( $element['widgetType'] ) && $element['widgetType'] === 'global' ) {
-					$document = Plugin::$instance->documents->get( $element['templateID'] );
-					$type     = is_object( $document ) ? current( $this->get_widget_list( $document->get_elements_data() ) ) : $type;
+					$template_id = isset( $element['templateID'] ) ? absint( $element['templateID'] ) : 0;
+
+					// A global widget can resolve back to a template already being
+					// scanned; following it again would recurse until PHP crashes.
+					if ( ! $template_id || isset( $visited_templates[ $template_id ] ) ) {
+						return;
+					}
+					$visited_templates[ $template_id ] = true;
+
+					$document = Plugin::$instance->documents->get( $template_id );
+					$type     = is_object( $document ) ? current( $this->get_widget_list( $document->get_elements_data(), $visited_templates ) ) : $type;
 
 					if ( ! empty( $type ) ) {
 						$type = 'eael-' . $type;
@@ -203,6 +223,11 @@ class Elements_Manager {
 		//Image Masking
 		if ( ! empty( $element['settings']['eael_enable_image_masking'] ) ) {
 			$list['image-masking'] = 'image-masking';
+		}
+
+		//Advanced Slider
+		if ( ! empty( $element['settings']['eael_enable_advanced_slider'] ) ) {
+			$list['advanced-slider'] = 'advanced-slider';
 		}
 
 		return $list;
@@ -354,7 +379,7 @@ class Elements_Manager {
 			if ( isset( $this->registered_elements[ $element ] ) ) {
 				if ( ! empty( $this->registered_elements[ $element ]['dependency'][ $type ] ) ) {
 					foreach ( $this->registered_elements[ $element ]['dependency'][ $type ] as $file ) {
-						if ( ! empty( $file['type'] ) && ! empty( $file['context'] ) && ! empty( $file['file'] ) ) {
+						if ( ! empty( $file['type'] ) && ! empty( $file['context'] ) && ! empty( $file['file'] ) && ! $this->core_handle( $file ) ) {
 							${$file['type']}[ $file['context'] ][] = $file['file'];
 						}
 					}
@@ -362,7 +387,7 @@ class Elements_Manager {
 			} elseif ( isset( $this->registered_extensions[ $element ] ) ) {
 				if ( ! empty( $this->registered_extensions[ $element ]['dependency'][ $type ] ) ) {
 					foreach ( $this->registered_extensions[ $element ]['dependency'][ $type ] as $file ) {
-						if ( ! empty( $file['type'] ) && ! empty( $file['context'] ) && ! empty( $file['file'] ) ) {
+						if ( ! empty( $file['type'] ) && ! empty( $file['context'] ) && ! empty( $file['file'] ) && ! $this->core_handle( $file ) ) {
 							${$file['type']}[ $file['context'] ][] = $file['file'];
 						}
 					}
@@ -375,6 +400,71 @@ class Elements_Manager {
 		}
 
 		return array_unique( array_merge( $lib['view'], $lib['edit'], $self['edit'], $self['view'] ) );
+	}
+
+	/**
+	 * generate_handle_dependency
+	 * WordPress script/style handles the given elements depend on, from
+	 * config entries that name a `handle` instead of a `file`.
+	 *
+	 * @param array  $elements
+	 * @param string $context view|edit
+	 * @param string $type    js|css
+	 *
+	 * @return array
+	 */
+	public function generate_handle_dependency( $elements, $context, $type ) {
+		$handles = [];
+
+		foreach ( $elements as $element ) {
+			if ( isset( $this->registered_elements[ $element ] ) ) {
+				$config = $this->registered_elements[ $element ];
+			} elseif ( isset( $this->registered_extensions[ $element ] ) ) {
+				$config = $this->registered_extensions[ $element ];
+			} else {
+				continue;
+			}
+
+			if ( empty( $config['dependency'][ $type ] ) ) {
+				continue;
+			}
+
+			foreach ( $config['dependency'][ $type ] as $file ) {
+				if ( 'view' === $context && ( empty( $file['context'] ) || 'view' !== $file['context'] ) ) {
+					continue;
+				}
+
+				$handle = $this->core_handle( $file );
+				if ( $handle ) {
+					$handles[] = $handle;
+				}
+			}
+		}
+
+		return array_values( array_unique( $handles ) );
+	}
+
+	/**
+	 * The WordPress handle a config dependency entry stands for, if any.
+	 *
+	 * @param array $file Dependency entry from config.php.
+	 *
+	 * @return string Empty when the entry is a plain file.
+	 */
+	protected function core_handle( $file ) {
+		if ( ! empty( $file['handle'] ) ) {
+			return $file['handle'];
+		}
+
+		if ( ! empty( $file['file'] ) ) {
+			foreach ( self::CORE_LIBRARY_FILES as $path => $handle ) {
+				if ( EAEL_PLUGIN_PATH . $path === $file['file'] ) {
+					return $handle;
+				}
+			}
+		}
+
+		return '';
 	}
 
 	/**

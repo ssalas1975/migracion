@@ -478,8 +478,7 @@ if ( ! class_exists( 'Tribe__Date_Utils' ) ) {
 			if ( ! self::is_timestamp( $timestamp ) ) {
 				$date = new DateTime( $timestamp, $timezone );
 			} else {
-				$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'U' ); // Validación preventiva para PHP 8.4
-				$date = $is_valid_format ? DateTime::createFromFormat( 'U', $timestamp ) :
+				$date = DateTime::createFromFormat( 'U', $timestamp );
 				$date->setTimezone( $timezone );
 			}
 

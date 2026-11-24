@@ -1,5 +1,5 @@
 /**************** Premium Pricing Table ****************/
-/*******************************************************/
+/******************************************************  */
 .premium-pricing-table-container {
   position: relative;
   text-align: center;
@@ -119,12 +119,18 @@
 .premium-badge-flag.premium-badge-right .corner::before, .premium-badge-flag.premium-badge-right .corner::after {
   right: 0;
 }
+.premium-badge-flag.premium-badge-right .corner::after {
+  border-left: 8px solid rgba(0, 0, 0, 0.2);
+}
 .premium-badge-flag.premium-badge-left .corner {
   left: -8px;
   border-radius: 4px 4px 4px 0;
 }
 .premium-badge-flag.premium-badge-left .corner::before, .premium-badge-flag.premium-badge-left .corner::after {
   left: 0;
+}
+.premium-badge-flag.premium-badge-left .corner.premium-badge-left .corner::before {
+  border-right: 8px solid rgba(0, 0, 0, 0.2);
 }
 .premium-badge-flag .corner {
   text-align: center;
@@ -144,13 +150,6 @@
 
 .elementor-widget-premium-addon-pricing-table {
   overflow: visible !important;
-}
-
-.premium-badge-flag.premium-badge-right .corner::after {
-  border-left: 8px solid rgba(0, 0, 0, 0.2);
-}
-.premium-badge-flag.premium-badge-left .corner::before {
-  border-right: 8px solid rgba(0, 0, 0, 0.2);
 }
 
 .premium-pricing-price-currency {
@@ -190,6 +189,12 @@
   width: 30px;
   height: 30px;
   object-fit: cover;
+}
+.premium-pricing-list .premium-pricing-list-item svg,
+.premium-pricing-list .premium-pricing-list-item .premium-pricing-feature-icon {
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
 }
 .premium-pricing-list .premium-pricing-list-span {
   position: relative;
@@ -251,7 +256,7 @@
 
 @-moz-document url-prefix() {
   .premium-pricing-description-container li {
-    text-indent: 0px;
+    text-indent: 0;
   }
 }
 .premium-pricing-button-container .premium-pricing-price-button {

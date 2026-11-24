@@ -203,7 +203,30 @@ select[multiple].select2 {
    padding: 15px;
  }
 
- .bulkwp-pro-dialog .logo span {
+ .bulkwp-pro-dialog .upsell-footer-2 {
+  padding: 10px;
+  text-align: center;
+  background-color: #135a6a;
+  color: white;
+  margin: 0 -16px 0 -16px;
+}
+
+.bulkwp-pro-dialog .upsell-footer-2 a {
+  color: white;
+}
+
+.ui-dialog {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-dialog .ui-dialog-content {
+    overflow-y: auto !important;
+    flex-grow: 1;
+}
+
+.bulkwp-pro-dialog .logo span {
    display: block;
    font-size: 18px;
    margin: 10px;
@@ -215,7 +238,7 @@ select[multiple].select2 {
 
  #bulkwp-pro-table {
    width: 100%;
-   margin: 10px auto 10px auto;
+   margin: 0 auto 0 auto;
    border-collapse: collapse;
  }
 
@@ -395,4 +418,3 @@ select[multiple].select2 {
 .ui-dialog{
     z-index: 10000 !important;
 }
-/*# sourceMappingURL=bulk-delete.css.map */

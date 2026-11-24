@@ -90,6 +90,10 @@ if ( ! class_exists( 'ACF_Admin' ) ) :
 			// Add body class.
 			$classes .= ' acf-admin-5-3';
 
+			if ( version_compare( $wp_version, '7.0', '>=' ) ) {
+				$classes .= ' acf-admin-7-0';
+			}
+
 			// Add browser for specific CSS.
 			$classes .= ' acf-browser-' . esc_attr( acf_get_browser() );
 
@@ -108,11 +112,18 @@ if ( ! class_exists( 'ACF_Admin' ) ) :
 		 */
 		public function current_screen( $screen ) {
 			// Determine if the current page being viewed is "ACF" related.
-			if ( isset( $screen->post_type ) && in_array( $screen->post_type, acf_get_internal_post_types(), true ) ) {
+			if (
+				isset( $screen->post_type ) &&
+				in_array( $screen->post_type, acf_get_internal_post_types(), true )
+			) {
 				add_action( 'in_admin_header', array( $this, 'in_admin_header' ) );
 				add_filter( 'admin_footer_text', array( $this, 'admin_footer_text' ) );
 				add_filter( 'update_footer', array( $this, 'admin_footer_version_text' ) );
-				$this->setup_help_tab();
+
+				// Add the screen help tab on any page except settings pages.
+				if ( ! in_array( (string) acf_maybe_get_GET( 'page' ), acf_get_instance( 'ACF\Settings_Page\Settings_Page' )->get_page_slugs(), true ) ) {
+					$this->setup_help_tab();
+				}
 				$this->maybe_show_import_from_cptui_notice();
 			}
 		}

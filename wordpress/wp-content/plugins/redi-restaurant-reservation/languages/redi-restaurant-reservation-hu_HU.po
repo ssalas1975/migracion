@@ -14,12 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: _e;__\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: C:/ProjectsCloudSync/Wordpress/redi-restaurant-"
-"reservation/trunk\n"
-"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-SearchPath-0: C:/ProjectsCloudSync/Wordpress/redi-restaurant-reservation/trunk\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: redi-restaurant-reservation.php:872
 #, fuzzy
@@ -98,8 +97,8 @@ msgstr ""
 #: functions/notice.php:75
 #, php-format
 msgid ""
-"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
-"not created a page with reservation form. Finilize setup wizard now for "
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have"
+" not created a page with reservation form. Finilize setup wizard now for "
 "seamless bookings.</p> %s"
 msgstr ""
 "<h3>A ReDi Restaurant Reservation Plugin</h3> <p>Plugin aktív, de még nem "
@@ -122,18 +121,18 @@ msgstr ""
 
 #: templates/admin.php:122
 msgid ""
-"<strong>Attention</strong>: New settings are available for review and saving,"
-" please take a moment to update your preferences or fill out the required "
-"settings and click on the save button."
+"<strong>Attention</strong>: New settings are available for review and "
+"saving, please take a moment to update your preferences or fill out the "
+"required settings and click on the save button."
 msgstr ""
-"<strong>Figyelem</strong>: Az új beállítások áttekintésre és mentésre állnak "
-"rendelkezésre, kérjük, szánjon egy percet a beállítások frissítésére, vagy "
+"<strong>Figyelem</strong>: Az új beállítások áttekintésre és mentésre állnak"
+" rendelkezésre, kérjük, szánjon egy percet a beállítások frissítésére, vagy "
 "töltse ki a szükséges beállításokat, majd kattintson a mentés gombra."
 
 #: templates/frontend.php:338
 msgid ""
-"A confirmation email has been sent to you, should you not receive it, please "
-"rest assured that your booking has been received and is confirmed. If you "
+"A confirmation email has been sent to you, should you not receive it, please"
+" rest assured that your booking has been received and is confirmed. If you "
 "wish you may contact us by phone to confirm."
 msgstr ""
 "Köszönjük a foglalást. A megerősítő e-mailt kiküldtük, amennyiben nem kapta "
@@ -156,8 +155,8 @@ msgid ""
 "further action is required. If you don't receive it, rest assured your "
 "reservation is confirmed. You can also contact us by phone if needed."
 msgstr ""
-"Megerősítő e-mailt küldtünk az Ön által megadott e-mail címre. Nincs szükség "
-"további teendőre. Ha nem kapja meg, biztos lehet benne, hogy foglalását "
+"Megerősítő e-mailt küldtünk az Ön által megadott e-mail címre. Nincs szükség"
+" további teendőre. Ha nem kapja meg, biztos lehet benne, hogy foglalását "
 "megerősítették. Szükség esetén telefonon is felveheti velünk a kapcsolatot."
 
 #: redi-restaurant-reservation.php:2051
@@ -173,8 +172,8 @@ msgstr ""
 #: templates/admin.php:230
 msgid ""
 "A pre-designed style requiring minimal customization for a polished look. "
-"Please note that this option is still in beta testing  and some features are "
-"not copied over from Default theme."
+"Please note that this option is still in beta testing  and some features are"
+" not copied over from Default theme."
 msgstr ""
 "Előre megtervezett stílus, amely minimális testreszabást igényel a csiszolt "
 "megjelenés érdekében. Felhívjuk figyelmét, hogy ez az opció még béta "
@@ -194,8 +193,8 @@ msgstr ""
 
 #: templates/admin.php:229
 msgid ""
-"Adapts to your website's theme, ensuring seamless integration. However, some "
-"adjustments may be needed to match your design preferences."
+"Adapts to your website's theme, ensuring seamless integration. However, some"
+" adjustments may be needed to match your design preferences."
 msgstr ""
 "Alkalmazkodik webhelye témájához, biztosítva a zökkenőmentes integrációt. "
 "Előfordulhat azonban, hogy szükség van néhány módosításra, hogy megfeleljen "
@@ -255,7 +254,8 @@ msgstr "Engedélyezze a beépülő modullal kapcsolatos információk küldésé
 
 #: templates/admin.php:703
 msgid ""
-"Allow users to fill the Wait List when all time slots for the day are booked."
+"Allow users to fill the Wait List when all time slots for the day are "
+"booked."
 msgstr ""
 "Lehetővé teszi a felhasználók számára, hogy kitöltsék a várólistát, amikor "
 "az adott nap összes idősávja le van foglalva."
@@ -274,7 +274,8 @@ msgstr "Engedélyezze a Whatsappot"
 #: templates/admin.php:799
 msgid ""
 "Allows to show or hide comments section on the reservation form. Enabled by "
-"default. If you see that your guests misuse the comments section, disable it."
+"default. If you see that your guests misuse the comments section, disable "
+"it."
 msgstr ""
 "Lehetővé teszi a foglalási űrlap megjegyzés részének megjelenítését vagy "
 "elrejtését. Alapértelmezés szerint engedélyezve. Ha azt látod, hogy a "
@@ -320,14 +321,14 @@ msgstr "API Kulcs"
 
 #: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
 msgid ""
-"Apologies for the inconvenience, but we encountered an issue while trying to "
-"make your reservation. It seems there was a technical glitch on our end. Our "
-"team is actively working to resolve this issue. Please try again in a few "
-"minutes, and if the problem persists, feel free to reach out to our customer "
-"support for assistance. Additionally, if you could please send a screenshot "
-"of the error message to {emailLink}, it would greatly help us in diagnosing "
-"and resolving the issue more efficiently. We appreciate your patience and "
-"cooperation. Response:"
+"Apologies for the inconvenience, but we encountered an issue while trying to"
+" make your reservation. It seems there was a technical glitch on our end. "
+"Our team is actively working to resolve this issue. Please try again in a "
+"few minutes, and if the problem persists, feel free to reach out to our "
+"customer support for assistance. Additionally, if you could please send a "
+"screenshot of the error message to {emailLink}, it would greatly help us in "
+"diagnosing and resolving the issue more efficiently. We appreciate your "
+"patience and cooperation. Response:"
 msgstr ""
 "Elnézést kérünk a kellemetlenségért, de a foglalás során problémába "
 "ütköztünk. Úgy tűnik, technikai hiba volt a részünkről. Csapatunk aktívan "
@@ -349,8 +350,8 @@ msgid ""
 "using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
 "here to provide the support you need."
 msgstr ""
-"Problémái vannak a bővítmény konfigurálásával? Ne aggódj! Ingyenes személyes "
-"segítséget nyújtunk Önnek. Időpontot ütemezhet velünk a Calendly "
+"Problémái vannak a bővítmény konfigurálásával? Ne aggódj! Ingyenes személyes"
+" segítséget nyújtunk Önnek. Időpontot ütemezhet velünk a Calendly "
 "segítségével, vagy kapcsolatba léphet velünk Skype-on, WhatsAppon vagy "
 "Facebookon keresztül. Azért vagyunk itt, hogy biztosítsuk a szükséges "
 "támogatást."
@@ -388,10 +389,12 @@ msgstr "Vissza a foglalási oldalra"
 msgid "Basic package functionality (paid version)"
 msgstr "Alap csomag funkciói (fizetős változat)"
 
-#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+#: templates/admin_welcome_no_key.php:32
+#: templates/admin_welcome_no_page.php:28
 msgid "Below is your API Key, please use it when you ask for a support. "
 msgstr ""
-"Az alábbiakban az API-kulcsot találja, kérjük, használja, ha támogatást kér. "
+"Az alábbiakban az API-kulcsot találja, kérjük, használja, ha támogatást kér."
+" "
 
 #: templates/admin.php:66 templates/admin_ajaxed.php:619
 msgid "Birthday"
@@ -404,8 +407,8 @@ msgstr "Születésnap (pl.: 30/06)"
 #: templates/basicpackage.php:44
 msgid ""
 "Blocked Time. Define time range when online reservation should not be "
-"accepted. Specify a reason why reservations are not accepted at this time to "
-"keep your clients happy."
+"accepted. Specify a reason why reservations are not accepted at this time to"
+" keep your clients happy."
 msgstr ""
 "Blokkolt idő. Határozza meg időintervallumot, amikor az online foglalás nem "
 "szabad elfogadni. Adjon meg egy okot, amiért foglalásokat nem lehet "
@@ -695,7 +698,8 @@ msgstr "Visszaigazoló email letiltása"
 msgid "Disabled"
 msgstr "Fogyatékos"
 
-#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+#: redi-restaurant-reservation-api.php:447
+#: redi-restaurant-reservation.php:2607
 msgid "Discount"
 msgstr "Árengedmény"
 
@@ -706,8 +710,8 @@ msgstr "Hátralévő helyek megjelenítése"
 #: templates/admin.php:664
 msgid ""
 "Displays the available time with time step to the clients. For instance, if "
-"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
-"30, etc."
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, "
+"10:30, etc."
 msgstr ""
 "Megjeleníti a lehetséges szabad időpontokat. Például, ha 15 perc egy "
 "foglalási idő, akkor az alternatív időpontok: 10:00, 10:15, 10:30, stb."
@@ -720,12 +724,13 @@ msgstr "Ne engedje, hogy a vendégek kitöltsék a Várólista űrlapot."
 msgid ""
 "Do you want to know what your client thinks about his last visit? We will "
 "collect it for you."
-msgstr "Szeretné tudni, ügyfele visszajelzését? Mi összegyűjtük az Ön számára."
+msgstr ""
+"Szeretné tudni, ügyfele visszajelzését? Mi összegyűjtük az Ön számára."
 
 #: templates/basicpackage.php:70
 msgid ""
-"Do you want to write your own module? We have an API. Contact us to get more "
-"information."
+"Do you want to write your own module? We have an API. Contact us to get more"
+" information."
 msgstr "Szeretne írni a saját modult? Van egy API-ja. Írjon nekünk."
 
 #: templates/admin_welcome.php:27
@@ -735,8 +740,8 @@ msgid ""
 "team is here to help you get started smoothly."
 msgstr ""
 "Nem akar időt tölteni a bővítmény működésével vagy a beállítási folyamat "
-"kitalálásával? Iratkozzon fel egy ingyenes, személyre szabott segélyhívásra –"
-" csapatunk segít a zökkenőmentes indulásban."
+"kitalálásával? Iratkozzon fel egy ingyenes, személyre szabott segélyhívásra "
+"– csapatunk segít a zökkenőmentes indulásban."
 
 #: templates/frontend_v2.php:97
 msgid "Done!"
@@ -757,12 +762,12 @@ msgstr "Időtartam"
 #: templates/admin_ajaxed.php:449
 msgid ""
 "Duration of reservation in minutes. This is the time allocated for each "
-"reservation so the reservation system can calculate availability. Enter here "
-"average time that guests stays in."
+"reservation so the reservation system can calculate availability. Enter here"
+" average time that guests stays in."
 msgstr ""
-"A foglalás időtartama percben. Ez az egyes foglalásokhoz lefoglalt idő, hogy "
-"a foglalási rendszer ki tudja számítani a rendelkezésre állást. Itt adja meg "
-"a vendégek tartózkodásának átlagos idejét."
+"A foglalás időtartama percben. Ez az egyes foglalásokhoz lefoglalt idő, hogy"
+" a foglalási rendszer ki tudja számítani a rendelkezésre állást. Itt adja "
+"meg a vendégek tartózkodásának átlagos idejét."
 
 #: templates/admin_ajaxed.php:479
 msgid "Early Bookings"
@@ -842,12 +847,12 @@ msgid ""
 "'Super Socializer' from WordPress directory."
 msgstr ""
 "A közösségi hálózathoz való bejelentkezés engedélyezése vagy letiltása. Ha "
-"engedélyezve van, az ügyfelek bármelyik közösségi oldallal bejelentkezhetnek,"
-" például a Facebookon, majd a foglalási űrlap előre kitöltésre kerül "
-"személyes adatokkal. Továbbá, ha a felhasználó bejelentkezik a közösségi "
-"oldalra, de nem fejezi be a foglalást, emlékeztetőt kap a véglegesítésre. "
-"Telepítenie és be kell állítania a „Super Socializer” nevű bővítményt a "
-"WordPress könyvtárából."
+"engedélyezve van, az ügyfelek bármelyik közösségi oldallal "
+"bejelentkezhetnek, például a Facebookon, majd a foglalási űrlap előre "
+"kitöltésre kerül személyes adatokkal. Továbbá, ha a felhasználó "
+"bejelentkezik a közösségi oldalra, de nem fejezi be a foglalást, "
+"emlékeztetőt kap a véglegesítésre. Telepítenie és be kell állítania a „Super"
+" Socializer” nevű bővítményt a WordPress könyvtárából."
 
 #: templates/admin.php:301
 msgid "Enable social network login"
@@ -864,14 +869,14 @@ msgstr "Gyermekek engedélyezése/letiltása legördülő menü"
 #: templates/basicpackage.php:61
 msgid ""
 "Enhance your business experience by using our Facebook integration service "
-"where we try to provide you with profile pictures of your customers if found."
-" You can amaze your customer by knowing him by face when he visits you, "
-"especially at the time of first visit."
+"where we try to provide you with profile pictures of your customers if "
+"found. You can amaze your customer by knowing him by face when he visits "
+"you, especially at the time of first visit."
 msgstr ""
 "Fokozza az üzleti tapasztalait a mi Facebook integráció szolgáltatásunk "
-"segítségével, ahol igyekszünk az Ön számára profil képek adni az ügyfelekről,"
-" ha találtak. Mely meghökkentő élményt jelenti első ügyfelei számára, hogy "
-"már arcról képes lesz felismerni őket."
+"segítségével, ahol igyekszünk az Ön számára profil képek adni az "
+"ügyfelekről, ha találtak. Mely meghökkentő élményt jelenti első ügyfelei "
+"számára, hogy már arcról képes lesz felismerni őket."
 
 #: redi-restaurant-reservation.php:2077
 msgid ""
@@ -919,12 +924,12 @@ msgstr "Mező típusa"
 #: functions/notice.php:137
 #, php-format
 msgid ""
-"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
-"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to"
+" impress your clients, make a test reservation. <b>%1$s</b>%2$s"
 msgstr ""
 "Végül egy utolsó lépés a <b>ReDi Restaurant Reservation Plugin</b> "
-"beállításában, hogy lenyűgözze ügyfeleit, tegyen egy tesztfoglalást. <b>"
-"%1$s</b>%2$s"
+"beállításában, hogy lenyűgözze ügyfeleit, tegyen egy tesztfoglalást. "
+"<b>%1$s</b>%2$s"
 
 #: redi-restaurant-reservation.php:2073
 msgid "Find Reservation"
@@ -1029,8 +1034,8 @@ msgstr ""
 "lehetővé teszi ügyfelei számára, hogy könnyen foglalhassanak online. Az "
 "<strong>azonnali foglalási visszaigazolással</strong> és a testreszabható "
 "beállításokkal a foglalások kezelése még soha nem volt ilyen egyszerű. "
-"Mondjon búcsút a foglalások kézi megerősítésének gondjainak, és üdvözölje az "
-"automatikus visszaigazolás kényelmét. Próbálja ki még ma, és nézze meg, "
+"Mondjon búcsút a foglalások kézi megerősítésének gondjainak, és üdvözölje az"
+" automatikus visszaigazolás kényelmét. Próbálja ki még ma, és nézze meg, "
 "milyen különbséget tehet néhány kattintással!"
 
 #: templates/basicpackage.php:92
@@ -1086,13 +1091,13 @@ msgstr "Elfogadom az adatvédelmi szabályzatot"
 
 #: templates/admin.php:858
 msgid ""
-"If checkbox is checked then reservations will not be automatically confirmed."
-" You will receive email with reservation request and each reservation needs "
-"to be confirmed or rejected manually."
+"If checkbox is checked then reservations will not be automatically "
+"confirmed. You will receive email with reservation request and each "
+"reservation needs to be confirmed or rejected manually."
 msgstr ""
 "Ha a jelölőnégyzet be van jelölve, a foglalások nem kerülnek automatikusan "
-"megerősítésre. E-mailben fog kapni a foglalási kérelmet, és minden foglalást "
-"kézzel kell megerősíteni vagy elutasítani."
+"megerősítésre. E-mailben fog kapni a foglalási kérelmet, és minden foglalást"
+" kézzel kell megerősíteni vagy elutasítani."
 
 #: templates/admin.php:612
 msgid ""
@@ -1130,8 +1135,8 @@ msgid ""
 "If you close next day at night then set closing time on a same day. For "
 "example 18:00 - 3:00"
 msgstr ""
-"Ha csak másnap van a záróóra, állítsa zárórát ugyanarra a napra. Például 18:"
-"00-03:00"
+"Ha csak másnap van a záróóra, állítsa zárórát ugyanarra a napra. Például "
+"18:00-03:00"
 
 #: templates/admin_welcome_no_key.php:22
 msgid ""
@@ -1144,11 +1149,11 @@ msgstr ""
 #: templates/admin.php:913
 msgid ""
 "If you want to customize confirmation page or have a separated page for "
-"marketing purposes, then select custom reservation confirmation page. If not "
-"specified, then built in confirmation page will be used."
+"marketing purposes, then select custom reservation confirmation page. If not"
+" specified, then built in confirmation page will be used."
 msgstr ""
-"Ha testre szeretné szabni a visszaigazoló oldalt, vagy külön oldalt szeretne "
-"létrehozni marketing célokra, akkor válassza az egyéni foglalás-megerősítő "
+"Ha testre szeretné szabni a visszaigazoló oldalt, vagy külön oldalt szeretne"
+" létrehozni marketing célokra, akkor válassza az egyéni foglalás-megerősítő "
 "oldalt. Ha nincs megadva, akkor a beépített visszaigazoló oldal kerül "
 "felhasználásra."
 
@@ -1162,8 +1167,8 @@ msgstr ""
 
 #: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
 msgid ""
-"In case you need to show it in multiple languages, then use following format "
-"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+"In case you need to show it in multiple languages, then use following format"
+" [locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
 msgstr ""
 "Ha több nyelven kell megjelenítenie, használja a következő formátumot "
 "[locale]Text[/locale]. Példa: [en_US]Szöveg[/en_US][es_ES]Texto[/es_ES]"
@@ -1175,8 +1180,8 @@ msgid ""
 "form</a>."
 msgstr ""
 "Ha értesítést szeretne kapni, ha valaki lemondja az erre a napra vonatkozó "
-"foglalását, kérjük, töltse ki <a href=\"#\" class=\"link-waitlist-form\">ezt "
-"az űrlapot</a>."
+"foglalását, kérjük, töltse ki <a href=\"#\" class=\"link-waitlist-form\">ezt"
+" az űrlapot</a>."
 
 #: templates/frontend.php:199 templates/frontend.php:381
 msgid ""
@@ -1281,8 +1286,8 @@ msgid ""
 "Language for internal emails communication. It is specially used for admin "
 "emails. "
 msgstr ""
-"Nyelv a belső e-mail kommunikációhoz. Kifejezetten rendszergazdai e-"
-"mailekhez használják. "
+"Nyelv a belső e-mail kommunikációhoz. Kifejezetten rendszergazdai "
+"e-mailekhez használják. "
 
 #: templates/admin.php:978
 msgid "Language Path"
@@ -1575,8 +1580,8 @@ msgid ""
 "NOTE: Complex custom fields like Options and Dropdown can be configured in "
 "Basic package settings."
 msgstr ""
-"MEGJEGYZÉS: Az összetett egyéni mezők, például az Opciók és a Legördülő menü "
-"az Alapcsomag beállításaiban konfigurálhatók."
+"MEGJEGYZÉS: Az összetett egyéni mezők, például az Opciók és a Legördülő menü"
+" az Alapcsomag beállításaiban konfigurálhatók."
 
 #: templates/admin_ajaxed.php:472
 msgid ""
@@ -1636,16 +1641,16 @@ msgstr ""
 #: redi.php:283
 #, php-format
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"%s"
+"Online reservation service is not available at this time. Try again later or"
+" %s"
 msgstr ""
 "Az online foglalási szolgáltatás jelenleg nem érhető el. Próbálja újra "
 "később vagy %s"
 
 #: redi-restaurant-reservation.php:2104
 msgid ""
-"Online reservation service is not available at this time. Try again later or "
-"contact us directly."
+"Online reservation service is not available at this time. Try again later or"
+" contact us directly."
 msgstr ""
 "Az online foglalási szolgáltatás jelenleg nem érhető el. Próbálja újra "
 "később, vagy lépjen kapcsolatba velünk közvetlenül."
@@ -1665,10 +1670,6 @@ msgid ""
 msgstr ""
 "Nyitva tartás. Ez az opció teszi lehetővé, hogy válasszanak a különböző "
 "munkaidők közül."
-
-#: templates/basicpackage.php:37
-msgid "Open upcoming reservations"
-msgstr "Nyitott közelgő foglalások"
 
 #: templates/admin_ajaxed.php:621
 msgid "Option"
@@ -1746,14 +1747,6 @@ msgstr "Telefonszám szükséges"
 msgid "Place"
 msgstr "Hely"
 
-#: templates/basicpackage.php:53
-msgid ""
-"Please allow 1 business day for us to confirm your payment and upgrade your "
-"account."
-msgstr ""
-"Kérem, adjon 1 munkanapot számunkra, hogy feldolgozzuk a fizetését és "
-"megadjuk a megfelelő jogokat."
-
 #: templates/admin.php:232
 msgid ""
 "Please contact info@reservationdiary.eu for any issues or missing features "
@@ -1767,8 +1760,8 @@ msgid ""
 "Please create a reservation page and add this <b>[redirestaurant]</b> "
 "shortcode to that page."
 msgstr ""
-"Kérjük, hozzon létre egy foglalási oldalt, és adja hozzá ezt a <b>"
-"[redirestaurant]</b> rövid kódot az oldalhoz."
+"Kérjük, hozzon létre egy foglalási oldalt, és adja hozzá ezt a "
+"<b>[redirestaurant]</b> rövid kódot az oldalhoz."
 
 #: redi-restaurant-reservation.php:2116
 msgid "Please enter a valid email address"
@@ -1778,7 +1771,8 @@ msgstr "Kérjük, adjon meg egy érvényes e-mail címet"
 msgid "Please provide a reason for cancellation"
 msgstr "Kérjük, adja meg a lemondás okát"
 
-#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+#: templates/admin_welcome_no_key.php:37
+#: templates/admin_welcome_no_page.php:33
 msgid "Please provide your API Key in order to continue using plugin"
 msgstr "Kérjük, adja meg API-kulcsát a bővítmény használatának folytatásához"
 
@@ -1811,12 +1805,12 @@ msgstr "Kérjük, válasszon értéket a \"Havi vendégfoglalási limit\" közü
 #: templates/admin.php:841
 msgid ""
 "Please verify you current time. This is important as this time is taken and "
-"used in reservation logic. In case time is differnet than your current time, "
-"please change time zone in Settings -> General -> Time Zone"
+"used in reservation logic. In case time is differnet than your current time,"
+" please change time zone in Settings -> General -> Time Zone"
 msgstr ""
 "Kérjük, ellenőrizze az aktuális időt. Ez fontos, mivel ezt az időt veszik "
-"igénybe és használják fel a foglalási logikában. Ha az idő eltér a jelenlegi "
-"időtől, módosítsa az időzónát a Beállítások -> Általános -> Időzóna "
+"igénybe és használják fel a foglalási logikában. Ha az idő eltér a jelenlegi"
+" időtől, módosítsa az időzónát a Beállítások -> Általános -> Időzóna "
 "menüpontban"
 
 #: templates/admin_welcome.php:22
@@ -1828,8 +1822,8 @@ msgid ""
 "Plugin failed to properly load javascript file, please check that jQuery is "
 "loaded and no javascript errors present."
 msgstr ""
-"Plugin nem megfelelően tudta betölteni a javascript fájlt, ellenőrizze, hogy "
-"jQuery be van-e töltve, és nincs javascript hiba."
+"Plugin nem megfelelően tudta betölteni a javascript fájlt, ellenőrizze, hogy"
+" jQuery be van-e töltve, és nincs javascript hiba."
 
 #: templates/admin.php:135
 msgid "Plugin Info"
@@ -1872,7 +1866,7 @@ msgid "Rate your reservation experience"
 msgstr "Értékelje foglalási élményét"
 
 #: templates/admin.php:223 templates/admin.php:231
-msgid "React 25 theme (BETA)"
+msgid "React 25 theme"
 msgstr "React 25 téma (BÉTA)"
 
 #: templates/admin.php:1026 templates/cancel.php:40
@@ -1905,32 +1899,25 @@ msgstr "Redi Étterem Foglalás"
 
 #: redi-restaurant-reservation.php:793
 msgid ""
-"ReDi Restaurant Reservation plugin could not get an API key from the "
-"reservationdiary.eu server when it activated.\n"
-"                        <br/> You can try to fix this by going to the ReDi "
-"Restaurant Reservation \"options\" page.\n"
-"                        <br/>This will cause ReDi Restaurant Reservation "
-"plugin to retry fetching an API key for you.\n"
-"                        <br/>If you keep seeing this error it usually means "
-"that server where you host your web site can't connect to our "
-"reservationdiary.eu server.\n"
-"                        <br/>You can try asking your WordPress host to allow "
-"your WordPress server to connect to api.reservationdiary.eu\n"
-"                        <br/>In case you can not solve this problem yourself,"
-" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
-"info@reservationdiary.eu</a>"
+"ReDi Restaurant Reservation plugin could not get an API key from the reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means that server where you host your web site can't connect to our reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself, please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
 msgstr ""
 "A ReDi Restaurant Reservation plugin aktiváláskor nem tudott API-kulcsot "
 "kapni a reservationdiary.eu szerverről.                        <br/> Ezt "
-"megpróbálhatja kijavítani a ReDi étteremfoglalás \"opciók\" oldalán.         "
-"               <br/>Ez azt eredményezi, hogy a ReDi Restaurant Reservation "
-"beépülő modul újra megpróbálja lekérni az API-kulcsot.                       "
-" <br/>Ha továbbra is ezt a hibát látja, az általában azt jelenti, hogy a "
-"webhelyet tároló szerver nem tud csatlakozni a reservationdiary.eu "
-"szerverünkhöz.                        <br/>Megpróbálhatja megkérni a "
-"WordPress gazdagépét, hogy engedélyezze a WordPress szerver csatlakozását "
-"api.reservationdiary.eu                        <br/>Ha nem tudja megoldani "
-"ezt a problémát, kérjük, vegye fel velünk a kapcsolatot közvetlenül <a "
+"megpróbálhatja kijavítani a ReDi étteremfoglalás \"opciók\" oldalán."
+"                        <br/>Ez azt eredményezi, hogy a ReDi Restaurant "
+"Reservation beépülő modul újra megpróbálja lekérni az API-kulcsot."
+"                        <br/>Ha továbbra is ezt a hibát látja, az általában "
+"azt jelenti, hogy a webhelyet tároló szerver nem tud csatlakozni a "
+"reservationdiary.eu szerverünkhöz.                        "
+"<br/>Megpróbálhatja megkérni a WordPress gazdagépét, hogy engedélyezze a "
+"WordPress szerver csatlakozását api.reservationdiary.eu"
+"                        <br/>Ha nem tudja megoldani ezt a problémát, kérjük,"
+" vegye fel velünk a kapcsolatot közvetlenül <a "
 "href=\"mailto:info@reservationdiary.eu\">a info@reservationdiary.eu</a>"
 
 #: templates/admin_welcome.php:15
@@ -2044,7 +2031,8 @@ msgstr "A foglalás a múlté, és nem módosítható."
 #: templates/frontend.php:194 templates/frontend.php:388
 msgid ""
 "Reservation is not available on selected day. Please select another day."
-msgstr "A foglalás nem elérhető a kiválasztott napra, kérem válasszon másikat."
+msgstr ""
+"A foglalás nem elérhető a kiválasztott napra, kérem válasszon másikat."
 
 #: redi-restaurant-reservation.php:1699
 msgid "Reservation is not found."
@@ -2078,7 +2066,8 @@ msgstr "Foglalási korlátozások"
 msgid "Reservation settings"
 msgstr "Foglalási beállítások"
 
-#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+#: redi-restaurant-reservation-api.php:350
+#: redi-restaurant-reservation.php:2765
 msgid "Reservation that is canceled can not be modified."
 msgstr "A lemondott foglalás nem módosítható."
 
@@ -2174,8 +2163,8 @@ msgstr "A kiválasztott dátum vagy az idő nem érvényes."
 
 #: templates/admin.php:340
 msgid ""
-"Selecting this option, the calendar is set to popup when the user clicks the "
-"calendar control."
+"Selecting this option, the calendar is set to popup when the user clicks the"
+" calendar control."
 msgstr ""
 "Ezt az opciót választva a naptár akkor jelenik meg, ha a vezérlőre "
 "kattintunk."
@@ -2280,13 +2269,13 @@ msgstr "Különleges kérések (fakultatív)"
 
 #: templates/admin_ajaxed.php:470
 msgid ""
-"Specify how late customers can make their booking in hours. For example, the "
-"current time is 10:00 and this setting is set to 3 hours then the first time,"
-" when the reservation will be accepted is 13:00."
+"Specify how late customers can make their booking in hours. For example, the"
+" current time is 10:00 and this setting is set to 3 hours then the first "
+"time, when the reservation will be accepted is 13:00."
 msgstr ""
-"Adja meg, hogy az ügyfelek tudjanak késleltetve foglalni. Például, ha most a "
-"pontos idő 10:00, és megadjuk, hogy 3 óra a késleltetési idő, akkor az első "
-"alkalom, amikor a foglalás adható 13:00 lesz."
+"Adja meg, hogy az ügyfelek tudjanak késleltetve foglalni. Például, ha most a"
+" pontos idő 10:00, és megadjuk, hogy 3 óra a késleltetési idő, akkor az első"
+" alkalom, amikor a foglalás adható 13:00 lesz."
 
 #: templates/admin_ajaxed.php:382
 msgid "Specify time in 24h format (00:00 - 23:59)."
@@ -2369,8 +2358,8 @@ msgid ""
 "guests find a table! We hope to see you back soon. Would you like to make "
 "another reservation for a different date?"
 msgstr ""
-"Köszönjük, hogy értesített minket a lemondásról - ez segít a többi vendégnek "
-"asztalt találni! Reméljük, hamarosan visszatérünk. Szeretne még egy másik "
+"Köszönjük, hogy értesített minket a lemondásról - ez segít a többi vendégnek"
+" asztalt találni! Reméljük, hamarosan visszatérünk. Szeretne még egy másik "
 "időpontot foglalni?"
 
 #: functions/feedback.php:89
@@ -2398,8 +2387,8 @@ msgid ""
 "The confirmation email will be sent out from info@reservationdiary.eu. When "
 "the client replies to confirmation email, you will receive it."
 msgstr ""
-"A visszaigazoló e-mailt az info@reservationdiary.eu címre küldjük. Amikor az "
-"ügyfél válaszol a megerősítő e-mailre, megkapja azt."
+"A visszaigazoló e-mailt az info@reservationdiary.eu címre küldjük. Amikor az"
+" ügyfél válaszol a megerősítő e-mailre, megkapja azt."
 
 #: templates/admin.php:885
 msgid ""
@@ -2457,17 +2446,17 @@ msgstr "A dátum formátum jelenik meg a dátum választás során."
 #: templates/admin.php:882
 #, fuzzy
 #| msgid ""
-#| "The way you want confirmation email to be delivered to the client. It can "
-#| "be \"From WordPress email account\", \"From reservationdiary.eu\" or "
-#| "\"Disable confirmation email\"."
+#| "The way you want confirmation email to be delivered to the client. It can be"
+#| " \"From WordPress email account\", \"From reservationdiary.eu\" or \"Disable"
+#| " confirmation email\"."
 msgid ""
-"The way you want confirmation email to be delivered to the client. It can be "
-"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"The way you want confirmation email to be delivered to the client. It can be"
+" \"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
 "SMTP\" or \"Disable confirmation email\"."
 msgstr ""
-"Az a mód, ahogyan szeretné, hogy a visszaigazoló e-mailt megkapja az ügyfél. "
-"Ez lehet „WordPress e-mail fiókból”, \"bookingdiary.eu-ról” vagy „Megerősítő "
-"e-mail letiltása”."
+"Az a mód, ahogyan szeretné, hogy a visszaigazoló e-mailt megkapja az ügyfél."
+" Ez lehet „WordPress e-mail fiókból”, \"bookingdiary.eu-ról” vagy "
+"„Megerősítő e-mail letiltása”."
 
 #: templates/admin_ajaxed.php:188
 msgid "The website address of the restaurant."
@@ -2485,16 +2474,6 @@ msgstr "Ezúttal több foglalás nem lehetséges."
 #: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1899
 msgid "There are no more reservations can be made for selected day."
 msgstr "A kiválasztott napra már nem lehet foglalni."
-
-#: templates/admin_ajaxed.php:105
-msgid ""
-"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
-"short code for specifying the place of reservation in case of multiple "
-"restaurants. <br/>Example of shortcode:"
-msgstr ""
-"Ez az Ön helyéhez társított <b>azonosító</b>. Az <b>ID</b> rövid kódként "
-"használható a foglalási hely megadásához több étterem esetén. <br/>Példa "
-"rövid kódra:"
 
 #: redi-restaurant-reservation.php:2033
 msgid "This date is in the past and cannot be selected"
@@ -2527,8 +2506,8 @@ msgstr ""
 #: templates/admin.php:543
 msgid ""
 "This is how the available time will be shown. This setting is taken from "
-"generic WordPress settings. You can change it in Settings -> General -> Time "
-"Format"
+"generic WordPress settings. You can change it in Settings -> General -> Time"
+" Format"
 msgstr ""
 "Így jelenik meg a rendelkezésre álló idő. Ez a beállítás a WordPress "
 "általános beállításaiból származik. A Beállítások -> Általános -> "
@@ -2536,8 +2515,8 @@ msgstr ""
 
 #: templates/admin_ajaxed.php:413
 msgid ""
-"This is the number of maximum persons in restaurant at any time. System will "
-"check automatically availability of free seats and will not allow to go "
+"This is the number of maximum persons in restaurant at any time. System will"
+" check automatically availability of free seats and will not allow to go "
 "beyond this number."
 msgstr ""
 "Ez a szám megmutatja mennyien lehetnek az étteremben egy időben. A rendszer "
@@ -2602,13 +2581,13 @@ msgstr "Időeltolódás mód"
 msgid ""
 "To schedule your session, simply click the image below: We provide "
 "complimentary one-on-one assistance for plugin setup. You can book a call "
-"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
-"Links are below."
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp."
+" Links are below."
 msgstr ""
 "A munkamenet ütemezéséhez egyszerűen kattintson az alábbi képre: Ingyenes "
 "személyes segítséget nyújtunk a bővítmény beállításához. Hívást foglalhat "
-"velünk a Calendly-n keresztül, vagy felveheti velünk a kapcsolatot Skype-on, "
-"Facebookon vagy Whatsappon keresztül. A linkek alább találhatók."
+"velünk a Calendly-n keresztül, vagy felveheti velünk a kapcsolatot Skype-on,"
+" Facebookon vagy Whatsappon keresztül. A linkek alább találhatók."
 
 #: redi-restaurant-reservation.php:2023 templates/frontend_v2.php:528
 msgid "Today"
@@ -2629,11 +2608,11 @@ msgstr "Kedd"
 #: redi-restaurant-reservation-api.php:341
 msgid ""
 "Unable to find reservation with provided information. Please verify that "
-"provided reservation number and personal information (email, phone, or name) "
-"is correct."
+"provided reservation number and personal information (email, phone, or name)"
+" is correct."
 msgstr ""
-"Nem találok foglalást a megadott információkkal. Kérjük, ellenőrizze, hogy a "
-"megadott foglalási szám és személyes adatok (e-mail-cím, telefonszám vagy "
+"Nem találok foglalást a megadott információkkal. Kérjük, ellenőrizze, hogy a"
+" megadott foglalási szám és személyes adatok (e-mail-cím, telefonszám vagy "
 "név) helyesek-e."
 
 #: redi-restaurant-reservation.php:2757
@@ -2690,20 +2669,17 @@ msgstr ""
 
 #: templates/basicpackage.php:35
 msgid ""
-"View your upcoming reservations from your Mobile/Tablet PC and never miss "
-"your customer. This page should be open on a Tablet PC and so hostess can "
-"see all upcoming reservations for today. Page refreshes every 15 min and "
-"shows reservations that in past for 3 hours as well as upcoming reservations "
-"for next 24 hours. By clicking on reservation you will see reservation "
-"details. Demo version can be accessed for 30 days using this link: "
+"Open Host Dashboard from your mobile or tablet and never miss a guest. Keep "
+"this page open on a tablet so the host can see all reservations for today. "
+"The page refreshes every 15 min and shows reservations from the past 3 hours"
+" as well as the next 24 hours. Click a reservation to see its details. A "
+"demo can be accessed for 30 days using this link: "
 msgstr ""
-"Tekintse meg közelgő foglalásait mobil/tábla gépéről, és soha ne hagyja ki "
-"ügyfelét. Ennek az oldalnak meg kell nyílnia tábla gépen, így az étterem "
-"láthatja az összes mai foglalást. Az oldal 15 percenként frissül, és "
-"megjeleníti az elmúlt 3 órára vonatkozó foglalásokat, valamint a következő "
-"24 órára vonatkozó közelgő foglalásokat. A foglalásra kattintva "
-"megtekintheti a foglalás részleteit. A demóverzió 30 napig elérhető az "
-"alábbi linken: "
+"Nyissa meg a Host Dashboardot telefonon vagy tableten, hogy egy vendéget se "
+"hagyjon ki. Tartsa nyitva az oldalt tableten, hogy a host lássa a mai "
+"foglalásokat. Az oldal 15 percenként frissül, és az elmúlt 3 óra valamint a "
+"következő 24 óra foglalásait mutatja. A részletekhez koppintson a "
+"foglalásra. 30 napos demó ezen a linken:"
 
 #: templates/confirm.php:3
 msgid "Visit confirmation"
@@ -2730,8 +2706,14 @@ msgid "Wait List Setting"
 msgstr "Várólista beállítása"
 
 #: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
-msgid "Waiter Dashboard"
-msgstr "Pincér irányítópultja"
+msgid "Host Dashboard on a tablet or phone"
+msgstr "Host Dashboard tableten vagy telefonon"
+
+msgid "Host Dashboard"
+msgstr "Host irányítópult"
+
+msgid "Open Host Dashboard →"
+msgstr "Host irányítópult megnyitása →"
 
 #: templates/basicpackage.php:59
 msgid ""
@@ -2739,17 +2721,19 @@ msgid ""
 "Facebook Application, iPhone/iPad Application, Windows Phone Application or "
 "Android Application."
 msgstr ""
-"Amit kínálunk Önnek egy fehér feliratú étteremi foglaló Facebook alkalmazás, "
-"iPhone / iPad alkalmazás, a Windows Phone alkalmazás vagy Android alkalmazás."
+"Amit kínálunk Önnek egy fehér feliratú étteremi foglaló Facebook alkalmazás,"
+" iPhone / iPad alkalmazás, a Windows Phone alkalmazás vagy Android "
+"alkalmazás."
 
 #: templates/frontend_v2.php:932
 msgid ""
-"We have received your reservation request and are checking availability. You "
-"will be notified as soon as your reservation is approved. Please wait for "
+"We have received your reservation request and are checking availability. You"
+" will be notified as soon as your reservation is approved. Please wait for "
 "the confirmation."
 msgstr ""
-"Megkaptuk foglalási kérését, és ellenőrizzük a rendelkezésre állást. Amint a "
-"foglalását jóváhagyják, értesítést kap. Kérjük, várja meg a visszaigazolást."
+"Megkaptuk foglalási kérését, és ellenőrizzük a rendelkezésre állást. Amint a"
+" foglalását jóváhagyják, értesítést kap. Kérjük, várja meg a "
+"visszaigazolást."
 
 #: redi-restaurant-reservation.php:2049
 msgid "We look forward to serving you!"
@@ -2829,20 +2813,20 @@ msgstr "WhatsApp"
 #: templates/admin.php:754
 #, fuzzy
 #| msgid ""
-#| "When enabled guests has to enter their phone number with country code. "
-#| "This is most useful when there is a good amount of foreing visitors. Also "
-#| "this option has to be enabled when SMS addon is in use, as SMS Providers "
-#| "requires full phone number."
+#| "When enabled guests has to enter their phone number with country code. This "
+#| "is most useful when there is a good amount of foreing visitors. Also this "
+#| "option has to be enabled when SMS addon is in use, as SMS Providers requires"
+#| " full phone number."
 msgid ""
 "When enabled guests has to enter their phone number with country code. This "
 "is most useful when there is a good amount of foreign visitors. Also this "
-"option has to be enabled when SMS addon is in use, as SMS Providers requires "
-"full phone number."
+"option has to be enabled when SMS addon is in use, as SMS Providers requires"
+" full phone number."
 msgstr ""
 "Ha engedélyezve van, a vendégeknek meg kell adniuk telefonszámukat az "
 "országkóddal együtt. Ez akkor a leghasznosabb, ha sok a külső látogató. Ezt "
-"az opciót is engedélyezni kell, ha SMS-kiegészítő van használatban, mivel az "
-"SMS-szolgáltatóknak teljes telefonszámra van szükségük."
+"az opciót is engedélyezni kell, ha SMS-kiegészítő van használatban, mivel az"
+" SMS-szolgáltatóknak teljes telefonszámra van szükségük."
 
 #: templates/admin.php:696 templates/admin.php:703
 msgid "When fully booked"
@@ -2854,8 +2838,8 @@ msgstr "Ha nincs rendelkezésre konkrét időpont"
 
 #: templates/admin.php:596
 msgid ""
-"When this enabled, start and end of reservation time will be displayed. This "
-"is useful when you want to inform the guest about fixed reservation time "
+"When this enabled, start and end of reservation time will be displayed. This"
+" is useful when you want to inform the guest about fixed reservation time "
 "frame."
 msgstr ""
 "Ha ez engedélyezve van, megjelenik a foglalás kezdete és vége. Ez akkor "
@@ -2875,8 +2859,8 @@ msgstr ""
 #: templates/admin.php:988
 msgid ""
 "When translating the plugin, save translations in a separate folder outside "
-"the plugin directory. Then, provide the file path with translated strings in "
-"this setting to avoid issues with updates."
+"the plugin directory. Then, provide the file path with translated strings in"
+" this setting to avoid issues with updates."
 msgstr ""
 "A bővítmény fordításakor mentse el a fordításokat egy külön mappába a "
 "bővítmény könyvtárán kívülre. Ezután adja meg a fájl elérési útját "
@@ -2903,16 +2887,6 @@ msgstr "Munkaidő"
 #: redi-restaurant-reservation.php:2039 redi-restaurant-reservation.php:2095
 msgid "Yes"
 msgstr "Igen"
-
-#: templates/admin_welcome_no_page.php:12
-msgid ""
-"You can create dedicated reservation page below, or you can skip this step "
-"and create page manually. When you create page manually, insert "
-"[redireservation] shortcode to the page."
-msgstr ""
-"Az alábbiakban létrehozhat egy dedikált foglalási oldalt, vagy kihagyhatja "
-"ezt a lépést, és manuálisan is létrehozhatja az oldalt. Ha manuálisan hozza "
-"létre az oldalt, illessze be a [redireservation] rövid kódot az oldalra."
 
 #: templates/admin_welcome.php:21
 msgid "You can find the documentation for this plugin here"
@@ -3007,9 +2981,193 @@ msgid "your@email.com"
 msgstr "your@email.com"
 
 #: templates/admin.php:221 templates/admin.php:230
-msgid "Zeplin 25 theme (BETA)"
+msgid "Zeplin 25 theme"
 msgstr "Zeplin 25 téma (BÉTA)"
 
 #: templates/admin.php:473
 msgid "Сhildren selection"
 msgstr "Gyermekek kiválasztása"
+
+#: templates/admin_welcome_no_page.php:11
+msgid ""
+"You can create a dedicated reservation page below, or skip this step and "
+"create a page manually."
+msgstr ""
+"Létrehozhat egy dedikált foglalási oldalt alább, vagy kihagyhatja ezt a "
+"lépést, és manuálisan létrehozhatja az oldalt."
+
+#: templates/admin_welcome_no_page.php:12 templates/admin_welcome.php:15
+#: templates/admin.php:89
+msgid "Your shortcode"
+msgstr "Az Ön shortcode-ja"
+
+#: templates/admin_welcome_no_page.php:13 templates/admin_welcome.php:16
+#: templates/admin.php:90
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed. Paste it into any page to show the reservation form."
+msgstr ""
+"Egyetlen étteremhez, személyre szabás nélkül csak ez a shortcode szükséges. "
+"Illessze be bármelyik oldalra a foglalási űrlap megjelenítéséhez."
+
+#: templates/admin_ajaxed.php:99
+msgid ""
+"For a single restaurant with no customization, only this shortcode is "
+"needed:"
+msgstr ""
+"Egyetlen étteremhez, személyre szabás nélkül csak ez a shortcode szükséges:"
+
+#: templates/admin_ajaxed.php:102
+msgid ""
+"This <b>Place ID</b> is associated with your restaurant. Use it in the "
+"shortcode only if you have multiple restaurants or need the form tied to a "
+"specific location."
+msgstr ""
+"Ez a <b>Place ID</b> az Ön étterméhez tartozik. Csak akkor használja a "
+"shortcode-ban, ha több étterme van, vagy az űrlapot egy adott helyszínhez "
+"szeretné kötni."
+
+#: templates/admin_ajaxed.php:103
+msgid "Example for multiple restaurants:"
+msgstr "Példa több étteremhez:"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a location first"
+msgstr "Először válasszon helyszínt"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of guests first"
+msgstr "Először válassza ki a vendégek számát"
+
+#: redi-restaurant-reservation.php
+msgid "Choose the number of children first"
+msgstr "Először válassza ki a gyermekek számát"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a date first"
+msgstr "Először válasszon dátumot"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a time first"
+msgstr "Először válasszon időpontot"
+
+#: redi-restaurant-reservation.php
+msgid "Choose a menu first"
+msgstr "Először válasszon menüt"
+
+#: redi-restaurant-reservation.php
+msgid "Closed"
+msgstr "Zárva"
+
+#: redi-restaurant-reservation.php
+msgid "Out of range"
+msgstr "Tartományon kívül"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant"
+msgstr "Étterem"
+
+#: redi-restaurant-reservation.php
+msgid "Select year"
+msgstr "Év kiválasztása"
+
+#: redi-restaurant-reservation.php
+msgid "Selected date"
+msgstr "Kiválasztott dátum"
+
+#: redi-restaurant-reservation.php
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr "Üdvözlöm, kérem, készítsen nekem foglalást a következő adatokkal"
+
+#: redi-restaurant-reservation.php
+msgid ""
+"A confirmation email has been sent to you with your updated reservation "
+"details. You may contact the restaurant directly if you need further "
+"changes."
+msgstr ""
+"Megerősítő e-mailt küldtünk a frissített foglalási adatokkal. További "
+"módosítások esetén közvetlenül az étteremmel léphet kapcsolatba."
+
+#: redi-restaurant-reservation.php
+msgid "and"
+msgstr "és"
+
+#: redi-restaurant-reservation.php
+msgid "apply"
+msgstr "alkalmaz"
+
+#: redi-restaurant-reservation.php
+msgid "Menu"
+msgstr "Menü"
+
+#: redi-restaurant-reservation.php
+msgid "Menu Item"
+msgstr "Menüelem"
+
+#: redi-restaurant-reservation.php
+msgid "Loading menu items"
+msgstr "Menüelemek betöltése"
+
+#: redi-restaurant-reservation.php
+msgid "Selected"
+msgstr "Kiválasztva"
+
+#: redi-restaurant-reservation.php
+msgid "Day"
+msgstr "Nap"
+
+#: redi-restaurant-reservation.php
+msgid "Month"
+msgstr "Hónap"
+
+#: redi-restaurant-reservation.php
+msgid "Year"
+msgstr "Év"
+
+#: redi-restaurant-reservation.php
+msgid "Error"
+msgstr "Hiba"
+
+#: redi-restaurant-reservation.php
+msgid "Info"
+msgstr "Infó"
+
+#: redi-restaurant-reservation.php
+msgid "Privacy Policy"
+msgstr "Adatvédelmi irányelvek"
+
+#: redi-restaurant-reservation.php
+msgid "Terms of Service"
+msgstr "Szolgáltatási feltételek"
+
+#: redi-restaurant-reservation.php
+msgid "Unable to verify you are human. Please try again."
+msgstr "Nem sikerült ellenőrizni, hogy Ön ember. Kérjük, próbálja újra."
+
+#: redi-restaurant-reservation.php
+msgid "Please complete the captcha"
+msgstr "Kérjük, töltse ki a captchát"
+
+#: redi-restaurant-reservation.php
+msgid "This site is protected by reCAPTCHA and the Google"
+msgstr "Ez az oldal a reCAPTCHA és a Google védelme alatt áll"
+
+#: redi-restaurant-reservation.php
+msgid "Update Booking"
+msgstr "Foglalás frissítése"
+
+#: redi-restaurant-reservation.php
+msgid "Updating reservation"
+msgstr "Foglalás frissítése"
+
+#: redi-restaurant-reservation.php
+msgid "Your reservation has been updated!"
+msgstr "A foglalása frissítve lett!"
+
+#: redi-restaurant-reservation.php
+msgid "Restaurant not found"
+msgstr "Az étterem nem található"
+
+#: redi-restaurant-reservation.php
+msgid "Request for reservations (Reservation form is not working)"
+msgstr "Foglalási kérelem (a foglalási űrlap nem működik)"

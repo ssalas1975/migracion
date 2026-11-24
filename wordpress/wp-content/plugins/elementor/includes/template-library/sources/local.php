@@ -15,7 +15,6 @@ use Elementor\Utils;
 use Elementor\User;
 use Elementor\Core\Isolation\Wordpress_Adapter;
 use Elementor\Core\Isolation\Wordpress_Adapter_Interface;
-use Elementor\Core\Isolation\Elementor_Adapter;
 use Elementor\Core\Isolation\Elementor_Adapter_Interface;
 use Elementor\Modules\EditorOne\Classes\Menu_Data_Provider;
 use Elementor\Includes\TemplateLibrary\Sources\AdminMenuItems\Editor_One_Saved_Templates_Menu;
@@ -455,12 +454,19 @@ class Source_Local extends Source_Base {
 
 		$query_args = wp_parse_args( $args, $defaults );
 
+		// This source only lists its own post type.
+		$query_args['post_type'] = self::CPT;
+
 		$templates_query = new \WP_Query( $query_args );
 
 		$templates = [];
 
 		if ( $templates_query->have_posts() ) {
 			foreach ( $templates_query->get_posts() as $post ) {
+				if ( ! is_post_status_viewable( $post->post_status ) && ! current_user_can( 'read_post', $post->ID ) ) {
+					continue;
+				}
+
 				$templates[] = $this->get_item( $post->ID );
 			}
 		}
@@ -1268,6 +1274,8 @@ class Source_Local extends Source_Base {
 	 * @param string $redirect_to The redirect URL.
 	 * @param string $action      The action being taken.
 	 * @param array  $post_ids    The items to take the action on.
+	 *
+	 * @return string The redirect URL, unchanged when the action is not handled here.
 	 */
 	public function admin_export_multiple_templates( $redirect_to, $action, $post_ids ) {
 		if ( self::BULK_EXPORT_ACTION === $action ) {
@@ -1277,6 +1285,8 @@ class Source_Local extends Source_Base {
 			// PHPCS - Not user input.
 			wp_die( $result->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
+
+		return $redirect_to;
 	}
 
 	/**
@@ -1666,7 +1676,7 @@ class Source_Local extends Source_Base {
 			'plural' => '',
 		];
 
-		$template_type = Utils::get_super_global_value( $_GET, self::TAXONOMY_TYPE_SLUG );
+		$template_type = sanitize_key( Utils::get_super_global_value( $_GET, self::TAXONOMY_TYPE_SLUG ) ?? '' );
 
 		if ( $template_type ) {
 			return $this->get_template_labels_by_type( $template_type );
@@ -1998,31 +2008,16 @@ class Source_Local extends Source_Base {
 			$this->set_wordpress_adapter( new WordPress_Adapter() );
 		}
 
-		if ( ! $this->should_check_permissions( $args ) ) {
+		$post_id = intval( $args['template_id'] );
+		$post_status = $this->wordpress_adapter->get_post_status( $post_id );
+
+		if ( 'publish' === $post_status && ! post_password_required( $post_id ) ) {
 			return true;
 		}
 
-		$post_id = intval( $args['template_id'] );
-		$post_status = $this->wordpress_adapter->get_post_status( $post_id );
-		$is_private_or_non_published = ( 'private' === $post_status && ! $this->wordpress_adapter->current_user_can( 'read_private_posts', $post_id ) ) || ( 'publish' !== $post_status );
-
-		$can_read_template = ! $is_private_or_non_published || $this->wordpress_adapter->current_user_can( 'edit_post', $post_id );
+		$can_read_template = $this->wordpress_adapter->current_user_can( 'edit_post', $post_id );
 
 		return apply_filters( 'elementor/template-library/is_allowed_to_read_template', $can_read_template, $args );
-	}
-
-	private function should_check_permissions( array $args ): bool {
-		if ( null === $this->elementor_adapter ) {
-			$this->set_elementor_adapter( new Elementor_Adapter() );
-		}
-
-		$check_permissions = isset( $args['check_permissions'] ) && false === $args['check_permissions'];
-
-		if ( $check_permissions ) {
-			return false;
-		}
-
-		return true;
 	}
 
 	public function set_wordpress_adapter( Wordpress_Adapter_Interface $wordpress_adapter ) {

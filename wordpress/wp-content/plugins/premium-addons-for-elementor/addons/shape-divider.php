@@ -12,7 +12,6 @@ use Elementor\Controls_Manager;
 
 // Premium Addons Classes.
 use PremiumAddons\Includes\Helper_Functions;
-use PremiumAddons\Admin\Includes\Admin_Helper;
 use PremiumAddons\Includes\Controls\Premium_Image_Choose;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,6 +28,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Shape_Divider {
 
 	/**
+	 * Number of shapes in `addons/shapes.php`. Keep both in sync.
+	 */
+	const SHAPES_COUNT = 51;
+
+	/**
 	 * Check whether the scripts should be loaded.
 	 *
 	 * @var boolean|null $load_script, initialized as null.
@@ -38,16 +42,9 @@ class Shape_Divider {
 	/**
 	 * Holds the singleton instance of this class.
 	 *
-	 * @var Module|null
+	 * @var self|null
 	 */
 	private static $instance = null;
-
-	/**
-	 * Holds the SVG shapes data for the module.
-	 *
-	 * @var mixed|null $svg_shapes Stores SVG shapes, initialized as null.
-	 */
-	private $svg_shapes = null;
 
 	/**
 	 * Check if Premium Addons Pro is activated.
@@ -72,8 +69,8 @@ class Shape_Divider {
 		add_action( 'elementor/element/column/section_advanced/after_section_end', array( $this, 'register_controls' ), 10 );
 
 		// Editor Hooks.
-		add_action( 'elementor/section/print_template', array( $this, 'print_template' ), 10, 2 );
-		add_action( 'elementor/column/print_template', array( $this, 'print_template' ), 10, 2 );
+		add_action( 'elementor/section/print_template', array( $this, 'print_template' ), 10, 1 );
+		add_action( 'elementor/column/print_template', array( $this, 'print_template' ), 10, 1 );
 
 		// Frontend Hooks.
 		add_action( 'elementor/frontend/section/before_render', array( $this, 'before_render' ) );
@@ -82,10 +79,8 @@ class Shape_Divider {
 		add_action( 'elementor/frontend/before_render', array( $this, 'check_script_enqueue' ) );
 
 		add_action( 'elementor/element/container/section_layout/after_section_end', array( $this, 'register_controls' ), 10 );
-		add_action( 'elementor/container/print_template', array( $this, 'print_template' ), 10, 2 );
+		add_action( 'elementor/container/print_template', array( $this, 'print_template' ), 10, 1 );
 		add_action( 'elementor/frontend/container/before_render', array( $this, 'before_render' ) );
-
-		add_action( 'wp_ajax_get_shape_divider_svg', array( $this, 'get_shape_divider_svg' ) );
 	}
 
 	/**
@@ -163,6 +158,32 @@ class Shape_Divider {
 	}
 
 	/**
+	 * Get shape options.
+	 *
+	 * Builds the shapes control options without loading `addons/shapes.php`.
+	 * The SVG markup is fetched later over AJAX, only when the picker renders.
+	 *
+	 * @access private
+	 * @since 4.11.95
+	 *
+	 * @return array shape key => control option.
+	 */
+	private function get_shape_options() {
+
+		$options = array();
+
+		for ( $index = 1; $index <= self::SHAPES_COUNT; $index++ ) {
+
+			$options[ 'shape' . $index ] = array(
+				/* translators: %d: shape number. */
+				'title' => sprintf( __( 'Shape %d', 'premium-addons-for-elementor' ), $index ),
+			);
+		}
+
+		return $options;
+	}
+
+	/**
 	 * Add divider content controls.
 	 *
 	 * @access private
@@ -205,7 +226,8 @@ class Shape_Divider {
 			array(
 				'label'        => __( 'Shapes', 'premium-addons-for-elementor' ),
 				'type'         => Premium_Image_Choose::TYPE,
-				'options'      => Helper_Functions::get_svg_shapes(),
+				'options'      => $this->get_shape_options(),
+				'lazy_shapes'  => true,
 				'render_type'  => 'template',
 				'prefix_class' => 'premium-',
 				'default'      => 'shape22',
@@ -221,7 +243,7 @@ class Shape_Divider {
 			array(
 				'label'       => __( 'Position', 'premium-addons-for-elementor' ),
 				'type'        => Controls_Manager::CHOOSE,
-				'render_type' => 'template',
+				'render_type' => 'ui',
 				'options'     => array(
 					'top'    => array(
 						'title' => __( 'Top', 'premium-addons-for-elementor' ),
@@ -258,7 +280,7 @@ class Shape_Divider {
 			$pro_shapes = array();
 
 			for ( $x = 26; $x <= 55; $x++ ) {
-				array_push( $pro_shapes, 'shape' . $x );
+				$pro_shapes[] = 'shape' . $x;
 			}
 
 			$element->add_control(
@@ -425,7 +447,6 @@ class Shape_Divider {
 				),
 				'condition' => array(
 					'premium_global_divider_sw' => 'yes',
-					// 'premium_gdivider_animate!' => 'yes',
 				),
 			)
 		);
@@ -436,7 +457,7 @@ class Shape_Divider {
 				'label'        => __( 'Animate', 'premium-addons-for-elementor' ),
 				'type'         => Controls_Manager::SWITCHER,
 				'prefix_class' => 'premium-shape-divider-anime-',
-				'render_type'  => 'template',
+				'render_type'  => 'ui',
 				'default'      => 'yes',
 				'condition'    => array(
 					'premium_global_divider_sw' => 'yes',
@@ -452,7 +473,7 @@ class Shape_Divider {
 				'description'  => __( 'This option is used if you want to animate the divider without stretching the SVG.', 'premium-addons-for-elementor' ),
 				'prefix_class' => 'premium-sh-no-stretch-',
 				'default'      => 'yes',
-				'render_type'  => 'template',
+				'render_type'  => 'ui',
 				'condition'    => array(
 					'premium_global_divider_sw'  => 'yes',
 					'premium_gdivider_animate'   => 'yes',
@@ -528,7 +549,7 @@ class Shape_Divider {
 			array(
 				'label'        => __( 'Horizontal Flip', 'premium-addons-for-elementor' ),
 				'type'         => Controls_Manager::SWITCHER,
-				'render_type'  => 'template',
+				'render_type'  => 'ui',
 				'prefix_class' => 'premium-sh-divider-hflip-',
 				'condition'    => array(
 					'premium_global_divider_sw' => 'yes',
@@ -544,7 +565,7 @@ class Shape_Divider {
 				'label'        => __( 'Vertical Flip', 'premium-addons-for-elementor' ),
 				'type'         => Controls_Manager::SWITCHER,
 				'prefix_class' => 'premium-sh-divider-vflip-',
-				'render_type'  => 'template',
+				'render_type'  => 'ui',
 				'condition'    => array(
 					'premium_global_divider_sw' => 'yes',
 					'premium_gdivider_animate!' => 'yes',
@@ -733,10 +754,9 @@ class Shape_Divider {
 	 * @since 2.2.8
 	 * @access public
 	 *
-	 * @param object $template for current template.
-	 * @param object $element for current element.
+	 * @param string $template for current template.
 	 */
-	public function print_template( $template, $element ) {
+	public function print_template( $template ) {
 
 		$old_template = $template;
 		ob_start();
@@ -804,7 +824,6 @@ class Shape_Divider {
 					} else if( settings.premium_gdivider_grad_xpos ) {
 						var gradType = settings.premium_gdivider_grad_type,
 							gradPos = 'linear' === gradType ? settings.premium_gdivider_grad_angle.size : [settings.premium_gdivider_grad_xpos.size, settings.premium_gdivider_grad_ypos.size ],
-							gradUnit = 'linear' === gradType ? 'deg' : '',
 							gradOptions = {
 								'gradType'  : gradType,
 								'firstColor': settings.premium_gdivider_grad_firstcolor,
@@ -835,7 +854,7 @@ class Shape_Divider {
 									<#
 										if ( 'linear' === gradOptions.gradType ) {
 											view.addRenderAttribute( 'grad_data', {
-												'gradientTransform': 'rotate(' + gradOptions.pos + gradUnit + ')'
+												'gradientTransform': 'rotate(' + gradOptions.pos + ' 0.5 0.5)'
 											});
 											#>
 											<linearGradient {{{view.getRenderAttributeString( 'grad_data' ) }}}>
@@ -927,62 +946,63 @@ class Shape_Divider {
 	 */
 	public function before_render( $element ) {
 
-		$id              = $element->get_id();
-		$settings        = $element->get_settings_for_display();
-		$divider_enabled = $settings['premium_global_divider_sw'];
-
-		if ( 'yes' === $divider_enabled ) {
-
-			if ( ! $this->papro_activated || version_compare( PREMIUM_PRO_ADDONS_VERSION, '2.9.8', '<' ) ) {
-
-				$is_pro_shape = 'default' === $settings['premium_gdivider_source'] && str_replace( 'shape', '', $settings['premium_gdivider_defaults'] ) > 25;
-
-				if ( $is_pro_shape || 'custom' === $settings['premium_gdivider_source'] || 'color' !== $settings['premium_gdivider_bg_type'] || in_array( $settings['premium_gdivider_pos'], array( 'left', 'right' ), true ) ) {
-
-					?>
-					<div class="premium-error-notice">
-						<?php
-							$message = __( 'This option is available in <b>Premium Addons Pro</b>.', 'premium-addons-for-elementor' );
-							echo wp_kses_post( $message );
-						?>
-					</div>
-					<?php
-					return false;
-
-				}
-			}
-
-			$source        = $settings['premium_gdivider_source'];
-			$hidden_style  = 'visibility:hidden; position: absolute; opacity:0;';
-			$shape         = '';
-			$custom_fill   = 'color' !== $settings['premium_gdivider_bg_type'];
-			$shape_classes = Helper_Functions::get_element_classes( $settings['premium_gdivider_hide'], array( 'premium-shape-divider__shape-container' ) );
-
-			if ( 'default' !== $source ) {
-				$shape = $settings['premium_gdivider_custom'];
-			} else {
-				$shape = '' !== $settings['premium_gdivider_defaults'] ? Helper_Functions::get_svg_shapes( $settings['premium_gdivider_defaults'] ) : '';
-			}
-
-			if ( $custom_fill ) {
-				$this->add_custom_fill( $id, $settings );
-			}
-
-			$element->add_render_attribute(
-				'shape_divider_cont' . $id,
-				array(
-					'class' => $shape_classes,
-					'id'    => 'premium-shape-divider-' . esc_attr( $id ),
-					'style' => $hidden_style,
-				)
-			);
-
-			?>
-				<div <?php echo wp_kses_post( $element->get_render_attribute_string( 'shape_divider_cont' . $id ) ); ?>>
-					<?php echo $shape; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			<?php
+		if ( 'yes' !== $element->get_settings( 'premium_global_divider_sw' ) ) {
+			return;
 		}
+
+		$id       = $element->get_id();
+		$settings = $element->get_settings_for_display();
+
+		if ( ! $this->papro_activated || version_compare( PREMIUM_PRO_ADDONS_VERSION, '2.9.8', '<' ) ) {
+
+			$is_pro_shape = 'default' === $settings['premium_gdivider_source'] && str_replace( 'shape', '', $settings['premium_gdivider_defaults'] ) > 25;
+
+			// Position is a UI-only control, so Elementor drops it from frontend settings until it is saved.
+			if ( $is_pro_shape || 'custom' === $settings['premium_gdivider_source'] || 'color' !== $settings['premium_gdivider_bg_type'] || in_array( $settings['premium_gdivider_pos'] ?? '', array( 'left', 'right' ), true ) ) {
+
+				?>
+				<div class="premium-error-notice">
+					<?php
+						$message = __( 'This option is available in <b>Premium Addons Pro</b>.', 'premium-addons-for-elementor' );
+						echo wp_kses_post( $message );
+					?>
+				</div>
+				<?php
+				return false;
+
+			}
+		}
+
+		$source        = $settings['premium_gdivider_source'];
+		$hidden_style  = 'visibility:hidden; position: absolute; opacity:0;';
+		$shape         = '';
+		$custom_fill   = 'color' !== $settings['premium_gdivider_bg_type'];
+		$shape_classes = Helper_Functions::get_element_classes( $settings['premium_gdivider_hide'], array( 'premium-shape-divider__shape-container' ) );
+
+		if ( 'default' !== $source ) {
+			$shape = $settings['premium_gdivider_custom'];
+		} else {
+			$shape = '' !== $settings['premium_gdivider_defaults'] ? Helper_Functions::get_svg_shapes( $settings['premium_gdivider_defaults'] ) : '';
+		}
+
+		if ( $custom_fill ) {
+			$this->add_custom_fill( $id, $settings );
+		}
+
+		$element->add_render_attribute(
+			'shape_divider_cont' . $id,
+			array(
+				'class' => $shape_classes,
+				'id'    => 'premium-shape-divider-' . esc_attr( $id ),
+				'style' => $hidden_style,
+			)
+		);
+
+		?>
+			<div <?php $element->print_render_attribute_string( 'shape_divider_cont' . $id ); ?>>
+				<?php echo $shape; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+		<?php
 	}
 
 
@@ -1020,7 +1040,6 @@ class Shape_Divider {
 			// gradient.
 			$gradient_type = $settings['premium_gdivider_grad_type'];
 			$grad_pos      = 'linear' === $gradient_type ? $settings['premium_gdivider_grad_angle']['size'] : array( $settings['premium_gdivider_grad_xpos']['size'], $settings['premium_gdivider_grad_ypos']['size'] );
-			$grad_unit     = 'linear' === $gradient_type ? 'deg' : '';
 
 			$grad_options = array(
 				'gradType'   => $gradient_type,
@@ -1033,7 +1052,7 @@ class Shape_Divider {
 
 			if ( 'linear' === $grad_options['gradType'] ) {
 				$tag_close = '</linearGradient>';
-				$svg_html .= '<linearGradient id="pa-shape-divider-fill-' . $id . '" gradientUnits="objectBoundingBox"  gradientTransform="rotate(' . $grad_options['pos'] . $grad_unit . ')">';
+				$svg_html .= '<linearGradient id="pa-shape-divider-fill-' . $id . '" gradientUnits="objectBoundingBox" gradientTransform="rotate(' . $grad_options['pos'] . ' 0.5 0.5)">';
 			} else {
 				$tag_close = '</radialGradient>';
 				$svg_html .= '<radialGradient id="pa-shape-divider-fill-' . $id . '" gradientUnits="objectBoundingBox" cx="' . $grad_options['pos'][0] . '%" cy="' . $grad_options['pos'][1] . '%">';
@@ -1047,31 +1066,6 @@ class Shape_Divider {
 
 		$svg_html .= '</defs></svg>';
 		echo $svg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Get Shape Divider SVG
-	 *
-	 * @since 4.11.32
-	 * @access public
-	 */
-	public function get_shape_divider_svg() {
-
-		check_ajax_referer( 'pa-shape-nonce', 'nonce' );
-
-		if ( ! isset( $_POST['shape'] ) ) {
-			wp_send_json_error( 'No shape selected' );
-		}
-
-		$shape = isset( $_POST['shape'] ) ? sanitize_text_field( wp_unslash( $_POST['shape'] ) ) : '';
-
-		$svg_shape = Helper_Functions::get_svg_shapes( $shape );
-
-		if ( empty( $svg_shape ) ) {
-			wp_send_json_error( 'Invalid shape' );
-		}
-
-		wp_send_json_success( array( 'shape' => $svg_shape ) );
 	}
 
 	/**
@@ -1090,9 +1084,7 @@ class Shape_Divider {
 			return;
 		}
 
-		$settings = $element->get_active_settings();
-
-		if ( ! empty( $settings['premium_global_divider_sw'] ) ) {
+		if ( 'yes' === $element->get_settings( 'premium_global_divider_sw' ) ) {
 
 			$this->enqueue_styles();
 			$this->enqueue_scripts();

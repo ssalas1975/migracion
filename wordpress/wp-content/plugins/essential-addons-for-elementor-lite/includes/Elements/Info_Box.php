@@ -18,6 +18,7 @@ use \Elementor\Utils;
 use \Elementor\Widget_Base;
 use \Essential_Addons_Elementor\Classes\Helper;
 use Essential_Addons_Elementor\Traits\Helper as HelperTrait;
+use Essential_Addons_Elementor\Controls\EAEL_Gradient_Text;
 
 class Info_Box extends Widget_Base
 {
@@ -61,6 +62,11 @@ class Info_Box extends Widget_Base
     }
 
     protected function is_dynamic_content():bool {
+        // The editor also asks each widget type, which has no settings, when it
+        // builds the widget list: get_data() fails on that.
+        if ( $this->is_type_instance() ) {
+            return false;
+        }
         if( Plugin::$instance->editor->is_edit_mode() ) {
             return false;
         }
@@ -318,7 +324,7 @@ class Info_Box extends Widget_Base
 			'eael_infobox_show_sub_title',
 			[
 				'label'        => esc_html__( 'Sub Title', 'essential-addons-for-elementor-lite' ),
-				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'type'         => Controls_Manager::SWITCHER,
 				'label_on'     => esc_html__( 'Show', 'essential-addons-for-elementor-lite' ),
 				'label_off'    => esc_html__( 'Hide', 'essential-addons-for-elementor-lite' ),
 				'return_value' => 'yes',
@@ -329,7 +335,7 @@ class Info_Box extends Widget_Base
 			'eael_infobox_show_sub_title_after',
 			[
 				'label'   => esc_html__( 'Position', 'essential-addons-for-elementor-lite' ),
-				'type'    => \Elementor\Controls_Manager::CHOOSE,
+				'type'    => Controls_Manager::CHOOSE,
 				'options' => [
 					'column' => [
 						'title' => esc_html__( 'Top', 'essential-addons-for-elementor-lite' ),
@@ -1744,15 +1750,12 @@ class Info_Box extends Widget_Base
             ]
         );
 
-        $this->add_control(
-            'eael_infobox_title_color',
+        $this->add_group_control(
+            EAEL_Gradient_Text::get_type(),
             [
-                'label' => esc_html__('Color', 'essential-addons-for-elementor-lite'),
-                'type' => Controls_Manager::COLOR,
-                'default' => '#4d4d4d',
-                'selectors' => [
-                    '{{WRAPPER}} .eael-infobox .infobox-content .title' => 'color: {{VALUE}};',
-                ],
+                'name'     => 'eael_infobox_title',
+                'selector' => '{{WRAPPER}} .eael-infobox .infobox-content .title',
+                'default'  => '#4d4d4d',
             ]
         );
 
@@ -1788,15 +1791,12 @@ class Info_Box extends Widget_Base
             ]
         );
 
-        $this->add_control(
-            'eael_infobox_sub_title_color',
+        $this->add_group_control(
+            EAEL_Gradient_Text::get_type(),
             [
-                'label'     => esc_html__('Color', 'essential-addons-for-elementor-lite'),
-                'type'      => Controls_Manager::COLOR,
+                'name'      => 'eael_infobox_sub_title',
+                'selector'  => '{{WRAPPER}} .eael-infobox .infobox-content .sub_title',
                 'default'   => '#4d4d4d',
-                'selectors' => [
-                    '{{WRAPPER}} .eael-infobox .infobox-content .sub_title' => 'color: {{VALUE}};',
-                ],
                 'condition' => [
                     'eael_infobox_show_sub_title' => 'yes',
                 ],
@@ -1915,26 +1915,21 @@ class Info_Box extends Widget_Base
             'label' => esc_html__('Hover', 'essential-addons-for-elementor-lite'),
         ]);
 
-        $this->add_control(
-            'eael_infobox_title_hover_color',
+        $this->add_group_control(
+            EAEL_Gradient_Text::get_type(),
             [
-                'label' => esc_html__('Title Color', 'essential-addons-for-elementor-lite'),
-                'type' => Controls_Manager::COLOR,
-                'default' => '',
-                'selectors' => [
-                    '{{WRAPPER}} .eael-infobox:hover .infobox-content .title' => 'color: {{VALUE}};',
-                ],
+                'name'     => 'eael_infobox_title_hover',
+                'selector' => '{{WRAPPER}} .eael-infobox:hover .infobox-content .title',
+                'default'  => '',
             ]
         );
 
-        $this->add_control(
-            'eael_infobox_sub_title_hover_color',
+        $this->add_group_control(
+            EAEL_Gradient_Text::get_type(),
             [
-                'label'     => esc_html__('Sub Title Color', 'essential-addons-for-elementor-lite'),
-                'type'      => Controls_Manager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}} .eael-infobox:hover .infobox-content .sub_title' => 'color: {{VALUE}};',
-                ],
+                'name'      => 'eael_infobox_sub_title_hover',
+                'selector'  => '{{WRAPPER}} .eael-infobox:hover .infobox-content .sub_title',
+                'default'   => '',
                 'condition' => [
                     'eael_infobox_show_sub_title' => 'yes',
                 ],
@@ -2512,6 +2507,7 @@ class Info_Box extends Widget_Base
         }
 
         $infobox_image = $this->get_settings('eael_infobox_image');
+        $infobox_image = Helper::eael_wpml_translate_media( $infobox_image ); // WPML Media Translation compatibility
         $infobox_image_url = Group_Control_Image_Size::get_attachment_image_src($infobox_image['id'], 'thumbnail', $settings);
         if (empty($infobox_image_url)){
 	        $infobox_image_url = $infobox_image['url'];
@@ -2562,7 +2558,7 @@ class Info_Box extends Widget_Base
         <div <?php $this->print_render_attribute_string('infobox_icon'); ?>>
 
             <?php if ('img' == $settings['eael_infobox_img_or_icon']): ?>
-                <img src="<?php echo esc_url($infobox_image_url); ?>" alt="<?php echo esc_attr(get_post_meta($infobox_image['id'], '_wp_attachment_image_alt', true)); ?>">
+                <img src="<?php echo esc_url($infobox_image_url); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $infobox_image )); ?>">
             <?php endif;?>
 
             <?php if ('icon' == $settings['eael_infobox_img_or_icon']): ?>
@@ -2613,6 +2609,7 @@ class Info_Box extends Widget_Base
                 if ('content' === $settings['eael_infobox_text_type']){
                     if (!empty($settings['eael_infobox_text'])) {
                         echo '<div>';
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.Security.EscapeOutput.OutputNotEscaped
                         echo $this->parse_text_editor( wp_kses( $settings['eael_infobox_text'], Helper::eael_allowed_tags() ) );
                         echo '</div>';
                     }
@@ -2625,12 +2622,16 @@ class Info_Box extends Widget_Base
 
                         // WPML Compatibility
                         if ( ! is_array( $settings['eael_primary_templates'] ) ) {
-                            $settings['eael_primary_templates'] = apply_filters( 'wpml_object_id', $settings['eael_primary_templates'], 'wp_template', true );
+                            $settings['eael_primary_templates'] = apply_filters( 'wpml_object_id', $settings['eael_primary_templates'], 'elementor_library', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
                         }
 
-	                    Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['eael_primary_templates'] );
-                        
-                        echo Plugin::$instance->frontend->get_builder_content( $settings['eael_primary_templates'], true );
+	                    // Re-validate the translated template is a published elementor_library post before rendering.
+	                    if ( Helper::is_elementor_publish_template( $settings['eael_primary_templates'] ) ) {
+		                    Helper::eael_onpage_edit_template_markup( get_the_ID(), $settings['eael_primary_templates'] );
+
+		                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		                    echo Plugin::$instance->frontend->get_builder_content( $settings['eael_primary_templates'], true );
+	                    }
 	                    if ( Plugin::$instance->editor->is_edit_mode() ) {
 		                    echo '</div>';
 	                    }
@@ -2671,7 +2672,7 @@ class Info_Box extends Widget_Base
                 <?php if ('left' == $settings['eael_infobox_button_icon_alignment']): ?>
                     <?php if ($button_icon_is_new || $button_icon_migrated) {?>
                         <?php if (isset($settings['eael_infobox_button_icon_new']['value']['url'])) {?>
-                            <img class="eael_infobox_button_icon_left" src="<?php echo esc_url( $settings['eael_infobox_button_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(get_post_meta($settings['eael_infobox_button_icon_new']['value']['id'], '_wp_attachment_image_alt', true)); ?>" />
+                            <img class="eael_infobox_button_icon_left" src="<?php echo esc_url( $settings['eael_infobox_button_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $settings['eael_infobox_button_icon_new']['value'] )); ?>" />
                         <?php } else {
                             Icons_Manager::render_icon( $settings['eael_infobox_button_icon_new'], [ 'aria-hidden' => 'true', 'class' => 'eael_infobox_button_icon_left' ] );
                         }?>
@@ -2683,7 +2684,7 @@ class Info_Box extends Widget_Base
                 <?php if ('right' == $settings['eael_infobox_button_icon_alignment']): ?>
                     <?php if ($button_icon_is_new || $button_icon_migrated) {?>
                         <?php if (isset($settings['eael_infobox_button_icon_new']['value']['url'])) {?>
-                            <img class="eael_infobox_button_icon_right" src="<?php echo esc_url( $settings['eael_infobox_button_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(get_post_meta($settings['eael_infobox_button_icon_new']['value']['id'], '_wp_attachment_image_alt', true)); ?>" />
+                            <img class="eael_infobox_button_icon_right" src="<?php echo esc_url( $settings['eael_infobox_button_icon_new']['value']['url'] ); ?>" alt="<?php echo esc_attr(Helper::get_image_alt( $settings['eael_infobox_button_icon_new']['value'] )); ?>" />
                         <?php } else {
                             Icons_Manager::render_icon( $settings['eael_infobox_button_icon_new'], [ 'aria-hidden' => 'true', 'class' => 'eael_infobox_button_icon_right' ] );
                         }?>

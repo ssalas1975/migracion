@@ -23,13 +23,25 @@ class ReDiCustomFields {
             return;
         }
 
+        // API can return an empty object or wrapped payload when there are no custom fields.
+        const normalizedFields = Array.isArray(customFields)
+            ? customFields
+            : Array.isArray(customFields?.CustomFields)
+                ? customFields.CustomFields
+                : [];
+
+        if (!normalizedFields.length) {
+            this.loadedFields.set(placeId, true);
+            return;
+        }
+
         // Sort custom fields by DisplayOrder
-        customFields.sort((a, b) => {
+        normalizedFields.sort((a, b) => {
             return (a.DisplayOrder || 0) - (b.DisplayOrder || 0);
         });
         
         // Process each custom field
-        customFields.forEach(field => {
+        normalizedFields.forEach(field => {
             // Generate HTML for this field
             const fieldHtml = this.renderField(field);
             

@@ -19,14 +19,6 @@ if ( ! class_exists( 'Premium_Templates_Assets' ) ) {
 	 */
 	class Premium_Templates_Assets {
 
-		/*
-		 * Instance of the class
-		 *
-		 * @since 3.6.0
-		 * @access private
-		 */
-		private static $instance = null;
-
 		/**
 		 * Premium_Templates_Assets constructor.
 		 *
@@ -69,7 +61,8 @@ if ( ! class_exists( 'Premium_Templates_Assets' ) ) {
 					'#premium-template-modal-header-logo,
 					#elementor-template-library-filter label,
 					#elementor-template-library-sort label,
-					#premium-template-modal-header-close-modal i {
+					#premium-template-modal-header-close-modal i,
+					#premium-template-modal-header-refresh i {
 						color: #d5d8dc;
 					}
 
@@ -114,7 +107,7 @@ if ( ! class_exists( 'Premium_Templates_Assets' ) ) {
 					'underscore',
 					'backbone-marionette',
 				),
-				time(),
+				PREMIUM_ADDONS_VERSION,
 				true
 			);
 
@@ -179,27 +172,6 @@ if ( ! class_exists( 'Premium_Templates_Assets' ) ) {
 				},
 				$scripts
 			);
-		}
-
-		/**
-		 * Get Instance
-		 *
-		 * Creates and returns an instance of the class.
-		 *
-		 * @since 3.6.0
-		 * @access public
-		 *
-		 * @return object
-		 */
-		public static function get_instance() {
-
-			if ( self::$instance == null ) {
-
-				self::$instance = new self();
-
-			}
-
-			return self::$instance;
 		}
 	}
 

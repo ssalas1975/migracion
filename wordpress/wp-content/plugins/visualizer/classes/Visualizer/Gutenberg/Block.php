@@ -202,8 +202,25 @@ class Visualizer_Gutenberg_Block {
 	 * Hook server side rendering into render callback
 	 */
 	public function register_block_type() {
+		$asset_path = VISUALIZER_ABSPATH . '/classes/Visualizer/Gutenberg/build/index.asset.php';
+		$version    = $this->version;
+		if ( file_exists( $asset_path ) ) {
+			// @phpstan-ignore-next-line
+			$asset   = require $asset_path;
+			$version = isset( $asset['version'] ) ? $asset['version'] : $version;
+		}
+		if ( ! wp_style_is( 'visualizer-datatables', 'registered' ) ) {
+			wp_register_style( 'visualizer-datatables', VISUALIZER_ABSURL . 'css/lib/datatables.min.css', array(), Visualizer_Plugin::VERSION );
+		}
+		if ( ! wp_style_is( 'visualizer-gutenberg-block', 'registered' ) ) {
+			wp_register_style( 'visualizer-gutenberg-block', VISUALIZER_ABSURL . 'classes/Visualizer/Gutenberg/build/style-index.css', array( 'visualizer-datatables' ), $version );
+		}
 		register_block_type(
 			'visualizer/chart', array(
+				// The editor_style registration is what gets the stylesheet into the
+				// iframed editor canvas; styles enqueued via enqueue_block_editor_assets
+				// only reach the parent document.
+				'editor_style'    => 'visualizer-gutenberg-block',
 				'render_callback' => array( $this, 'gutenberg_block_callback' ),
 				'attributes'      => array(
 					'id' => array(
@@ -276,7 +293,7 @@ class Visualizer_Gutenberg_Block {
 	 * Get Post Meta Fields
 	 */
 	public function get_visualizer_data( $post ) {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! Visualizer_Module::can_edit_chart( $post['id'] ) ) {
 			return false;
 		}
 
@@ -297,6 +314,9 @@ class Visualizer_Gutenberg_Block {
 
 		// faetch and update settings
 		$data['visualizer-settings'] = get_post_meta( $post_id, Visualizer_Plugin::CF_SETTINGS, true );
+		if ( ! is_array( $data['visualizer-settings'] ) ) {
+			$data['visualizer-settings'] = array();
+		}
 		if ( empty( $data['visualizer-settings']['pagination'] ) ) {
 			$data['visualizer-settings']['pageSize'] = '';
 		}
@@ -307,7 +327,14 @@ class Visualizer_Gutenberg_Block {
 		$data['visualizer-settings'] = apply_filters( Visualizer_Plugin::FILTER_GET_CHART_SETTINGS, $data['visualizer-settings'], $post_id, $data['visualizer-chart-type'] );
 
 		// handle data filter hooks
-		$data['visualizer-data'] = apply_filters( Visualizer_Plugin::FILTER_GET_CHART_DATA, unserialize( html_entity_decode( get_the_content( $post_id ) ) ), $post_id, $data['visualizer-chart-type'] );
+		$data['visualizer-data'] = Visualizer_Module::sanitize_chart_data(
+			apply_filters(
+				Visualizer_Plugin::FILTER_GET_CHART_DATA,
+				Visualizer_Module::decode_content( html_entity_decode( get_post_field( 'post_content', $post_id, 'raw' ) ) ),
+				$post_id,
+				$data['visualizer-chart-type']
+			)
+		);
 
 		// we are going to format only for tabular charts, because we are not sure of the effect on others.
 		// this is to solve the case where boolean data shows up as all-ticks on gutenberg.

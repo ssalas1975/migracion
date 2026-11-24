@@ -1771,10 +1771,14 @@ class Member extends Base {
 	}
 
 	protected function render_lightbox() {
-		$settings = $this->get_settings_for_display();
-		$template = false;
+		$settings    = $this->get_settings_for_display();
+		$template    = false;
+		$template_id = 0;
 		if ( ! empty( $settings['saved_template_list'] ) && '0' != $settings['saved_template_list'] && 'no_template' != $settings['saved_template_list'] ) {
+		$template_id = absint( $settings['saved_template_list'] );
+		if ( ha_is_renderable_template( $template_id ) ) {
 			$template = true;
+		}
 		}
 		if ( $settings['show_lightbox'] && 'yes' === $settings['show_lightbox'] && $template ) :
 			$this->add_render_attribute( 'lightbox', 'class', 'ha-member-lightbox' );
@@ -1786,8 +1790,10 @@ class Member extends Base {
 					<div class="ha-member-lightbox-close"><i aria-hidden="true" class="eicon-editor-close"></i></div>
 					<div class="ha-member-lightbox-inner">
 						<?php
-						$saved_template_list = apply_filters('wpml_object_id', $settings['saved_template_list'], 'elementor_library');
+					$saved_template_list = apply_filters( 'wpml_object_id', $template_id, 'elementor_library' );
+					if ( ha_is_renderable_template( $saved_template_list ) ) {
 						echo \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $saved_template_list );
+					}
 						?>
 					</div>
 				</div>

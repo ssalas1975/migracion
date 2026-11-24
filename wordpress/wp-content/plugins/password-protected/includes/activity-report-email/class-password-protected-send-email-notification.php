@@ -28,28 +28,16 @@ if ( ! class_exists( 'Password_Protected_Send_Email_Notification' ) ) {
 		}
 
 		public function send_email_notification() {
-			global $wpdb;
 			$timestamps = Password_Protected_Activity_Logs::get_time_from_keyword( 'thisweek' );
-			$sql        = 'SELECT
-			    SUM( IF ( `status` = %s, 1, 0 ) ) as success,
-			    SUM( IF ( `status` = %s, 1, 0 ) ) as failed
-			FROM %i WHERE created_at between %d and %d;';
-			$sql        = $wpdb->prepare( $sql, 'Success', 'Failure', $wpdb->prefix . 'pp_activity_logs', $timestamps[0], $timestamps[1] );
-			$results    = $wpdb->get_row( $sql, ARRAY_A );
+			Password_Protected_Activity_Logs::set_email_report_window( $timestamps );
 
-			$success_attempts =
-			$failed_attempts  = 0;
-			if ( is_array( $results ) ) {
-				if ( isset( $results['success'] ) ) {
-					$success_attempts = absint( $results['success'] );
-				}
+			$start = isset( $timestamps[0] ) ? (int) $timestamps[0] : 0;
+			$end   = isset( $timestamps[1] ) ? (int) $timestamps[1] : 0;
+			$stats = Password_Protected_Activity_Logs::get_attempt_totals_for_window( $start, $end );
 
-				if ( isset( $results['failed'] ) ) {
-					$failed_attempts = absint( $results['failed'] );
-				}
-			}
-
-			$total_attempts   = $success_attempts + $failed_attempts;
+			$success_attempts = $stats['success'];
+			$failed_attempts  = $stats['failed'];
+			$total_attempts   = $stats['total'];
 
 			$template = $this->get_template( $success_attempts, $failed_attempts, $total_attempts, $timestamps );
 			$headers  = $this->get_html_headers();
@@ -62,9 +50,24 @@ if ( ! class_exists( 'Password_Protected_Send_Email_Notification' ) ) {
 			return wp_mail( get_option( 'admin_email' ), $subject, $template, $headers );
 		}
 
+		/**
+		 * Build the activity report HTML email body.
+		 *
+		 * The template fires {@see 'password_protected_activity_notification_content'} with:
+		 * - total   (int)   Total attempts in the report window.
+		 * - success (int)   Successful attempts.
+		 * - failed  (int)   Failed attempts.
+		 * - time    (array) Report window [ start_timestamp, end_timestamp ].
+		 *
+		 * @param int   $success Successful attempts.
+		 * @param int   $failed  Failed attempts.
+		 * @param int   $total   Total attempts.
+		 * @param array $time    Report window timestamps.
+		 * @return string HTML email body.
+		 */
 		private function get_template( $success, $failed, $total, $time ) {
 			ob_start();
-			require_once PASSWORD_PROTECTED_DIR . 'templates/emails/activity-notification.php';
+			require PASSWORD_PROTECTED_DIR . 'templates/emails/activity-notification.php';
 			return ob_get_clean();
 		}
 		private function get_html_headers() {
@@ -86,5 +89,3 @@ if ( ! class_exists( 'Password_Protected_Send_Email_Notification' ) ) {
 }
 
 Password_Protected_Send_Email_Notification::get_instance();
-
-#F03B3E, #04AA5E, #4685EC, #CA1329, #FBBA40

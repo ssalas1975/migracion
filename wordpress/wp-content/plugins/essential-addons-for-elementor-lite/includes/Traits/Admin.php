@@ -63,7 +63,16 @@ trait Admin {
 			    'reactPath'               => EAEL_PLUGIN_URL . 'includes/templates/admin/eael-dashboard/dist/',
 			    'is_eapro_activate'       => $this->pro_enabled,
 			    'is_templately_installed' => $this->installer->get_local_plugin_data( 'templately/templately.php' ),
-			    'menu'                    => [
+			    /**
+			     * Tabs down the dashboard's side. Pro adds its own here, e.g.
+			     * FigWP: an item may carry 'icon_url' (an image in place of the
+			     * icon font glyph, e.g. a product logo), 'badge' (shown as the dashboard's
+			     * NEW/BETA label), 'html' (a panel rendered on the server,
+			     * shown as the tab's content) and 'url_flag' (a query
+			     * parameter dropped from the address once the tab has shown
+			     * it). EAEL_DASHBOARD_PANELS says this Lite renders them.
+			     */
+			    'menu'                    => apply_filters( 'eael/admin/dashboard/menu', [
 				    'general'      => [
 					    'label' => __( 'General', 'essential-addons-for-elementor-lite' ),
 					    'icon'  => 'ea-home'
@@ -88,7 +97,7 @@ trait Admin {
 					    'label' => __( 'Go Premium', 'essential-addons-for-elementor-lite' ),
 					    'icon'  => 'ea-lock'
 				    ],
-			    ],
+			    ] ),
 			    'i18n'                    => [
 				    'enable_all'           => __( 'Enable All', 'essential-addons-for-elementor-lite' ),
 				    'disable_all'          => __( 'Disable All', 'essential-addons-for-elementor-lite' ),
@@ -227,6 +236,14 @@ trait Admin {
 						    'desc'     => __( 'Create and organize your knowledge base, FAQ & documentation page efficiently, making it easy for visitors to find any helpful article quickly and effortlessly.', 'essential-addons-for-elementor-lite' ),
 						    'status'   => is_plugin_active( 'betterdocs/betterdocs.php' )
 					    ],
+					    'tr' => [
+						    'slug'     => 'thinkrank',
+						    'basename' => 'thinkrank/thinkrank.php',
+						    'logo'     => 'images/TR.svg',
+						    'title'    => __( 'ThinkRank', 'essential-addons-for-elementor-lite' ),
+						    'desc'     => __( 'AI SEO assistant for WordPress — optimize titles, meta, schema, LLM answers & sitemaps, and track rankings with GA4. Turn the pages you build into pages that rank.', 'essential-addons-for-elementor-lite' ),
+						    'status'   => is_plugin_active( 'thinkrank/thinkrank.php' )
+					    ],
 					    'bl' => [
 						    'slug'     => 'betterlinks',
 						    'basename' => 'betterlinks/betterlinks.php',
@@ -272,7 +289,7 @@ trait Admin {
 						    'basename' => 'embedpress/embedpress.php',
 						    'logo'     => 'images/EP.svg',
 						    'title'    => __( 'EmbedPress', 'essential-addons-for-elementor-lite' ),
-						    'desc'     => __( 'Embed videos, images, gifs, charts, docs, maps, audio, live streams, pdf & more from 150+ sources into your WordPress site and get seamless customization options.', 'essential-addons-for-elementor-lite' ),
+						    'desc'     => __( 'Embed videos, images, gifs, charts, docs, maps, audio, live streams, PDFs, and more from 150+ sources into your WordPress site and get seamless customization options.', 'essential-addons-for-elementor-lite' ),
 						    'status'   => is_plugin_active( 'embedpress/embedpress.php' )
 					    ],
 					    'eb' => [
@@ -644,6 +661,15 @@ trait Admin {
 						    'promotion'   => 'new',
 						    'is_activate' => boolval( $this->get_settings( 'image-masking' ) )
 					    ],
+						'advanced-slider'        => [
+						    'key'         => 'advanced-slider',
+						    'title'       => __( 'Advanced Slider', 'essential-addons-for-elementor-lite' ),
+						    'demo_link'   => 'https://essential-addons.com/advanced-slider/',
+						    'doc_link'    => 'https://essential-addons.com/docs/ea-advanced-slider/',
+						    'is_pro'      => true,
+						    'promotion'   => 'new',
+						    'is_activate' => boolval( $this->get_settings( 'advanced-slider' ) )
+					    ],
 					    'advanced-dynamic-tags' => [
 						    'key'         => 'advanced-dynamic-tags',
 						    'title'       => __( 'Dynamic Tags', 'essential-addons-for-elementor-lite' ),
@@ -839,6 +865,14 @@ trait Admin {
 							    'demo_link'   => 'https://essential-addons.com/simple-menu/',
 							    'doc_link'    => 'https://essential-addons.com/docs/simple-menu/',
 							    'is_activate' => boolval( $this->get_settings( 'simple-menu' ) )
+						    ],
+						    'mega-menu'            => [
+							    'key'         => 'mega-menu',
+							    'title'       => __( 'Mega Menu', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/mega-menu/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-mega-menu/',
+							    'promotion'   => 'new',
+							    'is_activate' => boolval( $this->get_settings( 'mega-menu' ) )
 						    ],
 						    'advanced-search'      => [
 							    'key'         => 'advanced-search',
@@ -1280,7 +1314,9 @@ trait Admin {
 							    'doc_link'    => 'https://essential-addons.com/docs/typeform/',
 							    'setting'     => [
 								    'link' => esc_url( add_query_arg( [
-									    'pr_code'      => wp_hash( 'eael_typeform' ),
+									    // Per-user, expiring token (#typeform-csrf). The callback service
+									    // echoes pr_code back, so wp_verify_nonce() validates it on return.
+									    'pr_code'      => wp_create_nonce( 'eael_typeform_connect' ),
 									    'redirect_uri' => esc_url( admin_url( 'admin.php?page=eael-settings' ) ),
 								    ], esc_url( 'https://app.essential-addons.com/typeform/index.php' ) ) ),
 							    ],
@@ -1343,6 +1379,16 @@ trait Admin {
 							    'doc_link'    => 'https://essential-addons.com/docs/facebook-feed/',
 							    'promotion'   => 'updated',
 							    'is_activate' => boolval( $this->get_settings( 'facebook-feed' ) )
+						    ],
+						    'pinterest-feed'        => [
+							    'key'         => 'pinterest-feed',
+							    'title'       => __( 'Pinterest Feed', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/pinterest-feed/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-pinterest-feed',
+							    'is_pro'      => true,
+							    'promotion'   => 'new',
+							    'setting'     => $this->pro_enabled ? [ 'id' => 'pinterestFeedSetting' ] : [],
+							    'is_activate' => boolval( $this->get_settings( 'pinterest-feed' ) )
 						    ],
 					    ]
 				    ],
@@ -1423,6 +1469,14 @@ trait Admin {
 							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-list/',
 							    'is_activate' => boolval( $this->get_settings( 'woo-product-list' ) )
 						    ],
+						    'woo-product-title'     => [
+							    'key'         => 'woo-product-title',
+							    'title'       => __( 'Woo Product Title', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/woo-product-title/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-title',
+							    'promotion'   => 'new',
+							    'is_activate' => boolval( $this->get_settings( 'woo-product-title' ) )
+						    ],
 						    'woo-product-price'     => [
 							    'key'         => 'woo-product-price',
 							    'title'       => __( 'Woo Product Price', 'essential-addons-for-elementor-lite' ),
@@ -1430,6 +1484,30 @@ trait Admin {
 							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-price',
 							    'promotion'   => 'new',
 							    'is_activate' => boolval( $this->get_settings( 'woo-product-price' ) )
+						    ],
+						    'woo-product-tabs'      => [
+							    'key'         => 'woo-product-tabs',
+							    'title'       => __( 'Woo Product Tabs', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/woo-product-tabs/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-tabs',
+							    'promotion'   => 'new',
+							    'is_activate' => boolval( $this->get_settings( 'woo-product-tabs' ) )
+						    ],
+						    'woo-product-short-description' => [
+							    'key'         => 'woo-product-short-description',
+							    'title'       => __( 'Woo Product Short Description', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/woo-product-short-description/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-short-description',
+							    'promotion'   => 'new',
+							    'is_activate' => boolval( $this->get_settings( 'woo-product-short-description' ) )
+						    ],
+						    'woo-product-description' => [
+							    'key'         => 'woo-product-description',
+							    'title'       => __( 'Woo Product Description', 'essential-addons-for-elementor-lite' ),
+							    'demo_link'   => 'https://essential-addons.com/woo-product-description/',
+							    'doc_link'    => 'https://essential-addons.com/docs/ea-woo-product-description',
+							    'promotion'   => 'new',
+							    'is_activate' => boolval( $this->get_settings( 'woo-product-description' ) )
 						    ],
 						    'woo-product-rating'    => [
 							    'key'         => 'woo-product-rating',
@@ -1561,6 +1639,14 @@ trait Admin {
 					    'placeholder'=> __( "Custom Tab 1, Custom Tab 2, Custom Tab 3", 'essential-addons-for-elementor-lite' ),
 					    'value'      => get_option( 'eael_woo_ac_dashboard_custom_tabs', '' ),
 				    ],
+				    'pinterestFeedSetting'   => apply_filters( 'eael/admin/modal/pinterestFeedSetting', [
+					    'accordion' => [],
+					    'link'      => [
+						    'text' => __( 'How to connect your Pinterest account', 'essential-addons-for-elementor-lite' ),
+						    'url'  => 'https://essential-addons.com/docs/pinterest-feed/'
+					    ]
+				    ] ),
+
 				    'businessReviewsSetting' => apply_filters( 'eael/admin/modal/businessReviewsSetting', [
 					    'accordion' => [
 						    'googlePlaces' => [
@@ -1741,6 +1827,16 @@ trait Admin {
 								    'value' => get_option( 'eael_custom_profile_fields', '' ),
 							    ]
 						    ],
+						    'adminApproval'   => [
+							    'title'  => __( 'Admin Approval', 'essential-addons-for-elementor-lite' ),
+							    'icon'   => 'images/customfield.svg',
+							    'info'   => __( 'When enabled, new registrants are placed in a "Pending" state and cannot log in until an administrator manually approves them.', 'essential-addons-for-elementor-lite' ),
+							    'fields' => [],
+							    'status' => [
+								    'name'  => 'lr_admin_approval',
+								    'value' => get_option( 'eael_lr_admin_approval', '' ),
+							    ]
+						    ],
 					    ],
 					    'link'      => [
 						    'text' => __( 'To configure the API Keys, check out this doc', 'essential-addons-for-elementor-lite' ),
@@ -1749,8 +1845,8 @@ trait Admin {
 				    ]
 			    ],
 			    'admin_screen_promo'      => [
-				    'display' => get_option( 'eael_admin_promotion' ) < self::EAEL_PROMOTION_FLAG,
-				    'content' => sprintf( __( "<p> <i>📣</i> <b>NEW:</b> Introducing EA Pro 6.8 with new \"<b><a target='_blank' href='%1\$s'>Pricing Slider</a></b>\" widget. For more info, check out the <a target='_blank' href='%2\$s'>Changelog</a> 🎉</p>", "essential-addons-for-elementor-lite" ),  esc_url( 'https://essential-addons.com/pricing-slider/' ), esc_url( 'https://essential-addons.com/view-ea-changelog' ) )
+				    // 'display' => get_option( 'eael_admin_promotion' ) < self::EAEL_PROMOTION_FLAG,
+				    // 'content' => sprintf( __("<p> <i>📣</i> <b>NEW:</b> Introducing \"<b><a target='_blank' href='%1\$s'>Theme Builder</a></b>\" and \"<b><a target='_blank' href='%2\$s'>Mega Menu</a></b>\" widget. For more info, check out the <a target='_blank' href='%3\$s'>Changelog</a> 🎉</p>", "essential-addons-for-elementor-lite" ),  esc_url('https://essential-addons.com/header-footer-builder' ), esc_url('https://essential-addons.com/mega-menu' ), esc_url( 'https://essential-addons.com/view-ea-changelog' ) )
 			    ],
 			    'pro_modal'               => [
 				    'heading' => __( 'Unlock the PRO Features', 'essential-addons-for-elementor-lite' ),
@@ -1900,20 +1996,20 @@ trait Admin {
 	    );
 
 	    ob_start(); ?>
-		<div class="eael-spring-campaign-logo">
-			<img src="<?php echo esc_url( EAEL_PLUGIN_URL . 'assets/admin/images/eael-bfcm-logo.png' ); ?>" width="25" alt="">
+		<div class="eael-summer-campaign-logo">
+			<img src="<?php echo esc_url( EAEL_PLUGIN_URL . 'assets/admin/images/eael-bfcm-logo.png' ); ?>" alt="">
 		</div>
-		<div class="eael-spring-campaign-content">
+		<div class="eael-summer-campaign-content">
 			<p><?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo __( '<strong>🌸 Spring Savings:</strong> Design Elementor website faster and smoother with 110+ advanced elements – now <strong>Flat 25% OFF</strong>! ⚡️', 'essential-addons-for-elementor-lite' );
+			// `wp-exclude-emoji` stops WordPress replacing the emoji with a Twemoji SVG.
+			echo wp_kses( __( '<strong><span class="wp-exclude-emoji">🛍️</span> Black Friday Sale:</strong> Design standout Elementor pages with 120+ advanced widgets & extensions, 3,000+ ready templates – <strong>now up to 40% OFF!</strong>', 'essential-addons-for-elementor-lite' ), [ 'strong' => [], 'span' => [ 'class' => [] ] ] );
 			?></p>
             <div class="eael-notice-action-button" style='display: inline-flex; column-gap: 12px; align-items: center;'>
-                <a href="https://essential-addons.com/spring2026-admin-notice" target="_blank" class="button-primary">
-                    <?php esc_html_e( 'Upgrade To Pro Now', 'essential-addons-for-elementor-lite' ); ?>
+                <a href="https://essential-addons.com/bfcm2026/admin-notice" target="_blank" class="button-primary">
+                    <?php esc_html_e( 'Upgrade To PRO Now', 'essential-addons-for-elementor-lite' ); ?>
                 </a>
                 <span class="eael-action-dismiss-btn">
-                    <?php esc_html_e( 'Maybe Later', 'essential-addons-for-elementor-lite' ); ?>
+                    <?php esc_html_e( 'I Want To Pay Full Price', 'essential-addons-for-elementor-lite' ); ?>
                 </span>
             </div>
 		</div>
@@ -1921,7 +2017,7 @@ trait Admin {
 		<script>
             jQuery(document).ready(function ($) {
                 setTimeout(function () {
-                    var dismissBtn = document.querySelector('#wpnotice-essential-addons-for-elementor-lite-spring_campaign_2026_notice .notice-dismiss');
+                    var dismissBtn = document.querySelector('#wpnotice-essential-addons-for-elementor-lite-bfcm_campaign_2026_notice .notice-dismiss');
 
                     function wpNoticeDismissFunc(event) {
                         event.preventDefault();
@@ -1935,7 +2031,7 @@ trait Admin {
                             jQuery(event.target.offsetParent).slideUp(200);
                         }
 
-                        postData += 'id=spring_campaign_2026_notice';
+                        postData += 'id=bfcm_campaign_2026_notice';
                         postData += '&action=essential-addons-for-elementor-lite_wpnotice_dismiss_notice';
                         if (dismiss) {
                             postData += '&dismiss=' + dismiss;
@@ -1944,7 +2040,7 @@ trait Admin {
                             postData += '&later=' + later;
                         }
 
-                        postData += '&nonce=<?php echo esc_attr( wp_create_nonce( 'wpnotice_dismiss_notice_spring_campaign_2026_notice' ) );?>';
+                        postData += '&nonce=<?php echo esc_attr( wp_create_nonce( 'wpnotice_dismiss_notice_bfcm_campaign_2026_notice' ) );?>';
 
                         httpRequest.open('POST', '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>');
                         httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -1953,7 +2049,7 @@ trait Admin {
 
                     dismissBtn && dismissBtn.addEventListener('click', wpNoticeDismissFunc);
 
-                    var customDismissBtn = document.querySelector('#wpnotice-essential-addons-for-elementor-lite-spring_campaign_2026_notice .eael-action-dismiss-btn');
+                    var customDismissBtn = document.querySelector('#wpnotice-essential-addons-for-elementor-lite-bfcm_campaign_2026_notice .eael-action-dismiss-btn');
                     if (customDismissBtn && dismissBtn) {
                         customDismissBtn.addEventListener('click', function(event) {
                             event.preventDefault();
@@ -1965,25 +2061,32 @@ trait Admin {
 		</script>
 	    <?php
 	    $b_message                     = ob_get_clean();
-	    $_spring_campaign_2026_notice  = [
+	    $_bfcm_campaign_2026_notice      = [
 		    'html' => $b_message,
 	    ];
 
 	    $notices->add(
-			'spring_campaign_2026_notice',
-			$_spring_campaign_2026_notice,
+			'bfcm_campaign_2026_notice',
+			$_bfcm_campaign_2026_notice,
 			[
-				'start'       => strtotime( '12:00:00am 15th April, 2026' ),
+				'start'       => strtotime( '12:00:00am 14th November, 2026' ),
 				'recurrence'  => false,
 				'dismissible' => true,
 				'refresh'     => EAEL_PLUGIN_VERSION,
-				'expire'      => strtotime( '11:59:59pm 10th May, 2026' ),
-				'display_if'  => ! $this->pro_enabled && $GLOBALS["pagenow"] === 'index.php' && time() < strtotime( '11:59:59pm 10th May, 2026' ),
+				'expire'      => strtotime( '11:59:59pm 14th December, 2026' ),
+				// WP Dashboard, Plugins screen and EA's own pages only (Guideline 11).
+				'display_if'  => ! $this->pro_enabled
+					&& ( in_array( $GLOBALS['pagenow'], [ 'index.php', 'plugins.php' ], true )
+						|| ( isset( $_GET['page'] ) && 0 === strpos( sanitize_key( wp_unslash( $_GET['page'] ) ), 'eael' ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					&& time() < strtotime( '11:59:59pm 14th December, 2026' ),
 			]
 		);
 
 	    self::$cache_bank->create_account( $notices );
 	    self::$cache_bank->calculate_deposits( $notices );
+
+	    // The EA Dashboard strips `admin_notices` and fires `eael_admin_notices` instead.
+	    add_action( 'eael_admin_notices', [ self::$cache_bank, 'notices' ] );
     }
 
 	/**
@@ -2001,13 +2104,18 @@ trait Admin {
 		}
 
 		if ( $this->menu_notice_should_show() ) {
+			// Scoped to the direct child anchor on purpose. WordPress repeats the
+			// menu title twice more — in `.wp-submenu-head` and in the submenu item
+			// it generates for the parent page — so a descendant selector paints the
+			// whole flyout purple and prints the badge three times.
 			$custom_css = "
-                #toplevel_page_eael-settings a ,
-                #toplevel_page_eael-settings a:hover {
+                #toplevel_page_eael-settings > a,
+                #toplevel_page_eael-settings > a:hover,
+                #toplevel_page_eael-settings > a:focus {
                     color:#f0f0f1 !important;
                     background: #7D55FF !important;
                 }
-				#toplevel_page_eael-settings .eael-menu-notice {
+				#toplevel_page_eael-settings > a .eael-menu-notice {
                     display:block !important;
                 }"
             ;

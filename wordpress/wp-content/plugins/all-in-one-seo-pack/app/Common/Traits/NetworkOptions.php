@@ -26,14 +26,16 @@ trait NetworkOptions {
 
 		aioseo()->helpers->switchToBlog( $this->helpers->getNetworkId() );
 
-		$dbOptions = json_decode( get_option( $this->optionsName ), true );
+		$rawOptions = get_option( $this->optionsName );
+		$dbOptions  = is_string( $rawOptions ) ? json_decode( $rawOptions, true ) : $rawOptions;
 		if ( empty( $dbOptions ) ) {
 			$dbOptions = [];
 		}
 
 		$this->defaultsMerged = aioseo()->helpers->arrayReplaceRecursive( $this->defaults, $this->defaultsMerged );
 
-		$options = aioseo()->helpers->arrayReplaceRecursive(
+		// A stored group that is [] must keep its defaults; the helper would replace the whole group with [].
+		$options = array_replace_recursive(
 			$this->defaultsMerged,
 			$this->addValueToValuesArray( $this->defaultsMerged, $dbOptions )
 		);

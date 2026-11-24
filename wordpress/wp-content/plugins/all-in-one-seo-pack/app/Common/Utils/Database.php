@@ -250,6 +250,15 @@ class Database {
 	private $shouldResetCache = false;
 
 	/**
+	 * Whether the last result set was served from the in-memory cache instead of the database.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @var bool
+	 */
+	private $servedFromCache = false;
+
+	/**
 	 * Constant for escape options.
 	 *
 	 * @since 4.0.0
@@ -365,11 +374,13 @@ class Database {
 			$globalTables     = $this->db->tables( 'global', true );
 			foreach ( $databaseTableInformation as $table ) {
 				// Only include tables matching the prefix of the current site, this is to prevent displaying all tables on a MS install not relating to the current.
-				if ( is_multisite() && 0 !== strpos( $table->name, $siteTablesPrefix ) && ! in_array( $table->name, $globalTables, true ) ) {
+				// Use stripos for case-insensitive prefix check and strtolower for global table lookup to handle MySQL's lower_case_table_names setting.
+				if ( is_multisite() && 0 !== stripos( $table->name, $siteTablesPrefix ) && ! in_array( strtolower( $table->name ), array_map( 'strtolower', $globalTables ), true ) ) {
 					continue;
 				}
 
-				$tableType = ( 0 === strpos( $table->name, aioseo()->core->db->prefix . 'aioseo' ) ) ? 'aioseo' : 'other';
+				// Use stripos for case-insensitive comparison due to MySQL's lower_case_table_names setting which can lowercase table names.
+				$tableType = ( 0 === stripos( $table->name, aioseo()->core->db->prefix . 'aioseo' ) ) ? 'aioseo' : 'other';
 
 				$tables[ $tableType ][ $table->name ] = [
 					'data'      => $table->data,
@@ -400,18 +411,23 @@ class Database {
 	 */
 	public function getColumns( $table ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
+		// Use stripos for case-insensitive comparison due to MySQL's lower_case_table_names setting which can lowercase table names.
+		if ( 0 !== stripos( $table, $this->prefix ) ) {
 			$table = $this->prefix . $table;
 		}
 
 		// If the table is not an AIOSEO one, get it from the DB.
-		if ( 0 !== strpos( $table, $this->prefix . 'aioseo_' ) ) {
+		// Use stripos for case-insensitive comparison due to MySQL's lower_case_table_names setting which can lowercase table names.
+		if ( 0 !== stripos( $table, $this->prefix . 'aioseo_' ) ) {
 			return $this->db->get_col( 'SHOW COLUMNS FROM `' . $table . '`' );
 		}
 
 		$schema = $this->getTablesWithColumns();
 
-		return $schema[ $table ];
+		// Use case-insensitive lookup due to MySQL's lower_case_table_names setting which can lowercase table names.
+		$tableKey = $this->findTableKeyInSchema( $table, $schema );
+
+		return null !== $tableKey ? $schema[ $tableKey ] : [];
 	}
 
 	/**
@@ -425,13 +441,38 @@ class Database {
 	 */
 	public function tableExists( $table ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
+		// Use stripos for case-insensitive comparison due to MySQL's lower_case_table_names setting which can lowercase table names.
+		if ( 0 !== stripos( $table, $this->prefix ) ) {
 			$table = $this->prefix . $table;
 		}
 
 		$tables = $this->getTablesWithColumns();
 
-		return isset( $tables[ $table ] );
+		// Use case-insensitive lookup due to MySQL's lower_case_table_names setting which can lowercase table names.
+		return null !== $this->findTableKeyInSchema( $table, $tables );
+	}
+
+	/**
+	 * Checks if a third-party (non-AIOSEO) table exists by querying the DB directly.
+	 *
+	 * Unlike tableExists(), which reads from a cache that only contains AIOSEO and
+	 * Action Scheduler tables, this method performs a direct SHOW TABLES query and
+	 * should be used whenever checking for tables owned by external plugins.
+	 *
+	 * @since 4.9.7
+	 *
+	 * @param  string $table The name of the table, with or without the DB prefix.
+	 * @return bool          Whether or not the table exists.
+	 */
+	public function externalTableExists( $table ) {
+		// Ensure the table name has the DB prefix.
+		if ( 0 !== strpos( $table, $this->prefix ) ) {
+			$table = $this->prefix . $table;
+		}
+
+		return (bool) $this->db->get_var(
+			$this->db->prepare( 'SHOW TABLES LIKE %s', $table )
+		);
 	}
 
 	/**
@@ -446,25 +487,33 @@ class Database {
 	 */
 	public function columnExists( $table, $column ) {
 		// Ensure the table name has the DB prefix.
-		if ( 0 !== strpos( $table, $this->prefix ) ) {
+		// Use stripos for case-insensitive comparison due to MySQL's lower_case_table_names setting which can lowercase table names.
+		if ( 0 !== stripos( $table, $this->prefix ) ) {
 			$table = $this->prefix . $table;
 		}
 
 		$tables = $this->getTablesWithColumns();
 
-		return isset( $tables[ $table ] ) && in_array( $column, $tables[ $table ], true );
+		// Use case-insensitive lookup due to MySQL's lower_case_table_names setting which can lowercase table names.
+		$tableKey = $this->findTableKeyInSchema( $table, $tables );
+
+		return null !== $tableKey && in_array( $column, $tables[ $tableKey ], true );
 	}
 
 	/**
 	 * Get all AIOSEO tables with their columns.
 	 *
-	 * @since 4.8.9
+	 * @since   4.8.9
+	 * @version 4.9.7.1 Reject non-array cache values so a corrupted `db_schema` row can't trigger a fatal in {@see findTableKeyInSchema()}.
 	 *
 	 * @return array List of AIOSEO tables with their columns.
 	 */
 	public function getTablesWithColumns() {
 		$tables = aioseo()->core->cache->get( 'db_schema' );
-		if ( ! empty( $tables ) ) {
+		// Guard against a corrupted cache row: anything other than a non-empty array
+		// gets discarded and rebuilt below. Without this, a scalar value (e.g. '31942')
+		// would propagate into findTableKeyInSchema() and fatal on array_keys().
+		if ( is_array( $tables ) && ! empty( $tables ) ) {
 			return $tables;
 		}
 
@@ -509,6 +558,39 @@ class Database {
 		aioseo()->core->cache->update( 'db_schema', $tables, DAY_IN_SECONDS );
 
 		return $tables;
+	}
+
+	/**
+	 * Finds a table key in the schema array using case-insensitive comparison.
+	 *
+	 * This is needed because MySQL's lower_case_table_names setting can cause table names
+	 * to be stored in lowercase in the database, while the WordPress prefix may be uppercase.
+	 *
+	 * @since 4.9.2
+	 *
+	 * @param  string     $table  The table name to find.
+	 * @param  array      $schema The schema array to search in.
+	 * @return string|null        The actual key in the schema array, or null if not found.
+	 */
+	private function findTableKeyInSchema( $table, $schema ) {
+		// First try exact match for performance.
+		if ( isset( $schema[ $table ] ) ) {
+			return $table;
+		}
+
+		if ( ! is_array( $schema ) ) {
+			return null;
+		}
+
+		// Fall back to case-insensitive search.
+		$tableLower = strtolower( $table );
+		foreach ( array_keys( $schema ) as $key ) {
+			if ( strtolower( $key ) === $tableLower ) {
+				return $key;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -732,6 +814,19 @@ class Database {
 	 */
 	public function query() {
 		return $this->__toString();
+	}
+
+	/**
+	 * Shortcut method to return the query string, resolved and ready to be passed to execute().
+	 *
+	 * NOTE: {@see query()} escapes literal percent signs, which only unwind through wpdb::prepare().
+	 *
+	 * @since 5.0.4
+	 *
+	 * @return string The prepared query string.
+	 */
+	public function preparedQuery() {
+		return trim( $this->db->prepare( $this->query(), 1, 1 ) );
 	}
 
 	/**
@@ -1473,7 +1568,12 @@ class Database {
 		$queryString     = $this->query();
 		$prepare         = $this->db->prepare( $queryString, 1, 1 );
 		$queryHash       = md5( $queryString );
-		$cacheTableName = $this->getCacheTableName();
+		$cacheTableName  = $this->getCacheTableName();
+
+		// reset() nulls out the statement below, so we have to grab it before that happens.
+		$statement = $this->statement;
+
+		$this->servedFromCache = false;
 
 		// Pull the result from the in-memory cache if everything checks out.
 		if (
@@ -1482,7 +1582,8 @@ class Database {
 			isset( $this->cache[ $cacheTableName ][ $queryHash ][ $return ] ) &&
 			empty( $this->join )
 		) {
-			$this->result = $this->cache[ $cacheTableName ][ $queryHash ][ $return ];
+			$this->result          = $this->cache[ $cacheTableName ][ $queryHash ][ $return ];
+			$this->servedFromCache = true;
 
 			return $this;
 		}
@@ -1506,7 +1607,7 @@ class Database {
 		}
 
 		// Only cache SELECT queries for performance.
-		if ( in_array( $this->statement, [ 'SELECT', 'SELECT DISTINCT' ], true ) ) {
+		if ( in_array( $statement, [ 'SELECT', 'SELECT DISTINCT' ], true ) ) {
 			$this->cache[ $cacheTableName ][ $queryHash ][ $return ] = $this->result;
 		}
 
@@ -1615,6 +1716,10 @@ class Database {
 	/**
 	 * Returns the last error reported by MySQL.
 	 *
+	 * NOTE: This only holds until the next successful query, which clears it. It is therefore only
+	 * meaningful immediately after the query it is meant to describe. To detect a failed model write,
+	 * read Model::$lastError instead — Model::save() re-fetches the row and would clear this.
+	 *
 	 * @since 4.0.0
 	 *
 	 * @return string The last error message.
@@ -1646,13 +1751,27 @@ class Database {
 	}
 
 	/**
-	 * Return the $wpdb num_rows from the last query.
+	 * Return the number of rows in the last result set.
 	 *
-	 * @since 4.0.0
+	 * NOTE: On a cache hit this counts the result set we hold, so run( ..., 'row' ) reports 1 instead
+	 * of the row count of the query it came from. No caller reads the count after a 'row' query.
+	 *
+	 * @since   4.0.0
+	 * @version 5.0.2 Counts the held result set when it was served from the cache.
 	 *
 	 * @return int The count for the number of rows in the last query.
 	 */
 	public function numRows() {
+		// A cache hit returns without querying, so $wpdb->num_rows still describes whichever query ran
+		// last — count what we are actually holding instead.
+		if ( $this->servedFromCache ) {
+			if ( is_array( $this->result ) ) {
+				return count( $this->result );
+			}
+
+			return null === $this->result ? 0 : 1;
+		}
+
 		return $this->db->num_rows;
 	}
 
@@ -1706,9 +1825,10 @@ class Database {
 	 * @return mixed            Could be an array or object depending on the result set.
 	 */
 	public function execute( $sql, $results = false, $useCache = false ) {
-		$this->lastQuery = $sql;
-		$queryHash       = sha1( $sql );
-		$cacheTableName  = $this->getCacheTableName();
+		$this->lastQuery       = $sql;
+		$queryHash             = sha1( $sql );
+		$cacheTableName        = $this->getCacheTableName();
+		$this->servedFromCache = false;
 
 		// Pull the result from the in-memory cache if everything checks out.
 		if (
@@ -1717,7 +1837,8 @@ class Database {
 			isset( $this->cache[ $cacheTableName ][ $queryHash ] )
 		) {
 			if ( $results ) {
-				$this->result = $this->cache[ $cacheTableName ][ $queryHash ];
+				$this->result          = $this->cache[ $cacheTableName ][ $queryHash ];
+				$this->servedFromCache = true;
 			}
 
 			return $this;
@@ -2053,8 +2174,15 @@ class Database {
 
 		if ( $acquired ) {
 			// Register a shutdown function to always release the lock even if a fatal error occurs.
+			// Wrap in suppress_errors() — by shutdown time the wpdb connection state may already
+			// be unstable (other plugins' unbuffered queries left mid-result, mid-destructor
+			// teardown, etc.), surfacing as "Commands out of sync" warnings on the RELEASE_LOCK
+			// query. The release is best-effort: MySQL frees the lock when the connection closes
+			// regardless, so logging that benign warning every request only adds debug.log noise.
 			register_shutdown_function( function () use ( $lockName ) {
+				$previous = $this->db->suppress_errors( true );
 				$this->releaseLock( $lockName );
+				$this->db->suppress_errors( $previous );
 			} );
 		}
 

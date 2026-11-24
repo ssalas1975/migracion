@@ -122,7 +122,7 @@ class Visualizer_Source_Json extends Visualizer_Source {
 		if ( isset( $this->_args['additional_headers'] ) ) {
 			$this->_additional_headers = $this->_args['additional_headers'];
 		}
-		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Constructor called for params = %s', print_r( $params, true ) ), 'debug', __FILE__, __LINE__ );
+		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, 'JSON source initialized.', 'debug', __FILE__, __LINE__ );
 	}
 
 	/**
@@ -207,6 +207,7 @@ class Visualizer_Source_Json extends Visualizer_Source {
 	 * @since ?
 	 *
 	 * @access public
+	 * @return bool False when a WooCommerce report request failed, true otherwise.
 	 */
 	public function fetch() {
 		$url    = $this->_url;
@@ -283,9 +284,9 @@ class Visualizer_Source_Json extends Visualizer_Source {
 
 		$this->_data = $data;
 
-		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Parsed data endpoint %s with root %s is %s', $this->_url, $this->_root, print_r( $data, true ) ), 'debug', __FILE__, __LINE__ );
+		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, 'JSON endpoint data parsed.', 'debug', __FILE__, __LINE__ );
 
-		return true;
+		return empty( $this->_error );
 	}
 
 	/**
@@ -379,7 +380,7 @@ class Visualizer_Source_Json extends Visualizer_Source {
 			}
 		}
 		$roots = array_unique( $root );
-		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Roots found for %s = %s', $this->_url, print_r( $roots, true ) ), 'debug', __FILE__, __LINE__ );
+		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, 'JSON root elements parsed.', 'debug', __FILE__, __LINE__ );
 		return $roots;
 	}
 
@@ -397,7 +398,12 @@ class Visualizer_Source_Json extends Visualizer_Source {
 
 		$response = $this->connect( $url );
 		if ( is_wp_error( $response ) || ! in_array( intval( $response['response']['code'] ), array( 200, 201 ), true ) ) {
-			do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Error while fetching JSON endpoint %s = %s', $url, print_r( $response, true ) ), 'error', __FILE__, __LINE__ );
+			$error_code = is_wp_error( $response ) ? $response->get_error_code() : (string) wp_remote_retrieve_response_code( $response );
+			do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Error while fetching JSON endpoint: %s', $error_code ), 'error', __FILE__, __LINE__ );
+			if ( $this->is_woocommerce_request( $url ) ) {
+				// Report access can be missing for this request, so keep the stored chart data.
+				$this->_error = esc_html__( 'Unable to fetch the WooCommerce report. The user who saved this chart needs access to WooCommerce reports.', 'visualizer' );
+			}
 			return null;
 		}
 
@@ -408,7 +414,7 @@ class Visualizer_Source_Json extends Visualizer_Source {
 		$response_body = preg_replace( "/^$bom/", '', $response_body );
 		$array  = apply_filters( 'visualizer_json_massage_data', json_decode( $response_body, true ), $url );
 
-		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'JSON array for the endpoint is %s = ', print_r( $array, true ) ), 'debug', __FILE__, __LINE__ );
+		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, 'JSON response decoded.', 'debug', __FILE__, __LINE__ );
 
 		return $array;
 	}
@@ -456,8 +462,13 @@ class Visualizer_Source_Json extends Visualizer_Source {
 			}
 		}
 
-		// Check if this is a WooCommerce endpoint request and add verification token.
+		// Check if this is an authorized WooCommerce endpoint request and add a verification token.
+		$can_fetch_woocommerce_reports = false;
 		if ( $this->is_woocommerce_request( $url ) ) {
+			$can_fetch_woocommerce_reports = current_user_can( 'view_woocommerce_reports' );
+			$can_fetch_woocommerce_reports = apply_filters( 'visualizer_can_fetch_woocommerce_reports', $can_fetch_woocommerce_reports, $url );
+		}
+		if ( ! empty( $can_fetch_woocommerce_reports ) ) {
 			// Generate a unique token for this specific request.
 			$token = wp_generate_password( 32, false );
 			set_transient( 'visualizer_wc_token_' . $token, time(), 60 );
@@ -467,8 +478,8 @@ class Visualizer_Source_Json extends Visualizer_Source {
 			$args['headers']['X-Visualizer-Token'] = $token;
 		}
 
-		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Connecting to %s with args = %s ', $url, print_r( $args, true ) ), 'debug', __FILE__, __LINE__ );
-		return wp_remote_request( $url, $args );
+		do_action( 'themeisle_log_event', Visualizer_Plugin::NAME, sprintf( 'Connecting to JSON endpoint with method %s', $args['method'] ), 'debug', __FILE__, __LINE__ );
+		return Visualizer_Remote_Fetch::request( $url, $args );
 	}
 
 	/**

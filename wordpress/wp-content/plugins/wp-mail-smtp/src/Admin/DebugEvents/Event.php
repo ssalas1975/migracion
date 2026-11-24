@@ -215,8 +215,7 @@ class Event {
 		$date     = false;
 
 		if ( ! empty( $this->created_at ) ) {
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', WP::datetime_mysql_format() ); // Validación preventiva para PHP 8.4
-			$date = $is_valid_format ? \DateTime::createFromFormat( WP::datetime_mysql_format(), $this->created_at, $timezone ) :
+			$date = \DateTime::createFromFormat( WP::datetime_mysql_format(), $this->created_at, $timezone );
 		}
 
 		if ( $date === false ) {
@@ -394,7 +393,7 @@ class Event {
 								printf(
 									/* translators: %1$d - index number; %2$s - function name; %3$s - file path; %4$s - line number. */
 									esc_html__( '[%1$d] %2$s called at [%3$s:%4$s]', 'wp-mail-smtp' ),
-									$i,
+									absint( $i ),
 									isset( $item['class'] ) ? esc_html( $item['class'] . $item['type'] . $item['function'] ) : esc_html( $item['function'] ),
 									isset( $item['file'] ) ? esc_html( $item['file'] ) : '', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 									isset( $item['line'] ) ? esc_html( $item['line'] ) : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

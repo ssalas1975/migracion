@@ -1,8 +1,8 @@
-const CLI_ACCEPT_COOKIE_NAME = (window.CLI_ACCEPT_COOKIE_NAME !== undefined ? window.CLI_ACCEPT_COOKIE_NAME : 'viewed_cookie_policy');
-const CLI_PREFERENCE_COOKIE = (window.CLI_PREFERENCE_COOKIE !== undefined ? window.CLI_PREFERENCE_COOKIE : 'CookieLawInfoConsent');
-const CLI_ACCEPT_COOKIE_EXPIRE = (window.CLI_ACCEPT_COOKIE_EXPIRE !== undefined ? window.CLI_ACCEPT_COOKIE_EXPIRE : 365);
-let CLI_COOKIEBAR_AS_POPUP = (window.CLI_COOKIEBAR_AS_POPUP !== undefined ? window.CLI_COOKIEBAR_AS_POPUP : false);
-const CLI_Cookie = {
+var CLI_ACCEPT_COOKIE_NAME = (typeof CLI_ACCEPT_COOKIE_NAME !== 'undefined' ? CLI_ACCEPT_COOKIE_NAME : 'viewed_cookie_policy');
+var CLI_PREFERENCE_COOKIE = (typeof CLI_PREFERENCE_COOKIE !== 'undefined' ? CLI_PREFERENCE_COOKIE : 'CookieLawInfoConsent');
+var CLI_ACCEPT_COOKIE_EXPIRE = (typeof CLI_ACCEPT_COOKIE_EXPIRE !== 'undefined' ? CLI_ACCEPT_COOKIE_EXPIRE : 365);
+var CLI_COOKIEBAR_AS_POPUP = (typeof CLI_COOKIEBAR_AS_POPUP !== 'undefined' ? CLI_COOKIEBAR_AS_POPUP : false);
+var CLI_Cookie = {
 	set: function (name, value, days) {
 		var secure = "";
 		if (true === Boolean(Cli_Data.secure_cookies)) {
@@ -89,7 +89,6 @@ var CLI =
 		if (this.settings.cookie_bar_as == 'popup') {
 			CLI_COOKIEBAR_AS_POPUP = true;
 		}
-		this.mayBeSetPreferenceCookie();
 		this.addStyleAttribute();
 		this.configBar();
 		this.toggleBar();
@@ -933,11 +932,6 @@ var CLI =
 				CLI.displayHeader();
 			}
 		);
-	},
-	mayBeSetPreferenceCookie: function () {
-		if (CLI.getParameterByName('cli_bypass') === "1") {
-			CLI.generateConsent();
-		}
 	}
 }
 var cliBlocker =
@@ -949,7 +943,7 @@ var cliBlocker =
 	ccpaApplicable: false,
 	ccpaBarEnabled: false,
 	cliShowBar: true,
-	isBypassEnabled: CLI.getParameterByName('cli_bypass'),
+	isBypassEnabled: (typeof Cli_Data !== 'undefined' && Boolean(Cli_Data.is_scan)),
 	checkPluginStatus: function (callbackA, callbackB) {
 		this.ccpaEnabled = Boolean(Cli_Data.ccpaEnabled);
 		this.ccpaRegionBased = Boolean(Cli_Data.ccpaRegionBased);
@@ -969,7 +963,7 @@ var cliBlocker =
 			} else {
 				jQuery('.wt-cli-ccpa-opt-out,.wt-cli-ccpa-checkbox,.wt-cli-ccpa-element').remove();
 			}
-			if (cliBlocker.isBypassEnabled === "1") {
+			if (cliBlocker.isBypassEnabled === true) {
 				cliBlocker.blockingStatus = false;
 			}
 			callbackA(this.cliShowBar);

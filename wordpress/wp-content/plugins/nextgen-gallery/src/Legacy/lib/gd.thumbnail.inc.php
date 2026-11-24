@@ -717,11 +717,11 @@ class ngg_Thumbnail {
 			0,
 			0,
 			0,
-			$reflectedPart,
+			(int) $reflectedPart,
 			$width,
 			$reflectionHeight,
 			$width,
-			( $height - $reflectedPart )
+			(int) ( $height - $reflectedPart )
 		);
 		$this->imageFlipVertical();
 
@@ -730,7 +730,7 @@ class ngg_Thumbnail {
 		imagealphablending( $this->workingImage, true );
 
 		for ($i=0;$i<$reflectionHeight;$i++) {
-			$colorToPaint = imagecolorallocatealpha( $this->workingImage, 255, 255, 255, ( $i/$reflectionHeight*-1+1 )*$white );
+			$colorToPaint = imagecolorallocatealpha( $this->workingImage, 255, 255, 255, (int) ( ( $i/$reflectionHeight*-1+1 )*$white ) );
 			imagefilledrectangle( $this->workingImage, 0, $height+$i, $width, $height+$i, $colorToPaint );
 		}
 
@@ -888,9 +888,9 @@ class ngg_Thumbnail {
 			$color = '000000';
 		}
 
-		// set font path
-		$wmFontPath = NGGALLERY_ABSPATH . "fonts/" . $wmFont;
-		if ( !is_readable( $wmFontPath )) {
+		// set font path. SECURITY (#1084): a font is a file name inside fonts/, never a path.
+		$wmFontPath = NGGALLERY_ABSPATH . "fonts/" . basename( str_replace( '\\', '/', (string) $wmFont ) );
+		if ( ! is_file( $wmFontPath ) || ! is_readable( $wmFontPath ) ) {
 			return;
 		}
 
@@ -911,7 +911,7 @@ class ngg_Thumbnail {
 		imagefill( $this->workingImage, 0, 0, $bgText );
 		$wmTransp  = 127 -( $wmOpaque * 1.27 );
 		$rgb       = $this->hex2rgb( $color, false );
-		$TextColor = imagecolorallocatealpha( $this->workingImage, $rgb[0], $rgb[1], $rgb[2], $wmTransp );
+		$TextColor = imagecolorallocatealpha( $this->workingImage, $rgb[0], $rgb[1], $rgb[2], (int) $wmTransp );
 
 		// Create Text on image
 		imagettftext( $this->workingImage, $wmSize, 0, 0, abs( $TextSize[5] ), $TextColor, $wmFontPath, $this->watermarkText );
@@ -927,6 +927,8 @@ class ngg_Thumbnail {
 	 * @param string $relPOS
 	 * @param int    $xPOS
 	 * @param int    $yPOS
+	 * @return bool True when the watermark was composited; false when its image
+	 *              could not be loaded (refused, unreachable or not an image).
 	 */
 	public function watermarkImage( $relPOS = 'botRight', $xPOS = 0, $yPOS = 0 ) {
 
@@ -934,12 +936,13 @@ class ngg_Thumbnail {
 		if (is_resource( $this->watermarkImgPath ) || $this->watermarkImgPath instanceof GdImage) {
 			$this->workingImage = $this->watermarkImgPath;
 		} else {
-			// Would you really want to use anything other than a png?
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			$this->workingImage = @imagecreatefrompng( $this->watermarkImgPath );
-			// if it's not a valid file die...
-			if (empty( $this->workingImage ) or ( !$this->workingImage )) {
-				return;
+			// One loader for every renderer and the settings preview (#1104): an own-site
+			// URL is read from disk, another http(s) URL is fetched with wp_safe_remote_get(),
+			// any other stream wrapper is refused (#1084) and a local path is contained to
+			// the install before it is opened.
+			$this->workingImage = \Imagely\NGG\Util\Security::load_watermark_image( $this->watermarkImgPath );
+			if ( ! $this->workingImage ) {
+				return false;
 			}
 		}
 
@@ -954,7 +957,7 @@ class ngg_Thumbnail {
 				$dest_y = 0 + $yPOS;
 				break;
 			case 'mid':
-				$dest_y = ( $sourcefile_height / 2 ) - ( $watermarkfile_height / 2 );
+				$dest_y = (int) ( ( $sourcefile_height - $watermarkfile_height ) / 2 ) + $yPOS;
 				break;
 			case 'bot':
 				$dest_y = $sourcefile_height - $watermarkfile_height - $yPOS;
@@ -968,7 +971,7 @@ class ngg_Thumbnail {
 				$dest_x = 0 + $xPOS;
 				break;
 			case 'Center':
-				$dest_x = ( $sourcefile_width / 2 ) - ( $watermarkfile_width / 2 );
+				$dest_x = (int) ( ( $sourcefile_width - $watermarkfile_width ) / 2 ) + $xPOS;
 				break;
 			case 'Right':
 				$dest_x = $sourcefile_width - $watermarkfile_width - $xPOS;
@@ -977,6 +980,14 @@ class ngg_Thumbnail {
 				$dest_x = 0;
 				break;
 		}
+
+		// Offsets nudge the watermark away from its anchor, including on the centred axes.
+		// Bound each coordinate to its own anchor range so an offset cannot push the watermark
+		// off the canvas, while a watermark larger than the canvas keeps overflowing from centre.
+		$x_edge = $sourcefile_width - $watermarkfile_width;
+		$y_edge = $sourcefile_height - $watermarkfile_height;
+		$dest_x = min( max( (int) $dest_x, min( 0, $x_edge ) ), max( 0, $x_edge ) );
+		$dest_y = min( max( (int) $dest_y, min( 0, $y_edge ) ), max( 0, $y_edge ) );
 
 		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- Debug code intentionally commented out.
 		// debug
@@ -996,6 +1007,8 @@ class ngg_Thumbnail {
 			imagesavealpha( $this->newImage, true );
 		}
 		imagecopy( $this->newImage, $this->workingImage, $dest_x, $dest_y, 0, 0, $watermarkfile_width, $watermarkfile_height );
+
+		return true;
 	}
 
 	/**

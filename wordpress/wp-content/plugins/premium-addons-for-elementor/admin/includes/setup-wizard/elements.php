@@ -2,6 +2,10 @@
 
 	use PremiumAddons\Includes\Helper_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // If this file is called directly, abort.
+}
+
 	$ecommerce_widgets = array(
 		array(
 			'key'         => 'woo-products',
@@ -150,7 +154,7 @@
 					'key'   => 'premium-dual-header',
 					'name'  => 'premium-addon-dual-header',
 					'title' => __( 'Dual Heading', 'premium-addons-for-elementor' ),
-					'demo'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/dual-header-widget-for-elementor-page-builder/', 'dual', 'wp-dash', 'wizard' ),
+					'demo'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/elementor-dual-heading-widget/', 'dual', 'wp-dash', 'wizard' ),
 					'type'  => 'basic',
 				),
 			),
@@ -197,8 +201,8 @@
 				array(
 					'key'    => 'premium-content-toggle',
 					'name'   => 'premium-addon-content-toggle',
-					'title'  => __( 'Content Switcher', 'premium-addons-for-elementor' ),
-					'demo'   => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/content-switcher-widget-for-elementor-page-builder/', 'content-switcher', 'wp-dash', 'wizard' ),
+					'title'  => __( 'Content Toggle', 'premium-addons-for-elementor' ),
+					'demo'   => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/elementor-content-toggle-widget/', 'content-switcher', 'wp-dash', 'wizard' ),
 					'is_pro' => true,
 					'icon'   => 'pa-pro-content-switcher',
 				),
@@ -573,7 +577,7 @@
 				'key'   => 'premium-dual-header',
 				'name'  => 'premium-addon-dual-header',
 				'title' => __( 'Dual Heading', 'premium-addons-for-elementor' ),
-				'demo'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/dual-header-widget-for-elementor-page-builder/', 'dual', 'wp-dash', 'wizard' ),
+				'demo'  => Helper_Functions::get_campaign_link( 'https://premiumaddons.com/elementor-dual-heading-widget/', 'dual', 'wp-dash', 'wizard' ),
 			),
 			array(
 				'key'   => 'premium-blog',

@@ -79,11 +79,19 @@ class Post_Category extends Condition {
 
 		foreach ( $categories as $index => $category ) {
 
-			array_push( $cat_ids, $category->cat_ID );
+			$cat_ids[] = $category->cat_ID;
 
 		}
 
-		$condition_result = ! empty( array_intersect( (array) $value, $cat_ids ) ) ? true : false;
+		// Map the stored IDs to the current language (WPML/Polylang).
+		$value = array_map(
+			function ( $cat_id ) {
+				return apply_filters( 'wpml_object_id', $cat_id, 'category', true );
+			},
+			(array) $value
+		);
+
+		$condition_result = ! empty( array_intersect( $value, $cat_ids ) ) ? true : false;
 
 		return Helper_Functions::get_final_result( $condition_result, $operator );
 	}

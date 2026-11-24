@@ -178,7 +178,8 @@ function ha_render_icon( $settings = [], $old_icon_id = 'icon', $new_icon_id = '
     // Check if its already migrated
     $migrated = isset( $settings['__fa4_migrated'][$new_icon_id] );
     // Check if its a new widget without previously selected icon using the old Icon control
-    $is_new = empty( $settings[$old_icon_id] );
+	$old_icon_id = is_string($old_icon_id) ? $old_icon_id : '';
+	$is_new = empty($old_icon_id) || empty($settings[$old_icon_id] ?? '');
     if ( isset( $settings[$new_icon_id]['value'] ) && is_string( $settings[$new_icon_id]['value'] ) ) {
         if ( preg_match( '/\bhm-[\w-]+/', $settings[$new_icon_id]['value'] ) ) {
             if ( $settings[$new_icon_id]['library'] !== "happy-icons" ) {
@@ -443,6 +444,39 @@ function ha_has_pro() {
 	return defined('HAPPY_ADDONS_PRO_VERSION');
 }
 
+/**
+ * Safely apply filters by swallowing errors thrown by broken callbacks
+ * (e.g. pro plugin is active but its code is missing or outdated),
+ * so the page never turns blank because of a dead callback.
+ *
+ * @param string $tag
+ * @param mixed ...$args
+ * @return mixed
+ */
+function ha_safe_apply_filters( $tag, ...$args ) {
+	try {
+		return apply_filters( $tag, ...$args );
+	} catch ( \Throwable $e ) {
+		error_log( sprintf( '[Happy Addons] Filter "%s" failed: %s in %s:%d', $tag, $e->getMessage(), $e->getFile(), $e->getLine() ) );
+		return isset( $args[0] ) ? $args[0] : null;
+	}
+}
+
+/**
+ * Safely do action by swallowing errors thrown by broken callbacks
+ *
+ * @param string $tag
+ * @param mixed ...$args
+ * @return void
+ */
+function ha_safe_do_action( $tag, ...$args ) {
+	try {
+		do_action( $tag, ...$args );
+	} catch ( \Throwable $e ) {
+		error_log( sprintf( '[Happy Addons] Action "%s" failed: %s in %s:%d', $tag, $e->getMessage(), $e->getFile(), $e->getLine() ) );
+	}
+}
+
 function ha_get_b64_icon() {
 	return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PGcgZmlsbD0iI0ZGRiI+PHBhdGggZD0iTTI4LjYgNy44aC44Yy41IDAgLjktLjUuOC0xIDAtLjUtLjUtLjktMS0uOC0zLjUuMy02LjgtMS45LTcuOC01LjMtLjEtLjUtLjYtLjctMS4xLS42cy0uNy42LS42IDEuMWMxLjIgMy45IDQuOSA2LjYgOC45IDYuNnoiLz48cGF0aCBkPSJNMzAgMTEuMWMtLjMtLjYtLjktMS0xLjYtMS0uOSAwLTEuOSAwLTIuOC0uMi00LS44LTctMy42LTguNC03LjEtLjMtLjYtLjktMS4xLTEuNi0xQzguMyAxLjkgMS44IDcuNC45IDE1LjEuMSAyMi4yIDQuNSAyOSAxMS4zIDMxLjIgMjAgMzQuMSAyOSAyOC43IDMwLjggMTkuOWMuNy0zLjEuMy02LjEtLjgtOC44em0tMTEuNiAxLjFjLjEtLjUuNi0uOCAxLjEtLjdsMy43LjhjLjUuMS44LjYuNyAxLjFzLS42LjgtMS4xLjdsLTMuNy0uOGMtLjQtLjEtLjgtLjYtLjctMS4xek0xMC4xIDExYy4yLTEuMSAxLjQtMS45IDIuNS0xLjYgMS4xLjIgMS45IDEuNCAxLjYgMi41LS4yIDEuMS0xLjQgMS45LTIuNSAxLjYtMS0uMi0xLjgtMS4zLTEuNi0yLjV6bTE0LjYgMTAuNkMyMi44IDI2IDE3LjggMjguNSAxMyAyN2MtMy42LTEuMi02LjItNC41LTYuNS04LjItLjEtMSAuOC0xLjcgMS43LTEuNmwxNS40IDIuNWMuOSAwIDEuNCAxIDEuMSAxLjl6Ii8+PHBhdGggZD0iTTE3LjEgMjIuOGMtMS45LS40LTMuNy4zLTQuNyAxLjctLjIuMy0uMS43LjIuOS42LjMgMS4yLjUgMS45LjcgMS44LjQgMy43LjEgNS4xLS43LjMtLjIuNC0uNi4yLS45LS43LS45LTEuNi0xLjUtMi43LTEuN3oiLz48L2c+PC9zdmc+';
 }
@@ -658,6 +692,15 @@ function ha_get_inactive_features() {
 }
 
 /**
+ * Get inactive happy extension list
+ *
+ * @return array
+ */
+function ha_get_inactive_extensions() {
+	return get_option('happyaddons_inactive_extensions', []);
+}
+
+/**
  * Get post date link
  *
  * @param int $post_id
@@ -690,7 +733,44 @@ function ha_get_excerpt($post_id = null, $length = 15) {
 	return wp_trim_words(get_the_excerpt($post_id), $length);
 }
 
+/**
+ * Normalize a Twitter/X screen name for API requests and cache keys.
+ *
+ * @param string $name
+ * @return string Normalized screen name, or empty string when invalid.
+ */
+function ha_twitter_feed_normalize_screen_name( $name ) {
+	$name = trim( (string) $name );
+
+	if ( ! preg_match( '/^[A-Za-z0-9_]{1,15}$/', $name ) ) {
+		return '';
+	}
+
+	return $name;
+}
+
+/**
+ * Whether an ID points to a published Elementor library template that is
+ * safe to render on the front end.
+ *
+ * @param int|string $id
+ * @return bool
+ */
+function ha_is_renderable_template( $id ) {
+	$id = absint( $id );
+
+	if ( ! $id ) {
+		return false;
+	}
+
+	return 'publish' === get_post_status( $id ) && 'elementor_library' === get_post_type( $id );
+}
+
 function ha_sanitize_array_recursively($array) {
+
+	if ( ! is_array( $array ) ) {
+		return sanitize_text_field( (string) $array );
+	}
 
 	foreach ($array as $key => &$value) {
 		if (is_array($value)) {

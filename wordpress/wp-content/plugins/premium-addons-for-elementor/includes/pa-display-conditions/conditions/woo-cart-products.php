@@ -64,7 +64,7 @@ class Woo_Cart_Products extends Condition {
 		$products_ids = array();
 
 		if ( $cart->is_empty() ) {
-			return false;
+			return Helper_Functions::get_final_result( false, $operator );
 		}
 
 		foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
@@ -73,9 +73,12 @@ class Woo_Cart_Products extends Condition {
 
 			if ( $product->is_type( 'variation' ) ) {
 				$product = wc_get_product( $product->get_parent_id() );
+				if ( ! $product ) {
+					continue;
+				}
 			}
 
-			array_push( $products_ids, $product->get_id() );
+			$products_ids[] = $product->get_id();
 		}
 
 		$condition_result = ! empty( array_intersect( (array) $compare_val, $products_ids ) ) ? true : false;

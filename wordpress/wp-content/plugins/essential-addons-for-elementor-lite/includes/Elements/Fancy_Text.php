@@ -155,14 +155,15 @@ class Fancy_Text extends Widget_Base {
   			]
 		);
 
-		$style_options = apply_filters(
+		$style_options = apply_filters( 
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			'fancy_text_style_types',
 			[
 				'styles'	=> [
 					'style-1' => esc_html__( 'Style 1', 'essential-addons-for-elementor-lite'),
-					'style-2' => esc_html__( 'Style 2 (Pro)', 'essential-addons-for-elementor-lite'),
+					'style-2' => esc_html__( 'Style 2', 'essential-addons-for-elementor-lite'),
 				],
-				'conditions'	=> ['style-2']
+				'conditions'	=> []
 			]
 		);
 
@@ -173,17 +174,6 @@ class Fancy_Text extends Widget_Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'style-1',
 				'options' => $style_options['styles']
-			]
-		);
-
-		$this->add_control(
-			'eael_fancy_text_style_pro_alert',
-			[
-				'label'     => esc_html__( 'Only available in pro version!', 'essential-addons-for-elementor-lite'),
-				'type'      => Controls_Manager::HEADING,
-				'condition' => [
-					'eael_fancy_text_style' => $style_options['conditions'],
-				]
 			]
 		);
 
@@ -613,7 +603,9 @@ class Fancy_Text extends Widget_Base {
 		$fancy_text = array("");
 		foreach ( $settings as $item ) {
 			if ( ! empty( $item['eael_fancy_text_strings_text_field'] ) ) {
-				$fancy_text[] = HelperClass::eael_wp_kses( html_entity_decode( $item['eael_fancy_text_strings_text_field'] ) );
+				// "|" separates the phrases below, so a literal one inside a phrase is
+				// sent as its entity; the script splits first, then decodes it.
+				$fancy_text[] = str_replace( '|', '&#124;', HelperClass::eael_wp_kses( html_entity_decode( $item['eael_fancy_text_strings_text_field'] ) ) );
 			}
 		}
 
@@ -624,7 +616,6 @@ class Fancy_Text extends Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 		$fancy_text = $this->fancy_text($settings['eael_fancy_text_strings']);
-		if(!apply_filters('eael/pro_enabled', false)) { $settings['eael_fancy_text_style'] = 'style-1'; }
 		$this->add_render_attribute( 'fancy-text', 'class', 'eael-fancy-text-container' );
 		$this->add_render_attribute( 'fancy-text', 'class', esc_attr($settings['eael_fancy_text_style']) );
 		$this->add_render_attribute( 'fancy-text', 'data-fancy-text-id', esc_attr($this->get_id()) );

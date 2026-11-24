@@ -29,6 +29,9 @@ require_once get_template_directory() . '/inc/core/class-di-restaurant-theme-pag
 // Add class Di_Restaurant_Woo.
 require_once get_template_directory() . '/inc/core/class-di-restaurant-woo.php';
 
+// Add class Di_Restaurant_Admin_Notice.
+require_once get_template_directory() . '/inc/core/class-di-restaurant-admin-notice.php';
+
 // Add class TGM_Plugin_Activation.
 require_once get_template_directory() . '/inc/tgm/class-tgm-plugin-activation.php';
 

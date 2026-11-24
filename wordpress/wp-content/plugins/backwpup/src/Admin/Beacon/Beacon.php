@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace WPMedia\BackWPup\Admin\Beacon;
 
+use Inpsyde\BackWPup\Pro\License\License;
+use WPMedia\BackWPup\Admin\Frontend\Redirect;
 use WPMedia\BackWPup\Common\AbstractRender;
 
 class Beacon extends AbstractRender {
@@ -56,21 +58,21 @@ class Beacon extends AbstractRender {
 				'title' => __( 'BackWPup 5.5 is here!', 'backwpup' ),
 			],
 			'user_account'          => [
-				'url'   => 'https://backwpup.com/my-account/',
+				'url'   => 'https://backwpup.com/my-account/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=my_account',
 				'title' => __( 'Manage your BackWPup license', 'backwpup' ),
 			],
 			'update-payment-method' => [
-				'url'   => 'https://backwpup.com/my-account/add-payment-method/',
+				'url'   => 'https://backwpup.com/my-account/add-payment-method/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=upgrade_cta_plugin',
 				'title' => __( 'Manage your BackWPup license', 'backwpup' ),
 			],
 			'contact_support'       => [
-				'url'   => 'https://backwpup.com/contact/',
+				'url'   => 'https://backwpup.com/contact/?utm_source=backwpup_plugin&utm_medium=plugin&utm_campaign=in_product&utm_content=get_contact',
 				'title' => __( 'Contact BackWPup support', 'backwpup' ),
 			],
 		];
 
 		// change urls by license server.
-		if ( 'https://backwpup.com/' === 'https://backwpup.de/' ) {
+		if ( class_exists( License::class ) && License::WC_API_URL === 'https://backwpup.de/' ) {
 			$suggest['user_account']['url']          = 'https://backwpup.de/mein-account/';
 			$suggest['update-payment-method']['url'] = 'https://backwpup.de/mein-account/add-payment-method/';
 		}
@@ -97,12 +99,14 @@ class Beacon extends AbstractRender {
 					$prefixed_track_data[ 'bwu_event_property_' . $key ] = $value;
 				}
 			}
-			$selected_suggest['url'] = add_query_arg(
+			$destination                         = $selected_suggest['url'];
+			$prefixed_track_data['bwu_redirect'] = rawurlencode( $destination );
+			$selected_suggest['url']             = add_query_arg(
 				$prefixed_track_data,
-				'?bwu_redirect=' . $selected_suggest['url']
+				admin_url( 'admin.php' )
 			);
-			// Add nonce for security.
-			$selected_suggest['url'] = wp_nonce_url( $selected_suggest['url'], 'backwpup_redirect_nonce' );
+			// Add nonce for security, bound to the destination it authorizes.
+			$selected_suggest['url'] = wp_nonce_url( $selected_suggest['url'], Redirect::nonce_action( $destination ) );
 		}
 
 		return $selected_suggest;

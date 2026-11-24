@@ -3,7 +3,7 @@
     Plugin Name: ReDi Restaurant Reservation
     Plugin URI: https://landing.reservationdiary.eu
     Description: Get your restaurant business booming with the <strong>ReDi Restaurant Reservation plugin</strong>! Our plugin simplifies the reservation process and allows your clients to easily book online. With <strong>instant reservation confirmation</strong> and customizable settings, managing reservations has never been easier. Say goodbye to the hassle of manually confirming reservations and hello to the convenience of automatic confirmation. Try it out today and see the difference it can make in just a few clicks!
-    Version: 26.1.0
+    Version: 26.4.1
     Author: Reservation Diary
     Author URI: https://landing.reservationdiary.eu
     License: GPLv3 & Proprietary License
@@ -21,8 +21,21 @@ if (!defined('REDI_PLUGIN_NAME')) {
     define( 'REDI_PLUGIN_NAME', plugin_basename( __FILE__ ) );
 }
 
+if (!defined('REDI_PLUGIN_VERSION')) {
+    define('REDI_PLUGIN_VERSION', '26.4.1');
+}
+
+if (!defined('REDI_PLUGIN_REVISION')) {
+    define('REDI_PLUGIN_REVISION', '20261116');
+}
+
+if (!defined('REDI_FREE_GUEST_CAP')) {
+    define('REDI_FREE_GUEST_CAP', 100);
+}
+
 global $wp_filesystem;
 
+require_once('functions/install.php');
 require_once('redi.php');
 require_once('redi-restaurant-reservation-db.php');
 require_once('redi-restaurant-reservation-date-format.php');
@@ -30,6 +43,7 @@ require_once('functions/email.php');
 require_once('functions/time.php');
 require_once('functions/notice.php');
 require_once('functions/feedback.php');
+require_once('functions/deactivation-feedback.php');
 require_once('redi-restaurant-reservation-api.php');
 require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
@@ -83,13 +97,19 @@ if (!class_exists('ReDiRestaurantReservation')) {
             const API = 'api';
         }
     }
+    if (!class_exists('ReDiCaptchaVersion')) {
+        class ReDiCaptchaVersion
+        {
+            const V2 = 'v2';
+            const V3 = 'v3';
+        }
+    }
 
     class ReDiRestaurantReservation
     {
         use ReDiAPIHelperMethods;
 
         private $redi_notice;
-        public $version = '26.1.0';
         /**
          * @var string The options string name for this plugin
          */
@@ -109,11 +129,6 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
         public $table_name = 'redi_restaurant_reservation_v6';
         public $_name;
-
-        function filter_timeout_time()
-        {
-            return 60; //new number of seconds default 5
-        }
 
         public function __construct()
         {
@@ -158,9 +173,9 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
             add_action('wp_ajax_nopriv_redi_userfeedback_submit', array($this, 'redi_userfeedback_submit'));
             add_action('wp_ajax_redi_userfeedback_submit', array($this, 'redi_userfeedback_submit'));
+            add_action('wp_ajax_redi_support_issue_submit', array($this, 'redi_support_issue_submit'));
+            add_action('wp_ajax_redi_dismiss_free_plan_banner', array($this, 'ajax_dismiss_free_plan_banner'));
 
-            add_filter('http_request_timeout', array($this, 'filter_timeout_time'));
-            add_filter('http_request_args', array($this, 'my_http_request_args'), 100, 1);
             add_shortcode('redirestaurant', array($this, 'shortcode'));
 
             add_action('redi-reservation-send-confirmation-email', array($this, 'send_confirmation_email'));
@@ -189,7 +204,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
             wp_enqueue_script('redi-custom-fields', 
                 REDI_RESTAURANT_PLUGIN_URL . 'js/redi-custom-fields.js',
                 array('jquery'),
-                $this->version
+                REDI_PLUGIN_VERSION
             );
 
             if ($this->GetOption('EnableAttributionTracking', 0)) {
@@ -197,7 +212,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'redi-attribution',
                     REDI_RESTAURANT_PLUGIN_URL . 'js/redi-attribution.js',
                     array(),
-                    $this->version,
+                    REDI_PLUGIN_VERSION,
                     true
                 );
             }
@@ -359,16 +374,14 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     $reservation_id = $request['id'];
                     $body = json_decode($request->get_body(), true);
 
-                    $status = isset($body['status']) ? $body['status'] : '';
                     $reason = isset($body['cancellation_reason']) ? $body['cancellation_reason'] : '';
                     $personal_info = isset($body['personal_information']) ? $body['personal_information'] : '';
                     $lang = isset($body['lang']) ? $body['lang'] : '';
 
-                    // Validate required fields from body
-                    if (strtolower($status) !== 'cancelled' || empty($personal_info)) {
+                    if (empty($personal_info)) {
                         return new WP_Error(
                             'redi_missing_params',
-                            __('Status must be "cancelled", and personal_information and cancellation_reason are required.', 'redi-restaurant-reservation'),
+                            __('personal_information is required.', 'redi-restaurant-reservation'),
                             array('status' => 400)
                         );
                     }
@@ -418,7 +431,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
         
             if ( $plugin == REDI_PLUGIN_NAME )
             {    
-                array_unshift( $links, '<a class="redi-plugin-page-upgrade-link" href="' . $this->redi->getBasicPackageSettingsUrl(self::lang()) . '" title="' . __( 'Try Premium', 'redi-restaurant-reservation' ) . '" target="_blank">' . __( 'Try Premium', 'redi-restaurant-reservation' ) . '</a>' );
+                array_unshift( $links, '<a class="redi-plugin-page-upgrade-link" href="' . $this->redi->getBasicPackageSettingsUrl(self::lang(), 'plugins_list') . '" title="' . __( 'Paid settings', 'redi-restaurant-reservation' ) . '" target="_blank">' . __( 'Paid settings', 'redi-restaurant-reservation' ) . '</a>' );
                 
                 $wizard_completed = get_option($this->_name . '_page_skip') == true || !empty(get_option($this->_name . '_page_title'));
                 
@@ -442,14 +455,17 @@ if (!class_exists('ReDiRestaurantReservation')) {
         function admin_setting_design(){
             wp_enqueue_style('redi-reservation-setting-css',REDI_RESTAURANT_PLUGIN_URL . 'css/redi-reservation-settings.css');
             wp_enqueue_style('redi-reservation-popup',REDI_RESTAURANT_PLUGIN_URL . 'css/popup.css');
-            wp_enqueue_script('redi-reservation-admin', REDI_RESTAURANT_PLUGIN_URL . '/js/redi-admin.js', array(), '1.0.0', true);
-            wp_enqueue_style('redi-restaurant-admin', REDI_RESTAURANT_PLUGIN_URL . '/css/redi-admin.css');
-        }
-
-        function my_http_request_args($r)
-        {
-            $r['timeout'] = 60; # new timeout
-            return $r;
+            wp_enqueue_script('redi-reservation-admin', REDI_RESTAURANT_PLUGIN_URL . '/js/redi-admin.js', array('jquery', 'wp-a11y'), '1.2.1', true);
+            wp_localize_script('redi-reservation-admin', 'rediAdmin', array(
+                'saving' => __('Saving changes…', 'redi-restaurant-reservation'),
+                'supportSending' => __('Sending…', 'redi-restaurant-reservation'),
+                'supportSent' => __('Thank you. Your message was sent to support.', 'redi-restaurant-reservation'),
+                'supportError' => __('Could not send the message. Please email info@reservationdiary.eu.', 'redi-restaurant-reservation'),
+                'supportSend' => __('Send', 'redi-restaurant-reservation'),
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'dismissBannerNonce' => wp_create_nonce('redi_dismiss_free_plan_banner'),
+            ));
+            wp_enqueue_style('redi-restaurant-admin', REDI_RESTAURANT_PLUGIN_URL . '/css/redi-admin.css', array(), '1.2.3');
         }
 
         function redi_reservation_email_content($args)
@@ -499,6 +515,14 @@ if (!class_exists('ReDiRestaurantReservation')) {
         
         private function register($email,$consentContact)
         {
+            $this->get_options();
+            $existing_key = isset($this->options['ID']) ? $this->options['ID'] : null;
+            if (!empty($existing_key)) {
+                $this->ApiKey = $existing_key;
+                $this->redi->setApiKey($existing_key);
+                return array('ID' => $existing_key);
+            }
+
             $new_account = array(); 
             $new_account = $this->redi->createUser(array('Email' => $email, 'Source' => 'WordPress', 'ConsentToContact' => $consentContact));
 
@@ -649,9 +673,54 @@ if (!class_exists('ReDiRestaurantReservation')) {
             ?><script>window.location.assign("<?php echo $this->redi->getWaiterDashboardUrl(self::lang()) ?>");</script><?php
         }
 
+        /**
+         * Paid settings admin page. Forwards start, teaser, and entry to WPProvider Home/Entry.
+         */
         function redi_restaurant_basic_package_settings()
         {
-            ?><script>window.location.assign("<?php echo $this->redi->getBasicPackageSettingsUrl(self::lang()) ?>");</script><?php
+            $start = isset($_GET['start']) ? $_GET['start'] : null;
+            $teaser = isset($_GET['teaser']) ? $_GET['teaser'] : null;
+            $entry = isset($_GET['entry']) ? $_GET['entry'] : 'menu';
+            $url = $this->redi->getBasicPackageSettingsUrl(self::lang(), $entry, $teaser, $start);
+            ?><script>window.location.assign("<?php echo esc_js(esc_url_raw($url)); ?>");</script><?php
+        }
+
+        /**
+         * One-click trial link on the Paid settings admin page.
+         *
+         * @param string      $entry  banner|teaser|bottom.
+         * @param string|null $teaser Optional teaser slug.
+         * @return string
+         */
+        public function get_trial_start_url($entry, $teaser = null)
+        {
+            $args = array(
+                'page'  => 'redi_restaurant_basic_package_settings',
+                'start' => 'demo',
+                'entry' => Redi::sanitize_tracking_param($entry, 'teaser'),
+            );
+            $teaser = Redi::sanitize_tracking_param($teaser);
+            if ($teaser !== '') {
+                $args['teaser'] = $teaser;
+            }
+            return add_query_arg($args, admin_url('admin.php'));
+        }
+
+        /**
+         * Hide the free-plan banner for 30 days for the current user.
+         */
+        public function ajax_dismiss_free_plan_banner()
+        {
+            check_ajax_referer('redi_dismiss_free_plan_banner', 'nonce');
+            if (!current_user_can('edit_posts')) {
+                wp_send_json_error(null, 403);
+            }
+            update_user_meta(
+                get_current_user_id(),
+                'redi_free_plan_banner_dismissed_until',
+                time() + 30 * DAY_IN_SECONDS
+            );
+            wp_send_json_success();
         }
 
         function redi_restaurant_admin_test()
@@ -831,11 +900,12 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
 
             $settings_saved = false;
+            $invalid_time_fields = array();
+            $serviceTimesDisplay = array();
             
             if (isset($_POST['action']) && isset($_POST['submit'])) {
                 $form_valid = true;
                 $services = (int)self::GetPost('services');
-                $MaxGuestsPerMonth = (int)self::GetPost('MaxGuestsPerMonth');
                 $minPersons = (int)self::GetPost('MinPersons');
                 $maxPersons = (int)self::GetPost('MaxPersons');
                 $ShowComment = self::GetPost('ShowComment');
@@ -873,6 +943,19 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
                 $childrenDescription = self::GetPostTextarea('ChildrenDescription');
                 $captchaKey = self::GetPost('CaptchaKey');
+                $captchaSecret = self::GetPost('CaptchaSecret', '');
+                $captchaVersion = self::GetPost('CaptchaVersion', ReDiCaptchaVersion::V2);
+                if ($captchaVersion !== ReDiCaptchaVersion::V3) {
+                    $captchaVersion = ReDiCaptchaVersion::V2;
+                }
+                $captchaScore = self::GetPost('CaptchaScore', '0.5');
+                $captchaScore = is_numeric($captchaScore) ? (float) $captchaScore : 0.5;
+                if ($captchaScore < 0) {
+                    $captchaScore = 0;
+                }
+                if ($captchaScore > 1) {
+                    $captchaScore = 1;
+                }
                 $mandatoryCancellationReason = self::GetPost('MandatoryCancellationReason', 0);
                 $lang_path = self::GetPost('lang_path');
 
@@ -899,11 +982,6 @@ if (!class_exists('ReDiRestaurantReservation')) {
                 $reservationTime = (int) self::GetPost('ReservationTime');
                 if ($reservationTime <= 0) {
                     $errors[] = '<a href="#ReservationTime">' . __('"Reservation time" should be greater than 0', 'redi-restaurant-reservation') . '</a>';
-                    $form_valid = false;
-                }
-
-                if ($MaxGuestsPerMonth == '0' || empty($MaxGuestsPerMonth)) {
-                    $errors[] = '<a href="#MaxGuestsPerMonth">' . __('Please select value from "Monthly guest reservation limit"', 'redi-restaurant-reservation') . '</a>';
                     $form_valid = false;
                 }
 
@@ -934,9 +1012,17 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     $form_valid = false;
                 }
                 
-                $serviceTimes = self::GetServiceTimes();
-                
-                if (is_array($serviceTimes) && count($serviceTimes) == 0) {
+                $serviceTimesResult = self::GetServiceTimes();
+                $serviceTimes = $serviceTimesResult['times'];
+                $invalid_time_fields = $serviceTimesResult['invalid_fields'];
+                $serviceTimesDisplay = $serviceTimesResult['display'];
+
+                foreach ($serviceTimesResult['errors'] as $time_error) {
+                    $errors[] = $time_error;
+                }
+
+                // Time-field errors must not block other settings from saving.
+                if (is_array($serviceTimes) && count($serviceTimes) == 0 && empty($serviceTimesResult['errors'])) {
                     $errors[] = '<a href="#service_time_table">' . __('At least one opening time should be provided', 'redi-restaurant-reservation') . '</a>';
                     $form_valid = false;
                 }
@@ -954,7 +1040,6 @@ if (!class_exists('ReDiRestaurantReservation')) {
                         'Lang' => self::GetPost('Lang'),
                         'DescriptionShort' => self::GetPost('DescriptionShort'),
                         'DescriptionFull' => self::GetPost('DescriptionFull'),
-                        'MaxGuestsPerMonth' => (int)self::GetPost('MaxGuestsPerMonth'), 
                         'MinTimeBeforeReservation' => self::GetPost('MinTimeBeforeReservation'),
                         'MinTimeBeforeReservationType' => self::GetPost('MinTimeBeforeReservationType'),
                         'Catalog' => (int)self::GetPost('Catalog'),
@@ -1063,7 +1148,6 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     $this->options['AlternativeTimeStep'] = $alternativeTimeStep;
                     $this->options['ConfirmationPage'] = $confirmationPage;
                     $this->options['services'] = $services;
-                    $this->options['MaxGuestsPerMonth'] = $MaxGuestsPerMonth;
                     $this->options['MinTimeBeforeReservation'] = $MinTimeBeforeReservation;
                     $this->options['MinTimeBeforeReservationType'] = $MinTimeBeforeReservationType;
                     $this->options['DateFormat'] = $dateFormat;
@@ -1098,6 +1182,9 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     $this->options['TotalSelection'] = $totalSelection; 
                     $this->options['ChildrenDescription'] = $childrenDescription;
                     $this->options['CaptchaKey'] = $captchaKey;
+                    $this->options['CaptchaSecret'] = $captchaSecret;
+                    $this->options['CaptchaVersion'] = $captchaVersion;
+                    $this->options['CaptchaScore'] = $captchaScore;
                     $this->options['MandatoryCancellationReason'] = $mandatoryCancellationReason;
                     $this->options['Theme'] = $theme;
 
@@ -1154,12 +1241,37 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     $this->saveAdminOptions();
 
                     if (is_array($serviceTimes) && count($serviceTimes)) {
-                        $cancel = $this->redi->setServiceTime($categoryID, $serviceTimes);
-                        if (isset($cancel['Error'])) {
-                            $errors[] = $cancel['Error'];
-                            $settings_saved = false;
+                        // Keep previously saved values for days/fields that failed validation.
+                        if (!empty($invalid_time_fields)) {
+                            $existingTimes = $this->redi->getServiceTime($categoryID);
+                            $existingTimes = json_decode(wp_json_encode($existingTimes), true);
+                            if (!is_array($existingTimes)) {
+                                $existingTimes = array();
+                            }
+                            foreach ($invalid_time_fields as $field_id => $raw_value) {
+                                if (preg_match('/^(OpenTime|CloseTime)_(.+)$/', $field_id, $m)) {
+                                    $field_key = $m[1];
+                                    $day = $m[2];
+                                    if (isset($existingTimes[$day][$field_key])) {
+                                        $serviceTimes[$day][$field_key] = $existingTimes[$day][$field_key];
+                                    } elseif (isset($serviceTimes[$day][$field_key])) {
+                                        unset($serviceTimes[$day][$field_key]);
+                                        if (empty($serviceTimes[$day])) {
+                                            unset($serviceTimes[$day]);
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        $cancel = array();
+
+                        if (is_array($serviceTimes) && count($serviceTimes)) {
+                            $cancel = $this->redi->setServiceTime($categoryID, $serviceTimes);
+                            if (isset($cancel['Error'])) {
+                                $errors[] = $cancel['Error'];
+                                $settings_saved = false;
+                            }
+                            $cancel = array();
+                        }
                     }
                     $cancel = $this->redi->setPlace($placeID, $place);
                     if (isset($cancel['Error'])) {
@@ -1202,9 +1314,11 @@ if (!class_exists('ReDiRestaurantReservation')) {
                 $totalSelection = $this->GetOption('TotalSelection', 0);
                 $childrenDescription = $this->GetOption('ChildrenDescription', '');
                 $captchaKey = $this->GetOption('CaptchaKey', '');
+                $captchaSecret = $this->GetOption('CaptchaSecret', '');
+                $captchaVersion = $this->GetOption('CaptchaVersion', ReDiCaptchaVersion::V2);
+                $captchaScore = $this->GetOption('CaptchaScore', 0.5);
                 $mandatoryCancellationReason = $this->GetOption('MandatoryCancellationReason', 1);
                 $lang_path = $this->GetOption('lang_path', '');
-                $MaxGuestsPerMonth = $this->GetOption('MaxGuestsPerMonth');
                 $waitlist = $this->GetOption('WaitList', 0);
 
                 $minPersons = $this->GetOption('MinPersons', 1);
@@ -1248,7 +1362,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
             require_once(REDI_RESTAURANT_TEMPLATE . 'basicpackage.php');
         }
 
-        private function GetOption($name, $default = null)
+        protected function GetOption($name, $default = null)
         {
             // when shorcode has attribute, and it's passed to shortcode function, it chanmges it's case to lowercase
             // but in database settings are in CamelCase
@@ -1284,21 +1398,67 @@ if (!class_exists('ReDiRestaurantReservation')) {
             return trim($value);
         }
 
+        /**
+         * Collect Open/Close times from POST, normalize to 24h HH:MM, and report field errors.
+         *
+         * @return array{
+         *   times: array<string, array{OpenTime?: string, CloseTime?: string}>,
+         *   display: array<string, array{OpenTime?: string, CloseTime?: string}>,
+         *   errors: string[],
+         *   invalid_fields: array<string, string>
+         * }
+         */
         function GetServiceTimes()
         {
             $serviceTimes = array();
-            foreach ($_POST['OpenTime'] as $key => $value) {
-                if (self::set_and_not_empty($value)) {
-                    $serviceTimes[$key]['OpenTime'] = wp_strip_all_tags(wp_unslash($value));
+            $display = array();
+            $errors = array();
+            $invalid_fields = array();
+
+            $field_labels = array(
+                'OpenTime' => __('opening time', 'redi-restaurant-reservation'),
+                'CloseTime' => __('closing time', 'redi-restaurant-reservation'),
+            );
+
+            foreach (array('OpenTime', 'CloseTime') as $field_key) {
+                if (!isset($_POST[$field_key]) || !is_array($_POST[$field_key])) {
+                    continue;
                 }
-            }
-            foreach ($_POST['CloseTime'] as $key => $value) {
-                if (self::set_and_not_empty($value)) {
-                    $serviceTimes[$key]['CloseTime'] = wp_strip_all_tags(wp_unslash($value));
+
+                foreach ($_POST[$field_key] as $day => $value) {
+                    $raw = wp_strip_all_tags(wp_unslash($value));
+                    $day = wp_strip_all_tags((string) $day);
+                    $field_id = $field_key . '_' . $day;
+                    $display[$day][$field_key] = $raw;
+
+                    $normalized = redi_normalize_time($raw);
+
+                    if ($normalized === false) {
+                        $invalid_fields[$field_id] = $raw;
+                        $label = isset($field_labels[$field_key]) ? $field_labels[$field_key] : $field_key;
+                        $errors[] = '<a href="#' . esc_attr($field_id) . '">' . esc_html(sprintf(
+                            /* translators: 1: weekday name, 2: opening/closing label, 3: invalid value */
+                            __('%1$s – %2$s: \'%3$s\' is not a valid time. Use 24h format like 21:00.', 'redi-restaurant-reservation'),
+                            $day,
+                            $label,
+                            $raw
+                        )) . '</a>';
+                        continue;
+                    }
+
+                    if ($normalized !== '') {
+                        $serviceTimes[$day][$field_key] = $normalized;
+                        $display[$day][$field_key] = $normalized;
+                    }
                 }
             }
 
-            return $serviceTimes;
+            return array(
+                'times' => $serviceTimes,
+                'display' => $display,
+                'errors' => $errors,
+                'invalid_fields' => $invalid_fields,
+            );
         }
 
         private function get_country_by_ip() {
@@ -1332,18 +1492,19 @@ if (!class_exists('ReDiRestaurantReservation')) {
             }
         }
 
-        function ajaxed_admin_page($placeID, $categoryID, $settings_saved = false)
+        function ajaxed_admin_page($placeID, $categoryID, $settings_saved = false, $invalid_time_fields = array(), $serviceTimesDisplay = array())
         {
             require_once(plugin_dir_path(__FILE__) . 'languages.php');
             $places = $this->redi->getPlaces();
             $getServices = $this->redi->getServices($categoryID);
             $apiKey = isset($this->options['ID']) ? $this->options['ID'] : null;
 
-            if (!isset($_POST['submit']) || $settings_saved) {
+            if (!isset($_POST['submit']) || ($settings_saved && empty($invalid_time_fields))) {
 
                 $serviceTimes = $this->redi->getServiceTime($categoryID); //goes to template 'admin'
                 $serviceTimes = json_decode(wp_json_encode($serviceTimes), true);
                 $place = $this->redi->getPlace($placeID); //goes to template 'admin'
+                $place = json_decode(wp_json_encode($place), true);
 
             } else {
                 $country = self::GetPost('Country');
@@ -1362,7 +1523,6 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'Lang' => self::GetPost('Lang'),
                     'DescriptionShort' => self::GetPost('DescriptionShort'),
                     'DescriptionFull' => self::GetPost('DescriptionFull'),
-                    'MaxGuestsPerMonth' => (int)self::GetPost('MaxGuestsPerMonth'),
                     'MinTimeBeforeReservation' => self::GetPost('MinTimeBeforeReservation'), 
                     'MinTimeBeforeReservationType' => self::GetPost('MinTimeBeforeReservationType'),
                     'MaxTimeBeforeReservation' => self::GetPost('MaxTime'),
@@ -1374,7 +1534,38 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'ContactPersonEmail' => self::GetPost('SubscriptionEmail'),
                     'ContactConsent' => self::GetPost('IsSubscription')
                 );
-                $serviceTimes = self::GetServiceTimes();
+
+                if (!empty($serviceTimesDisplay)) {
+                    $serviceTimes = $serviceTimesDisplay;
+                } else {
+                    $parsed = self::GetServiceTimes();
+                    $serviceTimes = $parsed['display'];
+                    if (empty($invalid_time_fields)) {
+                        $invalid_time_fields = $parsed['invalid_fields'];
+                    }
+                }
+            }
+
+            if (is_array($serviceTimes)) {
+                foreach ($serviceTimes as $day => $times) {
+                    if (!is_array($times)) {
+                        continue;
+                    }
+                    foreach (array('OpenTime', 'CloseTime') as $field_key) {
+                        if (!isset($times[$field_key]) || $times[$field_key] === '') {
+                            continue;
+                        }
+                        $field_id = $field_key . '_' . $day;
+                        // Keep the raw typed value for invalid fields; convert valid 24h values via WP time_format.
+                        if (isset($invalid_time_fields[$field_id])) {
+                            $serviceTimes[$day][$field_key] = $invalid_time_fields[$field_id];
+                            continue;
+                        }
+                        $serviceTimes[$day][$field_key] = ReDiTime::format_working_time_for_display(
+                            $times[$field_key]
+                        );
+                    }
+                }
             }
 
             // If installtaion is new then hide Timeshift & Timepicker settings
@@ -1427,10 +1618,16 @@ if (!class_exists('ReDiRestaurantReservation')) {
             }
         }
 
+        private function admin_menu_popup($text)
+        {
+            return ' <span class="redi-menu-popup" aria-hidden="true">' . esc_html($text) . '</span>';
+        }
+
         function redi_restaurant_admin_menu_link_new()
         {
             $icon = 'dashicons-groups';
             $exclamation = ' <span class="redi-menu-warning">!</span>';
+            $pro_badge = ' <span class="menu-counter redi-menu-pro">$</span>';
 
             if (!current_user_can('manage_options'))
             {
@@ -1455,7 +1652,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
                     __('Welcome', 'redi-restaurant-reservation'),
-                    __('Welcome', 'redi-restaurant-reservation'),
+                    __('Welcome', 'redi-restaurant-reservation') . $this->admin_menu_popup(__('Plugin overview and setup videos', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi_restaurant_welcome_reservations',
                     array(&$this, 'redi_restaurant_admin_welcome'));    
@@ -1463,37 +1660,37 @@ if (!class_exists('ReDiRestaurantReservation')) {
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
                     __('Settings', 'redi-restaurant-reservation'),
-                    __('Settings', 'redi-restaurant-reservation') . (get_option($this->_name . '_settings_saved') == false ? $exclamation : ''),
+                    __('Settings', 'redi-restaurant-reservation') . (get_option($this->_name . '_settings_saved') == false ? $exclamation : '') . $this->admin_menu_popup(__('Configure your restaurant and reservation form', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi-restaurant-reservation-settings',
                     array(&$this, 'redi_restaurant_admin_options_page'));
 
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
-                    __('Settings $', 'redi-restaurant-reservation'),
-                    __('Settings $', 'redi-restaurant-reservation'),
+                    __('Paid settings', 'redi-restaurant-reservation'),
+                    __('Paid settings', 'redi-restaurant-reservation') . $pro_badge . $this->admin_menu_popup(__('Basic and Full plans: extra hours, dashboard, tables, and more', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi_restaurant_basic_package_settings',
                     array(&$this, 'redi_restaurant_basic_package_settings'));
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
                     __('Test reservation', 'redi-restaurant-reservation'),
-                    __('Test reservation', 'redi-restaurant-reservation') . (get_option($this->_name . '_settings_saved') == true && empty($reservation_results) ? $exclamation : ''),
+                    __('Test reservation', 'redi-restaurant-reservation') . (get_option($this->_name . '_settings_saved') == true && empty($reservation_results) ? $exclamation : '') . $this->admin_menu_popup(__('Open the reservation form on your site', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi-restaurant-reservation-test',
                     array(&$this, 'redi_restaurant_admin_test'));
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
                     __('Reservations', 'redi-restaurant-reservation'),
-                    __('Reservations', 'redi-restaurant-reservation'),
+                    __('Reservations', 'redi-restaurant-reservation') . $this->admin_menu_popup(__('View and manage reservations', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi_restaurant_admin_reservations',
                     array(&$this, 'redi_restaurant_admin_reservations'));
     
                 add_submenu_page(
                     'redi-restaurant-reservation-reservations',
-                    __('Waiter Dashboard', 'redi-restaurant-reservation'),
-                    __('Waiter Dashboard', 'redi-restaurant-reservation'),
+                    __('Host Dashboard', 'redi-restaurant-reservation'),
+                    __('Host Dashboard', 'redi-restaurant-reservation') . $this->admin_menu_popup(__('Host Dashboard on a tablet or phone', 'redi-restaurant-reservation')),
                     'edit_posts',
                     'redi_restaurant_admin_upcoming',
                     array(&$this, 'redi_restaurant_admin_upcoming'));
@@ -1529,10 +1726,12 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
         public function activate()
         {
+            ReDiInstall::ensure(true);
+
 			if ($this->ApiKey == null)
 			{
                 $admin_email = get_option('admin_email');
-                self::register($admin_email,true);
+                $this->register($admin_email,false); // no contact consent without explicit user action
             }
         }
 
@@ -1543,22 +1742,22 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
         public function deactivate()
         {
-           
-            if( isset($_POST) && !empty($_POST['selected-reason'])){
+            if (!empty($_POST['redi_reason'])) {
                 $this->redi_popup($_POST);
             }
         }
         /*
-        * Plugin deactivate user feedback review backend
+        * Plugin deactivate user feedback: sent to ReDi API
         */
         public function redi_popup($data){
-            ReDiFeedback::feedback_on_deactivate($data);
+            ReDiDeactivationFeedback::handle($data, $this->ApiKey, REDI_PLUGIN_VERSION);
         }
 
         public static function uninstall()
         {
             self::deletePage();
             self::deleteOptions();
+            ReDiInstall::delete();
         }
 
         public static function deletePage($hard = false)
@@ -1724,12 +1923,18 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
             if ($this->GetOption("Captcha"))
             {
+                $captchaSiteKey = $this->GetOption('CaptchaKey', '');
+                $captchaScriptVersion = $this->get_captcha_version();
+                $captchaScriptSrc = ($captchaScriptVersion === ReDiCaptchaVersion::V3 && $captchaSiteKey !== '')
+                    ? 'https://www.google.com/recaptcha/api.js?render=' . rawurlencode($captchaSiteKey)
+                    : 'https://www.google.com/recaptcha/api.js';
+
                 wp_enqueue_script(
                     'google-recaptcha',
-                    'https://www.google.com/recaptcha/api.js',
-                    array(), // Dependencies
-                    null, // Version number
-                    true // Load in footer
+                    $captchaScriptSrc,
+                    array(),
+                    null,
+                    true
                 );
             }
             
@@ -1851,6 +2056,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
             $totalSelection =  $this->GetOption('TotalSelection'); 
             $childrenDescription = $this->extractTranslatedContent($this->GetOption('ChildrenDescription'), self::lang());
             $captchaKey = $this->GetOption('CaptchaKey', '');
+            $captchaVersion = $this->get_captcha_version();
             $mandatoryCancellationReason = $this->GetOption('MandatoryCancellationReason', 1);
 
             $waitlist = $this->GetOption('WaitList', 0);
@@ -1906,6 +2112,9 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'available_seats' => __('Available seats', 'redi-restaurant-reservation'),
                     'unexpected_error' => __('Apologies for the inconvenience, but we encountered an issue while trying to make your reservation. It seems there was a technical glitch on our end. Our team is actively working to resolve this issue. Please try again in a few minutes, and if the problem persists, feel free to reach out to our customer support for assistance. Additionally, if you could please send a screenshot of the error message to {emailLink}, it would greatly help us in diagnosing and resolving the issue more efficiently. We appreciate your patience and cooperation. Response:', 'redi-restaurant-reservation'),
                     // data
+                    'captcha_enabled' => (int) $this->GetOption('Captcha', 0),
+                    'captcha_version' => $this->get_captcha_version(),
+                    'captcha_key' => $this->GetOption('CaptchaKey', ''),
                     'enablefirstlastname' => $this->GetOption('EnableFirstLastName'),
                     'endreservationtime' => $this->GetOption('EndReservationTime'),
                     'countrycode' => $this->GetOption('CountryCode', true),
@@ -1969,6 +2178,12 @@ if (!class_exists('ReDiRestaurantReservation')) {
 
                             'captcha_not_valid' => __('Captcha is not valid.', 'redi-restaurant-reservation'),
 
+                            'captcha_enabled' => (int) $this->GetOption('Captcha', 0),
+
+                            'captcha_version' => $this->get_captcha_version(),
+
+                            'captcha_key' => $this->GetOption('CaptchaKey', ''),
+
                             'available_seats' => __('Available seats', 'redi-restaurant-reservation'),
 
                             'unexpected_error' => __('Apologies for the inconvenience, but we encountered an issue while trying to make your reservation. It seems there was a technical glitch on our end. Our team is actively working to resolve this issue. Please try again in a few minutes, and if the problem persists, feel free to reach out to our customer support for assistance. Additionally, if you could please send a screenshot of the error message to {emailLink}, it would greatly help us in diagnosing and resolving the issue more efficiently. We appreciate your patience and cooperation. Response:', 'redi-restaurant-reservation'),
@@ -2007,7 +2222,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'redi-react-app',
                     REDI_RESTAURANT_PLUGIN_URL . 'react-form/index.js',
                     array(), // No dependencies
-                    '1.0',
+                    REDI_PLUGIN_VERSION,
                     true // Load in footer
                 );
 
@@ -2015,14 +2230,14 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'redi-react-app-theme',
                     REDI_RESTAURANT_PLUGIN_URL . 'react-form/theme-variables.css',
                     array(),
-                    '1.0'
+                    REDI_PLUGIN_VERSION
                 );
 
                 wp_enqueue_style(
                     'redi-react-app-css',
                     REDI_RESTAURANT_PLUGIN_URL . 'react-form/index.css',
                     array(),
-                    '1.0'
+                    REDI_PLUGIN_VERSION
                 );
 
         
@@ -2041,6 +2256,35 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'select_time' => __('Time', 'redi-restaurant-reservation'),
                     'show_all_steps' => __('Show all steps', 'redi-restaurant-reservation'),
                     'hide_all_steps' => __('Hide all steps', 'redi-restaurant-reservation'),
+                    'hint_choose_location_first' => __('Choose a location first', 'redi-restaurant-reservation'),
+                    'hint_choose_guests_first'   => __('Choose the number of guests first', 'redi-restaurant-reservation'),
+                    'hint_choose_children_first' => __('Choose the number of children first', 'redi-restaurant-reservation'),
+                    'hint_choose_date_first'     => __('Choose a date first', 'redi-restaurant-reservation'),
+                    'hint_choose_time_first'     => __('Choose a time first', 'redi-restaurant-reservation'),
+                    'hint_choose_menu_first'     => __('Choose a menu first', 'redi-restaurant-reservation'),
+                    'back' => __('Back', 'redi-restaurant-reservation'),
+                    'menu' => __('Menu', 'redi-restaurant-reservation'),
+                    'menu_item' => __('Menu Item', 'redi-restaurant-reservation'),
+                    'loading_menu' => __('Loading menu items', 'redi-restaurant-reservation'),
+                    'discount' => __('Discount', 'redi-restaurant-reservation'),
+                    'apply' => __('apply', 'redi-restaurant-reservation'),
+                    'and' => __('and', 'redi-restaurant-reservation'),
+                    'selected' => __('Selected', 'redi-restaurant-reservation'),
+                    'day' => __('Day', 'redi-restaurant-reservation'),
+                    'month' => __('Month', 'redi-restaurant-reservation'),
+                    'year' => __('Year', 'redi-restaurant-reservation'),
+                    'error' => __('Error', 'redi-restaurant-reservation'),
+                    'info' => __('Info', 'redi-restaurant-reservation'),
+                    'privacy_policy' => __('Privacy Policy', 'redi-restaurant-reservation'),
+                    'terms_of_service' => __('Terms of Service', 'redi-restaurant-reservation'),
+                    'captcha_failed' => __('Unable to verify you are human. Please try again.', 'redi-restaurant-reservation'),
+                    'captcha_required' => __('Please complete the captcha', 'redi-restaurant-reservation'),
+                    'captcha_protected' => __('This site is protected by reCAPTCHA and the Google', 'redi-restaurant-reservation'),
+                    'update_booking' => __('Update Booking', 'redi-restaurant-reservation'),
+                    'updating_reservation' => __('Updating reservation', 'redi-restaurant-reservation'),
+                    'reservation_updated_message' => __('Your reservation has been updated!', 'redi-restaurant-reservation'),
+                    'restaurant_not_found' => __('Restaurant not found', 'redi-restaurant-reservation'),
+                    'reservation_form_not_working' => __('Request for reservations (Reservation form is not working)', 'redi-restaurant-reservation'),
 
                     // Contact Form Fields
                     'first_name' => __('First Name', 'redi-restaurant-reservation'),
@@ -2186,6 +2430,7 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'first_name_required' => __('First name is required', 'redi-restaurant-reservation'),
                     'last_name_required' => __('Last name is required', 'redi-restaurant-reservation'),
                     'full_name_required' => __('Full name is required', 'redi-restaurant-reservation'),
+                    'captcha_not_valid' => __('Captcha is not valid.', 'redi-restaurant-reservation'),
 
                     // email template
                     'email_greeting'   => __('Hi, could you please make a reservation for me with following details', 'redi-restaurant-reservation'),
@@ -2231,7 +2476,12 @@ if (!class_exists('ReDiRestaurantReservation')) {
                     'enable_modify_reservation' => $this->GetOption('EnableModifyReservations', 0),
                     'mandatory_cancellation_reason' => $this->GetOption('MandatoryCancellationReason', 1),
                     'enable_menu' => (class_exists('Redi_Restaurant_Reservation_Menu_Plugin') && is_plugin_active('redi-restaurant-reservation-menu/redi-restaurant-reservation-menu.php')) ? 1 : 0,
-                    'confirmation_page' => $redirect_to_confirmation_page);
+                    'confirmation_page' => $redirect_to_confirmation_page,
+                    'enable_captcha' => (int) $this->GetOption('Captcha', 0),
+                    'captcha_version' => ReDiCaptchaVersion::V3,
+                    'captcha_key' => $this->GetOption('CaptchaKey', ''),
+                    'captcha_score' => (float) $this->GetOption('CaptchaScore', 0.5),
+                );
 
                 // Localize the script with your data
                 wp_localize_script(
@@ -2648,6 +2898,16 @@ if (!class_exists('ReDiRestaurantReservation')) {
                 case 'step3':
                     try 
                     {
+                        $captcha_token = self::GetPost('captcha_token', '');
+                        if ($captcha_token === '') {
+                            $captcha_token = self::GetPost('g-recaptcha-response', '');
+                        }
+                        $captcha_error = $this->verify_recaptcha_or_error($captcha_token);
+                        if ($captcha_error !== null) {
+                            echo wp_json_encode(array('Error' => $captcha_error));
+                            break;
+                        }
+
                         $persons = (int)self::GetPost('persons');
                         $startTimeStr = self::GetPost('startTime');
 
@@ -2845,12 +3105,13 @@ case 'cancel':
                 case 'modify':
                     $reservation = $this->redi->findReservation( str_replace( '_', '-', self::GetPost( 'lang' ) ), preg_replace( '/[^0-9]/', '', self::GetPost( 'ID' )));
 
-                    if( isset( $reservation['Error'] ) 
-                        || ( strtolower(sanitize_email(self::GetPost('Email'))) != strtolower( $reservation['Email'] )
-                            && str_replace([' '], '', sanitize_text_field(self::GetPost('Phone'))) != $reservation['Phone'] 
-                            && strtolower(sanitize_text_field(self::GetPost('Name'))) != strtolower($reservation['Name'])) 
-                    ) 
-                    {
+                    if ( isset( $reservation['Error'] )
+                        || (
+                            ! $this->reservation_personal_info_matches( $reservation, self::GetPost( 'Email' ) )
+                            && ! $this->reservation_personal_info_matches( $reservation, self::GetPost( 'Phone' ) )
+                            && ! $this->reservation_personal_info_matches( $reservation, self::GetPost( 'Name' ) )
+                        )
+                    ) {
                         $data = [
                             'reservation' => [
                                 'Error' => __( 'Unable to find reservation with provided information. Please verify that provided reservation number and phone or name or email is correct.', 'redi-restaurant-reservation' )
@@ -2978,7 +3239,7 @@ case 'cancel':
 
                 case 'activationCheck':
                     
-                    if (!current_user_can('administrator')) {
+                    if (!current_user_can('manage_options')) {
                         wp_die(__('You do not have permission to access this call.', 'redi-restaurant-reservation'));
                     }
                     
@@ -3027,7 +3288,7 @@ case 'cancel':
                 // Page Creating case
                 case 'createPageForReDiReservation':
 
-                    if (!current_user_can('administrator')) {
+                    if (!current_user_can('manage_options')) {
                         wp_die(__('You do not have permission to access this call.', 'redi-restaurant-reservation' ));
                     }
 
@@ -3063,8 +3324,11 @@ case 'cancel':
                                 // the plugin may have been previously active and the page may just be trashed...
                                 $this->page_id = $the_page->ID;
 
-                                //make sure the page is not trashed...
+                                //make sure the page is not trashed and contains the shortcode
                                 $the_page->post_status = 'publish';
+                                if (strpos($the_page->post_content, '[redirestaurant') === false) {
+                                    $the_page->post_content = trim($the_page->post_content . "\n\n" . $this->content);
+                                }
                                 $updated_page_id = wp_update_post($the_page);
                                 if(!is_wp_error($updated_page_id)){
                                     $this->page_id = $updated_page_id;
@@ -3101,6 +3365,138 @@ case 'cancel':
         */
         function redi_userfeedback_submit(){
             ReDiFeedback::feedback_on_experience();
+        }
+
+        function redi_support_issue_submit()
+        {
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(array('message' => __('You are not allowed to do this.', 'redi-restaurant-reservation')), 403);
+            }
+
+            if (!isset($_POST['redi_plugin_nonce']) || !wp_verify_nonce($_POST['redi_plugin_nonce'], 'redi_restaurant_ajax')) {
+                wp_send_json_error(array('message' => __('Security check failed. Please reload the page and try again.', 'redi-restaurant-reservation')), 400);
+            }
+
+            $contact_email = isset($_POST['contact_email']) ? sanitize_email(wp_unslash($_POST['contact_email'])) : '';
+            $description = isset($_POST['description']) ? sanitize_textarea_field(wp_unslash($_POST['description'])) : '';
+
+            if (empty($contact_email) || !is_email($contact_email)) {
+                wp_send_json_error(array('message' => __('Please enter a valid contact email.', 'redi-restaurant-reservation')), 400);
+            }
+
+            if (trim($description) === '') {
+                wp_send_json_error(array('message' => __('Please describe the problem.', 'redi-restaurant-reservation')), 400);
+            }
+
+            $place_name = '';
+            $api_key = $this->ApiKey;
+            try {
+                $places = $this->redi->getPlaces();
+                if (!isset($places['Error']) && !empty($places) && isset($places[0]->Name)) {
+                    $place_name = $places[0]->Name;
+                }
+            } catch (Exception $e) {
+                $place_name = '';
+            }
+
+            if ($place_name === '' && !empty($_POST['place_name'])) {
+                $place_name = sanitize_text_field(wp_unslash($_POST['place_name']));
+            }
+
+            $site_url = get_site_url();
+            $subject = sprintf(
+                'Support issue: %s',
+                $place_name !== '' ? $place_name : get_option('blogname')
+            );
+
+            $body = "A restaurant reported a problem from the ReDi plugin.\n\n";
+            $body .= 'Place name: ' . ($place_name !== '' ? $place_name : '(not available)') . "\n";
+            $body .= 'API key: ' . ($api_key ? $api_key : '(not available)') . "\n";
+            $body .= 'Contact email: ' . $contact_email . "\n";
+            $body .= 'Website: ' . $site_url . "\n";
+            $body .= 'Plugin version: ' . REDI_PLUGIN_VERSION . "\n";
+            $body .= 'WordPress: ' . get_bloginfo('version') . "\n\n";
+            $body .= "Problem:\n" . $description . "\n";
+
+            $attachments = $this->redi_support_issue_collect_attachments();
+            if (is_wp_error($attachments)) {
+                wp_send_json_error(array('message' => $attachments->get_error_message()), 400);
+            }
+
+            $headers = array(
+                'Content-Type: text/plain; charset=UTF-8',
+                'Reply-To: ' . $contact_email,
+            );
+
+            $sent = wp_mail('info@reservationdiary.eu', $subject, $body, $headers, $attachments['paths']);
+
+            foreach ($attachments['paths'] as $path) {
+                if (is_string($path) && file_exists($path)) {
+                    @unlink($path);
+                }
+            }
+
+            if (!$sent) {
+                wp_send_json_error(array('message' => __('Could not send the message. Please email info@reservationdiary.eu.', 'redi-restaurant-reservation')), 500);
+            }
+
+            wp_send_json_success(array('message' => __('Thank you. Your message was sent to support.', 'redi-restaurant-reservation')));
+        }
+
+        private function redi_support_issue_collect_attachments()
+        {
+            $result = array('paths' => array());
+
+            if (empty($_FILES['attachments']) || !isset($_FILES['attachments']['name']) || !is_array($_FILES['attachments']['name'])) {
+                return $result;
+            }
+
+            $allowed_ext = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'txt', 'log', 'csv', 'doc', 'docx', 'zip');
+            $max_files = 5;
+            $max_bytes = 5 * 1024 * 1024;
+            $count = count($_FILES['attachments']['name']);
+
+            if ($count > $max_files) {
+                return new WP_Error('too_many_files', __('You can attach at most 5 files.', 'redi-restaurant-reservation'));
+            }
+
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+
+            for ($i = 0; $i < $count; $i++) {
+                if (empty($_FILES['attachments']['name'][$i]) || (int) $_FILES['attachments']['error'][$i] === UPLOAD_ERR_NO_FILE) {
+                    continue;
+                }
+
+                if ((int) $_FILES['attachments']['error'][$i] !== UPLOAD_ERR_OK) {
+                    return new WP_Error('upload_error', __('One of the attachments could not be uploaded.', 'redi-restaurant-reservation'));
+                }
+
+                if ((int) $_FILES['attachments']['size'][$i] > $max_bytes) {
+                    return new WP_Error('file_too_large', __('Each attachment must be 5 MB or smaller.', 'redi-restaurant-reservation'));
+                }
+
+                $ext = strtolower(pathinfo($_FILES['attachments']['name'][$i], PATHINFO_EXTENSION));
+                if (!in_array($ext, $allowed_ext, true)) {
+                    return new WP_Error('invalid_type', __('That file type is not allowed.', 'redi-restaurant-reservation'));
+                }
+
+                $file = array(
+                    'name' => $_FILES['attachments']['name'][$i],
+                    'type' => $_FILES['attachments']['type'][$i],
+                    'tmp_name' => $_FILES['attachments']['tmp_name'][$i],
+                    'error' => $_FILES['attachments']['error'][$i],
+                    'size' => $_FILES['attachments']['size'][$i],
+                );
+
+                $uploaded = wp_handle_upload($file, array('test_form' => false));
+                if (isset($uploaded['error'])) {
+                    return new WP_Error('upload_error', $uploaded['error']);
+                }
+
+                $result['paths'][] = $uploaded['file'];
+            }
+
+            return $result;
         }
 
         // Emit a sync action: consumers run immediately in the same request.

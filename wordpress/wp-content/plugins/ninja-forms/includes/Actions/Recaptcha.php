@@ -53,7 +53,8 @@ final class NF_Actions_Recaptcha extends SotAction implements InterfacesSotActio
 		parent::__construct();
 
 		$this->_name = 'recaptcha';
-		$this->_timing = 'normal';
+		// Spam filtering must decide the submission before any action processes it. See issue #6372.
+		$this->_timing = 'early';
 		$this->_priority = '10';
 		$this->_group = 'core';
 
@@ -319,15 +320,81 @@ final class NF_Actions_Recaptcha extends SotAction implements InterfacesSotActio
 			return false;
 		}
 
-		$scripts = wp_scripts();
-
-		foreach ($scripts->registered as $script) {
-			if (false !== strpos($script->src, 'google.com/recaptcha/api.js')) {
+		foreach ($this->get_page_bound_script_handles() as $handle) {
+			if ($this->script_loads_our_recaptcha($handle)) {
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Script handles that will actually reach the page: everything enqueued,
+	 * plus the registered dependencies those handles pull in with them.
+	 *
+	 * A handle that is only registered never reaches the page, so it cannot
+	 * supply the grecaptcha object our field controller needs. Treating a bare
+	 * registration as somebody else's reCAPTCHA left forms unusable alongside
+	 * plugins that register the script unconditionally. See issue #6007.
+	 *
+	 * @return string[]
+	 */
+	protected function get_page_bound_script_handles()
+	{
+		$scripts = wp_scripts();
+
+		$pending = (isset($scripts->queue) && is_array($scripts->queue)) ? $scripts->queue : array();
+		$seen = array();
+
+		while ($pending) {
+			$handle = array_shift($pending);
+
+			if (isset($seen[$handle])) {
+				continue;
+			}
+
+			$seen[$handle] = true;
+
+			if (isset($scripts->registered[$handle]->deps) && is_array($scripts->registered[$handle]->deps)) {
+				foreach ($scripts->registered[$handle]->deps as $dependency) {
+					$pending[] = $dependency;
+				}
+			}
+		}
+
+		return array_keys($seen);
+	}
+
+	/**
+	 * Is this handle the Google reCAPTCHA API loaded with our own site key?
+	 *
+	 * reCAPTCHA v3 binds the script to one site key through its render
+	 * parameter, and Google refuses a token requested against any other key,
+	 * so another plugin's key is no substitute for ours. See issue #6007.
+	 *
+	 * @param string $handle
+	 *
+	 * @return bool
+	 */
+	protected function script_loads_our_recaptcha($handle)
+	{
+		$scripts = wp_scripts();
+
+		if (! isset($scripts->registered[$handle]->src)) {
+			return false;
+		}
+
+		$src = (string) $scripts->registered[$handle]->src;
+
+		if (false === strpos($src, 'google.com/recaptcha/api.js')) {
+			return false;
+		}
+
+		$arguments = array();
+		parse_str((string) parse_url($src, PHP_URL_QUERY), $arguments);
+
+		return isset($arguments['render']) && $arguments['render'] === $this->site_key;
 	}
 
 	protected function get_form_data()
@@ -350,13 +417,18 @@ final class NF_Actions_Recaptcha extends SotAction implements InterfacesSotActio
 	{
 		$form_data = $this->get_form_data();
 
-		if (! $form_data || ! isset($form_data['id'])) {
+		if (! is_array($form_data) || ! isset($form_data['id'])
+			|| (! is_int($form_data['id']) && ! is_string($form_data['id']))
+			|| ! preg_match('/^([0-9]+)(_[0-9]+)?$/D', (string) $form_data['id'], $form_parts)) {
 			return false;
 		}
 
-		$field_id = $this->get_field_id_hash($form_data['id']);
+		// Rendering hashes the original form ID, then adds the display instance suffix.
+		$field_id = $this->get_field_id_hash($form_parts[1]) . ($form_parts[2] ?? '');
 
-		if (! isset($form_data['fields']) || ! isset($form_data['fields'][$field_id])) {
+		if (! isset($form_data['fields']) || ! is_array($form_data['fields'])
+			|| ! isset($form_data['fields'][$field_id]['value'])
+			|| ! is_string($form_data['fields'][$field_id]['value'])) {
 			return false;
 		}
 
@@ -381,7 +453,7 @@ final class NF_Actions_Recaptcha extends SotAction implements InterfacesSotActio
 		$recaptcha_response = $this->get_recaptcha_response();
 
 		if (! $recaptcha_response) {
-			$data['errors']['form']['recaptcha'] = esc_html__('Recaptcha validation failed. Please try again later', 'ninja-forms');
+			$data['errors']['form']['recaptcha'] = esc_html__('reCAPTCHA validation failed. Please try again later.', 'ninja-forms');
 
 			return $data;
 		}
@@ -390,7 +462,7 @@ final class NF_Actions_Recaptcha extends SotAction implements InterfacesSotActio
 			return $data;
 		}
 
-		$data['errors']['form']['recaptcha'] = esc_html__('Recaptcha validation failed. Please try again later', 'ninja-forms');
+		$data['errors']['form']['recaptcha'] = esc_html__('reCAPTCHA validation failed. Please try again later.', 'ninja-forms');
 
 		return $data;
 	}

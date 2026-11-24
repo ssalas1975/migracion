@@ -607,7 +607,10 @@ class WPForms_Field_Email extends WPForms_Field {
 			$value = ! empty( $field_submit ) ? $field_submit : '';
 		}
 
-		if ( $value && ! wpforms_is_email( $value ) ) {
+		// Validate before decoding: Punycode expects a well-formed string.
+		$decoded = ( $value && wpforms_is_email( $value, false ) ) ? $this->decode_punycode( $value ) : '';
+
+		if ( $value && $decoded === '' ) {
 			wpforms()->obj( 'process' )->errors[ $form_data['id'] ][ $field_id ] = esc_html__( 'The provided email is not valid.', 'wpforms-lite' );
 
 			return;
@@ -618,7 +621,7 @@ class WPForms_Field_Email extends WPForms_Field {
 		// Set final field details.
 		wpforms()->obj( 'process' )->fields[ $field_id ] = [
 			'name'  => sanitize_text_field( $name ),
-			'value' => sanitize_text_field( $this->decode_punycode( $value ) ),
+			'value' => sanitize_text_field( $decoded ),
 			'id'    => wpforms_validate_field_id( $field_id ),
 			'type'  => $this->type,
 		];
@@ -788,6 +791,10 @@ class WPForms_Field_Email extends WPForms_Field {
 				break;
 
 			case self::EMAIL:
+				if ( $this->is_smart_tag_value( $content ) ) {
+					wp_send_json_success( $content );
+				}
+
 				list( $local, $domain ) = $this->parse_email_pattern( $content );
 
 				$local  = $this->sanitize_local_pattern( $local );
@@ -972,6 +979,20 @@ class WPForms_Field_Email extends WPForms_Field {
 	}
 
 	/**
+	 * Check if a value contains a smart tag token.
+	 *
+	 * @since 1.10.2
+	 *
+	 * @param mixed $value Value to check.
+	 *
+	 * @return bool
+	 */
+	private function is_smart_tag_value( $value ) {
+
+		return is_string( $value ) && ! empty( wpforms_get_all_smart_tags( $value ) );
+	}
+
+	/**
 	 * Sanitize restricted rules.
 	 *
 	 * @since 1.6.3
@@ -1029,6 +1050,11 @@ class WPForms_Field_Email extends WPForms_Field {
 			$email = $this->decode_punycode( $email );
 		}
 
+		// An address Punycode can't decode can't be matched against the rules either.
+		if ( $email === '' ) {
+			return false;
+		}
+
 		$patterns = $this->sanitize_restricted_rules( $field[ $field['filter_type'] ] );
 		$patterns = array_map( [ $this, 'decode_punycode' ], $patterns );
 		$patterns = array_map( [ $this, 'sanitize_email_pattern' ], $patterns );
@@ -1042,6 +1068,22 @@ class WPForms_Field_Email extends WPForms_Field {
 		}
 
 		return ! $check;
+	}
+
+	/**
+	 * Check if the email address is allowed by the field filter (denylist/allowlist).
+	 *
+	 * @since 1.10.1
+	 *
+	 * @param string $email Email address to check.
+	 * @param array  $field Field configuration data.
+	 *
+	 * @return bool True if the email is allowed, false if it is restricted.
+	 */
+	public function is_email_allowed( string $email, array $field ): bool {
+
+		// is_restricted_email() returns true when the email is allowed (not blocked).
+		return $this->is_restricted_email( $email, $field );
 	}
 
 	/**
@@ -1084,9 +1126,32 @@ class WPForms_Field_Email extends WPForms_Field {
 					continue;
 				}
 
-				$form_data['fields'][ $key ]['allowlist']     = ! empty( $field['allowlist'] ) ? implode( PHP_EOL, $this->sanitize_restricted_rules( $field['allowlist'] ) ) : '';
-				$form_data['fields'][ $key ]['denylist']      = ! empty( $field['denylist'] ) ? implode( PHP_EOL, $this->sanitize_restricted_rules( $field['denylist'] ) ) : '';
-				$form_data['fields'][ $key ]['default_value'] = isset( $field['default_value'] ) ? wpforms_is_email( $field['default_value'] ) : '';
+				$form_data['fields'][ $key ]['allowlist'] = ! empty( $field['allowlist'] ) ? implode( PHP_EOL, $this->sanitize_restricted_rules( $field['allowlist'] ) ) : '';
+				$form_data['fields'][ $key ]['denylist']  = ! empty( $field['denylist'] ) ? implode( PHP_EOL, $this->sanitize_restricted_rules( $field['denylist'] ) ) : '';
+
+				$default = $field['default_value'] ?? '';
+
+				$form_data['fields'][ $key ]['default_value'] = $this->is_smart_tag_value( $default )
+					? $default
+					: (string) wpforms_is_email( $default );
+
+				/**
+				 * Filters the default value of an Email field when saving form arguments.
+				 *
+				 * @since 1.10.2
+				 *
+				 * @param string $default_value Processed default value.
+				 * @param string $default       Raw default value before processing.
+				 * @param array  $field         Field data.
+				 * @param array  $form_data     Full form data.
+				 */
+				$form_data['fields'][ $key ]['default_value'] = apply_filters(
+					'wpforms_field_email_save_form_args_default_value',
+					$form_data['fields'][ $key ]['default_value'],
+					$default,
+					$field,
+					$form_data
+				);
 			}
 		}
 
@@ -1242,11 +1307,14 @@ class WPForms_Field_Email extends WPForms_Field {
 	 */
 	private function email_encode_punycode( $email ) {
 
-		if ( ! wpforms_is_email( $email ) ) {
+		if ( ! wpforms_is_email( $email, false ) ) {
 			return '';
 		}
 
-		return $this->encode_punycode( $email );
+		$encoded = $this->encode_punycode( $email );
+
+		// is_restricted_email() decodes it back, so an address that can't be decoded is invalid, not restricted.
+		return $this->decode_punycode( $encoded ) === '' ? '' : $encoded;
 	}
 
 	/**
@@ -1277,13 +1345,7 @@ class WPForms_Field_Email extends WPForms_Field {
 	 */
 	private function encode_punycode( $email_pattern ) {
 
-		try {
-			$encoded = $this->transform_punycode( $email_pattern, [ $this->get_punycode(), 'encode' ] );
-		} catch ( Exception $e ) {
-			return '';
-		}
-
-		return $encoded;
+		return $this->transform_punycode( $email_pattern, [ $this->get_punycode(), 'encode' ] );
 	}
 
 	/**
@@ -1308,18 +1370,22 @@ class WPForms_Field_Email extends WPForms_Field {
 	 * @param string   $email_pattern Email pattern.
 	 * @param callable $callback      Punycode callback.
 	 *
-	 * @return string
+	 * @return string Transformed pattern, or an empty string when Punycode rejects a label.
 	 */
 	private function transform_punycode( $email_pattern, callable $callback ) {
 
 		$parts = $this->get_email_pattern_parts( $email_pattern );
 
-		foreach ( $parts as $key => $part ) {
-			if ( ! $part[0] ) {
-				continue;
-			}
+		try {
+			foreach ( $parts as $key => $part ) {
+				if ( ! $part[0] ) {
+					continue;
+				}
 
-			$parts[ $key ][0] = call_user_func( $callback, $part[0] );
+				$parts[ $key ][0] = call_user_func( $callback, $part[0] );
+			}
+		} catch ( Exception $e ) {
+			return '';
 		}
 
 		return $this->glue_email_pattern_parts( $parts );

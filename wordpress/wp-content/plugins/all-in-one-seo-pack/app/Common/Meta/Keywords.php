@@ -17,7 +17,9 @@ class Keywords {
 	/**
 	 * Get the keywords for the meta output.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Fall back to the configured keywords when generation yields none.
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @return string The keywords as a string.
 	 */
@@ -34,10 +36,16 @@ class Keywords {
 		$dynamicContent  = is_archive() || is_post_type_archive() || is_home() || aioseo()->helpers->isWooCommerceShopPage() || is_category() || is_tag() || is_tax();
 		$generate        = aioseo()->options->searchAppearance->advanced->dynamicallyGenerateKeywords;
 		if ( $dynamicContent && $generate ) {
-			return $this->prepareKeywords( $this->getGeneratedKeywords() );
+			$generatedKeywords = $this->getGeneratedKeywords();
+
+			// Generation reads the main loop, which some plugins replace with a placeholder post
+			// (e.g. bbPress theme compat). Keep the configured keywords instead of dropping the tag.
+			if ( ! empty( $generatedKeywords ) ) {
+				return $this->prepareKeywords( $generatedKeywords );
+			}
 		}
 
-		if ( is_front_page() && ! aioseo()->helpers->isStaticHomePage() ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$keywords = $this->extractMetaKeywords( aioseo()->options->searchAppearance->global->keywords );
 
 			return $this->prepareKeywords( $keywords );
@@ -104,7 +112,8 @@ class Keywords {
 	/**
 	 * Get generated keywords for an archive page.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @return array An array of generated keywords.
 	 */
@@ -115,7 +124,7 @@ class Keywords {
 		$isStaticArchive = aioseo()->helpers->isWooCommerceShopPage() || aioseo()->helpers->isStaticPostsPage();
 		if ( $isStaticArchive ) {
 			$keywords = $this->getAllKeywords();
-		} elseif ( is_front_page() && ! aioseo()->helpers->isStaticHomePage() ) {
+		} elseif ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$keywords = $this->extractMetaKeywords( aioseo()->options->searchAppearance->global->keywords );
 		} elseif ( is_category() || is_tag() || is_tax() ) {
 			$metaData = aioseo()->meta->metaData->getMetaData();
@@ -260,22 +269,13 @@ class Keywords {
 	/**
 	 * Extract keywords and then return as a string.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Delegates to jsonTagsToList(), which tolerates scalar entries.
 	 *
 	 * @param  array|string $keywords An array of keywords or a json string.
 	 * @return array                  An array of keywords that were extracted.
 	 */
 	public function extractMetaKeywords( $keywords ) {
-		$extracted = [];
-
-		$keywords = is_string( $keywords ) ? json_decode( $keywords ) : $keywords;
-
-		if ( ! empty( $keywords ) ) {
-			foreach ( $keywords as $keyword ) {
-				$extracted[] = trim( $keyword->value );
-			}
-		}
-
-		return $extracted;
+		return array_map( 'trim', aioseo()->helpers->jsonTagsToList( $keywords ) );
 	}
 }

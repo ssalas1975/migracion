@@ -3,6 +3,10 @@
  * Template Item
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // If this file is called directly, abort.
+}
+
 ?>
 
 <div class="elementor-template-library-template-body">
@@ -10,7 +14,7 @@
 		<div class="elementor-template-library-template-preview">
 			<i class="eicon-plus-circle-o" aria-hidden="true"></i>
 		</div>
-		<img src="{{ thumbnail }}">
+		<img src="{{ thumbnail }}" loading="lazy">
 	</div>
 </div>
 <div class="elementor-template-library-template-controls">
@@ -32,5 +36,3 @@
 	</a>
 	<# } #>
 </div>
-
-<!--<div class="elementor-template-library-template-name">{{{ title }}}</div>-->

@@ -1,208 +1,591 @@
+# Copyright (C) 2026 Webhead LLC.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Contact Form 7 Multi Step Forms\n"
-"POT-Creation-Date: 2017-12-26 15:50-1000\n"
-"PO-Revision-Date: 2017-12-26 15:51-1000\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: en\n"
+"Project-Id-Version: Webheadcoder Multi-Step Forms for Contact Form 7 4.8.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/contact-form-7-multi-step-module\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.5\n"
-"X-Poedit-Basepath: .\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: __;_e\n"
-"X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: freemius\n"
+"POT-Creation-Date: 2026-11-19T04:12:46+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: contact-form-7-multi-step-module\n"
 
-#: cf7msm-admin.php:36
-msgid "CF7 Multi-Step Forms"
+#. Plugin Name of the plugin
+#: contact-form-7-multi-step-module.php
+#: cf7msm-admin.php:82
+msgid "Webheadcoder Multi-Step Forms for Contact Form 7"
 msgstr ""
 
-#: cf7msm-admin.php:38
-msgid ""
-"<p>Not getting all information from your Multi-Step forms? </p><p>Consider "
-"upgrading to allow for longer multi-step forms.</p>"
+#. Plugin URI of the plugin
+#: contact-form-7-multi-step-module.php
+msgid "https://webheadcoder.com/contact-form-7-multi-step-forms/"
 msgstr ""
 
-#: cf7msm-admin.php:41
+#. Description of the plugin
+#: contact-form-7-multi-step-module.php
+msgid "Adds multi-page, multi-step forms to Contact Form 7."
+msgstr ""
+
+#. Author of the plugin
+#: contact-form-7-multi-step-module.php
+msgid "Webhead LLC."
+msgstr ""
+
+#. Author URI of the plugin
+#: contact-form-7-multi-step-module.php
+msgid "https://webheadcoder.com/"
+msgstr ""
+
+#: cf7msm-admin.php:25
+msgid "Dismiss this warning? It will return if another submission exceeds the cookie size limit."
+msgstr ""
+
+#: cf7msm-admin.php:84
+msgid "<p>Not getting all information from your Multi-Step forms? </p><p>Consider upgrading to allow for longer multi-step forms.</p>"
+msgstr ""
+
+#: cf7msm-admin.php:87
+#: form-tags/module-multistep.php:206
+#: form-tags/module-multistep.php:343
+msgid "Upgrade Now"
+msgstr ""
+
+#: cf7msm-admin.php:88
+#: cf7msm-admin.php:218
+msgid "Learn more"
+msgstr ""
+
+#. translators: %s: cookie size limit in kilobytes.
+#: cf7msm-admin.php:213
 #, php-format
-msgid ""
-"<a href=\"#\" class=\"cf7msm-freemius-purchase\">Upgrade Now</"
-"a><br><a href=\"%1$s\" target=\"_blank\">Learn more</a><a href=\"%1$s\" "
-"class=\"external dashicons dashicons-external\" target=\"_blank\"></a>"
+msgid "%s KB limit"
 msgstr ""
 
-#: cf7msm.php:31
+#: cf7msm-admin.php:217
+msgid "Form submissions are currently limited to 4 KB due to browser limits."
+msgstr ""
+
+#: cf7msm-admin.php:221
+msgid "No multi-step submissions have been recorded yet."
+msgstr ""
+
+#. translators: %d: number of recent submissions.
+#: cf7msm-admin.php:232
 #, php-format
-msgid ""
-"Please update the Contact Form 7 plugin.  Contact Form 7 Multi-Step Form "
-"plugin requires Contact Form 7 version %s or above."
+msgid "Last %d submission"
+msgid_plural "Last %d submissions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: cf7msm-admin.php:239
+msgid "OK"
 msgstr ""
 
-#: cf7msm.php:35
-msgid ""
-"The Contact Form 7 plugin is installed, but <strong>you must activate "
-"Contact Form 7</strong> below for the Contact Form 7 Multi-Step Form to work."
+#: cf7msm-admin.php:242
+msgid "Over limit"
 msgstr ""
 
-#: cf7msm.php:37
+#: cf7msm-admin.php:246
+msgid "Near limit"
+msgstr ""
+
+#. translators: %s: cookie size in kilobytes.
+#: cf7msm-admin.php:255
 #, php-format
-msgid ""
-"The Contact Form 7 plugin must be installed for the Contact Form 7 Multi-"
-"Step Form to work. <a href=\"%s\" class=\"thickbox\" title=\"Contact Form "
-"7\">Install Now.</a>"
+msgid "%s KB"
 msgstr ""
 
-#: cf7msm.php:211 cf7msm.php:215
-msgid "Please fill out the form on the previous page"
+#: cf7msm-admin.php:270
+msgid "Form data was likely lost."
 msgstr ""
 
-#: cf7msm.php:425
+#: cf7msm-admin.php:273
+msgid "Last step not submitted yet."
+msgstr ""
+
+#: cf7msm-admin.php:295
+#: cf7msm-admin.php:339
+msgid "Multi-Step Form Cookie Size Monitor"
+msgstr ""
+
+#: cf7msm-admin.php:375
+msgid "Your Multi-Step Forms are doing great!"
+msgstr ""
+
+#: cf7msm-admin.php:376
+msgid "When you get a chance, could you help me out by leaving a 5-star review for <strong>Webheadcoder Multi-Step Forms for Contact Form 7</strong> on WordPress? It makes me feel awesome to know the plugin is helping others."
+msgstr ""
+
+#: cf7msm-admin.php:378
+msgid "Wow!  Your Multi-Step Forms are taking off!"
+msgstr ""
+
+#: cf7msm-admin.php:379
+msgid "I would really appreciate it if you could leave a 5-star review for <strong>Webheadcoder Multi-Step Forms for Contact Form 7</strong> on WordPress. It helps to hear that people are benefiting from the plugin."
+msgstr ""
+
+#: cf7msm-admin.php:383
+msgid "Leave a Review"
+msgstr ""
+
+#: cf7msm-admin.php:385
+msgid "I already did"
+msgstr ""
+
+#: cf7msm-admin.php:387
+msgid "Maybe later"
+msgstr ""
+
+#: cf7msm-admin.php:412
+msgid "one"
+msgstr ""
+
+#: cf7msm-admin.php:413
+msgid "two"
+msgstr ""
+
+#: cf7msm-admin.php:414
+msgid "three"
+msgstr ""
+
+#: cf7msm-admin.php:415
+msgid "four"
+msgstr ""
+
+#: cf7msm-admin.php:416
+msgid "five"
+msgstr ""
+
+#: cf7msm-admin.php:417
+msgid "six"
+msgstr ""
+
+#: cf7msm-admin.php:418
+msgid "seven"
+msgstr ""
+
+#: cf7msm-admin.php:419
+msgid "eight"
+msgstr ""
+
+#: cf7msm-admin.php:420
+msgid "nine"
+msgstr ""
+
+#: cf7msm-admin.php:421
+msgid "ten"
+msgstr ""
+
+#: cf7msm-admin.php:433
+msgid "Potential data loss in Multi-Step Forms detected"
+msgstr ""
+
+#. translators: %1$s: number of oversized form submissions.
+#: cf7msm-admin.php:436
 #, php-format
-msgid ". For more details, see %s."
+msgid "<strong>%1$s</strong> multi-step form submissions have exceeded 90%% of the standard browser's cookie size.  You may not be getting everything your users submit from your multi-step forms!"
 msgstr ""
 
-#: cf7msm.php:428
+#: cf7msm-admin.php:438
+msgid "Make sure you never lose a submission by upgrading to <strong>Webheadcoder Multi-Step Forms for Contact Form 7 Pro</strong>."
+msgstr ""
+
+#: cf7msm-admin.php:441
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: cf7msm-admin.php:447
+msgid "View recent submissions"
+msgstr ""
+
+#: cf7msm-admin.php:450
+msgid "Learn More"
+msgstr ""
+
+#: cf7msm-admin.php:453
+msgid "Remind me later"
+msgstr ""
+
+#: cf7msm-admin.php:455
+msgid "Dismiss forever"
+msgstr ""
+
+#: cf7msm-admin.php:530
 msgid "the plugin page on WordPress.org"
 msgstr ""
 
-#: cf7msm.php:444
+#. translators: %1$s: URL of the plugin review page on WordPress.org.
+#: cf7msm-admin.php:545
 #, php-format
-msgid ""
-"Like the Multi-step addition to CF7?  Let me know - <a href=\"%s\" target="
-"\"_blank\">Donate</a> and <a href=\"%s\" target=\"_blank\">Review</a>."
+msgid "Let me know how the Multi-Step forms are working for you <a href=\"%1$s\" target=\"_blank\">here</a>."
 msgstr ""
 
-#: contact-form-7-multi-step-module.php:96
+#. translators: %s: file path.
+#: cf7msm-uploads__premium_only.php:234
 #, php-format
-msgid ""
-"Please help improve the %1$s plugin!  I have chosen to use %2$s to get an "
-"idea of how users use my plugin.<br><br>  If you opt-in, the administrator "
-"email and some data about your usage of %1$s will be sent to %2$s. If you "
-"skip this, that's okay! The plugin will still work just fine."
+msgid "Could not open %s."
 msgstr ""
 
-#: form-tags/module-back.php:58
-msgid "Previous"
+#. translators: %s: file path.
+#: cf7msm-uploads__premium_only.php:242
+#, php-format
+msgid "Could not lock %s."
+msgstr ""
+
+#. translators: %s: file path.
+#: cf7msm-uploads__premium_only.php:273
+#, php-format
+msgid "Could not write %s."
+msgstr ""
+
+#. translators: %s: directory path.
+#: cf7msm-uploads__premium_only.php:383
+#, php-format
+msgid "The directory %s could not be created or is not writable."
+msgstr ""
+
+#. translators: %s: directory path.
+#: cf7msm-uploads__premium_only.php:390
+#, php-format
+msgid "The directory %s is outside the directories Contact Form 7 can attach files from (wp-content, the uploads directory, or WP_TEMP_DIR)."
+msgstr ""
+
+#. translators: %s: directory path.
+#: cf7msm-uploads__premium_only.php:400
+#: cf7msm-uploads__premium_only.php:839
+#, php-format
+msgid "The directory %s could not be created."
+msgstr ""
+
+#. translators: %s: error details.
+#: cf7msm-uploads__premium_only.php:450
+#, php-format
+msgid "Webheadcoder Multi-Step Forms could not keep a file uploaded on a form step, so the visitor could not continue: %s"
+msgstr ""
+
+#: cf7msm-uploads__premium_only.php:686
+msgid "This file would make your uploaded files larger than the total size allowed."
+msgstr ""
+
+#: cf7msm-uploads__premium_only.php:757
+#: cf7msm-uploads__premium_only.php:770
+#: cf7msm-uploads__premium_only.php:804
+msgid "Your file could not be saved. Please try again later."
+msgstr ""
+
+#. translators: %s: file path.
+#: cf7msm-uploads__premium_only.php:853
+#, php-format
+msgid "The uploaded file could not be copied to %s."
+msgstr ""
+
+#. translators: %s: file names.
+#: cf7msm-uploads__premium_only.php:1009
+#, php-format
+msgid "Your earlier upload %s has expired. Please go back and upload it again."
+msgid_plural "Your earlier uploads %s have expired. Please go back and upload them again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: cf7msm-uploads__premium_only.php:1020
+msgid "The files attached to this message are larger than the 25 MB email limit. Please go back and upload smaller files."
+msgstr ""
+
+#. translators: %1$s: minimum required Contact Form 7 version.
+#: cf7msm.php:27
+#, php-format
+msgid "Please update Contact Form 7. Webheadcoder Multi-Step Forms for Contact Form 7 requires Contact Form 7 version %1$s or later."
+msgstr ""
+
+#: cf7msm.php:31
+msgid "Contact Form 7 is installed, but <strong>you must activate Contact Form 7</strong> below for Webheadcoder Multi-Step Forms for Contact Form 7 to work."
+msgstr ""
+
+#. translators: %1$s: URL of the Contact Form 7 installation screen.
+#: cf7msm.php:34
+#, php-format
+msgid "Contact Form 7 must be installed for Webheadcoder Multi-Step Forms for Contact Form 7 to work. <a href=\"%1$s\" class=\"thickbox\" title=\"Contact Form 7\">Install Now.</a>"
+msgstr ""
+
+#: cf7msm.php:204
+msgid "Your browser is blocking the storage this form needs, so your answers may not be submitted. Turn off private browsing or allow site data for this site, then reload the page."
+msgstr ""
+
+#: cf7msm.php:209
+msgid "Already uploaded:"
+msgstr ""
+
+#: cf7msm.php:210
+msgid "Replace"
+msgstr ""
+
+#: cf7msm.php:211
+msgid "Remove"
+msgstr ""
+
+#. translators: %s: file name.
+#: cf7msm.php:213
+#, php-format
+msgid "Replace %s"
+msgstr ""
+
+#. translators: %s: file name.
+#: cf7msm.php:215
+#, php-format
+msgid "Remove %s"
+msgstr ""
+
+#: cf7msm.php:1484
+msgid "Error: This form is using two different formats of the multistep tag."
+msgstr ""
+
+#. translators: %1$s: plugin name; %2$s: Freemius link.
+#: contact-form-7-multi-step-module.php:116
+#, php-format
+msgid "Please help improve the %1$s plugin!  I have chosen to use %2$s to get an idea of how users use my plugin.<br><br>  If you opt-in, the administrator email and some data about your usage of %1$s will be sent to %2$s. If you skip this, that's okay! The plugin will still work just fine."
+msgstr ""
+
+#: contact-form-7-multi-step-module.php:147
+msgid "Account"
+msgstr ""
+
+#: contact-form-7-multi-step-module.php:148
+msgid "Contact"
+msgstr ""
+
+#: contact-form-7-multi-step-module.php:151
+msgid "Learn about PRO"
 msgstr ""
 
 #: form-tags/module-back.php:62
+msgid "Previous"
+msgstr ""
+
+#: form-tags/module-back.php:66
 msgid "Back"
 msgstr ""
 
-#: form-tags/module-back.php:83
+#: form-tags/module-back.php:91
 msgid "previous"
 msgstr ""
 
-#: form-tags/module-back.php:87
+#: form-tags/module-back.php:97
 msgid "Back button"
 msgstr ""
 
-#: form-tags/module-back.php:104
-msgid "Generate a form-tag for a previous button for a multistep form"
-msgstr ""
-
-#: form-tags/module-back.php:108 form-tags/module-back.php:161
-msgid "Label"
-msgstr ""
-
-#: form-tags/module-back.php:111
-msgid "The label on the button."
-msgstr ""
-
-#: form-tags/module-back.php:116
-msgid "Id attribute"
-msgstr ""
-
-#: form-tags/module-back.php:121
-msgid "Class attribute"
-msgstr ""
-
-#: form-tags/module-back.php:133 form-tags/module-multistep.php:166
-#: form-tags/module-session.php:167
-msgid "Insert Tag"
-msgstr ""
-
-#: form-tags/module-back.php:138 form-tags/module-multistep.php:171
-#: form-tags/module-session.php:172
-msgid "This field should not be used on the Mail tab."
-msgstr ""
-
-#: form-tags/module-back.php:153 form-tags/module-back.php:156
-#: form-tags/module-back.php:161 form-tags/module-session.php:191
-msgid "optional"
-msgstr ""
-
-#: form-tags/module-back.php:168 form-tags/module-session.php:196
-msgid "Copy this code and paste it into the form left."
-msgstr ""
-
-#: form-tags/module-multistep.php:47
-msgid "multistep"
-msgstr ""
-
-#: form-tags/module-multistep.php:119
-msgid "Current Step"
-msgstr ""
-
-#: form-tags/module-multistep.php:124
-msgid "The current step of this multi-step form."
-msgstr ""
-
-#: form-tags/module-multistep.php:130
-msgid "Total Steps"
-msgstr ""
-
-#: form-tags/module-multistep.php:135
-msgid "The total number of steps in your multi-step form."
-msgstr ""
-
-#: form-tags/module-multistep.php:142
-msgid "Next Page URL"
-msgstr ""
-
-#: form-tags/module-multistep.php:148
-msgid ""
-"The URL of the page that contains the next form.  (Leave blank on last step)"
-msgstr ""
-
+#: form-tags/module-back.php:114
 #: form-tags/module-multistep.php:156
+#: form-tags/module-session.php:157
+msgid "Multi-step form-tag generator"
+msgstr ""
+
+#. translators: %1$s: link to the plugin page on WordPress.org.
+#: form-tags/module-back.php:118
+#: form-tags/module-back.php:198
 #, php-format
-msgid ""
-"<p><strong>Warning:</strong> Your form may be at risk of being too large for "
-"the free version of this plugin.<br>If a user submits too much data in the "
-"forms you may not get all information.<br><button class=\"cf7msm-freemius-"
-"purchase\">Upgrade Now</button><br><a href=\"%s\" target=\"_blank\">See here "
-"for more information.</a></p>"
+msgid "Generate a form-tag for a previous button for a multistep form. For more details, see %1$s."
 msgstr ""
 
-#: form-tags/module-session.php:126
-msgid "form field"
-msgstr ""
-
-#: form-tags/module-session.php:129
-msgid "Form value"
-msgstr ""
-
-#: form-tags/module-session.php:145
-msgid ""
-"Generate a form-tag to show a field from a previous form in a multistep form"
-msgstr ""
-
-#: form-tags/module-session.php:150
+#: form-tags/module-back.php:124
+#: form-tags/module-multistep.php:288
+#: form-tags/module-session.php:206
 msgid "Name"
 msgstr ""
 
-#: form-tags/module-session.php:154
+#: form-tags/module-back.php:128
+#: form-tags/module-back.php:174
+#: form-tags/module-back.php:203
+msgid "Label"
+msgstr ""
+
+#: form-tags/module-back.php:131
+#: form-tags/module-back.php:206
+msgid "The label on the button."
+msgstr ""
+
+#: form-tags/module-back.php:135
+msgid "ID Attribute"
+msgstr ""
+
+#: form-tags/module-back.php:139
+msgid "Class Attribute"
+msgstr ""
+
+#: form-tags/module-back.php:146
+#: form-tags/module-multistep.php:214
+#: form-tags/module-session.php:176
+msgid "The form-tag to be inserted into the form template"
+msgstr ""
+
+#: form-tags/module-back.php:147
+#: form-tags/module-back.php:228
+#: form-tags/module-multistep.php:215
+#: form-tags/module-multistep.php:355
+#: form-tags/module-session.php:177
+#: form-tags/module-session.php:227
+msgid "Insert Tag"
+msgstr ""
+
+#: form-tags/module-back.php:150
+#: form-tags/module-back.php:233
+#: form-tags/module-multistep.php:218
+#: form-tags/module-multistep.php:360
+#: form-tags/module-session.php:180
+#: form-tags/module-session.php:234
+msgid "This field should not be used on the Mail tab."
+msgstr ""
+
+#: form-tags/module-back.php:166
+#: form-tags/module-back.php:169
+#: form-tags/module-back.php:174
+#: form-tags/module-session.php:257
+msgid "optional"
+msgstr ""
+
+#: form-tags/module-back.php:181
+#: form-tags/module-session.php:262
+msgid "Copy this code and paste it into the form left."
+msgstr ""
+
+#: form-tags/module-back.php:211
+msgid "Id attribute"
+msgstr ""
+
+#: form-tags/module-back.php:216
+msgid "Class attribute"
+msgstr ""
+
+#: form-tags/module-multistep.php:55
+msgid "multistep"
+msgstr ""
+
+#. translators: %1$s: link to the plugin page on WordPress.org.
+#: form-tags/module-multistep.php:160
+#: form-tags/module-multistep.php:282
+#, php-format
+msgid "Generate a form-tag to enable a multistep form. For more details, see %1$s."
+msgstr ""
+
+#: form-tags/module-multistep.php:166
+msgid "Field name"
+msgstr ""
+
+#: form-tags/module-multistep.php:170
+#: form-tags/module-multistep.php:324
+msgid "Next Page URL"
+msgstr ""
+
+#: form-tags/module-multistep.php:173
+#: form-tags/module-multistep.php:330
+msgid "The URL of the page that contains the next form."
+msgstr ""
+
+#: form-tags/module-multistep.php:174
+#: form-tags/module-multistep.php:331
+msgid "This can be blank on the last step."
+msgstr ""
+
+#: form-tags/module-multistep.php:178
+#: form-tags/module-multistep.php:293
+msgid "First Step"
+msgstr ""
+
+#: form-tags/module-multistep.php:180
+#: form-tags/module-multistep.php:296
+msgid "Check this if this form is the first step."
+msgstr ""
+
+#: form-tags/module-multistep.php:184
+#: form-tags/module-multistep.php:300
+msgid "Last Step"
+msgstr ""
+
+#: form-tags/module-multistep.php:186
+#: form-tags/module-multistep.php:303
+msgid "Check this if this form is the last step."
+msgstr ""
+
+#: form-tags/module-multistep.php:190
+#: form-tags/module-multistep.php:307
+msgid "Send Email"
+msgstr ""
+
+#: form-tags/module-multistep.php:192
+#: form-tags/module-multistep.php:310
+msgid "Send email after this form submits."
+msgstr ""
+
+#: form-tags/module-multistep.php:196
+#: form-tags/module-multistep.php:314
+msgid "Skip Save"
+msgstr ""
+
+#: form-tags/module-multistep.php:198
+#: form-tags/module-multistep.php:317
+msgid "Don't save this form to the database (for Flamingo and CFDB7)."
+msgstr ""
+
+#: form-tags/module-multistep.php:205
+msgid "Upgrade to Pro and avoid browser limitations that can cause loss of data."
+msgstr ""
+
+#: form-tags/module-multistep.php:207
+#: form-tags/module-multistep.php:344
+msgid "See here for more information."
+msgstr ""
+
+#: form-tags/module-multistep.php:233
+msgid "The sender visited this form without submitting the first step of the multistep forms."
+msgstr ""
+
+#: form-tags/module-multistep.php:235
+msgid "Please fill out the form on the previous page."
+msgstr ""
+
+#: form-tags/module-multistep.php:340
+msgid "Warning:"
+msgstr ""
+
+#: form-tags/module-multistep.php:341
+msgid "Your form may be at risk of being too large for the free version of this plugin."
+msgstr ""
+
+#: form-tags/module-multistep.php:342
+msgid "If a user submits too much data in the forms you may not get all information."
+msgstr ""
+
+#: form-tags/module-session.php:132
+msgid "multiform"
+msgstr ""
+
+#: form-tags/module-session.php:140
+msgid "Form value"
+msgstr ""
+
+#. translators: %1$s: link to the plugin page on WordPress.org.
+#: form-tags/module-session.php:161
+#: form-tags/module-session.php:197
+#, php-format
+msgid "Generate a form-tag to show a field from a previous form in a multistep form. For more details, see %1$s."
+msgstr ""
+
+#: form-tags/module-session.php:167
+msgid "Name of Field to Show"
+msgstr ""
+
+#: form-tags/module-session.php:170
+#: form-tags/module-session.php:212
 msgid "The name of the field from a form in a previous step."
 msgstr ""
 
-#: form-tags/module-session.php:188
+#: form-tags/module-session.php:254
 msgid "Name of previous form field"
 msgstr ""
 
-#: form-tags/module-session.php:198
+#: form-tags/module-session.php:264
 msgid "Mail fields currently not supported."
 msgstr ""

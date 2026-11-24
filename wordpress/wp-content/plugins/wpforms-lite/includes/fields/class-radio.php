@@ -75,9 +75,6 @@ class WPForms_Field_Radio extends WPForms_Field {
 		// This field requires fieldset+legend instead of the field label.
 		add_filter( "wpforms_frontend_modern_is_field_requires_fieldset_{$this->type}", '__return_true', PHP_INT_MAX, 2 );
 
-		// Load assets.
-		add_action( 'wpforms_builder_enqueues', [ $this, 'builder_assets' ] );
-
 		// Modify an export data format for the Other option.
 		add_filter( 'wpforms_pro_admin_entries_export_ajax_get_entry_fields_data_field', [ $this, 'export_entry_field_data' ] );
 
@@ -86,24 +83,9 @@ class WPForms_Field_Radio extends WPForms_Field {
 
 		// Adjust entry field before saving to entry_fields DB table.
 		add_filter( 'wpforms_entry_save_fields', [ $this, 'save_field' ], 10, 3 );
-	}
 
-	/**
-	 * Enqueue assets for the builder.
-	 *
-	 * @since 1.9.8.3
-	 */
-	public function builder_assets() {
-
-		$min = wpforms_get_min_suffix();
-
-		wp_enqueue_script(
-			'wpforms-multiple-choices',
-			WPFORMS_PLUGIN_URL . "assets/js/admin/builder/multiple-choices{$min}.js",
-			[ 'jquery', 'wpforms-builder' ],
-			WPFORMS_VERSION,
-			false
-		);
+		// Format the Other option value for smart tags.
+		add_filter( 'wpforms_smart_tags_formatted_field_value', [ $this, 'smart_tags_formatted_field_value' ], 10, 4 );
 	}
 
 	/**
@@ -177,7 +159,8 @@ class WPForms_Field_Radio extends WPForms_Field {
 			// Used for dynamic choices.
 			$depth = isset( $choice['depth'] ) ? absint( $choice['depth'] ) : 1;
 
-			$value = ! empty( $field['show_values'] ) ? $choice['value'] : $choice['label'];
+			$label = isset( $choice['label'] ) ? $choice['label'] : '';
+			$value = ! empty( $field['show_values'] ) ? $choice['value'] : $label;
 			/* translators: %s - choice number. */
 			$value = ( $value === '' ) ? sprintf( esc_html__( 'Choice %s', 'wpforms-lite' ), $key ) : $value;
 
@@ -198,7 +181,7 @@ class WPForms_Field_Radio extends WPForms_Field {
 					'class' => [ 'wpforms-field-label-inline' ],
 					'data'  => [],
 					'id'    => '',
-					'text'  => $choice['label'],
+					'text'  => $label,
 				],
 				'attr'       => [
 					'name'  => "wpforms[fields][{$field_id}]",
@@ -492,7 +475,7 @@ class WPForms_Field_Radio extends WPForms_Field {
 				if ( wpforms_is_amp() && ( $using_image_choices || $using_icon_choices ) ) {
 					$choice['container']['attr']['[class]'] = sprintf(
 						'%s + ( %s == %s ? " wpforms-selected" : "")',
-						wp_json_encode( implode( ' ', $choice['container']['class'] ) ),
+						wp_json_encode( wpforms_sanitize_classes( $choice['container']['class'], is_array( $choice['container']['class'] ) ) ),
 						$amp_state_id,
 						wp_json_encode( $choice['attr']['value'] )
 					);
@@ -632,14 +615,18 @@ class WPForms_Field_Radio extends WPForms_Field {
 						$other_atts['placeholder'] = $field['other_placeholder'];
 					}
 
+					// A read-only field strips the required flag on save; mirror that on the Other input.
+					$is_required = empty( $field['read_only'] );
+
 					$other_input_html = sprintf(
-						'<input type="text" %s required>',
+						'<input type="text" %s%s>',
 						wpforms_html_attributes(
 							"wpforms-{$form_data['id']}-field_{$field['id']}_other",
-							[ 'wpforms-other-input', 'wpforms-field-required', $size_class, $hidden_class ],
+							[ 'wpforms-other-input', $is_required ? 'wpforms-field-required' : '', $size_class, $hidden_class ],
 							[],
 							$other_atts
-						)
+						),
+						$is_required ? ' required' : ''
 					);
 				}
 
@@ -672,6 +659,9 @@ class WPForms_Field_Radio extends WPForms_Field {
 		}
 
 		parent::validate( $field_id, $field_submit, $form_data );
+
+		$this->validate_other_choice_value( $field_id, $field_submit, $form_data );
+		$this->validate_choices_allowlist( $field_id, $field_submit, $form_data );
 	}
 
 	/**
@@ -686,10 +676,11 @@ class WPForms_Field_Radio extends WPForms_Field {
 	 */
 	public function format( $field_id, $field_submit, $form_data ) {
 
-		$field     = $form_data['fields'][ $field_id ];
-		$dynamic   = ! empty( $field['dynamic_choices'] ) ? $field['dynamic_choices'] : false;
-		$name      = sanitize_text_field( $field['label'] );
-		$value_raw = sanitize_text_field( $field_submit );
+		$field        = $form_data['fields'][ $field_id ];
+		$field_submit = $this->sanitize_choices_submission( $field_submit, $field, $form_data );
+		$dynamic      = ! empty( $field['dynamic_choices'] ) ? $field['dynamic_choices'] : false;
+		$name         = sanitize_text_field( $field['label'] );
+		$value_raw    = is_array( $field_submit ) ? '' : sanitize_text_field( $field_submit );
 
 		$data = [
 			'name'      => $name,
@@ -705,10 +696,10 @@ class WPForms_Field_Radio extends WPForms_Field {
 			$data['dynamic']           = 'post_type';
 			$data['dynamic_items']     = absint( $value_raw );
 			$data['dynamic_post_type'] = $field['dynamic_post_type'];
-			$post                      = get_post( $value_raw );
+			$labels                    = $this->get_submitted_dynamic_choice_labels( [ $data['dynamic_items'] ], $field, $form_data );
 
-			if ( ! empty( $post ) && ! is_wp_error( $post ) && $data['dynamic_post_type'] === $post->post_type ) {
-				$data['value'] = esc_html( wpforms_get_post_title( $post ) );
+			if ( ! empty( $labels ) ) {
+				$data['value'] = esc_html( $labels[0] );
 			}
 		} elseif ( 'taxonomy' === $dynamic && ! empty( $field['dynamic_taxonomy'] ) ) {
 
@@ -716,10 +707,10 @@ class WPForms_Field_Radio extends WPForms_Field {
 			$data['dynamic']          = 'taxonomy';
 			$data['dynamic_items']    = absint( $value_raw );
 			$data['dynamic_taxonomy'] = $field['dynamic_taxonomy'];
-			$term                     = get_term( $value_raw, $data['dynamic_taxonomy'] );
+			$labels                   = $this->get_submitted_dynamic_choice_labels( [ $data['dynamic_items'] ], $field, $form_data );
 
-			if ( ! empty( $term ) && ! is_wp_error( $term ) ) {
-				$data['value'] = esc_html( wpforms_get_term_name( $term ) );
+			if ( ! empty( $labels ) ) {
+				$data['value'] = esc_html( $labels[0] );
 			}
 		} else {
 
@@ -732,7 +723,7 @@ class WPForms_Field_Radio extends WPForms_Field {
 			if ( ! empty( $field['show_values'] ) ) {
 				foreach ( $field['choices'] as $key => $choice ) {
 					if ( ! empty( $field_submit ) && $choice['value'] === $field_submit ) {
-						$data['value'] = sanitize_text_field( $choice['label'] );
+						$data['value'] = sanitize_text_field( isset( $choice['label'] ) ? $choice['label'] : '' );
 						$choice_key    = $key;
 						break;
 					}
@@ -744,7 +735,10 @@ class WPForms_Field_Radio extends WPForms_Field {
 				// Determine choice key, this is needed for image choices.
 				foreach ( $field['choices'] as $key => $choice ) {
 					/* translators: %s - choice number. */
-					if ( $field_submit === $choice['label'] || $value_raw === sprintf( esc_html__( 'Choice %s', 'wpforms-lite' ), $key ) ) {
+					$label = isset( $choice['label'] ) ? $choice['label'] : '';
+
+					/* translators: %s is the choice number. */
+					if ( $field_submit === $label || $value_raw === sprintf( esc_html__( 'Choice %s', 'wpforms-lite' ), $key ) ) {
 						$choice_key = $key;
 
 						break;
@@ -768,7 +762,7 @@ class WPForms_Field_Radio extends WPForms_Field {
 			foreach ( $field['choices'] as $choice ) {
 
 				if ( isset( $choice['other'] ) ) {
-					$data['value_raw'] = $choice['label'];
+					$data['value_raw'] = isset( $choice['label'] ) ? $choice['label'] : '';
 					$data['image']     = ! empty( $field['choices_images'] ) && ! empty( $choice['image'] ) ? esc_url_raw( $choice['image'] ) : '';
 
 					break;
@@ -792,6 +786,10 @@ class WPForms_Field_Radio extends WPForms_Field {
 	public function export_entry_field_data( $field ): array {
 
 		$field = (array) $field;
+
+		if ( empty( $field['type'] ) || $field['type'] !== $this->type ) {
+			return $field;
+		}
 
 		if ( empty( $field['is_other'] ) ) {
 			return $field;
@@ -842,6 +840,13 @@ class WPForms_Field_Radio extends WPForms_Field {
 		}
 
 		$other_value = $this->get_other_choice_value( $field );
+
+		// The Other text is rebuilt from the raw stored value, so it must be escaped like the caller's $value.
+		// esc_html() keeps existing entities: sanitize_text_field() already stores the text after a bare `<` encoded.
+		if ( $other_value !== null ) {
+			$other_value = esc_html( $other_value );
+		}
+
 		$field_value = $other_value ?? $value ?? '';
 
 		return parent::field_html_value(
@@ -906,6 +911,34 @@ class WPForms_Field_Radio extends WPForms_Field {
 		}
 
 		return (string) $value_raw;
+	}
+
+	/**
+	 * Format the field value for smart tags.
+	 *
+	 * Prefixes the Other option value with its label (e.g. "Other: text"),
+	 * so the `{field_id}` smart tag output is consistent with the Checkboxes field.
+	 *
+	 * @since 2.0.3
+	 *
+	 * @param string|mixed $value     Field value.
+	 * @param int          $field_id  Field ID.
+	 * @param array        $fields    List of fields.
+	 * @param string       $field_key Field key to get the value from.
+	 *
+	 * @return string
+	 */
+	public function smart_tags_formatted_field_value( $value, $field_id, $fields, $field_key ): string {
+
+		$value = (string) $value;
+		$field = $fields[ $field_id ] ?? [];
+		$type  = $field['type'] ?? '';
+
+		if ( $type !== $this->type || $field_key !== 'value' || empty( $field['is_other'] ) ) {
+			return $value;
+		}
+
+		return $this->get_other_choice_value( $field ) ?? $value;
 	}
 
 	/**

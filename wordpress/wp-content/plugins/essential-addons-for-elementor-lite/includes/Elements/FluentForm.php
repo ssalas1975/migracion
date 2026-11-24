@@ -2279,7 +2279,12 @@ class FluentForm extends Widget_Base
 		    $this->add_render_attribute( 'eael_fluentform_wrapper', 'class', 'eael-fluent-form-subscription' );
 	    }
         
-        $shortcode = '[fluentform id="'.$settings['form_list'].'"]';
+        // form_list is a FluentForm form ID (integer, from the fluentform_forms table).
+        // Cast to int so nothing from the setting can break out of the shortcode
+        // attribute and inject another shortcode via a REST-written _elementor_data value.
+        // (esc_attr alone is insufficient here: it does not escape the "]" that closes
+        // the shortcode and lets a sibling shortcode be appended.)
+        $shortcode = '[fluentform id="' . absint( $settings['form_list'] ) . '"]';
 
         ?>
         <div <?php $this->print_render_attribute_string('eael_fluentform_wrapper'); ?>>
@@ -2293,7 +2298,9 @@ class FluentForm extends Widget_Base
                     <?php } ?>
                     <?php if ( $settings['form_description_custom'] != '' ) { ?>
                         <div class="eael-contact-form-description eael-fluentform-description">
-                            <?php echo $this->parse_text_editor( wp_kses( $settings['form_description_custom'], Helper::eael_allowed_tags() ) ); ?>
+                            <?php 
+                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            echo $this->parse_text_editor( wp_kses( $settings['form_description_custom'], Helper::eael_allowed_tags() ) ); ?>
                         </div>
                     <?php } ?>
                 </div>

@@ -1,6 +1,30 @@
 <?php // Google Analytics - Core Functions
 
-if (!function_exists('add_action')) die();
+if (!defined('ABSPATH')) die();
+
+function ga_google_analytics_custom_kses($input) {
+	
+	$allowed_html = wp_kses_allowed_html('post');
+	
+	$add = array(
+		'script' => array(
+			
+			'async'          => array(),
+			'crossorigin'    => array(),
+			'defer'          => array(),
+			'integrity'      => array(),
+			'nomodule'       => array(),
+			'referrerpolicy' => array(),
+			'src'            => array(),
+			'type'           => array()
+		)
+	);
+	
+	$allowed_html = array_merge($allowed_html, $add);
+	
+	return $input; // wp_kses($input, $allowed_html); // still in development
+	
+}
 
 function ga_google_analytics_init($GA_Google_Analytics) {
 	
@@ -34,7 +58,7 @@ function ga_google_analytics_tracking_code() {
 	
 	if (empty($tracking_id)) {
 		
-		echo $custom;
+		echo ga_google_analytics_custom_kses($custom);
 		
 		return;
 		
@@ -44,7 +68,7 @@ function ga_google_analytics_tracking_code() {
 	
 	if (current_user_can('administrator') && $disable_admin) return;
 	
-	if ($custom && $custom_location) echo $custom . "\n";
+	if ($custom && $custom_location) echo ga_google_analytics_custom_kses($custom) . "\n";
 	
 	if ($tracking_method == 3) {
 		
@@ -68,7 +92,7 @@ function ga_google_analytics_tracking_code() {
 		
 	}
 	
-	if ($custom && !$custom_location) echo $custom . "\n";
+	if ($custom && !$custom_location) echo ga_google_analytics_custom_kses($custom) . "\n";
 	
 }
 
@@ -103,13 +127,13 @@ function ga_google_analytics_universal() {
 			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-			ga('create', '<?php echo $tracking_id; ?>'<?php echo $auto; if ($tracker_object) echo ', '. stripslashes(rtrim($tracker_object)); ?>);
+			ga('create', '<?php echo esc_html($tracking_id); ?>'<?php echo $auto; if ($tracker_object) echo ', '. stripslashes(rtrim($tracker_object)); ?>);
 			<?php 
-				if ($custom_code) echo $custom_code . "\n\t\t\t";
-				if ($display_ads) echo $ga_display  . "\n\t\t\t";
-				if ($link_attr)   echo $ga_link     . "\n\t\t\t";
-				if ($anonymize)   echo $ga_anon     . "\n\t\t\t";
-				if ($force_ssl)   echo $ga_ssl      . "\n\t\t\t";
+				if ($custom_code) echo ga_google_analytics_custom_kses($custom_code) . "\n\t\t\t";
+				if ($display_ads) echo ga_google_analytics_custom_kses($ga_display)  . "\n\t\t\t";
+				if ($link_attr)   echo ga_google_analytics_custom_kses($ga_link)     . "\n\t\t\t";
+				if ($anonymize)   echo ga_google_analytics_custom_kses($ga_anon)     . "\n\t\t\t";
+				if ($force_ssl)   echo ga_google_analytics_custom_kses($ga_ssl)      . "\n\t\t\t";
 			?>ga('send', 'pageview');
 		</script>
 
@@ -132,13 +156,13 @@ function ga_google_analytics_global() {
 	?>
 
 		<?php echo ga_google_analytics_credit(); ?>
-		<script<?php echo esc_attr($script_atts_ext); ?> src="https://www.googletagmanager.com/gtag/js?id=<?php echo $tracking_id; ?>"></script>
+		<script<?php echo esc_attr($script_atts_ext); ?> src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_html($tracking_id); ?>"></script>
 		<script<?php echo esc_attr($script_atts); ?>>
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
-			<?php if ($custom_code) echo $custom_code . "\n\t\t\t";
-			?>gtag('config', '<?php echo $tracking_id; ?>'<?php if ($tracker_object) echo ', '. stripslashes(rtrim($tracker_object)); ?>);
+			<?php if ($custom_code) echo ga_google_analytics_custom_kses($custom_code) . "\n\t\t\t";
+			?>gtag('config', '<?php echo esc_html($tracking_id); ?>'<?php if ($tracker_object) echo ', '. stripslashes(rtrim($tracker_object)); ?>);
 		</script>
 
 	<?php
@@ -171,7 +195,7 @@ function ga_google_analytics_legacy() {
 				if ($anonymize)   echo $ga_anon     . "\n\t\t\t"; 
 				if ($force_ssl)   echo $ga_ssl      . "\n\t\t\t"; 
 				if ($custom_code) echo $custom_code . "\n\t\t\t"; 
-			?>_gaq.push(['_setAccount', '<?php echo $tracking_id; ?>']);
+			?>_gaq.push(['_setAccount', '<?php echo esc_html($tracking_id); ?>']);
 			_gaq.push(['_trackPageview']);
 			(function() {
 				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;

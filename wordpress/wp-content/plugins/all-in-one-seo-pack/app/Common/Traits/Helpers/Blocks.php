@@ -24,9 +24,26 @@ trait Blocks {
 	];
 
 	/**
+	 * Parses blocks using the stock WordPress block parser.
+	 *
+	 * NOTE: Deliberately bypasses the `block_parser_class` filter. Page builders like Divi 5 swap in a parser
+	 * that mutates global render state on every parse (e.g. Divi's module order counters), which corrupts
+	 * their front-end CSS when we parse content outside the main render.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  string $content The raw post content.
+	 * @return array           The parsed blocks.
+	 */
+	public function parseBlocksSafely( $content ) {
+		return ( new \WP_Block_Parser() )->parse( (string) $content );
+	}
+
+	/**
 	 * Returns the content with blocks replaced.
 	 *
-	 * @since 4.8.7
+	 * @since   4.8.7
+	 * @version 4.9.8 Guard against null block names (freeform/classic content) to prevent a PHP deprecation warning on newer PHP versions.
 	 *
 	 * @param  string $content    The content.
 	 * @param  bool   $noConflict Whether to remove the conflicting blocks.
@@ -39,7 +56,9 @@ trait Blocks {
 			static $preRenderBlockCallback = null;
 			if ( null === $preRenderBlockCallback ) {
 				$preRenderBlockCallback = function( $preRender, $parsedBlock ) use ( $conflictingBlocks ) {
-					if ( isset( $conflictingBlocks[ $parsedBlock['blockName'] ] ) ) {
+					// Classic/freeform blocks have a null blockName, which PHP 8.5 deprecates as an array offset.
+					$blockName = isset( $parsedBlock['blockName'] ) ? (string) $parsedBlock['blockName'] : '';
+					if ( isset( $conflictingBlocks[ $blockName ] ) ) {
 						return '';
 					}
 

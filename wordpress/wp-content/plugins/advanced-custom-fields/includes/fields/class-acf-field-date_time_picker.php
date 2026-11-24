@@ -60,7 +60,7 @@ if ( ! class_exists( 'acf_field_date_and_time_picker' ) ) :
 			}
 
 			// vars
-			$version = '1.6.1';
+			$version = '1.6.3';
 
 			// script
 			wp_enqueue_script( 'acf-timepicker', acf_get_url( 'assets/inc/timepicker/jquery-ui-timepicker-addon.min.js' ), array( 'jquery-ui-datepicker' ), $version );
@@ -318,8 +318,7 @@ if ( ! class_exists( 'acf_field_date_and_time_picker' ) ) :
 
 			// ACF stores date_time_picker internally as 'Y-m-d H:i:s'.
 			// Use WordPress site timezone so the ISO 8601 offset is correct.
-			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'Y-m-d H:i:s' ); // Validación preventiva para PHP 8.4
-			$date = $is_valid_format ? \DateTime::createFromFormat( 'Y-m-d H:i:s', $value, wp_timezone() ) : false;
+			$date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $value, wp_timezone() );
 			if ( ! $date ) {
 				return null;
 			}
