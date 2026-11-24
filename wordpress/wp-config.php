@@ -1,4 +1,11 @@
 <?php
+define( 'WP_CACHE', true );
+
+
+//Begin Really Simple Security key
+define('RSSSL_KEY', 'iSus0pSnWt8URQ7ZCKf5ybGIDJ0kPotIxjcyABgqUwdvRv7awyP5KledYAOPIEZv');
+//END Really Simple Security key
+
 
 // BEGIN Kadence Security - Do not modify or remove this line
 // Kadence Security Config Details: 2
