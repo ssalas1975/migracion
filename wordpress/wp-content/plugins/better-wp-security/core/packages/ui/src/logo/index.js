@@ -7,7 +7,6 @@ import styled from '@emotion/styled';
  * WordPress dependencies
  */
 import { useSelect } from '@wordpress/data';
-import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -34,12 +33,6 @@ export default function Logo( { size = 25, className } ) {
 		} ),
 		[]
 	);
-
-	const showLogo = applyFilters( 'kadenceSecurity.showLogo', true );
-
-	if ( ! showLogo ) {
-		return null;
-	}
 
 	if ( installType === 'free' ) {
 		return <StyledLogoBasic size={ size } className={ className } />;

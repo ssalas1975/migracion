@@ -69,9 +69,9 @@ class CFDBWpdbUnbufferedResultIterator extends CFDBAbstractQueryResultsIterator 
             }
         } else {
             if ($this->debug) {
-                $this->mysqlResults = mysql_unbuffered_query($sql, $this->wpdb->dbh);
+                $this->mysqlResults = mysqli_unbuffered_query($sql, $this->wpdb->dbh);
             } else {
-                $this->mysqlResults = @mysql_unbuffered_query($sql, $this->wpdb->dbh);
+                $this->mysqlResults = @mysqli_unbuffered_query($sql, $this->wpdb->dbh);
             }
         }
     }
@@ -94,10 +94,10 @@ class CFDBWpdbUnbufferedResultIterator extends CFDBAbstractQueryResultsIterator 
             } else {
                 if ($this->debug) {
                     // returns array|false
-                    $row = mysql_fetch_assoc($this->mysqlResults);
+                    $row = mysqli_fetch_assoc($this->mysqlResults);
                 } else {
                     // returns array|false
-                    $row = @mysql_fetch_assoc($this->mysqlResults);
+                    $row = @mysqli_fetch_assoc($this->mysqlResults);
                 }
             }
         }
@@ -119,9 +119,9 @@ class CFDBWpdbUnbufferedResultIterator extends CFDBAbstractQueryResultsIterator 
                 }
             } else {
                 if ($this->debug) {
-                    mysql_free_result($this->mysqlResults);
+                    mysqli_free_result($this->mysqlResults);
                 } else {
-                    @mysql_free_result($this->mysqlResults);
+                    @mysqli_free_result($this->mysqlResults);
                 }
             }
             $this->mysqlResults = null;
@@ -137,7 +137,7 @@ class CFDBWpdbUnbufferedResultIterator extends CFDBAbstractQueryResultsIterator 
         if (function_exists('mysqli_connect')) {
             if (defined('WP_USE_EXT_MYSQL')) {
                 $use_mysqli = !WP_USE_EXT_MYSQL;
-            } elseif (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysql_connect')) {
+            } elseif (version_compare(phpversion(), '5.5', '>=') || !function_exists('mysqli_connect')) {
                 $use_mysqli = true;
             } elseif (false !== strpos($GLOBALS['wp_version'], '-')) {
                 $use_mysqli = true;

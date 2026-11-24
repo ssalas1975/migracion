@@ -2,7 +2,7 @@
 /**
  * Display Conditions logics lies below, Buckle up!
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -36,9 +36,6 @@ require_once __DIR__ . '/display-conditions/Cookie.php';
 require_once __DIR__ . '/display-conditions/CategoryPage.php';
 require_once __DIR__ . '/display-conditions/TagPage.php';
 require_once __DIR__ . '/display-conditions/NumberOfViews.php';
-require_once __DIR__ . '/display-conditions/CustomField.php';
-require_once __DIR__ . '/display-conditions/UrlParameter.php';
-require_once __DIR__ . '/display-conditions/ProductStock.php';
 
 /**
  * Import class dependencies
@@ -48,7 +45,7 @@ use ET_Builder_Module_Field_Base;
 /**
  * Display Conditions class.
  *
- * @since 4.11.0
+ * @since ??
  */
 class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_Base {
 
@@ -75,15 +72,12 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	use CategoryPageCondition;
 	use TagPageCondition;
 	use NumberOfViewsCondition;
-	use CustomFieldCondition;
-	use UrlParameterCondition;
-	use ProductStockCondition;
 
 	/**
 	 * Custom current date.
 	 * Useful for testing purposes where we don't want to depend on server's timestamp.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @var string
 	 */
@@ -93,7 +87,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	 * Retrieves fields for Display Conditions.
 	 * Used in `ET_Builder_ELement` to set Display Conditions fields in Divi Builder.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $args   Associative array for settings.
 	 *
@@ -120,7 +114,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	/**
 	 * Retrieves field for Display Conditions.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $args    Associative array for settings.
 	 *
@@ -155,7 +149,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	/**
 	 * Checks all $display_conditions and returns a final boolean output.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array   $display_conditions Associative array containing conditions.
 	 * @param  boolean $only_return_status Whether to return all conditions full status (useful in VB tooltips).
@@ -163,6 +157,11 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	 * @return boolean Conditions final result.
 	 */
 	public function is_displayable( $display_conditions, $only_return_status = false ) {
+		// Bail out and just display the module if below WordPress 5.3.
+		if ( version_compare( get_bloginfo( 'version' ), '5.3', '<' ) ) {
+			return true;
+		}
+
 		// Bail out and just display the module if $display_conditions is not array.
 		if ( ! is_array( $display_conditions ) ) {
 			return true;
@@ -224,7 +223,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	/**
 	 * Checks a single condition and returns a boolean result.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  string $condition_id           Condition ID.
 	 * @param  string $condition_name         Condition name.
@@ -291,15 +290,6 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 			case 'numberOfViews':
 				return $this->_process_number_of_views_condition( $condition_id, $condition_settings );
 
-			case 'customField':
-				return $this->_process_custom_field_condition( $condition_settings );
-
-			case 'urlParameter':
-				return $this->_process_url_parameter_condition( $condition_settings );
-
-			case 'productStock':
-				return $this->_process_product_stock_condition( $condition_settings );
-
 			default:
 				if ( isset( $condition_settings['dynamicPosts'] ) ) {
 					return $this->_process_dynamic_posts_condition( $condition_settings );
@@ -316,7 +306,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	 *
 	 * When operator 'AND/All' is selected no condition is considered a conflict.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition            Containing all settings of the condition.
 	 * @param  array $processed_conditions Containing all settings of previously processed conditions.
@@ -338,38 +328,11 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 			if ( $condition['condition'] !== $processed_condition['condition'] ) {
 				continue;
 			}
-
-			// Exception! "Date Time" Condition can have multiple positive conditions.
-			$is_datetime                           = 'dateTime' === $condition['condition'];
-			$is_prev_cond_datetime_and_negative    = $is_datetime && 'isNotOnSpecificDate' === $processed_condition['conditionSettings']['dateTimeDisplay'];
-			$is_current_cond_datetime_and_negative = $is_datetime && 'isNotOnSpecificDate' === $condition['conditionSettings']['dateTimeDisplay'];
-			if ( $is_prev_cond_datetime_and_negative || $is_current_cond_datetime_and_negative ) {
-				$is_conflicted = true;
-				break;
-			} elseif ( $is_datetime ) {
-				$is_conflicted = false;
-				break;
-			}
-
-			// Exception! "Custom Field" Condition can have multiple conditions.
-			$is_custom_field = 'customField' === $condition['condition'];
-			if ( $is_custom_field ) {
-				$is_conflicted = false;
-				break;
-			}
-
-			// Exception! "URL Parameter" Condition can have multiple conditions.
-			$is_url_parameter = 'urlParameter' === $condition['condition'];
-			if ( $is_url_parameter ) {
-				$is_conflicted = false;
-				break;
-			}
-
 			/**
 			 * When operator is set to "OR/ANY" and we have more than one condition, all other conditions
 			 * will be set as conflicted, giving the priority to the latest condition in the list.
 			 */
-			if ( count( $processed_conditions ) > 0 ) {
+			if ( 'OR' === $operator && count( $processed_conditions ) > 0 ) {
 				$is_conflicted = true;
 				break;
 			}
@@ -383,7 +346,7 @@ class ET_Builder_Module_Field_DisplayConditions extends ET_Builder_Module_Field_
 	 * Overrides current date with specified date.
 	 * Useful for testing purposes where we don't want to depend on server's timestamp.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param DateTimeImmutable $date The datetime which will overrides current datetime.
 	 *

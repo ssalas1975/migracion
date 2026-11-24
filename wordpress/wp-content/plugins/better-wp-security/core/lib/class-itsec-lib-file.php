@@ -1,6 +1,6 @@
 <?php
 /**
- * Kadence Security file library.
+ * Solid Security file library.
  *
  * Contains the ITSEC_Lib_File class.
  *
@@ -8,7 +8,7 @@
  */
 
 /**
- * Kadence Security File Library class.
+ * Solid Security File Library class.
  *
  * Utility class for managing files.
  *
@@ -105,7 +105,6 @@ class ITSEC_Lib_File {
 	 * Update or append the requested file with the supplied contents.
 	 *
 	 * @since 1.15.0
-	 * @since 9.0.10 Rejects non-string contents, syncs writes to disk where fsync() exists, falls back to an in-place overwrite when the atomic write fails, and restores the original permissions on failure.
 	 *
 	 * @param string $file     Full path to config file to update.
 	 * @param string $contents Contents to write to the file.
@@ -113,10 +112,6 @@ class ITSEC_Lib_File {
 	 * @return true|WP_Error Boolean true on success, WP_Error object otherwise.
 	 */
 	public static function write( $file, $contents, $append = false ) {
-		if ( ! is_string( $contents ) ) {
-			return new WP_Error( 'itsec-lib-file-write-invalid-contents', sprintf( __( '%s could not be written. The supplied contents are not a string.', 'better-wp-security' ), $file ) );
-		}
-
 		$callable = array();
 
 		if ( ITSEC_Lib_Utility::is_callable_function( 'fopen' ) && ITSEC_Lib_Utility::is_callable_function( 'fwrite' ) && ITSEC_Lib_Utility::is_callable_function( 'flock' ) ) {
@@ -127,7 +122,7 @@ class ITSEC_Lib_File {
 		}
 
 		if ( empty( $callable ) ) {
-			return new WP_Error( 'itsec-lib-file-write-no-callable-functions', sprintf( __( '%s could not be written. Both the fopen/fwrite/flock and file_put_contents functions are disabled on the server. This is a server configuration issue that must be resolved before Kadence Security can write files.', 'better-wp-security' ), $file ) );
+			return new WP_Error( 'itsec-lib-file-write-no-callable-functions', sprintf( __( '%s could not be written. Both the fopen/fwrite/flock and file_put_contents functions are disabled on the server. This is a server configuration issue that must be resolved before Solid Security can write files.', 'better-wp-security' ), $file ) );
 		}
 
 
@@ -168,84 +163,30 @@ class ITSEC_Lib_File {
 			if ( in_array( 'fopen', $callable ) ) {
 				if ( $append ) {
 					$mode = 'ab';
-
-					if ( false !== ( $fh = @fopen( $file, $mode ) ) ) {
-						flock( $fh, LOCK_EX );
-
-						mbstring_binary_safe_encoding();
-
-						$data_length   = strlen( $contents );
-						$bytes_written = @fwrite( $fh, $contents );
-
-						reset_mbstring_encoding();
-
-						@flock( $fh, LOCK_UN );
-						@fclose( $fh );
-
-						if ( $data_length === $bytes_written ) {
-							$success = true;
-						}
-					}
 				} else {
-					/* 
-					 Atomic-write section
-					*/
-					$tmp         = @tempnam( dirname( $file ), '.itsec' );
-					$dir         = realpath( dirname( $file ) );
-					$short_write = false;
+					$mode = 'wb';
+				}
 
-					/*
-					 * tempnam() falls back to the system temp directory when the target directory is not writable.
-					 * Renaming across filesystems copies over the target instead, which is not atomic.
-					 */
-					if ( false !== $tmp && ( false === $dir || realpath( dirname( $tmp ) ) !== $dir ) ) {
-						@unlink( $tmp );
-						$tmp = false;
-					}
+				if ( false !== ( $fh = @fopen( $file, $mode ) ) ) {
+					flock( $fh, LOCK_EX );
 
-					if ( false !== $tmp && false !== ( $fh = @fopen( $tmp, 'wb' ) ) ) {
-						mbstring_binary_safe_encoding();
+					mbstring_binary_safe_encoding();
 
-						$data_length   = strlen( $contents );
-						$bytes_written = @fwrite( $fh, $contents );
+					$data_length = strlen( $contents );
+					$bytes_written = @fwrite( $fh, $contents );
 
-						reset_mbstring_encoding();
+					reset_mbstring_encoding();
 
-						self::flush_to_disk( $fh );
-						@fclose( $fh );
+					@flock( $fh, LOCK_UN );
+					@fclose( $fh );
 
-						$short_write = $data_length !== $bytes_written;
-
-						if ( ! $short_write ) {
-							if ( $file_existed ) {
-								$original_perms = fileperms( $file );
-
-								if ( false !== $original_perms ) {
-									@chmod( $tmp, $original_perms & 0777 );
-								}
-							}
-
-							if ( @rename( $tmp, $file ) ) {
-								$success = true;
-							}
-						}
-
-						if ( ! $success && file_exists( $tmp ) ) {
-							@unlink( $tmp );
-						}
-					} elseif ( false !== $tmp ) {
-						@unlink( $tmp );
-					}
-
-					// A short write to the temp file usually means no space is left, and overwriting in place would then mix old and new contents.
-					if ( ! $success && $file_existed && ! $short_write ) {
-						$success = self::write_in_place( $file, $contents );
+					if ( $data_length === $bytes_written ) {
+						$success = true;
 					}
 				}
 			}
 
-			// file_put_contents() truncates before writing, so it only overwrites an existing file when fopen(), fwrite() or flock() is unavailable.
-			if ( ! $success && ( $append || ! $file_existed || ! in_array( 'fopen', $callable ) ) && in_array( 'file_put_contents', $callable ) ) {
+			if ( ! $success && in_array( 'file_put_contents', $callable ) ) {
 				if ( $append ) {
 					$flags = FILE_APPEND;
 				} else {
@@ -274,7 +215,7 @@ class ITSEC_Lib_File {
 				}
 
 				/**
-				 * Fires when Kadence Security writes to a managed file.
+				 * Fires when Solid Security writes to a managed file.
 				 *
 				 * @param string $file     The path to the file.
 				 * @param string $contents The contents written.
@@ -290,9 +231,6 @@ class ITSEC_Lib_File {
 			}
 		}
 
-		if ( isset( $original_file_perms ) && is_int( $original_file_perms ) ) {
-			self::chmod( $file, $original_file_perms );
-		}
 
 		return new WP_Error( 'itsec-lib-file-write-file-put-contents-failed', sprintf( __( '%s could not be written. This could be due to a permissions issue. Ensure that PHP runs as a user that has permission to write to this location.', 'better-wp-security' ), $file ) );
 	}
@@ -334,7 +272,7 @@ class ITSEC_Lib_File {
 		if ( $result ) {
 
 			/**
-			 * Fires when Kadence Security removes a managed file.
+			 * Fires when Solid Security removes a managed file.
 			 *
 			 * @param string $file
 			 */
@@ -442,69 +380,6 @@ class ITSEC_Lib_File {
 		}
 
 		return 0644;
-	}
-
-	/**
-	 * Overwrites an existing file without truncating it first.
-	 *
-	 * Writes the new contents over the old, then truncates to the new length. Unlike file_put_contents(), a failure
-	 * before the write leaves the original intact, but an interruption mid-write can still mix old and new contents.
-	 *
-	 * @since 9.0.10
-	 *
-	 * @param string $file     Full path to the existing file.
-	 * @param string $contents Contents to write to the file.
-	 * @return bool True on success, false otherwise.
-	 */
-	private static function write_in_place( string $file, string $contents ): bool {
-		if ( ! ITSEC_Lib_Utility::is_callable_function( 'ftruncate' ) ) {
-			return false;
-		}
-
-		$fh = @fopen( $file, 'cb' );
-
-		if ( false === $fh ) {
-			return false;
-		}
-
-		flock( $fh, LOCK_EX );
-
-		mbstring_binary_safe_encoding();
-
-		$data_length   = strlen( $contents );
-		$bytes_written = @fwrite( $fh, $contents );
-
-		reset_mbstring_encoding();
-
-		$success = $data_length === $bytes_written && ftruncate( $fh, $data_length );
-
-		self::flush_to_disk( $fh );
-
-		@flock( $fh, LOCK_UN );
-		@fclose( $fh );
-
-		return $success;
-	}
-
-	/**
-	 * Flushes the handle, and syncs it to disk where fsync() exists.
-	 *
-	 * Without fsync, a crash shortly after a write, or after the rename that replaces the file, can leave it empty on some filesystems, such as XFS.
-	 * fsync() requires PHP 8.1, so older versions only flush the PHP buffer.
-	 *
-	 * @since 9.0.10
-	 *
-	 * @param resource $fh Open file handle.
-	 * @return void
-	 */
-	private static function flush_to_disk( $fh ): void {
-		if ( ITSEC_Lib_Utility::is_callable_function( 'fflush' ) ) {
-			@fflush( $fh );
-		}
-
-		if ( ITSEC_Lib_Utility::is_callable_function( 'fsync' ) ) {
-			@fsync( $fh );
-		}
 	}
 }
 

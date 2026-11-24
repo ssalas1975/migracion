@@ -16,49 +16,52 @@
 ?>
 
 <?php /* Header top bar */ ?>
-<div class="sh-header-top sh-header-top-3">
-	<div class="container">
-		<div class="sh-table">
+<?php if( jevelin_option( 'topbar_status', 1 ) == true ) : ?>
+	<div class="sh-header-top sh-header-top-3">
+		<div class="container">
+			<div class="sh-table">
 
-			<?php /* Header contact details */ ?>
-			<div class="header-contacts sh-table-cell">
-				<div class="header-contacts-item">
+				<?php /* Header contact details */ ?>
+				<div class="header-contacts sh-table-cell">
+					<div class="header-contacts-item">
 
-					<?php if( jevelin_option('contact_phone') ) : ?>
-						<span class="header-contacts-details">
-							<i class="icon-call-in"></i>
-							<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_phone') ) ); ?>
-						</span>
-					<?php endif; ?>
-					<?php if( jevelin_option('contact_email') ) : ?>
-						<span class="header-contacts-details">
-							<i class="icon-envelope-open"></i>
-							<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_email') ) ); ?>
-						</span>
-					<?php endif; ?>
-					<?php if( jevelin_option('contact_location') ) : ?>
-						<span class="header-contacts-details">
-							<i class="icon-location-pin"></i>
-							<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_location') ) ); ?>
-						</span>
-					<?php endif; ?>
-					<?php if( jevelin_option('contact_workhours') ) : ?>
-						<span class="header-contacts-details">
-							<i class="icon-clock"></i>
-							<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_workhours') ) ); ?>
-						</span>
-					<?php endif; ?>
+						<?php if( jevelin_option('contact_phone') ) : ?>
+							<span class="header-contacts-details">
+								<i class="icon-call-in"></i>
+								<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_phone') ) ); ?>
+							</span>
+						<?php endif; ?>
+						<?php if( jevelin_option('contact_email') ) : ?>
+							<span class="header-contacts-details">
+								<i class="icon-envelope-open"></i>
+								<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_email') ) ); ?>
+							</span>
+						<?php endif; ?>
+						<?php if( jevelin_option('contact_location') ) : ?>
+							<span class="header-contacts-details">
+								<i class="icon-location-pin"></i>
+								<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_location') ) ); ?>
+							</span>
+						<?php endif; ?>
+						<?php if( jevelin_option('contact_workhours') ) : ?>
+							<span class="header-contacts-details">
+								<i class="icon-clock"></i>
+								<?php echo do_shortcode( wp_kses_post( jevelin_option('contact_workhours') ) ); ?>
+							</span>
+						<?php endif; ?>
 
+					</div>
 				</div>
-			</div>
 
-			<?php /* Header social media */ ?>
-			<div class="header-social-media sh-table-cell">
-				<?php echo jevelin_social_media(); ?>
+				<?php /* Header social media */ ?>
+				<div class="header-social-media sh-table-cell">
+					<?php echo jevelin_social_media(); ?>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+<?php endif; ?>
+
 
 <?php /* Header */ ?>
 <div class="sh-header-height">

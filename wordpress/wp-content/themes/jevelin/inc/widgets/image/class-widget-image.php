@@ -17,7 +17,7 @@ if( !class_exists('Widget_Image') ) :
 				$params[ $key ] = $value;
 			}
 
-			$title = ( $params['widget-title'] ) ? $before_title . $params['widget-title'] . $after_title : '';
+			$title = ( isset( $params['widget-title'] ) && $params['widget-title'] ) ? $before_title . $params['widget-title'] . $after_title : '';
 
 			$filepath = get_template_directory() . '/inc/widgets/image/views/widget.php';
 
@@ -50,7 +50,7 @@ if( !class_exists('Widget_Image') ) :
 			foreach ( $instance as $key => $value ) {
 				?>
 				<p>
-					<label><?php echo esc_attr( $titles[ $key ] ); ?></label>
+					<label><?php echo esc_attr( ( isset( $titles[ $key ] ) && $titles[ $key ] ) ? $titles[ $key ] : '' ); ?></label>
 
 					<?php if( strpos($this->get_field_name( $key ), 'description') !== false ) : ?>
 

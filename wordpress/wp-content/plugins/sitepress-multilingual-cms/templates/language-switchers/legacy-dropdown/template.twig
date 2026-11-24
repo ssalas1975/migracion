@@ -7,11 +7,10 @@
 <div
 	 class="{{ css_classes }} wpml-ls-legacy-dropdown js-wpml-ls-legacy-dropdown"{% if backward_compatibility.css_id %} id="{{ backward_compatibility.css_id }}"{% endif %}>
 	<ul>
-
 		<li tabindex="0" class="{{ current_language.css_classes }} wpml-ls-item-legacy-dropdown">
 			<a href="#" class="{{ ('js-wpml-ls-item-toggle wpml-ls-item-toggle ' ~ current_language.backward_compatibility.css_classes_a)|trim }}">
 				{%- if current_language.flag_url -%}
-					<img class="{{ css_classes_flag }}" src="{{ current_language.flag_url }}" alt="{{ current_language.flag_alt }}">
+					<img class="{{ css_classes_flag }}" src="{{ current_language.flag_url }}" alt="{{ current_language_code }}" title="{{ current_language.flag_title }}">
 				{%- endif -%}
 
 				{%- if current_language.display_name or current_language.native_name -%}
@@ -19,18 +18,25 @@
 					<span class="{{ css_classes_native }}">{{- current_language_name -}}</span>
 				{%- endif -%}
 			</a>
-
-			<ul class="wpml-ls-sub-menu">
+			<p style="display:none">-_-</p>
+			<ul class="wpml-ls-sub-menu sebas2">
 				{% for language in languages if not language.is_current %}
-
+				<p style="display:none">{{ language.url }}</p>
 					<li class="{{ language.css_classes }}">
+						{# <a href="{{ language.url }}" class="{{ css_classes_link }}"> #}
+						{% if '//prems' in language.url %}
+						<a href="{{language.url|replace({'prems-vocento.srv.vocento.in/madridfusion': "pre-www.madridfusion.net"})}}" class="{{ css_classes_link }}">
+						{% elseif '//ms' in language.url %}
+						<a href="{{language.url|replace({'ms-vocento.srv.vocento.in/madridfusion': "www.madridfusion.net"})}}" class="{{ css_classes_link }}">
+						{% else %}
 						<a href="{{ language.url }}" class="{{ css_classes_link }}">
+						{% endif %}
 							{%- if language.flag_url -%}
-								<img class="{{ css_classes_flag }}" src="{{ language.flag_url }}" alt="{{ language.flag_alt }}">
+								<img class="{{ css_classes_flag }}" src="{{ language.flag_url }}" alt="{{ language.code }}" title="{{ language.flag_title }}">
 							{%- endif -%}
 
 							{%- if language.native_name -%}
-								<span class="{{ css_classes_native }}" lang="{{ language.code }}">{{ language.native_name }}</span>
+							<span class="{{ css_classes_native }}">{{ language.native_name }}</span>
 							{%- endif -%}
 							{%- if language.display_name -%}
 								<span class="{{ css_classes_display }}">

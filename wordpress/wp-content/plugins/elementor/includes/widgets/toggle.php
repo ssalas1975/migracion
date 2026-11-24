@@ -101,7 +101,7 @@ class Widget_Toggle extends Widget_Base {
 	 * @return bool
 	 */
 	public function show_in_panel(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'container' );
+		return ! Plugin::$instance->experiments->is_feature_active( 'nested-elements', true );
 	}
 
 	public function has_widget_inner_wrapper(): bool {
@@ -738,26 +738,5 @@ class Widget_Toggle extends Widget_Base {
 			} #>
 		</div>
 		<?php
-	}
-
-	public function render_markdown(): string {
-		$settings = $this->get_settings_for_display();
-		if ( empty( $settings['tabs'] ) ) {
-			return '';
-		}
-		$sections = [];
-		foreach ( $settings['tabs'] as $item ) {
-			$title = Utils::html_to_plain_text( $item['tab_title'] ?? '' );
-			$content = \Elementor\Modules\MarkdownRender\Html_To_Markdown::convert( $item['tab_content'] ?? '' );
-			if ( empty( $title ) && empty( $content ) ) {
-				continue;
-			}
-			$section = '### ' . $title;
-			if ( ! empty( $content ) ) {
-				$section .= "\n\n" . $content;
-			}
-			$sections[] = $section;
-		}
-		return implode( "\n\n", $sections );
 	}
 }

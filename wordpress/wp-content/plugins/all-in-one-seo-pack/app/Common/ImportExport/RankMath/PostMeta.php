@@ -306,11 +306,6 @@ class PostMeta {
 			}
 		}
 
-		if ( isset( $meta['keyphrases'] ) ) {
-			// The keyphrases column is only kept for backwards compatibility; the post editor reads the keyword columns.
-			$meta = array_merge( $meta, Models\Post::getKeywordColumnsFromKeyphrases( $meta['keyphrases'] ) );
-		}
-
 		return $meta;
 	}
 }

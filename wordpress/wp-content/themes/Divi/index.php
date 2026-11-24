@@ -3,7 +3,7 @@
 <div id="main-content">
 	<div class="container">
 		<div id="content-area" class="clearfix">
-			<div id="left-area">
+			<div id="left-area 5">
 		<?php
 			if ( have_posts() ) :
 				while ( have_posts() ) : the_post();

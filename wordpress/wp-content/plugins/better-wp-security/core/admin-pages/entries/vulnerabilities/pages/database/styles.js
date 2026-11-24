@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 import { Icon } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Surface, Text } from '@ithemes/ui';
 

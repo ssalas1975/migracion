@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -39,6 +39,7 @@ $options = array(
 					'icon'    => array(
 						'type'  => 'new-icon',
 						'label' => esc_html__('Icon', 'jevelin'),
+						'desc' => esc_html__( 'Enter title', 'jevelin' ),
 						'set' => 'jevelin-icons',
 					),
 

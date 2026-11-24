@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Vc_Access
  *
- * @package WPBakeryPageBuilder
+ * @package WPBakeryVisualComposer
  * @since 4.8
  */
 abstract class Vc_Access {
@@ -15,11 +15,8 @@ abstract class Vc_Access {
 	 */
 	protected $validAccess = true;
 
-	/**
-	 * @return bool
-	 */
 	public function getValidAccess() {
-		return is_multisite() && is_super_admin() ? true : $this->validAccess;
+		return $this->validAccess;
 	}
 
 	/**
@@ -50,10 +47,7 @@ abstract class Vc_Access {
 					$args = array( $args );
 				}
 				$this->setValidAccess( true );
-				call_user_func_array( array(
-					$this,
-					$method,
-				), $args );
+				call_user_func_array( array( &$this, $method ), $args );
 				if ( $valid === $this->getValidAccess() ) {
 					$access = $valid;
 					break;
@@ -80,8 +74,8 @@ abstract class Vc_Access {
 	 * Call die() function with message if access is invalid.
 	 *
 	 * @param string $message
+	 *
 	 * @return $this
-	 * @throws \Exception
 	 */
 	public function validateDie( $message = '' ) {
 		$result = $this->getValidAccess();
@@ -90,12 +84,13 @@ abstract class Vc_Access {
 			if ( defined( 'VC_DIE_EXCEPTION' ) && VC_DIE_EXCEPTION ) {
 				throw new Exception( $message );
 			} else {
-				die( esc_html( $message ) );
+				die( $message );
 			}
 		}
 
 		return $this;
 	}
+
 
 	/**
 	 * @param $func
@@ -153,7 +148,7 @@ abstract class Vc_Access {
 	/**
 	 * @param string $nonce
 	 *
-	 * @return Vc_Access
+	 * @return Vc_Current_User_Access
 	 */
 	public function checkAdminNonce( $nonce = '' ) {
 		return $this->check( 'vc_verify_admin_nonce', $nonce );
@@ -162,7 +157,7 @@ abstract class Vc_Access {
 	/**
 	 * @param string $nonce
 	 *
-	 * @return Vc_Access
+	 * @return Vc_Current_User_Access
 	 */
 	public function checkPublicNonce( $nonce = '' ) {
 		return $this->check( 'vc_verify_public_nonce', $nonce );

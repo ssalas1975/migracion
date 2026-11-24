@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna\Test;
+namespace Rowbot\Idna\Test;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Psr\Http\Message\ResponseInterface;
-use VendorPrefix\Rowbot\Idna\Idna;
+use Psr\Http\Message\ResponseInterface;
+use Rowbot\Idna\Idna;
 use RuntimeException;
-use VendorPrefix\Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 use function array_map;
 use function count;

@@ -37,13 +37,6 @@ class ET_Builder_Module_Field_Divider extends ET_Builder_Module_Field_Base {
 	public static $responsive = null;
 
 	/**
-	 * Number of times the module has been rendered.
-	 *
-	 * @var int
-	 */
-	public $count;
-
-	/**
 	 * Constructor for the class. This is done so that the divider options could be filtered
 	 * by a child theme or plugin.
 	 */
@@ -455,12 +448,23 @@ class ET_Builder_Module_Field_Divider extends ET_Builder_Module_Field_Base {
 		// z-index - determined by arrangement.
 		$declaration['z-index'] = ( 'on' === $fullwidth || 'above_content' === $arrangement ) ? 10 : 1;
 
-		$flip_styles = array(
-			in_array( 'horizontal', $flip, true ) ? '-1' : '1',
-			in_array( 'vertical', $flip, true ) ? '-1' : '1',
-		);
+		$flip_styles = array();
+		// flipping the svg x|y
+		if ( in_array( 'horizontal', $flip ) ) {
+			$flip_styles[] = 'rotateY(180deg)';
+		} elseif ( '' !== $breakpoint ) {
+			$flip_styles[] = 'rotateY(0)';
+		}
 
-		$declaration['transform'] = 'scale(' . implode( ', ', $flip_styles ) . ')';
+		if ( in_array( 'vertical', $flip ) ) {
+			$flip_styles[] = 'rotateX(180deg)';
+		} elseif ( '' !== $breakpoint ) {
+			$flip_styles[] = 'rotateX(0)';
+		}
+
+		if ( ! empty( $flip_styles ) ) {
+			$declaration['transform'] = implode( ' ', $flip_styles );
+		}
 
 		// finally create our CSS declaration.
 		$css = '';

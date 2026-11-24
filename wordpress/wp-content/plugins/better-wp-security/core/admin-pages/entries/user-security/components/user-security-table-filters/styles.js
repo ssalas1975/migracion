@@ -4,7 +4,7 @@
 import styled from '@emotion/styled';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Filters } from '@ithemes/ui';
 

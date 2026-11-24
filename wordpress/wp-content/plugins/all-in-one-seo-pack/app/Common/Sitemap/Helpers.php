@@ -100,29 +100,15 @@ class Helpers {
 	}
 
 	/**
-	 * Returns whether the homepage needs its own entry in the additional pages sitemap.
-	 *
-	 * NOTE: The page sitemap carries a static homepage. No file carries it when show_on_front is 'page' with no page_on_front.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @return bool Whether the homepage needs its own entry.
-	 */
-	public function shouldIncludeHomepage() {
-		return 'page' !== get_option( 'show_on_front' ) || ! in_array( 'page', $this->includedPostTypes(), true );
-	}
-
-	/**
 	 * Returns the timestamp of the last modified additional page.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 Homepage entry now follows {@see shouldIncludeHomepage()}.
+	 * @since 4.0.0
 	 *
 	 * @return string Formatted date string (ISO 8601).
 	 */
 	public function lastModifiedAdditionalPagesTime() {
 		$pages = [];
-		if ( $this->shouldIncludeHomepage() ) {
+		if ( 'posts' === get_option( 'show_on_front' ) || ! in_array( 'page', $this->includedPostTypes(), true ) ) {
 			$frontPageId = (int) get_option( 'page_on_front' );
 			$post        = aioseo()->helpers->getPost( $frontPageId );
 			$pages[]     = $post ? strtotime( $post->post_modified_gmt ) : strtotime( aioseo()->sitemap->helpers->lastModifiedPostTime() );
@@ -208,114 +194,9 @@ class Helpers {
 	}
 
 	/**
-	 * Checks whether the object inherits the site-wide robots noindex.
-	 *
-	 * The site-wide tier is expressed here and nowhere else, for both post types and taxonomies.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string $type The dynamic options group, either postTypes or taxonomies.
-	 * @param  string $name The post type or taxonomy name.
-	 * @return bool         Whether the object inherits the site-wide robots noindex.
-	 */
-	private function inheritsGlobalNoindex( $type, $name ) {
-		// A set has no single answer, so callers branch per name. The guard stays because these
-		// predicates are public and has() would take the value as an array offset, and because a
-		// video sitemap query passes its whole taxonomy set straight through.
-		if ( ! is_string( $name ) || '' === $name ) {
-			return false;
-		}
-
-		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		if ( ! $dynamicOptions->searchAppearance->$type->has( $name ) ) {
-			return false;
-		}
-
-		// Read each leaf through its own full chain. Wrapping any of these in empty()/isset() silently
-		// defeats them: those contexts dispatch __isset() then __get() per link, and the Options
-		// trait's __isset() advances its own cursor, so the paired __get() misses and the chain
-		// resolves to null before it reaches the leaf. Reusing a partial chain out of a variable fails
-		// the same way, because a terminal read calls resetGroups() on the object the variable points at.
-		if ( ! $dynamicOptions->searchAppearance->$type->$name->advanced->robotsMeta->default ) {
-			return false;
-		}
-
-		$options = aioseo()->options->noConflict();
-
-		return ! $options->searchAppearance->advanced->globalRobotsMeta->default &&
-			$options->searchAppearance->advanced->globalRobotsMeta->noindex;
-	}
-
-	/**
-	 * Checks whether the sitemap has to treat the post type's posts as noindexed, whether that comes
-	 * from the post type's own settings or from the site-wide robots noindex it inherits.
-	 *
-	 * NOTE: this is the check the sitemap queries need. {@see \AIOSEO\Plugin\Common\Traits\Helpers\Wp::isPostTypeNoindexed()}
-	 * answers the narrower per-object question and never consults the site-wide tier.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string $postType The post type.
-	 * @return bool             Whether the post type is noindexed for sitemap purposes.
-	 */
-	public function isPostTypeEffectivelyNoindexed( $postType ) {
-		return aioseo()->helpers->isPostTypeNoindexed( $postType ) ||
-			$this->inheritsGlobalNoindex( 'postTypes', $postType );
-	}
-
-	/**
-	 * Checks whether the sitemap has to treat the taxonomy's terms as noindexed, whether that comes
-	 * from the taxonomy's own settings or from the site-wide robots noindex it inherits.
-	 *
-	 * NOTE: this is the check the sitemap queries need. {@see \AIOSEO\Plugin\Common\Traits\Helpers\Wp::isTaxonomyNoindexed()}
-	 * answers the narrower per-object question and never consults the site-wide tier.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string $taxonomy The taxonomy.
-	 * @return bool             Whether the taxonomy is noindexed for sitemap purposes.
-	 */
-	public function isTaxonomyEffectivelyNoindexed( $taxonomy ) {
-		return aioseo()->helpers->isTaxonomyNoindexed( $taxonomy ) ||
-			$this->inheritsGlobalNoindex( 'taxonomies', $taxonomy );
-	}
-
-	/**
-	 * Whether a sitemap can still include the post type once the robots tiers are applied.
-	 *
-	 * NOTE: unlike the taxonomy equivalent, this holds in both editions — checkForIndexedPost()
-	 * keeps the post type when one of its posts is explicitly indexed.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string $postType The post type.
-	 * @return bool             Whether the post type can be included.
-	 */
-	public function isPostTypeIncludable( $postType ) {
-		return ! $this->isPostTypeEffectivelyNoindexed( $postType ) || $this->checkForIndexedPost( $postType );
-	}
-
-	/**
-	 * Whether a sitemap can still include the taxonomy once the robots tiers are applied.
-	 *
-	 * NOTE: Lite has no per-term override, so a noindexed taxonomy is excluded outright.
-	 * {@see \AIOSEO\Plugin\Pro\Sitemap\Helpers::isTaxonomyIncludable()} keeps it when one of its
-	 * terms is explicitly indexed.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string $taxonomy The taxonomy.
-	 * @return bool             Whether the taxonomy can be included.
-	 */
-	public function isTaxonomyIncludable( $taxonomy ) {
-		return ! $this->isTaxonomyEffectivelyNoindexed( $taxonomy );
-	}
-
-	/**
 	 * Returns the post types that should be included in the sitemap.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Apply the site-wide noindex tier via isPostTypeIncludable().
+	 * @since 4.0.0
 	 *
 	 * @param  boolean $hasArchivesOnly Whether or not to only include post types which have archives.
 	 * @return array   $postTypes       The included post types.
@@ -331,6 +212,7 @@ class Helpers {
 			return $postTypes;
 		}
 
+		$options         = aioseo()->options->noConflict();
 		$dynamicOptions  = aioseo()->dynamicOptions->noConflict();
 		$publicPostTypes = aioseo()->helpers->getPublicPostTypes( true, $hasArchivesOnly );
 		foreach ( $postTypes as $postType ) {
@@ -340,10 +222,23 @@ class Helpers {
 				continue;
 			}
 
-			// This has to be the same predicate the sitemap queries filter posts by, or the sitemap
-			// exists on one reading and is populated on another.
-			if ( ! $this->isPostTypeIncludable( $postType ) ) {
-				$postTypes = aioseo()->helpers->unsetValue( $postTypes, $postType );
+			// Check if post type isn't noindexed.
+			if ( aioseo()->helpers->isPostTypeNoindexed( $postType ) ) {
+				if ( ! $this->checkForIndexedPost( $postType ) ) {
+					$postTypes = aioseo()->helpers->unsetValue( $postTypes, $postType );
+					continue;
+				}
+			}
+
+			$postTypeOptions = $dynamicOptions->searchAppearance->postTypes->$postType;
+			if (
+				! empty( $postTypeOptions->advanced->robotsMeta->default ) &&
+				! $options->searchAppearance->advanced->globalRobotsMeta->default &&
+				$options->searchAppearance->advanced->globalRobotsMeta->noindex
+			) {
+				if ( ! $this->checkForIndexedPost( $postType ) ) {
+					$postTypes = aioseo()->helpers->unsetValue( $postTypes, $postType );
+				}
 			}
 		}
 
@@ -380,83 +275,57 @@ class Helpers {
 	/**
 	 * Returns the taxonomies that should be included in the sitemap.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.9 Return early if the sitemap type has no taxonomies option node.
-	 * @version 5.0.2 Filter every entry, product attributes included, via isTaxonomyIncludable().
+	 * @since 4.0.0
 	 *
 	 * @return array The included taxonomies.
 	 */
 	public function includedTaxonomies() {
-		if ( ! aioseo()->options->sitemap->has( aioseo()->sitemap->type ) ) {
-			return [];
-		}
-
-		if ( ! aioseo()->options->sitemap->{aioseo()->sitemap->type}->has( 'taxonomies' ) ) {
-			return [];
-		}
-
-		$taxonomies = aioseo()->options->sitemap->{aioseo()->sitemap->type}->taxonomies->included;
+		$taxonomies = [];
 		if ( aioseo()->options->sitemap->{aioseo()->sitemap->type}->taxonomies->all ) {
-			$taxonomies = aioseo()->helpers->getPublicTaxonomies( true );
+			$taxonomies = get_taxonomies();
+		} else {
+			$taxonomies = aioseo()->options->sitemap->{aioseo()->sitemap->type}->taxonomies->included;
 		}
 
 		if ( ! $taxonomies ) {
 			return [];
 		}
 
-		$taxonomies = $this->foldProductAttributes( $taxonomies );
-
+		$options          = aioseo()->options->noConflict();
 		$dynamicOptions   = aioseo()->dynamicOptions->noConflict();
 		$publicTaxonomies = aioseo()->helpers->getPublicTaxonomies( true );
 		foreach ( $taxonomies as $taxonomy ) {
+			if (
+				aioseo()->helpers->isWooCommerceActive() &&
+				aioseo()->helpers->isWooCommerceProductAttribute( $taxonomy )
+			) {
+				$taxonomies = aioseo()->helpers->unsetValue( $taxonomies, $taxonomy );
+				if ( ! in_array( 'product_attributes', $taxonomies, true ) ) {
+					$taxonomies[] = 'product_attributes';
+				}
+				continue;
+			}
+
 			// Check if taxonomy is no longer registered.
 			if ( ! in_array( $taxonomy, $publicTaxonomies, true ) || ! $dynamicOptions->searchAppearance->taxonomies->has( $taxonomy ) ) {
 				$taxonomies = aioseo()->helpers->unsetValue( $taxonomies, $taxonomy );
 				continue;
 			}
 
-			// Check if taxonomy isn't noindexed, on its own settings or through the site-wide tier.
-			// This has to be the same predicate the sitemap queries filter terms by, or the sitemap
-			// exists on one reading and is populated on another.
-			if ( ! $this->isTaxonomyIncludable( $taxonomy ) ) {
+			// Check if taxonomy isn't noindexed.
+			if ( aioseo()->helpers->isTaxonomyNoindexed( $taxonomy ) ) {
 				$taxonomies = aioseo()->helpers->unsetValue( $taxonomies, $taxonomy );
 				continue;
 			}
-		}
 
-		return $taxonomies;
-	}
-
-	/**
-	 * Replaces the individual WooCommerce product attribute taxonomies with the synthetic entry the
-	 * settings and the sitemap both address them by.
-	 *
-	 * NOTE: folding happens before the filters in {@see includedTaxonomies()} rather than inside them,
-	 * so the synthetic entry is subject to the same checks as everything else.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  array $taxonomies The taxonomies.
-	 * @return array             The taxonomies, with product attributes folded into one entry.
-	 */
-	private function foldProductAttributes( $taxonomies ) {
-		if ( ! aioseo()->helpers->isWooCommerceActive() ) {
-			return $taxonomies;
-		}
-
-		// A saved list can still hold the individual attributes even though the settings no longer offer
-		// them, so the fold cannot be dropped just because getPublicTaxonomies() never returns them.
-		$attributes = array_filter( $taxonomies, function( $taxonomy ) {
-			return aioseo()->helpers->isWooCommerceProductAttribute( $taxonomy );
-		} );
-
-		if ( ! $attributes ) {
-			return $taxonomies;
-		}
-
-		$taxonomies = array_values( array_diff( $taxonomies, $attributes ) );
-		if ( ! in_array( 'product_attributes', $taxonomies, true ) ) {
-			$taxonomies[] = 'product_attributes';
+			if (
+				$dynamicOptions->searchAppearance->taxonomies->$taxonomy->advanced->robotsMeta->default &&
+				! $options->searchAppearance->advanced->globalRobotsMeta->default &&
+				$options->searchAppearance->advanced->globalRobotsMeta->noindex
+			) {
+				$taxonomies = aioseo()->helpers->unsetValue( $taxonomies, $taxonomy );
+				continue;
+			}
 		}
 
 		return $taxonomies;
@@ -504,10 +373,6 @@ class Helpers {
 
 	/**
 	 * Returns a list of excluded term IDs.
-	 *
-	 * NOTE: These are `terms.term_id` values, not `term_taxonomy.term_taxonomy_id` values. Anything that
-	 * matches them against `term_relationships` has to join through `term_taxonomy` first — the two ID
-	 * spaces only coincide on a site where no term has ever been deleted or imported.
 	 *
 	 * @since 4.0.0
 	 *
@@ -600,21 +465,6 @@ class Helpers {
 
 				$hiddenObjectIds = array_merge( $hiddenObjectIds, $ids );
 			}
-
-			// WPML records a term_taxonomy_id in element_id for tax_* types ({@see Localization::localizeWpml()}),
-			// but this method returns term IDs. Normalise before they get merged with the option values, or the
-			// list carries two ID spaces at once and every consumer is wrong about half of it.
-			if ( 'excludeTerms' === $option && $hiddenObjectIds ) {
-				$hiddenTerms = aioseo()->core->db->start( 'term_taxonomy' )
-					->select( 'term_id' )
-					->whereIn( 'term_taxonomy_id', $hiddenObjectIds )
-					->run()
-					->result();
-
-				$hiddenObjectIds = array_map( function( $row ) {
-					return (int) $row->term_id;
-				}, $hiddenTerms );
-			}
 		}
 
 		$hasFilter = has_filter( 'aioseo_sitemap_' . aioseo()->helpers->toSnakeCase( $option ) );
@@ -673,20 +523,6 @@ class Helpers {
 			$urls = array_merge( $urls, $addonUrls );
 		}
 
-		$urls = array_merge( $urls, $this->getCoreSitemapUrls() );
-
-		return $urls;
-	}
-
-	/**
-	 * Returns the URLs of the active General and RSS sitemaps.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @return array The sitemap URLs.
-	 */
-	private function getCoreSitemapUrls() {
-		$urls = [];
 		if ( aioseo()->options->sitemap->general->enable ) {
 			$urls[] = $this->getUrl( 'general' );
 		}
@@ -712,40 +548,6 @@ class Helpers {
 		}
 
 		return $urls;
-	}
-
-	/**
-	 * Returns the URLs of the active sitemaps for the blog switched to, with the 'Sitemap: ' prefix.
-	 *
-	 * NOTE: Addons stay loaded for the blog the request started on, so only those active on this blog count. Also
-	 * skips the static cache in {@see getSitemapUrls()}, which holds the original blog's URLs. The caller must
-	 * re-read the internal and sensitive options for this blog, since the license check reads them.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @return array The sitemap URLs.
-	 */
-	public function getSitemapUrlsPrefixedForCurrentBlog() {
-		$urls = [];
-		foreach ( aioseo()->addons->getLoadedAddons() as $slug => $addon ) {
-			if ( ! isset( $addon->helpers ) || ! method_exists( $addon->helpers, 'getSitemapUrls' ) ) {
-				continue;
-			}
-
-			$sku = 'aioseo-' . str_replace( '_', '-', aioseo()->helpers->toSnakeCase( $slug ) );
-			// An addon only loads where it's active and that site's license includes it.
-			if ( ! is_plugin_active( aioseo()->addons->getAddonBasename( $sku ) ) || ! aioseo()->license->isAddonAllowed( $sku ) ) {
-				continue;
-			}
-
-			$urls = array_merge( $urls, array_filter( (array) $addon->helpers->getSitemapUrls() ) );
-		}
-
-		$urls = array_merge( $urls, $this->getCoreSitemapUrls() );
-
-		return array_map( function ( $url ) {
-			return 'Sitemap: ' . $url;
-		}, $urls );
 	}
 
 	/**

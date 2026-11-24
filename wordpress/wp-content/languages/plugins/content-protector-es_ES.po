@@ -1,0 +1,418 @@
+# Translation of Plugins - Passster &#8211; Password Protection - Development (trunk) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Passster &#8211; Password Protection - Development (trunk) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2021-08-18 15:37:32+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Passster &#8211; Password Protection - Development (trunk)\n"
+
+#: src/admin/class-ps-customizer.php:221
+msgid "Add Checkbox to show password"
+msgstr "Añadir una casilla de verificación para mostrar la contraseña"
+
+#: src/admin/class-ps-admin.php:101
+msgid "Add a comma separated list of shortcodes you want to use inside of Passster. <br>You can also use <b>{post-id}</b> to add the ID of the current page/post dynamically. "
+msgstr "Añade una lista separada por comas de los shortcodes que quieres usar dentro de Passster. <br>También puedes usar <b>{post-id}</b> para añadir dinámicamente el ID de la página/entrada actual."
+
+#: src/class-ps-form.php:37
+msgid "Show Password"
+msgstr "Mostrar la contraseña"
+
+#: src/admin/class-ps-admin.php:230
+msgid "Manageable protected areas"
+msgstr "Áreas protegidas gestionables"
+
+#: src/admin/class-ps-admin.php:226
+msgid "No Protected Areas found in Trash."
+msgstr "No se han encontrado áreas protegidas en la papelera."
+
+#: src/admin/class-ps-admin.php:225
+msgid "No Protected Areas found."
+msgstr "No se han encontrado áreas protegidas."
+
+#: src/admin/class-ps-admin.php:224
+msgid "Parent Protected Area"
+msgstr "Área protegida principal"
+
+#: src/admin/class-ps-admin.php:223
+msgid "Search Protected Areas"
+msgstr "Buscar áreas protegidas"
+
+#: src/admin/class-ps-admin.php:222
+msgid "Protected Areas"
+msgstr "Áreas protegidas"
+
+#: src/admin/class-ps-admin.php:221
+msgid "View Protected Area"
+msgstr "Ver el área protegida"
+
+#: src/admin/class-ps-admin.php:220
+msgid "Edit Protected Area"
+msgstr "Editar el área protegida"
+
+#: src/admin/class-ps-admin.php:219
+msgid "New Protected Area"
+msgstr "Nueva área protegida"
+
+#: src/admin/class-ps-admin.php:218
+msgid "Add New Protected Area"
+msgstr "Añadir una nueva área protegida"
+
+#: src/admin/class-ps-admin.php:217
+msgctxt "content-protector"
+msgid "Add New"
+msgstr "Añadir nueva"
+
+#: src/admin/class-ps-admin.php:216
+msgctxt "add new on admin bar"
+msgid "Protected Area"
+msgstr "Área protegida"
+
+#: src/admin/class-ps-admin.php:215
+msgctxt "admin menu"
+msgid "Protected Areas"
+msgstr "Áreas protegidas"
+
+#: src/admin/class-ps-admin.php:214
+msgctxt "post type singular name"
+msgid "Protected Area"
+msgstr "Área protegida"
+
+#: src/admin/class-ps-admin.php:213
+msgctxt "post type general name"
+msgid "Protected Areas"
+msgstr "Áreas protegidas"
+
+#: src/admin/class-ps-meta.php:413
+msgid "You can also modify the headline, description, placeholder and the button label per shortcode"
+msgstr "También puedes modificar el titular, la descripción, el marcador de posición y la etiqueta del botón por shortcode"
+
+#: src/admin/class-ps-meta.php:331
+msgid "You can also modify the headline, description, placeholder and the button label per page"
+msgstr "También puedes modificar el titular, la descripción, el marcador de posición y la etiqueta del botón por página"
+
+#: src/admin/class-ps-meta.php:57
+msgid "Shortcode Configuration"
+msgstr "Configuración del shortcode"
+
+#: src/admin/class-ps-admin.php:192
+msgid "Usage data resetted."
+msgstr "Restablecido el uso de datos."
+
+#: src/admin/class-ps-meta.php:231
+msgid "If activated every page will be redirected to that page as long as the user does not have unlocked the content. The global protection requires the cookie option activated (set by default)."
+msgstr "Si se activa, cada página será redirigida a esa página mientras el usuario no haya desbloqueado el contenido. La protección global necesita que la opción de cookies esté activada (establecida por defecto)."
+
+#: src/admin/class-ps-meta.php:226
+msgid "Configure the password, texts and everything else in Passster (Page Protection)."
+msgstr "Configura la contraseña, los textos y todo lo demás en Passster (protección de página)."
+
+#: src/admin/class-ps-meta.php:215
+msgid "Activate Global Protection"
+msgstr "Activar la protección global"
+
+#: src/admin/class-ps-meta.php:73
+msgid "Passster (Global Protection)"
+msgstr "Passster (protección global)"
+
+#. Author of the plugin
+msgid "Patrick Posner"
+msgstr "Patrick Posner"
+
+#. Description of the plugin
+msgid "A simple plugin to password-protect your complete website, some pages/posts or just parts of your content."
+msgstr "Un sencillo plugin para proteger con contraseña toda tu web, algunas páginas/entradas o solo partes de tu contenido."
+
+#: src/admin/class-ps-meta.php:89
+msgid "Passster (Link Protection)"
+msgstr "Passster (protección de enlaces)"
+
+#: src/admin/class-ps-meta.php:81
+msgid "Passster (Page Protection)"
+msgstr "Passster (protección de página)"
+
+#: src/admin/class-ps-admin.php:79
+msgid "Reload after successful validation"
+msgstr "Recargar después de una validación correcta"
+
+#: src/admin/class-ps-admin.php:163
+msgid "Add your bitly access token. You can get one here: <a target=\"_blank\" href=\"https://bitly.com/\">bitly.com</a>"
+msgstr "Añade tu token de acceso de Bitly. Puedes obtener uno aquí: <a target=\"_blank\" href=\"https://bitly.com/\">bitly.com</a>"
+
+#: src/admin/class-ps-admin.php:162
+msgid "Bitly Access Token"
+msgstr "Token de acceso de Bitly"
+
+#: src/admin/class-ps-admin.php:157
+msgid "Bitly"
+msgstr "Bitly"
+
+#: src/admin/class-ps-admin.php:100
+msgid "Third-Party Shortcodes"
+msgstr "Shortcodes de terceros"
+
+#: src/admin/class-ps-admin.php:95
+msgid "Third-Party Support"
+msgstr "Soporte de terceros"
+
+#: src/admin/class-ps-admin.php:126
+msgid "Recaptcha Version"
+msgstr "Versión de reCAPTCHA"
+
+#: src/admin/class-ps-customizer.php:169
+msgid "Error Text"
+msgstr "Texto de error"
+
+#: src/admin/class-ps-customizer.php:166
+msgid "Sorry, there was an error."
+msgstr "Lo siento, ha habido un error."
+
+#: src/admin/class-ps-admin.php:73
+msgid "Compatibility Mode"
+msgstr "Modo de compatibilidad"
+
+#: src/admin/class-ps-meta.php:326 src/admin/class-ps-meta.php:408
+#: src/admin/class-ps-meta.php:440
+msgid "With <b style=\"color:#7200e5\">Passster Pro</b> you can also use multiple passwords, Password Lists, Google ReCaptcha v2/v3 and link protection."
+msgstr "Con <b style=\"color:#7200e5\">Passster Pro</b> también puedes usar múltiples contraseñas, listas de contraseñas, Google reCAPTCHA v2/v3 y protección de enlaces."
+
+#: src/admin/class-ps-meta.php:265
+msgid "Activate Protection"
+msgstr "Activar la protección"
+
+#: src/admin/class-ps-admin.php:150
+msgid "Add your language shortcode. For example \"en\" for english or \"de\" for german. "
+msgstr "Añade el shortcode de tu idioma. Por ejemplo, «en» para inglés o «de» para alemán."
+
+#: src/admin/class-ps-admin.php:149
+msgid "Language"
+msgstr "Idioma"
+
+#: src/admin/class-ps-admin.php:143
+msgid "Add your Google ReCaptcha Secret"
+msgstr "Añade tu clave secreta de Google reCAPTCHA"
+
+#: src/admin/class-ps-admin.php:142
+msgid "Secret"
+msgstr "Clave secreta"
+
+#: src/admin/class-ps-admin.php:136
+msgid "Add your Google ReCaptcha Site Key"
+msgstr "Añade tu clave del sitio de Google reCAPTCHA"
+
+#: src/admin/class-ps-admin.php:135
+msgid "Site Key"
+msgstr "Clave del sitio"
+
+#: src/admin/class-ps-admin.php:116
+msgid "External Services"
+msgstr "Servicios externos"
+
+#: src/class-ps-form.php:62
+msgid "Enter the solution"
+msgstr "Introduce la solución"
+
+#: src/class-ps-public.php:422
+msgid "Sorry, your captcha solution was wrong."
+msgstr "Lo siento, tu solución del captcha ha sido errónea."
+
+#: src/class-ps-public.php:99
+msgid "Invalid password."
+msgstr "Contraseña no válida."
+
+#: src/admin/class-ps-customizer.php:144 src/class-ps-public.php:275
+msgid "Enter your password.."
+msgstr "Introduce tu contraseña."
+
+#: src/admin/class-ps-admin.php:90
+msgid "Activate AMP Support"
+msgstr "Activar la compatibilidad AMP"
+
+#: src/admin/class-ps-admin.php:84
+msgid "AMP"
+msgstr "AMP"
+
+#: src/admin/class-ps-settings.php:437
+msgid "Add new Password List"
+msgstr "Añadir una nueva lista de contraseñas"
+
+#: src/admin/class-ps-settings.php:798
+msgid "Choose Image"
+msgstr "Elige una imagen"
+
+#: src/admin/class-ps-settings.php:775
+msgid "Choose File"
+msgstr "Elegir un archivo"
+
+#: src/admin/class-ps-settings.php:502
+msgid "Copy Link"
+msgstr "Copiar el enlace"
+
+#: src/admin/class-ps-settings.php:484
+msgid "Copy Shortcode"
+msgstr "Copiar el shortcode"
+
+#: src/admin/class-ps-customizer.php:298
+msgid "Background Color (Hover)"
+msgstr "Color del fondo (al pasar el cursor)"
+
+#: src/admin/class-ps-customizer.php:268
+msgid "Text Color (Hover)"
+msgstr "Color del texto (al pasar el cursor)"
+
+#: src/admin/class-ps-customizer.php:238
+msgid "Button Label"
+msgstr "Etiqueta del botón"
+
+#: src/admin/class-ps-customizer.php:235 src/class-ps-public.php:283
+msgid "Submit"
+msgstr "Enviar"
+
+#: src/admin/class-ps-customizer.php:229
+msgid "Button"
+msgstr "Botón"
+
+#: src/admin/class-ps-customizer.php:155 src/class-ps-public.php:267
+msgid "This content is password-protected. Please verify with a password to unlock the content."
+msgstr "Este contenido está protegido por contraseña. Por favor, introduce una contraseña para desbloquear el contenido."
+
+#: src/admin/class-ps-customizer.php:136
+msgid "Headline Color"
+msgstr "Color del titular"
+
+#: src/admin/class-ps-customizer.php:121
+msgid "Headline Font Weight"
+msgstr "Grosor de la fuente del titular"
+
+#: src/admin/class-ps-customizer.php:110 src/admin/class-ps-customizer.php:182
+msgid "Font size in PX"
+msgstr "Tamaño de la fuente en PX"
+
+#: src/admin/class-ps-customizer.php:109
+msgid "Headline Font Size"
+msgstr "Tamaño de la fuente del titular"
+
+#: src/admin/class-ps-customizer.php:98
+msgid "Headline"
+msgstr "Titular"
+
+#: src/admin/class-ps-customizer.php:95 src/class-ps-public.php:259
+msgid "Protected Area"
+msgstr "Área protegida"
+
+#: src/admin/class-ps-customizer.php:81
+msgid "Margin in PX"
+msgstr "Margen en PX"
+
+#: src/admin/class-ps-customizer.php:80
+msgid "Margin"
+msgstr "Margen"
+
+#: src/admin/class-ps-customizer.php:68
+msgid "Padding in PX"
+msgstr "Relleno en PX"
+
+#: src/admin/class-ps-customizer.php:55
+msgid "Change the background color of the form"
+msgstr "Cambiar el color de fondo del formulario"
+
+#: src/admin/class-ps-customizer.php:41
+msgid "General"
+msgstr "General"
+
+#: src/admin/class-ps-admin.php:121
+msgid "Google Recaptcha"
+msgstr "Google reCAPTCHA"
+
+#: src/admin/class-ps-admin.php:106
+msgid "Uninstall"
+msgstr "Desinstalar"
+
+#: src/admin/class-ps-admin.php:66
+msgid "Duration (in days) for your cookie. Once a cookie expires, the user will have to enter the password again."
+msgstr "Duración (en días) para tu cookie. Cuando caduque la cookie, el usuario tendrá que volver a introducir la contraseña."
+
+#: src/admin/class-ps-admin.php:65
+msgid "Cookie Duration"
+msgstr "Duración de la cookie"
+
+#: src/admin/class-ps-admin.php:60
+msgid "Use Cookie"
+msgstr "Usar cookies"
+
+#: src/admin/class-ps-admin.php:54
+msgid "Cookie"
+msgstr "Cookie"
+
+#: src/admin/class-ps-admin.php:49 src/admin/class-ps-settings.php:895
+#: src/admin/class-ps-settings.php:896
+msgid "Options"
+msgstr "Opciones"
+
+#: src/admin/class-ps-meta.php:259 src/admin/class-ps-meta.php:352
+msgid "Captcha"
+msgstr "Captcha"
+
+#: src/admin/class-ps-meta.php:258 src/admin/class-ps-meta.php:310
+#: src/admin/class-ps-meta.php:351 src/admin/class-ps-meta.php:392
+msgid "Password"
+msgstr "Contraseña"
+
+#: src/admin/class-ps-meta.php:276 src/admin/class-ps-meta.php:358
+msgid "Protection Type"
+msgstr "Tipo de protección"
+
+#: src/admin/class-ps-admin.php:282 src/admin/class-ps-meta.php:65
+msgid "Shortcode"
+msgstr "Shortcode"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+msgid "https://patrickposner.dev"
+msgstr "https://patrickposner.dev"
+
+#. Plugin Name of the plugin
+#: src/admin/class-ps-customizer.php:36 src/admin/class-ps-settings.php:885
+msgid "Passster"
+msgstr "Passster"
+
+#: src/admin/class-ps-admin.php:112
+msgid "If checked, all plugin options will be deleted if the plugin is unstalled."
+msgstr "Si se marca, todas las opciones del plugin serán borradas si el plugin es desinstalado."
+
+#: src/admin/class-ps-customizer.php:54 src/admin/class-ps-customizer.php:283
+msgid "Background Color"
+msgstr "Color del fondo"
+
+#: src/admin/class-ps-customizer.php:67
+msgid "Padding"
+msgstr "Relleno"
+
+#: src/admin/class-ps-customizer.php:208 src/admin/class-ps-customizer.php:253
+msgid "Text Color"
+msgstr "Color del texto"
+
+#: src/admin/class-ps-customizer.php:181
+msgid "Font Size"
+msgstr "Tamaño de fuente"
+
+#: src/admin/class-ps-customizer.php:193
+msgid "Font Weight"
+msgstr "Peso de la fuente"
+
+#: src/admin/class-ps-customizer.php:158
+msgid "Instructions Text"
+msgstr "Texto de instrucciones"
+
+#: src/admin/class-ps-customizer.php:89
+msgid "Form Instructions"
+msgstr "Instrucciones del formulario"
+
+#: src/admin/class-ps-admin.php:111
+msgid "Delete Plugin Options On Uninstall"
+msgstr "Borrar las opciones del plugin al desinstalarlo"

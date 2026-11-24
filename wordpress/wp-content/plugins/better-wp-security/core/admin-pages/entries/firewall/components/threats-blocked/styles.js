@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 import { Card, CardHeader } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Notice, Surface } from '@ithemes/ui';
 

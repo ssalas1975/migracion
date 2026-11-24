@@ -2,7 +2,7 @@
 class vcj_counter extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_counter', array( $this, '_html' ) );
     }
 
@@ -29,6 +29,17 @@ class vcj_counter extends WPBakeryShortCode {
     ),
     1 => 
     array (
+      'param_name' => 'number_symbol',
+      'heading' => 'Number Symbol',
+      'description' => 'Here you can add symbol like + after number',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'General',
+    ),
+    2 => 
+    array (
       'param_name' => 'title',
       'heading' => 'Title',
       'description' => 'Enter title',
@@ -39,7 +50,7 @@ class vcj_counter extends WPBakeryShortCode {
       'group' => 'General',
       'admin_label' => true,
     ),
-    2 => 
+    3 => 
     array (
       'param_name' => 'subtitle',
       'heading' => 'Subtitle',
@@ -50,7 +61,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'General',
     ),
-    3 => 
+    4 => 
     array (
       'param_name' => 'icon',
       'heading' => 'Icon',
@@ -66,7 +77,7 @@ class vcj_counter extends WPBakeryShortCode {
         'type' => 'jevelin_vc_icons',
       ),
     ),
-    4 => 
+    5 => 
     array (
       'param_name' => 'style',
       'heading' => 'Style',
@@ -79,13 +90,14 @@ class vcj_counter extends WPBakeryShortCode {
         'Style 4' => 'style4',
         'Style 5' => 'style5',
         'Style 6' => 'style6',
+        'Number Only' => 'style7',
       ),
       'type' => 'dropdown',
       'class' => '',
       'std' => '',
       'group' => 'Styling',
     ),
-    5 => 
+    6 => 
     array (
       'param_name' => 'divider_color',
       'heading' => 'Divider Color',
@@ -106,7 +118,7 @@ class vcj_counter extends WPBakeryShortCode {
         ),
       ),
     ),
-    6 => 
+    7 => 
     array (
       'param_name' => 'icon_border_color',
       'heading' => 'Icon Border Color',
@@ -122,7 +134,7 @@ class vcj_counter extends WPBakeryShortCode {
         'value' => 'style5',
       ),
     ),
-    7 => 
+    8 => 
     array (
       'param_name' => 'icon_background_color',
       'heading' => 'Icon Background Color',
@@ -138,7 +150,7 @@ class vcj_counter extends WPBakeryShortCode {
         'value' => 'style5',
       ),
     ),
-    8 => 
+    9 => 
     array (
       'param_name' => 'divider_style',
       'heading' => 'Divider Style',
@@ -160,7 +172,7 @@ class vcj_counter extends WPBakeryShortCode {
         'value' => 'style6',
       ),
     ),
-    9 => 
+    10 => 
     array (
       'param_name' => 'icon_color',
       'heading' => 'Icon Color',
@@ -171,7 +183,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    10 => 
+    11 => 
     array (
       'param_name' => 'number_color',
       'heading' => 'Number Color',
@@ -182,7 +194,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    11 => 
+    12 => 
     array (
       'param_name' => 'title_color',
       'heading' => 'Title Color',
@@ -193,7 +205,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    12 => 
+    13 => 
     array (
       'param_name' => 'subtitle_color',
       'heading' => 'Subtitle Color',
@@ -204,7 +216,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    13 => 
+    14 => 
     array (
       'param_name' => 'number_size',
       'heading' => 'Number Font Size',
@@ -227,7 +239,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    14 => 
+    15 => 
     array (
       'param_name' => 'desktop_size',
       'heading' => 'Font Size (desktop)',
@@ -243,7 +255,7 @@ class vcj_counter extends WPBakeryShortCode {
         'value' => 'custom',
       ),
     ),
-    15 => 
+    16 => 
     array (
       'param_name' => 'responsive_size',
       'heading' => 'Font Size (mobile and tablet)',
@@ -259,7 +271,7 @@ class vcj_counter extends WPBakeryShortCode {
         'value' => 'custom',
       ),
     ),
-    16 => 
+    17 => 
     array (
       'param_name' => 'font',
       'heading' => 'Number Font Famility',
@@ -276,7 +288,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => 'body',
       'group' => 'Styling',
     ),
-    17 => 
+    18 => 
     array (
       'param_name' => 'number_weight',
       'heading' => 'Number Font Weight',
@@ -286,6 +298,7 @@ class vcj_counter extends WPBakeryShortCode {
         'Extra Light' => 200,
         'Light' => 300,
         'Normal' => 400,
+        'Medium' => 500,
         'Semi-bold' => 600,
         'Bold' => 700,
         'Extra Bold' => 900,
@@ -295,7 +308,7 @@ class vcj_counter extends WPBakeryShortCode {
       'std' => '700',
       'group' => 'Styling',
     ),
-    18 => 
+    19 => 
     array (
       'param_name' => 'title_size',
       'heading' => 'Title Font Size',
@@ -314,8 +327,9 @@ class vcj_counter extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/counter/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/counter/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/counter/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/counter/static.php';
         if( function_exists( 'jevelin_shortcode_counter_css' ) ) :
             jevelin_shortcode_counter_css( $atts, $id_rand );
         endif;

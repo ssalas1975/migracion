@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna;
+namespace Rowbot\Idna;
 
 use Normalizer;
-use VendorPrefix\Rowbot\Punycode\Exception\PunycodeException;
-use VendorPrefix\Rowbot\Punycode\Punycode;
+use Rowbot\Punycode\Exception\PunycodeException;
+use Rowbot\Punycode\Punycode;
 
 use function array_merge;
 use function count;

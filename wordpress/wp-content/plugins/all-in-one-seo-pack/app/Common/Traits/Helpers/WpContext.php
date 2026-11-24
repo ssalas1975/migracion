@@ -119,36 +119,22 @@ trait WpContext {
 	/**
 	 * Checks whether the current page is the static homepage.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.9 Replaced one-shot static cache with per-post-ID cache so each call respects its $post argument.
+	 * @since 4.0.0
 	 *
 	 * @param  mixed $post Pass in an optional post to check if its the static home page.
 	 * @return bool        Whether the current page is the static homepage.
 	 */
 	public function isStaticHomePage( $post = null ) {
-		static $cache = [];
-
-		$key = null;
-		if ( is_numeric( $post ) ) {
-			$key = (int) $post;
-		} elseif ( is_object( $post ) && ! empty( $post->ID ) ) {
-			$key = (int) $post->ID;
-		}
-
-		if ( null !== $key && array_key_exists( $key, $cache ) ) {
-			return $cache[ $key ];
+		static $isHomePage = null;
+		if ( null !== $isHomePage ) {
+			return $isHomePage;
 		}
 
 		$post = aioseo()->helpers->getPost( $post );
-		$key  = ! empty( $post->ID ) ? (int) $post->ID : 0;
 
-		if ( array_key_exists( $key, $cache ) ) {
-			return $cache[ $key ];
-		}
+		$isHomePage = ( 'page' === get_option( 'show_on_front' ) && ! empty( $post->ID ) && (int) get_option( 'page_on_front' ) === $post->ID );
 
-		$cache[ $key ] = ( 'page' === get_option( 'show_on_front' ) && ! empty( $post->ID ) && (int) get_option( 'page_on_front' ) === $post->ID );
-
-		return $cache[ $key ];
+		return $isHomePage;
 	}
 
 	/**
@@ -163,67 +149,26 @@ trait WpContext {
 	}
 
 	/**
-	 * Checks whether the current page is the blog index shown at the site root.
-	 *
-	 * NOTE: Unlike {@see isDynamicHomePage()}, this covers a theme's own show_on_front value, and every page of the index.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @return bool Whether the current page is the blog index shown at the site root.
-	 */
-	public function isBlogIndexHomePage() {
-		return is_home() && 'page' !== get_option( 'show_on_front' );
-	}
-
-	/**
-	 * Checks whether the current page is the homepage.
-	 *
-	 * NOTE: False at the site root when show_on_front is 'page' with no page_on_front set.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @return bool Whether the current page is the homepage.
-	 */
-	public function isHomePage() {
-		return is_front_page() || $this->isBlogIndexHomePage();
-	}
-
-	/**
 	 * Checks whether the current page is the static posts page.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.9 Replaced one-shot static cache with per-post-ID cache so each call respects its $post argument.
+	 * @since 4.0.0
 	 *
-	 * @param  mixed $post Pass in an optional post to check if its the static posts page.
-	 * @return bool        Whether the current page is the static posts page.
+	 * @return bool Whether the current page is the static posts page.
 	 */
 	public function isStaticPostsPage( $post = null ) {
-		static $cache = [];
-
-		$key = null;
-		if ( is_numeric( $post ) ) {
-			$key = (int) $post;
-		} elseif ( is_object( $post ) && ! empty( $post->ID ) ) {
-			$key = (int) $post->ID;
-		}
-
-		if ( null !== $key && array_key_exists( $key, $cache ) ) {
-			return $cache[ $key ];
+		static $isStaticPostsPage = null;
+		if ( null !== $isStaticPostsPage ) {
+			return $isStaticPostsPage;
 		}
 
 		$post = aioseo()->helpers->getPost( $post );
-		$key  = ! empty( $post->ID ) ? (int) $post->ID : 0;
 
-		if ( array_key_exists( $key, $cache ) ) {
-			return $cache[ $key ];
-		}
-
-		$cache[ $key ] = (
+		$isStaticPostsPage = (
 			( is_home() && ( 0 !== (int) get_option( 'page_for_posts' ) ) ) ||
 			( ! empty( $post->ID ) && (int) get_option( 'page_for_posts' ) === $post->ID )
 		);
 
-		return $cache[ $key ];
+		return $isStaticPostsPage;
 	}
 
 	/**
@@ -317,40 +262,6 @@ trait WpContext {
 	}
 
 	/**
-	 * Returns the permalink for the given term.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  \WP_Term $term     The term object.
-	 * @param  string   $taxonomy The taxonomy.
-	 * @return string             The term link. Empty string if it can't be resolved.
-	 */
-	public function getTermLink( $term, $taxonomy = '' ) {
-		if ( ! is_a( $term, 'WP_Term' ) ) {
-			return '';
-		}
-
-		// For hierarchical permastructs get_term_link() reads ->slug off every ancestor
-		// without checking it resolved, so a term whose parent row was deleted emits a
-		// warning and leaves an empty segment in the URL. Drop those ancestors first.
-		$dropOrphanedAncestors = function ( $ancestors, $objectId, $objectType, $resourceType ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			if ( 'taxonomy' !== $resourceType ) {
-				return $ancestors;
-			}
-
-			return array_values( array_filter( (array) $ancestors, function ( $ancestorId ) use ( $objectType ) {
-				return is_a( get_term( $ancestorId, $objectType ), 'WP_Term' );
-			} ) );
-		};
-
-		add_filter( 'get_ancestors', $dropOrphanedAncestors, 10, 4 );
-		$termLink = get_term_link( $term, $taxonomy );
-		remove_filter( 'get_ancestors', $dropOrphanedAncestors, 10 );
-
-		return is_wp_error( $termLink ) ? '' : (string) $termLink;
-	}
-
-	/**
 	 * Returns the current post ID.
 	 *
 	 * @since 4.3.1
@@ -361,40 +272,6 @@ trait WpContext {
 		$post = $this->getPost();
 
 		return is_object( $post ) && property_exists( $post, 'ID' ) ? $post->ID : null;
-	}
-
-	/**
-	 * This is used as a fallback when WP conditionals (is_single, is_page, etc.) are unavailable, such as in page builder contexts.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param  \WP_Post|null $postObject The post object.
-	 * @return string                    The breadcrumb type ('page', 'post', 'single') or empty string.
-	 */
-	public function getBreadcrumbTypeFromPost( $postObject = null ) {
-		if ( ! $postObject instanceof \WP_Post ) {
-			global $post;
-			$postObject = $post;
-		}
-
-		if ( ! $postObject instanceof \WP_Post ) {
-			return '';
-		}
-
-		// Don't resolve a type for the front page — it's handled separately.
-		if ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $postObject->ID ) {
-			return '';
-		}
-
-		if ( 'page' === $postObject->post_type ) {
-			return 'page';
-		}
-
-		if ( 'post' === $postObject->post_type ) {
-			return 'post';
-		}
-
-		return 'single';
 	}
 
 	/**
@@ -618,53 +495,25 @@ trait WpContext {
 			return $isPostEligible[ $postId ];
 		}
 
-		$isPostEligible[ $postId ] = $this->supportsPageAnalysis( $postId );
+		// Set the default to true.
+		$isPostEligible[ $postId ] = true;
 
-		return $isPostEligible[ $postId ];
-	}
-
-	/**
-	 * Returns whether the post's type supports on-page analysis (TruSEO and the
-	 * Headline Analyzer), regardless of whether the TruSEO master toggle is on.
-	 *
-	 * NOTE: Unlike {@see isTruSeoEligible()}, this ignores the TruSEO toggle so the
-	 * Optimization tab can still surface the Headline Analyzer when TruSEO is off.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param  int  $postId Post ID.
-	 * @return bool         Whether the post's type supports on-page analysis.
-	 */
-	public function supportsPageAnalysis( $postId ) {
 		$wpPost = $this->getPost( $postId );
 		if ( ! is_a( $wpPost, 'WP_Post' ) ) {
+			$isPostEligible[ $postId ] = false;
+
 			return false;
 		}
 
-		return in_array( $wpPost->post_type, $this->getTruSeoEligiblePostTypes(), true ) &&
-			! $this->isSpecialPage( $wpPost->ID );
-	}
-
-	/**
-	 * Returns the post types TruSEO can never analyse.
-	 *
-	 * NOTE: Exposed so the settings UI can hide them from the include-list instead of offering a
-	 * checkbox that does nothing — {@see getTruSeoEligiblePostTypes()} filters them out regardless of
-	 * what the user ticks.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @return array The post types that can never be analysed.
-	 */
-	public function getTruSeoIneligiblePostTypes() {
-		// Attachments have no editable body content; the others are handled by their own features or
-		// are not real content types.
-		$excludedPostTypes = [ 'attachment', 'aioseo-location', 'web-story' ];
-		if ( class_exists( 'bbPress' ) ) {
-			$excludedPostTypes = array_merge( $excludedPostTypes, [ 'forum', 'topic', 'reply' ] );
+		$eligiblePostTypes = $this->getTruSeoEligiblePostTypes();
+		if (
+			! in_array( $wpPost->post_type, $eligiblePostTypes, true ) ||
+			$this->isSpecialPage( $wpPost->ID )
+		) {
+			$isPostEligible[ $postId ] = false;
 		}
 
-		return $excludedPostTypes;
+		return $isPostEligible[ $postId ];
 	}
 
 	/**
@@ -675,17 +524,14 @@ trait WpContext {
 	 * @return array The post types that are eligible for TruSEO analysis.
 	 */
 	public function getTruSeoEligiblePostTypes() {
-		$allowedPostTypes = aioseo()->helpers->getPublicPostTypes( true );
+		$allowedPostTypes  = aioseo()->helpers->getPublicPostTypes( true );
+		$excludedPostTypes = [ 'attachment', 'aioseo-location', 'web-story' ];
+		if ( class_exists( 'bbPress' ) ) {
+			$excludedPostTypes = array_merge( $excludedPostTypes, [ 'forum', 'topic', 'reply' ] );
+		}
 
 		// Remove the excluded post types from the allowed ones.
-		$allowedPostTypes = array_diff( $allowedPostTypes, $this->getTruSeoIneligiblePostTypes() );
-
-		if ( ! aioseo()->options->advanced->truSeoObjects->postTypes->all ) {
-			$allowedPostTypes = array_intersect(
-				$allowedPostTypes,
-				(array) aioseo()->options->advanced->truSeoObjects->postTypes->included
-			);
-		}
+		$allowedPostTypes = array_diff( $allowedPostTypes, $excludedPostTypes );
 
 		// Now, check if the metabox is enabled and that the post type is public for each of these.
 		foreach ( $allowedPostTypes as $postType ) {
@@ -703,188 +549,6 @@ trait WpContext {
 
 		// Considering post types get registered during various stages of the WP load process, we should not cache this.
 		return $allowedPostTypes;
-	}
-
-	/**
-	 * Returns the taxonomies TruSEO can never analyse.
-	 *
-	 * NOTE: Exposed so the settings UI can hide them from the include-list instead of offering a
-	 * checkbox that does nothing — {@see getTruSeoEligibleTaxonomies()} filters them out regardless
-	 * of what the user ticks.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @return array The taxonomies that can never be analysed.
-	 */
-	public function getTruSeoIneligibleTaxonomies() {
-		return [
-			// A synthetic entry standing in for every `pa_*` attribute taxonomy; nothing of that
-			// name is registered, so it can never be eligible.
-			'product_attributes',
-			// Locations are ineligible as a post type too, so their categories follow.
-			'aioseo-location-category',
-			// Avada's Elastic Slider groups; a bucket for slides, not a content archive.
-			'themefusion_es_groups'
-		];
-	}
-
-	/**
-	 * Returns the taxonomies that are eligible for TruSEO analysis.
-	 *
-	 * NOTE: Scoped to WooCommerce collection taxonomies. A term carries no body content, so the
-	 * analysis only makes sense where the description doubles as a landing-page intro.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @return array The taxonomies that are eligible for TruSEO analysis.
-	 */
-	public function getTruSeoEligibleTaxonomies() {
-		// NOTE: Each read walks the full path — the options getter resets its group state after
-		// returning a leaf, so reusing an intermediate group object resolves the second read wrong.
-		$allowedTaxonomies = aioseo()->options->advanced->truSeoObjects->taxonomies->all
-			? aioseo()->helpers->getPublicTaxonomies( true )
-			: (array) aioseo()->options->advanced->truSeoObjects->taxonomies->included;
-
-		// A taxonomy the user selected before deactivating the plugin that registers it must not
-		// leak through as eligible.
-		$allowedTaxonomies = array_filter( $allowedTaxonomies, 'taxonomy_exists' );
-		$allowedTaxonomies = array_diff( $allowedTaxonomies, $this->getTruSeoIneligibleTaxonomies() );
-
-		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		foreach ( $allowedTaxonomies as $index => $taxonomy ) {
-			// NOTE: `has()` must hydrate the group here — passing false leaves `advanced` unset,
-			// so the showMetaBox read below would always come back null.
-			if (
-				! $dynamicOptions->searchAppearance->taxonomies->has( $taxonomy ) ||
-				! $dynamicOptions->searchAppearance->taxonomies->{$taxonomy}->advanced->showMetaBox
-			) {
-				unset( $allowedTaxonomies[ $index ] );
-			}
-		}
-
-		return apply_filters( 'aioseo_truseo_eligible_taxonomies', array_values( $allowedTaxonomies ) );
-	}
-
-	/**
-	 * Returns whether the term's taxonomy supports on-page analysis.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  int  $termId Term ID.
-	 * @return bool         Whether the term's taxonomy supports on-page analysis.
-	 */
-	public function supportsTermPageAnalysis( $termId ) {
-		$term = $this->getTerm( $termId );
-		if ( ! is_a( $term, 'WP_Term' ) ) {
-			return false;
-		}
-
-		return in_array( $term->taxonomy, $this->getTruSeoEligibleTaxonomies(), true );
-	}
-
-	/**
-	 * Returns whether a term is eligible for being analyzed by TruSEO.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  int  $termId Term ID.
-	 * @return bool         Whether a term is eligible for being analyzed by TruSEO.
-	 */
-	public function isTermTruSeoEligible( $termId ) {
-		if ( ! aioseo()->options->advanced->truSeo ) {
-			return false;
-		}
-
-		return $this->supportsTermPageAnalysis( $termId );
-	}
-
-	/**
-	 * Returns whether a term has anything for TruSEO to analyse.
-	 *
-	 * A term's description is its only body content, so with none there is nothing to score. The
-	 * editor already refuses to show a score in that state; this keeps the list and the batch
-	 * scanner in step with it, rather than showing a badge stuck on "N/A" for a term that is
-	 * deliberately never scanned.
-	 *
-	 * NOTE: This gates the *score*, not the Optimization tab — the tab has to stay reachable so a
-	 * description can be added in the first place.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  int  $termId Term ID.
-	 * @return bool         Whether the term can be scored.
-	 */
-	public function isTermTruSeoAnalyzable( $termId ) {
-		if ( ! $this->isTermTruSeoEligible( $termId ) ) {
-			return false;
-		}
-
-		$term = $this->getTerm( $termId );
-
-		return is_a( $term, 'WP_Term' ) && '' !== trim( (string) $term->description );
-	}
-
-	/**
-	 * Returns the nouns TruSEO result copy uses for a taxonomy, e.g. "Your product category is 43 words long".
-	 *
-	 * NOTE: The taxonomy's own registered labels are used so the noun is right for every taxonomy and
-	 * already translated. Both the term editor and the term-list batch scanner read this, so the two
-	 * cannot describe the same term differently.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  string $taxonomy The taxonomy name.
-	 * @return array            The singular and plural nouns.
-	 */
-	public function getTaxonomyContentNouns( $taxonomy ) {
-		$taxonomyObject = get_taxonomy( $taxonomy );
-		if ( ! $taxonomyObject ) {
-			return [
-				'singular' => __( 'term', 'all-in-one-seo-pack' ),
-				'plural'   => __( 'terms', 'all-in-one-seo-pack' )
-			];
-		}
-
-		// Lowercased: these nouns land mid-sentence in result copy ("Your category is 49 words long"),
-		// where the registered title case reads wrong.
-		return [
-			'singular' => ! empty( $taxonomyObject->labels->singular_name )
-				? aioseo()->helpers->lowercaseLabel( $taxonomyObject->labels->singular_name )
-				: __( 'term', 'all-in-one-seo-pack' ),
-			'plural'   => ! empty( $taxonomyObject->labels->name )
-				? aioseo()->helpers->lowercaseLabel( $taxonomyObject->labels->name )
-				: __( 'terms', 'all-in-one-seo-pack' )
-		];
-	}
-
-	/**
-	 * Returns the nouns result copy and notices use for a post type, e.g. "Successfully analyzed 3 pages".
-	 *
-	 * NOTE: The counterpart of {@see getTaxonomyContentNouns}. Lowercased for the same reason —
-	 * these land mid-sentence, where the registered title case reads wrong.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  string $postType The post type name.
-	 * @return array            The singular and plural nouns.
-	 */
-	public function getPostTypeContentNouns( $postType ) {
-		$postTypeObject = $postType ? get_post_type_object( $postType ) : null;
-		if ( ! $postTypeObject ) {
-			return [
-				'singular' => __( 'post', 'all-in-one-seo-pack' ),
-				'plural'   => __( 'posts', 'all-in-one-seo-pack' )
-			];
-		}
-
-		return [
-			'singular' => ! empty( $postTypeObject->labels->singular_name )
-				? aioseo()->helpers->lowercaseLabel( $postTypeObject->labels->singular_name )
-				: __( 'post', 'all-in-one-seo-pack' ),
-			'plural'   => ! empty( $postTypeObject->labels->name )
-				? aioseo()->helpers->lowercaseLabel( $postTypeObject->labels->name )
-				: __( 'posts', 'all-in-one-seo-pack' )
-		];
 	}
 
 	/**
@@ -1236,9 +900,7 @@ trait WpContext {
 	 *
 	 * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#filter-hierarchy
 	 *
-	 * @since   4.2.8
-	 * @version 5.0.3 dynamic_home now covers any show_on_front value that is not 'page'.
-	 * @version 5.0.5 Ignores page_for_posts unless show_on_front is 'page'.
+	 * @since 4.2.8
 	 *
 	 * @return string|null The template type or `null` if no match.
 	 */
@@ -1255,8 +917,7 @@ trait WpContext {
 			$type = 'single';
 		} elseif (
 			is_page() ||
-			// A saved page_for_posts outlives a switch away from show_on_front 'page'.
-			( $this->isStaticPostsPage() && ! $this->isBlogIndexHomePage() ) ||
+			$this->isStaticPostsPage() ||
 			$this->isWooCommerceShopPage()
 		) {
 			$type = 'page';
@@ -1272,7 +933,7 @@ trait WpContext {
 			$type = 'date';
 		} elseif ( is_archive() ) {
 			$type = 'archive';
-		} elseif ( $this->isBlogIndexHomePage() ) {
+		} elseif ( is_home() && is_front_page() ) {
 			$type = 'dynamic_home';
 		} elseif ( is_search() ) {
 			$type = 'search';
@@ -1284,9 +945,7 @@ trait WpContext {
 	/**
 	 * Sets the given post as the queried object of the main query.
 	 *
-	 * @since   4.3.0
-	 * @version 5.0.3 Clears the 404 flag; sets queried_object_id instead of get_queried_object_id.
-	 * @version 5.0.3 Sets is_page or is_single by post type, never both; clears is_home.
+	 * @since 4.3.0
 	 *
 	 * @param  \WP_Post|int $wpPost The post object or ID.
 	 * @return void
@@ -1301,15 +960,14 @@ trait WpContext {
 		$wp_query->posts                 = [ $wpPost ];
 		$wp_query->post                  = $wpPost;
 		$wp_query->post_count            = 1;
-		$wp_query->queried_object_id     = (int) $wpPost->ID;
+		$wp_query->get_queried_object_id = (int) $wpPost->ID;
 		$wp_query->queried_object        = $wpPost;
+		$wp_query->is_single             = true;
 		$wp_query->is_singular           = true;
-		$wp_query->is_404                = false;
 
-		// Match a real request: pages are never is_single, and is_front_page() is left to resolve from page_on_front.
-		$wp_query->is_page   = 'page' === $wpPost->post_type;
-		$wp_query->is_single = ! $wp_query->is_page;
-		$wp_query->is_home   = false;
+		if ( 'page' === $wpPost->post_type ) {
+			$wp_query->is_page = true;
+		}
 		// phpcs:enable Squiz.NamingConventions.ValidVariableName
 
 		$post = $wpPost;
@@ -1398,24 +1056,6 @@ trait WpContext {
 	}
 
 	/**
-	 * Gets the active theme version.
-	 *
-	 * @since 4.9.6
-	 *
-	 * @param  bool        $parent Whether to return the parent theme's version.
-	 * @return string|null         The theme version, or null if parent requested but not found.
-	 */
-	public function getThemeVersion( $parent = false ) {
-		$theme = wp_get_theme();
-
-		if ( $parent ) {
-			return ( is_child_theme() && $theme->parent() ) ? $theme->parent()->version : null;
-		}
-
-		return $theme->version;
-	}
-
-	/**
 	 * Returns whether the active theme is a block-based theme or not.
 	 *
 	 * @since 4.5.3
@@ -1441,17 +1081,6 @@ trait WpContext {
 		return aioseo()->options->searchAppearance->global->schema->websiteName
 			? aioseo()->tags->replaceTags( aioseo()->options->searchAppearance->global->schema->websiteName )
 			: aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'name' ) );
-	}
-
-	/**
-	 * Checks if WordPress is set to discourage search engines from indexing the site.
-	 *
-	 * @since 4.9.9
-	 *
-	 * @return boolean Whether search engines are discouraged from indexing the site.
-	 */
-	public function isSearchEnginesDiscouraged() {
-		return ! get_option( 'blog_public' );
 	}
 
 	/**

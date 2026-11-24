@@ -1,4 +1,4 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if (!defined( 'FW' ) && !function_exists( 'jevelin_framework' )) die('Forbidden.');
 
 
 if(!function_exists('jevelin_shortcode_section_css')) :
@@ -105,7 +105,7 @@ if(!function_exists('jevelin_shortcode_section_css')) :
 				}
 			<?php endif; ?>
 
-			<?php if( $padding_mobile_atts['padding'] ) : ?>
+			<?php if( !empty( $padding_mobile_atts['padding'] ) ) : ?>
 				@media (max-width: 800px) {
 					.sh-section-<?php echo esc_attr( $atts['id'] ); ?> {
 						padding: <?php echo esc_attr( $padding_mobile_atts['padding'] ); ?>;
@@ -113,7 +113,7 @@ if(!function_exists('jevelin_shortcode_section_css')) :
 				}
 			<?php endif; ?>
 
-			<?php if( $margin_mobile_atts['margin'] ) : ?>
+			<?php if( !empty( $margin_mobile_atts['margin'] ) ) : ?>
 				@media (max-width: 800px) {
 					.sh-section-<?php echo esc_attr( $atts['id'] ); ?> {
 						margin: <?php echo esc_attr( $margin_mobile_atts['margin'] ); ?>;

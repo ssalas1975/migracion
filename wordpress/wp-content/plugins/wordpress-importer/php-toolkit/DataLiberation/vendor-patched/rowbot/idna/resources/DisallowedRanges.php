@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna\Resource;
+namespace Rowbot\Idna\Resource;
 
 final class DisallowedRanges {
 	public static function inRange( int $codePoint ): bool {

@@ -173,17 +173,13 @@ class WPML_TF_Backend_Document_Information extends WPML_TF_Document_Information 
 	 * @return array
 	 */
 	public function get_available_translators( $from, $to ) {
-		$translators = array();
+		$args = array(
+			'from' => $from,
+			'to'   => $to,
+		);
 
-		if ( function_exists( 'wpml_tm_load_blog_translators' ) ) {
-			$args = array(
-				'from' => $from,
-				'to'   => $to,
-			);
-
-			$users       = wpml_tm_load_blog_translators()->get_blog_translators( $args );
-			$translators = wp_list_pluck( $users, 'display_name', 'ID' );
-		}
+		$users       = TranslationManagement::get_blog_translators( $args );
+		$translators = wp_list_pluck( $users, 'display_name', 'ID' );
 
 		return $translators;
 	}

@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 /**
  * Framework options
@@ -14,6 +14,12 @@ if( !is_admin() && ( !defined('DOING_AJAX') || !DOING_AJAX ) ) :
 endif;
 
 
+// Check current framework
+if( jevelin_framework() == 'redux' ) :
+	return false;
+endif;
+
+
 $options = array(
 	fw()->theme->get_options( 'general' ),
 	fw()->theme->get_options( 'styling' ),
@@ -22,14 +28,15 @@ $options = array(
 	fw()->theme->get_options( 'titlebar' ),
 	fw()->theme->get_options( 'social_media' ),
 	fw()->theme->get_options( 'blog' ),
+	fw()->theme->get_options( 'amp' ),
 	fw()->theme->get_options( 'portfolio' ),
 	fw()->theme->get_options( 'lightbox' ),
+	fw()->theme->get_options( 'carousel' ),
 	fw()->theme->get_options( 'woocommerce' ),
+	fw()->theme->get_options( 'lazy_loading' ),
 	fw()->theme->get_options( 'page_loader' ),
 	fw()->theme->get_options( '404_page' ),
 	fw()->theme->get_options( 'notice' ),
 	fw()->theme->get_options( 'custom_code' ),
-	//fw()->theme->get_options( 'info' ),
-	//fw()->theme->get_options( 'documentation' ),
-	//fw()->theme->get_options( 'support' ),
+	fw()->theme->get_options( 'import_export' ),
 );

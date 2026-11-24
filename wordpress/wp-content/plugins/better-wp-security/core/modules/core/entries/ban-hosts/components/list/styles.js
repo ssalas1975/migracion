@@ -4,7 +4,7 @@
 import styled from '@emotion/styled';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { MasterDetailBackButton, Surface, Text } from '@ithemes/ui';
 

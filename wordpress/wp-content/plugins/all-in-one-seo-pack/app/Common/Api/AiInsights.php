@@ -54,7 +54,7 @@ class AiInsights {
 
 		$response = aioseo()->helpers->wpRemotePost( self::getApiUrl( 'keyword-reports/' ), [
 			'timeout' => 30,
-			'headers' => aioseo()->ai->getRequestHeaders(),
+			'headers' => Ai::getRequestHeaders(),
 			'body'    => wp_json_encode( [
 				'keyword' => $keyword
 			] )
@@ -223,7 +223,7 @@ class AiInsights {
 			$url = self::getApiUrl( 'keyword-reports/' . sanitize_text_field( $uuid ) . '/' );
 
 			$response = aioseo()->helpers->wpRemoteGet( $url, [
-				'headers' => aioseo()->ai->getRequestHeaders(),
+				'headers' => Ai::getRequestHeaders(),
 				'timeout' => 30
 			] );
 
@@ -302,7 +302,7 @@ class AiInsights {
 
 		$response = aioseo()->helpers->wpRemotePost( self::getApiUrl( 'keyword-reports/' ), [
 			'timeout' => 30,
-			'headers' => aioseo()->ai->getRequestHeaders(),
+			'headers' => Ai::getRequestHeaders(),
 			'body'    => wp_json_encode( [
 				'keyword' => $report->keyword,
 				'refresh' => true

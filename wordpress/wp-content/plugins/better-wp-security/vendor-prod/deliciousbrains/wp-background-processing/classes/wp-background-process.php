@@ -3,6 +3,10 @@
  * WP Background Process
  *
  * @package WP-Background-Processing
+ *
+ * @license GPL-2.0-or-later
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
 /**

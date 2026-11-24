@@ -2,12 +2,12 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Punycode\Test;
+namespace Rowbot\Punycode\Test;
 
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\Punycode\Exception\InvalidInputException;
-use VendorPrefix\Rowbot\Punycode\Exception\OutputSizeExceededException;
-use VendorPrefix\Rowbot\Punycode\Punycode;
+use Rowbot\Punycode\Exception\InvalidInputException;
+use Rowbot\Punycode\Exception\OutputSizeExceededException;
+use Rowbot\Punycode\Punycode;
 
 use function mb_strlen;
 use function preg_match;

@@ -9,7 +9,7 @@
         ?>
 
         <?php if( jevelin_option('custom_js') ) : ?>
-            <?php echo wp_kses_post( jevelin_option('custom_js') ); ?>
+            <?php echo ( jevelin_option('custom_js') ); ?>
         <?php endif; ?>
 
     });

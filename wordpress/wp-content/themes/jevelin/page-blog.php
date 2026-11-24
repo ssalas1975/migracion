@@ -9,7 +9,8 @@ if( jevelin_page_layout() == 'sidebar-right' || jevelin_page_layout() == 'sideba
 endif;
 
 $categories_query = array();
-if( count(jevelin_post_option( get_the_ID(), 'page_blog_category' )) > 0 ) :
+$get_page_blog_category = jevelin_post_option( get_the_ID(), 'page_blog_category' );
+if( is_array( $get_page_blog_category ) && count( $get_page_blog_category ) > 0 ) :
 	$categories_query = jevelin_post_option( get_the_ID(), 'page_blog_category' );
 endif;
 $categories_tabs = $categories_query;
@@ -27,6 +28,9 @@ $post_per_page = ( jevelin_post_option( get_the_ID(), 'page_blog_posts_per_page'
 
 $pagination_type = jevelin_post_option( get_the_ID(), 'page_blog_pagination_type', 'default' );
 $this_category = ( isset($_GET['category']) && $_GET['category'] ) ? esc_attr($_GET['category']) : '';
+
+$style = jevelin_post_option( get_the_ID(), 'page-blog-style', 'masonry masonry-shadow' );
+set_query_var( 'style', $style );
 ?>
 
 <?php if( jevelin_post_option( get_the_ID(), 'page_blog_categories_tab' ) == 'on' ) : ?>
@@ -57,7 +61,7 @@ $this_category = ( isset($_GET['category']) && $_GET['category'] ) ? esc_attr($_
 		<?php echo ( do_shortcode( $content ) ); ?>
 	<?php else : ?>
 		<div id="content" class="<?php if( isset($layout_sidebar) && $layout_sidebar ) : ?>content-with-<?php echo esc_attr( $layout_sidebar ); endif; ?> blog-page-list">
-			<div class="sh-group blog-list blog-style-<?php echo jevelin_post_option( get_the_ID(), 'page-blog-style', 'large' ); ?>">
+			<div class="sh-group blog-list blog-style-<?php echo esc_attr( $style ); ?>">
 				<?php
 					if( is_front_page() ) {
 						$page = (get_query_var('page')) ? get_query_var('page') : 1;
@@ -72,15 +76,15 @@ $this_category = ( isset($_GET['category']) && $_GET['category'] ) ? esc_attr($_
 						$cat_var = esc_attr( $this_category );
 					}
 
-					$posts = new WP_Query( array(
+					$blog_posts = new WP_Query( array(
 						'post_type' => 'post',
 						'paged' => $page,
 						$cat_att => $cat_var,
 						'posts_per_page' => $post_per_page,
 					));
-					if( $posts->have_posts() ) :
+					if( $blog_posts->have_posts() ) :
 
-						while ( $posts->have_posts() ) : $posts->the_post();
+						while ( $blog_posts->have_posts() ) : $blog_posts->the_post();
 
 							if( get_post_format() ) :
 								get_template_part( 'content', 'format-'.get_post_format() );
@@ -99,21 +103,29 @@ $this_category = ( isset($_GET['category']) && $_GET['category'] ) ? esc_attr($_
 			</div>
 
 			<?php if( $pagination_type == 'default' ) :
-				jevelin_pagination( $posts );
+				jevelin_pagination( $blog_posts );
 			elseif( ( $pagination_type == 'button' || $pagination_type == 'infinite' ) &&
-			isset( $posts->found_posts ) && $posts->found_posts > $post_per_page ) : ?>
+			isset( $blog_posts->found_posts ) && $blog_posts->found_posts > $post_per_page ) :
+
+			if( $this_category ) :
+				$get_this_category = get_category_by_slug( $this_category );
+				$load_more_category = [ $get_this_category->term_id ];
+			else :
+				$load_more_category = $categories_query;
+			endif;
+			?>
 
 				<div class="sh-load-more<?php echo ( $pagination_type == 'infinite' ) ? ' infinite' : ''; ?>"
-				data-categories="<?php echo implode( ',', $categories_query ); ?>"
+				data-categories="<?php echo implode( ',', $load_more_category ); ?>"
 				data-post-style="<?php echo jevelin_post_option( get_queried_object_id(), 'page-blog-style' ); ?>"
 				data-posts-per-page="<?php echo esc_attr( $post_per_page ); ?>"
 				data-paged="2"
 				data-id="blog-page-list">
 					<?php
 						if( $pagination_type == 'button' ) :
-							esc_html_e( 'Load more', 'gillion' );
+							esc_html_e( 'Load more', 'jevelin' );
 						else :
-							esc_html_e( 'Loading', 'gillion' );
+							esc_html_e( 'Loading', 'jevelin' );
 						endif;
 					?>
 				</div>
@@ -122,7 +134,7 @@ $this_category = ( isset($_GET['category']) && $_GET['category'] ) ? esc_attr($_
 
 		</div>
 		<?php if( isset($layout_sidebar) && $layout_sidebar ) : ?>
-			<div id="sidebar" class="<?php echo esc_attr( $layout_sidebar ); ?>">
+			<div id="sidebar" class="<?php echo esc_attr( $layout_sidebar ); ?>" role="complementary" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
 				<?php get_sidebar(); ?>
 			</div>
 		<?php endif; ?>

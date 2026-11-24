@@ -22,14 +22,14 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\Idna\\": "src/",
-			"VendorPrefix\\Rowbot\\Idna\\Resource\\": "resources/"
+			"Rowbot\\Idna\\": "src/",
+			"Rowbot\\Idna\\Resource\\": "resources/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\Idna\\Bin\\": "bin/",
-			"VendorPrefix\\Rowbot\\Idna\\Test\\": "tests/"
+			"Rowbot\\Idna\\Bin\\": "bin/",
+			"Rowbot\\Idna\\Test\\": "tests/"
 		}
 	},
 	"require": {

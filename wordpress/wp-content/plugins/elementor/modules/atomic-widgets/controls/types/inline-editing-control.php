@@ -10,8 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Inline_Editing_Control extends Atomic_Control_Base {
 	private ?string $placeholder = null;
 
-	private ?array $promotion = null;
-
 	public function get_type(): string {
 		return 'inline-editing';
 	}
@@ -22,21 +20,9 @@ class Inline_Editing_Control extends Atomic_Control_Base {
 		return $this;
 	}
 
-	public function set_promotion( array $promotion ): self {
-		$this->promotion = $promotion;
-
-		return $this;
-	}
-
 	public function get_props(): array {
-		$props = [
+		return [
 			'placeholder' => $this->placeholder,
 		];
-
-		if ( null !== $this->promotion ) {
-			$props['promotion'] = $this->promotion;
-		}
-
-		return $props;
 	}
 }

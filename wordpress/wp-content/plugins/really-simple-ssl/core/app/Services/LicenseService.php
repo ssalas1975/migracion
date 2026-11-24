@@ -15,16 +15,12 @@ final class LicenseService
      */
     public function isValid(): bool
     {
-        if ( ! function_exists( 'RSSSL' ) ) {
+        $pluginInstance = RSSSL();
+
+        if (! isset($pluginInstance->licensing) || ! is_object($pluginInstance->licensing)) {
             return false;
         }
 
-        $plugin = RSSSL();
-
-        if ( ! isset( $plugin->licensing ) || ! method_exists( $plugin->licensing, 'license_is_valid' ) ) {
-            return false;
-        }
-
-        return $plugin->licensing->license_is_valid();
+        return $pluginInstance->licensing->license_is_valid();
     }
 }

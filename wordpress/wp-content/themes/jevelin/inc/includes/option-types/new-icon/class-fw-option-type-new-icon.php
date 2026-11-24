@@ -27,9 +27,9 @@ class FW_Option_Type_NewIcon extends FW_Option_Type
 	 */
 	protected function _enqueue_static($id, $option, $data)
 	{
-		
+
 		$uri = get_template_directory_uri() .'/inc/includes/option-types/'. $this->get_type() .'/static';
-		
+
         wp_enqueue_style(
             'jevelin-option-'. $this->get_type(),
             $uri .'/css/backend.css'

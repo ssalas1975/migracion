@@ -56,6 +56,12 @@ endif;
 						<button type="submit" class="header-mobile-form-submit">
 							<i class="icon-magnifier"></i>
 						</button>
+
+						<?php if( jevelin_option( 'header_search_results', 'posts' ) == 'adaptive' && jevelin_is_realy_woocommerce_page() ) : ?>
+							<input type="hidden" name="post_type" value="product" />
+						<?php elseif( jevelin_option( 'header_search_results', 'posts' ) == 'products' ) : ?>
+							<input type="hidden" name="post_type" value="product" />
+						<?php endif; ?>
 					</form>
 				</div>
 			<?php endif; ?>

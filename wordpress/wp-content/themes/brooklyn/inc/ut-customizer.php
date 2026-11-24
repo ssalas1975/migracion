@@ -69,7 +69,7 @@ if( !function_exists('unitedthemes_customize_register') ) {
 					<label>
 						<span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
 						<div class="customize-control-content">
-							<input id="<?php echo esc_html( strtolower($this->label) ); ?>" class="color-picker-hex" type="text" maxlength="7" value="<?php echo esc_html( $this->value() ); ?>" placeholder="<?php esc_attr_e( 'Hex Value' , 'unitedthemes' ); ?>" <?php echo $default_attr; ?> <?php $this->link(); ?> />
+							<input id="<?php echo esc_html( strtolower($this->label) ); ?>" class="color-picker-hex" type="text" maxlength="7" value="<?php echo esc_html( $this->value() ); ?>" placeholder="<?php esc_attr_e( 'Hex Value' ); ?>" <?php echo $default_attr; ?> <?php $this->link(); ?> />
 						</div>
 					</label>
 		
@@ -106,10 +106,8 @@ if( !function_exists('unitedthemes_customize_register') ) {
 		) );
 				
 		/* add setting for custom logo */ 
-		$wp_customize->add_setting('ut_site_logo', array( 'sanitize_callback' => 'esc_url' ));
-		$wp_customize->add_setting('ut_site_logo_alt', array( 'sanitize_callback' => 'esc_url' ));
-        $wp_customize->add_setting('ut_site_logo_retina', array( 'sanitize_callback' => 'esc_url' ));
-		$wp_customize->add_setting('ut_site_logo_alt_retina', array( 'sanitize_callback' => 'esc_url' ));		
+		$wp_customize->add_setting( 'ut_site_logo' );
+		$wp_customize->add_setting( 'ut_site_logo_alt' );		
 		
 		/* add control for custom logo */ 
 		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'ut_site_logo', array(
@@ -124,18 +122,7 @@ if( !function_exists('unitedthemes_customize_register') ) {
 			'settings' => 'ut_site_logo_alt',
 		) ) );
 		
-        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'ut_site_logo_retina', array(
-			'label'    => __( 'Retina Main Logo', 'unitedthemes' ),
-			'section'  => 'ut_logo_section',
-			'settings' => 'ut_site_logo_retina',
-		) ) );
 		
-        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'ut_site_logo_alt_retina', array(
-			'label'    => __( 'Retina Alternate Logo', 'unitedthemes' ),
-			'section'  => 'ut_logo_section',
-			'settings' => 'ut_site_logo_alt_retina',
-		) ) );
-        
 		
 		/*
 		|--------------------------------------------------------------------------
@@ -151,12 +138,7 @@ if( !function_exists('unitedthemes_customize_register') ) {
 		) );
 		
 		/* add setting for accentcolor */ 
-		$wp_customize->add_setting( 'ut_accentcolor' , array( 
-            'default'           => '#F1C40F' , 
-            'type'              => 'option', 
-            'capability'        => 'edit_theme_options',
-            'sanitize_callback' => 'sanitize_hex_color') 
-        );
+		$wp_customize->add_setting( 'ut_accentcolor' , array( 'default' => '#F1C40F' , 'type' => 'option', 'capability' => 'edit_theme_options') );
 		
 		/* add control for accentcolor */ 
 		$wp_customize->add_control( new UT_Colorpicker_Extended( $wp_customize, 'ut_accentcolor', array(

@@ -60,8 +60,6 @@ class VocentoAnalyticsAdminOverview extends VocentoAnalyticsAdminBase
                             $front_container->softclick->enable);
                         $this->printRow("Inspectlet", ($this->options_analytics["vcanly_inspectlet_use_network"]),
                             $front_container->inspectlet->enable);
-                        $this->printRow("DTM", ($this->options_analytics["vcanly_gtm_use_network"]),
-                            $front_container->dtm->enable);
 
                         if (is_network_admin()) {
                             $cutomBlogsConfig = vcanly_custom_analytics_config_overview();

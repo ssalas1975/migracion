@@ -1,0 +1,3 @@
+<a href="<?php echo esc_url($link); ?>" target="<?php echo esc_attr($target); ?>" <?php edgtf_quadric_inline_style($button_styles); ?> <?php edgtf_quadric_class_attribute($button_classes); ?> <?php echo edgtf_quadric_get_inline_attrs($button_data); ?> <?php echo edgtf_quadric_get_inline_attrs($button_custom_attrs); ?>>
+    <span class="edgtf-btn-text" <?php edgtf_quadric_inline_style($button_text_styles); ?>><?php echo esc_html($text); ?></span><?php echo edgtf_quadric_icon_collections()->renderIcon($icon, $icon_pack, array('icon_attributes' => array('class' => 'edgtf-button-icon-holder'))); ?>
+</a>

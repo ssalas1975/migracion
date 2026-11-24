@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component\Host;
+namespace Rowbot\URL\Component\Host;
 
-use VendorPrefix\Rowbot\URL\Component\Host\Serializer\HostSerializerInterface;
-use VendorPrefix\Rowbot\URL\Component\Host\Serializer\IPv6AddressSerializer;
+use Rowbot\URL\Component\Host\Serializer\HostSerializerInterface;
+use Rowbot\URL\Component\Host\Serializer\IPv6AddressSerializer;
 
 /**
  * @see https://url.spec.whatwg.org/#concept-ipv6

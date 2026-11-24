@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -40,6 +40,19 @@ $options = array(
 				)
 			),
 
+			'alignment_mobile' => array(
+				'type'    => 'select',
+				'label'   => esc_html__('Mobile Alignment', 'jevelin'),
+				'desc'	=> esc_html__( 'Select mobile alignment', 'jevelin' ),
+				'value' => 'default',
+				'choices' => array(
+					'default' => esc_html__('Default', 'jevelin'),
+					'left' => esc_html__('Left', 'jevelin'),
+					'center' => esc_html__('Center', 'jevelin'),
+					'right' => esc_html__('Right', 'jevelin'),
+				)
+			),
+
 			'size' => array(
 				'type'    => 'select',
 				'label'   => esc_html__('Size', 'jevelin'),
@@ -64,18 +77,14 @@ $options = array(
 			),
 
 			'lightbox' => array(
-				'type' => 'switch',
+				'type' => 'select',
 				'label' => esc_html__( 'Lightbox', 'jevelin' ),
 				'desc' => esc_html__( 'Open in lightbox (will override URL)', 'jevelin' ),
 				'value' => true,
-				'left-choice' => array(
-					'value' => false,
-					'label' => esc_html__('Off', 'jevelin'),
-				),
-				'right-choice' => array(
-					'value' => true,
-					'label' => esc_html__('On', 'jevelin'),
-				),
+				'choices' => array(
+					true => esc_html__('Enabled', 'jevelin'),
+					false => esc_html__('Disabled', 'jevelin'),
+				)
 			),
 
 		),
@@ -143,6 +152,26 @@ $options = array(
 				'type'  => 'text',
 				'label'   => esc_html__( 'Popover', 'jevelin' ),
 				'desc'    => esc_html__( 'Enter popover text', 'jevelin' ),
+			),
+
+		),
+	),
+
+	'lazy_tab' => array(
+		'title'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'lazy' => array(
+				'type'    => 'radio',
+				'label'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+				'desc'    => esc_html__( 'Choose to enable to disable lazy loading', 'jevelin' ),
+				'value'	  => 'default',
+				'choices' => array(
+					'default' => esc_html__('Default (from theme settings)', 'jevelin'),
+					'disabled' => esc_html__('Disabled', 'jevelin'),
+					'enabled' => esc_html__('Enabled', 'jevelin'),
+				)
 			),
 
 		),
@@ -232,5 +261,24 @@ $options = array(
 
 		),
 	),
+
+	'position_box' => array(
+		'title'   => esc_html__( 'Position', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'inline_element' => jevelin_element_inline_option(),
+			'margin' => jevelin_element_margin_option(),
+
+			'margin_responsive' => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Margin Responsive', 'jevelin' ),
+				'desc'  => esc_html__( 'Here you can set responsive smartphone and tablet margin (top right bottom left). For example: 30px 0px 30px 0px', 'jevelin' ),
+			),
+
+
+		),
+	),
+
 
 );

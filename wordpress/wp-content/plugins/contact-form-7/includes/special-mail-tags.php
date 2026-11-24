@@ -1,11 +1,8 @@
 <?php
 /**
- * Special mail-tags
- *
- * @link https://contactform7.com/special-mail-tags/
- */
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+** Special Mail Tags
+** https://contactform7.com/special-mail-tags/
+**/
 
 add_filter( 'wpcf7_special_mail_tags', 'wpcf7_special_mail_tag', 10, 4 );
 
@@ -122,13 +119,6 @@ function wpcf7_post_related_smt( $output, $name, $html, $mail_tag = null ) {
 	$post_id = (int) $submission->get_meta( 'container_post_id' );
 
 	if ( ! $post_id or ! $post = get_post( $post_id ) ) {
-		return '';
-	}
-
-	if (
-		! is_post_publicly_viewable( $post ) or
-		! empty( $post->post_password )
-	) {
 		return '';
 	}
 
@@ -251,17 +241,7 @@ function wpcf7_user_related_smt( $output, $name, $html, $mail_tag = null ) {
 		);
 	}
 
-	$available_names = array(
-		'_user_login',
-		'_user_email',
-		'_user_url',
-		'_user_first_name',
-		'_user_last_name',
-		'_user_nickname',
-		'_user_display_name',
-	);
-
-	if ( ! in_array( $name, $available_names, true ) ) {
+	if ( ! str_starts_with( $name, '_user_' ) or '_user_agent' === $name ) {
 		return $output;
 	}
 
@@ -277,17 +257,14 @@ function wpcf7_user_related_smt( $output, $name, $html, $mail_tag = null ) {
 		return '';
 	}
 
+	$primary_props = array( 'user_login', 'user_email', 'user_url' );
+	$opt = ltrim( $name, '_' );
+	$opt = in_array( $opt, $primary_props, true ) ? $opt : substr( $opt, 5 );
+
 	$user = new WP_User( $user_id );
 
-	$prop_key = ltrim( $name, '_' );
-	$primary_props = array( 'user_login', 'user_email', 'user_url' );
-
-	if ( ! in_array( $prop_key, $primary_props, true ) ) {
-		$prop_key = substr( $prop_key, 5 );
-	}
-
-	if ( $user->has_prop( $prop_key ) ) {
-		return (string) $user->get( $prop_key );
+	if ( $user->has_prop( $opt ) ) {
+		return (string) $user->get( $opt );
 	}
 
 	return '';

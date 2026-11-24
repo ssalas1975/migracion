@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\State;
+namespace Rowbot\URL\State;
 
-use VendorPrefix\Rowbot\URL\ParserContext;
-use VendorPrefix\Rowbot\URL\ParserState;
+use Rowbot\URL\ParserContext;
+use Rowbot\URL\ParserState;
 
 /**
  * @see https://url.spec.whatwg.org/#file-slash-state

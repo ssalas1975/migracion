@@ -27,7 +27,6 @@ class Manager {
 
 	const ERROR_TEMPLATE_SOURCE_NOT_FOUND = 'Template source not found.';
 	const ERROR_TEMPLATE_IDS_MISSING = 'Template IDs are missing.';
-	const ERROR_JSON_UPLOAD_NOT_ALLOWED = 'Uploading JSON files is not allowed for this user.';
 
 	/**
 	 * Registered template sources.
@@ -601,10 +600,6 @@ class Manager {
 	 * @return mixed Whether the export succeeded or failed.
 	 */
 	public function import_template( array $data ) {
-		if ( ! User::is_current_user_can_upload_json() ) {
-			return new \WP_Error( 'template_error', self::ERROR_JSON_UPLOAD_NOT_ALLOWED );
-		}
-
 		// If the template is a JSON file, allow uploading it.
 		add_filter( 'elementor/files/allow-file-type/json', [ $this, 'enable_json_template_upload' ] );
 		add_filter( 'elementor/files/allow_unfiltered_upload', [ $this, 'enable_json_template_upload' ] );
@@ -684,15 +679,7 @@ class Manager {
 
 		$import_data = $document->get_import_data( [ 'content' => $elements ] );
 
-		$content = $document::on_import_update_dynamic_content(
-			$import_data['content'],
-			[ 'post_ids' => [] ]
-		);
-
-		return Plugin::$instance->db->iterate_data( $content, function( $element_data ) {
-			unset( $element_data['htmlCache'] );
-			return $element_data;
-		} );
+		return $import_data['content'];
 	}
 
 	public function process_global_styles( array $args ) {
@@ -824,7 +811,7 @@ class Manager {
 			return new \WP_Error( 'template_error', self::ERROR_TEMPLATE_SOURCE_NOT_FOUND );
 		}
 
-		return $source->get_items( $this->get_items_query_args( $args ) );
+		return $source->get_items( $args );
 	}
 
 	public function create_folder( array $args ) {
@@ -856,62 +843,9 @@ class Manager {
 			return new \WP_Error( 'template_error', 'Folder source not found.' );
 		}
 
-		$args = $this->get_items_query_args( $args );
 		$args['templateType'] = 'folder';
 
 		return $source->get_items( $args );
-	}
-
-	/**
-	 * Get items query args.
-	 *
-	 * Keep only the arguments the template library sends when listing items,
-	 * and normalize their values before handing them to a source.
-	 *
-	 * @param array $args Request arguments.
-	 *
-	 * @return array Allowed and normalized arguments.
-	 */
-	private function get_items_query_args( array $args ): array {
-		$allowed_keys = [ 'source', 'offset', 'search', 'parentId', 'orderby', 'order', 'limit' ];
-
-		$query_args = array_intersect_key( $args, array_flip( $allowed_keys ) );
-
-		foreach ( [ 'offset', 'limit' ] as $key ) {
-			if ( isset( $query_args[ $key ] ) ) {
-				$query_args[ $key ] = is_scalar( $query_args[ $key ] ) ? absint( $query_args[ $key ] ) : 0;
-			}
-		}
-
-		if ( isset( $query_args['parentId'] ) ) {
-			if ( is_scalar( $query_args['parentId'] ) && '' !== $query_args['parentId'] ) {
-				$query_args['parentId'] = absint( $query_args['parentId'] );
-			} else {
-				unset( $query_args['parentId'] );
-			}
-		}
-
-		if ( isset( $query_args['search'] ) ) {
-			$query_args['search'] = is_scalar( $query_args['search'] ) ? sanitize_text_field( (string) $query_args['search'] ) : '';
-		}
-
-		if ( isset( $query_args['orderby'] ) ) {
-			if ( is_scalar( $query_args['orderby'] ) ) {
-				$query_args['orderby'] = sanitize_text_field( (string) $query_args['orderby'] );
-			} else {
-				unset( $query_args['orderby'] );
-			}
-		}
-
-		if ( isset( $query_args['order'] ) ) {
-			if ( is_scalar( $query_args['order'] ) && '' !== $query_args['order'] ) {
-				$query_args['order'] = 'ASC' === strtoupper( (string) $query_args['order'] ) ? 'ASC' : 'DESC';
-			} else {
-				unset( $query_args['order'] );
-			}
-		}
-
-		return $query_args;
 	}
 
 	/**
@@ -955,10 +889,6 @@ class Manager {
 	 */
 	private function handle_ajax_request( $ajax_request, array $data ) {
 		if ( ! User::is_current_user_can_edit_post_type( Source_Local::CPT ) ) {
-			throw new \Exception( 'Access denied.' );
-		}
-
-		if ( 'import_template' === $ajax_request && ! User::is_current_user_can_upload_json() ) {
 			throw new \Exception( 'Access denied.' );
 		}
 

@@ -5,8 +5,23 @@ if( !function_exists( 'jevelin_shortcode_partners_css' ) ) :
 		$id = ( $id_rand ) ? $id_rand : $atts['id'];
 		$columns = ( isset( $atts['columns'] ) ) ? $atts['columns'] : '5';
 		$line = ( isset( $atts['line'] ) ) ? $atts['line'] : false;
+
+		$opacity = ( isset( $atts['opacity'] ) ) ? $atts['opacity'] : '';
+		$opacity_hover = ( isset( $atts['opacity_hover'] ) ) ? $atts['opacity_hover'] : '75';
 		ob_start(); ?>
 
+
+			<?php if( is_numeric( $opacity ) && $opacity <= 100 ) : ?>
+				#partners-<?php echo esc_attr( $id ); ?> img {
+					opacity: <?php echo esc_attr( $opacity / 100 ); ?>!important;
+				}
+			<?php endif; ?>
+
+			<?php if( is_numeric( $opacity_hover ) && $opacity_hover <= 100 ) : ?>
+				#partners-<?php echo esc_attr( $id ); ?> a img:hover {
+					opacity: <?php echo esc_attr( $opacity_hover / 100 ); ?>!important;
+				}
+			<?php endif; ?>
 
 			<?php if( $columns > 0 ) : ?>
 				#partners-<?php echo esc_attr( $id ); ?> .sh-partners-item {
@@ -19,6 +34,8 @@ if( !function_exists( 'jevelin_shortcode_partners_css' ) ) :
 							echo '33';
 						elseif( $columns == '4') :
 							echo '25';
+						elseif( $columns == '6') :
+							echo '16.6666666667';
 						else :
 							echo '20';
 						endif;

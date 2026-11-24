@@ -3,7 +3,7 @@
 /* Column HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 
 	$animated = ( isset( $atts['animation'] ) && $atts['animation'] != 'none' ) ? ' sh-animated '. $atts['animation'] : '';
 	$animated_delay = ( $animated && $atts['animation_delay'] ) ? 'data-wow-delay="'. $atts['animation_delay'] .'s"' : '';
@@ -17,7 +17,7 @@ if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
 
 	$padding_mobile = ( isset( $atts['padding_mobile']['padding_mobile'] ) ) ? $atts['padding_mobile']['padding_mobile'] : '';
 	$padding_mobile_atts = jevelin_get_picker( $atts['padding_mobile'] );
-	if( $padding_mobile_atts['padding'] ) :
+	if( !empty( $padding_mobile_atts['padding'] ) ) :
 		$class.= ' sh-column-mobile-padding';
 	endif;
 
@@ -71,4 +71,14 @@ if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
 	<div class="sh-column-wrapper">
 		<?php echo do_shortcode($content); ?>
 	</div>
+
+
+	<?php /* Preload background image on hover */ ?>
+	<?php if( jevelin_get_image( $atts['background_image_hover'] ) ) : ?>
+		<div class="preload">
+			<img src="<?php echo esc_url( jevelin_get_image( $atts['background_image_hover'] ) ); ?>" />
+		</div>
+	<?php endif; ?>
+
+
 </div>

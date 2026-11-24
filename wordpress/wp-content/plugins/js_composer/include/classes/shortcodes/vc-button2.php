@@ -4,19 +4,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPBakery WPBakery Page Builder shortcodes
+ * WPBakery Visual Composer shortcodes
  *
- * @package WPBakeryPageBuilder
+ * @package WPBakeryVisualComposer
  *
  */
-class WPBakeryShortCode_Vc_Button2 extends WPBakeryShortCode {
-	/**
-	 * @param $title
-	 * @return string
-	 */
+class WPBakeryShortCode_VC_Button2 extends WPBakeryShortCode {
 	protected function outputTitle( $title ) {
 		$icon = $this->settings( 'icon' );
 
-		return '<h4 class="wpb_element_title"><span class="vc_general vc_element-icon' . ( ! empty( $icon ) ? ' ' . esc_attr( $icon ) : '' ) . '"></span></h4>';
+		return '<h4 class="wpb_element_title"><span class="vc_general vc_element-icon' . ( ! empty( $icon ) ? ' ' . $icon : '' ) . '"></span></h4>';
 	}
 }

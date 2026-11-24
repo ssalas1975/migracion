@@ -12,20 +12,6 @@ use Yoast\WP\SEO\Schema_Aggregator\Infrastructure\Schema_Map\Schema_Map_Config;
 class Schema_Map_Xml_Renderer {
 
 	/**
-	 * The namespace of the Schema Feeds specification.
-	 *
-	 * @var string
-	 */
-	private const SCHEMA_FEEDS_NAMESPACE = 'http://schema.org/schemas/schemafeed/0.1';
-
-	/**
-	 * The content type of the schema feeds.
-	 *
-	 * @var string
-	 */
-	private const CONTENT_TYPE = 'structuredData/schema.org';
-
-	/**
 	 * The schema map configuration.
 	 *
 	 * @var Schema_Map_Config
@@ -55,7 +41,6 @@ class Schema_Map_Xml_Renderer {
 
 		$url_set = $dom->createElement( 'urlset' );
 		$url_set->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
-		$url_set->setAttributeNS( 'http://www.w3.org/2000/xmlns/', 'xmlns:sf', self::SCHEMA_FEEDS_NAMESPACE );
 		$dom->appendChild( $url_set );
 
 		$change_freq = $this->config->get_changefreq();
@@ -67,9 +52,8 @@ class Schema_Map_Xml_Renderer {
 			}
 
 			$url = $dom->createElement( 'url' );
-			$url_set->appendChild( $url );
 
-			$url->setAttribute( 'contentType', self::CONTENT_TYPE );
+			$url->setAttribute( 'contentType', 'structuredData/schema.org' );
 
 			$loc = $dom->createElement( 'loc' );
 			$loc->appendChild( $dom->createTextNode( $entry['url'] ) );
@@ -87,9 +71,7 @@ class Schema_Map_Xml_Renderer {
 			$prio->appendChild( $dom->createTextNode( $priority ) );
 			$url->appendChild( $prio );
 
-			$content_type = $dom->createElementNS( self::SCHEMA_FEEDS_NAMESPACE, 'sf:contentType' );
-			$content_type->appendChild( $dom->createTextNode( self::CONTENT_TYPE ) );
-			$url->appendChild( $content_type );
+			$url_set->appendChild( $url );
 		}
 
 		$xml = $dom->saveXML();

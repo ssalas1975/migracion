@@ -1,4 +1,4 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if (!defined( 'FW' ) && !function_exists( 'jevelin_framework' )) die('Forbidden.');
 
 /** @internal */
 function jevelin_filter_disable_shortcodes($to_disable)

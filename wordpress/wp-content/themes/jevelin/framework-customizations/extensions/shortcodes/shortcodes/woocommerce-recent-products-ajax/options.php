@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -31,11 +31,11 @@ $options = array(
 	'pagination_type' => array(
 		'type'  => 'radio',
 		'value' => 'button',
-		'label' => esc_html__( 'Pagination Type', 'gillion' ),
-		'desc'  => esc_html__( 'Choose pagination type', 'gillion' ),
+		'label' => esc_html__( 'Pagination Type', 'jevelin' ),
+		'desc'  => esc_html__( 'Choose pagination type', 'jevelin' ),
 		'choices' => array(
-			'button' => esc_html__( 'Load More button (on click)', 'gillion' ),
-			'infinite' => esc_html__( 'Infinite loading (on scroll)', 'gillion' ),
+			'button' => esc_html__( 'Load More button (on click)', 'jevelin' ),
+			'infinite' => esc_html__( 'Infinite loading (on scroll)', 'jevelin' ),
 		),
 		'inline' => false,
 	),

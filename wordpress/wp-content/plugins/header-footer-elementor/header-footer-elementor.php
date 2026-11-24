@@ -7,14 +7,14 @@
  * Author URI:  https://www.brainstormforce.com/
  * Text Domain: header-footer-elementor
  * Domain Path: /languages
- * Version: 2.9.8
- * Elementor tested up to: 4.4
- * Elementor Pro tested up to: 4.4
+ * Version: 2.8.7
+ * Elementor tested up to: 4.0
+ * Elementor Pro tested up to: 4.0
  *
  * @package         header-footer-elementor
  */
 
-define( 'HFE_VER', '2.9.8' );
+define( 'HFE_VER', '2.8.7' );
 define( 'HFE_FILE', __FILE__ );
 define( 'HFE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HFE_URL', plugins_url( '/', __FILE__ ) );
@@ -28,17 +28,6 @@ define( 'UAE_LITE', true );
 require_once HFE_DIR . '/inc/class-header-footer-elementor.php';
 
 /**
- * Abilities API integration (WP 6.9+).
- *
- * Loaded immediately so the loader's add_action() hooks are in place before
- * the lazy WP_Abilities_Registry singleton fires wp_abilities_api_init.
- * Independent of Elementor so MCP discovery works in CLI context.
- */
-if ( function_exists( 'wp_register_ability' ) ) {
-	require_once HFE_DIR . 'inc/abilities/class-hfe-abilities-loader.php';
-}
-
-/**
  * Load the Plugin Class.
  *
  * @return void
@@ -47,15 +36,11 @@ function hfe_plugin_activation() {
 	update_option( 'uae_lite_is_activated', 'yes' );
 	update_option( 'hfe_start_onboarding', true );
 
-	/*
-	 * The `plugin_activated` event is intentionally NOT tracked here.
-	 *
-	 * Starter Templates (astra-sites) writes `bsf_product_referers` AFTER the
-	 * plugin is activated, so reading the referer inside the activation hook
-	 * records the source as `self` instead of the real installer. It is now
-	 * tracked on a deferred, throttled admin-load pass in HFE_Analytics
-	 * (inc/class-hfe-analytics.php) once the referer option is populated.
-	 */
+	// Track plugin activation event.
+	require_once HFE_DIR . 'inc/class-hfe-analytics-events.php';
+	$bsf_referrers = get_option( 'bsf_product_referers', [] );
+	$source        = ! empty( $bsf_referrers['header-footer-elementor'] ) ? $bsf_referrers['header-footer-elementor'] : 'self';
+	HFE_Analytics_Events::track( 'plugin_activated', HFE_VER, [ 'source' => $source ] );
 }
 
 register_activation_hook( HFE_FILE, 'hfe_plugin_activation' );

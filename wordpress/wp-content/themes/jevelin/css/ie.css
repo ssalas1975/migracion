@@ -1,5 +1,10 @@
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
 
+    /* Image Points */
+    .sh-image-points {
+        display: block;
+    }
+
     /* Blog Overlay */
 	.sh-overlay-style1 {
 		display: flex;
@@ -40,4 +45,12 @@
         margin-top: 40px;
     }
 
+}
+
+
+/* Column */
+@media (min-width: 800px) and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    .section-justify-height:not(.section-justify-height-only) .sh-column .sh-column-wrapper {
+        overflow: hidden;
+    }
 }

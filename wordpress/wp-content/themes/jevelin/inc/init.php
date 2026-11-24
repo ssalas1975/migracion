@@ -35,6 +35,7 @@ class Jevelin_Theme_Includes
 		 * Both frontend and backend
 		 */
 		{
+			$migration_page = ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] == 'shufflehound_unyson_to_redux' ) ? true : false;
 			/* Load when doing AJAX */
 			if( defined('DOING_AJAX') && DOING_AJAX ) :
 				self::include_child_first('/ajax.php');
@@ -42,16 +43,45 @@ class Jevelin_Theme_Includes
 
 
 			/* Basic loading */
+			self::include_child_first('/plugins/redux/framework.php');
+			self::include_child_first('/plugins/redux/migration.php');
 			self::include_child_first('/helpers.php');
 			self::include_child_first('/hooks.php');
-			self::include_child_first('/icons.php');
+			self::include_child_first('/plugins/amp/amp.php');
+			self::include_child_first('/schema.php');
+
+
+			// Load unyson
+			if( defined( 'FW' ) && jevelin_framework() == 'unyson' ) :
+				self::include_child_first('/plugins/unyson/unyson.php');
+				if( is_admin() ) :
+					self::include_child_first('/plugins/unyson/unyson-demos.php');
+					self::include_child_first('/plugins/unyson/unyson-icons.php');
+				endif;
+			endif;
+
+
+			// Load redux
+			if( in_array( jevelin_framework(), [ 'redux', 'both' ] ) || $migration_page ) :
+				self::include_child_first('/plugins/redux/redux.php');
+			endif;
+
+
+			// Metaboxes
+			if( !defined( 'FW' ) || in_array( jevelin_framework(), [ 'redux', 'both' ] ) || $migration_page ) :
+				if( in_array( jevelin_framework(), [ 'redux', 'both' ] ) || $migration_page ) :
+					self::include_child_first('/plugins/metaboxes/metaboxes-options.php');
+				endif;
+
+				self::include_child_first('/plugins/metaboxes/metaboxes.php');
+			endif;
 
 
 			/* Load when in administration panel */
 			if( is_admin() ) :
-			self::include_child_first('/core/start.php');
-				self::include_child_first('/demos-unyson.php');
-				self::include_child_first('/install-plugins.php');
+				self::include_child_first('/admin.php');
+				self::include_child_first('/core/start.php');
+				self::include_child_first('/plugins/tgmpa/install-plugins.php');
 
 				/* Include OCDI functions only if plugin activated and PHP version meets min requirments to avoid fatal errors */
 				$phpversion = phpversion();
@@ -61,9 +91,12 @@ class Jevelin_Theme_Includes
 			endif;
 
 
-			/* Load VC */
+			/* Load WPBakery */
 			if( defined( 'WPB_VC_VERSION' ) ) :
-				self::include_child_first('/vc.php');
+				self::include_child_first('/plugins/wpbakery/wpbakery.php');
+				self::include_child_first('/plugins/wpbakery/wpbakery-sections.php');
+				self::include_child_first('/plugins/wpbakery/wpbakery-templates-content.php');
+				self::include_child_first('/plugins/wpbakery/wpbakery-templates.php');
 			endif;
 
 
@@ -183,9 +216,9 @@ class Jevelin_Theme_Includes
 		{
 			$paths = array();
 
-			if (is_child_theme()) {
+			if( is_child_theme() ) :
 				$paths[] = self::get_child_path('/widgets');
-			}
+			endif;
 
 			$paths[] = self::get_parent_path('/widgets');
 		}

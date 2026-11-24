@@ -5,8 +5,6 @@
  * @link https://contactform7.com/stripe-integration/
  */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
 wpcf7_include_module_file( 'stripe/service.php' );
 wpcf7_include_module_file( 'stripe/api.php' );
 
@@ -114,41 +112,37 @@ function wpcf7_stripe_skip_spam_check( $skip_spam_check, $submission ) {
 		return $skip_spam_check;
 	}
 
-	$pi_id = wpcf7_superglobal_post( '_wpcf7_stripe_payment_intent' );
+	$pi_id = (string) wpcf7_superglobal_post( '_wpcf7_stripe_payment_intent' );
 
-	if (
-		$pi_id and
-		$payment_intent = $service->api()->retrieve_payment_intent( $pi_id )
-	) {
-		$metadata = $payment_intent['metadata'] ?? array();
-		$status = $payment_intent['status'] ?? '';
-
-		$pi_params_hash = wpcf7_stripe_pi_params_hash( $submission );
+	if ( $pi_id ) {
+		$payment_intent = $service->api()->retrieve_payment_intent( $pi_id );
 
 		if (
-			isset( $metadata['wpcf7_pending'] ) and
-			! isset( $metadata['wpcf7_complete'] ) and
-			'succeeded' === $status
+			isset( $payment_intent['metadata']['wpcf7_submission_timestamp'] )
+		) {
+			// This PI has already been used. Ignore.
+			return $skip_spam_check;
+		}
+
+		if (
+			isset( $payment_intent['status'] ) and
+			'succeeded' === $payment_intent['status']
 		) {
 			$submission->push( 'payment_intent', $pi_id );
 
-			if ( ! isset( $metadata['wpcf7_fulfilled'] ) ) {
-				$metadata = array_merge( $metadata, array(
-					'wpcf7_fulfilled' => $pi_params_hash,
-				) );
-
-				$service->api()->update_payment_intent( $pi_id, array(
-					'metadata' => $metadata,
-				) );
-			}
-
-			if (
-				$submission->verify_posted_data_hash() and
-				hash_equals( $metadata['wpcf7_fulfilled'], $pi_params_hash )
-			) {
-				return true; // Posted data unchanged. Skip spam check.
-			}
+			$service->api()->update_payment_intent( $pi_id, array(
+				'metadata' => array_merge( $payment_intent['metadata'], array(
+					'wpcf7_submission_timestamp' => $submission->get_meta( 'timestamp' ),
+				) ),
+			) );
 		}
+	}
+
+	if (
+		! empty( $submission->pull( 'payment_intent' ) ) and
+		$submission->verify_posted_data_hash()
+	) {
+		$skip_spam_check = true;
 	}
 
 	return $skip_spam_check;
@@ -165,44 +159,34 @@ add_filter(
  * Verifies submitted Stripe Payment Intent ID.
  */
 function wpcf7_stripe_verify_payment_intent( $spam, $submission ) {
-	if ( $spam ) {
-		return $spam;
-	}
-
 	$service = WPCF7_Stripe::get_instance();
 
 	if ( ! $service->is_active() ) {
 		return $spam;
 	}
 
-	$pi_id = wpcf7_superglobal_post( '_wpcf7_stripe_payment_intent' );
+	$pi_id = (string) wpcf7_superglobal_post( '_wpcf7_stripe_payment_intent' );
 
-	if ( ! $pi_id ) {
-		return $spam;
-	}
-
-	$payment_intent = $service->api()->retrieve_payment_intent( $pi_id );
-
-	if ( $payment_intent ) {
-		$metadata = $payment_intent['metadata'] ?? array();
-		$pi_params_hash = wpcf7_stripe_pi_params_hash( $submission );
+	if ( $pi_id ) {
+		$payment_intent = $service->api()->retrieve_payment_intent( $pi_id );
 
 		if (
-			isset( $metadata['wpcf7_fulfilled'] ) and
-			! isset( $metadata['wpcf7_complete'] ) and
-			hash_equals( $metadata['wpcf7_fulfilled'], $pi_params_hash )
+			! $payment_intent or
+			isset( $payment_intent['metadata']['wpcf7_submission_timestamp'] )
 		) {
-			return $spam;
+			$spam = true;
+
+			$submission->add_spam_log( array(
+				'agent' => 'stripe',
+				'reason' => __(
+					'Invalid Stripe Payment Intent ID detected.',
+					'contact-form-7'
+				),
+			) );
 		}
 	}
 
-	// No PI exists or refers to the wrong PI.
-	$submission->add_spam_log( array(
-		'agent' => 'stripe',
-		'reason' => __( 'Invalid Stripe Payment Intent ID detected.', 'contact-form-7' ),
-	) );
-
-	return true;
+	return $spam;
 }
 
 
@@ -222,114 +206,51 @@ function wpcf7_stripe_before_send_mail( $contact_form, &$abort, $submission ) {
 		return;
 	}
 
-	$pi_id = $submission->pull( 'payment_intent' );
-
-	if ( $pi_id ) {
-		$payment_intent = $service->api()->retrieve_payment_intent( $pi_id );
-
-		$metadata = array_merge(
-			$payment_intent['metadata'] ?? array(),
-			array(
-				'wpcf7_complete' => wpcf7_stripe_pi_params_hash( $submission ),
-			)
-		);
-
-		$service->api()->update_payment_intent( $pi_id, array(
-			'metadata' => $metadata,
-		) );
-
-		return;
-	} else {
-		$pi_params = wpcf7_stripe_get_pi_params( $submission );
-
-		if ( ! isset( $pi_params ) ) { // No [stripe] form-tag found.
-			return;
-		}
-
-		$metadata = array_merge(
-			$pi_params['metadata'] ?? array(),
-			array(
-				'wpcf7_pending' => wpcf7_stripe_pi_params_hash( $submission ),
-			)
-		);
-
-		$payment_intent = $service->api()->create_payment_intent(
-			array_merge( $pi_params, array( 'metadata' => $metadata ) )
-		);
-
-		if ( $payment_intent ) {
-			$submission->add_result_props( array(
-				'stripe' => array(
-					'payment_intent' => array(
-						'id' => $payment_intent['id'],
-						'client_secret' => $payment_intent['client_secret'],
-					),
-				),
-			) );
-
-			$submission->set_status( 'payment_required' );
-
-			$submission->set_response(
-				__( 'Payment is required. Please pay by credit card.', 'contact-form-7' )
-			);
-		}
-
-		$abort = true;
-	}
-}
-
-
-/**
- * Returns Payment Intent parameters.
- *
- * @param WPCF7_Submission $submission Submission object.
- * @return array|null Payment Intent parameters.
- *                    Null if no [stripe] form-tag found.
- */
-function wpcf7_stripe_get_pi_params( $submission ) {
-	$contact_form = $submission->get_contact_form();
 	$tags = $contact_form->scan_form_tags( array( 'type' => 'stripe' ) );
 
 	if ( ! $tags ) {
-		return null;
+		return;
+	}
+
+	if ( ! empty( $submission->pull( 'payment_intent' ) ) ) {
+		return;
 	}
 
 	$tag = $tags[0];
 	$amount = $tag->get_option( 'amount', 'int', true );
 	$currency = $tag->get_option( 'currency', '[a-zA-Z]{3}', true );
 
-	$pi_params = array(
-		'amount' => $amount ? absint( $amount ) : null,
-		'currency' => $currency ? strtolower( $currency ) : null,
-		'receipt_email' => $submission->get_posted_data( 'your-email' ),
-	);
-
-	$pi_params = apply_filters(
+	$payment_intent_params = apply_filters(
 		'wpcf7_stripe_payment_intent_parameters',
-		$pi_params
-	);
-
-	return (array) $pi_params;
-}
-
-
-/**
- * Returns the hash of Payment Intent parameters plus some submission metadata.
- */
-function wpcf7_stripe_pi_params_hash( $submission, $length = 7 ) {
-	$params = array_merge(
-		wpcf7_stripe_get_pi_params( $submission ) ?? array(),
 		array(
-			'unit_tag' => $submission->get_meta( 'unit_tag' ),
-			'remote_ip' => $submission->get_meta( 'remote_ip' ),
+			'amount' => $amount ? absint( $amount ) : null,
+			'currency' => $currency ? strtolower( $currency ) : null,
+			'receipt_email' => $submission->get_posted_data( 'your-email' ),
 		)
 	);
 
-	ksort( $params );
+	$payment_intent = $service->api()->create_payment_intent(
+		$payment_intent_params
+	);
 
-	$hash = wp_hash( wp_json_encode( $params ), 'wpcf7_stripe' );
+	if ( $payment_intent ) {
+		$submission->add_result_props( array(
+			'stripe' => array(
+				'payment_intent' => array(
+					'id' => $payment_intent['id'],
+					'client_secret' => $payment_intent['client_secret'],
+				),
+			),
+		) );
 
-	return substr( $hash, 0, absint( $length ) );
+		$submission->set_status( 'payment_required' );
+
+		$submission->set_response(
+			__( 'Payment is required. Please pay by credit card.', 'contact-form-7' )
+		);
+	}
+
+	$abort = true;
 }
 
 

@@ -5,6 +5,237 @@ if ( ! defined( 'ABSPATH' ) ) { die( 'Direct access forbidden.' ); }
  */
 
 
+
+/**
+* Fix Unyson Portfolio Categories Not Showing
+*/
+if( !function_exists( 'jevelin_is_wpbakery_frontend_disabled' ) ) :
+    function jevelin_is_wpbakery_frontend_disabled() {
+        return function_exists( 'vc_is_inline' ) && vc_is_inline() ? false : true;
+    }
+endif;
+
+
+/**
+* Fix Unyson Portfolio Categories Not Showing
+*/
+if( !function_exists( 'jevelin_fix_unyson_portfolio_categories_in_block_editor' ) ) :
+   function jevelin_fix_unyson_portfolio_categories_in_block_editor() {
+       $args = get_taxonomy( 'fw-portfolio-category' );
+       if( is_object( $args ) ) :
+           $args->show_in_rest = true;
+       endif;
+       register_taxonomy( 'fw-portfolio-category', 'fw-portfolio', (array) $args );
+   }
+   add_action( 'rest_api_init', 'jevelin_fix_unyson_portfolio_categories_in_block_editor', 11 );
+endif;
+
+
+ /**
+ * Element Inline Option
+ */
+if ( ! function_exists( 'jevelin_element_lazy_option' ) ) :
+    function jevelin_element_lazy_option( $atts ) {
+        if( !isset( $atts['lazy'] ) || ( isset( $atts['lazy'] ) && $atts['lazy'] == 'default' ) ) :
+        	$lazy = ( jevelin_option('lazy_loading') == 'enabled' ) ? 1 : 0;
+        else :
+        	$lazy = ( isset( $atts['lazy'] ) && $atts['lazy'] == 'enabled' ) ? 1 : 0;
+        endif;
+
+        return $lazy;
+    }
+endif;
+
+
+/**
+* Element Inline Option
+*/
+if ( ! function_exists( 'jevelin_element_inline_option' ) ) :
+    function jevelin_element_inline_option() {
+        return array(
+            'label' => esc_html__('Inline Element', 'jevelin'),
+            'desc'  => esc_html__('Enable for multiple elements to add them in one line Doesnt work in WPbakery page builder front-end mode', 'jevelin'),
+            'type'  => 'radio',
+            'value' => 'disabled',
+            'choices' => array(
+                'disabled' => esc_html__( 'Disabled', 'jevelin' ),
+                'enabled' => esc_html__( 'Enabled', 'jevelin' ),
+            )
+        );
+    }
+endif;
+
+
+/**
+* Element Margin Option
+*/
+if ( ! function_exists( 'jevelin_element_margin_option' ) ) :
+    function jevelin_element_margin_option() {
+        return array(
+            'label' => esc_html__( 'Margin', 'jevelin' ),
+            'desc'  => wp_kses( __( 'Enter your custom margin (<b>top right bottom left</b>)', 'jevelin' ), jevelin_allowed_html() ),
+            'type'  => 'text',
+            'value' => '0px 0px 15px 0px',
+            'help'  => esc_html__( 'Example: 0px 0px 15px 0px', 'jevelin' ),
+        );
+    }
+endif;
+
+
+
+/**
+* Element Margin Option
+*/
+if ( ! function_exists( 'jevelin_wpcf7_form_elements' ) ) :
+    add_filter( 'wpcf7_form_elements', 'jevelin_wpcf7_form_elements' );
+
+    function jevelin_wpcf7_form_elements( $form ) {
+        return '<div class="sh-cf7-body">'.$form.'</div>';
+    }
+endif;
+
+
+
+/**
+ * Check If Gutenberg is being used
+*/
+if ( ! function_exists( 'jevelin_is_gutenberg_page' ) ) :
+    function jevelin_is_gutenberg_page() {
+        if ( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) {
+            // The Gutenberg plugin is on.
+            return true;
+        }
+
+        if( function_exists( 'get_current_screen' ) ) :
+            $current_screen = get_current_screen();
+            if ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() ) :
+                // Gutenberg page on 5+.
+                return true;
+            endif;
+        endif;
+
+        return false;
+    }
+endif;
+
+
+/**
+* If is URL
+*/
+function jevelin_is_url( $url = '' ) {
+    if( $url && !is_array( $url ) ) :
+        if( esc_url_raw( $url ) === $url ) :
+            return true;
+        endif;
+    endif;
+
+    return false;
+}
+
+
+/**
+ * Load header items
+ */
+function jevelin_get_headers() {
+    $header_layout_choices = array(
+    	'1' => esc_html__( 'Header 1', 'jevelin' ),
+    	'2' => esc_html__( 'Header 2', 'jevelin' ),
+    	'3' => esc_html__( 'Header 3', 'jevelin' ),
+    	'4' => esc_html__( 'Header 4', 'jevelin' ),
+    	'5' => esc_html__( 'Header 5', 'jevelin' ),
+    	'6' => esc_html__( 'Header 6 (side navigation)', 'jevelin' ),
+        '61' => esc_html__( 'Header 6 Clean (side navigation)', 'jevelin' ),
+    	'7' => esc_html__( 'Header 7 (side navigation)', 'jevelin' ),
+    	'8' => esc_html__( 'Header 8', 'jevelin' ),
+    	'9' => esc_html__( 'Header 9', 'jevelin' ),
+    	'10' => esc_html__( 'Header 10', 'jevelin' ),
+    	'left-1' => esc_html__( 'Left Header 11', 'jevelin' ),
+    	'left-2' => esc_html__( 'Left Header 12', 'jevelin' ),
+    );
+
+    global $post;
+    $post2 = $post;
+    $headers = new WP_Query( array(
+        'post_type' => 'shufflehound_header',
+        'post_status' => 'publish',
+        'posts_per_page' => 20
+    ));
+    if( $headers->have_posts() ) :
+        while( $headers->have_posts() ) : $headers->the_post();
+
+		    $header_id = 'header-'.get_the_ID();
+            $header_layout_choices[ $header_id ] = html_entity_decode( get_the_title() ).' (from WPbakery page builder)';
+
+        endwhile;
+    endif;
+
+    wp_reset_postdata();
+    $post = $post2;
+    return $header_layout_choices;
+}
+
+
+/**
+ * Load footer items
+ */
+function jevelin_get_footers() {
+    $layout_choices = array(
+    	'default' => esc_html__( 'Default (from theme settings)', 'jevelin' ),
+    );
+
+    global $post;
+    $post2 = $post;
+    $footers = new WP_Query( array(
+        'post_type' => 'shufflehound_footer',
+        'post_status' => 'publish',
+        'posts_per_page' => 20
+    ));
+    if( $footers->have_posts() ) :
+        while( $footers->have_posts() ) : $footers->the_post();
+
+    		$footer_id = get_the_ID();
+            $layout_choices[ $footer_id ] = get_the_title().' (from WPbakery page builder)';
+
+        endwhile;
+    endif;
+
+    wp_reset_postdata();
+    $post = $post2;
+    return $layout_choices;
+}
+
+
+/**
+ * Load page items
+ */
+function jevelin_get_pages() {
+    $layout_choices = array(
+    	'disabled' => esc_html__( 'Disabled', 'jevelin' ),
+    );
+
+    global $post;
+    $post2 = $post;
+    $footers = new WP_Query( array(
+        'post_type' => 'page',
+        'post_status' => 'publish',
+        'posts_per_page' => -1
+    ));
+    if( $footers->have_posts() ) :
+        while( $footers->have_posts() ) : $footers->the_post();
+
+    		$footer_id = get_the_ID();
+            $layout_choices[ $footer_id ] = get_the_title();
+
+        endwhile;
+    endif;
+
+    wp_reset_postdata();
+    $post = $post2;
+    return $layout_choices;
+}
+
+
+
  /**
   * Create Custom Random Function
   */
@@ -89,7 +320,7 @@ function jevelin_page_id() {
 endif;
 
 
-/* Load image ratio */
+/* Load image ratio - By Post ID */
 if ( ! function_exists( 'jevelin_image_ratio' ) ) :
 	function jevelin_image_ratio( $id = '', $size = '', $ratio = '') {
         $load_ratio = '';
@@ -106,76 +337,164 @@ if ( ! function_exists( 'jevelin_image_ratio' ) ) :
 	}
 endif;
 
+
+/* Load image ratio - By Thumbnail ID */
+if ( ! function_exists( 'jevelin_image_ratio_by_thumbnail' ) ) :
+	function jevelin_image_ratio_by_thumbnail( $id = '', $size = '', $ratio = '') {
+        $load_ratio = '';
+        if( $ratio == '') :
+            $load_ratio = ' sh-ratio-container-square';
+        elseif( $ratio == 'landscape') :
+            $load_ratio = '';
+        endif;
+
+        return '
+        <div class="sh-ratio">
+            <div class="sh-ratio-container'.$load_ratio.'">
+                <div class="sh-ratio-content" style="background-image: url('. jevelin_get_small_thumb( $id, $size ) .');"></div>
+            </div>
+        </div>';
+	}
+endif;
+
+
+/**
+ * Get post options
+ */
+if ( ! function_exists( 'jevelin_post_option' ) ) :
+    function jevelin_post_option( $id = NULL, $name = NULL, $default = NULL) {
+        if( jevelin_framework() == 'redux' && $id > 0 && $name ) :
+
+            if( empty( $id ) ) :
+                $id = get_queried_object_id();
+            endif;
+
+            // Get value
+            GLOBAL $jevelin_post_options;
+            if( empty( $jevelin_post_options[$id] ) ) :
+                $meta_values = get_post_meta( $id );
+                $jevelin_post_options[$id] = $meta_values;
+            endif;
+
+            if( !empty( $jevelin_post_options[$id][$name][0] ) ) :
+                return maybe_unserialize( $jevelin_post_options[$id][$name][0] );
+            endif;
+
+            // Get default field value
+            GLOBAL $jevelin_post_fields;
+            $post_type = get_post_type( $id );
+            if( !isset( $jevelin_post_fields[$post_type] ) ) :
+                $jevelin_post_fields[$post_type] = Shufflehound_Metaboxes::save_fields( $post_type );
+            endif;
+
+            if( !empty( $jevelin_post_fields[$post_type][$name] ) ) :
+                return $jevelin_post_fields[$post_type][$name];
+            endif;
+
+        elseif( jevelin_framework() == 'unyson' && function_exists( 'fw_get_db_post_option' ) ) :
+            return fw_get_db_post_option( $id, $name, $default );
+        endif;
+
+        if( $default ) :
+            return $default;
+        endif;
+    }
+endif;
+
+
 /**
  * Get theme options
  */
-
-if ( ! function_exists( 'jevelin_option' ) ) :
-    if ( is_customize_preview() ) {
-
-    	function jevelin_option( $id = NULL, $default = NULL) {
-
-            if( function_exists('fw_get_db_settings_option') ) :
-
-                global $wp_customize;
-                $customizer_option = fw_get_db_customizer_option($id);
-                return fw_get_db_customizer_option($id);
-
-
-            elseif( !empty( $default ) ) :
-                return $default;
-            else :
-                return false;
-            endif;
-
-    	}
-
-    } else {
+if( !function_exists( 'jevelin_option' ) ) :
+    if( function_exists( 'jevelin_framework' ) && jevelin_framework() == 'redux' ) :
 
         function jevelin_option( $id = NULL, $default = NULL) {
-
-            if( function_exists('fw_get_db_settings_option') ) :
-
-                if( in_array( $id, array( 'accent_color', 'accent_hover_color', 'header_nav_active_color', 'footer_hover_color') ) ) :
-
-                    if( $id == 'accent_color' && jevelin_post_option( jevelin_page_id(), 'accent_color' ) ) :
-                        return jevelin_post_option( jevelin_page_id(), 'accent_color' );
-                    elseif( $id == 'accent_hover_color' && jevelin_post_option( jevelin_page_id(), 'accent_hover_color' ) ) :
-                        return jevelin_post_option( jevelin_page_id(), 'accent_hover_color' );
-                    elseif( $id == 'header_nav_active_color' && jevelin_post_option( jevelin_page_id(), 'header_nav_active_color' ) ) :
-                        return jevelin_post_option( jevelin_page_id(), 'header_nav_active_color' );
-                    elseif( $id == 'footer_hover_color' && jevelin_post_option( jevelin_page_id(), 'footer_hover_color' ) ) :
-                        return jevelin_post_option( jevelin_page_id(), 'footer_hover_color' );
+            if( $id ) :
+                GLOBAL $jevelin_options;
+                if( isset( $jevelin_options[$id] ) ) :
+                    if( isset( $jevelin_options[$id]['rgba'] ) ) :
+                        return $jevelin_options[$id]['rgba'];
+                    elseif( isset( $jevelin_options[$id]['color'] ) ) :
+                        return $jevelin_options[$id]['color'];
                     else :
-                        return fw_get_db_settings_option($id);
+                        return $jevelin_options[$id];
                     endif;
-
-                else :
-
-                    $option = fw_get_db_settings_option( $id );
-                    if( !empty( $option ) ) :
-                        return $option;
-                    elseif( $option === false ) :
-                        return $option;
-                    elseif( !empty( $default ) ) :
-                        return $default;
-                    elseif( $default === false ) :
-                        return $default;
-                    else :
-                        return false;
-                    endif;
-
                 endif;
-
-            elseif( !empty( $default ) ) :
-                return $default;
-            else :
-                return false;
             endif;
 
+            if( $default ) :
+                return $default;
+            endif;
         }
 
-    }
+    else :
+
+        if ( is_customize_preview() ) {
+
+        	function jevelin_option( $id = NULL, $default = NULL) {
+
+                if( function_exists('fw_get_db_settings_option') ) :
+
+                    global $wp_customize;
+                    $customizer_option = fw_get_db_customizer_option($id);
+                    return fw_get_db_customizer_option($id);
+
+                elseif( !empty( $default ) ) :
+                    return $default;
+                else :
+                    return false;
+                endif;
+
+        	}
+
+        } else {
+
+            function jevelin_option( $id = NULL, $default = NULL) {
+
+                if( $id == 'lazy' && function_exists('shufflehound_lazy_loading_enabled_all_sites') ) :
+                    return 1;
+                endif;
+
+                if( function_exists('fw_get_db_settings_option') ) :
+
+                    if( in_array( $id, array( 'accent_color', 'accent_hover_color', 'header_nav_active_color', 'footer_hover_color') ) ) :
+
+                        if( $id == 'accent_color' && jevelin_post_option( jevelin_page_id(), 'accent_color' ) ) :
+                            return jevelin_post_option( jevelin_page_id(), 'accent_color' );
+                        elseif( $id == 'accent_hover_color' && jevelin_post_option( jevelin_page_id(), 'accent_hover_color' ) ) :
+                            return jevelin_post_option( jevelin_page_id(), 'accent_hover_color' );
+                        elseif( $id == 'header_nav_active_color' && jevelin_post_option( jevelin_page_id(), 'header_nav_active_color' ) ) :
+                            return jevelin_post_option( jevelin_page_id(), 'header_nav_active_color' );
+                        elseif( $id == 'footer_hover_color' && jevelin_post_option( jevelin_page_id(), 'footer_hover_color' ) ) :
+                            return jevelin_post_option( jevelin_page_id(), 'footer_hover_color' );
+                        else :
+                            return fw_get_db_settings_option($id);
+                        endif;
+
+                    else :
+
+                        $option = fw_get_db_settings_option( $id );
+
+                        if( !empty( $option ) || $option === false ) :
+                            return $option;
+                        elseif( !empty( $default ) || $default === false ) :
+                            return $default;
+                        else :
+                            return false;
+                        endif;
+
+                    endif;
+
+                elseif( !empty( $default ) ) :
+                    return $default;
+                else :
+                    return false;
+                endif;
+
+            }
+
+        }
+    endif;
 endif;
 
 
@@ -185,10 +504,12 @@ endif;
 if ( ! function_exists( 'jevelin_option_value' ) ) :
     function jevelin_option_value( $id = NULL, $key = NULL ) {
 
-        if( $id && $key && function_exists('fw_get_db_settings_option') ) :
+        if( $id && $key && jevelin_framework_active() ) :
             $val = jevelin_option( $id );
             if( isset( $val[$key] ) ) :
                 return esc_attr( $val[$key] );
+            elseif( $default ) :
+                return esc_attr( $default );
             endif;
         else :
             return false;
@@ -251,24 +572,6 @@ if ( ! function_exists( 'jevelin_get_small_thumb' ) ) :
         else :
             return false;
         endif;
-    }
-endif;
-
-
-/**
- * Get post options
- */
-if ( ! function_exists( 'jevelin_post_option' ) ) :
-    function jevelin_post_option( $id = NULL, $name = NULL, $default = NULL) {
-
-        if( function_exists('fw_get_db_post_option') && $id > 0 && $name ) :
-            return fw_get_db_post_option( $id, $name, $default );
-        elseif( !empty( $default ) ) :
-            return $default;
-        else :
-            return false;
-        endif;
-
     }
 endif;
 
@@ -566,6 +869,19 @@ endif;
 
 
 /**
+ * Get blog page layout
+ */
+if ( ! function_exists( 'jevelin_blog_page_layout' ) ) :
+    function jevelin_blog_page_layout( $loop = 0 ) {
+        $page_layout1 = esc_attr( jevelin_post_option( jevelin_page_id( $loop ), 'page_layout', 'global_default' ) );
+        $page_layout2 = esc_attr( jevelin_option( 'post_layout', 'default' ) );
+        return ( isset($page_layout1) && $page_layout1 && $page_layout1 != 'global_default' ) ? $page_layout1 : ( ( isset($page_layout2) && $page_layout2 ) ? $page_layout2 : 'default' );
+    }
+endif;
+
+
+
+/**
  * Get header layout
  */
 if ( ! function_exists( 'jevelin_header_layout' ) ) :
@@ -651,7 +967,7 @@ if ( ! function_exists( 'jevelin_header_right' ) ) :
     function jevelin_header_right() {
         $get_header_layout = jevelin_header_layout();
         if( jevelin_post_option( jevelin_page_id(), 'header', 'on' ) != 'off' ) :
-            if( $get_header_layout == 6 || $get_header_layout == 7 || $get_header_layout == 9 ) :
+            if( $get_header_layout == 6 || $get_header_layout == 61 || $get_header_layout == 7 || $get_header_layout == 9 ) :
                 return true;
             endif;
         endif;
@@ -704,7 +1020,7 @@ endif;
  */
 if ( ! function_exists( 'jevelin_footer_enabled' ) ) :
     function jevelin_footer_enabled() {
-        if( defined('FW') ) :
+        if( jevelin_framework_active() ) :
             $footer1 = jevelin_post_option( jevelin_page_id(), 'footer_widgets', 'on' );
             $footer2 = jevelin_option( 'footer_widgets', 'on' );
             $footer3 = jevelin_count_sidebar('footer_widgets');
@@ -722,7 +1038,7 @@ endif;
  */
 if ( ! function_exists( 'jevelin_copyrights_enabled' ) ) :
     function jevelin_copyrights_enabled() {
-        if( defined('FW') ) :
+        if( jevelin_framework_active() ) :
             $copyright1 = jevelin_post_option( jevelin_page_id(), 'copyright_bar', 'on' );
             $copyright2 = jevelin_option( 'copyright_bar', 'on' );
 
@@ -748,11 +1064,11 @@ endif;
 /**
  * Set excerpt lenght
  */
-if ( ! function_exists( 'jevelin_new_excerpt_length' ) ) :
-	function jevelin_new_excerpt_length($length) {
+if ( ! function_exists( 'jevelin_new_excerpt_word_length' ) ) :
+	function jevelin_new_excerpt_word_length($length) {
 	    return jevelin_option( 'post_desc', 45 );
 	}
-    add_filter('excerpt_length', 'jevelin_new_excerpt_length', 9999 );
+    add_filter('excerpt_length', 'jevelin_new_excerpt_word_length', 9999 );
 endif;
 
 
@@ -776,7 +1092,7 @@ if ( ! function_exists( 'jevelin_asign_menu' ) ) :
             <ul class="sh-nav">
                 <li class="menu-item">
                     <a href="<?php echo admin_url('nav-menus.php?action=edit'); ?>">
-                        <?php esc_html_e('Asign menu','jevelin'); ?>
+                        <?php esc_html_e('Assign menu','jevelin'); ?>
                     </a>
                 </li>
             </ul>
@@ -818,7 +1134,7 @@ endif;
  */
 if ( !function_exists( 'jevelin_pagination' ) ) {
     function jevelin_pagination( $wp_query = NULL, $new = 1, $oldpagination = 0 ) {
-        if( !defined('FW') || jevelin_option('pagination') != 'off' ) :
+        if( !jevelin_framework_active() || jevelin_option('pagination') != 'off' ) :
 
             $prev_arrow = esc_html__( 'Previous', 'jevelin' );
             $next_arrow = esc_html__( 'Next', 'jevelin' );
@@ -873,7 +1189,7 @@ if ( !function_exists( 'jevelin_pagination' ) ) {
                         ob_end_clean();
 
                         if( $oldpagination == 1 ) :
-                            $pagination = str_replace( "class='page-numbers' href=''>1", "class='page-numbers' href='?page=1'>1", $pagination );
+                            $pagination = str_replace( 'class="page-numbers" href="">1', "class='page-numbers' href='?page=1'>1", $pagination );
                         endif;
                         echo str_replace( 'page/1/', '', $pagination );
 
@@ -1128,7 +1444,7 @@ if ( ! function_exists( 'jevelin_blog_overlay' ) ) :
         <div class="sh-overlay-style1">
             <div class="sh-table-full">
                 <?php if( $link ) : ?>
-                    <a href="<?php echo esc_url( get_permalink() ); ?>" class="sh-overlay-item sh-table-cell">
+                    <a href="<?php echo esc_url( get_permalink() ); ?>" class="sh-overlay-item sh-table-cell" title="<?php echo esc_attr( 'Open the article', 'jevelin' ) . ' - ' . get_the_title(); ?>">
                         <div class="sh-overlay-item-container">
                             <i class="icon-link"></i>
                         </div>
@@ -1216,7 +1532,7 @@ if ( ! function_exists( 'jevelin_show_categories' ) ) :
         if( $categories ) :
             foreach( $categories as $category ) :
                 if( $i <= $limit_categories ) :
-                    $o.= '<a href="'.get_category_link($category->term_id).'">'.$category->name.'</a>';
+                    $o.= '<a href="'.get_category_link($category->term_id).'" rel="category tag">'.$category->name.'</a>';
 
                     $i++;
                     if( $i < count($categories) ) :
@@ -1351,9 +1667,9 @@ endif;
  * Navigation - cart
  */
 if ( ! function_exists( 'jevelin_nav_wrap_cart' ) ) :
-    function jevelin_nav_wrap_cart( $title = NULL ) {
+    function jevelin_nav_wrap_cart( $title = NULL, $show = 0 ) {
         $elements = jevelin_option( 'header_elements' );
-        if ( class_exists( 'WooCommerce' ) && isset($elements['woo_cart']) && $elements['woo_cart'] == true ) {
+        if ( class_exists( 'WooCommerce' ) && ( isset($elements['woo_cart']) && $elements['woo_cart'] == true ) || $show == 1 ) {
 
             if( $title == true ) {
                 $title = '<div class="sh-cart-title">'.esc_html__( 'Cart', 'jevelin' ).'</div>';
@@ -1361,22 +1677,27 @@ if ( ! function_exists( 'jevelin_nav_wrap_cart' ) ) :
 
             $cart = '';
             if ( jevelin_get_the_widget( 'WC_Widget_Cart', 'title= ' ) ) {
+                $content = jevelin_get_the_widget( 'WC_Widget_Cart', 'title= ' );
+                $content = str_replace( '<h2 class="widgettitle"> </h2>', '', $content );
+                $content = str_replace( '<h2 class="widgettitle"></h2>', '', $content );
                 $cart = '
                 <ul class="sub-menu">
                     <li class="menu-item menu-item-cart">
-                        '.jevelin_get_the_widget( 'WC_Widget_Cart', 'title= ' ).'
+                        ' . $content . '
                     </li>
                 </ul>';
             }
 
             return '
-            <li class="menu-item sh-nav-cart sh-nav-special">
+            <li class="menu-item sh-nav-cart sh-nav-special sh-header-builder-main-element-cart">
                 <a href="'.wc_get_cart_url().'">
-                    <i class="icon-basket"></i>
-                    <div class="sh-header-cart-count cart-icon sh-group">
+                    <div class="sh-nav-cart-content">
+                        <i class="icon-basket sh-header-builder-main-element-icon"></i>
+                        <div class="sh-header-cart-count cart-icon sh-group">
 
-                        <span>'.WC()->cart->cart_contents_count.'</span>
+                            <span>'.WC()->cart->cart_contents_count.'</span>
 
+                        </div>
                     </div>
                     '.$title.'
                 </a>
@@ -1392,17 +1713,56 @@ endif;
  */
 if ( ! function_exists( 'jevelin_nav_wrap_menu_mobile' ) ) :
     function jevelin_nav_wrap_menu_mobile() {
+
+        //$icon = jevelin_option( 'header_nav_icon' );
+        //$icon_close = jevelin_option( 'header_nav_icon_close', 'ti-close' );
+        /*if( $icon_type == 'on' && $icon ) :
+            $content = '
+            <span class="sh-nav-custom-icon" data-icon="' . esc_attr( $icon ) . '" data-icon-close="' . esc_attr( $icon_close ) . '">
+                <i class="' . esc_attr( $icon ) . '"></i>
+            </span>';*/
+
+        $icon_type = jevelin_option( 'header_menu_icon', 'hamburger' );
+        if( $icon_type == 'dots' ) :
+            $content = '
+            <span class="sh-nav-custom-icon-image">
+
+                <div class="sh-nav-custom-icon-image-standard">
+                    <svg id="menu_copy" data-name="menu copy" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+                        <rect class="cls-1" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_5" data-name="Rectangle 523 copy 5" class="cls-1" x="8" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_6" data-name="Rectangle 523 copy 6" class="cls-1" x="16" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_7" data-name="Rectangle 523 copy 7" class="cls-1" y="8" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_7-2" data-name="Rectangle 523 copy 7" class="cls-1" x="8" y="8" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_7-3" data-name="Rectangle 523 copy 7" class="cls-1" x="16" y="8" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_8" data-name="Rectangle 523 copy 8" class="cls-1" y="16" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_8-2" data-name="Rectangle 523 copy 8" class="cls-1" x="8" y="16" width="4" height="4"/>
+                        <rect id="Rectangle_523_copy_8-3" data-name="Rectangle 523 copy 8" class="cls-1" x="16" y="16" width="4" height="4"/>
+                    </svg>
+                </div>
+
+                <div class="sh-nav-custom-icon-image-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                        <path id="Rectangle_652_copy_3" data-name="Rectangle 652 copy 3" class="cls-1" d="M19.293,0.293l1.414,1.414L1.414,21,0,19.586Z"/>
+                        <path id="Rectangle_652_copy_4" data-name="Rectangle 652 copy 4" class="cls-1" d="M20.988,19.555l-1.433,1.433L0,1.433,1.433,0Z"/>
+                    </svg>
+                </div>
+
+            </span>';
+        else :
+            $content = '
+            <div class="sh-table-full">
+                <div class="sh-table-cell">
+                    <span class="c-hamburger c-hamburger--htx">
+                        <span>'.esc_html__( 'Toggle menu', 'jevelin' ).'</span>
+                    </span>
+                </div>
+            </div>';
+        endif;
+
         return '
         <li class="menu-item sh-nav-dropdown">
-            <a>
-                <div class="sh-table-full">
-                    <div class="sh-table-cell">
-                        <span class="c-hamburger c-hamburger--htx">
-                            <span>'.esc_html__( 'Toggle menu', 'jevelin' ).'</span>
-                        </span>
-                    </div>
-                </div>
-            </a>
+            <a>' . $content . '</a>
         </li>';
     }
 endif;
@@ -1414,16 +1774,23 @@ endif;
 if ( ! function_exists( 'jevelin_meta_one' ) ) :
     function jevelin_meta_one() {
         $elements = jevelin_option( 'post_elements' );
+
+        global $post;
+        $author_id = $post->post_author;
     ?>
 
         <span class="post-meta-author">
             <?php esc_html_e( 'by', 'jevelin' ); ?>
-            <a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>" class="bypostauthor">
-                <?php echo esc_attr( get_the_author() ); ?>
+            <a href="<?php echo get_author_posts_url( $author_id ); ?>" class="bypostauthor" itemprop="url" rel="author">
+                <?php echo esc_attr( get_the_author_meta( 'display_name', $author_id ) ); ?>
             </a>
         </span>
 
-        <?php if( !defined('FW') || ( isset($elements['date']) && $elements['date'] == true ) ) : ?>
+        <?php if( !jevelin_framework_active() || ( isset($elements['date']) && $elements['date'] == true ) ) :
+            $meta_data = get_post_modified_time( 'Y-m-d|H:i:s', true );
+            $meta_data = str_replace( '|', 'T', $meta_data ) . '+00:00';
+        ?>
+            <time class="updated semantic" itemprop="dateModified" datetime="<?php echo esc_attr( $meta_data ); ?>"></time>
             <a href="<?php echo esc_url( get_permalink() ); ?>" class="post-meta-date sh-default-color"><?php echo esc_attr( get_the_date() ); ?></a>
         <?php endif; ?>
 
@@ -1445,7 +1812,8 @@ if ( ! function_exists( 'jevelin_meta_two' ) ) :
                 <?php echo jevelin_show_categories(); ?>
             </span>
 
-            <?php if( ( !defined('FW') && comments_open() ) || ( isset($elements['comments']) && $elements['comments'] == true && comments_open() ) ) : ?>
+            <?php if( ( !jevelin_framework_active() && comments_open() ) || ( isset($elements['comments']) && $elements['comments'] == true && comments_open() ) ) : ?>
+                <meta itemprop="interactionCount" content="UserComments:<?php echo intval( get_comments_number( '0', '1', '%' ) ); ?>">
                 <a href="<?php echo esc_url( get_permalink() ); ?>#comments" class="post-meta-comments">
                     <i class="<?php echo esc_attr( $icon ); ?>"></i>
                     <?php echo esc_attr( get_comments_number( '0', '1', '%' ) ); ?>
@@ -1481,12 +1849,6 @@ if ( ! function_exists( 'jevelin_social_media' ) ) :
         if( jevelin_option('social_facebook') ) :
             $o.= '<a href="'.esc_url( ltrim( jevelin_option('social_facebook') ) ).'" '.$new_tab.' class="social-media-facebook">
                 <i class="icon-social-facebook"></i>
-            </a>';
-        endif;
-
-        if( jevelin_option('social_googleplus') ) :
-            $o.= '<a href="'.esc_url( ltrim( jevelin_option('social_googleplus') ) ).'" '.$new_tab.' class="social-media-gplus">
-                <i class="icon-social-google"></i>
             </a>';
         endif;
 
@@ -1655,29 +2017,41 @@ if( !function_exists('jevelin_header_logo') ) :
             $title = ( isset( $title_val['logo_title'] ) ) ? esc_attr( $title_val['logo_title'] ) : 'off';
     		$title_atts = jevelin_get_picker( $title_val );
 
+            $height_value = str_replace( 'px', '', jevelin_logo_height() );
             if( jevelin_logo_height() && jevelin_logo_height() != 'auto' ) :
-                $height = ' height="'.str_replace("px", "", jevelin_logo_height() ).'"';
+                $height = ' height="'. intval( $height_value ) .'"';
             else :
                 $height = '';
             endif;
         ?>
             <div class="header-logo sh-group-equal">
-                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo-container sh-table-small">
-                    <div class="sh-table-cell">
+                <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header-logo-container sh-table-small" rel="home">
+                    <?php if( $title == 'on' && isset( $title_atts['logo_title_value'] ) && $title_atts['logo_title_value'] ) : ?>
 
-                        <img class="sh-standard-logo" src="<?php echo esc_url( $standard_logo ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"<?php echo esc_attr( $height ); ?> />
-                        <img class="sh-sticky-logo" src="<?php echo esc_url( $sticky_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo esc_attr( $height ); ?> />
-                        <img class="sh-light-logo" src="<?php echo esc_url( $light_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo esc_attr( $height ); ?> />
+                        <?php if( isset( $title_atts['logo_both'] ) && $title_atts['logo_both'] == 'on' ) : ?>
+                            <div class="sh-table-cell" style="padding-right: 20px;">
+                                <img class="sh-standard-logo" src="<?php echo esc_url( $standard_logo ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"<?php echo ( $height ); ?> />
+                                <img class="sh-sticky-logo" src="<?php echo esc_url( $sticky_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo ( $height ); ?> />
+                                <img class="sh-light-logo" src="<?php echo esc_url( $light_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo ( $height ); ?> />
+                            </div>
+                        <?php endif; ?>
 
-                    </div>
-                </a>
-                <?php if( $title == 'on' && isset( $title_atts['logo_title_value'] ) && $title_atts['logo_title_value'] ) : ?>
-                    <div id="header-logo-title" class="sh-heading-font">
-                        <div class="header-logo-title-alignment">
-                            <?php echo ( $title_atts['logo_title_value'] ); ?>
+                        <div id="header-logo-title" class="sh-heading-font">
+                            <div class="header-logo-title-alignment">
+                                <?php echo ( $title_atts['logo_title_value'] ); ?>
+                            </div>
                         </div>
-                    </div>
-                <?php endif; ?>
+
+                    <?php else : ?>
+
+                        <div class="sh-table-cell">
+                            <img class="sh-standard-logo" src="<?php echo esc_url( $standard_logo ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"<?php echo ( $height ); ?> />
+                            <img class="sh-sticky-logo" src="<?php echo esc_url( $sticky_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo ( $height ); ?> />
+                            <img class="sh-light-logo" src="<?php echo esc_url( $light_logo ); ?>" alt="<?php echo get_bloginfo( 'name' ); ?>"<?php echo ( $height ); ?> />
+                        </div>
+
+                    <?php endif; ?>
+                </a>
             </div>
 
     <?php endif; }
@@ -1923,6 +2297,8 @@ if ( !function_exists( 'jevelin_breadcrumbs' ) ) {
         elseif ( is_404() ) {
             // Add 404 markup
             $html .= '<span>' . esc_html__( 'Error 404', 'jevelin' ) . '</span>';
+        } else {
+            $html .= '<span class="item-current"><span class="bread-current">' . esc_attr( get_the_title( jevelin_page_id() ) ) . '</span></span>';
         }
         // Close breadcrumb container
         $html .= '</div>';
@@ -1930,3 +2306,115 @@ if ( !function_exists( 'jevelin_breadcrumbs' ) ) {
         return wp_kses_post( $html );
     }
 }
+
+
+/*
+ * Search Page Results - Posts Only
+ */
+if( is_search() ) :
+    function jevelin_search_results_postsonly( $query ) {
+        if( jevelin_option( 'header_search_results', 'posts' ) == 'onlyposts' && $query->is_search) :
+            $query->set('post_type', 'post');
+        endif;
+        return $query;
+    }
+    add_filter( 'pre_get_posts', 'jevelin_search_results_postsonly' );
+endif;
+
+
+
+
+/**
+** WooCommerce Sales Sorting Filter
+** https://lakewood.media/woocommerce-add-sales-filter/
+**/
+if( class_exists( 'WooCommerce' ) ) :
+    if( !function_exists( 'jevelin_get_catalog_ordering_args' ) ) :
+        add_filter( 'woocommerce_get_catalog_ordering_args', 'jevelin_get_catalog_ordering_args' );
+        function jevelin_get_catalog_ordering_args( $args ) {
+            if( jevelin_option( 'wc_sort_sale' ) == 'on' ) :
+                $orderby_value = isset( $_GET['orderby'] ) ? wc_clean( $_GET['orderby'] ) : apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby' ) );
+
+                if ( 'on_sale' == $orderby_value ) {
+                    $args['orderby'] = 'meta_value_num';
+                    $args['order'] = 'DESC';
+                    $args['meta_key'] = '_sale_price';
+                }
+            endif;
+            return $args;
+        }
+    endif;
+
+    if( !function_exists( 'jevelin_catalog_orderby' ) ) :
+        add_filter( 'woocommerce_default_catalog_orderby_options', 'jevelin_catalog_orderby' );
+        add_filter( 'woocommerce_catalog_orderby', 'jevelin_catalog_orderby' );
+        function jevelin_catalog_orderby( $sortby ) {
+            if( jevelin_option( 'wc_sort_sale' ) == 'on' ) :
+                $sortby['on_sale'] = 'Sort by on sale';
+            endif;
+            return $sortby;
+        }
+    endif;
+
+    function jevelin_change_recent_posts( $output, $tag ) {
+    	if( 'recent_products' == $tag && jevelin_option( 'wc_style' ) == 'style2' ) :
+    		return '<div class="woocomerce-styling sh-woocommerce-products-style2">' . $output . '</div>';
+        else :
+		    return $output;
+        endif;
+    }
+    add_filter('do_shortcode_tag', 'jevelin_change_recent_posts', 10, 2);
+endif;
+
+
+
+
+/*
+ * WordPress 5.0 compatibility
+ */
+if( is_admin() ) :
+    if( !function_exists('jevelin_disable_block_editor_pt') &&
+        isset( $_GET['post'] ) && $_GET['post'] > 0 &&
+        isset( $_GET['action'] ) && $_GET['action'] == 'edit' &&
+        !isset( $_GET['vcv-gutenberg-editor'] )
+    ) :
+        function jevelin_disable_block_editor_pt( $use_block_editor, $post_type ) {
+
+            $use_block_editor = true;
+            if( function_exists( 'is_plugin_active' ) && !is_plugin_active( 'classic-editor/classic-editor.php' ) ) :
+                $id = ( isset( $_GET['post'] ) && $_GET['post'] > 0 ) ? intval( $_GET['post'] ) : 0;
+                if( $id ) :
+                    $data = get_post_meta( $id, 'fw:opt:ext:pb:page-builder:json', 1 );
+
+                    if( $data && $data != '[]' ) :
+                        $use_block_editor = false;
+                    endif;
+                endif;
+
+                if( isset( $_GET['classic-editor'] ) ) :
+                    $use_block_editor = false;
+                endif;
+
+                if( $use_block_editor == true ) :
+                    $post = get_post( $id );
+                    if( $post && preg_match( '/vc_row/', $post->post_content ) ) :
+                        $use_block_editor = false;
+                    endif;
+                endif;
+            endif;
+
+            return $use_block_editor;
+        }
+        add_filter('use_block_editor_for_post_type', 'jevelin_disable_block_editor_pt', 10, 2);
+    endif;
+
+
+    if( !function_exists('jevelin_fix_unyson_color_picker_issue') ) :
+        function jevelin_fix_unyson_color_picker_issue() {
+            if( function_exists( 'is_plugin_active' ) && !is_plugin_active( 'classic-editor/classic-editor.php' ) ) :
+            	wp_enqueue_script( 'wp-color-picker' );
+        	endif;
+        }
+    endif;
+    add_action( 'admin_enqueue_scripts', 'jevelin_fix_unyson_color_picker_issue' );
+endif;

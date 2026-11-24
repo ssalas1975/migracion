@@ -10,8 +10,6 @@
  * @since   3.29
  */
 
-defined( 'ABSPATH' ) || exit;
-
 if ( ! class_exists( 'ET_Builder_Module_Tabs' ) ) {
 	require_once ET_BUILDER_DIR_RESOLVED_PATH . '/module/Tabs.php';
 }
@@ -23,13 +21,6 @@ if ( ! class_exists( 'ET_Builder_Module_Tabs' ) ) {
  */
 class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 	/**
-	 * Holds WooCommerce Tabs data rendered by self::get_tabs().
-	 *
-	 * @var array
-	 */
-	public $rendered_tabs_data = [];
-
-	/**
 	 * Define WooCommerce Tabs property.
 	 */
 	public function init() {
@@ -37,10 +28,9 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 		parent::init();
 
 		// Define WooCommerce Tabs module property; overwriting inherited property.
-		$this->name        = esc_html__( 'Woo Product Tabs', 'et_builder' );
-		$this->plural      = esc_html__( 'Woo Product Tabs', 'et_builder' );
-		$this->slug        = 'et_pb_wc_tabs';
-		$this->folder_name = 'et_pb_woo_modules';
+		$this->name   = esc_html__( 'Woo Tabs', 'et_builder' );
+		$this->plural = esc_html__( 'Woo Tabs', 'et_builder' );
+		$this->slug   = 'et_pb_wc_tabs';
 
 		/*
 		 * Set property for holding rendering data so the data rendering via
@@ -336,7 +326,6 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 			'product' => 'current',
 		);
 		$args     = wp_parse_args( $args, $defaults );
-		$tabs     = array();
 
 		// Get actual product id based on given `product` attribute.
 		$product_id = ET_Builder_Module_Helper_Woocommerce_Modules::get_product_id( $args['product'] );
@@ -347,9 +336,7 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 		// Check if TB is used
 		$is_tb = et_builder_tb_enabled();
 
-		$is_use_placeholder = $is_tb || is_et_pb_preview();
-
-		if ( $is_use_placeholder ) {
+		if ( $is_tb ) {
 			et_theme_builder_wc_set_global_objects();
 		} elseif ( $overwrite_global ) {
 			// Save current global variable for later reset.
@@ -363,13 +350,10 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 			$wp_query = new WP_Query( array( 'p' => $product_id ) );
 		}
 
-		if ( ! is_a( $post, 'WP_Post' ) ) {
-			return $tabs;
-		}
-
 		// Get product tabs.
 		$all_tabs    = apply_filters( 'woocommerce_product_tabs', array() );
 		$active_tabs = isset( $args['include_tabs'] ) ? explode( '|', $args['include_tabs'] ) : false;
+		$tabs        = array();
 
 		// Get product tabs data.
 		foreach ( $all_tabs as $name => $tab ) {
@@ -379,7 +363,7 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 			}
 
 			if ( 'description' === $name ) {
-				if ( ! $is_use_placeholder && ! et_pb_is_pagebuilder_used( $product_id ) ) {
+				if ( ! et_builder_tb_enabled() && ! et_pb_is_pagebuilder_used( $product_id ) ) {
 					// If selected product doesn't use builder, retrieve post content.
 					if ( et_theme_builder_overrides_layout( ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE ) ) {
 						$tab_content = apply_filters( 'et_builder_wc_description', $post->post_content );
@@ -392,7 +376,7 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 					 * which might cause infinite loop; get Divi's long description from
 					 * post meta instead.
 					 */
-					if ( $is_use_placeholder ) {
+					if ( et_builder_tb_enabled() ) {
 						$placeholders = et_theme_builder_wc_placeholders();
 
 						$tab_content = $placeholders['description'];
@@ -429,7 +413,7 @@ class ET_Builder_Module_Woocommerce_Tabs extends ET_Builder_Module_Tabs {
 		}
 
 		// Reset overwritten global variable.
-		if ( $is_use_placeholder ) {
+		if ( $is_tb ) {
 			et_theme_builder_wc_reset_global_objects();
 		} elseif ( $overwrite_global ) {
 			$product  = $original_product;

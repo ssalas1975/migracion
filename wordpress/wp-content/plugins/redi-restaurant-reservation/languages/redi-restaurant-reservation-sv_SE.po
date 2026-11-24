@@ -1,0 +1,2990 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Svenska\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-11 14:08+0000\n"
+"PO-Revision-Date: 2025-10-14 07:31+0000\n"
+"Last-Translator: \n"
+"Language-Team: Swedish\n"
+"Language: sv_SE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Source-Locale: sv_SE\n"
+"X-Loco-Target-Locale: sv_SE\n"
+"X-Loco-Tagged: Import batch 1 (redi-restaurant-reservation-sv_SE.po), Import "
+"batch 2 (redi-restaurant-reservation-da_DK.po)\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-"
+"reservation\\trunk\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+
+#: redi-restaurant-reservation.php:872
+#, fuzzy
+#| msgid "Min Persons should be lower than Max Persons"
+msgid " \"Min Persons\" should be lower than Max Persons"
+msgstr "Minsta antal personer måste vara färre an maximalt antal."
+
+#: templates/admin_welcome_no_key.php:7
+msgid " Registration"
+msgstr " Registrering"
+
+#: templates/admin_welcome_no_page.php:8
+msgid " Reservation page"
+msgstr " Sida för bokning"
+
+#: redi-restaurant-reservation.php:910
+msgid "\"Country\" is required"
+msgstr "\"Land\" är obligatoriskt"
+
+#: redi-restaurant-reservation.php:878
+#, fuzzy
+#| msgid "Reservation time should be greater than 0"
+msgid "\"Reservation time\" should be greater than 0"
+msgstr "Bokningstid bör vara mer än 0."
+
+#: redi-restaurant-reservation.php:905
+msgid "\"Restaurant Name\" is required"
+msgstr "\"Restaurangens namn\" är obligatoriskt"
+
+#: redi-restaurant-reservation.php:894
+msgid "\"Subscription Email\" Field should be filled."
+msgstr "Fältet \"E-postadress för prenumeration\" ska fyllas i."
+
+#: redi-restaurant-reservation.php:899
+msgid "\"Subscription Name\" Field should be filled."
+msgstr "Fältet \"Prenumerationsnamn\" ska fyllas i."
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:643 templates/admin.php:651 templates/admin.php:659
+msgid "%d h"
+msgstr "%d h"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:627 templates/admin.php:631 templates/admin.php:635
+#: templates/admin.php:639
+msgid "%d min"
+msgstr "%d min"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:647 templates/admin.php:655
+#, php-format
+msgid "%s h"
+msgstr "%s h"
+
+#: templates/admin_ajaxed.php:426
+msgid "100 guests"
+msgstr "100 gäster"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:51
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but API key "
+"is not generated yet to use the plugin. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin är aktivt men API-"
+"nyckeln har ännu inte genererats för att använda pluginet. Finilize "
+"installationsguide nu för sömlösa bokningar.</p> %s"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:75
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
+"not created a page with reservation form. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin är aktivt men du har "
+"inte skapat en sida med bokningsformulär. Finilize installationsguide nu för "
+"sömlösa bokningar.</p> %s"
+
+#. %s is the HTML link to the configuration page.
+#: functions/notice.php:98
+#, php-format
+msgid ""
+"<p>You have not made any changes to settings since you have installed the "
+"plugin. Finilize <b>ReDi Restaurant Reservation Plugin</b> setup now for "
+"seamless bookings. Visit the %1$s to finilize configuration and start "
+"impress your clients!</p> %2$s"
+msgstr ""
+"<p>Du har inte gjort några ändringar i inställningarna sedan du installerade "
+"pluginet. Finilize <b>ReDi Restaurant Reservation Plugin setup</b> nu för "
+"sömlösa bokningar. Besök %1$s för att finilisera konfigurationen och börja "
+"imponera på dina kunder!</p> %2$s"
+
+#: templates/admin.php:122
+msgid ""
+"<strong>Attention</strong>: New settings are available for review and saving,"
+" please take a moment to update your preferences or fill out the required "
+"settings and click on the save button."
+msgstr ""
+"<strong>Observera</strong>: Nya inställningar är tillgängliga för granskning "
+"och sparande, ägna en stund åt att uppdatera dina inställningar eller fyll i "
+"de nödvändiga inställningarna och klicka på spara-knappen."
+
+#: templates/frontend.php:338
+msgid ""
+"A confirmation email has been sent to you, should you not receive it, please "
+"rest assured that your booking has been received and is confirmed. If you "
+"wish you may contact us by phone to confirm."
+msgstr ""
+"Tack för din bokning. En bekräftelse har skickats till din epost. Även om du "
+"inte har fått den så har bokningen gått fram. Om du vill kan du ta kontakt "
+"med oss via telefon för att bekräfta din bokning."
+
+#: redi-restaurant-reservation.php:2050
+msgid ""
+"A confirmation email has been sent to you. If you don't receive it, please "
+"rest assured that your booking has been confirmed. You may contact the "
+"restaurant directly if you need to make any changes to your reservation."
+msgstr ""
+"Ett bekräftelsemail har skickats till dig. Om du inte får det kan du vara "
+"säker på att din bokning har bekräftats. Du kan kontakta restaurangen direkt "
+"om du behöver göra några ändringar i din bokning."
+
+#: templates/frontend_v2.php:934
+msgid ""
+"A confirmation email has been sent to your provided email address. No "
+"further action is required. If you don't receive it, rest assured your "
+"reservation is confirmed. You can also contact us by phone if needed."
+msgstr ""
+"Ett bekräftelsemail har skickats till din angivna e-postadress. Ingen "
+"ytterligare åtgärd krävs. Om du inte får det kan du vara säker på att din "
+"bokning är bekräftad. Du kan också kontakta oss via telefon om det behövs."
+
+#: redi-restaurant-reservation.php:2051
+msgid ""
+"A confirmation email will be sent to you once your reservation request has "
+"been approved. You may contact the restaurant directly if you need to make "
+"any changes to your reservation request."
+msgstr ""
+"En bekräftelse via e-post kommer att skickas till dig när din "
+"bokningsförfrågan har godkänts. Du kan kontakta restaurangen direkt om du "
+"behöver göra några ändringar i din bokningsförfrågan."
+
+#: templates/admin.php:230
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"Please note that this option is still in beta testing  and some features are "
+"not copied over from Default theme."
+msgstr ""
+"En fördesignad stil som kräver minimal anpassning för ett polerat utseende. "
+"Observera att det här alternativet fortfarande är i betatestning och att "
+"vissa funktioner inte kopieras över från standardtemat."
+
+#: templates/admin.php:231
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"The form is build with React. Please note that this option is still in beta "
+"testing and some features are not copied over from Default theme."
+msgstr ""
+"En fördesignad stil som kräver minimal anpassning för ett polerat utseende. "
+"Formuläret är byggt med React. Observera att det här alternativet "
+"fortfarande är i betatestning och att vissa funktioner inte kopieras över "
+"från standardtemat."
+
+#: templates/admin.php:229
+msgid ""
+"Adapts to your website's theme, ensuring seamless integration. However, some "
+"adjustments may be needed to match your design preferences."
+msgstr ""
+"Anpassar sig till din webbplats tema, vilket säkerställer sömlös integration."
+" Vissa justeringar kan dock behövas för att matcha dina designpreferenser."
+
+#: redi-restaurant-reservation.php:2043
+msgid "Additional Information"
+msgstr "Ytterligare information"
+
+#: templates/basicpackage.php:57
+msgid "Additional services (by request)"
+msgstr "Tilläggstjänster (på begäran)"
+
+#: templates/admin_ajaxed.php:165
+msgid "Address"
+msgstr "Adress"
+
+#: templates/admin_ajaxed.php:173
+msgid "Address of the restaurant is to be written here."
+msgstr "Adressen till restaurangen ska skrivas här."
+
+#: redi-restaurant-reservation.php:2057
+msgid "adult"
+msgstr "vuxen"
+
+#: templates/frontend.php:77
+msgid "Adult guests"
+msgstr "Vuxna gäster"
+
+#: redi-restaurant-reservation.php:1968 redi-restaurant-reservation.php:2060
+msgid "Adults"
+msgstr "Vuxna"
+
+#: redi-restaurant-reservation.php:2058
+msgid "adults"
+msgstr "Vuxna"
+
+#: templates/frontend_v2.php:574
+msgid "All time"
+msgstr "Genom tiderna"
+
+#: templates/admin_ajaxed.php:613
+msgid "Allow SMS"
+msgstr "Tillåt SMS"
+
+#: templates/admin.php:70
+msgid "Allow to contact via Whatsapp"
+msgstr "Tillåt kontakt via Whatsapp"
+
+#: templates/admin.php:69
+msgid "Allow to receive SMS"
+msgstr "Tillåt att ta emot SMS"
+
+#: templates/admin_welcome_no_key.php:20
+msgid "Allow to send information about the plugin"
+msgstr "Tillåt att skicka information om plugin-programmet"
+
+#: templates/admin.php:703
+msgid ""
+"Allow users to fill the Wait List when all time slots for the day are booked."
+msgstr ""
+"Tillåt användare att fylla väntelistan när alla tidsluckor för dagen är "
+"bokade."
+
+#: templates/admin.php:702
+msgid ""
+"Allow users to fill the Wait List when their preferred time is unavailable."
+msgstr ""
+"Tillåt användare att fylla väntelistan när deras önskade tid inte är "
+"tillgänglig."
+
+#: templates/admin_ajaxed.php:615
+msgid "Allow Whatsapp"
+msgstr "Tillåt Whatsapp"
+
+#: templates/admin.php:799
+msgid ""
+"Allows to show or hide comments section on the reservation form. Enabled by "
+"default. If you see that your guests misuse the comments section, disable it."
+msgstr ""
+"Gör det möjligt att visa eller dölja kommentarsavsnitt på bokningsformuläret."
+" Aktiverat som standard. Om du ser att dina gäster missbrukar "
+"kommentarsfältet, inaktivera det."
+
+#: templates/admin.php:619
+msgid "Alternative time step"
+msgstr "Alternativa tid steg"
+
+#: templates/admin.php:342
+msgid "Always show"
+msgstr "Visa alltid"
+
+#: redi-restaurant-reservation.php:2103
+msgid "An unknown error occurred"
+msgstr "Ett okänt fel inträffade"
+
+#: redi-restaurant-reservation.php:1985
+msgid "Any special requests or notes"
+msgstr "Eventuella speciella önskemål eller anteckningar"
+
+#: templates/basicpackage.php:4
+msgid "Api Information"
+msgstr "API-information"
+
+#: templates/admin_welcome_no_key.php:33 templates/admin_welcome_no_key.php:38
+#: templates/admin_welcome_no_page.php:29
+#: templates/admin_welcome_no_page.php:34
+msgid "API Key"
+msgstr "API-nyckel"
+
+#: redi-restaurant-reservation.php:779
+msgid "API key is successfully changed."
+msgstr "API-nyckeln har ändrats."
+
+#: redi-restaurant-reservation.php:2920
+msgid "Api key should be a GUID number."
+msgstr "API-nyckeln ska vara ett GUID-nummer."
+
+#: templates/basicpackage.php:5
+msgid "ApiKey"
+msgstr "ApiKey (på engelska)"
+
+#: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1907
+msgid ""
+"Apologies for the inconvenience, but we encountered an issue while trying to "
+"make your reservation. It seems there was a technical glitch on our end. Our "
+"team is actively working to resolve this issue. Please try again in a few "
+"minutes, and if the problem persists, feel free to reach out to our customer "
+"support for assistance. Additionally, if you could please send a screenshot "
+"of the error message to {emailLink}, it would greatly help us in diagnosing "
+"and resolving the issue more efficiently. We appreciate your patience and "
+"cooperation. Response:"
+msgstr ""
+"Vi ber om ursäkt för besväret, men vi stötte på ett problem när vi försökte "
+"göra din bokning. Det verkar som om det var ett tekniskt fel på vår sida. "
+"Vårt team arbetar aktivt med att lösa problemet. Försök igen om några "
+"minuter, och om problemet kvarstår är du välkommen att kontakta vår "
+"kundsupport för hjälp. Dessutom, om du kunde skicka en skärmdump av "
+"felmeddelandet till {emailLink}, skulle det vara till stor hjälp för oss att "
+"diagnostisera och lösa problemet mer effektivt. Vi uppskattar ditt tålamod "
+"och samarbete. Svar:"
+
+#: redi-restaurant-reservation.php:2010
+msgid "April"
+msgstr "April"
+
+#: templates/basicpackage.php:21
+msgid ""
+"Are you facing trouble configuring the plugin? Don't worry! We offer free "
+"personal assistance to help you out. You can schedule a session with us "
+"using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
+"here to provide the support you need."
+msgstr ""
+"Har du problem med att konfigurera plugin-programmet? Var inte orolig! Vi "
+"erbjuder gratis personlig assistans för att hjälpa dig. Du kan boka en "
+"session med oss med Calendly eller kontakta oss via Skype, WhatsApp eller "
+"Facebook. Vi finns här för att ge dig det stöd du behöver."
+
+#: redi-restaurant-reservation.php:2085
+msgid "Are you sure you want to cancel this reservation?"
+msgstr "Är du säker på att du vill avboka den här bokningen?"
+
+#: redi-restaurant-reservation.php:917
+msgid "At least one opening time should be provided"
+msgstr "Minst en öppningstid bör anges"
+
+#: redi-restaurant-reservation.php:2014
+msgid "August"
+msgstr "Augusti"
+
+#: redi-restaurant-reservation.php:1848 redi-restaurant-reservation.php:1905
+msgid "Available seats"
+msgstr "Tillgängliga platser"
+
+#: templates/admin.php:526
+msgid "Available Time Appearance"
+msgstr "Utseende för tillgänglig tid"
+
+#: templates/frontend_v2.php:588 templates/frontend_v2.php:895
+#: templates/frontend_v2.php:1265
+msgid "Back"
+msgstr "Tillbaka"
+
+#: templates/cancel.php:5 templates/modify.php:3 templates/modify.php:24
+msgid "Back to reservation page"
+msgstr "Åter till bokningssidan"
+
+#: templates/basicpackage.php:33
+msgid "Basic package functionality (paid version)"
+msgstr "Grundläggande paketfunktionalitet (betalversion)"
+
+#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+msgid "Below is your API Key, please use it when you ask for a support. "
+msgstr "Nedan finns din API-nyckel, använd den när du ber om support. "
+
+#: templates/admin.php:66 templates/admin_ajaxed.php:619
+msgid "Birthday"
+msgstr "Födelsedag"
+
+#: templates/admin.php:72
+msgid "Birthday (dd/mm)"
+msgstr "Födelsedag (dd/mm)"
+
+#: templates/basicpackage.php:44
+msgid ""
+"Blocked Time. Define time range when online reservation should not be "
+"accepted. Specify a reason why reservations are not accepted at this time to "
+"keep your clients happy."
+msgstr ""
+"Blockerad tid. Definiera tidsintervall när onlinebokning inte ska accepteras."
+" Ange en anledning till varför bokningar inte accepteras just nu för att "
+"hålla dina kunder nöjda."
+
+#: redi-restaurant-reservation.php:2112
+msgid "Book Now"
+msgstr "Boka nu"
+
+#: templates/basicpackage.php:93
+msgid "Building trust with powerful review tools"
+msgstr "Skapa förtroende med kraftfulla granskningsverktyg"
+
+#: templates/admin.php:574
+msgid "By shifts"
+msgstr "Efter skift"
+
+#: templates/admin.php:320
+msgid "Calendar type"
+msgstr "Typ av kalender"
+
+#: templates/admin_welcome.php:30 templates/basicpackage.php:22
+msgid "Calendly"
+msgstr "Lugnt och skönt"
+
+#: templates/frontend_v2.php:1070
+msgid "Cancel existing reservation"
+msgstr "Avboka befintlig reservation"
+
+#: redi-restaurant-reservation.php:2071
+msgid "Cancel Reservation"
+msgstr "Avboka bokning"
+
+#: templates/admin.php:128 templates/admin.php:1016 templates/admin.php:1032
+#: templates/cancel.php:3 templates/cancel.php:47 templates/confirm.php:41
+#: templates/frontend.php:11 templates/frontend_v2.php:1633
+#: templates/frontend_v2.php:1727
+msgid "Cancel reservation"
+msgstr "Avboka"
+
+#: redi-restaurant-reservation.php:2086
+msgid "Cancellation reason"
+msgstr "Anledning till avbokning"
+
+#: redi-restaurant-reservation.php:2088
+msgid "Cancellation reason is required"
+msgstr "Orsak till avbokning krävs"
+
+#: redi-restaurant-reservation.php:2089
+msgid "Cancelling reservation"
+msgstr "Avbokning av bokning"
+
+#: templates/admin.php:762
+msgid "Captcha"
+msgstr "Captcha"
+
+#: redi-restaurant-reservation.php:1847 redi-restaurant-reservation.php:1903
+msgid "Captcha is not valid."
+msgstr "Captcha är inte giltigt."
+
+#: templates/admin.php:778
+msgid "Captcha key"
+msgstr "Captcha-nyckel"
+
+#: templates/basicpackage.php:13
+msgid "Change"
+msgstr "Förändring"
+
+#: templates/basicpackage.php:8
+msgid "Change API key"
+msgstr "Ändra API-nyckel"
+
+#: templates/frontend.php:245
+msgid "Change details"
+msgstr "Ändra uppgifter"
+
+#: templates/frontend.php:179
+msgid "Check available time"
+msgstr "Kolla tillgängliga tider"
+
+#: templates/admin_ajaxed.php:607
+msgid "Check box"
+msgstr "Kryssruta"
+
+#: redi-restaurant-reservation.php:2055
+msgid "child"
+msgstr "barn"
+
+#: redi-restaurant-reservation.php:1970 redi-restaurant-reservation.php:2059
+#: redi-restaurant-reservation.php:2616 templates/frontend.php:101
+#: templates/frontend_v2.php:338
+msgid "Children"
+msgstr "Barn"
+
+#: redi-restaurant-reservation.php:2056
+msgid "children"
+msgstr "barn"
+
+#: templates/admin.php:228
+msgid "Choose the appearance of the plugin."
+msgstr "Välj utseendet på pluginet."
+
+#: templates/admin_ajaxed.php:150
+msgid "City"
+msgstr "Stad"
+
+#: functions/notice.php:126
+msgid "Click here to open reservation page"
+msgstr "Klicka här för att öppna bokningssidan"
+
+#: templates/admin_ajaxed.php:351
+msgid "Close"
+msgstr "Stängt"
+
+#: templates/frontend_v2.php:544
+msgid "Closed day or fully booked"
+msgstr "Stängt dygn eller fullbokat"
+
+#: templates/admin.php:724
+msgid "Collect First and Last name"
+msgstr "Samla in för- och efternamn"
+
+#: templates/admin.php:744
+msgid "Collect phone number with country code"
+msgstr "Samla in telefonnummer med landskod"
+
+#: templates/basicpackage.php:67
+msgid "Collect pre-payment for reservations."
+msgstr "Samla in förskottsbetalning för bokningar."
+
+#: templates/admin.php:285
+msgid "Collect user experience feedback"
+msgstr "Samla in feedback om användarupplevelsen"
+
+#: templates/frontend.php:300 templates/modify.php:75
+msgid "Comment"
+msgstr "Kommentar"
+
+#: redi-restaurant-reservation.php:2109 templates/frontend_v2.php:702
+#: templates/frontend_v2.php:1559
+msgid "Comments"
+msgstr "Kommentarer"
+
+#: templates/frontend_v2.php:1557
+msgid "Comments can't be empty"
+msgstr "Kommentarer får inte vara tomma"
+
+#: functions/notice.php:102 functions/notice.php:103
+msgid "Configuration page"
+msgstr "Sidan Konfiguration"
+
+#: templates/confirm.php:40
+msgid "Confirm visit"
+msgstr "Bekräfta besök"
+
+#: redi-restaurant-reservation.php:1972 redi-restaurant-reservation.php:2097
+msgid "Confirmation"
+msgstr "Konfirmation"
+
+#: templates/admin.php:901
+msgid "Confirmation page"
+msgstr "Sida för bekräftelse"
+
+#: templates/frontend_v2.php:927
+msgid "Congratulations! Your reservation is confirmed!"
+msgstr "Grattis! Din bokning är bekräftad!"
+
+#: templates/frontend_v2.php:925
+msgid "Congratulations! Your reservation request is received!"
+msgstr "Grattis! Din bokningsförfrågan är mottagen!"
+
+#: redi-restaurant-reservation.php:1971
+msgid "Contact"
+msgstr "Kontakt"
+
+#: templates/admin_ajaxed.php:281 templates/frontend_v2.php:622
+msgid "Contact information"
+msgstr "Kontaktuppgifter"
+
+#: templates/basicpackage.php:20
+msgid "Contact Us"
+msgstr "Kontakta oss"
+
+#: redi-restaurant-reservation.php:1557 redi.php:280
+msgid "contact us directly"
+msgstr "Kontakta oss direkt"
+
+#: templates/admin_ajaxed.php:130
+msgid "Country"
+msgstr "Land"
+
+#: templates/admin.php:155
+msgid "Create a support ticket"
+msgstr "Skapa ett supportärende"
+
+#: templates/frontend_v2.php:1389 templates/frontend_v2.php:1607
+#: templates/frontend_v2.php:1756 templates/frontend_v2.php:1890
+#: templates/frontend_v2.php:1951
+msgid "Create reservation"
+msgstr "Skapa reservation"
+
+#: redi-restaurant-reservation.php:1988
+msgid "Creating reservation"
+msgstr "Skapa reservation"
+
+#: templates/admin_ajaxed.php:98
+msgid "Current Place ID"
+msgstr "Aktuellt plats-ID"
+
+#: templates/admin.php:833
+msgid "Current time"
+msgstr "Aktuell tid"
+
+#: templates/frontend.php:490
+msgid "Custom field is required"
+msgstr "Obligatoriskt uppgift"
+
+#: templates/admin_ajaxed.php:510
+msgid "Custom fields"
+msgstr "Anpassade fält"
+
+#: templates/admin_ajaxed.php:515
+msgid ""
+"Custom fields are meant to allow users define additional fields for "
+"collecting more information from customers. You can choose the name of the "
+"field, type of field, the constraint whether it is a required field or not "
+"and the error message for the required field."
+msgstr ""
+"Anpassade fält är avsedda att tillåta användare att definiera ytterligare "
+"fält för att samla in mer information från kunder. Du kan välja namnet på "
+"fältet, typ av fält, begränsningen om det är ett obligatoriskt fält eller "
+"inte och felmeddelandet för det obligatoriska fältet."
+
+#: templates/admin.php:244
+msgid "Data Input Appearance"
+msgstr "Utseende på datainmatning"
+
+#: redi-restaurant-reservation.php:1973 redi-restaurant-reservation.php:2062
+#: templates/confirm.php:16 templates/frontend.php:119
+#: templates/frontend.php:449 templates/frontend_v2.php:492
+#: templates/frontend_v2.php:1429 templates/frontend_v2.php:1808
+#: templates/modify.php:29
+msgid "Date"
+msgstr "Datum"
+
+#: templates/admin.php:351
+msgid "Date format"
+msgstr "Datumformat"
+
+#: templates/admin_ajaxed.php:465 templates/admin_ajaxed.php:487
+msgid "Days"
+msgstr "Dagar"
+
+#: redi-restaurant-reservation.php:2030
+msgid "days"
+msgstr "Dagar"
+
+#: redi-restaurant-reservation.php:2018
+msgid "December"
+msgstr "December"
+
+#: templates/admin.php:219 templates/admin.php:229
+msgid "Default theme"
+msgstr "Standardtema"
+
+#: templates/frontend_v2.php:518
+msgid "Description"
+msgstr "Beskrivning"
+
+#: templates/admin.php:514
+msgid "Description for children dropdown"
+msgstr "Beskrivning för underordnade rullgardinsmeny"
+
+#: templates/admin.php:206
+msgid "Design theme"
+msgstr "Tema Design"
+
+#: templates/frontend_v2.php:107
+msgid "Details"
+msgstr "Detaljer"
+
+#: templates/admin.php:877 templates/admin.php:893
+msgid "Disable confirmation email"
+msgstr "Stäng av bekräftelse via e-post"
+
+#: templates/admin.php:694 templates/admin.php:701
+msgid "Disabled"
+msgstr "Handikappad"
+
+#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2607
+msgid "Discount"
+msgstr "Rabatt"
+
+#: templates/admin.php:604
+msgid "Display left seats"
+msgstr "Visa vänster platser"
+
+#: templates/admin.php:664
+msgid ""
+"Displays the available time with time step to the clients. For instance, if "
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
+"30, etc."
+msgstr ""
+"Visar tillgänglig tid med tidssteg för klienterna. Till exempel, om man "
+"väljer 15 minuters tidssteg, kommer alternativ tid att vara 10:00, 10:15, 10:"
+"30, etc."
+
+#: templates/admin.php:701
+msgid "Do not allow guests to fill the Wait List form."
+msgstr "Låt inte gäster fylla i formuläret för väntelista."
+
+#: templates/basicpackage.php:63
+msgid ""
+"Do you want to know what your client thinks about his last visit? We will "
+"collect it for you."
+msgstr ""
+"Vill du veta vad din kund tycker om sitt senaste besök? Vi samlar in det åt "
+"dig."
+
+#: templates/basicpackage.php:70
+msgid ""
+"Do you want to write your own module? We have an API. Contact us to get more "
+"information."
+msgstr ""
+"Vill du skriva din egen modul? Vi har ett API. Kontakta oss för att få mer "
+"information."
+
+#: templates/admin_welcome.php:27
+msgid ""
+"Don't want to spend time delving into how the plugin works or figuring out "
+"the setup process? Sign up for a free personalized assistance call – our "
+"team is here to help you get started smoothly."
+msgstr ""
+"Vill du inte lägga tid på att fördjupa dig i hur pluginet fungerar eller ta "
+"reda på installationsprocessen? Registrera dig för ett kostnadsfritt "
+"personligt assistanssamtal – vårt team finns här för att hjälpa dig att "
+"komma igång smidigt."
+
+#: templates/frontend_v2.php:97
+msgid "Done!"
+msgstr "Färdig!"
+
+#: templates/admin.php:361
+msgid "Dot"
+msgstr "Punkt"
+
+#: templates/admin_ajaxed.php:623
+msgid "DropDown"
+msgstr "Rullgardinsmeny"
+
+#: templates/frontend.php:155
+msgid "Duration"
+msgstr "Varaktighet"
+
+#: templates/admin_ajaxed.php:449
+msgid ""
+"Duration of reservation in minutes. This is the time allocated for each "
+"reservation so the reservation system can calculate availability. Enter here "
+"average time that guests stays in."
+msgstr ""
+"Bokningens varaktighet i minuter. Detta är den tid som tilldelas för varje "
+"bokning så att bokningssystemet kan beräkna tillgängligheten. Här anger du "
+"genomsnittlig tid som gästerna stannar i."
+
+#: templates/admin_ajaxed.php:479
+msgid "Early Bookings"
+msgstr "Tidiga bokningar"
+
+#: redi-restaurant-reservation.php:1982 templates/admin_ajaxed.php:195
+#: templates/admin_ajaxed.php:302 templates/admin_welcome_no_key.php:14
+#: templates/cancel.php:34 templates/frontend.php:254
+#: templates/frontend.php:284 templates/frontend.php:468
+#: templates/frontend_v2.php:690 templates/frontend_v2.php:1349
+#: templates/frontend_v2.php:1547 templates/frontend_v2.php:1697
+#: templates/frontend_v2.php:1854 templates/modify.php:13
+#: templates/modify.php:71
+msgid "Email"
+msgstr "E-post"
+
+#: templates/admin_ajaxed.php:203
+msgid "Email address for contacting the restaurant."
+msgstr "E-postadress för att kontakta restaurangen."
+
+#: redi-restaurant-reservation.php:1839 redi-restaurant-reservation.php:1887
+msgid "Email can't be empty"
+msgstr "E-post behöver anges."
+
+#: templates/admin_ajaxed.php:210
+msgid "Email CC"
+msgstr "Skicka e-post till CC"
+
+#: redi-restaurant-reservation.php:2902
+msgid "Email is not valid."
+msgstr "E-postadressen är inte giltig."
+
+#: redi-restaurant-reservation.php:2899
+msgid "Email is required."
+msgstr "E-post är obligatoriskt."
+
+#: templates/basicpackage.php:48
+msgid "Email template customization for all supported languages."
+msgstr "Anpassning av e-postmall för alla språk som stöds."
+
+#: templates/admin.php:888
+msgid ""
+"Emails will be sent via SMTP server that is configured in Basic settings."
+msgstr ""
+"E-postmeddelanden kommer att skickas via SMTP-servern som är konfigurerad i "
+"Grundinställningar."
+
+#: templates/frontend_v2.php:1173 templates/frontend_v2.php:1211
+#: templates/frontend_v2.php:1225 templates/frontend_v2.php:1239
+#: templates/frontend_v2.php:1253
+msgid "Empty"
+msgstr "Tom"
+
+#: templates/admin.php:253
+msgid "Enable cancel form"
+msgstr "Aktivera avbryt formulär"
+
+#: templates/admin.php:269
+msgid "Enable modify reservations"
+msgstr "Aktivera ändra reservationer"
+
+#: templates/admin.php:278
+msgid "Enable or Disable modify reservation."
+msgstr "Aktivera eller inaktivera ändra reservation."
+
+#: templates/admin.php:262
+msgid "Enable or Disable reservation cancel form."
+msgstr "Aktivera eller inaktivera formuläret för avbokning av reservation."
+
+#: templates/admin.php:310
+msgid ""
+"Enable or Disable social network account login. When enabled clients can "
+"login with any social network accounts like Facebook and then reservation "
+"form will be pre-filled with personal information. Also if user logins with "
+"social network but does not complete the reservation, he will receive a "
+"reminder to finalize it. You need to install and setup plugin with name "
+"'Super Socializer' from WordPress directory."
+msgstr ""
+"Aktivera eller inaktivera inloggning på sociala nätverkskonton. När det är "
+"aktiverat kan kunder logga in med alla sociala nätverkskonton som Facebook "
+"och sedan kommer bokningsformuläret att vara förifyllt med personlig "
+"information. Även om användaren loggar in med ett socialt nätverk men inte "
+"slutför bokningen kommer han att få en påminnelse om att slutföra den. Du "
+"måste installera och ställa in plugin med namnet \"Super Socializer\" från "
+"WordPress-katalogen."
+
+#: templates/admin.php:301
+msgid "Enable social network login"
+msgstr "Aktivera inloggning på sociala nätverk"
+
+#: templates/admin.php:771
+msgid "Enable/Disable captcha on reservation form."
+msgstr "Aktivera/inaktivera captcha på bokningsformuläret."
+
+#: templates/admin.php:481
+msgid "Enable/Disable children dropdown"
+msgstr "Aktivera/inaktivera underordnade rullgardinsmeny"
+
+#: templates/basicpackage.php:61
+msgid ""
+"Enhance your business experience by using our Facebook integration service "
+"where we try to provide you with profile pictures of your customers if found."
+" You can amaze your customer by knowing him by face when he visits you, "
+"especially at the time of first visit."
+msgstr ""
+"Förbättra din affärsupplevelse genom att använda vår Facebook-"
+"integrationstjänst där vi försöker förse dig med profilbilder på dina kunder "
+"om de hittas. Du kan förvåna din kund genom att känna honom i ansiktet när "
+"han besöker dig, särskilt vid tidpunkten för det första besöket."
+
+#: redi-restaurant-reservation.php:2077
+msgid ""
+"Enter any personal information from reservation like name, email or phone "
+"number"
+msgstr ""
+"Ange personlig information från bokningen som namn, e-postadress eller "
+"telefonnummer"
+
+#: redi-restaurant-reservation.php:2037
+msgid "Error loading custom fields"
+msgstr "Fel vid inläsning av anpassade fält"
+
+#: templates/frontend.php:40 templates/frontend_v2.php:203
+msgid ""
+"ERROR: You need to install/activate dependant plugin Super Socializer plugin"
+msgstr ""
+"FEL: Du måste installera/aktivera beroende plugin Super Socializer plugin"
+
+#: templates/admin_welcome.php:33 templates/basicpackage.php:25
+msgid "facebook"
+msgstr "Facebook (på engelska)"
+
+#: redi-restaurant-reservation.php:1076
+msgid "Failed to create the directory"
+msgstr "Det gick inte att skapa katalogen"
+
+#: redi-restaurant-reservation.php:2036
+msgid "Failed to load custom fields. Please try again later."
+msgstr "Det gick inte att läsa in anpassade fält. Försök igen senare."
+
+#: redi-restaurant-reservation.php:2008
+msgid "February"
+msgstr "Februari"
+
+#: templates/admin_ajaxed.php:527
+msgid "Field name"
+msgstr "Namn på fält"
+
+#: templates/admin_ajaxed.php:537
+msgid "Field type"
+msgstr "Typ av fält"
+
+#: functions/notice.php:137
+#, php-format
+msgid ""
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
+"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+msgstr ""
+"Slutligen, ett sista steg i <b>installationen av ReDi Restaurant Reservation "
+"Plugin</b> för att imponera på dina kunder, gör en testbokning. <b>%1$s</b>"
+"%2$s"
+
+#: redi-restaurant-reservation.php:2073
+msgid "Find Reservation"
+msgstr "Hitta bokning"
+
+#: templates/frontend_v2.php:1367 templates/modify.php:15
+msgid "Find reservation"
+msgstr "Hitta bokning"
+
+#: redi-restaurant-reservation.php:1979 templates/frontend.php:262
+#: templates/frontend_v2.php:650
+msgid "First Name"
+msgstr "Förnamn"
+
+#: redi-restaurant-reservation.php:1836 redi-restaurant-reservation.php:1881
+#: templates/frontend_v2.php:648
+msgid "First Name can't be empty"
+msgstr "Förnamnet får inte vara tomt"
+
+#: redi-restaurant-reservation.php:2117
+msgid "First name is required"
+msgstr "Förnamn är obligatoriskt"
+
+#: templates/admin.php:816
+msgid "Force users to provide a reason when canceling reservation."
+msgstr "Tvinga användare att ange en anledning när de avbokar bokningen."
+
+#: redi-restaurant-reservation.php:726
+msgid "Form security check failed with error: Nonce check failed."
+msgstr ""
+"Formulärsäkerhetskontrollen misslyckades med felet: Nonce-kontrollen "
+"misslyckades."
+
+#: redi-restaurant-reservation.php:2523
+msgid ""
+"Form security check failed with error: Nonce check failed. Reservation form "
+"is not working today, please contact us directly."
+msgstr ""
+"Formulärsäkerhetskontrollen misslyckades med felet: Nonce-kontrollen "
+"misslyckades. Bokningsformuläret fungerar inte idag, vänligen kontakta oss "
+"direkt."
+
+#: templates/admin.php:126
+msgid "Free package settings"
+msgstr "Grundinställningar"
+
+#: redi-restaurant-reservation.php:2001
+msgid "Fri"
+msgstr "Fre"
+
+#: templates/admin.php:873 templates/admin.php:887
+msgid "From Custom SMTP"
+msgstr "Från anpassad SMTP"
+
+#: templates/admin.php:871 templates/admin.php:890
+msgid "From ReservationDiary.eu"
+msgstr "Från ReservationDiary.eu"
+
+#: templates/admin.php:875 templates/admin.php:884
+msgid "From WordPress email account"
+msgstr "Från WordPress e-postkonto"
+
+#: templates/admin.php:924
+msgid "Frontend settings"
+msgstr "Inställningar för frontend"
+
+#: redi-restaurant-reservation.php:1981 templates/frontend_v2.php:634
+msgid "Full Name"
+msgstr "Fullständigt namn"
+
+#: templates/frontend_v2.php:632
+msgid "Full Name can't be empty"
+msgstr "Det fullständiga namnet får inte vara tomt"
+
+#: redi-restaurant-reservation.php:2119
+msgid "Full name is required"
+msgstr "Fullständigt namn måste fyllas i"
+
+#: redi-restaurant-reservation.php:2025
+msgid "Fully booked"
+msgstr "Fullbokad"
+
+#: templates/admin_ajaxed.php:617
+msgid "GDPR"
+msgstr "Allmänna dataskyddsförordningen (GDPR)"
+
+#. Description of the plugin
+msgid ""
+"Get your restaurant business booming with the <strong>ReDi Restaurant "
+"Reservation plugin</strong>! Our plugin simplifies the reservation process "
+"and allows your clients to easily book online. With <strong>instant "
+"reservation confirmation</strong> and customizable settings, managing "
+"reservations has never been easier. Say goodbye to the hassle of manually "
+"confirming reservations and hello to the convenience of automatic "
+"confirmation. Try it out today and see the difference it can make in just a "
+"few clicks!"
+msgstr ""
+"Få din restaurangverksamhet att blomstra med <strong>ReDi Restaurant "
+"Reservation-pluginet</strong>! Vårt plugin förenklar bokningsprocessen och "
+"gör det möjligt för dina kunder att enkelt boka online. Med <strong>"
+"omedelbar bokningsbekräftelse</strong> och anpassningsbara inställningar har "
+"det aldrig varit enklare att hantera bokningar. Säg adjö till besväret med "
+"att manuellt bekräfta bokningar och hej till bekvämligheten med automatisk "
+"bekräftelse. Prova det idag och se vilken skillnad det kan göra med bara "
+"några klick!"
+
+#: templates/basicpackage.php:92
+msgid "Getting discovered on Google, Apple, Facebook, and more"
+msgstr "Bli upptäckt på Google, Apple, Facebook och mer"
+
+#: redi-restaurant-reservation.php:1969 templates/confirm.php:34
+#: templates/frontend.php:77 templates/frontend_v2.php:127
+#: templates/frontend_v2.php:253 templates/frontend_v2.php:1142
+msgid "Guests"
+msgstr "Gästerna"
+
+#: redi-restaurant-reservation.php:399
+msgid "Help"
+msgstr "Hjälp"
+
+#: redi-restaurant-reservation.php:1976
+msgid "Hide all steps"
+msgstr "Dölj alla steg"
+
+#: templates/admin.php:940
+msgid "Hide previous steps (only for timeshiftmode byshifts)"
+msgstr "Dölj tidigare steg (endast för timeshiftmode byshifts)"
+
+#: templates/admin.php:931
+msgid "Hide steps"
+msgstr "Dölj steg"
+
+#: templates/admin_ajaxed.php:464 templates/admin_ajaxed.php:486
+msgid "Hours"
+msgstr "Timmar"
+
+#: redi-restaurant-reservation.php:2031
+msgid "hours"
+msgstr "Timmar"
+
+#: templates/admin.php:405
+msgid "HTML dropdown"
+msgstr "Rullgardinsmeny för HTML"
+
+#. URI of the plugin
+#. Author URI of the plugin
+msgid "https://landing.reservationdiary.eu"
+msgstr "https://landing.reservationdiary.eu"
+
+#: templates/admin.php:356
+msgid "Hyphen"
+msgstr "Bindestreck"
+
+#: templates/admin.php:71
+msgid "I agree to the privacy policy"
+msgstr "Jag godkänner integritetspolicyn"
+
+#: templates/admin.php:858
+msgid ""
+"If checkbox is checked then reservations will not be automatically confirmed."
+" You will receive email with reservation request and each reservation needs "
+"to be confirmed or rejected manually."
+msgstr ""
+"Om kryssrutan är markerad kommer bokningar inte att bekräftas automatiskt. "
+"Du kommer att få ett e-postmeddelande med en bokningsförfrågan och varje "
+"bokning måste bekräftas eller avvisas manuellt."
+
+#: templates/admin.php:612
+msgid ""
+"If checkbox is checked then seats left will be shown under selected time."
+msgstr ""
+"Om kryssrutan är markerad kommer platser kvar att visas under vald tid."
+
+#: templates/admin.php:957
+msgid ""
+"If checkbox is checked, a logo of <b>\"Powered by ReservationDiary.eu\"</b> "
+"is displayed. Thank you for supporting us."
+msgstr ""
+"Om kryssrutan är markerad visas logotypen <b>\"Powered by ReservationDiary."
+"eu\".</b> Tack för att du stöttar oss."
+
+#: templates/admin.php:466
+msgid ""
+"If this field is filled, the drop down menu of persons would show \"Large "
+"Groups\" and upon selection, the specified message would appear."
+msgstr ""
+"Om det här fältet är ifyllt kommer rullgardinsmenyn med personer att visa "
+"\"Stora grupper\" och när du väljer det visas det angivna meddelandet."
+
+#: templates/basicpackage.php:68
+msgid ""
+"If you are building a catalogue of restaurants and looking for the perfect "
+"reservation plugin for it, we can provide it to you."
+msgstr ""
+"Om du bygger en katalog med restauranger och letar efter det perfekta "
+"bokningspluginet för det, kan vi tillhandahålla det till dig."
+
+#: templates/admin_ajaxed.php:384
+msgid ""
+"If you close next day at night then set closing time on a same day. For "
+"example 18:00 - 3:00"
+msgstr ""
+"Om du stänger efter midnatt ange då tid samma datum. Till exempel 18:00 - 3:"
+"00"
+
+#: templates/admin_welcome_no_key.php:22
+msgid ""
+"If you have already an API key, you can skip this step and provide API key "
+"on next step."
+msgstr ""
+"Om du redan har en API-nyckel kan du hoppa över det här steget och ange en "
+"API-nyckel i nästa steg."
+
+#: templates/admin.php:913
+msgid ""
+"If you want to customize confirmation page or have a separated page for "
+"marketing purposes, then select custom reservation confirmation page. If not "
+"specified, then built in confirmation page will be used."
+msgstr ""
+"Om du vill anpassa bekräftelsesidan eller ha en separat sida i "
+"marknadsföringssyfte väljer du sidan för anpassad bokningsbekräftelse. Om "
+"inget anges används den inbyggda bekräftelsesidan."
+
+#: templates/basicpackage.php:73
+msgid ""
+"If you would like to add some new functionality or have any other queries, "
+"please contact us by email: "
+msgstr ""
+"Om du vill lägga till ny funktionalitet eller har andra frågor, vänligen "
+"kontakta oss via e-post: "
+
+#: templates/admin.php:467 templates/admin.php:515 templates/admin.php:681
+msgid ""
+"In case you need to show it in multiple languages, then use following format "
+"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+msgstr ""
+"Om du behöver visa den på flera språk, använd då följande format [locale]"
+"Text[/locale]. Exempel: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+
+#: templates/frontend_v2.php:468
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a  href=\"#\" class=\"link-waitlist-form\">this "
+"form</a>."
+msgstr ""
+"Om du vill bli meddelad när någon avbokar bokningen för denna dag, vänligen "
+"fyll i <a href=\"#\" class=\"link-waitlist-form\">detta formulär</a>."
+
+#: templates/frontend.php:199 templates/frontend.php:381
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Om du vill bli meddelad när någon avbokar bokningen för denna dag, vänligen "
+"fyll i <a class=\"link-waitlist-form\">detta formulär</a>."
+
+#: templates/frontend.php:369
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this time, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Om du vill bli meddelad när någon avbokar bokningen för denna tid, vänligen "
+"fyll i <a class=\"link-waitlist-form\">detta formulär</a>."
+
+#: templates/admin.php:914
+msgid ""
+"In order to display reservation id on that page, install plugin GET Params "
+"and add following short code: [display-get-param name=\"reservation_id\"]"
+msgstr ""
+"För att visa reservations-id på den sidan, installera plugin GET Params och "
+"lägg till följande kortkod: [display-get-param name=\"reservation_id\"]"
+
+#: templates/admin.php:575
+msgid ""
+"In this mode, the system automatically displays all the available times for "
+"the date selected without any manual time input."
+msgstr ""
+"I det här läget visar systemet automatiskt alla tillgängliga tider för det "
+"valda datumet utan någon manuell tidsinmatning."
+
+#: templates/admin.php:572
+msgid ""
+"In this mode, the user selects the desired time and the system verifies its "
+"availability to present five different alternative times to the customer."
+msgstr ""
+"I detta läge väljer användaren önskad tid och systemet verifierar dess "
+"tillgänglighet för att presentera fem olika alternativa tider för kunden."
+
+#: templates/frontend_v2.php:688 templates/frontend_v2.php:1347
+#: templates/frontend_v2.php:1545 templates/frontend_v2.php:1695
+#: templates/frontend_v2.php:1852
+msgid "Incorrect email"
+msgstr "Felaktig e-postadress"
+
+#: templates/frontend_v2.php:676 templates/frontend_v2.php:1323
+#: templates/frontend_v2.php:1531 templates/frontend_v2.php:1673
+#: templates/frontend_v2.php:1840
+msgid "Incorrect phone number"
+msgstr "Felaktigt telefonnummer"
+
+#: templates/admin_ajaxed.php:547
+msgid "Is printed?"
+msgstr "Är tryckt?"
+
+#: redi-restaurant-reservation.php:2041
+msgid "is required"
+msgstr "är obligatoriskt"
+
+#: templates/admin_ajaxed.php:542
+msgid "Is required?"
+msgstr "Obligatoriskt?"
+
+#: redi-restaurant-reservation.php:2007
+msgid "January"
+msgstr "Januari"
+
+#: templates/admin.php:402
+msgid "jQuery plugin"
+msgstr "jQuery-plugin"
+
+#: redi-restaurant-reservation.php:2013
+msgid "July"
+msgstr "Juli"
+
+#: redi-restaurant-reservation.php:2012
+msgid "June"
+msgstr "Juni"
+
+#: templates/basicpackage.php:94
+msgid ""
+"Keeping online listings accurate and up to date — without the tech stress"
+msgstr "Hålla onlinelistor korrekta och uppdaterade – utan teknisk stress"
+
+#: templates/admin_ajaxed.php:226
+msgid "Language"
+msgstr "Språk"
+
+#: templates/admin_ajaxed.php:254
+msgid ""
+"Language for emails of clients depend on the user interface language "
+"selected."
+msgstr ""
+"Språket för e-postmeddelanden från klienter beror på vilket språk i "
+"användargränssnittet som valts."
+
+#: templates/admin_ajaxed.php:253
+msgid ""
+"Language for internal emails communication. It is specially used for admin "
+"emails. "
+msgstr ""
+"Språk för intern e-postkommunikation. Det används speciellt för admin-e-"
+"postmeddelanden. "
+
+#: templates/admin.php:978
+msgid "Language Path"
+msgstr "Sökväg till språk"
+
+#: redi-restaurant-reservation.php:1980 templates/frontend.php:271
+#: templates/frontend_v2.php:663
+msgid "Last Name"
+msgstr "Efternamn"
+
+#: redi-restaurant-reservation.php:1837 redi-restaurant-reservation.php:1883
+msgid "Last Name can't be empty"
+msgstr "Efternamnet får inte vara tomt"
+
+#: templates/frontend_v2.php:661
+msgid "Last name can't be empty"
+msgstr "Efternamnet får inte vara tomt"
+
+#: redi-restaurant-reservation.php:2118
+msgid "Last name is required"
+msgstr "Efternamn är obligatoriskt"
+
+#: templates/admin_ajaxed.php:456
+msgid "Late Bookings"
+msgstr "Sena bokningar"
+
+#: templates/basicpackage.php:96
+msgid "Learn more at mobal.io"
+msgstr "Läs mer på mobal.io"
+
+#: redi-restaurant-reservation.php:2021
+msgid "Legend"
+msgstr "Legend"
+
+#: templates/admin.php:503
+msgid "Limits the maximum number of children per reservation"
+msgstr "Begränsar det maximala antalet barn per bokning"
+
+#: redi-restaurant-reservation.php:1990
+msgid "Loading available dates"
+msgstr "Laddar tillgängliga datum"
+
+#: redi-restaurant-reservation.php:1992
+msgid "Loading available time slots"
+msgstr "Laddar tillgängliga tidsluckor"
+
+#: redi-restaurant-reservation.php:2067
+msgid "Loading confirmation details"
+msgstr "Information om bekräftelse av inläsning"
+
+#: redi-restaurant-reservation.php:1989
+msgid "Loading custom fields"
+msgstr "Laddar anpassade fält"
+
+#: redi-restaurant-reservation.php:1993
+msgid "Loading reservation form"
+msgstr "Laddar bokningsformulär"
+
+#: redi-restaurant-reservation.php:1991
+msgid "Loading restaurants"
+msgstr "Laddar restauranger"
+
+#: templates/admin.php:969
+msgid "Localization"
+msgstr "Lokalisering"
+
+#: redi-restaurant-reservation.php:1967
+msgid "Location"
+msgstr "Plats"
+
+#: templates/frontend.php:30 templates/frontend_v2.php:183
+msgid "Login with your social media account"
+msgstr "Logga in med ditt konto på sociala medier"
+
+#: templates/frontend.php:320 templates/frontend_v2.php:899
+msgid "Make a reservation"
+msgstr "Boka"
+
+#: templates/frontend.php:318
+msgid "Make a reservation request"
+msgstr "Gör en bokningsförfrågan"
+
+#: redi-restaurant-reservation.php:2070
+msgid "Manage Existing Reservation"
+msgstr "Hantera befintlig reservation"
+
+#: templates/admin.php:806
+msgid "Mandatory Cancellation Reason"
+msgstr "Orsak till obligatorisk avbokning"
+
+#: templates/admin.php:849
+msgid "Manual reservation"
+msgstr "Manuell bokning"
+
+#: redi-restaurant-reservation.php:2009
+msgid "March"
+msgstr "Mars"
+
+#: templates/admin.php:487
+msgid "Max children per reservation"
+msgstr "Max antal barn per bokning"
+
+#: templates/admin.php:435
+msgid "Max persons per reservation"
+msgstr "Max antal personer per bokning"
+
+#: templates/admin_ajaxed.php:400
+msgid "Maximum number of guests"
+msgstr "Maximalt antal gäster"
+
+#: templates/admin.php:449
+msgid ""
+"Maximum number of persons allowed for each reservation. Drop down list of "
+"persons ends with this number."
+msgstr ""
+"Maximalt antal personer som tillåts för varje bokning. Rullgardinslistan "
+"över personer slutar med detta nummer."
+
+#: templates/admin_ajaxed.php:493
+msgid "Maximum time before the reservation can be accepted."
+msgstr "Maximal tid innan bokningen kan accepteras."
+
+#: redi-restaurant-reservation.php:2011
+msgid "May"
+msgstr "Maj"
+
+#: templates/frontend_v2.php:704
+msgid "Maybe you have any wishes for the reservation"
+msgstr "Kanske har du några önskemål för bokningen"
+
+#: redi-restaurant-reservation-api.php:467
+msgid "Menu items"
+msgstr "Menyalternativ"
+
+#: templates/admin.php:457
+msgid "Message for large groups"
+msgstr "Meddelande vid större sällskap."
+
+#: templates/admin.php:415
+msgid "Min persons per reservation"
+msgstr "Minsta antal personer per bokning"
+
+#: templates/admin.php:429
+msgid ""
+"Minimum number of persons allowed for each reservation. Drop down list of "
+"persons starts from this number."
+msgstr ""
+"Minsta antal tillåtna personer för varje bokning. Rullgardinslistan över "
+"personer börjar från detta nummer."
+
+#: templates/admin_ajaxed.php:463
+msgid "Minutes"
+msgstr "Protokoll"
+
+#: redi-restaurant-reservation.php:2032
+msgid "minutes"
+msgstr "protokoll"
+
+#: templates/basicpackage.php:85 templates/basicpackage.php:88
+msgid "Mobal"
+msgstr "Mobal"
+
+#: templates/basicpackage.php:90
+msgid ""
+"Mobal is our trusted partner in helping restaurants turn online searches "
+"into real reservations."
+msgstr ""
+"Mobal är vår pålitliga partner när det gäller att hjälpa restauranger att "
+"förvandla sökningar på nätet till riktiga bokningar."
+
+#: redi-restaurant-reservation.php:2108
+msgid "Mobile"
+msgstr "Mobil"
+
+#: templates/admin.php:569
+msgid ""
+"Mode how available working hours presented to user so that they can choose "
+"time slots most convenient to them."
+msgstr ""
+"Läge hur tillgängliga arbetstider presenteras för användaren så att de kan "
+"välja tidsluckor som passar dem bäst."
+
+#: templates/frontend_v2.php:1050
+msgid "Modify existing reservation"
+msgstr "Ändra befintlig reservation"
+
+#: redi-restaurant-reservation.php:2072
+msgid "Modify Reservation"
+msgstr "Ändra reservation"
+
+#: templates/frontend.php:15 templates/frontend_v2.php:1285
+#: templates/modify.php:2
+msgid "Modify reservation"
+msgstr "Ändra reservation"
+
+#: redi-restaurant-reservation.php:1997
+msgid "Mon"
+msgstr "Mån"
+
+#: templates/admin_ajaxed.php:420
+msgid "Monthly guest reservation limit"
+msgstr "Månatlig bokningsgräns för gäster"
+
+#: templates/admin_ajaxed.php:488
+msgid "Months"
+msgstr "Månader"
+
+#. %s is the number of guests.
+#: templates/frontend.php:95
+#, php-format
+msgid "More than %s Guests"
+msgstr "Mer än %s Gäster"
+
+#: templates/frontend.php:7 templates/frontend_v2.php:46
+msgid "More than [max] people"
+msgstr "Mer än [max] personer"
+
+#: templates/admin_ajaxed.php:388
+msgid ""
+"Multiple open and close times are available in Basic package. If times are "
+"configured in Basic package, then this table is ignored."
+msgstr ""
+"Flera öppnings- och stängningstider finns tillgängliga i Basic-paketet. Om "
+"tider är konfigurerade i Basic-paketet ignoreras den här tabellen."
+
+#: templates/admin.php:142 templates/admin_ajaxed.php:289
+#: templates/cancel.php:27 templates/frontend.php:248
+#: templates/frontend.php:264 templates/frontend.php:463
+#: templates/frontend_v2.php:1337 templates/frontend_v2.php:1521
+#: templates/frontend_v2.php:1687 templates/frontend_v2.php:1830
+#: templates/modify.php:11 templates/modify.php:60
+msgid "Name"
+msgstr "Namn"
+
+#: redi-restaurant-reservation.php:1835 redi-restaurant-reservation.php:1879
+#: templates/frontend_v2.php:1335 templates/frontend_v2.php:1519
+#: templates/frontend_v2.php:1685 templates/frontend_v2.php:1828
+msgid "Name can't be empty"
+msgstr "Namn behöver anges."
+
+#: redi-restaurant-reservation.php:1838 redi-restaurant-reservation.php:1885
+#, fuzzy
+#| msgid "Name,Phone or Email can't be empty"
+msgid "Name or Phone or Email can't be empty"
+msgstr "Namn, telefonnummer och epost kan inte lämnas tomt."
+
+#: templates/admin.php:147
+msgid "News"
+msgstr "Nyheter"
+
+#: templates/admin.php:62 templates/admin_ajaxed.php:611
+msgid "Newsletter"
+msgstr "Nyhetsbrev"
+
+#: redi-restaurant-reservation.php:1843 redi-restaurant-reservation.php:1895
+#: templates/admin_welcome.php:40 templates/admin_welcome_no_key.php:45
+#: templates/admin_welcome_no_page.php:41
+msgid "Next"
+msgstr "Nästa"
+
+#: redi-restaurant-reservation.php:2004
+msgid "Next month"
+msgstr "Nästa månad"
+
+#: templates/frontend_v2.php:428 templates/frontend_v2.php:592
+msgid "Next step"
+msgstr "Nästa steg"
+
+#: templates/admin_welcome.php:18
+msgid ""
+"Next step is to configure the plugin, please watch following videos and "
+"click on Next to open Settings page"
+msgstr ""
+"Nästa steg är att konfigurera plugin-programmet, titta på följande videor "
+"och klicka på Nästa för att öppna inställningssidan"
+
+#: redi-restaurant-reservation.php:2040 redi-restaurant-reservation.php:2096
+msgid "No"
+msgstr "Nej"
+
+#: templates/admin.php:571
+msgid "Normal"
+msgstr "Normal"
+
+#: redi-restaurant-reservation.php:784
+msgid "Not a valid API key provided."
+msgstr "Inte en giltig API-nyckel har angetts."
+
+#: templates/admin_ajaxed.php:519
+msgid ""
+"NOTE: Complex custom fields like Options and Dropdown can be configured in "
+"Basic package settings."
+msgstr ""
+"OBS: Komplexa anpassade fält som Alternativ och Rullgardinsmeny kan "
+"konfigureras i Grundläggande paketinställningar."
+
+#: templates/admin_ajaxed.php:472
+msgid ""
+"NOTE: If you define Open Time in basic package, then this setting will be "
+"ignored. Use open times settings to define Late Bookings."
+msgstr ""
+"OBS: Om du definierar Öppen tid i grundpaketet kommer denna inställning att "
+"ignoreras. Använd inställningarna för öppna tider för att definiera sena "
+"bokningar."
+
+#: templates/admin_ajaxed.php:517
+msgid ""
+"NOTE: Name, Email, Phone and Comments are required fields of reservation "
+"form and do not need to be defined here as custom fields."
+msgstr ""
+"OBS: Namn, E-post, Telefon och Kommentarer är obligatoriska fält i "
+"bokningsformuläret och behöver inte definieras här som anpassade fält."
+
+#: templates/admin_ajaxed.php:655
+msgid "Note: To send SMS messages an extra addon needs to be purchased."
+msgstr "Notera: För att skicka SMS-meddelanden måste ett extra tillägg köpas."
+
+#: redi-restaurant-reservation.php:2017
+msgid "November"
+msgstr "November"
+
+#: templates/frontend.php:83
+msgid "Number of adults"
+msgstr "Antal vuxna"
+
+#: templates/frontend.php:106
+msgid "Number of children"
+msgstr "Antal barn"
+
+#: templates/frontend.php:84 templates/frontend_v2.php:1441
+#: templates/modify.php:36
+msgid "Number of guests"
+msgstr "Antal gäster"
+
+#: templates/admin.php:787
+msgid "Obtain your captcha key from Google."
+msgstr "Skaffa din captcha-nyckel från Google."
+
+#: redi-restaurant-reservation.php:2016
+msgid "October"
+msgstr "Oktober"
+
+#: redi-restaurant-reservation.php:1555
+msgid ""
+"Online reservation service is not available at this time. Try again later or"
+msgstr ""
+"Onlinebokningstjänsten är inte tillgänglig för närvarande. Försök igen "
+"senare eller"
+
+#. %s is a placeholder for a dynamic link.
+#: redi.php:283
+#, php-format
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"%s"
+msgstr ""
+"Onlinebokningstjänsten är inte tillgänglig för närvarande. Försök igen "
+"senare eller %s"
+
+#: redi-restaurant-reservation.php:2104
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"contact us directly."
+msgstr "Onlinebokning inte öppen denna tid. Kontakta oss via telefon."
+
+#: templates/admin_ajaxed.php:348
+msgid "Open"
+msgstr "Öppet"
+
+#: functions/notice.php:47 functions/notice.php:79
+msgid "Open setup wizard"
+msgstr "Öppna installationsguiden"
+
+#: templates/basicpackage.php:40
+msgid ""
+"Open times. This option will enable you to choose between various working "
+"hours whichever is most convenient to you."
+msgstr ""
+"Öppettider. Med det här alternativet kan du välja mellan olika arbetstider "
+"beroende på vad som passar dig bäst."
+
+#: templates/basicpackage.php:37
+msgid "Open upcoming reservations"
+msgstr "Se nya och aktuella bokningar"
+
+#: templates/admin_ajaxed.php:621
+msgid "Option"
+msgstr "Alternativ"
+
+#: templates/frontend_v2.php:290 templates/frontend_v2.php:378
+#: templates/frontend_v2.php:1475
+msgid "OR"
+msgstr "ELLER"
+
+#: redi-restaurant-reservation.php:2022
+msgid "Outside of the reservation range"
+msgstr "Utanför bokningsintervallet"
+
+#: templates/admin.php:671
+msgid "Override fully booked message text"
+msgstr "Åsidosätt fullbokad meddelandetext"
+
+#: templates/admin_welcome_no_page.php:13
+msgid "Page name"
+msgstr "Sidans namn"
+
+#: redi-restaurant-reservation.php:2985
+msgid "Page name is required"
+msgstr "Sidans namn är obligatoriskt"
+
+#: templates/basicpackage.php:78
+msgid "Partner Offers"
+msgstr "Erbjudanden från partner"
+
+#: redi-restaurant-reservation.php:2076
+msgid "Personal information"
+msgstr "Personuppgift"
+
+#: redi-restaurant-reservation.php:318
+msgid ""
+"Personal information (email, phone, or name) is required to search for a "
+"reservation."
+msgstr ""
+"Personlig information (e-post, telefon eller namn) krävs för att söka efter "
+"en bokning."
+
+#: redi-restaurant-reservation.php:2082
+msgid "Personal information is required"
+msgstr "Personlig information krävs"
+
+#: templates/frontend.php:454 templates/frontend_v2.php:1810
+msgid "Persons"
+msgstr "Antal personer"
+
+#: redi-restaurant-reservation.php:1983 templates/admin_ajaxed.php:261
+#: templates/cancel.php:19 templates/frontend.php:251
+#: templates/frontend.php:277 templates/frontend.php:473
+#: templates/frontend_v2.php:678 templates/frontend_v2.php:1325
+#: templates/frontend_v2.php:1533 templates/frontend_v2.php:1675
+#: templates/frontend_v2.php:1842 templates/modify.php:8
+#: templates/modify.php:64
+msgid "Phone"
+msgstr "Tel"
+
+#: redi-restaurant-reservation.php:1840 redi-restaurant-reservation.php:1889
+msgid "Phone can't be empty"
+msgstr "Telefonnummer behövs."
+
+#: redi-restaurant-reservation.php:1841 redi-restaurant-reservation.php:1891
+msgid "Phone number is not valid"
+msgstr "Telefonnumret är inte giltigt"
+
+#: redi-restaurant-reservation.php:2115
+msgid "Phone number is required"
+msgstr "Telefonnummer är obligatoriskt"
+
+#: templates/admin_ajaxed.php:78 templates/frontend.php:52
+#: templates/frontend_v2.php:217
+msgid "Place"
+msgstr "Lokal"
+
+#: templates/basicpackage.php:53
+msgid ""
+"Please allow 1 business day for us to confirm your payment and upgrade your "
+"account."
+msgstr ""
+"Det kan ta upp till 1 arbetsdag för oss att bekräfta din betalning och "
+"uppgradera ditt konto."
+
+#: templates/admin.php:232
+msgid ""
+"Please contact info@reservationdiary.eu for any issues or missing features "
+"in Beta themes so we can prioritize them."
+msgstr ""
+"Kontakta info@reservationdiary.eu om du har problem eller saknar funktioner "
+"i betateman så att vi kan prioritera dem."
+
+#: functions/notice.php:134
+msgid ""
+"Please create a reservation page and add this <b>[redirestaurant]</b> "
+"shortcode to that page."
+msgstr ""
+"Skapa en bokningssida och lägg till den här <b>[redirestaurant]</b>-"
+"kortkoden på den sidan."
+
+#: redi-restaurant-reservation.php:2116
+msgid "Please enter a valid email address"
+msgstr "Ange en giltig e-postadress"
+
+#: redi-restaurant-reservation.php:2087
+msgid "Please provide a reason for cancellation"
+msgstr "Ange en anledning till avbokningen"
+
+#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+msgid "Please provide your API Key in order to continue using plugin"
+msgstr "Ange din API-nyckel för att fortsätta använda plugin-programmet"
+
+#: templates/admin_welcome_no_key.php:13
+msgid "Please provide your email address to generate API Key"
+msgstr "Ange din e-postadress för att generera API-nyckeln"
+
+#: redi-restaurant-reservation.php:2046
+msgid "Please select a valid date for"
+msgstr "Välj ett giltigt datum för"
+
+#: redi-restaurant-reservation.php:2042
+msgid "Please select an option for"
+msgstr "Välj ett alternativ för"
+
+#: templates/admin.php:491
+msgid "Please select the maximum number of children."
+msgstr "Välj det maximala antalet barn."
+
+#: redi-restaurant-reservation.php:888
+msgid "Please select value from \"Max children per reservation\""
+msgstr "Välj värde från \"Max antal barn per bokning\""
+
+#: redi-restaurant-reservation.php:883
+msgid "Please select value from \"Monthly guest reservation limit\""
+msgstr "Välj värde från \"Månatlig bokningsgräns för gäster\""
+
+#: templates/admin.php:841
+msgid ""
+"Please verify you current time. This is important as this time is taken and "
+"used in reservation logic. In case time is differnet than your current time, "
+"please change time zone in Settings -> General -> Time Zone"
+msgstr ""
+"Kontrollera din aktuella tid. Detta är viktigt eftersom den här tiden tas "
+"och används i reservationslogik. Om tiden skiljer sig från din aktuella tid, "
+"vänligen ändra tidszon i Inställningar -> Allmänt -> Tidszon"
+
+#: templates/admin_welcome.php:22
+msgid "Plugin Documentation"
+msgstr "Dokumentation för plugin"
+
+#: redi-restaurant-reservation.php:1683
+msgid ""
+"Plugin failed to properly load javascript file, please check that jQuery is "
+"loaded and no javascript errors present."
+msgstr ""
+"Plugin-programmet kunde inte ladda javascript-filen korrekt, kontrollera att "
+"jQuery är laddad och att det inte finns några javascript-fel."
+
+#: templates/admin.php:135
+msgid "Plugin Info"
+msgstr "Plugin Info"
+
+#: redi-restaurant-reservation.php:1964 templates/frontend.php:520
+msgid "Powered by"
+msgstr "Styrt av"
+
+#: templates/frontend.php:459 templates/frontend_v2.php:1818
+msgid "Preferred time"
+msgstr "Önskad tid"
+
+#: templates/frontend.php:233 templates/frontend.php:314
+msgid "Previous"
+msgstr "Föregående"
+
+#: redi-restaurant-reservation.php:2005
+msgid "Previous month"
+msgstr "Föregående månad"
+
+#: templates/admin.php:65
+msgid "Privacy policy"
+msgstr "Integritetspolicy"
+
+#: templates/frontend.php:240
+msgid "Provide reservation details"
+msgstr "Lämna bokningsuppgifter"
+
+#: redi-restaurant-reservation.php:1846 redi-restaurant-reservation.php:1901
+msgid "Provided time is not in valid format."
+msgstr "Den angivna tiden är inte i giltigt format."
+
+#: templates/admin.php:167
+msgid "Rate the plugin, help us grow"
+msgstr "Betygsätt pluginet, hjälp oss att växa"
+
+#: templates/frontend_v2.php:958
+msgid "Rate your reservation experience"
+msgstr "Betygsätt din bokningsupplevelse"
+
+#: templates/admin.php:223 templates/admin.php:231
+msgid "React 25 theme (BETA)"
+msgstr "React 25 tema (BETA)"
+
+#: templates/admin.php:1026 templates/cancel.php:40
+#: templates/frontend_v2.php:1707
+msgid "Reason"
+msgstr "Orsak"
+
+#: redi-restaurant-reservation.php:1842 redi-restaurant-reservation.php:1893
+#: templates/frontend_v2.php:1705
+msgid "Reason can't be empty"
+msgstr "Orsakt till avbokning behöver anges."
+
+#: templates/admin_welcome.php:12
+msgid "ReDi Reservation plugin:"
+msgstr "Plugin för ReDi-reservation:"
+
+#: redi-restaurant-reservation.php:1390 redi-restaurant-reservation.php:1391
+#: redi-restaurant-reservation.php:1446 redi-restaurant-reservation.php:1447
+#: redi-restaurant-reservation.php:1455 redi-restaurant-reservation.php:1456
+msgid "ReDi Reservations"
+msgstr "ReDi-reservationer"
+
+#. Name of the plugin
+msgid "ReDi Restaurant Reservation"
+msgstr "ReDi Restaurang Bokning"
+
+#: templates/admin.php:142
+msgid "Redi Restaurant Reservation"
+msgstr "Redi Restaurang Bokning"
+
+#: redi-restaurant-reservation.php:793
+msgid ""
+"ReDi Restaurant Reservation plugin could not get an API key from the "
+"reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi "
+"Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation "
+"plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means "
+"that server where you host your web site can't connect to our "
+"reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow "
+"your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself,"
+" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
+"info@reservationdiary.eu</a>"
+msgstr ""
+"Pluginet ReDi Restaurant Reservation kunde inte hämta en API-nyckel från "
+"reservationdiary.eu-servern när det aktiverades.                        <br/>"
+" Du kan försöka åtgärda detta genom att gå till sidan \"alternativ\" för "
+"ReDi-restaurangbokning.                        <br/>Detta gör att plugin-"
+"programmet ReDi Restaurant Reservation försöker hämta en API-nyckel åt dig "
+"igen.                        <br/>Om du fortsätter att se det här felet "
+"betyder det vanligtvis att servern där du är värd för din webbplats inte kan "
+"ansluta till vår reservationdiary.eu-server.                        <br/>Du "
+"kan prova att be din WordPress-värd att tillåta din WordPress-server att "
+"ansluta till api.reservationdiary.eu                        <br/>Om du inte "
+"kan lösa detta problem själv, vänligen kontakta oss direkt via <a "
+"href=\"mailto:info@reservationdiary.eu\">info@reservationdiary.eu</a>"
+
+#: templates/admin_welcome.php:15
+msgid "ReDi restaurant reservation plugin is ready to use"
+msgstr "ReDi plugin för restaurangbokning är redo att användas"
+
+#: redi-restaurant-reservation-api.php:111
+msgid "ReDi Restaurant Reservation plugin not registered"
+msgstr "Plugin-programmet ReDi Restaurant Reservation är inte registrerat"
+
+#: templates/frontend.php:502 templates/frontend_v2.php:1868
+msgid "Register to Wait List"
+msgstr "Registrera dig på väntelistan"
+
+#: templates/basicpackage.php:65
+msgid "Remind your customer about upcoming reservation via Email or by SMS"
+msgstr "Påminn din kund om kommande bokning via e-post eller SMS"
+
+#: templates/admin.php:61 templates/admin_ajaxed.php:609
+msgid "Reminder"
+msgstr "Påminnelse"
+
+#: redi-restaurant-reservation.php:2053
+msgid "REQUEST ID"
+msgstr "BEGÄR ID"
+
+#: templates/admin_ajaxed.php:552
+msgid "Required error message"
+msgstr "Felmeddelande"
+
+#: templates/frontend_v2.php:636 templates/frontend_v2.php:652
+#: templates/frontend_v2.php:665 templates/frontend_v2.php:680
+#: templates/frontend_v2.php:692 templates/frontend_v2.php:1315
+#: templates/frontend_v2.php:1327 templates/frontend_v2.php:1339
+#: templates/frontend_v2.php:1351 templates/frontend_v2.php:1523
+#: templates/frontend_v2.php:1535 templates/frontend_v2.php:1549
+#: templates/frontend_v2.php:1561 templates/frontend_v2.php:1665
+#: templates/frontend_v2.php:1710 templates/frontend_v2.php:1820
+#: templates/frontend_v2.php:1832 templates/frontend_v2.php:1844
+#: templates/frontend_v2.php:1856
+msgid "required field"
+msgstr "Obligatoriskt fält"
+
+#: templates/admin_welcome_no_page.php:14
+msgid "reservation"
+msgstr "bokning"
+
+#: redi-restaurant-reservation.php:2003 templates/frontend_v2.php:536
+#, fuzzy
+#| msgid "Reservation time"
+msgid "Reservation date"
+msgstr "Sittningarnas tidslängd"
+
+#: redi-restaurant-reservation.php:2064 templates/frontend_v2.php:1102
+msgid "Reservation Details"
+msgstr "Detaljer om bokningen"
+
+#. Author of the plugin
+msgid "Reservation Diary"
+msgstr "Dagbok för bokning"
+
+#: templates/admin_ajaxed.php:439
+msgid "Reservation duration"
+msgstr "Reservationens varaktighet"
+
+#: templates/frontend_v2.php:67
+msgid "Reservation Form"
+msgstr "Formulär för bokning"
+
+#: redi.php:280
+msgid "Reservation form is not working"
+msgstr "Bokningsformuläret fungerar inte"
+
+#: templates/admin.php:714
+msgid "Reservation Form settings"
+msgstr "Inställningar för bokningsformulär"
+
+#: redi-restaurant-reservation.php:715 templates/cancel.php:57
+#: templates/confirm.php:55
+msgid "Reservation has been successfully canceled."
+msgstr "Din reservation är avbokad."
+
+#: templates/modify.php:89
+msgid "Reservation has been successfully updated."
+msgstr "Reservationen har uppdaterats."
+
+#: redi-restaurant-reservation.php:2054
+msgid "RESERVATION ID"
+msgstr "RESERVATIONS-ID"
+
+#: redi-restaurant-reservation.php:2075
+msgid "Reservation ID"
+msgstr "Reservations-ID"
+
+#: functions/feedback.php:93
+msgid "Reservation id is empty."
+msgstr "Reservations-ID:t är tomt."
+
+#: redi-restaurant-reservation.php:2080
+msgid "Reservation ID is required"
+msgstr "Reservations-ID krävs"
+
+#: redi-restaurant-reservation.php:2081
+msgid "Reservation ID must be a number"
+msgstr "Reservations-ID måste vara ett nummer"
+
+#: redi-restaurant-reservation-api.php:360
+msgid "Reservation is in the past and cannot be modified."
+msgstr "Reservationen tillhör det förflutna och kan inte ändras."
+
+#: templates/frontend.php:194 templates/frontend.php:388
+msgid ""
+"Reservation is not available on selected day. Please select another day."
+msgstr ""
+"Inga reservationer kan göras den valda dagen. Vänligen välj en annan dag."
+
+#: redi-restaurant-reservation.php:1699
+msgid "Reservation is not found."
+msgstr "Reservationen hittades inte."
+
+#: templates/admin.php:1022 templates/cancel.php:12 templates/confirm.php:12
+#: templates/frontend_v2.php:1313 templates/frontend_v2.php:1663
+#: templates/modify.php:6
+msgid "Reservation number"
+msgstr "Bokningsnummer"
+
+#: redi-restaurant-reservation.php:1834 redi-restaurant-reservation.php:1877
+#: templates/frontend_v2.php:1311 templates/frontend_v2.php:1661
+#: templates/frontend_v2.php:1816
+msgid "Reservation number can't be empty"
+msgstr "Bokningsnummer måste anges."
+
+#: redi-restaurant-reservation.php:758
+msgid "Reservation number is required"
+msgstr "Ditt bokningsnummer behövs."
+
+#: redi-restaurant-reservation.php:2063
+msgid "Reservation Request Details"
+msgstr "Detaljer om bokningsförfrågan"
+
+#: templates/admin_ajaxed.php:393
+msgid "Reservation restrictions"
+msgstr "Reservationsbegränsningar"
+
+#: templates/admin.php:825
+msgid "Reservation settings"
+msgstr "Inställningar för bokning"
+
+#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2765
+msgid "Reservation that is canceled can not be modified."
+msgstr "Bokning som avbokas kan inte ändras."
+
+#: redi-restaurant-reservation.php:1430 redi-restaurant-reservation.php:1431
+msgid "Reservations"
+msgstr "Reservationer"
+
+#: redi-restaurant-reservation.php:2029
+msgid "Reservations can only be made up to ${timeText} in advance"
+msgstr "Bokningar kan endast göras upp till ${timeText} i förväg"
+
+#: redi-restaurant-reservation.php:2028
+msgid "Reservations must be made at least ${timeText} in advance"
+msgstr "Bokningar måste göras minst ${timeText} i förväg"
+
+#: redi-restaurant-reservation.php:2024
+msgid "Restaurant is closed"
+msgstr "Restaurangen är stängd"
+
+#: templates/admin_ajaxed.php:115
+msgid "Restaurant name"
+msgstr "Restaurangens namn"
+
+#: templates/admin_ajaxed.php:69
+msgid "Restaurant settings"
+msgstr "Restaurangens uppgifter"
+
+#: redi-restaurant-reservation.php:2002
+msgid "Sat"
+msgstr "Suttit"
+
+#: templates/admin.php:240 templates/admin.php:523 templates/admin.php:711
+#: templates/admin.php:823 templates/admin.php:922 templates/admin.php:965
+#: templates/admin.php:997 templates/admin.php:1009
+#: templates/admin_ajaxed.php:275 templates/admin_ajaxed.php:332
+#: templates/admin_ajaxed.php:391 templates/admin_ajaxed.php:503
+msgid "Save Changes"
+msgstr "Spara ändringar"
+
+#: redi-restaurant-reservation.php:2074
+msgid "Searching for reservation"
+msgstr "Söker efter bokning"
+
+#: redi-restaurant-reservation.php:2038
+msgid "Select"
+msgstr "Utvald"
+
+#: templates/frontend.php:217
+msgid "Select available time"
+msgstr "Välj tillgänglighet"
+
+#: templates/admin_ajaxed.php:135
+msgid "Select Country"
+msgstr "Välj land"
+
+#: redi-restaurant-reservation.php:2045
+msgid "Select day"
+msgstr "Välj dag"
+
+#: templates/frontend.php:68
+#, fuzzy
+#| msgid "Select place, date and time"
+msgid "Select guests, date and time"
+msgstr "Välj lokal, datum och tid"
+
+#: redi-restaurant-reservation.php:2044
+msgid "Select month"
+msgstr "Välj månad"
+
+#: templates/admin_ajaxed.php:425
+msgid "Select monthly guest reservation limit"
+msgstr "Välj bokningsgräns för gäster per månad"
+
+#: templates/frontend_v2.php:834
+msgid "Select option"
+msgstr "Välj alternativ"
+
+#: templates/frontend.php:55
+msgid "Select place"
+msgstr "Välj plats"
+
+#: templates/frontend.php:49
+msgid "Select place, guests, date and time"
+msgstr "Välj plats, gäster, datum och tid"
+
+#: templates/admin.php:213
+msgid "Select plugin theme"
+msgstr "Välj plugin-tema"
+
+#: redi-restaurant-reservation.php:2334
+msgid "Selected date or time is not valid."
+msgstr "Valt datum eller tid inte tillgängligt."
+
+#: templates/admin.php:340
+msgid ""
+"Selecting this option, the calendar is set to popup when the user clicks the "
+"calendar control."
+msgstr ""
+"Om du väljer det här alternativet kommer kalendern att visas som ett popup-"
+"fönster när användaren klickar på kalenderkontrollen."
+
+#: templates/basicpackage.php:46
+msgid "Send client reservation confirmation emails from WordPress account."
+msgstr ""
+"Skicka e-postmeddelanden med kundbokningsbekräftelse från WordPress-kontot."
+
+#: templates/admin.php:865
+msgid "Send confirmation email to client"
+msgstr "Skicka e-post bekräftelse till kund"
+
+#: templates/admin.php:68
+msgid "Send me newsletter and promotions"
+msgstr "Skicka mig nyhetsbrev och kampanjer"
+
+#: templates/admin.php:67
+msgid "Send me reservation reminder"
+msgstr "Skicka mig en bokningspåminnelse"
+
+#: redi-restaurant-reservation.php:2105
+msgid "Send Reservation Request by Email"
+msgstr "Skicka bokningsförfrågan via e-post"
+
+#: redi-restaurant-reservation.php:2015
+msgid "September"
+msgstr "September"
+
+#: templates/admin.php:138
+msgid "sergei"
+msgstr "Sergei"
+
+#: templates/admin_ajaxed.php:386
+msgid "Set Open and Close fields to blank if restaurant is closed."
+msgstr "Lämna fälten för Öppet och Stängt tomma om restaurangen är stängd"
+
+#: redi-restaurant-reservation.php:398 redi-restaurant-reservation.php:1408
+#: redi-restaurant-reservation.php:1409
+msgid "Settings"
+msgstr "Inställningar"
+
+#: redi-restaurant-reservation.php:1416 redi-restaurant-reservation.php:1417
+msgid "Settings $"
+msgstr "Inställningar $"
+
+#: templates/admin_ajaxed.php:28
+msgid "Settings that have already been changed will be lost."
+msgstr "Inställningar som redan har ändrats kommer att gå förlorade."
+
+#: templates/admin_ajaxed.php:34
+msgid ""
+"Settings that have already been changed will be lost. Are you sure you want "
+"to continue?"
+msgstr ""
+"Inställningar som redan har ändrats kommer att gå förlorade. Är du säker på "
+"att du vill fortsätta?"
+
+#: templates/basicpackage.php:38
+msgid "Setup maximum available seats for online reservation by week day"
+msgstr ""
+"Ställ in maximalt antal tillgängliga platser för onlinebokning per veckodag"
+
+#: redi-restaurant-reservation.php:1975
+msgid "Show all steps"
+msgstr "Visa alla steg"
+
+#: templates/admin.php:794
+msgid "Show comments"
+msgstr "Visa kommentarer"
+
+#: templates/admin.php:585
+msgid "Show end reservation time"
+msgstr "Visa tid för slutbokning"
+
+#: templates/admin.php:339
+msgid "Shown on click"
+msgstr "Visas vid klick"
+
+#: templates/admin_welcome_no_key.php:24
+msgid "Skip"
+msgstr "Skippa"
+
+#: templates/admin.php:366
+msgid "Slash"
+msgstr "Snedstreck"
+
+#: templates/admin.php:63
+msgid "SMS"
+msgstr "SMS"
+
+#: redi-restaurant-reservation.php:2100
+msgid "Special requests"
+msgstr "Speciella önskemål"
+
+#: redi-restaurant-reservation.php:1984
+msgid "Special requests (optional)"
+msgstr "Särskilda önskemål (valfritt)"
+
+#: templates/admin_ajaxed.php:470
+msgid ""
+"Specify how late customers can make their booking in hours. For example, the "
+"current time is 10:00 and this setting is set to 3 hours then the first time,"
+" when the reservation will be accepted is 13:00."
+msgstr ""
+"Ange hur sena kunder kan göra sin bokning inom några timmar. Till exempel är "
+"den aktuella tiden 10:00 och den här inställningen är inställd på 3 timmar "
+"och första gången när bokningen accepteras är 13:00."
+
+#: templates/admin_ajaxed.php:382
+msgid "Specify time in 24h format (00:00 - 23:59)."
+msgstr "Ange tid i 24-timmars format (00:00 - 23:59)"
+
+#: redi-restaurant-reservation.php:360
+msgid ""
+"Status must be \"cancelled\", and personal_information and "
+"cancellation_reason are required."
+msgstr ""
+"Statusen måste vara \"Avbruten\" och personal_information och "
+"cancellation_reason krävs."
+
+#: templates/admin_ajaxed.php:325
+msgid ""
+"Stay in the loop! Subscribe to receive valuable updates, tips, and "
+"recommendations related to our plugin. By checking this box, you agree to "
+"receive occasional emails with important announcements, helpful insights, "
+"and suggestions to enhance your experience with our plugin. Don't miss out "
+"on the latest features and improvements – opt in now!"
+msgstr ""
+"Håll dig uppdaterad! Prenumerera för att få värdefulla uppdateringar, tips "
+"och rekommendationer relaterade till vårt plugin. Genom att markera den här "
+"rutan samtycker du till att få e-postmeddelanden då och då med viktiga "
+"meddelanden, användbara insikter och förslag för att förbättra din "
+"upplevelse med vårt plugin. Missa inte de senaste funktionerna och "
+"förbättringarna – anmäl dig nu!"
+
+#: templates/frontend.php:49 templates/frontend.php:68
+#: templates/frontend.php:217 templates/frontend.php:240
+msgid "Step"
+msgstr "Steg"
+
+#: templates/basicpackage.php:29
+msgid "Submit an issue or suggest a feature"
+msgstr "Skicka ett problem eller föreslå en funktion"
+
+#: templates/admin_ajaxed.php:315
+msgid "Subscribe to newsletter"
+msgstr "Prenumerera på nyhetsbrev"
+
+#: redi-restaurant-reservation.php:1996
+msgid "Sun"
+msgstr "Sol"
+
+#: templates/basicpackage.php:42
+msgid ""
+"Support for multiple places. Number of places depends on number of "
+"subscriptions."
+msgstr ""
+"Stöd för flera platser. Antalet platser beror på antalet prenumerationer."
+
+#: templates/admin.php:948
+msgid "Support us"
+msgstr "Stöd oss"
+
+#: redi-restaurant-reservation.php:1423 redi-restaurant-reservation.php:1424
+msgid "Test reservation"
+msgstr "Boka bord för test"
+
+#: templates/admin_ajaxed.php:605
+msgid "Text field"
+msgstr "Textfält"
+
+#: templates/admin_ajaxed.php:532
+msgid "Text on form"
+msgstr "Text på formulär"
+
+#: templates/admin.php:680
+msgid ""
+"Text that will be displayed when there are no available time for selected "
+"day/time."
+msgstr ""
+"Text som kommer att visas när det inte finns någon ledig tid för vald "
+"dag/tid."
+
+#: templates/frontend_v2.php:1916
+msgid ""
+"Thank you for letting us know about your cancellation - this helps other "
+"guests find a table! We hope to see you back soon. Would you like to make "
+"another reservation for a different date?"
+msgstr ""
+"Tack för att du meddelade oss om din avbokning - detta hjälper andra gäster "
+"att hitta ett bord! Vi hoppas att vi ses snart igen. Vill du göra en ny "
+"bokning för ett annat datum?"
+
+#: functions/feedback.php:89
+msgid "Thank you for your feedback."
+msgstr "Tack för din feedback."
+
+#: redi-restaurant-reservation.php:2065
+msgid "Thank you for your reservation request!"
+msgstr "Tack för din bokningsförfrågan!"
+
+#: templates/frontend.php:328
+msgid "Thank you for your reservation request."
+msgstr "Tack för din bokningsförfrågan."
+
+#: redi-restaurant-reservation.php:2066
+msgid "Thank you for your reservation!"
+msgstr "Tack för din bokning!"
+
+#: templates/frontend.php:330
+msgid "Thank you for your reservation."
+msgstr "Tack för din bokning"
+
+#: templates/admin.php:891
+msgid ""
+"The confirmation email will be sent out from info@reservationdiary.eu. When "
+"the client replies to confirmation email, you will receive it."
+msgstr ""
+"Bekräftelsemailet kommer att skickas ut från info@reservationdiary.eu. När "
+"kunden svarar på bekräftelsemailet får du det."
+
+#: templates/admin.php:885
+msgid ""
+"The confirmation email will be sent out from your email set in WordPress."
+msgstr ""
+"Bekräftelsemailet kommer att skickas ut från din e-postadress i WordPress."
+
+#: templates/admin_ajaxed.php:269
+msgid ""
+"The contact number of restaurant. It could have the format [area code] "
+"[phone number]"
+msgstr ""
+"Kontaktnumret till restaurangen. Det kan ha formatet [riktnummer] "
+"[telefonnummer]"
+
+#: templates/admin_ajaxed.php:143
+msgid "The country of restaurant can be mentioned here."
+msgstr "Restaurangens land kan nämnas här."
+
+#: templates/admin_ajaxed.php:218
+msgid ""
+"The email addresses of recipients who should be sent the copies of "
+"reservation emails. You can separate multiple recipients using commas."
+msgstr ""
+"E-postadresserna till de mottagare som ska få kopior av e-postmeddelanden om "
+"reservationer. Du kan avgränsa flera mottagare med kommatecken."
+
+#: templates/admin.php:294
+msgid ""
+"The enabled feedback collection option allows users of the reservation form "
+"to provide valuable input for improving the plugin. By keeping this option "
+"enabled, you can continuously enhance the plugin based on user feedback, "
+"ensuring an exceptional reservation experience for restaurant visitors."
+msgstr ""
+"Det aktiverade alternativet för insamling av feedback gör det möjligt för "
+"användare av bokningsformuläret att ge värdefull input för att förbättra "
+"plugin-programmet. Genom att hålla det här alternativet aktiverat kan du "
+"kontinuerligt förbättra pluginet baserat på användarfeedback, vilket "
+"säkerställer en exceptionell bokningsupplevelse för restaurangbesökare."
+
+#: templates/admin_ajaxed.php:123
+msgid "The name of the restaurant is to be specified here."
+msgstr "Namnet på restaurangen ska anges här."
+
+#: templates/admin_ajaxed.php:158
+msgid "The restaurant city is to be specified in this field."
+msgstr "Restaurangstaden ska anges i detta fält."
+
+#: templates/admin.php:375
+msgid ""
+"The way date format is displayed on the date control. You can select from a "
+"drop down list of different date formats."
+msgstr ""
+"Hur datumformatet visas i datumkontrollen. Du kan välja från en "
+"rullgardinslista med olika datumformat."
+
+#: templates/admin.php:882
+msgid ""
+"The way you want confirmation email to be delivered to the client. It can be "
+"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"SMTP\" or \"Disable confirmation email\"."
+msgstr ""
+"På det sätt som du vill att bekräftelsemailet ska levereras till kunden. Det "
+"kan vara \"Från WordPress e-postkonto\", \"Från reservationdiary.eu\", "
+"\"Anpassad SMTP\" eller \"Inaktivera bekräftelsemail\"."
+
+#: templates/admin_ajaxed.php:188
+msgid "The website address of the restaurant."
+msgstr "Webbadressen till restaurangen."
+
+#: templates/frontend.php:354 templates/frontend.php:375
+#: templates/frontend_v2.php:463 templates/frontend_v2.php:473
+msgid "There are no more reservation can be made for this day."
+msgstr "Det finns inga fler bokningar att göra för denna dag."
+
+#: templates/frontend.php:363
+msgid "There are no more reservation can be made for this time."
+msgstr "Det finns inga fler bokningar att göra för denna gång."
+
+#: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1899
+msgid "There are no more reservations can be made for selected day."
+msgstr "Det finns inga fler bokningar kan göras för vald dag."
+
+#: templates/admin_ajaxed.php:105
+msgid ""
+"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
+"short code for specifying the place of reservation in case of multiple "
+"restaurants. <br/>Example of shortcode:"
+msgstr ""
+"Detta <b>ID</b> är kopplat till ditt boende. <b>ID:t</b> kan användas som en "
+"kortkod för att ange bokningsplatsen om det finns flera restauranger. <br/>"
+"Exempel på kortkod:"
+
+#: redi-restaurant-reservation.php:2033
+msgid "This date is in the past and cannot be selected"
+msgstr "Detta datum är i det förflutna och kan inte väljas"
+
+#: templates/admin_ajaxed.php:92
+msgid ""
+"This field lets you edit settings for multiple places. Multiple places are "
+"available for Basic package users only."
+msgstr ""
+"I det här fältet kan du redigera inställningar för flera platser. Flera "
+"platser är endast tillgängliga för användare av Basic-paketet."
+
+#: templates/admin.php:337
+msgid ""
+"This field lets you select the style in which the calendar control is "
+"displayed. It can be either \"Show on click\" or \"Always show”."
+msgstr ""
+"I det här fältet kan du välja i vilket format kalenderkontrollen ska visas. "
+"Det kan vara antingen \"Visa vid klick\" eller \"Visa alltid\"."
+
+#: templates/admin.php:400
+msgid ""
+"This field lets you select the way time picker is displayed. You can choose "
+"from \"jQuery plugin\" and \"HTML dropdown\"."
+msgstr ""
+"I det här fältet kan du välja hur tidsväljaren ska visas. Du kan välja "
+"mellan \"jQuery plugin\" och \"HTML dropdown\"."
+
+#: templates/admin.php:543
+msgid ""
+"This is how the available time will be shown. This setting is taken from "
+"generic WordPress settings. You can change it in Settings -> General -> Time "
+"Format"
+msgstr ""
+"Så här kommer den tillgängliga tiden att visas. Den här inställningen är "
+"hämtad från allmänna WordPress-inställningar. Du kan ändra det i "
+"Inställningar -> Allmänt -> Tidsformat"
+
+#: templates/admin_ajaxed.php:413
+msgid ""
+"This is the number of maximum persons in restaurant at any time. System will "
+"check automatically availability of free seats and will not allow to go "
+"beyond this number."
+msgstr ""
+"Detta är det maximala antalet personer i restaurangen när som helst. "
+"Systemet kommer automatiskt att kontrollera tillgängligheten av lediga "
+"platser och kommer inte att tillåta att gå utöver detta antal."
+
+#: templates/basicpackage.php:16
+msgid ""
+"This is your registration key. Please use it when you send request for "
+"support."
+msgstr ""
+"Detta är din registreringsnyckel. Använd den när du skickar en begäran om "
+"support."
+
+#: templates/admin.php:343
+msgid "This option sets the calendar control to display all the time."
+msgstr ""
+"Det här alternativet ställer in kalenderkontrollen så att den visas hela "
+"tiden."
+
+#: redi-restaurant-reservation.php:1844 redi-restaurant-reservation.php:1897
+msgid "This time is fully booked"
+msgstr "Denna tid är fullbokad"
+
+#: templates/basicpackage.php:95
+msgid ""
+"Thousands of restaurants use Mobal to stand out online and attract more "
+"guests."
+msgstr ""
+"Tusentals restauranger använder Mobal för att sticka ut på nätet och locka "
+"fler gäster."
+
+#: redi-restaurant-reservation.php:2000
+msgid "Thu"
+msgstr "tor"
+
+#: redi-restaurant-reservation.php:1974 redi-restaurant-reservation.php:2061
+#: templates/confirm.php:28 templates/frontend.php:130
+#: templates/frontend.php:223 templates/frontend_v2.php:117
+#: templates/frontend_v2.php:562 templates/frontend_v2.php:1431
+#: templates/modify.php:32
+msgid "Time"
+msgstr "Tid"
+
+#: templates/admin.php:534
+msgid "Time format"
+msgstr "Tidsformat"
+
+#: templates/admin.php:403
+msgid ""
+"Time picker type if selected to be jQuery plugin, it is set to pop up with "
+"the hour and time."
+msgstr ""
+"Typ av tidsväljare om den väljs för att vara jQuery-plugin, är den inställd "
+"på att dyka upp med timme och tid."
+
+#: templates/admin.php:383
+msgid "TimePicker type"
+msgstr "Typ av tidsval"
+
+#: templates/admin.php:552
+msgid "TimeShift Mode"
+msgstr "TimeShift-läge"
+
+#: templates/admin_welcome.php:28
+msgid ""
+"To schedule your session, simply click the image below: We provide "
+"complimentary one-on-one assistance for plugin setup. You can book a call "
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
+"Links are below."
+msgstr ""
+"För att schemalägga din session klickar du bara på bilden nedan: Vi erbjuder "
+"gratis en-till-en-hjälp för plugin-installation. Du kan boka ett samtal med "
+"oss via Calendly eller nå ut till oss via Skype, Facebook eller Whatsapp. "
+"Länkar finns nedan."
+
+#: redi-restaurant-reservation.php:2023 templates/frontend_v2.php:528
+msgid "Today"
+msgstr "I dag"
+
+#: templates/basicpackage.php:91
+msgid "Together, we support restaurants in:"
+msgstr "Tillsammans stöttar vi restauranger i:"
+
+#: redi-restaurant-reservation.php:385
+msgid "Try Premium"
+msgstr "Prova Premium"
+
+#: redi-restaurant-reservation.php:1998
+msgid "Tue"
+msgstr "Tis"
+
+#: redi-restaurant-reservation-api.php:341
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and personal information (email, phone, or name) "
+"is correct."
+msgstr ""
+"Det gick inte att hitta bokningen med angiven information. Kontrollera att "
+"det angivna bokningsnumret och personuppgifterna (e-post, telefon eller namn)"
+" är korrekta."
+
+#: redi-restaurant-reservation.php:2757
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and phone or name or email is correct."
+msgstr ""
+"Det gick inte att hitta bokningen med angiven information. Kontrollera att "
+"det angivna bokningsnumret och telefonnumret eller namnet eller e-"
+"postadressen är korrekta."
+
+#: templates/admin_ajaxed.php:427
+msgid "Unlimited"
+msgstr "Obegränsad"
+
+#: templates/frontend_v2.php:1405 templates/frontend_v2.php:1585
+#: templates/modify.php:23 templates/modify.php:82
+msgid "Update reservation"
+msgstr "Uppdatera reservation"
+
+#: templates/admin_ajaxed.php:180
+msgid "URL"
+msgstr "URL"
+
+#: templates/admin.php:153
+msgid "User guide"
+msgstr "Användarhandbok"
+
+#: templates/admin.php:143
+msgid "Version"
+msgstr "Version"
+
+#: templates/admin.php:246 templates/admin.php:527 templates/admin.php:715
+#: templates/admin.php:826 templates/admin.php:925 templates/admin.php:971
+msgid "Video Tutorial"
+msgstr "Videohandledning"
+
+#: templates/admin_ajaxed.php:72 templates/admin_ajaxed.php:339
+#: templates/admin_ajaxed.php:394 templates/admin_ajaxed.php:511
+msgid "Video tutorial"
+msgstr "Videohandledning"
+
+#: templates/admin.php:150
+msgid "Video tutorials"
+msgstr "Självstudiekurser för video"
+
+#: templates/frontend_v2.php:1034
+msgid "View Reservation Details"
+msgstr "Visa bokningsinformation"
+
+#: redi-restaurant-reservation.php:399
+msgid "View the help documentation for ReDi Restaurant Reservations plugin"
+msgstr "Visa hjälpdokumentationen för pluginet ReDi Restaurant Reservations"
+
+#: templates/basicpackage.php:35
+msgid ""
+"View your upcoming reservations from your Mobile/Tablet PC and never miss "
+"your customer. This page should be open on a Tablet PC and so hostess can "
+"see all upcoming reservations for today. Page refreshes every 15 min and "
+"shows reservations that in past for 3 hours as well as upcoming reservations "
+"for next 24 hours. By clicking on reservation you will see reservation "
+"details. Demo version can be accessed for 30 days using this link: "
+msgstr ""
+"Se dina kommande bokningar från din mobil/surfplatta och missa aldrig din "
+"kund. Den här sidan ska vara öppen på en surfplatta så att värdinnan kan se "
+"alla kommande bokningar för idag. Sidan uppdateras var 15:e minut och visar "
+"bokningar som har varit tidigare i 3 timmar samt kommande bokningar för de "
+"kommande 24 timmarna. Genom att klicka på bokning ser du bokningsinformation."
+" Demoversionen kan nås i 30 dagar med hjälp av den här länken: "
+
+#: templates/confirm.php:3
+msgid "Visit confirmation"
+msgstr "Bekräftelse av besök"
+
+#: templates/admin.php:787
+msgid "Visit Google site"
+msgstr "Besök Googles webbplats"
+
+#: templates/confirm.php:50
+msgid "Visit has been successfully confirmed."
+msgstr "Besöket har bekräftats framgångsrikt."
+
+#: redi-restaurant-reservation.php:2743
+msgid "Visit not confimed by the guest."
+msgstr "Besök som inte bekräftas av gästen."
+
+#: templates/frontend.php:445 templates/frontend_v2.php:1780
+msgid "Wait List"
+msgstr "Väntelista"
+
+#: templates/admin.php:689
+msgid "Wait List Setting"
+msgstr "Inställning av väntelista"
+
+#: redi-restaurant-reservation.php:1438 redi-restaurant-reservation.php:1439
+msgid "Waiter Dashboard"
+msgstr "Instrumentpanel för servitörer"
+
+#: templates/basicpackage.php:59
+msgid ""
+"We can offer you white labeled restaurant reservation application for "
+"Facebook Application, iPhone/iPad Application, Windows Phone Application or "
+"Android Application."
+msgstr ""
+"Vi kan erbjuda dig vitmärkt restaurangbokningsapplikation för Facebook-"
+"applikation, iPhone/iPad-applikation, Windows Phone-applikation eller "
+"Android-applikation."
+
+#: templates/frontend_v2.php:932
+msgid ""
+"We have received your reservation request and are checking availability. You "
+"will be notified as soon as your reservation is approved. Please wait for "
+"the confirmation."
+msgstr ""
+"Vi har tagit emot din bokningsförfrågan och kontrollerar tillgänglighet. Du "
+"kommer att meddelas så snart din bokning har godkänts. Vänta på bekräftelsen."
+
+#: redi-restaurant-reservation.php:2049
+msgid "We look forward to serving you!"
+msgstr "Vi ser fram emot att betjäna dig!"
+
+#: templates/basicpackage.php:80
+msgid ""
+"We proudly collaborate with selected partners who share our vision of "
+"helping restaurants grow, simplify operations, and succeed in the digital "
+"age."
+msgstr ""
+"Vi är stolta över att samarbeta med utvalda partners som delar vår vision om "
+"att hjälpa restauranger att växa, förenkla verksamheten och lyckas i den "
+"digitala tidsåldern."
+
+#: templates/frontend.php:336
+msgid ""
+"We wish to inform you that your booking request has been received. We "
+"are checking availability and will get back to you as soon as possible. "
+"Please wait confirmation of your reservation."
+msgstr ""
+"Vi vill informera dig om att din bokningsförfrågan har mottagits. Vi "
+"kontrollerar tillgängligheten och återkommer till dig så snart som möjligt. "
+"Vänta på bekräftelse av din bokning."
+
+#: templates/confirm.php:4
+msgid ""
+"We would like to know if you will be visiting us today. Please confirm or "
+"cancel your reservation by clicking the appropriate button below. If the "
+"reservation is not confirmed, we reserve the right to cancel it from our "
+"side."
+msgstr ""
+"Vi vill gärna veta om du kommer att besöka oss idag. Bekräfta eller avboka "
+"din bokning genom att klicka på lämplig knapp nedan. Om bokningen inte är "
+"bekräftad förbehåller vi oss rätten att avboka den från vår sida."
+
+#: templates/admin_welcome.php:36
+msgid "We're here to provide the support you need."
+msgstr "Vi finns här för att ge dig det stöd du behöver."
+
+#: redi-restaurant-reservation.php:1999
+msgid "Wed"
+msgstr "Gifta sig"
+
+#: templates/admin_ajaxed.php:345
+msgid "Weekday"
+msgstr "Vardag"
+
+#: redi-restaurant-reservation.php:1400 redi-restaurant-reservation.php:1401
+msgid "Welcome"
+msgstr "Välkommen"
+
+#: templates/frontend.php:24 templates/frontend_v2.php:171
+msgid "Welcome back"
+msgstr "Välkommen tillbaka"
+
+#: templates/admin_welcome_no_key.php:3 templates/admin_welcome_no_page.php:3
+msgid "Welcome to the ReDi Restaurant Reservation plugin"
+msgstr "Välkommen till ReDi Restaurant Reservation plugin"
+
+#: templates/frontend.php:434 templates/frontend_v2.php:992
+msgid "What we can do better?"
+msgstr "Vad kan vi göra bättre?"
+
+#: templates/admin.php:64
+msgid "Whatsapp"
+msgstr "Whatsapp (på engelska)"
+
+#: templates/admin_welcome.php:34 templates/basicpackage.php:26
+msgid "whatsapp"
+msgstr "whatsapp whatsapp"
+
+#: templates/admin.php:754
+msgid ""
+"When enabled guests has to enter their phone number with country code. This "
+"is most useful when there is a good amount of foreign visitors. Also this "
+"option has to be enabled when SMS addon is in use, as SMS Providers requires "
+"full phone number."
+msgstr ""
+"När det är aktiverat måste gästerna ange sitt telefonnummer med landskod. "
+"Detta är mest användbart när det finns en stor mängd utländska besökare. Det "
+"här alternativet måste också vara aktiverat när SMS-tillägg används, "
+"eftersom SMS-leverantörer kräver fullständigt telefonnummer."
+
+#: templates/admin.php:696 templates/admin.php:703
+msgid "When fully booked"
+msgstr "När det är fullbokat"
+
+#: templates/admin.php:695 templates/admin.php:702
+msgid "When specific time is not available"
+msgstr "När specifik tid inte är tillgänglig"
+
+#: templates/admin.php:596
+msgid ""
+"When this enabled, start and end of reservation time will be displayed. This "
+"is useful when you want to inform the guest about fixed reservation time "
+"frame."
+msgstr ""
+"När detta är aktiverat kommer start och slut på bokningstiden att visas. "
+"Detta är användbart när du vill informera gästen om den fasta tidsramen för "
+"bokningen."
+
+#: templates/admin.php:735
+msgid ""
+"When this option is enabled, then guest has to provide first and last name "
+"separately when filling reservation form. Otherwise Name is collected in a "
+"single field."
+msgstr ""
+"När det här alternativet är aktiverat måste gästen ange för- och efternamn "
+"separat när de fyller i bokningsformuläret. Annars samlas Namn in i ett enda "
+"fält."
+
+#: templates/admin.php:988
+msgid ""
+"When translating the plugin, save translations in a separate folder outside "
+"the plugin directory. Then, provide the file path with translated strings in "
+"this setting to avoid issues with updates."
+msgstr ""
+"När du översätter plugin-programmet, spara översättningarna i en separat "
+"mapp utanför plugin-katalogen. Ange sedan filsökvägen med översatta strängar "
+"i den här inställningen för att undvika problem med uppdateringar."
+
+#: templates/admin.php:406
+msgid ""
+"With this option selected, the Time Picker is shown to be simple dropdown "
+"for selecting the hour and time."
+msgstr ""
+"När det här alternativet är markerat visas tidsväljaren som en enkel "
+"rullgardinsmeny för att välja timme och tid."
+
+#: templates/admin.php:894
+msgid "With this option, confirmation email is not sent to the client."
+msgstr "Med det här alternativet skickas inte bekräftelsemail till klienten."
+
+#: templates/admin_ajaxed.php:338
+msgid "Working time"
+msgstr "Öppettider"
+
+#: redi-restaurant-reservation.php:2039 redi-restaurant-reservation.php:2095
+msgid "Yes"
+msgstr "Ja"
+
+#: templates/admin_welcome_no_page.php:12
+msgid ""
+"You can create dedicated reservation page below, or you can skip this step "
+"and create page manually. When you create page manually, insert "
+"[redireservation] shortcode to the page."
+msgstr ""
+"Du kan skapa en dedikerad bokningssida nedan, eller så kan du hoppa över det "
+"här steget och skapa sidan manuellt. När du skapar sidan manuellt, infoga "
+"[redireservation] kortkod på sidan."
+
+#: templates/admin_welcome.php:21
+msgid "You can find the documentation for this plugin here"
+msgstr "Du hittar dokumentationen för detta plugin här"
+
+#: templates/admin_ajaxed.php:380
+msgid ""
+"You can specify the working time of restaurant by setting the opening time "
+"and closing time for each day of the week."
+msgstr ""
+"Du kan ange restaurangens arbetstid genom att ställa in öppningstid och "
+"stängningstid för varje dag i veckan."
+
+#: redi-restaurant-reservation.php:2883 redi-restaurant-reservation.php:2932
+msgid "You do not have permission to access this call."
+msgstr "Du har inte behörighet att komma åt det här samtalet."
+
+#: templates/admin_welcome.php:4
+msgid "You plugin is active. Your API Key is"
+msgstr "Ditt plugin är aktivt. Din API-nyckel är"
+
+#: templates/admin_welcome.php:16
+msgid "Your API key is"
+msgstr "Din API-nyckel är"
+
+#: templates/frontend_v2.php:654
+msgid "Your First Name"
+msgstr "Ditt förnamn"
+
+#: templates/frontend_v2.php:638
+msgid "Your Full Name"
+msgstr "Ditt fullständiga namn"
+
+#: templates/frontend.php:511 templates/frontend_v2.php:1932
+msgid ""
+"Your information has been saved successfully and you will be notified once "
+"there are available seats for requested date."
+msgstr ""
+"Din information har sparats och du kommer att meddelas när det finns lediga "
+"platser för önskat datum."
+
+#: templates/frontend_v2.php:667
+msgid "Your Last name"
+msgstr "Ditt efternamn"
+
+#: templates/frontend_v2.php:1341 templates/frontend_v2.php:1525
+#: templates/frontend_v2.php:1689 templates/frontend_v2.php:1834
+msgid "Your name"
+msgstr "Ditt namn"
+
+#: templates/frontend_v2.php:1928
+msgid "Your request has been received!"
+msgstr "Din förfrågan har mottagits!"
+
+#: redi-restaurant-reservation.php:2092
+msgid "Your reservation has been successfully canceled"
+msgstr "Din bokning har avbokats"
+
+#: templates/frontend_v2.php:1922
+msgid "Your reservation has been updated successfully!"
+msgstr "Din bokning har uppdaterats!"
+
+#: templates/frontend_v2.php:1913
+msgid "Your reservation is cancelled successfully!"
+msgstr "Din bokning har avbokats!"
+
+#: templates/frontend.php:345 templates/frontend_v2.php:941
+msgid "Your reservation number for reference:"
+msgstr "Ditt bokningsnummer är:"
+
+#: redi-restaurant-reservation.php:2052
+msgid ""
+"Your reservation request has been received and will be reviewed by the "
+"restaurant staff. Please note that the reservation is not guaranteed until "
+"you receive confirmation."
+msgstr ""
+"Din bokningsförfrågan har mottagits och kommer att granskas av "
+"restaurangpersonalen. Observera att bokningen inte är garanterad förrän du "
+"får en bekräftelse."
+
+#: templates/frontend.php:343 templates/frontend_v2.php:939
+msgid "Your reservation request number for reference:"
+msgstr "Numret på din bokningsförfrågan som referens:"
+
+#: templates/admin.php:180
+msgid "Your settings have been saved!"
+msgstr "Dina inställningar har sparats."
+
+#: templates/frontend_v2.php:1551 templates/frontend_v2.php:1699
+#: templates/frontend_v2.php:1858
+msgid "your@email.com"
+msgstr "your@email.com"
+
+#: templates/admin.php:221 templates/admin.php:230
+msgid "Zeplin 25 theme (BETA)"
+msgstr "Zeplin 25 tema (BETA)"
+
+#: templates/admin.php:473
+msgid "Сhildren selection"
+msgstr "Urval av barn"

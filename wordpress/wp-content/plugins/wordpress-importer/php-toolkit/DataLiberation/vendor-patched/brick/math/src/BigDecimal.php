@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Brick\Math;
+namespace Brick\Math;
 
-use VendorPrefix\Brick\Math\Exception\DivisionByZeroException;
-use VendorPrefix\Brick\Math\Exception\MathException;
-use VendorPrefix\Brick\Math\Exception\NegativeNumberException;
-use VendorPrefix\Brick\Math\Internal\Calculator;
+use Brick\Math\Exception\DivisionByZeroException;
+use Brick\Math\Exception\MathException;
+use Brick\Math\Exception\NegativeNumberException;
+use Brick\Math\Internal\Calculator;
 
 /**
  * Immutable, arbitrary-precision signed decimal numbers.
@@ -228,7 +228,7 @@ final class BigDecimal extends BigNumber
      *
      * @throws \InvalidArgumentException If the scale or rounding mode is invalid.
      * @throws MathException             If the number is invalid, is zero, or rounding was necessary.
-     * @param \VendorPrefix\Brick\Math\RoundingMode::* $roundingMode
+     * @param \Brick\Math\RoundingMode::* $roundingMode
      */
     public function dividedBy($that, ?int $scale = null, $roundingMode = RoundingMode::UNNECESSARY) : BigDecimal
     {
@@ -542,7 +542,7 @@ final class BigDecimal extends BigNumber
     }
 
     /**
-     * @param \VendorPrefix\Brick\Math\BigNumber|int|float|string $that
+     * @param \Brick\Math\BigNumber|int|float|string $that
      */
     public function compareTo($that) : int
     {

@@ -21,10 +21,8 @@ if ( ! \XMLSF\BWT_Connect::is_connected() ) {
 }
 
 // Get connect data.
-$sitemap    = xmlsf()->sitemap->get_sitemap_url();
-$parsed_url = parse_url( $sitemap );
-$path       = $parsed_url['path'];
-$data       = \XMLSF\BWT_Connect::get( $sitemap );
+$sitemap = xmlsf()->sitemap->get_sitemap_url();
+$data    = \XMLSF\BWT_Connect::get( $sitemap );
 
 ?>
 <p><?php esc_html_e( 'Your sitemap data as reported by Bing Webmaster Tools.', 'xml-sitemap-feed' ); ?></p>
@@ -43,8 +41,8 @@ if ( \is_wp_error( $data ) ) {
 	<?php
 	return;
 }
-
-if ( count( $data['d'] ) < 1 ) {
+$number = count( $data['d'] );
+if ( $number < 1 ) {
 	?>
 	<p style="color:#d63638">
 		<?php esc_html_e( 'There was an error requesting sitemap data from Bing Webmaster Tools.', 'xml-sitemap-feed' ); ?>
@@ -76,6 +74,7 @@ $bwt_link        = add_query_arg(
 			<th><?php esc_html_e( 'Status', 'xml-sitemap-feed' ); ?></th>
 			<th><?php esc_html_e( 'Last submitted', 'xml-sitemap-feed' ); ?></th>
 			<th><?php esc_html_e( 'Last crawled', 'xml-sitemap-feed' ); ?></th>
+			<th><?php esc_html_e( 'URLs', 'xml-sitemap-feed' ); ?></th>
 			<th><?php esc_html_e( 'Sitemaps', 'xml-sitemap-feed' ); ?></th>
 		</tr>
 	</thead>
@@ -83,19 +82,20 @@ $bwt_link        = add_query_arg(
 		<tr>
 			<th>
 				<a href="<?php echo esc_url( $bwt_link ); ?>" target="_blank" title="<?php esc_html_e( 'View this sitemap in Bing Webmaster Tools', 'xml-sitemap-feed' ); ?>">
-					<?php echo esc_html( $parsed_url['path'] ); ?>
+					<?php echo esc_html( $sitemap ); ?>
 					<span class="dashicons dashicons-external"></span>
 				</a>
 			</th>
 			<td><?php if ( isset( $data['Status'] ) && 'Success' !== $data['Status'] ) : ?>
 				<span class="dashicons dashicons-clock" style="color:#dba617" title="<?php esc_html_e( 'Pending', 'xml-sitemap-feed' ); ?>"></span>
 			<?php else : ?>
-				<span class="dashicons dashicons-yes-alt" style="color:#00a32a" title="<?php esc_html_e( 'Processed', 'xml-sitemap-feed' ); ?>"></span>
+				<span class="dashicons dashicons-yes-alt" style="color:#00a32a" title="<?php echo esc_html_e( 'Processed', 'xml-sitemap-feed' ); ?>"></span>
 			<?php endif; ?>
 			</td>
 			<td><?php echo esc_html( $last_submitted ); ?></td>
 			<td><?php echo esc_html( $last_downloaded ); ?></td>
 			<td><?php echo esc_html__( 'Found:', 'xml-sitemap-feed' ) . ' ' . esc_html( $links_submitted ); ?></td>
+			<td><?php echo esc_html__( 'Found:', 'xml-sitemap-feed' ) . ' ' . esc_html( $number ); ?></td>
 		</tr>
 	</tbody>
 </table>

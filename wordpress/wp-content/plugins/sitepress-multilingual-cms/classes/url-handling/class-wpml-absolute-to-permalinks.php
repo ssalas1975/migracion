@@ -1,17 +1,14 @@
 <?php
 
-class WPML_Absolute_To_Permalinks {
+class WPML_Absolute_To_Permalinks extends WPML_SP_User{
 
 	private $taxonomies_query;
 	private $lang;
-
-	/** @var SitePress $sitepress */
-	private $sitepress;
-
-	public function __construct( SitePress $sitepress ) {
-		$this->sitepress = $sitepress;
+	
+	public function __construct( &$sitepress ) {
+		parent::__construct( $sitepress );
 	}
-
+	
 	public function convert_text( $text ) {
 
 		$this->lang = $this->sitepress->get_current_language();
@@ -27,12 +24,12 @@ class WPML_Absolute_To_Permalinks {
 		$tx_qvs  = join( '|', $this->taxonomies_query->get_query_vars() );
 		$reg_ex  = '@<a([^>]+)?href="((' . $abshome . ')?/' . $path . '/?\?(p|page_id|cat_ID|' . $tx_qvs . ')=([0-9a-z-]+))(#?[^"]*)"([^>]+)?>@i';
 		$text    = preg_replace_callback( $reg_ex, array( $this, 'show_permalinks_cb' ), $text );
-
+		
 		return $text;
 	}
-
+	
 	function show_permalinks_cb( $matches ) {
-
+		
 		$parts = $this->get_found_parts( $matches );
 
 		$url   = $this->get_url( $parts );
@@ -49,7 +46,7 @@ class WPML_Absolute_To_Permalinks {
 
 		return '<a' . $parts->pre_href . 'href="' . $url . $fragment . '"' . $parts->trail . '>';
 	}
-
+	
 	private function get_found_parts( $matches ) {
 		return (object) array( 'whole'        => $matches[0],
 							   'pre_href'     => $matches[1],
@@ -59,7 +56,7 @@ class WPML_Absolute_To_Permalinks {
 							   'trail'        => isset( $matches[7] ) ?  $matches[7] : ''
 							   );
 	}
-
+	
 	private function get_url( $parts ) {
 		$tax = $this->taxonomies_query->find( $parts->content_type );
 
@@ -76,9 +73,9 @@ class WPML_Absolute_To_Permalinks {
 
 		$this->sitepress->set_setting( 'auto_adjust_ids', $auto_adjust_ids_origin );
 
-		return $url;
+		return $url;		
 	}
-
+	
 	private function get_fragment( $url, $parts ) {
 		$fragment = $parts->fragment;
 		$fragment = $this->remove_query_in_wrong_lang( $fragment );
@@ -96,7 +93,7 @@ class WPML_Absolute_To_Permalinks {
 			}
 		}
 
-		return $fragment;
+		return $fragment;		
 	}
 
 	private function remove_query_in_wrong_lang( $fragment ) {

@@ -1,6 +1,13 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
+
+
+// Check current framework
+if( jevelin_framework() == 'redux' ) :
+	return false;
+endif;
+
 
 if( class_exists('RevSlider') ) :
 	$slider = new RevSlider();
@@ -15,6 +22,7 @@ elseif( class_exists('RevSlider') ) :
 	$arrSliders['disabled'] = 'Disabled';
 	$arrSliders = array_reverse($arrSliders, true);
 endif;
+
 
 $options = array(
     'page_settings' => array(
@@ -37,6 +45,18 @@ $options = array(
                             'full' => esc_html__( 'Full Width', 'jevelin' ),
                             'sidebar-left' => esc_html__( 'Sidebar Left', 'jevelin' ),
                             'sidebar-right' => esc_html__( 'Sidebar Right', 'jevelin' ),
+                        ),
+                        'inline' => false,
+                    ),
+
+					'page_featured_image' => array(
+                        'type'  => 'radio',
+                        'value' => 'on',
+                        'label' => esc_html__( 'Featured Image', 'jevelin' ),
+                        'desc'  => esc_html__( 'Choose to enable or disable page featured image', 'jevelin' ),
+                        'choices' => array(
+							'on' => esc_html__( 'On', 'jevelin' ),
+                            'off' => esc_html__( 'Off', 'jevelin' ),
                         ),
                         'inline' => false,
                     ),
@@ -70,22 +90,26 @@ $options = array(
                         'value' => 'default',
                         'label' => esc_html__('Header Layout', 'jevelin'),
                         'desc'  => esc_html__('Choose main header layout', 'jevelin'),
-                        'choices' => array(
-                            'default' => esc_html__( 'Default (from theme options)', 'jevelin' ),
-                            '1' => esc_html__( 'Header 1', 'jevelin' ),
-                            '2' => esc_html__( 'Header 2', 'jevelin' ),
-                            '3' => esc_html__( 'Header 3', 'jevelin' ),
-                            '4' => esc_html__( 'Header 4', 'jevelin' ),
-                            '5' => esc_html__( 'Header 5', 'jevelin' ),
-                            '6' => esc_html__( 'Header 6 (side navigation)', 'jevelin' ),
-                            '7' => esc_html__( 'Header 7 (side navigation)', 'jevelin' ),
-							'8' => esc_html__( 'Header 8', 'jevelin' ),
-							'9' => esc_html__( 'Header 9', 'jevelin' ),
-							'10' => esc_html__( 'Header 10', 'jevelin' ),
-                            'left-1' => esc_html__( 'Left Header 1', 'jevelin' ),
-                            'left-2' => esc_html__( 'Left Header 2', 'jevelin' ),
-                        ),
+                        'choices' => array_merge( array( 'default' => esc_html__( 'Default (from theme options)', 'jevelin' ) ), jevelin_get_headers() ),
                     ),
+
+
+					'page_title1' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Header Builder (beta)', 'gillion' ).'
+						</span></h3>',
+					),
+
+					'header_above_content' => array(
+						'type' => 'select',
+						'label' => esc_html__( 'Above Content', 'jevelin' ),
+						'desc' => esc_html__( 'Can be useful when using transparent background to place it above content like a slider (will be applied only when viewing actual pages)', 'jevelin' ),
+						'value' => 'disabled',
+						'choices' => array(
+                            'disabled' => esc_html__( 'Disabled', 'jevelin' ),
+                            'enabled' => esc_html__( 'Enabled', 'jevelin' ),
+                        ),
+					),
 
                     /*'header_style' => array(
                         'type'  => 'select',
@@ -97,6 +121,13 @@ $options = array(
                             'light' => esc_html__( 'Light (Header + Titlebar)', 'jevelin' ),
                         ),
                     ),*/
+
+
+					'page_title2' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Header Classic (from Theme Settings)', 'gillion' ).'
+						</span></h3>',
+					),
 
                     'header_style' => array(
                         'type'  => 'multi-picker',
@@ -114,14 +145,14 @@ $options = array(
                             'header_style' => array(
                                 'type'  => 'select',
                                 'value' => '1',
-                                'label' => esc_html__('Style', 'jevelin'),
-                                'desc'  => esc_html__('Choose main header and titlebar style', 'jevelin'),
+                                'label' => esc_html__('Header Above', 'jevelin'),
+                                'desc'  => esc_html__('Choose if header will be shown above content', 'jevelin'),
                                 'choices' => array(
-									'default' => esc_html__( 'Default', 'jevelin' ),
-									'bottom_titlebar' => esc_html__( 'Bottom of Titlebar', 'jevelin' ),
+									'default' => esc_html__( 'Disabled', 'jevelin' ),
                                     'light' => esc_html__( 'Light (Header + Titlebar)', 'jevelin' ),
 									'light light_noborder' => esc_html__( 'Light (Header + Titlebar + withoutborder)', 'jevelin' ),
                                     'light_mobile_off' => esc_html__( 'Light (Header + Titlebar) - Mobile Off', 'jevelin' ),
+									'bottom_titlebar' => esc_html__( 'Bottom of Titlebar', 'jevelin' ),
                                 ),
                             ),
                         ),
@@ -231,6 +262,14 @@ $options = array(
                         ),
                     ),
 
+
+
+					'titlebar1' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Titlebar', 'gillion' ).'
+						</span></h3>',
+					),
+
                     'titlebar' => array(
                         'type'  => 'select',
                         'label' => esc_html__('Titlebar', 'jevelin'),
@@ -286,6 +325,14 @@ $options = array(
                 'type'    => 'tab',
                 'options' => array(
 
+
+					'footer_template' => array(
+                        'type'  => 'select',
+                        'value' => 'default',
+                        'label' => esc_html__('Footer Layout', 'jevelin'),
+                        'desc'  => esc_html__('Choose footer layout', 'jevelin'),
+                        'choices' => jevelin_get_footers(),
+                    ),
 
                     'footer_widgets' => array(
                         'type' => 'select',
@@ -388,24 +435,24 @@ $options = array(
 
 					'page_blog_posts_per_page' => array(
                         'type' => 'select',
-                        'label' => esc_html__( 'Blog Posts Per Page', 'gillion' ),
-                        'desc' => esc_html__( 'Choose how many posts will be disaplayed per page', 'gillion' ),
+                        'label' => esc_html__( 'Blog Posts Per Page', 'jevelin' ),
+                        'desc' => esc_html__( 'Choose how many posts will be disaplayed per page', 'jevelin' ),
                         'choices' => array(
-                            'default' => esc_html__( 'Default (from theme options)', 'gillion' ),
-							'3' => esc_html__( '3 posts', 'gillion' ),
-							'4' => esc_html__( '4 posts', 'gillion' ),
-							'5' => esc_html__( '5 posts', 'gillion' ),
-							'6' => esc_html__( '6 posts', 'gillion' ),
-							'7' => esc_html__( '7 posts', 'gillion' ),
-                            '8' => esc_html__( '8 posts', 'gillion' ),
-                            '9' => esc_html__( '9 posts', 'gillion' ),
-							'10' => esc_html__( '10 posts', 'gillion' ),
-							'11' => esc_html__( '11 posts', 'gillion' ),
-							'12' => esc_html__( '12 posts', 'gillion' ),
-							'13' => esc_html__( '13 posts', 'gillion' ),
-							'14' => esc_html__( '14 posts', 'gillion' ),
-							'15' => esc_html__( '15 posts', 'gillion' ),
-							'16' => esc_html__( '16 posts', 'gillion' ),
+                            'default' => esc_html__( 'Default (from theme options)', 'jevelin' ),
+							'3' => esc_html__( '3 posts', 'jevelin' ),
+							'4' => esc_html__( '4 posts', 'jevelin' ),
+							'5' => esc_html__( '5 posts', 'jevelin' ),
+							'6' => esc_html__( '6 posts', 'jevelin' ),
+							'7' => esc_html__( '7 posts', 'jevelin' ),
+                            '8' => esc_html__( '8 posts', 'jevelin' ),
+                            '9' => esc_html__( '9 posts', 'jevelin' ),
+							'10' => esc_html__( '10 posts', 'jevelin' ),
+							'11' => esc_html__( '11 posts', 'jevelin' ),
+							'12' => esc_html__( '12 posts', 'jevelin' ),
+							'13' => esc_html__( '13 posts', 'jevelin' ),
+							'14' => esc_html__( '14 posts', 'jevelin' ),
+							'15' => esc_html__( '15 posts', 'jevelin' ),
+							'16' => esc_html__( '16 posts', 'jevelin' ),
                         ),
                         'value' => 'default',
                         'inline' => false,
@@ -414,12 +461,12 @@ $options = array(
 					'page_blog_pagination_type' => array(
                         'type'  => 'radio',
                         'value' => 'default',
-                        'label' => esc_html__( 'Blog Pagination Type', 'gillion' ),
-                        'desc'  => esc_html__( 'Choose blog pagination type', 'gillion' ),
+                        'label' => esc_html__( 'Blog Pagination Type', 'jevelin' ),
+                        'desc'  => esc_html__( 'Choose blog pagination type', 'jevelin' ),
                         'choices' => array(
-                            'default' => esc_html__( 'Default per page', 'gillion' ),
-                            'button' => esc_html__( 'Load More button (on click)', 'gillion' ),
-                            'infinite' => esc_html__( 'Infinite loading (on scroll)', 'gillion' ),
+                            'default' => esc_html__( 'Default per page', 'jevelin' ),
+                            'button' => esc_html__( 'Load More button (on click)', 'jevelin' ),
+                            'infinite' => esc_html__( 'Infinite loading (on scroll)', 'jevelin' ),
                         ),
                         'inline' => false,
                     ),

@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna\Test;
+namespace Rowbot\Idna\Test;
 
 use ReflectionClass;
-use VendorPrefix\Rowbot\Idna\Idna;
+use Rowbot\Idna\Idna;
 
 use function array_filter;
 use function array_flip;

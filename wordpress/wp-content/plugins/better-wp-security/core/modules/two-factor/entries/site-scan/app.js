@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 import { shield } from '@wordpress/icons';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text, TextWeight } from '@ithemes/ui';
 import {

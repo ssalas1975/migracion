@@ -1,0 +1,573 @@
+
+.bc-medio-add {
+    padding: 20px;
+    padding-top:40px;
+    background-color: #fff;
+    -webkit-box-shadow: 0px 0px 16px 0px rgba(50, 50, 50, 0.5);
+    -moz-box-shadow: 0px 0px 16px 0px rgba(50, 50, 50, 0.5);
+    box-shadow: 0px 0px 16px 0px rgba(50, 50, 50, 0.5);
+    display: table;
+      width: 96%;
+    margin: auto;
+    border-top: solid 2px #30BCDC;
+    
+}
+
+.vcbc-add-medio-wrapper h2 {
+ margin-top: 30px !important;
+    margin-bottom: 15px !important;
+}
+
+.vcbc-fields h3 {
+    margin-top: 0px;
+}
+
+.wrap.vcbc-add-medio-wrapper h2 span {
+    color: #30BCDC;
+    font-size: 19px;
+}
+.vcbc-fields input[type=password],
+.vcbc-fields textarea,
+.vcbc-fields input[type=text] {
+    width:90%;
+}
+
+.vcbc-fields textarea {
+    height:400px;
+}
+
+
+.vcbc-fields label {
+    font-weight: bold;
+    width: 120px;
+    float: left;
+    margin-top: 0px;
+}
+.vcbc-add-medio-wrapper .submits {
+float:right;
+
+}
+.vcbc-add-medio-wrapper .submits .submit {
+
+float:left;
+margin-right:20px;
+}
+
+/*UPLOAD MEDIA*/
+.vcbc-fields-media {
+background-color:#fff;
+padding:20px;
+height: 100%;
+overflow-y: scroll;
+}
+
+.vcbc-fields-media label {
+    font-weight: bold;
+    width: 200px;
+    float: left;
+    margin-top: 5px;
+}
+.vcbc-fields-media select,
+.vcbc-fields-media textarea,
+.vcbc-fields-media input[type=text] {
+    width:80%;
+}
+
+.vcbc-fields-media #filelist {
+    font-weight: bold;
+}
+.vcbc-fields-media #uploadprogress {
+    height:17px;
+    background-color:#b6ff00;
+    width:0px;
+    overflow:hidden;
+
+}
+
+    .vcbc-fields-media .file-progress-container {
+    width:80%;
+        float: left;
+    }
+
+div#progresstext {
+   font-weight: bold;
+    font-size: 12px;
+    float: right;
+    margin-top: 0px;
+    margin-right: 5px;
+}
+
+
+body#media-upload {
+    background-color: #fff;
+    margin-top: 0px;
+    padding-top: 10px;
+}
+
+body#media-upload.disabled {
+
+    overflow: hidden;
+}
+
+
+body#media-upload .uploader-zone {
+    background-color: #F8F7FF;
+    width: 93%;
+    display: table;
+    /* height: 61px; */
+    padding: 20px;
+    border: solid 1px #EAEAEA;
+}
+
+
+.player-vocento-opts {
+    padding: 20px;
+    background-color: #F7F7F7;
+    border: solid 1px #EAEAEA;
+  display:none;
+     overflow:hidden;
+    transition:all linear 0.5s;
+    margin-bottom:20px;
+}
+
+.vocento-player-1 {
+display:block;
+}
+
+.player-vocento-opts h3 {
+    padding: 0px;
+    margin:0px;
+    margin-bottom:20px;
+}
+.vcbc-select-submit,
+.vcbc-upload-submit {
+   float: right;
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
+    padding: 20px;
+    width: 100%;
+    background-color: #fff;
+    
+}
+
+.vcbc-filter-results {
+
+    margin-bottom: 100px;
+    display: table;
+        width: 100%;
+}
+
+.vcbc-filter-results.loading {
+   background-image:url(/wp-content/plugins/vocento-brightcove/vocento-brightcove/admin/assets/img/loading.gif);
+    background-position:center center;
+    background-repeat:no-repeat;
+    min-height:100px;
+
+ 
+}
+
+
+.vcbc-video-more-hidden {
+display:none;
+}
+
+.vcbc_info {
+    padding: 10px;
+    background-color: #F5FCFF;
+    border: solid 1px #DCF3FF;
+}
+
+.vcbc_info ul li {
+    margin-left: 20px;
+}
+
+
+div#tabs-vcbc-upload ul li {
+    padding: 10px;
+    border: solid 1px #ccc;
+    border-bottom: 0px;
+}
+
+div#tabs-vcbc-upload ul li {
+    padding: 10px;
+    border: solid 1px #ccc;
+   background-color: #E6E6E6;
+}
+
+div#tabs-vcbc-upload ul li.ui-state-active {
+    background-color: #fff;
+     border-bottom: 0px;
+}
+
+    div#tabs-vcbc-upload ul li a {
+    
+    text-decoration:none;
+    font-weight:normal;
+    }
+
+#tabs-vcbc-upload .vcbc-tab {
+
+float:left;
+clear:both;
+    width: 97%;
+}
+
+.vcbc-select-filters {
+    padding: 10px;
+    background-color: #F9F9F9;
+    display: table;
+    width: 98%;
+        border: solid 1px #E6E6E6;
+}
+
+.vcbc-select-filters .vcbc-filter {
+
+    float:left;
+    width:16.6%;
+
+}
+
+.vcbc-filter.vcbc-filter-head {
+    font-weight: bold;
+    font-size: 14px;
+    float: left;
+    margin-top: 5px;
+}
+
+.vcbc-video {
+    width: 15.5%;
+    float: left;
+    margin:1%;
+    min-height:230px;
+    padding:1%;
+        border: solid 1px #EDEDED;
+        cursor:pointer;
+        background-color: #F7F7F7;
+}
+
+.vcbc-video:nth-child(6n+6) {
+    clear: left;
+}
+
+.vcbc-video.selected {
+    background-color: rgba(131, 206, 255, 0.23);
+    border: solid 1px #00E0FF;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+    -moz-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+    box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+    /*background-image:url(/wp-content/plugins/vocento-brightcove/vocento-brightcove/admin/assets/img/checked.png);
+    background-position:left bottom;
+    background-repeat:no-repeat;*/
+}
+
+.vcbc-video img {
+    width: 100%;
+
+    
+}
+
+.vcbc-video-title {
+    font-weight: bold;
+    text-transform:uppercase;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    word-break: break-all;
+     height: 80px;
+     overflow:hidden;
+}
+
+
+.vcbc-video-info {
+      width: 100%;
+    padding: 0px;
+  
+    padding-top: 10px;
+    border-top: solid 1px #ccc;
+}
+
+.vcbc-video-state {
+    font-size: 10px;
+}
+
+.vcbc-video-info div {
+    float: left;
+    width: 33%;
+    font-weight: bold;
+        font-size: 10px;
+}
+
+.vcbc-video-state-active {
+width:30px;
+height:30px;
+
+}
+
+.vcbc-video-image {
+    height: 129px;
+    overflow: hidden;
+}
+
+.vcbc-video-state img {
+    width: 18px;
+    float: left;
+    margin-right: 5px;
+}
+.vcbc-video-actions {
+float:left;
+width:100% !important;
+margin-top: 15px;
+
+}
+    .vcbc-video-actions div {
+    clear:none;
+    width:auto !important;
+    }
+.vcbc-video-more {
+    float: right !important;
+    clear: both;
+    text-align: right;
+    margin-top: 5px;
+    background-color: #0085BA;
+    color: #fff;
+    width: auto !important;
+    padding: 3px;
+    border-radius: 14px;
+    font-size: 11px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    cursor:pointer;
+    transition:all linear 0.5s;
+}
+
+
+
+    .vcbc-video-more:hover {
+      background-color: #30BCDC;
+    }
+
+    .vcbc-video-more.edit-video:hover {
+    background-color: #BEEA3A;
+}
+.vcbc-video-more.edit-video {
+    background-color: #95C700;
+}
+
+.vcbc-table-streams {
+    width: 50%;
+    position: fixed;
+    top: 20px;
+    left: 0px;
+    right: 0px;
+    margin: auto;
+    background-color: #fff;
+    border: solid 1px #ccc;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.75);
+-moz-box-shadow:    0px 0px 15px 0px rgba(50, 50, 50, 0.75);
+box-shadow:         0px 0px 15px 0px rgba(50, 50, 50, 0.75);
+}
+
+.vcbc-table-streams .vcbc-table-header {
+    background-color: #505050;
+    display: table;
+    width: 100%;
+}
+
+.vcbc-table-streams table.bc-table {
+    width: 100%;
+}
+
+table.bc-table {
+    width: 100%;
+    text-align: center;
+}
+
+  .vcbc-table-streams .vcbc-table-close {
+    float: right;
+    text-align: right;
+    color: red;
+    font-weight: bold;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 100%;
+    background-color: #fff;
+    width: 25px;
+    line-height: 25px;
+    text-align: center;
+}
+.vcbc-table-streams .vcbc-table-close:hover {
+     background-color: red;
+       color: #fff;
+}
+
+    .vcbc-table-streams .vcbc-table-title {
+    float: left;
+    margin-top: 10px;
+    font-weight: bold;
+    margin-left: 10px;
+    font-size: 15px;
+    color:#fff;
+}
+
+    .bc-table thead tr {
+    line-height: 30px;
+    background-color: #E4E4E4 !important;
+    /* padding-bottom: 10px; */
+}
+
+    table.bc-table tr:nth-child(even) {background: #F1F1F1}
+table.bc-table tr:nth-child(odd) {background: #FFF}
+    
+table.bc-table td {
+    border: 0px !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+    .vcbc-table-streams .vcbc-table-content {
+    
+    float: left;
+   width:100%;
+   display:table;
+    }
+
+     .bc-table  tr {
+    line-height: 30px;
+
+}
+
+     .vcbc-filter-pagination {
+    float: left;
+    margin-left: 50px;
+    margin-top: 10px;
+}
+
+     .vcbc-filter-pagination span, .vcbc-filter-pagination a {
+    margin-right: 10px;
+}
+
+     .vcbc-edit-video-window {
+    position: fixed;
+    background: #fff;
+    width: 89%;
+    margin: auto;
+    top: 40px;
+    left: 0px;
+    right: 0px;
+    height: 80%;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+    -moz-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+    box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 0.43);
+        border: solid 1px #ccc;
+    background-image:url(/wp-content/plugins/vocento-brightcove/vocento-brightcove/admin/assets/img/loading.gif);
+    background-position:center center;
+    background-repeat:no-repeat;
+}
+
+        .vcbc-edit-video-window iframe {
+        
+        border:solid 1px #ccc;
+        }
+
+.bkg-vcbc-edit {
+    position:fixed;
+    top:0px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    background-color:rgba(255,255,255,0.5);
+}
+
+
+.preview-network-settings {
+    background-color: #F4F4F4;
+    padding: 10px;
+    margin-bottom:20px;
+}
+
+#tabs-vcbc-upload ul.ui-tabs-nav.ui-helper-reset.ui-helper-clearfix.ui-widget-header.ui-corner-all {
+    background: #fff !important;
+    border: 0px !important;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 98%;
+    display: table;
+    margin-bottom: 0px;
+}
+
+
+div#tabs-vcbc-upload {
+    border: 0px !important;
+    
+
+}
+
+div#tabs-vcbc-upload ul li {
+    padding: 10px !important;
+    border: solid 1px #ccc;
+    background-color: #E6E6E6;
+    border-radius: 0px !important;
+    padding: 5px !important;
+    float: left !important;
+  
+        margin-bottom: 0px !important;
+        margin-bottom: 0px !important;
+}
+
+    div#tabs-vcbc-upload ul {
+        margin-left: 10px !important;
+        margin-right: 10px !important;
+    }
+
+div#tabs-vcbc-upload ul li.ui-state-active {
+
+    border-top: solid 2px #3AD2FF !important;
+
+}
+
+div#tabs-vcbc-upload ul li:focus,
+div#tabs-vcbc-upload ul li a:focus, div#tabs-vcbc-upload ul li a:focus .media-icon img {
+    color: #124964;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+/*DATATABLES*/
+div#vcf-table_wrapper {
+    background: #fff;
+    padding: 20px;
+    border-top: solid 2px #61C1FF;
+    margin-top: 10px;
+
+}
+
+#vcf-table th {
+   border-bottom:1px solid #ccc;
+}
+
+table.dataTable.no-footer {
+    border-bottom: 1px solid #ccc;
+}
+
+tr.odd {
+    background-color: #F4F4F4 !important;
+}
+
+tr.even {
+    background-color: #fff !important;
+}
+
+table#vcf-table {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+div#tabs-vcbc-upload .notice {
+    padding: 16px !important;
+    margin-left: 10px !important;
+    margin-top: 10px !important;
+    border-top: solid 1px #E8E8E8 !important;
+    border-bottom: solid 1px #E8E8E8 !important;
+    border-right: solid 1px #E8E8E8 !important;
+}
+

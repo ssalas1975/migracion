@@ -4,7 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text } from '@ithemes/ui';
 

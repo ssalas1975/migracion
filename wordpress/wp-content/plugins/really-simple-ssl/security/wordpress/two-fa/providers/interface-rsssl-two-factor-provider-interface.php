@@ -17,8 +17,7 @@ use WP_User;
  * @return bool True if the user is forced, false otherwise.
  */
 interface Rsssl_Two_Factor_Provider_Interface {
-
-    /**
+	/**
 	 * Check if a user is forced.
 	 *
 	 * @param  WP_User $user  The user to check.

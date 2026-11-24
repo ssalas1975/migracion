@@ -1,10 +1,10 @@
 <?php
 
-namespace VendorPrefix\Rowbot\URL\Tests\WhatWg;
+namespace Rowbot\URL\Tests\WhatWg;
 
-use VendorPrefix\Rowbot\URL\Exception\TypeError;
-use VendorPrefix\Rowbot\URL\URL;
-use VendorPrefix\Rowbot\URL\URLSearchParams;
+use Rowbot\URL\Exception\TypeError;
+use Rowbot\URL\URL;
+use Rowbot\URL\URLSearchParams;
 
 /**
  * @see https://github.com/web-platform-tests/wpt/blob/master/url/url-searchparams.any.js

@@ -14,7 +14,7 @@ import { useState } from '@wordpress/element';
 import { close as deleteIcon, arrowRight as viewIcon } from '@wordpress/icons';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import {
 	MasterDetail,
@@ -46,13 +46,13 @@ import {
 function getBanColor( ban ) {
 	switch ( ban.created_by?.id ) {
 		case 'four_oh_four':
-			return '#E39219';
+			return '#FF8528';
 		case 'brute_force':
 			return '#00a32a';
 		case 'brute_force_admin_user':
 			return '#2271b1';
 		case 'recaptcha':
-			return '#d12502';
+			return '#d63638';
 		default:
 			return undefined;
 	}

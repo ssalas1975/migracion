@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\String\Exception;
+namespace Rowbot\URL\String\Exception;
 
-use VendorPrefix\Rowbot\URL\Exception\URLException;
+use Rowbot\URL\Exception\URLException;
 
 class RegexException extends URLException {
 }

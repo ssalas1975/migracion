@@ -485,7 +485,6 @@ class Scroll_To_Top_Settings extends Tab_Base {
 				],
 				'selectors'  => [
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button i' => 'font-size: {{SIZE}}{{UNIT}};',
-					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button svg' => 'height: {{SIZE}}{{UNIT}};width: {{SIZE}}{{UNIT}};',
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button img' => 'height: {{SIZE}}{{UNIT}};width: {{SIZE}}{{UNIT}};',
 				],
 				'condition'  => [
@@ -550,7 +549,6 @@ class Scroll_To_Top_Settings extends Tab_Base {
 				'default'   => '',
 				'selectors' => [
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button i' => 'color: {{VALUE}}',
-					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button svg' => 'fill: {{VALUE}}',
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button span' => 'color: {{VALUE}}',
 				],
 				'condition' => [
@@ -608,7 +606,6 @@ class Scroll_To_Top_Settings extends Tab_Base {
 				'default'   => '',
 				'selectors' => [
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button:hover i' => 'color: {{VALUE}}',
-					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button:hover svg' => 'fill: {{VALUE}}',
 					'.hfe-scroll-to-top-wrap .hfe-scroll-to-top-button:hover span' => 'color: {{VALUE}}',
 				],
 				'condition' => [

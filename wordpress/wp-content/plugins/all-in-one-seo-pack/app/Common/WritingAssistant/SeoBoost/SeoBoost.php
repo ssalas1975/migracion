@@ -73,8 +73,7 @@ class SeoBoost {
 	/**
 	 * Gets the login URL.
 	 *
-	 * @since   4.7.4
-	 * @version 4.9.10 Add an OAuth `state` nonce to the redirect to bind the flow to the initiating user.
+	 * @since 4.7.4
 	 *
 	 * @return string The login URL.
 	 */
@@ -86,12 +85,7 @@ class SeoBoost {
 
 		$params = [
 			'oauth'    => true,
-			// Encode the redirect so the `state` nonce stays inside it (WP's build_query() does not
-			// URL-encode, so an unencoded inner `&` would break `state` out into a sibling param).
-			'redirect' => rawurlencode( get_site_url() . '?' . build_query( [
-				'aioseo-writing-assistant' => 'auth_return',
-				'state'                    => wp_create_nonce( 'aioseo_seoboost_oauth' )
-			] ) ),
+			'redirect' => get_site_url() . '?' . build_query( [ 'aioseo-writing-assistant' => 'auth_return' ] ),
 			'domain'   => aioseo()->helpers->getMultiSiteDomain()
 		];
 
@@ -226,18 +220,11 @@ class SeoBoost {
 	/**
 	 * Checks the token.
 	 *
-	 * @since   4.7.4
-	 * @version 4.9.10 Require a valid OAuth `state` nonce and a logged-in user to prevent CSRF/account fixation.
+	 * @since 4.7.4
 	 *
 	 * @return void
 	 */
 	public function checkToken() {
-		// Only complete the OAuth flow for the logged-in user who initiated it; the nonce is bound to that session.
-		$state = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification, HM.Security.NonceVerification
-		if ( ! is_user_logged_in() || ! wp_verify_nonce( $state, 'aioseo_seoboost_oauth' ) ) {
-			return;
-		}
-
 		$authToken = isset( $_GET['token'] ) // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			? sanitize_key( wp_unslash( $_GET['token'] ) ) // phpcs:ignore HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended
 			: null;

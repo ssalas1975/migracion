@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Admin\Notices\Review as ReviewNotice;
 use AIOSEO\Plugin\Common\Models;
 use AIOSEO\Plugin\Common\Migration;
 
@@ -71,33 +70,6 @@ class Admin {
 	protected $assetSlugs = [
 		'plugins' => 'src/app/plugins/main.js',
 		'pages'   => 'src/vue/pages/{page}/main.js'
-	];
-
-	/**
-	 * The handles each Block Editor link format bundle reads off the `wp` global.
-	 *
-	 * NOTE: Webpack cannot see a global read, so these never reach the generated asset manifest.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @var array
-	 */
-	protected $linkFormatGlobalHandles = [
-		'block'     => [ 'wp-editor' ],
-		'block-old' => [
-			'wp-api-fetch',
-			'wp-block-editor',
-			'wp-components',
-			'wp-compose',
-			'wp-data',
-			'wp-dom',
-			'wp-element',
-			'wp-html-entities',
-			'wp-i18n',
-			'wp-keycodes',
-			'wp-rich-text',
-			'wp-url'
-		]
 	];
 
 	/**
@@ -310,11 +282,6 @@ class Admin {
 				'parent'              => 'aioseo-seo-revisions',
 				'hide_admin_bar_menu' => true
 			],
-			'aioseo-ai-bulk-generate'  => [
-				'menu_title'          => esc_html__( 'AI Bulk Generate', 'all-in-one-seo-pack' ),
-				'parent'              => 'aioseo-ai-bulk-generate',
-				'hide_admin_bar_menu' => true
-			],
 		];
 	}
 
@@ -424,8 +391,7 @@ class Admin {
 	/**
 	 * Registers our link format for the Block Editor.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 Reads the script dependencies from the generated asset manifest.
+	 * @since 4.0.0
 	 *
 	 * @return void
 	 */
@@ -446,34 +412,21 @@ class Admin {
 			}
 		}
 
-		$asset = "link-format/link-format-$linkFormat";
-
-		$dependencies = aioseo()->core->assets->getAssetDependencies( $asset, [
-			// Only reached when a build left no manifest behind. Copied from the block manifest,
-			// whose handles cover both bundles. `react` carries the bundled JSX runtime.
-			'lodash',
-			'react',
-			'wp-block-editor',
-			'wp-components',
-			'wp-compose',
-			'wp-data',
-			'wp-dom',
-			'wp-element',
-			'wp-hooks',
-			'wp-html-entities',
-			'wp-i18n',
-			'wp-polyfill',
-			'wp-primitives',
-			'wp-rich-text',
-			'wp-url'
-		] );
-
-		$dependencies = array_merge( $dependencies, $this->linkFormatGlobalHandles[ $linkFormat ] );
-
 		wp_register_script(
 			'aioseo-link-format',
-			aioseo()->core->assets->getAssetsPath( false ) . "$asset.js",
-			array_values( array_unique( $dependencies ) ),
+			aioseo()->core->assets->getAssetsPath( false ) . "link-format/link-format-$linkFormat.js",
+			[
+				'wp-blocks',
+				'wp-i18n',
+				'wp-element',
+				'wp-plugins',
+				'wp-components',
+				'wp-edit-post',
+				'wp-api',
+				'wp-editor',
+				'wp-hooks',
+				'lodash'
+			],
 			aioseo()->version,
 			true
 		);
@@ -905,8 +858,7 @@ class Admin {
 			'feature-manager',
 			'monsterinsights',
 			'about',
-			'seo-revisions',
-			'ai-bulk-generate'
+			'seo-revisions'
 		];
 
 		foreach ( $pages as $page ) {
@@ -1039,7 +991,7 @@ class Admin {
 	 */
 	public function addFooterText() {
 		$linkText = esc_html__( 'Give us a 5-star rating!', 'all-in-one-seo-pack' );
-		$href     = ReviewNotice::RATING_URL;
+		$href     = 'https://aioseo.com/aioseo-wordpress-rating';
 
 		$link1 = sprintf(
 			'<a href="%1$s" target="_blank" title="%2$s">&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
@@ -1193,9 +1145,6 @@ class Admin {
 			'keywords',
 			'keyphrases',
 			'page_analysis',
-			'truseo',
-			'focus_keyword',
-			'additional_keywords',
 			'canonical_url',
 			'og_title',
 			'og_description',
@@ -1240,8 +1189,7 @@ class Admin {
 	/**
 	 * Appends a message to the default WordPress "trashed" message.
 	 *
-	 * @since   4.1.2
-	 * @version 5.0.3 Offer the redirect without a prefilled target.
+	 * @since 4.1.2
 	 *
 	 * @param  array $messages The original messages.
 	 * @return array           The modified messages.
@@ -1254,13 +1202,6 @@ class Admin {
 		}
 
 		if ( ! empty( aioseo()->redirects->options ) && aioseo()->redirects->options->monitor->trash ) {
-			return $messages;
-		}
-
-		if (
-			! current_user_can( 'aioseo_redirects_manage' ) &&
-			! current_user_can( 'aioseo_page_redirects_manage' )
-		) {
 			return $messages;
 		}
 
@@ -1286,7 +1227,7 @@ class Admin {
 
 			$posts[] = [
 				'url'    => str_replace( '__trashed', '', get_permalink( $post ) ),
-				'target' => '',
+				'target' => '/',
 				'type'   => 301
 			];
 		}

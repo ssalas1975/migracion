@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component;
+namespace Rowbot\URL\Component;
 
-use VendorPrefix\Rowbot\URL\Origin;
+use Rowbot\URL\Origin;
 
 /**
  * @see https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque

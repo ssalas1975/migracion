@@ -1,8 +1,5 @@
 <?php
 
-use WPML\Core\Twig_Extension;
-use WPML\Core\Twig_SimpleFilter;
-
 class WPML_Twig_WP_Plugin_Extension extends Twig_Extension {
 
 	/**

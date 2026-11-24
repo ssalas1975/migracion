@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Brick\Math;
+namespace Brick\Math;
 
-use VendorPrefix\Brick\Math\Exception\DivisionByZeroException;
-use VendorPrefix\Brick\Math\Exception\MathException;
-use VendorPrefix\Brick\Math\Exception\NumberFormatException;
-use VendorPrefix\Brick\Math\Exception\RoundingNecessaryException;
+use Brick\Math\Exception\DivisionByZeroException;
+use Brick\Math\Exception\MathException;
+use Brick\Math\Exception\NumberFormatException;
+use Brick\Math\Exception\RoundingNecessaryException;
 
 /**
  * An arbitrarily large rational number.
@@ -21,14 +21,14 @@ final class BigRational extends BigNumber
     /**
      * The numerator.
      * @readonly
-     * @var \VendorPrefix\Brick\Math\BigInteger
+     * @var \Brick\Math\BigInteger
      */
     private $numerator;
 
     /**
      * The denominator. Always strictly positive.
      * @readonly
-     * @var \VendorPrefix\Brick\Math\BigInteger
+     * @var \Brick\Math\BigInteger
      */
     private $denominator;
 
@@ -323,7 +323,7 @@ final class BigRational extends BigNumber
     }
 
     /**
-     * @param \VendorPrefix\Brick\Math\BigNumber|int|float|string $that
+     * @param \Brick\Math\BigNumber|int|float|string $that
      */
     public function compareTo($that) : int
     {

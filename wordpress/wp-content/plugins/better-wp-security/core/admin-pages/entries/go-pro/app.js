@@ -22,6 +22,7 @@ import {
 	StyledMain,
 	StyledProLogo,
 	StyledUpsellText,
+	StyledUpsellGradient,
 	StyledUpsellButton,
 } from './style.js';
 
@@ -37,9 +38,10 @@ export default function App() {
 								i: <span />,
 							} ) }
 					/>
+					<StyledUpsellGradient />
 					<StyledUpsellButton
 						variant="primary"
-						text={ __( 'Get Kadence Security Pro', 'better-wp-security' ) }
+						text={ __( 'Get Solid Security Pro', 'better-wp-security' ) }
 						href={ 'https://go.solidwp.com/basic-to-pro' }
 					/>
 				</StyledMain>

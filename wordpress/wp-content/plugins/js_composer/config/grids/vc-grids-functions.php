@@ -1,14 +1,10 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	die( '-1' );
-}
-
 /**
+ * @since 4.5.2
+ *
  * @param $term
  *
  * @return array|bool
- * @since 4.5.2
- *
  */
 function vc_autocomplete_taxonomies_field_render( $term ) {
 	$vc_taxonomies_types = vc_taxonomies_types();
@@ -26,20 +22,16 @@ function vc_autocomplete_taxonomies_field_render( $term ) {
 }
 
 /**
+ * @since 4.5.2
+ *
  * @param $search_string
  *
  * @return array|bool
- * @since 4.5.2
- *
  */
 function vc_autocomplete_taxonomies_field_search( $search_string ) {
 	$data = array();
 	$vc_filter_by = vc_post_param( 'vc_filter_by', '' );
-	$vc_filter_by_post_type = vc_post_param( 'vc_filter_post_type', '' );
-	$vc_taxonomies_types = strlen( $vc_filter_by ) > 0 ? array( $vc_filter_by ) : array_keys( vc_taxonomies_types( $vc_filter_by_post_type ) );
-	if ( empty( $vc_taxonomies_types ) ) {
-		return array();
-	}
+	$vc_taxonomies_types = strlen( $vc_filter_by ) > 0 ? array( $vc_filter_by ) : array_keys( vc_taxonomies_types() );
 	$vc_taxonomies = get_terms( $vc_taxonomies_types, array(
 		'hide_empty' => false,
 		'search' => $search_string,
@@ -61,21 +53,19 @@ function vc_autocomplete_taxonomies_field_search( $search_string ) {
  *
  * @return string
  */
-function vc_search_by_title_only( $search, $wp_query ) {
+function vc_search_by_title_only( $search, &$wp_query ) {
 	global $wpdb;
 	if ( empty( $search ) ) {
 		return $search;
-	}
-	// skip processing - no search term in query
+	} // skip processing - no search term in query
 	$q = $wp_query->query_vars;
-	if ( isset( $q['vc_search_by_title_only'] ) && $q['vc_search_by_title_only'] ) {
+	if ( isset( $q['vc_search_by_title_only'] ) && true == $q['vc_search_by_title_only'] ) {
 		$n = ! empty( $q['exact'] ) ? '' : '%';
-		$search = '';
-		$searchand = '';
+		$search = $searchand = '';
 		foreach ( (array) $q['search_terms'] as $term ) {
 			$term = $wpdb->esc_like( $term );
 			$like = $n . $term . $n;
-			$search .= $searchand . $wpdb->prepare( "($wpdb->posts.post_title LIKE %s)", $like );
+			$search .= $wpdb->prepare( "{$searchand}($wpdb->posts.post_title LIKE %s)", $like );
 			$searchand = ' AND ';
 		}
 		if ( ! empty( $search ) ) {
@@ -100,6 +90,9 @@ function vc_include_field_search( $search_string ) {
 	$args = array(
 		's' => $query,
 		'post_type' => 'any',
+		'update_post_meta_cache' => false,
+		'no_found_rows' => true,
+		'update_post_term_cache' => false,
 	);
 	$args['vc_search_by_title_only'] = true;
 	$args['numberposts'] = - 1;
@@ -135,7 +128,6 @@ function vc_include_field_render( $value ) {
 		'group' => $post->post_type,
 	);
 }
-
 /**
  * @param $data_arr
  *
@@ -151,6 +143,9 @@ function vc_exclude_field_search( $data_arr ) {
 	) : array(
 		's' => $term,
 		'post_type' => 'any',
+		'update_post_meta_cache' => false,
+            'no_found_rows' => true,
+            'update_post_term_cache' => false,
 	);
 	$args['vc_search_by_title_only'] = true;
 	$args['numberposts'] = - 1;

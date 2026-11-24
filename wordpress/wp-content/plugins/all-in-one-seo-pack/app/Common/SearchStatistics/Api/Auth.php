@@ -57,10 +57,7 @@ class Auth {
 			return $this->profile;
 		}
 
-		$this->profile = [
-			'siteurl'    => aioseo()->internalOptions->internal->searchStatistics->profile->siteurl,
-			'authedsite' => aioseo()->internalOptions->internal->searchStatistics->profile->authedsite
-		];
+		$this->profile = aioseo()->internalOptions->internal->searchStatistics->profile;
 
 		return $this->profile;
 	}
@@ -73,7 +70,7 @@ class Auth {
 	 * @return string The profile key.
 	 */
 	public function getKey() {
-		return aioseo()->sensitiveOptions->get( 'searchStatisticsProfileKey' );
+		return ! empty( $this->profile['key'] ) ? $this->profile['key'] : '';
 	}
 
 	/**
@@ -84,7 +81,7 @@ class Auth {
 	 * @return string The profile token.
 	 */
 	public function getToken() {
-		return aioseo()->sensitiveOptions->get( 'searchStatisticsProfileToken' );
+		return ! empty( $this->profile['token'] ) ? $this->profile['token'] : '';
 	}
 
 	/**
@@ -106,24 +103,9 @@ class Auth {
 	 * @return void
 	 */
 	public function setProfile( $data = [] ) {
-		// Save sensitive data separately.
-		if ( ! empty( $data['key'] ) ) {
-			aioseo()->sensitiveOptions->set( 'searchStatisticsProfileKey', $data['key'] );
-		}
-		if ( ! empty( $data['token'] ) ) {
-			aioseo()->sensitiveOptions->set( 'searchStatisticsProfileToken', $data['token'] );
-		}
+		$this->profile = $data;
 
-		$siteurl    = ! empty( $data['siteurl'] ) ? (string) $data['siteurl'] : '';
-		$authedsite = ! empty( $data['authedsite'] ) ? (string) $data['authedsite'] : '';
-
-		aioseo()->internalOptions->internal->searchStatistics->profile->siteurl    = $siteurl;
-		aioseo()->internalOptions->internal->searchStatistics->profile->authedsite = $authedsite;
-
-		$this->profile = [
-			'siteurl'    => $siteurl,
-			'authedsite' => $authedsite
-		];
+		aioseo()->internalOptions->internal->searchStatistics->profile = $this->profile;
 	}
 
 	/**
@@ -135,10 +117,6 @@ class Auth {
 	 */
 	public function deleteProfile() {
 		$this->setProfile( [] );
-
-		// Clear sensitive data.
-		aioseo()->sensitiveOptions->delete( 'searchStatisticsProfileKey' );
-		aioseo()->sensitiveOptions->delete( 'searchStatisticsProfileToken' );
 	}
 
 	/**
@@ -149,7 +127,7 @@ class Auth {
 	 * @return bool Whether we are connected or not.
 	 */
 	public function isConnected() {
-		return aioseo()->sensitiveOptions->hasValue( 'searchStatisticsProfileKey' );
+		return ! empty( $this->profile['key'] );
 	}
 
 	/**
@@ -160,22 +138,16 @@ class Auth {
 	 * @return bool Whether the data is valid or not.
 	 */
 	public function verify( $credentials = [] ) {
-		if ( ! empty( $credentials ) ) {
-			$key   = $credentials['key'];
-			$token = $credentials['token'];
-		} else {
-			$key   = aioseo()->sensitiveOptions->get( 'searchStatisticsProfileKey' );
-			$token = aioseo()->sensitiveOptions->get( 'searchStatisticsProfileToken' );
-		}
+		$creds = ! empty( $credentials ) ? $credentials : aioseo()->internalOptions->internal->searchStatistics->profile;
 
-		if ( empty( $key ) ) {
+		if ( empty( $creds['key'] ) ) {
 			return new \WP_Error( 'validation-error', 'Authentication key is missing.' );
 		}
 
 		$request = new Request( "auth/verify/{$this->type}/", [
 			'tt'      => aioseo()->searchStatistics->api->trustToken->get(),
-			'key'     => $key,
-			'token'   => $token,
+			'key'     => $creds['key'],
+			'token'   => $creds['token'],
 			'testurl' => 'https://' . aioseo()->searchStatistics->api->getApiUrl() . '/v1/test/',
 		] );
 		$response = $request->request();
@@ -197,16 +169,15 @@ class Auth {
 			return false;
 		}
 
-		$key   = aioseo()->sensitiveOptions->get( 'searchStatisticsProfileKey' );
-		$token = aioseo()->sensitiveOptions->get( 'searchStatisticsProfileToken' );
-		if ( empty( $key ) ) {
+		$creds = aioseo()->searchStatistics->api->auth->getProfile( true );
+		if ( empty( $creds['key'] ) ) {
 			return false;
 		}
 
 		( new Request( "auth/delete/{$this->type}/", [
 			'tt'      => aioseo()->searchStatistics->api->trustToken->get(),
-			'key'     => $key,
-			'token'   => $token,
+			'key'     => $creds['key'],
+			'token'   => $creds['token'],
 			'testurl' => 'https://' . aioseo()->searchStatistics->api->getApiUrl() . '/v1/test/',
 		] ) )->request();
 

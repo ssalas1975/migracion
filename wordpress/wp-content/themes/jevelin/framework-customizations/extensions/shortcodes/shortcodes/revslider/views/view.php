@@ -3,7 +3,7 @@
 /* Revolution Slider HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 $class = ( $atts['class'] ) ? ' '. $atts['class'] : '';
 ?>
 

@@ -3,7 +3,7 @@
  * Plugin Name: Simple Custom CSS and JS
  * Plugin URI:  https://wordpress.org/plugins/custom-css-js/
  * Description: Easily add Custom CSS or JS to your website with an awesome editor.
- * Version:     3.55
+ * Version:     3.52
  * Author:      SilkyPress.com
  * Author URI:  https://www.silkypress.com
  * License:     GPLv3
@@ -48,14 +48,14 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 		 * Cloning is forbidden.
 		 */
 		public function __clone() {
-			_doing_it_wrong( __FUNCTION__, esc_html( 'An error has occurred. Please reload the page and try again.' ), '1.0' );
+			_doing_it_wrong( __FUNCTION__, __( 'An error has occurred. Please reload the page and try again.' ), '1.0' );
 		}
 
 		/**
 		 * Unserializing instances of this class is forbidden.
 		 */
 		public function __wakeup() {
-			_doing_it_wrong( __FUNCTION__, esc_html( 'An error has occurred. Please reload the page and try again.' ), '1.0' );
+			_doing_it_wrong( __FUNCTION__, __( 'An error has occurred. Please reload the page and try again.' ), '1.0' );
 		}
 
 		/**
@@ -100,7 +100,9 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 					add_action( 'wp_enqueue_scripts', 'CustomCSSandJS::wp_enqueue_scripts' );
 				}
 
-				add_action( 'enqueue_block_assets', 'CustomCSSandJS::enqueue_block_assets' );
+				if ( is_admin() ) {
+					add_action( 'enqueue_block_assets', 'CustomCSSandJS::enqueue_block_assets' );
+				}
 			}
 		}
 
@@ -193,33 +195,30 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 						if ( empty( $type_attr ) ) {
 							$custom_code = str_replace( array( ' type="text/javascript"', ' type="text/css"' ), '', $custom_code );
 						}
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo $custom_code;
 					} else {
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo @file_get_contents( CCJ_UPLOAD_DIR . '/' . $_filename );
 					}
 				}
 
-				if ( 'external' === $where && 'js' === $type ) :
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?><script<?php echo $type_attr; ?> src="<?php echo esc_url( $upload_url . $_filename ); ?>"></script>
-<?php
-				endif;
+				if ( 'internal' === $where && ! strstr( $_filename, 'css' ) && ! strstr( $_filename, 'js' ) ) {
+					$post = get_post( $_filename );
+					echo $before . $post->post_content . $after;
+				}
 
-				if ( 'external' === $where && 'css' === $type ) :
+				if ( 'external' === $where && 'js' === $type ) {
+					echo PHP_EOL . "<script{$type_attr} src='{$upload_url}{$_filename}'></script>" . PHP_EOL;
+				}
+
+				if ( 'external' === $where && 'css' === $type ) {
 					$shortfilename = preg_replace( '@\.css\?v=.*$@', '', $_filename );
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?><link rel="stylesheet" id="<?php echo esc_attr( $shortfilename ); ?>-css" href="<?php echo esc_url( $upload_url . $_filename ); ?>"<?php echo $type_attr; ?> media="all" />
-<?php
-				endif;
+					echo PHP_EOL . "<link rel='stylesheet' id='{$shortfilename}-css' href='{$upload_url}{$_filename}'{$type_attr} media='all' />" . PHP_EOL;
+				}
 
-				if ( 'html' === $type ) {
-					$post = get_post( intval( $_filename ) );
-					if ( isset( $post->post_content ) && ! empty( $post->post_content ) ) {
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo $post->post_content;
-					}
+				if ( 'external' === $where && 'html' === $type ) {
+					$_filename = str_replace( '.html', '', $_filename );
+					$post      = get_post( $_filename );
+					echo $post->post_content . PHP_EOL;
 				}
 			}
 		}
@@ -238,10 +237,6 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 		 */
 		public static function enqueue_block_assets() {
 
-			if ( ! is_admin() ) {
-				return;
-			}
-
 			$search_tree = get_option( 'custom-css-js-tree', array() );
 
 			$js_dependency = ( isset( $search_tree['jquery'] ) && true === $search_tree['jquery'] ) ? ['jquery'] : [];
@@ -254,7 +249,7 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 				// Load external CSS custom codes.
 				if ( strpos( $_where, 'css' ) !== false ) {
 					foreach ( $_files as $__file ) {
-						wp_enqueue_style( $__file, CCJ_UPLOAD_URL . '/' . $__file, [], wp_rand() );
+						wp_enqueue_style( $__file, CCJ_UPLOAD_URL . '/' . $__file, [], null );
 					}
 				} 
 
@@ -265,7 +260,7 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 						$args['in_footer'] = true;
 					}
 					foreach ( $_files as $__file ) {
-						wp_enqueue_script( $__file, CCJ_UPLOAD_URL . '/' . $__file, $js_dependency, wp_rand(), $args );
+						wp_enqueue_script( $__file, CCJ_UPLOAD_URL . '/' . $__file, $js_dependency, null, $args );
 					}
 				}
 			}
@@ -275,11 +270,9 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 			// 		therefore the internal custom codes are saved in the block_js.js and block_css.css files
 			// 		and then loaded in the block editor as externally linked files.
 			if ( isset( $search_tree['block-css-footer-internal'] ) || isset( $search_tree['block-css-header-internal'] ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
 				wp_enqueue_style( 'ccj-block_css', CCJ_UPLOAD_URL . '/block_css.css', [], rand(1, 1000) );
 			}
 			if ( isset( $search_tree['block-js-footer-internal'] ) || isset( $search_tree['block-js-header-internal'] ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
 				wp_enqueue_script( 'ccj-block_js',  CCJ_UPLOAD_URL . '/block_js.js', $js_dependency, rand(1, 1000) );
 			}
 
@@ -292,7 +285,7 @@ if ( ! class_exists( 'CustomCSSandJS' ) ) :
 		public function set_constants() {
 			$dir       = wp_upload_dir();
 			$constants = array(
-				'CCJ_VERSION'     => '3.55',
+				'CCJ_VERSION'     => '3.52',
 				'CCJ_UPLOAD_DIR'  => $dir['basedir'] . '/custom-css-js',
 				'CCJ_UPLOAD_URL'  => $dir['baseurl'] . '/custom-css-js',
 				'CCJ_PLUGIN_FILE' => __FILE__,

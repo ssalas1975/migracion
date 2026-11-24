@@ -16,23 +16,12 @@ class AAL_Exporter_csv {
 	 */
 	public $id = 'csv';
 
-	/**
-	 * When true, write() accepts a Generator instead of a fully materialized array.
-	 *
-	 * @var bool
-	 */
-	public $supports_iterable = true;
-
 	const FORMULAS_START_CHARACTERS = [ '=', '-', '+', '@', "\t", "\r" ];
-
-	/** PHP 8.4 deprecates relying on the default $escape argument. */
-	const CSV_ENCLOSURE = '"';
-	const CSV_ESCAPE = '\\';
 
 	/**
 	 * Writes CSV data for download
 	 *
-	 * @param array|Traversable $data Rows to output.
+	 * @param array $data Array of data to output.
 	 * @param array $columns Column names included in data set.
 	 * @return void
 	 */
@@ -48,16 +37,11 @@ class AAL_Exporter_csv {
 		
 		$separator = apply_filters( 'aal_export_csv_separator', ',' );
 
-		fputcsv( $fp, $columns, $separator, self::CSV_ENCLOSURE, self::CSV_ESCAPE );
+		fputcsv( $fp, $columns, $separator );
 
 		foreach ( $data as $row ) {
 			$encoded_row = $this->get_encoded_row( $row );
-			fputcsv( $fp, $encoded_row, $separator, self::CSV_ENCLOSURE, self::CSV_ESCAPE );
-		}
-
-		if ( $is_test_mode_off ) {
-			fflush( $fp );
-			flush();
+			fputcsv( $fp, $encoded_row, $separator );
 		}
 
 		fclose( $fp );

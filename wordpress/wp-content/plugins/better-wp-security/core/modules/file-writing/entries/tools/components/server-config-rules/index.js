@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text } from '@ithemes/ui';
 

@@ -1,0 +1,705 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Madrid Fusión 2019\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-08-06 14:32+0000\n"
+"PO-Revision-Date: 2018-08-06 14:34+0000\n"
+"Last-Translator: adminFUSION <cursos@habitaciondesdoblada.com>\n"
+"Language-Team: English (United States)\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#: 404.php:19
+msgid "Oops! That page can&rsquo;t be found."
+msgstr ""
+
+#: 404.php:23
+msgid ""
+"It looks like nothing was found at this location. Maybe try one of the links "
+"below or a search?"
+msgstr ""
+
+#. Name of the template
+msgid "Blank with Container"
+msgstr ""
+
+#. Name of the template
+msgid "Blank without Container"
+msgstr ""
+
+#. %s: post title
+#: comments.php:34
+#, php-format
+msgctxt "comments title"
+msgid "One thought on &ldquo;%s&rdquo;"
+msgstr ""
+
+#. 1: number of comments, 2: post title
+#: comments.php:38
+#, php-format
+msgctxt "comments title"
+msgid "%1$s thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] ""
+msgstr[1] ""
+
+#: comments.php:55 comments.php:73
+msgid "Comment navigation"
+msgstr ""
+
+#: comments.php:58 comments.php:76
+msgid "Older Comments"
+msgstr ""
+
+#: comments.php:59 comments.php:77
+msgid "Newer Comments"
+msgstr ""
+
+#: comments.php:90
+msgid "Comments are closed."
+msgstr ""
+
+#: comments.php:97
+msgid "Leave a Reply"
+msgstr ""
+
+#: comments.php:98
+#, php-format
+msgid "Leave a Reply to %s"
+msgstr ""
+
+#: comments.php:99
+msgid "Cancel Reply"
+msgstr ""
+
+#: comments.php:100
+msgid "Post Comment"
+msgstr ""
+
+#: comments.php:105
+msgid ""
+"You may use these <abbr title=\"HyperText Markup Language\">HTML</abbr> tags "
+"and attributes:"
+msgstr ""
+
+#: content-page-home.php:153 template-parts/content-notitle.php:18
+#: template-parts/content-page-home.php:156 template-parts/content-page.php:26
+#: template-parts/content-single-noticias.php:92 template-parts/content.php:40
+msgid "Pages:"
+msgstr ""
+
+#. %s: Name of current post
+#: content-page-home.php:297 inc/template-tags.php:71
+#: template-parts/content-page-home.php:349 template-parts/content-page.php:38
+#, php-format
+msgid "Edit %s"
+msgstr ""
+
+#. Name of the template
+msgid "Full Width"
+msgstr ""
+
+#: functions.php:47 functions_backup.php:47 functions_permalink.php:47
+msgid "Principal"
+msgstr ""
+
+#: functions.php:86 functions_backup.php:86 functions_permalink.php:86
+#, php-format
+msgid ""
+"Welcome to WP Bootstrap Starter Theme! Before diving in to your new theme, "
+"please visit the <a style=\"color: #fff; font-weight: bold;\" href=\"%1$s\" "
+"target=\"_blank\">theme's</a> page for access to dozens of tips and in-depth "
+"tutorials."
+msgstr ""
+
+#: functions.php:121 functions_backup.php:121 functions_permalink.php:121
+msgid "Menu superior derecha"
+msgstr ""
+
+#: functions.php:123 functions_backup.php:123 functions_permalink.php:123
+msgid "Espacio para el buscador y el cambio de idioma."
+msgstr ""
+
+#: functions.php:130 functions_backup.php:130 functions_permalink.php:130
+msgid "Suscripción"
+msgstr ""
+
+#: functions.php:132 functions_backup.php:132 functions_permalink.php:132
+msgid "Formulario de suscripción."
+msgstr ""
+
+#: functions.php:177 functions_backup.php:177 functions_permalink.php:177
+msgid "NOTICIAS - compartir"
+msgstr ""
+
+#: functions.php:179 functions_backup.php:179 functions_permalink.php:179
+msgid "Botones de compartir del plugin AddThis"
+msgstr ""
+
+#: functions.php:195 functions_backup.php:195 functions_permalink.php:195
+msgid "NOTICIAS - barra lateral"
+msgstr ""
+
+#: functions.php:197 functions_backup.php:197 functions_permalink.php:197
+msgid "Widgets que se quieran incluir en la barra lateral"
+msgstr ""
+
+#: functions.php:288 functions_backup.php:288 functions_permalink.php:288
+msgid "RESTAURANTES - menu"
+msgstr ""
+
+#: functions.php:290 functions_backup.php:290 functions_permalink.php:290
+msgid "Menu de Restaurantes (continentes)."
+msgstr ""
+
+#: functions.php:297 functions_backup.php:297 functions_permalink.php:297
+msgid "RESTAURANTES - buscador"
+msgstr ""
+
+#: functions.php:299 functions_backup.php:170 functions_backup.php:225
+#: functions_backup.php:253 functions_backup.php:299
+#: functions_permalink.php:170 functions_permalink.php:225
+#: functions_permalink.php:253 functions_permalink.php:299
+msgid "El texto que aparece en el campo del buscador"
+msgstr ""
+
+#: functions.php:306 functions_backup.php:306 functions_permalink.php:306
+msgid "RESTAURANTES - recetas relacionadas"
+msgstr ""
+
+#: functions.php:308 functions_backup.php:308 functions_permalink.php:308
+msgid "El texto que aparece como titular de \"Recetas de los cocineros\""
+msgstr ""
+
+#: functions.php:315 functions_backup.php:315 functions_permalink.php:315
+msgid "RESTAURANTES - contacto"
+msgstr ""
+
+#: functions.php:317 functions_backup.php:317 functions_permalink.php:317
+msgid "El texto que aparece como titular de \"Contactos\""
+msgstr ""
+
+#: functions.php:324 functions_backup.php:324 functions_permalink.php:324
+msgid "RESTAURANTES - cocineros"
+msgstr ""
+
+#: functions.php:326 functions_backup.php:326 functions_permalink.php:326
+msgid "El texto que aparece como titular de \"Cocineros\""
+msgstr ""
+
+#: functions.php:333 functions_backup.php:333 functions_permalink.php:333
+msgid "RESTAURANTES - enlace buscador (provisional)"
+msgstr ""
+
+#: functions.php:343 functions_backup.php:343 functions_permalink.php:343
+msgid "PIE - redes sociales"
+msgstr ""
+
+#: functions.php:345 functions_backup.php:345 functions_permalink.php:345
+msgid "Menú de redes sociales"
+msgstr ""
+
+#: functions.php:352 functions_backup.php:352 functions_permalink.php:352
+msgid "PIE - organiza"
+msgstr ""
+
+#: functions.php:354 functions_backup.php:354 functions_permalink.php:354
+msgid "Organiza Foro de debate"
+msgstr ""
+
+#: functions.php:361 functions_backup.php:361 functions_permalink.php:361
+msgid "PIE - copy"
+msgstr ""
+
+#: functions.php:363 functions_backup.php:363 functions_permalink.php:363
+msgid "Copyright"
+msgstr ""
+
+#: functions.php:370 functions_backup.php:370 functions_permalink.php:370
+msgid "PIE - legal"
+msgstr ""
+
+#: functions.php:372 functions_backup.php:372 functions_permalink.php:372
+msgid "menú de legales"
+msgstr ""
+
+#: functions.php:380 functions_backup.php:380 functions_permalink.php:380
+msgid "Sidebar"
+msgstr ""
+
+#: functions.php:382 functions.php:391 functions.php:400 functions.php:409
+#: functions_backup.php:382 functions_backup.php:391 functions_backup.php:400
+#: functions_backup.php:409 functions_permalink.php:382
+#: functions_permalink.php:391 functions_permalink.php:400
+#: functions_permalink.php:409
+msgid "Add widgets here."
+msgstr ""
+
+#: functions.php:389 functions_backup.php:389 functions_permalink.php:389
+msgid "Footer 1"
+msgstr ""
+
+#: functions.php:398 functions_backup.php:398 functions_permalink.php:398
+msgid "Footer 2"
+msgstr ""
+
+#: functions.php:407 functions_backup.php:407 functions_permalink.php:407
+msgid "Footer 3"
+msgstr ""
+
+#: functions.php:499 functions_backup.php:499 functions_permalink.php:499
+msgid "To view this protected post, enter the password below:"
+msgstr ""
+
+#: functions.php:500 functions_backup.php:500 functions_permalink.php:500
+msgid "Password:"
+msgstr ""
+
+#: functions.php:500 functions_backup.php:500 functions_permalink.php:500
+msgid "Submit"
+msgstr ""
+
+#: functions.php:555 functions_backup.php:555 functions_permalink.php:555
+msgid "Inscripción"
+msgstr ""
+
+#: functions.php:558
+msgid "Desplegable"
+msgstr ""
+
+#: functions_backup.php:141 functions_permalink.php:141
+msgid "NOTICIAS - titular genérico"
+msgstr ""
+
+#: functions_backup.php:143 functions_permalink.php:143
+msgid "Texto \"El blog de Madrid Fusión\"."
+msgstr ""
+
+#: functions_backup.php:150 functions_permalink.php:150
+msgid "NOTICIAS - hamburguesa"
+msgstr ""
+
+#: functions_backup.php:152 functions_permalink.php:152
+msgid "Texto \"Secciones\"."
+msgstr ""
+
+#: functions_backup.php:159 functions_permalink.php:159
+msgid "NOTICIAS - menu"
+msgstr ""
+
+#: functions_backup.php:161 functions_permalink.php:161
+msgid "Menu de Noticias."
+msgstr ""
+
+#: functions_backup.php:168 functions_permalink.php:168
+msgid "NOTICIAS - buscador"
+msgstr ""
+
+#: functions_backup.php:186 functions_permalink.php:186
+msgid "NOTICIAS - últimas noticias"
+msgstr ""
+
+#: functions_backup.php:188 functions_permalink.php:188
+msgid "El texto que aparece como titular de Últimas Noticias"
+msgstr ""
+
+#: functions_backup.php:205 functions_permalink.php:205
+msgid "COCINEROS - titular genérico"
+msgstr ""
+
+#: functions_backup.php:207 functions_permalink.php:207
+msgid "Texto \"Cocineros\""
+msgstr ""
+
+#: functions_backup.php:214 functions_permalink.php:214
+msgid "COCINEROS - Búsqueda por letras"
+msgstr ""
+
+#: functions_backup.php:216 functions_permalink.php:216
+msgid "Búsqueda alfabética de cocineros"
+msgstr ""
+
+#: functions_backup.php:223 functions_permalink.php:223
+msgid "COCINEROS - buscador"
+msgstr ""
+
+#: functions_backup.php:232 functions_permalink.php:232
+msgid "COCINEROS - recetas"
+msgstr ""
+
+#: functions_backup.php:234 functions_permalink.php:234
+msgid "El texto que aparece como titular de Recetas"
+msgstr ""
+
+#: functions_backup.php:242 functions_permalink.php:242
+msgid "RECETAS - titular genérico"
+msgstr ""
+
+#: functions_backup.php:244 functions_permalink.php:244
+msgid "Texto \"Recetas\""
+msgstr ""
+
+#: functions_backup.php:251 functions_permalink.php:251
+msgid "RECETAS - buscador"
+msgstr ""
+
+#: functions_backup.php:260 functions_permalink.php:260
+msgid "RECETAS - recetas relacionadas"
+msgstr ""
+
+#: functions_backup.php:262 functions_permalink.php:262
+msgid "El texto que aparece como titular de \"Recetas Relacionadas\""
+msgstr ""
+
+#: functions_backup.php:269 functions_permalink.php:269
+msgid "RECETAS - últimas recetas"
+msgstr ""
+
+#: functions_backup.php:271 functions_permalink.php:271
+msgid "El texto que aparece como titular de \"Últimas recetas\""
+msgstr ""
+
+#: functions_backup.php:279 functions_permalink.php:279
+msgid "RESTAURANTES - titular genérico"
+msgstr ""
+
+#: functions_backup.php:281 functions_permalink.php:281
+msgid "Texto \"Restaurantes\""
+msgstr ""
+
+#: header.php:32
+msgid "Skip to content"
+msgstr ""
+
+#: header.php:76 header.php:139 header.php:139 header.php:139 header.php:139
+msgid "Buscar en la Web |"
+msgstr "Search the Web |"
+
+#. Name of the template
+msgid "Left Sidebar"
+msgstr ""
+
+#. Name of the template
+msgid "Home 1"
+msgstr ""
+
+#: page-home-1.php:30 page_home-cocineros.php:48
+msgid ""
+"<em>Las</em> estrellas <em class=\"ocultar\">de <strong>Madrid "
+"Fusión</strong></em>"
+msgstr ""
+"<em>The</em> stars <em class=\"ocultar\">of <strong>Madrid Fusión</strong>"
+"</em>"
+
+#: page-home-1.php:83
+msgid "Vídeos"
+msgstr "Videos"
+
+#. Name of the template
+msgid "Página genérica"
+msgstr ""
+
+#. Name of the template
+msgid "Home - Cocineros"
+msgstr ""
+
+#: page_home-cocineros.php:200 page_home-noticias.php:131
+#: page_home-recetas.php:68
+msgid "resultados de la búsqueda de"
+msgstr "search results of"
+
+#: page_home-cocineros.php:203 page_home-noticias.php:134
+#: page_home-recetas.php:71
+msgid "No se han encontrado resultados"
+msgstr "No results found"
+
+#. Name of the template
+msgid "Home - Noticias"
+msgstr ""
+
+#. Name of the template
+msgid "Home - Recetas"
+msgstr ""
+
+#. Name of the template
+msgid "Home - Restaurantes"
+msgstr ""
+
+#: search.php:24
+#, php-format
+msgid "Resultados de la búsqueda de: \"%s\""
+msgstr "Search results of \"%s\""
+
+#: searchform.php:3
+msgctxt "placeholder"
+msgid "Search &hellip;"
+msgstr ""
+
+#: searchform.php:3
+msgctxt "label"
+msgid "Search for:"
+msgstr ""
+
+#: searchform.php:5
+msgctxt "submit button"
+msgid "Search"
+msgstr ""
+
+#: single-cocineros.php:14 template-parts/content-single-restaurantes.php:37
+msgid "Cocineros"
+msgstr "Chefs"
+
+#: single-cocineros.php:51 single-recetas.php:14
+msgid "Recetas"
+msgstr ""
+"\n"
+"Recipes"
+
+#: single-cocineros.php:87 single-recetas.php:134
+msgid "Este cocinero no tiene recetas publicadas"
+msgstr "This chef has no published recipes"
+
+#: single-noticias.php:14
+msgid "El blog de Madrid Fusión"
+msgstr "The blog de Madrid Fusión"
+
+#: single-noticias.php:43
+msgid " Buscar noticias |"
+msgstr "Search news |"
+
+#: single-noticias.php:59
+msgid "Últimas noticias"
+msgstr "Last news"
+
+#: single-recetas.php:60
+msgid ""
+"<strong><em class=\"ocultar\">Otras</em></strong> <em>del mismo</em> autor"
+msgstr ""
+"<strong> <em class = \"ocultar\"> Other </em> </strong> <em> of the same "
+"</em> author"
+
+#: single-recetas.php:144
+msgid "<strong>Últimas</strong> recetas"
+msgstr "<strong> Latest </strong> recipes"
+
+#: single-restaurantes.php:14
+msgid "Restaurantes"
+msgstr ""
+"\n"
+"Restaurants"
+
+#: single-restaurantes.php:58
+msgid "<strong>Recetas</strong><em class=\"ocultar\"> de los cocineros</em>"
+msgstr "<strong> Recipes </strong> <em class = \"ocultar\"> by the chefs</em>"
+
+#: single-restaurantes.php:143
+msgid "Este restaurante no tiene recetas publicadas"
+msgstr "This restaurant has no published recipes"
+
+#: inc/customizer.php:27
+msgid "Preset Styles"
+msgstr ""
+
+#: inc/customizer.php:40
+msgid "Theme Option"
+msgstr ""
+
+#: inc/customizer.php:77
+msgid "Typography"
+msgstr ""
+
+#: inc/customizer.php:120
+msgid "Header Banner"
+msgstr ""
+
+#: inc/customizer.php:129
+msgid "Header Image"
+msgstr ""
+
+#: inc/customizer.php:147
+msgid "Header Banner Background Color"
+msgstr ""
+
+#: inc/customizer.php:154
+msgid "WP Bootstrap Framework"
+msgstr ""
+
+#: inc/customizer.php:158
+msgid "Banner Title"
+msgstr ""
+
+#: inc/customizer.php:165
+msgid ""
+"To customize the contents of this header banner and other elements of your "
+"site go to Dashboard - Appearance - Customize"
+msgstr ""
+
+#: inc/customizer.php:169
+msgid "Banner Tagline"
+msgstr ""
+
+#: inc/customizer.php:180
+msgid "Remove Header Banner"
+msgstr ""
+
+#: inc/customizer.php:192
+msgid "Other Customizations"
+msgstr ""
+
+#: inc/customizer.php:200
+msgid "Background Color"
+msgstr ""
+
+#: inc/customizer.php:209
+msgid "Background Image"
+msgstr ""
+
+#: inc/customizer.php:232
+msgid "Upload Logo (replaces text)"
+msgstr ""
+
+#: inc/template-tags.php:26
+#, php-format
+msgctxt "post date"
+msgid "Posted on %s"
+msgstr ""
+
+#: inc/template-tags.php:31
+#, php-format
+msgctxt "post author"
+msgid "by %s"
+msgstr ""
+
+#. %s: post title
+#: inc/template-tags.php:40
+#, php-format
+msgid "Leave a Comment<span class=\"screen-reader-text\"> on %s</span>"
+msgstr ""
+
+#. used between list items, there is a space after the comma
+#: inc/template-tags.php:55 inc/template-tags.php:61
+msgid ", "
+msgstr ""
+
+#: inc/template-tags.php:57
+#, php-format
+msgid "Posted in %1$s"
+msgstr ""
+
+#: inc/template-tags.php:63
+#, php-format
+msgid "Tagged %1$s"
+msgstr ""
+
+#: inc/template-tags.php:137
+msgid "Pingback:"
+msgstr ""
+
+#: inc/template-tags.php:137
+msgid "Edit"
+msgstr ""
+
+#: inc/template-tags.php:152
+#, php-format
+msgid "%s <span class=\"says\">says:</span>"
+msgstr ""
+
+#: inc/template-tags.php:156
+#, php-format
+msgctxt "1: date, 2: time"
+msgid "%1$s at %2$s"
+msgstr ""
+
+#: inc/template-tags.php:159
+msgid ""
+"<span style=\"margin-left: 5px;\" class=\"glyphicon glyphicon-edit\"></span> "
+"Edit"
+msgstr ""
+
+#: inc/template-tags.php:164
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: template-parts/content-none.php:19
+msgid "Lo sentimos. No hemos encontrado nada"
+msgstr "Sorry. We haven't found anything"
+
+#: template-parts/content-none.php:29
+#, php-format
+msgid ""
+"Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr ""
+
+#: template-parts/content-none.php:33
+msgid ""
+"Sorry, but nothing matched your search terms. Please try again with some "
+"different keywords."
+msgstr ""
+
+#: template-parts/content-none.php:39
+msgid ""
+"It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps "
+"searching can help."
+msgstr ""
+
+#: template-parts/content-single-noticias.php:88
+msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
+msgstr ""
+
+#: template-parts/content-single-recetas-campos.php:3
+msgid "Ingredientes"
+msgstr "Ingredients"
+
+#: template-parts/content-single-recetas-campos.php:8
+msgid "Preparación"
+msgstr "Preparation"
+
+#: template-parts/content-single-recetas-campos.php:11
+msgid "Presentación"
+msgstr "Appearance"
+
+#: template-parts/content-single-restaurantes.php:75
+msgid "Contacto"
+msgstr "Contact"
+
+#: template-parts/header-cocineros.php:54
+msgid "Buscar cocinero |"
+msgstr "Search chef |"
+
+#: template-parts/header-noticias.php:36
+msgid "Buscar noticia |"
+msgstr "Search news |"
+
+#: template-parts/header-recetas.php:23
+msgid "Buscar receta |"
+msgstr "Search recipe |"
+
+#: template-parts/header-restaurantes.php:34
+msgid "Restaurante |"
+msgstr "Restaurant |"
+
+#: template-parts/header-restaurantes.php:49
+msgid "País |"
+msgstr "Country |"
+
+#. Name of the theme
+msgid "Madrid Fusión 2019"
+msgstr ""
+
+#. Description of the theme
+msgid ""
+"Plantilla para la feria Madrid Fusión del año 2019 basado en la plantilla WP "
+"Bootstrap Starter 3.0.15."
+msgstr ""
+
+#. Author of the theme
+msgid "Xeria"
+msgstr ""
+
+#. Author URI of the theme
+msgid "http://www.xeria.es/"
+msgstr ""

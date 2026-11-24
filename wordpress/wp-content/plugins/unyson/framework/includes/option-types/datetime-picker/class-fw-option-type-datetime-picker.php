@@ -148,7 +148,8 @@ class FW_Option_Type_Datetime_Picker extends FW_Option_Type {
 		$extra_formats = array_merge($extra_formats, array($format));
 
 		foreach($extra_formats as $format) {
-			$d = DateTime::createFromFormat($format, $date);
+			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', $format ); // Validación preventiva para PHP 8.4
+			$d = $is_valid_format ? DateTime::createFromFormat($format, $date) : false;
 			if ($d && $d->format($format) == $date) {
 				return true;
 			}

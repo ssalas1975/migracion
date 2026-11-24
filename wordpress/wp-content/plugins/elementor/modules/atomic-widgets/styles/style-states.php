@@ -10,9 +10,6 @@ class Style_States {
 	const CHECKED = 'checked';
 
 	const SELECTED = 'e--selected';
-	const DISABLED = 'e--disabled';
-	const PLAYING = 'e--playing';
-	const PAUSED = 'e--paused';
 
 	private static function get_pseudo_states(): array {
 		return [
@@ -27,9 +24,6 @@ class Style_States {
 	private static function get_class_states(): array {
 		return [
 			self::SELECTED,
-			self::DISABLED,
-			self::PLAYING,
-			self::PAUSED,
 		];
 	}
 
@@ -98,18 +92,6 @@ class Style_States {
 			'selected' => [
 				'name' => 'selected',
 				'value' => self::SELECTED,
-			],
-			'disabled' => [
-				'name' => 'disabled',
-				'value' => self::DISABLED,
-			],
-			'playing' => [
-				'name' => 'playing',
-				'value' => self::PLAYING,
-			],
-			'paused' => [
-				'name' => 'paused',
-				'value' => self::PAUSED,
 			],
 		];
 	}

@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -10,17 +10,10 @@ $options = array(
 		'type'    => 'tab',
 		'options' => array(
 
-			'table'         => array(
+			'table' => array(
 				'type'  => 'table',
 				'label' => false,
 				'desc'  => false,
-			),
-
-			'table_fix' => array(
-				'type'  => 'html-full',
-				'value' => '',
-				'label' => false,
-				'html'  => "<script>jQuery(document).ready(function ($){ setTimeout(function(){ jQuery('.fw-backend-option-type-table select ').val('tabular'); }, 10); });</script>",
 			),
 
 		),

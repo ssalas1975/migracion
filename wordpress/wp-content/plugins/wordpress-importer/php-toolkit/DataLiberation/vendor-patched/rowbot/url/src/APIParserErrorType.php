@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL;
+namespace Rowbot\URL;
 
 class APIParserErrorType {
 	public const NONE = 'none';

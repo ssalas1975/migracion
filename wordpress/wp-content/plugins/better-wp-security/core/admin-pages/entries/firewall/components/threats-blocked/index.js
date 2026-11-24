@@ -23,7 +23,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { useViewportMatch } from '@wordpress/compose';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import {
 	Button,

@@ -2,7 +2,7 @@
 /**
  * Category Page condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -18,7 +18,7 @@ trait CategoryPageCondition {
 	/**
 	 * Processes "Category Page" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition_settings Containing all settings of the condition.
 	 *
@@ -31,14 +31,13 @@ trait CategoryPageCondition {
 			return false;
 		}
 
-		// Checks for additional display rule for compatibility with Conditional Display older versions which didn't use `displayRule` key.
-		$legacy_display_rule     = isset( $condition_settings['categoryPageDisplay'] ) ? $condition_settings['categoryPageDisplay'] : 'is';
-		$display_rule            = isset( $condition_settings['displayRule'] ) ? $condition_settings['displayRule'] : $legacy_display_rule;
+		// Get condition's settings.
+		$display_rule            = isset( $condition_settings['categoryPageDisplay'] ) ? $condition_settings['categoryPageDisplay'] : 'is';
 		$categories_raw          = isset( $condition_settings['categories'] ) ? $condition_settings['categories'] : [];
 		$queried_object          = get_queried_object();
 		$is_queried_object_valid = $queried_object instanceof \WP_Term && property_exists( $queried_object, 'taxonomy' );
 
-		if ( ! $is_queried_object_valid ) {
+		if ( $is_queried_object_valid ) {
 			return false;
 		}
 

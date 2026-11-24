@@ -14,6 +14,10 @@ if ( ! class_exists( 'rsssl_hide_wp_version' ) ) {
 			add_filter( 'rsssl_fixer_output', array( $this, 'replace_wp_version') );
 		}
 
+		static function this() {
+			return self::$_this;
+		}
+
 		/**
 		 * Remove WordPress version info from page source
 		 *
@@ -40,6 +44,7 @@ if ( ! class_exists( 'rsssl_hide_wp_version' ) ) {
 		 */
 		public function generate_rand_version() {
 			if ( !$this->new_version) {
+				$wp_version = get_bloginfo( 'version' );
 				$token      = get_option( 'rsssl_wp_version_token' );
 				if ( ! $token ) {
 					$token = str_shuffle( time() );

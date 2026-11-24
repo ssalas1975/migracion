@@ -5,9 +5,6 @@ namespace Elementor\Modules\AtomicWidgets\Elements\Base;
 use Elementor\Element_Base;
 use Elementor\Modules\AtomicWidgets\Controls\Base\Atomic_Control_Base;
 use Elementor\Modules\AtomicWidgets\Controls\Section;
-use Elementor\Modules\AtomicWidgets\Elements\Atomic_Form\Atomic_Form;
-use Elementor\Modules\AtomicWidgets\Elements\Loader\Frontend_Assets_Loader;
-use Elementor\Modules\AtomicWidgets\Logger\Logger;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Render_Props_Resolver;
 use Elementor\Modules\AtomicWidgets\PropTypes\Contracts\Prop_Type;
 use Elementor\Modules\AtomicWidgets\Styles\Style_Schema;
@@ -17,9 +14,6 @@ use Elementor\Modules\AtomicWidgets\PropTypes\Attributes_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Key_Value_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Link_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\String_Prop_Type;
-use Elementor\Modules\AtomicWidgets\PropTypes\Prop_Duplication_Behavior;
-use Elementor\Modules\AtomicWidgets\PropTypes\Prop_Sensitivity;
-use Elementor\Modules\AtomicWidgets\Utils\Custom_Attributes_Trust;
 use Elementor\Utils;
 use Elementor\Modules\Components\PropTypes\Overridable_Prop_Type;
 use Elementor\Modules\AtomicWidgets\Styles\Atomic_Widget_Styles;
@@ -33,17 +27,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 trait Has_Atomic_Base {
 	use Has_Base_Styles;
-	use Has_Base_Settings;
-
-	public static function html_tag_follows_link(): bool {
-		return true;
-	}
-
-	public static function get_computed_html_tag( array $settings ): string {
-		return Html_Tag_Computer::compute( $settings, 'div', [
-			Html_Tag_Computer::FOLLOW_LINK_OPTION => static::html_tag_follows_link(),
-		] );
-	}
 
 	public function has_widget_inner_wrapper(): bool {
 		return false;
@@ -103,70 +86,19 @@ trait Has_Atomic_Base {
 	private function parse_atomic_styles( array $data ): array {
 		$styles = $data['styles'] ?? [];
 		$style_parser = Style_Parser::make( Style_Schema::get() );
-		$validated_styles = [];
 
 		foreach ( $styles as $style_id => $style ) {
 			$result = $style_parser->parse( $style );
 
 			if ( ! $result->is_valid() ) {
-				Logger::warning(
-					$this->format_styles_validation_error_message(
-						$style_id,
-						$data,
-						$style,
-						$result->errors()->to_string()
-					)
-				);
-				continue;
+				$widget_id = $data['id'] ?? 'unknown';
+				throw new \Exception( esc_html( "Styles validation failed for style `$style_id`. Widget ID: `$widget_id`. " . $result->errors()->to_string() ) );
 			}
 
-			$validated_styles[ $style_id ] = $result->unwrap();
+			$styles[ $style_id ] = $result->unwrap();
 		}
 
-		return $validated_styles;
-	}
-
-	private function format_styles_validation_error_message(
-		string $style_id,
-		array $data,
-		array $style,
-		string $validation_errors
-	): string {
-		$widget_id = $data['id'] ?? 'unknown';
-		$structure_label = $this->get_editor_structure_label( $data );
-		$style_label = isset( $style['label'] ) && is_string( $style['label'] ) ? $style['label'] : null;
-
-		$message_parts = [
-			"Styles validation failed for style `$style_id` (widget `$widget_id`)",
-		];
-
-		if ( $structure_label ) {
-			$message_parts[] = "Structure label: `$structure_label`";
-		} else {
-			$element_name = $this->get_title();
-
-			if ( '' === $element_name ) {
-				$element_name = $this->get_name();
-			}
-
-			$message_parts[] = "Element: `$element_name`";
-		}
-
-		if ( $style_label ) {
-			$message_parts[] = "Style label: `$style_label`";
-		}
-
-		return implode( '. ', $message_parts ) . '. ' . $validation_errors;
-	}
-
-	private function get_editor_structure_label( array $data ): ?string {
-		$title = $data['editor_settings']['title'] ?? $this->editor_settings['title'] ?? null;
-
-		if ( ! is_string( $title ) || '' === $title ) {
-			return null;
-		}
-
-		return $title;
+		return $styles;
 	}
 
 	private function parse_atomic_settings( array $settings ): array {
@@ -250,62 +182,16 @@ trait Has_Atomic_Base {
 		$data = parent::get_data_for_save();
 
 		$data['version'] = $this->version;
+		$data['settings'] = $this->parse_atomic_settings( $data['settings'] );
+		$data['styles'] = $this->parse_atomic_styles( $data );
+		$data['editor_settings'] = $this->parse_editor_settings( $data['editor_settings'] );
 
-		$this->set_data_field_for_save(
-			$data,
-			'settings',
-			$this->parse_atomic_settings( $data['settings'] ?? [] )
-		);
-
-		$this->set_data_field_for_save(
-			$data,
-			'styles',
-			$this->parse_atomic_styles( $data )
-		);
-
-		$this->set_data_field_for_save(
-			$data,
-			'editor_settings',
-			$this->parse_editor_settings( $data['editor_settings'] ?? [] )
-		);
-
-		$this->set_data_field_for_save(
-			$data,
-			'interactions',
-			$this->transform_interactions_for_save( $data['interactions'] ?? [] )
-		);
-
+		if ( isset( $data['interactions'] ) && ! empty( $data['interactions'] ) ) {
+			$data['interactions'] = $this->transform_interactions_for_save( $data['interactions'] );
+		} else {
+			$data['interactions'] = [];
+		}
 		return $data;
-	}
-
-	/**
-	 * Called by the export flows (kit export, template file export) through `Document::process_element_import_export()`,
-	 * and by `Source_Cloud` for atomic elements when saving cloud templates.
-	 *
-	 * @param array $element_data
-	 *
-	 * @return array Element data without the values of non-exportable props.
-	 */
-	public function on_export( $element_data ) {
-		if ( ! is_array( $element_data['settings'] ?? null ) ) {
-			return $element_data;
-		}
-
-		$element_data['settings'] = Prop_Sensitivity::strip_non_exportable_settings(
-			$element_data['settings'],
-			static::get_props_schema()
-		);
-
-		return $element_data;
-	}
-
-	private function set_data_field_for_save( array &$data, string $key, $value ): void {
-		if ( ! empty( $value ) ) {
-			$data[ $key ] = $value;
-			return;
-		}
-
-		unset( $data[ $key ] );
 	}
 
 	private function transform_interactions_for_save( $interactions ) {
@@ -355,35 +241,14 @@ trait Has_Atomic_Base {
 	public function get_atomic_settings(): array {
 		$schema = static::get_props_schema();
 		$props = $this->get_settings();
+		$initial_attributes = $this->get_initial_attributes();
 
-		$merged_attribute_values = array_merge(
-			$this->get_initial_attributes()['value'] ?? [],
+		$props['attributes'] = Attributes_Prop_Type::generate( array_merge(
+			$initial_attributes['value'] ?? [],
 			$props['attributes']['value'] ?? []
-		);
-		$props['attributes'] = Attributes_Prop_Type::generate( $merged_attribute_values );
+		) );
 
-		$parsed = Render_Props_Resolver::for_settings()->resolve( $schema, $props );
-		$attributes_key = Attributes_Prop_Type::get_key();
-
-		if ( is_string( $parsed[ $attributes_key ] ?? null ) ) {
-			$parsed[ $attributes_key ] = Utils::sanitize_custom_attributes_string(
-				$parsed[ $attributes_key ],
-				Custom_Attributes_Trust::can_print_unfiltered_in_current_document()
-			);
-		}
-
-		return $this->transform_link_for_render( $parsed );
-	}
-
-	protected function transform_link_for_render( array $parsed ): array {
-		$link_attributes = isset( $parsed['link'] ) ? $this->get_link_attributes_string( $parsed['link'] ) : '';
-
-		$parsed['link'] = ! empty( $link_attributes ) ? [
-			'tag' => $parsed['link']['tag'],
-			'attributes' => $link_attributes,
-		] : null;
-
-		return $parsed;
+		return Render_Props_Resolver::for_settings()->resolve( $schema, $props );
 	}
 
 	protected function get_initial_attributes() {
@@ -413,66 +278,23 @@ trait Has_Atomic_Base {
 		$single_props = [ $key => $prop_value ];
 
 		$resolved = Render_Props_Resolver::for_settings()->resolve( $single_schema, $single_props );
-		$resolved_value = $resolved[ $key ] ?? null;
 
-		if ( Attributes_Prop_Type::get_key() === $key && is_string( $resolved_value ) ) {
-			return Utils::sanitize_custom_attributes_string(
-				$resolved_value,
-				Custom_Attributes_Trust::can_print_unfiltered_in_current_document()
-			);
-		}
-
-		return $resolved_value;
+		return $resolved[ $key ] ?? null;
 	}
 
 	protected function parse_editor_settings( array $data ): array {
 		$editor_data = [];
 
-		foreach ( $this->get_editor_settings_whitelist() as $key => $type ) {
-			if ( ! array_key_exists( $key, $data ) ) {
-				continue;
-			}
-
-			$value = $this->sanitize_whitelisted_editor_setting( $data[ $key ], $type );
-
-			if ( null === $value ) {
-				continue;
-			}
-
-			$editor_data[ $key ] = $value;
+		if ( isset( $data['title'] ) && is_string( $data['title'] ) ) {
+			$editor_data['title'] = sanitize_text_field( $data['title'] );
 		}
 
 		return $editor_data;
 	}
 
-	private function get_editor_settings_whitelist(): array {
-		return [
-			'title' => 'string',
-			'grid_outline' => 'boolean',
-			'decorative' => 'boolean',
-		];
-	}
-
-	private function sanitize_whitelisted_editor_setting( $value, string $type ) {
-		if ( 'string' === $type && is_string( $value ) ) {
-			return sanitize_text_field( $value );
-		}
-
-		if ( 'boolean' === $type && is_bool( $value ) ) {
-			return $value;
-		}
-
-		return null;
-	}
-
 	public static function get_props_schema(): array {
 		$schema = static::define_props_schema();
-
-		if ( ! isset( $schema['_cssid'] ) ) {
-			$schema['_cssid'] = String_Prop_Type::make()
-				->meta( Overridable_Prop_Type::ignore() )
-				->meta( Prop_Duplication_Behavior::clear() );
-		}
+		$schema['_cssid'] = String_Prop_Type::make()->meta( Overridable_Prop_Type::ignore() );
 
 		return apply_filters(
 			'elementor/atomic-widgets/props-schema',
@@ -531,65 +353,23 @@ trait Has_Atomic_Base {
 		return [];
 	}
 
-	protected function get_link_attributes( $link_settings ) {
-		if ( empty( $link_settings['href'] ) ) {
-			return [];
-		}
-
+	protected function get_link_attributes( $link_settings, $add_key_to_result = false ) {
 		$tag = $link_settings['tag'] ?? Link_Prop_Type::DEFAULT_TAG;
-		$url = $link_settings['href'];
+		$href = $link_settings['href'];
 		$target = $link_settings['target'] ?? '_self';
-		$is_action_link = 'button' === $tag;
-		$url_attr_key = $is_action_link ? 'data-action-link' : 'href';
 
-		return [
-			$url_attr_key => $url,
+		$is_button = 'button' === $tag;
+		$href_attribute_key = $is_button ? 'data-action-link' : 'href';
+
+		$result = [
+			$href_attribute_key => $href,
 			'target' => $target,
 		];
-	}
 
-	private function get_link_attributes_string( $link_settings ) {
-		$link_attributes = $this->get_link_attributes( $link_settings );
-
-		if ( empty( $link_attributes ) ) {
-			return '';
+		if ( $add_key_to_result ) {
+			$result['key'] = $href_attribute_key;
 		}
 
-		$parts = [];
-
-		foreach ( $link_attributes as $key => $value ) {
-			if ( 'tag' === $key ) {
-				continue;
-			}
-
-			$parts[] = sprintf( '%s="%s"', $key, esc_attr( $value ) );
-		}
-
-		return implode( ' ', $parts );
-	}
-
-	public function has_action_link() {
-		if ( ! $this->get_id() ) {
-			return true;
-		}
-
-		$link_settings = $this->get_atomic_setting( 'link' ) ?? null;
-		$attributes = $this->get_link_attributes( $link_settings );
-
-		return isset( $attributes['data-action-link'] );
-	}
-
-	public function get_script_depends() {
-		$depends = parent::get_script_depends();
-
-		if ( $this->has_action_link() ) {
-			$depends[] = Frontend_Assets_Loader::ACTION_LINK_HANDLERS_HANDLE;
-		}
-
-		if ( Atomic_Form::is_instance_form( $this ) ) {
-			$depends[] = Frontend_Assets_Loader::FORM_HANDLERS_HANDLE;
-		}
-
-		return $depends;
+		return $result;
 	}
 }

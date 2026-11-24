@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $get_styles_from = 'https://snazzymaps.com/';
@@ -13,6 +13,14 @@ $options = array(
 		'title'   => esc_html__( 'General', 'jevelin' ),
 		'type'    => 'tab',
 		'options' => array(
+
+			/*'api_key_info' => array(
+			    'type'  => 'html',
+			    'value' => 'api info',
+			    'label' => esc_html__('Google Maps API Key', 'jevelin'),
+			    'desc'  => esc_html__('To use Google Maps, please add API key under "Apperance > Theme Settings > API Key"', 'jevelin'),
+			    'html'  => ''
+			),*/
 
 			'data_provider' => array(
 				'type'  => 'multi-picker',
@@ -53,14 +61,6 @@ $options = array(
 				'desc'  => wp_kses( __( 'Enter map height (with <b>px</b>)', 'jevelin' ), jevelin_allowed_html() ),
 				'type'  => 'text',
 				'value' => '350px'
-			),
-
-			'api_key_info' => array(
-			    'type'  => 'html',
-			    'value' => 'api info',
-			    'label' => esc_html__('Google Maps API Key', 'jevelin'),
-			    'desc'  => esc_html__('If Google maps does not work, add API key under Apperance > Theme Settings > API Key', 'jevelin'),
-			    'html'  => ''
 			),
 
 			'gmap-key' => array_merge(

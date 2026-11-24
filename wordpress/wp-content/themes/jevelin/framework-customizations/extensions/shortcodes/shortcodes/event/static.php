@@ -36,7 +36,7 @@ if( !function_exists( 'jevelin_shortcode_event_css' ) ) :
 			}
 
 		<?php $css = ob_get_contents(); ob_end_clean();
-		wp_add_inline_style( 'jevelin-responsive', jevelin_compress( $css ) );
+		if( $id_rand ) : echo jevelin_echo_style( $css ); else : wp_add_inline_style( 'jevelin-responsive', jevelin_compress( $css ) ); endif;
 	}
 	add_action('fw_ext_shortcodes_enqueue_static:event','jevelin_shortcode_event_css');
 endif;

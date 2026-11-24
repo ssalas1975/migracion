@@ -2,7 +2,7 @@
 class vcj_heading_simple extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_heading_simple', array( $this, '_html' ) );
     }
 
@@ -40,6 +40,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
         'h4' => 'h4',
         'h5' => 'h5',
         'h6' => 'h6',
+        'span' => 'span',
       ),
       'type' => 'dropdown',
       'class' => '',
@@ -87,16 +88,47 @@ class vcj_heading_simple extends WPBakeryShortCode {
     ),
     5 => 
     array (
-      'param_name' => 'margin',
-      'heading' => 'Margin',
-      'description' => 'Enter your custom margin (<b>top right bottom left</b>)',
-      'value' => '0px 0px 15px 0px',
-      'type' => 'textfield',
+      'param_name' => 'hover_element',
+      'heading' => 'Hover Element',
+      'description' => 'Choose hover element',
+      'value' => 
+      array (
+        'Heading' => 'heading',
+        'Column' => 'column',
+        'Section' => 'section',
+      ),
+      'type' => 'dropdown',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => 'heading',
       'group' => 'General',
     ),
     6 => 
+    array (
+      'param_name' => 'link',
+      'heading' => 'Link',
+      'description' => 'Enter heading link',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Link',
+    ),
+    7 => 
+    array (
+      'param_name' => 'link_target',
+      'heading' => 'Link Target',
+      'description' => 'Enter heading link',
+      'value' => 
+      array (
+        'Open in current window' => '_self',
+        'Open in new tab' => '_blank',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => '_self',
+      'group' => 'Link',
+    ),
+    8 => 
     array (
       'param_name' => 'font',
       'heading' => 'Font Famility',
@@ -113,7 +145,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => 'heading',
       'group' => 'Typography',
     ),
-    7 => 
+    9 => 
     array (
       'param_name' => 'weight',
       'heading' => 'Font Weight',
@@ -124,16 +156,18 @@ class vcj_heading_simple extends WPBakeryShortCode {
         'Extra Light' => 200,
         'Light' => 300,
         'Normal' => 400,
+        'Medium' => 500,
         'Semi-bold' => 600,
         'Bold' => 700,
-        'Extra Bold' => 900,
+        'Extra Bold' => 800,
+        'Black' => 900,
       ),
       'type' => 'dropdown',
       'class' => '',
       'std' => '700',
       'group' => 'Typography',
     ),
-    8 => 
+    10 => 
     array (
       'param_name' => 'italic',
       'heading' => 'Font Style Italic',
@@ -148,7 +182,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => false,
       'group' => 'Typography',
     ),
-    9 => 
+    11 => 
     array (
       'param_name' => 'size',
       'heading' => 'Font Size',
@@ -171,7 +205,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Typography',
     ),
-    10 => 
+    12 => 
     array (
       'param_name' => 'desktop_size',
       'heading' => 'Font Size (desktop)',
@@ -187,7 +221,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
         'value' => 'custom',
       ),
     ),
-    11 => 
+    13 => 
     array (
       'param_name' => 'responsive_size',
       'heading' => 'Font Size (mobile and tablet)',
@@ -203,7 +237,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
         'value' => 'custom',
       ),
     ),
-    12 => 
+    14 => 
     array (
       'param_name' => 'line_height',
       'heading' => 'Line height',
@@ -214,7 +248,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Typography',
     ),
-    13 => 
+    15 => 
     array (
       'param_name' => 'letter_spacing',
       'heading' => 'Letter spacing',
@@ -225,7 +259,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Typography',
     ),
-    14 => 
+    16 => 
     array (
       'param_name' => 'animation',
       'heading' => 'Animation',
@@ -282,7 +316,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => 'none',
       'group' => 'Animation',
     ),
-    15 => 
+    17 => 
     array (
       'param_name' => 'animation_speed',
       'heading' => 'Animation Speed',
@@ -293,7 +327,7 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => 2,
       'group' => 'Animation',
     ),
-    16 => 
+    18 => 
     array (
       'param_name' => 'animation_delay',
       'heading' => 'Animation Delay',
@@ -304,6 +338,43 @@ class vcj_heading_simple extends WPBakeryShortCode {
       'std' => 0,
       'group' => 'Animation',
     ),
+    19 => 
+    array (
+      'param_name' => 'inline_element',
+      'heading' => 'Inline Element',
+      'description' => 'Enable for multiple elements to add them in one line Doesnt work in WPbakery page builder front-end mode',
+      'value' => 
+      array (
+        'Disabled' => 'disabled',
+        'Enabled' => 'enabled',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'disabled',
+      'group' => 'Position',
+    ),
+    20 => 
+    array (
+      'param_name' => 'margin',
+      'heading' => 'Margin',
+      'description' => 'Enter your custom margin (<b>top right bottom left</b>)',
+      'value' => '0px 0px 15px 0px',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '0px 0px 15px 0px',
+      'group' => 'Position',
+    ),
+    21 => 
+    array (
+      'param_name' => 'margin_responsive',
+      'heading' => 'Margin Responsive',
+      'description' => 'Here you can set responsive smartphone and tablet margin (top right bottom left). For example: 30px 0px 30px 0px',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Position',
+    ),
   ),
 ) );
     }
@@ -312,8 +383,9 @@ class vcj_heading_simple extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/heading-simple/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/heading-simple/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/heading-simple/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/heading-simple/static.php';
         if( function_exists( 'jevelin_shortcode_heading_simple_css' ) ) :
             jevelin_shortcode_heading_simple_css( $atts, $id_rand );
         endif;

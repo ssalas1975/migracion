@@ -37,12 +37,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\URL\\": "src/"
+			"Rowbot\\URL\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\URL\\Tests\\": "tests/"
+			"Rowbot\\URL\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {

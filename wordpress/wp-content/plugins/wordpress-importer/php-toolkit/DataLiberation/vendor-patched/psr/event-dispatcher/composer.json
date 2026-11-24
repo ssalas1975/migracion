@@ -19,7 +19,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"VendorPrefix\\Psr\\EventDispatcher\\": "src"
+			"Psr\\EventDispatcher\\": "src"
 		}
 	},
 	"extra": {

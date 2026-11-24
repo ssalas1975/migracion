@@ -94,12 +94,6 @@ function vcanly_compose_admin_menu_network()
             $addMedioPage = new VocentoAnalyticsAdminKrux();
             $addMedioPage->render_page();
         });
-        
-    add_submenu_page('network_vcanly_overview', 'Conf. DTM', 'Conf. DTM', 'manage_options', 'network_vcanly_dtm',
-        function () {
-            $addMedioPage = new VocentoAnalyticsAdminDTM();
-            $addMedioPage->render_page();
-        });
 
     add_submenu_page('network_vcanly_overview', 'Conf. Opciones', 'Conf. Opciones', 'manage_options',
         'network_vcanly_options', function () {
@@ -192,12 +186,6 @@ function vcanly_compose_admin_menu_local()
     add_submenu_page('site_vcanly_overview', 'Conf. Krux', 'Conf. Krux', 'manage_options', 'site_vcanly_krux',
         function () {
             $listMedioPage = new VocentoAnalyticsAdminKrux();
-            $listMedioPage->render_page();
-        });
-        
-    add_submenu_page('site_vcanly_overview', 'Conf. DTM', 'Conf. DTM', 'manage_options', 'site_vcanly_dtm',
-        function () {
-            $listMedioPage = new VocentoAnalyticsAdminDTM();
             $listMedioPage->render_page();
         });
 

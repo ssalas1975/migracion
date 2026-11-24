@@ -1,6 +1,7 @@
 <?php
 namespace Elementor\Data\V2\Base;
 
+use Elementor\Data\V2\Base\Exceptions\WP_Error_Exception;
 use Elementor\Data\V2\Manager;
 use WP_REST_Controller;
 
@@ -195,7 +196,9 @@ abstract class Controller extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request
 	 *
-	 * @return bool|\WP_Error
+	 * @return bool
+	 *
+	 * @throws WP_Error_Exception If API request validation fails, permissions are insufficient, or processing errors occur.
 	 */
 	public function get_permission_callback( $request ) {
 		$is_multi = (bool) $request->get_param( 'is_multi' );
@@ -220,6 +223,10 @@ abstract class Controller extends WP_REST_Controller {
 			case 'DELETE':
 				$result = $is_multi ? $this->delete_items_permissions_check( $request ) : $this->delete_item_permissions_check( $request );
 				break;
+		}
+
+		if ( $result instanceof \WP_Error ) {
+			throw new WP_Error_Exception( esc_html( $result ) );
 		}
 
 		return $result;

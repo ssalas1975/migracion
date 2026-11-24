@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Author Page
  */
@@ -10,7 +10,7 @@ get_header();
 
 	<div id="content" class="content-with-sidebar-right">
 
-		<?php if( ( !defined('FW') || ( isset($elements['athor_box']) && $elements['athor_box'] == true ) ) && get_the_author_meta( 'description' ) ) : ?>
+		<?php if( ( !jevelin_framework_active() || ( isset($elements['athor_box']) && $elements['athor_box'] == true ) ) && get_the_author_meta( 'description' ) ) : ?>
 				<div class="sh-post-author sh-post-author-page sh-table">
 					<div class="sh-post-author-avatar sh-table-cell-top">
 						<?php echo get_avatar( get_the_author_meta( 'ID' ), '185' ); ?>
@@ -45,7 +45,7 @@ get_header();
 		<?php jevelin_pagination(); ?>
 
 	</div>
-	<div id="sidebar" class="sidebar-right">
+	<div id="sidebar" class="sidebar-right" role="complementary" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
 		<?php get_sidebar(); ?>
 	</div>
 

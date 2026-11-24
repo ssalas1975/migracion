@@ -12,7 +12,6 @@ class VocentoAnalyticsContainer
     public $softclick;
     public $inspectlet;
     public $krux;
-    public $dtm;
 
     public function __construct()
     {
@@ -27,7 +26,6 @@ class VocentoAnalyticsContainer
         $this->softclick = new VocentoAnalyticsSoftClick();
         $this->inspectlet = new VocentoAnalyticsInspectlet();
         $this->krux = new VocentoAnalyticsKrux();
-        $this->dtm = new VocentoAnaliticsDTM();
     }
 
     public static function deserialize($json)
@@ -125,10 +123,6 @@ class VocentoAnalyticsContainer
 
         if ($options_analytics_opts["vcanly_gtm_use_network"] || $options_analytics_opts["vcanly_gtm_use_network"] === null) {
             $localContainer->gtm = ($networkContainer->gtm) ? $networkContainer->gtm : new VocentoAnalyticsGTM();
-        }
-        
-        if ($options_analytics_opts["vcanly_dtm_use_network"] || $options_analytics_opts["vcanly_dtm_use_network"] === null) {
-            $localContainer->dtm = ($networkContainer->dtm) ? $networkContainer->dtm : new VocentoAnaliticsDTM();
         }
 
         if ($options_analytics_opts["vcanly_amp_use_network"] || $options_analytics_opts["vcanly_amp_use_network"] === null) {

@@ -88,7 +88,7 @@ function Group( { id, selected, setSelected } ) {
 				as="label"
 				htmlFor={ `itsec-multi-group-selector-group-${ id }` }
 				icon={ checked ? checkedIcon : uncheckedIcon }
-				iconColor={ ! checked && '#1145C9' }
+				iconColor={ ! checked && '#6817C5' }
 			/>
 		</StyledGroupControl>
 	);

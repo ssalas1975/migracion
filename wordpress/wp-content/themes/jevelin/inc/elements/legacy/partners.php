@@ -2,7 +2,7 @@
 class vcj_partners extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_partners', array( $this, '_html' ) );
     }
 
@@ -71,6 +71,7 @@ class vcj_partners extends WPBakeryShortCode {
       'description' => 'Select partner column count',
       'value' => 
       array (
+        '6 columns' => 6,
         '5 columns' => 5,
         '4 columns' => 4,
         '3 columns' => 3,
@@ -85,6 +86,28 @@ class vcj_partners extends WPBakeryShortCode {
     ),
     3 => 
     array (
+      'param_name' => 'opacity',
+      'heading' => 'Opacity',
+      'description' => 'Enter custom image opacity 0-100 (0 hidden, 100 fully visible)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    4 => 
+    array (
+      'param_name' => 'opacity_hover',
+      'heading' => 'Opacity on Hover (for images with links)',
+      'description' => 'Enter custom image hover opacity 0-100 (0 hidden, 100 fully visible)',
+      'value' => '75',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '75',
+      'group' => 'Styling',
+    ),
+    5 => 
+    array (
       'param_name' => 'line',
       'heading' => 'Divider Line',
       'description' => 'Enable or disable divider line',
@@ -98,11 +121,11 @@ class vcj_partners extends WPBakeryShortCode {
       'std' => false,
       'group' => 'Styling',
     ),
-    4 => 
+    6 => 
     array (
       'param_name' => 'padding',
-      'heading' => 'Additional padding',
-      'description' => 'Enable or disable additional padding',
+      'heading' => 'Vertical Additional padding',
+      'description' => 'Enable or disable additional vertical padding',
       'value' => 
       array (
         'Off' => false,
@@ -113,6 +136,21 @@ class vcj_partners extends WPBakeryShortCode {
       'std' => false,
       'group' => 'Styling',
     ),
+    7 => 
+    array (
+      'param_name' => 'padding_horizontal',
+      'heading' => 'Horizontal Additional padding',
+      'description' => 'Enable or disable additional horizontal padding',
+      'value' => 
+      array (
+        'Off' => false,
+        'On' => true,
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => true,
+      'group' => 'Styling',
+    ),
   ),
 ) );
     }
@@ -121,8 +159,9 @@ class vcj_partners extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/partners/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/partners/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/partners/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/partners/static.php';
         if( function_exists( 'jevelin_shortcode_partners_css' ) ) :
             jevelin_shortcode_partners_css( $atts, $id_rand );
         endif;

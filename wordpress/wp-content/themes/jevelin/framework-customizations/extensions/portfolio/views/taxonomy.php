@@ -26,7 +26,9 @@ get_header(); ?>
 					)
 				),
 			));
-			while ( $portfolio_items->have_posts() ) : $portfolio_items->the_post(); ?>
+			while ( $portfolio_items->have_posts() ) : $portfolio_items->the_post();
+				$content = trim( jevelin_get_excerpt( 15, strip_shortcodes( get_the_content() ) ) );
+			?>
 				<div class="sh-portfolio-item sh-portfolio-default-shadow sh-portfolio-overlay-style-overlay4">
 
 					<div class="sh-portfolio-image">
@@ -59,11 +61,12 @@ get_header(); ?>
 							</h3>
 						</a>
 
-						<div class="sh-portfolio-description">
-							<?php echo jevelin_get_excerpt( 15, get_the_content() ); ?>
-						</div>
+						<?php if( $content ) : ?>
+							<div class="sh-portfolio-description">
+								<?php echo ( $content ); ?>
+							</div>
+						<?php endif; ?>
 					</div>
-
 				</div>
 			<?php endwhile; ?>
 		</div>

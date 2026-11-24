@@ -3,7 +3,7 @@
 /* Accordion HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 $style = ( isset( $atts['style']['style'] ) ) ? $atts['style']['style'] : 'style1';
 $style_atts = jevelin_get_picker( $atts['style'] );
 ?>

@@ -824,13 +824,10 @@ if ( ! class_exists( 'Webdados_FB_Public' ) ) :
 								}
 							}
 						}
-					} else {
-						// Image Size - We only show the image size if we only have one image
-						if ( 1 == intval( $this->options['fb_image_size_show'] ) && isset( $fb_image_size ) && is_array( $fb_image_size ) ) {
-							$html .= '  <meta property="og:image:width" content="' . esc_attr( intval( $fb_image_size[0] ) ) . '"/>
-  <meta property="og:image:height" content="' . esc_attr( intval( $fb_image_size[1] ) ) . '"/>
-';
-						}
+					} elseif ( 1 == intval( $this->options['fb_image_size_show'] ) && isset( $fb_image_size ) && is_array( $fb_image_size ) ) {
+						$html .= '<meta property="og:image:width" content="' . esc_attr( intval( $fb_image_size[0] ) ) . '"/>
+                            <meta property="og:image:height" content="' . esc_attr( intval( $fb_image_size[1] ) ) . '"/>
+                        ';
 					}
 						// Dates.
 					if ( 1 == intval( $this->options['fb_article_dates_show'] ) && '' != trim( $fb_article_pub_date ) ) {
@@ -920,20 +917,9 @@ if ( ! class_exists( 'Webdados_FB_Public' ) ) :
 					// Twitter.
 					$html .= ' <!-- Twitter Cards -->
     ';
-					$twitter_cards_enabled = (
-						1 == intval( $this->options['fb_title_show_twitter'] )
-						|| 1 == intval( $this->options['fb_url_show_twitter'] )
-						|| 1 == intval( $this->options['fb_desc_show_twitter'] )
-						|| 1 == intval( $this->options['fb_publisher_show_twitter'] )
-						|| 1 == intval( $this->options['fb_image_show_twitter'] )
-					);
 						// Title.
 					if ( 1 == intval( $this->options['fb_title_show_twitter'] ) && '' != trim( $fb_title ) ) {
 						$html .= '  <meta name="twitter:title" content="' . esc_attr( trim( $fb_title ) ) . '"/>
-    ';
-					} elseif ( ! intval( $this->options['fb_title_show_twitter'] ) && $twitter_cards_enabled ) {
-						// Prevent X/Twitter and preview tools from falling back to og:title when this tag is omitted.
-						$html .= '  <meta name="twitter:title" content="' . esc_attr( apply_filters( 'fb_og_twitter_title_disabled_content', "\u{200B}" ) ) . '"/>
     ';
 					}
 						// URL.
@@ -944,10 +930,6 @@ if ( ! class_exists( 'Webdados_FB_Public' ) ) :
 						// Description.
 					if ( 1 == intval( $this->options['fb_desc_show_twitter'] ) && '' != trim( $fb_desc ) ) {
 						$html .= '  <meta name="twitter:description" content="' . esc_attr( trim( $fb_desc ) ) . '"/>
-    ';
-					} elseif ( ! intval( $this->options['fb_desc_show_twitter'] ) && $twitter_cards_enabled ) {
-						// Prevent X/Twitter and preview tools from falling back to og:description when this tag is omitted.
-						$html .= '  <meta name="twitter:description" content="' . esc_attr( apply_filters( 'fb_og_twitter_description_disabled_content', "\u{200B}" ) ) . '"/>
     ';
 					}
 						// Image.

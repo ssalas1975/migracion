@@ -190,7 +190,7 @@ class Kit extends PageBase {
 
 		$post_css = Post_CSS::create( $this->post->ID );
 
-		$post_css->update();
+		$post_css->enqueue();
 	}
 
 	/**

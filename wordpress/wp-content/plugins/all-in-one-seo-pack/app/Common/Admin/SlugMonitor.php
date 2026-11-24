@@ -109,13 +109,6 @@ class SlugMonitor {
 			return;
 		}
 
-		if (
-			! current_user_can( 'aioseo_redirects_manage' ) &&
-			! current_user_can( 'aioseo_page_redirects_manage' )
-		) {
-			return;
-		}
-
 		$redirectUrl = $this->manualRedirectUrl( [
 			'url'    => $before,
 			'target' => $after,

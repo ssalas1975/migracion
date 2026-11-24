@@ -2,7 +2,7 @@
 
 namespace WordPress\DataLiberation\URL;
 
-use VendorPrefix\Rowbot\URL\URL;
+use Rowbot\URL\URL;
 
 /**
  * An abstraction to make swapping the URL parser easier later on.
@@ -14,7 +14,7 @@ class WPURL {
 	public static function parse( $url, $base = null ) {
 		if ( is_string( $url ) ) {
 			return URL::parse( $url, $base ) ?? false;
-		} elseif ( is_a( $url, 'VendorPrefix\Rowbot\URL\URL' ) ) {
+		} elseif ( is_a( $url, 'Rowbot\URL\URL' ) ) {
 			return $url;
 		}
 

@@ -61,13 +61,17 @@ class Utils {
 	public static function get_elementor_post_types( $exclude = [] ) {
 		$elementor_post_types = get_post_types_by_support( 'elementor' );
 
-		return array_filter( $elementor_post_types, function ( $value ) use ( $exclude ) {
+		return array_filter( $elementor_post_types, function ( $value ) {
 			// Templates are handled in a separate process.
 			if ( 'elementor_library' === $value ) {
 				return false;
 			}
 
-			return ! in_array( $value, $exclude, true );
+			if ( ! empty( $exclude ) && in_array( $value, $exclude, true ) ) {
+				return false;
+			}
+
+			return 'elementor_library' !== $value;
 		} );
 	}
 
@@ -163,7 +167,7 @@ class Utils {
 			$max_base_length = $max_length - strlen( $suffix_str );
 			$base_label = mb_substr( $label, 0, $max_base_length );
 			$new_label = $base_label . $suffix_str;
-			++$suffix;
+			$suffix++;
 		} while ( in_array( strtolower( $new_label ), $existing_labels, true ) && $suffix < $max_suffix_attempts );
 
 		return $new_label;

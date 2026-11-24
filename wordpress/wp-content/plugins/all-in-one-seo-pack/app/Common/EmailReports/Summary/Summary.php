@@ -43,14 +43,9 @@ class Summary {
 	/**
 	 * Class constructor.
 	 *
-	 * @since   4.7.2
-	 * @version 5.0.3 Register the summary callback before the AJAX bail.
+	 * @since 4.7.2
 	 */
 	public function __construct() {
-		// Action Scheduler runs its async queue over admin-ajax, so the callback has to be registered
-		// there too. See {@see \AIOSEO\Plugin\Common\Utils\ActionScheduler::maybeCancelOrphanedAction()}.
-		add_action( $this->actionHook, [ $this, 'cronTrigger' ] );
-
 		// No need to run any of this during a WP AJAX request.
 		if ( wp_doing_ajax() ) {
 			return;
@@ -58,6 +53,8 @@ class Summary {
 
 		// No need to keep trying scheduling unless on admin.
 		add_action( 'admin_init', [ $this, 'maybeSchedule' ], 20 );
+
+		add_action( $this->actionHook, [ $this, 'cronTrigger' ] );
 	}
 
 	/**

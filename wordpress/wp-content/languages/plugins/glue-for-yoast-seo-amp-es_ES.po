@@ -1,0 +1,17 @@
+# Translation of Plugins - Glue for Yoast SEO &amp; AMP - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Glue for Yoast SEO &amp; AMP - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-07-27 22:33:13+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Glue for Yoast SEO &amp; AMP - Stable (latest release)\n"
+
+#. translators: 1: Expands to "Yoast SEO AMP".
+#: yoastseo-amp.php:50
+msgid "The %1$s plugin is no longer needed. Through good collaboration with Google the functionality of this plugin is now part of both Yoast SEO and the official AMP plugin. If you still have this plugin running we’d suggest updating both the Yoast SEO and AMP plugins and removing the glue plugin."
+msgstr "El plugin %1$s ya no es necesario. Gracias a la buena colaboración con Google, la funcionalidad de este plugin ahora es parte de Yoast SEO y del plugin oficial de AMP. Si aún estás ejecutando este plugin, te sugerimos actualizar los plugins Yoast SEO y AMP y eliminar el plugin Glue."

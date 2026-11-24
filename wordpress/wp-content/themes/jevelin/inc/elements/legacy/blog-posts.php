@@ -2,7 +2,7 @@
 class vcj_blog_posts extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_blog_posts', array( $this, '_html' ) );
     }
 
@@ -24,7 +24,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'textfield',
       'class' => '',
       'std' => 6,
-      'group' => '',
+      'group' => 'General',
       'admin_label' => true,
     ),
     1 => 
@@ -34,10 +34,15 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'description' => 'Choose main style for recent posts',
       'value' => 
       array (
-        'Masonry 2.0 Standard' => 'masonry masonry2',
+        'Masonry 2.0' => 'masonry masonry2',
         'Masonry Shadow' => 'masonry masonry-shadow',
         'Masonry Standard' => 'masonry',
+        'Grid 2.0' => 'grid masonry2',
         'Grid' => 'grid',
+        'Mix' => 'mix masonry2',
+        'Large Images' => 'large',
+        'Medium Images' => 'medium',
+        'Small Images' => 'small',
         'Date only' => 'largedate',
         'Image only' => 'largeimage',
         'Minimalistic' => 'minimalistic',
@@ -45,7 +50,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'dropdown',
       'class' => '',
       'std' => 'masonry',
-      'group' => '',
+      'group' => 'General',
       'admin_label' => true,
     ),
     2 => 
@@ -57,12 +62,13 @@ class vcj_blog_posts extends WPBakeryShortCode {
       array (
         '2 columns' => 2,
         '3 columns' => 3,
+        '4 columns' => 4,
         '5 columns' => 5,
       ),
       'type' => 'dropdown',
       'class' => '',
       'std' => '3',
-      'group' => '',
+      'group' => 'General',
       'admin_label' => true,
     ),
     3 => 
@@ -78,7 +84,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'dropdown',
       'class' => '',
       'std' => false,
-      'group' => '',
+      'group' => 'General',
     ),
     4 => 
     array (
@@ -89,7 +95,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'exploded_textarea',
       'class' => '',
       'std' => '',
-      'group' => '',
+      'group' => 'General',
     ),
     5 => 
     array (
@@ -100,7 +106,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'exploded_textarea',
       'class' => '',
       'std' => '',
-      'group' => '',
+      'group' => 'General',
     ),
     6 => 
     array (
@@ -118,7 +124,7 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'dropdown',
       'class' => '',
       'std' => 'date',
-      'group' => '',
+      'group' => 'General',
     ),
     7 => 
     array (
@@ -133,7 +139,172 @@ class vcj_blog_posts extends WPBakeryShortCode {
       'type' => 'dropdown',
       'class' => '',
       'std' => 'desc',
-      'group' => '',
+      'group' => 'General',
+    ),
+    8 => 
+    array (
+      'param_name' => 'margin_bottom',
+      'heading' => 'Bottom Posts Margin',
+      'description' => 'Here you can set custom bottom post margin (top right bottom left). For example: 30px',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'General',
+    ),
+    9 => 
+    array (
+      'param_name' => 'pagination',
+      'heading' => 'Pagination',
+      'description' => 'Enable or disable element pagination',
+      'value' => 
+      array (
+        'Off' => 'off',
+        'On' => 'on',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'off',
+      'group' => 'Pagination',
+    ),
+    10 => 
+    array (
+      'param_name' => 'categories_switch',
+      'heading' => 'Categories Switch',
+      'description' => 'Enable or disable element categories switch',
+      'value' => 
+      array (
+        'Off' => 'off',
+        'On' => 'on',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'off',
+      'group' => 'Categories Switch',
+    ),
+    11 => 
+    array (
+      'param_name' => 'title_color',
+      'heading' => 'Title Color',
+      'description' => '',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    12 => 
+    array (
+      'param_name' => 'title_size',
+      'heading' => 'Title Size',
+      'description' => 'Enter title size (with <b>px</b>)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    13 => 
+    array (
+      'param_name' => 'content_color',
+      'heading' => 'Content Color',
+      'description' => '',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    14 => 
+    array (
+      'param_name' => 'content_size',
+      'heading' => 'Content Size',
+      'description' => 'Enter content size (with <b>px</b>)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    15 => 
+    array (
+      'param_name' => 'category_color',
+      'heading' => 'Category Color',
+      'description' => '',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    16 => 
+    array (
+      'param_name' => 'category_size',
+      'heading' => 'Category Size',
+      'description' => 'Enter category size (with <b>px</b>)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    17 => 
+    array (
+      'param_name' => 'category_transform',
+      'heading' => 'Category Text Transform',
+      'description' => '',
+      'value' => 
+      array (
+        'Default' => 'default',
+        'None' => 'none',
+        'Uppercase' => 'uppercase',
+        'Lowercase' => 'lowercase',
+        'Capitalize' => 'capitalize',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'default',
+      'group' => 'Styling',
+    ),
+    18 => 
+    array (
+      'param_name' => 'readmore_color',
+      'heading' => 'Read More Color',
+      'description' => '',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    19 => 
+    array (
+      'param_name' => 'readmore_size',
+      'heading' => 'Read More Size',
+      'description' => 'Enter read more size (with <b>px</b>)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    20 => 
+    array (
+      'param_name' => 'readmore_transform',
+      'heading' => 'Read More Text Transform',
+      'description' => '',
+      'value' => 
+      array (
+        'Default' => 'default',
+        'None' => 'none',
+        'Uppercase' => 'uppercase',
+        'Lowercase' => 'lowercase',
+        'Capitalize' => 'capitalize',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'default',
+      'group' => 'Styling',
     ),
   ),
 ) );
@@ -143,8 +314,9 @@ class vcj_blog_posts extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/blog-posts/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/blog-posts/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/blog-posts/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/blog-posts/static.php';
         if( function_exists( 'jevelin_shortcode_blog_posts_css' ) ) :
             jevelin_shortcode_blog_posts_css( $atts, $id_rand );
         endif;

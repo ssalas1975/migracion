@@ -1,0 +1,1 @@
+<div class="edgtf-post-info-author"><i class="edgtf-icon-simple-line-icon icon-user"></i><a class="edgtf-post-info-author-link" href="<?php echo esc_url(get_author_posts_url( get_the_author_meta( 'ID' ) )); ?>"><?php the_author_meta('display_name'); ?></a></div>

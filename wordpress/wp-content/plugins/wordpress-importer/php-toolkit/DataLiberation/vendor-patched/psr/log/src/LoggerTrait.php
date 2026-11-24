@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorPrefix\Psr\Log;
+namespace Psr\Log;
 
 use Stringable;
 

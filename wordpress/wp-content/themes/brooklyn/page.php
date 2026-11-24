@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The template for displaying all pages.
  *
@@ -11,23 +10,10 @@
  * @package unitedthemes
  */
 
-$ut_page_skin   = get_post_meta( $post->ID , 'ut_section_skin' , true);
-$ut_page_skin   = empty( $ut_page_skin ) ? 'global' : $ut_page_skin;
-$ut_page_class  = get_post_meta( $post->ID , 'ut_section_class' , true);
-$ut_get_sidebar_settings = ut_get_sidebar_settings();
-$ut_page_fullwidth = get_post_meta( $post->ID , 'ut_page_fullwidth' , true); 
-
 get_header(); ?>
-
-        <?php if( !$ut_page_fullwidth || $ut_page_fullwidth == 'off' ) : ?>
-        
-            <div class="grid-container">
-        
-        <?php endif; ?>
-        	
-            <?php $grid = !empty( $ut_get_sidebar_settings ) && $ut_get_sidebar_settings['primary_sidebar'] != 'no_sidebar' && is_active_sidebar( $ut_get_sidebar_settings['primary_sidebar'] ) ? 'grid-75 tablet-grid-100 mobile-grid-100' : 'grid-100 tablet-grid-100 mobile-grid-100'; ?>
-            
-            <div id="primary" class="grid-parent <?php echo $grid; ?> <?php echo $ut_page_skin; ?> <?php echo $ut_page_class; ?>">
+		
+        <div class="grid-container">
+        	<div id="primary" class="grid-parent grid-100 tablet-grid-100 mobile-grid-100">
             
 			<?php while ( have_posts() ) : the_post(); ?>
 
@@ -42,15 +28,8 @@ get_header(); ?>
 			<?php endwhile; // end of the loop. ?>
 			
             </div><!-- close #primary -->
-            
-            <?php get_sidebar('page'); ?>
+		</div><!-- close grid-container -->
         
-        <?php if( !$ut_page_fullwidth || $ut_page_fullwidth == 'off' ) : ?>
-            
-		    </div><!-- close grid-container -->
-        
-        <?php endif; ?>
-        
-        <div class="ut-scroll-up-waypoint" data-section="section-<?php echo ut_clean_section_id($post->post_name); ?>"></div>
+        <div class="ut-scroll-up-waypoint" data-section="section-<?php echo $post->post_name; ?>"></div>
         
 <?php get_footer(); ?>

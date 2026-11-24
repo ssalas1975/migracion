@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna\Bin;
+namespace Rowbot\Idna\Bin;
 
-use VendorPrefix\Rowbot\Idna\CodePoint;
+use Rowbot\Idna\CodePoint;
 use RuntimeException;
 
 use function array_map;
@@ -110,7 +110,7 @@ RANGE_FALLBACK;
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Rowbot\Idna\Resource;
+namespace Rowbot\Idna\Resource;
 
 final class DisallowedRanges
 {

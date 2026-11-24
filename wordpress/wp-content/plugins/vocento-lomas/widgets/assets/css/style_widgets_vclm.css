@@ -1,0 +1,78 @@
+.vclm-wd-visibility-tab {
+    cursor: pointer;
+    width: 100%;
+    height: 30px;
+    float: left;
+    text-align: center;
+    background-image: url(../img/visible.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+ .vclm-tabs h4 {
+    font-size: 12px !important;
+
+	}
+.ui-tabs .ui-tabs-nav.vclm-tab .ui-tabs-anchor {
+	
+	font-size:12px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.vclm-wd-visibility-tab.hide {
+
+	background-image:url(../img/hidden.png);
+
+}
+
+ul.vclm-widget-tabs-list.ui-sortable {
+    display: table;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+ul.vclm-widget-tabs-list.ui-sortable li {
+    float: left;
+    padding: 0px;
+    margin: 0px;
+    /* clear: both; */
+    text-align: center;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    background-color: #F9F9F9;
+    width: 24%;
+    border: solid 1px #ECECEC;
+    line-height: 30px;
+    cursor: move;
+}
+
+
+.vclm-widget-tabs-list li.ui-tabs-active {
+
+    background-color: #fff !important;
+    border-bottom: 0px !important;
+}
+
+.vclm-widget-tabs-list li a {
+    float: left;
+    clear: both;
+    text-align: center;
+    width: 100%;
+    text-decoration: none;
+	padding: 0px !important;
+}
+
+ul.vclm-widget-tabs-list {
+    margin: 0px !important;
+    padding: 0px !important;
+	width:100% !important;
+}
+
+.vclm-widget-info {
+    background-color: #E9F7FF;
+    border: solid 1px #D1EEF5;
+    color: #3284B5;
+    padding: 10px;
+    margin-bottom: 20px;
+}

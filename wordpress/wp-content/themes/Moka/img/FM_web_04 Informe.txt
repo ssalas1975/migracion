@@ -1,0 +1,205 @@
+Informe del paquete
+
+-----------------------------------------------------------------------------
+Documento:
+Nombre: FM_web_04.ai
+Modo de color: Color RGB
+Perfil de color: Adobe RGB (1998)
+Unidades de regla: p’xeles
+Dimensiones de la mesa de trabajo: 1440 px x 1475 px
+Mostrar im‡genes en modo contorno: Desactivado
+Resaltar fuentes sustituidas: Desactivado
+Resaltar glifos sustituidos: Desactivado
+Conservar capacidad de edici—n de texto
+Simular papel de color: Desactivado
+
+-----------------------------------------------------------------------------
+Objetos de tintas planas:
+
+-----------------------------------------------------------------------------
+Fuentes no disponibles:Ninguno
+
+-----------------------------------------------------------------------------
+Fuentes protegidas no empaquetadas:Ninguno
+
+-----------------------------------------------------------------------------
+Fuentes:
+HK Grotesk Regular (OTF)
+Bodoni 72 Book (TrueType)
+HK Grotesk Medium (OTF)
+Neue Haas Unica W1G Light (OTF)
+Old Standard TT Regular (OTF)
+HK Grotesk Bold (OTF)
+HK Grotesk Light (OTF)
+
+-----------------------------------------------------------------------------
+Fuentes incrustadas:
+Ninguno
+
+-----------------------------------------------------------------------------
+Enlaces no disponibles:
+Ninguno
+
+-----------------------------------------------------------------------------
+Im‡genes enlazadas:
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/1.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4361K, 1474 por 1010 p’xeles
+Dimensiones: 1797,895 por 1231,936 puntos 
+Resoluci—n: 59,029 por 59,029 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/cris-dinoto-319209.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 52488K, 5184 por 3456 p’xeles
+Dimensiones: 1674 por 1116 puntos 
+Resoluci—n: 222,968 por 222,968 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_imagen corporativa/FM_logotipo/img/roya-ann-miller-196177.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 52462K, 5183 por 3455 p’xeles
+Dimensiones: 3000,089 por 1999,866 puntos 
+Resoluci—n: 124,388 por 124,388 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/1.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4361K, 1474 por 1010 p’xeles
+Dimensiones: 852,895 por 584,412 puntos 
+Resoluci—n: 124,433 por 124,433 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/3.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4142K, 1434 por 986 p’xeles
+Dimensiones: 835,43 por 574,431 puntos 
+Resoluci—n: 123,587 por 123,587 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/5.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4236K, 1452 por 996 p’xeles
+Dimensiones: 883,495 por 606,034 puntos 
+Resoluci—n: 118,33 por 118,33 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/4.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4220K, 1458 por 988 p’xeles
+Dimensiones: 815,144 por 552,374 puntos 
+Resoluci—n: 128,782 por 128,782 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/1.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4361K, 1474 por 1010 p’xeles
+Dimensiones: 1512,895 por 1036,651 puntos 
+Resoluci—n: 70,149 por 70,149 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/3.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4142K, 1434 por 986 p’xeles
+Dimensiones: 1587,335 por 1091,431 puntos 
+Resoluci—n: 65,045 por 65,045 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/5.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4236K, 1452 por 996 p’xeles
+Dimensiones: 1608,037 por 1103,034 puntos 
+Resoluci—n: 65,013 por 65,013 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/4.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4220K, 1458 por 988 p’xeles
+Dimensiones: 1577,532 por 1069 puntos 
+Resoluci—n: 66,544 por 66,544 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_web/img/1.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 4361K, 1474 por 1010 p’xeles
+Dimensiones: 852,895 por 584,412 puntos 
+Resoluci—n: 124,433 por 124,433 p’xeles por pulgada
+
+
+/Volumes/Factor Moka/Corporativo/FM_diseno/FM_presentacion/img/NEON.jpg
+Tipo: RGB
+Bits por p’xel: 24
+Canales: 3
+Tama–o: 29613K, 4240 por 2384 p’xeles
+Dimensiones: 1440 por 809,66 puntos 
+Resoluci—n: 212 por 212 p’xeles por pulgada

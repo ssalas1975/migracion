@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Brick\Math\Exception;
+namespace Brick\Math\Exception;
 
 /**
  * Exception thrown when attempting to create a number from a string with an invalid format.

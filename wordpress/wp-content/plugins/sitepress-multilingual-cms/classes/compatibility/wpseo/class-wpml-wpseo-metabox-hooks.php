@@ -1,9 +1,6 @@
 <?php
 
-/**
- * @deprecated version 4.3.0   use 'wp-seo-multilingual` plugin instead.
- */
-class WPML_WPSEO_Metabox_Hooks_Old {
+class WPML_WPSEO_Metabox_Hooks {
 
 	/** @var WPML_Debug_BackTrace */
 	private $backtrace;
@@ -25,9 +22,6 @@ class WPML_WPSEO_Metabox_Hooks_Old {
 		$this->pagenow       = $pagenow;
 	}
 
-	/**
-	 * Initialize hooks.
-	 */
 	public function add_hooks() {
 		if ( is_admin() ) {
 			add_filter( 'get_sample_permalink', array( $this, 'force_permalink_structure_to_postname' ) );
@@ -56,7 +50,7 @@ class WPML_WPSEO_Metabox_Hooks_Old {
 	}
 
 	/**
-	 * @param string $url
+	 * @param $url
 	 *
 	 * @return bool|mixed|string
 	 */

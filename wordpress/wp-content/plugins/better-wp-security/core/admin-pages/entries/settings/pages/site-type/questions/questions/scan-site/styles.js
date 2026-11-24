@@ -4,7 +4,7 @@
 import styled from '@emotion/styled';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Surface } from '@ithemes/ui';
 
@@ -21,7 +21,7 @@ export const StyledCard = styled( Surface )`
 `;
 
 export const StyledCardGraphic = styled.figure`
-	background-color: #F5F9FF;
+	background-color: #f0e8f9;
 	margin: 0;
 	padding: 0;
 	display: flex;

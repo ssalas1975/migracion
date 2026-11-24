@@ -1,0 +1,1 @@
+<div class="edgtf-post-info-comments-holder"><a class="edgtf-post-info-comments" href="<?php comments_link(); ?>" target="_self"><i class="edgtf-icon-simple-line-icon icon-bubbles"></i><?php comments_number('0 ' . esc_html__('Comments','quadric'), '1 '.esc_html__('Comment','quadric'), '% '.esc_html__('Comments','quadric') ); ?></a></div>

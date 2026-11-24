@@ -36,6 +36,7 @@ class SeoAnalysis {
 			return;
 		}
 
+		aioseo()->internalOptions->internal->siteAnalysis->score = 0;
 		SeoAnalyzerResult::deleteByUrl( null );
 
 		aioseo()->core->cache->delete( 'analyze_site_code' );

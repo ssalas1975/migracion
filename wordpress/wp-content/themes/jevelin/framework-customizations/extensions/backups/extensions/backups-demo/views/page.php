@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'FW' ) ) die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) die( 'Forbidden.' );
 /**
  * @var FW_Ext_Backups_Demo[] $demos
  */
@@ -29,18 +29,18 @@ if ($backups->is_disabled()) {
 	<p class="sh-demo-install-issues-intro sh-demo-install-issues-intro-last"><?php esc_html_e('A lot of hosting services tend to limit multiple important server settings and therefore below you can see most common issues and how to fix them:', 'jevelin') ?></p>
 
 	<div><strong><?php esc_html_e('Issue:', 'jevelin') ?></strong> "Maximum execution time of 29 seconds exceeded in ..."</div>
-	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="http://support.shufflehound.com/forums/topic/error-demo-content-install/#post-1292">these solutions</a>, there are two solutions for this issue: by editing .htaccess file or by installing additional plugin</p>
+	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="https://support.shufflehound.com/forums/topic/error-demo-content-install/#post-1292">these solutions</a>, there are two solutions for this issue: by editing .htaccess file or by installing additional plugin</p>
 
 	<div><strong><?php esc_html_e('Issue:', 'jevelin') ?></strong> "Extension ZIP is missing"</div>
-	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="http://support.shufflehound.com/forums/topic/demo-content-error-extenssion-zip-is-missing/">this solution</a></p>
+	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="https://support.shufflehound.com/forums/topic/demo-content-error-extenssion-zip-is-missing/">this solution</a></p>
 
 	<div><strong><?php esc_html_e('Issue:', 'jevelin') ?></strong> "Cannot create directory: ../wp-content/uploads/fw-backup/tmp"</div>
-	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="http://support.shufflehound.com/forums/topic/using-demo-content/">this solution</a></p>
+	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="https://support.shufflehound.com/forums/topic/using-demo-content/">this solution</a></p>
 
 	<div><strong><?php esc_html_e('Issue:', 'jevelin') ?></strong> "Files Export: The execution failed. Please check error.log"</div>
-	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="http://support.shufflehound.com/forums/topic/cannot-install-demo-content/">this solution</a></p>
+	<p><strong><?php esc_html_e('Solution:', 'jevelin') ?></strong> Please take a look at <a target="_blank" href="https://support.shufflehound.com/forums/topic/cannot-install-demo-content/">this solution</a></p>
 
-	<p><strong>If you have other type of issue, please create a topic in our <a target="_blank" href="http://support.shufflehound.com/forums/forum/jevelin/">official support forum here</a> and we will help you.</strong></p>
+	<p><strong>If you have other type of issue, please create a topic in our <a target="_blank" href="https://support.shufflehound.com/forums/forum/jevelin/">official support forum here</a> and we will help you.</strong></p>
 </div>
 
 
@@ -51,7 +51,7 @@ if ($backups->is_disabled()) {
 				<strong><?php _e( 'Important', 'jevelin' ); ?></strong>:
 				<?php printf(
 					__( 'You need to activate %s.', 'jevelin' ),
-					'<a href="http://php.net/manual/en/book.zip.php" target="_blank">'. __('zip extension', 'jevelin') .'</a>'
+					'<a href="https://php.net/manual/en/book.zip.php" target="_blank">'. __('zip extension', 'jevelin') .'</a>'
 				); ?>
 			</p>
 		</div>

@@ -1,0 +1,3717 @@
+@charset "UTF-8";
+
+.redi-app {
+  --font: 'Inter';
+  --very-light-pink: #dedede;
+  --helper-2-warning-primary: #ff9f00;
+  --helper-3-negative-pimary: #ff3921;
+  --on-background-or-surface-1-primary: #171d29;
+  --accent-1-primary-1-default: #0072ff;
+  --helper-6-negative-secondary: rgba(255, 57, 33, 0.08);
+  --on-accent-1-primary: #ffffff;
+  --helper-4-positive-secondary: rgba(103, 221, 45, 0.08);
+  --background-2-overlay: rgba(23, 29, 41, 0.72);
+  --helper-5-warning-secondary: rgba(255, 159, 0, 0.08);
+  --additional-additional-1: #6866ff;
+  --additional-additional-2: #00c2ee;
+  --additional-additional-4: #96b2b8;
+  --surface-1-accent: rgba(23, 29, 41, 0.08);
+  --additional-additional-5: #f5b9b1;
+  --additional-additional-3: #dd6fbf;
+  --helper-1-positive-primary: #67dd2d;
+  --accent-3-tertiary-2-hover: #ebf4ff;
+  --accent-1-primary-2-hover: #0055d4;
+}
+
+.has-redi-app {
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+
+.redi-app div,
+.redi-app span,
+.redi-app applet,
+.redi-app object,
+.redi-app iframe,
+.redi-app h1,
+.redi-app h2,
+.redi-app h3,
+.redi-app h4,
+.redi-app h5,
+.redi-app h6,
+.redi-app p,
+.redi-app blockquote,
+.redi-app pre,
+.redi-app a,
+.redi-app abbr,
+.redi-app acronym,
+.redi-app address,
+.redi-app big,
+.redi-app cite,
+.redi-app code,
+.redi-app del,
+.redi-app dfn,
+.redi-app em,
+.redi-app img,
+.redi-app ins,
+.redi-app kbd,
+.redi-app q,
+.redi-app s,
+.redi-app samp,
+.redi-app small,
+.redi-app strike,
+.redi-app strong,
+.redi-app sub,
+.redi-app sup,
+.redi-app tt,
+.redi-app var,
+.redi-app b,
+.redi-app u,
+.redi-app i,
+.redi-app center,
+.redi-app dl,
+.redi-app dt,
+.redi-app dd,
+.redi-app ol,
+.redi-app ul,
+.redi-app li,
+.redi-app fieldset,
+.redi-app form,
+.redi-app label,
+.redi-app legend,
+.redi-app table,
+.redi-app caption,
+.redi-app tbody,
+.redi-app tfoot,
+.redi-app thead,
+.redi-app tr,
+.redi-app th,
+.redi-app td,
+.redi-app article,
+.redi-app aside,
+.redi-app canvas,
+.redi-app details,
+.redi-app embed,
+.redi-app figure,
+.redi-app figcaption,
+.redi-app footer,
+.redi-app header,
+.redi-app hgroup,
+.redi-app menu,
+.redi-app nav,
+.redi-app output,
+.redi-app ruby,
+.redi-app section,
+.redi-app summary,
+.redi-app time,
+.redi-app mark,
+.redi-app audio,
+.redi-app video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+}
+
+.redi-app article,
+.redi-app aside,
+.redi-app details,
+.redi-app figcaption,
+.redi-app figure,
+.redi-app footer,
+.redi-app header,
+.redi-app hgroup,
+.redi-app menu,
+.redi-app nav,
+.redi-app section {
+  display: block;
+}
+
+.redi-app ol,
+.redi-app ul {
+  list-style: none;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/v2/Inter-Regular.eot');
+  src: url('../fonts/v2/Inter-Regular.woff2') format('woff2'),
+    url('../fonts/v2/Inter-Regular.woff') format('woff'),
+    url('../fonts/v2/Inter-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/v2/Inter-Medium.eot');
+  src: url('../fonts/v2/Inter-Medium.woff2') format('woff2'),
+    url('../fonts/v2/Inter-Medium.woff') format('woff'),
+    url('../fonts/v2/Inter-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/v2/Inter-SemiBold.eot');
+  src: url('../fonts/v2/Inter-SemiBold.woff2') format('woff2'),
+    url('../fonts/v2/Inter-SemiBold.woff') format('woff'),
+    url('../fonts/v2/Inter-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/v2/Inter-Bold.eot');
+  src: url('../fonts/v2/Inter-Bold.woff2') format('woff2'),
+    url('../fonts/v2/Inter-Bold.woff') format('woff'),
+    url('../fonts/v2/Inter-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+.redi-app {
+  min-width: 320px;
+  max-width: unset !important;
+  width: 100% !important;
+  height: -moz-fit-content;
+  height: fit-content;
+  /* overflow: auto; */
+  margin: 0;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  scroll-behavior: smooth;
+  color: var(--on-background-or-surface-1-primary);
+  position: relative;
+}
+
+.redi-app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #fff;
+}
+
+.redi-app,
+.redi-app * {
+  box-sizing: border-box;
+  text-transform: none;
+}
+
+.redi-app address {
+  font-style: normal;
+}
+
+.redi-app mark {
+  color: var(--accent-1-primary-1-default);
+  background-color: transparent;
+}
+
+.redi-app img {
+  display: block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.redi-app a:not(.redi-button):not(.redi-link) {
+  color: inherit;
+  transition: 0.3s;
+}
+
+.redi-app a:not(.redi-button):not(.redi-link):hover {
+  text-decoration-color: transparent;
+}
+
+.redi-app b,
+.redi-app strong {
+  font-weight: 600;
+}
+
+.redi-app button {
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.redi-h1,
+.redi-h2,
+.redi-h3,
+.redi-h4,
+.redi-h5 {
+  font-weight: 600;
+}
+
+.redi-h1 {
+  font-size: 48px;
+  line-height: 1.17;
+  letter-spacing: -0.4px;
+}
+
+.redi-h2 {
+  font-size: 36px;
+  line-height: 1.56;
+}
+
+.redi-h3 {
+  font-size: 30px;
+  line-height: 1.33;
+}
+
+@media (max-width: 834px) {
+  .redi-h3 {
+    font-size: 24px;
+    line-height: 1.17;
+    letter-spacing: 0.2px;
+  }
+}
+
+.redi-h4 {
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 834px) {
+  .redi-h4 {
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: 0.15px;
+  }
+}
+
+.redi-h5,
+.redi-h6 {
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.15px;
+}
+
+.redi-h6 {
+  font-weight: 400;
+}
+
+.redi-app .redi-container {
+  max-width: 1176px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-container {
+    padding: 0 10px;
+  }
+}
+
+.redi-app .redi-scroll-lock {
+  overflow: hidden !important;
+}
+
+.redi-app .redi-icon {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.redi-app .nice-select {
+  max-width: 100%;
+  height: 40px;
+  width: 100%;
+  padding: 10px 24px 10px 12px;
+  display: flex;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  border-radius: 4px;
+  border: solid 1px #c8c9cc;
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--on-accent-1-primary);
+  outline: none;
+  transition: none;
+}
+
+.redi-app .nice-select::after {
+  width: 6px;
+  height: 6px;
+  margin-top: -5px;
+  transition: none;
+}
+
+.redi-app .nice-select .current {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.redi-app .nice-select-dropdown {
+  width: calc(100% + 2px);
+  left: -1px;
+  transition: none;
+  border-radius: 4px;
+  border: 1px solid #c8c9cc;
+  box-shadow: none;
+}
+
+.redi-app .nice-select .option {
+  padding: 10px 12px;
+  line-height: inherit;
+}
+
+.redi-app .nice-select .option.selected {
+  font-weight: 600;
+}
+
+.redi-app .nice-select .option.selected.disabled {
+  display: none;
+}
+
+.redi-app .nice-select.open::after {
+  border-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-button {
+  padding: 10px 24px;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 4px;
+  border: none;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.redi-app .redi-button.disabled,
+.redi-app .redi-button[disabled] {
+  pointer-events: none;
+}
+
+.redi-app .redi-button--primary {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.3px;
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-button--primary.disabled,
+.redi-app .redi-button--primary[disabled] {
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--very-light-pink);
+}
+
+.redi-app .redi-button--primary:hover,
+.redi-app .redi-button--primary:active {
+  background-color: var(--accent-1-primary-2-hover);
+}
+
+.redi-app .redi-button--underline {
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: var(--on-background-or-surface-1-primary);
+  background-color: transparent;
+}
+
+.redi-app .redi-button--underline:hover {
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-button--underline:active {
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-2-hover);
+}
+
+.redi-app .redi-button--icon {
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -moz-column-gap: 4px;
+  column-gap: 4px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.3px;
+  color: var(--accent-1-primary-1-default);
+  background-color: var(--accent-3-tertiary-2-hover);
+}
+
+.redi-app .redi-button--icon.disabled,
+.redi-app .redi-button--icon[disabled] {
+  background-color: transparent;
+}
+
+.redi-app .redi-button--icon:hover {
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-button--icon:active {
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-2-hover);
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-button--icon {
+    padding: 0;
+    font-size: 14px;
+    flex-direction: row-reverse;
+    font-weight: 400;
+    -moz-column-gap: 4px;
+    column-gap: 4px;
+    background-color: transparent;
+  }
+
+  .redi-app .redi-button--icon .redi-icon {
+    min-width: 16px;
+    height: 16px;
+    width: 16px;
+  }
+}
+
+.redi-app .redi-button--facebook {
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 15px;
+  column-gap: 15px;
+  cursor: default;
+  background-color: transparent;
+  border: 0;
+}
+
+.redi-app .redi-button--facebook span {
+  min-width: 230px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -moz-column-gap: 4px;
+  column-gap: 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.14;
+  letter-spacing: -0.3px;
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+  cursor: pointer;
+}
+
+.redi-app .redi-button--facebook span::before {
+  content: '';
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-image: url(../img/v2/svg/facebook.svg);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center;
+  filter: brightness(0) invert(1);
+}
+
+.redi-app .redi-button--facebook:not(.active) .redi-icon {
+  display: none;
+}
+
+.redi-app .redi-button--facebook.disabled {
+  pointer-events: none;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-button--facebook {
+    -moz-column-gap: 10px;
+    column-gap: 10px;
+  }
+}
+
+.redi-app .redi-checkbox {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.redi-app .redi-checkbox__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  inset: -999;
+  opacity: 0;
+}
+
+.redi-app .redi-checkbox__input:checked + .redi-checkbox__title::before {
+  border-color: var(--accent-1-primary-1-default) !important;
+  background-color: transparent !important;
+}
+
+.redi-app .redi-checkbox__input:checked + .redi-checkbox__title::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.redi-app .redi-checkbox__title {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 8px;
+  column-gap: 8px;
+  cursor: pointer;
+}
+
+.redi-app .redi-checkbox__title::before {
+  content: '';
+  box-sizing: border-box;
+  height: 20px;
+  min-width: 20px;
+  width: 20px;
+  display: block;
+  border: solid 1px #c8c9cc;
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-checkbox__title::after {
+  content: '';
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  background-image: url(../img/v2/svg/checkmark.svg);
+  background-repeat: no-repeat;
+  background-size: 80% auto;
+  background-position: center;
+  opacity: 0;
+  visibility: hidden;
+  filter: invert(1);
+}
+
+.redi-app .redi-checkbox:hover .redi-checkbox__title::before {
+  border-color: #ededee;
+  background-color: #ededee;
+}
+
+.redi-app .redi-radio {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.redi-app .redi-radio__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  inset: -999;
+  opacity: 0;
+}
+
+.redi-app .redi-radio__input:checked + .redi-radio__title::before {
+  border: 4px solid var(--accent-1-primary-1-default) !important;
+  background-color: transparent !important;
+}
+
+.redi-app .redi-radio__title {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 8px;
+  column-gap: 8px;
+  cursor: pointer;
+}
+
+.redi-app .redi-radio__title::before {
+  content: '';
+  box-sizing: border-box;
+  height: 16px;
+  min-width: 16px;
+  width: 16px;
+  display: block;
+  border: solid 1px #c8c9cc;
+  border-radius: 50%;
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-radio:hover .redi-radio__title::before {
+  border-color: #ededee;
+  background-color: #ededee;
+}
+
+.redi-app .redi-link {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 4px;
+  column-gap: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  color: var(--accent-1-primary-1-default);
+  background-color: transparent;
+  border: none;
+  text-decoration: none;
+}
+
+.redi-app .redi-link .redi-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.redi-app .redi-link:hover {
+  color: var(--accent-1-primary-2-hover);
+}
+
+.redi-app .redi-route:not(.active) {
+  display: none !important;
+}
+
+.redi-app .redi-steps-indicator {
+  display: grid;
+  -moz-column-gap: 7px;
+  column-gap: 7px;
+  grid-template-columns: repeat(4, 135px);
+}
+
+.redi-app .redi-steps-indicator__step {
+  padding: 0;
+  margin: 0;
+  font-size: inherit !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  row-gap: 11px;
+  background-color: transparent;
+  border: 0;
+  position: relative;
+  grid-row: 1;
+  pointer-events: none;
+}
+
+.redi-app .redi-steps-indicator__step:nth-child(1) {
+  grid-column: 4;
+}
+
+.redi-app .redi-steps-indicator__step:nth-child(2) {
+  grid-column: 3;
+}
+
+.redi-app .redi-steps-indicator__step:nth-child(3) {
+  grid-column: 2;
+}
+
+.redi-app .redi-steps-indicator__step:nth-child(4) {
+  grid-column: 1;
+}
+
+.redi-app
+  .redi-steps-indicator__step:not(:first-child)
+  .redi-steps-indicator__circle::before {
+  content: '';
+  width: 100%;
+  height: 2px;
+  position: absolute;
+  left: 50%;
+  background-color: #c8c9cc;
+  z-index: -1;
+}
+
+.redi-app
+  .redi-steps-indicator__step:not(.active)
+  .redi-steps-indicator__circle {
+  color: var(--on-background-or-surface-1-primary);
+  background-color: #c8c9cc;
+}
+
+.redi-app
+  .redi-steps-indicator__step:not(.active)
+  .redi-steps-indicator__title {
+  font-weight: 400;
+  color: #81858b;
+}
+
+.redi-app
+  .redi-steps-indicator__step.active:first-child
+  .redi-steps-indicator__title {
+  color: var(--accent-1-primary-1-default);
+}
+
+.redi-app
+  .redi-steps-indicator__step.active:not(:first-child)
+  .redi-steps-indicator__circle::after {
+  content: '';
+  width: 50%;
+  height: 2px;
+  position: absolute;
+  left: 50%;
+  background-color: var(--accent-1-primary-1-default);
+  z-index: -1;
+}
+
+.redi-app .redi-steps-indicator__step.active ~ .redi-steps-indicator__step {
+  pointer-events: all;
+}
+
+.redi-app
+  .redi-steps-indicator__step.active
+  ~ .redi-steps-indicator__step
+  .redi-steps-indicator__circle {
+  font-size: 0;
+  background-image: url(../img/v2/svg/checkmark.svg);
+  background-repeat: no-repeat;
+  background-size: 24px 24px;
+  background-position: center;
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app
+  .redi-steps-indicator__step.active
+  ~ .redi-steps-indicator__step
+  .redi-steps-indicator__circle::before {
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app
+  .redi-steps-indicator__step.active
+  ~ .redi-steps-indicator__step
+  .redi-steps-indicator__title {
+  color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-steps-indicator__circle {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.3px;
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-steps-indicator__title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+@media (max-width: 1176px) {
+  .redi-app .redi-steps-indicator {
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .redi-app .redi-steps-indicator {
+    width: calc(100% + 20px);
+    margin: 0 -10px;
+    grid-template-columns: repeat(4, 33.333%);
+    -moz-column-gap: 0;
+    column-gap: 0;
+  }
+
+  .redi-app .redi-steps-indicator__step {
+    row-gap: 6px;
+  }
+
+  .redi-app .redi-steps-indicator__step:nth-child(4) {
+    padding-left: 10px;
+    align-items: flex-start;
+  }
+
+  .redi-app
+    .redi-steps-indicator__step:nth-child(4)
+    .redi-steps-indicator__circle::before {
+    width: 150%;
+    left: 10px;
+  }
+
+  .redi-app
+    .redi-steps-indicator__step:nth-child(4)
+    .redi-steps-indicator__circle::after {
+    left: 10px !important;
+    width: 75% !important;
+  }
+
+  /* зміни */
+
+  .redi-app .redi-steps-indicator__step:first-child {
+    /* padding-right: 10px; */
+    align-items: flex-end;
+  }
+
+  .redi-app
+    .redi-steps-indicator__step.active
+    ~ .redi-steps-indicator__step
+    .redi-steps-indicator__circle {
+    background-size: 15px 15px;
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='1']
+    .redi-steps-indicator__step:nth-child(2),
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='2']
+    .redi-steps-indicator__step:nth-child(2) {
+    padding-right: 10px;
+    align-items: flex-end;
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='1']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::before,
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='2']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::before {
+    width: 150%;
+    left: -10px;
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='2']
+    .redi-steps-indicator__step:nth-child(3)
+    .redi-steps-indicator__circle::after {
+    width: 75%;
+  }
+
+  .redi-app .redi-steps-indicator[data-redi-current-step='3'],
+  .redi-app .redi-steps-indicator[data-redi-current-step='4'] {
+    transform: translate(-33.333vw);
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='3']
+    .redi-steps-indicator__step:nth-child(3),
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='4']
+    .redi-steps-indicator__step:nth-child(3) {
+    padding-left: 10px;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='3']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::before,
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='4']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::before {
+    width: 150%;
+  }
+
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='3']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::after,
+  .redi-app
+    .redi-steps-indicator[data-redi-current-step='4']
+    .redi-steps-indicator__step:nth-child(2)
+    .redi-steps-indicator__circle::after {
+    width: 75%;
+  }
+  /* зміни */
+  .redi-app .redi-steps-indicator[data-redi-current-step='3'] {
+    padding-right: 10px;
+  }
+
+  .redi-app .redi-steps-indicator__circle {
+    width: 21px;
+    height: 21px;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.33;
+    letter-spacing: normal;
+  }
+
+  .redi-app .redi-steps-indicator__title {
+    font-size: 12px;
+    line-height: 1.33;
+    letter-spacing: normal;
+  }
+}
+
+.redi-app .redi-place-select {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.redi-app .redi-place-select__body {
+  width: 100%;
+  border-radius: 5px;
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.1);
+  border: solid 1px #ededee;
+  background-color: var(--on-accent-1-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.redi-app .redi-place-select .redi-icon {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #81858b;
+  z-index: 1;
+}
+
+.redi-app .redi-place-select select {
+  display: none !important;
+}
+
+.redi-app .redi-place-select__current {
+  min-height: 48px;
+  width: 100%;
+  padding: 9px 37px 10px 10px;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 8px;
+  column-gap: 8px;
+  cursor: pointer;
+}
+
+.redi-app .redi-place-select__current .redi-place-select__subtitle,
+.redi-app .redi-place-select__current .redi-place-select__address {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.redi-app .redi-place-select__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 24px;
+}
+
+.redi-app .redi-place-select__item::before {
+  content: '';
+  box-sizing: border-box;
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  width: 16px;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: solid 1px #c8c9cc;
+  border-radius: 50%;
+  background-color: var(--on-accent-1-primary);
+  transition: 0.3s;
+}
+
+.redi-app .redi-place-select__subtitle {
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+}
+
+.redi-app .redi-place-select__address {
+  margin-top: -3px;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: -0.21px;
+  color: #81858b;
+}
+
+.redi-app .redi-place-select__dropdown {
+  height: -moz-fit-content;
+  height: fit-content;
+  width: calc(100% + 2px);
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  overflow: auto;
+  border-radius: 5px;
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.1);
+  border: solid 1px var(--accent-1-primary-1-default);
+  background-color: var(--on-accent-1-primary);
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.redi-app .redi-place-select__list {
+  max-height: 240px;
+  width: 100%;
+  padding: 9px 37px 18px 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  overflow: auto;
+}
+
+.redi-app .redi-place-select__list::-webkit-scrollbar {
+  width: 21px;
+}
+
+.redi-app .redi-place-select__list::-webkit-scrollbar-track {
+  background: #c8c9cc;
+  border: solid var(--on-accent-1-primary);
+  border-width: 44px 19px 26px 0;
+}
+
+.redi-app .redi-place-select__list::-webkit-scrollbar-thumb {
+  background: var(--accent-1-primary-1-default);
+  background-clip: content-box;
+  border: solid transparent;
+  border-width: 44px 19px 26px 0;
+}
+
+.redi-app .redi-place-select__option {
+  cursor: pointer;
+}
+
+.redi-app
+  .redi-place-select__option.highlithed
+  .redi-place-select__item::before {
+  border-color: #ededee;
+  background-color: #ededee;
+}
+
+.redi-app .redi-place-select__option .redi-place-select__item:hover::before {
+  border-color: #ededee;
+  background-color: #ededee;
+}
+
+.redi-app .redi-place-select .selected .redi-place-select__item::before {
+  border: 4px solid var(--accent-1-primary-1-default);
+  background-color: transparent;
+}
+
+.redi-app .redi-place-select.open .redi-icon {
+  color: var(--accent-1-primary-1-default);
+  transform: translateY(-50%) scale(-1);
+}
+
+.redi-app .redi-place-select.open .redi-place-select__dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+.redi-app .redi-reservation-details {
+  max-width: 465px;
+  width: 100%;
+  padding: 26px 38px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 5px;
+  border: solid 1px #c8c9cc;
+  background-color: #f8f8f8;
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.11);
+  position: relative;
+}
+
+.redi-app .redi-reservation-details__title {
+  text-align: center;
+  color: rgba(23, 29, 41, 0.75);
+}
+
+.redi-app .redi-reservation-details .redi-view-reservation {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.redi-app .redi-reservation-details .redi-view-reservation__order-info {
+  margin-top: 35px;
+}
+
+.redi-app .redi-reservation-details__cross-button {
+  padding: 0;
+  margin-left: auto;
+  margin-right: -22px;
+  border: none;
+  background-color: transparent;
+}
+
+.redi-app .redi-reservation-details__cross-button .redi-icon {
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--accent-1-primary-1-default);
+}
+
+@media (min-width: 835px) {
+  .redi-app .redi-reservation-details {
+    margin: 0 !important;
+  }
+
+  .redi-app .redi-reservation-details .redi-popup__close-button {
+    display: none;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-reservation-details {
+    margin: auto;
+    height: -moz-fit-content;
+    height: fit-content;
+    padding: 10px 30px 25px;
+  }
+
+  .redi-app .redi-reservation-details .redi-button.redi-popup__close-button {
+    margin-top: 55px;
+    min-width: 230px;
+  }
+}
+
+.redi-app .redi-field {
+  max-width: inherit;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-field__title,
+.redi-app .redi-field__required {
+  width: calc(50% - 4px);
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+.redi-app .redi-field__title {
+  text-align: left;
+}
+
+.redi-app .redi-field__required {
+  text-align: right;
+  color: var(--helper-2-warning-primary);
+}
+
+.redi-app .redi-field__input,
+.redi-app .redi-field__textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  border-radius: 4px;
+  border: solid 1px #c8c9cc;
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--on-accent-1-primary);
+  outline: none;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.redi-app .redi-field__input::-moz-placeholder,
+.redi-app .redi-field__textarea::-moz-placeholder {
+  color: #81858b;
+}
+
+.redi-app .redi-field__input::placeholder,
+.redi-app .redi-field__textarea::placeholder {
+  color: #81858b;
+}
+
+.redi-app .redi-field__input:focus-visible,
+.redi-app .redi-field__textarea:focus-visible {
+  border-color: var(--accent-1-primary-1-default);
+  background-color: var(--on-accent-1-primary);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+.redi-app .redi-field__input::-webkit-outer-spin-button,
+.redi-app .redi-field__input::-webkit-inner-spin-button,
+.redi-app .redi-field__textarea::-webkit-outer-spin-button,
+.redi-app .redi-field__textarea::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.redi-app .redi-field__input[type='number'],
+.redi-app .redi-field__textarea[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.redi-app .redi-field__input {
+  height: 40px;
+}
+
+.redi-app .redi-field__textarea {
+  max-height: 95dvh;
+  min-height: 120px;
+  height: 120px;
+  resize: vertical;
+}
+
+.redi-app .redi-field--phone .iti {
+  width: 100%;
+}
+
+.redi-app .redi-field--phone .iti__arrow {
+  display: none;
+}
+
+.redi-app .redi-field--phone .iti__selected-country-primary {
+  padding: 0 8px 0 12px;
+}
+
+.redi-app .redi-field--phone .iti__selected-country-primary:hover {
+  background-color: transparent !important;
+}
+
+.redi-app .redi-field--phone .iti__search-input {
+  display: none;
+}
+
+.redi-app .redi-field--phone .iti__dropdown-content {
+  height: 236px;
+  padding-bottom: 20px;
+  margin-top: 0;
+  top: 0;
+  left: 1px;
+  border-radius: 5px;
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.1);
+  border: solid 1px var(--accent-1-primary-1-default);
+  background-color: var(--on-accent-1-primary);
+  overflow: hidden;
+}
+
+.redi-app .redi-field--phone .iti__country-list {
+  max-height: 236px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 3.5px;
+}
+
+.redi-app .redi-field--phone .iti__country-list::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  background-image: url(../img/v2/svg/chevron-up.svg);
+  background-repeat: no-repeat;
+  background-size: 14px auto;
+  background-position: center;
+}
+
+.redi-app .redi-field--phone .iti__country-list::-webkit-scrollbar {
+  width: 21px;
+}
+
+.redi-app .redi-field--phone .iti__country-list::-webkit-scrollbar-track {
+  background: #c8c9cc;
+  border: solid var(--on-accent-1-primary);
+  border-width: 44px 19px 5px 0;
+}
+
+.redi-app .redi-field--phone .iti__country-list::-webkit-scrollbar-thumb {
+  background: var(--accent-1-primary-1-default);
+  background-clip: content-box;
+  border: solid transparent;
+  border-width: 44px 19px 5px 0;
+  min-height: 100px !important;
+}
+
+.redi-app .redi-field--phone .iti__country {
+  padding: 9px 7px;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 6px;
+  column-gap: 6px;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-field--phone .iti__country:hover {
+  color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-field--phone .iti__flag,
+.redi-app .redi-field--phone .iti__flag-box {
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.redi-app .redi-field--phone .iti__dial-code {
+  color: #81858b;
+}
+
+.redi-app .redi-field--phone .iti__highlight {
+  background-color: transparent !important;
+}
+
+.redi-app .redi-field--select select {
+  position: absolute;
+}
+
+.redi-app .redi-field--rate .redi-field__title {
+  width: 100%;
+}
+
+.redi-app .redi-field--error input,
+.redi-app .redi-field--error textarea {
+  border-color: var(--helper-3-negative-pimary);
+  background-color: var(--helper-6-negative-secondary);
+}
+
+.redi-app .redi-field--error.redi-field--checkbox,
+.redi-app .redi-field--error.redi-field--radios {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--helper-3-negative-pimary);
+}
+
+.redi-app .redi-field--error.redi-field--select .nice-select {
+  border-color: var(--helper-3-negative-pimary);
+  background-color: var(--helper-6-negative-secondary);
+}
+
+.redi-app .redi-message {
+  padding: 9px 14px;
+  display: flex;
+  -moz-column-gap: 9px;
+  column-gap: 9px;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  border-radius: 5px;
+  color: var(--on-background-or-surface-1-primary);
+  border: solid 1px var(--helper-2-warning-primary);
+  background-color: #fff6e6;
+}
+
+.redi-app .redi-message__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 4px;
+}
+
+.redi-app .redi-message p {
+  margin-top: 2px;
+}
+
+.redi-app .redi-message .redi-icon {
+  color: var(--helper-2-warning-primary);
+}
+
+.redi-app .redi-message--error {
+  border: solid 1px var(--helper-3-negative-pimary);
+  background-color: #ffece9;
+}
+
+.redi-app .redi-message--error .redi-icon {
+  color: var(--helper-3-negative-pimary);
+}
+
+.redi-app .redi-message--hidden {
+  display: none;
+}
+
+.redi-app .redi-contact-info {
+  max-width: inherit;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-contact-info__fields {
+  max-width: inherit;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-contact-info .redi-message {
+  margin-top: 0 !important;
+}
+
+.redi-app .redi-popup {
+  margin: auto;
+  max-width: 465px;
+  width: 100%;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 10px 30px 25px;
+}
+
+.redi-app .redi-popup-container {
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  overflow: auto;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.redi-app .redi-popup-container:not(.active) {
+  display: none;
+}
+
+.redi-app .redi-ranges {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 22px;
+}
+
+.redi-app .redi-range {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-range__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  -moz-column-gap: 8px;
+  column-gap: 8px;
+}
+
+.redi-app .redi-range__title {
+  margin-right: auto;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.15px;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-range__message {
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: normal;
+  color: var(--helper-2-warning-primary);
+}
+
+.redi-app .redi-range__body {
+  display: flex;
+  align-items: center;
+  gap: 24px 8px;
+}
+
+.redi-app .redi-range__slider {
+  width: 100%;
+  margin-top: -24px;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+
+.redi-app .redi-range__labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.redi-app .redi-range__label {
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  text-align: right;
+  color: #c8c9cc;
+}
+
+.redi-app .redi-range__label.active {
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-range__inner {
+  width: 100%;
+  height: 12px;
+}
+
+.redi-app .redi-range__line {
+  height: 4px;
+  border-radius: 4px;
+  background-color: #ededee;
+  position: relative;
+}
+
+.redi-app .redi-range__progress {
+  max-width: 100%;
+  position: absolute;
+  left: 0%;
+  height: 4px;
+  border-radius: 4px;
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-range__range-input {
+  width: 100%;
+  height: 4px;
+  margin: 0;
+  position: absolute;
+  /* left: 0; */
+  background: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.redi-app .redi-range__range-input:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.redi-app .redi-range__range-input::-moz-range-thumb {
+  -moz-appearance: none;
+  height: 24px;
+  width: 12px;
+  pointer-events: auto;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px 0 var(--surface-1-accent);
+  border: solid 1px rgba(23, 29, 41, 0.12);
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-range__range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 24px;
+  width: 12px;
+  pointer-events: auto;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px 0 var(--surface-1-accent);
+  border: solid 1px rgba(23, 29, 41, 0.12);
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-range__field {
+  height: 40px;
+  width: 165px;
+  padding: 4px 15px 4px 18px;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 4px;
+  column-gap: 4px;
+  border-radius: 5px;
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.1);
+  border: solid 1px #ededee;
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-range__input {
+  margin-right: auto;
+  width: 101px;
+  height: 100%;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  outline: none;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.15px;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-range__input[type='number'] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.redi-app .redi-range__input[type='number']::-webkit-inner-spin-button,
+.redi-app .redi-range__input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.redi-app .redi-range__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.redi-app .redi-range__field-button {
+  min-width: 16px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  color: #81858b;
+}
+
+.redi-app .redi-range__field-button .redi-icon {
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.redi-app .redi-range__field-button:hover {
+  color: var(--accent-1-primary-2-hover);
+}
+
+.redi-app .redi-range .redi-separator {
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+@media (max-width: 450px) {
+  .redi-app .redi-range {
+    row-gap: 24px;
+  }
+
+  .redi-app .redi-range__body {
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+  }
+
+  .redi-app .redi-range__slider {
+    width: 100%;
+  }
+
+  .redi-app .redi-range .redi-separator {
+    margin-right: -27px;
+  }
+
+  .redi-app .redi-range__field {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-ranges {
+    row-gap: 36px;
+  }
+}
+
+.redi-app .redi-calendar {
+  width: 226px;
+  min-width: 226px;
+  max-width: 226px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: normal;
+  color: var(--on-accent-1-primary);
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-header {
+  padding: 4px 10px 6px;
+  border-radius: 5px 5px 0 0;
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-month,
+.redi-app .redi-calendar .vanilla-calendar-year {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  text-align: center;
+  color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-year {
+  display: none;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-arrow {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-arrow::before {
+  position: static;
+  width: 16px;
+  height: 16px;
+  display: block;
+  background-image: url(../img/v2/svg/chevron-up.svg);
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  background-position: center;
+  filter: brightness(0) invert(1);
+  transform: rotate(-90deg);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-arrow_next::before {
+  transform: rotate(90deg);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-wrapper {
+  justify-content: center;
+  padding: 6px 20px 15px;
+  border-radius: 0 0 5px 5px;
+  background-color: #ededee;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-content {
+  max-width: 226px;
+  width: 100%;
+  row-gap: 6px;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-week {
+  gap: 8px;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-week__day {
+  min-width: unset;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.33;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-days {
+  gap: 8px;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  text-decoration: none !important;
+  box-shadow: 0 1px 1px 0 rgba(23, 29, 41, 0.16);
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--on-accent-1-primary);
+  border: none;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn_disabled {
+  color: #81858b !important;
+  background-color: var(--surface-1-accent) !important;
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__btn_disabled
+  + .vanilla-calendar-day__popup {
+  display: none !important;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn_today {
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn_selected {
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--on-accent-1-primary);
+  border: solid 1px var(--accent-1-primary-1-default);
+  pointer-events: none !important;
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__btn_selected.redi-closed
+  + .vanilla-calendar-day__popup,
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__btn_selected.redi-part-time
+  + .vanilla-calendar-day__popup {
+  visibility: visible;
+  opacity: 1;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn.redi-closed {
+  color: var(--on-accent-1-primary);
+  background-color: var(--helper-3-negative-pimary);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__btn.redi-part-time {
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--helper-2-warning-primary);
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__popup {
+  max-width: 210px;
+  min-width: 115px;
+  width: -moz-max-content;
+  width: max-content;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__popup::before,
+.redi-app .redi-calendar .vanilla-calendar-day__popup::after {
+  display: none;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__popup .redi-message {
+  margin: 0 !important;
+  padding: 5px 10px;
+  display: block;
+  font-size: 12px;
+  line-height: 1.17;
+  letter-spacing: normal;
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  -moz-column-gap: 0;
+  column-gap: 0;
+}
+
+.redi-app .redi-calendar .vanilla-calendar-day__popup .redi-message__arrow {
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__popup
+  .redi-message__arrow::before {
+  content: '';
+  width: 0;
+  height: 0;
+  display: block;
+  border-right: 10px solid var(--helper-2-warning-primary);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  margin-bottom: -14px;
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__popup
+  .redi-message__arrow::after {
+  content: '';
+  width: 0;
+  height: 0;
+  display: block;
+  border-right: 10px solid #fff6e6;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  margin-top: -7px;
+  margin-left: 1px;
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__popup
+  .redi-message--error
+  .redi-message__arrow::before {
+  border-right-color: var(--helper-3-negative-pimary);
+}
+
+.redi-app
+  .redi-calendar
+  .vanilla-calendar-day__popup
+  .redi-message--error
+  .redi-message__arrow::after {
+  border-right-color: #ffece9;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-calendar .vanilla-calendar-day__popup {
+    top: unset;
+    left: 50%;
+    bottom: calc(100% + 12px);
+    transform: translateX(-50%);
+  }
+
+  .redi-app .redi-calendar .vanilla-calendar-day__popup .redi-message {
+    padding: 5px 10px;
+  }
+
+  .redi-app .redi-calendar .vanilla-calendar-day__popup .redi-message__arrow {
+    top: unset;
+    bottom: -7px;
+    left: 50%;
+    transform: rotate(-90deg) translateX(-50%);
+  }
+}
+
+.redi-app .redi-datepicker {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.redi-app .redi-datepicker__body {
+  display: flex;
+  align-items: center;
+  gap: 16px 75px;
+}
+
+.redi-app .redi-datepicker__description {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.redi-app .redi-datepicker__subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+}
+
+.redi-app .redi-datepicker__items {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.redi-app .redi-datepicker__item {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 8px;
+  column-gap: 8px;
+  /* white-space: nowrap; */
+}
+
+.redi-app .redi-datepicker__item--full .redi-datepicker__circle {
+  background-color: transparent;
+  color: var(--on-background-or-surface-1-primary);
+  border: 1px solid var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-datepicker__item--part .redi-datepicker__circle {
+  color: var(--on-background-or-surface-1-primary);
+  background-color: var(--helper-2-warning-primary);
+}
+
+.redi-app .redi-datepicker__item--closed .redi-datepicker__circle {
+  background-color: var(--helper-3-negative-pimary);
+}
+
+.redi-app .redi-datepicker__circle {
+  min-width: 21px;
+  width: 21px;
+  height: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 21px;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--on-accent-1-primary);
+  background-color: var(--accent-1-primary-1-default);
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.redi-app .redi-datepicker__text {
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+}
+
+.redi-app .redi-datepicker + .redi-timepicker {
+  margin-top: 40px;
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-datepicker__body {
+    -moz-column-gap: 30px;
+    column-gap: 30px;
+    justify-content: space-between;
+  }
+
+  .redi-app .redi-datepicker__item {
+    white-space: unset;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-datepicker__body {
+    -moz-column-gap: 60px;
+    column-gap: 60px;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 550px) {
+  .redi-app .redi-datepicker__body {
+    -moz-column-gap: 30px;
+    column-gap: 30px;
+  }
+}
+
+@media (max-width: 450px) {
+  .redi-app .redi-datepicker__body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .redi-app .redi-datepicker .redi-calendar {
+    width: 100%;
+    max-width: unset;
+  }
+}
+
+.redi-app .redi-timepicker {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.redi-app .redi-timepicker__body {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+.redi-app .redi-timepicker__nav {
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.redi-app .redi-timepicker__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.redi-app .redi-timepicker__inner {
+  display: flex;
+  overflow-x: auto;
+}
+
+.redi-app .redi-timepicker__nav-button {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.3px;
+  color: rgba(23, 29, 41, 0.54);
+  border: solid #ededee;
+  border-width: 0 0 1px;
+  white-space: nowrap;
+  background-color: transparent;
+}
+
+.redi-app .redi-timepicker__nav-button.active {
+  color: var(--accent-1-primary-1-default);
+  border-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-timepicker__tab {
+  display: grid;
+  grid-template-columns: repeat(5, 90px);
+  gap: 4px;
+}
+
+.redi-app .redi-timepicker__tab:not(.active) {
+  display: none;
+}
+
+.redi-app .redi-timepicker__content {
+  padding: 6px 10px 4px;
+  display: flex;
+  flex-wrap: wrap;
+  text-align: left;
+  border-radius: 4px;
+  border: solid 1px var(--accent-1-primary-1-default);
+  background-color: var(--on-accent-1-primary);
+  cursor: pointer;
+}
+
+.redi-app .redi-timepicker__button {
+  width: 90px;
+  display: flex;
+  position: relative;
+}
+
+.redi-app .redi-timepicker__button input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.redi-app .redi-timepicker__button input:checked + .redi-timepicker__content {
+  color: var(--on-accent-1-primary);
+  border-color: var(--accent-1-primary-1-default);
+  background-color: var(--accent-1-primary-1-default);
+}
+
+.redi-app
+  .redi-timepicker__button
+  input:checked
+  + .redi-timepicker__content
+  .redi-timepicker__message {
+  color: inherit;
+}
+
+.redi-app .redi-timepicker__button input[disabled] + .redi-timepicker__content {
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  color: #c8c9cc;
+  border-color: #c8c9cc;
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-timepicker__button--orange .redi-timepicker__content {
+  border-color: var(--helper-2-warning-primary);
+  background-color: var(--helper-5-warning-secondary);
+}
+
+.redi-app .redi-timepicker__button--red .redi-timepicker__content {
+  border-color: var(--helper-3-negative-pimary);
+  background-color: var(--helper-6-negative-secondary);
+}
+
+.redi-app .redi-timepicker__time {
+  min-width: 47px;
+  font-size: 16px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+}
+
+.redi-app .redi-timepicker__daytime {
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+}
+
+.redi-app .redi-timepicker__message {
+  font-size: 12px;
+  line-height: 1.33;
+  letter-spacing: normal;
+}
+
+.redi-app .redi-timepicker__message--red {
+  color: #ff3c00;
+}
+
+@media (max-width: 500px) {
+  .redi-app .redi-timepicker__tab {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .redi-app .redi-timepicker__button,
+  .redi-app .redi-timepicker__content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .redi-app .redi-timepicker__tab {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.redi-app .redi-rating {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.redi-app .redi-rating.redi-rating-to-set .redi-rating__item {
+  cursor: pointer;
+}
+
+.redi-app .redi-rating__body {
+  max-height: 24px;
+  font-size: 24px;
+  line-height: 1;
+  position: relative;
+}
+
+.redi-app .redi-rating__body:before {
+  content: '★★★★★';
+  display: block;
+  color: #c4c4c4;
+  letter-spacing: 2.2px;
+}
+
+.redi-app .redi-rating__items {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.redi-app .redi-rating__item {
+  margin: 0;
+  flex: 0 0 20%;
+  height: 100%;
+  opacity: 0;
+}
+
+.redi-app .redi-rating__active {
+  height: 24px;
+  width: 0;
+  display: flex;
+}
+
+.redi-app .redi-rating__active,
+.redi-app .redi-rating__active:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.redi-app .redi-rating__active:before {
+  content: '★★★★★';
+  width: 100%;
+  height: 100%;
+  letter-spacing: 2.2px;
+  color: #ffbf42;
+}
+
+.redi-app .redi-rate-form {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 24px;
+}
+
+.redi-app .redi-hero {
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.redi-app .redi-hero .redi-wrapper {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  row-gap: 24px;
+  position: relative;
+}
+
+.redi-app .redi-hero__content {
+  color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-hero__content .redi-h1 {
+  font-size: 100px;
+  line-height: normal;
+  letter-spacing: -3px;
+}
+
+.redi-app .redi-hero--overlay {
+  position: relative;
+}
+
+.redi-app .redi-hero--overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-hero .redi-wrapper {
+    min-height: 137px;
+  }
+
+  .redi-app .redi-hero__content .redi-h1 {
+    font-size: 60px;
+  }
+}
+
+@media (max-width: 391px) {
+  .redi-app .redi-hero__content .redi-h1 {
+    line-height: 0.8;
+  }
+}
+
+.redi-app .redi-layout {
+  padding: 20px 0 24px;
+  /* overflow: hidden; */
+}
+
+.redi-app .redi-layout__route {
+  display: flex;
+  flex-direction: column;
+}
+
+.redi-app .redi-layout__head {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-layout__body {
+  padding-left: 70px;
+}
+
+.redi-app .redi-layout__title {
+  font-size: 30px;
+  line-height: 1.33;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-layout__title {
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: 0.15px;
+    color: rgba(23, 29, 41, 0.75);
+  }
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-layout__body {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-layout {
+    padding-top: 10px;
+  }
+
+  .redi-app .redi-layout__head {
+    row-gap: 10px;
+  }
+}
+
+.redi-app .redi-auth {
+  row-gap: 64px;
+}
+
+.redi-app .redi-auth .redi-layout__body {
+  padding-left: 0;
+}
+
+.redi-app .redi-auth .redi-layout__main {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-auth .redi-button {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-auth .redi-button--facebook span {
+  width: 100%;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-auth {
+    row-gap: 40px;
+  }
+
+  .redi-app .redi-auth .redi-layout__head,
+  .redi-app .redi-auth .redi-layout__main {
+    align-items: center;
+    text-align: center;
+  }
+
+  .redi-app .redi-auth .redi-layout__main {
+    row-gap: 20px;
+  }
+
+  .redi-app .redi-auth .redi-layout__title {
+    max-width: 293px;
+    font-size: 24px;
+    line-height: 1.17;
+    letter-spacing: 0.2px;
+    color: var(--on-background-or-surface-1-primary);
+  }
+
+  .redi-app .redi-auth .redi-button--facebook {
+    width: -moz-fit-content;
+    width: fit-content;
+  }
+}
+
+.redi-app .redi-step-form {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px 60px;
+}
+
+.redi-app .redi-step-form__step {
+  max-width: 465px;
+  width: 100%;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.redi-app .redi-step-form__step:not(.active) {
+  display: none;
+}
+
+.redi-app .redi-step-form__step[data-redi-step='1'] .redi-step-form__buttons {
+  margin-top: 60px;
+}
+
+.redi-app
+  .redi-step-form__step[data-redi-step='1']
+  .redi-place-select
+  + .redi-ranges {
+  margin-top: 40px;
+}
+
+.redi-app .redi-step-form__step[data-redi-step='3'] .redi-step-form__buttons {
+  margin-top: 20px;
+}
+
+.redi-app .redi-step-form__step[data-redi-step='4'] {
+  max-width: 410px;
+}
+
+@media (min-width: 1025px) {
+  .redi-app .redi-step-form__step[data-redi-step='4'] {
+    margin-top: 115px;
+  }
+}
+
+.redi-app .redi-step-form__step[data-redi-step='4'] .redi-step-form__buttons {
+  margin-top: 40px;
+}
+
+.redi-app
+  .redi-step-form__step[data-redi-step='4']
+  .redi-button--facebook
+  span {
+  min-width: 165px;
+}
+
+.redi-app .redi-step-form__main {
+  display: flex;
+  flex-direction: column;
+}
+
+.redi-app .redi-step-form__head {
+  max-width: 600px;
+  padding-left: 23px;
+}
+
+.redi-app .redi-step-form__nav-button {
+  outline-width: 0;
+}
+
+.redi-app .redi-step-form__nav-button:focus-visible {
+  outline-width: 2px;
+}
+
+.redi-app .redi-step-form__head:not(.active) .redi-steps-indicator {
+  display: none;
+}
+
+.redi-app
+  .redi-step-form__head:not(.active)
+  + .redi-step-form__body
+  .redi-step-form__step {
+  margin-top: 21px;
+}
+
+.redi-app .redi-step-form__head.active > *:not(.redi-steps-indicator) {
+  display: none;
+}
+
+.redi-app .redi-step-form__auth {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.redi-app .redi-step-form__body {
+  padding-left: 71px;
+}
+
+.redi-app .redi-step-form__sidebar {
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+@media (min-width: 835px) {
+  .redi-step-form__main {
+    width: 100%;
+  }
+
+  .redi-step-form__sidebar {
+    max-width: 465px;
+    width: 100%;
+  }
+}
+
+.redi-app .redi-step-form__links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  row-gap: 12px;
+}
+
+.redi-app .redi-step-form__buttons {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (min-width: 835px) {
+  .redi-app .redi-step-form__buttons .redi-button--primary {
+    margin-left: auto;
+  }
+}
+
+.redi-app .redi-step-form__congrats {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  color: #81858b;
+}
+
+.redi-app .redi-step-form__congrats .redi-h1,
+.redi-app .redi-step-form__congrats .redi-h2,
+.redi-app .redi-step-form__congrats .redi-h3,
+.redi-app .redi-step-form__congrats .redi-h4,
+.redi-app .redi-step-form__congrats .redi-h5,
+.redi-app .redi-step-form__congrats .redi-h6 {
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-step-form .redi-message {
+  margin-bottom: 10px;
+}
+
+.redi-app .redi-step-form__checkmark {
+  margin-bottom: 8px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--on-accent-1-primary);
+}
+
+.redi-app .redi-step-form__checkmark .redi-icon {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--accent-1-primary-1-default);
+}
+
+@media (min-width: 835px) {
+  .redi-app .redi-step-form__checkmark {
+    display: none;
+  }
+}
+
+@media (min-width: 835px) {
+  .redi-app .redi-step-form .redi-popup__button {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-step-form {
+    -moz-column-gap: 30px;
+    column-gap: 30px;
+  }
+
+  .redi-app .redi-step-form__head,
+  .redi-app .redi-step-form__body {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-step-form {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .redi-app .redi-step-form .redi-reservation-details {
+    display: none;
+  }
+
+  .redi-app .redi-step-form__head {
+    max-width: unset;
+    width: 100%;
+  }
+
+  .redi-app .redi-step-form__auth {
+    align-items: center;
+    text-align: center;
+  }
+
+  .redi-app .redi-step-form__auth .redi-layout__title {
+    font-size: 24px;
+    line-height: 1.17;
+    letter-spacing: 0.2px;
+    color: var(--on-background-or-surface-1-primary);
+  }
+
+  .redi-app .redi-step-form__auth .redi-button--facebook.active {
+    margin-right: -34px;
+  }
+
+  .redi-app .redi-step-form__congrats {
+    margin-top: 14px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .redi-app .redi-step-form__main {
+    width: 100%;
+    align-items: center;
+  }
+
+  .redi-app .redi-step-form__body {
+    max-width: 600px;
+    width: 100%;
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .redi-app .redi-step-form__step {
+    margin-top: 0;
+  }
+
+  .redi-app .redi-step-form__body {
+    margin-top: 16px;
+  }
+
+  .redi-app .redi-step-form__buttons {
+    order: 2;
+    margin-top: 30px !important;
+    flex-direction: column-reverse;
+    align-items: center;
+    row-gap: 30px;
+  }
+
+  .redi-app .redi-step-form__buttons .redi-button:not(.redi-button--underline) {
+    min-width: 165px;
+  }
+
+  .redi-app .redi-step-form__buttons .redi-button--facebook span {
+    min-width: 165px;
+  }
+
+  .redi-app .redi-step-form__links {
+    padding-top: 0;
+    align-items: center;
+    row-gap: 16px;
+  }
+
+  .redi-app .redi-step-form .redi-message {
+    order: 1;
+    margin-top: 24px;
+    margin-bottom: 0 !important;
+  }
+}
+
+.redi-app .redi-view-reservation {
+  row-gap: 55px;
+}
+
+.redi-app .redi-view-reservation .redi-layout__body {
+  display: flex;
+  gap: 40px 215px;
+}
+
+.redi-app .redi-view-reservation .redi-layout__main {
+  max-width: 388px;
+  width: 100%;
+  padding-top: 16px;
+}
+
+.redi-app .redi-view-reservation .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-view-reservation__title {
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto;
+  text-align: center;
+  color: rgba(23, 29, 41, 0.75);
+}
+
+.redi-app .redi-view-reservation__order-info {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px 10px;
+}
+
+.redi-app .redi-view-reservation__contact-info {
+  width: 100%;
+  margin-top: 40px;
+  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  border-top: 2px solid #c8c9cc;
+}
+
+.redi-app .redi-view-reservation__contact-info:not(.active) {
+  display: none;
+}
+
+.redi-app .redi-view-reservation__item {
+  min-width: 55px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 10px;
+  column-gap: 10px;
+}
+
+.redi-app .redi-view-reservation__item--comments {
+  align-items: flex-start;
+}
+
+.redi-app .redi-view-reservation__item--comments [data-default-text] {
+  white-space: pre-wrap;
+}
+
+.redi-app .redi-view-reservation__item .redi-icon {
+  color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-view-reservation__item--date,
+.redi-app .redi-view-reservation__item--time,
+.redi-app .redi-view-reservation__item--guests-qty,
+.redi-app .redi-view-reservation__item--childs-qty {
+  width: calc(50% - 5px);
+}
+
+.redi-app .redi-view-reservation__item--place {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.redi-app .redi-view-reservation__item--address {
+  padding-left: 34px;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+.redi-app .redi-view-reservation__item--address.redi-empty {
+  display: none;
+}
+
+.redi-app .redi-view-reservation__place-name {
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 10px;
+  column-gap: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+}
+
+.redi-app .redi-view-reservation .redi-empty {
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  color: var(--very-light-pink);
+}
+
+@media (min-width: 835px) {
+  .redi-app
+    .redi-view-reservation
+    .redi-button[data-redi-route='active_reservations'],
+  .redi-app .redi-view-reservation .redi-button--primary .redi-icon {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-view-reservation .redi-layout__body {
+    justify-content: space-between;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-view-reservation {
+    padding-top: 14px;
+    row-gap: 34px;
+  }
+
+  .redi-app .redi-view-reservation .redi-layout__head {
+    text-align: center;
+  }
+
+  .redi-app .redi-view-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .redi-app .redi-view-reservation .redi-layout__main {
+    max-width: unset;
+    padding: 0 40px;
+  }
+
+  .redi-app .redi-view-reservation .redi-layout__sidebar {
+    align-items: center;
+    row-gap: 16px;
+  }
+
+  .redi-app .redi-view-reservation .redi-layout__sidebar .redi-button--primary {
+    order: 1;
+    display: flex;
+    align-items: center;
+    -moz-column-gap: 4px;
+    column-gap: 4px;
+    font-size: 14px;
+    font-weight: 400;
+    background-color: transparent;
+    padding: 0;
+    color: var(--accent-1-primary-1-default);
+  }
+
+  .redi-app
+    .redi-view-reservation
+    .redi-layout__sidebar
+    .redi-button--primary
+    .redi-icon {
+    min-width: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .redi-app
+    .redi-view-reservation
+    .redi-layout__sidebar
+    .redi-link[data-redi-route='cancel_reservation'] {
+    order: 0;
+  }
+
+  .redi-app
+    .redi-view-reservation
+    .redi-layout__sidebar
+    .redi-link[data-redi-route='active_reservations'] {
+    order: 2;
+  }
+
+  .redi-app .redi-view-reservation__order-info {
+    row-gap: 16px;
+  }
+
+  .redi-app .redi-view-reservation__contact-info {
+    margin-top: 16px;
+    padding-top: 16px;
+    row-gap: 10px;
+  }
+
+  .redi-app .redi-view-reservation__item--address {
+    font-size: 12px;
+    line-height: 1.33;
+  }
+
+  .redi-app .redi-view-reservation__place-name {
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: 0.15px;
+  }
+}
+
+@media (max-width: 500px) {
+  .redi-app .redi-view-reservation__item {
+    width: 100% !important;
+  }
+}
+
+.redi-app .redi-active-reservations {
+  row-gap: 40px;
+}
+
+.redi-app .redi-active-reservations .redi-layout__head {
+  padding-left: 6px;
+}
+
+.redi-app .redi-active-reservations .redi-layout__body {
+  display: flex;
+  gap: 20px 135px;
+}
+
+.redi-app .redi-active-reservations .redi-layout__main {
+  max-width: 465px;
+  width: 100%;
+}
+
+.redi-app .redi-active-reservations .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-active-reservations .redi-layout__sidebar .redi-button {
+  width: 100%;
+}
+
+.redi-app .redi-active-reservations__list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+.redi-app .redi-active-reservations__card {
+  width: 100%;
+  padding: 12px 20px 12px 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  border-radius: 5px;
+  border: solid 1px var(--very-light-pink);
+  background-color: var(--on-accent-1-primary);
+  transition: 0.3s;
+}
+
+.redi-app .redi-active-reservations__card:hover {
+  border-color: var(--accent-1-primary-1-default);
+  box-shadow: 0 15px 20px -10px rgba(0, 0, 0, 0.1);
+}
+
+.redi-app .redi-active-reservations__card:hover .redi-link {
+  color: var(--accent-1-primary-1-default) !important;
+}
+
+.redi-app .redi-active-reservations__card .redi-link {
+  margin-left: auto;
+  color: #81858b !important;
+}
+
+.redi-app .redi-active-reservations__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 10px;
+  column-gap: 10px;
+}
+
+.redi-app .redi-active-reservations__item .redi-icon {
+  color: var(--accent-1-primary-1-default);
+}
+
+.redi-app .redi-active-reservations__item--date,
+.redi-app .redi-active-reservations__item--time,
+.redi-app .redi-active-reservations__item--guests-qty {
+  width: calc(50% - 5px);
+}
+
+.redi-app .redi-active-reservations__item--childs-qty {
+  width: calc(50% - 50px);
+}
+
+.redi-app .redi-active-reservations__item--place {
+  margin-top: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.redi-app .redi-active-reservations__item--address {
+  padding-left: 34px;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+.redi-app .redi-active-reservations__place-name {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 10px;
+  column-gap: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-active-reservations .redi-layout__body {
+    justify-content: space-between;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-active-reservations {
+    padding-top: 14px;
+    row-gap: 16px;
+  }
+
+  .redi-app .redi-active-reservations .redi-layout__head {
+    text-align: center;
+  }
+
+  .redi-app .redi-active-reservations .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .redi-app .redi-active-reservations .redi-layout__main {
+    max-width: unset;
+  }
+
+  .redi-app .redi-active-reservations__list {
+    width: calc(100% + 6px);
+    margin-right: -6px;
+    max-height: 450px;
+    overflow: auto;
+  }
+
+  .redi-app .redi-active-reservations__list::-webkit-scrollbar {
+    width: 8px;
+    border-radius: 2px;
+  }
+
+  .redi-app .redi-active-reservations__list::-webkit-scrollbar-track {
+    background: #c8c9cc;
+    border-radius: 2px;
+    border-left: 4px solid var(--on-accent-1-primary);
+  }
+
+  .redi-app .redi-active-reservations__list::-webkit-scrollbar-thumb {
+    background: var(--accent-1-primary-1-default);
+    border-left: 4px solid var(--on-accent-1-primary);
+    border-radius: 2px;
+  }
+
+  .redi-app .redi-active-reservations__item--address {
+    font-size: 12px;
+    line-height: 1.33;
+  }
+
+  .redi-app .redi-active-reservations__place-name {
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: 0.15px;
+  }
+}
+
+@media (max-width: 500px) {
+  .redi-app .redi-active-reservations__card {
+    padding-bottom: 8px;
+    row-gap: 6px;
+  }
+
+  .redi-app .redi-active-reservations__item--place {
+    margin-top: 4px;
+  }
+
+  .redi-app .redi-active-reservations__item--guests-qty,
+  .redi-app .redi-active-reservations__item--childs-qty {
+    display: none;
+  }
+
+  .redi-app .redi-active-reservations__item--date,
+  .redi-app .redi-active-reservations__item--time {
+    width: -moz-fit-content;
+    width: fit-content;
+  }
+
+  .redi-app .redi-active-reservations__item--date {
+    margin-right: auto;
+  }
+
+  .redi-app .redi-active-reservations__item--time .redi-icon {
+    display: none;
+  }
+}
+
+.redi-app .redi-cancel-reservation {
+  row-gap: 40px;
+}
+
+.redi-app .redi-update-reservation {
+  row-gap: 40px;
+}
+
+.redi-app .redi-cancel-reservation .redi-layout__head {
+  padding-left: 6px;
+}
+
+.redi-app .redi-cancel-reservation .redi-layout__body {
+  display: flex;
+  gap: 24px 235px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+/* зміни 25,08,24 */
+
+.redi-app .redi-cancel-reservation .redi-layout__main,
+.redi-app .redi-update-reservation .redi-layout__main {
+  max-width: 365px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-cancel-reservation .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-cancel-reservation .redi-layout__sidebar .redi-button {
+  width: 100%;
+}
+
+.redi-app .redi-cancel-reservation__form {
+  display: flex;
+  flex-direction: column;
+  /* row-gap: 24px; */
+}
+.redi-app .redi-cancel-reservation__form .redi-field {
+  margin-bottom: 24px;
+}
+
+.redi-app .redi-cancel-reservation__form .redi-message {
+  width: 100%;
+  margin-bottom: 9px;
+}
+
+.redi-app .redi-cancel-reservation__buttons {
+  max-width: 223px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-cancel-reservation__buttons .redi-button {
+  min-width: unset;
+  width: 100%;
+}
+
+.redi-app .redi-cancel-reservation--end {
+  padding-top: 80px;
+}
+
+.redi-app .redi-cancel-reservation--end .redi-h1,
+.redi-app .redi-cancel-reservation--end .redi-h2,
+.redi-app .redi-cancel-reservation--end .redi-h3,
+.redi-app .redi-cancel-reservation--end .redi-h4,
+.redi-app .redi-cancel-reservation--end .redi-h5,
+.redi-app .redi-cancel-reservation--end .redi-h6 {
+  color: var(--on-background-or-surface-1-primary);
+}
+
+.redi-app .redi-cancel-reservation--end .redi-layout__body {
+  -moz-column-gap: 135px;
+  column-gap: 135px;
+}
+
+.redi-app .redi-cancel-reservation--end .redi-layout__main {
+  max-width: 465px;
+  row-gap: 16px;
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-cancel-reservation {
+    padding-top: 14px;
+    row-gap: 20px;
+  }
+
+  .redi-app .redi-cancel-reservation .redi-layout__head {
+    text-align: center;
+  }
+
+  .redi-app .redi-cancel-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .redi-app .redi-cancel-reservation .redi-layout__main {
+    max-width: unset;
+    align-items: center;
+  }
+
+  .redi-app .redi-cancel-reservation__form {
+    max-width: 400px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .redi-app .redi-cancel-reservation--end {
+    min-height: calc(100dvh - 150px);
+    justify-content: center;
+  }
+
+  .redi-app .redi-cancel-reservation--end .redi-h3 {
+    font-size: 30px;
+    line-height: 1.33;
+    letter-spacing: normal;
+  }
+}
+
+.redi-app .redi-modify-reservation {
+  row-gap: 40px;
+}
+
+.redi-app .redi-white_list-reservation {
+  row-gap: 40px;
+}
+
+.redi-app .redi-modify-reservation .redi-layout__head {
+  padding-left: 6px;
+}
+
+.redi-app .redi-modify-reservation .redi-layout__body {
+  display: flex;
+  gap: 24px 235px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+.redi-app .redi-update-reservation .redi-layout__body {
+  display: flex;
+  gap: 24px 235px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+.redi-app .redi-white_list-reservation .redi-layout__body {
+  display: flex;
+  gap: 24px 235px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+/* ///зміни 25,08,24//// */
+@media (max-width: 1024px) {
+  .redi-app .redi-cancel-reservation .redi-layout__body,
+  .redi-app .redi-update-reservation .redi-layout__body,
+  .redi-app .redi-white_list-reservation .redi-layout__body {
+    justify-content: space-between;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+  }
+}
+
+.redi-app .redi-modify-reservation .redi-layout__main {
+  max-width: 365px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-modify-reservation .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-update-reservation .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-white_list-reservation .redi-layout__sidebar {
+  max-width: 330px;
+  width: 100%;
+}
+
+.redi-app .redi-modify-reservation .redi-layout__sidebar .redi-button {
+  width: 100%;
+}
+
+.redi-app .redi-update-reservation .redi-layout__sidebar .redi-button {
+  width: 100%;
+}
+
+.redi-app .redi-white_list-reservation .redi-layout__sidebar .redi-button {
+  width: 100%;
+}
+
+.redi-app .redi-modify-reservation__form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-update-reservation__form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-white_list-reservation__form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.redi-app .redi-modify-reservation__form .redi-message {
+  width: 100%;
+}
+
+.redi-app .redi-modify-reservation__buttons {
+  max-width: 223px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-update-reservation__buttons {
+  max-width: 223px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-modify-reservation__buttons .redi-button {
+  min-width: unset;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-modify-reservation .redi-layout__body {
+    justify-content: space-between;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-modify-reservation {
+    padding-top: 14px;
+    row-gap: 20px;
+  }
+  .redi-app .redi-update-reservation {
+    padding-top: 14px;
+    row-gap: 20px;
+  }
+  .redi-app .redi-white_list-reservation {
+    padding-top: 14px;
+    row-gap: 20px;
+  }
+
+  .redi-app .redi-modify-reservation .redi-layout__head {
+    text-align: center;
+  }
+  .redi-app .redi-update-reservation .redi-layout__head {
+    text-align: center;
+  }
+  .redi-app .redi-white_list-reservation .redi-layout__head {
+    text-align: center;
+  }
+
+  .redi-app .redi-modify-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .redi-app .redi-update-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .redi-app .redi-white_list-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .redi-app .redi-modify-reservation .redi-layout__main {
+    max-width: unset;
+    align-items: center;
+  }
+  .redi-app .redi-update-reservation .redi-layout__main {
+    max-width: unset;
+    align-items: center;
+  }
+  .redi-app .redi-white_list-reservation .redi-layout__main {
+    max-width: unset;
+    align-items: center;
+  }
+
+  .redi-app .redi-modify-reservation__form {
+    max-width: 400px;
+    width: 100%;
+    align-items: center;
+  }
+  .redi-app .redi-update-reservation__form {
+    max-width: 400px;
+    width: 100%;
+    align-items: center;
+  }
+  .redi-app .redi-white_list-reservation__form {
+    max-width: 400px;
+    width: 100%;
+    align-items: center;
+  }
+}
+
+.redi-app .redi-find-reservation {
+  row-gap: 40px;
+}
+
+.redi-app .redi-find-reservation .redi-layout__head {
+  padding-left: 6px;
+}
+
+.redi-app .redi-find-reservation .redi-layout__body {
+  display: flex;
+  gap: 235px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  color: #81858b;
+}
+
+.redi-app .redi-find-reservation .redi-layout__main {
+  max-width: 365px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.redi-app .redi-find-reservation__form {
+  max-width: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  row-gap: 8px;
+}
+
+.redi-app .redi-find-reservation__form .redi-button--facebook {
+  width: 100%;
+}
+
+.redi-app .redi-find-reservation__form .redi-button--facebook span {
+  width: 100%;
+}
+
+.redi-app .redi-find-reservation__buttons {
+  margin-top: 38px;
+  max-width: 223px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  row-gap: 20px;
+}
+
+.redi-app .redi-find-reservation__buttons .redi-button {
+  min-width: unset;
+  width: 100%;
+}
+
+div.services-left {
+  display: none;
+  background: var(--accent-1-primary-1-default);
+  padding: 10px;
+  color: var(--on-accent-1-primary);
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+@media (max-width: 1024px) {
+  .redi-app .redi-find-reservation .redi-layout__body {
+    justify-content: space-between;
+    -moz-column-gap: 20px;
+    column-gap: 20px;
+  }
+}
+
+@media (max-width: 834px) {
+  .redi-app .redi-find-reservation {
+    padding-top: 14px;
+    row-gap: 20px;
+  }
+
+  .redi-app .redi-find-reservation .redi-layout__head {
+    text-align: center;
+  }
+
+  .redi-app .redi-find-reservation .redi-layout__body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .redi-app .redi-find-reservation .redi-layout__main {
+    max-width: unset;
+    align-items: center;
+    row-gap: 24px;
+  }
+
+  .redi-app .redi-find-reservation__buttons {
+    align-items: center;
+    align-self: center;
+    row-gap: 14px;
+  }
+}
+
+
+
+/* Root container */
+.calendar-container {
+  padding-bottom: 1rem; /* pb-4 */
+}
+
+/* Loading text styling */
+.redi-loading-text {
+  font-size: 12px;
+}
+
+/* Centering wrapper */
+.calendar-container .flex {
+  display: flex;
+}
+
+.calendar-container .flex-col {
+  flex-direction: column;
+}
+
+.calendar-container .items-center {
+  align-items: center;
+}
+
+.calendar-container .justify-center {
+  justify-content: center;
+}
+
+/* Padding top/bottom 12 (py-12) */
+.calendar-container .py-12 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Space between dots (space-x-2) */
+.calendar-container .space-x-2 > * + * {
+  margin-left: 0.5rem; /* 8px */
+}
+
+/* Margin bottom 4 (mb-4) */
+.calendar-container .mb-4 {
+  margin-bottom: 1rem;
+}
+
+/* Rounded full (circular shape) */
+.calendar-container .rounded-full {
+  border-radius: 9999px;
+}
+
+/* Size of dots (h-4 w-4 = 16px) */
+.calendar-container .h-4 {
+  height: 1rem;
+}
+.calendar-container .w-4 {
+  width: 1rem;
+}
+
+/* Primary color (bg-primary) — customize if needed */
+.calendar-container .bg-primary {
+  background-color: hsl(213 100% 50%); /* WordPress blue as default */
+}
+
+/* Text gray (text-gray-500) */
+.calendar-container .text-gray-500 {
+  color: #6b7280;
+}
+
+/* Pulse animation (animate-pulse) */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.calendar-container .animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.text-adress {
+  color: #000 !important; 
+}

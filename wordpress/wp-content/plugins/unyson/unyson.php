@@ -1,9 +1,9 @@
 <?php if ( ! defined( 'ABSPATH' ) ) die( 'Forbidden' );
 /**
- * Plugin Name: Unyson
+ * Plugin Name: Unyson Versión 2.7.26 
  * Plugin URI: http://unyson.io/
  * Description: A free drag & drop framework that comes with a bunch of built in extensions that will help you develop premium themes fast & easy.
- * Version: 2.7.19
+ * Version: 2.7.26
  * Author: ThemeFuse
  * Author URI: http://themefuse.com
  * License: GPL2+

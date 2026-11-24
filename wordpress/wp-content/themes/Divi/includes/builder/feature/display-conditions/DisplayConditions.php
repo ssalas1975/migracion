@@ -2,7 +2,7 @@
 /**
  * Display Conditions functionalities (tracking post visits etc.) used site wide.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Display Conditions functionalities to be used site wide.
  *
- * @since 4.11.0
+ * @since ??
  */
 class ET_Builder_Display_Conditions {
 
@@ -42,98 +42,13 @@ class ET_Builder_Display_Conditions {
 	 * Init actions and filters needed for Display Condition's functionality
 	 */
 	public function __construct() {
-		add_filter( 'et_module_process_display_conditions', array( $this, 'process_display_conditions' ), 10, 3 );
-		add_filter( 'et_is_display_conditions_functionality_enabled', array( $this, 'check_if_wp_version_is_sufficient' ) );
-		add_action( 'wp', array( $this, 'post_visit_set_cookie' ) );
-		add_action( 'template_redirect', array( $this, 'number_of_views_set_cookie' ) );
-		add_action( 'save_post', array( $this, 'save_tracking_post_ids' ), 10, 3 );
-		add_action( 'delete_post', array( $this, 'delete_tracking_post_ids' ), 10, 1 );
-	}
-
-	/**
-	 * Processes "Display Conditions" of a module and decides whether to display a module or not.
-	 *
-	 * We do need to render the module first and then decide to keep it or not, This is because we want the styles of
-	 * the module (shortcode) and any nested modules inside it to get registered so "Dynamic Assets" would include the
-	 * styles of all modules used on the page. Ref: https://github.com/elegantthemes/Divi/issues/24965
-	 *
-	 * @since 4.13.1
-	 *
-	 * @param string             $output           HTML output of the rendered module.
-	 * @param string             $render_method    The render method used to render the module, Typically it's either
-	 *                                             'render' or 'render_as_builder_data` @see ET_Builder_Element::_render().
-	 *
-	 * @param ET_Builder_Element $element_instance The current instance of ET_Builder_Element.
-	 *
-	 * @return string                              HTML output of the rendered module if conditions are met, Empty otherwise.
-	 */
-	public function process_display_conditions( $output, $render_method, $element_instance ) {
-		/**
-		 * Filters "Display Conditions" functionality to determine whether to enable or disable the functionality or not.
-		 *
-		 * Useful for disabling/enabling "Display Condition" feature site-wide.
-		 *
-		 * @since 4.13.1
-		 *
-		 * @param boolean True to enable the functionality, False to disable it.
-		 */
-		$is_display_conditions_enabled = apply_filters( 'et_is_display_conditions_functionality_enabled', true );
-
-		if ( ! $is_display_conditions_enabled ) {
-			return $output;
+		// No Display Conditions related Hooks if below WordPress 5.3.
+		if ( version_compare( get_bloginfo( 'version' ), '5.3', '>=' ) ) {
+			add_action( 'wp', array( $this, 'et_display_conditions_post_visit_set_cookie' ) );
+			add_action( 'template_redirect', array( $this, 'et_display_conditions_number_of_views_set_cookie' ) );
+			add_action( 'save_post', array( $this, 'et_display_conditions_save_tracking_post_ids' ), 10, 3 );
+			add_action( 'delete_post', array( $this, 'et_display_conditions_delete_tracking_post_ids' ), 10, 1 );
 		}
-
-		// Setup variables.
-		$is_displayable                        = true;
-		$is_display_conditions_set             = isset( $element_instance->props['display_conditions'] ) && ! empty( $element_instance->props['display_conditions'] );
-		$is_display_conditions_as_base64_empty = 'W10=' === $element_instance->props['display_conditions'];
-		$has_display_conditions                = $is_display_conditions_set && ! $is_display_conditions_as_base64_empty;
-
-		// Check if display_conditions attribute is defined, Decode the data and check if it is displayable.
-		if ( $has_display_conditions ) {
-			$display_conditions_json = base64_decode( $element_instance->props['display_conditions'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode  -- The returned data is an array and necessary validation checks are performed.
-		}
-		if ( $has_display_conditions && false !== $display_conditions_json ) {
-			$display_conditions = json_decode( $display_conditions_json, true );
-			$is_displayable     = \ET_Builder_Module_Fields_Factory::get( 'DisplayConditions' )->is_displayable( $display_conditions );
-		}
-
-		$is_vb_ajax_nonce_valid = isset( $_POST['et_pb_process_computed_property_nonce'] ) && wp_verify_nonce( sanitize_text_field( $_POST['et_pb_process_computed_property_nonce'] ), 'et_pb_process_computed_property_nonce' );
-
-		// Check if we're rendering on frontend, Then decide whether to keep the output or erase it.
-		if ( 'render' === $render_method ) {
-			if ( wp_doing_ajax() && $is_vb_ajax_nonce_valid && et_pb_is_pagebuilder_used( get_the_ID() ) ) {
-				// "Blog Module" in VB will be rendered like a normal frontend request not as builder data, Here we retain the output
-				// so it will always be visible in VB ignoring Display Conditions Ref: https://github.com/elegantthemes/Divi/issues/23309, https://github.com/elegantthemes/Divi/issues/25463.
-				$output = $output;
-			} elseif ( 'et_pb_post_content' === $element_instance->slug && ! $is_displayable && et_core_is_fb_enabled() ) {
-				// When VB is loaded and "Post Content" Module is used in TB and it's not displayable, set the correct
-				// output so it'd be displayed in VB and TB respectively Ref: https://github.com/elegantthemes/Divi/issues/23479.
-				$output = $output;
-			} else {
-				// All other scenarios will fall here, Normal frontend request, AJAX frontend request, etc.
-				$output = ( $is_displayable ) ? $output : '';
-			}
-		}
-
-		return $output;
-	}
-
-	/**
-	 * Checks if WordPress version is sufficient for "Display Conditions" feature.
-	 *
-	 * @since 4.13.1
-	 *
-	 * @param boolean $is_display_conditions_enabled True if "Display Conditions" functionality is enabled, False if it's disabled.
-	 *
-	 * @return boolean True if WordPress version is sufficient & "Display Condition" functionality is enabled, False otherwise.
-	 */
-	public function check_if_wp_version_is_sufficient( $is_display_conditions_enabled ) {
-		/**
-		 * We intentionally check `$is_display_conditions_enabled` to avoid enabling the functionality if it has been
-		 * disabled via `add_filter()` with lower priority sooner.
-		 */
-		return version_compare( get_bloginfo( 'version' ), '5.3', '>=' ) && $is_display_conditions_enabled ? true : false;
 	}
 
 	/**
@@ -142,7 +57,7 @@ class ET_Builder_Display_Conditions {
 	 * This data will be used to only track the Posts which are selected by the user
 	 * It is to keep the PageVisit/PostVisit related Cookie minimal and under 4KB limitation.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  int     $post_id Post ID which is being saved.
 	 * @param  WP_Post $post    Post object which is being saved.
@@ -150,21 +65,7 @@ class ET_Builder_Display_Conditions {
 	 *
 	 * @return void
 	 */
-	public function save_tracking_post_ids( $post_id, $post, $update ) {
-		/**
-		 * Filters "Display Conditions" functionality to determine whether to enable or disable the functionality or not.
-		 *
-		 * Useful for disabling/enabling "Display Condition" feature site-wide.
-		 *
-		 * @since 4.13.1
-		 *
-		 * @param boolean True to enable the functionality, False to disable it.
-		 */
-		$is_display_conditions_enabled = apply_filters( 'et_is_display_conditions_functionality_enabled', true );
-
-		if ( ! $is_display_conditions_enabled ) {
-			return;
-		}
+	public function et_display_conditions_save_tracking_post_ids( $post_id, $post, $update ) {
 
 		/**
 		 * Validation and Security Checks.
@@ -267,28 +168,13 @@ class ET_Builder_Display_Conditions {
 	 * This data will be used to only track the Posts which are selected by the user
 	 * It is to keep the PageVisit/PostVisit related Cookie minimal and under 4KB limitation.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  int $post_id Post ID which is being deleted.
 	 *
 	 * @return void
 	 */
-	public function delete_tracking_post_ids( $post_id ) {
-		/**
-		 * Filters "Display Conditions" functionality to determine whether to enable or disable the functionality or not.
-		 *
-		 * Useful for disabling/enabling "Display Condition" feature site-wide.
-		 *
-		 * @since 4.13.1
-		 *
-		 * @param boolean True to enable the functionality, False to disable it.
-		 */
-		$is_display_conditions_enabled = apply_filters( 'et_is_display_conditions_functionality_enabled', true );
-
-		if ( ! $is_display_conditions_enabled ) {
-			return;
-		}
-
+	public function et_display_conditions_delete_tracking_post_ids( $post_id ) {
 		$post               = get_post( $post_id );
 		$wp_option          = get_option( 'et_display_conditions_tracking_post_ids', null );
 		$is_wp_option_exist = is_array( $wp_option ) && ! empty( $wp_option );
@@ -330,26 +216,11 @@ class ET_Builder_Display_Conditions {
 	/**
 	 * Sets a cookie based on page visits so Page/Post Visit Display Conditions would function as expected.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @return void
 	 */
-	public function post_visit_set_cookie() {
-		/**
-		 * Filters "Display Conditions" functionality to determine whether to enable or disable the functionality or not.
-		 *
-		 * Useful for disabling/enabling "Display Condition" feature site-wide.
-		 *
-		 * @since 4.13.1
-		 *
-		 * @param boolean True to enable the functionality, False to disable it.
-		 */
-		$is_display_conditions_enabled = apply_filters( 'et_is_display_conditions_functionality_enabled', true );
-
-		if ( ! $is_display_conditions_enabled ) {
-			return;
-		}
-
+	public function et_display_conditions_post_visit_set_cookie() {
 		if ( ! is_singular() ) {
 			return;
 		}
@@ -367,10 +238,7 @@ class ET_Builder_Display_Conditions {
 		}
 
 		if ( isset( $_COOKIE['divi_post_visit'] ) ) {
-			$new_cookie = json_decode( base64_decode( $_COOKIE['divi_post_visit'] ), true ); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode  -- Cookie is not stored or displayed therefore XSS safe, base64_decode returned data is an array and necessary validation checks are performed.
-		}
-
-		if ( $new_cookie && is_array( $new_cookie ) ) {
+			$new_cookie              = json_decode( base64_decode( $_COOKIE['divi_post_visit'] ), true ); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode  -- Cookie is not stored or displayed therefore XSS safe, base64_decode returned data is an array and necessary validation checks are performed.
 			$has_visited_page_before = array_search( $current_post_id, array_column( $new_cookie, 'id' ), true );
 		}
 
@@ -386,25 +254,11 @@ class ET_Builder_Display_Conditions {
 	/**
 	 * Sets a cookie based on how many times a module is displayed so "Number of Views" Condition would function as expected.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @return void
 	 */
-	public function number_of_views_set_cookie() {
-		/**
-		 * Filters "Display Conditions" functionality to determine whether to enable or disable the functionality or not.
-		 *
-		 * Useful for disabling/enabling "Display Condition" feature site-wide.
-		 *
-		 * @since 4.13.1
-		 *
-		 * @param boolean True to enable the functionality, False to disable it.
-		 */
-		$is_display_conditions_enabled = apply_filters( 'et_is_display_conditions_functionality_enabled', true );
-
-		if ( ! $is_display_conditions_enabled ) {
-			return;
-		}
+	public function et_display_conditions_number_of_views_set_cookie() {
 
 		// Do not run on VB itself.
 		if ( et_core_is_fb_enabled() ) {
@@ -450,17 +304,16 @@ class ET_Builder_Display_Conditions {
 	 * Checks "NumberOFViews" conditions against respective $_COOKIE content and updates/reset the
 	 * condition when necessary.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
-	 * @param  array $display_conditions_attrs Array of base64 encoded conditions.
+	 * @param  array $display_conditions_attrs Array of conditions as base64 encoded data.
 	 *
 	 * @return array
 	 */
 	public function number_of_views_process_conditions( $display_conditions_attrs ) {
-		$is_cookie_set    = isset( $_COOKIE['divi_module_views'] );
+		$is_cookie_set    = isset( $_COOKIE['divi_module_views'] ) ? true : false;
 		$current_datetime = current_datetime();
-		$decoded_cookie   = $is_cookie_set ? json_decode( base64_decode( $_COOKIE['divi_module_views'] ), true ) : []; // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode  -- Cookie is not stored or displayed therefore XSS safe, The returned data is an array and necessary validation checks are performed.
-		$cookie           = is_array( $decoded_cookie ) ? $decoded_cookie : [];
+		$cookie           = $is_cookie_set ? json_decode( base64_decode( $_COOKIE['divi_module_views'] ), true ) : []; // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput, WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode  -- Cookie is not stored or displayed therefore XSS safe, The returned data is an array and necessary validation checks are performed.
 
 		// Decode NumberOfViews conditions one by one then set or update cookie.
 		foreach ( $display_conditions_attrs as $condition_base64 ) {

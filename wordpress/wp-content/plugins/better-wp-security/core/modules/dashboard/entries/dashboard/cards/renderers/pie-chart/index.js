@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 import { DateRangeControl } from '@ithemes/security-ui';

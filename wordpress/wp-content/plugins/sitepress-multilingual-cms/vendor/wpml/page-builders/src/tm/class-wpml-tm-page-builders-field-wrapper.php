@@ -1,50 +1,32 @@
 <?php
-/**
- * WPML_TM_Page_Builders_Field_Wrapper class file.
- *
- * @package wpml-page-builders
- */
 
-/**
- * Class WPML_TM_Page_Builders_Field_Wrapper
- */
 class WPML_TM_Page_Builders_Field_Wrapper {
 	const SLUG_BASE = 'package-string-';
 
 	/**
-	 * Field slug.
-	 *
 	 * @var string
 	 */
 	private $field_slug;
 
 	/**
-	 * Package id.
-	 *
 	 * @var int
 	 */
 	private $package_id;
 
 	/**
-	 * String id.
-	 *
 	 * @var int
 	 */
 	private $string_id;
 
 	/**
-	 * WPML_TM_Page_Builders_Field_Wrapper constructor.
-	 *
-	 * @param string $field_slug Field slug.
+	 * @param string $field_slug
 	 */
 	public function __construct( $field_slug ) {
 		$this->field_slug = $field_slug;
 	}
 
 	/**
-	 * Check if package is valid.
-	 *
-	 * @param bool $package_must_exist Demand existence of the package.
+	 * @param bool $package_must_exist
 	 *
 	 * @return bool
 	 */
@@ -58,8 +40,6 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get package id.
-	 *
 	 * @return false|int
 	 */
 	public function get_package_id() {
@@ -71,8 +51,6 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get package.
-	 *
 	 * @return WPML_Package|null
 	 */
 	public function get_package() {
@@ -84,9 +62,7 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get string id.
-	 *
-	 * @return false|int|string
+	 * @return false|int
 	 */
 	public function get_string_id() {
 		if ( null === $this->string_id ) {
@@ -97,8 +73,6 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get field slug.
-	 *
 	 * @return string
 	 */
 	public function get_field_slug() {
@@ -106,17 +80,12 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get string type.
-	 *
 	 * @return false|string
 	 */
 	public function get_string_type() {
 		$result = false;
 		if ( $this->is_valid( true ) ) {
 			$package_strings = $this->get_package()->get_package_strings();
-			if ( ! $package_strings ) {
-				return false;
-			}
 			$package_strings = wp_list_pluck( $package_strings, 'type', 'id' );
 			$result          = $package_strings[ $this->get_string_id() ];
 		}
@@ -125,21 +94,8 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get string wrap tag.
-	 *
-	 * @param stdClass $string WPML string.
-	 *
-	 * @return string
-	 */
-	public static function get_wrap_tag( $string ) {
-		return isset( $string->wrap_tag ) ? $string->wrap_tag : '';
-	}
-
-	/**
-	 * Generate field slug.
-	 *
-	 * @param int $package_id Package id.
-	 * @param int $string_id  String id.
+	 * @param int $package_id
+	 * @param int $string_id
 	 *
 	 * @return string
 	 */
@@ -148,11 +104,9 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Extract string id.
+	 * @param string $field_slug
 	 *
-	 * @param string $field_slug Field slug.
-	 *
-	 * @return false|int|string
+	 * @return int|false
 	 */
 	private function extract_string_id( $field_slug ) {
 		$result = false;
@@ -165,11 +119,9 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Extract string package id.
+	 * @param string $field_slug
 	 *
-	 * @param string $field_slug Field slug.
-	 *
-	 * @return false|int|string
+	 * @return int|false
 	 */
 	private function extract_string_package_id( $field_slug ) {
 		$result = false;
@@ -183,7 +135,6 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 
 	/**
 	 * Get string title.
-	 *
 	 * @return string|boolean
 	 */
 	public function get_string_title() {

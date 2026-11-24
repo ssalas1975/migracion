@@ -1,8 +1,8 @@
 <?php
 
 /*
- * Twitter by United Themes
- * http://www.unitedthemes.com/
+ * UT Twitter Widget 
+ * by www.unitedthemes.com
  */
 
 class WP_UT_Widget_Twitter extends WP_Widget {
@@ -11,7 +11,7 @@ class WP_UT_Widget_Twitter extends WP_Widget {
 	
     function __construct() {
 		$widget_ops = array('classname' => 'ut_widget_twitter', 'description' => __( 'Displays simple Twitter tweets', 'ut_lang') );
-		parent::__construct('lw_ut_twitter', __('United Themes - Twitter', 'ut_lang'), $widget_ops);
+		parent::__construct('lw_ut_twitter', __('UnitedThemes - Twitter', 'ut_lang'), $widget_ops);
 		$this->alt_option_name = 'ut_widget_twitter';
 
 	}
@@ -55,20 +55,20 @@ class WP_UT_Widget_Twitter extends WP_Widget {
         if(empty($count) )
         $count = 3;	
         
-        /* Set access tokens here - see: https://dev.twitter.com/apps/ */
-       if( empty($twitter_options['oauth_access_token']) || empty($twitter_options['oauth_access_token_secret']) || empty($twitter_options['consumer_key']) || empty($twitter_options['consumer_secret']) ) {
+        /** Set access tokens here - see: https://dev.twitter.com/apps/ **/
+        $settings = array(
+            'oauth_access_token' => $twitter_options['oauth_access_token'],
+            'oauth_access_token_secret' => $twitter_options['oauth_access_token_secret'],
+            'consumer_key' => $twitter_options['consumer_key'],
+            'consumer_secret' => $twitter_options['consumer_secret']
+        );
+        
+		if( empty($twitter_options['oauth_access_token']) || empty($twitter_options['oauth_access_token_secret']) || empty($twitter_options['consumer_key']) || empty($twitter_options['consumer_secret']) ) {
 		
 			_e( 'Please make sure you have entered all necessary Twitter API Keys under Dashboard -> Settings -> Twitter' , 'ut_lang');
 		
 		} else {		
-		    
-             $settings = array(
-                'oauth_access_token' => $twitter_options['oauth_access_token'],
-                'oauth_access_token_secret' => $twitter_options['oauth_access_token_secret'],
-                'consumer_key' => $twitter_options['consumer_key'],
-                'consumer_secret' => $twitter_options['consumer_secret']
-            );            
-                                            
+		                                
             $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
             $getfield = '?count='.$count;
             $requestMethod = 'GET';
@@ -94,7 +94,7 @@ class WP_UT_Widget_Twitter extends WP_Widget {
             
             if( empty($tweets) ) {
                 
-                return '<div class="ut-alert themecolor">'.__('An Error has occured, no Twitter Feeds are available','ut_lang').'</div>';
+                return '<div class="ut-alert themecolor">'.__('An Error has occured, no Twitter Feeds are available','ut_shortcodes').'</div>';
                 
             } else {        
                                     
@@ -127,13 +127,13 @@ class WP_UT_Widget_Twitter extends WP_Widget {
                                 
                                     <div class="tweet-left">
                                         
-                                        <img src="<?php echo $tweet->user->profile_image_url_https; ?>">
+                                        <img src="<?php echo $tweet->user->profile_image_url; ?>">
                                         
                                         <div class="clear"></div>
                                         
                                         <span class="tweet-actions">
-                                            <a href="https://twitter.com/intent/favorite?tweet_id=<?php echo $tweet->id_str; ?>" title="Favorite" rel="nofollow"><i class="icon-star icon-2"></i></a>
-                                            <a href="https://twitter.com/intent/retweet?tweet_id=<?php echo $tweet->id_str; ?>" title="Retweet" rel="nofollow"><i class="icon-refresh icon-2"></i></a>
+                                            <a href="https://twitter.com/intent/favorite?tweet_id=<?php echo $tweet->id; ?>" title="Favorite" rel="nofollow"><i class="icon-star icon-2"></i></a>
+                                            <a href="https://twitter.com/intent/retweet?tweet_id=<?php echo $tweet->id; ?>" title="Retweet" rel="nofollow"><i class="icon-refresh icon-2"></i></a>
                                         </span>
                                         
                                     </div>
@@ -145,10 +145,10 @@ class WP_UT_Widget_Twitter extends WP_Widget {
                                     </div>
                                     
                                     <div class="clear"></div>
-                                                                        
+                                    
                                     <div class="tweet-bottom clearfix">
                                     
-                                        <span class="tweet_time"><a href="http://twitter.com/<?php echo $tweet->user->screen_name; ?>/status/<?php echo $tweet->id_str; ?>"><?php _e('about', 'ut_lang'); ?> <?php echo $days; ?></a></span>
+                                        <span class="tweet_time"><a href="http://twitter.com/<?php echo $tweet->user->screen_name; ?>/status/<?php echo $tweet->id; ?>"><?php _e('about', 'ut_lang'); ?> <?php echo $days; ?></a></span>
                                         
                                     </div>
                                     

@@ -1,5 +1,14 @@
 <?php
 
+/* 
+Description: Creates a set of nice icons
+Author: UnitedThemes 
+Version: 1.0 
+Author URI: http://www.unitedthemes.com 
+License: GNU General Public License version 3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+*/
+
 //Split path to locate wordpress root!
 $absolute_path = __FILE__;
 $path_to_file = explode( 'wp-content', $absolute_path );
@@ -8,8 +17,6 @@ $path_to_wp = $path_to_file[0];
 // Access to WordPress
 require_once( $path_to_wp . '/wp-load.php' );
 $themepath = get_template_directory_uri();
-
-$jqueryuiprefix =  ( get_bloginfo('version') < "4.1" ) ? 'jquery.ui.' : '';
 
 ?>
 
@@ -20,16 +27,16 @@ $jqueryuiprefix =  ( get_bloginfo('version') < "4.1" ) ? 'jquery.ui.' : '';
     <title><?php _e('Icon Generator', 'ut_shortcodes' ); ?></title>
         
         <link rel="stylesheet" href="<?php echo plugins_url( 'css/ut.style.css' , __FILE__ ); ?>" />
-        <link rel="stylesheet" href="'//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css'" />
+        <link rel="stylesheet" href="<?php echo plugins_url( '../css/font-awesome.css' , __FILE__ ); ?>" />
         <link rel="stylesheet" href="<?php echo get_option('siteurl') ?>/wp-admin/css/color-picker.css" />
                 
         <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.js"></script>
-		<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>core.min.js"></script>
-		<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>widget.min.js"></script>
+		<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.core.min.js"></script>
+		<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.widget.min.js"></script>
         
-        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>mouse.min.js"></script>
-        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>draggable.min.js"></script>
-        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>slider.min.js"></script>
+        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.mouse.min.js"></script>
+        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.draggable.min.js"></script>
+        <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.slider.min.js"></script>
         <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.ui.touch-punch.js"></script>
         
         <script type='text/javascript'>
@@ -367,7 +374,7 @@ $jqueryuiprefix =  ( get_bloginfo('version') < "4.1" ) ? 'jquery.ui.' : '';
     <div id="ic-manager" class="ut-admin">
     	
         <header>
-            <h2><span><?php _e('Icon Generator', 'ut_shortcodes' ); ?></span></h2>
+            <h2><span><i class="icon-foursquare"></i><?php _e('Icon Generator', 'ut_shortcodes' ); ?></span></h2>
         </header>
     	
 		<h4 class="sc-clabel">

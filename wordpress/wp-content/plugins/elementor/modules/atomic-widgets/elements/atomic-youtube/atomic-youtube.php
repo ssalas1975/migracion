@@ -7,7 +7,6 @@ use Elementor\Modules\AtomicWidgets\Controls\Types\Text_Control;
 use Elementor\Modules\AtomicWidgets\DynamicTags\Dynamic_Prop_Type;
 use Elementor\Modules\AtomicWidgets\Elements\Base\Atomic_Widget_Base;
 use Elementor\Modules\AtomicWidgets\Elements\Base\Has_Template;
-use Elementor\Modules\AtomicWidgets\Elements\Base\Html_Tag_Computer;
 use Elementor\Modules\AtomicWidgets\PropTypes\Classes_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Attributes_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\Boolean_Prop_Type;
@@ -41,15 +40,11 @@ class Atomic_Youtube extends Atomic_Widget_Base {
 	}
 
 	public function get_keywords() {
-		return [ 'ato', 'atom', 'atoms', 'atomic', 'youtube', 'video', 'embed', 'media' ];
+		return [ 'ato', 'atom', 'atoms', 'atomic' ];
 	}
 
 	public function get_icon() {
 		return 'eicon-e-youtube';
-	}
-
-	public static function get_computed_html_tag( array $settings ): string {
-		return Html_Tag_Computer::compute( $settings, 'div' );
 	}
 
 	protected static function define_props_schema(): array {
@@ -58,8 +53,7 @@ class Atomic_Youtube extends Atomic_Widget_Base {
 				->default( [] ),
 
 			'source' => String_Prop_Type::make()
-				->default( 'https://www.youtube.com/watch?v=XHOmBV4js_E' )
-				->alias( 'url', 'video' ),
+				->default( 'https://www.youtube.com/watch?v=XHOmBV4js_E' ),
 
 			'start' => String_Prop_Type::make()->meta( Dynamic_Prop_Type::ignore() ),
 			'end' => String_Prop_Type::make()->meta( Dynamic_Prop_Type::ignore() ),
@@ -80,7 +74,6 @@ class Atomic_Youtube extends Atomic_Widget_Base {
 		return [
 			Section::make()
 				->set_label( __( 'Content', 'elementor' ) )
-				->set_id( 'content' )
 				->set_items( [
 					Text_Control::bind_to( 'source' )
 						->set_placeholder( esc_html__( 'Type or paste your URL', 'elementor' ) )
@@ -147,16 +140,5 @@ class Atomic_Youtube extends Atomic_Widget_Base {
 		return [
 			'elementor/elements/atomic-youtube' => __DIR__ . '/atomic-youtube.html.twig',
 		];
-	}
-
-	public function render_markdown(): string {
-		$settings = $this->get_atomic_settings();
-		$url = $settings['source'] ?? '';
-
-		if ( empty( $url ) ) {
-			return '';
-		}
-
-		return '[Video](' . esc_url( $url ) . ')';
 	}
 }

@@ -1,0 +1,41 @@
+@charset "utf-8";
+/* CSS Document */
+/*
+tipografías */
+@font-face {
+    font-family: 'WorkSans Regular';
+    src: url('WorkSans-Regular.eot');
+    src: url('WorkSans-Regular.eot?#iefix') format('embedded-opentype'),
+url('WorkSans-Regular.woff') format('woff'),
+url('WorkSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'WorkSans SemiBold';
+    src: url('WorkSans-SemiBold.eot');
+    src: url('WorkSans-SemiBold.eot?#iefix') format('embedded-opentype'),
+url('WorkSans-SemiBold.woff') format('woff'),
+url('WorkSans-SemiBold.ttf') format('truetype');
+    font-weight:normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'WorkSans Bold';
+    src: url('WorkSans-Bold.eot');
+    src: url('WorkSans-Bold.eot?#iefix') format('embedded-opentype'),
+url('WorkSans-Bold.woff') format('woff'),
+url('WorkSans-Bold.ttf') format('truetype');
+    font-weight:normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Butler Stencil Bold';
+    src: url('butler_bold_stencil-webfont.eot');
+    src: url('butler_bold_stencil-webfont.eot?#iefix') format('embedded-opentype'),
+url('butler_bold_stencil-webfont.woff2') format('woff2'),
+url('butler_bold_stencil-webfont.woff') format('woff'),
+url('butler_bold_stencil-webfont.ttf') format('truetype');
+    font-weight:normal;
+    font-style: normal;
+}

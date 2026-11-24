@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component\Host\Serializer;
+namespace Rowbot\URL\Component\Host\Serializer;
 
 class StringHostSerializer implements HostSerializerInterface {
 	/**

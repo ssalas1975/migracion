@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna;
+namespace Rowbot\Idna;
 
 class DomainInfo {
 	/**

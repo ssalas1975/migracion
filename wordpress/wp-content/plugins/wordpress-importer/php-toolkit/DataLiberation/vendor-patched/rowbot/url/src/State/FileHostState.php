@@ -2,13 +2,13 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\State;
+namespace Rowbot\URL\State;
 
-use VendorPrefix\Rowbot\URL\Component\Host\HostParser;
-use VendorPrefix\Rowbot\URL\Component\Host\StringHost;
-use VendorPrefix\Rowbot\URL\ParserContext;
-use VendorPrefix\Rowbot\URL\ParserState;
-use VendorPrefix\Rowbot\URL\String\CodePoint;
+use Rowbot\URL\Component\Host\HostParser;
+use Rowbot\URL\Component\Host\StringHost;
+use Rowbot\URL\ParserContext;
+use Rowbot\URL\ParserState;
+use Rowbot\URL\String\CodePoint;
 
 /**
  * @see https://url.spec.whatwg.org/#file-host-state

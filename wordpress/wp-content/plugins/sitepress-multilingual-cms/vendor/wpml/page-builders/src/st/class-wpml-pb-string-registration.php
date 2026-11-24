@@ -14,9 +14,7 @@ class WPML_PB_String_Registration {
 	/** @var WPML_Translate_Link_Targets $translate_link_targets */
 	private $translate_link_targets;
 
-	/** @var callable $set_link_translations */
-	private $set_link_translations;
-
+	private $active_languages;
 	/** @var  bool $migration_mode */
 	private $migration_mode;
 
@@ -27,7 +25,7 @@ class WPML_PB_String_Registration {
 	 * @param WPML_ST_String_Factory $string_factory
 	 * @param WPML_ST_Package_Factory $package_factory
 	 * @param WPML_Translate_Link_Targets $translate_link_targets
-	 * @param callable $set_link_translations
+	 * @param array $active_languages
 	 * @param bool $migration_mode
 	 */
 	public function __construct(
@@ -35,14 +33,14 @@ class WPML_PB_String_Registration {
 		WPML_ST_String_Factory $string_factory,
 		WPML_ST_Package_Factory $package_factory,
 		WPML_Translate_Link_Targets $translate_link_targets,
-		callable $set_link_translations,
+		array $active_languages,
 		$migration_mode = false
 	) {
 		$this->strategy               = $strategy;
 		$this->string_factory         = $string_factory;
 		$this->package_factory        = $package_factory;
 		$this->translate_link_targets = $translate_link_targets;
-		$this->set_link_translations  = $set_link_translations;
+		$this->active_languages       = $active_languages;
 		$this->migration_mode         = $migration_mode;
 	}
 
@@ -67,27 +65,16 @@ class WPML_PB_String_Registration {
 	}
 
 	/**
-	 * Register string.
+	 * @param int $post_id
+	 * @param string $content
+	 * @param string $type
+	 * @param string $title
+	 * @param string $name
+	 * @param int $location
 	 *
-	 * @param int    $post_id  Post Id.
-	 * @param string $content  String content.
-	 * @param string $type     String editor type.
-	 * @param string $title    String title.
-	 * @param string $name     String name.
-	 * @param int    $location String location.
-	 * @param string $wrap_tag String wrap tag.
-	 *
-	 * @return null|integer $string_id
+	 * @return int $string_id
 	 */
-	public function register_string(
-		$post_id,
-		$content = '',
-		$type = 'LINE',
-		$title = '',
-		$name = '',
-		$location = 0,
-		$wrap_tag = ''
-	) {
+	public function register_string( $post_id, $content = '', $type = 'LINE', $title = '', $name = '', $location = 0 ) {
 
 		$string_id = 0;
 
@@ -98,7 +85,7 @@ class WPML_PB_String_Registration {
 			if ( $this->migration_mode ) {
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
-				$this->update_string_data( $string_id, $location, $wrap_tag );
+				$this->set_location( $string_id, $location );
 
 			} else {
 
@@ -112,10 +99,10 @@ class WPML_PB_String_Registration {
 				do_action( 'wpml_register_string', $string_value, $string_name, $package, $string_title, $type );
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
-				$this->update_string_data( $string_id, $location, $wrap_tag );
+				$this->set_location( $string_id, $location );
 
 				if ( 'LINK' === $type ) {
-					call_user_func( $this->set_link_translations, $string_id );
+					$this->set_link_translations( $string_id );
 				}
 			}
 		}
@@ -124,16 +111,33 @@ class WPML_PB_String_Registration {
 	}
 
 	/**
-	 * Update string data: location and wrap tag.
-	 * Wrap tag is used for SEO significance, can contain values as h1 ... h6, etc.
-	 *
-	 * @param int    $string_id String id.
-	 * @param string $location  String location inside of the page builder content.
-	 * @param string $wrap_tag  String wrap tag for SEO significance.
+	 * @param int $string_id
+	 * @param int $location
 	 */
-	private function update_string_data( $string_id, $location, $wrap_tag ) {
+	private function set_location( $string_id, $location ) {
 		$string = $this->string_factory->find_by_id( $string_id );
 		$string->set_location( $location );
-		$string->set_wrap_tag( $wrap_tag );
+	}
+
+	private function set_link_translations( $string_id ) {
+		$string   = $this->string_factory->find_by_id( $string_id );
+		$statuses = $string->get_translation_statuses();
+		foreach ( $this->active_languages as $language ) {
+			$language = $language['code'];
+			if ( $language != $string->get_language() ) {
+				$value = $this->has_translation( $statuses, $language ) ? null : $string->get_value();
+				$string->set_translation( $language, $value );
+			}
+		}
+	}
+
+	private function has_translation( $statuses, $language ) {
+		foreach ( $statuses as $status ) {
+			if ( $status->language == $language ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

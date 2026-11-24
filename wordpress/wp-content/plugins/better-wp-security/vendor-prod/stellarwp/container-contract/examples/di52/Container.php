@@ -1,11 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace iThemesSecurity\Strauss\Your\Namespace;
+namespace Your\Namespace;
 
-use iThemesSecurity\Strauss\StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\ContainerContract\ContainerInterface;
 
 // If you are including lucatume\DI52 using Strauss (recommended), then:
-use iThemesSecurity\Strauss\Your\Namespace\lucatume\DI52\Container as DI52Container;
+use Your\Namespace\lucatume\DI52\Container as DI52Container;
 
 // If you are including lucatume\DI52 directly, then you'd want to do:
 // use lucatume\DI52\Container as DI52Container;

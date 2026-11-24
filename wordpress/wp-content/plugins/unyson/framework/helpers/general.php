@@ -484,7 +484,7 @@ function fw_attr_to_html( array $attr_array ) {
 function fw_stripslashes_deep_keys( $value ) {
 	static $magic_quotes = null;
 	if ( $magic_quotes === null ) {
-		$magic_quotes = function_exists('get_magic_quotes_gpc') ? get_magic_quotes_gpc() : false;
+		$magic_quotes = false; //https://www.php.net/manual/en/function.get-magic-quotes-gpc.php - always returns FALSE as of PHP 5.4.0. false fixes https://github.com/ThemeFuse/Unyson/issues/3915
 	}
 
 	if ( is_array( $value ) ) {
@@ -516,7 +516,7 @@ function fw_stripslashes_deep_keys( $value ) {
 function fw_addslashes_deep_keys( $value ) {
 	static $magic_quotes = null;
 	if ( $magic_quotes === null ) {
-		$magic_quotes = function_exists('get_magic_quotes_gpc') ? get_magic_quotes_gpc() : false;
+		$magic_quotes = false;
 	}
 
 	if ( is_array( $value ) ) {
@@ -1342,7 +1342,13 @@ function fw_get_google_fonts_v2() {
 function fw_current_url() {
 	static $url = null;
 	if ( $url === null ) {
-		$url = get_option( 'home' );
+		if ( is_multisite() && ! ( defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ) ) {
+			switch_to_blog( 1 );
+			$url = get_option( 'home' );
+			restore_current_blog();
+		} else {
+			$url = get_option( 'home' );
+		}
 
 		//Remove the "//" before the domain name
 		$url = ltrim( fw_get_url_without_scheme( $url ), '/' );

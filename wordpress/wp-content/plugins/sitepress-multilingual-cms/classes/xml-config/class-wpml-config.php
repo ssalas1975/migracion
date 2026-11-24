@@ -270,16 +270,12 @@ class WPML_Config {
 	static function parse_wpml_config_files() {
 		$config_all['wpml-config'] = array(
 			'custom-fields'              => array(),
-			'custom-fields-texts'        => array(),
 			'custom-term-fields'         => array(),
 			'custom-types'               => array(),
 			'taxonomies'                 => array(),
 			'admin-texts'                => array(),
 			'language-switcher-settings' => array(),
 			'shortcodes'                 => array(),
-			'shortcode-list'             => array(),
-			'gutenberg-blocks'           => array(),
-			'built-with-page-builder'    => array(),
 		);
 
 		$config_all_updated = false;
@@ -372,8 +368,6 @@ class WPML_Config {
 			$wpml_config_all = self::parse_config_index( $wpml_config_all, $wpml_config, 'custom-type', 'custom-types' );
 			$wpml_config_all = self::parse_config_index( $wpml_config_all, $wpml_config, 'taxonomy', 'taxonomies' );
 			$wpml_config_all = self::parse_config_index( $wpml_config_all, $wpml_config, 'shortcode', 'shortcodes' );
-			$wpml_config_all = self::parse_config_index( $wpml_config_all, $wpml_config, 'gutenberg-block', 'gutenberg-blocks' );
-			$wpml_config_all = self::parse_config_index( $wpml_config_all, $wpml_config, 'key', 'custom-fields-texts' );
 
 			//language-switcher-settings
 			if ( isset( $wpml_config['language-switcher-settings']['key'] ) ) {
@@ -385,15 +379,6 @@ class WPML_Config {
 					}
 				}
 			}
-
-			if ( isset( $wpml_config['shortcode-list']['value'] ) ) {
-				$wpml_config_all['shortcode-list'] = array_merge( $wpml_config_all['shortcode-list'], explode( ',', $wpml_config['shortcode-list']['value'] ) );
-			}
-
-			if ( isset( $wpml_config['built-with-page-builder']['value'] ) ) {
-				$wpml_config_all['built-with-page-builder'] = $wpml_config['built-with-page-builder']['value'];
-			}
-
 			$all_configs['wpml-config'] = $wpml_config_all;
 		}
 
@@ -405,10 +390,11 @@ class WPML_Config {
 	 */
 	protected static function parse_custom_fields( $config ) {
 		/** @var TranslationManagement $iclTranslationManagement */
-		global $iclTranslationManagement;
+		global $iclTranslationManagement, $wpdb;
 
 		$setting_factory = $iclTranslationManagement->settings_factory();
-		$import          = new WPML_Custom_Field_XML_Settings_Import( $setting_factory, $config['wpml-config'] );
+		$import          = new WPML_Custom_Field_XML_Settings_Import( $wpdb,
+			$setting_factory, $config['wpml-config'] );
 		$import->run();
 	}
 

@@ -4,13 +4,12 @@
  * @author OnTheGo Systems
  */
 class WPML_Term_Element extends WPML_Translation_Element {
-	/** @var string Taxonomy name */
 	protected $taxonomy;
 
 	/**
 	 * WPML_Term_Element constructor.
 	 *
-	 * @param int           $id term_id of Term Element.
+	 * @param int           $id
 	 * @param SitePress     $sitepress
 	 * @param string        $taxonomy
 	 * @param WPML_WP_Cache $wpml_cache
@@ -23,7 +22,7 @@ class WPML_Term_Element extends WPML_Translation_Element {
 	/**
 	 * @return array|null|WP_Error|WP_Term
 	 */
-	public function get_wp_object() {
+	function get_wp_object() {
 		$has_filter = remove_filter( 'get_term', array( $this->sitepress, 'get_term_adjust_id' ), 1 );
 
 		$term = get_term( $this->id, $this->taxonomy );
@@ -40,7 +39,7 @@ class WPML_Term_Element extends WPML_Translation_Element {
 	 *
 	 * @return string
 	 */
-	public function get_type( $term = null ) {
+	function get_type( $term = null ) {
 		if ( ! $this->taxonomy && $term && ! is_wp_error( $term ) ) {
 			$this->taxonomy = $term->taxonomy;
 		}
@@ -57,7 +56,7 @@ class WPML_Term_Element extends WPML_Translation_Element {
 		return $element_type;
 	}
 
-	public function get_element_id() {
+	function get_element_id() {
 		$element_id = null;
 		$term       = $this->get_wp_object();
 
@@ -72,17 +71,17 @@ class WPML_Term_Element extends WPML_Translation_Element {
 	 * @param null|stdClass $element_data null, or a standard object containing at least the `translation_id`, `language_code`, `element_id`, `source_language_code`, `element_type`, and `original` properties.
 	 *
 	 * @return WPML_Term_Element
-	 * @throws \InvalidArgumentException Exception.
+	 * @throws \InvalidArgumentException
 	 */
-	public function get_new_instance( $element_data ) {
+	function get_new_instance( $element_data ) {
 		return new WPML_Term_Element( $element_data->element_id, $this->sitepress, $this->taxonomy, $this->wpml_cache );
 	}
 
-	public function is_translatable() {
+	function is_translatable() {
 		return $this->sitepress->is_translated_taxonomy( $this->get_wp_element_type() );
 	}
 
-	public function is_display_as_translated() {
+	function is_display_as_translated() {
 		return $this->sitepress->is_display_as_translated_taxonomy( $this->get_wp_element_type() );
 	}
 

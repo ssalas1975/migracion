@@ -6,8 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Shortcode attributes
  * @var $atts
+ * @var $css
  * Shortcode class
- * @var WPBakeryShortCode_Vc_TweetMeMe $this
+ * @var $this WPBakeryShortCode_VC_TweetMeMe
  */
 
 $atts = vc_map_get_attributes( $this->getShortcode(), $atts );
@@ -16,26 +17,26 @@ $tweet_btn_text = '';
 $type = $atts['type'];
 
 switch ( $type ) {
-	case 'follow':
-		$tweet_btn_text = esc_html__( 'Follow', 'js_composer' );
+	case "follow":
+		$tweet_btn_text = __( 'Follow', 'js_composer' );
 		break;
 
-	case 'mention':
-		$tweet_btn_text = esc_html__( 'Tweet to', 'js_composer' );
+	case "mention":
+		$tweet_btn_text = __( 'Tweet to', 'js_composer' );
 		break;
 
-	case 'share':
-	case 'hashtag':
-		$tweet_btn_text = esc_html__( 'Tweet', 'js_composer' );
+	case "share":
+	case "hashtag":
+		$tweet_btn_text = __( 'Tweet', 'js_composer' );
 		break;
 	default:
 		$type = 'share';
-		$tweet_btn_text = esc_html__( 'Tweet', 'js_composer' );
+		$tweet_btn_text = __( 'Tweet', 'js_composer' );
 		break;
 }
 $data = array();
 $classes = array();
-$class_to_filter = 'vc_tweetmeme-element' . vc_shortcode_custom_css_class( $atts['css'], ' ' ) . $this->getCSSAnimation( $atts['css_animation'] ) . $this->getExtraClass( $atts['el_class'] );
+$class_to_filter = 'vc_tweetmeme-element' . vc_shortcode_custom_css_class( $atts['css'], ' ' );
 $el_class = apply_filters( VC_SHORTCODE_CUSTOM_CSS_FILTER_TAG, $class_to_filter, $this->getShortcode(), $atts );
 if ( ! empty( $atts['large_button'] ) ) {
 	$data['data-size'] = 'large';
@@ -61,19 +62,19 @@ if ( 'share' === $type ) {
 	if ( ! empty( $atts['share_hashtag'] ) ) {
 		$data['data-hashtags'] = $atts['share_hashtag'];
 	}
-} elseif ( 'follow' === $type ) {
+} else if ( 'follow' === $type ) {
 	$url = 'https://twitter.com/';
 	$classes[] = 'twitter-follow-button';
 	if ( ! empty( $atts['follow_user'] ) ) {
 		$url .= esc_attr( $atts['follow_user'] );
 		$tweet_btn_text .= ' @' . esc_attr( $atts['follow_user'] );
 	}
-	if ( 'yes' !== $atts['follow_show_username'] ) {
-		$data['data-show-screen-name'] = 'false';
+	if ( 'yes' != $atts['follow_show_username'] ) {
+		$data['data-show-screen-name'] = "false";
 	}
-	$data['data-show-count'] = ( ! ! $atts['show_followers_count'] ) ? 'true' : 'false';
+	$data['data-show-count'] = ( ! ! $atts['show_followers_count'] ) ? "true" : "false";
 
-} elseif ( 'hashtag' === $type ) {
+} else if ( 'hashtag' === $type ) {
 	$url = 'https://twitter.com/intent/tweet?';
 	$classes[] = 'twitter-hashtag-button';
 	$url_atts = array();
@@ -99,7 +100,7 @@ if ( 'share' === $type ) {
 	if ( 'yes' !== $atts['hashtag_no_url'] ) {
 		$data['data-url'] = $atts['hashtag_custom_tweet_url'];
 	}
-} elseif ( 'mention' === $type ) {
+} else if ( 'mention' === $type ) {
 	$url = 'https://twitter.com/intent/tweet?';
 	$classes[] = 'twitter-mention-button';
 	$url_atts = array();
@@ -131,15 +132,9 @@ $data_imploded = array();
 foreach ( $data as $k => $v ) {
 	$data_imploded[] = $k . '="' . esc_attr( $v ) . '"';
 }
-$wrapper_attributes = array();
-if ( ! empty( $atts['el_id'] ) ) {
-	$wrapper_attributes[] = 'id="' . esc_attr( $atts['el_id'] ) . '"';
-}
-$wrapper = '<div ' . implode( ' ', $wrapper_attributes ) . ' class="' . esc_attr( $el_class ) . '">';
+$wrapper = '<div class="' . esc_attr( $el_class ) . '">';
 $template = '<a href="' . esc_url( $url ) . '" class="' . esc_attr( implode( ' ', $classes ) ) . '" ' . implode( ' ', $data_imploded ) . '>' . $tweet_btn_text . '</a>';
-$custom_tag = 'script';
-$template .= '<' . $custom_tag . '>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</' . $custom_tag . '>';
+$template .= '<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?\'http\':\'https\';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+\'://platform.twitter.com/widgets.js\';fjs.parentNode.insertBefore(js,fjs);}}(document, \'script\', \'twitter-wjs\');</script>';
 $wrapper .= $template;
 $wrapper .= '</div>';
-
-return $wrapper;
+echo $wrapper;

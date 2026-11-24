@@ -109,7 +109,7 @@ class Red_Url_Encode {
 			// No leading slash
 			$url = ltrim( $url, '/' );
 
-			// If pattern has a ^ at the start then ensure we don't have a slash immediately after
+			// If pattern has a ^ at the start then ensure we don't have a slash immediatley after
 			$url = (string) preg_replace( '@^\^/@', '^', $url );
 
 			$url = $this->replace_encoding(
@@ -120,7 +120,7 @@ class Red_Url_Encode {
 					'%28' => '(',
 					'%29' => ')',
 					'%5B' => '[',
-					'%5D' => ']',
+					'%5C' => ']',
 					'%24' => '$',
 					'%2B' => '+',
 					'%7C' => '|',

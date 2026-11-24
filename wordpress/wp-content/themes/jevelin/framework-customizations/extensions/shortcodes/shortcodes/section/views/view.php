@@ -3,7 +3,7 @@
 /* Section HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 
 	$animated = ( isset( $atts['animation'] ) && $atts['animation'] != 'none' ) ? ' sh-animated '. $atts['animation'] : '';
 	$animated_delay = ( $animated && $atts['animation_delay'] ) ? ' data-wow-delay="'. $atts['animation_delay'] .'s" ' : '';

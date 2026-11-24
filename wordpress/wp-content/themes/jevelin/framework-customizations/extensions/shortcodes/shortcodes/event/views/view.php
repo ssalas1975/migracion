@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* Event HTML
 /*-----------------------------------------------------------------------------------*/
@@ -14,7 +14,7 @@ $button_name = ( isset( $atts['button_name'] ) ) ? $atts['button_name'] : esc_at
 	<div class="sh-event-container sh-columns">
 		<div>
 			<h3 class="sh-event-title"><?php echo esc_attr( $title ); ?></h3>
-			<div class="sh-event-desc"><?php echo esc_attr( $desc ); ?></div>
+			<div class="sh-event-desc"><?php echo wp_kses_post( $desc ); ?></div>
 		</div>
 		<div>
 			<a href="<?php echo esc_url( $button_link ); ?>" class="sh-event-button">

@@ -2,34 +2,53 @@
 /**
  * Post format - Video
  */
+$style = !isset( $style ) ? jevelin_post_option( get_queried_object_id(), 'page-blog-style' ) : $style;
+$video_url  = jevelin_post_option( get_the_ID(), 'post-video' );
+$video_file = jevelin_post_option( get_the_ID(), 'post-video-file' );
+$video_file_url = ( isset( $video_file['url'] ) && $video_file['url'] ) ? $video_file['url'] : '';
+$video_content = '';
 
-if( !isset($style) ) :
-	$style = jevelin_post_option( get_queried_object_id(), 'page-blog-style' );
+
+if( $video_url ) :
+	$video_content = '
+	<div class="post-meta-video">
+		<div class="ratio-container">
+			<div class="ratio-content">
+				' . ( wp_oembed_get( $video_url ) ) . '
+			</div>
+		</div>
+	</div>';
+elseif( $video_file_url ) :
+	$video_content = '
+	<div class="post-meta-video">
+		<div class="ratio-container">
+			<div class="ratio-content">
+
+				<video id="post-player" playsinline controls>
+					<source src="'. esc_url( $video_file_url ) .'" type="video/' . esc_attr( pathinfo( parse_url( $video_file_url, PHP_URL_PATH ), PATHINFO_EXTENSION) ) . '" />
+				</video>
+				<script type="text/javascript">
+					const player = new Plyr(\'#post-player\', { \'settings\': [] });
+				</script>
+
+			</div>
+		</div>
+	</div>';
 endif;
 
-/* Layout for masonry style */
-if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
-?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+/* Layout for masonry style */
+if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) : ?>
+
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-				<div class="post-meta-video">
-					<div class="ratio-container">
-						<div class="ratio-content">
-							<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-						</div>
-					</div>
-				</div>
-			<?php else : ?>
-				<div class="post-meta-thumb"></div>
-			<?php endif; ?>
+			<?php echo ( $video_content ); ?>
 
 			<div class="post-content-container">
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-					<h2>
+					<h2 itemprop="headline">
 						<?php jevelin_sticky_post(); ?>
 						<?php the_title(); ?>
 					</h2>
@@ -39,7 +58,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 					<?php jevelin_meta_one(); ?>
 				</div>
 
-				<div class="post-content">
+				<div class="post-content" itemprop="text">
 					<?php the_excerpt(); ?>
 				</div>
 
@@ -53,39 +72,28 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 
 	<?php
 		/* Layout for Masonry version 2 */
-		elseif( $style == 'masonry masonry2' ) :
+		elseif( $style == 'masonry masonry2' || $style == 'grid masonry2' ) :
 	?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-				<div class="post-meta-video">
-					<div class="ratio-container">
-						<div class="ratio-content">
-							<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-						</div>
-					</div>
-				</div>
-			<?php else : ?>
-				<div class="post-meta-thumb"></div>
-			<?php endif; ?>
+			<?php echo ( $video_content ); ?>
 
 			<div class="post-content-container">
-
 				<div class="post-meta post-meta-one">
 					<?php jevelin_meta_one(); ?>
 				</div>
 
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-					<h2>
+					<h2 itemprop="headline">
 						<?php jevelin_sticky_post(); ?>
 						<?php the_title(); ?>
 					</h2>
 				</a>
 
-				<div class="post-content">
+				<div class="post-content" itemprop="text">
 					<?php if( jevelin_option( 'post_desc', 45 ) == 45 ) : ?>
 						<?php echo wp_trim_words( get_the_excerpt() , '17' ); ?>
 					<?php else : ?>
@@ -107,22 +115,14 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif( $style == 'grid' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-				<div class="post-meta-video">
-					<div class="ratio-container">
-						<div class="ratio-content">
-							<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-						</div>
-					</div>
-				</div>
-			<?php endif; ?>
+			<?php echo ( $video_content ); ?>
 
 			<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-				<h2>
+				<h2 itemprop="headline">
 					<?php jevelin_sticky_post(); ?>
 					<?php the_title(); ?>
 				</h2>
@@ -132,7 +132,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 				<?php jevelin_meta_one(); ?>
 			</div>
 
-			<div class="post-content">
+			<div class="post-content" itemprop="text">
 				<?php the_excerpt(); ?>
 			</div>
 
@@ -149,22 +149,14 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif ( $style == 'mix masonry2' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 
 			<div class="row">
 				<div class="col-md-6 post-column-left">
 
 					<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
-					<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-						<div class="post-meta-video">
-							<div class="ratio-container">
-								<div class="ratio-content">
-									<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-								</div>
-							</div>
-						</div>
-					<?php endif; ?>
+					<?php echo ( $video_content ); ?>
 
 				</div>
 				<div class="col-md-6 post-column-right">
@@ -176,13 +168,13 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 							</div>
 
 							<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-								<h2>
+								<h2 itemprop="headline">
 									<?php jevelin_sticky_post(); ?>
 									<?php the_title(); ?>
 								</h2>
 							</a>
 
-							<div class="post-content">
+							<div class="post-content" itemprop="text">
 								<?php
 								$excerpt = preg_replace( '#<script(.*?)>(.*?)</script>#is', '', get_the_excerpt() );
 								if( jevelin_option( 'post_desc', 45 ) == 45 ) : ?>
@@ -210,22 +202,14 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif( $style == 'minimalistic' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-				<div class="post-meta-video">
-					<div class="ratio-container">
-						<div class="ratio-content">
-							<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-						</div>
-					</div>
-				</div>
-			<?php endif; ?>
+			<?php echo ( $video_content ); ?>
 
 			<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-				<h2>
+				<h2 itemprop="headline">
 					<?php jevelin_sticky_post(); ?>
 					<?php the_title(); ?>
 				</h2>
@@ -235,7 +219,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 				<?php jevelin_meta_two(); ?>
 			</div>
 
-			<div class="post-content">
+			<div class="post-content" itemprop="text">
 				<?php the_excerpt(); ?>
 			</div>
 
@@ -253,27 +237,21 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif( $style == 'medium' || $style == 'small' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container sh-group">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
+			<?php if( $video_content ) : ?>
 				<div class="post-left-side">
 
-					<div class="post-meta-video">
-						<div class="ratio-container">
-							<div class="ratio-content">
-								<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
-							</div>
-						</div>
-					</div>
+					<?php echo ( $video_content ); ?>
 
 				</div>
 			<?php endif; ?>
 			<div class="post-right-side">
 
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-					<h2>
+					<h2 itemprop="headline">
 						<?php jevelin_sticky_post(); ?>
 						<?php the_title(); ?>
 					</h2>
@@ -283,7 +261,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 					<?php jevelin_meta_one(); ?>
 				</div>
 
-				<div class="post-content">
+				<div class="post-content" itemprop="text">
 					<?php the_excerpt(); ?>
 				</div>
 
@@ -305,21 +283,43 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
-			<?php if( jevelin_post_option( get_the_ID(), 'post-video' ) ) : ?>
-				<div class="post-meta-video">
-					<div class="ratio-container">
-						<div class="ratio-content">
-							<?php echo wp_oembed_get( jevelin_post_option( get_the_ID(), 'post-video' ) ); ?>
+			<?php if( !is_single() ) : ?>
+				<?php echo ( $video_content ); ?>
+			<?php else : ?>
+				<?php if( $video_url ) : ?>
+					<div class="post-meta-video">
+						<div class="ratio-container">
+							<div class="ratio-content">
+								<?php echo wp_oembed_get( $video_url ); ?>
+							</div>
 						</div>
 					</div>
+
+				<?php elseif( $video_file_url ) : ?>
+
+					<video id="post-player" playsinline controls>
+					    <source src="<?php echo ( $video_file_url ); ?>" type="video/<?php echo pathinfo( parse_url( $video_file_url, PHP_URL_PATH ), PATHINFO_EXTENSION); ?>" />
+					</video>
+					<script type="text/javascript">
+						jQuery(document).ready(function ($) {
+							const player = new Plyr('#post-player', { 'settings': [] });
+						});
+					</script>
+
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php if( jevelin_post_option( get_the_ID(), 'post-copyrights' ) ) : ?>
+				<div class="post-copyrights">
+					<?php echo ( jevelin_post_option( get_the_ID(), 'post-copyrights' ) ); ?>
 				</div>
 			<?php endif; ?>
 
 			<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
 				<?php if( !is_single() ) : ?>
-					<h2><?php the_title(); ?></h2>
+					<h2 itemprop="headline"><?php the_title(); ?></h2>
 				<?php else : ?>
-					<h1><?php the_title(); ?></h1>
+					<h1 itemprop="headline"><?php the_title(); ?></h1>
 				<?php endif; ?>
 			</a>
 
@@ -333,7 +333,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 			</div>
 
 			<?php if( get_the_excerpt() || the_content() ) : ?>
-				<div class="post-content">
+				<div class="post-content" itemprop="text">
 					<?php
 						if( !is_single() ) :
 							the_excerpt();

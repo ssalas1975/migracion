@@ -50,7 +50,7 @@ if( !class_exists('Widget_Portfolio') ) :
 				if( $key == 'limit' ) :
 					$enter = ( $instance[ $key ] === $titles[ $key ] ) ? '6' : $instance[ $key ];
 				else :
-					$enter = ( $instance[ $key ] === $titles[ $key ] ) ? 'Latest Projects' : $instance[ $key ];
+					$enter = ( $instance[ $key ] === $titles[ $key ] ) ? esc_attr__( 'Latest Projects', 'jevelin' ) : $instance[ $key ];
 				endif;
 				?>
 				<p>

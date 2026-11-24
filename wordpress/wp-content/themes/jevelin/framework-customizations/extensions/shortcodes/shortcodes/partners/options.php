@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -59,18 +59,33 @@ $options = array(
 		'type'    => 'tab',
 		'options' => array(
 
+
 			'columns' => array(
 				'type'    => 'radio',
 				'label'   => esc_html__('Columns', 'jevelin'),
 				'desc'  => esc_html__( 'Select partner column count', 'jevelin' ),
 				'value'	  => '5',
 				'choices' => array(
+					'6' => esc_html__('6 columns', 'jevelin'),
 					'5' => esc_html__('5 columns', 'jevelin'),
 					'4' => esc_html__('4 columns', 'jevelin'),
 					'3' => esc_html__('3 columns', 'jevelin'),
 					'2' => esc_html__('2 columns', 'jevelin'),
 					'1' => esc_html__('1 columns', 'jevelin'),
 				)
+			),
+
+			'opacity'   => array(
+				'label' => esc_html__( 'Opacity', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter custom image opacity 0-100 (0 hidden, 100 fully visible)', 'jevelin' ),
+				'type'  => 'text'
+			),
+
+			'opacity_hover'   => array(
+				'label' => esc_html__( 'Opacity on Hover (for images with links)', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter custom image hover opacity 0-100 (0 hidden, 100 fully visible)', 'jevelin' ),
+				'type'  => 'text',
+				'value' => '75',
 			),
 
 			'line' => array(
@@ -93,6 +108,36 @@ $options = array(
 				'label' => esc_html__( 'Additional padding', 'jevelin' ),
 				'desc'  => esc_html__( 'Enable or disable additional padding', 'jevelin' ),
 				'value' => false,
+				'left-choice' => array(
+					'value' => false,
+					'label' => esc_html__('Off', 'jevelin'),
+				),
+				'right-choice' => array(
+					'value' => true,
+					'label' => esc_html__('On', 'jevelin'),
+				),
+			),
+
+			'padding'   => array(
+				'type' => 'switch',
+				'label' => esc_html__( 'Vertical Additional padding', 'jevelin' ),
+				'desc'  => esc_html__( 'Enable or disable additional vertical padding', 'jevelin' ),
+				'value' => false,
+				'left-choice' => array(
+					'value' => false,
+					'label' => esc_html__('Off', 'jevelin'),
+				),
+				'right-choice' => array(
+					'value' => true,
+					'label' => esc_html__('On', 'jevelin'),
+				),
+			),
+
+			'padding_horizontal'   => array(
+				'type' => 'switch',
+				'label' => esc_html__( 'Horizontal Additional padding', 'jevelin' ),
+				'desc'  => esc_html__( 'Enable or disable additional horizontal padding', 'jevelin' ),
+				'value' => true,
 				'left-choice' => array(
 					'value' => false,
 					'label' => esc_html__('Off', 'jevelin'),

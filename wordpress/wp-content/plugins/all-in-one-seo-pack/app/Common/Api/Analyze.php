@@ -15,21 +15,9 @@ use AIOSEO\Plugin\Common\Models\SeoAnalyzerResult;
  */
 class Analyze {
 	/**
-	 * The error codes from our analyzer service that the frontend knows how to act on.
-	 *
-	 * NOTE: Any other value is dropped so upstream error details never reach the browser.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @var array
-	 */
-	const ANALYZE_ERROR_CODES = [ 'invalid-html', 'invalid-token', 'invalid-url', 'missing-content', 'outbound-request-failed' ];
-
-	/**
 	 * Analyzes the site for SEO.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.1 Error responses now include the analyzer error code.
+	 * @since 4.0.0
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
@@ -38,16 +26,6 @@ class Analyze {
 		$body             = $request->get_json_params();
 		$analyzeUrl       = ! empty( $body['url'] ) ? esc_url_raw( urldecode( $body['url'] ) ) : null;
 		$refreshResults   = ! empty( $body['refresh'] ) ? (bool) $body['refresh'] : false;
-
-		// Validate the URL to prevent SSRF attacks (e.g. internal/private IPs).
-		if ( $analyzeUrl && ! wp_http_validate_url( $analyzeUrl ) ) {
-			return new \WP_REST_Response( [
-				'success' => false,
-				'error'   => 'invalid-url',
-				'message' => __( 'The URL provided is not valid.', 'all-in-one-seo-pack' )
-			], 400 );
-		}
-
 		$analyzeOrHomeUrl = ! empty( $analyzeUrl ) ? $analyzeUrl : home_url();
 		$responseCode     = null === aioseo()->core->cache->get( 'analyze_site_code' ) ? [] : aioseo()->core->cache->get( 'analyze_site_code' );
 		$responseBody     = null === aioseo()->core->cache->get( 'analyze_site_body' ) ? [] : aioseo()->core->cache->get( 'analyze_site_body' );
@@ -59,7 +37,7 @@ class Analyze {
 			empty( $responseBody[ $analyzeOrHomeUrl ] ) ||
 			$refreshResults
 		) {
-			$token      = aioseo()->sensitiveOptions->get( 'siteAnalysisConnectToken' );
+			$token      = aioseo()->internalOptions->internal->siteAnalysis->connectToken;
 			$url        = defined( 'AIOSEO_ANALYZE_URL' ) ? AIOSEO_ANALYZE_URL : 'https://analyze.aioseo.com';
 			$response   = aioseo()->helpers->wpRemotePost( $url . '/v3/analyze/', [
 				'timeout' => 60,
@@ -80,12 +58,13 @@ class Analyze {
 		}
 
 		if ( 200 !== $responseCode[ $analyzeOrHomeUrl ] || empty( $responseBody[ $analyzeOrHomeUrl ]['success'] ) || ! empty( $responseBody[ $analyzeOrHomeUrl ]['error'] ) ) {
-			$errorCode = ! empty( $responseBody[ $analyzeOrHomeUrl ]['error'] ) ? $responseBody[ $analyzeOrHomeUrl ]['error'] : '';
+			if ( ! empty( $responseBody[ $analyzeOrHomeUrl ]['error'] ) && 'invalid-token' === $responseBody[ $analyzeOrHomeUrl ]['error'] ) {
+				aioseo()->internalOptions->internal->siteAnalysis->reset();
+			}
 
 			return new \WP_REST_Response( [
-				'success' => false,
-				'error'   => in_array( $errorCode, self::ANALYZE_ERROR_CODES, true ) ? $errorCode : '',
-				'message' => __( 'We were unable to analyze the site. Please try again later.', 'all-in-one-seo-pack' )
+				'success'  => false,
+				'response' => $responseBody[ $analyzeOrHomeUrl ]
 			], 400 );
 		}
 
@@ -132,7 +111,14 @@ class Analyze {
 
 		SeoAnalyzerResult::deleteByUrl( $analyzeUrl );
 
-		return new \WP_REST_Response( SeoAnalyzerResult::getCompetitorsResults(), 200 );
+		$competitors = aioseo()->internalOptions->internal->siteAnalysis->competitors;
+
+		unset( $competitors[ $analyzeUrl ] );
+
+		// Reset the competitors.
+		aioseo()->internalOptions->internal->siteAnalysis->competitors = $competitors;
+
+		return new \WP_REST_Response( $competitors, 200 );
 	}
 
 	/**

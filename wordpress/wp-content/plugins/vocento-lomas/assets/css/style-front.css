@@ -1,0 +1,88 @@
+
+.vocento-lomas-widget {
+    border: solid 1px #EEE;
+    padding: 10px;
+    background-color: white;
+    display: table;
+    width: 100%;
+}
+.vocento-lomas-widget .ui-widget-header {
+    border: 0px !important;
+    background: transparent;
+    font-weight: normal !important;
+}
+
+.vocento-lomas-widget  ul.ui-tabs-nav.ui-helper-reset.ui-helper-clearfix.ui-widget-header.ui-corner-all {
+     background: transparent;
+
+}
+
+.vclm-tab-content {
+    padding: 0px !important;
+    margin: 0px !important;
+    font-size: 12px !important;
+    list-style: none !important;
+    display: table;
+    width: 100%;
+	
+
+}
+.vclm-tab-content li img{
+    width: 80px;
+	float: left;
+    margin-right: 10px;
+}
+
+li.vclm-tab {
+    padding: 0px !important;
+    margin: 0px !important;
+	border-radius: 0px !important;
+	padding:5px !important;
+}
+
+.vclm-tab-content li {
+    display:table;
+    clear: both;
+    line-height: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.vclm-tab-content li a{
+ text-decoration: none !important;
+ }
+
+.vclm-widget-item-text {
+    font-size: 11px;
+    color: #ccc;
+}
+
+li.vclm-tab a {
+    padding: 0px !important;
+    margin: 0px !important;
+	font-size: 12px;
+    text-decoration: none !important;
+}
+
+li.vclm-tab.ui-tabs-active {
+
+    border-top: 1px solid #999999 !important;
+}
+
+.vocento-lomas-widget .vclm-tab-content li a{
+word-break: break-word;
+}
+
+.vclm-widget-title {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.vclm-widget-item-number {
+    float: left;
+    line-height: 45px;
+    font-size: 12px;
+    padding-right: 5px;
+    text-align: center;
+    padding-left: 5px;
+    background-color: #efefef;
+}

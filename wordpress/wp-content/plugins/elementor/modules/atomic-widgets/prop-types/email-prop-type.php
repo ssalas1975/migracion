@@ -19,8 +19,7 @@ class Email_Prop_Type extends Object_Prop_Type {
 		return [
 			'to' => String_Prop_Type::make(),
 			'subject' => String_Prop_Type::make(),
-			'message' => String_Prop_Type::make()
-				->default( '[all-fields]' ),
+			'message' => String_Prop_Type::make(),
 			'from' => String_Prop_Type::make(),
 			'meta-data' => String_Array_Prop_Type::make(),
 			'send-as' => String_Prop_Type::make()

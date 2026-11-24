@@ -34,7 +34,7 @@ get_header(); ?>
 
 	</div>
 	<?php if( isset($layout_sidebar) && $layout_sidebar ) : ?>
-		<div id="sidebar" class="<?php echo esc_attr( $layout_sidebar ); ?>">
+		<div id="sidebar" class="<?php echo esc_attr( $layout_sidebar ); ?>" role="complementary" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
 			<?php get_sidebar(); ?>
 		</div>
 	<?php endif; ?>

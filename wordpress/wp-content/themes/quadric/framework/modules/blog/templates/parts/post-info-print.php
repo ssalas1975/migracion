@@ -1,0 +1,1 @@
+<div class="edgtf-post-info-print"><a href="javascript: void(0)" class="edgtf-print-post"><i class="edgtf-icon-simple-line-icon icon-printer"></i><?php esc_html_e('Print','quadric'); ?></a></div>

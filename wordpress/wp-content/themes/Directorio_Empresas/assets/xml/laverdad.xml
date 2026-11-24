@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<nodes>
+
+<item><name>Región</name><link>http://www.laverdad.es/murcia/</link></item>
+<item><name>Murcia</name><link>http://www.laverdad.es/murcia/ciudad-murcia/</link></item>
+<item><name>Cartagena</name><link>http://www.laverdad.es/murcia/cartagena/</link></item>
+<item><name>Lorca</name><link>http://www.laverdad.es/murcia/lorca/</link></item>
+<item><name>Deportes</name><link>http://www.laverdad.es/murcia/deportes/</link></item>
+<item><name>España</name><link>http://www.laverdad.es/nacional/</link></item>
+<item><name>Mundo</name><link>http://www.laverdad.es/internacional/</link></item>
+<item><name>Economía</name><link>http://www.laverdad.es/murcia/economia/</link></item>
+<item><name>Culturas</name><link>http://www.laverdad.es/murcia/culturas/</link></item>
+<item><name>Tecnología</name><link>http://www.laverdad.es/tecnologia/</link></item>
+<item><name>Gente</name><link>http://www.laverdad.es/gente-estilo/</link></item>
+<item><name>Planes</name><link>http://www.laverdad.es/murcia/planes/</link></item>
+
+</nodes>

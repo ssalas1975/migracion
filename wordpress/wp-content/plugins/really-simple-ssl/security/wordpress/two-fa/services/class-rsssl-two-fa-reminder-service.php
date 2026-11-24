@@ -2,7 +2,6 @@
 namespace RSSSL\Security\WordPress\Two_Fa\Services;
 
 use rsssl_mailer;
-use RSSSL\Security\WordPress\Two_Fa\Rsssl_Two_Factor_Settings;
 use RSSSL\Security\WordPress\Two_Fa\Contracts\Rsssl_Two_Fa_User_Repository_Interface;
 use RSSSL\Security\WordPress\Two_Fa\Models\Rsssl_Two_FA_Data_Parameters;
 use RSSSL\Security\WordPress\Two_Fa\Models\Rsssl_Two_Fa_User_Collection;
@@ -65,13 +64,6 @@ class Rsssl_Two_Fa_Reminder_Service {
             return;
         }
 
-        $usersToRemind = $collection->getUsersToRemind();
-
-        // if the collection has no users to remind, there is nothing to do.
-        if (count($usersToRemind) === 0) {
-            return;
-        }
-
         // Preparing the reminder e‑mail.
         // Load the mailer class if it hasn't been loaded yet.
         if (!class_exists('rsssl_mailer')) {
@@ -127,11 +119,7 @@ class Rsssl_Two_Fa_Reminder_Service {
 
 
         // Process each user in the grace period who still needs to set up 2FA.
-        foreach ($usersToRemind as $user) {
-            if ( ! Rsssl_Two_Factor_Settings::is_user_forced_to_use_2fa( $user->getId() ) ) {
-                continue;
-            }
-
+        foreach ($collection->getUsers() as $user) {
             // Skip if the reminder has already been sent.
             $two_fa_reminder_sent = get_user_meta($user->getId(), 'rsssl_two_fa_reminder_sent', true);
             if ($two_fa_reminder_sent) {

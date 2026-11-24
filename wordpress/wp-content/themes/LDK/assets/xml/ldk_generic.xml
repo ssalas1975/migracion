@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<nodes>
+<item><name>Home</name><link>/</link></item>
+<item><name>Servicios</name><link>__URL__/#servicios</link></item>
+<item><name>Demo</name><link>__URL__/#homedemo</link></item>
+<item><name>Planes y Precios</name><link>__URL__/#offertable</link></item>
+<item><name>Contacto</name><link>__URL__/#contacto</link></item>
+<item><name>Quienes somos</name><link>__URL__/#quienessomos</link></item>
+<item><name>Blog</name><link>/blog/</link></item>
+</nodes>

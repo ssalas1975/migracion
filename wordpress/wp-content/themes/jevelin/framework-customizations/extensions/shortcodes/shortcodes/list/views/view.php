@@ -3,7 +3,7 @@
 /* List HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 ?>
 
 <ul class="sh-list sh-list-<?php echo esc_attr($atts['style']); ?>" id="list-<?php echo esc_attr( $atts['id'] ); ?>">

@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Admin\Notices\Review as ReviewNotice;
-
 /**
  * The Notification DB Model.
  *
@@ -96,16 +94,6 @@ class Notification extends Model {
 	];
 
 	/**
-	 * Per-request cache of all notification records, keyed by ID.
-	 * null = not yet loaded; array = loaded (may be empty).
-	 *
-	 * @since 5.0.2
-	 *
-	 * @var array<int, Notification>|null
-	 */
-	private static $notificationsCache = null;
-
-	/**
 	 * Get the list of notifications.
 	 *
 	 * @since 4.1.3
@@ -167,25 +155,20 @@ class Notification extends Model {
 			return $newNotifications;
 		}
 
-		$notifications = self::getCachedNotifications();
+		$newNotifications = self::filterNotifications(
+			aioseo()->core->db
+				->start( 'aioseo_notifications' )
+				->where( 'dismissed', 0 )
+				->where( 'new', 1 )
+				->whereRaw( "(start <= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR start IS NULL)" )
+				->whereRaw( "(end >= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR end IS NULL)" )
+				->orderBy( 'start DESC' )
+				->orderBy( 'created DESC' )
+				->run()
+				->models( 'AIOSEO\\Plugin\\Common\\Models\\Notification' )
+		);
 
-		$now    = gmdate( 'Y-m-d H:i:s' );
-		$new    = [];
-		$hasNew = false;
-		foreach ( $notifications as $notification ) {
-			if ( 1 !== (int) $notification->new ) {
-				continue;
-			}
-
-			$hasNew = true;
-			if ( ! $notification->dismissed && self::isWithinDisplayWindow( $notification, $now ) ) {
-				$new[] = $notification;
-			}
-		}
-
-		$newNotifications = self::filterNotifications( $new );
-
-		if ( $reset && $hasNew ) {
+		if ( $reset ) {
 			self::resetNewNotifications();
 		}
 
@@ -205,12 +188,6 @@ class Notification extends Model {
 			->where( 'new', 1 )
 			->set( 'new', 0 )
 			->run();
-
-		if ( null !== self::$notificationsCache ) {
-			foreach ( self::$notificationsCache as $notification ) {
-				$notification->new = 0;
-			}
-		}
 	}
 
 	/**
@@ -231,13 +208,13 @@ class Notification extends Model {
 			switch ( $notification ) {
 				case 'review':
 					// If they intentionally dismissed the main notification, we don't show the repeat one.
-					$originalDismissed = get_user_meta( get_current_user_id(), ReviewNotice::DISMISSED_META_KEY, true );
-					if ( ReviewNotice::DISMISSED_CLOSED !== $originalDismissed ) {
+					$originalDismissed = get_user_meta( get_current_user_id(), '_aioseo_plugin_review_dismissed', true );
+					if ( '4' !== $originalDismissed ) {
 						break;
 					}
 
-					$dismissed = get_user_meta( get_current_user_id(), ReviewNotice::NOTIFICATION_DISMISSED_META_KEY, true );
-					if ( ReviewNotice::DISMISSED_OPTED_OUT === $dismissed ) {
+					$dismissed = get_user_meta( get_current_user_id(), '_aioseo_notification_plugin_review_dismissed', true );
+					if ( '3' === $dismissed ) {
 						break;
 					}
 
@@ -283,17 +260,17 @@ class Notification extends Model {
 	 * @return array An array of active notifications or empty.
 	 */
 	protected static function getActiveNotifications() {
-		$notifications = self::getCachedNotifications();
-
-		$now    = gmdate( 'Y-m-d H:i:s' );
-		$active = [];
-		foreach ( $notifications as $notification ) {
-			if ( ! $notification->dismissed && self::isWithinDisplayWindow( $notification, $now ) ) {
-				$active[] = $notification;
-			}
-		}
-
-		return self::filterNotifications( $active );
+		return self::filterNotifications(
+			aioseo()->core->db
+				->start( 'aioseo_notifications' )
+				->where( 'dismissed', 0 )
+				->whereRaw( "(start <= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR start IS NULL)" )
+				->whereRaw( "(end >= '" . gmdate( 'Y-m-d H:i:s' ) . "' OR end IS NULL)" )
+				->orderBy( 'start DESC' )
+				->orderBy( 'created DESC' )
+				->run()
+				->models( 'AIOSEO\\Plugin\\Common\\Models\\Notification' )
+		);
 	}
 
 	/**
@@ -320,20 +297,14 @@ class Notification extends Model {
 			return $dismissedNotifications;
 		}
 
-		$notifications = self::getCachedNotifications();
-
-		$dismissed = [];
-		foreach ( $notifications as $notification ) {
-			if ( $notification->dismissed ) {
-				$dismissed[] = $notification;
-			}
-		}
-
-		usort( $dismissed, function( $a, $b ) {
-			return strcmp( (string) $b->updated, (string) $a->updated );
-		} );
-
-		$dismissedNotifications = self::filterNotifications( $dismissed );
+		$dismissedNotifications = self::filterNotifications(
+			aioseo()->core->db
+				->start( 'aioseo_notifications' )
+				->where( 'dismissed', 1 )
+				->orderBy( 'updated DESC' )
+				->run()
+				->models( 'AIOSEO\\Plugin\\Common\\Models\\Notification' )
+		);
 
 		return $dismissedNotifications;
 	}
@@ -347,15 +318,11 @@ class Notification extends Model {
 	 * @return Notification       The notification.
 	 */
 	public static function getNotificationByName( $name ) {
-		$notifications = self::getCachedNotifications();
-
-		foreach ( $notifications as $notification ) {
-			if ( $name === $notification->notification_name ) {
-				return $notification;
-			}
-		}
-
-		return new self();
+		return aioseo()->core->db
+			->start( 'aioseo_notifications' )
+			->where( 'notification_name', $name )
+			->run()
+			->model( 'AIOSEO\\Plugin\\Common\\Models\\Notification' );
 	}
 
 	/**
@@ -390,95 +357,6 @@ class Notification extends Model {
 			->delete( 'aioseo_notifications' )
 			->where( 'notification_name', $name )
 			->run();
-
-		if ( null !== self::$notificationsCache ) {
-			foreach ( self::$notificationsCache as $id => $notification ) {
-				if ( $name === $notification->notification_name ) {
-					unset( self::$notificationsCache[ $id ] );
-				}
-			}
-		}
-	}
-
-	/**
-	 * Saves the notification and keeps the per-request cache in sync.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @return void
-	 */
-	public function save() {
-		parent::save();
-
-		if ( null === self::$notificationsCache || empty( $this->id ) ) {
-			return;
-		}
-
-		// Update an existing cached row in place; drop the cache for a brand-new row
-		// so the next read reloads it in the correct start/created sort order.
-		if ( array_key_exists( $this->id, self::$notificationsCache ) ) {
-			self::$notificationsCache[ $this->id ] = $this;
-
-			return;
-		}
-
-		self::$notificationsCache = null;
-	}
-
-	/**
-	 * Deletes the notification and removes it from the per-request cache.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @return null
-	 */
-	public function delete() {
-		$id     = $this->id;
-		$result = parent::delete();
-
-		if ( null !== self::$notificationsCache && ! empty( $id ) ) {
-			unset( self::$notificationsCache[ $id ] );
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Loads every notification row into the per-request cache with a single query.
-	 *
-	 * NOTE: Callers share these instances; mutate only via save(), which re-syncs the cache.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @return array The cached notifications, keyed by ID.
-	 */
-	private static function getCachedNotifications() {
-		if ( null === self::$notificationsCache ) {
-			self::$notificationsCache = aioseo()->core->db
-				->start( 'aioseo_notifications' )
-				->orderBy( 'start DESC' )
-				->orderBy( 'created DESC' )
-				->run()
-				->models( 'AIOSEO\\Plugin\\Common\\Models\\Notification' );
-		}
-
-		return self::$notificationsCache;
-	}
-
-	/**
-	 * Determines whether a notification is within its start/end display window.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  Notification $notification The notification.
-	 * @param  string       $now          The current UTC datetime (Y-m-d H:i:s).
-	 * @return bool                        Whether the notification is currently displayable.
-	 */
-	private static function isWithinDisplayWindow( $notification, $now ) {
-		$hasStarted  = empty( $notification->start ) || $notification->start <= $now;
-		$hasNotEnded = empty( $notification->end ) || $notification->end >= $now;
-
-		return $hasStarted && $hasNotEnded;
 	}
 
 	/**

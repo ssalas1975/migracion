@@ -11,35 +11,31 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var $options
  * @var $limit
  * @var $el_class
- * @var $el_id
  * Shortcode class
- * @var WPBakeryShortCode_Vc_Wp_Links $this
+ * @var $this WPBakeryShortCode_VC_Wp_Links
  */
-$category = $options = $orderby = $limit = $el_class = $el_id = '';
+$category = $options = $orderby = $limit = $el_class = '';
 $output = '';
 $atts = vc_map_get_attributes( $this->getShortcode(), $atts );
 extract( $atts );
 
 $options = explode( ',', $options );
-if ( in_array( 'images', $options, true ) ) {
+if ( in_array( 'images', $options ) ) {
 	$atts['images'] = true;
 }
-if ( in_array( 'name', $options, true ) ) {
+if ( in_array( 'name', $options ) ) {
 	$atts['name'] = true;
 }
-if ( in_array( 'description', $options, true ) ) {
+if ( in_array( 'description', $options ) ) {
 	$atts['description'] = true;
 }
-if ( in_array( 'rating', $options, true ) ) {
+if ( in_array( 'rating', $options ) ) {
 	$atts['rating'] = true;
 }
 
 $el_class = $this->getExtraClass( $el_class );
-$wrapper_attributes = array();
-if ( ! empty( $el_id ) ) {
-	$wrapper_attributes[] = 'id="' . esc_attr( $el_id ) . '"';
-}
-$output = '<div ' . implode( ' ', $wrapper_attributes ) . ' class="vc_wp_links wpb_content_element' . esc_attr( $el_class ) . '">';
+
+$output = '<div class="vc_wp_links wpb_content_element' . esc_attr( $el_class ) . '">';
 $type = 'WP_Widget_Links';
 $args = array();
 global $wp_widget_factory;
@@ -51,5 +47,7 @@ if ( is_object( $wp_widget_factory ) && isset( $wp_widget_factory->widgets, $wp_
 
 	$output .= '</div>';
 
-	return $output;
+	echo $output;
+} else {
+	echo $this->debugComment( 'Widget ' . esc_attr( $type ) . 'Not found in : vc_wp_links' );
 }

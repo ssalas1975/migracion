@@ -1,42 +1,32 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Gallery Post
+|--------------------------------------------------------------------------
+*/
 if( !function_exists('the_post_format_gallery_content') ) {
-    
+
     function the_post_format_gallery_content() {
-    
-        echo get_post_format_gallery_content();
         
-    }    
-    
-}
-
-
-
-
-if( !function_exists('get_post_format_gallery_content') ) {
-
-    function get_post_format_gallery_content() {
-            
-        ob_start();
-
+		global $post;
+				
         /* check if user wants to display the ut gallery */
         if( ot_get_option( 'blog_use_ut_gallery', 'on' ) == 'on' ) {
 
             echo ut_flex_slider( get_the_ID() );           
-
+        
         } else {
-
+            
             $content = get_the_content();
             $pattern = get_shortcode_regex();
             preg_match( "/$pattern/s", $content, $match );
-
+                    
             $shortcode = ( isset( $match[0] ) && !empty( $match[0] ) ) ? $match[0] : '';
             echo do_shortcode( $shortcode );
-
+        
         }
-        
-        return ob_get_clean();
-        
+    
     }
 
 }
@@ -45,14 +35,12 @@ if( !function_exists('get_post_format_gallery_content') ) {
 if( !function_exists('ut_flex_slider') ) {
 
     function ut_flex_slider( $postID , $shortcode = false ) {
-        
-        $flex_slider = NULL;
                                                         
         /* get all necessary image ID's */
         $ut_gallery_images = ut_extract_gallery_images_ids();
         
         /* start output */
-        if ( !empty( $ut_gallery_images ) && is_array( $ut_gallery_images )  ) : 
+        if ( isset( $ut_gallery_images ) && is_array( $ut_gallery_images )  ) : 
                 
         $flex_slider = '
 		
@@ -87,16 +75,9 @@ if( !function_exists('ut_flex_slider') ) {
 		<div class="ut-gallery-wrap">
             <div class="ut-gallery-slider flexslider" id="gallery-slider-' . $postID .'">
                 <ul class="slides">';
-        
-                        $max = !is_single() ? 3 : false;
-                        $counter = 0;                
                     
                     	foreach ( $ut_gallery_images as $ID => $imagedata ) : 
-                            
-                            if( $max && $counter == $max ) {
-                                break;
-                            }
-        
+                
                         	if( isset( $imagedata->guid ) && !empty($imagedata->guid) ) {
                                     
                             	$image = $imagedata->guid; // fallback to older wp versions
@@ -127,52 +108,16 @@ if( !function_exists('ut_flex_slider') ) {
 										
 									} else {
 										
-                                        if( apply_filters( 'unite_blog_layout', ot_get_option('ut_blog_layout', 'mixed-grid') ) == 'mixed-grid' ) {
-                                        
-										    $thumbnail = ut_resize( $image , '720' , '600', true , true, true );
-                                        
-                                        } elseif( apply_filters( 'unite_blog_layout', ot_get_option('ut_blog_layout', 'mixed-grid') ) == 'grid' ) {
-                                            
-                                            $thumbnail = ut_resize( $image , '720' , '600', true , true, true );
-                                        
-                                        } elseif( apply_filters( 'unite_blog_layout', ot_get_option('ut_blog_layout', 'mixed-grid') ) == 'list-grid' ) {
-                                            
-                                            $thumbnail = ut_resize( $image , '756' , '700', true , true, true );
-                                            
-                                        } else {
-                                        
-                                            $thumbnail = ut_resize( $image , '1280' , '720', true , true, true );
-                                            
-                                        }
+										$thumbnail = ut_resize( $image , '855' , '425', true , true, true );
 										
 									}
-		
-                                    if( !is_single() ) {
-                                        $flex_slider .= '<a title="' . sprintf(esc_html__('Permanent Link to %s', 'unitedthemes'), get_the_title() ) . '" href="' . get_permalink( $postID ) . '">';    
-                                    }
-        
-                                    $flex_slider .= '<figure class="ut-post-thumbnail-caption-wrap">';
-        
-									$flex_slider .= '<img alt="' . esc_attr( get_the_title( $postID ) ) . '" src="' . $thumbnail .'" />';
-                                    
-                                    if( get_post( $imagedata )->post_excerpt ) {
-                                        
-                                        $flex_slider .= '<figcaption class="ut-post-thumbnail-caption">' . get_post( $imagedata )->post_excerpt . '</figcaption>';
-                                        
-                                    }
-                                        
-                                    $flex_slider .= '</figure>';
-								    
-                                    if( !is_single() ) {
-                                        $flex_slider .= '</a>';    
-                                    }
-        
+									
+									$flex_slider .= '<img alt="' . get_the_title( $postID ) . '" src="' . $thumbnail .'" />';
+								
 								$flex_slider .= '</li>';
-                                
-                                 $counter++;
-        
+                            
                         	endif;
-        
+                                        
                     endforeach;
         
                 $flex_slider .= '
@@ -198,79 +143,21 @@ if ( !function_exists( 'ut_extract_gallery_images_ids' ) ) {
         
         global $post;
         
-        // search for gallery shortcode
-        preg_match_all( "/(.?)\[(ut_image_gallery)\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)/s", $post->post_content, $matches );
+        $content = get_the_content();
+        $pattern = get_shortcode_regex();
         
-        if( isset( $matches[0][0] ) && strpos($matches[0][0], 'ut_image_gallery') !== false ) {
-            
-            preg_match_all('!\d+!', $matches[0][0], $images);
-            
-            return isset( $images[0] ) ? $images[0] : false;
-            
-        } 
+        preg_match( "/$pattern/s", $content, $match );
         
-        // search for gallery shortcode
-        preg_match_all( "/(.?)\[(gallery)\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)/s", $post->post_content, $matches );
-        
-        if( isset( $matches[0][0] ) && strpos($matches[0][0], 'gallery') !== false ) {
+        if( isset( $match[2] ) && ( "gallery" == $match[2] ) ) {
             
-            preg_match_all('!\d+!', $matches[0][0], $images);
+            $atts = $match[3];
+            $atts = shortcode_parse_atts( $match[3] );
+            $ut_gallery_images = isset( $atts['ids'] ) ? explode( ',', $atts['ids'] ) : get_children( 'post_type=attachment&post_mime_type=image&post_parent=' . $post->ID .'&order=ASC&orderby=menu_order ID' );
             
-            return isset( $images[0] ) ? $images[0] : false;
+            return $ut_gallery_images;
             
         }         
     
-    }
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Quote Post
-|--------------------------------------------------------------------------
-*/
-if( !function_exists('post_format_quote_content') ) {
-
-    function post_format_quote_content() {
-        
-		echo get_post_format_quote_content();
-			        
-    }
-
-}
-
-
-if( !function_exists('get_post_format_quote_content') ) {
-
-    function get_post_format_quote_content() {
-        
-        global $post;
-        
-        $quote = get_post_meta( $post->ID, '_format_quote', true );
-        $name  = get_post_meta( $post->ID, '_format_quote_source_name', true ); 
-        
-        $content = false;
-        
-        if( $quote || $name ) {
-            
-            $content .= '<blockquote class="ut-quote-post-block"><p>';
-            
-            if( $quote ) {
-                $content .= $quote . '<br>';
-            }
-            
-            if( $name ) {
-                
-                $content .='<cite>' . $name . '</cite>';
-                
-            }
-            
-            $content .= '</p></blockquote>';
-        
-        }
-        
-        return $content;
-            
     }
 
 }
@@ -296,20 +183,18 @@ if( !function_exists('get_post_format_link_content') ) {
 
     function get_post_format_link_content() {
         
-        global $post;
-        
         /* needed variables */
         $urlfound = false;
         $url = '';
         $content = get_the_content();
         
         /* retrieve meta data */        
-        $value = get_post_meta( $post->ID, '_format_link_url', true ); 
+        $value  =   ut_return_meta('postformat');
         
         /* check if there is an url inside the meta */
-        if( !empty( $value ) ) {
+        if( !empty($value['_format_link_url']) ) {
             
-            $url = $value;
+            $url = $value['_format_link_url'];
             
             /* set url found */
             $urlfound = true;
@@ -352,16 +237,17 @@ if( !function_exists('get_post_format_video_content') ) {
 
     function get_post_format_video_content( $args = array() ) {
         
-        global $post;
-        
         /* needed variables */
         $videofound = false;
+        $embed = false; 
                 
         /* retrieve meta data */    
-        $value = get_post_meta( $post->ID, '_format_video_embed', true );
+        $value = ut_return_meta('postformat');
         
         /* check if there is a video shortcode inside the meta */
-        if( !empty( $value ) ) {
+        if( !empty($value['_format_video_embed']) ) {
+            
+            $value = $value['_format_video_embed'];
             
             /* set video found */
             $videofound = true;
@@ -370,13 +256,7 @@ if( !function_exists('get_post_format_video_content') ) {
                 
         /* we have a meta value , lets check its syntax and return it */
         if( $videofound ) {
-            
-            $video_embed = wp_oembed_get(trim($value));
-            
-            if( $video_embed ) {
-                return $video_embed;
-            }
-            
+        
             if ( is_numeric( $value ) ) {
                 
                 $video = wp_get_attachment_url( $value );
@@ -393,13 +273,10 @@ if( !function_exists('get_post_format_video_content') ) {
             } else {
                 
                 return $value;
-    
-           }
-           
+                
+            }
         }
-        
     }
-    
 }
 
 
@@ -424,17 +301,17 @@ if( !function_exists('get_post_format_audio_content') ) {
 
     function get_post_format_audio_content() {
         
-        global $post;
-        
         /* needed variables */
         $audiofound = false;
         $shortcode = false;
         
         /* retrieve meta data */
-        $value = get_post_meta( $post->ID, '_format_audio_embed', true );        
+        $value = ut_return_meta('postformat');        
         
         /* check if there is an audio shortcode inside the meta */
-        if( !empty( $value ) ) {
+        if( !empty($value['_format_audio_embed']) ) {
+            
+            $value = $value['_format_audio_embed'];
             
             /* set audio found */
             $audiofound = true;

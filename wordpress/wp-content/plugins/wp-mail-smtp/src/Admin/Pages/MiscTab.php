@@ -2,6 +2,7 @@
 
 namespace WPMailSMTP\Admin\Pages;
 
+use WPMailSMTP\Admin\Area;
 use WPMailSMTP\Admin\PageAbstract;
 use WPMailSMTP\Helpers\UI;
 use WPMailSMTP\OptimizedEmailSending;
@@ -78,7 +79,7 @@ class MiscTab extends PageAbstract {
 						<?php esc_html_e( 'Do Not Send', 'wp-mail-smtp' ); ?>
 					</label>
 					<span class="wp-mail-smtp-tooltip wp-mail-smtp-tooltip-with-icon">
-						<img src="<?php echo esc_url( wp_mail_smtp()->assets_url . '/images/font-awesome/info-circle.svg' ); ?>" width="15" height="15" alt="<?php esc_attr_e( 'Info', 'wp-mail-smtp' ); ?>"/>
+						<img src="<?php echo esc_url( wp_mail_smtp()->assets_url . '/images/font-awesome/info-circle.svg' ); ?>" width="15" height="15" alt="info"/>
 						<span class="wp-mail-smtp-tooltip-text wp-mail-smtp-tooltip-small-text">
 						<?php
 						printf(
@@ -143,7 +144,26 @@ class MiscTab extends PageAbstract {
 						}
 						?>
 					</p>
-					<?php $this->display_after_do_not_send_setting_field_description(); ?>
+					<?php
+					if ( wp_mail_smtp()->is_pro() ) {
+						?>
+						<div style="margin-top: 10px; display: <?php echo (bool) $options->get( 'general', 'do_not_send' ) ? 'block' : 'none'; ?>;">
+							<label for="wp-mail-smtp-setting-log_blocked_emails">
+								<input type="checkbox"
+											 id="wp-mail-smtp-setting-log_blocked_emails"
+											 name="wp-mail-smtp[logs][log_blocked_emails]"
+											 value="true"
+									<?php checked( (bool) $options->get( 'logs', 'log_blocked_emails' ) ); ?>
+								/>
+								<?php esc_html_e( 'Log Blocked Emails', 'wp-mail-smtp' ); ?>
+							</label>
+							<p class="desc">
+								<?php esc_html_e( 'When selected, emails blocked by the "Do Not Send" option will be logged in the Email Log.', 'wp-mail-smtp' ); ?>
+							</p>
+						</div>
+						<?php
+					}
+					?>
 				</div>
 			</div>
 
@@ -280,8 +300,6 @@ class MiscTab extends PageAbstract {
 				</div>
 				<div class="wp-mail-smtp-setting-field">
 					<?php
-					$is_summary_report_email_setting_available = $this->is_summary_report_email_setting_available();
-
 					UI::toggle(
 						[
 							'name'     => 'wp-mail-smtp[general][' . SummaryReportEmail::SETTINGS_SLUG . ']',
@@ -290,7 +308,7 @@ class MiscTab extends PageAbstract {
 							'checked'  => (bool) SummaryReportEmail::is_disabled(),
 							'disabled' => (
 								$options->is_const_defined( 'general', SummaryReportEmail::SETTINGS_SLUG ) ||
-								! $is_summary_report_email_setting_available
+								( wp_mail_smtp()->is_pro() && empty( Options::init()->get( 'logs', 'enabled' ) ) )
 							),
 						]
 					);
@@ -298,9 +316,12 @@ class MiscTab extends PageAbstract {
 					<p class="desc">
 						<?php esc_html_e( 'Disable Email Summaries weekly delivery.', 'wp-mail-smtp' ); ?>
 						<?php
-						if ( ! $is_summary_report_email_setting_available ) {
+						if ( wp_mail_smtp()->is_pro() && empty( Options::init()->get( 'logs', 'enabled' ) ) ) {
 							echo wp_kses(
-								$this->get_summary_report_email_setting_requirement_notice(),
+								sprintf( /* translators: %s - Email Log settings url. */
+									__( 'Please enable <a href="%s">Email Logging</a> first, before this setting can be configured.', 'wp-mail-smtp' ),
+									esc_url( wp_mail_smtp()->get_admin()->get_admin_page_url( Area::SLUG . '&tab=logs' ) )
+								),
 								[
 									'a' => [
 										'href' => [],
@@ -406,37 +427,6 @@ class MiscTab extends PageAbstract {
 	}
 
 	/**
-	 * Display content after the Do Not Send setting field description.
-	 *
-	 * @since 4.10.1
-	 */
-	protected function display_after_do_not_send_setting_field_description() {}
-
-	/**
-	 * Whether the Email Summaries setting can be configured.
-	 *
-	 * @since 4.10.1
-	 *
-	 * @return bool
-	 */
-	protected function is_summary_report_email_setting_available() {
-
-		return true;
-	}
-
-	/**
-	 * Get the notice explaining what the Email Summaries setting requires before it can be configured.
-	 *
-	 * @since 4.10.1
-	 *
-	 * @return string
-	 */
-	protected function get_summary_report_email_setting_requirement_notice() {
-
-		return '';
-	}
-
-	/**
 	 * Display rate limit settings.
 	 *
 	 * @since 4.0.0
@@ -498,11 +488,16 @@ class MiscTab extends PageAbstract {
 	 */
 	public function process_post( $data ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
 
+		$this->check_admin_referer();
+
 		$options = Options::init();
 
 		// Unchecked checkboxes doesn't exist in $_POST, so we need to ensure we actually have them in data to save.
 		if ( empty( $data['general']['do_not_send'] ) ) {
 			$data['general']['do_not_send'] = false;
+		}
+		if ( empty( $data['logs']['log_blocked_emails'] ) ) {
+			$data['logs']['log_blocked_emails'] = false;
 		}
 		if ( empty( $data['general']['am_notifications_hidden'] ) ) {
 			$data['general']['am_notifications_hidden'] = false;

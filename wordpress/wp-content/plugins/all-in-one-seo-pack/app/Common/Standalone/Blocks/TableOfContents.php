@@ -83,8 +83,7 @@ class TableOfContents extends Blocks {
 	/**
 	 * Get the nested headings for the block.
 	 *
-	 * @since   4.9.0
-	 * @version 4.9.10 Constrain $listStyle to an allowlist to prevent tag-name/attribute injection.
+	 * @since 4.9.0
 	 *
 	 * @param array  $headings  The headings to get.
 	 * @param string $listStyle The list style to use.
@@ -92,8 +91,7 @@ class TableOfContents extends Blocks {
 	 * @return string
 	 */
 	private function getNestedHeadings( $headings, $listStyle ) {
-		$tag        = in_array( $listStyle, [ 'ul', 'ol' ], true ) ? $listStyle : 'ul';
-		$htmlString = '<' . $tag . '>';
+		$htmlString = '<' . $listStyle . '>';
 
 		foreach ( $headings as $heading ) {
 			if ( $heading['hidden'] ) {
@@ -107,7 +105,7 @@ class TableOfContents extends Blocks {
 			$listItem .= '<a class="aioseo-toc-item" href="#' . esc_attr( $heading['anchor'] ) . '">' . esc_html( $content ) . '</a>';
 
 			if ( ! empty( $heading['headings'] ) ) {
-				$listItem .= $this->getNestedHeadings( $heading['headings'], $tag );
+				$listItem .= $this->getNestedHeadings( $heading['headings'], $listStyle );
 			}
 
 			$listItem .= '</li>';
@@ -115,7 +113,7 @@ class TableOfContents extends Blocks {
 			$htmlString .= $listItem;
 		}
 
-		$htmlString .= '</' . $tag . '>';
+		$htmlString .= '</' . $listStyle . '>';
 
 		return $htmlString;
 	}
@@ -149,8 +147,7 @@ class TableOfContents extends Blocks {
 	/**
 	 * Get the HTML for the block.
 	 *
-	 * @since   4.9.0
-	 * @version 4.9.10 Escape the custom className before emitting it into the class attribute.
+	 * @since 4.9.0
 	 *
 	 * @param array $attributes The attributes for the block.
 	 *
@@ -161,7 +158,7 @@ class TableOfContents extends Blocks {
 		$class1           = 'open' === $attributes['collapsibleType'] ? 'aioseo-toc-collapsed' : '';
 		$class2           = 'closed' === $attributes['collapsibleType'] ? 'aioseo-toc-collapsed' : '';
 		$class3           = 'closed' === $attributes['collapsibleType'] ? 'aioseo-toc-collapsed' : '';
-		$blockCustomClass = isset( $attributes['className'] ) ? esc_attr( $attributes['className'] ) : '';
+		$blockCustomClass = isset( $attributes['className'] ) ? $attributes['className'] : '';
 
 		$fullHtmlString = '<div class="wp-block-aioseo-table-of-contents ' . $blockCustomClass . '">
 			<div class="aioseo-toc-header">

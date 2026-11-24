@@ -82,11 +82,14 @@ if ( '/sitemap.rss' === $sitemapPath ) {
 
 	<xsl:template name="siteindexTable">
 		<?php
+		$sitemapIndex = aioseo()->sitemap->helpers->filename( 'general' );
+		$sitemapIndex = $sitemapIndex ? $sitemapIndex : 'sitemap';
 		aioseo()->templates->getTemplate(
 			'sitemap/xsl/partials/breadcrumb.php',
 			[
-				'index' => true,
-				'items' => []
+				'items' => [
+					[ 'title' => __( 'Sitemap Index', 'all-in-one-seo-pack' ), 'url' => $sitemapUrl ],
+				]
 			]
 		);
 		?>
@@ -248,12 +251,14 @@ if ( '/sitemap.rss' === $sitemapPath ) {
 
 	<xsl:template name="sitemapTable">
 		<?php
+		$sitemapIndex  = aioseo()->sitemap->helpers->filename( 'general' );
+		$sitemapIndex  = $sitemapIndex ?: 'sitemap';
 		$excludeImages = isset( $excludeImages ) ? $excludeImages : aioseo()->sitemap->helpers->excludeImages();
 		aioseo()->templates->getTemplate(
 			'sitemap/xsl/partials/breadcrumb.php',
 			[
-				'index' => true,
 				'items' => [
+					[ 'title' => __( 'Sitemap Index', 'all-in-one-seo-pack' ), 'url' => home_url( "/$sitemapIndex.xml" ) ],
 					[ 'title' => $title, 'url' => $sitemapUrl ],
 				]
 			]
@@ -440,9 +445,8 @@ if ( '/sitemap.rss' === $sitemapPath ) {
 	<?php
 	aioseo()->templates->getTemplate( 'sitemap/xsl/templates/empty-sitemap.php', [
 		'utmMedium' => $utmMedium,
-		'index'     => true,
 		'items'     => [
-			[ 'title' => $title, 'url' => $sitemapUrl ]
+			[ 'title' => __( 'Sitemap Index', 'all-in-one-seo-pack' ), 'url' => $sitemapUrl ]
 		]
 	] );
 	?>

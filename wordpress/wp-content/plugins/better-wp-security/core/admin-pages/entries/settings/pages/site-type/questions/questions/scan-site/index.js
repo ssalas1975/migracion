@@ -4,7 +4,7 @@
 import { useSelect } from '@wordpress/data';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { vulnerabilitiesStore } from '@ithemes/security.packages.data';
 

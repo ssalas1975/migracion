@@ -1,0 +1,42 @@
+@media only screen and (max-width: 1200px) {
+  /* line 6, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-masonry-full-width article,
+  .edgtf-blog-holder.edgtf-masonry-full-width .edgtf-blog-masonry-grid-sizer {
+    width: 23.5%;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  /* line 15, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-masonry-full-width article,
+  .edgtf-blog-holder.edgtf-masonry-full-width .edgtf-blog-masonry-grid-sizer {
+    width: 32%;
+  }
+}
+@media only screen and (max-width: 768px) {
+  /* line 24, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-blog-type-masonry article,
+  .edgtf-blog-holder.edgtf-blog-type-masonry .edgtf-blog-masonry-grid-sizer {
+    width: 49%;
+  }
+
+  /* line 31, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-masonry-full-width article,
+  .edgtf-blog-holder.edgtf-masonry-full-width .edgtf-blog-masonry-grid-sizer {
+    width: 49%;
+  }
+}
+@media only screen and (max-width: 600px) {
+  /* line 40, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-blog-type-masonry article,
+  .edgtf-blog-holder.edgtf-blog-type-masonry .edgtf-blog-masonry-grid-sizer {
+    width: 100%;
+  }
+
+  /* line 47, scss/blog-responsive.scss */
+  .edgtf-blog-holder.edgtf-masonry-full-width article,
+  .edgtf-blog-holder.edgtf-masonry-full-width .edgtf-blog-masonry-grid-sizer {
+    width: 100%;
+  }
+}
+
+/*# sourceMappingURL=blog-responsive.css.map */

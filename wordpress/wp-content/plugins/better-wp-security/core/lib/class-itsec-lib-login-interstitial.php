@@ -257,8 +257,6 @@ class ITSEC_Lib_Login_Interstitial {
 	 *
 	 * @internal
 	 *
-	 * @since 9.0.10 Ends the new session if the interstitials cannot be prepared.
-	 *
 	 * @param string  $username
 	 * @param WP_User $user
 	 */
@@ -269,32 +267,26 @@ class ITSEC_Lib_Login_Interstitial {
 			return;
 		}
 
-		try {
-			foreach ( $this->get_applicable_interstitials( $user ) as $action => $interstitial ) {
-				if ( $interstitial->show_on_wp_login_only( $user ) && isset( $_REQUEST['interim-login'] ) ) {
-					continue;
-				}
-
-				$session = ITSEC_Login_Interstitial_Session::create( $user, $action );
-
-				if ( is_wp_error( $session ) ) {
-					$this->destroy_session_token( $user );
-					wp_die( $session );
-				}
-
-				$session->initialize_from_global_state();
-
-				if ( isset( $_REQUEST[ self::SHOW_AFTER_LOGIN ], $this->registered[ $_REQUEST[ self::SHOW_AFTER_LOGIN ] ] ) ) {
-					$session->add_show_after( $_REQUEST[ self::SHOW_AFTER_LOGIN ] );
-				}
-
-				$session->save();
-
-				$this->show_interstitial( $session );
+		foreach ( $this->get_applicable_interstitials( $user ) as $action => $interstitial ) {
+			if ( $interstitial->show_on_wp_login_only( $user ) && isset( $_REQUEST['interim-login'] ) ) {
+				continue;
 			}
-		} catch ( Throwable $e ) {
-			$this->destroy_session_token( $user );
-			throw $e;
+
+			$session = ITSEC_Login_Interstitial_Session::create( $user, $action );
+
+			if ( is_wp_error( $session ) ) {
+				wp_die( $session );
+			}
+
+			$session->initialize_from_global_state();
+
+			if ( isset( $_REQUEST[ self::SHOW_AFTER_LOGIN ], $this->registered[ $_REQUEST[ self::SHOW_AFTER_LOGIN ] ] ) ) {
+				$session->add_show_after( $_REQUEST[ self::SHOW_AFTER_LOGIN ] );
+			}
+
+			$session->save();
+
+			$this->show_interstitial( $session );
 		}
 
 		if ( isset( $_REQUEST[ self::SHOW_AFTER_LOGIN ], $this->registered[ $_REQUEST[ self::SHOW_AFTER_LOGIN ] ] ) ) {
@@ -361,11 +353,6 @@ class ITSEC_Lib_Login_Interstitial {
 		}
 
 		$session = ITSEC_Login_Interstitial_Session::create( $user, $slug );
-
-		if ( is_wp_error( $session ) ) {
-			wp_die( $session );
-		}
-
 		$session->initialize_from_global_state();
 		$session->add_show_after( $slug );
 		$session->save();

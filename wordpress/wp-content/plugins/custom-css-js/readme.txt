@@ -3,9 +3,9 @@ Created: 06/12/2015
 Contributors: diana_burduja
 Email: diana@burduja.eu
 Tags: custom CSS, custom JS, site css, add style, customize theme 
-Requires at least: 4.2
-Tested up to: 7.1 
-Stable tag: 3.55
+Requires at least: 3.0.1
+Tested up to: 6.9 
+Stable tag: 3.52
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires PHP: 5.2.4
@@ -101,34 +101,6 @@ The URL for the linked Codes is built just like the URL for other media (from Me
 4. Add/Edit HTML 
 
 == Changelog ==
-
-= 3.55 =
-* 11/02/2026
-* Fix: https://wordpress.org/support/topic/css-doesnt-work-in-block-editor/#post-19043639 
-* Change: replace the direct database query with a WP_Query implementation
-* Tweak: add version number to some enqueued assets for cache purposes
-
-= 3.54.3 =
-* 10/08/2026
-* Fix: check for user capabilities on two AJAX handlers.
-
-= 3.54.2 =
-* 10/04/2026
-* Fix: the external custom codes weren't correctly loaded on themes that don't declare support for HTML5 markup
-
-= 3.54.1 =
-* 10/03/2026
-* Tweak: add translators' notes to translatable strings
-* Fix: escape outputs as per the WordPress documentation.
-
-= 3.54 =
-* 08/20/2026
-* Compatibility with WP 7.1 (solved bug https://wordpress.org/support/topic/bug-fix-for-wordpress-7-1-html-snippets-returning-empty-in-__call/ )
-* Change: update the minimum WP requirement to 4.2
-
-= 3.53 =
-* 05/20/2026
-* Fix: the "list_table_primary_column" filter should affect only the Custom Code table 
 
 = 3.52 =
 * 03/06/2026

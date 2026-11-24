@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<nodes>
+
+
+<item><name>Extremadura</name><link>http://www.hoy.es/extremadura/</link></item>
+<item><name>Nacional</name><link>http://www.hoy.es/nacional/</link></item>
+<item><name>Mundo</name><link>http://www.hoy.es/internacional/</link></item>
+<item><name>Economía</name><link>http://www.hoy.es/economia/</link></item>
+<item><name>Deportes</name><link>http://www.hoy.es/deportes/</link></item>
+<item><name>Cultura</name><link>http://www.hoy.es/culturas/</link></item>
+<item><name>Tecnología</name><link>http://www.hoy.es/tecnologia/</link></item>
+<item><name>Gente</name><link>http://www.hoy.es/gente-estilo/</link></item>
+<item><name>Planes</name><link>http://www.hoy.es/planes/</link></item>
+<item><name>Hiperlocales</name><link>http://www.hoyextremadura.es/</link></item>
+<item><name>Blogs</name><link>http://blogs.hoy.es/</link></item>
+
+
+</nodes>

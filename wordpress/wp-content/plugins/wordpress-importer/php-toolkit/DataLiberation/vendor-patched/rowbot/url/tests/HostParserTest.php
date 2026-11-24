@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Tests;
+namespace Rowbot\URL\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\Component\Host\HostInterface;
-use VendorPrefix\Rowbot\URL\Component\Host\HostParser;
-use VendorPrefix\Rowbot\URL\ParserContext;
-use VendorPrefix\Rowbot\URL\String\StringBuffer;
-use VendorPrefix\Rowbot\URL\String\Utf8String;
-use VendorPrefix\Rowbot\URL\URLRecord;
+use Rowbot\URL\Component\Host\HostInterface;
+use Rowbot\URL\Component\Host\HostParser;
+use Rowbot\URL\ParserContext;
+use Rowbot\URL\String\StringBuffer;
+use Rowbot\URL\String\Utf8String;
+use Rowbot\URL\URLRecord;
 
 class HostParserTest extends TestCase {
 	/**

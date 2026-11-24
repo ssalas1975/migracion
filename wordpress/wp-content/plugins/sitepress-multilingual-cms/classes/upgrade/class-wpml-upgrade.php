@@ -1,10 +1,8 @@
 <?php
 
-use WPML\Upgrade\CommandsStatus;
-
 class WPML_Upgrade {
-	const SCOPE_ADMIN     = 'admin';
-	const SCOPE_AJAX      = 'ajax';
+	const SCOPE_ADMIN = 'admin';
+	const SCOPE_AJAX = 'ajax';
 	const SCOPE_FRONT_END = 'front-end';
 
 	/** @var array */
@@ -17,30 +15,20 @@ class WPML_Upgrade {
 	/** @var WPML_Upgrade_Command_Factory */
 	private $command_factory;
 
-	/** @var CommandsStatus */
-	private $command_status;
-
 	/** @var bool $upgrade_in_progress */
 	private $upgrade_in_progress;
 
 	/**
 	 * WPML_Upgrade constructor.
 	 *
-	 * @param array                        $commands
-	 * @param SitePress                    $sitepress
+	 * @param array $commands
+	 * @param SitePress $sitepress
 	 * @param WPML_Upgrade_Command_Factory $command_factory
-	 * @param CommandsStatus               $command_status
 	 */
-	public function __construct(
-		array $commands,
-		SitePress $sitepress,
-		WPML_Upgrade_Command_Factory $command_factory,
-		CommandsStatus $command_status = null
-	) {
+	public function __construct( array $commands, SitePress $sitepress, WPML_Upgrade_Command_Factory $command_factory ) {
 		$this->add_commands( $commands );
 		$this->sitepress       = $sitepress;
 		$this->command_factory = $command_factory;
-		$this->command_status  = $command_status ?: new CommandsStatus();
 	}
 
 	/**
@@ -56,23 +44,6 @@ class WPML_Upgrade {
 
 	public function run() {
 		$result = false;
-
-		/**
-		 * Add commands to the upgrade logic.
-		 *
-		 * The filter must be added before the `wpml_loaded` action is fired (the action is fired on `plugins_loaded`).
-		 *
-		 * @param array $commands An empty array.
-		 * @param array $new_commands Array of classes created with \wpml_create_upgrade_command_definition.
-		 *
-		 * @since 4.1.0
-		 * @see   \wpml_create_upgrade_command_definition
-		 *
-		 */
-		$new_commands = apply_filters( 'wpml_upgrade_commands', array() );
-		if ( $new_commands && is_array( $new_commands ) ) {
-			$this->add_commands( $new_commands );
-		}
 
 		if ( $this->sitepress->get_wp_api()->is_admin() ) {
 			if ( $this->sitepress->get_wp_api()->is_ajax() ) {
@@ -135,16 +106,15 @@ class WPML_Upgrade {
 		return $results;
 	}
 
-	private function run_command( WPML_Upgrade_Command_Definition $command_definition, $default ) {
+	private function run_command( WPML_Upgrade_Command_Definition $command, $default ) {
 		$method = $default;
-		if ( $command_definition->get_method() ) {
-			$method = $command_definition->get_method();
+		if ( $command->get_method() ) {
+			$method = $command->get_method();
 		}
 
-		if ( ! $this->command_status->hasBeenExecuted( $command_definition->get_class_name() ) ) {
+		if ( ! $this->has_been_command_executed( $command ) ) {
 			$this->set_upgrade_in_progress();
-			$upgrade = $command_definition->create();
-
+			$upgrade = $this->command_factory->create( $command->get_class_name(), $command->get_dependencies() );
 			return $this->$method( $upgrade );
 		}
 
@@ -207,9 +177,19 @@ class WPML_Upgrade {
 
 	/**
 	 * @param IWPML_Upgrade_Command $class
+	 *
+	 * @return bool
+	 */
+	private function has_been_command_executed( WPML_Upgrade_Command_Definition $command ) {
+		return (bool) $this->get_update_option_value( $this->get_command_id( $command->get_class_name() ) );
+	}
+
+	/**
+	 * @param IWPML_Upgrade_Command $class
 	 */
 	public function mark_command_as_executed( IWPML_Upgrade_Command $class ) {
-		$this->command_status->markAsExecuted( get_class( $class ) );
+		$this->set_update_status( $this->get_command_id( get_class( $class ) ), true );
+		wp_cache_flush();
 	}
 
 	/**
@@ -219,6 +199,22 @@ class WPML_Upgrade {
 	 */
 	private function get_command_id( $class_name ) {
 		return str_replace( '_', '-', strtolower( $class_name ) );
+	}
+
+	private function get_update_option_value( $id ) {
+		$update_options = get_option( self::UPDATE_STATUSES_KEY, array() );
+
+		if ( $update_options && array_key_exists( $id, $update_options ) ) {
+			return $update_options[ $id ];
+		}
+
+		return null;
+	}
+
+	private function set_update_status( $id, $value ) {
+		$update_options        = get_option( self::UPDATE_STATUSES_KEY, array() );
+		$update_options[ $id ] = $value;
+		update_option( self::UPDATE_STATUSES_KEY, $update_options, true );
 	}
 
 	private function set_upgrade_in_progress() {

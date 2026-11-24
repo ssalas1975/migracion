@@ -1,5 +1,14 @@
 <?php
 
+/* 
+Description: The Main Shortcode Generator
+Author: UnitedThemes 
+Version: 1.0 
+Author URI: http://www.unitedthemes.com 
+License: GNU General Public License version 3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+*/
+
 $absolute_path = __FILE__;
 $path_to_file = explode( 'wp-content', $absolute_path );
 $path_to_wp = $path_to_file[0];
@@ -12,9 +21,8 @@ $themepath = get_template_directory_uri();
 require_once( 'ut.sc.definitions.php' );
 require_once( 'ut.sc.functions.php' );
 
-$jqueryuiprefix =  ( get_bloginfo('version') < "4.1" ) ? 'jquery.ui.' : '';
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -24,22 +32,18 @@ $jqueryuiprefix =  ( get_bloginfo('version') < "4.1" ) ? 'jquery.ui.' : '';
 <link rel="stylesheet" href="<?php echo plugins_url( 'css/ut.chosen.css' , __FILE__ ); ?>" />
 <link rel="stylesheet" href="<?php echo plugins_url( 'css/ut.jqueryui.css' , __FILE__ ); ?>" />
 
-<link rel="stylesheet" href="'//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css'" />
+<link rel="stylesheet" href="<?php echo plugins_url( '../css/font-awesome.css' , __FILE__ ); ?>" />
 <link rel="stylesheet" href="<?php echo get_option('siteurl') ?>/wp-admin/css/color-picker.css" />
 
 <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.js"></script>
 <script language="javascript" type="text/javascript" src="<?php echo plugins_url( 'js/ut.chosen.jquery.min.js' , __FILE__ ); ?>"></script>
 
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>core.min.js"></script>
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>widget.min.js"></script>
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>effect.min.js"></script>
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>mouse.min.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.core.min.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.widget.min.js"></script>
 
-
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>accordion.min.js"></script>
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>draggable.min.js"></script>
-<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/<?php echo $jqueryuiprefix; ?>slider.min.js"></script>
-
+<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.mouse.min.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.draggable.min.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/ui/jquery.ui.slider.min.js"></script>
 <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.ui.touch-punch.js"></script>
 
 <script type='text/javascript'>
@@ -78,8 +82,6 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 		
 		$(window).resize(calcTB_Pos);
 		
-        /* global timer */
-        var timer;
 		
 		/*
 		|--------------------------------------------------------------------------
@@ -169,16 +171,7 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			
 		});
 		
-        /*
-		|--------------------------------------------------------------------------
-		| Accordions
-		|--------------------------------------------------------------------------
-		*/
-		$("#hightlight-left-manager-box").accordion({ heightStyle: "content" });
-        $("#hightlight-right-manager-box").accordion({ heightStyle: "content" });
-        
-        
-        
+		
 		/*
 		|--------------------------------------------------------------------------
 		| Icon Modal
@@ -186,19 +179,15 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 		*/
 		
 		var iconbutton = '',
-			iconinput  = '',
-            icongroup  = '',
-            nested     = false;
+			iconinput  = '';
 		
 		$(document).on("click", ".open-ut-modal", function(event){ 
 			
 			event.preventDefault();
 			
 			iconbutton = $(this),
-			iconinput  = $(this).siblings('input:text').first(),
-			nested     = ( $(this).hasClass('sc-highlight-modal') ) ? true : false,
-            icongroup  = $(this).data('group');
-
+			iconinput  = $(this).siblings('input:text').first();
+			
 			$(".ut-modal").fadeIn();
 			
 		});
@@ -208,9 +197,6 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			
 			event.preventDefault();
 			
-            icongroup  = '';
-            nested     = '';
-            
 			$(".ut-modal").fadeOut();
 			
 		});
@@ -222,20 +208,9 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			$(iconinput).val(icon);
 			$(".ut-modal").fadeOut();
 			
-            if( nested ) { 
-                                
-                create_group_item( icongroup );
-            
-            } else {
-
-                /* update preview */
-                preview_shortcode();
-		    
-            }
-            
-            icongroup  = '';
-            nested     = '';
-            
+			/* update preview */
+			preview_shortcode();
+		
 		});
 		
 		
@@ -244,41 +219,16 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 		| Create Range Slider
 		|--------------------------------------------------------------------------
 		*/
-		$( ".ut-range-slider" ).each(function() {
-            
-             $(this).slider({
-                    
-                min: $(this).data('min'),
-                max: $(this).data('max'),
-                step: $(this).data('step'),
-                value: $(this).data('value'),
-                slide: function( event, ui ) {
-        
-                    $(this).parent().find('.ut-hidden-range-input').val( ui.value );
-                    $(this).parent().find('.ut-range-value').text( ui.value );
-                    
-                    /* update preview */
-                    preview_shortcode();
-                    
-                }
-            
-            });
-                
-        });
-        
-        
-        
-		
-		/*
-		|--------------------------------------------------------------------------
-		| Create Color Picker
-		|--------------------------------------------------------------------------
-		*/
-		$('.ut-color-picker:not(".sc-highlight-color")').wpColorPicker({
-			
-			change: function(event, ui){
+		$( ".ut-range-slider" ).slider({
 				
-				$(this).val( ui.color.toString() );
+			min: 0,
+			max: 1,
+			step: 0.1,
+			value: 0.8,
+			slide: function( event, ui ) {
+	
+				$(this).parent().find('.ut-hidden-range-input').val( ui.value );
+				$(this).parent().find('.ut-range-value').text( ui.value );
 				
 				/* update preview */
 				preview_shortcode();
@@ -286,15 +236,20 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			}
 		
 		});
-        
-        $('.sc-highlight-color').wpColorPicker({
+		
+		/*
+		|--------------------------------------------------------------------------
+		| Create Color Picker
+		|--------------------------------------------------------------------------
+		*/
+		$('.ut-color-picker').wpColorPicker({
 			
 			change: function(event, ui){
 				
 				$(this).val( ui.color.toString() );
 				
 				/* update preview */
-				create_group_item( $(this).data('group') );
+				preview_shortcode();
 				
 			}
 		
@@ -388,70 +343,34 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 		});
 
 		$(document).on("keyup", ".sc-bar-width, .sc-bar-text", function(e){ 
-			
-            create_group_item( $(this).data('group') );
-            
+			create_group_item( $(this).data('group') );
 		})
 		
 		$(document).on("input propertychange", ".sc-bar-width, .sc-bar-text", function(e){ 
-			
-            create_group_item( $(this).data('group') );
-            
+			create_group_item( $(this).data('group') );
 		})
 		
 		$(document).on("click", ".sc-bar-btn", function(e){ 
-			
-            create_group_item( $(this).data('group') );
-            
+			create_group_item( $(this).data('group') );
 		});
     	
-        /*
-		|--------------------------------------------------------------------------
-		| Select or Radio Change Functions
-		|--------------------------------------------------------------------------
-		*/
-	    $(document).on("change", ".sc-live-group-select", function(e){ 
-            
-            var status = $(this).find(':selected').val();
-            
-            if( status === 'on' ) {
-                
-                $(this).parent().parent('.live-group-select-parent').find('.live-group-select-children').show("slow");
-            
-            } else {
-                
-                $(this).parent().parent('.live-group-select-parent').find('.live-group-select-children').hide("slow");
-            
-            }
-            
-        });
-        
+	
 		/*
 		|--------------------------------------------------------------------------
 		| Input, Select or Radio Change Functions
 		|--------------------------------------------------------------------------
 		*/
-		        
+		
 		/* main textarea for shortcode content */
 		$('#sc-content textarea').bind('keyup', function(){ 
-            
-            clearInterval(timer);            
-            timer = setTimeout(function() {
-            
-                /* update preview */
-                preview_shortcode();
-                        
-            }, 1000);
+        
+			/* update preview */
+			preview_shortcode();
 			
 		}).bind('input propertychange', function(){ 
 			
-			clearInterval(timer);            
-            timer = setTimeout(function() {
-            
-                /* update preview */
-                preview_shortcode();
-                        
-            }, 1000);
+			/* update preview */
+			preview_shortcode();
 			
 		});
 		
@@ -466,47 +385,22 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 		
 		
 		$(document).on("keyup", ".propertychange", function(e){ 
-			
-            clearInterval(timer);
-            var group = $(this).data('group');           
-            
-            timer = setTimeout(function() {
-            
-                create_group_item( group );
-                        
-            }, 1000);
-            
+			create_group_item( $(this).data('group') );
 		});
 		
 		$(document).on("input propertychange", ".propertychange", function(e){ 
-			
-            clearInterval(timer);
-            var group = $(this).data('group');           
-            
-            timer = setTimeout(function() {
-            
-                create_group_item( group );
-                        
-            }, 1000);
-            
+			create_group_item( $(this).data('group') );
 		});
 		
-		$(document).on("change", ".sc-select-control:not('.sc-highlight-effect')", function(e){ 
-            
+		$(document).on("change", ".sc-select-control", function(e){ 
+        
 			/* update preview */
 			preview_shortcode();
 		
 		});
-        
-        $(document).on("change", ".sc-highlight-effect", function(e){ 
-            
-			/* update preview */
-			create_group_item( $(this).data('group') );
-		
-		});
 		
 		$(document).on("change", ".sc-select-live", function(e){ 
-                        
+        
 			/* update preview */
 			create_group_item( $(this).data('group') );
 		
@@ -586,28 +480,15 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			return false;
 			
 		});
-        
-        /* irotator */
-		$('.add-irotator-item').click(function(){
-			
-			$(this).prevAll('div').append( '<div class="sc-irotator well-white"><div class="ut-option-field"><label>Link: </label></div><div class="ut-option-value"><input type="text" value="" name="" class="sc-irotator-item form-control irotator-url propertychange" data-group="irotatorgroup" kl_virtual_keyboard_secure_input="on"></div><div class="ut-option-field"><label>Upload Image: </label></div><div style="margin-bottom:10px;" class="ut-option-value ut-media-access"><input type="text" value="" class="sc-irotator-item form-control irotator-logo propertychange" data-group="irotatorgroup" kl_virtual_keyboard_secure_input="on"><a data-limit_type="" data-uploader_button_text="Insert" data-uploader_title="Site Files" class="ut-upload-button btn btn-primary btn-sm" href="#"><i class="fa fa-picture fa-inverse"></i> Add Image</a></div><button class="btn btn-danger btn-xs remove-group-item" type="button" data-group="irotatorgroup"><i class="fa fa-trash-o"></i></button></div>' );
-			return false;
-			
-		});
 		
 		/* social icons */
 		$('.add-social-item').click(function(){
 			
 			$(this).prevAll('div').append( '<div class="sc-socials well-white"><div class="ut-option-field"><label>Profile Title: </label></div><div class="ut-option-value"><input type="text" value="" name="" class="sc-social-title form-control propertychange" data-group="socialgroup"></div><div class="hr"></div><div class="ut-option-field"><label>Link to Profile: </label></div><div class="ut-option-value"><input type="text" value="" name="" class="sc-social-link form-control propertychange" data-group="socialgroup"></div><div class="hr"></div><div class="ut-option-field"><label>Icon: </label></div><div class="ut-option-value"><select class="sc-social-icon" data-group="socialgroup"><option value="fa-adn">adn</option><option value="fa-android">android</option><option value="fa-apple">apple</option><option value="fa-bitbucket">bitbucket</option><option value="fa-bitcoin">bitcoin</option><option value="fa-btc">btc</option><option value="fa-css3">css3</option><option value="fa-dribbble">dribbble</option><option value="fa-dropbox">dropbox</option><option value="fa-facebook">facebook</option><option value="fa-flickr">flickr</option><option value="fa-foursquare">foursquare</option><option value="fa-github">github</option><option value="fa-gittip">gittip</option><option value="fa-google-plus">google-plus</option><option value="fa-html5">html5</option><option value="fa-instagram">instagram</option><option value="fa-linkedin">linkedin</option><option value="fa-linux">linux</option><option value="fa-maxcdn">maxcdn</option><option value="fa-pinterest">pinterest</option><option value="fa-renren">renren</option><option value="fa-skype">skype</option><option value="fa-stack-exchange">stackexchange</option><option value="fa-trello">trello</option><option value="fa-tumblr">tumblr</option><option value="fa-twitter">twitter</option><option value="fa-vk">vk</option><option value="fa-weibo">weibo</option><option value="fa-windows">windows</option><option value="fa-xing">xing</option><option value="fa-youtube">youtube</option></select></div><div class="hr"></div><div class="ut-option-field"><label>Content: </label></div><div class="ut-option-value"><textarea name="" type="text" class="sc-social-text form-control propertychange" data-group="socialgroup"></textarea></div><button class="btn btn-danger btn-xs remove-group-item" type="button" data-group="socialgroup"><i class="fa fa-trash-o"></i></button></div>' );
-		    return false;
+		return false;
 			
 		});
-        
-        /* video testimonials */        
-        $('.add-videotest-item').click(function(){
-            $(this).prevAll('div').append('<div class="sc-testvids well-white"><div class="ut-option-field"><label>Author: </label></div><div class="ut-option-value"><input data-group="videotestgroup" class="sc-vidtest-item video-author form-control propertychange" name="" value="" type="text"></div><div class="hr"></div><div class="ut-option-field"><label>Company: </label></div><div class="ut-option-value"><input data-group="videotestgroup" class="sc-vidtest-item video-company form-control propertychange" name="" value="" type="text"></div><div class="hr"></div><div class="ut-option-field"><label>Poster Image: </label></div><div class="ut-option-value ut-media-access" style="margin-bottom:10px;"><input data-group="videotestgroup" class="sc-vidtest-item form-control video-poster propertychange" value="" type="text"><a href="#" class="ut-upload-button btn btn-primary btn-sm" data-uploader_title="Site Files" data-uploader_button_text="Insert" data-limit_type=""><i class="fa fa-picture fa-inverse"></i> Add Poster Image</a></div><div class="hr"></div><div class="ut-option-field"><label>Video Source: </label></div><div class="ut-option-value"><input data-group="videotestgroup" class="sc-vidtest-item video-source form-control propertychange" name="" value="" type="text"><span class="description">You can insert one of these video sources:</span><br><ol><li><span class="description"><a target="_blank" href="http://codex.wordpress.org/Video_Shortcode">WordPress Video Shortcode</a></span></li><li><span class="description"><a target="_blank" href="http://codex.wordpress.org/Embeds">WordPress Embeds</a><br> like : http://www.youtube.com/watch?v=dQw4w9WgXcQ</span></li></ol></div><div class="hr"></div><div class="live-group-select-parent"><div class="ut-option-field"><label>Activate Boxed Layout?: </label></div><div class="ut-option-value"><select data-group="videotestgroup" class="video-box-state sc-live-group-select sc-select-live"><option value="off">no, thanks!</option><option value="on">yes, please!</option></select></div><div class="clear"></div><div style="display: block;" class="live-group-select-children"><div class="ut-option-field"><label>Choose Style: </label></div><div class="ut-option-value"><select data-group="videotestgroup" class="video-box-style sc-select-live"><option data-for="" value="dark">Dark</option><option data-for="" value="light">Light</option></select></div><div class="clear"></div></div></div><div class="hr"></div><div class="ut-option-field"><label>Animation Effect: </label></div><div class="ut-option-value"><select data-group="videotestgroup" class="video-box-effect sc-select-live"><option value="">Choose Animation Effect</option><option value="fadeIn">fadeIn</option><option value="slideInRight">slideInRight</option><option value="slideInLeft">slideInLeft</option></select></div><div class="hr"></div></div>');
-            return false;
-        });
+
 	
     	/*
 		|--------------------------------------------------------------------------
@@ -673,19 +554,6 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 				});
 				
 			}
-            
-            if('irotatorgroup' == groupname ) {
-				
-				$('.sc-irotator').each(function(){
-				   
-				   var	url 		 = $(this).find('.irotator-url').val(),
-						logo 		 = $(this).find('.irotator-image').val();
-	
-						code += ' [ut_irotator url="' + url + '" image="' + logo + '"][/ut_irotator] '; 
-										   
-				});
-				
-			}
 			
 			if('socialgroup' == groupname ) {
 				
@@ -716,34 +584,6 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 				});
 				
 			}
-            
-            if('highlightgroup' == groupname ) {				
-                
-				$('.sc-highlight-item').each(function(){
-				   
-                   if( $(this).val() != '' || $(this).parent().parent().find('.sc-highlight-text').val() != '' ) {
-						
-						var highlightcontent = $(this).parent().parent().find('.sc-highlight-text').val(),
-                            highlighticon    = $(this).parent().parent().find('.sc-highlight-icon').val(),                            
-                            highlightcolor   = $(this).parent().parent().find('.sc-highlight-color').val(),
-                            highlighteffect  = $(this).parent().parent().find('.sc-highlight-effect').val(),
-                            highlightalign   = $(this).data('align');
-						
-                        if( highlightalign == 'left' ) {						
-                            
-                            code += ' [ut_highlight_left title="'+$(this).val()+'" ' + ( ( highlighteffect != "" ) ? 'effect="'+highlighteffect+'"' : '' ) + ' ' + ( ( highlighticon != "" ) ? 'icon="'+highlighticon+'"' : '' ) + ' ' + ( ( highlightcolor != "" ) ? 'color="'+highlightcolor+'"' : '' ) + '] '+ highlightcontent +' [/ut_highlight_left] '; 
-                            
-                        } else {
-                           
-                            code += ' [ut_highlight_right title="'+$(this).val()+'" ' + ( ( highlighteffect != "" ) ? 'effect="'+highlighteffect+'"' : '' ) + ' ' + ( ( highlighticon != "" ) ? 'icon="'+highlighticon+'"' : '' ) + ' ' + ( ( highlightcolor != "" ) ? 'color="'+highlightcolor+'"' : '' ) + '] '+ highlightcontent +' [/ut_highlight_right] ';  
-                            
-                        }
-						
-				   }
-                   
-				});
-				
-			}
 			
 			if('probars' == groupname ) {
 				
@@ -764,27 +604,6 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 				
 			}
 			
-            if('videotestgroup' == groupname ) {
-                
-                $('.sc-testvids').each(function(){
-                    
-                    $this = $(this);
-                    
-                    var vidtest_author    = $this.find('.video-author').val(),
-                        vidtest_company   = $this.find('.video-company').val(),
-                        vidtest_poster    = $this.find('.video-poster').val(),
-                        vidtest_source    = $this.find('.video-source').val(),
-                        vidtest_box       = $this.find('.video-box-state').val(),
-                        vidtest_box_style = $this.find('.video-box-style').val(),
-                        vidtest_box_effect= $this.find('.video-box-effect').val();                        
-                    
-                    code += '[ut_video_testimonial ' + ( ( vidtest_box_effect != "" ) ? 'effect="'+vidtest_box_effect+'"' : '' ) + ' ' + ( ( vidtest_poster != "" ) ? 'poster="'+vidtest_poster+'"' : '' ) + ' ' + ( ( vidtest_box === "on" ) ? 'box="'+vidtest_box+'"' : '' ) + ' ' + ( ( vidtest_box === "on" && vidtest_box_style != "" ) ? 'style="'+vidtest_box_style+'"' : '' ) + ' ' + ( ( vidtest_author != "" ) ? 'author="'+vidtest_author+'"' : '' ) + ' ' + ( ( vidtest_company != "" ) ? 'company="'+vidtest_company+'"' : '' ) + ']' + vidtest_source + '[/ut_video_testimonial]';
-                    
-                        
-                });                
-            
-            }
-            
 			$('#shortcode-preview-m').html( code );
 			
 		}
@@ -809,8 +628,8 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 			}
 			code += add;
 			
-			$('#options-'+name+' input.attr').not('.sc-highlight-color , .sc-highlight-icon').each(function(){				
-                
+			$('#options-'+name+' input.attr').each(function(){
+				
 				$this = $(this);
 	
 				switch( $this.attr('type') ){
@@ -829,7 +648,7 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
 				
 			});
 			
-			$('#options-'+name+' select.sc-select-control').not('.sc-highlight-effect').each(function(){
+			$('#options-'+name+' select.sc-select-control').each(function(){
 				
 				$this = $(this);
 				
@@ -873,7 +692,7 @@ var wpColorPickerL10n = { "clear":"Clear" , "defaultString" : "Default" , "pick"
         <div id="ut-scgenerator-dialog" class="ut-admin">
         	
             <header>
-                <h2><span><?php _e('Shortcode Generator', 'ut_shortcodes' ); ?></span></h2>
+                <h2><span><i class="icon-cogs"></i> <?php _e('Shortcode Generator', 'ut_shortcodes' ); ?></span></h2>
             </header>
             
 			<?php echo ut_generate_sc_select(); ?>

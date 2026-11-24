@@ -109,6 +109,9 @@ class Rsssl_Two_Factor_User_Factory {
 			} );
 		}
 
+		// Determine the most important role.
+		$mostImportantRole = reset( $matchingRoles );
+
 		return new Rsssl_Two_FA_user (
 			$user->ID,
 			$user->user_login,

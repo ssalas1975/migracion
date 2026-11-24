@@ -27,11 +27,9 @@ export default function ErrorList( {
 		return null;
 	}
 
-	// Strings may contain HTML links, so render them with Markup. Elements pass through.
+	// Render messages with Markup to support HTML links.
 	const renderedMessages = all.map( ( message, index ) => (
-		typeof message === 'string'
-			? <Markup key={ index } content={ message } noWrap tagName="span" />
-			: message
+		<Markup key={ index } content={ message } noWrap tagName="span" />
 	) );
 
 	return (

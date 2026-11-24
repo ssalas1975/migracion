@@ -31,7 +31,7 @@ class AAL_Export {
 			$this->redirect_back();
 		}
 
-		if ( empty( $_GET['aal-record-action'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['aal_actions_nonce'] ) ), 'aal_actions_nonce' ) ) {
+		if ( empty( $_GET['aal-record-action'] ) || ! wp_verify_nonce( $_GET['aal_actions_nonce'], 'aal_actions_nonce' ) ) {
 			$this->redirect_back();
 		}
 
@@ -39,7 +39,7 @@ class AAL_Export {
 			$this->redirect_back();
 		}
 
-		$exporter_selected = sanitize_text_field( wp_unslash( $_GET['aal-record-action'] ) );
+		$exporter_selected = $_GET['aal-record-action'];
 
 		// If exporter doesn't exist or isn't registered, bail
 		if ( ! array_key_exists( $exporter_selected, $this->get_exporters() ) ) {
@@ -48,42 +48,72 @@ class AAL_Export {
 
 		$this->insert_export_log();
 
+		// Disable row limit
+		add_filter( 'edit_aal_logs_per_page', array( $this, 'increase_throughput' ) );
+
+		// Prep items for export
+		$list_table->prepare_items();
+		$items = $list_table->items;
+		$columns = $list_table->get_columns();
+
+		$op = array();
+		foreach ( $items as $item ) {
+			$op[] = $this->prep_row( $item, $columns, $list_table );
+		}
+
 		$exporter = $this->exporters[ $exporter_selected ];
-
-		$query_args = $this->get_export_query_args_from_request();
-		$columns    = $this->get_export_columns( $exporter );
-		$rows     = $this->export_rows_generator( $query_args, $columns );
-		$payload  = $this->get_export_write_payload( $exporter, $rows );
-
-		if ( ! empty( $exporter->supports_iterable ) && $this->is_live_export() ) {
-			while ( ob_get_level() ) {
-				ob_end_clean();
-			}
-			nocache_headers();
-			if ( function_exists( 'set_time_limit' ) ) {
-				set_time_limit( 0 );
-			}
-		}
-
-		$exporter->write( $payload, $columns );
-	}
-
-	/**
-	 * @param object $exporter
-	 * @param Traversable $rows
-	 * @return array|Traversable
-	 */
-	protected function get_export_write_payload( $exporter, $rows ) {
-		if ( ! empty( $exporter->supports_iterable ) ) {
-			return $rows;
-		}
-
-		return iterator_to_array( $rows, false );
+		$exporter->write( $op, $columns );
 	}
 
 	protected function redirect_back() {
-		wp_safe_redirect( menu_page_url( 'activity-log-page', false ) );
+		wp_redirect( menu_page_url( 'activity-log-page', false ) );
 		exit;
+	}
+
+	/**
+	 * @param stdClass                    $item
+	 * @param array                       $columns
+	 * @param AAL_Activity_Log_List_Table $list_table
+	 *
+	 * @return array
+	 */
+	private function prep_row( $item, $columns, $list_table ) {
+		$row = array();
+
+		foreach ( array_keys( $columns ) as $column ) {
+			switch ( $column ) {
+				case 'date':
+					$row[ $column ] = date_i18n( get_option( 'date_format' ), $item->hist_time ) . ' ' . date_i18n( get_option( 'time_format' ), $item->hist_time );;
+					break;
+
+				case 'author':
+					$user = get_userdata( $item->user_id );
+					$row[ $column ] = isset( $user->display_name ) ? $user->display_name : 'unknown';
+					break;
+
+				case 'ip':
+					$row[ $column ] = $item->hist_ip;
+					break;
+
+				case 'type':
+					$row[ $column ] = $item->object_type;
+					break;
+
+				case 'label':
+					$row[ $column ] = $item->object_subtype;
+					break;
+
+				case 'action':
+					$row[ $column ] = $list_table->get_action_label( $item->action );
+					break;
+
+				case 'description':
+					$row[ $column ] = $item->object_name;
+					break;
+			}
+		}
+
+		return $row;
 	}
 
 	private function insert_export_log() {
@@ -95,134 +125,9 @@ class AAL_Export {
 		) );
 	}
 
-	/**
-	 * @return array<string, string>
-	 */
-	private function get_export_columns( $exporter = null ): array {
-		$columns = array(
-			'date'         => __( 'Date', 'aryo-activity-log' ),
-			'author'       => __( 'User', 'aryo-activity-log' ),
-			'app_password' => __( 'App Password', 'aryo-activity-log' ),
-			'source'       => __( 'Source', 'aryo-activity-log' ),
-			'type'         => __( 'Topic', 'aryo-activity-log' ),
-			'label'       => __( 'Context', 'aryo-activity-log' ),
-			'description' => __( 'Meta', 'aryo-activity-log' ),
-			'action'      => __( 'Action', 'aryo-activity-log' ),
-			'changes'     => __( 'Changes', 'aryo-activity-log' ),
-			'time_iso'    => __( 'Time (ISO 8601)', 'aryo-activity-log' ),
-			'user_id'     => __( 'User ID', 'aryo-activity-log' ),
-			'object_id'   => __( 'Object ID', 'aryo-activity-log' ),
-			'action_key'  => __( 'Action Key', 'aryo-activity-log' ),
-		);
-
-		if ( isset( $exporter->include_ip ) && false === $exporter->include_ip ) {
-			return $columns;
-		}
-
-		return $this->add_export_ip_column( $columns );
-	}
-
-	/**
-	 * @return array<string, string>
-	 */
-	private function get_export_query_args_from_request(): array {
-		$query_args = array();
-
-		$filter_keys = array( 'dateshow', 'capshow', 'usershow', 'typeshow', 'showaction', 'sourceshow', 'filter_ip', 's' );
-		foreach ( $filter_keys as $key ) {
-			if ( ! empty( $_GET[ $key ] ) ) {
-				$query_args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
-			}
-		}
-
-		return $query_args;
-	}
-
-	/**
-	 * @param array<string, string> $query_args
-	 * @param array<string, string> $columns
-	 * @return Generator<int, array<string, string>>
-	 */
-	private function export_rows_generator( array $query_args, array $columns ) {
-		$query      = new AAL_Log_Query();
-		$batch_size = (int) apply_filters( 'aal_export_batch_size', 1000 );
-		$batch_size = max( 1, $batch_size );
-		$min_id     = 0;
-
-		if ( ! empty( $query_args['dateshow'] ) ) {
-			$min_id = $this->get_export_min_hist_id( $query_args['dateshow'] );
-		}
-
-		$before_id = 0;
-
-		while ( true ) {
-			$batch_args = array_merge(
-				$query_args,
-				array(
-					'orderby'    => 'histid',
-					'order'      => 'DESC',
-					'skip_count' => true,
-					'page'       => 1,
-					'per_page'   => $batch_size,
-				)
-			);
-
-			if ( $before_id > 0 ) {
-				$batch_args['before_id'] = $before_id;
-			}
-
-			if ( $min_id > 0 ) {
-				$batch_args['min_id'] = $min_id;
-			}
-
-			$result = $query->query( $batch_args );
-			if ( empty( $result['items'] ) ) {
-				break;
-			}
-
-			foreach ( $result['items'] as $item ) {
-				yield AAL_Log_Presenter::to_export_row( $item, $columns );
-			}
-
-			if ( $this->is_live_export() ) {
-				flush();
-			}
-
-			$last_item = end( $result['items'] );
-			$before_id = (int) $last_item->histid;
-
-			if ( empty( $result['has_more'] ) ) {
-				break;
-			}
-		}
-	}
-
-	private function get_export_min_hist_id( $dateshow ) {
-		global $wpdb;
-
-		$date_range = AAL_Log_Query::get_date_range( $dateshow );
-		if ( null === $date_range ) {
-			return 0;
-		}
-
-		$min_id = $wpdb->get_var(
-			$wpdb->prepare(
-				'SELECT MIN(`histid`) FROM `' . $wpdb->activity_log . '` WHERE `hist_time` >= %d',
-				$date_range['start']
-			)
-		);
-
-		return $min_id ? (int) $min_id : 0;
-	}
-
-	private function is_live_export(): bool {
-		return ! defined( 'AAL_TESTMODE' ) || ! AAL_TESTMODE;
-	}
-
 	public function admin_register_exporters() {
 		$builtin_exporters = array(
 			'csv',
-			'jsonl',
 		);
 
 		$exporter_instances = array();
@@ -260,27 +165,14 @@ class AAL_Export {
 		return $this->exporters;
 	}
 
-	private function add_export_ip_column( array $columns ): array {
-		if ( 'no-collect-ip' === AAL_Main::instance()->settings->get_option( 'log_visitor_ip_source' ) ) {
-			return $columns;
-		}
-
-		$ip_label = __( 'IP', 'aryo-activity-log' );
-
-		$result = array();
-		$inserted = false;
-		foreach ( $columns as $key => $label ) {
-			$result[ $key ] = $label;
-			if ( 'source' === $key ) {
-				$result['ip'] = $ip_label;
-				$inserted = true;
-			}
-		}
-
-		if ( ! $inserted ) {
-			$result['ip'] = $ip_label;
-		}
-
-		return $result;
+	/**
+	 * Increase throughput
+	 *
+	 * @param int $records_per_page Old limit of records
+	 *
+	 * @return int
+	 */
+	public function increase_throughput( $records_per_page ) {
+		return PHP_INT_MAX;
 	}
 }

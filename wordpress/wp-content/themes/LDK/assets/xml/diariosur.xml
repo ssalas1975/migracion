@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<nodes>
+<item><name>Málaga</name><link>http://www.diariosur.es/malaga/</link></item>
+<item><name>Andalucía</name><link>http://www.diariosur.es/andalucia/</link></item>
+<item><name>España</name><link>http://www.diariosur.es/nacional/</link></item>
+<item><name>Mundo</name><link>http://www.diariosur.es/internacional/</link></item>
+<item><name>Economía</name><link>http://www.diariosur.es/economia/</link></item>
+<item><name>Málaga CF</name><link>http://malagacf.diariosur.es/</link></item>
+<item><name>Deportes</name><link>http://www.diariosur.es/deportes/</link></item>
+<item><name>Culturas</name><link>http://www.diariosur.es/culturas/</link></item>
+<item><name>Tecnología</name><link>http://www.diariosur.es/tecnologia/</link></item>
+<item><name>Gente y Estilo</name><link>http://www.diariosur.es/gente-estilo/</link></item>
+<item><name>Planes</name><link>http://www.diariosur.es/planes/</link></item>
+</nodes>

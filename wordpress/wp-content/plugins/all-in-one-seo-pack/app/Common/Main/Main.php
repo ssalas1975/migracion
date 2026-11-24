@@ -15,15 +15,6 @@ use AIOSEO\Plugin\Common\Models;
  */
 class Main {
 	/**
-	 * Holds the BulkActions instance so its hooks remain registered.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @var BulkActions|null
-	 */
-	public $bulkActions = null;
-
-	/**
 	 * Construct method.
 	 *
 	 * @since 4.0.0
@@ -31,10 +22,6 @@ class Main {
 	public function __construct() {
 		new Media();
 		new QueryArgs();
-
-		if ( aioseo()->options->advanced->truSeo ) {
-			$this->bulkActions = new BulkActions();
-		}
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueTranslations' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueueFrontEndAssets' ] );

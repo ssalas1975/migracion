@@ -1,0 +1,68 @@
+# Translation of Plugins - Enhanced Text Widget - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Enhanced Text Widget - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2017-10-19 16:45:06+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Enhanced Text Widget - Stable (latest release)\n"
+
+#. Description of the plugin
+msgid "An enhanced version of the default text widget where you may have Text, HTML, CSS, JavaScript, Flash, Shortcodes, and/or PHP as content with linkable widget title."
+msgstr "Una versión mejorada del widget de texto por defecto en la que puedes añadir como contenido Texto, HTML, CSS, JavaScript, Flash, Shortcodes y/o PHP y en la que se le puede añadir un enlace al título del widget."
+
+#. Plugin URI of the plugin
+msgid "http://wordpress.org/plugins/enhanced-text-widget/"
+msgstr "http://wordpress.org/plugins/enhanced-text-widget/"
+
+#. Plugin Name of the plugin
+msgid "Enhanced Text Widget"
+msgstr "Enhanced Text Widget"
+
+#: enhanced-text-widget.php:181
+msgid "Do not output before/after_widget/title"
+msgstr "No mostrar before/after_widget/título"
+
+#: enhanced-text-widget.php:177
+msgid "Automatically add paragraphs to the content"
+msgstr "Añadir automáticamente los párrafos al contenido"
+
+#: enhanced-text-widget.php:173
+msgid "Open the URL in a new window"
+msgstr "Abrir la url en una nueva ventana"
+
+#: enhanced-text-widget.php:168
+msgid "Do not display empty widgets"
+msgstr "No mostrar widgets vacíos"
+
+#: enhanced-text-widget.php:164
+msgid "Do not display the title"
+msgstr "No mostrar el título"
+
+#: enhanced-text-widget.php:159
+msgid "Content"
+msgstr "Contenido"
+
+#: enhanced-text-widget.php:154
+msgid "CSS Classes"
+msgstr "Clases CSS"
+
+#: enhanced-text-widget.php:149
+msgid "URL"
+msgstr "URL"
+
+#: enhanced-text-widget.php:144
+msgid "Title"
+msgstr "Título"
+
+#: enhanced-text-widget.php:33
+msgid "Enhanced Text"
+msgstr "Texto mejorado"
+
+#: enhanced-text-widget.php:31
+msgid "Text, HTML, CSS, PHP, Flash, JavaScript, Shortcodes"
+msgstr "Texto, HTML, CSS, PHP, Flash, JavaScript, Shortcodes"

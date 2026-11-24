@@ -1,10 +1,10 @@
 <?php
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* Alert Message HTML
 /*-----------------------------------------------------------------------------------*/
 $id = ( isset( $atts['id'] ) ) ? $atts['id'] : $id_rand;
-$alignment = ( isset( $atts['alignment']) ) ? $atts['alignment'] : '';
+$alignment = ( isset( $atts['alignment']) ) ? $atts['alignment'] : 'left';
 $title = ( isset( $atts['title'] ) ) ? $atts['title'] : '';
 $text = ( isset( $atts['text'] ) ) ? $atts['text'] : '';
 $icon = ( isset( $atts['icon'] ) ) ? $atts['icon'] : '';
@@ -30,7 +30,7 @@ $type = ( isset( $atts['type'] ) ) ? $atts['type'] : '';
 
 				<?php if( $text ) : ?>
 					<div class="sh-alert-text">
-						<?php echo esc_attr( $text ); ?>
+						<?php echo ( $text ); ?>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -50,7 +50,7 @@ $type = ( isset( $atts['type'] ) ) ? $atts['type'] : '';
 
 				<?php if( $text ) : ?>
 					<div class="sh-alert-text">
-						<?php echo esc_attr( $text ); ?>
+						<?php echo ( $text ); ?>
 					</div>
 				<?php endif; ?>
 			</div>

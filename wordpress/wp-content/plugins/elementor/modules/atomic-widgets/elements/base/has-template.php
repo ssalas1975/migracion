@@ -14,53 +14,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 trait Has_Template {
 
-	private static function get_macros_template_key(): string {
-		return 'elementor/macros';
-	}
-
 	public function get_initial_config() {
 		$config = parent::get_initial_config();
 
 		$config['twig_main_template'] = $this->get_main_template();
 		$config['twig_templates'] = $this->get_templates_contents();
-
-		$extra_context = $this->get_template_extra_context();
-
-		if ( ! empty( $extra_context ) ) {
-			$config['template_context'] = $extra_context;
-		}
-
 		return $config;
-	}
-
-	/**
-	 * Static, element-level values exposed to the Twig template on both the frontend and the editor canvas.
-	 * Must not depend on element settings, since the editor receives it once per page load.
-	 * Values are sent to every user who can open the editor: only return data that is already public
-	 * in the rendered frontend (e.g. a browser API key), never server-side secrets.
-	 * Core context keys (id, settings, type, ...) take precedence over these.
-	 */
-	protected function get_template_extra_context(): array {
-		return [];
-	}
-
-	protected function transform_link_for_render( array $parsed ): array {
-		return $parsed;
-	}
-
-	protected function get_shared_templates(): array {
-		return [
-			self::get_macros_template_key() => __DIR__ . '/_macros.html.twig',
-		];
 	}
 
 	protected function render() {
 		try {
 			$renderer = Template_Renderer::instance();
 
-			$all_templates = array_merge( $this->get_shared_templates(), $this->get_templates() );
-
-			foreach ( $all_templates as $name => $path ) {
+			foreach ( $this->get_templates() as $name => $path ) {
 				if ( $renderer->is_registered( $name ) ) {
 					continue;
 				}
@@ -68,16 +34,13 @@ trait Has_Template {
 				$renderer->register( $name, $path );
 			}
 
-			$settings = $this->get_atomic_settings();
-
-			$context = array_merge( $this->get_template_extra_context(), [
+			$context = [
 				'id' => $this->get_id(),
 				'interaction_id' => $this->get_interaction_id(),
 				'type' => $this->get_name(),
-				'settings' => $settings,
-				'tag' => static::get_computed_html_tag( $settings ),
+				'settings' => $this->get_atomic_settings(),
 				'base_styles' => $this->get_base_styles_dictionary(),
-			] );
+			];
 
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $renderer->render( $this->get_main_template(), $context );
@@ -91,7 +54,7 @@ trait Has_Template {
 	protected function get_templates_contents() {
 		return array_map(
 			fn ( $path ) => Utils::file_get_contents( $path ),
-			array_merge( $this->get_shared_templates(), $this->get_templates() )
+			$this->get_templates()
 		);
 	}
 

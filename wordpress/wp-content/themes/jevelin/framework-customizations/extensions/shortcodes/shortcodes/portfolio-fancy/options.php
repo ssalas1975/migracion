@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -31,6 +31,7 @@ $options = array(
 					'2' => esc_html__('2 columns', 'jevelin'),
 					'3' => esc_html__('3 columns', 'jevelin'),
 					'4' => esc_html__('4 columns', 'jevelin'),
+					'5' => esc_html__('5 columns', 'jevelin'),
 				),
 				'value'	  => '3',
 			),
@@ -50,6 +51,14 @@ $options = array(
 				'desc'  => esc_html__( 'Enter item limit (default 6, infinite -1)', 'jevelin' ),
 				'type'  => 'text',
 				'value' => '6',
+				'attr'  => array( 'style' => 'max-width: 60px;' ),
+			),
+
+			'spacing' => array(
+				'label' => esc_html__( 'Spacing', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter portfolio item spacing (with px)', 'jevelin' ),
+				'type'  => 'text',
+				'value' => '15px',
 				'attr'  => array( 'style' => 'max-width: 60px;' ),
 			),
 
@@ -257,6 +266,26 @@ $options = array(
 				'type'  => 'text',
 				'value' => '6',
 				'attr'  => array( 'style' => 'max-width: 60px;' ),
+			),
+
+		),
+	),
+
+	'lazy_tab' => array(
+		'title'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'lazy' => array(
+				'type'    => 'radio',
+				'label'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+				'desc'    => esc_html__( 'Choose to enable to disable lazy loading', 'jevelin' ),
+				'value'	  => 'default',
+				'choices' => array(
+					'default' => esc_html__('Default (from theme settings)', 'jevelin'),
+					'disabled' => esc_html__('Disabled', 'jevelin'),
+					'enabled' => esc_html__('Enabled', 'jevelin'),
+				)
 			),
 
 		),

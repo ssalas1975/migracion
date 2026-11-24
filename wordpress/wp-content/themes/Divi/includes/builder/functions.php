@@ -8,7 +8,7 @@
 
 if ( ! defined( 'ET_BUILDER_PRODUCT_VERSION' ) ) {
 	// Note, this will be updated automatically during grunt release task.
-	define( 'ET_BUILDER_PRODUCT_VERSION', '4.26.0' );
+	define( 'ET_BUILDER_PRODUCT_VERSION', '4.11.0' );
 }
 
 if ( ! defined( 'ET_BUILDER_VERSION' ) ) {
@@ -722,12 +722,6 @@ if ( ! function_exists( 'et_pb_process_font_icon' ) ) :
 	 * @return string $font_icon       Font Icon value
 	 */
 	function et_pb_process_font_icon( $font_icon, $symbols_function = 'default' ) {
-
-		// Do it if $font_icon is an extended icon.
-		if ( et_pb_maybe_extended_icon( $font_icon ) ) {
-			return et_pb_get_extended_font_icon_value( $font_icon );
-		}
-
 		// the exact font icon value is saved.
 		if ( 1 !== preg_match( '/^%%/', trim( $font_icon ) ) ) {
 			return $font_icon;
@@ -977,15 +971,14 @@ if ( ! function_exists( 'et_builder_page_creation_options' ) ) :
 					'value_index' => 2,
 				),
 			),
-			'build_with_ai'         => array(
-				'className'       => 'accent-dark-blue',
-				'imgSrc'          => 'layout-insert-build-with-ai.svg',
-				'imgSrcHover'     => 'layout-insert-build-with-ai.svg',
-				'titleText'       => esc_html__( 'Build With AI', 'et_builder' ),
-				'bannerText'      => esc_html__( 'Brand New', 'et_builder' ),
-				'descriptionText' => esc_html__( 'Simply describe your page content, sit back, relax, and let Divi AI build your page with the click of a button.', 'et_builder' ),
-				'buttonText'      => esc_html__( 'Generate Layout', 'et_builder' ),
-				'permission'      => array( 'divi_ai' ),
+			'clone_existing_page'   => array(
+				'className'       => 'accent-green',
+				'imgSrc'          => 'clone.png',
+				'imgSrcHover'     => 'clone.gif',
+				'titleText'       => esc_html__( 'Clone Existing page', 'et_builder' ),
+				'descriptionText' => esc_html__( 'Jump start your layout design by duplicating another page that you’ve already built.', 'et_builder' ),
+				'buttonText'      => esc_html__( 'Choose Page', 'et_builder' ),
+				'permission'      => array( 'load_layout', 'divi_library', 'edit_module' ),
 				'setting'         => array(
 					'value_index' => 3,
 				),
@@ -1048,7 +1041,7 @@ endif;
  */
 function et_fb_app_preferences_settings() {
 	$app_preferences = array(
-		'settings_bar_location'               => array(
+		'settings_bar_location'             => array(
 			'type'    => 'string',
 			'default' => 'bottom',
 			'options' => array(
@@ -1062,23 +1055,19 @@ function et_fb_app_preferences_settings() {
 				'left',
 			),
 		),
-		'builder_animation'                   => array(
+		'builder_animation'                 => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'builder_display_modal_settings'      => array(
+		'builder_display_modal_settings'    => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'builder_enable_dummy_content'        => array(
+		'builder_enable_dummy_content'      => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'builder_enable_visual_theme_builder' => array(
-			'type'    => 'bool',
-			'default' => true,
-		),
-		'event_mode'                          => array(
+		'event_mode'                        => array(
 			'type'    => 'string',
 			'default' => 'hover',
 			'options' => array(
@@ -1087,7 +1076,7 @@ function et_fb_app_preferences_settings() {
 				'grid'  => esc_html__( 'Grid Mode', 'et_builder' ),
 			),
 		),
-		'view_mode'                           => array(
+		'view_mode'                         => array(
 			'type'    => 'string',
 			'default' => et_builder_bfb_enabled() ? 'wireframe' : 'desktop',
 			'options' => array(
@@ -1097,11 +1086,11 @@ function et_fb_app_preferences_settings() {
 				'wireframe' => esc_html__( 'Wireframe View', 'et_builder' ),
 			),
 		),
-		'hide_disabled_modules'               => array(
+		'hide_disabled_modules'             => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'history_intervals'                   => array(
+		'history_intervals'                 => array(
 			'type'    => 'int',
 			'default' => 1,
 			'options' => array(
@@ -1112,30 +1101,30 @@ function et_fb_app_preferences_settings() {
 				'40' => esc_html__( 'After Every 40th Action', 'et_builder' ),
 			),
 		),
-		'page_creation_flow'                  => array(
+		'page_creation_flow'                => array(
 			'type'    => 'string',
 			'default' => 'default',
 			'options' => et_builder_page_creation_settings(),
 		),
-		'quick_actions_always_start_with'     => array(
+		'quick_actions_always_start_with'   => array(
 			'type'    => 'string',
 			'default' => 'nothing',
 		),
-		'quick_actions_show_recent_queries'   => array(
+		'quick_actions_show_recent_queries' => array(
 			'type'    => 'string',
 			'default' => 'off',
 		),
-		'quick_actions_recent_queries'        => array(
+		'quick_actions_recent_queries'      => array(
 			'type'       => 'string',
 			'default'    => '',
 			'max_length' => 100,
 		),
-		'quick_actions_recent_category'       => array(
+		'quick_actions_recent_category'     => array(
 			'type'       => 'string',
 			'default'    => '',
 			'max_length' => 100,
 		),
-		'modal_preference'                    => array(
+		'modal_preference'                  => array(
 			'type'    => 'string',
 			'default' => 'default',
 			'options' => array(
@@ -1149,104 +1138,104 @@ function et_fb_app_preferences_settings() {
 				// 'top'     => esc_html__( 'Fixed Top Panel', 'et_builder' ),.
 			),
 		),
-		'modal_snap_location'                 => array(
+		'modal_snap_location'               => array(
 			'type'    => 'string',
 			'default' => '',
 		),
-		'modal_snap'                          => array(
+		'modal_snap'                        => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'modal_fullscreen'                    => array(
+		'modal_fullscreen'                  => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'modal_dimension_width'               => array(
+		'modal_dimension_width'             => array(
 			'type'    => 'int',
 			'default' => 400,
 		),
-		'modal_dimension_height'              => array(
+		'modal_dimension_height'            => array(
 			'type'    => 'int',
 			'default' => 400,
 		),
-		'modal_position_x'                    => array(
+		'modal_position_x'                  => array(
 			'type'    => 'int',
 			'default' => 30,
 		),
-		'modal_position_y'                    => array(
+		'modal_position_y'                  => array(
 			'type'    => 'int',
 			'default' => 50,
 		),
-		'toolbar_click'                       => array(
+		'toolbar_click'                     => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'toolbar_desktop'                     => array(
+		'toolbar_desktop'                   => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'toolbar_grid'                        => array(
+		'toolbar_grid'                      => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'toolbar_hover'                       => array(
+		'toolbar_hover'                     => array(
 			'type'    => 'bool',
 			'default' => false,
 		),
-		'toolbar_phone'                       => array(
+		'toolbar_phone'                     => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'toolbar_tablet'                      => array(
+		'toolbar_tablet'                    => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'toolbar_wireframe'                   => array(
+		'toolbar_wireframe'                 => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'toolbar_zoom'                        => array(
+		'toolbar_zoom'                      => array(
 			'type'    => 'bool',
 			'default' => true,
 		),
-		'lv_modal_dimension_height'           => array(
+		'lv_modal_dimension_height'         => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
-		'lv_modal_dimension_width'            => array(
+		'lv_modal_dimension_width'          => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
-		'lv_modal_position_x'                 => array(
+		'lv_modal_position_x'               => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
-		'lv_modal_position_y'                 => array(
+		'lv_modal_position_y'               => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
 		// Re: "width/height": responsive dimensions presume portrait orientation.
-		'responsive_tablet_width'             => array(
+		'responsive_tablet_width'           => array(
 			'type'    => 'int',
 			'default' => 768,
 		),
-		'responsive_tablet_height'            => array(
+		'responsive_tablet_height'          => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
-		'responsive_phone_width'              => array(
+		'responsive_phone_width'            => array(
 			'type'    => 'int',
 			'default' => 400,
 		),
-		'responsive_phone_height'             => array(
+		'responsive_phone_height'           => array(
 			'type'    => 'int',
 			'default' => 0,
 		),
-		'responsive_minimum_width'            => array(
+		'responsive_minimum_width'          => array(
 			'type'    => 'int',
 			'default' => 320,
 		),
-		'responsive_maximum_width'            => array(
+		'responsive_maximum_width'          => array(
 			'type'    => 'int',
 			'default' => 980,
 		),
@@ -1366,67 +1355,6 @@ function et_fb_current_page_woocommerce_components() {
 }
 
 /**
- * Before & after components for builder.
- *
- * This method should not be used for anything other than to determine whether a module
- * has before & after components on builder load.
- *
- * @since 4.14.5
- *
- * @return array Components (HTML).
- */
-function et_fb_current_page_before_after_components() {
-	$modules_components = array();
-
-	// Bail early if current request comes from any Ajax request.
-	if ( wp_doing_ajax() ) {
-		return $modules_components;
-	}
-
-	// Bail early if Module Shortcode Manager class doesn't exist.
-	if ( ! class_exists( 'ET_Builder_Module_Shortcode_Manager' ) ) {
-		return $modules_components;
-	}
-
-	/**
-	 * Filters modules list.
-	 *
-	 * The modules list comes from Shortcode Manager only contains built-in modules
-	 * intentionally. 3rd-party modules need to include their module slug and class name
-	 * via `et_fb_fetch_before_after_modules_map` filter.
-	 *
-	 * @param array Modules list.
-	 */
-	$modules_map = apply_filters( 'et_fb_fetch_before_after_modules_map', ET_Builder_Module_Shortcode_Manager::get_modules_map() );
-
-	// Bail early if components map is empty.
-	if ( empty( $modules_map ) ) {
-		return $modules_components;
-	}
-
-	foreach ( $modules_map as $module_slug => $module_data ) {
-		$module_class = et_()->array_get( $module_data, 'classname' );
-
-		// Skip if module class name is not found.
-		if ( empty( $module_class ) || ! class_exists( $module_class ) ) {
-			continue;
-		}
-
-		$module_components = $module_class::get_component_before_after_module( $module_slug, array() );
-
-		// Skip if there is no before & after components.
-		$has_components = et_()->array_get( $module_components, 'has_components' );
-		if ( true !== $has_components ) {
-			continue;
-		}
-
-		$modules_components[ $module_slug ] = $module_components;
-	}
-
-	return $modules_components;
-}
-
-/**
  * Array of WooCommerce Tabs.
  *
  * @since 4.4.2 Fixed fatal error @link https://github.com/elegantthemes/Divi/issues/19404
@@ -1438,12 +1366,10 @@ function et_fb_current_page_before_after_components() {
  */
 function et_fb_woocommerce_tabs() {
 	global $product, $post;
-
 	$old_product = $product;
 	$old_post    = $post;
-	$is_product  = isset( $product ) && is_a( $product, 'WC_Product' );
 
-	if ( ! $is_product && et_is_woocommerce_plugin_active() ) {
+	if ( ! isset( $product ) && et_is_woocommerce_plugin_active() ) {
 		$product = ET_Builder_Module_Helper_Woocommerce_Modules::get_product( 'latest' );
 
 		if ( $product ) {
@@ -1613,7 +1539,6 @@ function et_fb_current_page_params() {
 				'et_builder'
 			),
 		),
-		'beforeAfterComponents' => et_fb_current_page_before_after_components(),
 	);
 
 	return apply_filters( 'et_fb_current_page_params', $current_page );
@@ -1655,23 +1580,7 @@ function et_pb_process_computed_property() {
 	$conditional_tags = $utils->sanitize_text_fields( $conditional_tags );
 	$current_page     = $utils->sanitize_text_fields( $current_page );
 
-	$module_slug  = isset( $_POST['module_type'] ) ? sanitize_text_field( $_POST['module_type'] ) : '';
-	$request_type = isset( $_POST['request_type'] ) ? sanitize_text_field( $_POST['request_type'] ) : '';
-
-	if ( in_array( $request_type, array( '404', 'archive', 'home' ), true ) ) {
-		// On non-singular page, we do not have $current_page id, so we will check if user has theme_builder capability.
-		if ( ! et_pb_is_allowed( 'theme_builder' ) ) {
-			die( -1 );
-		}
-	} else {
-		// For other pages, we will check if user can edit specific post.
-		if ( ! current_user_can( 'edit_post', $current_page['id'] ) ) {
-			die( -1 );
-		}
-	}
-
-	// Check if there is page id.
-	if ( empty( $current_page['id'] ) && '404' !== $request_type ) {
+	if ( empty( $current_page['id'] ) || ! current_user_can( 'edit_post', $current_page['id'] ) ) {
 		die( -1 );
 	}
 
@@ -1690,6 +1599,8 @@ function et_pb_process_computed_property() {
 		$depends_on[ sanitize_text_field( $key ) ] = $sanitized_value;
 
 	}
+	$module_slug       = isset( $_POST['module_type'] ) ? sanitize_text_field( $_POST['module_type'] ) : '';
+	$post_type         = isset( $_POST['post_type'] ) ? sanitize_text_field( $_POST['post_type'] ) : '';
 
 	// Since VB performance, it is introduced single ajax request for several property
 	// in that case, computed_property posted data can be as an array
@@ -1699,7 +1610,7 @@ function et_pb_process_computed_property() {
 	$computed_property = is_array( $computed_property ) ? array_map( 'sanitize_text_field', $computed_property ) : sanitize_text_field( $computed_property );
 
 	// get all fields for module.
-	$fields = ET_Builder_Element::get_module_fields( $request_type, $module_slug );
+	$fields = ET_Builder_Element::get_module_fields( $post_type, $module_slug );
 
 	// make sure only valid fields are being passed through.
 	$depends_on = array_intersect_key( $depends_on, $fields );
@@ -1742,116 +1653,16 @@ function et_pb_process_computed_property() {
 add_action( 'wp_ajax_et_pb_process_computed_property', 'et_pb_process_computed_property' );
 
 /**
- * Fetch before or after components.
- *
- * @since 4.14.5
- *
- * @return string Components outputs.
- */
-function et_fb_fetch_before_after_components() {
-	// Bail early if the nonce is incorrect or current user can't edit posts.
-	$nonce = ! empty( $_POST['et_fb_fetch_before_after_components_nonce'] ) ? sanitize_text_field( $_POST['et_fb_fetch_before_after_components_nonce'] ) : '';
-
-	if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'et_fb_fetch_before_after_components_nonce' ) ) {
-		wp_send_json_error();
-	}
-
-	if ( ! current_user_can( 'edit_posts' ) ) {
-		wp_send_json_error();
-	}
-
-	// Bail early if Module Shortcode Manager class doesn't exist.
-	if ( ! class_exists( 'ET_Builder_Module_Shortcode_Manager' ) ) {
-		wp_send_json_error();
-	}
-
-	/**
-	 * Filters modules list.
-	 *
-	 * The modules list comes from Shortcode Manager only contains built-in modules
-	 * intentionally. 3rd-party modules need to include their module slug and class name
-	 * via `et_fb_fetch_before_after_modules_map` filter.
-	 *
-	 * @param array Modules list.
-	 */
-	$modules_map = apply_filters( 'et_fb_fetch_before_after_modules_map', ET_Builder_Module_Shortcode_Manager::get_modules_map() );
-
-	// Bail early if components map is empty.
-	if ( empty( $modules_map ) ) {
-		return $modules_components;
-	}
-
-	$module_type  = ! empty( $_POST['module_type'] ) ? sanitize_text_field( $_POST['module_type'] ) : '';
-	$module_class = et_()->array_get( $modules_map, array( $module_type, 'classname' ) );
-
-	// Bail early if module class name is not found.
-	if ( empty( $module_class ) || ! class_exists( $module_class ) ) {
-		wp_send_json_error();
-	}
-
-	// phpcs:disable ET.Sniffs.ValidatedSanitizedInput -- Sanitization of following arrays is done on Sanitize values section below.
-	$conditional_tags = isset( $_POST['conditional_tags'] ) ? $_POST['conditional_tags'] : array();
-	$current_page     = isset( $_POST['current_page'] ) ? $_POST['current_page'] : array();
-	$module_attrs     = isset( $_POST['module_attrs'] ) ? $_POST['module_attrs'] : array();
-	// phpcs:enable
-
-	// Allow list keys.
-	$conditional_tags = array_intersect_key( $conditional_tags, et_fb_conditional_tag_params() );
-	$current_page     = array_intersect_key( $current_page, et_fb_current_page_params() );
-
-	// Sanitize values.
-	$conditional_tags = et_()->sanitize_text_fields( $conditional_tags );
-	$current_page     = et_()->sanitize_text_fields( $current_page );
-	$module_attrs     = et_()->sanitize_text_fields( $module_attrs );
-	$render_mode      = isset( $_POST['render_mode'] ) ? sanitize_text_field( $_POST['render_mode'] ) : '';
-	$post_type        = isset( $_POST['post_type'] ) ? sanitize_text_field( $_POST['post_type'] ) : '';
-	$action           = isset( $_POST['action'] ) ? sanitize_text_field( $_POST['action'] ) : '';
-
-	// Bail early if current user can't edit this post.
-	if ( empty( $current_page['id'] ) || ! current_user_can( 'edit_post', $current_page['id'] ) ) {
-		wp_send_json_error();
-	}
-
-	// Setup module data.
-	$module_data = array(
-		'conditional_tags' => $conditional_tags,
-		'current_page'     => $current_page,
-		'module_attrs'     => $module_attrs,
-		'render_mode'      => $render_mode,
-		'post_type'        => $post_type,
-		'action'           => $action,
-	);
-
-	/**
-	 * Fires before processing before & after components.
-	 *
-	 * @since 4.14.5
-	 *
-	 * @param string $module_type Module slug.
-	 * @param array  $module_data Module data passed from the request.
-	 */
-	do_action( 'et_fb_pre_fetch_before_after_components', $module_type, $module_data );
-
-	$output = $module_class::get_component_before_after_module( $module_type, $module_data );
-
-	wp_send_json_success( $output );
-}
-add_action( 'wp_ajax_et_fb_fetch_before_after_components', 'et_fb_fetch_before_after_components' );
-
-/**
  * Process shortcode json.
- *
- * @since 4.11.4 Added $inject_responsive_hover param.
  *
  * @param array  $object Shortcodes object.
  * @param array  $options Options.
  * @param string $library_item_type Library item type.
  * @param bool   $escape_content_slashes Whether escape content slashes.
- * @param bool   $inject_responsive_hover Flag to inject missing responsive and hover mode attributes.
  *
  * @return string
  */
-function et_fb_process_to_shortcode( $object, $options = array(), $library_item_type = '', $escape_content_slashes = true, $inject_responsive_hover = false ) {
+function et_fb_process_to_shortcode( $object, $options = array(), $library_item_type = '', $escape_content_slashes = true ) {
 	$output  = '';
 	$_object = array();
 
@@ -1935,67 +1746,9 @@ function et_fb_process_to_shortcode( $object, $options = array(), $library_item_
 			$item['attrs']         = array_merge( $module_global_presets, $item['attrs'] );
 		}
 
-		// Inject responsive/hover attribute value to inherit from desktop
-		// when the responsive/hover setting is "on" but the responsive/hover attribute is not exist.
-		// This can happen when responsive/hover mode values reset in the builder.
-		if ( $inject_responsive_hover ) {
-			foreach ( $item['attrs'] as $attribute => $value ) {
-				// Inject responsive mode attribute value.
-				if ( '_last_edited' === substr( $attribute, -12 ) && 0 === strpos( $value, 'on' ) ) {
-					$attr_key_base   = str_replace( '_last_edited', '', $attribute );
-					$attr_key_tablet = $attr_key_base . '_tablet';
-					$attr_key_phone  = $attr_key_base . '_phone';
-					$attr_is_content = 'content' === $attr_key_base && isset( $item['content'] ) && is_string( $item['content'] );
-
-					// Inject tablet mode attribute value.
-					if ( ! isset( $item['attrs'][ $attr_key_tablet ] ) ) {
-						if ( $attr_is_content ) {
-							$item['attrs'][ $attr_key_tablet ] = $item['content'];
-						} elseif ( isset( $item['attrs'][ $attr_key_base ] ) ) {
-							$item['attrs'][ $attr_key_tablet ] = $item['attrs'][ $attr_key_base ];
-						}
-					}
-
-					// Inject phone mode attribute value.
-					if ( ! isset( $item['attrs'][ $attr_key_phone ] ) ) {
-						if ( isset( $item['attrs'][ $attr_key_tablet ] ) ) {
-							$item['attrs'][ $attr_key_phone ] = $item['attrs'][ $attr_key_tablet ];
-						} else {
-							if ( $attr_is_content ) {
-								$item['attrs'][ $attr_key_phone ] = $content;
-							} elseif ( isset( $values[ $attr_key_base ] ) ) {
-								$item['attrs'][ $attr_key_phone ] = $values[ $attr_key_base ];
-							}
-						}
-					}
-				}
-
-				// Inject hover mode attribute value.
-				if ( '__hover_enabled' === substr( $attribute, -15 ) && 0 === strpos( $value, 'on' ) ) {
-					$attr_key_base  = str_replace( '__hover_enabled', '', $attribute );
-					$attr_key_hover = $attr_key_base . '__hover';
-
-					if ( ! isset( $item['attrs'][ $attr_key_hover ] ) ) {
-						$attr_is_content = 'content' === $attr_key_base && isset( $item['content'] ) && is_string( $item['content'] );
-
-						if ( $attr_is_content ) {
-							$item['attrs'][ $attr_key_hover ] = $item['content'];
-						} elseif ( isset( $item['attrs'][ $attr_key_base ] ) ) {
-							$item['attrs'][ $attr_key_hover ] = $item['attrs'][ $attr_key_base ];
-						}
-					}
-				}
-			}
-		}
-
 		foreach ( $item['attrs'] as $attribute => $value ) {
 			// ignore computed fields.
 			if ( '__' === substr( $attribute, 0, 2 ) ) {
-				continue;
-			}
-
-			// Ignore post_content_module_attrs. They are needed only during editing.
-			if ( 'post_content_module_attrs' === $attribute ) {
 				continue;
 			}
 
@@ -2070,17 +1823,6 @@ function et_fb_process_to_shortcode( $object, $options = array(), $library_item_
 						$value = str_replace( '\\', '%92', $value );
 					}
 
-					// Encode backslash for custom date format attributes.
-					$modules_and_attr_with_custom_date = array(
-						'et_pb_blog'                 => 'meta_date',
-						'et_pb_fullwidth_post_title' => 'date_format',
-						'et_pb_post_title'           => 'date_format',
-					);
-
-					if ( ! empty( $modules_and_attr_with_custom_date[ $type ] ) && $modules_and_attr_with_custom_date[ $type ] === $attribute ) {
-						$value = str_replace( '\\', '%92', $value );
-					}
-
 					$attributes .= ' ' . esc_attr( $attribute ) . '="' . et_core_esc_previously( $value ) . '"';
 				}
 			}
@@ -2112,7 +1854,7 @@ function et_fb_process_to_shortcode( $object, $options = array(), $library_item_
 				// insert empty row if saving empty Regular section to make it work correctly in BB.
 				$output .= '[et_pb_row admin_label="Row"][/et_pb_row]';
 			} elseif ( isset( $item['content'] ) && is_array( $item['content'] ) ) {
-				$output .= et_fb_process_to_shortcode( $item['content'], $options, '', $escape_content_slashes, $inject_responsive_hover );
+				$output .= et_fb_process_to_shortcode( $item['content'], $options, '', $escape_content_slashes );
 			} else {
 				if ( ! empty( $content ) ) {
 					if ( et_is_builder_plugin_active() && in_array( $type, ET_Builder_Element::get_has_content_modules(), true ) ) {
@@ -2210,7 +1952,7 @@ add_action( 'wp_ajax_et_fb_ajax_render_shortcode', 'et_fb_ajax_render_shortcode'
  * @return bool
  */
 function et_fb_current_user_can_save( $post_id, $status = '' ) {
-	if ( 'page' === get_post_type( $post_id ) ) {
+	if ( is_page( $post_id ) ) {
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return false;
 		}
@@ -2242,11 +1984,6 @@ function et_fb_current_user_can_save( $post_id, $status = '' ) {
 		if ( ! current_user_can( 'edit_others_posts' ) && ! current_user_can( 'edit_post', $post_id ) ) {
 			return false;
 		}
-	}
-
-	// If this is a theme builder layout post type, check divi roles for that capability.
-	if ( in_array( get_post_type( $post_id ), et_theme_builder_get_layout_post_types(), true ) && ! et_pb_is_allowed( 'theme_builder' ) ) {
-		return false;
 	}
 
 	return true;
@@ -2296,24 +2033,22 @@ add_action( 'wp_ajax_et_fb_ajax_drop_autosave', 'et_fb_ajax_drop_autosave' );
  * Ajax Callback :: Save layout.
  */
 function et_fb_ajax_save() {
-
 	if ( ! isset( $_POST['et_fb_save_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['et_fb_save_nonce'] ), 'et_fb_save_nonce' ) ) {
 		wp_send_json_error();
 	}
 
-	$utils       = ET_Core_Data_Utils::instance();
-	$post_id     = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-	$options     = isset( $_POST['options'] ) ? $_POST['options'] : array(); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['options'] is an array, it's value sanitization is done  at the time of accessing value.
-	$layout_type = isset( $_POST['layout_type'] ) ? sanitize_text_field( $_POST['layout_type'] ) : '';
+	$utils = ET_Core_Data_Utils::instance();
 
-	$is_theme_builder_layout = in_array( get_post_type( $post_id ), et_theme_builder_get_layout_post_types(), true );
+	$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+	$options = isset( $_POST['options'] ) ? $_POST['options'] : array(); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['options'] is an array, it's value sanitization is done  at the time of accessing value.
 
-	// For post content check if user can save post.
 	if ( ! et_fb_current_user_can_save( $post_id, $utils->array_get_sanitized( $options, 'status' ) ) ) {
 		wp_send_json_error();
 	}
 
 	$update = false;
+
+	$layout_type = isset( $_POST['layout_type'] ) ? sanitize_text_field( $_POST['layout_type'] ) : '';
 
 	if ( ! isset( $_POST['skip_post_update'] ) ) {
 		$is_layout_block_preview = sanitize_text_field( $utils->array_get( $_POST, 'options.conditional_tags.is_layout_block', '' ) );
@@ -2336,22 +2071,7 @@ function et_fb_ajax_save() {
 			update_post_meta( $post_id, '_et_pb_built_for_post_type', 'page' );
 		}
 
-		// If Default Editor is used for Post Content, and Post Content is not edited,
-		// handleAjaxSave will pass return_to_default_editor,
-		// and in that case we need reactivate the default editor for the post.
-		// phpcs:ignore ET.Sniffs.ValidatedSanitizedInput.InputNotSanitized -- input is inside isset() function so its value is not used
-		if ( isset( $_POST['return_to_default_editor'] ) && rest_sanitize_boolean( $_POST['return_to_default_editor'] ) ) {
-			update_post_meta( $post_id, '_et_pb_use_builder', 'off' );
-			update_post_meta( $post_id, '_et_pb_show_page_creation', 'on' );
-
-			// Get old content and if we should return to the Default Editor.
-			$post_content = get_post_meta( $post_id, '_et_pb_old_content', true );
-		} else {
-			if ( ! $is_layout_block_preview ) {
-				update_post_meta( $post_id, '_et_pb_use_builder', 'on' );
-			}
-			$post_content = et_fb_process_to_shortcode( $shortcode_data, $options, $layout_type, true, true );
-		}
+		$post_content = et_fb_process_to_shortcode( $shortcode_data, $options, $layout_type );
 
 		// Store a copy of the sanitized post content in case wpkses alters it since that
 		// would cause our check at the end of this function to fail.
@@ -2420,7 +2140,7 @@ function et_fb_ajax_save() {
 		et_builder_update_settings( $_POST['settings'], $post_id ); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['settings'] is an array, it's value sanitization is done inside function at the time of accessing value.
 	}
 
-	if ( isset( $_POST['preferences'] ) && is_array( $_POST['preferences'] ) && ! $is_theme_builder_layout ) {
+	if ( isset( $_POST['preferences'] ) && is_array( $_POST['preferences'] ) ) {
 		$app_preferences = et_fb_app_preferences_settings();
 
 		// phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['et_builder_mode'] value used in the comparision.
@@ -2543,7 +2263,7 @@ function et_fb_get_shortcode_from_fb_object() {
 
 	// phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['modules'] will not be stored in db.
 	$shortcode_data = isset( $_POST['modules'] ) ? json_decode( stripslashes( $_POST['modules'] ), true ) : array();
-	$layout_type    = isset( $_POST['layout_type'] ) ? sanitize_text_field( $_POST['layout_type'] ) : '';
+	$layout_type    = '';
 
 	$post_content = et_fb_process_to_shortcode( $shortcode_data, array(), $layout_type );
 
@@ -2561,29 +2281,6 @@ function et_fb_get_shortcode_from_fb_object() {
 }
 
 add_action( 'wp_ajax_et_fb_get_shortcode_from_fb_object', 'et_fb_get_shortcode_from_fb_object' );
-
-/**
- * Ajax Callback :: Convert shortcode into HTML.
- */
-function et_fb_get_html_from_shortcode() {
-	if ( ! et_core_security_check( 'edit_posts', 'et_fb_shortcode_to_html_nonce', 'et_fb_shortcode_to_html_nonce', '_POST', false ) ) {
-		wp_send_json_error();
-	}
-
-	// phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['modules'] will not be stored in db.
-	$post_content = isset( $_POST['content'] ) ? stripslashes( $_POST['content'] ) : '';
-
-	// Get rendered post content by shortcode.
-	$rendered_post_content = do_shortcode( $post_content );
-
-	wp_send_json_success(
-		array(
-			'rendered_content' => $rendered_post_content,
-		)
-	);
-}
-
-add_action( 'wp_ajax_et_fb_get_html_from_shortcode', 'et_fb_get_html_from_shortcode' );
 
 /**
  * Ajax Callback :: Save library modules.
@@ -2611,10 +2308,8 @@ function et_fb_save_layout() {
 	$args = array(
 		'layout_type'          => isset( $_POST['et_layout_type'] ) ? sanitize_text_field( $_POST['et_layout_type'] ) : 'layout',
 		'layout_selected_cats' => isset( $_POST['et_layout_cats'] ) ? sanitize_text_field( $_POST['et_layout_cats'] ) : '',
-		'layout_selected_tags' => isset( $_POST['et_layout_tags'] ) ? sanitize_text_field( $_POST['et_layout_tags'] ) : '',
 		'built_for_post_type'  => $post_type,
 		'layout_new_cat'       => isset( $_POST['et_layout_new_cat'] ) ? sanitize_text_field( $_POST['et_layout_new_cat'] ) : '',
-		'layout_new_tag'       => isset( $_POST['et_layout_new_tag'] ) ? sanitize_text_field( $_POST['et_layout_new_tag'] ) : '',
 		'columns_layout'       => isset( $_POST['et_columns_layout'] ) ? sanitize_text_field( $_POST['et_columns_layout'] ) : '0',
 		'module_type'          => isset( $_POST['et_module_type'] ) ? sanitize_text_field( $_POST['et_module_type'] ) : 'et_pb_unknown',
 		'layout_scope'         => isset( $_POST['et_layout_scope'] ) ? sanitize_text_field( $_POST['et_layout_scope'] ) : 'not_global',
@@ -2624,78 +2319,9 @@ function et_fb_save_layout() {
 	);
 
 	$new_layout_meta = et_pb_submit_layout( $args );
-	$updated_terms   = array();
-
-	foreach ( [ 'layout_category', 'layout_tag' ] as $taxonomy ) {
-		$raw_terms_array   = apply_filters( 'et_pb_new_layout_cats_array', get_terms( $taxonomy, array( 'hide_empty' => false ) ) );
-		$clean_terms_array = array();
-
-		if ( is_array( $raw_terms_array ) && ! empty( $raw_terms_array ) ) {
-			foreach ( $raw_terms_array as $term ) {
-				$clean_terms_array[] = array(
-					'name' => html_entity_decode( $term->name ),
-					'id'   => $term->term_id,
-					'slug' => $term->slug,
-				);
-			}
-		}
-
-		$updated_terms[ $taxonomy ] = $clean_terms_array;
-	}
-
-	$data = array(
-		'layout_data'   => json_decode( $new_layout_meta, true ),
-		'updated_terms' => $updated_terms,
-	);
-
-	die( wp_json_encode( et_core_esc_previously( $data ) ) );
+	die( et_core_esc_previously( $new_layout_meta ) );
 }
 add_action( 'wp_ajax_et_fb_save_layout', 'et_fb_save_layout' );
-
-/**
- * Ajax Callback :: Process shortcode to exported layout object.
- */
-function et_fb_get_cloud_item_content() {
-	if ( ! isset( $_POST['et_fb_save_cloud_item_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['et_fb_save_cloud_item_nonce'] ), 'et_fb_save_cloud_item_nonce' ) ) {
-		die( -1 );
-	}
-
-	if ( ! current_user_can( 'edit_posts' ) ) {
-		die( -1 );
-	}
-
-	$layout_type        = isset( $_POST['et_layout_type'] ) ? sanitize_text_field( $_POST['et_layout_type'] ) : '';
-	$layout_content     = isset( $_POST['et_layout_content'] ) ? et_fb_process_to_shortcode( json_decode( stripslashes( $_POST['et_layout_content'] ), true ), array(), $layout_type ) : ''; // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- The `$_POST['et_layout_content']` will be sanitized before saving into db.
-	$exported_shortcode = get_exported_content( $layout_content );
-
-	die( wp_json_encode( array( 'shortcode' => $exported_shortcode ) ) );
-}
-add_action( 'wp_ajax_et_fb_get_cloud_item_content', 'et_fb_get_cloud_item_content' );
-
-/**
- * Prepare shortcode for exporting.
- *
- * @since 4.17.0
- *
- * @param string $shortcode Shortcode to process.
- *
- * @return array
- */
-function get_exported_content( $shortcode ) {
-	// Set faux $_POST value that is required by portability.
-	$_POST['post']    = '1';
-	$_POST['content'] = $shortcode;
-
-	// Remove page value if it is equal to `false`, avoiding paginated images not accidentally triggered.
-	if ( isset( $_POST['page'] ) && false === $_POST['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
-		unset( $_POST['page'] ); // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
-	}
-
-	$portability = et_core_portability_load( 'et_builder' );
-
-	// Export the content.
-	return $portability->export( true, true );
-}
 
 /**
  * Ajax Callback :: Process shortcode.
@@ -2828,8 +2454,7 @@ if ( ! function_exists( 'et_fb_disable_product_tour' ) ) :
 		}
 
 		$user_id                          = (int) get_current_user_id();
-		$product_tour_status              = et_get_option( 'product_tour_status', [] );
-		$all_product_settings             = is_array( $product_tour_status ) ? $product_tour_status : [];
+		$all_product_settings             = et_get_option( 'product_tour_status', array() );
 		$all_product_settings[ $user_id ] = 'off';
 
 		et_update_option( 'product_tour_status', $all_product_settings );
@@ -2998,80 +2623,56 @@ endif;
 /**
  * Get all acceptable string value for given CSS property
  *
- * @since 4.15.0 Added background-size to allow only 'auto' and ''.
- *
  * @param string $property property name.
  * @return array of acceptable CSS string values of given property name.
  */
 function et_builder_get_acceptable_css_string_values( $property = 'all' ) {
 	$css_string_values = array(
-		'width'           => array(
+		'width'      => array(
 			'auto',
 			'inherit',
 			'initial',
 			'unset',
-			'',
 		),
-		'max-width'       => array(
+		'max-width'  => array(
 			'none',
 			'inherit',
 			'initial',
 			'unset',
 		),
-		'margin'          => array(
+		'margin'     => array(
 			'auto',
 			'inherit',
 			'initial',
 			'unset',
 		),
-		'padding'         => array(
+		'padding'    => array(
 			'inherit',
 			'initial',
 			'unset',
 		),
-		'height'          => array(
-			'auto',
-			'inherit',
-			'initial',
-			'unset',
-			'',
-		),
-		'min-height'      => array(
+		'height'     => array(
 			'auto',
 			'inherit',
 			'initial',
 			'unset',
 		),
-		'max-height'      => array(
+		'min-height' => array(
+			'auto',
+			'inherit',
+			'initial',
+			'unset',
+		),
+		'max-height' => array(
 			'none',
 			'inherit',
 			'initial',
 			'unset',
 		),
-		'z-index'         => array(
+		'z-index'    => array(
 			'auto',
 		),
-		'line-height'     => array(
-			'',
-		),
-		'font-size'       => array(
-			'%',
-			'em',
-			'rem',
-			'px',
-			'cm',
-			'mm',
-			'in',
-			'pt',
-			'pc',
-			'ex',
-			'vh',
-			'vw',
-		),
-		'background-size' => array(
-			'auto',
-			'',
-		),
+		'font-size'  => array( '%', 'em', 'rem', 'px', 'cm', 'mm', 'in', 'pt', 'pc', 'ex', 'vh', 'vw' ),
 	);
 
 	$acceptable_strings = apply_filters( 'et_builder_acceptable_css_string_values', $css_string_values );
@@ -3241,10 +2842,6 @@ if ( ! function_exists( 'et_builder_set_element_font' ) ) :
 
 				$style .= "$font_family ";
 			}
-
-			// Parse global font weight value.
-			$is_global_font_weigth = in_array( $font_weight, array( '--et_global_heading_font_weight', '--et_global_body_font_weight' ), true );
-			$font_weight           = $is_global_font_weigth ? '--et_global_heading_font_weight' === $font_weight ? et_get_option( 'heading_font_weight', '' ) : et_get_option( 'body_font_weight', '' ) : $font_weight;
 
 			$style .= et_builder_set_element_font_style( 'font-weight', ( '' !== $font_weight_default && ( '' === $font_weight || $font_weight_default === $font_weight ) ), ( '' !== $font_weight ), 'normal', $font_weight, $use_important );
 
@@ -3680,8 +3277,9 @@ function et_builder_print_font() {
 			'display' => 'swap',
 		);
 
+		$google_fonts_url = add_query_arg( $google_fonts_url_args, 'https://fonts.googleapis.com/css' );
+		$google_fonts_url = esc_url_raw( $google_fonts_url );
 		$feature_manager  = ET_Builder_Google_Fonts_Feature::instance();
-		$google_fonts_url = $feature_manager->get_google_fonts_url( $google_fonts_url_args );
 		$output_inline    = $feature_manager->is_option_enabled( 'google_fonts_inline' );
 
 		if ( $output_inline ) {
@@ -3782,8 +3380,9 @@ function et_builder_preprint_font() {
 		'display' => 'swap',
 	);
 
+	$google_fonts_url = add_query_arg( $google_fonts_url_args, 'https://fonts.googleapis.com/css' );
+	$google_fonts_url = esc_url_raw( $google_fonts_url );
 	$feature_manager  = ET_Builder_Google_Fonts_Feature::instance();
-	$google_fonts_url = $feature_manager->get_google_fonts_url( $google_fonts_url_args );
 	$output_inline    = $feature_manager->is_option_enabled( 'google_fonts_inline' );
 
 	if ( $output_inline ) {
@@ -4078,11 +3677,9 @@ if ( ! function_exists( 'et_pb_export_layouts_interface' ) ) :
 		}
 
 		?>
-		<a href="<?php echo et_core_esc_wp( admin_url( 'edit-tags.php?taxonomy=layout_category' ) ); ?>" id="et_load_category_page"><?php esc_html_e( 'Manage Categories', 'et_builder' ); ?></a>
-		<a href="<?php echo et_core_esc_wp( admin_url( 'edit-tags.php?taxonomy=layout_tag' ) ); ?>" id="et_load_category_page"><?php esc_html_e( 'Manage Tags', 'et_builder' ); ?></a>
-
+	<a href="<?php echo et_core_esc_wp( admin_url( 'edit-tags.php?taxonomy=layout_category' ) ); ?>" id="et_load_category_page"><?php esc_html_e( 'Manage Categories', 'et_builder' ); ?></a>
 		<?php
-			echo et_core_esc_previously( et_builder_portability_link( 'et_builder_layouts', array( 'class' => 'et-pb-portability-button' ) ) );
+		echo et_core_esc_previously( et_builder_portability_link( 'et_builder_layouts', array( 'class' => 'et-pb-portability-button' ) ) );
 	}
 endif;
 
@@ -4234,9 +3831,7 @@ function et_builder_prioritize_meta_box() {
 				$wp_meta_boxes[ $page ][ $context ][ $priority ] = array_merge( array( ET_BUILDER_LAYOUT_POST_TYPE => $divi ), $boxes );
 
 				// If our mbox is the first one in custom ordering.
-				if ( is_array( $custom )
-					&& isset( $custom[ $context ] )
-					&& 0 === strpos( $custom[ $context ], ET_BUILDER_LAYOUT_POST_TYPE ) ) {
+				if ( is_array( $custom ) && 0 === strpos( $custom[ $context ], ET_BUILDER_LAYOUT_POST_TYPE ) ) {
 					// Find all metaboxes that are not included in custom order.
 					$sorted = explode( ',', $custom[ $context ] );
 					$add    = array_diff( array_keys( $boxes ), $sorted );
@@ -4806,7 +4401,7 @@ function et_pb_remove_emoji_detection_script() {
 		$post_id = (int) $_GET['post'];
 		$post    = get_post( $post_id );
 
-		if ( is_a( $post, 'WP_POST' ) && et_builder_enabled_for_post( $post->ID ) ) {
+		if ( et_builder_enabled_for_post( $post->ID ) ) {
 			$disable_emoji_detection = true;
 		}
 	}
@@ -4896,11 +4491,10 @@ if ( ! function_exists( 'et_pb_generate_new_layout_modal' ) ) {
 	 * @return mixed|void
 	 */
 	function et_pb_generate_new_layout_modal() {
-		$template_type_option_output = '';
-		$layout_cat_option_output    = '';
-		$layout_cats_list            = '';
-		$layout_tags_list            = '';
-		$template_type_options_list  = '';
+		$template_type_option_output        = '';
+		$template_module_tabs_option_output = '';
+		$template_global_option_output      = '';
+		$layout_cat_option_output           = '';
 
 		$new_layout_template_types = array(
 			'module'            => esc_html__( 'Module', 'et_builder' ),
@@ -4916,77 +4510,53 @@ if ( ! function_exists( 'et_pb_generate_new_layout_modal' ) ) {
 
 		// construct output for the template type option.
 		if ( ! empty( $template_type_options ) ) {
+			$template_type_option_output = sprintf(
+				'<br><label>%1$s:</label>
+				<select id="new_template_type">',
+				esc_html__( 'Layout Type', 'et_builder' )
+			);
+
 			foreach ( $template_type_options as $option_id => $option_name ) {
-				$template_type_options_list .= sprintf(
+				$template_type_option_output .= sprintf(
 					'<option value="%1$s">%2$s</option>',
 					esc_attr( $option_id ),
 					esc_html( $option_name )
 				);
 			}
 
-			$template_type_option_output = sprintf(
-				'<br><label>%1$s:</label>
-				<select id="new_template_type">
-					%2$s
-				</select>',
-				esc_html__( 'Layout Type', 'et_builder' ),
-				$template_type_options_list
-			);
+			$template_type_option_output .= '</select>';
 		}
 
 		$template_global_option_output = apply_filters(
 			'et_pb_new_layout_global_option',
 			sprintf(
-				'<label>%1$s<input type="checkbox" value="global" id="et_pb_template_global"></label>',
-				esc_html__( 'Save as Global', 'et_builder' )
+				'<br><label>%1$s<input type="checkbox" value="global" id="et_pb_template_global"></label>',
+				esc_html__( 'Global', 'et_builder' )
 			)
+		);
+
+		// construct output for the layout category option.
+		$layout_cat_option_output .= sprintf(
+			'<br><label>%1$s</label>',
+			esc_html__( 'Add To Categories', 'et_builder' )
 		);
 
 		$layout_categories = apply_filters( 'et_pb_new_layout_cats_array', get_terms( 'layout_category', array( 'hide_empty' => false ) ) );
 		if ( is_array( $layout_categories ) && ! empty( $layout_categories ) ) {
+			$layout_cat_option_output .= '<div class="layout_cats_container">';
+
 			foreach ( $layout_categories as $category ) {
-				$layout_cats_list .= sprintf(
+				$layout_cat_option_output .= sprintf(
 					'<label>%1$s<input type="checkbox" value="%2$s"/></label>',
 					esc_html( $category->name ),
 					esc_attr( $category->term_id )
 				);
 			}
+
+			$layout_cat_option_output .= '</div>';
 		}
 
-		$layout_tags = apply_filters( 'et_pb_new_layout_tags_array', get_terms( 'layout_tag', array( 'hide_empty' => false ) ) );
-		if ( is_array( $layout_tags ) && ! empty( $layout_tags ) ) {
-			foreach ( $layout_tags as $tag ) {
-				$layout_tags_list .= sprintf(
-					'<label>%1$s<input type="checkbox" value="%2$s"/></label>',
-					esc_html( $tag->name ),
-					esc_attr( $tag->term_id )
-				);
-			}
-		}
-
-		// Construct output for the layout Tag option.
-		$layout_cat_option_output = sprintf(
-			'<br><label>%1$s</label>
-			<div class="layout_cats_container">
-				%3$s
-			</div>
-			<input type="text" value="" id="et_pb_new_cat_name" class="regular-text" placeholder="%2$s">',
-			esc_html__( 'Add To Categories', 'et_builder' ),
-			esc_html__( 'Create new Category', 'et_builder' ),
-			$layout_cats_list
-		);
-
-		// Construct output for the layout Tag option.
-		$layout_tag_option_output = sprintf(
-			'<br><label>%1$s</label>
-			<div class="layout_cats_container">
-				%3$s
-			</div>
-			<input type="text" value="" id="et_pb_new_tag_name" class="regular-text" placeholder="%2$s">',
-			esc_html__( 'Add To Tags', 'et_builder' ),
-			esc_html__( 'Create new Tag', 'et_builder' ),
-			$layout_tags_list
-		);
+		$layout_cat_option_output .= '<input type="text" value="" id="et_pb_new_cat_name" class="regular-text">';
 
 		$output = sprintf(
 			'<div class="et_pb_modal_overlay et_modal_on_top et_pb_new_template_modal">
@@ -4999,7 +4569,6 @@ if ( ! function_exists( 'et_pb_generate_new_layout_modal' ) ) {
 							%3$s
 							%4$s
 							%5$s
-							%8$s
 							%7$s
 							<input id="et_builder_layout_built_for_post_type" type="hidden" value="page">
 					</div>
@@ -5017,8 +4586,7 @@ if ( ! function_exists( 'et_pb_generate_new_layout_modal' ) ) {
 			$template_global_option_output,
 			$layout_cat_option_output, // #5
 			apply_filters( 'et_pb_new_layout_before_options', '' ),
-			apply_filters( 'et_pb_new_layout_after_options', '' ),
-			$layout_tag_option_output
+			apply_filters( 'et_pb_new_layout_after_options', '' )
 		);
 
 		return apply_filters( 'et_pb_new_layout_modal_output', $output );
@@ -5375,6 +4943,7 @@ if ( ! function_exists( 'et_pb_add_builder_page_js_css' ) ) :
 			'et_account'                                   => $et_account,
 			'ajaxurl'                                      => admin_url( 'admin-ajax.php' ),
 			'home_url'                                     => home_url(),
+			'divi_library_url'                             => ET_BUILDER_DIVI_LIBRARY_URL,
 			'cookie_path'                                  => SITECOOKIEPATH,
 			'preview_url'                                  => add_query_arg( 'et_pb_preview', 'true', $preview_url ),
 			'et_admin_load_nonce'                          => wp_create_nonce( 'et_admin_load_nonce' ),
@@ -5550,8 +5119,6 @@ if ( ! function_exists( 'et_pb_add_builder_page_js_css' ) ) :
 		wp_enqueue_style( 'et_pb_admin_date_css', ET_BUILDER_URI . '/styles/jquery-ui-1.12.1.custom.css', array(), ET_BUILDER_VERSION );
 
 		wp_add_inline_style( 'et_pb_admin_css', et_pb_ab_get_subject_rank_colors_style() );
-
-		ET_Cloud_App::load_js();
 	}
 endif;
 
@@ -5778,7 +5345,7 @@ if ( ! function_exists( 'et_pb_postinfo_meta' ) ) :
 		}
 
 		if ( in_array( 'date', $postinfo, true ) ) {
-			$postinfo_meta[] = '<span class="published">' . esc_html( get_the_time( $date_format ) ) . '</span>';
+			$postinfo_meta[] = '<span class="published">' . esc_html( get_the_time( wp_unslash( $date_format ) ) ) . '</span>';
 		}
 
 		if ( in_array( 'categories', $postinfo, true ) ) {
@@ -5863,12 +5430,7 @@ if ( ! function_exists( 'et_pb_load_global_module' ) ) {
 			$query = new WP_Query(
 				array(
 					'p'         => (int) $global_id,
-					'post_type' => array(
-						ET_BUILDER_LAYOUT_POST_TYPE,
-						ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE,
-						ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE,
-						ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE,
-					),
+					'post_type' => ET_BUILDER_LAYOUT_POST_TYPE,
 				)
 			);
 
@@ -5959,17 +5521,8 @@ if ( ! function_exists( 'et_pb_get_global_module_content' ) ) {
 	 * @return bool|false|string|string[]|null
 	 */
 	function et_pb_get_global_module_content( $content, $shortcode_name, $for_inner_row = false ) {
-		/**
-		 * Filter list of modules where we don't need to apply autop to the global module content.
-		 *
-		 * @param array Module slugs list.
-		 */
-		$custom_autop_ignored_modules  = apply_filters( 'et_builder_global_modules_ignore_autop', array() );
-		$custom_autop_ignored_modules  = is_array( $custom_autop_ignored_modules ) ? $custom_autop_ignored_modules : array();
-		$default_autop_ignored_modules = array_merge( array( 'et_pb_code', 'et_pb_fullwidth_code' ), $custom_autop_ignored_modules );
-
 		// Do not apply autop to code modules.
-		if ( in_array( $shortcode_name, $default_autop_ignored_modules, true ) ) {
+		if ( in_array( $shortcode_name, array( 'et_pb_code', 'et_pb_fullwidth_code' ), true ) ) {
 			return et_pb_extract_shortcode_content( $content, $shortcode_name );
 		}
 
@@ -7370,7 +6923,7 @@ function et_pb_pagebuilder_meta_box() {
 		<%% } %%>
 
 		<%% if ( typeof display_switcher !== \'undefined\' && display_switcher === \'on\' ) { %%>
-			<div class="et-pb-main-settings et-pb-main-settings-full et-pb-all-modules-tab active-container"><div id="et-cloud-app" class="et-fb-library-container"></div></div>
+			<div class="et-pb-main-settings et-pb-main-settings-full et-pb-all-modules-tab active-container"></div>
 			<div class="et-pb-main-settings et-pb-main-settings-full et-pb-saved-modules-tab" style="display: none;"></div>
 			<%% if (!_.isEmpty(et_pb_options.library_custom_tabs)) { %%>
 				<%% _.each(et_pb_options.library_custom_tabs, function(tab_name, tab_id) { %%>
@@ -7387,8 +6940,7 @@ function et_pb_pagebuilder_meta_box() {
 	);
 
 	// Library Account Status Error.
-	$root_directory = defined( 'ET_BUILDER_PLUGIN_ACTIVE' ) ? ET_BUILDER_PLUGIN_DIR : get_template_directory();
-	$library_i18n   = require $root_directory . '/cloud/i18n/library.php';
+	$library_i18n = require ET_BUILDER_DIR . 'frontend-builder/i18n/library.php';
 
 	printf(
 		'
@@ -7584,7 +7136,7 @@ function et_pb_pagebuilder_meta_box() {
 		</script>',
 		esc_html__( 'Save To Library', 'et_builder' ),
 		esc_html__( 'Save your current page to the Divi Library for later use.', 'et_builder' ),
-		esc_html__( 'Layout Name', 'et_builder' )
+		esc_html__( 'Layout Name:', 'et_builder' )
 	);
 
 	// "Delete Font" Modal Text
@@ -7669,7 +7221,7 @@ function et_pb_pagebuilder_meta_box() {
 	$layout_categories = get_terms( 'layout_category', array( 'hide_empty' => false ) );
 	$categories_output = sprintf(
 		'<div class="et-pb-option"><label>%1$s</label>',
-		esc_html__( 'Add To Categories', 'et_builder' )
+		esc_html__( 'Add To Categories:', 'et_builder' )
 	);
 
 	if ( is_array( $layout_categories ) && ! empty( $layout_categories ) ) {
@@ -9251,7 +8803,7 @@ if ( ! function_exists( 'et_delete_post_audio' ) ) :
 	 * Removes the audio shortcode of the first attached (NOT embedded) audio from content on single pages since
 	 * it is displayed at the top of the page. This will also remove the audio shortcode url from archive pages content
 	 *
-	 * @see https://www.elegantthemes.com/documentation/divi/post-formats/
+	 * @see https://www.elegantthemes.com/gallery/divi/documentation/post-formats/
 	 *
 	 * @param string $content post content.
 	 */
@@ -9549,12 +9101,6 @@ add_action( 'admin_init', 'et_pb_remove_lb_plugin_force_editor_mode' );
  * Generates array of all Role options
  */
 function et_pb_all_role_options() {
-	// get all the roles that can edit theme options.
-	$applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options' ] );
-
-	// Get all the roles that can edit theme options and edit others posts.
-	$tb_applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options', 'edit_others_posts' ], true );
-
 	// get all the modules and build array of capabilities for them.
 	$all_modules_array  = ET_Builder_Element::get_modules_array();
 	$custom_user_tabs   = ET_Builder_Element::get_tabs();
@@ -9598,7 +9144,7 @@ function et_pb_all_role_options() {
 		? array(
 			'theme_customizer' => array(
 				'name'          => esc_html__( 'Theme Customizer', 'et_builder' ),
-				'applicability' => $applicability_roles,
+				'applicability' => array( 'administrator' ),
 			),
 			'page_options'     => array(
 				'name' => esc_html__( 'Page Options', 'et_builder' ),
@@ -9610,29 +9156,18 @@ function et_pb_all_role_options() {
 		'general_capabilities'        => array(
 			'section_title' => '',
 			'options'       => array(
-				'theme_options'  => array(
+				'theme_options' => array(
 					'name'          => et_is_builder_plugin_active() ? esc_html__( 'Plugin Options', 'et_builder' ) : esc_html__( 'Theme Options', 'et_builder' ),
-					'applicability' => $applicability_roles,
+					'applicability' => array( 'administrator' ),
 				),
-				// Added capabilities, so we can control menu role wise effectively.
-				'divi_library'   => array(
-					'name'          => esc_html__( 'Divi Library', 'et_builder' ),
-					'applicability' => $applicability_roles,
-					'capabilities'  => 'export',
+				'divi_library'  => array(
+					'name' => esc_html__( 'Divi Library', 'et_builder' ),
 				),
-				'theme_builder'  => array(
+				'theme_builder' => array(
 					'name'          => esc_html__( 'Theme Builder', 'et_builder' ),
-					'applicability' => $tb_applicability_roles,
-				),
-				'support_center' => array(
-					'name'          => esc_html__( 'Support Center', 'et_builder' ),
-					'applicability' => $applicability_roles,
-				),
-				'divi_ai'        => array(
-					'name'          => esc_html__( 'Divi AI', 'et_builder' ),
 					'applicability' => array( 'administrator', 'editor' ),
 				),
-				'ab_testing'     => array(
+				'ab_testing'    => array(
 					'name' => esc_html__( 'Split Testing', 'et_builder' ),
 				),
 			),
@@ -9718,15 +9253,9 @@ function et_pb_all_role_options() {
 
 		// Dynamically create an option foreach portability.
 		foreach ( $registered_portabilities as $portability_context => $portability_instance ) {
-			$portability_options = array(
+			$all_role_options['portability']['options'][ "{$portability_context}_portability" ] = array(
 				'name' => esc_html( $portability_instance->name ),
 			);
-
-			if ( isset( $portability_instance->applicability ) ) {
-				$portability_options['applicability'] = $portability_instance->applicability;
-			}
-
-			$all_role_options['portability']['options'][ "{$portability_context}_portability" ] = $portability_options;
 		}
 	}
 
@@ -9796,10 +9325,6 @@ function et_pb_generate_roles_tab( $all_role_options, $role ) {
 	// generate all sections of the form for current role.
 	if ( ! empty( $all_role_options ) ) {
 		foreach ( $all_role_options as $capability_id => $capability_options ) {
-			if ( isset( $capability_options['applicability'] ) && ! in_array( $role, $capability_options['applicability'], true ) ) {
-				continue;
-			}
-
 			$form_sections .= sprintf(
 				'<div class="et_pb_roles_section_container">
 					%1$s
@@ -9843,30 +9368,8 @@ function et_pb_generate_capabilities_output( $cap_array, $role ) {
 	$output = '';
 
 	if ( ! empty( $cap_array ) ) {
-		$user_has_all_capabilities = true;
-		$role_obj                  = get_role( $role );
-
 		foreach ( $cap_array as $capability => $capability_details ) {
 			if ( empty( $capability_details['applicability'] ) || ( ! empty( $capability_details['applicability'] ) && in_array( $role, $capability_details['applicability'], true ) ) ) {
-
-				// $capability_details['capabilities'] is an array of capabilities that are required to see this option.
-				if ( isset( $capability_details['capabilities'] ) ) {
-					if ( is_string( $capability_details['capabilities'] ) && ! $role_obj->has_cap( $capability_details['capabilities'] ) ) {
-						$user_has_all_capabilities = false;
-					} elseif ( is_array( $capability_details['capabilities'] ) ) {
-						foreach ( $capability_details['capabilities'] as $capability ) {
-							if ( ! $role_obj->has_cap( $capability ) ) {
-								$user_has_all_capabilities = false;
-								break;
-							}
-						}
-					}
-
-					if ( ! $user_has_all_capabilities ) {
-						continue;
-					}
-				}
-
 				$output .= sprintf(
 					'<div class="et_pb_capability_option">
 						<span class="et_pb_capability_title">%4$s</span>
@@ -10066,33 +9569,6 @@ function et_pb_register_preview_page( $template ) {
 	return $template;
 }
 add_action( 'template_include', 'et_pb_register_preview_page' );
-
-/**
- * Disable all the dynamic assets for preview page so all the styles can be rendered correctly.
- *
- * @return void
- */
-function et_pb_preview_page_disable_dynamic_assets() {
-	global $wp_query;
-
-	if ( 'true' === $wp_query->get( 'et_pb_preview' ) && isset( $_GET['et_pb_preview_nonce'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
-		// Instruct Shortcode Manager to register/load all modules/shortcodes.
-		add_filter( 'et_builder_should_load_all_module_data', '__return_true' );
-
-		// Disable Feature: Dynamic Assets.
-		add_filter( 'et_disable_js_on_demand', '__return_true' );
-		add_filter( 'et_use_dynamic_css', '__return_false' );
-		add_filter( 'et_should_generate_dynamic_assets', '__return_false' );
-
-		// Disable Feature: Critical CSS.
-		add_filter( 'et_builder_critical_css_enabled', '__return_false' );
-
-		// Disable Cache in Feature Manager.
-		add_filter( 'et_builder_post_feature_cache_enabled', '__return_false' );
-	}
-}
-
-add_action( 'wp', 'et_pb_preview_page_disable_dynamic_assets' );
 
 if ( ! function_exists( 'et_builder_replace_code_content_entities' ) ) :
 	/**
@@ -10521,52 +9997,15 @@ function et_pb_get_post_categories( $post_id, $default = array() ) {
 }
 
 /**
- * Generates "Use Visual Builder" button url
- *
- * @return string
- */
-function et_fb_get_page_url() {
-	global $wp;
-
-	$post_id         = get_the_ID();
-	$is_divi_library = 'et_pb_layout' === get_post_type( $post_id );
-
-	if ( $is_divi_library ) {
-		return get_edit_post_link( $post_id );
-	} elseif ( is_singular() ) {
-		return get_permalink( $post_id );
-	}
-
-	return add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
-}
-
-/**
  * Add "Use Visual Builder" link to WP-Admin bar
  *
  * @return void
  */
 function et_fb_add_admin_bar_link() {
-	$is_not_builder_enabled_single   = ! is_singular() || ! et_builder_fb_enabled_for_post( get_the_ID() );
-	$is_not_in_wc_shop               = ! et_builder_used_in_wc_shop();
-	$not_allowed_fb_access           = ! et_pb_is_allowed( 'use_visual_builder' );
-	$app_preferences                 = et_fb_app_preferences_settings();
-	$default_visual_theme_builder    = et_()->array_get( $app_preferences, 'enable_visual_theme_builder.default' );
-	$is_visual_theme_builder_enabled = et_get_option( 'et_fb_pref_builder_enable_visual_theme_builder', $default_visual_theme_builder );
-	$is_not_theme_builder_used       = ! et_fb_is_theme_builder_used_on_page() || ! et_pb_is_allowed( 'theme_builder' ) || ! filter_var( $is_visual_theme_builder_enabled, FILTER_VALIDATE_BOOLEAN );
-	$is_enabled_for_post_type        = ! is_singular() || et_builder_enabled_for_post_type( get_post_type( get_the_ID() ) );
-
-	// Return if builder is not allowed for the  user.
-	if ( $not_allowed_fb_access ) {
-		return;
-	}
-
-	// Return if builder is not enabled for the post type.
-	if ( ! $is_enabled_for_post_type && $is_not_builder_enabled_single ) {
-		return;
-	}
-
-	// Return for non-singular pages if they are not WC shop page and Theme Builder is not used.
-	if ( $is_not_builder_enabled_single && $is_not_in_wc_shop && $is_not_theme_builder_used ) {
+	$is_not_builder_enabled_single = ! is_singular() || ! et_builder_fb_enabled_for_post( get_the_ID() );
+	$is_not_in_wc_shop             = ! et_builder_used_in_wc_shop();
+	$not_allowed_fb_access         = ! et_pb_is_allowed( 'use_visual_builder' );
+	if ( $not_allowed_fb_access || ( $is_not_builder_enabled_single && $is_not_in_wc_shop ) ) {
 		return;
 	}
 
@@ -10579,10 +10018,12 @@ function et_fb_add_admin_bar_link() {
 		$post_id = $wp_the_query->get_queried_object()->ID;
 	}
 
-	$page_url = et_fb_get_page_url();
+	$is_divi_library = 'et_pb_layout' === get_post_type( $post_id );
+
+	$page_url = $is_divi_library ? get_edit_post_link( $post_id ) : get_permalink( $post_id );
 
 	// Don't add the link, if Frontend Builder has been loaded already.
-	if ( et_fb_is_enabled() || et_fb_is_enabled_on_any_template() ) {
+	if ( et_fb_is_enabled() ) {
 		$wp_admin_bar->add_menu(
 			array(
 				'id'    => 'et-disable-visual-builder',
@@ -10596,13 +10037,11 @@ function et_fb_add_admin_bar_link() {
 
 	$current_object = $wp_the_query->get_queried_object();
 
-	$user_is_allowed_to_edit = isset( $current_object->ID ) ? current_user_can( 'edit_post', $current_object->ID ) : ( et_fb_is_theme_builder_used_on_page() && et_pb_is_allowed( 'theme_builder' ) );
-
-	if ( is_admin() || ! $user_is_allowed_to_edit || ! et_pb_is_allowed( 'divi_builder_control' ) ) {
+	if ( ! current_user_can( 'edit_post', $current_object->ID ) || ! et_pb_is_allowed( 'divi_builder_control' ) ) {
 		return;
 	}
 
-	$use_visual_builder_url = et_pb_is_pagebuilder_used( $post_id ) || ( et_fb_is_theme_builder_used_on_page() && ! is_singular() ) ?
+	$use_visual_builder_url = et_pb_is_pagebuilder_used( $post_id ) ?
 		et_fb_get_builder_url( $page_url ) :
 		add_query_arg(
 			array(
@@ -10700,8 +10139,7 @@ add_action( 'wp_ajax_et_fb_process_imported_content', 'et_fb_process_imported_co
  * @return string
  */
 function et_fb_maybe_get_bfb_initial_content( $content, $post_id ) {
-	$from_post = isset( $_GET['from_post'] ) ? sanitize_text_field( $_GET['from_post'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
-
+	$from_post = filter_input( INPUT_GET, 'from_post', FILTER_SANITIZE_STRING );
 	if ( ! empty( $from_post ) && 'empty' !== $from_post ) {
 		$copy_content_from = get_post( $from_post );
 		$existing_content  = $copy_content_from->post_content;
@@ -10904,24 +10342,8 @@ function et_fb_get_builder_shortcode_object( $post_type, $post_id, $layout_type 
 	add_filter( 'et_builder_module_force_render', '__return_true' );
 
 	$post_data               = get_post( $post_id );
-	$post_data_post_modified = is_object( $post_data ) ? gmdate( 'U', strtotime( $post_data->post_modified ) ) : 0;
-	$post_content            = is_object( $post_data ) ? $post_data->post_content : '';
-	$is_theme_builder        = et_builder_tb_enabled();
-	$is_backend_builder      = et_builder_bfb_enabled();
-	$theme_builder_layouts   = et_theme_builder_get_template_layouts();
-
-	// Unset main template from Theme Builder layouts to avoid PHP Notices.
-	if ( isset( $theme_builder_layouts['et_template'] ) ) {
-		unset( $theme_builder_layouts['et_template'] );
-	}
-
-	// Get the content for all theme builder posts.
-	foreach ( $theme_builder_layouts as $key => $theme_builder_layout ) {
-		if ( 0 !== $theme_builder_layout['id'] && $theme_builder_layout['enabled'] && $theme_builder_layout['override'] ) {
-			$post_data                                     = get_post( $theme_builder_layout['id'] );
-			$theme_builder_layouts[ $key ]['post_content'] = $post_data->post_content;
-		}
-	}
+	$post_data_post_modified = gmdate( 'U', strtotime( $post_data->post_modified ) );
+	$post_content            = $post_data->post_content;
 
 	// if autosave exists here, return it with the real content, autosave.js and getServerSavedPostData() will look for it.
 	$current_user_id = get_current_user_id();
@@ -10976,64 +10398,7 @@ function et_fb_get_builder_shortcode_object( $post_type, $post_id, $layout_type 
 	 */
 	$post_content = apply_filters( 'et_fb_load_raw_post_content', $post_content, $post_id );
 
-	$fields_data['shortcode_object'] = array();
-
-	// Process main post content fields data.
-	$post_fields_data = et_fb_process_shortcode( $post_content );
-
-	$fields_data['shortcode_object'] = array();
-
-	// In Visual Builder get All Theme Builder Areas.
-	if ( et_pb_is_allowed( 'theme_builder' ) && ! $is_theme_builder && ! $is_backend_builder && ! empty( $theme_builder_layouts ) ) {
-		// Process Theme Builder Header area fields data.
-		if ( isset( $theme_builder_layouts['et_header_layout']['post_content'] ) ) {
-			$theme_builder_header    = apply_filters( 'et_fb_load_raw_post_content', $theme_builder_layouts['et_header_layout']['post_content'], $theme_builder_layouts['et_header_layout']['id'] );
-			$tb_header_fields_data   = et_fb_process_shortcode( $theme_builder_header, '', '', '', '', 'et_header_layout' );
-			$processed_fields_data[] = $tb_header_fields_data;
-		}
-
-		// Process Theme Builder Body area.
-		if ( isset( $theme_builder_layouts['et_body_layout']['post_content'] ) ) {
-			$theme_builder_body                  = apply_filters( 'et_fb_load_raw_post_content', $theme_builder_layouts['et_body_layout']['post_content'], $theme_builder_layouts['et_body_layout']['id'] );
-			$tb_body_fields_data                 = et_fb_process_shortcode( $theme_builder_body, '', '', '', '', 'et_body_layout' );
-			$theme_builder_post_content_selector = et_fb_generate_post_content_module_selector( $tb_body_fields_data, 'theme_builder_content' );
-
-			if ( $theme_builder_post_content_selector && ! is_home() && ! is_archive() && ! is_404() ) {
-				// If Theme Builder Body contains Post Content Module, replace it with real post content.
-				$post_content_fields_data = et_fb_process_shortcode( $post_content, '', '', '', '', 'post_content' );
-				$processed_fields_data[]  = et_fb_generate_tb_body_area_with_post_content( $tb_body_fields_data, $theme_builder_post_content_selector, $post_content_fields_data );
-			} else {
-				// if not, just add Theme Builder Body area content.
-				$processed_fields_data[] = $tb_body_fields_data;
-
-				// Add Post content too, so it can be loaded when post content module is added.
-				if ( ! is_home() && ! is_archive() && ! is_404() ) {
-					$initial_post_content_fields_data = et_fb_process_shortcode( $post_content, '', '', '', '', 'initial_post_content' );
-					$processed_fields_data[]          = $initial_post_content_fields_data;
-				}
-			}
-		} elseif ( ! is_home() && et_pb_is_pagebuilder_used( $post_id ) ) {
-			// If there is no Theme Builder Body, load post content.
-			$processed_fields_data[] = $post_fields_data;
-		}
-
-		// Process Theme Builder Header area fields data.
-		if ( isset( $theme_builder_layouts['et_footer_layout']['post_content'] ) ) {
-			$theme_builder_footer    = apply_filters( 'et_fb_load_raw_post_content', $theme_builder_layouts['et_footer_layout']['post_content'], $theme_builder_layouts['et_footer_layout']['id'] );
-			$tb_footer_fields_data   = et_fb_process_shortcode( $theme_builder_footer, '', '', '', '', 'et_footer_layout' );
-			$processed_fields_data[] = $tb_footer_fields_data;
-		}
-
-		// Build the shortcode_object from Theme Builder Areas.
-		foreach ( $processed_fields_data as $processed_field_data ) {
-			if ( is_array( $processed_field_data ) ) {
-				$fields_data['shortcode_object'] = array_merge( $fields_data['shortcode_object'], $processed_field_data );
-			}
-		}
-	} else {
-		// In Theme Builder and Backend Builder show only main post.
-		$fields_data['shortcode_object'] = $post_fields_data;
-	}
+	$fields_data['shortcode_object'] = et_fb_process_shortcode( $post_content );
 
 	remove_filter( 'et_builder_module_force_render', '__return_true' );
 
@@ -11042,137 +10407,6 @@ function et_fb_get_builder_shortcode_object( $post_type, $post_id, $layout_type 
 	setup_postdata( $post );
 
 	return $fields_data;
-}
-
-/**
- * This function searches the multidimensional array of post content fields for post content module
- * and generates array of keys that are used to select post content module.
- *
- * @param array  $array Array of post fields data.
- * @param string $element_type Type of an element that is analyzes at the moment.
- *
- * @return array
- */
-function et_fb_generate_post_content_module_selector( array $array, $element_type ) {
-	global $current_section;
-	global $current_row;
-	global $current_row_inner;
-	global $current_column;
-	global $current_column_inner;
-	global $current_module;
-	global $post_content_module_selector;
-
-	if ( 'theme_builder_content' === $element_type ) {
-		// Loop through Theme Builder Area sections.
-		foreach ( $array as $key => $value ) {
-			if ( isset( $array[ $key ]['content'] ) && is_array( $array[ $key ]['content'] ) ) {
-				$current_section = $key;
-				et_fb_generate_post_content_module_selector( $array[ $key ]['content'], $array[ $key ]['type'] );
-			}
-		}
-	} elseif ( 'et_pb_section' === $element_type ) {
-		// Loop through rows.
-		foreach ( $array as $key => $value ) {
-			if ( 'et_pb_fullwidth_post_content' === $array[ $key ]['type'] ) {
-				et_fb_generate_post_content_module_selector( $array, 'et_pb_column' );
-			} elseif ( isset( $array[ $key ]['content'] ) && is_array( $array[ $key ]['content'] ) ) {
-				$current_row = $key;
-				et_fb_generate_post_content_module_selector( $array[ $key ]['content'], $array[ $key ]['type'] );
-			}
-		}
-	} elseif ( 'et_pb_row' === $element_type ) {
-		// Loop through columns.
-		foreach ( $array as $key => $value ) {
-			if ( isset( $array[ $key ]['content'] ) && is_array( $array[ $key ]['content'] ) ) {
-				$current_column = $key;
-				et_fb_generate_post_content_module_selector( $array[ $key ]['content'], $array[ $key ]['type'] );
-			}
-		}
-	} elseif ( 'et_pb_row_inner' === $element_type ) {
-		// Loop through columns.
-		foreach ( $array as $key => $value ) {
-			if ( isset( $array[ $key ]['content'] ) && is_array( $array[ $key ]['content'] ) ) {
-				$current_column_inner = $key;
-				et_fb_generate_post_content_module_selector( $array[ $key ]['content'], $array[ $key ]['type'] );
-			}
-		}
-	} elseif ( 'et_pb_column' === $element_type || 'et_pb_column_inner' === $element_type ) {
-		// Loop through modules.
-		foreach ( $array as $key => $value ) {
-			if ( 'et_pb_row_inner' === $array[ $key ]['type'] ) {
-				foreach ( $array as $key => $value ) {
-					if ( isset( $array[ $key ]['content'] ) && is_array( $array[ $key ]['content'] ) ) {
-						$current_row_inner = $key;
-						et_fb_generate_post_content_module_selector( $array[ $key ]['content'], $array[ $key ]['type'] );
-					}
-				}
-			} elseif ( 'et_pb_post_content' === $array[ $key ]['type'] ) {
-				// If Post Content Module is Found build the selector from current Section, Row, and Column.
-				$current_module  = $key;
-				$is_column_inner = 'et_pb_column_inner' === $array[ $key ]['parent_slug'];
-
-				$post_content_module_selector = $is_column_inner ? array(
-					'section'      => $current_section,
-					'row_inner'    => $current_row_inner,
-					'column'       => $current_row,
-					'column_inner' => $current_column_inner,
-					'module'       => $current_module,
-				) : array(
-					'section' => $current_section,
-					'row'     => $current_row,
-					'column'  => $current_column,
-					'module'  => $current_module,
-				);
-			} elseif ( 'et_pb_fullwidth_post_content' === $array[ $key ]['type'] ) {
-				// If Post Content Module is FullWidth create selector with section and module id.
-				$current_module               = $key;
-				$post_content_module_selector = array(
-					'section' => $current_section,
-					'module'  => $current_module,
-				);
-			}
-		}
-	}
-
-	return $post_content_module_selector;
-}
-
-/**
- * This function is used to generate the Theme Builder Body area that has Post
- * Content module inside. It replaces Post Content module with sections of a
- * post that is being currently edited.
- *
- * @param array $theme_builder_body_fields Theme Builder Body area fields data.
- * @param array $selector Array of keys for selecting Post Content Module.
- * @param array $post_content_fields Post Content fields data that should
- *     replace the Post Content Module.
- *
- * @return array
- */
-function et_fb_generate_tb_body_area_with_post_content( $theme_builder_body_fields, $selector, $post_content_fields ) {
-	if ( ! isset( $selector['row'] ) && ! isset( $selector['column'] ) ) {
-		$original_post_content_module = $theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['module'] ];
-
-		$theme_builder_body_fields[ $selector['section'] ]['attrs']['post_content_module_attrs']        = $original_post_content_module['attrs'];
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['module'] ]['content'] = $post_content_fields;
-	} elseif ( null === $selector['column'] ) {
-		$original_post_content_module = $theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['content'][ $selector['module'] ];
-
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['attrs']['post_content_module_attrs']        = $original_post_content_module['attrs'];
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['content'][ $selector['module'] ]['content'] = $post_content_fields;
-	} elseif ( isset( $selector['row_inner'] ) ) {
-		$original_post_content_module = $theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['column'] ]['content'][ $selector['row_inner'] ]['content'][ $selector['column_inner'] ]['content'][ $selector['module'] ];
-
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['column'] ]['content'][ $selector['row_inner'] ]['content'][ $selector['column_inner'] ]['attrs']['post_content_module_attrs']        = $original_post_content_module['attrs'];
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['column'] ]['content'][ $selector['row_inner'] ]['content'][ $selector['column_inner'] ]['content'][ $selector['module'] ]['content'] = $post_content_fields;
-	} else {
-		$original_post_content_module = $theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['content'][ $selector['column'] ]['content'][ $selector['module'] ];
-
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['content'][ $selector['column'] ]['attrs']['post_content_module_attrs']        = $original_post_content_module['attrs'];
-		$theme_builder_body_fields[ $selector['section'] ]['content'][ $selector['row'] ]['content'][ $selector['column'] ]['content'][ $selector['module'] ]['content'] = $post_content_fields;
-	}
-
-	return $theme_builder_body_fields;
 }
 
 /**
@@ -11447,7 +10681,7 @@ function et_fb_get_product_tour_text( $post_id ) {
  *
  * @return mixed
  */
-function et_fb_process_shortcode( $content, $parent_address = '', $global_parent = '', $global_parent_type = '', $parent_type = '', $theme_builder_area = '' ) {
+function et_fb_process_shortcode( $content, $parent_address = '', $global_parent = '', $global_parent_type = '', $parent_type = '' ) {
 	global $shortcode_tags, $fb_processing_counter;
 
 	if ( false === strpos( $content, '[' ) ) {
@@ -11536,7 +10770,7 @@ function et_fb_process_shortcode( $content, $parent_address = '', $global_parent
 
 		if ( isset( $match[5] ) ) {
 			// phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- `call_user_func` calls the registered shortcode callback.
-			$output = call_user_func( $shortcode_tags[ $tag ], $attr, $match[5], $tag, $parent_address, $global_parent, $global_parent_type, $parent_type, $theme_builder_area );
+			$output = call_user_func( $shortcode_tags[ $tag ], $attr, $match[5], $tag, $parent_address, $global_parent, $global_parent_type, $parent_type );
 		} else {
 			// self-closing tag.
 			// phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- `call_user_func` calls the registered shortcode callback.
@@ -11572,48 +10806,28 @@ function et_fb_add_additional_attrs( $processed_attrs, $output ) {
 	}
 
 	// A list of all the attributes that are already returned after the shortcode is processed.
-	$safe_attrs    = array_keys( $output['attrs'] );
-	$allowed_attrs = array();
+	$safe_attrs        = array_keys( $output['attrs'] );
+	$allowlisted_attrs = array();
 
 	foreach ( $processed_attrs as $attr => $value ) {
 		if ( ! preg_match( '~_hover(_enabled)?$~', $attr ) ) {
 			continue;
 		}
 
-		// if color value includes `gcid-`, check for associated Global Color value.
-		if ( empty( $value ) || false === strpos( $value, 'gcid-' ) ) {
-			continue;
-		}
+		// If value starts with `gcid-` then it's a global color ID.
+		if ( strpos( $value, 'gcid-' ) === 0 ) {
+			$global_color_info = et_builder_get_global_color_info( $value );
 
-		$global_color_info = et_builder_get_all_global_colors( true );
-
-		// If there are no matching Global Colors, return null.
-		if ( ! is_array( $global_color_info ) ) {
-			continue;
-		}
-
-		foreach ( $global_color_info as $gcid => $details ) {
-			if ( false !== strpos( $value, $gcid ) ) {
-				// Match substring (needed for attrs like gradient stops).
-				$value = str_replace( $gcid, $details['color'], $value );
+			if ( ! empty( $global_color_info['color'] ) ) {
+				$value = esc_attr( $global_color_info['color'] );
 			}
 		}
 
-		// Finally, escape the output.
-		if ( ! empty( $global_color_info['color'] ) ) {
-			$value = esc_attr( $value );
-		}
-
-		$allowed_attrs[ $attr ] = $value;
+		$allowlisted_attrs[ $attr ] = $value;
 	}
 
-	// Extra conversion for the case with the `font_icon__hover` option.
-	if ( ! empty( $allowed_attrs['font_icon__hover'] ) && et_pb_maybe_old_divi_font_icon( $allowed_attrs['font_icon__hover'] ) ) {
-		$allowed_attrs['font_icon__hover'] = et_pb_build_extended_font_icon_value( $allowed_attrs['font_icon__hover'], null, null, true );
-	}
-
-	if ( $allowed_attrs ) {
-		$output['attrs'] = array_merge( $output['attrs'], $allowed_attrs );
+	if ( $allowlisted_attrs ) {
+		$output['attrs'] = array_merge( $output['attrs'], $allowlisted_attrs );
 	}
 
 	return $output;
@@ -11728,7 +10942,6 @@ if ( ! function_exists( 'et_strip_shortcodes' ) ) :
 		$strip_content_shortcodes = array(
 			'et_pb_code',
 			'et_pb_fullwidth_code',
-			'et_pb_social_media_follow_network',
 		);
 
 		// list of post-based shortcodes.
@@ -12356,7 +11569,7 @@ if ( ! function_exists( 'et_pb_get_value_unit' ) ) :
 
 		if ( substr( $value, ( 0 - $important_length ), $important_length ) === $important ) {
 			$value_length = $value_length - $important_length;
-			$value        = trim( substr( $value, 0, $value_length ) );
+			$value        = substr( $value, 0, $value_length ) . trim();
 		}
 
 		if ( in_array( substr( $value, -3, 3 ), $valid_three_chars_units, true ) ) {
@@ -12941,11 +12154,6 @@ if ( ! function_exists( 'et_filter_wp_calculate_image_srcset' ) ) :
 					continue;
 				}
 
-				// In some SVG images, the value of `$max_width` is 0, in those cases we can set `$max_width` from `$size_array`.
-				if ( ! $max_width ) {
-					$max_width = $size_array[0];
-				}
-
 				$responsive_sources[ $max_width ] = array(
 					'url'        => str_replace( basename( $image_src ), $size_data['file'], $image_src ),
 					'descriptor' => 'w',
@@ -13237,7 +12445,7 @@ if ( ! function_exists( 'et_builder_default_colors_ajax_update_handler' ) ) :
 	 */
 	function et_builder_default_colors_ajax_update_handler() {
 		// Get nonce from $_POST.
-		$nonce = isset( $_POST['et_builder_default_colors_nonce'] ) ? sanitize_text_field( $_POST['et_builder_default_colors_nonce'] ) : '';
+		$nonce = filter_input( INPUT_POST, 'et_builder_default_colors_nonce', FILTER_SANITIZE_STRING );
 
 		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'et_builder_default_colors_update' ) ) {
 			wp_send_json_error();
@@ -13248,7 +12456,8 @@ if ( ! function_exists( 'et_builder_default_colors_ajax_update_handler' ) ) :
 		}
 
 		// Get default_colors from $_POST.
-		$default_colors = isset( $_POST['default_colors'] ) ? sanitize_text_field( wp_unslash( $_POST['default_colors'] ) ) : '';
+		$post_default_colors = filter_input( INPUT_POST, 'default_colors', FILTER_SANITIZE_STRING );
+		$default_colors      = sanitize_text_field( wp_unslash( $post_default_colors ) );
 
 		et_update_option( 'divi_color_palette', str_replace( ',', '|', $default_colors ) );
 
@@ -13266,7 +12475,7 @@ if ( ! function_exists( 'et_builder_global_colors_ajax_save_handler' ) ) :
 	 */
 	function et_builder_global_colors_ajax_save_handler() {
 		// Get nonce from $_POST.
-		$nonce = isset( $_POST['et_builder_global_colors_save_nonce'] ) ? sanitize_text_field( $_POST['et_builder_global_colors_save_nonce'] ) : '';
+		$nonce = filter_input( INPUT_POST, 'et_builder_global_colors_save_nonce', FILTER_SANITIZE_STRING );
 
 		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'et_builder_global_colors_save' ) ) {
 			wp_send_json_error();
@@ -13282,11 +12491,6 @@ if ( ! function_exists( 'et_builder_global_colors_ajax_save_handler' ) ) :
 
 		if ( is_array( $post_colors ) ) {
 			foreach ( $post_colors as $data_id => $data ) {
-				// Drop bad data.
-				if ( 'undefined' === $data_id || empty( $data ) ) {
-					continue;
-				}
-
 				// Sanitize data_id (e.g: gcid-3330f0vf7 ).
 				$global_id = sanitize_text_field( $data_id );
 
@@ -13301,28 +12505,8 @@ if ( ! function_exists( 'et_builder_global_colors_ajax_save_handler' ) ) :
 			wp_send_json_error();
 		}
 
-		/**
-		 * Fires after global colors are processed.
-		 *
-		 * @since 4.25.0
-		 */
-		do_action( 'et_global_colors_saved', $global_colors );
-
-		// Do not save customizer colors into Global Colors setting.
-		$excluded_keys = [
-			'gcid-primary-color',
-			'gcid-secondary-color',
-			'gcid-heading-color',
-			'gcid-body-color',
-		];
-
-		foreach ( $excluded_keys as $excluded_key ) {
-			unset( $global_colors[ $excluded_key ] );
-		}
-
 		// Global Color data has been sanitized above.
 		et_update_option( 'et_global_colors', $global_colors );
-
 		ET_Core_PageResource::remove_static_resources( 'all', 'all' );
 
 		wp_send_json_success();
@@ -13331,20 +12515,16 @@ endif;
 
 add_action( 'wp_ajax_et_builder_global_colors_save', 'et_builder_global_colors_ajax_save_handler' );
 
-if ( ! function_exists( 'et_builder_global_colors_ajax_get_handler' ) ) :
-	/**
-	 * Global colors AJAX get handler.
-	 *
-	 * @since 4.19.2
-	 */
-	function et_builder_global_colors_ajax_get_handler() {
-		// Get nonce from $_GET.
-		et_core_security_check( 'edit_posts', 'et_builder_global_colors_get', 'et_builder_global_colors_get_nonce', '_GET' );
-		wp_send_json_success( [ 'global_colors' => et_builder_get_all_global_colors( true ) ] );
-	}
-endif;
-
-add_action( 'wp_ajax_et_builder_global_colors_get', 'et_builder_global_colors_ajax_get_handler' );
+/**
+ * Get all global colors.
+ *
+ * @since 4.9.0
+ *
+ * @return array
+ */
+function et_builder_get_all_global_colors() {
+	return et_get_option( 'et_global_colors' );
+}
 
 /**
  * Get a global color info by id.
@@ -13356,7 +12536,7 @@ add_action( 'wp_ajax_et_builder_global_colors_get', 'et_builder_global_colors_aj
  * @return array
  */
 function et_builder_get_global_color_info( $color_id ) {
-	$colors = et_builder_get_all_global_colors( true );
+	$colors = et_builder_get_all_global_colors();
 
 	if ( empty( $colors ) || ! array_key_exists( $color_id, $colors ) ) {
 		return null;
@@ -13370,227 +12550,3 @@ function et_builder_get_global_color_info( $color_id ) {
 
 	return $colors[ $color_id ];
 }
-
-/**
- * Check if given value is a Global Color Id.
- *
- * @since 4.21.1
- *
- * @param string $attr_value Color value.
- * @return bool
- */
-function et_builder_is_global_color( $attr_value ) {
-	return 0 === strpos( $attr_value, 'gcid-' );
-}
-
-/**
- * Get Global Color by Color Id.
- *
- * @since 4.21.1
- *
- * @param string $color_id Color ID.
- * @return string
- */
-function et_builder_get_global_color( $color_id ) {
-	$color_info = et_builder_get_global_color_info( $color_id );
-
-	return isset( $color_info['color'] ) ? $color_info['color'] : $color_id;
-}
-
-/**
- * Checks if overflow CSS property should be set or not.
- *
- * @since 4.17.4
- *
- * @param bool|string        $overflow_enabled If overflow is enabled (true) or disabled (false) or -x or -y.
- * @param string             $function_name    Module slug.
- * @param ET_Builder_Element $module           Module object.
- *
- * @return bool|string
- */
-function et_process_border_radii_options_overflow( $overflow_enabled, $function_name, $module ) {
-	if ( in_array( $function_name, [ 'et_pb_section', 'et_pb_row' ], true ) &&
-		ET_Builder_Element::module_contains( $module->_original_content, [ 'et_pb_menu', 'et_pb_fullwidth_menu' ] ) ) {
-		$overflow_enabled = false;
-	}
-	return $overflow_enabled;
-}
-add_filter( 'et_builder_process_advanced_borders_options_radii_overflow_enabled', 'et_process_border_radii_options_overflow', 10, 3 );
-
-/**
- * Adds `fitvidsignore` class to vimeo videos parent tags which have unusual aspect ratios.
- *
- * WordPress adds extra `div` tag as a parent on vimeo videos with unusual aspect ratios so
- * videos would have proper aspect ratio responsively. That causes issues with jQuery `fitvids()`.
- * Ref: https://github.com/elegantthemes/Divi/issues/16116
- *
- * @since 4.17.5
- */
-add_filter(
-	'oembed_dataparse',
-	function( $html, $data ) {
-		if ( ! class_exists( 'DOMDocument' ) ) {
-			return $html;
-		}
-
-		if ( 'Vimeo' !== $data->provider_name ) {
-			return $html;
-		}
-
-		$doc                 = new DOMDocument();
-		$doc_load_html_state = $doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-
-		if ( false === $doc_load_html_state ) {
-			return $html;
-		}
-
-		$extra_div_nodes = $doc->getElementsByTagName( 'div' );
-
-		if ( 0 === $extra_div_nodes->length ) {
-			return $html;
-		}
-
-		$extra_div_node = $extra_div_nodes[0];
-		$extra_div_node->setAttribute( 'class', 'fitvidsignore' );
-
-		$output = $doc->saveHTML();
-		$output = false === $output ? $html : $output;
-
-		return $output;
-	},
-	10,
-	2
-);
-
-if ( ! function_exists( 'et_pb_get_youtube_url_regex' ) ) :
-	/**
-	 * Regex to match a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * Expected YouTube URL Formats.
-	 * - https://www.youtube.com/watch?v=XXXX.
-	 * - https://www.youtube.com/embed/XXXX.
-	 * - https://youtu.be/XXXX.
-	 *
-	 * To check regex, see: https://regex101.com/r/4FbeMZ/1.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return string YouTube video URL regex.
-	 */
-	function et_pb_get_youtube_url_regex() {
-		return '/^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/i';
-	}
-endif;
-
-if ( ! function_exists( 'et_pb_normalize_youtube_url' ) ) :
-	/**
-	 * Normalize a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * Convert YouTube URL into normalized form: https://www.youtube.com/watch?v=XXXX.
-	 * For https://www.youtube.com/watch?v=XXXX to check regex is https://regex101.com/r/B2qLJy/1.
-	 * For https://www.youtube.com/embed/XXXX to check regex is https://regex101.com/r/oZ3iNP/1.
-	 * For https://youtu.be/XXXX to check regex is https://regex101.com/r/5nqmhF/1.
-	 *
-	 * @param string $url youtube video url.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return string Normalized YouTube URL.
-	 */
-	function et_pb_normalize_youtube_url( $url ) {
-		preg_match( et_pb_get_youtube_url_regex(), esc_url( $url ), $youtube_embed_video );
-
-		return 'https://www.youtube.com/watch?v=' . $youtube_embed_video[1];
-	}
-endif;
-
-if ( ! function_exists( 'et_pb_validate_youtube_url' ) ) :
-	/**
-	 * Validate a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * For https://www.youtube.com/watch?v=XXXX to check regex is https://regex101.com/r/B2qLJy/1.
-	 * For https://www.youtube.com/embed/XXXX to check regex is https://regex101.com/r/oZ3iNP/1.
-	 * For https://youtu.be/XXXX to check regex is https://regex101.com/r/5nqmhF/1.
-	 *
-	 * @param string $url youtube video url.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return bool Whether provided URL is a valid YouTube URL or not.
-	 */
-	function et_pb_validate_youtube_url( $url ) {
-		preg_match( et_pb_get_youtube_url_regex(), $url, $youtube_embed_video );
-
-		return is_array( $youtube_embed_video ) && ! empty( $youtube_embed_video );
-	}
-endif;
-
-if ( ! function_exists( 'et_update_customizer_colors' ) ) :
-	/**
-	 * Update customizer colors.
-	 *
-	 * @param array $global_colors Global colors.
-	 *
-	 * @since 4.25.0
-	 *
-	 * @return void
-	 */
-	function et_update_customizer_colors( $global_colors ) {
-		$primary_color   = isset( $global_colors['gcid-primary-color']['color'] )
-			? $global_colors['gcid-primary-color']['color']
-			: '';
-		$secondary_color = isset( $global_colors['gcid-secondary-color']['color'] )
-			? $global_colors['gcid-secondary-color']['color']
-			: '';
-		$heading_color   = isset( $global_colors['gcid-header-color']['color'] )
-			? $global_colors['gcid-header-color']['color']
-			: '';
-		$body_color      = isset( $global_colors['gcid-font-color']['color'] )
-			? $global_colors['gcid-font-color']['color']
-			: '';
-
-		if ( ! empty( $primary_color ) ) {
-			et_update_option( 'accent_color', $primary_color );
-		}
-
-		if ( ! empty( $secondary_color ) ) {
-			et_update_option( 'secondary_accent_color', $secondary_color );
-		}
-
-		if ( ! empty( $heading_color ) ) {
-			et_update_option( 'header_color', $heading_color );
-		}
-
-		if ( ! empty( $body_color ) ) {
-			et_update_option( 'font_color', $body_color );
-		}
-	}
-endif;
-
-add_action( 'et_global_colors_saved', 'et_update_customizer_colors' );
-
-/**
- * Ajax Callback :: Update cusomizer fonts.
- */
-function et_update_customizer_fonts() {
-	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['nonce'] ), 'et_pb_save_customizer_fonts_nonce' ) ) {
-		die( -1 );
-	}
-
-	if ( ! current_user_can( 'edit_theme_options' ) ) {
-		die( -1 );
-	}
-
-	$new_heading_font = isset( $_POST['et_pb_heading_font'] ) ? sanitize_text_field( $_POST['et_pb_heading_font'] ) : '';
-	$new_body_font   = isset( $_POST['et_pb_body_font'] ) ? sanitize_text_field( $_POST['et_pb_body_font'] ) : '';
-
-	if ( $new_heading_font ) {
-		et_update_option( 'heading_font', $new_heading_font );
-	}
-
-	if ( $new_body_font ) {
-		et_update_option( 'body_font', $new_body_font );
-	}
-}
-
-add_action( 'wp_ajax_et_update_customizer_fonts', 'et_update_customizer_fonts' );

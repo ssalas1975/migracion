@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 
 $options = array(
 
@@ -49,18 +49,16 @@ $options = array(
 			),
 
 			'alignment_mobile' => array(
-				'type'  => 'switch',
-				'label'   => esc_html__( 'Mobile Alignment', 'jevelin' ),
-				'desc'    => esc_html__( 'Choose mobile alignment', 'jevelin' ),
-				'right-choice' => array(
-					'value' => 'center',
-					'label' => esc_html__('Center', 'jevelin'),
-				),
-				'left-choice' => array(
-					'value' => 'default',
-					'label' => esc_html__('Default', 'jevelin'),
-				),
-				'value' => 'default'
+				'label' => esc_html__('Mobile Alignment', 'jevelin'),
+				'desc'  => esc_html__('Select mobile alignment', 'jevelin'),
+				'type'  => 'select',
+				'value' => 'default',
+				'choices' => array(
+					'default' => esc_html__('Default', 'jevelin'),
+					'left' => esc_html__('Left', 'jevelin'),
+					'center' => esc_html__('Center', 'jevelin'),
+					'right' => esc_html__('Right', 'jevelin'),
+				)
 			),
 
 			'image' => array(
@@ -82,6 +80,13 @@ $options = array(
 				'label' => esc_html__( 'Icon', 'jevelin' ),
 				'desc'  => esc_html__( 'Select icon', 'jevelin' ),
 				'set' => 'jevelin-icons',
+			),
+
+			'icon_size' => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Icon Size', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter icon size (with <b>px</b>)', 'jevelin' ), jevelin_allowed_html() ),
+				'help'  => esc_html__( 'Example: 18px;', 'jevelin' ),
 			),
 
 			'icon_alignment' => array(
@@ -140,6 +145,24 @@ $options = array(
 				'label' => esc_html__( 'Font Size', 'jevelin' ),
 				'desc'  => wp_kses( __( 'Enter font size (with <b>px</b>)', 'jevelin' ), jevelin_allowed_html() ),
 				'help'  => esc_html__( 'Example: 18px;', 'jevelin' ),
+			),
+
+			'font_weight' => array(
+				'type'  => 'select',
+				'label' => esc_html__('Font Weight', 'jevelin'),
+				'desc'  => esc_html__( 'Select font weight', 'jevelin' ),
+				'help'  => esc_html__( 'Notice that not every font will support semi-bold and light font weight', 'jevelin' ),
+				'choices' => array(
+					'200' => esc_html__( 'Extra Light', 'jevelin' ),
+					'300' => esc_html__( 'Light', 'jevelin' ),
+					'400' => esc_html__( 'Normal', 'jevelin' ),
+					'500' => esc_html__( 'Medium', 'jevelin' ),
+					'600' => esc_html__( 'Semi-bold', 'jevelin' ),
+					'700' => esc_html__( 'Bold', 'jevelin' ),
+					'800' => esc_html__( 'Extra Bold', 'jevelin' ),
+					'900' => esc_html__( 'Black', 'jevelin' ),
+				),
+				'value'	  => '700',
 			),
 
 			'radius'  => array(
@@ -207,12 +230,25 @@ $options = array(
 				)
 			),
 
-			'margin'   => array(
-				'label' => esc_html__( 'Margin', 'jevelin' ),
-				'desc'  => wp_kses( __( 'Enter your custom margin (<b>top right bottom left</b>)', 'jevelin' ), jevelin_allowed_html() ),
+			'height'   => array(
+				'label' => esc_html__( 'Button Height', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter your custom button height (with px)', 'jevelin' ), jevelin_allowed_html() ),
 				'type'  => 'text',
-				'value' => '0px 0px 15px 0px',
-				'help'  => esc_html__( 'Example: 0px 0px 15px 0px', 'jevelin' ),
+				'help'  => esc_html__( 'Example: 20px', 'jevelin' ),
+			),
+
+			'line_height'   => array(
+				'label' => esc_html__( 'Button Line Height', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter your custom button line height (with px)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'help'  => esc_html__( 'Example: 20px', 'jevelin' ),
+			),
+
+			'leftright_padding'   => array(
+				'label' => esc_html__( 'Button Left/Right Padding', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter your custom button left/right padding (with px)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'help'  => esc_html__( 'Example: 30px', 'jevelin' ),
 			),
 
 		),
@@ -348,6 +384,17 @@ $options = array(
 			    'label' => esc_html__('Animation Delay', 'jevelin'),
 			    'desc'  => esc_html__('Choose animation delay (seconds', 'jevelin'),
 			),
+
+		),
+	),
+
+	'position_box' => array(
+		'title'   => esc_html__( 'Position', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'inline_element' => jevelin_element_inline_option(),
+			'margin' => jevelin_element_margin_option(),
 
 		),
 	),

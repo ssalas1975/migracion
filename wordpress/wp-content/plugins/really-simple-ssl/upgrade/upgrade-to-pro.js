@@ -1,4 +1,5 @@
 const rsp_steps = rsp_upgrade.steps;
+let rsp_download_link = '';
 let rsp_progress = 0;
 
 //set up steps html
@@ -38,6 +39,7 @@ const rsp_stop_progress = () => {
 
 
 const rsp_process_step = (current_step) => {
+	let previous_progress = current_step * Math.ceil(100/(rsp_upgrade.steps.length));
 	let progress_step = (current_step+1) * Math.ceil(100/(rsp_upgrade.steps.length));
 
 	clearInterval(window.rsp_interval);
@@ -57,6 +59,8 @@ const rsp_process_step = (current_step) => {
 
 	current_step = parseInt(current_step);
 	let step = rsp_steps[current_step];
+	let error = step['error'];
+	let success = step['success'];
 
 	// Get arguments from url
 	const query_string = window.location.search;
@@ -69,6 +73,7 @@ const rsp_process_step = (current_step) => {
 		'license': urlParams.get('license'),
 		'item_id': urlParams.get('item_id'),
 		'api_url': urlParams.get('api_url'),
+		'download_link': rsp_download_link,
 		'install_pro': true,
 	};
 
@@ -81,6 +86,9 @@ const rsp_process_step = (current_step) => {
 		let data = JSON.parse(response);
 
 		if ( data.success ) {
+			if ( data.download_link ){
+				rsp_download_link = data.download_link;
+			}
 			step_color.innerHTML = "<div class='rsp-green rsp-bullet'></div>";
 			step_text.innerHTML = "<span>"+step.success+"</span>";
 
@@ -98,9 +106,8 @@ const rsp_process_step = (current_step) => {
 			}
 		} else {
 			step_color.innerHTML = "<div class='rsp-red rsp-bullet'></div>";
-			if ( data.data ) {
-				const message_element = document.querySelector(".rsp-error-message.rsp-"+step['type']+" span");
-				message_element.innerText = data.data;
+			if ( data.message ) {
+				document.querySelector(".rsp-error-message.rsp-"+step['type']+" span").innerText = data.message;
 			}
 			step_text.innerHTML = "<span>"+step.error+"</span>";
 			rsp_stop_progress();

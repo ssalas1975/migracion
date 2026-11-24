@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Tests;
+namespace Rowbot\URL\Tests;
 
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\Component\QueryList;
+use Rowbot\URL\Component\QueryList;
 
 class QueryListTest extends TestCase {
 	public function testSetDoesNothingWhenNoMatchingNameExists(): void {

@@ -5,9 +5,19 @@
     justify-content: center;
     height: 100%;
 
-    .components-spinner {
+    & svg {
         width: 200px;
-        height: 200px;
-        color: #1145C9;
+        height: auto;
+        animation: itsec-loader__grow 3.0s infinite ease-in;
+    }
+}
+
+@keyframes itsec-loader__grow {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1.0);
+        opacity: 0;
     }
 }

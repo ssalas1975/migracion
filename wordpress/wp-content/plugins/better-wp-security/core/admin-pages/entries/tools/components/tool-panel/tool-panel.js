@@ -26,7 +26,7 @@ import {
 } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { MODULES_STORE_NAME, toolsStore } from '@ithemes/security.packages.data';
 import { Button, Text, TextVariant } from '@ithemes/ui';

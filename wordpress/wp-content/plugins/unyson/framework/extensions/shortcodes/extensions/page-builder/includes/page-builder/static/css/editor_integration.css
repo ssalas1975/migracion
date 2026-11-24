@@ -2,6 +2,11 @@
     margin-bottom: 0;
 }
 
+.block-editor .fw-use-builder {
+    margin: 0 15px;
+    height: 100%;
+}
+
 .fw-disable-editor {
     pointer-events: none;
     z-index: 0;
@@ -12,5 +17,5 @@
 }
 
 .page-builder-hide-button {
-    margin: 20px 0 5px !important;
+    margin: 5px 0 5px 10px !important;
 }

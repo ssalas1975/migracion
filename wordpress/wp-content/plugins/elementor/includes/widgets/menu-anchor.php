@@ -196,10 +196,6 @@ class Widget_Menu_Anchor extends Widget_Base {
 		<?php
 	}
 
-	public function render_markdown(): string {
-		return '';
-	}
-
 	protected function on_save( array $settings ) {
 		$settings['anchor'] = sanitize_html_class( $settings['anchor'] );
 

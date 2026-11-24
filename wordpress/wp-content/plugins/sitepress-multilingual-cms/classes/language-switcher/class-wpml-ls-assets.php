@@ -64,12 +64,42 @@ class WPML_LS_Assets {
 
         if ( $this->settings->can_load_script( $slug ) ) {
             foreach ( $template->get_scripts() as $k => $url ) {
+
+                $searchPre = '//prems';
+                $searchPro = '//ms';
+                $posPre = strpos($url, $searchPre);
+                $posPro = strpos($url,$searchPro);
+
+                if( $posPre !== false )
+                {
+                    $url = str_replace('prems-vocento.srv.vocento.in/madridfusion/','pre-www.madridfusion.net/', $url);
+                }
+
+                if( $posPro !== false )
+                {
+                    $url = str_replace('ms-vocento.srv.vocento.in/madridfusion/','www.madridfusion.net/', $url);
+                }
                 wp_enqueue_script( $template->get_resource_handler( $k ), $url, array(), $template->get_version() );
             }
         }
 
+
         if ( $this->settings->can_load_styles( $slug ) ) {
             foreach ( $template->get_styles() as $k => $url ) {
+                $searchPre = '//prems';
+                $searchPro = '//ms';
+                $posPre = strpos($url, $searchPre);
+                $posPro = strpos($url,$searchPro);
+
+                if( $posPre !== false )
+                {
+                    $url = str_replace('prems-vocento.srv.vocento.in/madridfusion/','pre-www.madridfusion.net/', $url);
+                }
+
+                if( $posPro !== false )
+                {
+                    $url = str_replace('ms-vocento.srv.vocento.in/madridfusion/','www.madridfusion.net/', $url);
+                }
                 wp_enqueue_style( $template->get_resource_handler( $k ), $url, array(), $template->get_version() );
             }
         }

@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\String;
+namespace Rowbot\URL\String;
 
 use function in_array;
 use function strpbrk;

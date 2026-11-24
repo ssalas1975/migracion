@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<posts>
+<recid>%%recid%%</recid>
+<id_blog>%%blogid%%</id_blog>
+<id_post>%%postid%%</id_post>
+<tipo>blog</tipo>
+<fuente>contentfactory</fuente>
+<tituloblog><![CDATA[%%blog_title%%]]></tituloblog>
+<urlblog><![CDATA[%%blog_url%%]]></urlblog>
+<descripcionblog><![CDATA[%%blog_description%%]]></descripcionblog>
+<urlavatarblog><![CDATA[]]></urlavatarblog>
+<propietarioblog>
+<nombre><![CDATA[]]></nombre>
+<urlavatar><![CDATA[]]></urlavatar>
+<url><![CDATA[]]></url>
+</propietarioblog>
+<categoriablog></categoriablog>
+<titulo><![CDATA[%%title%%]]></titulo>
+<url><![CDATA[%%post_url%%]]></url>
+<cuerpo><![CDATA[%%content%%]]></cuerpo>
+<autor>
+<nombre><![CDATA[%%author_name%%]]></nombre>
+<urlavatar><![CDATA[%%author_avatar%%]]></urlavatar>
+<url><![CDATA[%%author_url%%]]></url>
+</autor>
+<fechapublicacion>%%modified_date%%</fechapublicacion>
+<etiquetas>%%etiqueta%%</etiquetas>
+<categorias><categoria>
+</categoria>
+</categorias>
+<topics><topics-required>No</topics-required></topics>
+<imagenes>
+    <imagen>
+        <url><![CDATA[%%image%%]]></url>
+        <destacada>si</destacada>
+    </imagen>
+</imagenes>
+<multimedia>
+<video>
+<url></url>
+</video>
+</multimedia>
+</posts>

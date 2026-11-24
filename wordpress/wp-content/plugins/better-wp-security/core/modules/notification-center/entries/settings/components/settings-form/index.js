@@ -54,7 +54,7 @@ export default function SettingsForm( { usersAndRoles, errors, apiError, hasPadd
 				}
 				label={ __( 'From Email', 'better-wp-security' ) }
 				help={ __(
-					'Kadence Security will send notifications from this email address. Leave blank to use the WordPress default.',
+					'Solid Security will send notifications from this email address. Leave blank to use the WordPress default.',
 					'better-wp-security'
 				) }
 			/>

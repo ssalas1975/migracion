@@ -1,13 +1,13 @@
 <?php
 /*
  * Plugin Name: Pricing Tables by United Themes
- * Version: 3.1
+ * Version: 1.1
  * Plugin URI: http://www.unitedthemes.com 
  * Description: Plugin for creating nice pricing tables
- * Author: United Themes
+ * Author: UnitedThemes
  * Author URI: http://www.unitedthemes.com 
  * Requires at least: 3.0
- * Tested up to: 4.0
+ * Tested up to: 3.8
  *
  * @package WordPress
  * @author United Themes
@@ -25,7 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 define('UT_PRICING_DIR', plugin_dir_path(__FILE__));
 define('UT_PRICING_URL', plugin_dir_url(__FILE__));
 define('UT_PRICING_ASSETS_URL' , UT_PRICING_URL . 'assets');
-define('UT_PRICING_VERSION', '3.1');
+define('UT_PRICING_VERSION', '1.1');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -37,20 +38,13 @@ if( !function_exists('ut_table_enqueuestyles') ) :
 
 	function ut_table_enqueuestyles() {
 		
-        $min = NULL;
-        
-        if( !WP_DEBUG ){
-            $min = '.min';
-        }
-        
-		$ut_table = file_exists( get_stylesheet_directory() . '/css/ut.table.style' . $min . '.css' ) ? get_stylesheet_directory_uri() . '/css/ut.table.style' . $min . '.css' : UT_PRICING_ASSETS_URL . '/css/ut.table.style' . $min . '.css';
+		$ut_table = file_exists( get_stylesheet_directory() . '/css/ut.table.style.css' ) ? get_stylesheet_directory_uri() . '/css/ut.table.style.css' : UT_PRICING_ASSETS_URL . '/css/ut.table.style.css';
 				
 		if( !is_admin() ) {
-		    
-			wp_enqueue_style(
-                'ut-table',
-                $ut_table
-            );
+			
+			wp_enqueue_style( 'ut-fontawesome', UT_PRICING_URL . 'assets/css/font-awesome.css' );			
+			wp_enqueue_style( 'ut-responsive-grid', UT_PRICING_URL . 'assets/css/ut-responsive-grid.css' );
+			wp_enqueue_style( 'ut-table' , $ut_table );			
 			
 		}
 		
@@ -73,11 +67,9 @@ require_once( 'classes/class-table-template.php' );
 
 /* post types */
 require_once( 'classes/post-types/class-table-manager.php' );
-require_once( 'classes/post-types/class-menu-manager.php' );
 
 /* shortcode */
-require_once( 'classes/class-ut-table-shortcode.php' );
-require_once( 'classes/class-ut-menu-shortcode.php' );  
+require_once( 'classes/class-ut-table-shortcode.php' ); 
 
 /*
 |--------------------------------------------------------------------------
@@ -85,8 +77,6 @@ require_once( 'classes/class-ut-menu-shortcode.php' );
 |--------------------------------------------------------------------------
 */
 
-new UT_Table_Template( __FILE__ );
-new UT_Table_Manager( __FILE__ ); 
-new UT_Menu_Manager( __FILE__ ); 
-
-?>
+global $plugin_obj;
+$plugin_obj = new UT_Table_Template( __FILE__ );
+$plugin_post_type_obj = new UT_Table_Manager( __FILE__ );

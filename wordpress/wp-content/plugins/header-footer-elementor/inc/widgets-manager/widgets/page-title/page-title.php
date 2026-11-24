@@ -555,12 +555,13 @@ class Page_Title extends Common_Widget {
 						{{{ before }}} <?php // PHPCS:Ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
 					<# } #>
 					<?php
-					// Pass the title as JSON data so template delimiters inside it are never compiled.
-					$hfe_page_title = ( is_archive() || is_home() ) ? get_the_archive_title() : get_the_title();
+					if ( is_archive() || is_home() ) {
+						echo wp_kses_post( get_the_archive_title() );
+					} else {
+						echo wp_kses_post( get_the_title() );
+					}
 					?>
-					<# var hfePageTitle = <?php echo wp_json_encode( wp_kses_post( $hfe_page_title ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) ?: '""'; ?>; #>
-					{{{ hfePageTitle }}} <?php // PHPCS:Ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
-					<# if ( '' != settings.after ) {
+					<# if ( '' != settings.after ) { 
 						var after = elementor.helpers.sanitize( settings.after )#>
 						{{{ after }}} <?php // PHPCS:Ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
 					<# } #>				

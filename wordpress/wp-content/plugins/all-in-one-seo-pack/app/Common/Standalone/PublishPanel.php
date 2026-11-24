@@ -39,15 +39,6 @@ class PublishPanel {
 			return;
 		}
 
-		$screen = aioseo()->helpers->getCurrentScreen();
-		if ( empty( $screen->is_block_editor ) ) {
-			return;
-		}
-
-		// Declare wp-editor as a dependency so window.wp.editor is populated by the time the
-		// module reads PluginDocumentSettingPanel / PluginPrePublishPanel. Without this the
-		// fallback `wp.editor?.X || wp.editPost?.X` chain reaches `wp.editPost.X`, which
-		// triggers a deprecation warning on WP 6.6+. See issue #7927.
-		aioseo()->core->assets->load( 'src/vue/standalone/publish-panel/main.js', [ 'wp-editor' ] );
+		aioseo()->core->assets->load( 'src/vue/standalone/publish-panel/main.js' );
 	}
 }

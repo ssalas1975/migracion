@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<template>
+<shortname>Vocento</shortname>
+<fullname>Elegante y estilo clásico para Vocento</fullname>
+<version>1.0</version>
+<url>http://www.vocento.com/</url>
+<date>05/04/2018</date>
+<author>Kuxha y Guillermo Forte</author>
+<urlauthor>http://kuxha.com/</urlauthor>
+<minver>1.0.0</minver>
+<onlypro>no</onlypro>
+<description>Sencillo, modular, clásico en CSS3 y responsivo</description> 
+</template>

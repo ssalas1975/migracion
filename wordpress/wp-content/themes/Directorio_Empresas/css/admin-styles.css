@@ -1,0 +1,17 @@
+.ldk_metadata_box{
+display:table;
+width:100%;
+}
+
+.ldk_metadata_box label{
+
+    width: 20%;
+    float: left;
+	
+}
+
+.ldk_metadata_box input{
+
+    width: 78%;
+    float: left;
+}

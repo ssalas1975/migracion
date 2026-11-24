@@ -2,7 +2,7 @@
 
 namespace WordPress\DataLiberation\URL;
 
-use VendorPrefix\Rowbot\URL\URL;
+use Rowbot\URL\URL;
 
 /**
  * Value object returned by WPURL::replace_base_url().

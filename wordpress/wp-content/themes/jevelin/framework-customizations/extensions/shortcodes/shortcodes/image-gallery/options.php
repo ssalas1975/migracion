@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 $options = array(
 
 	'id' => array( 'type' => 'unique' ),
@@ -178,6 +178,32 @@ $options = array(
 				'type'  => 'color-picker',
 				'label' => esc_html__('Active Color', 'jevelin'),
 				'desc'   => esc_html__( 'Select active dot color', 'jevelin' ),
+			),
+
+			'bottom_margin'   => array(
+				'label' => esc_html__( 'Bottom Margin', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter bottom margin, default 45px', 'jevelin' ),
+				'type'  => 'text'
+			),
+
+		),
+	),
+
+	'lazy_tab' => array(
+		'title'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'lazy' => array(
+				'type'    => 'radio',
+				'label'   => esc_html__( 'Lazy Loading', 'jevelin' ),
+				'desc'    => esc_html__( 'Choose to enable to disable lazy loading', 'jevelin' ),
+				'value'	  => 'default',
+				'choices' => array(
+					'default' => esc_html__('Default (from theme settings)', 'jevelin'),
+					'disabled' => esc_html__('Disabled', 'jevelin'),
+					'enabled' => esc_html__('Enabled', 'jevelin'),
+				)
 			),
 
 		),

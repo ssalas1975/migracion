@@ -1,0 +1,3049 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ReDi Restaurant Reservation\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/redi-restaurant-reservation\n"
+"POT-Creation-Date: 2020-05-14 22:02+0000\n"
+"PO-Revision-Date: 2025-11-18 07:41+0000\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.10"
+
+#: redi-restaurant-reservation.php:854
+#, fuzzy
+#| msgid "Min Persons should be lower than Max Persons"
+msgid " \"Min Persons\" should be lower than Max Persons"
+msgstr "Минимальное количество человек должно быть меньше максимального"
+
+#: templates/admin_welcome_no_key.php:7
+msgid " Registration"
+msgstr " Регистрация"
+
+#: templates/admin_welcome_no_page.php:8
+msgid " Reservation page"
+msgstr " Страница бронирования"
+
+#: redi-restaurant-reservation.php:892
+#, fuzzy
+#| msgid "Country is required"
+msgid "\"Country\" is required"
+msgstr "Страна обязаельно к заполнению."
+
+#: redi-restaurant-reservation.php:860
+#, fuzzy
+#| msgid "Reservation time should be greater than 0"
+msgid "\"Reservation time\" should be greater than 0"
+msgstr "Время резервирования должно быть больше 0"
+
+#: redi-restaurant-reservation.php:887
+msgid "\"Restaurant Name\" is required"
+msgstr "«Название ресторана» является обязательным"
+
+#: redi-restaurant-reservation.php:876
+msgid "\"Subscription Email\" Field should be filled."
+msgstr "Поле \"Email для подписки\" должно быть заполнено."
+
+#: redi-restaurant-reservation.php:881
+msgid "\"Subscription Name\" Field should be filled."
+msgstr "Поле \"Название подписки\" должно быть заполнено."
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:661 templates/admin.php:669 templates/admin.php:677
+msgid "%d h"
+msgstr "%d ч"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:645 templates/admin.php:649 templates/admin.php:653
+#: templates/admin.php:657
+msgid "%d min"
+msgstr "%d мин"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:665 templates/admin.php:673
+#, php-format
+msgid "%s h"
+msgstr "%s h"
+
+#: templates/admin_ajaxed.php:426
+msgid "100 guests"
+msgstr "100 гостей"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:51
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but API key "
+"is not generated yet to use the plugin. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>Плагин ReDi Restaurant Reservation Plugin</h3> <p>активен, но ключ API "
+"еще не сгенерирован для использования плагина. Мастер настройки Finilize "
+"теперь для беспроблемного бронирования.</p> %s"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:75
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
+"not created a page with reservation form. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>Плагин ReDi Restaurant Reservation Plugin</h3> <p>активен, но вы еще не "
+"создали страницу с формой бронирования. Мастер настройки Finilize теперь для "
+"беспроблемного бронирования.</p> %s"
+
+#. %s is the HTML link to the configuration page.
+#: functions/notice.php:98
+#, php-format
+msgid ""
+"<p>You have not made any changes to settings since you have installed the "
+"plugin. Finilize <b>ReDi Restaurant Reservation Plugin</b> setup now for "
+"seamless bookings. Visit the %1$s to finilize configuration and start "
+"impress your clients!</p> %2$s"
+msgstr ""
+"<p>Вы не вносили никаких изменений в настройки с момента установки плагина. "
+"Finilize <b>Настройка плагина бронирования ресторанов ReDi</b> теперь для "
+"бесшовного бронирования. Посетите %1$s, чтобы уточнить конфигурацию и начать "
+"производить впечатление на своих клиентов!</p> %2$s"
+
+#: templates/admin.php:122
+msgid ""
+"<strong>Attention</strong>: New settings are available for review and saving,"
+" please take a moment to update your preferences or fill out the required "
+"settings and click on the save button."
+msgstr ""
+"<strong>Внимание</strong>: Новые настройки доступны для просмотра и "
+"сохранения, пожалуйста, уделите время обновлению ваших предпочтений или "
+"заполните необходимые настройки и нажмите на кнопку «Сохранить»."
+
+#: templates/frontend.php:358
+msgid ""
+"A confirmation email has been sent to you, should you not receive it, please "
+"rest assured that your booking has been received and is confirmed. If you "
+"wish you may contact us by phone to confirm."
+msgstr ""
+"Благодарим Вас за бронирование. Подтверждение по электронной почте было "
+"отправлено Вам. При желании Вы можете связаться с нами по телефону, чтобы "
+"подтвердить."
+
+#: redi-restaurant-reservation.php:2064
+msgid ""
+"A confirmation email has been sent to you. If you don't receive it, please "
+"rest assured that your booking has been confirmed. You may contact the "
+"restaurant directly if you need to make any changes to your reservation."
+msgstr ""
+"Вам было отправлено электронное письмо с подтверждением. Если вы не получили "
+"его, будьте уверены, что ваше бронирование подтверждено. Вы можете связаться "
+"с рестораном напрямую, если вам необходимо внести какие-либо изменения в "
+"ваше бронирование."
+
+#: templates/frontend_v2.php:929
+msgid ""
+"A confirmation email has been sent to your provided email address. No "
+"further action is required. If you don't receive it, rest assured your "
+"reservation is confirmed. You can also contact us by phone if needed."
+msgstr ""
+"На указанный вами адрес электронной почты было отправлено электронное письмо "
+"с подтверждением. Никаких дополнительных действий не требуется. Если вы не "
+"получили его, будьте уверены, что ваше бронирование подтверждено. При "
+"необходимости вы также можете связаться с нами по телефону."
+
+#: redi-restaurant-reservation.php:2065
+msgid ""
+"A confirmation email will be sent to you once your reservation request has "
+"been approved. You may contact the restaurant directly if you need to make "
+"any changes to your reservation request."
+msgstr ""
+"Как только ваш запрос на бронирование будет одобрен, вам будет отправлено "
+"электронное письмо с подтверждением. Вы можете связаться с рестораном "
+"напрямую, если вам необходимо внести какие-либо изменения в ваш запрос на "
+"бронирование."
+
+#: templates/admin.php:230
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"Please note that this option is still in beta testing  and some features are "
+"not copied over from Default theme."
+msgstr ""
+"Заранее разработанный стиль, требующий минимальной кастомизации для создания "
+"безупречного вида. Обратите внимание, что эта опция все еще находится в "
+"стадии бета-тестирования и некоторые функции не скопированы из темы по "
+"умолчанию."
+
+#: templates/admin.php:231
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"The form is build with React. Please note that this option is still in beta "
+"testing and some features are not copied over from Default theme."
+msgstr ""
+"Заранее разработанный стиль, требующий минимальной кастомизации для создания "
+"безупречного вида. Форма создается с помощью React. Обратите внимание, что "
+"эта опция все еще находится в стадии бета-тестирования и некоторые функции "
+"не скопированы из темы по умолчанию."
+
+#: templates/admin.php:229
+msgid ""
+"Adapts to your website's theme, ensuring seamless integration. However, some "
+"adjustments may be needed to match your design preferences."
+msgstr ""
+"Адаптируется к тематике вашего сайта, обеспечивая бесшовную интеграцию. Тем "
+"не менее, могут потребоваться некоторые корректировки, чтобы соответствовать "
+"вашим предпочтениям в дизайне."
+
+#: redi-restaurant-reservation.php:2056
+msgid "Additional Information"
+msgstr "Дополнительная информация"
+
+#: templates/basicpackage.php:57
+msgid "Additional services (by request)"
+msgstr "Дополнительные услуги (по запросу)"
+
+#: templates/admin_ajaxed.php:165
+msgid "Address"
+msgstr "Адрес"
+
+#: templates/admin_ajaxed.php:173
+msgid "Address of the restaurant is to be written here."
+msgstr "Адрес ресторана должен быть указан здесь."
+
+#: redi-restaurant-reservation.php:2071
+msgid "adult"
+msgstr "взрослый"
+
+#: templates/frontend.php:81
+msgid "Adult guests"
+msgstr "Взрослые гости"
+
+#: redi-restaurant-reservation.php:1981 redi-restaurant-reservation.php:2074
+#: redi-restaurant-reservation.php:2140
+msgid "Adults"
+msgstr "Взрослые"
+
+#: redi-restaurant-reservation.php:2072
+msgid "adults"
+msgstr "Взрослых"
+
+#: templates/frontend_v2.php:567
+msgid "All time"
+msgstr "За все время"
+
+#: templates/admin_ajaxed.php:613
+msgid "Allow SMS"
+msgstr "Разрешить SMS"
+
+#: templates/admin.php:70
+msgid "Allow to contact via Whatsapp"
+msgstr "Разрешить контакт через Whatsapp"
+
+#: templates/admin.php:69
+msgid "Allow to receive SMS"
+msgstr "Разрешаю отправлять мне SMS сообщения "
+
+#: templates/admin_welcome_no_key.php:20
+msgid "Allow to send information about the plugin"
+msgstr "Разрешить отправку информации о плагине"
+
+#: templates/admin.php:721
+msgid ""
+"Allow users to fill the Wait List when all time slots for the day are booked."
+msgstr ""
+"Позвольте пользователям заполнять список ожидания, когда все временные "
+"интервалы на день забронированы."
+
+#: templates/admin.php:720
+msgid ""
+"Allow users to fill the Wait List when their preferred time is unavailable."
+msgstr ""
+"Разрешить пользователям заполнять список ожидания, когда предпочитаемое ими "
+"время недоступно."
+
+#: templates/admin_ajaxed.php:615
+msgid "Allow Whatsapp"
+msgstr "Разрешить Whatsapp"
+
+#: templates/admin.php:817
+msgid ""
+"Allows to show or hide comments section on the reservation form. Enabled by "
+"default. If you see that your guests misuse the comments section, disable it."
+msgstr ""
+"Позволяет отображать или скрывать раздел комментариев в форме бронирования. "
+"Включено по умолчанию. Если вы видите, что гости злоупотребляют разделом "
+"комментариев, отключите его."
+
+#: templates/admin.php:637
+msgid "Alternative time step"
+msgstr "Шаг альтернативного времени"
+
+#: templates/admin.php:342
+msgid "Always show"
+msgstr "Всегда показывать"
+
+#: redi-restaurant-reservation.php:2117
+msgid "An unknown error occurred"
+msgstr "Произошла неизвестная ошибка"
+
+#: redi-restaurant-reservation.php:1998
+msgid "Any special requests or notes"
+msgstr "Любые особые пожелания или примечания"
+
+#: templates/basicpackage.php:4
+msgid "Api Information"
+msgstr "Информация об API"
+
+#: templates/admin_welcome_no_key.php:33 templates/admin_welcome_no_key.php:38
+#: templates/admin_welcome_no_page.php:29
+#: templates/admin_welcome_no_page.php:34
+msgid "API Key"
+msgstr "Ключ API"
+
+#: redi-restaurant-reservation.php:759
+msgid "API key is successfully changed."
+msgstr "Ключ API успешно изменен."
+
+#: redi-restaurant-reservation.php:2944
+msgid "Api key should be a GUID number."
+msgstr "Ключ API должен быть номером GUID."
+
+#: templates/basicpackage.php:5
+msgid "ApiKey"
+msgstr "ApiKey"
+
+#: redi-restaurant-reservation.php:1853 redi-restaurant-reservation.php:1920
+msgid ""
+"Apologies for the inconvenience, but we encountered an issue while trying to "
+"make your reservation. It seems there was a technical glitch on our end. Our "
+"team is actively working to resolve this issue. Please try again in a few "
+"minutes, and if the problem persists, feel free to reach out to our customer "
+"support for assistance. Additionally, if you could please send a screenshot "
+"of the error message to {emailLink}, it would greatly help us in diagnosing "
+"and resolving the issue more efficiently. We appreciate your patience and "
+"cooperation. Response:"
+msgstr ""
+"Приносим извинения за неудобства, но мы столкнулись с проблемой при попытке "
+"сделать бронирование. Похоже, с нашей стороны произошел технический сбой. "
+"Наша команда активно работает над решением этого вопроса. Пожалуйста, "
+"повторите попытку через несколько минут, и если проблема не исчезнет, не "
+"стесняйтесь обращаться за помощью в нашу службу поддержки клиентов. Кроме "
+"того, если бы вы могли отправить скриншот с сообщением об ошибке на адрес "
+"{emailLink}, это значительно помогло бы нам в диагностике и более "
+"эффективном решении проблемы. Мы ценим ваше терпение и сотрудничество. Ответ:"
+
+#: redi-restaurant-reservation.php:2023
+msgid "April"
+msgstr "Апрель"
+
+#: templates/basicpackage.php:21
+msgid ""
+"Are you facing trouble configuring the plugin? Don't worry! We offer free "
+"personal assistance to help you out. You can schedule a session with us "
+"using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
+"here to provide the support you need."
+msgstr ""
+"У вас возникли проблемы с настройкой плагина? Не переживай! Мы предлагаем "
+"бесплатную персональную помощь, чтобы помочь вам. Вы можете запланировать "
+"сеанс с нами с помощью Calendly или связаться с нами через Skype, WhatsApp "
+"или Facebook. Мы здесь, чтобы предоставить вам необходимую поддержку."
+
+#: redi-restaurant-reservation.php:2099
+msgid "Are you sure you want to cancel this reservation?"
+msgstr "Вы уверены, что хотите отменить это бронирование?"
+
+#: redi-restaurant-reservation.php:899
+msgid "At least one opening time should be provided"
+msgstr "Должно быть указано как минимум одно время открытия"
+
+#: redi-restaurant-reservation.php:2027
+msgid "August"
+msgstr "Август"
+
+#: redi-restaurant-reservation.php:1852 redi-restaurant-reservation.php:1918
+msgid "Available seats"
+msgstr "Свободные места"
+
+#: templates/admin.php:544
+msgid "Available Time Appearance"
+msgstr "Доступное время появления"
+
+#: templates/frontend_v2.php:583 templates/frontend_v2.php:890
+#: templates/frontend_v2.php:1286
+msgid "Back"
+msgstr "Назад"
+
+#: templates/cancel.php:5 templates/modify.php:3 templates/modify.php:24
+msgid "Back to reservation page"
+msgstr "Вернуться к странице резервирования"
+
+#: templates/basicpackage.php:33
+msgid "Basic package functionality (paid version)"
+msgstr "Базовый пакет (платная версия)"
+
+#: templates/admin_welcome_no_key.php:32 templates/admin_welcome_no_page.php:28
+msgid "Below is your API Key, please use it when you ask for a support. "
+msgstr ""
+"Ниже приведен ваш ключ API, пожалуйста, используйте его при обращении за "
+"поддержкой. "
+
+#: templates/admin.php:66 templates/admin_ajaxed.php:619
+msgid "Birthday"
+msgstr "День рождения"
+
+#: templates/admin.php:72
+msgid "Birthday (dd/mm)"
+msgstr "День рождения (дд/мм)"
+
+#: templates/basicpackage.php:44
+msgid ""
+"Blocked Time. Define time range when online reservation should not be "
+"accepted. Specify a reason why reservations are not accepted at this time to "
+"keep your clients happy."
+msgstr ""
+"Время блокировки. Определить диапазон времени, когда онлайн бронирование не "
+"должно быть принято. Укажите причину, почему оговорки не принимаются в это "
+"время, чтобы держать своих клиентов счастливыми."
+
+#: redi-restaurant-reservation.php:2126
+msgid "Book Now"
+msgstr "Забронировать сейчас"
+
+#: templates/basicpackage.php:93
+msgid "Building trust with powerful review tools"
+msgstr "Укрепление доверия с помощью мощных инструментов рецензирования"
+
+#: templates/admin.php:592
+msgid "By shifts"
+msgstr "По сменам"
+
+#: templates/admin.php:320
+msgid "Calendar type"
+msgstr "Тип календаря"
+
+#: templates/admin_welcome.php:30 templates/basicpackage.php:22
+msgid "Calendly"
+msgstr "Календли"
+
+#: templates/frontend_v2.php:1065
+msgid "Cancel existing reservation"
+msgstr "Отмена существующего бронирования"
+
+#: redi-restaurant-reservation.php:2085
+msgid "Cancel Reservation"
+msgstr "Отменить бронирование"
+
+#: templates/admin.php:128 templates/admin.php:1009 templates/admin.php:1025
+#: templates/cancel.php:3 templates/cancel.php:47 templates/confirm.php:41
+#: templates/frontend.php:11 templates/frontend_v2.php:1654
+#: templates/frontend_v2.php:1748
+msgid "Cancel reservation"
+msgstr "Отмена резервирования"
+
+#: redi-restaurant-reservation.php:2100
+msgid "Cancellation reason"
+msgstr "Причина отмены"
+
+#: redi-restaurant-reservation.php:2102
+msgid "Cancellation reason is required"
+msgstr "Требуется причина отмены"
+
+#: redi-restaurant-reservation.php:2103
+msgid "Cancelling reservation"
+msgstr "Отмена бронирования"
+
+#: templates/admin.php:780
+msgid "Captcha"
+msgstr "Капча"
+
+#: redi-restaurant-reservation.php:1851 redi-restaurant-reservation.php:1916
+msgid "Captcha is not valid."
+msgstr "Капча недействительна."
+
+#: templates/admin.php:796
+msgid "Captcha key"
+msgstr "Ключ капчи"
+
+#: templates/basicpackage.php:13
+msgid "Change"
+msgstr "Менять"
+
+#: templates/basicpackage.php:8
+msgid "Change API key"
+msgstr "Изменение ключа API"
+
+#: templates/frontend.php:265
+msgid "Change details"
+msgstr "Изменить детали"
+
+#: templates/frontend.php:199
+msgid "Check available time"
+msgstr "Проверить доступность"
+
+#: templates/admin_ajaxed.php:607
+msgid "Check box"
+msgstr "Флажок"
+
+#: redi-restaurant-reservation.php:2069
+msgid "child"
+msgstr "ребёнок"
+
+#: redi-restaurant-reservation.php:1983 redi-restaurant-reservation.php:2073
+#: redi-restaurant-reservation.php:2141 redi-restaurant-reservation.php:2641
+#: templates/frontend.php:121 templates/frontend_v2.php:330
+msgid "Children"
+msgstr "Дети"
+
+#: redi-restaurant-reservation.php:2070
+msgid "children"
+msgstr "дети"
+
+#: templates/admin.php:228
+msgid "Choose the appearance of the plugin."
+msgstr "Выберите внешний вид плагина."
+
+#: templates/admin_ajaxed.php:150
+msgid "City"
+msgstr "Город"
+
+#: functions/notice.php:126
+msgid "Click here to open reservation page"
+msgstr "Нажмите здесь, чтобы открыть страницу бронирования"
+
+#: templates/admin_ajaxed.php:351
+msgid "Close"
+msgstr "Время закрытия"
+
+#: redi-restaurant-reservation.php:2037
+msgid "Closed"
+msgstr "Закрыто"
+
+#: templates/frontend_v2.php:536
+msgid "Closed day or fully booked"
+msgstr "Закрытый день или полное бронирование"
+
+#: templates/admin.php:742
+msgid "Collect First and Last name"
+msgstr "Соберите Имя и Фамилия"
+
+#: templates/admin.php:762
+msgid "Collect phone number with country code"
+msgstr "Получение номера телефона с кодом страны"
+
+#: templates/basicpackage.php:67
+msgid "Collect pre-payment for reservations."
+msgstr "Максимальное время до резервирования"
+
+#: templates/admin.php:285
+msgid "Collect user experience feedback"
+msgstr "Сбор отзывов о пользовательском опыте"
+
+#: templates/frontend.php:320 templates/modify.php:75
+msgid "Comment"
+msgstr "Коментарии"
+
+#: redi-restaurant-reservation.php:2123 redi-restaurant-reservation.php:2144
+#: templates/frontend_v2.php:697 templates/frontend_v2.php:1580
+msgid "Comments"
+msgstr "Комментарии"
+
+#: templates/frontend_v2.php:1578
+msgid "Comments can't be empty"
+msgstr "Комментарии не могут быть пустыми"
+
+#: functions/notice.php:102 functions/notice.php:103
+msgid "Configuration page"
+msgstr "Страница конфигурации"
+
+#: templates/confirm.php:40
+msgid "Confirm visit"
+msgstr "Подтвердить визит"
+
+#: redi-restaurant-reservation.php:1985 redi-restaurant-reservation.php:2111
+msgid "Confirmation"
+msgstr "Подтверждение"
+
+#: templates/admin.php:919
+msgid "Confirmation page"
+msgstr "Страница подтверждения"
+
+#: templates/frontend_v2.php:922
+msgid "Congratulations! Your reservation is confirmed!"
+msgstr "Поздравляю! Ваша бронь подтверждена!"
+
+#: templates/frontend_v2.php:920
+msgid "Congratulations! Your reservation request is received!"
+msgstr "Поздравляю! Ваша заявка на бронирование получена!"
+
+#: redi-restaurant-reservation.php:1984
+msgid "Contact"
+msgstr "Контакт"
+
+#: templates/admin_ajaxed.php:281 templates/frontend_v2.php:617
+msgid "Contact information"
+msgstr "Контактная информация"
+
+#: templates/basicpackage.php:20
+msgid "Contact Us"
+msgstr "Свяжитесь с нами"
+
+#: redi-restaurant-reservation.php:1560 redi.php:280
+msgid "contact us directly"
+msgstr "Свяжитесь с нами напрямую"
+
+#: templates/admin_ajaxed.php:130
+msgid "Country"
+msgstr "Страна"
+
+#: templates/admin.php:155
+msgid "Create a support ticket"
+msgstr "Создание запроса в службу поддержки"
+
+#: templates/frontend_v2.php:1410 templates/frontend_v2.php:1628
+#: templates/frontend_v2.php:1777 templates/frontend_v2.php:1911
+#: templates/frontend_v2.php:1972
+msgid "Create reservation"
+msgstr "Создать резервацию"
+
+#: redi-restaurant-reservation.php:1886 redi-restaurant-reservation.php:2001
+msgid "Creating reservation"
+msgstr "Создание резервирования"
+
+#: templates/admin_ajaxed.php:98
+msgid "Current Place ID"
+msgstr "Идентификатор текущего места"
+
+#: templates/admin.php:851
+msgid "Current time"
+msgstr "Текущее время"
+
+#: templates/frontend.php:510
+msgid "Custom field is required"
+msgstr "Поле обязательное"
+
+#: templates/admin_ajaxed.php:510
+msgid "Custom fields"
+msgstr "Дополнительные поля"
+
+#: templates/admin_ajaxed.php:515
+msgid ""
+"Custom fields are meant to allow users define additional fields for "
+"collecting more information from customers. You can choose the name of the "
+"field, type of field, the constraint whether it is a required field or not "
+"and the error message for the required field."
+msgstr ""
+"Настраиваемые поля предназначены для того, чтобы пользователи могли "
+"определять дополнительные поля для сбора дополнительной информации от "
+"клиентов. Вы можете выбрать имя поля, тип поля, ограничение, является ли оно "
+"обязательным или нет, а также сообщение об ошибке для обязательного поля."
+
+#: templates/admin.php:244
+msgid "Data Input Appearance"
+msgstr "Внешний вид ввода данных"
+
+#: redi-restaurant-reservation.php:1986 redi-restaurant-reservation.php:2076
+#: redi-restaurant-reservation.php:2138 templates/confirm.php:16
+#: templates/frontend.php:139 templates/frontend.php:469
+#: templates/frontend_v2.php:484 templates/frontend_v2.php:1450
+#: templates/frontend_v2.php:1829 templates/modify.php:29
+msgid "Date"
+msgstr "Дата"
+
+#: templates/admin.php:351
+msgid "Date format"
+msgstr "Формат даты"
+
+#: templates/admin_ajaxed.php:465 templates/admin_ajaxed.php:487
+msgid "Days"
+msgstr "Дни недели"
+
+#: redi-restaurant-reservation.php:2043
+msgid "days"
+msgstr "Дни недели"
+
+#: redi-restaurant-reservation.php:2031
+msgid "December"
+msgstr "Декабрь"
+
+#: templates/admin.php:219 templates/admin.php:229
+msgid "Default theme"
+msgstr "Тема по умолчанию"
+
+#: templates/frontend_v2.php:510
+msgid "Description"
+msgstr "Описание"
+
+#: templates/admin.php:532
+msgid "Description for children dropdown"
+msgstr "Выпадающий список \"Описание для детей\""
+
+#: templates/admin.php:206
+msgid "Design theme"
+msgstr "Тема дизайна"
+
+#: templates/frontend_v2.php:98
+msgid "Details"
+msgstr "Подробности"
+
+#: templates/admin.php:895 templates/admin.php:911
+msgid "Disable confirmation email"
+msgstr "Отключить подтверждение по емайл"
+
+#: templates/admin.php:712 templates/admin.php:719
+msgid "Disabled"
+msgstr "Нетрудоспособный"
+
+#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2632
+msgid "Discount"
+msgstr "Скидка"
+
+#: templates/admin.php:622
+msgid "Display left seats"
+msgstr "Отображение левых мест"
+
+#: templates/admin.php:682
+msgid ""
+"Displays the available time with time step to the clients. For instance, if "
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
+"30, etc."
+msgstr ""
+"Показать клиентам доступное время с указанным шагом. Например, если вы "
+"выберите 15 мин, то альтернативное время будет 10:00, 10:15, 10:30 и т.д."
+
+#: templates/admin.php:719
+msgid "Do not allow guests to fill the Wait List form."
+msgstr "Не позволяйте гостям заполнять форму листа ожидания."
+
+#: templates/basicpackage.php:63
+msgid ""
+"Do you want to know what your client thinks about his last visit? We will "
+"collect it for you."
+msgstr ""
+"Хотите узнать, что думает ваш клиент о своем последнем визите? Мы соберем "
+"его для вас."
+
+#: templates/basicpackage.php:70
+msgid ""
+"Do you want to write your own module? We have an API. Contact us to get more "
+"information."
+msgstr ""
+"Хотите написать свой собственный модуль? У нас есть API. Свяжитесь с нами, "
+"чтобы получить дополнительную информацию."
+
+#: templates/admin_welcome.php:27
+msgid ""
+"Don't want to spend time delving into how the plugin works or figuring out "
+"the setup process? Sign up for a free personalized assistance call – our "
+"team is here to help you get started smoothly."
+msgstr ""
+"Не хотите тратить время на то, чтобы вникать в работу плагина или "
+"разбираться в процессе настройки? Запишитесь на бесплатный индивидуальный "
+"звонок помощи — наша команда всегда готова помочь вам без проблем начать "
+"работу."
+
+#: templates/frontend_v2.php:88
+msgid "Done!"
+msgstr "Договорились!"
+
+#: templates/admin.php:361
+msgid "Dot"
+msgstr "Точка"
+
+#: templates/admin_ajaxed.php:623
+msgid "DropDown"
+msgstr "Выпадающий список"
+
+#: templates/frontend.php:175
+msgid "Duration"
+msgstr "Длительность"
+
+#: templates/admin_ajaxed.php:449
+msgid ""
+"Duration of reservation in minutes. This is the time allocated for each "
+"reservation so the reservation system can calculate availability. Enter here "
+"average time that guests stays in."
+msgstr ""
+"Продолжительность бронирования в минутах. Это время, выделенное для каждого "
+"бронирования, чтобы система бронирования могла рассчитать наличие. Введите "
+"здесь среднее время, в течение которого гости остаются."
+
+#: templates/admin_ajaxed.php:479
+msgid "Early Bookings"
+msgstr "Ранние бронирования"
+
+#: redi-restaurant-reservation.php:1995 templates/admin_ajaxed.php:195
+#: templates/admin_ajaxed.php:302 templates/admin_welcome_no_key.php:14
+#: templates/cancel.php:34 templates/frontend.php:274
+#: templates/frontend.php:304 templates/frontend.php:488
+#: templates/frontend_v2.php:685 templates/frontend_v2.php:1370
+#: templates/frontend_v2.php:1568 templates/frontend_v2.php:1718
+#: templates/frontend_v2.php:1875 templates/modify.php:13
+#: templates/modify.php:71
+msgid "Email"
+msgstr "Ваш email"
+
+#: templates/admin_ajaxed.php:203
+msgid "Email address for contacting the restaurant."
+msgstr "Адрес электронной почты для связи с рестораном."
+
+#: redi-restaurant-reservation.php:1843 redi-restaurant-reservation.php:1900
+msgid "Email can't be empty"
+msgstr "Поле email не может быть пустым."
+
+#: templates/admin_ajaxed.php:210
+msgid "Email CC"
+msgstr "Копия письма"
+
+#: redi-restaurant-reservation.php:2926
+msgid "Email is not valid."
+msgstr "Электронная почта недействительна."
+
+#: redi-restaurant-reservation.php:2923
+msgid "Email is required."
+msgstr "Электронная почта обязательна."
+
+#: templates/basicpackage.php:48
+msgid "Email template customization for all supported languages."
+msgstr "Настройка шаблонов писем для всех поддерживаемых языков."
+
+#: templates/admin.php:906
+msgid ""
+"Emails will be sent via SMTP server that is configured in Basic settings."
+msgstr ""
+"Письма будут отправляться через SMTP-сервер, который настроен в Основных "
+"настройках."
+
+#: templates/frontend_v2.php:1194 templates/frontend_v2.php:1232
+#: templates/frontend_v2.php:1246 templates/frontend_v2.php:1260
+#: templates/frontend_v2.php:1274
+msgid "Empty"
+msgstr "Пустой"
+
+#: templates/admin.php:253
+msgid "Enable cancel form"
+msgstr "Включить форму отмены"
+
+#: templates/admin.php:269
+msgid "Enable modify reservations"
+msgstr "Включение изменения резервирований"
+
+#: templates/admin.php:278
+msgid "Enable or Disable modify reservation."
+msgstr "Включите или отключите изменение резервирования."
+
+#: templates/admin.php:262
+msgid "Enable or Disable reservation cancel form."
+msgstr "Включите или отключите форму отмены бронирования."
+
+#: templates/admin.php:310
+msgid ""
+"Enable or Disable social network account login. When enabled clients can "
+"login with any social network accounts like Facebook and then reservation "
+"form will be pre-filled with personal information. Also if user logins with "
+"social network but does not complete the reservation, he will receive a "
+"reminder to finalize it. You need to install and setup plugin with name "
+"'Super Socializer' from WordPress directory."
+msgstr ""
+"Включите или отключите вход в учетную запись социальной сети. Когда эта "
+"функция включена, клиенты могут входить в систему с помощью любых учетных "
+"записей социальных сетей, таких как Facebook, и тогда форма бронирования "
+"будет предварительно заполнена личной информацией. Также, если пользователь "
+"авторизуется через социальную сеть, но не завершит бронирование, он получит "
+"напоминание о необходимости завершить бронирование. Вам необходимо "
+"установить и настроить плагин с названием «Super Socializer» из каталога "
+"WordPress."
+
+#: templates/admin.php:301
+msgid "Enable social network login"
+msgstr "Включить вход в социальные сети"
+
+#: templates/admin.php:789
+msgid "Enable/Disable captcha on reservation form."
+msgstr "Включение/отключение капчи в форме бронирования."
+
+#: templates/admin.php:481
+msgid "Enable/Disable children selection"
+msgstr "Включить или выключить запрос ввода количества детей"
+
+#: templates/basicpackage.php:61
+msgid ""
+"Enhance your business experience by using our Facebook integration service "
+"where we try to provide you with profile pictures of your customers if found."
+" You can amaze your customer by knowing him by face when he visits you, "
+"especially at the time of first visit."
+msgstr ""
+"Улучшите свой бизнес-опыт с помощью нашей службы интеграции с Facebook, где "
+"мы стараемся предоставить вам фотографии профиля ваших клиентов, если они "
+"будут найдены. Вы можете удивить своего клиента, узнав его в лицо, когда он "
+"придет к вам, особенно во время первого визита."
+
+#: redi-restaurant-reservation.php:2091
+msgid ""
+"Enter any personal information from reservation like name, email or phone "
+"number"
+msgstr ""
+"Введите любую личную информацию из бронирования, такую как имя, адрес "
+"электронной почты или номер телефона"
+
+#: redi-restaurant-reservation.php:2050
+msgid "Error loading custom fields"
+msgstr "Ошибка при загрузке произвольных полей"
+
+#: templates/frontend.php:40 templates/frontend_v2.php:194
+msgid ""
+"ERROR: You need to install/activate dependant plugin Super Socializer plugin"
+msgstr ""
+"ОШИБКА: Вам необходимо установить/активировать зависимый плагин Super "
+"Socializer plugin"
+
+#: templates/admin_welcome.php:33 templates/basicpackage.php:25
+msgid "facebook"
+msgstr "Фейсбук"
+
+#: redi-restaurant-reservation.php:2049
+msgid "Failed to load custom fields. Please try again later."
+msgstr ""
+"Не удалось загрузить настраиваемые поля. Пожалуйста, повторите попытку позже."
+
+#: redi-restaurant-reservation.php:2021
+msgid "February"
+msgstr "Февраль"
+
+#: templates/admin_ajaxed.php:527
+msgid "Field name"
+msgstr "Название поля"
+
+#: templates/admin_ajaxed.php:537
+msgid "Field type"
+msgstr "Тип"
+
+#: functions/notice.php:137
+#, php-format
+msgid ""
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
+"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+msgstr ""
+"Наконец, последний шаг в настройке <b>плагина бронирования ресторанов "
+"ReDi</b>, чтобы произвести впечатление на ваших клиентов, сделайте пробное "
+"бронирование. <b>%1$s</b>%2$s"
+
+#: redi-restaurant-reservation.php:2087
+msgid "Find Reservation"
+msgstr "Найти бронирование"
+
+#: templates/frontend_v2.php:1388 templates/modify.php:15
+msgid "Find reservation"
+msgstr "Найти бронирование"
+
+#: redi-restaurant-reservation.php:1992 templates/frontend.php:282
+#: templates/frontend_v2.php:645
+msgid "First Name"
+msgstr "Имя"
+
+#: redi-restaurant-reservation.php:1840 redi-restaurant-reservation.php:1894
+#: templates/frontend_v2.php:643
+msgid "First Name can't be empty"
+msgstr "Имя не может быть пустым"
+
+#: redi-restaurant-reservation.php:2131
+msgid "First name is required"
+msgstr "Имя обязательно для заполнения"
+
+#: templates/admin.php:834
+msgid "Force users to provide a reason when canceling reservation."
+msgstr "Заставьте пользователей указать причину при отмене бронирования."
+
+#: redi-restaurant-reservation.php:706
+msgid "Form security check failed with error: Nonce check failed."
+msgstr ""
+"Форма проверки безопасности не пройдена с ошибкой: Не удалось проверить "
+"одноразовый номер."
+
+#: redi-restaurant-reservation.php:2548
+msgid ""
+"Form security check failed with error: Nonce check failed. Reservation form "
+"is not working today, please contact us directly."
+msgstr ""
+"Форма проверки безопасности не пройдена с ошибкой: Не удалось проверить "
+"одноразовый номер. Форма бронирования сегодня не работает, пожалуйста, "
+"свяжитесь с нами напрямую."
+
+#: templates/admin.php:126
+msgid "Free package settings"
+msgstr "Настройки бесплатного пакета"
+
+#: redi-restaurant-reservation.php:2014
+msgid "Fri"
+msgstr "Пт"
+
+#: templates/admin.php:891 templates/admin.php:905
+msgid "From Custom SMTP"
+msgstr "Из пользовательского SMTP"
+
+#: templates/admin.php:889 templates/admin.php:908
+msgid "From ReservationDiary.eu"
+msgstr "с сервера ReservationDiary.eu"
+
+#: templates/admin.php:893 templates/admin.php:902
+msgid "From WordPress email account"
+msgstr "С wordpress аккаунта"
+
+#: templates/admin.php:942
+msgid "Frontend settings"
+msgstr "Общие настройки"
+
+#: redi-restaurant-reservation.php:1994 templates/frontend_v2.php:629
+msgid "Full Name"
+msgstr "Полное имя"
+
+#: templates/frontend_v2.php:627
+msgid "Full Name can't be empty"
+msgstr "Полное имя не может быть пустым"
+
+#: redi-restaurant-reservation.php:2133
+msgid "Full name is required"
+msgstr "Требуется полное имя"
+
+#: redi-restaurant-reservation.php:2038
+msgid "Fully booked"
+msgstr "Полностью забронировано"
+
+#: templates/admin_ajaxed.php:617
+msgid "GDPR"
+msgstr "GDPR"
+
+#. Description of the plugin
+msgid ""
+"Get your restaurant business booming with the <strong>ReDi Restaurant "
+"Reservation plugin</strong>! Our plugin simplifies the reservation process "
+"and allows your clients to easily book online. With <strong>instant "
+"reservation confirmation</strong> and customizable settings, managing "
+"reservations has never been easier. Say goodbye to the hassle of manually "
+"confirming reservations and hello to the convenience of automatic "
+"confirmation. Try it out today and see the difference it can make in just a "
+"few clicks!"
+msgstr ""
+"Сделайте свой ресторанный бизнес процветающим с <strong>помощью плагина ReDi "
+"Restaurant Reservation</strong>! Наш плагин упрощает процесс бронирования и "
+"позволяет вашим клиентам легко бронировать онлайн. Благодаря <strong>"
+"мгновенному подтверждению бронирования</strong> и настраиваемым настройкам "
+"управление бронированиями еще никогда не было таким простым. Попрощайтесь с "
+"хлопотами ручного подтверждения бронирования и поприветствуйте удобство "
+"автоматического подтверждения. Попробуйте его сегодня и посмотрите, как он "
+"может изменить ситуацию всего за несколько кликов!"
+
+#: templates/basicpackage.php:92
+msgid "Getting discovered on Google, Apple, Facebook, and more"
+msgstr "Как стать известным в Google, Apple, Facebook и других компаниях"
+
+#: redi-restaurant-reservation.php:1982 templates/confirm.php:34
+#: templates/frontend.php:83 templates/frontend_v2.php:118
+#: templates/frontend_v2.php:245 templates/frontend_v2.php:1163
+msgid "Guests"
+msgstr "Гости"
+
+#: redi-restaurant-reservation.php:399
+msgid "Help"
+msgstr "Справка"
+
+#: redi-restaurant-reservation.php:2136
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr ""
+"Здравствуйте, не могли бы вы забронировать для меня столик с указанием "
+"следующих деталей"
+
+#: redi-restaurant-reservation.php:1989
+msgid "Hide all steps"
+msgstr "Скрыть все шаги"
+
+#: templates/admin.php:958
+msgid "Hide previous steps (only for timeshiftmode byshifts)"
+msgstr "Скрыть предыдущие шаги (только для timeshiftmode byshifts)"
+
+#: templates/admin.php:949
+msgid "Hide steps"
+msgstr "Скрыть шаги"
+
+#: templates/admin_ajaxed.php:464 templates/admin_ajaxed.php:486
+msgid "Hours"
+msgstr "Часов"
+
+#: redi-restaurant-reservation.php:2044
+msgid "hours"
+msgstr "Часов"
+
+#: templates/admin.php:405
+msgid "HTML dropdown"
+msgstr "HTML выпадающий список"
+
+#. URI of the plugin
+#. Author URI of the plugin
+msgid "https://landing.reservationdiary.eu"
+msgstr "https://landing.reservationdiary.eu"
+
+#: templates/admin.php:356
+msgid "Hyphen"
+msgstr "Дефис"
+
+#: templates/admin.php:71
+msgid "I agree to the privacy policy"
+msgstr "Я согласен с политикой конфиденциальности"
+
+#: templates/admin.php:876
+msgid ""
+"If checkbox is checked then reservations will not be automatically confirmed."
+" You will receive email with reservation request and each reservation needs "
+"to be confirmed or rejected manually."
+msgstr ""
+"Если флажок установлен, то резервирование не будет автоматически "
+"подтверждено. Вы получите по электронной почте с запросом на бронирование и "
+"каждое бронирование должно быть подтверждено или отклонено вручную."
+
+#: templates/admin.php:630
+msgid ""
+"If checkbox is checked then seats left will be shown under selected time."
+msgstr ""
+"Если флажок установлен, то оставшиеся места будут отображаться в выбранное "
+"время."
+
+#: templates/admin.php:975
+msgid ""
+"If checkbox is checked, a logo of <b>\"Powered by ReservationDiary.eu\"</b> "
+"is displayed. Thank you for supporting us."
+msgstr ""
+"Если флажок установлен, отображается логотип <b>\"Powered by "
+"ReservationDiary.eu\".</b> Спасибо, что поддерживаете нас."
+
+#: templates/admin.php:498
+msgid ""
+"If enabled, the total number of guests includes children. If disabled, "
+"children are counted separately."
+msgstr ""
+"Если включено, общее число гостей включает детей. Если они имеют "
+"инвалидность, дети учитываются отдельно."
+
+#: templates/admin.php:466
+msgid ""
+"If this field is filled, the drop down menu of persons would show \"Large "
+"Groups\" and upon selection, the specified message would appear."
+msgstr ""
+"Если это поле заполнено, то в выпадающем меню персон будет отображаться "
+"«Большие группы», и при выборе появится указанное сообщение."
+
+#: templates/basicpackage.php:68
+msgid ""
+"If you are building a catalogue of restaurants and looking for the perfect "
+"reservation plugin for it, we can provide it to you."
+msgstr ""
+"Если вы создаете каталог ресторанов и ищете идеальный плагин для "
+"бронирования, мы можем предоставить его вам."
+
+#: templates/admin_ajaxed.php:384
+msgid ""
+"If you close next day at night then set closing time on a same day. For "
+"example 18:00 - 3:00"
+msgstr ""
+"Если ресторан закрывается на следующий день ночью то установите время "
+"закрытия на тот же день. Например 18:00 - 3:00"
+
+#: templates/admin_welcome_no_key.php:22
+msgid ""
+"If you have already an API key, you can skip this step and provide API key "
+"on next step."
+msgstr ""
+"Если у вас уже есть ключ API, вы можете пропустить этот шаг и предоставить "
+"ключ API на следующем шаге."
+
+#: templates/admin.php:931
+msgid ""
+"If you want to customize confirmation page or have a separated page for "
+"marketing purposes, then select custom reservation confirmation page. If not "
+"specified, then built in confirmation page will be used."
+msgstr ""
+"Если вы хотите настроить страницу подтверждения или создать отдельную "
+"страницу для маркетинговых целей, выберите настраиваемую страницу "
+"подтверждения бронирования. Если не указано, то будет использоваться "
+"встроенная страница подтверждения."
+
+#: templates/basicpackage.php:73
+msgid ""
+"If you would like to add some new functionality or have any other queries, "
+"please contact us by email: "
+msgstr ""
+"Если вы хотите добавить новый функционал или у вас есть какие-либо другие "
+"вопросы, свяжитесь с нами по электронной почте: "
+
+#: templates/admin.php:467 templates/admin.php:533 templates/admin.php:699
+msgid ""
+"In case you need to show it in multiple languages, then use following format "
+"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+msgstr ""
+"В случае, если вам нужно показать его на нескольких языках, используйте "
+"следующий формат [locale]Text[/locale]. Пример: [en_US]Text[/en_US][es_ES]"
+"Texto[/es_ES]"
+
+#: templates/frontend_v2.php:460
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a  href=\"#\" class=\"link-waitlist-form\">this "
+"form</a>."
+msgstr ""
+"Если вы хотите получить уведомление о том, что кто-то отменяет бронирование "
+"на этот день, пожалуйста, заполните <a href=\"#\" class=\"link-waitlist-"
+"form\">эту форму</a>."
+
+#: templates/frontend.php:219 templates/frontend.php:401
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Если вы хотите получить уведомление о том, что кто-то отменяет бронирование "
+"на этот день, пожалуйста, заполните <a class=\"link-waitlist-form\">эту "
+"форму</a>."
+
+#: templates/frontend.php:389
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this time, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Если вы хотите получать уведомления о том, что кто-то отменяет бронирование "
+"на это время, пожалуйста, заполните <a class=\"link-waitlist-form\">эту "
+"форму</a>."
+
+#: templates/admin.php:932
+msgid ""
+"In order to display reservation id on that page, install plugin GET Params "
+"and add following short code: [display-get-param name=\"reservation_id\"]"
+msgstr ""
+"Чтобы отобразить идентификатор резервирования на этой странице, установите "
+"плагин GET Params и добавьте следующий короткий код: [display-get-param "
+"name=\"reservation_id\"]"
+
+#: templates/admin.php:593
+msgid ""
+"In this mode, the system automatically displays all the available times for "
+"the date selected without any manual time input."
+msgstr ""
+"В этом режиме система автоматически отображает все доступное время для "
+"выбранной даты без ручного ввода времени."
+
+#: templates/admin.php:590
+msgid ""
+"In this mode, the user selects the desired time and the system verifies its "
+"availability to present five different alternative times to the customer."
+msgstr ""
+"В этом режиме пользователь выбирает желаемое время, а система проверяет его "
+"доступность, чтобы представить клиенту пять различных альтернативных времен."
+
+#: templates/frontend_v2.php:683 templates/frontend_v2.php:1368
+#: templates/frontend_v2.php:1566 templates/frontend_v2.php:1716
+#: templates/frontend_v2.php:1873
+msgid "Incorrect email"
+msgstr "Неверный адрес электронной почты"
+
+#: templates/frontend_v2.php:671 templates/frontend_v2.php:1344
+#: templates/frontend_v2.php:1552 templates/frontend_v2.php:1694
+#: templates/frontend_v2.php:1861
+msgid "Incorrect phone number"
+msgstr "Неверный номер телефона"
+
+#: templates/admin_ajaxed.php:547
+msgid "Is printed?"
+msgstr "Является ли печатным?"
+
+#: redi-restaurant-reservation.php:2054
+msgid "is required"
+msgstr "требуется"
+
+#: templates/admin_ajaxed.php:542
+msgid "Is required?"
+msgstr "Обязательный?"
+
+#: redi-restaurant-reservation.php:2020
+msgid "January"
+msgstr "Январь"
+
+#: templates/admin.php:402
+msgid "jQuery plugin"
+msgstr "jQuery плагин"
+
+#: redi-restaurant-reservation.php:2026
+msgid "July"
+msgstr "Июль"
+
+#: redi-restaurant-reservation.php:2025
+msgid "June"
+msgstr "Июнь"
+
+#: templates/basicpackage.php:94
+msgid ""
+"Keeping online listings accurate and up to date — without the tech stress"
+msgstr ""
+"Поддержание точности и актуальности онлайн-объявлений — без технического "
+"стресса"
+
+#: templates/admin_ajaxed.php:226
+msgid "Language"
+msgstr "Язык"
+
+#: templates/admin_ajaxed.php:254
+msgid ""
+"Language for emails of clients depend on the user interface language "
+"selected."
+msgstr ""
+"Язык электронных писем клиентов зависит от выбранного языка "
+"пользовательского интерфейса."
+
+#: templates/admin_ajaxed.php:253
+msgid ""
+"Language for internal emails communication. It is specially used for admin "
+"emails. "
+msgstr ""
+"Язык для внутренней коммуникации по электронной почте. Он специально "
+"используется для электронной почты администратора. "
+
+#: redi-restaurant-reservation.php:1993 templates/frontend.php:291
+#: templates/frontend_v2.php:658
+msgid "Last Name"
+msgstr "Фамилия"
+
+#: redi-restaurant-reservation.php:1841 redi-restaurant-reservation.php:1896
+msgid "Last Name can't be empty"
+msgstr "Фамилия не может быть пустой"
+
+#: templates/frontend_v2.php:656
+msgid "Last name can't be empty"
+msgstr "Фамилия не может быть пустой"
+
+#: redi-restaurant-reservation.php:2132
+msgid "Last name is required"
+msgstr "Фамилия обязательна"
+
+#: templates/admin_ajaxed.php:456
+msgid "Late Bookings"
+msgstr "Позднее бронирование"
+
+#: templates/basicpackage.php:96
+msgid "Learn more at mobal.io"
+msgstr "Узнайте больше на сайте mobal.io"
+
+#: redi-restaurant-reservation.php:2034
+msgid "Legend"
+msgstr "Легенда"
+
+#: templates/admin.php:521
+msgid "Limits the maximum number of children per reservation"
+msgstr "Ограничение на максимальное количество детей в одном бронировании"
+
+#: redi-restaurant-reservation.php:1882 redi-restaurant-reservation.php:2003
+msgid "Loading available dates"
+msgstr "Загрузка доступных дат"
+
+#: redi-restaurant-reservation.php:1884 redi-restaurant-reservation.php:2005
+msgid "Loading available time slots"
+msgstr "Загрузка свободных временных интервалов"
+
+#: redi-restaurant-reservation.php:2081
+msgid "Loading confirmation details"
+msgstr "Загрузка данных для подтверждения"
+
+#: redi-restaurant-reservation.php:2002
+msgid "Loading custom fields"
+msgstr "Загрузка настраиваемых полей"
+
+#: redi-restaurant-reservation.php:2006
+msgid "Loading reservation form"
+msgstr "Загрузка формы бронирования"
+
+#: redi-restaurant-reservation.php:2004
+msgid "Loading restaurants"
+msgstr "Загрузка ресторанов"
+
+#: templates/admin.php:987
+msgid "Localization"
+msgstr "Локализация"
+
+#: redi-restaurant-reservation.php:1980
+msgid "Location"
+msgstr "Местоположение"
+
+#: templates/frontend.php:30 templates/frontend_v2.php:174
+msgid "Login with your social media account"
+msgstr "Войдите в систему под своей учетной записью в социальной сети"
+
+#: templates/frontend.php:340 templates/frontend_v2.php:894
+msgid "Make a reservation"
+msgstr "Забронировать"
+
+#: templates/frontend.php:338
+msgid "Make a reservation request"
+msgstr "Сделать запрос на бронирование"
+
+#: redi-restaurant-reservation.php:2084
+msgid "Manage Existing Reservation"
+msgstr "Управление существующим резервированием"
+
+#: templates/admin.php:824
+msgid "Mandatory Cancellation Reason"
+msgstr "Обязательная причина отмены"
+
+#: templates/admin.php:867
+msgid "Manual reservation"
+msgstr "Ручное подтверждение бронирования"
+
+#: redi-restaurant-reservation.php:2022
+msgid "March"
+msgstr "Март"
+
+#: templates/admin.php:505
+msgid "Max children per reservation"
+msgstr "Максимальное количество детей в одном бронировании"
+
+#: templates/admin.php:435
+msgid "Max persons per reservation"
+msgstr "Максимальное количество людей"
+
+#: templates/admin_ajaxed.php:400
+msgid "Maximum number of guests"
+msgstr "Максимальное количество гостей"
+
+#: templates/admin.php:449
+msgid ""
+"Maximum number of persons allowed for each reservation. Drop down list of "
+"persons ends with this number."
+msgstr ""
+"Максимальное количество гостей для каждого бронирования. Раскрывающийся "
+"список заканчивается этим номером."
+
+#: templates/admin_ajaxed.php:493
+msgid "Maximum time before the reservation can be accepted."
+msgstr "Максимальное время до принятия бронирования."
+
+#: redi-restaurant-reservation.php:2024
+msgid "May"
+msgstr "Май"
+
+#: templates/frontend_v2.php:699
+msgid "Maybe you have any wishes for the reservation"
+msgstr "Возможно, у вас есть пожелания по бронированию"
+
+#: redi-restaurant-reservation-api.php:467
+msgid "Menu items"
+msgstr "Пункты меню"
+
+#: templates/admin.php:457
+msgid "Message for large groups"
+msgstr "Сообщение для больших групп"
+
+#: templates/admin.php:415
+msgid "Min persons per reservation"
+msgstr "Минимальное количество людей"
+
+#: templates/admin.php:429
+msgid ""
+"Minimum number of persons allowed for each reservation. Drop down list of "
+"persons starts from this number."
+msgstr ""
+"Минимальное количество гостей для каждого бронирования. Раскрывающийся "
+"список начинается с этого номера."
+
+#: templates/admin_ajaxed.php:463
+msgid "Minutes"
+msgstr "Протокол"
+
+#: redi-restaurant-reservation.php:2045
+msgid "minutes"
+msgstr "протокол"
+
+#: templates/basicpackage.php:85 templates/basicpackage.php:88
+msgid "Mobal"
+msgstr "Мобал"
+
+#: templates/basicpackage.php:90
+msgid ""
+"Mobal is our trusted partner in helping restaurants turn online searches "
+"into real reservations."
+msgstr ""
+"Mobal — наш надежный партнер, помогающий ресторанам превращать онлайн-поиски "
+"в реальные бронирования."
+
+#: redi-restaurant-reservation.php:2122 redi-restaurant-reservation.php:2143
+msgid "Mobile"
+msgstr "Мобильный"
+
+#: templates/admin.php:587
+msgid ""
+"Mode how available working hours presented to user so that they can choose "
+"time slots most convenient to them."
+msgstr ""
+"Режим, как доступно рабочее время, представленное пользователю таким образом,"
+" чтобы он мог выбрать наиболее удобные для него временные интервалы."
+
+#: templates/frontend_v2.php:1045
+msgid "Modify existing reservation"
+msgstr "Изменение существующего резервирования"
+
+#: redi-restaurant-reservation.php:2086
+msgid "Modify Reservation"
+msgstr "Изменить резервирование"
+
+#: templates/frontend.php:15 templates/frontend_v2.php:1306
+#: templates/modify.php:2
+msgid "Modify reservation"
+msgstr "Изменение бронирования"
+
+#: redi-restaurant-reservation.php:2010
+msgid "Mon"
+msgstr "Пн"
+
+#: templates/admin_ajaxed.php:420
+msgid "Monthly guest reservation limit"
+msgstr "Месячный лимит бронирования гостей"
+
+#: templates/admin_ajaxed.php:488
+msgid "Months"
+msgstr "Месяцы"
+
+#. %s is the number of guests.
+#: templates/frontend.php:113
+#, php-format
+msgid "More than %s Guests"
+msgstr "Более %s гостей"
+
+#: templates/frontend.php:7 templates/frontend_v2.php:37
+msgid "More than [max] people"
+msgstr "Больше [максимум] человек"
+
+#: templates/admin_ajaxed.php:388
+msgid ""
+"Multiple open and close times are available in Basic package. If times are "
+"configured in Basic package, then this table is ignored."
+msgstr ""
+"В пакете Basic доступно несколько часов открытия и закрытия. Если время "
+"настроено в пакете Basic, то эта таблица игнорируется."
+
+#: redi-restaurant-reservation.php:2142 templates/admin.php:142
+#: templates/admin_ajaxed.php:289 templates/cancel.php:27
+#: templates/frontend.php:268 templates/frontend.php:284
+#: templates/frontend.php:483 templates/frontend_v2.php:1358
+#: templates/frontend_v2.php:1542 templates/frontend_v2.php:1708
+#: templates/frontend_v2.php:1851 templates/modify.php:11
+#: templates/modify.php:60
+msgid "Name"
+msgstr "Ваше имя"
+
+#: redi-restaurant-reservation.php:1839 redi-restaurant-reservation.php:1892
+#: templates/frontend_v2.php:1356 templates/frontend_v2.php:1540
+#: templates/frontend_v2.php:1706 templates/frontend_v2.php:1849
+msgid "Name can't be empty"
+msgstr "Поле Имя не может быть пустым."
+
+#: redi-restaurant-reservation.php:1842 redi-restaurant-reservation.php:1898
+msgid "Name or Phone or Email can't be empty"
+msgstr "Имя, телефон или электронная почта не могут быть пустыми"
+
+#: templates/admin.php:147
+msgid "News"
+msgstr "Новости"
+
+#: templates/admin.php:62 templates/admin_ajaxed.php:611
+msgid "Newsletter"
+msgstr "Информационный бюллетень"
+
+#: redi-restaurant-reservation.php:1847 redi-restaurant-reservation.php:1908
+#: templates/admin_welcome.php:40 templates/admin_welcome_no_key.php:45
+#: templates/admin_welcome_no_page.php:41
+msgid "Next"
+msgstr "Далее"
+
+#: redi-restaurant-reservation.php:2017
+msgid "Next month"
+msgstr "В следующем месяце"
+
+#: templates/frontend_v2.php:420 templates/frontend_v2.php:587
+msgid "Next step"
+msgstr "Следующий шаг"
+
+#: templates/admin_welcome.php:18
+msgid ""
+"Next step is to configure the plugin, please watch following videos and "
+"click on Next to open Settings page"
+msgstr ""
+"Следующим шагом будет настройка плагина, пожалуйста, посмотрите следующие "
+"видео и нажмите на кнопку «Далее», чтобы открыть страницу настроек"
+
+#: redi-restaurant-reservation.php:2053 redi-restaurant-reservation.php:2110
+msgid "No"
+msgstr "Нет"
+
+#: templates/admin.php:589
+msgid "Normal"
+msgstr "Нормальный"
+
+#: redi-restaurant-reservation.php:764
+msgid "Not a valid API key provided."
+msgstr "Не предоставлен действительный ключ API."
+
+#: templates/admin_ajaxed.php:519
+msgid ""
+"NOTE: Complex custom fields like Options and Dropdown can be configured in "
+"Basic package settings."
+msgstr ""
+"ПРИМЕЧАНИЕ: Сложные пользовательские поля, такие как Опции и Выпадающий "
+"список, могут быть настроены в Основных настройках пакета."
+
+#: templates/admin_ajaxed.php:472
+msgid ""
+"NOTE: If you define Open Time in basic package, then this setting will be "
+"ignored. Use open times settings to define Late Bookings."
+msgstr ""
+"ПРИМЕЧАНИЕ: Если вы определите Open Time в базовом пакете, то эта настройка "
+"будет проигнорирована. Используйте настройки времени открытия для "
+"определения поздних бронирований."
+
+#: templates/admin_ajaxed.php:517
+msgid ""
+"NOTE: Name, Email, Phone and Comments are required fields of reservation "
+"form and do not need to be defined here as custom fields."
+msgstr ""
+"ПРИМЕЧАНИЕ: Имя, Адрес электронной почты, Телефон и Комментарии являются "
+"обязательными полями формы бронирования и не должны быть определены здесь "
+"как пользовательские поля."
+
+#: templates/admin_ajaxed.php:655
+msgid "Note: To send SMS messages an extra addon needs to be purchased."
+msgstr ""
+"Примечание: Для отправки SMS-сообщений необходимо приобрести дополнительное "
+"дополнение."
+
+#: redi-restaurant-reservation.php:2030
+msgid "November"
+msgstr "Ноябрь"
+
+#: templates/frontend.php:98
+msgid "Number of adults"
+msgstr "Количество взрослых"
+
+#: templates/frontend.php:126
+msgid "Number of children"
+msgstr "Количество детей"
+
+#: templates/frontend_v2.php:1462 templates/modify.php:36
+msgid "Number of guests"
+msgstr "Количество гостей"
+
+#: templates/frontend.php:96
+msgid "Number of total guests"
+msgstr "Общее количество гостей"
+
+#: templates/admin.php:805
+msgid "Obtain your captcha key from Google."
+msgstr "Получите ключ капчи в Google."
+
+#: redi-restaurant-reservation.php:2029
+msgid "October"
+msgstr "Октябрь"
+
+#: redi-restaurant-reservation.php:1558
+msgid ""
+"Online reservation service is not available at this time. Try again later or"
+msgstr ""
+"Услуга онлайн-бронирования в настоящее время недоступна. Повторите попытку "
+"позже или"
+
+#. %s is a placeholder for a dynamic link.
+#: redi.php:283
+#, php-format
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"%s"
+msgstr ""
+"Услуга онлайн-бронирования в настоящее время недоступна. Повторите попытку "
+"позже или %s"
+
+#: redi-restaurant-reservation.php:2118
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"contact us directly."
+msgstr ""
+"Услуга онлайн-бронирования в настоящее время недоступна. Повторите попытку "
+"позже или свяжитесь с нами напрямую."
+
+#: templates/admin_ajaxed.php:348
+msgid "Open"
+msgstr "Время открытия"
+
+#: functions/notice.php:47 functions/notice.php:79
+msgid "Open setup wizard"
+msgstr "Открыть мастер настройки"
+
+#: templates/basicpackage.php:40
+msgid ""
+"Open times. This option will enable you to choose between various working "
+"hours whichever is most convenient to you."
+msgstr ""
+"Время работы. Эта опция позволит вам выбирать между различными рабочими "
+"часами в зависимости от того, что вам наиболее удобно."
+
+#: templates/basicpackage.php:37
+msgid "Open upcoming reservations"
+msgstr "Открыть список резервирований"
+
+#: templates/admin_ajaxed.php:621
+msgid "Option"
+msgstr "Выбор"
+
+#: templates/frontend_v2.php:282 templates/frontend_v2.php:370
+#: templates/frontend_v2.php:1496
+msgid "OR"
+msgstr "ИЛИ"
+
+#: redi-restaurant-reservation.php:2035
+msgid "Out of range"
+msgstr "Вне зоны действия"
+
+#: templates/admin.php:689
+msgid "Override fully booked message text"
+msgstr "Переопределить полностью забронированный текст сообщения"
+
+#: templates/admin_welcome_no_page.php:13
+msgid "Page name"
+msgstr "Название страницы"
+
+#: redi-restaurant-reservation.php:3009
+msgid "Page name is required"
+msgstr "Имя страницы обязательно для заполнения"
+
+#: templates/basicpackage.php:78
+msgid "Partner Offers"
+msgstr "Предложения от партнеров"
+
+#: redi-restaurant-reservation.php:2090
+msgid "Personal information"
+msgstr "Личная информация"
+
+#: redi-restaurant-reservation.php:318
+msgid ""
+"Personal information (email, phone, or name) is required to search for a "
+"reservation."
+msgstr ""
+"Для поиска бронирования требуется личная информация (адрес электронной почты,"
+" телефон или имя)."
+
+#: redi-restaurant-reservation.php:2096
+msgid "Personal information is required"
+msgstr "Требуется личная информация"
+
+#: templates/frontend.php:474 templates/frontend_v2.php:1831
+msgid "Persons"
+msgstr "Время"
+
+#: redi-restaurant-reservation.php:1996 templates/admin_ajaxed.php:261
+#: templates/cancel.php:19 templates/frontend.php:271
+#: templates/frontend.php:297 templates/frontend.php:493
+#: templates/frontend_v2.php:673 templates/frontend_v2.php:1346
+#: templates/frontend_v2.php:1554 templates/frontend_v2.php:1696
+#: templates/frontend_v2.php:1863 templates/modify.php:8
+#: templates/modify.php:64
+msgid "Phone"
+msgstr "Ваш номер"
+
+#: redi-restaurant-reservation.php:1844 redi-restaurant-reservation.php:1902
+msgid "Phone can't be empty"
+msgstr "Поле Телефон не может быть пустым."
+
+#: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1904
+msgid "Phone number is not valid"
+msgstr "Номер телефона недействителен"
+
+#: redi-restaurant-reservation.php:2129
+msgid "Phone number is required"
+msgstr "Номер телефона обязателен"
+
+#: templates/admin_ajaxed.php:78 templates/frontend.php:52
+#: templates/frontend_v2.php:209
+msgid "Place"
+msgstr "Место"
+
+#: templates/basicpackage.php:53
+msgid ""
+"Please allow 1 business day for us to confirm your payment and upgrade your "
+"account."
+msgstr ""
+"Ваш аккаунт будет изменйн в течении 1 рабочего дня с момента поступления "
+"оплаты за подписку"
+
+#: templates/admin.php:232
+msgid ""
+"Please contact info@reservationdiary.eu for any issues or missing features "
+"in Beta themes so we can prioritize them."
+msgstr ""
+"Пожалуйста, свяжитесь с info@reservationdiary.eu по любым проблемам или "
+"отсутствующим функциям в бета-темах, чтобы мы могли определить их "
+"приоритетность."
+
+#: functions/notice.php:134
+msgid ""
+"Please create a reservation page and add this <b>[redirestaurant]</b> "
+"shortcode to that page."
+msgstr ""
+"Пожалуйста, создайте страницу бронирования и добавьте этот шорткод <b>"
+"[redirestaurant]</b> на эту страницу."
+
+#: redi-restaurant-reservation.php:2130
+msgid "Please enter a valid email address"
+msgstr "Пожалуйста, введите действующий адрес электронной почты"
+
+#: redi-restaurant-reservation.php:2101
+msgid "Please provide a reason for cancellation"
+msgstr "Пожалуйста, укажите причину отмены"
+
+#: templates/admin_welcome_no_key.php:37 templates/admin_welcome_no_page.php:33
+msgid "Please provide your API Key in order to continue using plugin"
+msgstr ""
+"Пожалуйста, предоставьте свой ключ API, чтобы продолжить использование "
+"плагина"
+
+#: templates/admin_welcome_no_key.php:13
+msgid "Please provide your email address to generate API Key"
+msgstr ""
+"Пожалуйста, укажите свой адрес электронной почты для генерации ключа API"
+
+#: redi-restaurant-reservation.php:2060
+msgid "Please select a valid date for"
+msgstr "Пожалуйста, выберите действующую дату для"
+
+#: redi-restaurant-reservation.php:2055
+msgid "Please select an option for"
+msgstr "Пожалуйста, выберите вариант для"
+
+#: templates/admin.php:509
+msgid "Please select the maximum number of children."
+msgstr "Пожалуйста, выберите максимальное количество детей."
+
+#: redi-restaurant-reservation.php:870
+msgid "Please select value from \"Max children per reservation\""
+msgstr ""
+"Пожалуйста, выберите значение из \"Максимальное количество детей в одном "
+"бронировании\""
+
+#: redi-restaurant-reservation.php:865
+msgid "Please select value from \"Monthly guest reservation limit\""
+msgstr ""
+"Пожалуйста, выберите значение из \"Месячного лимита бронирования гостей\""
+
+#: templates/admin.php:859
+msgid ""
+"Please verify you current time. This is important as this time is taken and "
+"used in reservation logic. In case time is differnet than your current time, "
+"please change time zone in Settings -> General -> Time Zone"
+msgstr ""
+"Пожалуйста, проверьте свое текущее время. Это важно, так как это время "
+"берется и используется в логике резервирования. В случае, если время "
+"отличается от вашего текущего времени, измените часовой пояс в Настройках -> "
+"Общие -> Часовой пояс"
+
+#: templates/admin_welcome.php:22
+msgid "Plugin Documentation"
+msgstr "Документация по плагинам"
+
+#: redi-restaurant-reservation.php:1686
+msgid ""
+"Plugin failed to properly load javascript file, please check that jQuery is "
+"loaded and no javascript errors present."
+msgstr ""
+"Плагин не смог правильно загрузить файл javascript, пожалуйста, убедитесь, "
+"что jQuery загружен и нет ошибок javascript."
+
+#: templates/admin.php:135
+msgid "Plugin Info"
+msgstr "Информация о плагине"
+
+#: redi-restaurant-reservation.php:1977 templates/frontend.php:540
+msgid "Powered by"
+msgstr "Разработано"
+
+#: templates/frontend.php:479 templates/frontend_v2.php:1839
+msgid "Preferred time"
+msgstr "Предпочтительное время"
+
+#: templates/frontend.php:253 templates/frontend.php:334
+msgid "Previous"
+msgstr "Назад"
+
+#: redi-restaurant-reservation.php:2018
+msgid "Previous month"
+msgstr "Предыдущий месяц"
+
+#: templates/admin.php:65
+msgid "Privacy policy"
+msgstr "Политика конфиденциальности"
+
+#: templates/frontend.php:260
+msgid "Provide reservation details"
+msgstr "Информация для обратной связи"
+
+#: redi-restaurant-reservation.php:1850 redi-restaurant-reservation.php:1914
+msgid "Provided time is not in valid format."
+msgstr "Указанное время указано не в действительном формате."
+
+#: templates/admin.php:167
+msgid "Rate the plugin, help us grow"
+msgstr "Оцените плагин, помогите нам расти"
+
+#: templates/frontend_v2.php:953
+msgid "Rate your reservation experience"
+msgstr "Оцените качество бронирования"
+
+#: templates/admin.php:223 templates/admin.php:231
+msgid "React 25 theme (BETA)"
+msgstr "Тема React 25 (БЕТА)"
+
+#: templates/admin.php:1019 templates/cancel.php:40
+#: templates/frontend_v2.php:1728
+msgid "Reason"
+msgstr "Причина"
+
+#: redi-restaurant-reservation.php:1846 redi-restaurant-reservation.php:1906
+#: templates/frontend_v2.php:1726
+msgid "Reason can't be empty"
+msgstr "Поле причина отмены не может быть пустым."
+
+#: templates/admin_welcome.php:12
+msgid "ReDi Reservation plugin:"
+msgstr "Плагин ReDi Reservation:"
+
+#: redi-restaurant-reservation.php:1393 redi-restaurant-reservation.php:1394
+#: redi-restaurant-reservation.php:1449 redi-restaurant-reservation.php:1450
+#: redi-restaurant-reservation.php:1458 redi-restaurant-reservation.php:1459
+msgid "ReDi Reservations"
+msgstr "Бронирование ReDi"
+
+#. Name of the plugin
+msgid "ReDi Restaurant Reservation"
+msgstr "Бронирование ресторана ReDi"
+
+#: templates/admin.php:142
+msgid "Redi Restaurant Reservation"
+msgstr "Бронирование столика в ресторане Redi"
+
+#: redi-restaurant-reservation.php:773
+msgid ""
+"ReDi Restaurant Reservation plugin could not get an API key from the "
+"reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi "
+"Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation "
+"plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means "
+"that server where you host your web site can't connect to our "
+"reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow "
+"your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself,"
+" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
+"info@reservationdiary.eu</a>"
+msgstr ""
+"Плагин ReDi Restaurant Reservation не смог получить ключ API от сервера "
+"reservationdiary.eu при активации.                        <br/> Вы можете "
+"попытаться исправить это, перейдя на страницу «опций» бронирования ресторана "
+"ReDi.                        <br/>Это приведет к тому, что плагин ReDi "
+"Restaurant Reservation повторит попытку получения ключа API для вас.         "
+"               <br/>Если вы продолжаете видеть эту ошибку, это обычно "
+"означает, что сервер, на котором вы размещаете свой веб-сайт, не может "
+"подключиться к нашему серверу reservationdiary.eu.                        "
+"<br/>Вы можете попробовать попросить свой хостинг WordPress разрешить вашему "
+"серверу WordPress подключаться к api.reservationdiary.eu                     "
+"   <br/>В случае, если вы не можете решить эту проблему самостоятельно, "
+"свяжитесь с нами напрямую по <a href=\"mailto:info@reservationdiary.eu\">"
+"info@reservationdiary.eu</a>"
+
+#: templates/admin_welcome.php:15
+msgid "ReDi restaurant reservation plugin is ready to use"
+msgstr "Плагин бронирования ресторанов ReDi готов к использованию"
+
+#: redi-restaurant-reservation-api.php:111
+msgid "ReDi Restaurant Reservation plugin not registered"
+msgstr "Плагин ReDi Restaurant Reservation не зарегистрирован"
+
+#: templates/frontend.php:522 templates/frontend_v2.php:1889
+msgid "Register to Wait List"
+msgstr "Зарегистрироваться в списке ожидания"
+
+#: templates/basicpackage.php:65
+msgid "Remind your customer about upcoming reservation via Email or by SMS"
+msgstr ""
+"Напомните своему клиенту о предстоящем бронировании по электронной почте или "
+"SMS"
+
+#: templates/admin.php:61 templates/admin_ajaxed.php:609
+msgid "Reminder"
+msgstr "Напоминание"
+
+#: redi-restaurant-reservation.php:2067
+msgid "REQUEST ID"
+msgstr "ИДЕНТИФИКАТОР ЗАПРОСА"
+
+#: templates/admin_ajaxed.php:552
+msgid "Required error message"
+msgstr "Ошибка если поле не указано"
+
+#: templates/frontend_v2.php:631 templates/frontend_v2.php:647
+#: templates/frontend_v2.php:660 templates/frontend_v2.php:675
+#: templates/frontend_v2.php:687 templates/frontend_v2.php:1336
+#: templates/frontend_v2.php:1348 templates/frontend_v2.php:1360
+#: templates/frontend_v2.php:1372 templates/frontend_v2.php:1544
+#: templates/frontend_v2.php:1556 templates/frontend_v2.php:1570
+#: templates/frontend_v2.php:1582 templates/frontend_v2.php:1686
+#: templates/frontend_v2.php:1731 templates/frontend_v2.php:1841
+#: templates/frontend_v2.php:1853 templates/frontend_v2.php:1865
+#: templates/frontend_v2.php:1877
+msgid "required field"
+msgstr "Обязательное поле"
+
+#: templates/admin_welcome_no_page.php:14
+msgid "reservation"
+msgstr "резервирование"
+
+#: templates/frontend_v2.php:528
+#, fuzzy
+#| msgid "Reservation time"
+msgid "Reservation date"
+msgstr "Время резервирования"
+
+#: redi-restaurant-reservation.php:2078 templates/frontend_v2.php:1097
+msgid "Reservation Details"
+msgstr "Детали бронирования"
+
+#. Author of the plugin
+msgid "Reservation Diary"
+msgstr "Дневник бронирования"
+
+#: templates/admin_ajaxed.php:439
+msgid "Reservation duration"
+msgstr "Продолжительность бронирования"
+
+#: templates/frontend_v2.php:58
+msgid "Reservation Form"
+msgstr "Форма бронирования"
+
+#: redi.php:280
+msgid "Reservation form is not working"
+msgstr "Форма бронирования не работает"
+
+#: templates/admin.php:732
+msgid "Reservation Form settings"
+msgstr "Настройки формы бронирования"
+
+#: redi-restaurant-reservation.php:695 templates/cancel.php:57
+#: templates/confirm.php:55
+msgid "Reservation has been successfully canceled."
+msgstr "Резервирование отменено"
+
+#: templates/modify.php:89
+msgid "Reservation has been successfully updated."
+msgstr "Бронирование успешно обновлено."
+
+#: redi-restaurant-reservation.php:2068
+msgid "RESERVATION ID"
+msgstr "ИДЕНТИФИКАТОР БРОНИРОВАНИЯ"
+
+#: redi-restaurant-reservation.php:2089
+msgid "Reservation ID"
+msgstr "ID бронирования"
+
+#: functions/feedback.php:93
+msgid "Reservation id is empty."
+msgstr "Идентификатор резервации пуст."
+
+#: redi-restaurant-reservation.php:2094
+msgid "Reservation ID is required"
+msgstr "Требуется идентификатор бронирования"
+
+#: redi-restaurant-reservation.php:2095
+msgid "Reservation ID must be a number"
+msgstr "ID резервации должен быть номером"
+
+#: redi-restaurant-reservation-api.php:360
+msgid "Reservation is in the past and cannot be modified."
+msgstr "Бронирование осталось в прошлом и не может быть изменено."
+
+#: templates/frontend.php:214 templates/frontend.php:408
+msgid ""
+"Reservation is not available on selected day. Please select another day."
+msgstr ""
+"Резервирование не доступно на выбранный день. Пожалуйста, выберите другой "
+"день."
+
+#: redi-restaurant-reservation.php:1702
+msgid "Reservation is not found."
+msgstr "Бронь не найдена."
+
+#: templates/admin.php:1015 templates/cancel.php:12 templates/confirm.php:12
+#: templates/frontend_v2.php:1334 templates/frontend_v2.php:1684
+#: templates/modify.php:6
+msgid "Reservation number"
+msgstr "Номер резервирования"
+
+#: redi-restaurant-reservation.php:1838 redi-restaurant-reservation.php:1890
+#: templates/frontend_v2.php:1332 templates/frontend_v2.php:1682
+#: templates/frontend_v2.php:1837
+msgid "Reservation number can't be empty"
+msgstr "Номер резервирования не может быть пустым"
+
+#: redi-restaurant-reservation.php:738
+msgid "Reservation number is required"
+msgstr "Необходимо укащать номер резервирования"
+
+#: redi-restaurant-reservation.php:2077
+msgid "Reservation Request Details"
+msgstr "Детали запроса на бронирование"
+
+#: templates/admin_ajaxed.php:393
+msgid "Reservation restrictions"
+msgstr "Ограничения на бронирование"
+
+#: templates/admin.php:843
+msgid "Reservation settings"
+msgstr "Настройки бронирования"
+
+#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2789
+msgid "Reservation that is canceled can not be modified."
+msgstr "Отмененное бронирование не может быть изменено."
+
+#: redi-restaurant-reservation.php:1433 redi-restaurant-reservation.php:1434
+msgid "Reservations"
+msgstr "Бронирование"
+
+#: redi-restaurant-reservation.php:2042
+msgid "Reservations can only be made up to ${timeText} in advance"
+msgstr "Бронирование может быть сделано только на сумму до ${timeText} заранее"
+
+#: redi-restaurant-reservation.php:2041
+msgid "Reservations must be made at least ${timeText} in advance"
+msgstr "Бронирование должно быть сделано заранее на сумму не менее ${timeText}"
+
+#: redi-restaurant-reservation.php:2137
+msgid "Restaurant"
+msgstr "Ресторан"
+
+#: templates/admin_ajaxed.php:115
+msgid "Restaurant name"
+msgstr "Название"
+
+#: templates/admin_ajaxed.php:69
+msgid "Restaurant settings"
+msgstr "Настройки ресторана"
+
+#: redi-restaurant-reservation.php:2015
+msgid "Sat"
+msgstr "Сб"
+
+#: templates/admin.php:240 templates/admin.php:541 templates/admin.php:729
+#: templates/admin.php:841 templates/admin.php:940 templates/admin.php:983
+#: templates/admin.php:1002 templates/admin_ajaxed.php:275
+#: templates/admin_ajaxed.php:332 templates/admin_ajaxed.php:391
+#: templates/admin_ajaxed.php:503
+msgid "Save Changes"
+msgstr "Сохранить изменения"
+
+#: redi-restaurant-reservation.php:2088
+msgid "Searching for reservation"
+msgstr "Поиск бронирования"
+
+#: redi-restaurant-reservation.php:2051
+msgid "Select"
+msgstr "Выбирать"
+
+#: templates/frontend.php:237
+msgid "Select available time"
+msgstr "Выбор доступного времени"
+
+#: templates/admin_ajaxed.php:135
+msgid "Select Country"
+msgstr "Страна"
+
+#: redi-restaurant-reservation.php:2058
+msgid "Select day"
+msgstr "Выберите день"
+
+#: templates/frontend.php:68
+#, fuzzy
+#| msgid "Select place, date and time"
+msgid "Select guests, date and time"
+msgstr "Выбор места, даты и времени"
+
+#: redi-restaurant-reservation.php:2057
+msgid "Select month"
+msgstr "Выберите месяц"
+
+#: templates/admin_ajaxed.php:425
+msgid "Select monthly guest reservation limit"
+msgstr "Выберите месячный лимит бронирования для гостей"
+
+#: templates/frontend_v2.php:829
+msgid "Select option"
+msgstr "Выберите вариант"
+
+#: templates/frontend.php:55
+msgid "Select place"
+msgstr "Выберите место"
+
+#: templates/frontend.php:49
+msgid "Select place, guests, date and time"
+msgstr "Выберите место, гостей, дату и время"
+
+#: templates/admin.php:213
+msgid "Select plugin theme"
+msgstr "Выбор темы плагина"
+
+#: redi-restaurant-reservation.php:2059
+msgid "Select year"
+msgstr "Выбранный год"
+
+#: redi-restaurant-reservation.php:2016
+msgid "Selected date"
+msgstr "Выбранная дата"
+
+#: redi-restaurant-reservation.php:2359
+msgid "Selected date or time is not valid."
+msgstr "Указанное время или дата не корректные."
+
+#: templates/admin.php:340
+msgid ""
+"Selecting this option, the calendar is set to popup when the user clicks the "
+"calendar control."
+msgstr ""
+"При выборе этого параметра календарь будет отображаться так, чтобы он "
+"появлялся, когда пользователь нажимает на элемент управления календарем."
+
+#: templates/basicpackage.php:46
+msgid "Send client reservation confirmation emails from WordPress account."
+msgstr ""
+"Отправляйте клиентам письма с подтверждением бронирования из учетной записи "
+"WordPress."
+
+#: templates/admin.php:883
+msgid "Send confirmation email to client"
+msgstr "Отправить подтверждение клиенту по email"
+
+#: templates/admin.php:68
+msgid "Send me newsletter and promotions"
+msgstr "Присылать мне новости и предложения"
+
+#: templates/admin.php:67
+msgid "Send me reservation reminder"
+msgstr "Напомнить мне о резервировании"
+
+#: redi-restaurant-reservation.php:2119
+msgid "Send Reservation Request by Email"
+msgstr "Отправить запрос на бронирование по электронной почте"
+
+#: redi-restaurant-reservation.php:2028
+msgid "September"
+msgstr "Сентябрь"
+
+#: templates/admin.php:138
+msgid "sergei"
+msgstr "Сергей"
+
+#: templates/admin_ajaxed.php:386
+msgid "Set Open and Close fields to blank if restaurant is closed."
+msgstr ""
+"Оставте время открытия и закрытия пустыми, если ресторан весь день закрыт."
+
+#: redi-restaurant-reservation.php:398 redi-restaurant-reservation.php:1411
+#: redi-restaurant-reservation.php:1412
+msgid "Settings"
+msgstr "Параметры"
+
+#: redi-restaurant-reservation.php:1419 redi-restaurant-reservation.php:1420
+msgid "Settings $"
+msgstr "Настройки $"
+
+#: templates/admin_ajaxed.php:28
+msgid "Settings that have already been changed will be lost."
+msgstr "Настройки, которые уже были изменены, будут потеряны."
+
+#: templates/admin_ajaxed.php:34
+msgid ""
+"Settings that have already been changed will be lost. Are you sure you want "
+"to continue?"
+msgstr ""
+"Настройки, которые уже были изменены, будут потеряны. Вы уверены, что хотите "
+"продолжить?"
+
+#: templates/basicpackage.php:38
+msgid "Setup maximum available seats for online reservation by week day"
+msgstr "Конфигурация доступных места для онлайн-бронирования по дням недели"
+
+#: redi-restaurant-reservation.php:1988
+msgid "Show all steps"
+msgstr "Показать все шаги"
+
+#: templates/admin.php:812
+msgid "Show comments"
+msgstr "Показать комментарии"
+
+#: templates/admin.php:603
+msgid "Show end reservation time"
+msgstr "Показать время окончания бронирования"
+
+#: templates/admin.php:339
+msgid "Shown on click"
+msgstr "Отображается по клику"
+
+#: templates/admin_welcome_no_key.php:24
+msgid "Skip"
+msgstr "Скип"
+
+#: templates/admin.php:366
+msgid "Slash"
+msgstr "Слеш"
+
+#: templates/admin.php:63
+msgid "SMS"
+msgstr "СМС"
+
+#: redi-restaurant-reservation.php:2114
+msgid "Special requests"
+msgstr "Особые пожелания"
+
+#: redi-restaurant-reservation.php:1997
+msgid "Special requests (optional)"
+msgstr "Особые пожелания (по желанию)"
+
+#: templates/admin_ajaxed.php:470
+msgid ""
+"Specify how late customers can make their booking in hours. For example, the "
+"current time is 10:00 and this setting is set to 3 hours then the first time,"
+" when the reservation will be accepted is 13:00."
+msgstr ""
+"Укажите, с каким опозданием клиенты могут сделать бронирование в часах. "
+"Например, текущее время - 10:00, а эта настройка установлена на 3 часа, "
+"тогда первое время, когда бронь будет принята, - 13:00."
+
+#: templates/admin_ajaxed.php:382
+msgid "Specify time in 24h format (00:00 - 23:59)."
+msgstr "Укажите время в 24 часовом формате (00:00 - 23:59)."
+
+#: redi-restaurant-reservation.php:360
+msgid ""
+"Status must be \"cancelled\", and personal_information and "
+"cancellation_reason are required."
+msgstr ""
+"Статус должен быть «отменен», и требуются personal_information и "
+"cancellation_reason."
+
+#: templates/admin_ajaxed.php:325
+msgid ""
+"Stay in the loop! Subscribe to receive valuable updates, tips, and "
+"recommendations related to our plugin. By checking this box, you agree to "
+"receive occasional emails with important announcements, helpful insights, "
+"and suggestions to enhance your experience with our plugin. Don't miss out "
+"on the latest features and improvements – opt in now!"
+msgstr ""
+"Будьте в курсе! Подпишитесь, чтобы получать ценные обновления, советы и "
+"рекомендации, связанные с нашим плагином. Установив этот флажок, вы "
+"соглашаетесь время от времени получать электронные письма с важными "
+"объявлениями, полезными идеями и предложениями по улучшению вашего опыта "
+"работы с нашим плагином. Не пропустите новейшие функции и улучшения — "
+"зарегистрируйтесь прямо сейчас!"
+
+#: templates/frontend.php:49 templates/frontend.php:68
+#: templates/frontend.php:237 templates/frontend.php:260
+msgid "Step"
+msgstr "Шаг"
+
+#: templates/basicpackage.php:29
+msgid "Submit an issue or suggest a feature"
+msgstr "Отправьте сообщение о проблеме или предложите функцию"
+
+#: templates/admin_ajaxed.php:315
+msgid "Subscribe to newsletter"
+msgstr "Подписаться на рассылку"
+
+#: redi-restaurant-reservation.php:2009
+msgid "Sun"
+msgstr "Вс"
+
+#: templates/basicpackage.php:42
+msgid ""
+"Support for multiple places. Number of places depends on number of "
+"subscriptions."
+msgstr ""
+"Поддержка нескольких мест. Количество мест зависит от количества абонементов."
+
+#: templates/admin.php:966
+msgid "Support us"
+msgstr "Поддержите нас"
+
+#: redi-restaurant-reservation.php:1426 redi-restaurant-reservation.php:1427
+msgid "Test reservation"
+msgstr "Тестовое бронирование"
+
+#: templates/admin_ajaxed.php:605
+msgid "Text field"
+msgstr "Текстовое поле"
+
+#: templates/admin_ajaxed.php:532
+msgid "Text on form"
+msgstr "Текст на бланке"
+
+#: templates/admin.php:698
+msgid ""
+"Text that will be displayed when there are no available time for selected "
+"day/time."
+msgstr ""
+"Текст, который будет отображаться, когда нет доступного времени для "
+"выбранного дня/времени."
+
+#: templates/frontend_v2.php:1937
+msgid ""
+"Thank you for letting us know about your cancellation - this helps other "
+"guests find a table! We hope to see you back soon. Would you like to make "
+"another reservation for a different date?"
+msgstr ""
+"Спасибо, что сообщили нам об отмене бронирования - это поможет другим гостям "
+"найти столик! Надеемся на скорую встречу. Вы хотели бы сделать еще одно "
+"бронирование на другую дату?"
+
+#: functions/feedback.php:89
+msgid "Thank you for your feedback."
+msgstr "Благодарим вас за отзыв."
+
+#: redi-restaurant-reservation.php:2079
+msgid "Thank you for your reservation request!"
+msgstr "Благодарим Вас за запрос на бронирование!"
+
+#: templates/frontend.php:348
+msgid "Thank you for your reservation request."
+msgstr "Благодарим Вас за запрос на бронирование."
+
+#: redi-restaurant-reservation.php:2080
+msgid "Thank you for your reservation!"
+msgstr "Благодарим Вас за бронирование!"
+
+#: templates/frontend.php:350
+msgid "Thank you for your reservation."
+msgstr "Спасибо за Ваше бронирование"
+
+#: templates/admin.php:909
+msgid ""
+"The confirmation email will be sent out from info@reservationdiary.eu. When "
+"the client replies to confirmation email, you will receive it."
+msgstr ""
+"Письмо с подтверждением будет отправлено от info@reservationdiary.eu. Когда "
+"клиент ответит на письмо с подтверждением, вы получите его."
+
+#: templates/admin.php:903
+msgid ""
+"The confirmation email will be sent out from your email set in WordPress."
+msgstr ""
+"Письмо с подтверждением будет отправлено с вашей электронной почты, "
+"установленной в WordPress."
+
+#: templates/admin_ajaxed.php:269
+msgid ""
+"The contact number of restaurant. It could have the format [area code] "
+"[phone number]"
+msgstr ""
+"Контактный телефон ресторана. Он может иметь формат [код города] [номер "
+"телефона]"
+
+#: templates/admin_ajaxed.php:143
+msgid "The country of restaurant can be mentioned here."
+msgstr "Здесь можно упомянуть о стране ресторана."
+
+#: templates/admin_ajaxed.php:218
+msgid ""
+"The email addresses of recipients who should be sent the copies of "
+"reservation emails. You can separate multiple recipients using commas."
+msgstr ""
+"Адреса электронной почты получателей, которым должны быть отправлены копии "
+"электронных писем о бронировании. Вы можете разделять нескольких получателей "
+"с помощью запятых."
+
+#: templates/admin.php:294
+msgid ""
+"The enabled feedback collection option allows users of the reservation form "
+"to provide valuable input for improving the plugin. By keeping this option "
+"enabled, you can continuously enhance the plugin based on user feedback, "
+"ensuring an exceptional reservation experience for restaurant visitors."
+msgstr ""
+"Включенная опция сбора отзывов позволяет пользователям формы бронирования "
+"вносить ценный вклад в улучшение плагина. Оставив эту опцию включенной, вы "
+"можете постоянно улучшать плагин на основе отзывов пользователей, "
+"обеспечивая исключительный опыт бронирования для посетителей ресторана."
+
+#: templates/admin_ajaxed.php:123
+msgid "The name of the restaurant is to be specified here."
+msgstr "Название ресторана уточняется здесь."
+
+#: templates/admin_ajaxed.php:158
+msgid "The restaurant city is to be specified in this field."
+msgstr "В этом поле необходимо указать город ресторана."
+
+#: templates/admin.php:375
+msgid ""
+"The way date format is displayed on the date control. You can select from a "
+"drop down list of different date formats."
+msgstr ""
+"Способ отображения формата даты на элементе управления датой. Вы можете "
+"выбрать из выпадающего списка различные форматы дат."
+
+#: templates/admin.php:900
+msgid ""
+"The way you want confirmation email to be delivered to the client. It can be "
+"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"SMTP\" or \"Disable confirmation email\"."
+msgstr ""
+"Таким образом, как вы хотите, чтобы письмо с подтверждением было доставлено "
+"клиенту. Это может быть «С электронной почты WordPress», «С reservationdiary."
+"eu», «Пользовательский SMTP» или «Отключить письмо с подтверждением»."
+
+#: templates/admin_ajaxed.php:188
+msgid "The website address of the restaurant."
+msgstr "Адрес сайта ресторана."
+
+#: templates/frontend.php:374 templates/frontend.php:395
+#: templates/frontend_v2.php:455 templates/frontend_v2.php:465
+msgid "There are no more reservation can be made for this day."
+msgstr "На этот день больше нельзя бронировать места."
+
+#: templates/frontend.php:383
+msgid "There are no more reservation can be made for this time."
+msgstr "Больше никаких резерваций на это время сделать нельзя."
+
+#: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1912
+msgid "There are no more reservations can be made for selected day."
+msgstr "Больше нельзя бронировать места на выбранный день."
+
+#: templates/admin_ajaxed.php:105
+msgid ""
+"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
+"short code for specifying the place of reservation in case of multiple "
+"restaurants. <br/>Example of shortcode:"
+msgstr ""
+"Этот <b>идентификатор</b> связан с вашим местом. <b>ID</b> может быть "
+"использован в качестве короткого кода для указания места бронирования в "
+"случае нескольких ресторанов. <br/>Пример шорткода:"
+
+#: redi-restaurant-reservation.php:2046
+msgid "This date is in the past and cannot be selected"
+msgstr "Эта дата осталась в прошлом и не может быть выбрана"
+
+#: templates/admin_ajaxed.php:92
+msgid ""
+"This field lets you edit settings for multiple places. Multiple places are "
+"available for Basic package users only."
+msgstr ""
+"Это поле позволяет редактировать несколько мест. Поддержка нескольких мест "
+"доступна в Базовом пакете."
+
+#: templates/admin.php:337
+msgid ""
+"This field lets you select the style in which the calendar control is "
+"displayed. It can be either \"Show on click\" or \"Always show”."
+msgstr ""
+"В этом поле можно выбрать стиль, в котором будет отображаться элемент "
+"управления календарем. Это может быть как «Показывать по клику», так и "
+"«Показывать всегда»."
+
+#: templates/admin.php:400
+msgid ""
+"This field lets you select the way time picker is displayed. You can choose "
+"from \"jQuery plugin\" and \"HTML dropdown\"."
+msgstr ""
+"В этом поле можно выбрать способ отображения средства выбора времени. Вы "
+"можете выбрать один из \"jQuery plugin\" и \"HTML dropdown\"."
+
+#: templates/admin.php:561
+msgid ""
+"This is how the available time will be shown. This setting is taken from "
+"generic WordPress settings. You can change it in Settings -> General -> Time "
+"Format"
+msgstr ""
+"Вот так будет показано доступное время. Эта настройка взята из общих "
+"настроек WordPress. Вы можете изменить его в Настройках -> Общие -> Формат "
+"времени"
+
+#: templates/admin_ajaxed.php:413
+msgid ""
+"This is the number of maximum persons in restaurant at any time. System will "
+"check automatically availability of free seats and will not allow to go "
+"beyond this number."
+msgstr ""
+"Это максимальное количество человек в ресторане в любое время. Система "
+"автоматически проверит наличие свободных мест и не позволит выйти за их "
+"пределы."
+
+#: templates/basicpackage.php:16
+msgid ""
+"This is your registration key. Please use it when you send request for "
+"support."
+msgstr ""
+"Это ваш регистрационный ключ. Пожалуйста, используйте его при отправке "
+"запроса в службу поддержки."
+
+#: templates/admin.php:343
+msgid "This option sets the calendar control to display all the time."
+msgstr ""
+"Этот параметр настраивает элемент управления календарем на постоянное "
+"отображение."
+
+#: redi-restaurant-reservation.php:1848 redi-restaurant-reservation.php:1910
+msgid "This time is fully booked"
+msgstr "Это время полностью забронировано"
+
+#: templates/basicpackage.php:95
+msgid ""
+"Thousands of restaurants use Mobal to stand out online and attract more "
+"guests."
+msgstr ""
+"Тысячи ресторанов используют Mobal, чтобы выделиться в Интернете и привлечь "
+"больше гостей."
+
+#: redi-restaurant-reservation.php:2013
+msgid "Thu"
+msgstr "Чт"
+
+#: redi-restaurant-reservation.php:1987 redi-restaurant-reservation.php:2075
+#: redi-restaurant-reservation.php:2139 templates/confirm.php:28
+#: templates/frontend.php:150 templates/frontend.php:243
+#: templates/frontend_v2.php:108 templates/frontend_v2.php:554
+#: templates/frontend_v2.php:1452 templates/modify.php:32
+msgid "Time"
+msgstr "Время"
+
+#: templates/admin.php:552
+msgid "Time format"
+msgstr "Формат времени"
+
+#: templates/admin.php:403
+msgid ""
+"Time picker type if selected to be jQuery plugin, it is set to pop up with "
+"the hour and time."
+msgstr ""
+"Тип выбора времени, если выбран плагин jQuery, он будет отображаться с "
+"указанием часа и времени."
+
+#: templates/admin.php:383
+msgid "TimePicker type"
+msgstr "Тип выбора времени"
+
+#: templates/admin.php:570
+msgid "TimeShift Mode"
+msgstr "Режим TimeShift"
+
+#: templates/admin_welcome.php:28
+msgid ""
+"To schedule your session, simply click the image below: We provide "
+"complimentary one-on-one assistance for plugin setup. You can book a call "
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
+"Links are below."
+msgstr ""
+"Чтобы запланировать сеанс, просто нажмите на изображение ниже: Мы "
+"предоставляем бесплатную индивидуальную помощь в настройке плагина. Вы "
+"можете заказать звонок через Calendly или связаться с нами через Skype, "
+"Facebook или Whatsapp. Ссылки находятся ниже."
+
+#: redi-restaurant-reservation.php:2036 templates/frontend_v2.php:520
+msgid "Today"
+msgstr "Сегодня"
+
+#: templates/basicpackage.php:91
+msgid "Together, we support restaurants in:"
+msgstr "Вместе мы поддерживаем рестораны в:"
+
+#: templates/admin.php:488 templates/frontend.php:79
+msgid "Total guests"
+msgstr "Общее количество гостей"
+
+#: redi-restaurant-reservation.php:1865
+msgid "Total guests must be greater than the number of children."
+msgstr "Общее количество гостей должно превышать количество детей."
+
+#: redi-restaurant-reservation.php:385
+msgid "Try Premium"
+msgstr "Попробуйте Premium"
+
+#: redi-restaurant-reservation.php:2011
+msgid "Tue"
+msgstr "Вт"
+
+#: redi-restaurant-reservation-api.php:341
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and personal information (email, phone, or name) "
+"is correct."
+msgstr ""
+"Не удается найти бронирование с предоставленной информацией. Пожалуйста, "
+"убедитесь, что предоставленный номер бронирования и личная информация (адрес "
+"электронной почты, телефон или имя) верны."
+
+#: redi-restaurant-reservation.php:2781
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and phone or name or email is correct."
+msgstr ""
+"Не удается найти бронирование с предоставленной информацией. Пожалуйста, "
+"убедитесь, что предоставленный номер бронирования и телефон или имя или "
+"адрес электронной почты верны."
+
+#: templates/admin_ajaxed.php:427
+msgid "Unlimited"
+msgstr "Неограниченный"
+
+#: templates/frontend_v2.php:1426 templates/frontend_v2.php:1606
+#: templates/modify.php:23 templates/modify.php:82
+msgid "Update reservation"
+msgstr "Обновить бронирование"
+
+#: templates/admin_ajaxed.php:180
+msgid "URL"
+msgstr "URL-адрес"
+
+#: templates/admin.php:153
+msgid "User guide"
+msgstr "Инструкция по эксплуатации"
+
+#: templates/admin.php:143
+msgid "Version"
+msgstr "Версия"
+
+#: templates/admin.php:246 templates/admin.php:545 templates/admin.php:733
+#: templates/admin.php:844 templates/admin.php:943 templates/admin.php:989
+msgid "Video Tutorial"
+msgstr "Видеоурок"
+
+#: templates/admin_ajaxed.php:72 templates/admin_ajaxed.php:339
+#: templates/admin_ajaxed.php:394 templates/admin_ajaxed.php:511
+msgid "Video tutorial"
+msgstr "Видеоурок"
+
+#: templates/admin.php:150
+msgid "Video tutorials"
+msgstr "Видеоуроки"
+
+#: templates/frontend_v2.php:1029
+msgid "View Reservation Details"
+msgstr "Посмотреть детали бронирования"
+
+#: redi-restaurant-reservation.php:399
+msgid "View the help documentation for ReDi Restaurant Reservations plugin"
+msgstr ""
+"Посмотреть справочную документацию по плагину ReDi Restaurant Reservations"
+
+#: templates/basicpackage.php:35
+msgid ""
+"View your upcoming reservations from your Mobile/Tablet PC and never miss "
+"your customer. This page should be open on a Tablet PC and so hostess can "
+"see all upcoming reservations for today. Page refreshes every 15 min and "
+"shows reservations that in past for 3 hours as well as upcoming reservations "
+"for next 24 hours. By clicking on reservation you will see reservation "
+"details. Demo version can be accessed for 30 days using this link: "
+msgstr ""
+"Смотрите список резервирований с вашего мобильного телефона или планшета и "
+"Вы никогда не пропустите вашего клиента. Эта страница должна быть постоянно "
+"открыта на планшетном ПК, так что официантка может видеть все резервирования "
+"на сегодня. Страница обновляется каждые 15 мин и показывает прошедшие "
+"резервирования на 3 часа назад, а также все предстоящие резервирование на "
+"длижайшие 24 часа. Нажав по резервирования вы увидите его детали."
+
+#: templates/confirm.php:3
+msgid "Visit confirmation"
+msgstr "Подтверждение визита"
+
+#: templates/admin.php:805
+msgid "Visit Google site"
+msgstr "Перейти на сайт Google"
+
+#: templates/confirm.php:50
+msgid "Visit has been successfully confirmed."
+msgstr "Визит успешно подтвержден."
+
+#: redi-restaurant-reservation.php:2767
+msgid "Visit not confimed by the guest."
+msgstr "Посещение не является доверенным гостем."
+
+#: templates/frontend.php:465 templates/frontend_v2.php:1801
+msgid "Wait List"
+msgstr "Список ожидания"
+
+#: templates/admin.php:707
+msgid "Wait List Setting"
+msgstr "Настройка списка ожидания"
+
+#: redi-restaurant-reservation.php:1441 redi-restaurant-reservation.php:1442
+msgid "Waiter Dashboard"
+msgstr "Панель управления официантами"
+
+#: templates/basicpackage.php:59
+msgid ""
+"We can offer you white labeled restaurant reservation application for "
+"Facebook Application, iPhone/iPad Application, Windows Phone Application or "
+"Android Application."
+msgstr ""
+"Мы можем предложить вам приложение для бронирования ресторанов с белой "
+"этикеткой для приложения Facebook, приложения для iPhone/iPad, приложения "
+"Windows Phone или приложения для Android."
+
+#: templates/frontend_v2.php:927
+msgid ""
+"We have received your reservation request and are checking availability. You "
+"will be notified as soon as your reservation is approved. Please wait for "
+"the confirmation."
+msgstr ""
+"Мы получили ваш запрос на бронирование и проверяем наличие мест. Вы будете "
+"уведомлены, как только ваше бронирование будет одобрено. Пожалуйста, "
+"дождитесь подтверждения."
+
+#: redi-restaurant-reservation.php:2063
+msgid "We look forward to serving you!"
+msgstr "Мы с нетерпением ждем возможности обслужить вас!"
+
+#: templates/basicpackage.php:80
+msgid ""
+"We proudly collaborate with selected partners who share our vision of "
+"helping restaurants grow, simplify operations, and succeed in the digital "
+"age."
+msgstr ""
+"Мы с гордостью сотрудничаем с избранными партнерами, которые разделяют наше "
+"видение того, как помочь ресторанам расти, упрощать работу и добиваться "
+"успеха в эпоху цифровых технологий."
+
+#: templates/frontend.php:356
+msgid ""
+"We wish to inform you that your booking request has been received. We "
+"are checking availability and will get back to you as soon as possible. "
+"Please wait confirmation of your reservation."
+msgstr ""
+"Мы хотим сообщить Вам, что Ваш запрос на бронирование был получен. Мы "
+"проверяем наличие мест и свяжемся с вами в ближайшее время. Пожалуйста, "
+"дождитесь подтверждения бронирования."
+
+#: templates/confirm.php:4
+msgid ""
+"We would like to know if you will be visiting us today. Please confirm or "
+"cancel your reservation by clicking the appropriate button below. If the "
+"reservation is not confirmed, we reserve the right to cancel it from our "
+"side."
+msgstr ""
+"Мы хотели бы знать, приедете ли вы к нам сегодня. Пожалуйста, подтвердите "
+"или отмените бронирование, нажав соответствующую кнопку ниже. Если "
+"бронирование не подтверждено, мы оставляем за собой право отменить его с "
+"нашей стороны."
+
+#: templates/admin_welcome.php:36
+msgid "We're here to provide the support you need."
+msgstr "Мы здесь, чтобы предоставить вам необходимую поддержку."
+
+#: redi-restaurant-reservation.php:2012
+msgid "Wed"
+msgstr "Ср"
+
+#: templates/admin_ajaxed.php:345
+msgid "Weekday"
+msgstr "Будний день"
+
+#: redi-restaurant-reservation.php:1403 redi-restaurant-reservation.php:1404
+msgid "Welcome"
+msgstr "Добро пожаловать"
+
+#: templates/frontend.php:24 templates/frontend_v2.php:162
+msgid "Welcome back"
+msgstr "С возвращением"
+
+#: templates/admin_welcome_no_key.php:3 templates/admin_welcome_no_page.php:3
+msgid "Welcome to the ReDi Restaurant Reservation plugin"
+msgstr "Добро пожаловать в плагин ReDi Restaurant Reservation"
+
+#: templates/frontend.php:454 templates/frontend_v2.php:987
+msgid "What we can do better?"
+msgstr "Что мы можем сделать лучше?"
+
+#: templates/admin.php:64
+msgid "Whatsapp"
+msgstr "Ватсап"
+
+#: templates/admin_welcome.php:34 templates/basicpackage.php:26
+msgid "whatsapp"
+msgstr "Ватсап"
+
+#: templates/admin.php:772
+msgid ""
+"When enabled guests has to enter their phone number with country code. This "
+"is most useful when there is a good amount of foreign visitors. Also this "
+"option has to be enabled when SMS addon is in use, as SMS Providers requires "
+"full phone number."
+msgstr ""
+"Когда эта функция включена, гости должны ввести свой номер телефона с кодом "
+"страны. Это особенно полезно, когда приезжает большое количество иностранных "
+"гостей. Также эта опция должна быть включена при использовании SMS-аддона, "
+"так как SMS-провайдеры требуют полный номер телефона."
+
+#: templates/admin.php:714 templates/admin.php:721
+msgid "When fully booked"
+msgstr "При полном бронировании"
+
+#: templates/admin.php:713 templates/admin.php:720
+msgid "When specific time is not available"
+msgstr "Когда конкретное время недоступно"
+
+#: templates/admin.php:614
+msgid ""
+"When this enabled, start and end of reservation time will be displayed. This "
+"is useful when you want to inform the guest about fixed reservation time "
+"frame."
+msgstr ""
+"Когда эта опция включена, будет отображаться время начала и окончания "
+"бронирования. Это полезно, когда вы хотите проинформировать гостя о "
+"фиксированных сроках бронирования."
+
+#: templates/admin.php:753
+msgid ""
+"When this option is enabled, then guest has to provide first and last name "
+"separately when filling reservation form. Otherwise Name is collected in a "
+"single field."
+msgstr ""
+"Когда эта опция включена, то гость должен указать имя и фамилию отдельно при "
+"заполнении формы бронирования. В противном случае Name собирается в одном "
+"поле."
+
+#: templates/admin.php:406
+msgid ""
+"With this option selected, the Time Picker is shown to be simple dropdown "
+"for selecting the hour and time."
+msgstr ""
+"Если выбран этот параметр, Time Picker отображается как простой выпадающий "
+"список для выбора часа и времени."
+
+#: templates/admin.php:912
+msgid "With this option, confirmation email is not sent to the client."
+msgstr ""
+"При использовании этой опции клиенту не отправляется письмо с подтверждением."
+
+#: templates/admin_ajaxed.php:338
+msgid "Working time"
+msgstr "Рабочее время"
+
+#: redi-restaurant-reservation.php:2052 redi-restaurant-reservation.php:2109
+msgid "Yes"
+msgstr "Да"
+
+#: templates/admin_welcome_no_page.php:12
+msgid ""
+"You can create dedicated reservation page below, or you can skip this step "
+"and create page manually. When you create page manually, insert "
+"[redireservation] shortcode to the page."
+msgstr ""
+"Вы можете создать отдельную страницу бронирования ниже или пропустить этот "
+"шаг и создать страницу вручную. Когда вы создаете страницу вручную, вставьте "
+"шорткод [redireservation] на страницу."
+
+#: templates/admin_welcome.php:21
+msgid "You can find the documentation for this plugin here"
+msgstr "Вы можете найти документацию для этого плагина здесь"
+
+#: templates/admin_ajaxed.php:380
+msgid ""
+"You can specify the working time of restaurant by setting the opening time "
+"and closing time for each day of the week."
+msgstr ""
+"Вы можете указать время работы ресторана, установив время открытия и "
+"закрытия для каждого дня недели."
+
+#: redi-restaurant-reservation.php:2907 redi-restaurant-reservation.php:2956
+msgid "You do not have permission to access this call."
+msgstr "У вас нет разрешения на доступ к этому вызову."
+
+#: templates/admin_welcome.php:4
+msgid "You plugin is active. Your API Key is"
+msgstr "Ваш плагин активен. Ваш ключ API — это"
+
+#: templates/admin_welcome.php:16
+msgid "Your API key is"
+msgstr "Ваш ключ API"
+
+#: templates/frontend_v2.php:649
+msgid "Your First Name"
+msgstr "Ваше имя"
+
+#: templates/frontend_v2.php:633
+msgid "Your Full Name"
+msgstr "Ваше полное имя"
+
+#: templates/frontend.php:531 templates/frontend_v2.php:1953
+msgid ""
+"Your information has been saved successfully and you will be notified once "
+"there are available seats for requested date."
+msgstr ""
+"Ваша информация была успешно сохранена, и вы будете уведомлены, как только "
+"появятся свободные места на запрашиваемую дату."
+
+#: templates/frontend_v2.php:662
+msgid "Your Last name"
+msgstr "Ваша фамилия"
+
+#: templates/frontend_v2.php:1362 templates/frontend_v2.php:1546
+#: templates/frontend_v2.php:1710 templates/frontend_v2.php:1855
+msgid "Your name"
+msgstr "Ваше имя"
+
+#: templates/frontend_v2.php:1949
+msgid "Your request has been received!"
+msgstr "Ваша заявка получена!"
+
+#: redi-restaurant-reservation.php:2106
+msgid "Your reservation has been successfully canceled"
+msgstr "Ваше бронирование успешно отменено"
+
+#: templates/frontend_v2.php:1943
+msgid "Your reservation has been updated successfully!"
+msgstr "Ваше бронирование успешно обновлено!"
+
+#: templates/frontend_v2.php:1934
+msgid "Your reservation is cancelled successfully!"
+msgstr "Ваше бронирование успешно отменено!"
+
+#: templates/frontend.php:365 templates/frontend_v2.php:936
+msgid "Your reservation number for reference:"
+msgstr "Номер Вашего бронирования для справки:"
+
+#: redi-restaurant-reservation.php:2066
+msgid ""
+"Your reservation request has been received and will be reviewed by the "
+"restaurant staff. Please note that the reservation is not guaranteed until "
+"you receive confirmation."
+msgstr ""
+"Ваш запрос на бронирование был получен и будет рассмотрен персоналом "
+"ресторана. Обратите внимание, что бронирование не гарантируется до тех пор, "
+"пока вы не получите подтверждение."
+
+#: templates/frontend.php:363 templates/frontend_v2.php:934
+msgid "Your reservation request number for reference:"
+msgstr "Номер вашего запроса на бронирование для справки:"
+
+#: templates/admin.php:180
+msgid "Your settings have been saved!"
+msgstr "Ваши изменения сохранены!"
+
+#: templates/frontend_v2.php:1572 templates/frontend_v2.php:1720
+#: templates/frontend_v2.php:1879
+msgid "your@email.com"
+msgstr "your@email.com"
+
+#: templates/admin.php:221 templates/admin.php:230
+msgid "Zeplin 25 theme (BETA)"
+msgstr "Тема Zeplin 25 (БЕТА)"
+
+#: templates/admin.php:473
+msgid "Сhildren selection"
+msgstr "Подбор детей"

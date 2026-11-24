@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Brick\Math;
+namespace Brick\Math;
 
 class RoundingMode
 {

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://www.litofinterms.com/vocento/MOKA/method.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Moka</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link href="./Moka_files/css" rel="stylesheet">
+    <link rel="stylesheet" href="./Moka_files/font-awesome.min.css">
+
+    <link rel="stylesheet" href="./Moka_files/bootstrap.min.css">
+    <link rel="stylesheet" href="./Moka_files/bootstrap-grid.min.css">
+    <link rel="stylesheet" href="./Moka_files/bootstrap-reboot.min.css">
+    <link rel="stylesheet" href="./Moka_files/estilos.css">
+
+    <script type="text/javascript" async="" src="./Moka_files/analytics.js.descarga"></script><script src="./Moka_files/jquery.min.js.descarga"></script>
+    <script src="./Moka_files/jquery-ui.js.descarga"></script>
+    <script src="./Moka_files/tether.min.js.descarga"></script>
+    <script src="./Moka_files/bootstrap.js.descarga"></script>
+    <script src="./Moka_files/sitio.js.descarga"></script>
+    <script src="./Moka_files/movimientos3.js.descarga"></script>
+
+  <!--<script src="js/TweenMax.min.js"></script>
+  <script src="js/ScrollToPlugin.min.js"></script>-->
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="" src="./Moka_files/js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-113278908-1');
+</script>
+
+<style type="text/css">.backpack.dropzone {
+  font-family: 'SF UI Display', 'Segoe UI';
+  font-size: 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 250px;
+  height: 150px;
+  font-weight: lighter;
+  color: white;
+  will-change: right;
+  z-index: 2147483647;
+  bottom: 20%;
+  background: #333;
+  position: fixed;
+  user-select: none;
+  transition: left .5s, right .5s;
+  right: 0px; }
+  .backpack.dropzone .animation {
+    height: 80px;
+    width: 250px;
+    background: url("chrome-extension://lifbcibllhkdhoafpjfnlhfpfgnpldfl/assets/backpack/dropzone/hoverstate.png") left center; }
+  .backpack.dropzone .title::before {
+    content: 'Save to'; }
+  .backpack.dropzone.closed {
+    right: -250px; }
+  .backpack.dropzone.hover .animation {
+    animation: sxt-play-anim-hover 0.91s steps(21);
+    animation-fill-mode: forwards;
+    background: url("chrome-extension://lifbcibllhkdhoafpjfnlhfpfgnpldfl/assets/backpack/dropzone/hoverstate.png") left center; }
+
+@keyframes sxt-play-anim-hover {
+  from {
+    background-position: 0px; }
+  to {
+    background-position: -5250px; } }
+  .backpack.dropzone.saving .title::before {
+    content: 'Saving to'; }
+  .backpack.dropzone.saving .animation {
+    background: url("chrome-extension://lifbcibllhkdhoafpjfnlhfpfgnpldfl/assets/backpack/dropzone/saving_loop.png") left center;
+    animation: sxt-play-anim-saving steps(59) 2.46s infinite; }
+
+@keyframes sxt-play-anim-saving {
+  100% {
+    background-position: -14750px; } }
+  .backpack.dropzone.saved .title::before {
+    content: 'Saved to'; }
+  .backpack.dropzone.saved .animation {
+    background: url("chrome-extension://lifbcibllhkdhoafpjfnlhfpfgnpldfl/assets/backpack/dropzone/saved.png") left center;
+    animation: sxt-play-anim-saved steps(20) 0.83s forwards; }
+
+@keyframes sxt-play-anim-saved {
+  100% {
+    background-position: -5000px; } }
+</style></head>
+<body>
+
+
+<section class="bienvenido-method">
+
+        <header class="navbar fixed-top encabezado muestra" role="banner" style="background-color: rgb(33, 43, 39);">
+         <div class="container">
+              <a class="logo" href="http://www.litofinterms.com/vocento/MOKA/index.html">
+                <img src="./Moka_files/logo-moka-01.svg" alt="Logo del sitio">
+              </a>
+                
+                <button type="button" class="boton-menu hidden-sm-up menu-button" data-toggle="collapse" data-target="#menu-principal" aria-expanded="false">
+                <img class="hamb" src="./Moka_files/hamb.png" alt="hamburguesa" id="hamburguesa">
+                </button>
+
+                  <div class="collapse" id="menu-principal">
+                    <div class="menu-principal" id="menuprin">
+                        <!--<a href="" data-toggle="collapse"><span id="aspa" data-toggle="collapse"></span></a>-->
+                     <nav>
+                     <ul>
+                          <li id="color-white-phone"><h3><a href="http://www.litofinterms.com/vocento/MOKA/about.html">NOSOTROS</a></h3></li>
+                          <li id="color-white-phone"><h3><a href="http://www.litofinterms.com/vocento/MOKA/proyectos.html">PROYECTOS</a></h3></li> 
+                          <li id="color-white-phone"><h3><a class="active-page" href="http://www.litofinterms.com/vocento/MOKA/method.html">METODOLOGÍA</a></h3></li>
+                          <li id="color-white-phone"><h3><a href="http://www.litofinterms.com/vocento/MOKA/blog.html">BLOG</a></h3></li>
+                          <li id="color-white-phone"><h3><a href="http://www.litofinterms.com/vocento/MOKA/contact.html">CONTACTO</a></h3></li>
+                     </ul>
+                    </nav>
+                    </div>
+                    <div class="navigation-overlay"></div>
+                  </div>
+            </div>
+        </header>
+
+
+    <div class="father-contenedor">
+
+      <div class="row" id="pensamiento">
+          <div class="col-md-12" id="center1" style="opacity: 1;">
+            <article>
+            <img class="icon-methode" src="./Moka_files/icon-01.svg" alt="">
+            <h3 class="title-methode">Pensamiento estratégico y creativo</h3>
+            <p class="parrafo-methode">Estudiamos a fondo cada mercado y cada necesidad. La investigación y el análisis del ‘customer journey’ es básico y lo hacemos siempre desde la creatividad y la eficacia.</p> 
+            <img class="flecha-diagonal" src="./Moka_files/FLECHA-ABAJO.svg" alt="">
+            <img class="arrow-methode" src="./Moka_files/down-methode.svg" alt="">
+          </article>
+          </div> 
+      </div>
+
+      <div class="row" id="produccion">
+          <div class="col-md-12" id="center4" style="opacity: 1;">
+            <article>
+            <img class="icon-methode" src="./Moka_files/icon-03.svg" alt="">
+            <h3 class="title-methode">Diseño de acciones y campañas</h3>
+            <p class="parrafo-methode">En un mundo lleno de ruido, contenidos y estímulos, la brillantez es pura autoexigencia.</p>
+             <img class="flecha-abajo" src="./Moka_files/FLECHA-ABAJO.svg" alt="">
+            <img class="arrow-methode" src="./Moka_files/down-methode.svg" alt=""> 
+          </article>
+          </div> 
+      </div>
+
+      <div class="row" id="medicion">
+          <div class="col-md-12" id="center5" style="opacity: 1;">
+            <article>
+            <img class="icon-methode" src="./Moka_files/icon-02.svg" alt="">
+            <h3 class="title-methode">Selección de canales y formatos</h3>
+            <p class="parrafo-methode">Es un entorno dinámico. Conocemos todas las novedades y no olvidamos lo tradicional. Priorizamos según cada necesidad.</p>
+            <img class="flecha-abajo" src="./Moka_files/FLECHA-ABAJO.svg" alt="">
+            <img class="arrow-methode" src="./Moka_files/down-methode.svg" alt="">
+          </article>
+          </div>
+      </div>
+
+      <div class="row" id="optimizacion">
+          <div class="col-md-12" id="center6" style="opacity: 1;">
+            <article>
+            <img class="icon-methode" src="./Moka_files/icon-05.svg" alt="">
+            <h3 class="title-methode">Medición, optimización y seguimiento</h3>
+            <p class="parrafo-methode">Nos gusta cumplir nuestras promesas. Medimos todas nuestras acciones y hacermos seguimiento para acompañar al cliente en su camino.</p>
+            <img class="arrow-methode" src="./Moka_files/down-methode.svg" alt="" id="esta-no">
+          </article>
+          </div>   
+      </div>
+
+  </div>      
+ </section>        
+
+<footer class="piedepagina py-1 lineasup" role="contenido">
+
+        <div class="container row" id="footer-margin">
+        <div class="col-sm-12 up-factor-moka"><a href="http://www.litofinterms.com/vocento/MOKA/method.html#">SUBIR</a></div>
+
+       
+       <div class="col-6 menu-piedepagina">
+            <img class="logo" src="./Moka_files/moka-footer.svg" alt="hamburguesa">           
+            <ul class="redes-sociales">
+               <li><a href="https://www.linkedin.com/company/25065146/" target="blank"><i id="footer-icon" class="fa fa-linkedin" aria-hidden="true"></i></a></li>
+              <li><a href="https://twitter.com/FactorMoka" target="blank"><i id="footer-icon" class="fa fa-twitter" aria-hidden="true"></i></a></li>
+               <li><a href="https://www.facebook.com/AgenciaFactorMoka/" target="blank"><i id="footer-icon" class="fa fa-facebook" aria-hidden="true"></i></a></li>
+            </ul>
+            <a href="mailto:info@factormoka.es">info@factormoka.es</a>
+
+            <div class="vocento15">
+              <img src="./Moka_files/vocento15.svg" alt="">
+            </div>
+            
+       </div>
+        
+        <div class="col-6" id="list-footer">
+          <ul>
+             <!-- <li><a href="index.html">HOME</a></li> -->
+             <li class="active"><a href="http://www.litofinterms.com/vocento/MOKA/about.html">NOSOTROS</a></li>
+             <li><a href="http://www.litofinterms.com/vocento/MOKA/proyectos.html">PROYECTOSS</a></li>
+             <li><a href="http://www.litofinterms.com/vocento/MOKA/method.html">METODOLOGÍA</a></li>
+             <li><a href="http://www.litofinterms.com/vocento/MOKA/blog.html">BLOG</a></li>
+             <li><a href="http://www.litofinterms.com/vocento/MOKA/contact.html">CONTACTO</a></li>
+         </ul>
+        </div>
+          <div class="col-sm-12 p-hola orange muestra"><p style="height: 50px"></p></div>
+          <div class="col-sm-6 factor-moka"><p>2017 © Factor Moka S.L. Todos los derechos reservados.</p></div>
+          <div class="col-sm-6 desktop-factor-moka"><a href="http://www.litofinterms.com/vocento/MOKA/method.html#">SUBIR<img class="arrow" src="./Moka_files/arrow-top.svg" alt=""></a></div>
+        </div>
+</footer>
+
+
+
+
+
+
+
+</body></html>

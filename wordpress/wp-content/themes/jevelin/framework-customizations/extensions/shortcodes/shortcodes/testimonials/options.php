@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -39,6 +39,12 @@ $options = array(
 
 					'avatar' => array(
 						'label' => esc_html__( 'Avatar', 'jevelin' ),
+						'desc'  => esc_html__( 'Upload avatar', 'jevelin' ),
+						'type'  => 'upload',
+					),
+
+					'avatar2' => array(
+						'label' => esc_html__( 'Avater (for Style 4)', 'jevelin' ),
 						'desc'  => esc_html__( 'Upload avatar', 'jevelin' ),
 						'type'  => 'upload',
 					),

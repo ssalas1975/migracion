@@ -30,25 +30,17 @@ class ProcessQueueTask extends Task {
 	}
 
 	/**
-	 * Register the task's callbacks.
+	 * Initialize the task.
 	 *
-	 * @since 4.10.0
+	 * @since 4.0.0
 	 */
-	public function hooks() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
+	public function init() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
 
 		// Register the action handler.
 		add_action( self::ACTION, [ $this, 'process' ] );
 
 		// Cleanup completed task occurrences.
 		add_action( 'action_scheduler_after_process_queue', [ $this, 'cleanup' ] );
-	}
-
-	/**
-	 * Initialize the task.
-	 *
-	 * @since 4.0.0
-	 */
-	public function init() {
 
 		// Exit if this task the queue is disabled, or it's already scheduled.
 		if (

@@ -7,59 +7,68 @@ namespace Composer\Autoload;
 class ComposerStaticInit9801abce1960fa4b71d115bb31b779c7
 {
     public static $prefixLengthsPsr4 = array (
-        'V' => 
+        'S' => 
         array (
-            'VendorPrefix\\Symfony\\Polyfill\\Php80\\' => 36,
-            'VendorPrefix\\Symfony\\Polyfill\\Intl\\Normalizer\\' => 46,
-            'VendorPrefix\\Symfony\\Polyfill\\Ctype\\' => 36,
-            'VendorPrefix\\Rowbot\\URL\\' => 24,
-            'VendorPrefix\\Rowbot\\Punycode\\' => 29,
-            'VendorPrefix\\Rowbot\\Idna\\Resource\\' => 34,
-            'VendorPrefix\\Rowbot\\Idna\\' => 25,
-            'VendorPrefix\\Psr\\Log\\' => 21,
-            'VendorPrefix\\Psr\\EventDispatcher\\' => 33,
-            'VendorPrefix\\Brick\\Math\\' => 24,
+            'Symfony\\Polyfill\\Php80\\' => 23,
+            'Symfony\\Polyfill\\Intl\\Normalizer\\' => 33,
+            'Symfony\\Polyfill\\Ctype\\' => 23,
+        ),
+        'R' => 
+        array (
+            'Rowbot\\URL\\' => 11,
+            'Rowbot\\Punycode\\' => 16,
+            'Rowbot\\Idna\\Resource\\' => 21,
+            'Rowbot\\Idna\\' => 12,
+        ),
+        'P' => 
+        array (
+            'Psr\\Log\\' => 8,
+            'Psr\\EventDispatcher\\' => 20,
+        ),
+        'B' => 
+        array (
+            'Brick\\Math\\' => 11,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'VendorPrefix\\Symfony\\Polyfill\\Php80\\' => 
+        'Symfony\\Polyfill\\Php80\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/symfony/polyfill-php80/src',
         ),
-        'VendorPrefix\\Symfony\\Polyfill\\Intl\\Normalizer\\' => 
+        'Symfony\\Polyfill\\Intl\\Normalizer\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/symfony/polyfill-intl-normalizer/src',
         ),
-        'VendorPrefix\\Symfony\\Polyfill\\Ctype\\' => 
+        'Symfony\\Polyfill\\Ctype\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/symfony/polyfill-ctype/src',
         ),
-        'VendorPrefix\\Rowbot\\URL\\' => 
+        'Rowbot\\URL\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/rowbot/url/src',
         ),
-        'VendorPrefix\\Rowbot\\Punycode\\' => 
+        'Rowbot\\Punycode\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/rowbot/punycode/src',
         ),
-        'VendorPrefix\\Rowbot\\Idna\\Resource\\' => 
+        'Rowbot\\Idna\\Resource\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/rowbot/idna/resources',
         ),
-        'VendorPrefix\\Rowbot\\Idna\\' => 
+        'Rowbot\\Idna\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/rowbot/idna/src',
         ),
-        'VendorPrefix\\Psr\\Log\\' => 
+        'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/psr/log/src',
         ),
-        'VendorPrefix\\Psr\\EventDispatcher\\' => 
+        'Psr\\EventDispatcher\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/psr/event-dispatcher/src',
         ),
-        'VendorPrefix\\Brick\\Math\\' => 
+        'Brick\\Math\\' => 
         array (
             0 => __DIR__ . '/../..' . '/DataLiberation/vendor-patched/brick/math/src',
         ),

@@ -10,8 +10,6 @@
  * @since   3.29
  */
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Class representing WooCommerce Description component.
  */
@@ -22,11 +20,10 @@ class ET_Builder_Module_Woocommerce_Description extends ET_Builder_Module {
 	 * @since 4.0.6 Updated `toggle_slug` to avoid empty Tabs in Text OG.
 	 */
 	public function init() {
-		$this->name        = esc_html__( 'Woo Product Description', 'et_builder' );
-		$this->plural      = esc_html__( 'Woo Product Description', 'et_builder' );
-		$this->slug        = 'et_pb_wc_description';
-		$this->vb_support  = 'on';
-		$this->folder_name = 'et_pb_woo_modules';
+		$this->name       = esc_html__( 'Woo Description', 'et_builder' );
+		$this->plural     = esc_html__( 'Woo Descriptions', 'et_builder' );
+		$this->slug       = 'et_pb_wc_description';
+		$this->vb_support = 'on';
 
 		$this->settings_modal_toggles = array(
 			'general'  => array(
@@ -385,7 +382,7 @@ class ET_Builder_Module_Woocommerce_Description extends ET_Builder_Module {
 
 		// Theme builder's description placeholder; short-circuit is cleaner and more efficient than
 		// global object element being modified. NOTE: $conditional_tags element value is string
-		if ( et_builder_tb_enabled() || 'true' === et_()->array_get( $conditional_tags, 'is_tb', false ) || is_et_pb_preview() ) {
+		if ( et_builder_tb_enabled() || 'true' === et_()->array_get( $conditional_tags, 'is_tb', false ) ) {
 			$placeholders = et_theme_builder_wc_placeholders();
 
 			$description = 'short_description' === $args['description_type'] ?

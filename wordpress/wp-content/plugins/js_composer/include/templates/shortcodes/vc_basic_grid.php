@@ -4,13 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 /**
  * Shortcode attributes
- * @var array $atts
+ * @var $atts array
  * @var $content - shortcode content
  * Shortcode class
- * @var WPBakeryShortCode_Vc_Basic_Grid $this
+ * @var $this WPBakeryShortCode_VC_Basic_Grid
  */
 $this->post_id = false;
-$this->items = array();
 $css = $el_class = '';
 $posts = $filter_terms = array();
 $this->buildAtts( $atts, $content );
@@ -22,8 +21,8 @@ $class_to_filter = 'vc_grid-container vc_clearfix wpb_content_element ' . $this-
 $class_to_filter .= vc_shortcode_custom_css_class( $css, ' ' ) . $this->getExtraClass( $el_class );
 $css_class = apply_filters( VC_SHORTCODE_CUSTOM_CSS_FILTER_TAG, $class_to_filter, $this->settings['base'], $atts );
 
-wp_enqueue_script( 'lightbox2' );
-wp_enqueue_style( 'lightbox2' );
+wp_enqueue_script( 'prettyphoto' );
+wp_enqueue_style( 'prettyphoto' );
 
 if ( 'true' === $this->atts['btn_add_icon'] ) {
 	vc_icon_element_fonts_enqueue( $this->atts['btn_i_type'] );
@@ -40,24 +39,8 @@ $this->enqueueScripts();
 
 $animation = isset( $this->atts['initial_loading_animation'] ) ? $this->atts['initial_loading_animation'] : 'zoomIn';
 
-// Used for preload first page
-if ( ! vc_is_page_editable() ) {
-	$haystack = array(
-		'load-more',
-		'lazy',
-		'all',
-	);
-	if ( in_array( $this->atts['style'], $haystack, true ) && in_array( $this->settings['base'], array( 'vc_basic_grid' ), true ) ) {
-		$this->atts['max_items'] = 'all' === $this->atts['style'] || $this->atts['items_per_page'] > $this->atts['max_items'] ? $this->atts['max_items'] : $this->atts['items_per_page'];
-		$this->buildItems();
-	}
-}
-
-$output = '
-<div class="vc_grid-container-wrapper vc_clearfix vc_grid-animation-' . esc_attr( $animation ) . '"' . ( ! empty( $atts['el_id'] ) ? ' id="' . esc_attr( $atts['el_id'] ) . '"' : '' ) . '>
-	<div class="' . esc_attr( $css_class ) . '" data-initial-loading-animation="' . esc_attr( $animation ) . '" data-vc-' . esc_attr( $this->pagable_type ) . '-settings="' . esc_attr( wp_json_encode( $this->grid_settings ) ) . '" data-vc-request="' . esc_attr( apply_filters( 'vc_grid_request_url', admin_url( 'admin-ajax.php' ) ) ) . '" data-vc-post-id="' . esc_attr( get_the_ID() ) . '" data-vc-public-nonce="' . esc_attr( vc_generate_nonce( 'vc-public-nonce' ) ) . '">
-		' . $this->renderItems() . '
+?><!-- vc_grid start -->
+<div class="vc_grid-container-wrapper vc_clearfix">
+	<div class="<?php echo esc_attr( $css_class ) ?>" data-initial-loading-animation="<?php echo esc_attr( $animation );?>" data-vc-<?php echo esc_attr( $this->pagable_type ); ?>-settings="<?php echo esc_attr( json_encode( $this->grid_settings ) ); ?>" data-vc-request="<?php echo esc_attr( apply_filters( 'vc_grid_request_url', admin_url( 'admin-ajax.php' ) ) ); ?>" data-vc-post-id="<?php echo esc_attr( get_the_ID() ); ?>" data-vc-public-nonce="<?php echo vc_generate_nonce( 'vc-public-nonce' ); ?>">
 	</div>
-</div>';
-
-return $output;
+</div><!-- vc_grid end -->

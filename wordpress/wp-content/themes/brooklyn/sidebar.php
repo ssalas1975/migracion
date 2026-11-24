@@ -1,42 +1,17 @@
 <?php
 
 /**
- * Default Sidebar for Pages
+ * Default Sidebar for Blog
  * by www.unitedthemes.com
  */
 
-if( !apply_filters( 'ut_show_sidebar', true ) ) {
-    return;    
-}
+?>
 
-if( ot_get_option( 'ut_site_layout', 'onepage' ) == 'onepage' ) {
+<?php if( is_active_sidebar('blog-widget-area') ) : ?>
     
-    $sidebar = 'blog-widget-area';
-    
-} else {
-    
-    $ut_get_sidebar_settings = ut_get_sidebar_settings();
-    
-    // fallback
-    if( !$ut_get_sidebar_settings['primary_sidebar'] ) {
-        
-        $sidebar = 'blog-widget-area';
-        
-    } else {
-        
-        $sidebar = $ut_get_sidebar_settings['primary_sidebar'];
-        
-    }    
-    
-} ?>
-
-<?php if( ut_blog_has_sidebar() ) : ?>
-    
-    <div id="secondary" class="widget-area grid-25 tablet-grid-100 mobile-grid-100" role="complementary">
-        <ul class="sidebar sidebar-<?php echo ot_get_option('ut_sidebar_align' , 'right'); ?>">
-            
-            <?php dynamic_sidebar($sidebar); ?>
-            
+    <div id="secondary" class="widget-area grid-25 mobile-grid-100 tablet-grid-25" role="complementary">
+        <ul class="sidebar">
+            <?php dynamic_sidebar('blog-widget-area'); ?>
         </ul>
     </div>
     

@@ -49,18 +49,15 @@ class WPML_TM_Page_Builders_Hooks {
 	}
 
 	/**
-	 * Filter translation fields.
-	 *
-	 * @param array    $fields Translation fields.
-	 * @param stdClass $job    Translation job.
+	 * @param array    $fields
+	 * @param stdClass $job
 	 *
 	 * @return array
 	 */
 	public function adjust_translation_fields_filter( array $fields, $job ) {
 		$worker = $this->get_worker();
-		$fields = $worker->adjust_translation_fields_filter( $fields, $job );
 
-		return $fields;
+		return $worker->adjust_translation_fields_filter( $fields, $job );
 	}
 
 	/**

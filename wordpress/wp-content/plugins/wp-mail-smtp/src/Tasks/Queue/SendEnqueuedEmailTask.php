@@ -30,11 +30,11 @@ class SendEnqueuedEmailTask extends Task {
 	}
 
 	/**
-	 * Register the task's callbacks.
+	 * Initialize the task.
 	 *
-	 * @since 4.10.0
+	 * @since 4.0.0
 	 */
-	public function hooks() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
+	public function init() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
 
 		// Register the action handler.
 		add_action( self::ACTION, [ $this, 'process' ] );

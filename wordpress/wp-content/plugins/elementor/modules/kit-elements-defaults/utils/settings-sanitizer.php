@@ -5,7 +5,6 @@ use Elementor\Core\Breakpoints\Manager as Breakpoints_Manager;
 use Elementor\Element_Base;
 use Elementor\Elements_Manager;
 use Elementor\Core\Base\Document;
-use Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -122,7 +121,13 @@ class Settings_Sanitizer {
 			return $this;
 		}
 
-		$this->pending_settings = Utils::kses_post_deep( $this->pending_settings );
+		$this->pending_settings = map_deep( $this->pending_settings, function( $value ) {
+			if ( ! is_string( $value ) ) {
+				return $value;
+			}
+
+			return wp_kses_post( $value );
+		} );
 
 		return $this;
 	}

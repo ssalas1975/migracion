@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Button, Heading, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 import { withNavigate } from '@ithemes/security-hocs';

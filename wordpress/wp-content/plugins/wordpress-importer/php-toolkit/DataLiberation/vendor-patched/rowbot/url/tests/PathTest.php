@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Tests;
+namespace Rowbot\URL\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\Component\OpaquePath;
-use VendorPrefix\Rowbot\URL\Component\PathSegment;
-use VendorPrefix\Rowbot\URL\Component\Scheme;
-use VendorPrefix\Rowbot\URL\Exception\URLException;
+use Rowbot\URL\Component\OpaquePath;
+use Rowbot\URL\Component\PathSegment;
+use Rowbot\URL\Component\Scheme;
+use Rowbot\URL\Exception\URLException;
 
 class PathTest extends TestCase {
 	public static function isNormalizedWindowsDriveLetterProvider(): array {

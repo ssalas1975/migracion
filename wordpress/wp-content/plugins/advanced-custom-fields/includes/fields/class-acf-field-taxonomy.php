@@ -79,7 +79,7 @@ if ( ! class_exists( 'acf_field_taxonomy' ) ) :
 				$key   = '';
 			}
 
-			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic, 'taxonomy' ) ) {
+			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic ) ) {
 				die();
 			}
 
@@ -787,7 +787,7 @@ if ( ! class_exists( 'acf_field_taxonomy' ) ) :
 				)
 			);
 
-			if ( ! acf_verify_ajax( $args['nonce'], $args['field_key'], true, 'taxonomy' ) ) {
+			if ( ! acf_verify_ajax( $args['nonce'], $args['field_key'], true ) ) {
 				die();
 			}
 

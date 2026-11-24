@@ -4,12 +4,9 @@ namespace Elementor\Modules\AtomicWidgets\Styles;
 
 use Elementor\Core\Utils\Collection;
 use Elementor\Modules\AtomicWidgets\Module;
-use Elementor\Modules\AtomicWidgets\PropTypes\Contracts\Font_Enqueueable;
-use Elementor\Modules\AtomicWidgets\PropTypes\Contracts\Prop_Type;
-use Elementor\Modules\AtomicWidgets\PropTypes\Union_Prop_Type;
-use Elementor\Modules\AtomicWidgets\PropsResolver\Render_Props_Resolver;
 use Elementor\Plugin;
 use Elementor\Utils;
+use Elementor\Modules\AtomicWidgets\PropsResolver\Render_Props_Resolver;
 
 class Styles_Renderer {
 	const DEFAULT_SELECTOR_PREFIX = '.elementor';
@@ -19,7 +16,7 @@ class Styles_Renderer {
 	 */
 	private array $breakpoints;
 
-	private $on_font_enqueue;
+	private $on_prop_transform;
 
 	private string $selector_prefix;
 
@@ -65,8 +62,8 @@ class Styles_Renderer {
 		return implode( '', $css_style );
 	}
 
-	public function on_font_enqueue( callable $callback ): self {
-		$this->on_font_enqueue = $callback;
+	public function on_prop_transform( callable $callback ): self {
+		$this->on_prop_transform = $callback;
 
 		return $this;
 	}
@@ -144,47 +141,15 @@ class Styles_Renderer {
 		$schema = Style_Schema::get();
 
 		return Collection::make( Render_Props_Resolver::for_styles()->resolve( $schema, $props ) )
-			->filter( fn( $value ) => $this->is_renderable_value( $value ) )
-			->map( function ( $value, $prop ) use ( $props, $schema ) {
-				$this->maybe_enqueue_font( $schema, $prop, $props[ $prop ] ?? null );
+			->filter()
+			->map( function ( $value, $prop ) {
+				if ( $this->on_prop_transform ) {
+					call_user_func( $this->on_prop_transform, $prop, $value );
+				}
 
 				return $prop . ':' . $value . ';';
 			} )
 			->implode( '' );
-	}
-
-	private function is_renderable_value( $value ): bool {
-		return is_numeric( $value ) || ! empty( $value );
-	}
-
-	private function maybe_enqueue_font( array $schema, string $prop_key, $prop_value ): void {
-		if ( ! $this->on_font_enqueue || ! is_array( $prop_value ) || empty( $prop_value['value'] ) ) {
-			return;
-		}
-
-		$enqueueable = $this->resolve_font_enqueueable( $schema[ $prop_key ] ?? null, $prop_value );
-
-		if ( ! $enqueueable ) {
-			return;
-		}
-
-		$font = $enqueueable->get_enqueue_font_family( $prop_value['value'] );
-
-		if ( $font ) {
-			call_user_func( $this->on_font_enqueue, $font );
-		}
-	}
-
-	private function resolve_font_enqueueable( ?Prop_Type $prop_type, array $prop_value ): ?Font_Enqueueable {
-		if ( $prop_type instanceof Union_Prop_Type ) {
-			$prop_type = $prop_type->get_prop_type( $prop_value['$$type'] ?? '' );
-		}
-
-		if ( $prop_type instanceof Font_Enqueueable ) {
-			return $prop_type;
-		}
-
-		return null;
 	}
 
 	private function custom_css_to_css_string( ?array $custom_css ): string {

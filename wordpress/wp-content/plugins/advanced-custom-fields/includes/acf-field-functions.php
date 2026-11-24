@@ -257,9 +257,8 @@ function acf_validate_field( $field = array() ) {
 
 	// Add backwards compatibility for wrapper attributes.
 	// Todo: Remove need for this.
-	// Wrapper settings are printed as attributes, so only allow an array of scalar values.
 	$field['wrapper'] = wp_parse_args(
-		is_array( $field['wrapper'] ) ? array_filter( $field['wrapper'], 'is_scalar' ) : array(),
+		$field['wrapper'],
 		array(
 			'width' => '',
 			'class' => '',
@@ -583,28 +582,20 @@ acf_add_filter_variations( 'acf/prepare_field', array( 'type', 'name', 'key' ), 
  * @date    8/10/13
  * @since   5.0.0
  * @since   5.6.9 Changed parameter order.
- * @since   6.8.11 Added the $args parameter, and outputs the list of rendered top-level field keys.
- *
- * The $args are:
- *
- * - `render_id` (string|false): The object the fields are rendered for, which save handlers verify the list
- *   against. Defaults to `$post_id`, or no list if it is empty.
- * - `prefix` (string): The form's base input prefix. Default `acf`.
- * - `list_name` (string|false): The root name of the list input, or false for no list. Default `_acf_fields`.
  *
  * @param   array        $fields      An array of fields.
  * @param   (int|string) $post_id     The post ID to load values from.
  * @param   string       $element     The wrapping element type.
  * @param   string       $instruction The instruction render position (label|field).
- * @param   array        $args        Optional. How the outermost render call outputs the list of rendered
- *                                    top-level field keys, as described above.
  * @return  void
  */
-function acf_render_fields( $fields, $post_id = 0, $el = 'div', $instruction = 'label', $args = array() ) {
+function acf_render_fields( $fields, $post_id = 0, $el = 'div', $instruction = 'label' ) {
 
 	// Parameter order changed in ACF 5.6.9.
 	if ( is_array( $post_id ) ) {
-		list( $fields, $post_id ) = array( $post_id, $fields );
+		$args    = func_get_args();
+		$fields  = $args[1];
+		$post_id = $args[0];
 	}
 
 	/**
@@ -621,38 +612,19 @@ function acf_render_fields( $fields, $post_id = 0, $el = 'div', $instruction = '
 	// Filter our false results.
 	$fields = array_filter( $fields );
 
-	$args = wp_parse_args(
-		$args,
-		array(
-			'render_id' => $post_id ? (string) $post_id : false,
-			'prefix'    => 'acf',
-			'list_name' => '_acf_fields',
-		)
-	);
+	// Loop over and render fields.
+	if ( $fields ) {
+		foreach ( $fields as $field ) {
+			$field = apply_filters( 'acf/pre_render_field', $field, $post_id );
 
-	// Only the outermost render call lists the keys it rendered.
-	$rendered = array();
-	$is_outer = _acf_in_field_render(
-		$args['render_id'],
-		function () use ( $fields, $post_id, $el, $instruction, $args, &$rendered ) {
-			foreach ( $fields as $field ) {
-				$field = apply_filters( 'acf/pre_render_field', $field, $post_id );
-
-				// Load value if not already loaded.
-				if ( $field['value'] === null ) {
-					$field['value'] = acf_get_value( $post_id, $field );
-				}
-
-				// Render wrap.
-				if ( acf_render_field_wrap( $field, $el, $instruction ) ) {
-					$rendered[] = acf_get_field_root_key( $field, $args['prefix'] );
-				}
+			// Load value if not already loaded.
+			if ( $field['value'] === null ) {
+				$field['value'] = acf_get_value( $post_id, $field );
 			}
-		}
-	);
 
-	if ( $is_outer ) {
-		_acf_render_field_list( $rendered, $args['render_id'], $args['list_name'] );
+			// Render wrap.
+			acf_render_field_wrap( $field, $el, $instruction );
+		}
 	}
 
 	/**
@@ -671,107 +643,25 @@ function acf_render_fields( $fields, $post_id = 0, $el = 'div', $instruction = '
  * Render the wrapping element for a given field.
  *
  * @since   5.0.0
- * @since   6.8.11 Returns whether the field was rendered.
  *
  * @param   array   $field         The field array.
  * @param   string  $element       The wrapping element type.
  * @param   string  $instruction   The instruction render position (label|field).
  * @param   boolean $field_setting If a field setting is being rendered.
- * @return  boolean True if the field was rendered, false if acf/prepare_field removed it.
+ * @return  void
  */
 function acf_render_field_wrap( $field, $element = 'div', $instruction = 'label', $field_setting = false ) {
 
 	// Ensure field is complete (adds all settings).
 	$field = acf_validate_field( $field );
 
-	// The top-level key is read from the field before acf/prepare_field, which can change the key of clone sub fields.
-	$unprepared = $field;
-
 	// Prepare field for input (modifies settings).
 	$field = acf_prepare_field( $field );
 
 	// Allow filters to cancel render.
 	if ( ! $field ) {
-		return false;
+		return;
 	}
-
-	$is_outer = _acf_in_field_render(
-		false,
-		function () use ( $field, $element, $instruction, $field_setting ) {
-			_acf_render_field_wrap_html( $field, $element, $instruction, $field_setting );
-		}
-	);
-
-	// A field rendered outside acf_render_fields() lists its own key, if it is submitted under acf[].
-	$root_key = $is_outer ? acf_get_field_root_key( $unprepared ) : '';
-	if ( '' !== $root_key ) {
-		_acf_render_field_list( array( $root_key ), acf_get_current_render_id(), '_acf_fields' );
-	}
-
-	return true;
-}
-
-/**
- * Outputs the wrapping element and input of a prepared field.
- *
- * @since   6.8.11
- * @access  private
- *
- * @param   array   $field         The prepared field array.
- * @param   string  $element       The wrapping element type.
- * @param   string  $instruction   The instruction render position (label|field).
- * @param   boolean $field_setting If a field setting is being rendered.
- * @return  void
- */
-function _acf_render_field_wrap_html( $field, $element, $instruction, $field_setting ) {
-
-	list( $element, $inner_element ) = _acf_get_field_wrap_elements( $element );
-
-	$wrapper = _acf_get_field_wrapper_attributes( $field, $element );
-
-	// Custom attributes are added to the wrapper rather than passed on to the field.
-	if ( ! empty( $field['data'] ) && is_array( $field['data'] ) ) {
-		unset( $field['data'] );
-	}
-
-	// Escaped vars for render.
-	$attributes_html = acf_esc_attrs( $wrapper );
-	$element         = esc_attr( $element );
-	$inner_element   = esc_attr( $inner_element );
-
-	// Render HTML
-	echo "<$element $attributes_html>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-	if ( $element !== 'td' ) {
-		echo "<$inner_element class=\"acf-label\">\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-			acf_render_field_label( $field );
-		if ( $instruction === 'label' ) {
-			acf_render_field_instructions( $field, $field_setting );
-		}
-			echo "</$inner_element>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-	}
-		echo "<$inner_element class=\"acf-input\">\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-			acf_render_field( $field );
-	if ( ! $field_setting && $instruction === 'field' ) {
-		acf_render_field_instructions( $field );
-	}
-		echo "</$inner_element>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-
-	if ( $field_setting && $instruction === 'field' ) {
-		acf_render_field_instructions( $field );
-	}
-	echo "</$element>\n";  //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
-}
-
-/**
- * Returns the wrapping and inner element types for a field's wrapper.
- *
- * @since   6.8.11
- * @access  private
- *
- * @param   string $element The wrapping element type.
- * @return  array The wrapping element and the inner element.
- */
-function _acf_get_field_wrap_elements( $element ) {
 
 	// Determine wrapping element.
 	$elements = array(
@@ -784,23 +674,10 @@ function _acf_get_field_wrap_elements( $element ) {
 	);
 
 	if ( isset( $elements[ $element ] ) ) {
-		return array( $element, $elements[ $element ] );
+		$inner_element = $elements[ $element ];
+	} else {
+		$element = $inner_element = 'div';
 	}
-
-	return array( 'div', 'div' );
-}
-
-/**
- * Returns the attributes of a prepared field's wrapping element.
- *
- * @since   6.8.11
- * @access  private
- *
- * @param   array  $field   The prepared field array.
- * @param   string $element The wrapping element type.
- * @return  array The wrapper attributes.
- */
-function _acf_get_field_wrapper_attributes( $field, $element ) {
 
 	// Generate wrapper attributes.
 	$wrapper = array(
@@ -842,17 +719,7 @@ function _acf_get_field_wrapper_attributes( $field, $element ) {
 
 	// Merge in field 'wrapper' setting without destroying class and style.
 	if ( $field['wrapper'] ) {
-		// Event handlers can't come from field settings. Use the
-		// "acf/field_wrapper_attributes" filter to add them intentionally.
-		$field_wrapper = array_filter(
-			$field['wrapper'],
-			function ( $name ) {
-				return stripos( (string) $name, 'on' ) !== 0;
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-
-		$wrapper = acf_merge_attributes( $wrapper, $field_wrapper );
+		$wrapper = acf_merge_attributes( $wrapper, $field['wrapper'] );
 	}
 
 	// Extract wrapper width and generate style.
@@ -889,7 +756,32 @@ function _acf_get_field_wrapper_attributes( $field, $element ) {
 		$wrapper['data-conditions'] = $field['conditions'];
 	}
 
-	return $wrapper;
+	// Escaped vars for render.
+	$attributes_html = acf_esc_attrs( $wrapper );
+	$element         = esc_attr( $element );
+	$inner_element   = esc_attr( $inner_element );
+
+	// Render HTML
+	echo "<$element $attributes_html>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
+	if ( $element !== 'td' ) {
+		echo "<$inner_element class=\"acf-label\">\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
+			acf_render_field_label( $field );
+		if ( $instruction == 'label' ) {
+			acf_render_field_instructions( $field, $field_setting );
+		}
+			echo "</$inner_element>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
+	}
+		echo "<$inner_element class=\"acf-input\">\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
+			acf_render_field( $field );
+	if ( ! $field_setting && $instruction == 'field' ) {
+		acf_render_field_instructions( $field );
+	}
+		echo "</$inner_element>\n"; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
+
+	if ( $field_setting && $instruction === 'field' ) {
+		acf_render_field_instructions( $field );
+	}
+	echo "</$element>\n";  //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped earlier in function.
 }
 
 /**
@@ -1146,16 +1038,6 @@ function acf_update_field( $field, $specific = array() ) {
 	 */
 	$field = apply_filters( 'acf/update_field', $field );
 
-	// Sanitize for users without unfiltered_html, as the settings are stored exactly as given.
-	$field = _acf_maybe_kses_internal_post_settings( $field );
-
-	// Wrapper settings and "data" are printed as attribute names, which kses can't sanitize.
-	// For these users, only keep the wrapper settings ACF's field group editor provides.
-	if ( _acf_should_sanitize_internal_post_settings() ) {
-		$field['wrapper'] = array_intersect_key( (array) ( $field['wrapper'] ?? array() ), array_flip( array( 'width', 'class', 'id' ) ) );
-		unset( $field['data'] );
-	}
-
 	// Make a backup of field data and remove some args.
 	$_field = $field;
 	acf_extract_vars( $_field, array( 'ID', 'key', 'label', 'name', 'prefix', 'value', 'menu_order', 'id', 'class', 'parent', '_name', '_prepare', '_valid' ) );
@@ -1179,14 +1061,18 @@ function acf_update_field( $field, $specific = array() ) {
 		$save       = acf_get_sub_array( $save, $specific );
 	}
 
+	// Unhook wp_targeted_link_rel() filter from WP 5.1 corrupting serialized data.
+	remove_filter( 'content_save_pre', 'wp_targeted_link_rel' );
+
 	// Slash data.
 	// WP expects all data to be slashed and will unslash it (fixes '\' character issues).
 	$save = wp_slash( $save );
 
-	// Update or Insert, storing the serialized settings exactly as given.
-	$post_id = acf_insert_or_update_internal_post( $save );
-	if ( ! $field['ID'] ) {
-		$field['ID'] = $post_id;
+	// Update or Insert.
+	if ( $field['ID'] ) {
+		wp_update_post( $save );
+	} else {
+		$field['ID'] = wp_insert_post( $save );
 	}
 
 	// Flush field cache.
@@ -1628,24 +1514,18 @@ function acf_duplicate_field( $id = 0, $parent_id = 0 ) {
 		}
 	}
 
-	// The settings are copied from the database, so skip sanitization.
-	// This includes the filter, as field types like Repeater save their sub fields there.
-	return acf_skip_internal_post_sanitization(
-		function () use ( $field ) {
-			/**
-			 * Filters the $field array after it has been duplicated.
-			 *
-			 * @date    12/02/2014
-			 * @since   5.0.0
-			 *
-			 * @param   array $field The field array.
-			 */
-			$field = apply_filters( 'acf/duplicate_field', $field );
+	/**
+	 * Filters the $field array after it has been duplicated.
+	 *
+	 * @date    12/02/2014
+	 * @since   5.0.0
+	 *
+	 * @param   array $field The field array.
+	 */
+	$field = apply_filters( 'acf/duplicate_field', $field );
 
-			// Update and return.
-			return acf_update_field( $field );
-		}
-	);
+	// Update and return.
+	return acf_update_field( $field );
 }
 
 // Register variation.

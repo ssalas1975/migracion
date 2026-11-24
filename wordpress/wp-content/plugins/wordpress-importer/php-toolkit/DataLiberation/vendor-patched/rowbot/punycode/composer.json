@@ -20,12 +20,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\Punycode\\": "src/"
+			"Rowbot\\Punycode\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"VendorPrefix\\Rowbot\\Punycode\\Test\\": "tests/"
+			"Rowbot\\Punycode\\Test\\": "tests/"
 		}
 	},
 	"require": {

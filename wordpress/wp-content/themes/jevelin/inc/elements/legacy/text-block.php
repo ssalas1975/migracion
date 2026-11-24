@@ -2,7 +2,7 @@
 class vcj_text_block extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_text_block', array( $this, '_html' ) );
     }
 
@@ -56,6 +56,17 @@ class vcj_text_block extends WPBakeryShortCode {
     ),
     3 => 
     array (
+      'param_name' => 'text_size_mobile',
+      'heading' => 'Font Size (responsive)',
+      'description' => 'Enter title size (with <b>px</b>) for mobile devices',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    4 => 
+    array (
       'param_name' => 'line_height',
       'heading' => 'Line height',
       'description' => 'Enter line height (with <b>px</b>)',
@@ -65,7 +76,7 @@ class vcj_text_block extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    4 => 
+    5 => 
     array (
       'param_name' => 'text_color',
       'heading' => 'Text Color',
@@ -76,7 +87,29 @@ class vcj_text_block extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    5 => 
+    6 => 
+    array (
+      'param_name' => 'link_color',
+      'heading' => 'Link Color',
+      'description' => 'Select link color',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    7 => 
+    array (
+      'param_name' => 'link_hover_color',
+      'heading' => 'Link Hover Color',
+      'description' => 'Select link hover color',
+      'value' => '',
+      'type' => 'colorpicker',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    8 => 
     array (
       'param_name' => 'margin',
       'heading' => 'Margin',
@@ -84,10 +117,10 @@ class vcj_text_block extends WPBakeryShortCode {
       'value' => '0px 0px 15px 0px',
       'type' => 'textfield',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => '0px 0px 15px 0px',
       'group' => 'Styling',
     ),
-    6 => 
+    9 => 
     array (
       'param_name' => 'class',
       'heading' => 'Class Name',
@@ -106,8 +139,9 @@ class vcj_text_block extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/text-block/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/text-block/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/text-block/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/text-block/static.php';
         if( function_exists( 'jevelin_shortcode_text_block_css' ) ) :
             jevelin_shortcode_text_block_css( $atts, $id_rand );
         endif;

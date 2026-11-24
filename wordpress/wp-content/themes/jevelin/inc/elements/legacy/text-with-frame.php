@@ -2,7 +2,7 @@
 class vcj_text_with_frame extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_text_with_frame', array( $this, '_html' ) );
     }
 
@@ -162,8 +162,9 @@ class vcj_text_with_frame extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/text-with-frame/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/text-with-frame/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/text-with-frame/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/text-with-frame/static.php';
         if( function_exists( 'jevelin_shortcode_text_with_frame_css' ) ) :
             jevelin_shortcode_text_with_frame_css( $atts, $id_rand );
         endif;

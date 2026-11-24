@@ -58,6 +58,8 @@ class Apache_Module extends Red_Module {
 	 * @return bool
 	 */
 	protected function flush_module() {
+		include_once dirname( __DIR__ ) . '/models/htaccess.php';
+
 		if ( empty( $this->location ) ) {
 			return false;
 		}
@@ -65,7 +67,7 @@ class Apache_Module extends Red_Module {
 		$items = Red_Item::get_all_for_module( $this->get_id() );
 
 		// Produce the .htaccess file
-		$htaccess = new \Redirection\ImportExport\Htaccess();
+		$htaccess = new Red_Htaccess();
 		if ( count( $items ) > 0 ) {
 			foreach ( $items as $item ) {
 				if ( $item->is_enabled() ) {
@@ -115,6 +117,8 @@ class Apache_Module extends Red_Module {
 	 * @return array<string, string>|false
 	 */
 	public function update( array $data ) {
+		include_once dirname( __DIR__ ) . '/models/htaccess.php';
+
 		$new_location = isset( $data['location'] ) ? $data['location'] : '';
 		if ( strlen( $new_location ) > 0 ) {
 			$new_location = $this->sanitize_location( trim( $new_location ) );
@@ -126,7 +130,7 @@ class Apache_Module extends Red_Module {
 
 		if ( ! empty( $this->location ) && $save['location'] !== $this->location && $save['location'] !== '' ) {
 			// Location has moved. Remove from old location
-			$htaccess = new \Redirection\ImportExport\Htaccess();
+			$htaccess = new Red_Htaccess();
 			$htaccess->save( $this->location, false );
 		}
 

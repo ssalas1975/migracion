@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -134,6 +134,63 @@ $options = array(
 					'style11' => esc_html__('Fancy Spacing 4 (accent color)', 'jevelin'),
 				),
 				'value' => 'style1'
+			),
+
+
+
+			'font_size'   => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Font Size', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter font size in px', 'jevelin' ),
+			),
+
+			'button_border_width'   => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Button Border Width', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter button border width', 'jevelin' ),
+				'value'  => '1px',
+			),
+
+			'button_text_color' => array(
+			    'label' => esc_html__('Text Color', 'jevelin'),
+			    'desc'  => esc_html__('Select text color', 'jevelin'),
+			    'type'  => 'color-picker',
+			   // 'value' => ''
+			),
+
+			'button_text_hover_color' => array(
+			    'label' => esc_html__('Text Hover Color', 'jevelin'),
+			    'desc'  => esc_html__('Select text hover color', 'jevelin'),
+			    'type'  => 'color-picker',
+			   /// 'value' => ''
+			),
+
+			'button_background_color' => array(
+			    'label' => esc_html__('Background Color', 'jevelin'),
+			    'desc'  => esc_html__('Select background colors', 'jevelin'),
+			    'type'  => 'rgba-color-picker',
+			   // 'value' => ''
+			),
+
+			'button_background_hover_color' => array(
+			    'label' => esc_html__('Background Hover Color', 'jevelin'),
+			    'desc'  => esc_html__('Select background hover color', 'jevelin'),
+			    'type'  => 'rgba-color-picker',
+			    //'value' => ''
+			),
+
+			'button_border_color' => array(
+			    'label' => esc_html__('Border Color', 'jevelin'),
+			    'desc'  => esc_html__('Select border color to add border', 'jevelin'),
+			    'type'  => 'rgba-color-picker',
+			   // 'value' => ''
+			),
+
+			'button_border_hover_color' => array(
+			    'label' => esc_html__('Border Hover Color', 'jevelin'),
+			    'desc'  => esc_html__('Select border hover color', 'jevelin'),
+			    'type'  => 'rgba-color-picker',
+			   // 'value' => ''
 			),
 
 		),

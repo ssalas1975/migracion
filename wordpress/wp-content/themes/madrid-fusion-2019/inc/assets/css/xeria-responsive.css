@@ -1,0 +1,1393 @@
+﻿@charset "utf-8";
+/* CSS Document */
+@media (max-width: 1400px) {
+	.page-template-page_generica .entry-content {
+		max-width: 960px;
+		margin-left: auto;
+		margin-right: auto;
+		padding: 0 20px;
+	}
+	.page-template-page_home-noticias .resultadosTexto {
+		padding-left:15px;
+		padding-right:15px;
+	}
+}
+@media (max-width: 1366px) {
+/*
+*/
+/*
+cabecera */
+header#masthead,
+.inscripcion,
+.lupa, .hamburguesa {
+	height:80px;
+}
+.navbar-brand {
+    width: 300px;
+    padding-top: 18px;
+}
+body:not(.theme-preset-active) #masthead #inscripcion .navbar-nav > li > a,
+.boton a {
+    padding-top: 8px;
+	padding-bottom: 8px;
+}
+.mov {
+    top: -80px;
+}
+.contMenu,
+.contMenu .formulario-busqueda.expandible.activo,
+.contMenu ul li a {
+	height: 80px;
+}
+.contMenu ul li a {
+    line-height: 80px;
+}
+.contMenu .busquedas {
+    top: -35px;
+	
+}
+.contMenu .formulario-busqueda.expandible.activo {
+    top: 35px!important;
+}
+.contMenu .formulario-busqueda.expandible.activo label {
+    padding-top: 5px;
+}
+.contMenu .formulario-busqueda.expandible.activo .search-submit {
+    height: 60px;
+}
+/*
+*/
+}
+/*
+*/
+@media (max-width: 1200px) {
+/*
+*/
+/*
+cabecera
+.navbar-expand-xl .navbar-collapse {
+    display: none!important;
+    width: 100%;
+    position: absolute;
+    background-color: #fff;
+    top: 80px;
+    border-top: solid 1px #e5e5e5;
+	border-bottom: solid 1px #e5e5e5;
+	z-index: 999999999999;
+}
+.navbar-expand-xl .navbar-collapse.collapse.show {
+    display:block!important;
+}
+
+header#masthead {
+	height: inherit;
+}
+
+.hamburguesa {
+    border: none;
+	float: right;
+	background-image: none;
+}
+.navbar-light .navbar-toggler {
+    border-left: none;
+}
+.menu-superior-derecha, .menu-superior-derecha .widget, #main-nav-cont {
+    display: inherit;
+}
+body:not(.theme-preset-active) #masthead .navbar-nav > li > a {
+    padding: 15px 30px;
+    text-align: right;
+    border-bottom: solid 1px #e5e5e5;
+}
+.menu-superior-derecha .hamburguesa {
+    display: none;
+}
+.menu-superior-derecha .lupa {
+    width: 100%;
+    clear: both;
+    background-position: center right;
+	border:none;
+	border-bottom:solid 1px #e5e5e5;
+}
+.menu-superior-derecha .widget {
+    float: none;
+    clear: both;
+}
+
+.widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha {
+	display: table;
+	padding:25px 0;
+}
+.widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha ul {
+    display: table-cell;
+    vertical-align: middle;
+}
+.widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha ul li {
+	padding: 10px 0;
+}
+.widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha ul ul {
+    display: contents;
+    visibility: visible;
+}
+.wpml-ls-legacy-dropdown {
+    float: right;
+    padding-right: 30px!important;
+}
+.wpml-ls-legacy-dropdown a.wpml-ls-item-toggle {
+    /*padding-right: 0;
+}
+.wpml-ls-legacy-dropdown a.wpml-ls-item-toggle:after {
+    background-image: url(../images/flecha-idioma-2.gif);
+    width: 7px;
+    height: 13px;
+    right: 0;
+	margin-top:-1px;
+}
+.wpml-ls-legacy-dropdown a.wpml-ls-item-toggle,
+.wpml-ls-legacy-dropdown .wpml-ls-sub-menu a  {
+    font-size: 14px;
+    padding-right: 13px;
+}
+/*.imagenFondo {
+    padding-bottom: 78%;
+}
+.imagenFondo .imagen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.imagenFondo .imagen img {
+    height: 100%;
+    width: auto;
+    min-width: min-content;
+    margin-left: -25%;
+}*/
+.page-template-page_home-noticias .vc_grid-item:first-child .titular h2,
+.noticias-home.destacado .titular h2,
+.page-template-page_home-noticias .noticias-home.destacado .titular h2 {
+    font-size: 30px;
+    line-height: 36px;
+}
+.formulario-busqueda input {
+    width: 193px;
+}
+/*.single-noticias */.single section#primary {
+    max-width: 67%;
+}
+/*.single-noticias */.single #secondary {
+    margin-left: 3%;
+    max-width: 30%;
+}
+#secondary .formulario-busqueda label {
+    width: 80%;
+}
+#secondary .formulario-busqueda .search-submit {
+    width: 20%;
+	float:left;
+}
+/*
+COCINEROS HOME */
+.page-template-page_home-cocineros .busquedas .formulario-busqueda form/*,
+.page-template-page_home-recetas .busquedas .formulario-busqueda form*/ {
+    right: -55px;
+}
+.page-template-page_home-cocineros .busquedas .formulario-busqueda/*,
+.page-template-page_home-recetas .busquedas .formulario-busqueda*/ {
+    width: 55px;
+}
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario {
+    padding-right: 65px;
+}
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario li a {
+    font-size: 22px;
+    line-height: 20px;
+}
+/* provisional */
+.page-template-page_home-cocineros .busquedas .formulario-busqueda/*,
+.page-template-page_home-recetas .busquedas .formulario-busqueda*/ {
+	top: 18px;
+}
+#main-nav-cont,
+.menu-superior-derecha {
+    display:none;
+}
+.mov #main-nav-cont,
+.mov menu-superior-derecha {
+    display:block;
+}
+.navbar-light .navbar-toggler {
+    border: none;
+	background-image:none;
+}
+body:not(.theme-preset-active) #masthead .navbar-nav > li > a {
+    letter-spacing: normal;
+}
+/*
+busquedad */
+.contMenu {
+	padding-right:0;
+	border:none;
+}
+.contMenu .busquedas {
+	display:none;
+}
+/**/
+/*
+*/
+}
+/*
+*/
+@media (max-width: 1024px) {
+/*
+*/
+/*.contenido-gris.noticias-home .vc_grid-item:first-child .itemListado*/
+.contenido-gris.noticias-home .vc_grid-item:first-child .texto,
+.noticias-home.destacado .texto {
+    width: 94%!important;
+}
+.page-template-page_home-noticias .noticias-home.destacado .texto {
+    width: 40%!important;
+}
+.itemListado .texto,
+.noticias-home .itemListado .texto {
+    min-height: auto!important;
+}
+.formulario-busqueda input {
+    width: 150px;
+    font-size: 16px;
+}
+/*#secondary .formulario-busqueda input.search-field {
+    width: 150px;
+    font-size: 16px;
+    width: auto;
+    font-size: inherit;
+}*/
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario {
+	margin-top:20px;
+}
+.page-template-page_home-cocineros .busquedas .formulario-busqueda form,
+.page-template-page_home-cocineros .recetas .formulario-busqueda form {
+    width: 200px;
+    top: 28px;
+}
+/* provisional */
+.page-template-page_home-cocineros .busquedas .formulario-busqueda,
+.page-template-page_home-recetas .busquedas .formulario-busqueda {
+	top: -4px!important;
+}
+/**/
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario li a:hover {
+    font-size: 35px;
+}
+/*.busquedas .formulario-busqueda {
+    top: 0;
+    width: 70px;
+    height: 105px;
+}*/
+/* FORMULARIO EXPANSIBLE */
+.formulario-busqueda.expandible.activo {
+    top: 20px!important;
+}
+/* TALLERES LISTADO */
+.page-template-page_congreso-programa.xeria.talleres .programa .itemListado .datos {
+    float: none;
+}
+.page-template-page_congreso-programa.xeria.talleres .programa .itemListado .botoneraSuperior {
+    float: none;
+    margin: 30px 0 20px 0;
+}
+}
+
+/*
+*/
+@media (max-width: 990px) {
+/*
+*/
+.page-template-page_home-noticias .vc_grid-item:first-child .vc_gitem-row-position-top:nth-child(1),
+.page-template-page_home-noticias .vc_grid-item:first-child .vc_gitem-row-position-top:nth-child(2),
+.page-template-page_home-noticias .noticias-home.destacado .imagen,
+.page-template-page_home-noticias .noticias-home.destacado .texto {
+    width: 100%!important;
+}
+/* NOTICIAS FORMULARIo */
+.formulario-busqueda input {
+    width: auto;
+    font-size: 20px;
+}
+/* NO AUTORES */
+/*.page-template-page_home-noticias .formulario-busqueda {
+    background-color: #f5f5f7;
+    width: 100%;
+    padding: 15px 0;
+    right: 0;
+}*/
+.search-form {
+    width: 300px;
+    margin: auto;
+}
+#secondary .search-form {
+    width: 100%;
+}
+#secondary .formulario-busqueda label input {
+    font-size: 16px;
+}
+/**/
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario li a:hover {
+    font-size: 32px;
+}
+/*
+receta ficha */
+.imagen-titulo-cocinero .imagen-titulo .entry-title,
+.entry-title.recetas-restaurantes {
+    font-size: 42px;
+}
+/*
+DOS COLUMNAS DE COCINEROS
+.single-restaurantes .col-md-9.row .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(4) .cocineros-ficha-restaurante,
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(7) .cocineros-ficha-restaurante {
+    border-right: solid 1px #e0e0e0!important;
+}
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(3) .cocineros-ficha-restaurante,
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(5) .cocineros-ficha-restaurante,
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(7) .cocineros-ficha-restaurante,
+.single-restaurantes .col-md-9.row .col-md-4:nth-child(9) .cocineros-ficha-restaurante {
+    border-right: none!important;
+}*/
+/*
+DOS COLUMNAS DE COCINEROS*/
+.single-restaurantes .cocineros-ficha-restaurante {
+    padding: 100px 0 15px 0;
+    background-position:center 15px;
+	text-align:center;
+}
+.single-restaurantes .restaurantesCocineros .col-md-4 {
+    padding: 0;
+}
+/*
+RESTAURANTES HOME */
+.page-template-page_home-restaurantes .vc_col-sm-3 {
+    width: 49%;
+	float: left!important;
+}
+.page-template-page_home-restaurantes .contenido-blanco {
+    overflow: hidden;
+}
+/*
+HOME RECETAS PROVISIONAL */
+.recetas-home .itemListado {
+    width: 46%;
+    margin: 13% 2% 0 2%;
+}
+/*
+FICHA RESTAURANTE */
+.single-restaurantes .cocineros-ficha-restaurante .texto {
+    margin-left: 0;
+}
+.single-restaurantes .cocineros-ficha-restaurante .imagen {
+    margin-left: auto!important;
+    margin-right: auto!important;
+    left: 0;
+    right: 0;
+}
+/*
+RESULTADOS */
+.page-template-page_home-noticias .resultadosTexto {
+    margin-top: 95px;
+}
+/*
+*/
+}
+
+@media (max-width: 768px) {
+/*
+*/
+/*.contenido-gris.noticias-home .vc_grid-item:first-child .itemListado,
+.contenido-gris.noticias-home .vc_grid-item:nth-child(5) .itemListado*/
+.contenido-gris.noticias-home .vc_grid-item:first-child .texto,
+.contenido-gris.noticias-home .vc_grid-item:nth-child(5) .texto,
+.noticias-home.destacado .texto,
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .texto {
+    width: 100%;
+    position: static;
+}
+.contenido-gris .vc_grid-item,
+.contenido-gris.noticias-home .vc_grid-item:first-child,
+.contenido-gris.noticias-home .vc_grid-item:nth-child(5),
+.contenido-gris .vc_column_container,
+.contenido-gris .vc_column_container .vc_grid-item,
+.noticias-home.destacado,
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4)  {
+    width: 100%!important;
+	margin: 0!important;
+}
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) {
+    width: 66.66666%;
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin: 0;
+    margin: 0!important;
+}
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .imagen {
+    padding-top: 70.5%!important;
+	position:relative!important;
+}
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .itemListado {
+    overflow: visible;
+}
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .autor {
+    float: none;
+}
+.contenido-gris.noticias-home .vc_grid-item:first-child, .contenido-gris.noticias-home .vc_grid-item:nth-child(5), .noticias-home.destacado .itemListadoCont, .contenido-gris.noticias-home .itemListadoCont:nth-child(4) {
+    margin-bottom: 0;
+}
+.vc_gitem_row .vc_gitem-col {
+    min-height: auto;
+}
+/*.contenido-gris.noticias-home .vc_grid-item:first-child .itemListado*/
+.contenido-gris.noticias-home .vc_grid-item:first-child .texto,
+.noticias-home.destacado .texto,
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .texto {
+    width: 100%!important;
+	position: static!important;
+}
+.cocineros h2,
+.titularBut h2,
+.titularBut h3 {
+    padding: 20px 20px 0 20px;
+}
+.knews_add_user {
+	padding: 0 30px;
+}
+.suscripcion input {
+    font-size: 19px;
+}
+.suscripcion input.knewsbutton {
+    font-size: 16px;
+}
+.imagenFondo .contenedorTexto .texto p {
+	display:none;
+}
+.vc_gitem_row .vc_gitem-col {
+    width: 100%;
+}
+.contenido-gris.destacados .vc_column_container .vc_grid-item {
+    width: 98%;
+    margin: 1%;
+}
+.contenido-gris.destacados .titular h2 {
+    padding: 0 20px 5px 20px;
+}
+.contenido-gris.noticias-home .vc_grid-item:first-child .texto,
+.noticias-home.destacado .texto {
+	padding: 13px 20px!important;
+}
+/* NOTICIAS HOME */
+.tresColumnas .vc_grid-item,
+.page-template-page_home-noticias .vc_grid-item:first-child,
+.page-template-page_home-noticias .itemListado:first-child,
+.noticias-home.destacado  {
+    width: 100%;
+    margin: 0;
+}
+.container {
+    width: 100%;
+    max-width: 100%;
+}
+.contenido-centrado .vc_col-sm-4 {
+    width: 30%;
+    float: left;
+    margin: 0 1%;
+}
+.menu-blog-contenedor li a {
+    letter-spacing: 0;
+    margin: 0 18px;
+}
+.titularBlog .widget-title {
+    font-size: 30px;
+}
+.nombre-autores {
+    font-size: 13px;
+}
+/*
+noticias ficha */
+/*.single-noticias */.single section#primary,
+/*.single-noticias */.single #secondary {
+    max-width: 100%;
+}
+/*.single-noticias */.single #secondary {
+    max-width: 370px!important;
+    margin: auto;
+    padding: 50px 20px 0 20px;
+}
+/*.single-noticias */.single .entry-title {
+    font-size: 42px;
+    line-height: 48px;
+}
+.page-template-page_home-cocineros .titularBut {
+	margin-bottom:0;
+}
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(1),
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(2),
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(3) {
+    width: 100%;
+}
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(n+4) {
+    width: 43.5%;
+    float: left;
+    margin: 3%;
+}
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(1):after,
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(2):after,
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(3):after {
+	display:none;
+}
+/*
+RECETAS FICHA */
+.row.texto-receta {
+    width: 100%;
+    margin-top: 4%;
+}
+.single-recetas .texto-receta .col-md-3 {
+    text-align: center;
+}
+/*.single-recetas .texto-receta .col-md-3 *,
+.single-recetas .texto-receta .col-md-9 * {
+    padding-left:3%;
+	padding-right:3%;
+}*/
+.single-recetas .texto-receta .col-md-9,
+.single-restaurantes .texto-receta .col-md-9 {
+    padding: 8% 0 0 0;
+}
+.texto-receta .col-md-9 h2:nth-child(n+2) {
+    margin-top: 9%;
+}
+.texto-receta .col-md-9 h2 {
+    margin-bottom: 0%;
+}
+/*
+receta ficha */
+.single-recetas .page-template-page_home-recetas .col-md-4,
+.single-restaurantes .page-template-page_home-recetas .col-md-4 {
+	width:46%;
+	margin:2%;
+	padding:0;
+}
+.single-recetas .page-template-page_home-recetas .col-md-4:nth-child(n+3),
+.single-restaurantes .page-template-page_home-recetas .col-md-4:nth-child(n+3) {
+	display:none;
+}
+.single-recetas .page-template-page_home-recetas.row {
+	margin:0 1%;
+}
+.single-recetas .cocineros-ficha-restaurante {
+    background-size: auto 80%;
+    border-top: solid 1px #000!important;
+    border-bottom: solid 1px #000!important;
+    /*padding: 20px 0 20px 139px;*/
+	padding: 20px 0;
+    margin: 20px 0;
+    height: 159px;
+    background-position: center left;
+    border-right: none!important;
+    border-left: none!important;
+    text-align: left;
+	display:table;
+	width:100%;
+	min-height: 159px;
+}
+.single-recetas .cocineros-ficha-restaurante .titular,
+.single-recetas .cocineros-ficha-restaurante .datos {
+    float: left;
+    display: table;
+    vertical-align: middle;
+    height: 100%;
+	width:50%;
+}
+.single-recetas .cocineros-ficha-restaurante .titular {
+    padding-left: 20px;
+	padding-bottom: 0;
+}
+.single-recetas .cocineros-ficha-restaurante .titular a,
+.single-recetas .cocineros-ficha-restaurante .datos {
+    display: table-cell;
+    vertical-align: middle;
+	line-height: 110px;
+}
+.single-recetas .cocineros-ficha-restaurante .datos {
+    float: right;
+    position: static!important;
+    border-left: solid 1px #e0e0e0;
+    width: 25%;
+    text-align: center;
+    height: 100%;
+    padding-left: 20px;
+}
+.single-recetas .ficha-cocinero .itemListado .imagen {
+    padding-top: 129px!important;
+    width: 129px;
+	float:left;
+}
+/*
+RESTAURANTE FICHA */
+.texto-receta .col-md-9 h2 {
+	margin-bottom: 40px;
+}
+.single-restaurantes .restaurantesDireccion,
+.single-restaurantes .restaurantesCocineros {
+	width:100%;
+	padding:0;
+}
+.single-restaurantes .entry-title.recetas-restaurantes {
+    margin-bottom: 0%;
+}
+.single-restaurantes .texto-receta .col-md-9 {
+    padding: 4% 0;
+}
+.restaurantesCocineros .col-md-4 {
+	width:33%;
+	padding: 0;
+}
+.single-restaurantes .cocineros-ficha-restaurante h3 {
+    font-size: 15px;
+    letter-spacing: -1px;
+}
+/*
+RESTAURANTE HOME */
+.buscadorRestaurante .col-md-8 {
+    padding: 15px 15px 0 15px;
+}
+.buscadorRestaurante .col-md-8 form {
+    margin-top: 0;
+}
+.buscadorRestaurante .col-md-4 form {
+    margin-top: 0;
+	border-top:none;
+}
+.buscadorRestaurante .formulario-busqueda label {
+    height: 49px;
+    line-height: 49px;
+    padding-left: 35px;
+}
+.buscadorRestaurante .lupa, .buscadorRestaurante .lupa a {
+    width: 49px;
+    height: 49px;
+    right: 15px;
+}
+.page-template-page_home-restaurantes .titular h3 {
+    margin-bottom: 15px!important;
+    height: 67px;
+    font-size: 18px;
+    line-height: 21px;
+    margin-top: 15px;
+}
+
+
+/*
+LISTADOS PROPIOS */
+.cocineros .itemListado
+/* en un futurro, todos los .itemListado tendrán estas propiedades */ {
+    width: 92%;
+    margin: 4%;
+}
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(1) .itemListado, .page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(2) .itemListado, .page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(3) .itemListado, .page-template-page_home-recetas .itemListado, .page-template-page_home-restaurantes .itemListado, .page-template-page_home-cocineros .itemListadoCont:nth-child(1) .itemListado, .page-template-page_home-cocineros .itemListadoCont:nth-child(2) .itemListado, .page-template-page_home-cocineros .itemListadoCont:nth-child(3) .itemListado {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+}
+.page-template-page_home-cocineros .tresColumnas .vc_grid-item:after, .page-template-page_home-cocineros .itemListadoCont:after {
+    display: none;
+    margin: 0!important;
+    background-color: #fff!important;
+}
+/*.page-template-page_home-cocineros .itemListadoCont:nth-child(n+4),*/
+.page-template-page_home-cocineros .restoCocineros .itemListadoCont {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+/*.page-template-page_home-cocineros .itemListadoCont:nth-child(n+4) .itemListado,
+.page-template-page_home-cocineros .restoCocineros .itemListadoCont .itemListado {
+    margin-top: 30%;
+}*/
+.recetas .itemListadoCont {
+    padding: 0 31px;
+}
+/* VIDEOS HOME */
+.videosCont .col-md-4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+/*
+SLIDE
+.swiper-container {
+    padding-bottom: 12%!important;
+} */
+.swiper-container .separador {
+    padding-bottom: 12%!important;
+}
+/*
+BUSQUEDAS */
+.page-template-page_home-noticias .resultadosTexto {
+    margin-top: 60px;
+}
+.resultadosTexto h2 {
+	font-size:20px;
+}
+.home .swiper-pagination {
+    bottom: 0%!important;
+}
+/*
+VIDEOS */
+.videosCont.pantallaCompleta .imagenFondo .imagen,
+.videosCont/*.pantallaCompleta*/ .videosDesplegado {
+    padding-top: 56.25%;
+}
+.videosCont.pantallaCompleta .imagenFondo .imagen {
+    padding-bottom: 0!important;
+}
+.videosCont.pantallaCompleta .imagenFondo .imagen img {
+    height: 100%;
+    width: auto;
+}
+.videosCont .cerrar {
+    top: -50px;
+}
+.videosCont.slide,
+.videosCont.slide .swiper-container,
+.videosCont.slide .swiper-container .swiper-slide,
+.videosCont.slide .itemListado,
+.videosCont.slide .itemListado .imagen {
+    height: auto;
+	padding-bottom: 0!important;
+}
+.videosCont.slide .itemListado .imagen {
+    height: 100%;
+	padding-bottom: 112.5%!important;
+}
+.videosCont.slide .cocineros .itemListado {
+    width: 100%;
+    margin: 0;
+}
+/*
+CONGRESO */
+.cabeceraCongresos.imagenFondo .imagen {
+    padding-top: 200px!important;
+}
+.cabeceraCongresos.imagenFondo .itemListado .imagen img {
+    min-width: auto;
+    max-width: none;
+}
+.cabeceraCongresos.imagenFondo .contenedorTexto .texto p {
+    display: block;
+}
+.cabeceraCongresos.imagenFondo .edicion {
+    padding-top: 20px;
+    font-size: 20px;
+}
+.cabeceraCongresos.imagenFondo .ano {
+    font-size: 60px;
+    line-height: 40px;
+}
+.cabeceraCongresos.imagenFondo .inscripcion .navbar-nav > li > a {
+    padding: 8px 25px;
+    color: #fff;
+    font-size: 14px;
+}
+.congresoPlantilla .entry-title {
+    font-size: 26px;
+    text-align: center;
+    /*margin-bottom: 0;*/
+}
+.pestanas {
+    margin-left: -20px;
+    margin-right: -20px;
+}
+.pestanas .fecha {
+    min-height: 76px;
+    border-bottom: none!important;
+}
+.pestanas .fecha:hover,
+.pestanas .fecha.activo {
+    background: rgba(229,0,118,1);
+    background: -moz-linear-gradient(-45deg, rgba(229,0,118,1) 0%, rgba(255,64,0,1) 100%);
+    background: -webkit-gradient(left top, right bottom, color-stop(0%, rgba(229,0,118,1)), color-stop(100%, rgba(255,64,0,1)));
+    background: -webkit-linear-gradient(-45deg, rgba(229,0,118,1) 0%, rgba(255,64,0,1) 100%);
+    background: -o-linear-gradient(-45deg, rgba(229,0,118,1) 0%, rgba(255,64,0,1) 100%);
+    background: -ms-linear-gradient(-45deg, rgba(229,0,118,1) 0%, rgba(255,64,0,1) 100%);
+    background: linear-gradient(135deg, rgba(229,0,118,1) 0%, rgba(255,64,0,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e50076', endColorstr='#ff4000', GradientType=1 );
+	color:#fff;
+}
+/* RECINTO */
+.single-recintos .col-md-3, .single-recintos .col-md-6 {
+    float: none;
+    margin: auto;
+}
+.single-recintos .col-md-3 {
+    max-width: 285px;
+    padding: 0 15px;
+}
+.congresoPlantilla .entry-title span {
+	display:none;
+}
+
+/*
+PROGRAMA */
+.programa .col {
+    flex-basis: auto;
+}
+.programa .col-md-2 {
+    padding-bottom: 10px;
+}
+.programa .col-md-2 .circulo {
+    width: 32px;
+}
+.titularBut.ponentes h3 {
+    margin-bottom: 10px;
+}
+/*
+*/
+}
+@media (max-width: 600px) {
+/*
+*/
+.page-template-page_home-cocineros .busquedas .formulario-busqueda, .page-template-page_home-recetas .busquedas .formulario-busqueda {
+    top: -13px!important;
+}
+.navbar-brand {
+    padding-left: 12px;
+    width: 168px;
+	padding-top:12px;
+}
+.hamburguesa {
+    width: 48px;
+    height: 48px;
+}
+body:not(.theme-preset-active) #masthead #inscripcion .navbar-nav > li > a {
+    font-size: 12px;
+    padding: 6px 8px;
+    line-height: 12px;
+}
+.inscripcion, .hamburguesa, .lupa {
+    height: 60px;
+}
+.navbar-expand-xl .navbar-collapse {
+    top: 60px;
+}
+body:not(.theme-preset-active) #masthead .navbar-nav > li > a {
+    padding: 10px 30px;
+}
+.widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha {
+    padding:0;
+}
+.contenido-gris .extracto {
+	display:none;
+}
+.contenido-gris.noticias-home .vc_grid-item:first-child .titular h2,
+.contenido-gris.noticias-home .vc_grid-item:nth-child(5) .titular h2,
+.noticias-home.destacado .titular h2,
+.contenido-gris.noticias-home .itemListadoCont:nth-child(4) .titular h2 {
+    font-size: 30px!important;
+    line-height: 36px!important;
+}
+.taxonomia a, .autor, .fecha {
+    font-size: 13px;
+}
+.taxonomia a, .autor, .fecha {
+    font-size: 12px;
+}
+.cocineros h2,
+.titularBut h2,
+.titularBut h3 {
+    display: block;
+	font-size:20px;
+}
+.titularBut h2 em,
+.titularBut h3 em {
+	color:#e60909;
+}
+.titularBut h2 em.ocultar,
+.titularBut h3 em.ocultar {
+	display:none;
+}
+.page-template-page_home-cocineros .titularBut h2 {
+	margin-top:0;
+}
+.destacados .vc_column_container .vc_grid-item .vc_gitem_row .vc_gitem-col {
+    min-height: auto;
+}
+/*suscripcion home */
+.suscripcionContenedor .suscripcion h3.widget-title {
+    padding: 0 20px;
+    font-size: 15px;
+    font-family: 'WorkSans SemiBold';
+    letter-spacing: 0;
+}
+.knews_add_user {
+    padding: 0 15px;
+}
+.suscripcion input {
+    color: #000;
+    border: solid 1px #000;
+    height: 40px;
+    line-height: 40px;
+	font-size:15px;
+	padding:0 3%;
+}
+.suscripcion input.knewsbutton {
+    font-size: 13px;
+}
+.suscripcion .knewsemail {
+    width: 65%;
+}
+.knewsbutton {
+    width: 35%;
+}
+/* video en acción */
+.imagenFondo .contenedorTexto .texto h2 {
+    font-size: 100%;
+}
+.imagenFondo .imagen {
+    position: relative;
+    padding-bottom: 88%;
+	overflow: hidden;
+}
+.imagenFondo .imagen figure,
+.imagenFondo .wpb_single_image .vc_single_image-wrapper {
+    position: absolute;
+	height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+}
+.imagenFondo .imagen img {
+    height: 100%;
+    width: auto;
+    min-width: auto;
+    max-width: fit-content;
+    margin-left: -25%;
+}
+/*
+NOTICIAS HOME
+*/
+.titularBlog {
+    padding: 10px;
+}
+.titularBlog .widget-title {
+    font-size: 15px;
+	line-height:22px;
+}
+.menu-blog-contenedor {
+	display:none;
+}
+.menu-blog-contenedor.hamburguesa-blog-contenedor,
+.menu-blog-contenedor.activo {
+	display:block;
+}
+.menu-blog-contenedor li {
+    float: none;
+    width: 100%;
+    text-align: center;
+    padding: 6px;
+    border-bottom: solid 1px #7f7f7f;
+}
+.menu-blog-contenedor {
+    padding: 0;
+}
+.menu-blog-contenedor li a {
+    margin: 10px 18px;
+}
+.contenedor-centrado,
+.contenido-centrado {
+    float: none;
+    right: 0;
+    width: 100%;
+}
+.hamburguesa-blog-contenedor .contenedor-centrado {
+    float: right;
+    right: 50%;
+    position: relative;
+    width: auto;
+}
+.hamburguesa-blog-contenedor .contenido-centrado {
+    float: right;
+    right: -50%;
+    position: relative;
+}
+/* formulario */
+.page-template-page_home-noticias .formulario-busqueda {
+	padding-top:0;
+}
+/*.search-form {
+    width: 200px;
+    margin: auto;
+}*/
+.search-form {
+    width: 100%;
+    margin: auto;
+    padding: 0 30px;
+}
+.search-form label {
+    width: 150px;
+	width:75%;
+}
+.search-form label input {
+    width: 100%;
+	font-size: 16px;
+}
+.formulario-busqueda .search-submit {
+    width: 25%;
+}
+/*
+NOTICIAS FICHA */
+/*.single-noticias */.single .taxonomia a {
+    font-size: 15px;
+}
+.single-noticias .taxonomia a {
+    font-size: 15px!important;
+}
+.single-noticias .entry-header {
+    padding-bottom: 0;
+}
+/*.single-noticias */.single .entry-title {
+    font-size: 30px;
+    line-height: 36px;
+    margin-top: 0;
+}
+.borde-superior, /*.single-noticias */.single .entry-content {
+    margin-top: 20px;
+}
+.subtitular h2 {
+    font-size: 26px;
+    color: #333434;
+    margin-top: 10px;
+}
+.izqa, .dcha {
+    float: none;
+    width: 100%;
+}
+.dcha {
+    background-position: bottom left;
+    height: 32px;
+    padding-top: 0;
+}
+/*/*.single-noticias */.single .container,
+.single-cocineross .container*/
+.single .container {
+    padding: 4% 5% 0 5%;
+}
+.subtitular h2 {
+    font-size: 19px;
+}
+.suscripcionInterior.suscripcion .knewsemail {
+    width: 100%;
+}
+.suscripcionInterior.suscripcion .knewsemail input {
+    border: none;
+}
+#secondary .search-form {
+	padding:0;
+}
+/*
+COCINERO FICHA */
+.single-cocineross h1.entry-title {
+    font-size: 26px;
+    text-align: center;
+    padding: 15px 0;
+    margin: 0 0 15px 0;
+}
+.cocinero-restaurante .datosRestaurante {
+    width: 100%;
+    margin: 6% 0 0 0;
+    padding: 6% 0 0 0;
+    border-left: none;
+    border-top: solid 1px #DBDBDB;
+}
+.cocinero-restaurante .datosRestaurante .datos {
+	display:none;
+}
+.datosRestaurante .titular h2 {
+    padding: 0;
+    margin: 0;
+    background-image: none;
+    font-size: 20px;
+    font-family: 'WorkSans Regular';
+    letter-spacing: normal;
+}
+.datosRestaurante .titular h2:before {
+    content: " ";
+    letter-spacing: -1px;
+    padding: 0;
+    background-image: url(../images/icono-restaurante_nombre.gif);
+    background-repeat: no-repeat;
+    width: 40px;
+    height: 49px;
+    display: inline-block;
+}
+.cocinero-restaurante .post-thumbnail,
+.cocinero-restaurante .post-thumbnail img {
+    width: 100%;
+}
+.page-template-page_home-cocineros .busquedas .formulario-busqueda,
+.page-template-page_home-recetas .busquedas .formulario-busqueda {
+    top: -14px;
+}
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario.activo {
+    margin-top: 0;
+    padding: 0;
+}
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario.activo.hamburguesa-blog-contenedor {
+    margin-top: 20px;
+}
+/*.page-template-page_home-cocineros .menu-blog-contenedor*/.menu-blog-contenedor.abecedario li {
+    width: 7.66%;
+	border:none;
+}
+/*
+ficha restaurante */
+.single-recetas .cocineros-ficha-restaurante {
+    height: 80px;
+    /*padding-left: 100px;*/
+	min-height: 80px;
+}
+.single-recetas .ficha-cocinero .itemListado .imagen {
+    padding-top: 65px!important;
+    width: 65px;
+}
+.single-recetas .cocineros-ficha-restaurante h2 {
+    font-size: 17px;
+    letter-spacing: normal;
+    line-height: normal;
+}
+.single-recetas .cocineros-ficha-restaurante .datos {
+    font-size: 20px;
+    line-height: 60px;
+}
+.imagen-titulo-cocinero .post-thumbnail,
+.imagen-titulo-cocinero .entry-header {
+    width: 100%!important;
+    padding: 0!important;
+    text-align: center;
+}
+.imagen-titulo-cocinero .imagen-titulo .entry-title,
+.entry-title.recetas-restaurantes {
+    font-size: 24px;
+    font-family: 'WorkSans SemiBold';
+    padding: 15px 0;
+    border-bottom: solid 1px #C9CACB!important;
+    margin-bottom: 15px;
+}
+.single-recetas .menu-blog-contenedor.hamburguesa-blog-contenedor {
+	display:none;
+}
+.single-recetas .busquedas.container.contenido-blanco .search-form label,
+.page-template-page_home-recetas .busquedas.container.contenido-blanco .search-form label,
+.single-restaurantes .busquedas.container.contenido-blanco .search-form label {
+    width: 60%;
+}
+/*
+RECETAS FICHA */
+.single-restaurantes .entry-header span {
+    width: 48px;
+    margin: 20px auto 0 auto;
+}
+.single-restaurantes .entry-title.recetas-restaurantes {
+    padding: 0;
+    width: 100%;
+    margin-bottom: 0;
+    border: none!important;
+}
+/*
+RECETAS HOME */
+.buscadorRestaurante .search-form {
+    padding: 0;
+}
+/*.page-template-page_home-restaurantes .menu-blog-contenedor.hamburguesa-blog-contenedor {
+	display:none;
+}*/
+.page-template-page_home-restaurantes .titularBut p {
+    font-size: 20px;
+}
+.separador {
+    margin-bottom: 15px!important;
+}
+/*
+HOME RECETAS PROVISIONAL */
+.recetas-home .itemListado {
+    width: 94%;
+    margin: 19% 3% 0 3%;
+}
+.recetas-home .iconoPais {
+    left: 44.5%;
+}
+/*
+PIE */
+.site-footer .contenedor-centrado {
+    float: right;
+    right: 50%;
+    width: auto;
+}
+.site-footer .contenido-centrado {
+    float: right;
+    right: -50%;
+}
+.site-footer .copy br {
+    display: block;
+}
+.site-footer .legal li:nth-child(1) {
+    /*padding-left: 75px;*/
+}
+.site-footer .legal li:nth-child(3) {
+	clear:both;
+}
+.site-footer .copy .contenido-centrado {
+    padding: 0;
+    background-position: 10px 5px;
+}
+.site-footer .copy .contenido-centrado:before {
+    content: ".";
+    float: left;
+    width: 75px;
+    color: #e6e6e6;
+	font-size:0;
+}
+.site-footer .copy .textwidget {
+    width: 230px;
+}
+/*
+SLIDE
+.swiper-container {
+    padding-bottom: 12%!important;
+} */
+
+/* NO AUTORES */
+.page-template-page_home-noticias .busquedas.container.contenido-blanco .formulario-busqueda label {
+    width: 150px;
+}
+/* NO AUTORES */
+
+/* REDES SOCIALES */
+.heateorSssWhatsappBackground {
+	display:block;
+}
+/* VIDEOS */
+.videosCont.slide .itemListado .imagen {
+    height: 100%;
+	padding-bottom: 56.25%!important;
+}
+/*
+BUSQUEDAS */
+.resultadoBusqueda .imagen {
+    display: none;
+}
+.resultadoBusqueda  .texto {
+    width: 100%!important;
+}
+/*
+CONGRESO */
+.cabeceraCongresos.imagenFondo .contenedorTexto .texto {
+    padding-left: 15px;
+}
+.cabeceraCongresos.imagenFondo .imagen img {
+    /*height: 200%;*/
+    margin-left: 60%;
+}
+.contMenu, .contMenu .formulario-busqueda.expandible.activo, .contMenu ul li a,
+header#masthead, .inscripcion, .lupa, .hamburguesa {
+    height: 60px;
+}
+.mov .formulario-busqueda .search-submit {
+    width: 48px;
+}
+.mov .formulario-busqueda .search-form {
+    padding-left: 0;
+}
+.mov .widget_icl_lang_sel_widget .wpml-ls-sidebars-menu-superior-derecha {
+    float: none;
+    display: inline-block;
+    padding: 20px 0 10px 14px;
+}
+.menu-blog-contenedor li.anosAnteriores {
+    padding: 0;
+}
+/*.botoneraSuperior {
+	float:none;
+	margin:auto;
+}*/
+/*
+*/
+/*
+PROGRAMA */
+.botoneraSuperior.filtrado {
+    width: 282px;
+    float: none;
+    margin: auto;
+    clear: both;
+	display:block;
+}
+.botoneraSuperior {
+	display:none;
+}
+/* TALLERES LISTADO */
+.page-template-page_congreso-programa.xeria.talleres .programa .itemListado .botoneraSuperior {
+	display:block;
+}
+}
+@media (max-width: 400px) {
+	.page-template-page_home-cocineros .tresColumnas .vc_grid-item:nth-child(n+4) {
+		width: 90%;
+		float: left;
+		margin: 4%;
+	}
+	.page-template-page_home-cocineros .contenido-blanco .vc_grid-item:nth-child(n+4) .itemListado {
+		min-height: none;
+	}
+	.cocineros-ficha-restaurante .datos {
+		font-size: 16px;
+		padding-left: 5px;
+	}
+	/*
+	HOME RECETAS PROVISIONAL */
+	.recetas-home .itemListado {
+		margin: 25% 3% 0 3%;
+	}
+	.recetas-home .iconoPais {
+		left: 40.5%;
+	}
+	/*
+	LISTADOS PROPIOS */
+	.page-template-page_home-cocineros .itemListadoCont:nth-child(n+4),
+.page-template-page_home-cocineros .restoCocineros .itemListadoCont {
+		-ms-flex: 0 0 100%;
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+	/*
+	CONGRESO */
+	/*.cabeceraCongresos.imagenFondo .imagen img {
+		height: 130%;
+		margin-left: 100%;
+	}*/
+	.cabeceraCongresos.imagenFondo .imagen img {
+    /*height: 200%;*/
+    margin-left: 15%;
+}
+.botoneraSuperior {
+	display:none;
+}
+.pestanas .fecha {
+    min-height: 76px;
+    border-bottom: none!important;
+    letter-spacing: -1px;
+}
+/*
+*/
+}

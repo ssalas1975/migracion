@@ -116,8 +116,7 @@ class DynamicBackup {
 		$this->taxonomies = wp_list_pluck( aioseo()->helpers->getPublicTaxonomies( false, true ), 'name' );
 		$this->archives   = wp_list_pluck( aioseo()->helpers->getPublicPostTypes( false, true, true ), 'name' );
 
-		$rawBackup = get_option( $this->optionsName );
-		$backup    = is_string( $rawBackup ) ? json_decode( $rawBackup, true ) : $rawBackup;
+		$backup = json_decode( get_option( $this->optionsName ), true );
 		if ( empty( $backup ) ) {
 			update_option( $this->optionsName, '{}', 'no' );
 

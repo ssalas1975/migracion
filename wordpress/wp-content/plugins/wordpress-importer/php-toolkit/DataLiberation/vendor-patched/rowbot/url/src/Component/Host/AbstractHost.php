@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component\Host;
+namespace Rowbot\URL\Component\Host;
 
 abstract class AbstractHost {
 	public function isEmpty(): bool {

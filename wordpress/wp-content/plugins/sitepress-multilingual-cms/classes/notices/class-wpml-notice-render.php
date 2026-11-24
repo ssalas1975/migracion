@@ -21,10 +21,6 @@ class WPML_Notice_Render {
 		$result = '';
 
 		if ( $this->must_display_notice( $notice ) ) {
-			if ( $notice->should_be_text_only() ) {
-				return $notice->get_text();
-			}
-
 			$actions_html = $this->get_actions_html( $notice );
 
 			$temp_types = $notice->get_css_class_types();

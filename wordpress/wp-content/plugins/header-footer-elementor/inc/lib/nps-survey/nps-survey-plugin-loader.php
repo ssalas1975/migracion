@@ -2,8 +2,8 @@
 /**
  * Plugin Loader.
  *
- * @package NPS_Survey
- * @since 1.0.0
+ * @package {{package}}
+ * @since {{since}}
  */
 
 namespace NPS_Survey;

@@ -15,15 +15,7 @@ abstract class Template_Library_Snapshot_Processor {
 	abstract protected function parse_incoming_snapshot( array $snapshot ): ?array;
 	abstract protected function get_incoming_items( array $parsed_snapshot ): array;
 	abstract protected function count_current_items( array $items ): int;
-	/**
-	 * @param array $data {
-	 *     @type array $updated_items All items (existing + new) after processing.
-	 *     @type array $new_items     Only the newly added items.
-	 *     @type array $order         The updated order of all items.
-	 * }
-	 * @param array $metadata The original data from load_current_data().
-	 */
-	abstract protected function save_data( array $data, array $metadata ): array;
+	abstract protected function save_data( array $items, array $metadata ): array;
 
 	protected function normalize_for_comparison( array $item ): array {
 		return $item;
@@ -61,7 +53,6 @@ abstract class Template_Library_Snapshot_Processor {
 
 		$id_map = [];
 		$ids_to_flatten = [];
-		$new_items = [];
 		$updated_items = $current_items;
 		$existing_ids = array_fill_keys( array_keys( $updated_items ), true );
 		$updated_order = $current['order'] ?? [];
@@ -115,8 +106,7 @@ abstract class Template_Library_Snapshot_Processor {
 				$updated_items,
 				$existing_ids,
 				$existing_labels,
-				$updated_order,
-				$new_items
+				$updated_order
 			);
 
 			$new_label = $updated_items[ $target_id ]['label'] ?? null;
@@ -125,11 +115,7 @@ abstract class Template_Library_Snapshot_Processor {
 			}
 		}
 
-		$saved_result = $this->save_data( [
-			'updated_items' => $updated_items,
-			'new_items' => $new_items,
-			'order' => $updated_order,
-		], $current );
+		$saved_result = $this->save_data( $updated_items, array_merge( $current, [ 'order' => $updated_order ] ) );
 
 		return array_merge($this->get_empty_result(), [
 			'id_map' => $id_map,
@@ -159,7 +145,6 @@ abstract class Template_Library_Snapshot_Processor {
 
 		$id_map = [];
 		$ids_to_flatten = [];
-		$new_items = [];
 		$updated_items = $current_items;
 		$existing_ids = array_fill_keys( array_keys( $updated_items ), true );
 		$updated_order = $current['order'] ?? [];
@@ -192,16 +177,11 @@ abstract class Template_Library_Snapshot_Processor {
 				$updated_items,
 				$existing_ids,
 				$existing_labels,
-				$updated_order,
-				$new_items
+				$updated_order
 			);
 		}
 
-		$saved_result = $this->save_data( [
-			'updated_items' => $updated_items,
-			'new_items' => $new_items,
-			'order' => $updated_order,
-		], $current );
+		$saved_result = $this->save_data( $updated_items, array_merge( $current, [ 'order' => $updated_order ] ) );
 
 		return array_merge($this->get_empty_result(), [
 			'id_map' => $id_map,
@@ -209,11 +189,10 @@ abstract class Template_Library_Snapshot_Processor {
 		], $saved_result);
 	}
 
-	protected function add_item_with_label( array $item, string $target_id, array &$updated_items, array &$existing_ids, array &$existing_labels, array &$updated_order, array &$new_items ): void {
+	protected function add_item_with_label( array $item, string $target_id, array &$updated_items, array &$existing_ids, array &$existing_labels, array &$updated_order ): void {
 		$item = $this->prepare_item_for_save( $item, $target_id );
 		$item = Template_Library_Import_Export_Utils::apply_unique_label( $item, $existing_labels );
 		$updated_items[ $target_id ] = $item;
-		$new_items[ $target_id ] = $item;
 		$existing_ids[ $target_id ] = true;
 
 		if ( ! in_array( $target_id, $updated_order, true ) ) {

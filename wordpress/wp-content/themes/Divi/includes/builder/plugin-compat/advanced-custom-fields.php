@@ -44,6 +44,7 @@ class ET_Builder_Plugin_Compat_Advanced_Custom_Fields extends ET_Builder_Plugin_
 	 * Hook methods to WordPress.
 	 *
 	 * @since 3.17.2
+	 * @since ?? `pre_load_post_id` filter hook, `wp` action hook
 	 *
 	 * @return void
 	 */
@@ -53,8 +54,28 @@ class ET_Builder_Plugin_Compat_Advanced_Custom_Fields extends ET_Builder_Plugin_
 			return;
 		}
 
+		add_action( 'wp', array( $this, 'store_current_queried_post_id' ) );
+
 		add_filter( 'et_builder_dynamic_content_meta_value', array( $this, 'maybe_filter_dynamic_content_meta_value' ), 10, 3 );
 		add_filter( 'et_builder_custom_dynamic_content_fields', array( $this, 'maybe_filter_dynamic_content_fields' ), 10, 3 );
+		add_filter( 'acf/pre_load_post_id', array( $this, 'set_post_id_before_shortcode_renders' ) );
+	}
+
+	/**
+	 * Store current queried page/post id.
+	 * During page load life cycle, sometimes post ID is zero,
+	 * so just keep the non-zero post ID to retrieve ACF data later.
+	 * 
+	 * @since ??
+	 * 
+	 * @return void
+	 */
+	public function store_current_queried_post_id() {
+		$queried_obj_id = get_queried_object_id();
+
+		if ( $queried_obj_id ) {
+			update_option( 'et_builder_acf_current_post_id', $queried_obj_id );
+		}
 	}
 
 	/**
@@ -358,6 +379,26 @@ class ET_Builder_Plugin_Compat_Advanced_Custom_Fields extends ET_Builder_Plugin_
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Set the current queried object id to the ACF shortcode post id.
+	 *
+	 * When acf shortcode is being called from theme-builder template
+	 * and specially from inside of an element attribute
+	 * then wordpress applies different condition to render that shortcode
+	 * and acf queries for post_id and get the builder header/body/footer template post_id
+	 * but that post_id doesn't contain the shortcode so returns empty value
+	 * to fix that, post_id should be the main queried page/post id.
+	 *
+	 * @since ??
+	 *
+	 * @param int $post_id
+	 *
+	 * @return int
+	 */
+	public function set_post_id_before_shortcode_renders( $post_id ) {
+		return absint( get_option( 'et_builder_acf_current_post_id' ) );
 	}
 }
 

@@ -127,7 +127,7 @@ class ET_Core_LIB_OAuthUtil {
 			$output = array_map( array( 'ET_Core_LIB_OAuthUtil', 'urlencode_rfc3986' ), $input );
 
 		} else if ( is_scalar( $input ) ) {
-			$output = rawurlencode( utf8_encode( $input ) );
+			$output = rawurlencode( mb_convert_encoding( $input, 'ISO-8859-1', 'UTF-8' ) );
 		}
 
 		return $output;

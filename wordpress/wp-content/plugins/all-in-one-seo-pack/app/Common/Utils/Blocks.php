@@ -22,28 +22,6 @@ class Blocks {
 	private $blockSlugs = [];
 
 	/**
-	 * Frontend CSS asset paths collected during block registration (global.scss).
-	 * Registered on `enqueue_block_assets` so they are available on both
-	 * frontend and editor, since `style` handles are used in both contexts.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @var array<string, true>
-	 */
-	protected $deferredFrontendCssAssets = [];
-
-	/**
-	 * Editor-only CSS asset paths collected during block registration
-	 * (editor.scss and CSS chunks imported by the block's JS bundle).
-	 * Registered on `enqueue_block_editor_assets` to skip registration on the frontend.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @var array<string, true>
-	 */
-	protected $deferredEditorCssAssets = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.1.1
@@ -61,37 +39,6 @@ class Blocks {
 	 */
 	public function init() {
 		add_action( 'enqueue_block_editor_assets', [ $this, 'registerBlockEditorAssets' ] );
-		add_action( 'enqueue_block_editor_assets', [ $this, 'registerDeferredEditorCssAssets' ] );
-		add_action( 'enqueue_block_assets', [ $this, 'registerDeferredFrontendCssAssets' ] );
-	}
-
-	/**
-	 * Returns the registered block name for a block slug.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param  string $slug The block slug as passed to {@see registerBlock()}.
-	 * @return string       The block name, e.g. `aioseo/product`.
-	 */
-	public function getBlockName( $slug ) {
-		$blockName = str_replace( 'pro/', '', $slug );
-
-		return strpos( $blockName, '/' ) ? $blockName : 'aioseo/' . $blockName;
-	}
-
-	/**
-	 * Returns the class name the Block Editor generates for a block.
-	 *
-	 * Blocks that render through PHP have no saved markup for the editor to add this class to,
-	 * so their render callbacks have to output it themselves to match the editor markup.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param  string $slug The block slug as passed to {@see registerBlock()}.
-	 * @return string       The generated class name, e.g. `wp-block-aioseo-product`.
-	 */
-	public function getBlockDefaultClassName( $slug ) {
-		return 'wp-block-' . str_replace( '/', '-', $this->getBlockName( $slug ) );
 	}
 
 	/**
@@ -106,7 +53,10 @@ class Blocks {
 	public function registerBlock( $slug = '', $args = [] ) {
 		global $wp_version; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 
-		$slugWithPrefix = $this->getBlockName( $slug );
+		$slugWithPrefix = str_replace( 'pro/', '', $slug );
+		if ( ! strpos( $slugWithPrefix, '/' ) ) {
+			$slugWithPrefix = 'aioseo/' . str_replace( 'pro/', '', $slug );
+		}
 
 		if ( ! $this->isBlockEditorActive() ) {
 			return false;
@@ -136,48 +86,21 @@ class Blocks {
 		$globalStyle     = "src/vue/standalone/blocks/{$slug}/global.scss";
 		$hasGlobalStyle  = aioseo()->core->assets->assetExists( $globalStyle );
 
-		// Defer CSS registration to a proper enqueue hook. We only compute handle names
-		// here (pure string concatenation) and pass them to register_block_type().
-		// WordPress looks up the handles later when the block is enqueued.
-		// Frontend (global.scss) and editor-only (editor.scss + JS-chunk CSS) are
-		// kept in separate buckets so we don't register editor-only assets on the frontend.
+		// Register global CSS before registering the block type (WordPress 5.8+ requirement)
 		if ( $hasGlobalStyle ) {
-			$this->deferredFrontendCssAssets[ $globalStyle ] = true;
+			aioseo()->core->assets->registerCss( $globalStyle );
 		}
-
-		$editorStyleHandles = [];
-		if ( $hasEditorStyle ) {
-			$this->deferredEditorCssAssets[ $editorStyle ] = true;
-			$editorStyleHandles[]                          = aioseo()->core->assets->cssHandle( $editorStyle );
-		}
-
-		// Collect CSS handles from the block JS bundle and its imported chunks so WordPress
-		// includes them in the editor iframe via the editor_style_handles parameter.
-		$mainJsx            = "src/vue/standalone/blocks/{$slug}/main.jsx";
-		$editorStyleHandles = array_merge( $editorStyleHandles, $this->collectManifestCssHandles( $mainJsx, aioseo()->core->assets ) );
-		$editorStyleHandles = array_unique( $editorStyleHandles );
 
 		$styleDefault = empty( $args['style'] ) ? '' : $args['style'];
 
 		$defaults = [
-			'api_version'     => 3,
 			'attributes'      => [],
 			'editor_script'   => $hasEditorScript ? aioseo()->core->assets->jsHandle( $editorScript ) : '',
+			'editor_style'    => $hasEditorStyle ? aioseo()->core->assets->cssHandle( $editorStyle ) : '',
 			'render_callback' => null,
 			'style'           => $hasGlobalStyle ? aioseo()->core->assets->cssHandle( $globalStyle ) : $styleDefault,
 			'supports'        => []
 		];
-
-		// The singular `editor_style` holds one handle, so an array of them leaks into
-		// WP 6.0's _wp_get_iframed_editor_assets(), which flattens the list through
-		// array_unique() and throws an "Array to string conversion" notice on every editor screen.
-		// Versions without the plural property enqueue these handles directly instead,
-		// {@see \AIOSEO\Plugin\Common\Utils\Blocks::registerDeferredEditorCssAssets()}.
-		if ( $this->supportsAssetHandles() ) {
-			// Assigning the property directly skips the array_values() that WP_Block_Type::__set()
-			// applies, and the gaps array_unique() leaves would serialize as a JSON object.
-			$defaults['editor_style_handles'] = array_values( $editorStyleHandles );
-		}
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -210,7 +133,7 @@ class Blocks {
 		aioseo()->core->assets->loadCss( 'src/vue/standalone/blocks/schema.js' );
 
 		$dependencies = [
-			'wp-rich-text',
+			'wp-annotations',
 			'wp-block-editor',
 			'wp-blocks',
 			'wp-components',
@@ -226,95 +149,15 @@ class Blocks {
 
 		foreach ( $this->blockSlugs as $slug ) {
 			aioseo()->core->assets->enqueueJs( "src/vue/standalone/blocks/{$slug}/main.jsx", $dependencies );
-		}
-	}
 
-	/**
-	 * Traverses the Vite manifest for a JS asset and collects CSS handles
-	 * (both direct and from imported chunks). CSS files are queued for deferred
-	 * registration on the editor enqueue hook, since they originate from the
-	 * editor's JS bundle and are not needed on the frontend.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @param  string $asset  The manifest entry key (e.g. "src/vue/standalone/blocks/faq/main.jsx").
-	 * @param  Assets $assets The assets service instance.
-	 * @return array          An array of CSS handles.
-	 */
-	protected function collectManifestCssHandles( $asset, $assets ) {
-		$handles  = [];
-		$manifest = $assets->getAssetManifestItem( $asset );
-
-		if ( empty( $manifest ) ) {
-			return $handles;
-		}
-
-		if ( ! empty( $manifest['css'] ) ) {
-			foreach ( $manifest['css'] as $cssFile ) {
-				$this->deferredEditorCssAssets[ $cssFile ] = true;
-				$handles[]                                 = $assets->cssHandle( $cssFile );
+			// Note: Since these files load conditionally, these need to be added to the vite.config as standalone entries.
+			// TODO: Refactor this to use the block.json file (if possible - might conflict with hashes) in the future when 5.8.0 is the min. supported version.
+			$editorStyle   = "src/vue/standalone/blocks/{$slug}/editor.scss";
+			$hasEditorStyle = aioseo()->core->assets->assetExists( $editorStyle );
+			if ( $hasEditorStyle ) {
+				aioseo()->core->assets->registerCss( $editorStyle );
 			}
 		}
-
-		if ( ! empty( $manifest['imports'] ) ) {
-			foreach ( $manifest['imports'] as $import ) {
-				$handles = array_merge( $handles, $this->collectManifestCssHandles( $import, $assets ) );
-			}
-		}
-
-		return $handles;
-	}
-
-	/**
-	 * Registers frontend CSS assets (global.scss) collected during block registration.
-	 * Hooked to `enqueue_block_assets` so the handles are available on both
-	 * frontend and editor — WordPress needs them registered in both contexts
-	 * because the `style` parameter on register_block_type() is used in both.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @return void
-	 */
-	public function registerDeferredFrontendCssAssets() {
-		foreach ( array_keys( $this->deferredFrontendCssAssets ) as $cssFile ) {
-			aioseo()->core->assets->registerCss( $cssFile );
-		}
-	}
-
-	/**
-	 * Registers editor-only CSS assets collected during block registration.
-	 * Hooked to `enqueue_block_editor_assets` to avoid registering editor-only
-	 * handles on the frontend.
-	 *
-	 * @since 5.0.0
-	 *
-	 * @return void
-	 */
-	public function registerDeferredEditorCssAssets() {
-		// Without the plural property the handles never reach the block type, so WordPress
-		// has nothing to enqueue and we have to do it ourselves.
-		$supportsAssetHandles = $this->supportsAssetHandles();
-
-		foreach ( array_keys( $this->deferredEditorCssAssets ) as $cssFile ) {
-			if ( $supportsAssetHandles ) {
-				aioseo()->core->assets->registerCss( $cssFile );
-
-				continue;
-			}
-
-			aioseo()->core->assets->enqueueCss( $cssFile );
-		}
-	}
-
-	/**
-	 * Checks whether WordPress supports the plural block asset handle properties (WP 6.1+).
-	 *
-	 * @since 5.0.0
-	 *
-	 * @return bool Whether the plural block asset handle properties are supported.
-	 */
-	protected function supportsAssetHandles() {
-		return property_exists( 'WP_Block_Type', 'editor_style_handles' );
 	}
 
 	/**

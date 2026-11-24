@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<nodes>
+<item><name>Sevilla</name><link>http://sevilla.abc.es/sevilla/</link></item>
+<item><name>Provincia</name><link>http://sevilla.abc.es/provincia/</link></item>
+<item><name>Andalucía</name><link>http://sevilla.abc.es/andalucia/</link></item>
+<item><name>España</name><link>http://sevilla.abc.es/espana/</link></item>
+<item><name>Internacional</name><link>http://sevilla.abc.es/internacional/</link></item>
+<item><name>Economía</name><link>http://sevilla.abc.es/economia/</link></item>
+<item><name>Deportes</name><link>http://sevilla.abc.es/deportes/</link></item>
+<item><name>Conocer</name><link>http://sevilla.abc.es/conocer/</link></item>
+<item><name>Cultura&Ocio</name><link>http://sevilla.abc.es/cultura/</link></item>
+<item><name>Gurmé</name><link>http://sevilla.abc.es/gurme/</link></item>
+<item><name>Gente&amp;Estilo</name><link>http://sevilla.abc.es/estilo/</link></item>
+<item><name>Loteria de Navidad: http://www.abc.es/loteria-de-navidad/</link></item>
+<item><name>ABC</name><link>http://www.abc.es/</link></item>
+</nodes>

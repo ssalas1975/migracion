@@ -44,7 +44,7 @@ class Elementor extends Base {
 	 * @return void
 	 */
 	public function init() {
-		if ( ! aioseo()->postSettings->canAddPageBuilderMetabox( get_post_type( $this->getPostId() ) ) ) {
+		if ( ! aioseo()->postSettings->canAddPostSettingsMetabox( get_post_type( $this->getPostId() ) ) ) {
 			return;
 		}
 
@@ -185,40 +185,6 @@ class Elementor extends Base {
 		}
 
 		return $document->is_built_with_elementor();
-	}
-
-	/**
-	 * Returns the content TruSEO analyzes: the HTML Elementor saves to `post_content`, rendered.
-	 *
-	 * NOTE: Elementor's `the_content` filter swaps in the global post's front-end render, menus and
-	 * post loops included, so it is held off; uncached, as {@see WpContext::getPostContent()} may hold it.
-	 *
-	 * @since 5.0.4
-	 *
-	 * @param  \WP_Post $post The post.
-	 * @return string         The content.
-	 */
-	public function getAnalysisContent( $post ) {
-		$frontend = class_exists( '\Elementor\Plugin' ) ? ( \Elementor\Plugin::instance()->frontend ?? null ) : null;
-		$callback = [ $frontend, 'apply_builder_in_content' ];
-		$priority = is_object( $frontend ) && ! doing_filter( 'the_content' ) ? has_filter( 'the_content', $callback ) : false;
-
-		if ( false !== $priority ) {
-			remove_filter( 'the_content', $callback, $priority );
-		}
-
-		try {
-			$content = aioseo()->helpers->theContent( $this->processContent( $post->ID, $post->post_content ) );
-			if ( apply_filters( 'aioseo_description_include_custom_fields', true, $post ) ) {
-				$content .= aioseo()->helpers->theContent( aioseo()->helpers->getPostCustomFieldsContent( $post ) );
-			}
-
-			return $content;
-		} finally {
-			if ( false !== $priority ) {
-				add_filter( 'the_content', $callback, $priority );
-			}
-		}
 	}
 
 	/**

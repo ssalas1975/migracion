@@ -27,7 +27,7 @@ class REALLY_SIMPLE_SECURITY
 			self::$instance = new REALLY_SIMPLE_SECURITY;
 			self::$instance->includes();
 			if ( rsssl_admin_logged_in() ) {
-				$htaccessFileManager = RSSSL_Htaccess_File_Manager::get_instance();
+				$htaccessFileManager = new RSSSL_Htaccess_File_Manager();
 				self::$instance->firewall_manager = new rsssl_firewall_manager($htaccessFileManager);
 			}
 		}
@@ -38,7 +38,6 @@ class REALLY_SIMPLE_SECURITY
 	{
 
 		$path = rsssl_path.'security/';
-		require_once( $path . 'two-fa-frontend-functions.php' );
 		require_once( $path . 'integrations.php' );
 		require_once( $path . 'cron.php' );
 		require_once( $path . 'includes/check404/class-rsssl-simple-404-interceptor.php' );

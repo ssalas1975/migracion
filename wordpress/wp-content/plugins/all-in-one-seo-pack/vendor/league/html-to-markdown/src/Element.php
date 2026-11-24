@@ -15,9 +15,6 @@ class Element implements ElementInterface
     /** @var \DOMNode|null */
     private $previousSiblingCached;
 
-    /** @var SiblingPositionCache|null */
-    private $siblingPositions;
-
     public function __construct(\DOMNode $node)
     {
         $this->node = $node;
@@ -89,29 +86,6 @@ class Element implements ElementInterface
         return $this->previousSiblingCached !== null ? new self($this->previousSiblingCached) : null;
     }
 
-    /**
-     * @internal
-     *
-     * @return iterable<string> The current value of each earlier sibling, nearest first
-     */
-    public function getPrecedingSiblingValues(): iterable
-    {
-        for ($sibling = $this->node->previousSibling; $sibling !== null; $sibling = $sibling->previousSibling) {
-            // Anything else was never converted, such as the declarations before the root element
-            if ($sibling->nodeType === XML_TEXT_NODE) {
-                yield $sibling->textContent;
-            }
-        }
-    }
-
-    /**
-     * @internal
-     */
-    public function hasAttributes(): bool
-    {
-        return $this->node->hasAttributes();
-    }
-
     public function hasChildren(): bool
     {
         return $this->node->hasChildNodes();
@@ -122,16 +96,11 @@ class Element implements ElementInterface
      */
     public function getChildren(): array
     {
-        $ret              = [];
-        $siblingPositions = new SiblingPositionCache();
+        $ret = [];
         foreach ($this->node->childNodes as $node) {
-            // PHPStan 1.x, which is what PHP 7.2 resolves to, has no generic type for
-            // DOMNodeList and infers mixed here.
             /** @psalm-suppress RedundantCondition */
             \assert($node instanceof \DOMNode);
-            $child                   = new self($node);
-            $child->siblingPositions = $siblingPositions;
-            $ret[]                   = $child;
+            $ret[] = new self($node);
         }
 
         return $ret;
@@ -195,69 +164,37 @@ class Element implements ElementInterface
         }
 
         $markdownNode = $this->node->ownerDocument->createTextNode($markdown);
-        $this->node->parentNode->insertBefore($markdownNode, $this->node);
-
-        // Replacing or removing a child directly takes time proportional to how many siblings come before it,
-        // on older versions of PHP, whereas the only child of a fragment is found straight away
-        $fragment = $this->node->ownerDocument->createDocumentFragment();
-        $fragment->appendChild($this->node);
-        $fragment->removeChild($this->node);
+        $this->node->parentNode->replaceChild($markdownNode, $this->node);
     }
 
     public function getChildrenAsString(): string
     {
-        // Canonicalizing anything less than a whole document takes time proportional to the size of the document
-        // for each node output, so the node is put in a document of its own
-        $document = new \DOMDocument();
-        $document->appendChild($document->importNode($this->node, true));
-
-        return $document->C14N();
+        return $this->node->C14N();
     }
 
     public function getSiblingPosition(): int
     {
-        if ($this->node->parentNode === null) {
-            return 0;
+        $position = 0;
+
+        $parent = $this->getParent();
+        if ($parent === null) {
+            return $position;
         }
 
-        if ($this->siblingPositions === null) {
-            $this->siblingPositions = new SiblingPositionCache();
-        }
-
-        // Siblings are converted in order, so only those since the last one asked about need counting
-        $cache    = $this->siblingPositions;
-        $own      = self::isWhitespaceNode($this->node) ? 0 : 1;
-        $position = $own;
-        $previous = $this->node->previousSibling;
-
-        // Anything other than text is yet to be replaced by its Markdown, which could change whether it counts
-        $isSettled = true;
-        for ($sibling = $previous; $sibling !== null; $sibling = $sibling->previousSibling) {
-            if ($sibling === $cache->anchor) {
-                $position += $cache->position;
-                break;
-            }
-
-            if ($sibling->nodeType !== XML_TEXT_NODE) {
-                $isSettled = false;
-            }
-
-            if (! self::isWhitespaceNode($sibling)) {
+        // Loop through all nodes and find the given $node
+        foreach ($parent->getChildren() as $currentNode) {
+            if (! $currentNode->isWhitespace()) {
                 $position++;
             }
-        }
 
-        if ($isSettled && $previous !== null) {
-            $cache->anchor   = $previous;
-            $cache->position = $position - $own;
+            // TODO: Need a less-buggy way of comparing these
+            // Perhaps we can somehow ensure that we always have the exact same object and use === instead?
+            if ($this->equals($currentNode)) {
+                break;
+            }
         }
 
         return $position;
-    }
-
-    private static function isWhitespaceNode(\DOMNode $node): bool
-    {
-        return $node->nodeName === '#text' && \trim($node->nodeValue ?? '') === '';
     }
 
     public function getListItemLevel(): int

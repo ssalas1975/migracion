@@ -16,15 +16,19 @@
 	endif;
 ?>
 
+
 <?php /* Header top bar */ ?>
-<div class="sh-header-top sh-header-top-4">
-	<div class="container">
+<?php if( jevelin_option( 'topbar_status', 1 ) == true ) : ?>
+	<div class="sh-header-top sh-header-top-4">
+		<div class="container">
 
-		<?php /* Header logo */ ?>
-		<?php jevelin_header_logo(); ?>
+			<?php /* Header logo */ ?>
+			<?php jevelin_header_logo(); ?>
 
+		</div>
 	</div>
-</div>
+<?php endif; ?>
+
 
 <?php /* Header */ ?>
 <div class="sh-header-height">

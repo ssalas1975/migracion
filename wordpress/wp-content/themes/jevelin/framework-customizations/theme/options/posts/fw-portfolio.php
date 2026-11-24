@@ -1,9 +1,30 @@
-<?php if ( ! defined( 'FW' ) ) {
-    die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
-$options = array(
 
+// Check current framework
+if( jevelin_framework() == 'redux' ) :
+	return false;
+endif;
+
+
+if( class_exists('RevSlider') ) :
+	$slider = new RevSlider();
+	$arrSliders = $slider->getArrSlidersShort();
+endif;
+
+if( !isset($arrSliders) || !count($arrSliders) ) :
+	$arrSliders = array(
+		'disabled' => 'Disabled'
+	);
+elseif( class_exists('RevSlider') ) :
+	$arrSliders['disabled'] = 'Disabled';
+	$arrSliders = array_reverse($arrSliders, true);
+endif;
+
+
+$options = array(
     'page_settings' => array(
         'title'   => esc_html__( 'Page Settings', 'jevelin' ),
         'type'    => 'box',
@@ -21,6 +42,7 @@ $options = array(
                         'choices' => array(
                             'default' => esc_html__('Default', 'jevelin'),
                             'slider' => esc_html__('Gallery Slider', 'jevelin'),
+							'gallery-slider-dynamic' => esc_html__('Gallery Dynamic Slider', 'jevelin'),
                             'video-slider' => esc_html__('Video Slider', 'jevelin'),
                             'iframe-slider' => esc_html__('Iframe Slider', 'jevelin'),
                         )
@@ -30,7 +52,7 @@ $options = array(
                         'type'  => 'text',
                         'value' => '',
                         'label' => esc_html__('Video URL', 'jevelin'),
-                        'desc'  => wp_kses( __( 'Enter video URL from WordPress <a target="_blank" href="http://codex.wordpress.org/Embeds#Okay.2C_So_What_Sites_Can_I_Embed_From.3F">supported video sites</a>. Only for video slider layout', 'jevelin' ), jevelin_allowed_html() ),
+                        'desc'  => wp_kses( __( 'Enter video URL from WordPress <a target="_blank" href="https://codex.wordpress.org/Embeds#Okay.2C_So_What_Sites_Can_I_Embed_From.3F">supported video sites</a>. Only for video slider layout', 'jevelin' ), jevelin_allowed_html() ),
                     ),
 
                     'iframe' => array(
@@ -104,21 +126,44 @@ $options = array(
                         'value' => 'default',
                         'label' => esc_html__('Header Layout', 'jevelin'),
                         'desc'  => esc_html__('Choose main header layout', 'jevelin'),
-                        'choices' => array(
-                            'default' => esc_html__( 'Default (from theme options)', 'jevelin' ),
-                            '1' => esc_html__( 'Header 1', 'jevelin' ),
-                            '2' => esc_html__( 'Header 2', 'jevelin' ),
-                            '3' => esc_html__( 'Header 3', 'jevelin' ),
-                            '4' => esc_html__( 'Header 4', 'jevelin' ),
-                            '5' => esc_html__( 'Header 5', 'jevelin' ),
-                            '6' => esc_html__( 'Header 6 (side navigation)', 'jevelin' ),
-                            '7' => esc_html__( 'Header 7 (side navigation)', 'jevelin' ),
-                            '8' => esc_html__( 'Header 8', 'jevelin' ),
-							'9' => esc_html__( 'Header 9', 'jevelin' ),
-                            'left-1' => esc_html__( 'Left Header 1', 'jevelin' ),
-                            'left-2' => esc_html__( 'Left Header 2', 'jevelin' ),
-                        ),
+                        'choices' => array_merge( array( 'default' => esc_html__( 'Default (from theme options)', 'jevelin' ) ), jevelin_get_headers() ),
                     ),
+
+
+					'page_title1' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Header Builder (beta)', 'gillion' ).'
+						</span></h3>',
+					),
+
+					'header_above_content' => array(
+						'type' => 'select',
+						'label' => esc_html__( 'Above Content', 'jevelin' ),
+						'desc' => esc_html__( 'Can be useful when using transparent background to place it above content like a slider (will be applied only when viewing actual pages)', 'jevelin' ),
+						'value' => 'disabled',
+						'choices' => array(
+                            'disabled' => esc_html__( 'Disabled', 'jevelin' ),
+                            'enabled' => esc_html__( 'Enabled', 'jevelin' ),
+                        ),
+					),
+
+                    /*'header_style' => array(
+                        'type'  => 'select',
+                        'value' => '1',
+                        'label' => esc_html__('Header Style', 'jevelin'),
+                        'desc'  => esc_html__('Choose main header style', 'jevelin'),
+                        'choices' => array(
+                            'default' => esc_html__( 'Default', 'jevelin' ),
+                            'light' => esc_html__( 'Light (Header + Titlebar)', 'jevelin' ),
+                        ),
+                    ),*/
+
+
+					'page_title2' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Header Classic (from Theme Settings)', 'gillion' ).'
+						</span></h3>',
+					),
 
                     'header_style' => array(
                         'type'  => 'multi-picker',
@@ -136,11 +181,14 @@ $options = array(
                             'header_style' => array(
                                 'type'  => 'select',
                                 'value' => '1',
-                                'label' => esc_html__('Style', 'jevelin'),
-                                'desc'  => esc_html__('Choose main header and titlebar style', 'jevelin'),
+                                'label' => esc_html__('Header Above', 'jevelin'),
+                                'desc'  => esc_html__('Choose if header will be shown above content', 'jevelin'),
                                 'choices' => array(
-                                    'default' => esc_html__( 'Default', 'jevelin' ),
+									'default' => esc_html__( 'Disabled', 'jevelin' ),
                                     'light' => esc_html__( 'Light (Header + Titlebar)', 'jevelin' ),
+									'light light_noborder' => esc_html__( 'Light (Header + Titlebar + withoutborder)', 'jevelin' ),
+                                    'light_mobile_off' => esc_html__( 'Light (Header + Titlebar) - Mobile Off', 'jevelin' ),
+									'bottom_titlebar' => esc_html__( 'Bottom of Titlebar', 'jevelin' ),
                                 ),
                             ),
                         ),
@@ -148,7 +196,7 @@ $options = array(
                             'light' => array(
                                 'description' => array(
                                     'type'  => 'text',
-                                    'value' => '',
+                                    'value' => esc_html__('Lorem ipsum dolor sit amet, consectetur adipiscing elit', 'jevelin'),
                                     'label' => esc_html__('Description', 'jevelin'),
                                     'desc'  => esc_html__('Enter this page description', 'jevelin'),
                                 ),
@@ -157,7 +205,7 @@ $options = array(
                                     'type' => 'switch',
                                     'label' => esc_html__( 'Breadcrumbs', 'jevelin' ),
                                     'desc' => esc_html__( 'Enable or disable dreadcrumbs', 'jevelin' ),
-                                    'value' => true,
+                                    'value' => false,
                                     'left-choice' => array(
                                         'value' => false,
                                         'label' => esc_html__('Off', 'jevelin'),
@@ -172,7 +220,7 @@ $options = array(
                                     'type' => 'switch',
                                     'label' => esc_html__( 'Scroll Down Button', 'jevelin' ),
                                     'desc' => esc_html__( 'Enable or disable scroll down button', 'jevelin' ),
-                                    'value' => true,
+                                    'value' => false,
                                     'left-choice' => array(
                                         'value' => false,
                                         'label' => esc_html__('Off', 'jevelin'),
@@ -182,9 +230,81 @@ $options = array(
                                         'label' => esc_html__('On', 'jevelin'),
                                     ),
                                 ),
+
+								'titlebar_text_style' => array(
+			                        'type' => 'radio',
+			                        'label' => esc_html__( 'Text Style', 'jevelin' ),
+			                        'desc' => esc_html__( 'Choose text style', 'jevelin' ),
+			                       'choices' => array(
+			                            'style1' => esc_html__( 'Style 1', 'jevelin' ),
+			                            'style2' => esc_html__( 'Style 2', 'jevelin' ),
+			                        ),
+			                        'value' => 'style1',
+			                        'inline' => false,
+			                    ),
+
+                            ),
+							'light light_noborder' => array(
+                                'description' => array(
+                                    'type'  => 'text',
+                                    'value' => esc_html__('Lorem ipsum dolor sit amet, consectetur adipiscing elit', 'jevelin'),
+                                    'label' => esc_html__('Description', 'jevelin'),
+                                    'desc'  => esc_html__('Enter this page description', 'jevelin'),
+                                ),
+
+                                'breadcrumbs' => array(
+                                    'type' => 'switch',
+                                    'label' => esc_html__( 'Breadcrumbs', 'jevelin' ),
+                                    'desc' => esc_html__( 'Enable or disable dreadcrumbs', 'jevelin' ),
+                                    'value' => false,
+                                    'left-choice' => array(
+                                        'value' => false,
+                                        'label' => esc_html__('Off', 'jevelin'),
+                                    ),
+                                    'right-choice' => array(
+                                        'value' => true,
+                                        'label' => esc_html__('On', 'jevelin'),
+                                    ),
+                                ),
+
+                                'scroll_button' => array(
+                                    'type' => 'switch',
+                                    'label' => esc_html__( 'Scroll Down Button', 'jevelin' ),
+                                    'desc' => esc_html__( 'Enable or disable scroll down button', 'jevelin' ),
+                                    'value' => false,
+                                    'left-choice' => array(
+                                        'value' => false,
+                                        'label' => esc_html__('Off', 'jevelin'),
+                                    ),
+                                    'right-choice' => array(
+                                        'value' => true,
+                                        'label' => esc_html__('On', 'jevelin'),
+                                    ),
+                                ),
+
+								'titlebar_text_style' => array(
+			                        'type' => 'radio',
+			                        'label' => esc_html__( 'Text Style', 'jevelin' ),
+			                        'desc' => esc_html__( 'Choose text style', 'jevelin' ),
+			                       'choices' => array(
+			                            'style1' => esc_html__( 'Style 1', 'jevelin' ),
+			                            'style2' => esc_html__( 'Style 2', 'jevelin' ),
+			                        ),
+			                        'value' => 'style1',
+			                        'inline' => false,
+			                    ),
+
                             ),
                         ),
                     ),
+
+
+
+					'titlebar1' => array( 'type' => 'html-full', 'value' => '', 'label' => false, 'html'  =>
+						'<h3><span>
+							'.esc_html__( 'Titlebar', 'gillion' ).'
+						</span></h3>',
+					),
 
                     'titlebar' => array(
                         'type'  => 'select',
@@ -197,6 +317,13 @@ $options = array(
                         ),
                         'value' => '',
                         'inline' => false,
+                    ),
+
+					'titlebar_text_color' => array(
+                        'type'  => 'color-picker',
+                        'value' => '',
+                        'label' => esc_html__('Titlebar Text Color', 'jevelin'),
+                        'desc'  => esc_html__('Select titlebar text color', 'jevelin'),
                     ),
 
                     'titlebar_background' => array(
@@ -217,6 +344,13 @@ $options = array(
                         'value' => '',
                         'inline' => false,
                     ),
+
+					'titlebar_revslider' => array(
+					    'type'  => 'select',
+					    'label' => esc_html__('Titlebar Revolution Slider', 'jevelin'),
+					    'desc'  => esc_html__('Replace titlebar content with Revolution Slider', 'jevelin'),
+					    'choices' => $arrSliders,
+					),
 
 
                 ),
@@ -240,6 +374,12 @@ $options = array(
                         'value' => '',
                         'inline' => false,
                     ),
+
+                    'footer_widgets_padding' => array(
+						'type'  => 'text',
+						'label' => esc_html__('Footer Widgets Padding', 'jevelin'),
+						'desc'  => esc_html__('Enter custom footer widgets padding (default: 100px 0 100px 0)', 'jevelin'),
+					),
 
                     'copyright_bar' => array(
                         'type' => 'select',

@@ -15,7 +15,7 @@ import { FormToggle } from '@wordpress/components';
 import { useReducedMotion } from '@wordpress/compose';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text, TextVariant } from '@ithemes/ui';
 import { usePreloadedRiveGraphic } from '@ithemes/security-ui';

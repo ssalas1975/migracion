@@ -58,17 +58,24 @@ class Widget_ImageV2 extends WP_Widget {
     }
 
     function update( $new_instance, $old_instance ) {
-        if ( defined( 'FW' ) ):
+        // Unyson metaboxes
+        if( defined( 'FW' ) && jevelin_framework() == 'unyson' ) :
+
             return fw_get_options_values_from_input(
                 $this->options,
                 FW_Request::POST(fw_html_attr_name_to_array_multi_key($this->get_field_name($this->prefix)), array())
             );
+
+        // Shufflehound metaboxes
+        else :
+            return Shufflehound_Metaboxes::widget_update( $new_instance, $old_instance, $this->options );
         endif;
     }
 
     function form( $values ) {
+        // Unyson metaboxes
+        if( defined( 'FW' ) && jevelin_framework() == 'unyson' ) :
 
-        if ( defined( 'FW' ) ):
             $prefix = $this->get_field_id($this->prefix);
             $id = 'fw-widget-options-'. $prefix;
 
@@ -79,31 +86,38 @@ class Widget_ImageV2 extends WP_Widget {
             ));
             echo '</div>';
             $this->print_widget_javascript($id);
+
+        // Shufflehound metaboxes
+        else :
+            $name_prefix = substr( $this->get_field_name(''), 0, -2 );
+            echo Shufflehound_Metaboxes::widget( $this->options, $values, $name_prefix );
         endif;
 
         return $values;
     }
 
     private function print_widget_javascript($id) {
-        ?><script type="text/javascript">
-            jQuery(function($) {
-            	let timeoutAddId;
-            	$(document).on('widget-added', function(ev, $widget){
-            		clearTimeout(timeoutAddId);
-            		timeoutAddId = setTimeout(function(){ // wait a few milliseconds for html replace to finish
-            			$widget.find('form input[type="submit"]').click();
-            		}, 300);
-            	});
+        if( defined( 'FW' ) && jevelin_framework() == 'unyson' ) : ?>
+            <script type="text/javascript">
+                jQuery(function($) {
+                	let timeoutAddId;
+                	$(document).on('widget-added', function(ev, $widget){
+                		clearTimeout(timeoutAddId);
+                		timeoutAddId = setTimeout(function(){ // wait a few milliseconds for html replace to finish
+                			$widget.find('form input[type="submit"]').click();
+                		}, 300);
+                	});
 
-            	let timeoutUpdateId;
-            	$(document).on('widget-updated', function(ev, $widget){
-            		clearTimeout(timeoutUpdateId);
-            		timeoutUpdateId = setTimeout(function(){ // wait a few milliseconds for html replace to finish
-            			fwEvents.trigger('fw:options:init', { $elements: $widget });
-            		}, 100);
-            	});
-            });
-        </script><?php
+                	let timeoutUpdateId;
+                	$(document).on('widget-updated', function(ev, $widget){
+                		clearTimeout(timeoutUpdateId);
+                		timeoutUpdateId = setTimeout(function(){ // wait a few milliseconds for html replace to finish
+                			fwEvents.trigger('fw:options:init', { $elements: $widget });
+                		}, 100);
+                	});
+                });
+            </script>
+        <?php endif;
     }
 
 }

@@ -84,13 +84,12 @@ class Schema {
 	 * @var array
 	 */
 	public $nullableFields = [
-		'price',                // Needs to be 0 if free for Software Application.
-		'ratingValue',          // Needs to be 0 for 0-star ratings.
-		'value',                // Needs to be 0 if free for product shipping details.
-		'minValue',             // Needs to be 0 for product delivery time.
-		'maxValue',             // Needs to be 0 for product delivery time.
-		'suggestedMinAge',      // Needs to be 0 for PeopleAudience minimum age.
-		'valueAddedTaxIncluded' // Needs to be `false` for WooCommerce products with tax-exclusive pricing.
+		'price',          // Needs to be 0 if free for Software Application.
+		'ratingValue',    // Needs to be 0 for 0 star ratings.
+		'value',          // Needs to be 0 if free for product shipping details.
+		'minValue',       // Needs to be 0 for product delivery time.
+		'maxValue',       // Needs to be 0 for product delivery time.
+		'suggestedMinAge' // Needs to be 0 for PeopleAudience minimum age.
 	];
 
 	/**
@@ -222,10 +221,9 @@ class Schema {
 	}
 
 	/**
-	 * Determines the smart graphs that need to be output by default, as well as the current context.
+	 * Determines the smart graphs that need to be output by default, as well as the current context for the breadcrumbs.
 	 *
-	 * @since   4.2.5
-	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @since 4.2.5
 	 *
 	 * @return void
 	 */
@@ -236,7 +234,7 @@ class Schema {
 		$this->context   = $contextInstance->defaults();
 
 		if ( BuddyPressIntegration::isComponentPage() ) {
-			aioseo()->standalone->buddyPress->component->determineSchemaGraphsAndContext();
+			aioseo()->standalone->buddyPress->component->determineSchemaGraphsAndContext( $contextInstance );
 
 			return;
 		}
@@ -247,7 +245,7 @@ class Schema {
 			return;
 		}
 
-		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
+		if ( aioseo()->helpers->isDynamicHomePage() ) {
 			$this->graphs[] = 'CollectionPage';
 			$this->context  = $contextInstance->home();
 

@@ -1,13 +1,13 @@
 /**
- * WordPress Dependencies
+ * Internal Dependencies
  */
-import { Spinner } from '@wordpress/components';
+import { MarkPro } from '@ithemes/security-style-guide';
 import './style.scss';
 
 export default function Loader() {
 	return (
 		<div className="itsec-loader">
-			<Spinner />
+			<MarkPro />
 		</div>
 	);
 }

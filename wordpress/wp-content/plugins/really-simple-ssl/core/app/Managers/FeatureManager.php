@@ -107,8 +107,6 @@ final class FeatureManager extends AbstractManager
     private function getFeatures(): array
     {
         $featuresPath = $this->env->getString('plugin.feature_path');
-        $proIsActive = ($this->env->getBoolean('plugin.pro') === true);
-        $licenseIsValid = ($this->license->isValid() === true);
 
         $features = [];
 
@@ -118,23 +116,22 @@ final class FeatureManager extends AbstractManager
             }
 
             $isProFeature = ($fileInfo->getFilename() === 'Pro');
-
-            if ($isProFeature && (!$proIsActive || !$licenseIsValid)) {
+            if (!$isProFeature) {
+                $features[] = $fileInfo->getFilename();
                 continue;
             }
 
+            $proIsNotActive = ($this->env->getBoolean('plugin.pro') !== true);
+            if ($proIsNotActive || $this->license->isValid() !== true) {
+                continue;
+            }
 
-            if ($fileInfo->getFilename() === 'Pro') {
-                foreach (new \DirectoryIterator($fileInfo->getPathname()) as $proInfo) {
-                    if ($proInfo->isDot() || !$proInfo->isDir()) {
-                        continue;
-                    }
-                    $features[] = self::PRO_FEATURE_HANDLE . $proInfo->getFilename();
+            foreach (new \DirectoryIterator($fileInfo->getPathname()) as $proInfo) {
+                if ($proInfo->isDot() || !$proInfo->isDir()) {
+                    continue;
                 }
-                continue;
+                $features[] = self::PRO_FEATURE_HANDLE . $proInfo->getFilename();
             }
-
-            $features[] = $fileInfo->getFilename();
         }
         return $features;
     }

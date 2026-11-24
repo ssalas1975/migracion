@@ -14,7 +14,6 @@ class Controller {
 	const API_NAMESPACE = 'elementor/v1';
 	const API_BASE = 'design-system-sync';
 	const HTTP_CREATED = 201;
-	const HTTP_NO_CONTENT = 204;
 	const HTTP_INTERNAL_SERVER_ERROR = 500;
 
 	public function register_hooks() {
@@ -33,10 +32,6 @@ class Controller {
 		try {
 			$stylesheet = new Stylesheet_Manager();
 			$result = $stylesheet->generate();
-
-			if ( null === $result ) {
-				return new WP_REST_Response( null, self::HTTP_NO_CONTENT );
-			}
 
 			return new WP_REST_Response( $result, self::HTTP_CREATED );
 		} catch ( Exception $e ) {

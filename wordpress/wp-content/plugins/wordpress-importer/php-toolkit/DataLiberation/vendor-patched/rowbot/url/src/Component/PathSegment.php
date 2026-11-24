@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component;
+namespace Rowbot\URL\Component;
 
-use VendorPrefix\Rowbot\URL\String\AbstractStringBuffer;
-use VendorPrefix\Rowbot\URL\String\CodePoint;
+use Rowbot\URL\String\AbstractStringBuffer;
+use Rowbot\URL\String\CodePoint;
 
 use function rtrim;
 use function strlen;

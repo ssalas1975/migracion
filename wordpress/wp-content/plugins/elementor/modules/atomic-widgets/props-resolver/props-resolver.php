@@ -74,17 +74,10 @@ abstract class Props_Resolver {
 				return null;
 			}
 
-			$resolved_items = [];
-
-			foreach ( $value['value'] as $item ) {
-				$resolved = $this->resolve_item( $item, null, $prop_type->get_item_type() );
-
-				if ( null !== $resolved ) {
-					$resolved_items[] = $resolved;
-				}
-			}
-
-			$value['value'] = $resolved_items;
+			$value['value'] = array_map(
+				fn( $item ) => $this->resolve_item( $item, null, $prop_type->get_item_type() ),
+				$value['value']
+			);
 		}
 
 		$transformer = $this->transformers_registry->get( $value['$$type'] );

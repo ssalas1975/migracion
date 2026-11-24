@@ -6,7 +6,7 @@ import { Flex, Icon } from '@wordpress/components';
 import { wordpress as loginIcon, arrowRight as continueIcon } from '@wordpress/icons';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Heading, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 

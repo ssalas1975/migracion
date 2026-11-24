@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 return [
 	'handle' => 'elementor-v2-store',
 	'deps' => [
-		'elementor-vendors-redux',
+		'react',
+		'react-dom',
 	],
 ];

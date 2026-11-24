@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 if ( !class_exists('rsp_upgrade_to_pro') ){
     class rsp_upgrade_to_pro {
-        private $version = 2;
+        private $version = 1;
         private $api_url = "";
         private $license = "";
         private $item_id = "";
@@ -74,30 +74,37 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
             $this->steps = array(
                 array(
                     'action' => 'rsp_upgrade_destination_clear',
-                    'doing' => esc_html__( 'Checking if plugin folder exists...', 'really-simple-ssl' ),
-                    'success' => esc_html__( 'Able to create destination folder', 'really-simple-ssl' ),
-                    'error' => esc_html__( 'Destination folder already exists', 'really-simple-ssl' ),
+                    'doing' => __("Checking if plugin folder exists...", "really-simple-ssl"),
+                    'success' => __("Able to create destination folder", "really-simple-ssl"),
+                    'error' => __("Destination folder already exists", "really-simple-ssl"),
                     'type' => 'folder',
                 ),
                 array(
                     'action' => 'rsp_upgrade_activate_license',
-                    'doing' => esc_html__( 'Validating license...', 'really-simple-ssl' ),
-                    'success' => esc_html__( 'License valid', 'really-simple-ssl' ),
-                    'error' => esc_html__( 'License invalid', 'really-simple-ssl' ),
+                    'doing' => __("Validating license...", "really-simple-ssl"),
+                    'success' => __("License valid", "really-simple-ssl"),
+                    'error' => __("License invalid", "really-simple-ssl"),
                     'type' => 'license',
                 ),
                 array(
+                    'action' => 'rsp_upgrade_package_information',
+                    'doing' => __("Retrieving package information...", "really-simple-ssl"),
+                    'success' => __("Package information retrieved", "really-simple-ssl"),
+                    'error' => __("Failed to gather package information", "really-simple-ssl"),
+                    'type' => 'package',
+                ),
+                array(
                     'action' => 'rsp_upgrade_install_plugin',
-                    'doing' => esc_html__( 'Installing plugin...', 'really-simple-ssl' ),
-                    'success' => esc_html__( 'Plugin installed', 'really-simple-ssl' ),
-                    'error' => esc_html__( 'Failed to install plugin', 'really-simple-ssl' ),
+                    'doing' => __("Installing plugin...", "really-simple-ssl"),
+                    'success' => __("Plugin installed", "really-simple-ssl"),
+                    'error' => __("Failed to install plugin", "really-simple-ssl"),
                     'type' => 'install',
                 ),
                 array(
                     'action' => 'rsp_upgrade_activate_plugin',
-                    'doing' => esc_html__( 'Activating plugin...', 'really-simple-ssl' ),
-                    'success' => esc_html__( 'Plugin activated', 'really-simple-ssl' ),
-                    'error' => esc_html__( 'Failed to activate plugin', 'really-simple-ssl' ),
+                    'doing' => __("Activating plugin...", "really-simple-ssl"),
+                    'success' => __("Plugin activated", "really-simple-ssl"),
+                    'error' => __("Failed to activate plugin", "really-simple-ssl"),
                     'type' => 'activate',
                 )
             );
@@ -165,6 +172,7 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
             add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets') );
             add_action( 'wp_ajax_rsp_upgrade_destination_clear', array($this, 'process_ajax_destination_clear') );
             add_action( 'wp_ajax_rsp_upgrade_activate_license', array($this, 'process_ajax_activate_license') );
+            add_action( 'wp_ajax_rsp_upgrade_package_information', array($this, 'process_ajax_package_information') );
             add_action( 'wp_ajax_rsp_upgrade_install_plugin', array($this, 'process_ajax_install_plugin') );
             add_action( 'wp_ajax_rsp_upgrade_activate_plugin', array($this, 'process_ajax_activate_plugin') );
         }
@@ -371,15 +379,13 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
          * - 'token' => wp_nonce 'upgrade_to_pro_nonce'
          * - 'plugin' (This will set $this->slug (Ex. 'really-simple-ssl-pro/really-simple-ssl-pro.php'), based on which plugin)
          *
-         * Sends a WordPress JSON response. On failure, the data field contains
-         * an escaped error message when available.
+         * Echoes array [success]
          */
         public function process_ajax_destination_clear()
         {
             $error = false;
             $response = [
                 'success' => false,
-                'message' => '',
             ];
 
             if ( !rsssl_user_can_manage() ) {
@@ -390,13 +396,13 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
                 $error = true;
             }
 
-            if ( ! current_user_can( 'activate_plugins' ) || ! current_user_can( 'install_plugins' ) ) {
+            if ( ! current_user_can( 'activate_plugins' ) ) {
                 $error = true;
             }
 
             if (empty($this->slug)) {
                 $error = true;
-                $response['message'] = __('Unknown plugin encountered.', 'really-simple-ssl');
+                $response['message'] = esc_html__('Unknown plugin encountered.', 'really-simple-ssl');
             }
 
             if (!$error) {
@@ -417,20 +423,24 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
 
             if ( !$error && file_exists($file ) ) {
                 $error = true;
-                $response['message'] = __("Could not rename folder!", "really-simple-ssl");
+                $response = [
+                    'success' => false,
+                    'message' => __("Could not rename folder!", "really-simple-ssl"),
+                ];
             }
 
             if ( !$error && isset($_GET['plugin']) ) {
                 if ( !file_exists(WP_PLUGIN_DIR . '/' . $this->slug) ) {
-                    $response['success'] = true;
+                    $response = [
+                        'success' => true,
+                    ];
                 }
             }
 
-            if ( $response['success'] ) {
-                wp_send_json_success();
-            }
-
-            wp_send_json_error( esc_html( $response['message'] ) );
+            $response = json_encode($response);
+            header("Content-Type: application/json");
+            echo $response;
+            exit;
         }
 
 
@@ -446,8 +456,7 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
          *
          * (Without this link you cannot download the pro package from the website)
          *
-         * Sends a WordPress JSON response. On failure, the data field contains
-         * an escaped error message when available.
+         * Echoes array [license status, response message]
          */
         public function process_ajax_activate_license()
         {
@@ -468,11 +477,10 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
                 update_site_option($this->prefix.'auto_installed_license', $license);
             }
 
-            if ( $response['success'] ) {
-                wp_send_json_success();
-            }
-
-            wp_send_json_error( esc_html( $response['message'] ) );
+            $response = json_encode($response);
+            header("Content-Type: application/json");
+            echo $response;
+            exit;
         }
 
 
@@ -574,60 +582,99 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
             ];
         }
 
+
         /**
-         * Download and install the plugin using package information retrieved
-         * server-side from the license API.
+         * Ajax GET request
+         *
+         * Do an API request to get the download link where to download the pro package
          *
          * Requires from GET:
          * - 'token' => wp_nonce 'upgrade_to_pro_nonce'
+         * - 'license'
+         * - 'item_id'
          *
-         * Sends a JSON response containing the success state and, on failure,
-         * an error message.
+         * Echoes array [success, download_link]
+         */
+        public function process_ajax_package_information()
+        {
+            if ( !rsssl_user_can_manage() ) {
+                return false;
+            }
+
+            if ( isset($_GET['token']) && wp_verify_nonce($_GET['token'], 'upgrade_to_pro_nonce') && isset($_GET['license']) && isset($_GET['item_id']) ) {
+                $api = $this->api_request();
+                if ( $api && isset($api->download_link) ) {
+                    $response = [
+                        'success' => true,
+                        'download_link' => $api->download_link,
+                    ];
+                } else {
+                    $response = [
+                        'success' => false,
+                        'download_link' => "",
+                    ];
+                }
+                $response = json_encode($response);
+                header("Content-Type: application/json");
+                echo $response;
+                exit;
+
+            }
+        }
+
+
+        /**
+         * Ajax GET request
+         *
+         * Download and install the plugin
+         *
+         * Requires from GET:
+         * - 'token' => wp_nonce 'upgrade_to_pro_nonce'
+         * - 'download_link'
+         * (Linked license on the website to this site)
+         *
+         * Echoes array [success]
          */
         public function process_ajax_install_plugin()
         {
             $message = '';
 
-            if ( ! rsssl_user_can_manage() || ! current_user_can( 'install_plugins' ) ) {
-                wp_send_json_error(
-                    esc_html__( 'Insufficient permissions to install plugins.', 'really-simple-ssl' )
-                );
+            if ( !rsssl_user_can_manage() ) {
+                return [
+                    'success' => false,
+                    'message' => $message,
+                ];
             }
 
-            $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
-            if ( ! wp_verify_nonce( $token, 'upgrade_to_pro_nonce' ) ) {
-                wp_send_json_error(
-                    esc_html__( 'Security check failed. Please refresh the page and try again.', 'really-simple-ssl' )
-                );
+            if ( isset($_GET['token']) && wp_verify_nonce($_GET['token'], 'upgrade_to_pro_nonce') && isset($_GET['download_link']) ) {
+
+                $download_link = esc_url_raw($_GET['download_link']);
+                require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+                include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+                $skin     = new WP_Ajax_Upgrader_Skin();
+                $upgrader = new Plugin_Upgrader( $skin );
+                $result   = $upgrader->install( $download_link );
+
+                if ( $result ) {
+                    $response = [
+                        'success' => true,
+                    ];
+                } else {
+                    if ( is_wp_error($result) ){
+                        $message = $result->get_error_message();
+                    }
+                    $response = [
+                        'success' => false,
+                        'message' => $message,
+                    ];
+                }
+
+                $response = json_encode($response);
+                header("Content-Type: application/json");
+                echo $response;
+                exit;
             }
-
-            $api           = $this->api_request();
-            $download_link = '';
-            if ( $api && ! empty( $api->download_link ) && is_string( $api->download_link ) ) {
-                $download_link = esc_url_raw( $api->download_link );
-            }
-            if ( empty( $download_link ) ) {
-                wp_send_json_error(
-                    esc_html__( 'Failed to retrieve download link from license server.', 'really-simple-ssl' )
-                );
-            }
-
-            require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-            include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-
-            $skin     = new WP_Ajax_Upgrader_Skin();
-            $upgrader = new Plugin_Upgrader( $skin );
-            $result   = $upgrader->install( $download_link );
-
-            if ( $result ) {
-                wp_send_json_success();
-            }
-
-            if ( is_wp_error( $result ) ) {
-                $message = $result->get_error_message();
-            }
-
-            wp_send_json_error( esc_html( $message ) );
         }
 
 
@@ -640,29 +687,31 @@ if ( !class_exists('rsp_upgrade_to_pro') ){
          * - 'token' => wp_nonce 'upgrade_to_pro_nonce'
          * - 'plugin' (This will set $this->slug (Ex. 'really-simple-ssl-pro/really-simple-ssl-pro.php'), based on which plugin)
          *
-         * Sends a WordPress JSON response containing the success state.
+         * Echoes array [success]
          */
         public function process_ajax_activate_plugin()
         {
-            if ( ! rsssl_user_can_manage() || ! current_user_can( 'activate_plugins' ) ) {
-                wp_send_json_error();
+            if ( !rsssl_user_can_manage() ) {
+                return;
             }
 
-            if (
-                ! isset( $_GET['token'] )
-                || ! wp_verify_nonce( $_GET['token'], 'upgrade_to_pro_nonce' )
-                || ! isset( $_GET['plugin'] )
-            ) {
-                wp_send_json_error();
+            if ( isset($_GET['token']) && wp_verify_nonce($_GET['token'], 'upgrade_to_pro_nonce') && isset($_GET['plugin']) ) {
+                $networkwide = is_multisite() && rsssl_is_networkwide_active();
+                $result = activate_plugin( $this->slug, '', $networkwide  );
+                if ( !is_wp_error($result) ) {
+                    $response = [
+                        'success' => true,
+                    ];
+                } else {
+                    $response = [
+                        'success' => false,
+                    ];
+                }
+                $response = json_encode($response);
+                header("Content-Type: application/json");
+                echo $response;
+                exit;
             }
-
-            $networkwide = is_multisite() && rsssl_is_networkwide_active();
-            $result = activate_plugin( $this->slug, '', $networkwide );
-            if ( is_wp_error( $result ) ) {
-                wp_send_json_error();
-            }
-
-            wp_send_json_success();
         }
     }
     $rsp_upgrade_to_pro = new rsp_upgrade_to_pro();

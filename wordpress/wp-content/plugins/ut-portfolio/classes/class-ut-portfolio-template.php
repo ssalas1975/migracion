@@ -1,10 +1,5 @@
 <?php
 
-/*
- * Portfolio Management by United Themes
- * http://www.unitedthemes.com/
- */
-
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class UT_Portfolio_Template {

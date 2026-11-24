@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace VendorPrefix\Symfony\Polyfill\Ctype;
+namespace Symfony\Polyfill\Ctype;
 
 use function chr;
 use function is_int;

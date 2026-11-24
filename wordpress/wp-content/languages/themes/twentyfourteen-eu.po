@@ -1,0 +1,499 @@
+# Translation of Themes - Twenty Fourteen in Basque
+# This file is distributed under the same license as the Themes - Twenty Fourteen package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-08-11 07:17:47+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: eu_ES\n"
+"Project-Id-Version: Themes - Twenty Fourteen\n"
+
+#. Description of the theme
+msgid "In 2014, our default theme lets you create a responsive magazine website with a sleek, modern design. Feature your favorite homepage content in either a grid or a slider. Use the three widget areas to customize your website, and change your content's layout with a full-width page template and a contributor page to show off your authors. Creating a magazine website with WordPress has never been easier."
+msgstr "2014an, gure defektuzko itxurak hainbat aukera ematen dizkizu: aldizkari baten diseinu modernoko webgunea; webguneko edukia portadak destakatzeko aukera; widgeten hiru area edukiak antolatzeko; zabalera osoko txantiloia; egileen orrialdea; ... Aldizkari bat sortzea ez da sekula hain erraza izan."
+
+#. Theme Name of the theme
+#: inc/block-patterns.php:20 inc/customizer.php:162
+msgid "Twenty Fourteen"
+msgstr "Twenty Fourteen"
+
+#: functions.php:87
+msgid "Green"
+msgstr "Berdea"
+
+#: functions.php:92
+msgid "Black"
+msgstr "Beltza"
+
+#: functions.php:97
+msgid "Dark Gray"
+msgstr "Gris Iluna"
+
+#: functions.php:102
+msgid "Medium Gray"
+msgstr "Gris Ertaina"
+
+#: functions.php:107
+msgid "Light Gray"
+msgstr "Gris Argia"
+
+#: functions.php:112
+msgid "White"
+msgstr "Zuria"
+
+#. translators: %s: Post title.
+#: comments.php:30
+msgctxt "comments title"
+msgid "One thought on &ldquo;%s&rdquo;"
+msgstr "Iruzkin bat &ldquo;%s&rdquo; bidalketan"
+
+#. translators: 1: Number of comments, 2: Post title.
+#: comments.php:34
+msgctxt "comments title"
+msgid "%1$s thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] "Erantzun %1$s &ldquo;%2$s&rdquo; bidalketan"
+msgstr[1] "%1$s erantzun &ldquo;%2$s&rdquo; bidalketan"
+
+#. Template Name of the theme
+msgid "Full Width Page"
+msgstr "Zabalera osoko orrialdea"
+
+#. Template Name of the theme
+msgid "Contributor Page"
+msgstr "Laguntzailearen orrialdea"
+
+#. translators: %s: Tag title.
+#: tag.php:25
+msgid "Tag Archives: %s"
+msgstr "Etiketaren artxiboa: %s"
+
+#. translators: %s: Search query.
+#: search.php:21
+msgid "Search Results for: %s"
+msgstr "Bilaketaren emaitzak: %s"
+
+#: inc/widgets.php:305
+msgid "Post format to show:"
+msgstr "Erakutsiko den sarrera formatua:"
+
+#: inc/widgets.php:302
+msgid "Number of posts to show:"
+msgstr "Erakutsi beharreko bidalketa kopurua:"
+
+#: inc/widgets.php:299
+msgid "Title:"
+msgstr "Izenburua:"
+
+#. translators: Used with More archives link.
+#: inc/widgets.php:243
+msgid "%s <span class=\"meta-nav\">&rarr;</span>"
+msgstr "%s <span class=\"meta-nav\">&rarr;</span>"
+
+#. translators: 1: Post permalink, 2: Number of images in the gallery.
+#: inc/widgets.php:198
+msgid "This gallery contains <a href=\"%1$s\" rel=\"bookmark\">%2$s photo</a>."
+msgid_plural "This gallery contains <a href=\"%1$s\" rel=\"bookmark\">%2$s photos</a>."
+msgstr[0] "Galeria honek <a href=\"%1$s\" rel=\"bookmark\">argazki %2$s </a> du."
+msgstr[1] "Galeria honek <a href=\"%1$s\" rel=\"bookmark\">%2$s argazki</a> ditu."
+
+#: inc/widgets.php:158 inc/widgets.php:208
+msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
+msgstr "Jarraitu irakurtzen <span class=\"meta-nav\">&rarr;</span>"
+
+#: inc/widgets.php:108
+msgid "More asides"
+msgstr "Alboko gehiago"
+
+#: inc/widgets.php:107 taxonomy-post_format.php:30
+msgid "Asides"
+msgstr "Albokoak"
+
+#: inc/widgets.php:103
+msgid "More galleries"
+msgstr "Galeria gehiago"
+
+#: inc/widgets.php:102 taxonomy-post_format.php:48
+msgid "Galleries"
+msgstr "Galeriak"
+
+#: inc/widgets.php:99
+msgid "More links"
+msgstr "Esteka gehiago"
+
+#: inc/widgets.php:95
+msgid "More quotes"
+msgstr "Aipu gehiago"
+
+#: inc/widgets.php:98 taxonomy-post_format.php:45
+msgid "Links"
+msgstr "Estekak"
+
+#: inc/widgets.php:94 taxonomy-post_format.php:42
+msgid "Quotes"
+msgstr "Aipuak"
+
+#: inc/widgets.php:91
+msgid "More audio"
+msgstr "Audio gehiago"
+
+#: inc/widgets.php:90 taxonomy-post_format.php:39
+msgid "Audio"
+msgstr "Audioa"
+
+#: inc/widgets.php:87
+msgid "More videos"
+msgstr "Bideo gehiago"
+
+#: inc/widgets.php:86 taxonomy-post_format.php:36
+msgid "Videos"
+msgstr "Bideoak"
+
+#: inc/widgets.php:83
+msgid "More images"
+msgstr "Irudi gehiago"
+
+#: inc/widgets.php:82 taxonomy-post_format.php:33
+msgid "Images"
+msgstr "Irudiak"
+
+#: inc/widgets.php:38
+msgid "Use this widget to list your recent Aside, Quote, Video, Audio, Image, Gallery, and Link posts."
+msgstr "Erabili widget hau zure azken Alboko, Aipu, Bideo, Audio, Irudi, Galeria eta Esteka bidalketak zerrendatzeko."
+
+#: inc/widgets.php:35
+msgid "Twenty Fourteen Ephemera"
+msgstr "Twenty Fourteen Ephemera"
+
+#: inc/template-tags.php:111
+msgid "Sticky"
+msgstr "Itsaskorra"
+
+#: inc/template-tags.php:94
+msgid "<span class=\"meta-nav\">Next Post</span>%title"
+msgstr "<span class=\"meta-nav\">Hurrengo sarrera</span>%title"
+
+#: inc/template-tags.php:93
+msgid "<span class=\"meta-nav\">Previous Post</span>%title"
+msgstr "<span class=\"meta-nav\">Aurreko sarrera</span>%title"
+
+#: inc/template-tags.php:91
+msgid "<span class=\"meta-nav\">Published In</span>%title"
+msgstr "<span class=\"meta-nav\">Kategoria</span>%title"
+
+#: inc/template-tags.php:87
+msgid "Post navigation"
+msgstr "Bidalketen zehar nabigatu"
+
+#: inc/template-tags.php:60
+msgid "Posts navigation"
+msgstr "Bidalketetan zehar nabigatu"
+
+#: inc/template-tags.php:52
+msgid "Next &rarr;"
+msgstr "Hurrengoa &rarr;"
+
+#: inc/template-tags.php:51
+msgid "&larr; Previous"
+msgstr "&larr; Aurrekoa"
+
+#: inc/featured-content.php:423
+msgid "Don&rsquo;t display tag on front end."
+msgstr "Ez erakutsi etiketa alde publikoan."
+
+#: inc/featured-content.php:415
+msgid "Tag Name"
+msgstr "Etiketa izena"
+
+#. translators: %s: Twenty Fourteen documentation URL.
+#: inc/customizer.php:170
+msgid "For an in-depth tutorial, and more tips and tricks, visit the <a href=\"%s\">Twenty Fourteen documentation</a>."
+msgstr "Tutorial sakonago bat nahi baduzu, joan <a href=\"%s\">Twenty Fourteen itxuraren dokumentaziora</a>"
+
+#. translators: %s: Featured images documentation URL.
+#: inc/customizer.php:168
+msgid "Enhance your site design by using <a href=\"%s\">Featured Images</a> for posts you&rsquo;d like to stand out (also known as post thumbnails). This allows you to associate an image with your post without inserting it. Twenty Fourteen uses featured images for posts and pages&mdash;above the title&mdash;and in the Featured Content area on the home page."
+msgstr "Hobetu zure gunearen diseinua <a href=\"%s\">Destakatutako irudiak</a> erabiliz zure sarreratan (sarreren iruditxo gisa ere ezagunak dira). Horrela, irudiak sarrerekin lotu ditzakezu edukiak sartu gabe. Twenty Fourteenek destakatutako irudiak erabiltzen ditu sarrera eta orrialdeentzat &mdash;izenburuaren gainetik&mdash; eta baita sarrera orriko Destakatutako Edukiaren arean ere."
+
+#. translators: 1: Featured tag editor URL, 2: Post editor URL, 3: Customizer
+#. URL, 4: Post editor URL.
+#: inc/customizer.php:166
+msgid "The home page features your choice of up to 6 posts prominently displayed in a grid or slider, controlled by a <a href=\"%1$s\">tag</a>; you can change the tag and layout in <a href=\"%2$s\">Appearance &rarr; Customize</a>. If no posts match the tag, <a href=\"%3$s\">sticky posts</a> will be displayed instead."
+msgstr "Hasiera-orriak <a href=\"%1$s\">etiketa</a> baten bidez zure azken 6 bidalketak grid edo slider batean nabarmentzen ditu; etiketa eta antolaketa <a href=\"%2$s\">Aurkezpena &rarr; Pertsonalizatu</a> atalean aldatu ditzakezu. Etiketa hori duen bidalketarik ez badago, <a href=\"%3$s\">bidalketa itsaskorrak</a> erakutsiko dira bere ordez."
+
+#: inc/customizer.php:90
+msgid "Slider"
+msgstr "Sliderra"
+
+#: inc/customizer.php:89
+msgid "Grid"
+msgstr "Saretxoa"
+
+#: inc/customizer.php:85
+msgid "Layout"
+msgstr "Diseinua"
+
+#. translators: 1: Featured tag editor URL, 2: Post editor URL, 3: Customizer
+#. URL, 4: Post editor URL.
+#: inc/customizer.php:65 inc/customizer.php:166 inc/featured-content.php:385
+#: inc/featured-content.php:397 inc/featured-content.php:463
+msgctxt "featured content default tag slug"
+msgid "featured"
+msgstr "destakatua"
+
+#. translators: 1: Featured tag editor URL, 2: Post editor URL.
+#: inc/customizer.php:64 inc/featured-content.php:384
+msgid "Use a <a href=\"%1$s\">tag</a> to feature your posts. If no posts match the tag, <a href=\"%2$s\">sticky posts</a> will be displayed instead."
+msgstr "Erabili <a href=\"%1$s\">etiketa</a> zure sarrerak sailkatzeko. Etiketa hori duen sarrerarik ez badago <a href=\"%2$s\">sarrera itsaskorrak</a> agertuko dira."
+
+#: inc/customizer.php:61 inc/featured-content.php:381
+msgid "Featured Content"
+msgstr "Destakatutako edukia"
+
+#: inc/customizer.php:50 inc/customizer.php:51
+msgid "May only be visible on wide screens."
+msgstr "Agian pantaila zabaletan bakarrik ikusiko da."
+
+#: inc/customizer.php:53 inc/customizer.php:54
+msgid "Background may only be visible on wide screens."
+msgstr "Atzeko planoa pantaila zabaletan bakarrik ikustea gerta daiteke."
+
+#: inc/customizer.php:46
+msgid "Display Site Title &amp; Tagline"
+msgstr "Gunearen izenburua eta azpititulua erakutsi"
+
+#: inc/customizer.php:43
+msgid "Site Title Color"
+msgstr "Gunearen izenburuaren kolorea"
+
+#. translators: %s: WordPress version.
+#: inc/back-compat.php:41 inc/back-compat.php:56 inc/back-compat.php:77
+msgid "Twenty Fourteen requires at least WordPress version 3.6. You are running version %s. Please upgrade and try again."
+msgstr "Twenty Fourteen erabiltzeko gutxienez WordPress 3.6 erabili behar duzu. Orain %s bertsioa darabilzu. Eguneratu eta saiatu berriz."
+
+#: image.php:69
+msgid "Next Image"
+msgstr "Hurrengo irudia"
+
+#: image.php:68
+msgid "Previous Image"
+msgstr "Aurreko irudia"
+
+#: header.php:54
+msgid "Skip to content"
+msgstr "Edukira salto egin"
+
+#: header.php:53
+msgid "Primary Menu"
+msgstr "Menu nagusia"
+
+#: header.php:49
+msgid "Search"
+msgstr "Bilatu"
+
+#. translators: %s: Page number.
+#: functions.php:659
+msgid "Page %s"
+msgstr "%s orrialdea"
+
+#. translators: %d: Post count.
+#: functions.php:538
+msgid "%d Article"
+msgid_plural "%d Articles"
+msgstr[0] "Artikulu %d"
+msgstr[1] "%d artikulu"
+
+#: functions.php:362
+msgid "Next"
+msgstr "Hurrengoa"
+
+#: functions.php:361
+msgid "Previous"
+msgstr "Aurrekoa"
+
+#. translators: If there are characters in your language that are not supported
+#. by Lato, translate this to 'off'. Do not translate into your own language.
+#: functions.php:309
+msgctxt "Lato font: on or off"
+msgid "on"
+msgstr "on"
+
+#: functions.php:286
+msgid "Appears in the footer section of the site."
+msgstr "Guneko oinean agertzen da."
+
+#: functions.php:284
+msgid "Footer Widget Area"
+msgstr "Orrialde bukaerako Widget Area"
+
+#: functions.php:275
+msgid "Additional sidebar that appears on the right."
+msgstr "Eskuinean agertzen den alboko-barra"
+
+#: functions.php:273
+msgid "Content Sidebar"
+msgstr "Edukien alboko-barra"
+
+#: functions.php:264
+msgid "Main sidebar that appears on the left."
+msgstr "Ezkerrean agertzen den alboko-barra nagusia"
+
+#: functions.php:262
+msgid "Primary Sidebar"
+msgstr "Lehenengo mailako alboko-barra"
+
+#: functions.php:131
+msgid "Secondary menu in left sidebar"
+msgstr "Ezkerreko alboko-barrako bigarren mailako menua"
+
+#: functions.php:130
+msgid "Top primary menu"
+msgstr "Goiko menu nagusia"
+
+#. translators: %s: WordPress
+#: footer.php:29
+msgid "Proudly powered by %s"
+msgstr "%s(e)kin eginda"
+
+#: content-none.php:32
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "Ezin izan dugu bila ari zinena aurkitu. Erabili bilaketa mesedez."
+
+#: content-none.php:27
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "Barkatu, ez dago emaitzik. Saiatu beste gauza bat bilatzen."
+
+#. translators: %s: Post editor URL.
+#: content-none.php:21
+msgid "Ready to publish your first post? <a href=\"%s\">Get started here</a>."
+msgstr "Lehenengo bidalketa argitaratzeko prest? <a href=\"%1$s\">Hemen hasi</a>."
+
+#: content-none.php:12
+msgid "Nothing Found"
+msgstr "Ez da ezer aurkitu"
+
+#: content-aside.php:56 content-audio.php:56 content-gallery.php:56
+#: content-image.php:56 content-link.php:56 content-page.php:23
+#: content-quote.php:56 content-video.php:56 content.php:65 image.php:56
+msgid "Pages:"
+msgstr "Orrialdeak:"
+
+#. translators: %s: Post title.
+#: content-aside.php:49 content-audio.php:49 content-gallery.php:49
+#: content-image.php:49 content-link.php:49 content-quote.php:49
+#: content-video.php:49 content.php:58 inc/template-tags.php:230
+msgid "Continue reading %s <span class=\"meta-nav\">&rarr;</span>"
+msgstr "Jarraitu %s irakurtzen <span class=\"meta-nav\">&rarr;</span> "
+
+#: content-aside.php:40 content-audio.php:40 content-gallery.php:40
+#: content-image.php:40 content-link.php:40 content-page.php:30
+#: content-quote.php:40 content-video.php:40 content.php:43 image.php:35
+#: page-templates/contributors.php:36
+msgid "Edit"
+msgstr "Editatu"
+
+#: content-aside.php:37 content-audio.php:37 content-gallery.php:37
+#: content-image.php:37 content-link.php:37 content-quote.php:37
+#: content-video.php:37 content.php:39 inc/widgets.php:231
+msgid "% Comments"
+msgstr "% iruzkin"
+
+#: content-aside.php:37 content-audio.php:37 content-gallery.php:37
+#: content-image.php:37 content-link.php:37 content-quote.php:37
+#: content-video.php:37 content.php:39 inc/widgets.php:231
+msgid "1 Comment"
+msgstr "Iruzkin 1"
+
+#: content-aside.php:37 content-audio.php:37 content-gallery.php:37
+#: content-image.php:37 content-link.php:37 content-quote.php:37
+#: content-video.php:37 content.php:39 inc/widgets.php:231
+msgid "Leave a comment"
+msgstr "Utzi iruzkina"
+
+#: content-aside.php:17 content-audio.php:17 content-featured-post.php:28
+#: content-gallery.php:17 content-image.php:17 content-link.php:17
+#: content-quote.php:17 content-video.php:17 content.php:19
+msgctxt "Used between list items, there is a space after the comma."
+msgid ", "
+msgstr ", "
+
+#: comments.php:77
+msgid "Comments are closed."
+msgstr "Iruzkinak itxiak daude."
+
+#: comments.php:52 comments.php:72
+msgid "Newer Comments &rarr;"
+msgstr "Iruzkin berriagoak &rarr;"
+
+#: comments.php:51 comments.php:71
+msgid "&larr; Older Comments"
+msgstr "&larr; iruzkin zaharragoak"
+
+#: comments.php:50 comments.php:70
+msgid "Comment navigation"
+msgstr "Iruzkinen zehar nabigatu"
+
+#. translators: %s: Category title.
+#: category.php:23
+msgid "Category Archives: %s"
+msgstr "Kategoriaren artxiboa: %s"
+
+#. translators: %s: Author display name.
+#: author.php:32
+msgid "All posts by %s"
+msgstr "%s-(r)en bidalketa guztiak"
+
+#: archive.php:40 taxonomy-post_format.php:51
+msgid "Archives"
+msgstr "Artxiboak"
+
+#. translators: %s: Date.
+#: archive.php:38
+msgctxt "yearly archives date format"
+msgid "Y"
+msgstr "Y"
+
+#. translators: %s: Date.
+#: archive.php:38
+msgid "Yearly Archives: %s"
+msgstr "Urteko artxiboak: %s"
+
+#. translators: %s: Date.
+#: archive.php:35
+msgctxt "monthly archives date format"
+msgid "F Y"
+msgstr "F Y"
+
+#. translators: %s: Date.
+#: archive.php:35
+msgid "Monthly Archives: %s"
+msgstr "Hileko artxiboak: %s"
+
+#. translators: %s: Date.
+#: archive.php:32
+msgid "Daily Archives: %s"
+msgstr "Eguneko artxiboak: %s"
+
+#: 404.php:21
+msgid "It looks like nothing was found at this location. Maybe try a search?"
+msgstr "Ezin izan da hemen ezer aurkitu. Agian bilaketa batekin?"
+
+#: 404.php:17
+msgid "Not Found"
+msgstr "Ez da ezer aurkitu"
+
+#. Author URI of the theme
+#: footer.php:26
+msgid "https://wordpress.org/"
+msgstr "https://wordpress.org/"
+
+#. Author of the theme
+msgid "the WordPress team"
+msgstr "WordPress taldea"
+
+#. Theme URI of the theme
+msgid "https://wordpress.org/themes/twentyfourteen/"
+msgstr "https://wordpress.org/themes/twentyfourteen/"

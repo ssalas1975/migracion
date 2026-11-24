@@ -42,25 +42,27 @@ if( !class_exists('Widget_Social') ) :
 				'widget-title' => esc_html__( 'Social Title:', 'jevelin' ),
 				'facebook'     => esc_html__( 'Facebook URL:', 'jevelin' ),
 				'twitter'      => esc_html__( 'Twitter URL:', 'jevelin' ),
-				'gplus'        => esc_html__( 'Google URL:', 'jevelin' ),
 				'instagram'    => esc_html__( 'Instagram URL:', 'jevelin' ),
 				'dribbble'     => esc_html__( 'Dribbble URL:', 'jevelin' ),
 				'behance'      => esc_html__( 'Behance URL:', 'jevelin' ),
 				'linkedin'     => esc_html__( 'Linkedin URL:', 'jevelin' ),
+				'youtube'     => esc_html__( 'YouTube URL:', 'jevelin' ),
 			);
 
 			$instance = wp_parse_args( (array) $instance, $titles );
 
-			foreach ( $instance as $key => $value ) {
-				?>
+			foreach ( $instance as $key => $value ) :
+				if( isset( $titles[ $key ] ) && $titles[ $key ] ) : ?>
+
 				<p>
 					<label><?php echo esc_attr( $titles[ $key ] ); ?></label>
 					<input class="widefat widget_social_link widget_link_field"
 					       name="<?php echo esc_attr( $this->get_field_name( $key ) ); ?>" type="text"
 					       value="<?php echo ( $instance[ $key ] === $titles[ $key ] ) ? '' : esc_attr( $instance[ $key ] ); ?>"/>
 				</p>
-			<?php
-			}
+
+			<?php endif;
+			endforeach;
 		}
 	}
 endif;

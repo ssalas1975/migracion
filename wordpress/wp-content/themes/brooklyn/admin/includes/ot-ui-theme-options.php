@@ -10,13 +10,16 @@
  */
 
 /* get the settings array */
-$get_settings = _ut_theme_options();
+$get_settings = get_option( 'option_tree_settings' );
 
 /* sections array */
 $sections = isset( $get_settings['sections'] ) ? $get_settings['sections'] : array();
 
 /* settings array */
 $settings = isset( $get_settings['settings'] ) ? $get_settings['settings'] : array();
+
+/* contexual_help array */
+$contextual_help = isset( $get_settings['contextual_help'] ) ? $get_settings['contextual_help'] : array();
 
 /* build the Theme Options */
 if ( function_exists( 'ot_register_settings' ) ) {
@@ -27,17 +30,18 @@ if ( function_exists( 'ot_register_settings' ) ) {
         'pages'               => array( 
           array(
             'id'              => 'ot_theme_options',
-            'parent_slug'     => apply_filters( 'ot_theme_options_parent_slug', 'unite-welcome-page' ),
+            'parent_slug'     => apply_filters( 'ot_theme_options_parent_slug', 'themes.php' ),
             'page_title'      => apply_filters( 'ot_theme_options_page_title', __( 'Theme Options', 'unitedthemes' ) ),
             'menu_title'      => apply_filters( 'ot_theme_options_menu_title', __( 'Theme Options', 'unitedthemes' ) ),
             'capability'      => apply_filters( 'ot_theme_options_capability', 'edit_theme_options' ),
-            'menu_slug'       => 'ut_theme_options',
+            'menu_slug'       => 'ot-theme-options',
             'icon_url'        => apply_filters( 'ot_theme_options_icon_url', null ),
             'position'        => apply_filters( 'ot_theme_options_position', null ),
             'updated_message' => apply_filters( 'ot_theme_options_updated_message', __( 'Theme Options updated.', 'unitedthemes' ) ),
             'reset_message'   => apply_filters( 'ot_theme_options_reset_message', __( 'Theme Options reset.', 'unitedthemes' ) ),
             'button_text'     => apply_filters( 'ot_theme_options_button_text', __( 'Save Changes', 'unitedthemes' ) ),
             'screen_icon'     => 'themes',
+            'contextual_help' => $contextual_help,
             'sections'        => $sections,
             'settings'        => $settings
           )

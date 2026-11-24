@@ -243,10 +243,10 @@ class Connect {
 		$hashedOth = hash_hmac( 'sha512', $oth, wp_salt() );
 
 		// Save the options.
+		aioseo()->internalOptions->internal->connect->key     = $key;
 		aioseo()->internalOptions->internal->connect->time    = time();
 		aioseo()->internalOptions->internal->connect->network = $network;
-		aioseo()->sensitiveOptions->set( 'connectKey', $key );
-		aioseo()->sensitiveOptions->set( 'connectToken', $oth );
+		aioseo()->internalOptions->internal->connect->token   = $oth;
 
 		$url = add_query_arg( [
 			'key'      => $key,
@@ -296,7 +296,7 @@ class Connect {
 			wp_send_json_error( $error );
 		}
 
-		$oth = aioseo()->sensitiveOptions->get( 'connectToken' );
+		$oth = aioseo()->internalOptions->internal->connect->token;
 		if ( empty( $oth ) ) {
 			wp_send_json_error( $error );
 		}
@@ -307,7 +307,7 @@ class Connect {
 		}
 
 		// Delete connect token so we don't replay.
-		aioseo()->sensitiveOptions->set( 'connectToken', null );
+		aioseo()->internalOptions->internal->connect->token = null;
 
 		// Verify pro not activated.
 		if ( aioseo()->pro ) {
@@ -315,13 +315,13 @@ class Connect {
 		}
 
 		// Check license key.
-		$licenseKey = aioseo()->sensitiveOptions->get( 'connectKey' );
+		$licenseKey = aioseo()->internalOptions->internal->connect->key;
 		if ( ! $licenseKey ) {
 			wp_send_json_error( esc_html__( 'You are not licensed.', 'all-in-one-seo-pack' ) );
 		}
 
 		// Set the license key in a new option so we can get it when Pro is activated.
-		aioseo()->sensitiveOptions->set( 'connectLicenseKey', $licenseKey );
+		aioseo()->internalOptions->internal->connectLicenseKey = $licenseKey;
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';

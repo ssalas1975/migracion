@@ -10,7 +10,7 @@ import { SVG, Circle } from '@wordpress/primitives';
 import { Flex } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Button } from '@ithemes/ui';
 

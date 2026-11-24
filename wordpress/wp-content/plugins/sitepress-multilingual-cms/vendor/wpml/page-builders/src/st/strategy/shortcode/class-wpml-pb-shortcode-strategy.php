@@ -2,15 +2,7 @@
 
 class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 
-	private $shortcodes = array(
-		WPML_PB_Shortcode_Content_Wrapper::WRAPPER_SHORTCODE_NAME => array(
-			'encoding'           => '',
-			'encoding-condition' => '',
-			'type'               => '',
-			'ignore-content'     => false,
-			'attributes'         => array(),
-		),
-	);
+	private $shortcodes = array();
 	/** @var  WPML_PB_Factory $factory */
 	private $factory;
 
@@ -36,7 +28,6 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 					'encoding'           => $shortcode['tag']['encoding'],
 					'encoding-condition' => isset( $shortcode['tag']['encoding-condition'] ) ? $shortcode['tag']['encoding-condition'] : '',
 					'type'               => isset( $shortcode['tag']['type'] ) ? $shortcode['tag']['type'] : '',
-					'ignore-content'     => isset( $shortcode['tag']['ignore-content'] ) ? (bool) $shortcode['tag']['ignore-content'] : false,
 					'attributes'         => array(),
 				);
 			}
@@ -69,10 +60,6 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 			return strtoupper( $this->shortcodes[ $tag ]['type'] );
 		}
 		return 'VISUAL';
-	}
-
-	public function get_shortcode_ignore_content( $tag ) {
-		return $this->shortcodes[ $tag ]['ignore-content'];
 	}
 
 	public function get_shortcode_attribute_encoding( $tag, $attribute ) {

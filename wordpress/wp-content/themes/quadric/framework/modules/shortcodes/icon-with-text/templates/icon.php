@@ -1,0 +1,1 @@
+<?php echo edgtf_quadric_execute_shortcode('edgtf_icon', $icon_parameters); ?>

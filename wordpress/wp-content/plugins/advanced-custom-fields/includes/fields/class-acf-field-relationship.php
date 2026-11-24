@@ -111,7 +111,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 				$key   = '';
 			}
 
-			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic, 'relationship' ) ) {
+			if ( ! acf_verify_ajax( $nonce, $key, ! $conditional_logic ) ) {
 				die();
 			}
 
@@ -255,28 +255,17 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 				$args['post__in'] = array( (int) $options['include'] );
 			}
 
-			$args['perm']                 = 'readable';
-			$args['acf_field_post_types'] = acf_get_array( $field['post_type'] );
-			$args                         = acf_ensure_perm_readable_post_status( $args );
-
 			// filters
 			$args = apply_filters( 'acf/fields/relationship/query', $args, $field, $options['post_id'] );
 			$args = apply_filters( 'acf/fields/relationship/query/name=' . $field['name'], $args, $field, $options['post_id'] );
 			$args = apply_filters( 'acf/fields/relationship/query/key=' . $field['key'], $args, $field, $options['post_id'] );
 
-			// Re-normalize in case a filter reset `post_status` to 'any' while leaving `perm=readable`.
-			$args = acf_ensure_perm_readable_post_status( $args );
-
 			// get posts grouped by post type
-			$readable = acf_remove_unreadable_grouped_posts( acf_get_grouped_posts( $args ), $args, $field );
-			$groups   = $readable['groups'];
+			$groups = acf_get_grouped_posts( $args );
 
-			// bail early if no posts, but keep paging if this page's posts were all removed
+			// bail early if no posts
 			if ( empty( $groups ) ) {
-				return $readable['more'] ? array(
-					'results' => array(),
-					'more'    => true,
-				) : false;
+				return false;
 			}
 
 			// loop
@@ -317,7 +306,6 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 
 			return array(
 				'results' => $results,
-				'more'    => $readable['more'],
 				'limit'   => $args['posts_per_page'],
 			);
 		}
@@ -568,7 +556,7 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 							);
 						?>
 						<span tabindex="0" data-id="<?php echo esc_attr( $post->ID ); ?>" class="acf-rel-item acf-rel-item-remove">
-								<?php echo acf_esc_html( acf_current_user_can_read_post( $post, $field ) ? $this->get_post_title( $post, $field ) : acf_get_restricted_post_title() ); ?>
+								<?php echo acf_esc_html( $this->get_post_title( $post, $field ) ); ?>
 							<a href="#" class="acf-icon -minus small dark" data-name="remove_item"></a>
 						</span>
 					</li>
@@ -751,7 +739,6 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 		 * @return  $value (mixed) the modified value
 		 */
 		function format_value( $value, $post_id, $field ) {
-			$value = acf_remove_unreadable_formatted_post_ids( $value, $post_id, $field );
 
 			// bail early if no value
 			if ( empty( $value ) ) {
@@ -839,8 +826,6 @@ if ( ! class_exists( 'acf_field_relationship' ) ) :
 			} else {
 				$value = acf_idval( $value );
 			}
-
-			$value = acf_remove_disallowed_post_ids( $value, $post_id, $field );
 
 			acf_update_bidirectional_values( acf_get_array( $value ), $post_id, $field );
 

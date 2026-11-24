@@ -1,88 +1,9 @@
 <?php
 
-use Redirection\Database\Database;
-use Redirection\Database\Status;
-
 /**
  * Implements example command.
  */
 class Redirection_Cli extends WP_CLI_Command {
-	/**
-	 * @param array<string, mixed> $extra CLI flags.
-	 * @return 'import'|'ignore'|'update'
-	 */
-	private function get_duplicate_mode( array $extra ) {
-		$mode = isset( $extra['duplicate-mode'] ) && is_string( $extra['duplicate-mode'] ) ? $extra['duplicate-mode'] : 'import';
-
-		if ( in_array( $mode, [ 'import', 'ignore', 'update' ], true ) ) {
-			return $mode;
-		}
-
-		WP_CLI::error( 'Invalid duplicate mode - import, ignore, or update supported' );
-		return 'import';
-	}
-
-	/**
-	 * @param array<string, mixed> $extra CLI flags.
-	 * @param string $flag Flag name.
-	 * @return bool
-	 */
-	private function get_boolean_flag( array $extra, $flag ) {
-		if ( ! isset( $extra[ $flag ] ) ) {
-			return false;
-		}
-
-		$value = $extra[ $flag ];
-		if ( $value === true || $value === false ) {
-			return $value;
-		}
-
-		if ( is_string( $value ) ) {
-			return in_array( strtolower( $value ), [ '1', 'true', 'yes' ], true );
-		}
-
-		if ( is_int( $value ) ) {
-			return $value === 1;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param string $source Import source.
-	 * @param string $type Import type.
-	 * @param array{
-	 *   created: int,
-	 *   updated: int,
-	 *   ignored: int,
-	 *   groups_created: int,
-	 *   preview: array<int, array{
-	 *     source: string,
-	 *     target: string,
-	 *     code: int,
-	 *     regex: bool,
-	 *     group: string,
-	 *     result: 'created'|'updated'|'ignored',
-	 *     redirect_id?: int
-	 *   }>
-	 * } $results Import results.
-	 * @return void
-	 */
-	private function display_import_results( $source, $type, array $results ) {
-		WP_CLI::success(
-			sprintf(
-				'Imported %d redirects from %s %s (%d created, %d updated, %d ignored, %d groups created)',
-				$results['created'] + $results['updated'],
-				$type,
-				$source,
-				$results['created'],
-				$results['updated'],
-				$results['ignored'],
-				$results['groups_created']
-			)
-		);
-	}
-
 	/**
 	 * Resolve a group ID, or return the first available group.
 	 *
@@ -109,19 +30,21 @@ class Redirection_Cli extends WP_CLI_Command {
 	/**
 	 * Import from another plugin to Redirection.
 	 *
+	 * Supports:
+	 *   - wp-simple-redirect
+	 *   - seo-redirection
+	 *   - safe-redirect-manager
+	 *   - wordpress-old-slugs
+	 *   - rank-math
+	 *   - quick-redirects
+	 *
 	 * ## OPTIONS
 	 *
 	 * <name>
-	 * : The plugin name to import from. Supported importers include wp-simple-redirect, seo-redirection, safe-redirect-manager, wordpress-old-slugs, rank-math, quick-redirects, pretty-links, seopress, slim-seo, eps-301-redirects, yoast-seo, and fake-redirection.
+	 * : The plugin name to import from (see above)
 	 *
 	 * [--group=<groupid>]
 	 * : The group ID to import into. Defaults to the first available group.
-	 *
-	 * [--duplicate-mode=<mode>]
-	 * : Duplicate handling. One of import, ignore, or update. Defaults to import.
-	 *
-	 * [--delete-source]
-	 * : Delete the original source data after import for importers that support it.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -132,26 +55,19 @@ class Redirection_Cli extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function plugin( $args, $extra ) {
+		include_once __DIR__ . '/models/importer.php';
+
 		$name = $args[0];
 		$group = $this->get_group( isset( $extra['group'] ) ? intval( $extra['group'], 10 ) : 0 );
-		$options = [
-			'duplicate_mode' => $this->get_duplicate_mode( $extra ),
-			'delete_source' => $this->get_boolean_flag( $extra, 'delete-source' ),
-		];
 
-		$importer = \Redirection\ImportExport\Importer\PluginRegistry::get_importer( $name );
+		$importer = Red_Plugin_Importer::get_importer( $name );
 		if ( $importer !== false && $group !== false ) {
-			$results = $importer->import_plugin( $group, $options );
-			$this->display_import_results( $name, 'plugin', $results );
+			$count = $importer->import_plugin( $group );
+			WP_CLI::success( sprintf( 'Imported %d redirects from plugin %s', $count, $name ) );
 			return;
 		}
 
-		if ( $importer === false ) {
-			WP_CLI::error( 'Invalid plugin name' );
-			return;
-		}
-
-		WP_CLI::error( 'Invalid group' );
+		WP_CLI::error( 'Invalid plugin name' );
 	}
 
 	/**
@@ -310,14 +226,8 @@ class Redirection_Cli extends WP_CLI_Command {
 	 * : The group ID to import into. Defaults to the first available group. JSON
 	 *   contains it's own group
 	 *
-	 * [--use-groups-in-file]
-	 * : For JSON imports, use the groups defined in the file instead of importing into a single group.
-	 *
 	 * [--format=<importformat>]
 	 * : The import format - csv, apache, or json. Defaults to json
-	 *
-	 * [--duplicate-mode=<mode>]
-	 * : Duplicate handling. One of import, ignore, or update. Defaults to import.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -329,49 +239,40 @@ class Redirection_Cli extends WP_CLI_Command {
 	 */
 	public function import( $args, $extra ) {
 		$format = isset( $extra['format'] ) ? $extra['format'] : 'json';
-		$formats = new \Redirection\ImportExport\FormatFactory();
-		$use_file_groups = $this->get_boolean_flag( $extra, 'use-groups-in-file' );
-		$group = $use_file_groups && $format === 'json' ? 0 : $this->get_group( isset( $extra['group'] ) ? intval( $extra['group'], 10 ) : 0 );
+		$group = $this->get_group( isset( $extra['group'] ) ? intval( $extra['group'], 10 ) : 0 );
 
 		if ( $group === false ) {
 			WP_CLI::error( 'Invalid group' );
 			return;
 		}
 
-		$importer = $formats->create( $format );
+		$importer = Red_FileIO::create( $format );
 
 		if ( $importer === false ) {
 			WP_CLI::error( 'Invalid import format - csv, json, or apache supported' );
 			return;
 		}
 
-		if ( ! file_exists( $args[0] ) || ! is_readable( $args[0] ) ) {
-			WP_CLI::error( 'Invalid import file' );
-			return;
+		if ( $format === 'csv' ) {
+			$file = fopen( $args[0], 'r' );
+
+			if ( $file !== false ) {
+				$count = $importer->load( $group, $args[0], '' );
+
+				WP_CLI::success( 'Imported ' . $count . ' as ' . $format );
+			} else {
+				WP_CLI::error( 'Invalid import file' );
+			}
+		} else {
+			$data = @file_get_contents( $args[0] );
+
+			if ( $data !== false ) {
+				$count = $importer->load( $group, $args[0], $data );
+				WP_CLI::success( 'Imported ' . $count . ' redirects as ' . $format );
+			} else {
+				WP_CLI::error( 'Invalid import file' );
+			}
 		}
-
-		$file_size = filesize( $args[0] );
-		if ( $file_size === false ) {
-			WP_CLI::error( 'Invalid import file' );
-			return;
-		}
-
-		$results = ( new \Redirection\ImportExport\ImportService( $formats ) )->import(
-			$group,
-			[
-				'name' => basename( $args[0] ),
-				'tmp_name' => $args[0],
-				'type' => '',
-				'error' => 0,
-				'size' => $file_size,
-			],
-			[
-				'format' => $format,
-				'duplicate_mode' => $this->get_duplicate_mode( $extra ),
-			]
-		);
-
-		$this->display_import_results( $format, 'file', $results );
 	}
 
 	/**
@@ -398,7 +299,7 @@ class Redirection_Cli extends WP_CLI_Command {
 	 */
 	public function export( $args, $extra ) {
 		$format = isset( $extra['format'] ) ? $extra['format'] : 'json';
-		$exporter = ( new \Redirection\ImportExport\FormatFactory() )->create( $format );
+		$exporter = Red_FileIO::create( $format );
 
 		if ( $exporter === false ) {
 			WP_CLI::error( 'Invalid export format - json, csv, apache, or nginx supported' );
@@ -407,7 +308,7 @@ class Redirection_Cli extends WP_CLI_Command {
 
 		$file = fopen( $args[1] === '-' ? 'php://stdout' : $args[1], 'w' );
 		if ( $file !== false ) {
-			$export = ( new \Redirection\ImportExport\ExportService() )->export( $args[0], $format );
+			$export = Red_FileIO::export( $args[0], $format );
 
 			if ( $export === false ) {
 				// phpcs:ignore
@@ -452,9 +353,9 @@ class Redirection_Cli extends WP_CLI_Command {
 		}
 
 		if ( $args[0] === 'install' ) {
-			Database::apply_to_sites(
+			Red_Database::apply_to_sites(
 				function () {
-					$latest = Database::get_latest_database();
+					$latest = Red_Database::get_latest_database();
 					$latest->install();
 
 					WP_CLI::success( 'Site ' . get_current_blog_id() . ' database is installed' );
@@ -467,10 +368,10 @@ class Redirection_Cli extends WP_CLI_Command {
 
 			$wpdb->show_errors( false );
 
-			Database::apply_to_sites(
+			Red_Database::apply_to_sites(
 				function () use ( $skip ) {
-					$database = new Database();
-					$status = new Status();
+					$database = new Red_Database();
+					$status = new Red_Database_Status();
 
 					if ( ! $status->needs_updating() ) {
 						WP_CLI::success( 'Site ' . get_current_blog_id() . ' database is already the latest version' );
@@ -506,9 +407,9 @@ class Redirection_Cli extends WP_CLI_Command {
 
 			WP_CLI::success( 'Database upgrade finished' );
 		} elseif ( $args[0] === 'remove' ) {
-			Database::apply_to_sites(
+			Red_Database::apply_to_sites(
 				function () {
-					$latest = Database::get_latest_database();
+					$latest = Red_Database::get_latest_database();
 					$latest->remove();
 				}
 			);

@@ -5,6 +5,9 @@
 
 $id = ( !is_search() ) ? jevelin_page_id() : '';
 
+$mobile_layout = esc_attr( jevelin_option( 'titlebar_mobile_spacing', 'compact' ) );
+$mobile_title  = esc_attr( jevelin_option( 'titlebar_mobile_title', 'on' ) );
+
 $titlebar1 = $id ? esc_attr( jevelin_post_option( $id, 'titlebar', 'on' ) ) : 0;
 $titlebar2 = esc_attr( jevelin_option( 'titlebar', 'on' ) );
 
@@ -25,6 +28,7 @@ if( $show_titlebar == 'on' ) :
 
 	$default_home = esc_html__( 'Home', 'jevelin' );
 	$default_blog = esc_html__( 'Blog', 'jevelin' );
+	$default_portfolio = esc_html__( 'Portfolio', 'jevelin' );
 	$default_404 = esc_html__( '404', 'jevelin' );
 
 	$titlebar_style_val = jevelin_post_option( $id, 'header_style' );
@@ -54,6 +58,9 @@ if( $show_titlebar == 'on' ) :
 	if( $heading != 'h1' && $heading != 'h2' ) :
 		$heading = 'h2';
 	endif;
+
+	$titlebar_style.= ' sh-titlebar-mobile-layout-'.$mobile_layout;
+	$titlebar_style.= ' sh-titlebar-mobile-title-'.$mobile_title;
 ?>
 
 	<?php if( function_exists( 'putRevSlider' ) && $revslider && $revslider != 'disabled' ) : ?>
@@ -98,20 +105,25 @@ if( $show_titlebar == 'on' ) :
 
 								<<?php echo esc_attr( $heading ); ?> class="titlebar-title-h1">
 									<?php
-										if( is_home() ) :
+										wp_reset_postdata();
+										if( ( is_front_page() && is_home() ) || is_front_page() ) :
 											echo esc_attr( jevelin_option( 'titlebar-home-title', $default_home ) );
+										elseif( is_home() ) :
+											echo get_the_title( jevelin_page_id() );
 										elseif( is_404() ) :
 											echo esc_attr( jevelin_option( 'titlebar-404-title', $default_404 ) );
-										elseif (is_search()) :
+										elseif( is_search() ) :
 											printf(esc_html__('Search Results for "%s"', 'jevelin'), get_search_query());
 										elseif( jevelin_is_realy_woocommerce_page() ) :
 											echo esc_attr( jevelin_option( 'titlebar-blog-woocommerce' ) );
-										elseif ( is_archive() ) :
+										elseif( is_archive() ) :
 											echo get_the_archive_title();
-										elseif (is_page()) :
+										elseif( is_page() ) :
 											echo get_the_title();
-										elseif (is_author()) :
+										elseif( is_author() ) :
 											echo get_the_author();
+										elseif( is_singular( 'fw-portfolio' ) ) :
+											echo esc_attr( jevelin_option( 'titlebar-portfolio-title', $default_portfolio ) );
 										elseif( is_singular( 'post' ) || get_option('page_for_posts', true) ) :
 											echo esc_attr( jevelin_option( 'titlebar-post-title', $default_blog ) );
 										else :
@@ -185,20 +197,25 @@ if( $show_titlebar == 'on' ) :
 
 								<<?php echo esc_attr( $heading ); ?>>
 									<?php
-										if( is_home() ) :
+										wp_reset_postdata();
+										if( ( is_front_page() && is_home() ) || is_front_page() ) :
 											echo esc_attr( jevelin_option( 'titlebar-home-title', $default_home ) );
+										elseif( is_home() ) :
+											echo get_the_title( jevelin_page_id() );
 										elseif( is_404() ) :
 											echo esc_attr( jevelin_option( 'titlebar-404-title', $default_404 ) );
-										elseif (is_search()) :
+										elseif( is_search() ) :
 											printf(esc_html__('Search Results for "%s"', 'jevelin'), get_search_query());
 										elseif( jevelin_is_realy_woocommerce_page() ) :
 											echo esc_attr( jevelin_option( 'titlebar-blog-woocommerce' ) );
-										elseif ( is_archive() ) :
+										elseif( is_archive() ) :
 											echo get_the_archive_title();
-										elseif (is_page()) :
+										elseif( is_page() ) :
 											echo get_the_title();
-										elseif (is_author()) :
+										elseif( is_author() ) :
 											echo get_the_author();
+										elseif( is_singular( 'fw-portfolio' ) ) :
+											echo esc_attr( jevelin_option( 'titlebar-portfolio-title', $default_portfolio ) );
 										elseif( is_singular( 'post' ) || get_option('page_for_posts', true) ) :
 											echo esc_attr( jevelin_option( 'titlebar-post-title', $default_blog ) );
 										else :
@@ -229,20 +246,25 @@ if( $show_titlebar == 'on' ) :
 
 							<<?php echo esc_attr( $heading ); ?>>
 								<?php
-									if( is_home() ) :
+									wp_reset_postdata();
+									if( ( is_front_page() && is_home() ) || is_front_page() ) :
 										echo esc_attr( jevelin_option( 'titlebar-home-title', $default_home ) );
+									elseif( is_home() ) :
+										echo get_the_title( jevelin_page_id() );
 									elseif( is_404() ) :
 										echo esc_attr( jevelin_option( 'titlebar-404-title', $default_404 ) );
-									elseif (is_search()) :
+									elseif( is_search() ) :
 										printf(esc_html__('Search Results for "%s"', 'jevelin'), get_search_query());
 									elseif( jevelin_is_realy_woocommerce_page() ) :
 										echo esc_attr( jevelin_option( 'titlebar-blog-woocommerce' ) );
-									elseif ( is_archive() ) :
+									elseif( is_archive() ) :
 										echo get_the_archive_title();
-									elseif (is_page()) :
+									elseif( is_page() ) :
 										echo get_the_title();
-									elseif (is_author()) :
+									elseif( is_author() ) :
 										echo get_the_author();
+									elseif( is_singular( 'fw-portfolio' ) ) :
+										echo esc_attr( jevelin_option( 'titlebar-portfolio-title', $default_portfolio ) );
 									elseif( is_singular( 'post' ) || get_option('page_for_posts', true) ) :
 										echo esc_attr( jevelin_option( 'titlebar-post-title', $default_blog ) );
 									else :

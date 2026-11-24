@@ -11,7 +11,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useMemo, useContext, useState } from '@wordpress/element';
 
 /**
- * Kadence Dependencies
+ * SolidWP Dependencies
  */
 import {
 	Button,

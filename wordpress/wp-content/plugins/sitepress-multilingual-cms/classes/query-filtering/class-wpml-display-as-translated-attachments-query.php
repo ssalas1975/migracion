@@ -15,11 +15,7 @@ class WPML_Display_As_Translated_Attachments_Query {
 	}
 
 	public function adjust_post_parent( $q ) {
-		if ( ! empty( $q->query_vars['post_parent'] ) && isset( $q->query['post_type'] ) &&
-		     'attachment' === $q->query['post_type'] &&
-		     $this->sitepress->is_display_as_translated_post_type( $q->query['post_type'] ) &&
-		     $this->sitepress->get_current_language() !== $this->sitepress->get_default_language()
-		) {
+		if ( isset( $q->query['post_type'] ) && 'attachment' === $q->query['post_type'] && $this->sitepress->is_display_as_translated_post_type( $q->query['post_type'] ) && $this->sitepress->get_current_language() !== $this->sitepress->get_default_language() ) {
 
 			$q->query_vars['post_parent__in'] = array(
 				$q->query_vars['post_parent'],

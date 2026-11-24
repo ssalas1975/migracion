@@ -21,7 +21,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Button, SurfaceVariant, Text, TextVariant } from '@ithemes/ui';
 import { DateRangeControl, HiResIcon } from '@ithemes/security-ui';

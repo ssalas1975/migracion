@@ -1,0 +1,3000 @@
+# Copyright (C) 2013 ReDi Restaurant Reservation
+# This file is distributed under the same license as the ReDi Restaurant Reservation package.
+msgid ""
+msgstr ""
+"Project-Id-Version: ReDi Restaurant Reservation\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/redi-restaurant-reservation\n"
+"POT-Creation-Date: 2015-01-04 16:03+0200\n"
+"PO-Revision-Date: 2025-12-01 07:48+0000\n"
+"Last-Translator: Tomi\n"
+"Language-Team: Suomi\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: C:\\ProjectsCloudSync\\Wordpress\\redi-restaurant-"
+"reservation\\trunk\n"
+"X-Loco-Version: 2.8.0; wp-6.8.3; php-8.4.14"
+
+#: redi-restaurant-reservation.php:854
+msgid " \"Min Persons\" should be lower than Max Persons"
+msgstr "\"Minimi henkilömäärä\" tulisi olla vähemmän kuin maksimi henkilömäärä"
+
+#: templates/admin_welcome_no_key.php:7
+msgid " Registration"
+msgstr " Rekisteröinti"
+
+#: templates/admin_welcome_no_page.php:8
+msgid " Reservation page"
+msgstr " Varaussivu"
+
+#: redi-restaurant-reservation.php:892
+msgid "\"Country\" is required"
+msgstr "\"Maa\" on vaadittu"
+
+#: redi-restaurant-reservation.php:860
+msgid "\"Reservation time\" should be greater than 0"
+msgstr "\"Varausaika\" tulee olla enemmän kuin 0"
+
+#: redi-restaurant-reservation.php:887
+msgid "\"Restaurant Name\" is required"
+msgstr "\"Ravintolan nimi\" on vaadittu"
+
+#: redi-restaurant-reservation.php:876
+msgid "\"Subscription Email\" Field should be filled."
+msgstr "\"Tilaus-sähköposti\" -kenttä on täytettävä"
+
+#: redi-restaurant-reservation.php:881
+msgid "\"Subscription Name\" Field should be filled."
+msgstr "\"Tilauksen nimi\" -kenttä on täytettävä"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:661 templates/admin.php:669 templates/admin.php:677
+msgid "%d h"
+msgstr "%d h"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:645 templates/admin.php:649 templates/admin.php:653
+#: templates/admin.php:657
+msgid "%d min"
+msgstr "%d min"
+
+#. %d is the number of minutes for the time step option in the dropdown menu
+#: templates/admin.php:665 templates/admin.php:673
+#, php-format
+msgid "%s h"
+msgstr "%s h"
+
+#: templates/admin_ajaxed.php:426
+msgid "100 guests"
+msgstr "100 vierasta"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:51
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but API key "
+"is not generated yet to use the plugin. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin on aktiivinen, mutta "
+"API-avainta ei ole vielä luotu laajennuksen käyttämiseksi. Viimeistele "
+"ohjattu asennustoiminto nyt saumattomiin varauksiin.</p> %s"
+
+#. %s is the HTML link to the setup wizard.
+#: functions/notice.php:75
+#, php-format
+msgid ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>Plugin is active but you have "
+"not created a page with reservation form. Finilize setup wizard now for "
+"seamless bookings.</p> %s"
+msgstr ""
+"<h3>ReDi Restaurant Reservation Plugin</h3> <p>on aktiivinen, mutta et ole "
+"luonut sivua varauslomakkeella. Viimeistele ohjattu asennustoiminto nyt "
+"saumattomiin varauksiin.</p> %s"
+
+#. %s is the HTML link to the configuration page.
+#: functions/notice.php:98
+#, php-format
+msgid ""
+"<p>You have not made any changes to settings since you have installed the "
+"plugin. Finilize <b>ReDi Restaurant Reservation Plugin</b> setup now for "
+"seamless bookings. Visit the %1$s to finilize configuration and start "
+"impress your clients!</p> %2$s"
+msgstr ""
+"<p>Et ole tehnyt muutoksia asetuksiin sen jälkeen, kun olet asentanut "
+"laajennuksen. Finilize <b>ReDi Restaurant Reservation Plugin</b> -asennus "
+"nyt saumattomia varauksia varten. Vieraile %1$s:ssä viimeistelläksesi "
+"konfiguraatiota ja aloittaaksesi vaikutuksen asiakkaisiisi!</p> %2$s"
+
+#: templates/admin.php:122
+msgid ""
+"<strong>Attention</strong>: New settings are available for review and saving,"
+" please take a moment to update your preferences or fill out the required "
+"settings and click on the save button."
+msgstr ""
+"<strong>Huomio</strong>: Uudet asetukset ovat tarkistettavissa ja "
+"tallennettavissa, käytä hetki päivittääksesi asetuksesi tai täytä vaaditut "
+"asetukset ja napsauta tallennuspainiketta."
+
+#: templates/frontend.php:358
+msgid ""
+"A confirmation email has been sent to you, should you not receive it, please "
+"rest assured that your booking has been received and is confirmed. If you "
+"wish you may contact us by phone to confirm."
+msgstr ""
+"Sinulle on lähetetty vahvistussähköposti, jos et saa sitä, voit olla varma, "
+"että varauksesi on vastaanotettu ja vahvistettu. Halutessasi voit ottaa "
+"meihin yhteyttä puhelimitse vahvistaaksesi."
+
+#: redi-restaurant-reservation.php:2064
+msgid ""
+"A confirmation email has been sent to you. If you don't receive it, please "
+"rest assured that your booking has been confirmed. You may contact the "
+"restaurant directly if you need to make any changes to your reservation."
+msgstr ""
+"Vahvistusviesti on lähetetty sinulle sähköpostitse. Jos et ole saanut "
+"viestiä, voit olla huoletta, varauksesi on kirjattu silti. Voit ottaa "
+"yhteyttä suoraan ravintolaan, jos haluat tehdä muutoksia varaukseesi."
+
+#: templates/frontend_v2.php:929
+msgid ""
+"A confirmation email has been sent to your provided email address. No "
+"further action is required. If you don't receive it, rest assured your "
+"reservation is confirmed. You can also contact us by phone if needed."
+msgstr ""
+"Vahvistussähköposti on lähetetty antamaasi sähköpostiosoitteeseen. Muita "
+"toimenpiteitä ei tarvita. Jos et saa sitä, voit olla varma, että varauksesi "
+"on vahvistettu. Voit tarvittaessa ottaa meihin yhteyttä myös puhelimitse."
+
+#: redi-restaurant-reservation.php:2065
+msgid ""
+"A confirmation email will be sent to you once your reservation request has "
+"been approved. You may contact the restaurant directly if you need to make "
+"any changes to your reservation request."
+msgstr ""
+"Vahvistusviesti lähetetään sinulle, kun varauspyyntösi on hyväksytty. Voit "
+"ottaa suoraan yhteyttä ravintolaan, jos haluat tehdä muutoksia "
+"varauspyyntöösi."
+
+#: templates/admin.php:230
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"Please note that this option is still in beta testing  and some features are "
+"not copied over from Default theme."
+msgstr ""
+"Valmiiksi suunniteltu tyyli, joka vaatii vain vähän räätälöintiä kiillotetun "
+"ilmeen saavuttamiseksi. Huomaa, että tämä vaihtoehto on edelleen beta-"
+"testauksessa, eikä joitakin ominaisuuksia kopioida oletusteemasta."
+
+#: templates/admin.php:231
+msgid ""
+"A pre-designed style requiring minimal customization for a polished look. "
+"The form is build with React. Please note that this option is still in beta "
+"testing and some features are not copied over from Default theme."
+msgstr ""
+"Valmiiksi suunniteltu tyyli, joka vaatii vain vähän räätälöintiä kiillotetun "
+"ilmeen saavuttamiseksi. Lomake rakennetaan Reactilla. Huomaa, että tämä "
+"vaihtoehto on edelleen beta-testauksessa, eikä joitakin ominaisuuksia "
+"kopioida oletusteemasta."
+
+#: templates/admin.php:229
+msgid ""
+"Adapts to your website's theme, ensuring seamless integration. However, some "
+"adjustments may be needed to match your design preferences."
+msgstr ""
+"Mukautuu verkkosivustosi teemaan ja varmistaa saumattoman integroinnin. "
+"Joitakin muutoksia saatetaan kuitenkin tarvita suunnittelumieltymystesi "
+"mukaan."
+
+#: redi-restaurant-reservation.php:2056
+msgid "Additional Information"
+msgstr "Lisätietoja"
+
+#: templates/basicpackage.php:57
+msgid "Additional services (by request)"
+msgstr "Lisäpalvelut (tilauksesta)"
+
+#: templates/admin_ajaxed.php:165
+msgid "Address"
+msgstr "Osoite"
+
+#: templates/admin_ajaxed.php:173
+msgid "Address of the restaurant is to be written here."
+msgstr "Ravintolan osoite kirjoitetaan tähän."
+
+#: redi-restaurant-reservation.php:2071
+msgid "adult"
+msgstr "aikuinen"
+
+#: templates/frontend.php:81
+msgid "Adult guests"
+msgstr "Aikuiset vieraat"
+
+#: redi-restaurant-reservation.php:1981 redi-restaurant-reservation.php:2074
+#: redi-restaurant-reservation.php:2140
+msgid "Adults"
+msgstr "Aikuiset"
+
+#: redi-restaurant-reservation.php:2072
+msgid "adults"
+msgstr "aikuista"
+
+#: templates/frontend_v2.php:567
+msgid "All time"
+msgstr "Kaikki ajat"
+
+#: templates/admin_ajaxed.php:613
+msgid "Allow SMS"
+msgstr "Salli tekstiviestit"
+
+#: templates/admin.php:70
+msgid "Allow to contact via Whatsapp"
+msgstr "Salli yhteydenotto Whatsappin kautta"
+
+#: templates/admin.php:69
+msgid "Allow to receive SMS"
+msgstr "Salli tekstiviestien vastaanottaminen"
+
+#: templates/admin_welcome_no_key.php:20
+msgid "Allow to send information about the plugin"
+msgstr "Salli tietojen lähettäminen laajennuksesta"
+
+#: templates/admin.php:721
+msgid ""
+"Allow users to fill the Wait List when all time slots for the day are booked."
+msgstr ""
+"Salli käyttäjien täyttää jonotuslista, kun kaikki päivän aikavälit on "
+"varattu."
+
+#: templates/admin.php:720
+msgid ""
+"Allow users to fill the Wait List when their preferred time is unavailable."
+msgstr ""
+"Salli käyttäjien täyttää jonotuslista, kun heidän haluamaansa aikaa ei ole "
+"saatavilla."
+
+#: templates/admin_ajaxed.php:615
+msgid "Allow Whatsapp"
+msgstr "Salli Whatsapp"
+
+#: templates/admin.php:817
+msgid ""
+"Allows to show or hide comments section on the reservation form. Enabled by "
+"default. If you see that your guests misuse the comments section, disable it."
+msgstr ""
+"Mahdollistaa varauslomakkeen kommenttiosion näyttämisen tai piilottamisen. "
+"Oletusarvoisesti käytössä. Jos huomaat, että vieraasi käyttävät "
+"kommenttiosiota väärin, poista se käytöstä."
+
+#: templates/admin.php:637
+msgid "Alternative time step"
+msgstr "Vaihtoehtoinen ajanjakso"
+
+#: templates/admin.php:342
+msgid "Always show"
+msgstr "Näytä aina"
+
+#: redi-restaurant-reservation.php:2117
+msgid "An unknown error occurred"
+msgstr "Tuntematon virhe tapahtui"
+
+#: redi-restaurant-reservation.php:1998
+msgid "Any special requests or notes"
+msgstr "Erityistoiveet tai huomautukset"
+
+#: templates/basicpackage.php:4
+msgid "Api Information"
+msgstr "API-tiedot"
+
+#: templates/admin_welcome_no_page.php:29
+#: templates/admin_welcome_no_page.php:34 templates/admin_welcome_no_key.php:33
+#: templates/admin_welcome_no_key.php:38
+msgid "API Key"
+msgstr "API-avain"
+
+#: redi-restaurant-reservation.php:759
+msgid "API key is successfully changed."
+msgstr "API-avain on vaihdettu onnistuneesti."
+
+#: redi-restaurant-reservation.php:2944
+msgid "Api key should be a GUID number."
+msgstr "Api-avain tulee olla GUID-numero."
+
+#: templates/basicpackage.php:5
+#| msgid "ApiKey:"
+msgid "ApiKey"
+msgstr "ApiKey"
+
+#: redi-restaurant-reservation.php:1853 redi-restaurant-reservation.php:1920
+msgid ""
+"Apologies for the inconvenience, but we encountered an issue while trying to "
+"make your reservation. It seems there was a technical glitch on our end. Our "
+"team is actively working to resolve this issue. Please try again in a few "
+"minutes, and if the problem persists, feel free to reach out to our customer "
+"support for assistance. Additionally, if you could please send a screenshot "
+"of the error message to {emailLink}, it would greatly help us in diagnosing "
+"and resolving the issue more efficiently. We appreciate your patience and "
+"cooperation. Response:"
+msgstr ""
+"Pahoittelemme häiriötä, mutta varauksen tekemisessä ilmeni ongelma. "
+"Ilmeisesti meillä on ollut tekninen vika. Tiimimme työskentelee aktiivisesti "
+"ongelman ratkaisemiseksi. Yritä uudelleen muutaman minuutin kuluttua. Jos "
+"ongelma jatkuu, ota yhteyttä asiakaspalveluumme. Lisäksi, jos voisit "
+"lähettää kuvakaappauksen virheilmoituksesta osoitteeseen {emailLink}, se "
+"auttaisi meitä huomattavasti ongelman diagnosoinnissa ja ratkaisemisessa. "
+"Kiitämme kärsivällisyydestäsi ja yhteistyöstäsi. Vastaus:"
+
+#: redi-restaurant-reservation.php:2023
+msgid "April"
+msgstr "Huhtikuu"
+
+#: templates/basicpackage.php:21
+msgid ""
+"Are you facing trouble configuring the plugin? Don't worry! We offer free "
+"personal assistance to help you out. You can schedule a session with us "
+"using Calendly or reach out to us via Skype, WhatsApp, or Facebook. We're "
+"here to provide the support you need."
+msgstr ""
+"Onko sinulla ongelmia laajennuksen määrittämisessä? Ei hätää! Tarjoamme "
+"ilmaista henkilökohtaista apua auttaaksemme sinua. Voit varata istunnon "
+"kanssamme Calendlyn avulla tai ottaa meihin yhteyttä Skypen, WhatsAppin tai "
+"Facebookin kautta. Olemme täällä tarjoamassa tarvitsemaasi tukea."
+
+#: redi-restaurant-reservation.php:2099
+msgid "Are you sure you want to cancel this reservation?"
+msgstr "Haluatko varmasti peruuttaa tämän varauksen?"
+
+#: redi-restaurant-reservation.php:899
+msgid "At least one opening time should be provided"
+msgstr "Ainakin yksi aukioloaika on ilmoitettava"
+
+#: redi-restaurant-reservation.php:2027
+msgid "August"
+msgstr "Elokuu"
+
+#: redi-restaurant-reservation.php:1852 redi-restaurant-reservation.php:1918
+msgid "Available seats"
+msgstr "Vapaat paikat"
+
+#: templates/admin.php:544
+msgid "Available Time Appearance"
+msgstr "Käytettävissä olevan ajan ulkoasu"
+
+#: templates/frontend_v2.php:583 templates/frontend_v2.php:890
+#: templates/frontend_v2.php:1286
+msgid "Back"
+msgstr "Takaisin"
+
+#: templates/modify.php:3 templates/modify.php:24 templates/cancel.php:5
+msgid "Back to reservation page"
+msgstr "Takaisin varaussivulle"
+
+#: templates/basicpackage.php:33
+msgid "Basic package functionality (paid version)"
+msgstr "Paketin perustoiminnallisuus (maksullinen versio)"
+
+#: templates/admin_welcome_no_page.php:28 templates/admin_welcome_no_key.php:32
+msgid "Below is your API Key, please use it when you ask for a support. "
+msgstr "Alla on API-avaimesi, käytä sitä, kun pyydät tukea. "
+
+#: templates/admin_ajaxed.php:619 templates/admin.php:66
+msgid "Birthday"
+msgstr "Syntymäpäivä"
+
+#: templates/admin.php:72
+msgid "Birthday (dd/mm)"
+msgstr "Syntymäpäivä (pp/kk)"
+
+#: templates/basicpackage.php:44
+msgid ""
+"Blocked Time. Define time range when online reservation should not be "
+"accepted. Specify a reason why reservations are not accepted at this time to "
+"keep your clients happy."
+msgstr ""
+"Estetty aika. Määritä aikaväli, jolloin online-varausta ei hyväksytä. "
+"Määritä syy, miksi varauksia ei hyväksytä tällä hetkellä, jotta asiakkaasi "
+"pysyvät tyytyväisinä."
+
+#: redi-restaurant-reservation.php:2126
+msgid "Book Now"
+msgstr "Varaa nyt"
+
+#: templates/basicpackage.php:93
+msgid "Building trust with powerful review tools"
+msgstr "Luottamuksen rakentaminen tehokkailla tarkistustyökaluilla"
+
+#: templates/admin.php:592
+msgid "By shifts"
+msgstr "Työvuorojen mukaan"
+
+#: templates/admin.php:320
+msgid "Calendar type"
+msgstr "Kalenterin tyyppi"
+
+#: templates/basicpackage.php:22 templates/admin_welcome.php:30
+msgid "Calendly"
+msgstr "Kalenteri"
+
+#: templates/frontend_v2.php:1065
+msgid "Cancel existing reservation"
+msgstr "Peruuta olemassa oleva varaus"
+
+#: redi-restaurant-reservation.php:2085
+msgid "Cancel Reservation"
+msgstr "Peruuta varaus"
+
+#: templates/frontend_v2.php:1654 templates/frontend_v2.php:1748
+#: templates/admin.php:128 templates/admin.php:1009 templates/admin.php:1025
+#: templates/confirm.php:41 templates/cancel.php:3 templates/cancel.php:47
+#: templates/frontend.php:11
+msgid "Cancel reservation"
+msgstr "Peruuta varaus"
+
+#: redi-restaurant-reservation.php:2100
+msgid "Cancellation reason"
+msgstr "Peruutuksen syy"
+
+#: redi-restaurant-reservation.php:2102
+msgid "Cancellation reason is required"
+msgstr "Peruutuksen syy on pakollinen"
+
+#: redi-restaurant-reservation.php:2103
+msgid "Cancelling reservation"
+msgstr "Varauksen peruuttaminen"
+
+#: templates/admin.php:780
+msgid "Captcha"
+msgstr "Captcha"
+
+#: redi-restaurant-reservation.php:1851 redi-restaurant-reservation.php:1916
+msgid "Captcha is not valid."
+msgstr "Captcha-koodi ei ole kelvollinen."
+
+#: templates/admin.php:796
+msgid "Captcha key"
+msgstr "Captcha-näppäin"
+
+#: templates/basicpackage.php:13
+msgid "Change"
+msgstr "Muuta"
+
+#: templates/basicpackage.php:8
+msgid "Change API key"
+msgstr "Vaihda API-avain"
+
+#: templates/frontend.php:265
+msgid "Change details"
+msgstr "Muuta tietoja"
+
+#: templates/frontend.php:199
+msgid "Check available time"
+msgstr "Tarkasta vapaat ajat"
+
+#: templates/admin_ajaxed.php:607
+msgid "Check box"
+msgstr "Valintaruutu"
+
+#: redi-restaurant-reservation.php:2069
+msgid "child"
+msgstr "lapsi"
+
+#: redi-restaurant-reservation.php:1983 redi-restaurant-reservation.php:2073
+#: redi-restaurant-reservation.php:2141 redi-restaurant-reservation.php:2641
+#: templates/frontend_v2.php:330 templates/frontend.php:121
+msgid "Children"
+msgstr "Lapset"
+
+#: redi-restaurant-reservation.php:2070
+msgid "children"
+msgstr "lapsia"
+
+#: templates/admin.php:228
+msgid "Choose the appearance of the plugin."
+msgstr "Valitse laajennuksen ulkoasu."
+
+#: templates/admin_ajaxed.php:150
+msgid "City"
+msgstr "Kaupunki"
+
+#: functions/notice.php:126
+msgid "Click here to open reservation page"
+msgstr "Klikkaa tästä avataksesi varaussivun"
+
+#: templates/admin_ajaxed.php:351
+msgid "Close"
+msgstr "Kiinni"
+
+#: redi-restaurant-reservation.php:2037
+msgid "Closed"
+msgstr "Suljettu"
+
+#: templates/frontend_v2.php:536
+msgid "Closed day or fully booked"
+msgstr "Suljettu päivä tai täynnä"
+
+#: templates/admin.php:742
+msgid "Collect First and Last name"
+msgstr "Kerää etu- ja sukunimi"
+
+#: templates/admin.php:762
+msgid "Collect phone number with country code"
+msgstr "Kerää puhelinnumero maakoodilla"
+
+#: templates/basicpackage.php:67
+msgid "Collect pre-payment for reservations."
+msgstr "Kerää ennakkomaksu varauksista."
+
+#: templates/admin.php:285
+msgid "Collect user experience feedback"
+msgstr "Kerää käyttökokemuspalautetta"
+
+#: templates/modify.php:75 templates/frontend.php:320
+msgid "Comment"
+msgstr "Kommentti"
+
+#: redi-restaurant-reservation.php:2123 redi-restaurant-reservation.php:2144
+#: templates/frontend_v2.php:697 templates/frontend_v2.php:1580
+msgid "Comments"
+msgstr "Kommentit"
+
+#: templates/frontend_v2.php:1578
+msgid "Comments can't be empty"
+msgstr "Kommentit eivät voi olla tyhjiä"
+
+#: functions/notice.php:102 functions/notice.php:103
+msgid "Configuration page"
+msgstr "Asetukset-sivu"
+
+#: templates/confirm.php:40
+msgid "Confirm visit"
+msgstr "Vahvista vierailu"
+
+#: redi-restaurant-reservation.php:1985 redi-restaurant-reservation.php:2111
+msgid "Confirmation"
+msgstr "Vahvistus"
+
+#: templates/admin.php:919
+msgid "Confirmation page"
+msgstr "Vahvistus-sivu"
+
+#: templates/frontend_v2.php:922
+msgid "Congratulations! Your reservation is confirmed!"
+msgstr "Onnittelut! Varauksesi on vahvistettu!"
+
+#: templates/frontend_v2.php:920
+msgid "Congratulations! Your reservation request is received!"
+msgstr "Onnittelut! Varauspyyntösi on vastaanotettu!"
+
+#: redi-restaurant-reservation.php:1984
+msgid "Contact"
+msgstr "Yhteystiedot"
+
+#: templates/frontend_v2.php:617 templates/admin_ajaxed.php:281
+msgid "Contact information"
+msgstr "Yhteystieto"
+
+#: templates/basicpackage.php:20
+msgid "Contact Us"
+msgstr "Ota yhteyttä"
+
+#: redi.php:280 redi-restaurant-reservation.php:1560
+msgid "contact us directly"
+msgstr "Ota meihin yhteyttä suoraan"
+
+#: templates/admin_ajaxed.php:130
+msgid "Country"
+msgstr "Maa"
+
+#: templates/admin.php:155
+msgid "Create a support ticket"
+msgstr "Luo tukipyyntö"
+
+#: templates/frontend_v2.php:1410 templates/frontend_v2.php:1628
+#: templates/frontend_v2.php:1777 templates/frontend_v2.php:1911
+#: templates/frontend_v2.php:1972
+msgid "Create reservation"
+msgstr "Luo varaus"
+
+#: redi-restaurant-reservation.php:1886 redi-restaurant-reservation.php:2001
+msgid "Creating reservation"
+msgstr "Varauksen tekeminen"
+
+#: templates/admin_ajaxed.php:98
+msgid "Current Place ID"
+msgstr "Nykyisen paikan tunnus"
+
+#: templates/admin.php:851
+msgid "Current time"
+msgstr "Nykyinen aika"
+
+#: templates/frontend.php:510
+msgid "Custom field is required"
+msgstr "Kustomoitu kenttä vaaditaan"
+
+#: templates/admin_ajaxed.php:510
+msgid "Custom fields"
+msgstr "Muokatut kentät"
+
+#: templates/admin_ajaxed.php:515
+msgid ""
+"Custom fields are meant to allow users define additional fields for "
+"collecting more information from customers. You can choose the name of the "
+"field, type of field, the constraint whether it is a required field or not "
+"and the error message for the required field."
+msgstr ""
+"Mukautettujen kenttien tarkoituksena on antaa käyttäjille mahdollisuus "
+"määrittää lisäkenttiä lisätietojen keräämiseksi asiakkailta. Voit valita "
+"kentän nimen, kentän tyypin, rajoituksen, onko se pakollinen kenttä vai ei, "
+"ja pakollisen kentän virhesanoman."
+
+#: templates/admin.php:244
+msgid "Data Input Appearance"
+msgstr "Tietojen syötteen ulkonäkö"
+
+#: redi-restaurant-reservation.php:1986 redi-restaurant-reservation.php:2076
+#: redi-restaurant-reservation.php:2138 templates/frontend_v2.php:484
+#: templates/frontend_v2.php:1450 templates/frontend_v2.php:1829
+#: templates/modify.php:29 templates/confirm.php:16 templates/frontend.php:139
+#: templates/frontend.php:469
+msgid "Date"
+msgstr "Päivämäärä"
+
+#: templates/admin.php:351
+msgid "Date format"
+msgstr "Kellonajan formaatti"
+
+#: templates/admin_ajaxed.php:465 templates/admin_ajaxed.php:487
+msgid "Days"
+msgstr "Päivää"
+
+#: redi-restaurant-reservation.php:2043
+msgid "days"
+msgstr "päivät"
+
+#: redi-restaurant-reservation.php:2031
+msgid "December"
+msgstr "Joulukuu"
+
+#: templates/admin.php:219 templates/admin.php:229
+msgid "Default theme"
+msgstr "Oletusteema"
+
+#: templates/frontend_v2.php:510
+msgid "Description"
+msgstr "Kuvaus"
+
+#: templates/admin.php:532
+msgid "Description for children dropdown"
+msgstr "Kuvaus lapsille pudotusvalikosta"
+
+#: templates/admin.php:206
+msgid "Design theme"
+msgstr "Suunnittelun teema"
+
+#: templates/frontend_v2.php:98
+msgid "Details"
+msgstr "Tiedot"
+
+#: templates/admin.php:895 templates/admin.php:911
+msgid "Disable confirmation email"
+msgstr "Poista vahvistussähköposti käytöstä"
+
+#: templates/admin.php:712 templates/admin.php:719
+msgid "Disabled"
+msgstr "Vammainen"
+
+#: redi-restaurant-reservation-api.php:447 redi-restaurant-reservation.php:2632
+msgid "Discount"
+msgstr "Alennus"
+
+#: templates/admin.php:622
+msgid "Display left seats"
+msgstr "Näytä vapaat paikat"
+
+#: templates/admin.php:682
+msgid ""
+"Displays the available time with time step to the clients. For instance, if "
+"one selects 15 min time step, then alternative time will be 10:00, 10:15, 10:"
+"30, etc."
+msgstr ""
+"Näyttää käytettävissä olevan ajan ja aikavaiheen asiakkaille. Jos "
+"esimerkiksi valitaan 15 minuutin aika-askel, vaihtoehtoinen aika on 10:00, "
+"10:15, 10:30 jne."
+
+#: templates/admin.php:719
+msgid "Do not allow guests to fill the Wait List form."
+msgstr "Älä anna vieraiden täyttää jonotuslistalomaketta."
+
+#: templates/basicpackage.php:63
+msgid ""
+"Do you want to know what your client thinks about his last visit? We will "
+"collect it for you."
+msgstr ""
+"Haluatko tietää, mitä mieltä asiakkaasi on edellisestä käynnistään? Keräämme "
+"sen puolestasi."
+
+#: templates/basicpackage.php:70
+msgid ""
+"Do you want to write your own module? We have an API. Contact us to get more "
+"information."
+msgstr ""
+"Haluatko kirjoittaa oman moduulin? Meillä on API. Ota yhteyttä saadaksesi "
+"lisätietoja."
+
+#: templates/admin_welcome.php:27
+msgid ""
+"Don't want to spend time delving into how the plugin works or figuring out "
+"the setup process? Sign up for a free personalized assistance call – our "
+"team is here to help you get started smoothly."
+msgstr ""
+"Etkö halua viettää aikaa laajennuksen toimintaan tai asennusprosessin "
+"selvittämiseen? Tilaa ilmainen henkilökohtainen avustuspuhelu – tiimimme "
+"auttaa sinua pääsemään alkuun sujuvasti."
+
+#: templates/frontend_v2.php:88
+msgid "Done!"
+msgstr "Valmis!"
+
+#: templates/admin.php:361
+msgid "Dot"
+msgstr "Piste"
+
+#: templates/admin_ajaxed.php:623
+msgid "DropDown"
+msgstr "Pudotusvalikko"
+
+#: templates/frontend.php:175
+msgid "Duration"
+msgstr "Kesto"
+
+#: templates/admin_ajaxed.php:449
+msgid ""
+"Duration of reservation in minutes. This is the time allocated for each "
+"reservation so the reservation system can calculate availability. Enter here "
+"average time that guests stays in."
+msgstr ""
+"Varauksen kesto minuutteina. Tämä on kullekin varaukselle varattu aika, "
+"jotta varausjärjestelmä voi laskea saatavuuden. Kirjoita tähän "
+"keskimääräinen aika, jonka vieraat viipyvät."
+
+#: templates/admin_ajaxed.php:479
+msgid "Early Bookings"
+msgstr "Varhaiset varaukset"
+
+#: redi-restaurant-reservation.php:1995 templates/frontend_v2.php:685
+#: templates/frontend_v2.php:1370 templates/frontend_v2.php:1568
+#: templates/frontend_v2.php:1718 templates/frontend_v2.php:1875
+#: templates/admin_ajaxed.php:195 templates/admin_ajaxed.php:302
+#: templates/modify.php:13 templates/modify.php:71
+#: templates/admin_welcome_no_key.php:14 templates/cancel.php:34
+#: templates/frontend.php:274 templates/frontend.php:304
+#: templates/frontend.php:488
+msgid "Email"
+msgstr "Sähköposti"
+
+#: templates/admin_ajaxed.php:203
+msgid "Email address for contacting the restaurant."
+msgstr "Sähköpostiosoite yhteydenottoa varten ravintolaan."
+
+#: redi-restaurant-reservation.php:1843 redi-restaurant-reservation.php:1900
+msgid "Email can't be empty"
+msgstr "Sähköpostiosoite ei voi olla tyhjä"
+
+#: templates/admin_ajaxed.php:210
+msgid "Email CC"
+msgstr "Sähköposti CC"
+
+#: redi-restaurant-reservation.php:2926
+msgid "Email is not valid."
+msgstr "Sähköpostiosoite ei ole kelvollinen."
+
+#: redi-restaurant-reservation.php:2923
+msgid "Email is required."
+msgstr "Sähköpostiosoite vaaditaan."
+
+#: templates/basicpackage.php:48
+msgid "Email template customization for all supported languages."
+msgstr "Sähköpostimallin mukauttaminen kaikille tuetuille kielille."
+
+#: templates/admin.php:906
+msgid ""
+"Emails will be sent via SMTP server that is configured in Basic settings."
+msgstr ""
+"Sähköpostit lähetetään SMTP-palvelimen kautta, joka on määritetty "
+"perusasetuksissa."
+
+#: templates/frontend_v2.php:1194 templates/frontend_v2.php:1232
+#: templates/frontend_v2.php:1246 templates/frontend_v2.php:1260
+#: templates/frontend_v2.php:1274
+msgid "Empty"
+msgstr "Tyhjä"
+
+#: templates/admin.php:253
+msgid "Enable cancel form"
+msgstr "Ota peruutuslomake käyttöön"
+
+#: templates/admin.php:269
+msgid "Enable modify reservations"
+msgstr "Ota käyttöön varausten muokkaaminen"
+
+#: templates/admin.php:278
+msgid "Enable or Disable modify reservation."
+msgstr "Ota käyttöön tai poista käytöstä varauksen muokkaaminen."
+
+#: templates/admin.php:262
+msgid "Enable or Disable reservation cancel form."
+msgstr "Ota varauksen peruutuslomake käyttöön tai poista se käytöstä."
+
+#: templates/admin.php:310
+msgid ""
+"Enable or Disable social network account login. When enabled clients can "
+"login with any social network accounts like Facebook and then reservation "
+"form will be pre-filled with personal information. Also if user logins with "
+"social network but does not complete the reservation, he will receive a "
+"reminder to finalize it. You need to install and setup plugin with name "
+"'Super Socializer' from WordPress directory."
+msgstr ""
+"Ota käyttöön tai poista käytöstä sosiaalisen verkoston tilin kirjautuminen. "
+"Kun tämä on käytössä, asiakkaat voivat kirjautua sisään millä tahansa "
+"sosiaalisen verkoston tilillä, kuten Facebookilla, ja sitten varauslomake "
+"täytetään valmiiksi henkilökohtaisilla tiedoilla. Myös jos käyttäjä "
+"kirjautuu sisään sosiaaliseen verkostoon, mutta ei suorita varausta loppuun, "
+"hän saa muistutuksen sen viimeistelystä. Sinun on asennettava ja "
+"määritettävä laajennus, jonka nimi on \"Super Socializer\" WordPress-"
+"hakemistosta."
+
+#: templates/admin.php:301
+msgid "Enable social network login"
+msgstr "Ota sosiaaliseen verkostoon kirjautuminen käyttöön"
+
+#: templates/admin.php:789
+msgid "Enable/Disable captcha on reservation form."
+msgstr "Ota captcha käyttöön/poista käytöstä varauslomakkeessa."
+
+#: templates/admin.php:481
+msgid "Enable/Disable children selection"
+msgstr "Ota käyttöön/poista käytöstä lasten valinta"
+
+#: templates/basicpackage.php:61
+msgid ""
+"Enhance your business experience by using our Facebook integration service "
+"where we try to provide you with profile pictures of your customers if found."
+" You can amaze your customer by knowing him by face when he visits you, "
+"especially at the time of first visit."
+msgstr ""
+"Paranna liiketoimintakokemustasi käyttämällä Facebook-integraatiopalveluamme,"
+" jossa yritämme tarjota sinulle asiakkaidesi profiilikuvia, jos niitä löytyy."
+" Voit hämmästyttää asiakkaasi tuntemalla hänet kasvoilta, kun hän vierailee "
+"luonasi, varsinkin ensimmäisellä käynnillä."
+
+#: redi-restaurant-reservation.php:2091
+msgid ""
+"Enter any personal information from reservation like name, email or phone "
+"number"
+msgstr ""
+"Syötä varauksesta saadut henkilötiedot, kuten nimi, sähköpostiosoite tai "
+"puhelinnumero"
+
+#: redi-restaurant-reservation.php:2050
+msgid "Error loading custom fields"
+msgstr "Virhe mukautettujen kenttien lataamisessa"
+
+#: templates/frontend_v2.php:194 templates/frontend.php:40
+msgid ""
+"ERROR: You need to install/activate dependant plugin Super Socializer plugin"
+msgstr ""
+"VIRHE: Sinun on asennettava/aktivoitava riippuvainen laajennus Super "
+"Socializer -laajennus"
+
+#: templates/basicpackage.php:25 templates/admin_welcome.php:33
+msgid "facebook"
+msgstr "Facebook-sivu"
+
+#: redi-restaurant-reservation.php:2049
+msgid "Failed to load custom fields. Please try again later."
+msgstr ""
+"Mukautettujen kenttien lataaminen epäonnistui. Yritä myöhemmin uudelleen."
+
+#: redi-restaurant-reservation.php:2021
+msgid "February"
+msgstr "Helmikuu"
+
+#: templates/admin_ajaxed.php:527
+msgid "Field name"
+msgstr "Kentän nimi"
+
+#: templates/admin_ajaxed.php:537
+msgid "Field type"
+msgstr "Kentän tyyppi"
+
+#: functions/notice.php:137
+#, php-format
+msgid ""
+"Finally, one last step in <b>ReDi Restaurant Reservation Plugin</b> setup to "
+"impress your clients, make a test reservation. <b>%1$s</b>%2$s"
+msgstr ""
+"Lopuksi viimeinen vaihe <b>ReDi Restaurant Reservation Plugin</b> -"
+"asennuksessa tehdäksesi vaikutuksen asiakkaisiisi, tee testivaraus. <b>"
+"%1$s</b>%2$s"
+
+#: redi-restaurant-reservation.php:2087
+msgid "Find Reservation"
+msgstr "Etsi varaus"
+
+#: templates/frontend_v2.php:1388 templates/modify.php:15
+msgid "Find reservation"
+msgstr "Etsi varaus"
+
+#: redi-restaurant-reservation.php:1992 templates/frontend_v2.php:645
+#: templates/frontend.php:282
+msgid "First Name"
+msgstr "Etunimi"
+
+#: redi-restaurant-reservation.php:1840 redi-restaurant-reservation.php:1894
+#: templates/frontend_v2.php:643
+msgid "First Name can't be empty"
+msgstr "Etunimi ei voi olla tyhjä"
+
+#: redi-restaurant-reservation.php:2131
+msgid "First name is required"
+msgstr "Etunimi on pakollinen"
+
+#: templates/admin.php:834
+msgid "Force users to provide a reason when canceling reservation."
+msgstr "Pakota käyttäjät ilmoittamaan syy varauksen peruuttamiseen."
+
+#: redi-restaurant-reservation.php:706
+msgid "Form security check failed with error: Nonce check failed."
+msgstr ""
+"Lomakkeen turvatarkistus epäonnistui virheen vuoksi: Nonce-tarkistus "
+"epäonnistui."
+
+#: redi-restaurant-reservation.php:2548
+msgid ""
+"Form security check failed with error: Nonce check failed. Reservation form "
+"is not working today, please contact us directly."
+msgstr ""
+"Lomakkeen turvatarkistus epäonnistui virheen vuoksi: Nonce-tarkistus "
+"epäonnistui. Varauslomake ei toimi tänään, ota meihin suoraan yhteyttä."
+
+#: templates/admin.php:126
+msgid "Free package settings"
+msgstr "Ilmaisen version asetukset"
+
+#: redi-restaurant-reservation.php:2014
+msgid "Fri"
+msgstr "Pe"
+
+#: templates/admin.php:891 templates/admin.php:905
+msgid "From Custom SMTP"
+msgstr "Mukautetusta SMTP:stä"
+
+#: templates/admin.php:889 templates/admin.php:908
+msgid "From ReservationDiary.eu"
+msgstr "Kohteesta ReservationDiary.eu"
+
+#: templates/admin.php:893 templates/admin.php:902
+msgid "From WordPress email account"
+msgstr "WordPress-sähköpostitililtä"
+
+#: templates/admin.php:942
+msgid "Frontend settings"
+msgstr "Käyttöliittymän asetukset"
+
+#: redi-restaurant-reservation.php:1994 templates/frontend_v2.php:629
+msgid "Full Name"
+msgstr "Koko nimi"
+
+#: templates/frontend_v2.php:627
+msgid "Full Name can't be empty"
+msgstr "Koko nimi ei voi olla tyhjä"
+
+#: redi-restaurant-reservation.php:2133
+msgid "Full name is required"
+msgstr "Koko nimi vaaditaan"
+
+#: redi-restaurant-reservation.php:2038
+msgid "Fully booked"
+msgstr "Varaukset täynnä"
+
+#: templates/admin_ajaxed.php:617
+msgid "GDPR"
+msgstr "Yleinen tietosuoja-asetus"
+
+#. Description of the plugin
+msgid ""
+"Get your restaurant business booming with the <strong>ReDi Restaurant "
+"Reservation plugin</strong>! Our plugin simplifies the reservation process "
+"and allows your clients to easily book online. With <strong>instant "
+"reservation confirmation</strong> and customizable settings, managing "
+"reservations has never been easier. Say goodbye to the hassle of manually "
+"confirming reservations and hello to the convenience of automatic "
+"confirmation. Try it out today and see the difference it can make in just a "
+"few clicks!"
+msgstr ""
+"Saat ravintolaliiketoimintasi kukoistamaan <strong>ReDi Restaurant "
+"Reservation -laajennuksen</strong> avulla! Laajennuksemme yksinkertaistaa "
+"varausprosessia ja antaa asiakkaillesi mahdollisuuden varata helposti "
+"verkossa. <strong>Välittömän varausvahvistuksen</strong> ja muokattavien "
+"asetusten ansiosta varausten hallinta ei ole koskaan ollut helpompaa. Sano "
+"hyvästit varausten manuaalisen vahvistamisen vaivalle ja tervetuloa "
+"automaattisen vahvistuksen mukavuudelle. Kokeile sitä jo tänään ja näe, "
+"millaisen eron se voi tehdä muutamalla napsautuksella!"
+
+#: templates/basicpackage.php:92
+msgid "Getting discovered on Google, Apple, Facebook, and more"
+msgstr ""
+"Löydetyksi tuleminen Googlessa, Applessa, Facebookissa ja muissa palveluissa"
+
+#: redi-restaurant-reservation.php:1982 templates/frontend_v2.php:118
+#: templates/frontend_v2.php:245 templates/frontend_v2.php:1163
+#: templates/confirm.php:34 templates/frontend.php:83
+msgid "Guests"
+msgstr "Vieraat"
+
+#: redi-restaurant-reservation.php:399
+msgid "Help"
+msgstr "Ohje"
+
+#: redi-restaurant-reservation.php:2136
+msgid "Hi, could you please make a reservation for me with following details"
+msgstr "Hei, voisitteko tehdä minulle varauksen seuraavilla tiedoilla"
+
+#: redi-restaurant-reservation.php:1989
+msgid "Hide all steps"
+msgstr "Piilota kaikki vaiheet"
+
+#: templates/admin.php:958
+msgid "Hide previous steps (only for timeshiftmode byshifts)"
+msgstr "Piilota edelliset vaiheet (vain timeshiftmode byshifts)"
+
+#: templates/admin.php:949
+msgid "Hide steps"
+msgstr "Piilota vaiheet"
+
+#: templates/admin_ajaxed.php:464 templates/admin_ajaxed.php:486
+msgid "Hours"
+msgstr "Tuntia"
+
+#: redi-restaurant-reservation.php:2044
+msgid "hours"
+msgstr "tuntia"
+
+#: templates/admin.php:405
+msgid "HTML dropdown"
+msgstr "HTML-pudotusvalikko"
+
+#. URI of the plugin
+#. Author URI of the plugin
+msgid "https://landing.reservationdiary.eu"
+msgstr "https://landing.reservationdiary.eu"
+
+#: templates/admin.php:356
+msgid "Hyphen"
+msgstr "Tavuviiva"
+
+#: templates/admin.php:71
+msgid "I agree to the privacy policy"
+msgstr "Hyväksyn tietosuojaselosteen"
+
+#: templates/admin.php:876
+msgid ""
+"If checkbox is checked then reservations will not be automatically confirmed."
+" You will receive email with reservation request and each reservation needs "
+"to be confirmed or rejected manually."
+msgstr ""
+"Jos valintaruutu on valittuna, varauksia ei vahvisteta automaattisesti. Saat "
+"varauspyynnön sähköpostitse ja jokainen varaus on vahvistettava tai "
+"hylättävä manuaalisesti."
+
+#: templates/admin.php:630
+msgid ""
+"If checkbox is checked then seats left will be shown under selected time."
+msgstr ""
+"Jos valintaruutu on valittuna, jäljellä olevat paikat näkyvät valitun ajan "
+"alla."
+
+#: templates/admin.php:975
+msgid ""
+"If checkbox is checked, a logo of <b>\"Powered by ReservationDiary.eu\"</b> "
+"is displayed. Thank you for supporting us."
+msgstr ""
+"Jos valintaruutu on valittuna, näkyviin tulee <b>\"Powered by "
+"ReservationDiary.eu\"</b> -logo. Kiitos, että tuet meitä."
+
+#: templates/admin.php:498
+msgid ""
+"If enabled, the total number of guests includes children. If disabled, "
+"children are counted separately."
+msgstr ""
+"Jos tämä asetus on käytössä, vierailijoiden kokonaismäärä sisältää lapset. "
+"Jos asetus on pois käytöstä, lapset lasketaan erikseen."
+
+#: templates/admin.php:466
+msgid ""
+"If this field is filled, the drop down menu of persons would show \"Large "
+"Groups\" and upon selection, the specified message would appear."
+msgstr ""
+"Jos tämä kenttä on täytetty, henkilöiden pudotusvalikossa näkyy \"Suuret "
+"ryhmät\" ja valinnan jälkeen määritetty viesti tulee näkyviin."
+
+#: templates/basicpackage.php:68
+msgid ""
+"If you are building a catalogue of restaurants and looking for the perfect "
+"reservation plugin for it, we can provide it to you."
+msgstr ""
+"Jos olet rakentamassa ravintolaluetteloa ja etsit sille täydellistä "
+"varauslaajennusta, voimme tarjota sen sinulle."
+
+#: templates/admin_ajaxed.php:384
+msgid ""
+"If you close next day at night then set closing time on a same day. For "
+"example 18:00 - 3:00"
+msgstr ""
+"Jos suljet seuraavan vuorokauden puolella, merkitse sulkemisajankohta "
+"samalle päivälle, esim 18:00-03:00"
+
+#: templates/admin_welcome_no_key.php:22
+msgid ""
+"If you have already an API key, you can skip this step and provide API key "
+"on next step."
+msgstr ""
+"Jos sinulla on jo API-avain, voit ohittaa tämän vaiheen ja antaa API-avaimen "
+"seuraavassa vaiheessa."
+
+#: templates/admin.php:931
+msgid ""
+"If you want to customize confirmation page or have a separated page for "
+"marketing purposes, then select custom reservation confirmation page. If not "
+"specified, then built in confirmation page will be used."
+msgstr ""
+"Jos haluat mukauttaa vahvistussivua tai käyttää erillistä sivua "
+"markkinointitarkoituksiin, valitse mukautettu varausvahvistussivu. Jos sitä "
+"ei ole määritetty, käytetään sisäänrakennettua vahvistussivua."
+
+#: templates/basicpackage.php:73
+msgid ""
+"If you would like to add some new functionality or have any other queries, "
+"please contact us by email: "
+msgstr ""
+"Jos haluat lisätä uusia toimintoja tai sinulla on muita kysymyksiä, ota "
+"meihin yhteyttä sähköpostitse: "
+
+#: templates/admin.php:467 templates/admin.php:533 templates/admin.php:699
+msgid ""
+"In case you need to show it in multiple languages, then use following format "
+"[locale]Text[/locale]. Example: [en_US]Text[/en_US][es_ES]Texto[/es_ES]"
+msgstr ""
+"Jos sinun on näytettävä se useilla kielillä, käytä seuraavaa muotoa [locale]"
+"Text[/locale]. Esimerkki: [en_US]Teksti[/en_US][es_ES]Texto[/es_ES]"
+
+#: templates/frontend_v2.php:460
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a  href=\"#\" class=\"link-waitlist-form\">this "
+"form</a>."
+msgstr ""
+"Jos haluat saada ilmoituksen, kun joku peruuttaa varauksen tälle päivälle, "
+"täytä <a href=\"#\" class=\"link-waitlist-form\">tämä lomake</a>."
+
+#: templates/frontend.php:219 templates/frontend.php:401
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this day, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Jos haluat saada ilmoituksen, kun joku peruuttaa varauksen tälle päivälle, "
+"täytä <a class=\"link-waitlist-form\">tämä lomake</a>."
+
+#: templates/frontend.php:389
+msgid ""
+"In case you would like to be notified when someone cancels reservation for "
+"this time, please fill <a class=\"link-waitlist-form\">this form</a>."
+msgstr ""
+"Jos haluat saada ilmoituksen, kun joku peruuttaa varauksen tälle ajalle, "
+"täytä <a class=\"link-waitlist-form\">tämä lomake</a>."
+
+#: templates/admin.php:932
+msgid ""
+"In order to display reservation id on that page, install plugin GET Params "
+"and add following short code: [display-get-param name=\"reservation_id\"]"
+msgstr ""
+"Jos haluat näyttää varaustunnuksen kyseisellä sivulla, asenna laajennus GET "
+"Params ja lisää seuraava lyhytkoodi: [display-get-param "
+"name=\"reservation_id\"]"
+
+#: templates/admin.php:593
+msgid ""
+"In this mode, the system automatically displays all the available times for "
+"the date selected without any manual time input."
+msgstr ""
+"Tässä tilassa järjestelmä näyttää automaattisesti kaikki valitun päivämäärän "
+"käytettävissä olevat ajat ilman manuaalista ajansyöttöä."
+
+#: templates/admin.php:590
+msgid ""
+"In this mode, the user selects the desired time and the system verifies its "
+"availability to present five different alternative times to the customer."
+msgstr ""
+"Tässä tilassa käyttäjä valitsee halutun ajan ja järjestelmä tarkistaa sen "
+"saatavuuden näyttääkseen asiakkaalle viisi eri vaihtoehtoista aikaa."
+
+#: templates/frontend_v2.php:683 templates/frontend_v2.php:1368
+#: templates/frontend_v2.php:1566 templates/frontend_v2.php:1716
+#: templates/frontend_v2.php:1873
+msgid "Incorrect email"
+msgstr "Väärä sähköpostiosoite"
+
+#: templates/frontend_v2.php:671 templates/frontend_v2.php:1344
+#: templates/frontend_v2.php:1552 templates/frontend_v2.php:1694
+#: templates/frontend_v2.php:1861
+msgid "Incorrect phone number"
+msgstr "Väärä puhelinnumero"
+
+#: templates/admin_ajaxed.php:547
+msgid "Is printed?"
+msgstr "Tulostetaan?"
+
+#: redi-restaurant-reservation.php:2054
+msgid "is required"
+msgstr "vaaditaan"
+
+#: templates/admin_ajaxed.php:542
+msgid "Is required?"
+msgstr "Pakollinen?"
+
+#: redi-restaurant-reservation.php:2020
+msgid "January"
+msgstr "Tammikuu"
+
+#: templates/admin.php:402
+msgid "jQuery plugin"
+msgstr "jQuery-laajennus"
+
+#: redi-restaurant-reservation.php:2026
+msgid "July"
+msgstr "Heinäkuu"
+
+#: redi-restaurant-reservation.php:2025
+msgid "June"
+msgstr "Kesäkuu"
+
+#: templates/basicpackage.php:94
+msgid ""
+"Keeping online listings accurate and up to date — without the tech stress"
+msgstr ""
+"Pidä online-listaukset tarkkoina ja ajan tasalla – ilman teknistä stressiä"
+
+#: templates/admin_ajaxed.php:226
+msgid "Language"
+msgstr "Kieli"
+
+#: templates/admin_ajaxed.php:254
+msgid ""
+"Language for emails of clients depend on the user interface language "
+"selected."
+msgstr ""
+"Asiakkaiden sähköpostien kieli riippuu valitusta käyttöliittymän kielestä."
+
+#: templates/admin_ajaxed.php:253
+msgid ""
+"Language for internal emails communication. It is specially used for admin "
+"emails. "
+msgstr ""
+"Kieli sisäiseen sähköpostiviestintään. Sitä käytetään erityisesti "
+"järjestelmänvalvojan sähköposteihin. "
+
+#: redi-restaurant-reservation.php:1993 templates/frontend_v2.php:658
+#: templates/frontend.php:291
+msgid "Last Name"
+msgstr "Sukunimi"
+
+#: redi-restaurant-reservation.php:1841 redi-restaurant-reservation.php:1896
+msgid "Last Name can't be empty"
+msgstr "Sukunimi ei voi olla tyhjä"
+
+#: templates/frontend_v2.php:656
+msgid "Last name can't be empty"
+msgstr "Sukunimi ei voi olla tyhjä"
+
+#: redi-restaurant-reservation.php:2132
+msgid "Last name is required"
+msgstr "Sukunimi vaaditaan"
+
+#: templates/admin_ajaxed.php:456
+msgid "Late Bookings"
+msgstr "Myöhäiset varaukset"
+
+#: templates/basicpackage.php:96
+msgid "Learn more at mobal.io"
+msgstr "Lue lisää osoitteesta mobal.io"
+
+#: redi-restaurant-reservation.php:2034
+msgid "Legend"
+msgstr "Selite"
+
+#: templates/admin.php:521
+msgid "Limits the maximum number of children per reservation"
+msgstr "Rajoittaa lasten enimmäismäärää varausta kohden"
+
+#: redi-restaurant-reservation.php:1882 redi-restaurant-reservation.php:2003
+msgid "Loading available dates"
+msgstr "Ladataan saatavilla olevia päivämääriä"
+
+#: redi-restaurant-reservation.php:1884 redi-restaurant-reservation.php:2005
+msgid "Loading available time slots"
+msgstr "Ladataan vapaita aikavälejä"
+
+#: redi-restaurant-reservation.php:2081
+msgid "Loading confirmation details"
+msgstr "Ladataan vahvistustiedot"
+
+#: redi-restaurant-reservation.php:2002
+msgid "Loading custom fields"
+msgstr "Ladataan mukautettuja kenttiä"
+
+#: redi-restaurant-reservation.php:2006
+msgid "Loading reservation form"
+msgstr "Ladataan varauslomaketta"
+
+#: redi-restaurant-reservation.php:2004
+msgid "Loading restaurants"
+msgstr "Ladataan ravintoloita"
+
+#: templates/admin.php:987
+msgid "Localization"
+msgstr "Lokalisointi"
+
+#: redi-restaurant-reservation.php:1980
+msgid "Location"
+msgstr "Sijainti"
+
+#: templates/frontend_v2.php:174 templates/frontend.php:30
+msgid "Login with your social media account"
+msgstr "Kirjaudu sisään sosiaalisen median tililläsi"
+
+#: templates/frontend_v2.php:894 templates/frontend.php:340
+msgid "Make a reservation"
+msgstr "Tee pöytävaraus"
+
+#: templates/frontend.php:338
+msgid "Make a reservation request"
+msgstr "Tee varauspyyntö"
+
+#: redi-restaurant-reservation.php:2084
+msgid "Manage Existing Reservation"
+msgstr "Hallitse olemassa olevia varauksia"
+
+#: templates/admin.php:824
+msgid "Mandatory Cancellation Reason"
+msgstr "Pakollinen peruutuksen syy"
+
+#: templates/admin.php:867
+msgid "Manual reservation"
+msgstr "Manuaalinen varaus"
+
+#: redi-restaurant-reservation.php:2022
+msgid "March"
+msgstr "Maaliskuu"
+
+#: templates/admin.php:505
+msgid "Max children per reservation"
+msgstr "Lasten enimmäismäärä per varaus"
+
+#: templates/admin.php:435
+msgid "Max persons per reservation"
+msgstr "Maksimi henkilömäärä varaukselle"
+
+#: templates/admin_ajaxed.php:400
+msgid "Maximum number of guests"
+msgstr "Vieraiden enimmäismäärä"
+
+#: templates/admin.php:449
+msgid ""
+"Maximum number of persons allowed for each reservation. Drop down list of "
+"persons ends with this number."
+msgstr ""
+"Suurin sallittu henkilömäärä kuhunkin varaukseen. Pudotusvalikko henkilöistä "
+"päättyy tähän numeroon."
+
+#: templates/admin_ajaxed.php:493
+msgid "Maximum time before the reservation can be accepted."
+msgstr "Maksimiaika ennen varausta voidaan hyväksyä."
+
+#: redi-restaurant-reservation.php:2024
+msgid "May"
+msgstr "Toukokuu"
+
+#: templates/frontend_v2.php:699
+msgid "Maybe you have any wishes for the reservation"
+msgstr "Ehkä sinulla on toiveita varauksesta"
+
+#: redi-restaurant-reservation-api.php:467
+msgid "Menu items"
+msgstr "Valikon kohdat"
+
+#: templates/admin.php:457
+msgid "Message for large groups"
+msgstr "Viesti isommalle ryhmälle"
+
+#: templates/admin.php:415
+msgid "Min persons per reservation"
+msgstr "Minimi henkilömäärä varaukselle"
+
+#: templates/admin.php:429
+msgid ""
+"Minimum number of persons allowed for each reservation. Drop down list of "
+"persons starts from this number."
+msgstr ""
+"Pienin sallittu henkilömäärä jokaiseen varaukseen. Pudotusvalikko "
+"henkilöistä alkaa tästä numerosta."
+
+#: templates/admin_ajaxed.php:463
+msgid "Minutes"
+msgstr "Minuuttia"
+
+#: redi-restaurant-reservation.php:2045
+msgid "minutes"
+msgstr "minuuttia"
+
+#: templates/basicpackage.php:85 templates/basicpackage.php:88
+msgid "Mobal"
+msgstr "Mobal"
+
+#: templates/basicpackage.php:90
+msgid ""
+"Mobal is our trusted partner in helping restaurants turn online searches "
+"into real reservations."
+msgstr ""
+"Mobal on luotettava kumppanimme, joka auttaa ravintoloita muuttamaan "
+"verkkohaut todellisiksi varauksiksi."
+
+#: redi-restaurant-reservation.php:2122 redi-restaurant-reservation.php:2143
+msgid "Mobile"
+msgstr "Puhelinnumero"
+
+#: templates/admin.php:587
+msgid ""
+"Mode how available working hours presented to user so that they can choose "
+"time slots most convenient to them."
+msgstr ""
+"Tila, miten käytettävissä olevat työajat esitetään käyttäjälle, jotta hän "
+"voi valita itselleen sopivimmat aikavälit."
+
+#: templates/frontend_v2.php:1045
+msgid "Modify existing reservation"
+msgstr "Muokkaa aiemmin luotua varausta"
+
+#: redi-restaurant-reservation.php:2086
+msgid "Modify Reservation"
+msgstr "Muokkaa varausta"
+
+#: templates/frontend_v2.php:1306 templates/modify.php:2
+#: templates/frontend.php:15
+msgid "Modify reservation"
+msgstr "Varauksen muokkaaminen"
+
+#: redi-restaurant-reservation.php:2010
+msgid "Mon"
+msgstr "Ma"
+
+#: templates/admin_ajaxed.php:420
+msgid "Monthly guest reservation limit"
+msgstr "Kuukausittainen vieraiden varausraja"
+
+#: templates/admin_ajaxed.php:488
+msgid "Months"
+msgstr "Kuukautta"
+
+#. %s is the number of guests.
+#: templates/frontend.php:113
+#, php-format
+msgid "More than %s Guests"
+msgstr "Enemmän kuin %s vieraita"
+
+#: templates/frontend_v2.php:37 templates/frontend.php:7
+#| msgid "More than %s people"
+msgid "More than [max] people"
+msgstr "Enemmän kuin %s henkilöä"
+
+#: templates/admin_ajaxed.php:388
+msgid ""
+"Multiple open and close times are available in Basic package. If times are "
+"configured in Basic package, then this table is ignored."
+msgstr ""
+"Peruspaketissa on useita avaus- ja sulkemisaikoja. Jos ajat on määritetty "
+"peruspaketissa, tämä taulukko ohitetaan."
+
+#: redi-restaurant-reservation.php:2142 templates/frontend_v2.php:1358
+#: templates/frontend_v2.php:1542 templates/frontend_v2.php:1708
+#: templates/frontend_v2.php:1851 templates/admin_ajaxed.php:289
+#: templates/admin.php:142 templates/modify.php:11 templates/modify.php:60
+#: templates/cancel.php:27 templates/frontend.php:268
+#: templates/frontend.php:284 templates/frontend.php:483
+msgid "Name"
+msgstr "Nimi"
+
+#: redi-restaurant-reservation.php:1839 redi-restaurant-reservation.php:1892
+#: templates/frontend_v2.php:1356 templates/frontend_v2.php:1540
+#: templates/frontend_v2.php:1706 templates/frontend_v2.php:1849
+msgid "Name can't be empty"
+msgstr "Nimi vaaditaan"
+
+#: redi-restaurant-reservation.php:1842 redi-restaurant-reservation.php:1898
+msgid "Name or Phone or Email can't be empty"
+msgstr "Nimi, puhelinnumero tai sähköpostiosoite ei voi olla tyhjä."
+
+#: templates/admin.php:147
+msgid "News"
+msgstr "Uutinen"
+
+#: templates/admin_ajaxed.php:611 templates/admin.php:62
+msgid "Newsletter"
+msgstr "Uutiskirje"
+
+#: redi-restaurant-reservation.php:1847 redi-restaurant-reservation.php:1908
+#: templates/admin_welcome_no_page.php:41 templates/admin_welcome.php:40
+#: templates/admin_welcome_no_key.php:45
+msgid "Next"
+msgstr "Seuraava"
+
+#: redi-restaurant-reservation.php:2017
+msgid "Next month"
+msgstr "Seuraava kuukausi"
+
+#: templates/frontend_v2.php:420 templates/frontend_v2.php:587
+msgid "Next step"
+msgstr "Seuraava vaihe"
+
+#: templates/admin_welcome.php:18
+msgid ""
+"Next step is to configure the plugin, please watch following videos and "
+"click on Next to open Settings page"
+msgstr ""
+"Seuraava vaihe on määrittää laajennus, katso seuraavat videot ja napsauta "
+"Seuraava avataksesi Asetukset-sivun"
+
+# tai Numero
+#: redi-restaurant-reservation.php:2053 redi-restaurant-reservation.php:2110
+msgid "No"
+msgstr "Ei"
+
+#: templates/admin.php:589
+msgid "Normal"
+msgstr "Normaali"
+
+#: redi-restaurant-reservation.php:764
+msgid "Not a valid API key provided."
+msgstr "Annetut API-avaimet eivät ole kelvollisia."
+
+#: templates/admin_ajaxed.php:519
+msgid ""
+"NOTE: Complex custom fields like Options and Dropdown can be configured in "
+"Basic package settings."
+msgstr ""
+"HUOMAUTUS: Monimutkaiset mukautetut kentät, kuten Asetukset ja "
+"Pudotusvalikko, voidaan määrittää paketin perusasetuksissa."
+
+#: templates/admin_ajaxed.php:472
+msgid ""
+"NOTE: If you define Open Time in basic package, then this setting will be "
+"ignored. Use open times settings to define Late Bookings."
+msgstr ""
+"HUOMAUTUS: Jos määrität Open Time -arvon peruspaketissa, tämä asetus "
+"ohitetaan. Käytä aukioloaikojen asetuksia määrittääksesi myöhästyneet "
+"varaukset."
+
+#: templates/admin_ajaxed.php:517
+msgid ""
+"NOTE: Name, Email, Phone and Comments are required fields of reservation "
+"form and do not need to be defined here as custom fields."
+msgstr ""
+"HUOMAUTUS: Nimi, Sähköpostiosoite, Puhelinnumero ja Kommentit ovat "
+"varauslomakkeen pakollisia kenttiä, eikä niitä tarvitse määritellä tässä "
+"mukautetuiksi kentiksi."
+
+#: templates/admin_ajaxed.php:655
+msgid "Note: To send SMS messages an extra addon needs to be purchased."
+msgstr ""
+"Huomautus: Tekstiviestien lähettämiseksi on ostettava ylimääräinen lisäosa."
+
+#: redi-restaurant-reservation.php:2030
+msgid "November"
+msgstr "Marraskuu"
+
+#: templates/frontend.php:98
+msgid "Number of adults"
+msgstr "Aikuisten lukumäärä"
+
+#: templates/frontend.php:126
+msgid "Number of children"
+msgstr "Lasten lukumäärä"
+
+#: templates/frontend_v2.php:1462 templates/modify.php:36
+msgid "Number of guests"
+msgstr "Vieraiden määrä"
+
+#: templates/frontend.php:96
+msgid "Number of total guests"
+msgstr "Vieraiden kokonaismäärä"
+
+#: templates/admin.php:805
+msgid "Obtain your captcha key from Google."
+msgstr "Hanki captcha-avain Googlelta."
+
+#: redi-restaurant-reservation.php:2029
+msgid "October"
+msgstr "Lokakuu"
+
+#: redi-restaurant-reservation.php:1558
+msgid ""
+"Online reservation service is not available at this time. Try again later or"
+msgstr ""
+"Online-varauspalvelu ei ole tällä hetkellä käytettävissä. Yritä myöhemmin "
+"uudelleen tai"
+
+#. %s is a placeholder for a dynamic link.
+#: redi.php:283
+#, php-format
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"%s"
+msgstr ""
+"Online-varauspalvelu ei ole tällä hetkellä käytettävissä. Yritä myöhemmin "
+"uudelleen tai %s"
+
+#: redi-restaurant-reservation.php:2118
+msgid ""
+"Online reservation service is not available at this time. Try again later or "
+"contact us directly."
+msgstr ""
+"Verkkovarauspalvelu ei ole tällä hetkellä käytettävissä. Yritä myöhemmin "
+"uudelleen tai ota meihin suoraan yhteyttä."
+
+#: templates/admin_ajaxed.php:348
+msgid "Open"
+msgstr "Avaa"
+
+#: functions/notice.php:47 functions/notice.php:79
+msgid "Open setup wizard"
+msgstr "Avaa ohjattu asennustoiminto"
+
+#: templates/basicpackage.php:40
+msgid ""
+"Open times. This option will enable you to choose between various working "
+"hours whichever is most convenient to you."
+msgstr ""
+"Aukioloajat. Tämän vaihtoehdon avulla voit valita eri työaikojen välillä "
+"sinulle sopivimman mukaan."
+
+#: templates/basicpackage.php:37
+msgid "Open upcoming reservations"
+msgstr "Avaa tulevat pöytävaraukset"
+
+#: templates/admin_ajaxed.php:621
+msgid "Option"
+msgstr "Vaihtoehto"
+
+#: templates/frontend_v2.php:282 templates/frontend_v2.php:370
+#: templates/frontend_v2.php:1496
+msgid "OR"
+msgstr "TAI"
+
+#: redi-restaurant-reservation.php:2035
+msgid "Out of range"
+msgstr "Varausalueen ulkopuolella"
+
+#: templates/admin.php:689
+msgid "Override fully booked message text"
+msgstr "Ohita täyteen varattu viestiteksti"
+
+#: templates/admin_welcome_no_page.php:13
+msgid "Page name"
+msgstr "Sivun nimi"
+
+#: redi-restaurant-reservation.php:3009
+msgid "Page name is required"
+msgstr "Sivun nimi on pakollinen"
+
+#: templates/basicpackage.php:78
+msgid "Partner Offers"
+msgstr "Kumppanin tarjoukset"
+
+#: redi-restaurant-reservation.php:2090
+msgid "Personal information"
+msgstr "Henkilökohtaiset tiedot"
+
+#: redi-restaurant-reservation.php:318
+msgid ""
+"Personal information (email, phone, or name) is required to search for a "
+"reservation."
+msgstr ""
+"Henkilökohtaiset tiedot (sähköposti, puhelinnumero tai nimi) ovat "
+"välttämättömiä varauksen hakua varten."
+
+#: redi-restaurant-reservation.php:2096
+msgid "Personal information is required"
+msgstr "Henkilökohtaiset tiedot vaaditaan"
+
+#: templates/frontend_v2.php:1831 templates/frontend.php:474
+msgid "Persons"
+msgstr "Henkilöiden lukumäärä"
+
+#: redi-restaurant-reservation.php:1996 templates/frontend_v2.php:673
+#: templates/frontend_v2.php:1346 templates/frontend_v2.php:1554
+#: templates/frontend_v2.php:1696 templates/frontend_v2.php:1863
+#: templates/admin_ajaxed.php:261 templates/modify.php:8
+#: templates/modify.php:64 templates/cancel.php:19 templates/frontend.php:271
+#: templates/frontend.php:297 templates/frontend.php:493
+msgid "Phone"
+msgstr "Puhelin"
+
+#: redi-restaurant-reservation.php:1844 redi-restaurant-reservation.php:1902
+msgid "Phone can't be empty"
+msgstr "Puhelinnumero-kenttä ei voi olla tyhjä"
+
+#: redi-restaurant-reservation.php:1845 redi-restaurant-reservation.php:1904
+msgid "Phone number is not valid"
+msgstr "Puhelinnumero ei ole kelvollinen"
+
+#: redi-restaurant-reservation.php:2129
+msgid "Phone number is required"
+msgstr "Puhelinnumero on pakollinen tieto"
+
+#: templates/frontend_v2.php:209 templates/admin_ajaxed.php:78
+#: templates/frontend.php:52
+msgid "Place"
+msgstr "Paikka"
+
+#: templates/basicpackage.php:53
+msgid ""
+"Please allow 1 business day for us to confirm your payment and upgrade your "
+"account."
+msgstr ""
+"Odota 1 arkipäivä, ennen kuin vahvistamme maksusi ja päivitämme tilisi."
+
+#: templates/admin.php:232
+msgid ""
+"Please contact info@reservationdiary.eu for any issues or missing features "
+"in Beta themes so we can prioritize them."
+msgstr ""
+"Ota yhteyttä info@reservationdiary.eu, jos sinulla on ongelmia tai puuttuvia "
+"ominaisuuksia beta-teemoista, jotta voimme priorisoida ne."
+
+#: functions/notice.php:134
+msgid ""
+"Please create a reservation page and add this <b>[redirestaurant]</b> "
+"shortcode to that page."
+msgstr ""
+"Luo varaussivu ja lisää tämä <b>[redirestaurant]</b> -lyhytkoodi kyseiselle "
+"sivulle."
+
+#: redi-restaurant-reservation.php:2130
+msgid "Please enter a valid email address"
+msgstr "Syötä kelvollinen sähköpostiosoite"
+
+#: redi-restaurant-reservation.php:2101
+msgid "Please provide a reason for cancellation"
+msgstr "Ilmoita peruutuksen syy"
+
+#: templates/admin_welcome_no_page.php:33 templates/admin_welcome_no_key.php:37
+msgid "Please provide your API Key in order to continue using plugin"
+msgstr "Anna API-avaimesi, jotta voit jatkaa laajennuksen käyttöä"
+
+#: templates/admin_welcome_no_key.php:13
+msgid "Please provide your email address to generate API Key"
+msgstr "Anna sähköpostiosoitteesi API-avaimen luomiseksi"
+
+#: redi-restaurant-reservation.php:2060
+msgid "Please select a valid date for"
+msgstr "Valitse kelvollinen päivämäärä"
+
+#: redi-restaurant-reservation.php:2055
+msgid "Please select an option for"
+msgstr "Valitse vaihtoehto"
+
+#: templates/admin.php:509
+msgid "Please select the maximum number of children."
+msgstr "Valitse lasten enimmäismäärä."
+
+#: redi-restaurant-reservation.php:870
+msgid "Please select value from \"Max children per reservation\""
+msgstr "Valitse arvo kohdasta ”Enimmäislapsimäärä varausta kohti”"
+
+#: redi-restaurant-reservation.php:865
+msgid "Please select value from \"Monthly guest reservation limit\""
+msgstr "Valitse arvo kohdasta ”Kuukausittainen vierasvarausraja”."
+
+#: templates/admin.php:859
+msgid ""
+"Please verify you current time. This is important as this time is taken and "
+"used in reservation logic. In case time is differnet than your current time, "
+"please change time zone in Settings -> General -> Time Zone"
+msgstr ""
+"Vahvista nykyinen aikasi. Tämä on tärkeää, koska tämä aika otetaan ja "
+"käytetään varauslogiikassa. Jos aika on eri kuin nykyinen aikasi, vaihda "
+"aikavyöhykettä kohdassa Asetukset -> Yleiset -> Aikavyöhyke"
+
+#: templates/admin_welcome.php:22
+msgid "Plugin Documentation"
+msgstr "Laajennuksen dokumentaatio"
+
+#: redi-restaurant-reservation.php:1686
+msgid ""
+"Plugin failed to properly load javascript file, please check that jQuery is "
+"loaded and no javascript errors present."
+msgstr ""
+"Plugin ei onnistunut lataamaan javascript-tiedostoa oikein. Tarkista, että "
+"jQuery on ladattu ja että javascript-virheitä ei ole."
+
+#: templates/admin.php:135
+msgid "Plugin Info"
+msgstr "Laajennuksen tiedot"
+
+#: redi-restaurant-reservation.php:1977 templates/frontend.php:540
+msgid "Powered by"
+msgstr "Tukena"
+
+#: templates/frontend_v2.php:1839 templates/frontend.php:479
+msgid "Preferred time"
+msgstr "Toivottu aika"
+
+#: templates/frontend.php:253 templates/frontend.php:334
+msgid "Previous"
+msgstr "Edellinen"
+
+#: redi-restaurant-reservation.php:2018
+msgid "Previous month"
+msgstr "Edellinen kuukausi"
+
+#: templates/admin.php:65
+msgid "Privacy policy"
+msgstr "Tietosuojakäytäntö"
+
+#: templates/frontend.php:260
+msgid "Provide reservation details"
+msgstr "Syötä pöytävarauksen tiedot"
+
+#: redi-restaurant-reservation.php:1850 redi-restaurant-reservation.php:1914
+msgid "Provided time is not in valid format."
+msgstr "Annetun ajan muoto ei ole kelvollinen."
+
+#: templates/admin.php:167
+msgid "Rate the plugin, help us grow"
+msgstr "Arvioi laajennus, auta meitä kasvamaan"
+
+#: templates/frontend_v2.php:953
+msgid "Rate your reservation experience"
+msgstr "Arvioi varauskokemuksesi"
+
+#: templates/admin.php:223 templates/admin.php:231
+msgid "React 25 theme (BETA)"
+msgstr "React 25 -teema (BETA)"
+
+#: templates/frontend_v2.php:1728 templates/admin.php:1019
+#: templates/cancel.php:40
+msgid "Reason"
+msgstr "Syy"
+
+#: redi-restaurant-reservation.php:1846 redi-restaurant-reservation.php:1906
+#: templates/frontend_v2.php:1726
+msgid "Reason can't be empty"
+msgstr "Syy ei voi olla tyhjä"
+
+#: templates/admin_welcome.php:12
+msgid "ReDi Reservation plugin:"
+msgstr "ReDi-varauslaajennus:"
+
+#: redi-restaurant-reservation.php:1393 redi-restaurant-reservation.php:1394
+#: redi-restaurant-reservation.php:1449 redi-restaurant-reservation.php:1450
+#: redi-restaurant-reservation.php:1458 redi-restaurant-reservation.php:1459
+msgid "ReDi Reservations"
+msgstr "ReDi Reservations"
+
+#. Name of the plugin
+msgid "ReDi Restaurant Reservation"
+msgstr "ReDi-ravintolan varaus"
+
+#: templates/admin.php:142
+msgid "Redi Restaurant Reservation"
+msgstr "Redi-ravintolan varaus"
+
+#: redi-restaurant-reservation.php:773
+msgid ""
+"ReDi Restaurant Reservation plugin could not get an API key from the "
+"reservationdiary.eu server when it activated.\n"
+"                        <br/> You can try to fix this by going to the ReDi "
+"Restaurant Reservation \"options\" page.\n"
+"                        <br/>This will cause ReDi Restaurant Reservation "
+"plugin to retry fetching an API key for you.\n"
+"                        <br/>If you keep seeing this error it usually means "
+"that server where you host your web site can't connect to our "
+"reservationdiary.eu server.\n"
+"                        <br/>You can try asking your WordPress host to allow "
+"your WordPress server to connect to api.reservationdiary.eu\n"
+"                        <br/>In case you can not solve this problem yourself,"
+" please contact us directly by <a href=\"mailto:info@reservationdiary.eu\">"
+"info@reservationdiary.eu</a>"
+msgstr ""
+"ReDi Restaurant Reservation -laajennus ei saanut API-avainta "
+"reservationdiary.eu-palvelimelta aktivoituessaan.\n"
+"                        <br/> Voit yrittää korjata tämän menemällä ReDi "
+"Restaurant Reservation -laajennuksen ”asetukset”-sivulle.\n"
+"                        <br/>Tämä saa ReDi Restaurant Reservation -"
+"laajennuksen yrittämään uudelleen API-avaimen hakemista.\n"
+"                        <br/>Jos tämä virhe näkyy edelleen, se tarkoittaa "
+"yleensä, että verkkosivustosi isäntäpalvelin ei pysty muodostamaan yhteyttä "
+"reservationdiary.eu-palvelimeemme.\n"
+"                        <br/>Voit pyytää WordPress-palveluntarjoajaasi "
+"sallimaan WordPress-palvelimesi yhteyden api.reservationdiary.eu-palvelimeen."
+"\n"
+"                        <br/>Jos et pysty ratkaisemaan tätä ongelmaa itse, "
+"ota meihin suoraan yhteyttä osoitteessa <a href=\"mailto:"
+"info@reservationdiary.eu\">info@reservationdiary.eu</a>."
+
+#: templates/admin_welcome.php:15
+msgid "ReDi restaurant reservation plugin is ready to use"
+msgstr "ReDi-ravintolavarauslisäosa on käyttövalmis"
+
+#: redi-restaurant-reservation-api.php:111
+msgid "ReDi Restaurant Reservation plugin not registered"
+msgstr "ReDi-ravintolavarauslaajennusta ei ole rekisteröity"
+
+#: templates/frontend_v2.php:1889 templates/frontend.php:522
+msgid "Register to Wait List"
+msgstr "Rekisteröidy jonotuslistalle"
+
+#: templates/basicpackage.php:65
+msgid "Remind your customer about upcoming reservation via Email or by SMS"
+msgstr ""
+"Muistuta asiakastasi tulevasta varauksesta sähköpostitse tai tekstiviestillä"
+
+#: templates/admin_ajaxed.php:609 templates/admin.php:61
+msgid "Reminder"
+msgstr "Muistutus"
+
+#: redi-restaurant-reservation.php:2067
+msgid "REQUEST ID"
+msgstr "PYYNTÖTUNNUS"
+
+#: templates/admin_ajaxed.php:552
+msgid "Required error message"
+msgstr "Vaadittu virheilmoitus"
+
+#: templates/frontend_v2.php:631 templates/frontend_v2.php:647
+#: templates/frontend_v2.php:660 templates/frontend_v2.php:675
+#: templates/frontend_v2.php:687 templates/frontend_v2.php:1336
+#: templates/frontend_v2.php:1348 templates/frontend_v2.php:1360
+#: templates/frontend_v2.php:1372 templates/frontend_v2.php:1544
+#: templates/frontend_v2.php:1556 templates/frontend_v2.php:1570
+#: templates/frontend_v2.php:1582 templates/frontend_v2.php:1686
+#: templates/frontend_v2.php:1731 templates/frontend_v2.php:1841
+#: templates/frontend_v2.php:1853 templates/frontend_v2.php:1865
+#: templates/frontend_v2.php:1877
+msgid "required field"
+msgstr "Pakollinen kenttä"
+
+#: templates/admin_welcome_no_page.php:14
+msgid "reservation"
+msgstr "varaus"
+
+#: templates/frontend_v2.php:528
+#| msgid "Reservation time"
+msgid "Reservation date"
+msgstr "Varausaika"
+
+#: redi-restaurant-reservation.php:2078 templates/frontend_v2.php:1097
+msgid "Reservation Details"
+msgstr "Varauksen tiedot"
+
+#. Author of the plugin
+msgid "Reservation Diary"
+msgstr "Varauspäiväkirja"
+
+#: templates/admin_ajaxed.php:439
+msgid "Reservation duration"
+msgstr "Varauksen kesto"
+
+#: templates/frontend_v2.php:58
+msgid "Reservation Form"
+msgstr "Varauslomake"
+
+#: redi.php:280
+msgid "Reservation form is not working"
+msgstr "Varauslomake ei toimi"
+
+#: templates/admin.php:732
+msgid "Reservation Form settings"
+msgstr "Varauslomakkeen asetukset"
+
+#: redi-restaurant-reservation.php:695 templates/confirm.php:55
+#: templates/cancel.php:57
+msgid "Reservation has been successfully canceled."
+msgstr "Varaus on peruutettu onnistuneesti."
+
+#: templates/modify.php:89
+msgid "Reservation has been successfully updated."
+msgstr "Varaus on päivitetty onnistuneesti."
+
+#: redi-restaurant-reservation.php:2068
+msgid "RESERVATION ID"
+msgstr "VARAUSNUMERO"
+
+#: redi-restaurant-reservation.php:2089
+msgid "Reservation ID"
+msgstr "Varausnumero"
+
+#: functions/feedback.php:93
+msgid "Reservation id is empty."
+msgstr "Varaustunnus on tyhjä."
+
+#: redi-restaurant-reservation.php:2094
+msgid "Reservation ID is required"
+msgstr "Varausnumero vaaditaan"
+
+#: redi-restaurant-reservation.php:2095
+msgid "Reservation ID must be a number"
+msgstr "Varausnumero on oltava numero"
+
+#: redi-restaurant-reservation-api.php:360
+msgid "Reservation is in the past and cannot be modified."
+msgstr "Varaus on menneisyydessä, eikä sitä voi muuttaa."
+
+#: templates/frontend.php:214 templates/frontend.php:408
+msgid ""
+"Reservation is not available on selected day. Please select another day."
+msgstr "Varaus ei ole mahdollista tiettynä päivänä. Valitse toinen päivä."
+
+#: redi-restaurant-reservation.php:1702
+msgid "Reservation is not found."
+msgstr "Varausta ei löytynyt."
+
+#: templates/frontend_v2.php:1334 templates/frontend_v2.php:1684
+#: templates/admin.php:1015 templates/modify.php:6 templates/confirm.php:12
+#: templates/cancel.php:12
+msgid "Reservation number"
+msgstr "Varausnumero"
+
+#: redi-restaurant-reservation.php:1838 redi-restaurant-reservation.php:1890
+#: templates/frontend_v2.php:1332 templates/frontend_v2.php:1682
+#: templates/frontend_v2.php:1837
+msgid "Reservation number can't be empty"
+msgstr "Varausnumero ei voi olla tyhjä"
+
+#: redi-restaurant-reservation.php:738
+msgid "Reservation number is required"
+msgstr "Varausnumero vaaditaan"
+
+#: redi-restaurant-reservation.php:2077
+msgid "Reservation Request Details"
+msgstr "Varauspyynnön tiedot"
+
+#: templates/admin_ajaxed.php:393
+msgid "Reservation restrictions"
+msgstr "Varausten rajoitukset"
+
+#: templates/admin.php:843
+msgid "Reservation settings"
+msgstr "Varausasetukset"
+
+#: redi-restaurant-reservation-api.php:350 redi-restaurant-reservation.php:2789
+msgid "Reservation that is canceled can not be modified."
+msgstr "Peruutettua varausta ei voi muuttaa."
+
+#: redi-restaurant-reservation.php:1433 redi-restaurant-reservation.php:1434
+msgid "Reservations"
+msgstr "Varaukset"
+
+#: redi-restaurant-reservation.php:2042
+msgid "Reservations can only be made up to ${timeText} in advance"
+msgstr "Varaukset voidaan tehdä vain enintään ${timeText} etukäteen"
+
+#: redi-restaurant-reservation.php:2041
+msgid "Reservations must be made at least ${timeText} in advance"
+msgstr "Varaukset on tehtävä vähintään ${timeText} etukäteen"
+
+#: redi-restaurant-reservation.php:2137
+msgid "Restaurant"
+msgstr "Ravintola"
+
+#: templates/admin_ajaxed.php:115
+msgid "Restaurant name"
+msgstr "Ravintolan nimi"
+
+#: templates/admin_ajaxed.php:69
+msgid "Restaurant settings"
+msgstr "Ravintolan asetukset"
+
+#: redi-restaurant-reservation.php:2015
+msgid "Sat"
+msgstr "La"
+
+#: templates/admin_ajaxed.php:275 templates/admin_ajaxed.php:332
+#: templates/admin_ajaxed.php:391 templates/admin_ajaxed.php:503
+#: templates/admin.php:240 templates/admin.php:541 templates/admin.php:729
+#: templates/admin.php:841 templates/admin.php:940 templates/admin.php:983
+#: templates/admin.php:1002
+msgid "Save Changes"
+msgstr "Tallenna valinnat"
+
+#: redi-restaurant-reservation.php:2088
+msgid "Searching for reservation"
+msgstr "Varauksen haku"
+
+#: redi-restaurant-reservation.php:2051
+msgid "Select"
+msgstr "Valitse"
+
+#: templates/frontend.php:237
+msgid "Select available time"
+msgstr "Valitse vapaa aika"
+
+#: templates/admin_ajaxed.php:135
+msgid "Select Country"
+msgstr "Valitse maa"
+
+#: redi-restaurant-reservation.php:2058
+msgid "Select day"
+msgstr "Valitse päivä"
+
+#: templates/frontend.php:68
+#| msgid "Select place, date and time"
+msgid "Select guests, date and time"
+msgstr "Valitse vieraiden määrä, päivämäärä ja aika"
+
+#: redi-restaurant-reservation.php:2057
+msgid "Select month"
+msgstr "Valitse kuukausi"
+
+#: templates/admin_ajaxed.php:425
+msgid "Select monthly guest reservation limit"
+msgstr "Valitse kuukausittainen vieraiden varausraja"
+
+#: templates/frontend_v2.php:829
+msgid "Select option"
+msgstr "Valitse vaihtoehto"
+
+#: templates/frontend.php:55
+msgid "Select place"
+msgstr "Valitse paikka"
+
+#: templates/frontend.php:49
+msgid "Select place, guests, date and time"
+msgstr "Valitse paikka, vieraat, päivämäärä ja kellonaika"
+
+#: templates/admin.php:213
+msgid "Select plugin theme"
+msgstr "Valitse laajennuksen teema"
+
+#: redi-restaurant-reservation.php:2059
+msgid "Select year"
+msgstr "Valitse vuosi"
+
+#: redi-restaurant-reservation.php:2016
+msgid "Selected date"
+msgstr "Valittu päivä"
+
+#: redi-restaurant-reservation.php:2359
+msgid "Selected date or time is not valid."
+msgstr "Valittu päivämäärä tai kellonaika ei ole kelvollinen."
+
+#: templates/admin.php:340
+msgid ""
+"Selecting this option, the calendar is set to popup when the user clicks the "
+"calendar control."
+msgstr ""
+"Kun valitset tämän vaihtoehdon, kalenteri asetetaan ponnahdusikkunaan, kun "
+"käyttäjä napsauttaa kalenterin ohjausobjektia."
+
+#: templates/basicpackage.php:46
+msgid "Send client reservation confirmation emails from WordPress account."
+msgstr "Lähetä asiakasvarausvahvistussähköpostit WordPress-tililtä."
+
+#: templates/admin.php:883
+msgid "Send confirmation email to client"
+msgstr "Lähetä vahvistussähköposti asiakkaalle"
+
+#: templates/admin.php:68
+msgid "Send me newsletter and promotions"
+msgstr "Lähetä minulle uutiskirje ja tarjoukset"
+
+#: templates/admin.php:67
+msgid "Send me reservation reminder"
+msgstr "Lähetä minulle varausmuistutus"
+
+#: redi-restaurant-reservation.php:2119
+msgid "Send Reservation Request by Email"
+msgstr "Lähetä varauspyyntö sähköpostitse"
+
+#: redi-restaurant-reservation.php:2028
+msgid "September"
+msgstr "Syyskuu"
+
+#: templates/admin.php:138
+msgid "sergei"
+msgstr "Sergei"
+
+#: templates/admin_ajaxed.php:386
+msgid "Set Open and Close fields to blank if restaurant is closed."
+msgstr "Aseta Avaa ja Sulje kentät tyhjäksi jos ravintola on suljettu"
+
+#: redi-restaurant-reservation.php:398 redi-restaurant-reservation.php:1411
+#: redi-restaurant-reservation.php:1412
+msgid "Settings"
+msgstr "Asetukset"
+
+#: redi-restaurant-reservation.php:1419 redi-restaurant-reservation.php:1420
+msgid "Settings $"
+msgstr "Asetukset $"
+
+#: templates/admin_ajaxed.php:28
+msgid "Settings that have already been changed will be lost."
+msgstr "Asetukset, joita on jo muutettu, menetetään."
+
+#: templates/admin_ajaxed.php:34
+msgid ""
+"Settings that have already been changed will be lost. Are you sure you want "
+"to continue?"
+msgstr "Asetukset, joita on jo muutettu, menetetään. Haluatko varmasti jatkaa?"
+
+#: templates/basicpackage.php:38
+msgid "Setup maximum available seats for online reservation by week day"
+msgstr ""
+"Määritä online-varausta varten käytettävissä olevien paikkojen enimmäismäärä "
+"arkipäiväkohtaisesti"
+
+#: redi-restaurant-reservation.php:1988
+msgid "Show all steps"
+msgstr "Näytä kaikki vaiheet"
+
+#: templates/admin.php:812
+msgid "Show comments"
+msgstr "Näytä kommentit"
+
+#: templates/admin.php:603
+msgid "Show end reservation time"
+msgstr "Näytä varauksen päättymisaika"
+
+#: templates/admin.php:339
+msgid "Shown on click"
+msgstr "Näytetään napsautettaessa"
+
+#: templates/admin_welcome_no_key.php:24
+msgid "Skip"
+msgstr "Ohita"
+
+#: templates/admin.php:366
+msgid "Slash"
+msgstr "Kenoviiva"
+
+#: templates/admin.php:63
+msgid "SMS"
+msgstr "Tekstiviesti"
+
+#: redi-restaurant-reservation.php:2114
+msgid "Special requests"
+msgstr "Erityistoiveet"
+
+#: redi-restaurant-reservation.php:1997
+msgid "Special requests (optional)"
+msgstr "Erityistoiveet (valinnainen)"
+
+#: templates/admin_ajaxed.php:470
+msgid ""
+"Specify how late customers can make their booking in hours. For example, the "
+"current time is 10:00 and this setting is set to 3 hours then the first time,"
+" when the reservation will be accepted is 13:00."
+msgstr ""
+"Määritä, kuinka myöhässä asiakkaat voivat tehdä varauksensa tunneissa. "
+"Esimerkiksi nykyinen aika on 10:00 ja tämä asetus on asetettu 3 tuntiin, "
+"minkä jälkeen ensimmäinen kerta, kun varaus hyväksytään, on 13:00."
+
+#: templates/admin_ajaxed.php:382
+msgid "Specify time in 24h format (00:00 - 23:59)."
+msgstr "Määritä aika 24 tunnin formaatissa"
+
+#: redi-restaurant-reservation.php:360
+msgid ""
+"Status must be \"cancelled\", and personal_information and "
+"cancellation_reason are required."
+msgstr ""
+"Tilan on oltava ”peruutettu”, ja personal_information ja cancellation_reason "
+"ovat pakollisia."
+
+#: templates/admin_ajaxed.php:325
+msgid ""
+"Stay in the loop! Subscribe to receive valuable updates, tips, and "
+"recommendations related to our plugin. By checking this box, you agree to "
+"receive occasional emails with important announcements, helpful insights, "
+"and suggestions to enhance your experience with our plugin. Don't miss out "
+"on the latest features and improvements – opt in now!"
+msgstr ""
+"Pysy ajan tasalla! Tilaa saadaksesi arvokkaita päivityksiä, vinkkejä ja "
+"suosituksia laajennukseemme liittyen. Valitsemalla tämän ruudun suostut "
+"vastaanottamaan satunnaisia sähköposteja, joissa on tärkeitä ilmoituksia, "
+"hyödyllisiä oivalluksia ja ehdotuksia, jotka parantavat käyttökokemustasi "
+"laajennuksestamme. Älä missaa uusimpia ominaisuuksia ja parannuksia – "
+"osallistu nyt!"
+
+#: templates/frontend.php:49 templates/frontend.php:68
+#: templates/frontend.php:237 templates/frontend.php:260
+msgid "Step"
+msgstr "Vaihe"
+
+#: templates/basicpackage.php:29
+msgid "Submit an issue or suggest a feature"
+msgstr "Ongelman lähettäminen tai ominaisuuden ehdottaminen"
+
+#: templates/admin_ajaxed.php:315
+msgid "Subscribe to newsletter"
+msgstr "Tilaa uutiskirje"
+
+#: redi-restaurant-reservation.php:2009
+msgid "Sun"
+msgstr "Su"
+
+#: templates/basicpackage.php:42
+msgid ""
+"Support for multiple places. Number of places depends on number of "
+"subscriptions."
+msgstr "Tuki useille paikoille. Paikkojen määrä riippuu tilausten määrästä."
+
+#: templates/admin.php:966
+msgid "Support us"
+msgstr "Tue meitä"
+
+#: redi-restaurant-reservation.php:1426 redi-restaurant-reservation.php:1427
+msgid "Test reservation"
+msgstr "Testivaraus"
+
+#: templates/admin_ajaxed.php:605
+msgid "Text field"
+msgstr "Tekstikenttä"
+
+#: templates/admin_ajaxed.php:532
+msgid "Text on form"
+msgstr "Teksti lomakkeella"
+
+#: templates/admin.php:698
+msgid ""
+"Text that will be displayed when there are no available time for selected "
+"day/time."
+msgstr ""
+"Teksti, joka näytetään, kun valitulle päivälle/kellonajalle ei ole vapaata "
+"aikaa."
+
+#: templates/frontend_v2.php:1937
+msgid ""
+"Thank you for letting us know about your cancellation - this helps other "
+"guests find a table! We hope to see you back soon. Would you like to make "
+"another reservation for a different date?"
+msgstr ""
+"Kiitos, että ilmoitit meille peruutuksestasi - tämä auttaa muita vieraita "
+"löytämään pöydän! Toivottavasti näemme sinut pian takaisin. Haluatko tehdä "
+"toisen varauksen toiselle päivämäärälle?"
+
+#: functions/feedback.php:89
+msgid "Thank you for your feedback."
+msgstr "Kiitos palautteestasi!"
+
+#: redi-restaurant-reservation.php:2079
+msgid "Thank you for your reservation request!"
+msgstr "Kiitos varauspyynnöstäsi!"
+
+#: templates/frontend.php:348
+msgid "Thank you for your reservation request."
+msgstr "Kiitos varauspyynnöstäsi!"
+
+#: redi-restaurant-reservation.php:2080
+msgid "Thank you for your reservation!"
+msgstr "Kiitos varauksestasi!"
+
+#: templates/frontend.php:350
+msgid "Thank you for your reservation."
+msgstr "Kiitos pöytävarauksestasi!"
+
+#: templates/admin.php:909
+msgid ""
+"The confirmation email will be sent out from info@reservationdiary.eu. When "
+"the client replies to confirmation email, you will receive it."
+msgstr ""
+"Vahvistussähköposti lähetetään info@reservationdiary.eu. Kun asiakas vastaa "
+"vahvistussähköpostiin, saat sen."
+
+#: templates/admin.php:903
+msgid ""
+"The confirmation email will be sent out from your email set in WordPress."
+msgstr ""
+"Vahvistussähköposti lähetetään WordPressissä asettamastasi sähköpostista."
+
+#: templates/admin_ajaxed.php:269
+msgid ""
+"The contact number of restaurant. It could have the format [area code] "
+"[phone number]"
+msgstr ""
+"Ravintolan yhteysnumero. Sen muoto voi olla [suuntanumero] [puhelinnumero]"
+
+#: templates/admin_ajaxed.php:143
+msgid "The country of restaurant can be mentioned here."
+msgstr "Ravintolan maa voidaan mainita tässä."
+
+#: templates/admin_ajaxed.php:218
+msgid ""
+"The email addresses of recipients who should be sent the copies of "
+"reservation emails. You can separate multiple recipients using commas."
+msgstr ""
+"Niiden vastaanottajien sähköpostiosoitteet, joille tulee lähettää kopiot "
+"varaussähköposteista. Voit erottaa useita vastaanottajia toisistaan "
+"pilkuilla."
+
+#: templates/admin.php:294
+msgid ""
+"The enabled feedback collection option allows users of the reservation form "
+"to provide valuable input for improving the plugin. By keeping this option "
+"enabled, you can continuously enhance the plugin based on user feedback, "
+"ensuring an exceptional reservation experience for restaurant visitors."
+msgstr ""
+"Käytössä olevan palautteen keruuvaihtoehdon avulla varauslomakkeen käyttäjät "
+"voivat antaa arvokasta palautetta laajennuksen parantamiseen. Pitämällä "
+"tämän vaihtoehdon käytössä, voit jatkuvasti parantaa laajennusta käyttäjien "
+"palautteen perusteella, mikä varmistaa poikkeuksellisen varauskokemuksen "
+"ravintolan vierailijoille."
+
+#: templates/admin_ajaxed.php:123
+msgid "The name of the restaurant is to be specified here."
+msgstr "Ravintolan nimi ilmoitetaan tässä."
+
+#: templates/admin_ajaxed.php:158
+msgid "The restaurant city is to be specified in this field."
+msgstr "Ravintolan kaupunki on täsmennettävä tässä kentässä."
+
+#: templates/admin.php:375
+msgid ""
+"The way date format is displayed on the date control. You can select from a "
+"drop down list of different date formats."
+msgstr ""
+"Tapa, jolla päivämäärän muoto näytetään päivämääräohjausobjektissa. Voit "
+"valita eri päivämäärämuotojen avattavasta luettelosta."
+
+#: templates/admin.php:900
+msgid ""
+"The way you want confirmation email to be delivered to the client. It can be "
+"\"From WordPress email account\", \"From reservationdiary.eu\", \"Custom "
+"SMTP\" or \"Disable confirmation email\"."
+msgstr ""
+"Tapa, jolla haluat vahvistussähköpostin toimitettavan asiakkaalle. Se voi "
+"olla \"WordPress-sähköpostitililtä\", \"Lähettäjä reservationdiary.eu\", "
+"\"Mukautettu SMTP\" tai \"Poista vahvistussähköposti käytöstä\"."
+
+#: templates/admin_ajaxed.php:188
+msgid "The website address of the restaurant."
+msgstr "Ravintolan verkkosivuston osoite."
+
+#: templates/frontend_v2.php:455 templates/frontend_v2.php:465
+#: templates/frontend.php:374 templates/frontend.php:395
+msgid "There are no more reservation can be made for this day."
+msgstr "Tälle päivälle ei voi enää tehdä varausta."
+
+#: templates/frontend.php:383
+msgid "There are no more reservation can be made for this time."
+msgstr "Tälle ajalle ei voi tehdä enempää varausta."
+
+#: redi-restaurant-reservation.php:1849 redi-restaurant-reservation.php:1912
+msgid "There are no more reservations can be made for selected day."
+msgstr "Valitulle päivälle ei voi enää tehdä varauksia."
+
+#: templates/admin_ajaxed.php:105
+msgid ""
+"This <b>ID</b> associated with your place. The <b>ID</b> can be used as a "
+"short code for specifying the place of reservation in case of multiple "
+"restaurants. <br/>Example of shortcode:"
+msgstr ""
+"Tämä <b>kohteeseesi liittyvä tunnus</b>. <b>Tunnusta</b> voidaan käyttää "
+"lyhytkoodina varauspaikan määrittämiseen, jos kyseessä on useampi ravintola. "
+"<br/>Esimerkki lyhytkoodista:"
+
+#: redi-restaurant-reservation.php:2046
+msgid "This date is in the past and cannot be selected"
+msgstr "Tämä päivämäärä on jo mennyt, eikä sitä voi valita."
+
+#: templates/admin_ajaxed.php:92
+msgid ""
+"This field lets you edit settings for multiple places. Multiple places are "
+"available for Basic package users only."
+msgstr ""
+"Tämän kentän avulla voit muokata useiden paikkojen asetuksia. Useat paikat "
+"ovat käytettävissä vain peruspaketin käyttäjille."
+
+#: templates/admin.php:337
+msgid ""
+"This field lets you select the style in which the calendar control is "
+"displayed. It can be either \"Show on click\" or \"Always show”."
+msgstr ""
+"Tämän kentän avulla voit valita tyylin, jolla kalenterin ohjausobjekti "
+"näytetään. Se voi olla joko \"Näytä napsautettaessa\" tai \"Näytä aina\"."
+
+#: templates/admin.php:400
+msgid ""
+"This field lets you select the way time picker is displayed. You can choose "
+"from \"jQuery plugin\" and \"HTML dropdown\"."
+msgstr ""
+"Tässä kentässä voit valita, miten aikavalitsin näytetään. Voit valita "
+"\"jQuery-laajennuksen\" ja \"HTML-pudotusvalikosta\"."
+
+#: templates/admin.php:561
+msgid ""
+"This is how the available time will be shown. This setting is taken from "
+"generic WordPress settings. You can change it in Settings -> General -> Time "
+"Format"
+msgstr ""
+"Näin käytettävissä oleva aika näytetään. Tämä asetus on otettu yleisistä "
+"WordPress-asetuksista. Voit muuttaa sitä kohdassa Asetukset -> Yleiset -> "
+"Aikamuoto"
+
+#: templates/admin_ajaxed.php:413
+msgid ""
+"This is the number of maximum persons in restaurant at any time. System will "
+"check automatically availability of free seats and will not allow to go "
+"beyond this number."
+msgstr ""
+"Tämä on ravintolassa kerrallaan olevien henkilöiden enimmäismäärä. "
+"Järjestelmä tarkistaa automaattisesti vapaiden paikkojen saatavuuden eikä "
+"salli tämän määrän ylittämistä."
+
+#: templates/basicpackage.php:16
+msgid ""
+"This is your registration key. Please use it when you send request for "
+"support."
+msgstr "Tämä on rekisteröintiavaimesi. Käytä sitä, kun lähetät tukipyynnön."
+
+#: templates/admin.php:343
+msgid "This option sets the calendar control to display all the time."
+msgstr "Tämä asetus määrittää kalenterin ohjausobjektin näkymään koko ajan."
+
+#: redi-restaurant-reservation.php:1848 redi-restaurant-reservation.php:1910
+msgid "This time is fully booked"
+msgstr "Tämä ajankohta on täynnä"
+
+#: templates/basicpackage.php:95
+msgid ""
+"Thousands of restaurants use Mobal to stand out online and attract more "
+"guests."
+msgstr ""
+"Tuhannet ravintolat käyttävät Mobalia erottuakseen verkossa ja "
+"houkutellakseen lisää vieraita."
+
+#: redi-restaurant-reservation.php:2013
+msgid "Thu"
+msgstr "To"
+
+#: redi-restaurant-reservation.php:1987 redi-restaurant-reservation.php:2075
+#: redi-restaurant-reservation.php:2139 templates/frontend_v2.php:108
+#: templates/frontend_v2.php:554 templates/frontend_v2.php:1452
+#: templates/modify.php:32 templates/confirm.php:28 templates/frontend.php:150
+#: templates/frontend.php:243
+msgid "Time"
+msgstr "Aika"
+
+#: templates/admin.php:552
+msgid "Time format"
+msgstr "Ajan muoto"
+
+#: templates/admin.php:403
+msgid ""
+"Time picker type if selected to be jQuery plugin, it is set to pop up with "
+"the hour and time."
+msgstr ""
+"Ajanvalitsimen tyyppi jos se valitaan jQuery-laajennukseksi, se asetetaan "
+"ponnahdusikkunaan tunnin ja kellonajan kanssa."
+
+#: templates/admin.php:383
+msgid "TimePicker type"
+msgstr "Aikavalitsimen tyyppi"
+
+#: templates/admin.php:570
+msgid "TimeShift Mode"
+msgstr "TimeShift-tila"
+
+#: templates/admin_welcome.php:28
+msgid ""
+"To schedule your session, simply click the image below: We provide "
+"complimentary one-on-one assistance for plugin setup. You can book a call "
+"with us through Calendly or reach out to us via Skype, Facebook ir Whatsapp. "
+"Links are below."
+msgstr ""
+"Voit ajoittaa istunnon napsauttamalla alla olevaa kuvaa: Tarjoamme ilmaista "
+"henkilökohtaista apua laajennuksen asennuksessa. Voit varata puhelun "
+"kanssamme Calendlyn kautta tai ottaa meihin yhteyttä Skypen, Facebookin tai "
+"Whatsappin kautta. Linkit ovat alla."
+
+#: redi-restaurant-reservation.php:2036 templates/frontend_v2.php:520
+msgid "Today"
+msgstr "Tänään"
+
+#: templates/basicpackage.php:91
+msgid "Together, we support restaurants in:"
+msgstr "Yhdessä tuemme ravintoloita:"
+
+#: templates/admin.php:488 templates/frontend.php:79
+msgid "Total guests"
+msgstr "Vieraiden kokonaismäärä"
+
+#: redi-restaurant-reservation.php:1865
+msgid "Total guests must be greater than the number of children."
+msgstr "Vieraiden kokonaismäärä on oltava suurempi kuin lasten määrä."
+
+#: redi-restaurant-reservation.php:385
+msgid "Try Premium"
+msgstr "Kokeile Premium-versiota"
+
+#: redi-restaurant-reservation.php:2011
+msgid "Tue"
+msgstr "Ti"
+
+#: redi-restaurant-reservation-api.php:341
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and personal information (email, phone, or name) "
+"is correct."
+msgstr ""
+"Varausta ei löydy annetuilla tiedoilla. Varmista, että antamasi varausnumero "
+"ja henkilötiedot (sähköpostiosoite, puhelinnumero tai nimi) ovat oikein."
+
+#: redi-restaurant-reservation.php:2781
+msgid ""
+"Unable to find reservation with provided information. Please verify that "
+"provided reservation number and phone or name or email is correct."
+msgstr ""
+"Varausta ei löytynyt annetuilla tiedoilla. Tarkista, että antamasi "
+"varausnumero, puhelinnumero, nimi tai sähköpostiosoite on oikea."
+
+#: templates/admin_ajaxed.php:427
+msgid "Unlimited"
+msgstr "Rajaton"
+
+#: templates/frontend_v2.php:1426 templates/frontend_v2.php:1606
+#: templates/modify.php:23 templates/modify.php:82
+msgid "Update reservation"
+msgstr "Päivitä varaus"
+
+#: templates/admin_ajaxed.php:180
+msgid "URL"
+msgstr "URL"
+
+#: templates/admin.php:153
+msgid "User guide"
+msgstr "Käyttöopas"
+
+#: templates/admin.php:143
+msgid "Version"
+msgstr "Versio"
+
+#: templates/admin.php:246 templates/admin.php:545 templates/admin.php:733
+#: templates/admin.php:844 templates/admin.php:943 templates/admin.php:989
+msgid "Video Tutorial"
+msgstr "Video-opetusohjelma"
+
+#: templates/admin_ajaxed.php:72 templates/admin_ajaxed.php:339
+#: templates/admin_ajaxed.php:394 templates/admin_ajaxed.php:511
+msgid "Video tutorial"
+msgstr "Video-opetusohjelma"
+
+#: templates/admin.php:150
+msgid "Video tutorials"
+msgstr "Video-oppaat"
+
+#: templates/frontend_v2.php:1029
+msgid "View Reservation Details"
+msgstr "Näytä varauksen tiedot"
+
+#: redi-restaurant-reservation.php:399
+msgid "View the help documentation for ReDi Restaurant Reservations plugin"
+msgstr "Katso ReDi Restaurant Reservations -laajennuksen ohjedokumentaatio"
+
+#: templates/basicpackage.php:35
+msgid ""
+"View your upcoming reservations from your Mobile/Tablet PC and never miss "
+"your customer. This page should be open on a Tablet PC and so hostess can "
+"see all upcoming reservations for today. Page refreshes every 15 min and "
+"shows reservations that in past for 3 hours as well as upcoming reservations "
+"for next 24 hours. By clicking on reservation you will see reservation "
+"details. Demo version can be accessed for 30 days using this link: "
+msgstr ""
+"Tarkastele tulevia varauksiasi mobiili-/tablet-tietokoneellasi, äläkä "
+"koskaan missaa asiakastasi. Tämän sivun pitäisi olla avoinna Tablet-PC:llä, "
+"jotta emäntä näkee kaikki tämän päivän tulevat varaukset. Sivu päivittyy 15 "
+"minuutin välein ja näyttää varaukset, jotka ovat menneet 3 tunniksi, sekä "
+"tulevat varaukset seuraavien 24 tunnin ajalta. Klikkaamalla varausta näet "
+"varauksen tiedot. Demoversio on käytettävissä 30 päivän ajan tämän linkin "
+"kautta: "
+
+#: templates/confirm.php:3
+msgid "Visit confirmation"
+msgstr "Käynnin vahvistus"
+
+#: templates/admin.php:805
+msgid "Visit Google site"
+msgstr "Vieraile Googlen sivustolla"
+
+#: templates/confirm.php:50
+msgid "Visit has been successfully confirmed."
+msgstr "Vierailu on vahvistettu onnistuneesti."
+
+#: redi-restaurant-reservation.php:2767
+msgid "Visit not confimed by the guest."
+msgstr "Vierailua ei ole vahvistettu asiakkaan toimesta."
+
+#: templates/frontend_v2.php:1801 templates/frontend.php:465
+msgid "Wait List"
+msgstr "Jonotuslista"
+
+#: templates/admin.php:707
+msgid "Wait List Setting"
+msgstr "Jonotuslistan asetus"
+
+#: redi-restaurant-reservation.php:1441 redi-restaurant-reservation.php:1442
+msgid "Waiter Dashboard"
+msgstr "Tarjoilijan hallintapaneeli"
+
+#: templates/basicpackage.php:59
+msgid ""
+"We can offer you white labeled restaurant reservation application for "
+"Facebook Application, iPhone/iPad Application, Windows Phone Application or "
+"Android Application."
+msgstr ""
+"Voimme tarjota sinulle valkoisella merkityn ravintolavaraussovelluksen "
+"Facebook-sovellukselle, iPhone/iPad-sovellukselle, Windows Phone -"
+"sovellukselle tai Android-sovellukselle."
+
+#: templates/frontend_v2.php:927
+msgid ""
+"We have received your reservation request and are checking availability. You "
+"will be notified as soon as your reservation is approved. Please wait for "
+"the confirmation."
+msgstr ""
+"Olemme vastaanottaneet varauspyyntösi ja tarkistamme saatavuuden. Saat "
+"ilmoituksen heti, kun varauksesi on hyväksytty. Odota vahvistusta."
+
+#: redi-restaurant-reservation.php:2063
+msgid "We look forward to serving you!"
+msgstr "Odotamme teitä sydämellisesti tervetulleiksi!"
+
+#: templates/basicpackage.php:80
+msgid ""
+"We proudly collaborate with selected partners who share our vision of "
+"helping restaurants grow, simplify operations, and succeed in the digital "
+"age."
+msgstr ""
+"Teemme ylpeänä yhteistyötä valittujen kumppaneiden kanssa, jotka jakavat "
+"visiomme ravintoloiden kasvusta, toiminnan yksinkertaistamisesta ja "
+"menestymisestä digitaalisella aikakaudella."
+
+#: templates/frontend.php:356
+msgid ""
+"We wish to inform you that your booking request has been received. We "
+"are checking availability and will get back to you as soon as possible. "
+"Please wait confirmation of your reservation."
+msgstr ""
+"Haluamme ilmoittaa, että varauspyyntösi on vastaanotettu. Tarkistamme "
+"saatavuuden ja otamme sinuun yhteyttä mahdollisimman pian. Odota varauksesi "
+"vahvistusta."
+
+#: templates/confirm.php:4
+msgid ""
+"We would like to know if you will be visiting us today. Please confirm or "
+"cancel your reservation by clicking the appropriate button below. If the "
+"reservation is not confirmed, we reserve the right to cancel it from our "
+"side."
+msgstr ""
+"Haluaisimme tietää, vierailetko meillä tänään. Vahvista tai peruuta "
+"varauksesi napsauttamalla alla olevaa painiketta. Mikäli varausta ei "
+"vahvisteta, pidätämme oikeuden peruuttaa sen omalta osaltamme."
+
+#: templates/admin_welcome.php:36
+msgid "We're here to provide the support you need."
+msgstr "Olemme täällä tarjoamassa tarvitsemaasi tukea."
+
+#: redi-restaurant-reservation.php:2012
+msgid "Wed"
+msgstr "Ke"
+
+#: templates/admin_ajaxed.php:345
+msgid "Weekday"
+msgstr "Viikonpäivä"
+
+#: redi-restaurant-reservation.php:1403 redi-restaurant-reservation.php:1404
+msgid "Welcome"
+msgstr "Tervetuloa"
+
+#: templates/frontend_v2.php:162 templates/frontend.php:24
+msgid "Welcome back"
+msgstr "Tervetuloa takaisin"
+
+#: templates/admin_welcome_no_page.php:3 templates/admin_welcome_no_key.php:3
+msgid "Welcome to the ReDi Restaurant Reservation plugin"
+msgstr "Tervetuloa ReDi-ravintolavarauslaajennukseen"
+
+#: templates/frontend_v2.php:987 templates/frontend.php:454
+msgid "What we can do better?"
+msgstr "Mitä voimme tehdä paremmin?"
+
+#: templates/admin.php:64
+msgid "Whatsapp"
+msgstr "Whatsapp"
+
+#: templates/basicpackage.php:26 templates/admin_welcome.php:34
+msgid "whatsapp"
+msgstr "WhatsApp"
+
+#: templates/admin.php:772
+msgid ""
+"When enabled guests has to enter their phone number with country code. This "
+"is most useful when there is a good amount of foreign visitors. Also this "
+"option has to be enabled when SMS addon is in use, as SMS Providers requires "
+"full phone number."
+msgstr ""
+"Kun tämä on käytössä, vieraiden on annettava puhelinnumeronsa ja maakoodi. "
+"Tämä on hyödyllisintä, kun ulkomaisia vierailijoita on paljon. Myös tämä "
+"vaihtoehto on otettava käyttöön, kun SMS-lisäosa on käytössä, koska "
+"tekstiviestipalveluntarjoajat vaativat täydellisen puhelinnumeron."
+
+#: templates/admin.php:714 templates/admin.php:721
+msgid "When fully booked"
+msgstr "Kun varaus on täyteen"
+
+#: templates/admin.php:713 templates/admin.php:720
+msgid "When specific time is not available"
+msgstr "Kun tiettyä aikaa ei ole saatavilla"
+
+#: templates/admin.php:614
+msgid ""
+"When this enabled, start and end of reservation time will be displayed. This "
+"is useful when you want to inform the guest about fixed reservation time "
+"frame."
+msgstr ""
+"Kun tämä on käytössä, varausajan alkamis- ja päättymisaika näytetään. Tästä "
+"on hyötyä, kun haluat ilmoittaa vieraalle kiinteästä varausajasta."
+
+#: templates/admin.php:753
+msgid ""
+"When this option is enabled, then guest has to provide first and last name "
+"separately when filling reservation form. Otherwise Name is collected in a "
+"single field."
+msgstr ""
+"Kun tämä vaihtoehto on käytössä, vieraan on annettava etu- ja sukunimi "
+"erikseen varauslomaketta täyttäessään. Muussa tapauksessa Nimi kerätään "
+"yhteen kenttään."
+
+#: templates/admin.php:406
+msgid ""
+"With this option selected, the Time Picker is shown to be simple dropdown "
+"for selecting the hour and time."
+msgstr ""
+"Kun tämä vaihtoehto on valittuna, Aikavalitsin näkyy yksinkertaisena "
+"avattavana valikkona tunnin ja kellonajan valitsemiseksi."
+
+#: templates/admin.php:912
+msgid "With this option, confirmation email is not sent to the client."
+msgstr "Tällä vaihtoehdolla vahvistussähköpostia ei lähetetä asiakkaalle."
+
+#: templates/admin_ajaxed.php:338
+msgid "Working time"
+msgstr "Työaika"
+
+#: redi-restaurant-reservation.php:2052 redi-restaurant-reservation.php:2109
+msgid "Yes"
+msgstr "Kyllä"
+
+#: templates/admin_welcome_no_page.php:12
+msgid ""
+"You can create dedicated reservation page below, or you can skip this step "
+"and create page manually. When you create page manually, insert "
+"[redireservation] shortcode to the page."
+msgstr ""
+"Voit luoda erillisen varaussivun alla tai ohittaa tämän vaiheen ja luoda "
+"sivun manuaalisesti. Kun luot sivun manuaalisesti, lisää sivulle "
+"[redireservation]-lyhytkoodi."
+
+#: templates/admin_welcome.php:21
+msgid "You can find the documentation for this plugin here"
+msgstr "Löydät tämän laajennuksen dokumentaation täältä"
+
+#: templates/admin_ajaxed.php:380
+msgid ""
+"You can specify the working time of restaurant by setting the opening time "
+"and closing time for each day of the week."
+msgstr ""
+"Voit määrittää ravintolan aukioloajan asettamalla aukioloajan ja "
+"sulkemisajan kullekin viikonpäivälle."
+
+#: redi-restaurant-reservation.php:2907 redi-restaurant-reservation.php:2956
+msgid "You do not have permission to access this call."
+msgstr "Sinulla ei ole lupaa käyttää tätä puhelua."
+
+#: templates/admin_welcome.php:4
+msgid "You plugin is active. Your API Key is"
+msgstr "Laajennus on aktiivinen. API-avaimesi on"
+
+#: templates/admin_welcome.php:16
+msgid "Your API key is"
+msgstr "API-avaimesi on"
+
+#: templates/frontend_v2.php:649
+msgid "Your First Name"
+msgstr "Etunimesi"
+
+#: templates/frontend_v2.php:633
+msgid "Your Full Name"
+msgstr "Koko nimesi"
+
+#: templates/frontend_v2.php:1953 templates/frontend.php:531
+msgid ""
+"Your information has been saved successfully and you will be notified once "
+"there are available seats for requested date."
+msgstr ""
+"Tietosi on tallennettu onnistuneesti ja saat ilmoituksen, kun pyydetylle "
+"päivämäärälle on vapaita paikkoja."
+
+#: templates/frontend_v2.php:662
+msgid "Your Last name"
+msgstr "Sukunimesi"
+
+#: templates/frontend_v2.php:1362 templates/frontend_v2.php:1546
+#: templates/frontend_v2.php:1710 templates/frontend_v2.php:1855
+msgid "Your name"
+msgstr "Nimesi"
+
+#: templates/frontend_v2.php:1949
+msgid "Your request has been received!"
+msgstr "Pyyntösi on vastaanotettu!"
+
+#: redi-restaurant-reservation.php:2106
+msgid "Your reservation has been successfully canceled"
+msgstr "Varauksesi on peruutettu onnistuneesti."
+
+#: templates/frontend_v2.php:1943
+msgid "Your reservation has been updated successfully!"
+msgstr "Varauksesi on päivitetty onnistuneesti!"
+
+#: templates/frontend_v2.php:1934
+msgid "Your reservation is cancelled successfully!"
+msgstr "Varauksesi on peruutettu onnistuneesti!"
+
+#: templates/frontend_v2.php:936 templates/frontend.php:365
+msgid "Your reservation number for reference:"
+msgstr "Varausnumerosi viitteeksi:"
+
+#: redi-restaurant-reservation.php:2066
+msgid ""
+"Your reservation request has been received and will be reviewed by the "
+"restaurant staff. Please note that the reservation is not guaranteed until "
+"you receive confirmation."
+msgstr ""
+"Varauspyyntösi on vastaanotettu ja ravintolan henkilökunta tarkistaa sen. "
+"Huomaa, että varaus ei ole vahvistettu ennen kuin saat vahvistuksen."
+
+#: templates/frontend_v2.php:934 templates/frontend.php:363
+msgid "Your reservation request number for reference:"
+msgstr "Varauspyyntösi numero viitteeksi:"
+
+#: templates/admin.php:180
+msgid "Your settings have been saved!"
+msgstr "Asetukset tallennettu"
+
+#: templates/frontend_v2.php:1572 templates/frontend_v2.php:1720
+#: templates/frontend_v2.php:1879
+msgid "your@email.com"
+msgstr "your@email.com"
+
+#: templates/admin.php:221 templates/admin.php:230
+msgid "Zeplin 25 theme (BETA)"
+msgstr "Zeplin 25 -teema (BETA)"
+
+#: templates/admin.php:473
+msgid "Сhildren selection"
+msgstr "Lasten valinta"

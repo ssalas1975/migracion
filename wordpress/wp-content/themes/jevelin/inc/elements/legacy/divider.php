@@ -2,7 +2,7 @@
 class vcj_divider extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_divider', array( $this, '_html' ) );
     }
 
@@ -325,7 +325,7 @@ class vcj_divider extends WPBakeryShortCode {
       'value' => '30px 0px 30px 0px',
       'type' => 'textfield',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => '0px 0px 15px 0px',
       'group' => 'Style',
     ),
   ),
@@ -336,8 +336,9 @@ class vcj_divider extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/divider/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/divider/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/divider/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/divider/static.php';
         if( function_exists( 'jevelin_shortcode_divider_css' ) ) :
             jevelin_shortcode_divider_css( $atts, $id_rand );
         endif;

@@ -119,9 +119,7 @@ class Revisions_Manager {
 
 		$default_query_args = [
 			'posts_per_page' => self::MAX_REVISIONS_TO_DISPLAY,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-			'no_found_rows' => true,
+			'meta_key' => '_elementor_data',
 		];
 
 		$query_args = array_merge( $default_query_args, $query_args );
@@ -235,8 +233,6 @@ class Revisions_Manager {
 		}
 
 		Plugin::$instance->db->copy_elementor_meta( $revision_id, $parent_id );
-
-		$parent->delete_meta( Document::CACHE_META_KEY );
 
 		$post_css = Post_CSS::create( $parent_id );
 

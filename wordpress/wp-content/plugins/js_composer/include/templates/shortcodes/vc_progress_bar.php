@@ -14,28 +14,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @var $customtxtcolor
  * @var $options
  * @var $el_class
- * @var $el_id
  * @var $css
- * @var $css_animation
  * Shortcode class
- * @var WPBakeryShortCode_Vc_Progress_Bar $this
+ * @var $this WPBakeryShortCode_VC_Progress_Bar
  */
-$title = $values = $units = $bgcolor = $css = $custombgcolor = $customtxtcolor = $options = $el_class = $el_id = $css_animation = '';
+$title = $values = $units = $bgcolor = $css = $custombgcolor = $customtxtcolor = $options = $el_class = '';
 $output = '';
 $atts = vc_map_get_attributes( $this->getShortcode(), $atts );
 $atts = $this->convertAttributesToNewProgressBar( $atts );
 
 extract( $atts );
-wp_enqueue_script( 'vc_waypoints' );
+wp_enqueue_script( 'waypoints' );
 
-$el_class = $this->getExtraClass( $el_class ) . $this->getCSSAnimation( $css_animation );
+$el_class = $this->getExtraClass( $el_class );
 
 $bar_options = array();
 $options = explode( ',', $options );
-if ( in_array( 'animated', $options, true ) ) {
+if ( in_array( 'animated', $options ) ) {
 	$bar_options[] = 'animated';
 }
-if ( in_array( 'striped', $options, true ) ) {
+if ( in_array( 'striped', $options ) ) {
 	$bar_options[] = 'striped';
 }
 
@@ -55,16 +53,10 @@ if ( 'custom' === $bgcolor && '' !== $custombgcolor ) {
 $class_to_filter = 'vc_progress_bar wpb_content_element';
 $class_to_filter .= vc_shortcode_custom_css_class( $css, ' ' ) . $this->getExtraClass( $el_class );
 $css_class = apply_filters( VC_SHORTCODE_CUSTOM_CSS_FILTER_TAG, $class_to_filter, $this->settings['base'], $atts );
-$wrapper_attributes = array();
-if ( ! empty( $el_id ) ) {
-	$wrapper_attributes[] = 'id="' . esc_attr( $el_id ) . '"';
-}
-$output = '<div class="' . esc_attr( $css_class ) . '" ' . implode( ' ', $wrapper_attributes ) . '>';
 
-$output .= wpb_widget_title( array(
-	'title' => $title,
-	'extraclass' => 'wpb_progress_bar_heading',
-) );
+$output = '<div class="' . esc_attr( $css_class ) . '">';
+
+$output .= wpb_widget_title( array( 'title' => $title, 'extraclass' => 'wpb_progress_bar_heading' ) );
 
 $values = (array) vc_param_group_parse_atts( $values );
 $max_value = 0.0;
@@ -105,4 +97,4 @@ foreach ( $graph_lines_data as $line ) {
 
 $output .= '</div>';
 
-return $output;
+echo $output;

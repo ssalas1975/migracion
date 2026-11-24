@@ -318,7 +318,8 @@ if ( ! class_exists( 'acf_field_date_and_time_picker' ) ) :
 
 			// ACF stores date_time_picker internally as 'Y-m-d H:i:s'.
 			// Use WordPress site timezone so the ISO 8601 offset is correct.
-			$date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $value, wp_timezone() );
+			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'Y-m-d H:i:s' ); // Validación preventiva para PHP 8.4
+			$date = $is_valid_format ? \DateTime::createFromFormat( 'Y-m-d H:i:s', $value, wp_timezone() ) : false;
 			if ( ! $date ) {
 				return null;
 			}

@@ -1,0 +1,1 @@
+<div class="edgtf-post-info-category"><i class="edgtf-icon-simple-line-icon icon-tag"></i><?php the_category(', '); ?></div>

@@ -6,7 +6,7 @@ Element: Empry Space (responsive)
 class vcj_google_maps extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_google_maps', array( $this, '_html' ) );
     }
 
@@ -20,7 +20,7 @@ class vcj_google_maps extends WPBakeryShortCode {
                 'base' => 'vcj_google_maps',
                 'description' => __('Add map to your website', 'jevelin'),
                 'category' => __('Jevelin Elements', 'jevelin'),
-                'icon' => get_template_directory_uri().'/img/VC_ES_icon.svg',
+                'icon' => get_template_directory_uri().'/img/builder-icon.png',
                 'params' => array(
 
                     array (
@@ -28,9 +28,6 @@ class vcj_google_maps extends WPBakeryShortCode {
                         'heading' => '<p style="background-color: #f5f5f5; padding: 4px 8px; border-radius: 8px;">Google Maps requires API Key to work correctly. Therefore please create an application in Google Console and add key under "Appearance > Theme Settings > General > API Key".</p><br />Locations',
                         'value' => '',
                         'type' => 'param_group',
-                        'holder' => 'div',
-                        'class' => '',
-                        'admin_label' => true,
                         'std' => '',
                         'params' => array(
                             array (
@@ -66,8 +63,8 @@ class vcj_google_maps extends WPBakeryShortCode {
 
                     array(
                         'param_name' => 'image',
-                        'heading' => __( 'Marker Image', 'gillion' ),
-                        'value' => __( 'Upload marker image', 'gillion' ),
+                        'heading' => __( 'Marker Image', 'jevelin' ),
+                        'value' => __( 'Upload marker image', 'jevelin' ),
                         'type' => 'attach_image',
                         'admin_label' => true,
                     ),
@@ -105,7 +102,7 @@ class vcj_google_maps extends WPBakeryShortCode {
                     array(
                         'param_name' => 'id',
                         'heading' => __( 'Element ID', 'jevelin' ),
-                        'description' => __( 'Enter element ID (Note: make sure it is unique and valid according to <a href="http://www.w3schools.com/tags/att_global_id.asp" target="_blank">w3c specification</a>).', 'jevelin' ),
+                        'description' => __( 'Enter element ID (Note: make sure it is unique and valid according to <a href="https://www.w3schools.com/tags/att_global_id.asp" target="_blank">w3c specification</a>).', 'jevelin' ),
                         'type' => 'textfield',
                         'holder' => 'div',
                         'class' => '',
@@ -131,9 +128,24 @@ class vcj_google_maps extends WPBakeryShortCode {
 
     public function _html( $atts ) {
 
+        // API key
+        if( function_exists( 'shufflehound_google_maps_api_key' ) ) :
+            $key = shufflehound_google_maps_api_key();
+        elseif( jevelin_option('api_key') ) :
+            $key = jevelin_option( 'api_key' );
+        else :
+            $key = '';
+        endif;
+
+        $enqueue_key = '';
+        if( $key ) :
+            $enqueue_key = '?key='.$key;
+        endif;
+
         // Enqueue scripts
-        wp_enqueue_script( 'google-maps-api', 'http://maps.google.com/maps/api/js' );
-        wp_enqueue_script('gmap3', 'https://cdn.jsdelivr.net/gmap3/7.2.0/gmap3.min.js' );
+        wp_enqueue_script( 'google-maps-api', 'https://maps.googleapis.com/maps/api/js'.$enqueue_key, array(), null );
+        wp_enqueue_script( 'gmap3', '//cdn.jsdelivr.net/gmap3/7.2.0/gmap3.min.js' );
+
 
         // Params extraction
         extract( shortcode_atts( array(
@@ -147,6 +159,7 @@ class vcj_google_maps extends WPBakeryShortCode {
             'class' => '',
         ), $atts ) );
 
+
         // HTML
         $id = 'sh-google-maps-'.jevelin_rand();
         $element_class = array();
@@ -156,8 +169,16 @@ class vcj_google_maps extends WPBakeryShortCode {
             $locations = vc_param_group_parse_atts( $locations );
         endif;
 
-        $key = ( jevelin_option( 'api_key' ) ) ? jevelin_option( 'api_key' ) : '';
-        $marker_image = ( $image ) ? jevelin_get_small_thumb( $image ) : get_template_directory_uri().'/img/google-maps-marker.png';
+
+        // Get image
+        if( jevelin_is_url( $image ) ) :
+            $marker_image = $image;
+        elseif( $image ) :
+            $marker_image = jevelin_get_small_thumb( $image );
+        else :
+            $marker_image = get_template_directory_uri().'/img/google-maps-marker.png';
+        endif;
+
 
         if( $zoom > 19 ) :
             $zoom = 19;
@@ -267,7 +288,10 @@ class vcj_google_maps extends WPBakeryShortCode {
                             /* Fix Formating */
                             $styling = str_replace( '`{`{', '[{', $styling );
                             $styling = str_replace( '}`}`', '}]', $styling );
+                            $styling = str_replace( "`{`", '[', $styling );
+                            $styling = str_replace( "`}`", ']', $styling );
                             $styling = str_replace( '``', '"', $styling );
+                            $styling = str_replace( '<br />', '', $styling );
                         ?>
                         .styledmaptype(
                           "shadeOfGrey", <?php echo ( $styling ); ?>

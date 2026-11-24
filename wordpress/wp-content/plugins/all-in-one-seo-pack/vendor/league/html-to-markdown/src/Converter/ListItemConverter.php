@@ -8,7 +8,6 @@ use League\HTMLToMarkdown\Coerce;
 use League\HTMLToMarkdown\Configuration;
 use League\HTMLToMarkdown\ConfigurationAwareInterface;
 use League\HTMLToMarkdown\ElementInterface;
-use League\HTMLToMarkdown\NoBreakSpaces;
 
 class ListItemConverter implements ConverterInterface, ConfigurationAwareInterface
 {
@@ -31,8 +30,7 @@ class ListItemConverter implements ConverterInterface, ConfigurationAwareInterfa
         // Add spaces to start for nested list items
         $level = $element->getListItemLevel();
 
-        // A leading no-break space is kept, as whatever follows it wasn't escaped as being at the start of the line
-        $value = \trim(\implode("\n" . '    ', \explode("\n", \ltrim(NoBreakSpaces::rtrim($element->getValue())))));
+        $value = \trim(\implode("\n" . '    ', \explode("\n", \trim($element->getValue()))));
 
         // If list item is the first in a nested list, add a newline before it
         $prefix = '';
@@ -54,24 +52,13 @@ class ListItemConverter implements ConverterInterface, ConfigurationAwareInterfa
             return $prefix . $this->listItemStyle . ' ' . $value . "\n";
         }
 
-        if ($listType === 'ol' && ($parent = $element->getParent()) && \is_numeric($start = $parent->getAttribute('start'))) {
-            $number = (int) $start + $element->getSiblingPosition() - 1;
+        if ($listType === 'ol' && ($parent = $element->getParent()) && ($start = \intval($parent->getAttribute('start')))) {
+            $number = $start + $element->getSiblingPosition() - 1;
         } else {
             $number = $element->getSiblingPosition();
         }
 
-        // Anything else isn't a list marker, which would leave the item's contents as part of a paragraph
-        if ($number < 0 || $number > 999999999) {
-            $number = $element->getSiblingPosition();
-        }
-
-        // The lines after the first only belong to the item when indented as far as the end of its marker
-        $marker = $number . '. ';
-        if (\strlen($marker) > 4) {
-            $value = \str_replace("\n    ", "\n" . \str_repeat(' ', \strlen($marker)), $value);
-        }
-
-        return $prefix . $marker . $value . "\n";
+        return $prefix . $number . '. ' . $value . "\n";
     }
 
     /**

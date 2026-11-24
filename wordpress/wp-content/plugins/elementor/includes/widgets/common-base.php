@@ -227,28 +227,6 @@ class Widget_Common_Base extends Widget_Base {
 	}
 
 	/**
-	 * Get selectors dictionary for mask shapes.
-	 *
-	 * Built-in and additional shapes resolve to their concrete asset/image URLs, while the
-	 * `custom` option intentionally resolves to `none` so only `_mask_image` can emit a custom URL.
-	 *
-	 * @return array Mask shape selectors dictionary.
-	 */
-	private function get_mask_shape_selectors_dictionary(): array {
-		$selectors_dictionary = [];
-
-		foreach ( $this->get_shapes( false ) as $shape_key => $shape_data ) {
-			$shape_url = $shape_data['image'] ?? $this->get_shape_url( $shape_key );
-
-			$selectors_dictionary[ $shape_key ] = 'url( ' . $shape_url . ' )';
-		}
-
-		$selectors_dictionary['custom'] = 'none';
-
-		return $selectors_dictionary;
-	}
-
-	/**
 	 * Get additional mask shapes.
 	 *
 	 * Used to add custom mask shapes to elementor.
@@ -258,6 +236,12 @@ class Widget_Common_Base extends Widget_Base {
 	 * @return array A list of additional mask shapes.
 	 */
 	private static function get_additional_mask_shapes(): array {
+		static $additional_mask_shapes = null;
+
+		if ( null !== $additional_mask_shapes ) {
+			return $additional_mask_shapes;
+		}
+
 		$additional_mask_shapes = [];
 
 		/**
@@ -269,7 +253,9 @@ class Widget_Common_Base extends Widget_Base {
 		 *
 		 * @param array $additional_mask_shapes Additional mask shapes.
 		 */
-		return apply_filters( 'elementor/mask_shapes/additional_shapes', $additional_mask_shapes );
+		$additional_mask_shapes = apply_filters( 'elementor/mask_shapes/additional_shapes', $additional_mask_shapes );
+
+		return $additional_mask_shapes;
 	}
 
 	/**
@@ -403,7 +389,7 @@ class Widget_Common_Base extends Widget_Base {
 				'label' => esc_html__( 'Column Span', 'elementor' ),
 				'type' => Controls_Manager::SELECT,
 				'options' => [
-					'' => ' ' . esc_html__( 'Default', 'elementor' ),
+					'' => ' Default',
 					'1' => '1',
 					'2' => '2',
 					'3' => '3',
@@ -416,7 +402,7 @@ class Widget_Common_Base extends Widget_Base {
 					'10' => '10',
 					'11' => '11',
 					'12' => '12',
-					'custom' => esc_html__( 'Custom', 'elementor' ),
+					'custom' => 'Custom',
 				],
 				'selectors' => [
 					'{{WRAPPER}}' => 'grid-column: span {{VALUE}};',
@@ -447,7 +433,7 @@ class Widget_Common_Base extends Widget_Base {
 				'label' => esc_html__( 'Row Span', 'elementor' ),
 				'type' => Controls_Manager::SELECT,
 				'options' => [
-					'' => ' ' . esc_html__( 'Default', 'elementor' ),
+					'' => ' Default',
 					'1' => '1',
 					'2' => '2',
 					'3' => '3',
@@ -460,7 +446,7 @@ class Widget_Common_Base extends Widget_Base {
 					'10' => '10',
 					'11' => '11',
 					'12' => '12',
-					'custom' => esc_html__( 'Custom', 'elementor' ),
+					'custom' => 'Custom',
 				],
 				'selectors' => [
 					'{{WRAPPER}}' => 'grid-row: span {{VALUE}};',
@@ -1117,8 +1103,7 @@ class Widget_Common_Base extends Widget_Base {
 				'columns' => 4,
 				'options' => $this->get_shapes(),
 				'default' => 'circle',
-				'selectors_dictionary' => $this->get_mask_shape_selectors_dictionary(),
-				'selectors' => $this->get_mask_selectors( '-webkit-mask-image: {{VALUE}};' ),
+				'selectors' => $this->get_mask_selectors( '-webkit-mask-image: url( ' . ELEMENTOR_ASSETS_URL . 'mask-shapes/{{VALUE}}.svg );' ),
 				'condition' => [
 					'_mask_switch!' => '',
 				],

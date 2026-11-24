@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Psr\EventDispatcher;
+namespace Psr\EventDispatcher;
 
 /**
  * Defines a dispatcher for events.

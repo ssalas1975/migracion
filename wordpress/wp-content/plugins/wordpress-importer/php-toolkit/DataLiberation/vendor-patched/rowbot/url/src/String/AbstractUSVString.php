@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\String;
+namespace Rowbot\URL\String;
 
-use VendorPrefix\Rowbot\URL\String\Exception\RegexException;
+use Rowbot\URL\String\Exception\RegexException;
 
 use function explode;
 use function intval;

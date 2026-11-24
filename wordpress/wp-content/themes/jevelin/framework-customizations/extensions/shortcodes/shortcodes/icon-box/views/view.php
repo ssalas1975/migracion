@@ -1,5 +1,5 @@
 <?php
-if( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* Icon Box HTML
 /*-----------------------------------------------------------------------------------*/
@@ -71,7 +71,15 @@ endif;
 
 				<?php if( $title ) : ?>
 					<div class="sh-iconbox-title">
-						<h3><?php echo esc_attr( $title ); ?></h3>
+
+						<?php if( $url ) : ?>
+							<a href="<?php echo esc_url( $url ); ?>">
+								<h3><?php echo esc_attr( $title ); ?></h3>
+							</a>
+						<?php else : ?>
+							<h3><?php echo esc_attr( $title ); ?></h3>
+						<?php endif; ?>
+						
 					</div>
 				<?php endif; ?>
 			</div>
@@ -84,19 +92,21 @@ endif;
 
 	<?php else : ?>
 
-		<div class="sh-iconbox-icon">
-			<div class="sh-iconbox-icon-shape sh-iconbox-<?php echo esc_attr( $shape ); ?>">
-				<i class="sh-iconbox-hover <?php echo esc_attr( $icon ); ?>"></i>
+		<?php if( $icon ) : ?>
+			<div class="sh-iconbox-icon">
+				<div class="sh-iconbox-icon-shape sh-iconbox-<?php echo esc_attr( $shape ); ?>">
+					<i class="sh-iconbox-hover <?php echo esc_attr( $icon ); ?>"></i>
 
-				<?php if( in_array( $style, array('style1') ) ) : ?>
-					<div class="sh-iconbox-icon2">
-						<i class="<?php echo esc_attr( $style_atts['icon'] ); ?>"></i>
-					</div>
-				<?php endif; ?>
+					<?php if( in_array( $style, array('style1') ) ) : ?>
+						<div class="sh-iconbox-icon2">
+							<i class="<?php echo esc_attr( $style_atts['icon'] ); ?>"></i>
+						</div>
+					<?php endif; ?>
+				</div>
 			</div>
-		</div>
+		<?php endif; ?>
 
-		<div class="sh-iconbox-aside">
+		<div class="sh-iconbox-aside<?php echo ( !$icon ) ? ' sh-iconbox-aside-noicon' : ''; ?>">
 			<div class="sh-iconbox-title">
 				<?php if( $url ) : ?>
 					<a href="<?php echo esc_url( $url ); ?>">

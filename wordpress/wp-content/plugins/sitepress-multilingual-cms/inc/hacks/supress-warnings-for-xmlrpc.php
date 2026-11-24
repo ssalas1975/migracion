@@ -5,7 +5,7 @@
         function __icl_void_error_handler($errno, $errstr, $errfile, $errline){
             throw new Exception ($errstr . ' [' . $errno . '] in '. $errfile . ':' . $errline);
         }        
-        $old_error_handler = set_error_handler('__icl_void_error_handler',E_ALL);        
+        set_error_handler('__icl_void_error_handler',E_ALL);        
     }    
 */
 ?>

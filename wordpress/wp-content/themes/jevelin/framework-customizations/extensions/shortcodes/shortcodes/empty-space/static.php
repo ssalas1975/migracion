@@ -1,4 +1,4 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if (!defined( 'FW' ) && !function_exists( 'jevelin_framework' )) die('Forbidden.');
 
 if(!function_exists('jevelin_shortcode_empty_space_css')) :
 	function jevelin_shortcode_empty_space_css ($data) {
@@ -8,13 +8,13 @@ if(!function_exists('jevelin_shortcode_empty_space_css')) :
 		ob_start(); ?>
 
 
-			<?php if( $atts['height'] ) : ?>
+			<?php if( !empty( $atts['height'] ) ) : ?>
 				#empty-space-<?php echo esc_attr( $atts['id'] ); ?> {
 					height: <?php echo jevelin_addpx( $atts['height'] ); ?>;
 				}
 			<?php endif; ?>
 
-			<?php if( $mobile_atts['height'] ) : ?>
+			<?php if( !empty( $mobile_atts['height'] ) ) : ?>
 			@media (max-width: 1020px) {
 				#empty-space-<?php echo esc_attr( $atts['id'] ); ?> {
 					height: <?php echo jevelin_addpx( $mobile_atts['height'] ); ?>;

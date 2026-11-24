@@ -17,10 +17,6 @@ class Str {
 	 */
 	public static function encode_idn_url( $url ) {
 		return preg_replace_callback( '/(https?:\/\/)(.+)/', function ( $matches ) {
-		// Handle potential null return in PHP 8.4
-		if ( ! $matches ) {
-			return $url;
-		}
 			// WP >= 6.2-alpha
 			if ( class_exists( '\WpOrg\Requests\IdnaEncoder' ) ) {
 				$class = \WpOrg\Requests\IdnaEncoder::class;

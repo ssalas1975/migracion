@@ -785,6 +785,10 @@ if ( ! class_exists( "rsssl_le_hosts" ) ) {
 	        ksort($this->hosts);
         }
 
+        static function this() {
+            return self::$_this;
+        }
+
 	/**
 	 * Get the known hosts configuration array
 	 *

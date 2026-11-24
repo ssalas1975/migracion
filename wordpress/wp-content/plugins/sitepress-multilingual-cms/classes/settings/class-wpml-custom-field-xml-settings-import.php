@@ -1,6 +1,6 @@
 <?php
 
-class WPML_Custom_Field_XML_Settings_Import {
+class WPML_Custom_Field_XML_Settings_Import extends WPML_WPDB_User {
 
 	/** @var  WPML_Custom_Field_Setting_Factory $setting_factory */
 	private $setting_factory;
@@ -10,11 +10,13 @@ class WPML_Custom_Field_XML_Settings_Import {
 	/**
 	 * WPML_Custom_Field_XML_Settings_Import constructor.
 	 *
+	 * @param wpdb                              $wpdb
 	 * @param WPML_Custom_Field_Setting_Factory $setting_factory
 	 * @param array                             $settings_array
 	 */
-	public function __construct( $setting_factory, $settings_array ) {
-		$this->setting_factory = $setting_factory;
+	public function __construct( &$wpdb, &$setting_factory, $settings_array ) {
+		parent::__construct( $wpdb );
+		$this->setting_factory = &$setting_factory;
 		$this->settings_array  = $settings_array;
 	}
 
@@ -52,14 +54,9 @@ class WPML_Custom_Field_XML_Settings_Import {
 					if ( isset( $c[ 'attr' ][ 'convert_to_sticky' ] ) ) {
 						$setting->set_convert_to_sticky( (bool) $c[ 'attr' ][ 'convert_to_sticky' ] );
 					}
-					if ( isset( $c[ 'attr' ][ 'encoding' ] ) ) {
-						$setting->set_encoding( $c[ 'attr' ][ 'encoding' ] );
-					}
 				}
 			}
 		}
-
-		$this->import_custom_field_texts();
 	}
 
 	private function import_action( $c, $setting ) {
@@ -94,29 +91,5 @@ class WPML_Custom_Field_XML_Settings_Import {
 		if ( isset( $c[ 'attr' ][ 'group' ] ) ) {
 			$setting->set_editor_group( $c[ 'attr' ][ 'group' ] );
 		}					
-	}
-
-	private function import_custom_field_texts() {
-		$config = $this->settings_array;
-
-		if ( isset( $config['custom-fields-texts']['key'] ) ) {
-			foreach( $config['custom-fields-texts']['key'] as $field ) {
-				$setting = $this->setting_factory->post_meta_setting( $field['attr']['name'] );
-				$setting->set_attributes_whitelist( $this->get_custom_field_texts_keys( $field['key'] ) );
-			}
-		}
-	}
-
-	private function get_custom_field_texts_keys( $data ) {
-		if ( isset( $data['attr'] ) ) { // single
-			$data = array( $data );
-		}
-
-		$sub_fields = array();
-
-		foreach( $data as $key ) {
-			$sub_fields[ $key['attr']['name'] ] = isset( $key['key'] ) ? $this->get_custom_field_texts_keys( $key['key'] ) : array();
-		}
-		return $sub_fields;
 	}
 }

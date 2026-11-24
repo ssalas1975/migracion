@@ -153,6 +153,64 @@ class FW_Option_Type_Short_Text extends FW_Option_Type_Text {
 	}
 }
 
+/**
+ * Class FW_Option_Type_Number
+ *
+ * Add Input type="number" <input type="number">
+ */
+class FW_Option_Type_Number extends FW_Option_Type {
+    public function get_type() {
+        return 'number';
+    }
+
+    /**
+     * @internal
+     * {@inheritdoc}
+     */
+    protected function _enqueue_static( $id, $option, $data ) {
+    }
+
+    protected function _get_data_for_js($id, $option, $data = array()) {
+        return false;
+    }
+
+    /**
+     * @param string $id
+     * @param array $option
+     * @param array $data
+     *
+     * @return string
+     *
+     * @internal
+     */
+    protected function _render( $id, $option, $data ) {
+        $option['attr']['value'] = (string) $data['value'];
+
+        return '<input ' . fw_attr_to_html( $option['attr'] ) . ' type="number" />';
+    }
+
+    /**
+     * @param array $option
+     * @param array|null|string $input_value
+     *
+     * @return string
+     *
+     * @internal
+     */
+    protected function _get_value_from_input( $option, $input_value ) {
+        return (string) ( is_null( $input_value ) ? $option['value'] : $input_value );
+    }
+
+    /**
+     * @internal
+     */
+    protected function _get_defaults() {
+        return array(
+            'value' => ''
+        );
+    }
+}
+
 class FW_Option_Type_Password extends FW_Option_Type {
 	public function get_type() {
 		return 'password';
@@ -1055,6 +1113,7 @@ class FW_Option_Type_Unique extends FW_Option_Type {
 		return array(
 			'value' => '',
 			'length' => 0, // Limit id length
+			'prefix' => '', // Prefix for ID
 		);
 	}
 
@@ -1076,9 +1135,9 @@ class FW_Option_Type_Unique extends FW_Option_Type {
 	 * @param null|int $length_limit
 	 * @return string
 	 */
-	protected function generate_id($length_limit = null)
+	protected function generate_id($length_limit = null, $prefix = '')
 	{
-		$id = fw_rand_md5();
+		$id = $prefix . fw_rand_md5();
 
 		if ($length_limit) {
 			$id = substr($id, 0, (int)$length_limit);
@@ -1124,13 +1183,13 @@ class FW_Option_Type_Unique extends FW_Option_Type {
 	protected function _get_value_from_input($option, $input_value) {
 
 		if (is_null($input_value)) {
-			$id = empty($option['value']) ? $this->generate_id($option['length']) : $option['value'];
+			$id = empty($option['value']) ? $this->generate_id($option['length'], $option['prefix']) : $option['value'];
 		} else {
 			$id = $input_value;
 		}
 
 		if (empty($id) || !is_string($id)) {
-			$id = $this->generate_id($option['length']);
+			$id = $this->generate_id($option['length'], $option['prefix']);
 		}
 
 		/**
@@ -1158,7 +1217,7 @@ class FW_Option_Type_Unique extends FW_Option_Type {
 			}
 
 			while ( isset( $ids[ $post_id ][ $id ] ) ) {
-				$id = $this->generate_id( $option['length'] );
+				$id = $this->generate_id( $option['length'], $option['prefix'] );
 			}
 
 			$ids[ $post_id ][ $id ] = true;

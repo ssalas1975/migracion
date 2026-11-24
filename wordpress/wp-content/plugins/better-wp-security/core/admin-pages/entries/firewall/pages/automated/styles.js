@@ -4,7 +4,7 @@
 import styled from '@emotion/styled';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Surface, Text, Button } from '@ithemes/ui';
 
@@ -50,7 +50,7 @@ export const StyledBadge = styled( Text )`
 	justify-self: ${ ( { isMedium } ) => isMedium
 		? 'start' : 'end' };
 	height: fit-content;
-	background: #E9EFFC;
+	background: #FBF9FF;
 	border: 1px solid #E0E0E0;
 	border-radius: 20px;
 	padding: 4px 16px 4px 12px;
@@ -94,12 +94,12 @@ export const StyledVulnerabilityTableHeaderText = styled( Text )`
 	align-items: center;
 
 	.itsec-header-title-small {
-		color: #1145C9;
+		color: #6817C5;
 	}
 
 	.itsec-header-title-large {
 		font-size: 2rem;
-		color: #1145C9;
+		color: #6817C5;
 		padding-right: .5rem;
 	}
 `;
@@ -166,7 +166,7 @@ export const StyledRow = styled.tr`
 `;
 
 export const StyledThead = styled( Text )`
-	background: #F5F5F5;
+	background: #F9F9F9;
 	padding: .625rem;
 	border-collapse: collapse;
 	overflow-y: auto;
@@ -211,7 +211,7 @@ export const StyledNoVulnerabilitiesContainer = styled.div`
 
 export const StyledNoVulnerabilitiesButton = styled( Button )`
 	width: fit-content;
-	color: #0E38A3;
+	color: #53129E;
 	margin: 0 auto;
 `;
 
@@ -229,7 +229,7 @@ export const StyledHasPatchstackDismiss = styled( Button )`
 	svg {
 		fill: ${ ( { theme } ) => theme.colors.text.normal };
 		&:hover, &:active, &:focus {
-			fill: #1145c9;
+			fill: #6817c5;
 		}
 	}
 `;

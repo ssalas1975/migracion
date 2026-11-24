@@ -503,47 +503,6 @@
 	left:0;
 }
 
-.ut-option-separator {
-    color: #666;
-    display: block;
-    height: 20px;
-    line-height: 20px;
-    padding:20px;
-    font-size: 14px;
-    font-weight: 400;
-    background: #FAFAFA;
-    margin-left: -20px;
-    margin-right: -20px;
-    margin-top: -21px;
-    border-bottom: 1px solid #DDD;
-    border-top: 1px solid #DDD;    
-}
-
-/*
-|--------------------------------------------------------------------------
-| Accordion
-|--------------------------------------------------------------------------
-*/
-.sc-highlight-items .ui-accordion-header {
-    padding:15px;
-    margin-bottom:0px;
-}
-
-.sc-highlight-items .ui-accordion-header.ui-state-default {
-    background: #F5F5F5;
-}
-
-.sc-highlight-items .ui-accordion-header.ui-accordion-header-active {
-    background: #FFF;
-    border:1px solid #E3E3E3;
-}
-
-.sc-highlight-items .ui-widget-content {
-    border: 1px solid #E3E3E3 !important;
-    border-top: none !important;
-}
-
-
 /*
 |--------------------------------------------------------------------------
 | Typography
@@ -628,16 +587,6 @@
 
 .ut-admin .ut-range-value {
 	float:right;
-}
-
-.ut-admin .ut-option-alert {
-  color: #ffffff;
-  background-color: #d2322d;
-  border-color: #ac2925;
-  padding:10px;
-  font-family:Verdana, Geneva, sans-serif;
-  text-align:center;
-  font-size:12px;
 }
 
 /*
@@ -816,86 +765,7 @@
     margin: 0 auto;
 }
 
-.ut-glyphicons .ut-glyphicon:before {
-    content: ''!important;
-}
-
 .ut-glyphicons li:hover {
     color: #FFF;
 	background: rgba(1,146,212,0.8);
-}
-
-
-.live-group-select-children {
-    display:none;
-}
-
-/*
-|--------------------------------------------------------------------------
-| Spacing Group
-|--------------------------------------------------------------------------
-*/ 
-.ut-admin .ut-spacing-group {
-    position: relative;
-    height: 120px;
-}
-
-.ut-admin .ut-spacing-group input {
-    width: 40px;
-    text-align: center;
-}
-
-.ut-admin .ut-spacing-left,
-.ut-admin .ut-spacing-top,
-.ut-admin .ut-spacing-right,
-.ut-admin .ut-spacing-bottom {
-    float: left;
-    margin-right: 20px !important;
-    position: relative;
-}
-.ut-admin .ut-spacing-left {
-    margin-top:34px !important;  
-}
-
-.ut-admin .ut-spacing-left:after,
-.ut-admin .ut-spacing-top:after,
-.ut-admin .ut-spacing-right:after,
-.ut-admin .ut-spacing-bottom:after {
-    position:absolute;
-    display:block;
-    width:40px;
-    height:15px;
-    bottom:-16px;
-    background:#428BCA;
-    color: #FFF;
-    font-size: 12px;
-    text-align: center;
-}
-
-.ut-admin .ut-spacing-left:after {
-    content:"left";
-}
-
-.ut-admin .ut-spacing-top:after {
-    content:"top";
-}
-
-.ut-admin .ut-spacing-right:after {
-    content:"right";
-}
-
-.ut-admin .ut-spacing-bottom:after {
-    content:"bottom";
-}
-
-.ut-admin .ut-spacing-top {
-
-}
-
-.ut-admin .ut-spacing-right {
-    margin-top:34px !important;
-}
-
-.ut-admin .ut-spacing-bottom {
-    margin-left:60px !important;
 }

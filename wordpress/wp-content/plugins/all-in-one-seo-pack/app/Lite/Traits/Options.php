@@ -15,8 +15,7 @@ trait Options {
 	/**
 	 * Initialize the options.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.2 Wrap the _lite values against the merged defaults, not the Lite-only ones.
+	 * @since 4.1.4
 	 *
 	 * @return void
 	 */
@@ -28,10 +27,9 @@ trait Options {
 		// Refactor options.
 		$this->defaultsMerged = array_replace_recursive( $this->defaults, $this->liteDefaults );
 
-		// Wrap against the merged defaults, same as {@see \AIOSEO\Plugin\Pro\Traits\NetworkOptions::init()}.
 		$mergedDefaults = array_replace_recursive(
 			$this->liteDefaults,
-			$this->addValueToValuesArray( $this->defaultsMerged, $dbOptions )
+			$this->addValueToValuesArray( $this->liteDefaults, $dbOptions )
 		);
 
 		$cachedOptions = aioseo()->core->optionsCache->getOptions( $this->optionsName );
@@ -57,12 +55,11 @@ trait Options {
 	/**
 	 * Updates the options in the database.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.2 Corrected the $defaults and $optionsName parameter types.
+	 * @since 4.1.4
 	 *
-	 * @param  string|null $optionsName An optional option name to update.
-	 * @param  array|null  $defaults    The defaults to filter the options by.
-	 * @param  array|null  $options     An optional options array.
+	 * @param  string     $optionsName An optional option name to update.
+	 * @param  string     $defaults    The defaults to filter the options by.
+	 * @param  array|null $options     An optional options array.
 	 * @return void
 	 */
 	public function update( $optionsName = null, $defaults = null, $options = null ) {
@@ -80,12 +77,11 @@ trait Options {
 	/**
 	 * Updates the options in the database.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.2 Corrected the $defaults and $optionsName parameter types.
+	 * @since 4.1.4
 	 *
-	 * @param  boolean     $force       Whether or not to force an immediate save.
-	 * @param  string|null $optionsName An optional option name to update.
-	 * @param  array|null  $defaults    The defaults to filter the options by.
+	 * @param  boolean $force       Whether or not to force an immediate save.
+	 * @param  string  $optionsName An optional option name to update.
+	 * @param  string  $defaults    The defaults to filter the options by.
 	 * @return void
 	 */
 	public function save( $force = false, $optionsName = null, $defaults = null ) {

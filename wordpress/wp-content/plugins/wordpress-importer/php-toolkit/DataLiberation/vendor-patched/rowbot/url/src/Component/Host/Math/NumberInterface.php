@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component\Host\Math;
+namespace Rowbot\URL\Component\Host\Math;
 
-use VendorPrefix\Rowbot\URL\Component\Host\Math\Exception\MathException;
+use Rowbot\URL\Component\Host\Math\Exception\MathException;
 
 interface NumberInterface {
 	/**

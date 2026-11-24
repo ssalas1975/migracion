@@ -10,8 +10,6 @@
  * @since   3.29
  */
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Class representing WooCommerce Meta component.
  */
@@ -20,11 +18,10 @@ class ET_Builder_Module_Woocommerce_Meta extends ET_Builder_Module {
 	 * Initialize.
 	 */
 	public function init() {
-		$this->name        = esc_html__( 'Woo Product Meta', 'et_builder' );
-		$this->plural      = esc_html__( 'Woo Product Meta', 'et_builder' );
-		$this->slug        = 'et_pb_wc_meta';
-		$this->vb_support  = 'on';
-		$this->folder_name = 'et_pb_woo_modules';
+		$this->name       = esc_html__( 'Woo Meta', 'et_builder' );
+		$this->plural     = esc_html__( 'Woo Metas', 'et_builder' );
+		$this->slug       = 'et_pb_wc_meta';
+		$this->vb_support = 'on';
 
 		$this->settings_modal_toggles = array(
 			'general'  => array(

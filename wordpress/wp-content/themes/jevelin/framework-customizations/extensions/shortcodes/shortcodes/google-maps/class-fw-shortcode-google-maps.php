@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 class FW_Shortcode_Google_Maps extends FW_Shortcode {
@@ -27,7 +27,7 @@ class FW_Shortcode_Google_Maps extends FW_Shortcode {
 							'label' => esc_html__('Locations', 'jevelin'),
 							'popup-title' => esc_html__('Add/Edit Location', 'jevelin'),
 							'type' => 'addable-popup',
-							'desc' => false,
+							'desc'  => esc_html__('Before selecting location, please enter your Google Maps API key under Apperance > Theme Settings > API Key', 'jevelin'),
 							'template' => '{{  if (location.location !== "") {  print(location.location)} else { print("' . esc_html__('Note: Please set location', 'jevelin') . '")} }}',
 							'popup-options' => array(
 								'location' => array(
@@ -50,9 +50,9 @@ class FW_Shortcode_Google_Maps extends FW_Shortcode {
 									'desc'  => esc_html__('Set page url (Ex: http://example.com)', 'jevelin'),
 								),
 								'thumb' => array(
-									'label'       => esc_html__('Location Image', 'jevelin'),
-									'desc'        => esc_html__('Add location image', 'jevelin'),
-									'type'        => 'upload',
+									'label' => esc_html__('Location Image', 'jevelin'),
+									'desc'  => esc_html__('Add location image', 'jevelin'),
+									'type'  => 'upload',
 								)
 							)
 						)

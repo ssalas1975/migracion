@@ -62,6 +62,9 @@
 .otgs-ico-note-edit:before {
   content: "\69";
 }
+.otgs-ico-note-edit-o:before {
+  content: "\6a";
+}
 .otgs-ico-add:before {
   content: "\6b";
 }
@@ -118,6 +121,9 @@
 }
 .otgs-ico-discoverwp:before {
   content: "\43";
+}
+.otgs-ico-wpml:before {
+  content: "\44";
 }
 .otgs-ico-otgs:before {
   content: "\45";
@@ -182,30 +188,9 @@
 .otgs-ico-quote:before {
   content: "\58";
 }
-.otgs-ico-star:before {
-  content: "\5a";
-}
-.otgs-ico-wpml:before {
-  content: "\44";
-}
-.otgs-ico-edit-note-o:before {
-  content: "\6a";
-}
-.otgs-ico-spinner:before {
-  content: "\30";
-}
 .otgs-ico-thumbsup:before {
   content: "\59";
 }
-.otgs-ico-status:before {
-  content: "\31";
-}
-.otgs-ico-file:before {
-  content: "\32";
-}
-.otgs-ico-cancel:before {
-  content: "\33";
-}
-.otgs-ico-download:before {
-  content: "\34";
+.otgs-ico-star:before {
+  content: "\5a";
 }

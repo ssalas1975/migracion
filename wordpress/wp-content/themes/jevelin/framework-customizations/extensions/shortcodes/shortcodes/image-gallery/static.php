@@ -6,16 +6,31 @@ if( !function_exists( 'jevelin_shortcode_image_gallery_css' ) ) :
 		$margin = ( isset( $atts['margin'] ) ) ? $atts['margin'] : '';
 		$radius = ( isset( $atts['radius'] ) ) ? $atts['radius'] : '';
 		$dots_color = ( isset( $atts['dots_color'] ) ) ? $atts['dots_color'] : '';
+		$bottom_margin = ( isset( $atts['bottom_margin'] ) ) ? $atts['bottom_margin'] : '';
 		ob_start(); ?>
+
+			<?php if( $bottom_margin ) : ?>
+				#image-gallery-<?php echo esc_attr( $id ); ?> {
+					padding-bottom: <?php echo jevelin_addpx( $bottom_margin ); ?>;
+				}
+			<?php endif; ?>
 
 
 			<?php if( $margin ) : ?>
-				#image-gallery-<?php echo esc_attr( $id ); ?> .sh-gallery-item {
+				#image-gallery-<?php echo esc_attr( $id ); ?> .sh-gallery-item,
+				#image-gallery-<?php echo esc_attr( $id ); ?> .slick-dots {
 					margin: <?php echo jevelin_addpx( $margin ); ?>;
 				}
-				#image-gallery-<?php echo esc_attr( $id ); ?> {
-					margin: -<?php echo jevelin_addpx( $margin ); ?>;
+				#image-gallery-<?php echo esc_attr( $id ); ?> .slick-list {
+					margin: <?php
+						$margin = jevelin_addpx( $margin );
+						$margin = explode( ' ', $margin );
+						foreach( $margin as $margin_item ) :
+						    echo '-' . trim( $margin_item ) . ' ';
+						endforeach;
+					?>;
 				}
+
 			<?php endif; ?>
 
 			<?php if( $radius ) : ?>

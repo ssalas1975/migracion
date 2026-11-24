@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -45,6 +45,17 @@ $options = array(
 		'label' => esc_html__( 'Placeholder Image', 'jevelin' ),
 		'desc'  => esc_html__( 'Upload a placeholder image', 'jevelin' ),
 		'type'  => 'upload',
+	),
+
+	'image_size' => array(
+		'type'    => 'select',
+		'label'   => esc_html__('Placeholder Size', 'jevelin'),
+		'desc'	=> esc_html__( 'Select uploaded placeholder image size', 'jevelin' ),
+		'value' => 'large',
+		'choices' => array(
+			'large' => esc_html__( 'Large', 'jevelin' ),
+			'full' => esc_html__( 'Full', 'jevelin' ),
+		)
 	),
 
 	'placeholder_icon' => array(

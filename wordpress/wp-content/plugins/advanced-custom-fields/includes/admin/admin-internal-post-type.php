@@ -270,8 +270,7 @@ if ( ! class_exists( 'ACF_Admin_Internal_Post_Type' ) ) :
 						),
 					);
 
-					// The field group comes from the database, so skip sanitization.
-					acf_skip_internal_post_sanitization( 'acf_update_field_group', $field_group );
+					acf_update_field_group( $field_group );
 				}
 
 				ob_start();

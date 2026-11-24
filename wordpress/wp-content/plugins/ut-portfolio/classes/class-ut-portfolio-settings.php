@@ -1,10 +1,5 @@
 <?php
 
-/*
- * Portfolio Management by United Themes
- * http://www.unitedthemes.com/
- */
-
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class UT_Portfolio_Settings {
@@ -49,14 +44,11 @@ class UT_Portfolio_Settings {
 		// Add settings fields
 		add_settings_field( 'portfolio_cache_mode' , __( 'Activate Cache:' , 'ut_portfolio_lang' ) , array( &$this , 'portfolio_cache_mode' )  , 'portfolio_settings' , 'main_settings' );
 		add_settings_field( 'portfolio_slug_setting' , __( 'Portfolio Slug:' , 'ut_portfolio_lang' ) , array( &$this , 'portfolio_slug_setting' )  , 'portfolio_settings' , 'main_settings' );
-        add_settings_field( 'portfolio_social_setting' , __( 'Portfolio Social:' , 'ut_portfolio_lang' ) , array( &$this , 'portfolio_social_setting' )  , 'portfolio_settings' , 'main_settings' );
-        add_settings_field( 'portfolio_social_border' , __( 'Activate Border for Social Icons:' , 'ut_portfolio_lang' ) , array( &$this , 'portfolio_social_border' )  , 'portfolio_settings' , 'main_settings' );
 		
 		// Register settings fields
 		register_setting( 'portfolio_settings' , 'portfolio_cache_mode' , array( &$this , 'validate_field' ) );
 		register_setting( 'portfolio_settings' , 'portfolio_slug_setting' , array( &$this , 'validate_field' ) );
-        register_setting( 'portfolio_settings' , 'portfolio_social_setting' , array( &$this , 'validate_field' ) );
-        register_setting( 'portfolio_settings' , 'portfolio_social_border' , array( &$this , 'validate_field' ) );
+		
 		
 	}
 
@@ -71,9 +63,9 @@ class UT_Portfolio_Settings {
 			$data = $option;
 		}
 		
-		echo '<select class="postform" name="portfolio_cache_mode">';
-			echo '<option value="off" ' . selected( 'off' , $data , false ) . '>' . esc_html__('off' , 'ut_portfolio_lang') . '</option>';
-			echo '<option value="on" ' . selected( 'on' , $data , false ) . '>' . esc_html__('on' , 'ut_portfolio_lang') . '</option>';			
+		echo '<select class="postform" id="ut_portfolio_layout" name="portfolio_cache_mode">';
+			echo '<option value="off" ' . selected( 'off' , $data , false ) . '>' . __('off' , 'ut_portfolio_lang') . '</option>';
+			echo '<option value="on" ' . selected( 'on' , $data , false ) . '>' . __('on' , 'ut_portfolio_lang') . '</option>';			
 		echo '</select>';
 		
 		echo '<p>' . __( 'Create a cache for the generated image placeholders. Please make sure that wp-content/plugins/ut-portfolio/i/cache is writeable' , 'ut_portfolio_lang' );
@@ -95,59 +87,6 @@ class UT_Portfolio_Settings {
 		
 	}
 	
-    public function portfolio_social_setting() {
-        
-        $option = get_option('portfolio_social_setting');
-        
-        $data = '';
-		if( $option && strlen( $option ) > 0 && $option != '' ) {
-			$data = $option;
-		}
-        
-        echo '<select class="postform" name="portfolio_social_setting">';
-			echo '<option value="off" ' . selected( 'off' , $data , false ) . '>' . esc_html__('off' , 'ut_portfolio_lang') . '</option>';
-			echo '<option value="on" ' . selected( 'on' , $data , false ) . '>' . esc_html__('on' , 'ut_portfolio_lang') . '</option>';			
-		echo '</select>';
-		
-		echo '<p>' . __( 'Shows social share buttons on all your portfolio single pages.' , 'ut_portfolio_lang' );
-        
-    }
-    
-    public function portfolio_social_border() {
-        
-        $option = get_option('portfolio_social_border');
-        
-        $data = '';
-		if( $option && strlen( $option ) > 0 && $option != '' ) {
-			$data = $option;
-		}
-        
-        echo '<select class="postform" name="portfolio_social_border">';
-			echo '<option value="off" ' . selected( 'off' , $data , false ) . '>' . esc_html__('off' , 'ut_portfolio_lang') . '</option>';
-			echo '<option value="on" ' . selected( 'on' , $data , false ) . '>' . esc_html__('on' , 'ut_portfolio_lang') . '</option>';			
-		echo '</select>';
-		
-		echo '<p>' . __( 'Activate border for social share buttons on all your portfolio single pages.' , 'ut_portfolio_lang' );
-        
-    }
-    
-    public function portfolio_social_share_buttons() {
-        
-        $option = get_option('portfolio_social_share_buttons');
-        
-        $data = '';
-		if( $option && strlen( $option ) > 0 && $option != '' ) {
-			$data = $option;
-		}
-        
-        echo '';
-        echo '';
-        echo '';
-        echo '';
-        
-    
-    }
-    
 	
 	public function validate_field( $slug ) {
 		if( $slug && strlen( $slug ) > 0 && $slug != '' ) {

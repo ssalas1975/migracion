@@ -1,4 +1,7 @@
 <?php
+/*
+Modified Version of WordPress Importer - extends menu import for custom fields
+*/
 
 if ( ! defined( 'WP_LOAD_IMPORTERS' ) )
 	return;
@@ -53,7 +56,7 @@ class UT_WP_Import extends WP_Importer {
 	var $url_remap = array();
 	var $featured_images = array();
 
-	public function __construct(){ /* nothing */ }
+	function WP_Import() { /* nothing */ }
 
 	/**
 	 * Registered callback function for the WordPress Importer
@@ -784,9 +787,11 @@ class UT_WP_Import extends WP_Importer {
 			$menu_id = is_array( $menu_id ) ? $menu_id['term_id'] : $menu_id;
 		}
 
-		foreach ( $item['postmeta'] as $meta )
-			${$meta['key']} = $meta['value'];
-
+		foreach ( $item['postmeta'] as $meta ) {
+			$$meta['key'] = $meta['value'];
+			$menu_item_meta[$meta['key']] = $meta['value'];
+		}
+		
 		if ( 'taxonomy' == $_menu_item_type && isset( $this->processed_terms[intval($_menu_item_object_id)] ) ) {
 			$_menu_item_object_id = $this->processed_terms[intval($_menu_item_object_id)];
 		} else if ( 'post_type' == $_menu_item_type && isset( $this->processed_posts[intval($_menu_item_object_id)] ) ) {
@@ -1041,6 +1046,7 @@ class UT_WP_Import extends WP_Importer {
 	// Display import page title
 	function header() {
 		echo '<div class="wrap">';
+		screen_icon();
 		echo '<h2>' . __( 'Import WordPress', 'wordpress-importer' ) . '</h2>';
 
 		$updates = get_plugin_updates();
@@ -1118,7 +1124,7 @@ class UT_WP_Import extends WP_Importer {
 	 * Added to http_request_timeout filter to force timeout at 60 seconds during import
 	 * @return int 60
 	 */
-	function bump_request_timeout( $val ) {
+	function bump_request_timeout() {
 		return 60;
 	}
 
@@ -1155,7 +1161,7 @@ if ( !function_exists( 'ut_wp_update_nav_menu_item' ) ) {
 	
 		// make sure that we don't convert non-nav_menu_item objects into nav_menu_item objects
 		if ( ! empty( $menu_item_db_id ) && ! is_nav_menu_item( $menu_item_db_id ) )
-			return new WP_Error('update_nav_menu_item_failed', __('The given object ID is not that of a menu item.' , 'unitedthemes'));
+			return new WP_Error('update_nav_menu_item_failed', __('The given object ID is not that of a menu item.'));
 	
 		$menu = wp_get_nav_menu_object( $menu_id );
 	

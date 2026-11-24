@@ -5,6 +5,7 @@ if( !function_exists( 'jevelin_shortcode_counter_css' ) ) :
 		$id = ( $id_rand ) ? $id_rand : $atts['id'];
 		$title_size = ( isset( $atts['title_size'] ) ) ? $atts['title_size'] : '';
 		$icon_color = ( isset( $atts['icon_color'] ) ) ? $atts['icon_color'] : '';
+		$number_symbol = ( isset( $atts['number_symbol'] ) ) ? $atts['number_symbol'] : '';
 		$number_weight = ( isset( $atts['number_weight'] ) ) ? $atts['number_weight'] : '700';
 		$number_color = ( isset( $atts['number_color'] ) ) ? $atts['number_color'] : '';
 		$font = ( isset( $atts['font'] ) ) ? $atts['font'] : 'body';
@@ -35,7 +36,13 @@ if( !function_exists( 'jevelin_shortcode_counter_css' ) ) :
 		endif;
 		ob_start(); ?>
 
-			<?php if( $size_atts['responsive_size'] ) : ?>
+			<?php if( $number_symbol ) : ?>
+				#counter-<?php echo esc_attr( $id ); ?> .sh-counter-number:after {
+					content: "<?php echo esc_attr( str_replace( '"', '', $number_symbol ) ); ?>";
+				}
+			<?php endif; ?>
+
+			<?php if( !empty( $size_atts['responsive_size'] ) ) : ?>
 			@media (max-width: 1024px) {
 				#counter-<?php echo esc_attr( $id ); ?> .sh-counter-number {
 					font-size: <?php echo jevelin_addpx( $size_atts['responsive_size'] ); ?>!important;
@@ -55,13 +62,11 @@ if( !function_exists( 'jevelin_shortcode_counter_css' ) ) :
 			}
 			<?php endif; ?>
 
-			<?php if( $number_weight != '700' ) : ?>
 			#counter-<?php echo esc_attr( $id ); ?> .sh-counter-number {
 				font-weight: <?php echo esc_attr( $number_weight ); ?>!important;
 			}
-			<?php endif; ?>
 
-			<?php if( $size_atts['desktop_size'] ) : ?>
+			<?php if( !empty( $size_atts['desktop_size'] ) ) : ?>
 			#counter-<?php echo esc_attr( $id ); ?> .sh-counter-number {
 				font-size: <?php echo jevelin_addpx( $size_atts['desktop_size'] ); ?>;
 			}

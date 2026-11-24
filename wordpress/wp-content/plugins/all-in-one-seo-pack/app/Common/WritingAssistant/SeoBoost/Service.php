@@ -53,7 +53,7 @@ class Service {
 		}
 
 		if ( 'success' !== $reportRequest['status'] ) {
-			return new \WP_Error( 'service-error', $reportRequest['msg'] ?? __( 'Unknown error from service', 'all-in-one-seo-pack' ) );
+			return new \WP_Error( 'service-error', $reportRequest['msg'] );
 		}
 
 		return $reportRequest;
@@ -146,9 +146,7 @@ class Service {
 		$newAccessToken = $this->doRequest( 'waRefreshAccessToken' );
 		if (
 			is_wp_error( $newAccessToken ) ||
-			empty( $newAccessToken['status'] ) ||
-			'success' !== $newAccessToken['status'] ||
-			empty( $newAccessToken['token'] )
+			'success' !== $newAccessToken['status']
 		) {
 			aioseo()->writingAssistant->seoBoost->setAccessToken( '' );
 

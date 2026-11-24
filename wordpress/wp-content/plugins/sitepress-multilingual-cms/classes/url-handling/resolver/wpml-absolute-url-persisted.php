@@ -6,9 +6,6 @@ class WPML_Absolute_Url_Persisted {
 
 	private static $instance;
 
-	/**
-	 * @var array
-	 */
 	private $urls;
 
 	/**
@@ -30,17 +27,11 @@ class WPML_Absolute_Url_Persisted {
 	private function __wakeup() {}
 
 	/**
-	 * Returns urls array.
-	 *
-	 * @return array Array with urls.
+	 * @return array
 	 */
 	private function get_urls() {
 		if ( null === $this->urls ) {
 			$this->urls = get_option( self::OPTION_KEY, array() );
-
-			if ( ! is_array( $this->urls ) ) {
-				$this->urls = array();
-			}
 		}
 
 		return $this->urls;

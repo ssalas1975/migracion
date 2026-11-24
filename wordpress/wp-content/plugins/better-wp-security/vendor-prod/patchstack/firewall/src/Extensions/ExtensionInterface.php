@@ -1,4 +1,10 @@
 <?php
+/**
+ * @license GPL-3.0-or-later
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
+ */
 
 namespace iThemesSecurity\Strauss\Patchstack\Extensions;
 

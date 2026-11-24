@@ -356,7 +356,8 @@ if ( ! class_exists( 'acf_field_date_picker' ) ) :
 			}
 
 			// ACF stores date_picker internally as 'Ymd' (e.g., 20231225).
-			$date = \DateTime::createFromFormat( 'Ymd', $value );
+			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', 'Ymd' ); // Validación preventiva para PHP 8.4
+			$date = $is_valid_format ? \DateTime::createFromFormat( 'Ymd', $value ) : false;
 			if ( ! $date ) {
 				return null;
 			}

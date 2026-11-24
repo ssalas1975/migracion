@@ -7,14 +7,14 @@ function icl_get_languages_names() {
 	static $__icl_lang_names_cached = null;
 
 	if ( $__icl_lang_names_cached === null ) {
-		$serialized_languages = file_get_contents( WPML_PLUGIN_PATH . '/res/languages.json' );
-		$__icl_lang_names     = json_decode( $serialized_languages, true );
+		$serialized_languages = file_get_contents(WPML_PLUGIN_PATH . '/res/languages.json');
+		$__icl_lang_names = json_decode($serialized_languages, true);
 
 		$__icl_lang_names_cached = $__icl_lang_names;
 	}
-
+	
 	return $__icl_lang_names_cached;
-
+	
 }
 
 
@@ -24,7 +24,7 @@ function icl_get_languages_names() {
 function icl_get_languages_codes() {
 	static $result = null;
 
-	if ( null === $result ) {
+	if ( $result === null ) {
 		$result = array(
 			'Abkhazian'             => 'ab',
 			'Afar'                  => 'aa',
@@ -113,6 +113,7 @@ function icl_get_languages_codes() {
 			'Kurdish'               => 'ku',
 			'Kwanyama'              => 'kj',
 			'Laothian'              => 'lo',
+			'Latin'                 => 'la',
 			'Latvian'               => 'lv',
 			'Lingala'               => 'ln',
 			'Lithuanian'            => 'lt',
@@ -253,7 +254,7 @@ function icl_get_languages_locales() {
 			'ka'      => 'ge_GE',
 			'km'      => 'km_KH',
 			'ko'      => 'ko_KR',
-			'ku'      => 'ckb',
+			'ku'      => 'ku',
 			'lt'      => 'lt_LT',
 			'lv'      => 'lv_LV',
 			'mg'      => 'mg_MG',
@@ -262,7 +263,7 @@ function icl_get_languages_locales() {
 			'ms'      => 'ms_MY',
 			'mt'      => 'mt_MT',
 			'nb'      => 'nb_NO',
-			'ne'      => 'ne',
+			'ne'      => 'ne_NP',
 			'no'      => 'nb_NO',
 			'nn'      => 'nn_NO',
 			'ni'      => 'ni_ID',
@@ -286,7 +287,7 @@ function icl_get_languages_locales() {
 			'th'      => 'th',
 			'tr'      => 'tr_TR',
 			'ug'      => 'ug_CN',
-			'uk'      => 'uk',
+			'uk'      => 'uk_UA',
 			'ur'      => 'uz_UZ',
 			'uz'      => 'uz_UZ',
 			'vi'      => 'vi_VN',

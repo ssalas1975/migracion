@@ -180,7 +180,7 @@ class Table {
 	 *
 	 * @return bool|string
 	 *
-	 * @throws Exception If the table definition has not been initialized.
+	 * @throws Exception If the table definition has not been intialized.
 	 */
 	public function finish( $wants_sql = false ) {
 		if ( ! $this->initialized ) {

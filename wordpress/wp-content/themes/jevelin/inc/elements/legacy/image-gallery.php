@@ -2,14 +2,14 @@
 class vcj_image_gallery extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_image_gallery', array( $this, '_html' ) );
     }
 
     public function _mapping() {
         if ( !defined( 'WPB_VC_VERSION' ) ) { return; }
         vc_map( array (
-  'name' => 'Image Gallery',
+  'name' => 'Image Gallery (slider)',
   'base' => 'vcj_image_gallery',
   'description' => 'Responsive image gallery',
   'category' => 'Jevelin Elements',
@@ -117,7 +117,7 @@ class vcj_image_gallery extends WPBakeryShortCode {
       'value' => '',
       'type' => 'textfield',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => '0px 0px 15px 0px',
       'group' => 'Styling',
     ),
     7 => 
@@ -192,6 +192,33 @@ class vcj_image_gallery extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Dots',
     ),
+    12 => 
+    array (
+      'param_name' => 'bottom_margin',
+      'heading' => 'Bottom Margin',
+      'description' => 'Enter bottom margin, default 45px',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Dots',
+    ),
+    13 => 
+    array (
+      'param_name' => 'lazy',
+      'heading' => 'Lazy Loading',
+      'description' => 'Choose to enable to disable lazy loading',
+      'value' => 
+      array (
+        'Default (from theme settings)' => 'default',
+        'Disabled' => 'disabled',
+        'Enabled' => 'enabled',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'default',
+      'group' => 'Lazy Loading',
+    ),
   ),
 ) );
     }
@@ -200,8 +227,9 @@ class vcj_image_gallery extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/image-gallery/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/image-gallery/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/image-gallery/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/image-gallery/static.php';
         if( function_exists( 'jevelin_shortcode_image_gallery_css' ) ) :
             jevelin_shortcode_image_gallery_css( $atts, $id_rand );
         endif;

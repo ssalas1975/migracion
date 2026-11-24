@@ -4,21 +4,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPBakery WPBakery Page Builder Main manager.
+ * WPBakery Visual Composer Main manager.
  *
- * @package WPBakeryPageBuilder
+ * @package WPBakeryVisualComposer
  * @since   4.2
  */
 class WPBMap {
-	protected static $scope = 'default';
+
 	/**
 	 * @var array
 	 */
 	protected static $sc = array();
-	protected static $scopes = array(
-		'default' => array(),
-	);
-	protected static $removedElements = array();
 
 	/**
 	 * @var bool
@@ -69,9 +65,6 @@ class WPBMap {
 	 * @var bool
 	 */
 	protected static $init_elements = array();
-	protected static $init_elements_scoped = array(
-		'default' => array(),
-	);
 
 	/**
 	 * Set init status fro WPMap.
@@ -79,10 +72,10 @@ class WPBMap {
 	 * if $is_init is FALSE, then all activity like add, update and delete for shortcodes attributes will be hold in
 	 * the list of activity and will be executed after initialization.
 	 *
-	 * @param bool $value
 	 * @see Vc_Mapper::iniy.
 	 * @static
 	 *
+	 * @param bool $value
 	 */
 	public static function setInit( $value = true ) {
 		self::$is_init = $value;
@@ -126,14 +119,7 @@ class WPBMap {
 	 * @return bool
 	 */
 	public static function exists( $tag ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			if ( isset( self::$scopes[ $currentScope ], self::$scopes[ $currentScope ][ $tag ] ) ) {
-				return true;
-			}
-		}
-
-		return (bool) isset( self::$sc[ $tag ] );
+		return (boolean) isset( self::$sc[ $tag ] );
 	}
 
 	/**
@@ -158,19 +144,15 @@ class WPBMap {
 	 * @return bool
 	 */
 	public static function map( $tag, $attributes ) {
-		if ( in_array( $tag, self::$removedElements, true ) ) {
-			return false;
-		}
 		if ( ! self::$is_init ) {
 			if ( empty( $attributes['name'] ) ) {
-				throw new Exception( sprintf( esc_html__( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $tag ) );
+				trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $tag ) );
 			} elseif ( empty( $attributes['base'] ) ) {
-				throw new Exception( sprintf( esc_html__( 'Wrong base for shortcode:%s. Base required', 'js_composer' ), $tag ) );
+				trigger_error( sprintf( __( 'Wrong base for shortcode:%s. Base required', 'js_composer' ), $tag ) );
 			} else {
 				vc_mapper()->addActivity( 'mapper', 'map', array(
 					'tag' => $tag,
 					'attributes' => $attributes,
-					'scope' => self::getScope(),
 				) );
 
 				return true;
@@ -179,22 +161,11 @@ class WPBMap {
 			return false;
 		}
 		if ( empty( $attributes['name'] ) ) {
-			throw new Exception( sprintf( esc_html__( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $tag ) );
+			trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $tag ) );
 		} elseif ( empty( $attributes['base'] ) ) {
-			throw new Exception( sprintf( esc_html__( 'Wrong base for shortcode:%s. Base required', 'js_composer' ), $tag ) );
+			trigger_error( sprintf( __( 'Wrong base for shortcode:%s. Base required', 'js_composer' ), $tag ) );
 		} else {
-			if ( self::getScope() !== 'default' ) {
-				if ( ! isset( self::$scopes[ self::getScope() ] ) ) {
-					self::$scopes[ self::getScope() ] = array();
-				}
-				self::$scopes[ self::getScope() ][ $tag ] = $attributes;
-			} else {
-				self::$sc[ $tag ] = $attributes;
-			}
-			// Unset cache class object in case if re-map called
-			if ( Vc_Shortcodes_Manager::getInstance()->isShortcodeClassInitialized( $tag ) ) {
-				Vc_Shortcodes_Manager::getInstance()->unsetElementClass( $tag );
-			}
+			self::$sc[ $tag ] = $attributes;
 
 			return true;
 		}
@@ -211,41 +182,23 @@ class WPBMap {
 	 * element. But this will be done only when element data is really required.
 	 *
 	 * @static
+	 * @since 4.9
+	 *
 	 * @param $tag
 	 * @param $settings_file
 	 * @param $settings_function
 	 * @param $attributes
 	 *
 	 * @return bool
-	 * @since 4.9
-	 *
 	 */
 	public static function leanMap( $tag, $settings_function = null, $settings_file = null, $attributes = array() ) {
-		if ( in_array( $tag, self::$removedElements, true ) ) {
-			return false;
+		self::$sc[ $tag ] = $attributes;
+		self::$sc[ $tag ]['base'] = $tag;
+		if ( is_string( $settings_file ) ) {
+			self::$sc[ $tag ]['__vc_settings_file'] = $settings_file;
 		}
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			if ( ! isset( self::$scopes[ $currentScope ] ) ) {
-				self::$scopes[ $currentScope ] = array();
-			}
-			self::$scopes[ $currentScope ][ $tag ] = $attributes;
-			self::$scopes[ $currentScope ][ $tag ]['base'] = $tag;
-			if ( is_string( $settings_file ) ) {
-				self::$scopes[ $currentScope ][ $tag ]['__vc_settings_file'] = $settings_file;
-			}
-			if ( ! is_null( $settings_function ) ) {
-				self::$scopes[ $currentScope ][ $tag ]['__vc_settings_function'] = $settings_function;
-			}
-		} else {
-			self::$sc[ $tag ] = $attributes;
-			self::$sc[ $tag ]['base'] = $tag;
-			if ( is_string( $settings_file ) ) {
-				self::$sc[ $tag ]['__vc_settings_file'] = $settings_file;
-			}
-			if ( ! is_null( $settings_function ) ) {
-				self::$sc[ $tag ]['__vc_settings_function'] = $settings_function;
-			}
+		if ( ! is_null( $settings_function ) ) {
+			self::$sc[ $tag ]['__vc_settings_function'] = $settings_function;
 		}
 
 		return true;
@@ -259,16 +212,14 @@ class WPBMap {
 	 * @static
 	 *
 	 * @param bool $force - force data generation even data already generated.
-	 * @throws \Exception
 	 */
 	protected static function generateUserData( $force = false ) {
 		if ( ! $force && false !== self::$user_sc && false !== self::$user_categories ) {
 			return;
 		}
 
-		self::$user_sc = array();
-		self::$user_categories = array();
-		self::$user_sorted_sc = array();
+		//$settings = self::getSettings();
+		self::$user_sc = self::$user_categories = self::$user_sorted_sc = array();
 		$deprecated = 'deprecated';
 		$add_deprecated = false;
 		if ( is_array( self::$sc ) && ! empty( self::$sc ) ) {
@@ -288,30 +239,18 @@ class WPBMap {
 						} else {
 							if ( is_array( $categories ) && ! empty( $categories ) ) {
 								foreach ( $categories as $c ) {
-									if ( false === array_search( $c, self::$user_categories, true ) ) {
+									if ( false === array_search( $c, self::$user_categories ) ) {
 										self::$user_categories[] = $c;
 									}
 									$values['_category_ids'][] = md5( $c );
 								}
 							} else {
-								if ( false === array_search( $categories, self::$user_categories, true ) ) {
+								if ( false === array_search( $categories, self::$user_categories ) ) {
 									self::$user_categories[] = $categories;
 								}
 								$values['_category_ids'][] = md5( $categories );
 							}
 						}
-					}
-
-					if ( ! empty( $values['params'] ) ) {
-						$params = $values['params'];
-						$values['params'] = array();
-						foreach ( $params as $attribute ) {
-							$attribute = apply_filters( 'vc_mapper_attribute', $attribute, $name );
-							$attribute = apply_filters( 'vc_mapper_attribute_' . $attribute['type'], $attribute, $name );
-							$values['params'][] = $attribute;
-						}
-						$sort = new Vc_Sort( $values['params'] );
-						$values['params'] = $sort->sortByKey();
 					}
 
 					self::$user_sc[ $name ] = $values;
@@ -335,7 +274,6 @@ class WPBMap {
 	 * @static_other_category_
 	 *
 	 * @param bool $force - force data generation even data already generated.
-	 * @throws \Exception
 	 */
 	protected static function generateData( $force = false ) {
 		if ( ! $force && false !== self::$categories ) {
@@ -364,7 +302,6 @@ class WPBMap {
 	 *
 	 * @static
 	 * @return array
-	 * @throws \Exception
 	 */
 	public static function getAllShortCodes() {
 		self::generateData();
@@ -376,8 +313,7 @@ class WPBMap {
 	 * Get mapped shortcode settings.
 	 *
 	 * @static
-	 * @return bool
-	 * @throws \Exception
+	 * @return array
 	 */
 	public static function getSortedAllShortCodes() {
 		self::generateData();
@@ -391,8 +327,7 @@ class WPBMap {
 	 * Sorting depends on the weight attribute and mapping order.
 	 *
 	 * @static
-	 * @return bool
-	 * @throws \Exception
+	 * @return array
 	 */
 	public static function getSortedUserShortCodes() {
 		self::generateUserData();
@@ -403,8 +338,7 @@ class WPBMap {
 	/**
 	 * Get list of mapped shortcode settings for current user.
 	 * @static
-	 * @return bool - associated array of shortcodes settings with tag as the key.
-	 * @throws \Exception
+	 * @return array - associated array of shortcodes settings with tag as the key.
 	 */
 	public static function getUserShortCodes() {
 		self::generateUserData();
@@ -420,21 +354,27 @@ class WPBMap {
 	 * @param $tag - shortcode tag.
 	 *
 	 * @return array|null null @since 4.4.3
-	 * @throws \Exception
 	 */
 	public static function getShortCode( $tag ) {
-		return self::setElementSettings( $tag );
+		if ( isset( self::$sc[ $tag ] ) && is_array( self::$sc[ $tag ] ) ) {
+			self::setElementSettings( $tag );
+			$shortcode = self::$sc[ $tag ];
+		} else {
+			$shortcode = null;
+		}
+
+		return $shortcode;
 	}
 
 	/**
 	 * Get mapped shortcode settings by tag.
 	 *
+	 * @since 4.5.2
+	 * @static
+	 *
 	 * @param $tag - shortcode tag.
 	 *
 	 * @return array|null
-	 * @throws \Exception
-	 * @since 4.5.2
-	 * @static
 	 */
 	public static function getUserShortCode( $tag ) {
 		self::generateUserData();
@@ -463,7 +403,6 @@ class WPBMap {
 	 *
 	 * @static
 	 * @return array
-	 * @throws \Exception
 	 */
 	public static function getCategories() {
 		self::generateData();
@@ -478,8 +417,7 @@ class WPBMap {
 	 * by Vc access rules.
 	 *
 	 * @static
-	 * @return bool
-	 * @throws \Exception
+	 * @return array
 	 */
 	public static function getUserCategories() {
 		self::generateUserData();
@@ -498,14 +436,6 @@ class WPBMap {
 	 * @return bool
 	 */
 	public static function dropParam( $name, $attribute_name ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::dropParam( $name, $attribute_name );
-			self::setScope( $currentScope );
-
-			return $res;
-		}
 		if ( ! isset( self::$init_elements[ $name ] ) ) {
 			vc_mapper()->addElementActivity( $name, 'drop_param', array(
 				'name' => $name,
@@ -516,11 +446,9 @@ class WPBMap {
 		}
 		if ( isset( self::$sc[ $name ], self::$sc[ $name ]['params'] ) && is_array( self::$sc[ $name ]['params'] ) ) {
 			foreach ( self::$sc[ $name ]['params'] as $index => $param ) {
-				if ( $param['param_name'] === $attribute_name ) {
-					unset( self::$sc[ $name ]['params'][ $index ] );
-					// fix indexes
-					self::$sc[ $name ]['params'] = array_merge( self::$sc[ $name ]['params'] );
-
+				if ( $param['param_name'] == $attribute_name ) {
+					unset( self::$sc[ $name ][ 'params' ][ $index ] );
+					self::$sc[ $name ]['params'] = array_merge( self::$sc[ $name ]['params'] ); // fix indexes
 					return true;
 				}
 			}
@@ -538,35 +466,23 @@ class WPBMap {
 	 * @param $param_name
 	 *
 	 * @return bool| array
-	 * @throws \Exception
 	 */
 	public static function getParam( $tag, $param_name ) {
-		$currentScope = self::getScope();
-		$element = false;
-		if ( 'default' !== $currentScope ) {
-			if ( isset( self::$scopes[ $currentScope ][ $tag ], self::$scopes[ $currentScope ][ $tag ] ) ) {
-				$element = self::$scopes[ $currentScope ][ $tag ];
-			}
+		if ( ! isset( self::$sc[ $tag ] ) ) {
+			return trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $tag ) );
 		}
-		if ( ! $element && isset( self::$sc[ $tag ] ) ) {
-			$element = self::$sc[ $tag ];
+
+		if ( isset( self::$sc[ $tag ]['__vc_settings_function'] ) || isset( self::$sc[ $tag ]['__vc_settings_file'] ) ) {
+			self::setElementSettings( $tag );
 		}
-		if ( ! $element ) {
-			// No element found
+
+		if ( ! isset( self::$sc[ $tag ]['params'] ) ) {
 			return false;
 		}
 
-		if ( isset( $element['__vc_settings_function'] ) || isset( $element['__vc_settings_file'] ) ) {
-			$element = self::setElementSettings( $tag );
-		}
-
-		if ( ! isset( $element['params'] ) ) {
-			return false;
-		}
-
-		foreach ( $element['params'] as $index => $param ) {
-			if ( $param['param_name'] === $param_name ) {
-				return $element['params'][ $index ];
+		foreach ( self::$sc[ $tag ]['params'] as $index => $param ) {
+			if ( $param['param_name'] == $param_name ) {
+				return self::$sc[ $tag ]['params'][ $index ];
 			}
 		}
 
@@ -584,14 +500,6 @@ class WPBMap {
 	 * @return bool - true if added, false if scheduled/rejected
 	 */
 	public static function addParam( $name, $attribute = array() ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::addParam( $name, $attribute );
-			self::setScope( $currentScope );
-
-			return $res;
-		}
 		if ( ! isset( self::$init_elements[ $name ] ) ) {
 			vc_mapper()->addElementActivity( $name, 'add_param', array(
 				'name' => $name,
@@ -601,24 +509,19 @@ class WPBMap {
 			return false;
 		}
 		if ( ! isset( self::$sc[ $name ] ) ) {
-			// No shortcode found
-			return false;
+			trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $name ) );
 		} elseif ( ! isset( $attribute['param_name'] ) ) {
-			throw new Exception( sprintf( esc_html__( "Wrong attribute for '%s' shortcode. Attribute 'param_name' required", 'js_composer' ), $name ) );
+			trigger_error( sprintf( __( "Wrong attribute for '%s' shortcode. Attribute 'param_name' required", 'js_composer' ), $name ) );
 		} else {
 
 			$replaced = false;
 
-			if ( is_array( self::$sc[ $name ]['params'] ) ) {
-				foreach ( self::$sc[ $name ]['params'] as $index => $param ) {
-					if ( $param['param_name'] === $attribute['param_name'] ) {
-						$replaced = true;
-						self::$sc[ $name ]['params'][ $index ] = $attribute;
-						break;
-					}
+			foreach ( self::$sc[ $name ]['params'] as $index => $param ) {
+				if ( $param['param_name'] == $attribute['param_name'] ) {
+					$replaced = true;
+					self::$sc[ $name ]['params'][ $index ] = $attribute;
+					break;
 				}
-			} else {
-				self::$sc[ $name ]['params'] = array();
 			}
 			if ( false === $replaced ) {
 				self::$sc[ $name ]['params'][] = $attribute;
@@ -644,14 +547,6 @@ class WPBMap {
 	 * @return bool
 	 */
 	public static function mutateParam( $name, $attribute = array() ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::mutateParam( $name, $attribute );
-			self::setScope( $currentScope );
-
-			return $res;
-		}
 		if ( ! isset( self::$init_elements[ $name ] ) ) {
 			vc_mapper()->addElementActivity( $name, 'mutate_param', array(
 				'name' => $name,
@@ -661,16 +556,15 @@ class WPBMap {
 			return false;
 		}
 		if ( ! isset( self::$sc[ $name ] ) ) {
-			// No shortcode found
-			return false;
+			return trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $name ) );
 		} elseif ( ! isset( $attribute['param_name'] ) ) {
-			throw new Exception( sprintf( esc_html__( "Wrong attribute for '%s' shortcode. Attribute 'param_name' required", 'js_composer' ), $name ) );
+			trigger_error( sprintf( __( "Wrong attribute for '%s' shortcode. Attribute 'param_name' required", 'js_composer' ), $name ) );
 		} else {
 
 			$replaced = false;
 
 			foreach ( self::$sc[ $name ]['params'] as $index => $param ) {
-				if ( $param['param_name'] === $attribute['param_name'] ) {
+				if ( $param['param_name'] == $attribute['param_name'] ) {
 					$replaced = true;
 					self::$sc[ $name ]['params'][ $index ] = array_merge( $param, $attribute );
 					break;
@@ -697,19 +591,12 @@ class WPBMap {
 	 * @return bool
 	 */
 	public static function dropShortcode( $name ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::dropShortcode( $name );
-			self::setScope( $currentScope );
-
-			return $res;
-		}
-		self::$removedElements[] = $name;
 		if ( ! isset( self::$init_elements[ $name ] ) ) {
 			vc_mapper()->addElementActivity( $name, 'drop_shortcode', array(
 				'name' => $name,
 			) );
+
+			return false;
 		}
 		unset( self::$sc[ $name ] );
 		visual_composer()->removeShortCode( $name );
@@ -717,18 +604,7 @@ class WPBMap {
 		return true;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public static function dropAllShortcodes() {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::dropAllShortcodes();
-			self::setScope( $currentScope );
-
-			return $res;
-		}
 		if ( ! self::$is_init ) {
 			vc_mapper()->addActivity( '*', 'drop_all_shortcodes', array() );
 
@@ -738,9 +614,7 @@ class WPBMap {
 			visual_composer()->removeShortCode( $name );
 		}
 		self::$sc = array();
-		self::$user_sc = false;
-		self::$user_categories = false;
-		self::$user_sorted_sc = false;
+		self::$user_sc = self::$user_categories = self::$user_sorted_sc = false;
 
 		return true;
 	}
@@ -754,20 +628,11 @@ class WPBMap {
 	 *
 	 * @param $name - shortcode' name.
 	 * @param $setting_name - option key name or the array of options.
-	 * @param string $value - value of settings if $setting_name is option key.
+	 * @param $value - value of settings if $setting_name is option key.
 	 *
 	 * @return array|bool
-	 * @throws \Exception
 	 */
 	public static function modify( $name, $setting_name, $value = '' ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			self::setScope( 'default' );
-			$res = self::modify( $name, $setting_name, $value );
-			self::setScope( $currentScope );
-
-			return $res;
-		}
 		if ( ! isset( self::$init_elements[ $name ] ) ) {
 			vc_mapper()->addElementActivity( $name, 'modify', array(
 				'name' => $name,
@@ -778,10 +643,9 @@ class WPBMap {
 			return false;
 		}
 		if ( ! isset( self::$sc[ $name ] ) ) {
-			// No shortcode found
-			return false;
+			return trigger_error( sprintf( __( 'Wrong name for shortcode:%s. Name required', 'js_composer' ), $name ) );
 		} elseif ( 'base' === $setting_name ) {
-			throw new Exception( sprintf( esc_html__( "Wrong setting_name for shortcode:%s. Base can't be modified.", 'js_composer' ), $name ) );
+			return trigger_error( sprintf( __( "Wrong setting_name for shortcode:%s. Base can't be modified.", 'js_composer' ), $name ) );
 		}
 		if ( is_array( $setting_name ) ) {
 			foreach ( $setting_name as $key => $value ) {
@@ -789,8 +653,7 @@ class WPBMap {
 			}
 		} else {
 			if ( is_array( $value ) ) {
-				// fix indexes
-				$value = array_merge( $value );
+				$value = array_merge( $value ); // fix indexes
 			}
 			self::$sc[ $name ][ $setting_name ] = $value;
 			visual_composer()->updateShortcodeSetting( $name, $setting_name, $value );
@@ -815,22 +678,21 @@ class WPBMap {
 
 	/**
 	 * Sorting method for WPBMap::generateUserData method. Called by uasort php function.
+	 * @deprecated - use Vc_Sort::sortByKey since 4.4
+	 * @static
+	 *
 	 * @param $a
 	 * @param $b
 	 *
 	 * @return int
-	 * @deprecated - use Vc_Sort::sortByKey since 4.4
-	 * @static
-	 *
 	 */
 	public static function sort( $a, $b ) {
+		// _deprecated_function( 'WPBMap::sort', '4.4 (will be removed in 4.10)', 'Vc_Sort class, :sortByKey' );
 		$a_weight = isset( $a['weight'] ) ? (int) $a['weight'] : 0;
 		$b_weight = isset( $b['weight'] ) ? (int) $b['weight'] : 0;
-		if ( $a_weight === $b_weight ) {
-			// @codingStandardsIgnoreLine
-			$cmpa = array_search( $a, (array) self::$user_sorted_sc, true );
-			// @codingStandardsIgnoreLine
-			$cmpb = array_search( $b, (array) self::$user_sorted_sc, true );
+		if ( $a_weight == $b_weight ) {
+			$cmpa = array_search( $a, (array) self::$user_sorted_sc );
+			$cmpb = array_search( $b, (array) self::$user_sorted_sc );
 
 			return ( $cmpa > $cmpb ) ? 1 : - 1;
 		}
@@ -838,10 +700,6 @@ class WPBMap {
 		return ( $a_weight < $b_weight ) ? 1 : - 1;
 	}
 
-	/**
-	 * @param $shortcodes
-	 * @return array
-	 */
 	public static function collectCategories( &$shortcodes ) {
 		$categories_list = array();
 		$deprecated = 'deprecated';
@@ -856,16 +714,15 @@ class WPBMap {
 					$categories = $values['category'];
 					if ( is_array( $categories ) && ! empty( $categories ) ) {
 						foreach ( $categories as $c ) {
-							if ( false === array_search( $c, $categories_list, true ) ) {
+							if ( false === array_search( $c, $categories_list ) ) {
 								$categories[] = $c;
 							}
 							$values['_category_ids'][] = md5( $c );
 						}
 					} else {
-						if ( false === array_search( $categories, $categories_list, true ) ) {
+						if ( false === array_search( $categories, $categories_list ) ) {
 							$categories_list[] = $categories;
 						}
-						/** @var string $categories */
 						$values['_category_ids'][] = md5( $categories );
 					}
 				}
@@ -882,38 +739,15 @@ class WPBMap {
 	/**
 	 * Process files/functions for lean mapping settings
 	 *
+	 * @since 4.9
+	 *
 	 * @param $tag
 	 *
-	 * @return array|null
-	 * @throws \Exception
-	 * @since 4.9
+	 * @return bool
 	 */
 	public static function setElementSettings( $tag ) {
-		$currentScope = self::getScope();
-		if ( 'default' !== $currentScope ) {
-			if ( isset( self::$scopes[ $currentScope ], self::$scopes[ $currentScope ][ $tag ] ) && ! in_array( $tag, self::$removedElements, true ) ) {
-				if ( isset( self::$init_elements_scoped[ $currentScope ], self::$init_elements_scoped[ $currentScope ][ $tag ] ) && ! empty( self::$init_elements_scoped[ $currentScope ][ $tag ] ) ) {
-					return self::$scopes[ $currentScope ][ $tag ];
-				}
-
-				$settings = self::$scopes[ $currentScope ][ $tag ];
-				if ( isset( $settings['__vc_settings_function'] ) ) {
-					self::$scopes[ $currentScope ][ $tag ] = call_user_func( $settings['__vc_settings_function'], $tag );
-				} elseif ( isset( $settings['__vc_settings_file'] ) ) {
-					self::$scopes[ $currentScope ][ $tag ] = include $settings['__vc_settings_file'];
-				}
-				self::$scopes[ $currentScope ][ $tag ]['base'] = $tag;
-				self::$init_elements_scoped[ $currentScope ][ $tag ] = true;
-				vc_mapper()->callElementActivities( $tag );
-
-				return self::$scopes[ $currentScope ][ $tag ];
-			}
-		}
-		if ( ! isset( self::$sc[ $tag ] ) || in_array( $tag, self::$removedElements, true ) ) {
-			return null;
-		}
-		if ( isset( self::$init_elements[ $tag ] ) && self::$init_elements[ $tag ] ) {
-			return self::$sc[ $tag ];
+		if ( ! isset( self::$sc[ $tag ] ) ) {
+			return false;
 		}
 		$settings = self::$sc[ $tag ];
 		if ( isset( $settings['__vc_settings_function'] ) ) {
@@ -921,12 +755,9 @@ class WPBMap {
 		} elseif ( isset( $settings['__vc_settings_file'] ) ) {
 			self::$sc[ $tag ] = include $settings['__vc_settings_file'];
 		}
-		self::$sc[ $tag ] = apply_filters( 'vc_element_settings_filter', self::$sc[ $tag ], $tag );
 		self::$sc[ $tag ]['base'] = $tag;
 		self::$init_elements[ $tag ] = true;
 		vc_mapper()->callElementActivities( $tag );
-
-		return self::$sc[ $tag ];
 	}
 
 	/**
@@ -936,40 +767,9 @@ class WPBMap {
 	 */
 	public static function addAllMappedShortcodes() {
 		foreach ( self::$sc as $tag => $settings ) {
-			if ( ! in_array( $tag, self::$removedElements, true ) && ! shortcode_exists( $tag ) ) {
+			if ( ! shortcode_exists( $tag ) ) {
 				add_shortcode( $tag, 'vc_do_shortcode' );
 			}
 		}
-
-		// Map also custom scopes
-		foreach ( self::$scopes as $scopeName => $scopeElements ) {
-			foreach ( $scopeElements as $tag => $settings ) {
-				if ( ! in_array( $tag, self::$removedElements, true ) && ! shortcode_exists( $tag ) ) {
-					add_shortcode( $tag, 'vc_do_shortcode' );
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param string $scope
-	 */
-	public static function setScope( $scope = 'default' ) {
-		if ( ! isset( self::$scopes[ $scope ] ) ) {
-			self::$scopes[ $scope ] = array();
-			self::$init_elements_scoped[ $scope ] = array();
-		}
-		self::$scope = $scope;
-	}
-
-	public static function resetScope() {
-		self::$scope = 'default';
-	}
-
-	/**
-	 * @return string
-	 */
-	public static function getScope() {
-		return self::$scope;
 	}
 }

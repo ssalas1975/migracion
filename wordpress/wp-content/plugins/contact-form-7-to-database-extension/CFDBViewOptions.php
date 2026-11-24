@@ -88,13 +88,13 @@ class CFDBViewOptions extends CFDBView {
                     <?php
                     $filter = function ($name) {
                         return in_array($name, array(
-                                'HideAdminPanelFromNonAdmins', 'CanSeeSubmitDataViaShortcode', 'CanSeeSubmitData', 'CanChangeSubmitData',
-                                'FunctionsInShortCodes', 'AllowRSS'));
+                                'CanSeeSubmitData', 'CanSeeSubmitDataViaShortcode', 'CanChangeSubmitData',
+                                'FunctionsInShortCodes', 'HideAdminPanelFromNonAdmins', 'AllowRSS'));
                     };
                     $this->outputSettings($filter, $plugin);
                     ?>
                     <p>
-                        <a target="_blank" href="http://cfdbplugin.com/?page_id=625" style="font-weight: bold"><?php _e('Notes on security settings', 'contact-form-7-to-database-extension'); ?></a>
+                        <a target="_blank" href="http://cfdbplugin.com/?page_id=625" style="font-weight: bold">Notes on security settings</a>
                     </p>
                 </div>
                 <div id="saving">

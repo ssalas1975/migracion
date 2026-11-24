@@ -4,10 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPBakery WPBakery Page Builder shortcodes
+ * WPBakery Visual Composer shortcodes
  *
- * @package WPBakeryPageBuilder
+ * @package WPBakeryVisualComposer
  *
  */
-class WPBakeryShortCode_Vc_Custom_Field extends WPBakeryShortCode {
+class WPBakeryShortCode_VC_Custom_Field extends WPBakeryShortCode {
 }

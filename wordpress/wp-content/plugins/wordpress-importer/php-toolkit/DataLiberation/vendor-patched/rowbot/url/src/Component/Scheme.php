@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component;
+namespace Rowbot\URL\Component;
 
 use function array_key_exists;
 

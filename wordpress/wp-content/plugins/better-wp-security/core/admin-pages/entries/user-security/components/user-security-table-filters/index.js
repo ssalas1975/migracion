@@ -13,7 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import {
 	Button,

@@ -1,4 +1,4 @@
-<?php if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 
 $options = array(
 
@@ -43,6 +43,17 @@ $options = array(
 				'set' => 'jevelin-icons',
 			),
 
+			'alignment' => array(
+				'label' => esc_html__('Alignment', 'jevelin'),
+				'desc' => esc_html__( 'Choose message information alignment', 'jevelin' ),
+				'type'  => 'select',
+				'value' => 'left',
+				'choices' => array(
+					'left' => esc_html__( 'Left', 'jevelin' ),
+					'center' => esc_html__( 'Center', 'jevelin' ),
+				)
+			),
+
 			'close' => array(
 				'type'  => 'switch',
 				'label'   => esc_html__( 'Closable', 'jevelin' ),
@@ -57,18 +68,7 @@ $options = array(
 				),
 				'value' => true
 			),
-
-			'alignment' => array(
-				'label' => esc_html__('Alignment', 'jevelin'),
-				'desc' => esc_html__( 'Choose message information alignment', 'jevelin' ),
-				'type'  => 'select',
-				'value' => 'left',
-				'choices' => array(
-					'left' => esc_html__( 'Left', 'jevelin' ),
-					'center' => esc_html__( 'Center', 'jevelin' ),
-				)
-			),
-
+			
 		),
 	),
 

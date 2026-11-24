@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { createSlotFill } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Button, SurfaceVariant, Text, TextSize } from '@ithemes/ui';
 

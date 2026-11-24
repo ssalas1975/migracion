@@ -7,7 +7,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { VisuallyHidden } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text } from '@ithemes/ui';
 

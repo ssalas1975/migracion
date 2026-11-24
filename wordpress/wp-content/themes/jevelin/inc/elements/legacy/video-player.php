@@ -2,7 +2,7 @@
 class vcj_video_player extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_video_player', array( $this, '_html' ) );
     }
 
@@ -82,6 +82,21 @@ class vcj_video_player extends WPBakeryShortCode {
     ),
     5 => 
     array (
+      'param_name' => 'image_size',
+      'heading' => 'Placeholder Size',
+      'description' => 'Select uploaded placeholder image size',
+      'value' => 
+      array (
+        'Large' => 'large',
+        'Full' => 'full',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'large',
+      'group' => '',
+    ),
+    6 => 
+    array (
       'param_name' => 'placeholder_icon',
       'heading' => 'Placholder Icon',
       'description' => 'Enable or disable placeholder icon when placholder image is selected',
@@ -95,7 +110,7 @@ class vcj_video_player extends WPBakeryShortCode {
       'std' => 'on',
       'group' => '',
     ),
-    6 => 
+    7 => 
     array (
       'param_name' => 'placeholder_icon_style',
       'heading' => 'Placholder Icon Style',
@@ -110,7 +125,7 @@ class vcj_video_player extends WPBakeryShortCode {
       'std' => 'style1',
       'group' => '',
     ),
-    7 => 
+    8 => 
     array (
       'param_name' => 'custom_class',
       'heading' => 'Class Name',
@@ -129,8 +144,9 @@ class vcj_video_player extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/video-player/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/video-player/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/video-player/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/video-player/static.php';
         if( function_exists( 'jevelin_shortcode_video_player_css' ) ) :
             jevelin_shortcode_video_player_css( $atts, $id_rand );
         endif;

@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../font/fontawesome-webfont.eot?v=4.3.0');
+    src: url('../font/fontawesome-webfont.eot?#iefix&v=4.3.0') format('embedded-opentype'), url('../font/fontawesome-webfont.woff2?v=4.3.0') format('woff2'), url('../font/fontawesome-webfont.woff?v=4.3.0') format('woff'), url('../font/fontawesome-webfont.ttf?v=4.3.0') format('truetype'), url('../font/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal}
+
+@font-face {
+    font-family: 'Lato';
+    src: url('../font/Lato-Regular.eot'); /* IE9 Compat Modes */
+    src: url('../font/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../font/Lato-Regular.woff') format('woff'), /* Modern Browsers */
+         url('../font/Lato-Regular.ttf') format('truetype'); 
+    font-style: normal;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+}
+
+
+@font-face {
+    font-family: 'Iconos';
+    src: url('../font/iconos.eot?v=4.2.0');
+    src: url('../font/iconos.eot?#iefix&v=4.2.0') format('embedded-opentype'), url('../font/iconos.svg?v=4.2.0') format('svg'), url('../font/iconos.ttf?v=4.2.0') format('truetype'), url('../font/iconos.woff?v=4.2.0') format('woff');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family:'scritta';
+    src: url('../font/segoe-print.eot');
+    src: url('../font/segoe-print.eot') format('embedded-opentype'),
+         url('../font/segoe-print.woff') format('woff'),
+         url('../font/segoe-print.ttf') format('truetype'),
+         url('../font/segoe-print.svg#segoe-printRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* TipografÃ­a logotipo ABC */
+@font-face{font-family:'abcnormal';src:url('../font/abc.eot');src:url('../font/abc.eot?#iefix') format('embedded-opentype'),url('../font/abc.svg#abcnormal') format('svg'),url('../font/abc.ttf') format('truetype'),url('../font/abc.woff') format('woff');font-weight:normal;font-style:normal}
+
+/* TipografÃ­Â­a ABC Display */
+@font-face{font-family:'ABC-display';src:url('../font/abc-display-regular.eot');src:url('../font/abc-display-regular.eot?#iefix') format('embedded-opentype'),url('../font/abc-display-regular.woff') format('woff'),url('../font/abc-display-regular.ttf') format('truetype'),url('../font/abc-display-regular.svg#abc-display-regular') format('svg');font-weight:400;font-style:normal;font-stretch:normal;unicode-range:U+0020-25CA}
+
+@font-face{font-family:'ABC-display';src:url('../font/abc-display-italic.eot');src:url('../font/abc-display-italic.eot?#iefix') format('embedded-opentype'),url('../font/abc-display-italic.woff') format('woff'),url('../font/abc-display-italic.ttf') format('truetype'),url('../font/abc-display-italic.svg#abc-display-italic') format('svg');font-weight:400;font-style:italic;font-stretch:normal;unicode-range:U+0020-25CA}
+
+@font-face{font-family:'ABC-display-light';src:url('../font/abc-display-light.eot');src:url('../font/abc-display-light.eot?#iefix') format('embedded-opentype'),url('../font/abc-display-light.woff') format('woff'),url('../font/abc-display-light.ttf') format('truetype'),url('../font/abc-display-light.svg#abc-display-light') format('svg');font-weight:100;font-style:normal;font-stretch:normal;unicode-range:U+0020-25CA}
+
+/* TipografÃ­a Open Sans */
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../font/OpenSans-Regular-webfont.eot');
+    src: url('../font/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/OpenSans-Regular-webfont.woff') format('woff'),
+         url('../font/OpenSans-Regular-webfont.ttf') format('truetype'),
+         url('../font/OpenSans-Regular-webfont.svg#open_sansregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face{
+
+    font-family: 'Open Sans Bold';
+    src: url('../font/OpenSans-Bold-webfont.eot');
+    src: url('../font/OpenSans-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/OpenSans-Bold-webfont.woff') format('woff'),
+         url('../font/OpenSans-Bold-webfont.ttf') format('truetype'),
+         url('../font/OpenSans-Bold-webfont.svg#open_sansbold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+

@@ -1,9 +1,9 @@
 <?php
 
-namespace VendorPrefix\Rowbot\URL\Tests\WhatWg;
+namespace Rowbot\URL\Tests\WhatWg;
 
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\URL;
+use Rowbot\URL\URL;
 
 use function json_encode;
 use function str_replace;

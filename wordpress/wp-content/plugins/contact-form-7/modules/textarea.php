@@ -1,11 +1,7 @@
 <?php
 /**
- * Textarea
- *
- * @link https://contactform7.com/text-fields/
- */
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+** A base module for [textarea] and [textarea*]
+**/
 
 /* form_tag handler */
 
@@ -103,7 +99,7 @@ function wpcf7_swv_add_textarea_rules( $schema, $contact_form ) {
 
 	foreach ( $tags as $tag ) {
 		if ( $tag->is_required() ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'required', array(
 					'field' => $tag->name,
 					'error' => wpcf7_get_message( 'invalid_required' ),
@@ -112,7 +108,7 @@ function wpcf7_swv_add_textarea_rules( $schema, $contact_form ) {
 		}
 
 		if ( $minlength = $tag->get_minlength_option() ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'minlength', array(
 					'field' => $tag->name,
 					'threshold' => absint( $minlength ),
@@ -122,7 +118,7 @@ function wpcf7_swv_add_textarea_rules( $schema, $contact_form ) {
 		}
 
 		if ( $maxlength = $tag->get_maxlength_option( '2000' ) ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'maxlength', array(
 					'field' => $tag->name,
 					'threshold' => absint( $maxlength ),
@@ -153,11 +149,7 @@ function wpcf7_tag_generator_textarea( $contact_form, $options ) {
 		'textarea' => array(
 			'display_name' => __( 'Text area', 'contact-form-7' ),
 			'heading' => __( 'Text area form-tag generator', 'contact-form-7' ),
-			'description' => sprintf(
-				/* translators: %s: URL to text input area doc */
-				__( 'Generates a form-tag for a <a href="%s">multi-line plain text input area</a>.', 'contact-form-7' ),
-				'https://contactform7.com/text-fields/'
-			),
+			'description' => __( 'Generates a form-tag for a <a href="https://contactform7.com/text-fields/">multi-line plain text input area</a>.', 'contact-form-7' ),
 		),
 	);
 

@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* WooCommerce Recent Product AJAX HTML
 /*-----------------------------------------------------------------------------------*/
@@ -40,9 +40,9 @@ endif;
 			data-id="woocommerce-page-list">
 				<?php
 					if( $pagination_type == 'button' ) :
-						esc_html_e( 'Load more', 'gillion' );
+						esc_html_e( 'Load more', 'jevelin' );
 					else :
-						esc_html_e( 'Loading', 'gillion' );
+						esc_html_e( 'Loading', 'jevelin' );
 					endif;
 				?>
 			</div>

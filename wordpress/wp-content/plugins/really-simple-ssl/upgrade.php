@@ -1,5 +1,7 @@
 <?php
 
+use RSSSL\Security\RSSSL_Htaccess_File_Manager;
+
 defined( 'ABSPATH' ) or die();
 
 add_action( 'plugins_loaded', 'rsssl_upgrade', 20 );
@@ -16,12 +18,6 @@ function rsssl_upgrade() {
 	if ( $prev_version && version_compare( $prev_version, rsssl_version, '==' ) ) {
 		return;
 	}
-
-	// The upgrade runs on plugins_loaded, before $wp_rewrite exists, so the REST API check would fatal on rest_url().
-	if ( ! defined( 'RSSSL_SKIP_REST_API_ACCESSIBLE_CHECK' ) ) {
-		define( 'RSSSL_SKIP_REST_API_ACCESSIBLE_CHECK', true );
-	}
-
 	//dismiss notices that should be dismissed on plugin upgrade
 	if ( $prev_version && version_compare( $prev_version, rsssl_version, '!=' ) ) {
 		// $dismiss_options = RSSSL()->admin->get_notices_list(
@@ -37,8 +33,6 @@ function rsssl_upgrade() {
 		delete_transient( 'rsssl_plusone_count' );
 	}
 
-	rsssl_upgrade_migrate_htaccess_state( $prev_version );
-
 	if ( $prev_version && version_compare( $prev_version, '5.1.3', '<=' ) ) {
 		if ( get_option( 'rsssl_disable_ocsp' ) ) {
 			$options                 = get_option( 'rsssl_options_lets-encrypt' );
@@ -49,8 +43,23 @@ function rsssl_upgrade() {
 	}
 
 	if ( $prev_version && version_compare( $prev_version, '5.3.0', '<=' ) ) {
-		// The centralized root writer now clears legacy redirect markers in one guarded write.
-		rsssl_request_managed_htaccess_rebuild();
+		$fileManager = RSSSL_Htaccess_File_Manager::get_instance();
+		if ( $fileManager->validate_htaccess_file_path() ) {
+			$htaccess =$fileManager->get_htaccess_content();
+
+			// Safely match the legacy pattern: rlrssslReallySimpleSSL rsssl_version[...]
+			$pattern = '/rlrssslReallySimpleSSL\s+rsssl_version\[[^]]+]/';
+			$replacement = 'Really Simple Security Redirect ' . rsssl_version;
+
+			$updated = preg_replace( $pattern, $replacement, $htaccess );
+			$updated = str_replace( 'rlrssslReallySimpleSSL', 'Really Simple Security Redirect', $updated );
+
+			// Only write if the updated content differs from the current content and is not empty.
+			if ( $updated !== $htaccess && ! empty( trim( $updated ) ) ) {
+				// Use an exclusive lock when writing to avoid race conditions with other writers.
+				file_put_contents( $fileManager->htaccess_file_path, $updated, LOCK_EX );
+			}
+		}
 	}
 
 	if ( $prev_version && version_compare( $prev_version, '6.0.0', '<' ) ) {
@@ -161,8 +170,8 @@ function rsssl_upgrade() {
 		}
 	}
 
-	#on upgrade from a version before 6.0.10 only, give administrators the manage_security capability
-	if ( $prev_version && version_compare( $prev_version, '6.0.10', '<' ) ) {
+	#ensure administrators have the manage_security capability
+	if ( version_compare( $prev_version, '6.0.10', '<' ) ) {
 		rsssl_add_manage_security_capability();
 	}
 
@@ -188,7 +197,7 @@ function rsssl_upgrade() {
 	}
 
 	if ( $prev_version && version_compare( $prev_version, '7.1.0', '<' ) ) {
-		rsssl_request_managed_rule_rebuild();
+		do_action( 'rsssl_update_rules' );
 	}
 
 	// Update the config to auto prepend
@@ -197,7 +206,7 @@ function rsssl_upgrade() {
 	}
 	//free
 	if ( $prev_version && version_compare( $prev_version, '8.1.2', '<' ) ) {
-		rsssl_request_managed_rule_rebuild();
+		do_action('rsssl_update_rules');
 	}
 
 	if ( $prev_version && version_compare( $prev_version, '8.3.0', '<' ) ) {
@@ -230,9 +239,8 @@ function rsssl_upgrade() {
 	}
 
 	if ( $prev_version && version_compare( $prev_version, '9.1.1', '<' ) ) {
-		rsssl_request_managed_rule_rebuild();
+		do_action('rsssl_update_rules');
 	}
-
     if ( $prev_version && version_compare( $prev_version, '9.1.1.1', '<=' ) ) {
         update_option('rsssl_reset_fix', true, false);
     }
@@ -240,54 +248,55 @@ function rsssl_upgrade() {
 	// Fetch Google crawler IP's when Geo Block is enabled
 	if ( $prev_version && version_compare( $prev_version, '9.3.6', '<=' ) ) {
 		if ( class_exists( '\RSSSL\Pro\Security\WordPress\Rsssl_Geo_Block' ) ) {
+			// Trigger action to update rules
+			do_action( 'rsssl_update_rules' );
 			$geo_block = \RSSSL\Pro\Security\WordPress\Rsssl_Geo_Block::get_instance();
 			$geo_block->fetch_google_crawler_ips();
 		}
 	}
 
+	// Upgrade .htaccess rules for sites using LiteSpeed cache
 	if ( $prev_version && version_compare( $prev_version, '9.4.2.1', '<=' ) ) {
-		// Delete the ajax fallback option as it is no longer used.
-		delete_option('rsssl_ajax_fallback_active');
-
-		// Rebuild managed `.htaccess` rules after the LiteSpeed-specific blocks changed.
+		// Check for LiteSpeed Cache plugin
 		if ( defined( 'LSCWP_V' ) && LSCWP_V ) {
-			rsssl_request_managed_htaccess_rebuild();
+			do_action('rsssl_update_rules');
 		}
 	}
 
-	// Rebuild root rules so the writer can drop the old no-index marker name.
-	if ( $prev_version && version_compare( $prev_version, '9.5.3.1', '<=' ) ) {
-		rsssl_request_managed_htaccess_rebuild();
+	// Delete the ajax fallback option as it is no longer used.
+	if ( $prev_version && version_compare( $prev_version, '9.4.2.1', '<=' ) ) {
+		delete_option('rsssl_ajax_fallback_active');
 	}
 
-	// Rewrite uploads rules so older syntax does not trigger Apache 2.4 compatibility failures.
+	// Upgrade .htaccess rules for sites using LiteSpeed cache
+	if ( $prev_version && version_compare( $prev_version, '9.4.2.1', '<=' ) ) {
+		// Check for LiteSpeed Cache plugin
+		if ( defined( 'LSCWP_V' ) && LSCWP_V ) {
+			do_action('rsssl_update_rules');
+		}
+	}
+
+	// Clean up old "No Index" marker and replace with clearer
+	// "Disable directory indexing" marker
+	if ( $prev_version && version_compare( $prev_version, '9.5.3.1', '<=' ) ) {
+		$fileManager = RSSSL_Htaccess_File_Manager::get_instance();
+		if ( $fileManager->validate_htaccess_file_path() ) {
+			// Remove the old "No Index" marker if it exists
+			$fileManager->clear_legacy_rule( 'Really Simple Security No Index' );
+			// If the disable_indexing option is enabled, the new marker will be
+			// added automatically when settings are saved or rules are updated
+			if ( rsssl_get_option( 'disable_indexing', false ) ) {
+				do_action('rsssl_update_rules');
+			}
+		}
+	}
+
+	// Upgrade uploads .htaccess to use IfModule syntax for Apache 2.2/2.4 compatibility.
+	// Fixes 500 errors on servers without mod_access_compat (Apache 2.4+ default).
 	if ( $prev_version && version_compare( $prev_version, '9.5.5', '<=' ) ) {
 		if ( rsssl_get_option( 'block_code_execution_uploads', false ) ) {
-			rsssl_request_managed_htaccess_rebuild();
+			rsssl_handle_uploads_htaccess();
 		}
-	}
-
-	if ($prev_version && version_compare($prev_version, '9.5.11', '<=')) {
-		rsssl_upgrade_migrate_cache_entry('rsssl_transients', 'rsssl_pro_license_status', 'license', 'pro_license_status');
-		rsssl_upgrade_migrate_cache_entry('rsssl_transients', 'detected_headers', 'admin', 'detected_headers', false, get_current_blog_id());
-		rsssl_upgrade_migrate_cache_entry('rsssl_license_cache', 'rsssl_pro_license_status', 'license', 'pro_license_status');
-		rsssl_upgrade_migrate_cache_entry('rsssl_admin_cache', 'detected_headers', 'admin', 'detected_headers', true, get_current_blog_id());
-		rsssl_upgrade_delete_legacy_cache_option('rsssl_license_cache');
-		rsssl_upgrade_delete_legacy_cache_option('rsssl_admin_cache');
-	}
-
-	// Migrate vulnerabilities option to the standard prefix so cleanup on uninstall removes it.
-	if ( $prev_version && version_compare( $prev_version, '9.6.0', '<=' ) ) {
-		$vulnerabilities = get_option( 'rss_vulnerabilities' );
-		if ( false !== $vulnerabilities ) {
-			update_option( 'rsssl_vulnerabilities', $vulnerabilities, false );
-			delete_option( 'rss_vulnerabilities' );
-		}
-	}
-
-	// Remove the 404 cache written by older versions, which could grow without bound. The interceptor rebuilds it bounded.
-	if ( $prev_version && version_compare( $prev_version, '9.8.2', '<=' ) ) {
-		delete_option( 'rsssl_404_cache' );
 	}
 
 	//don't clear on each update.

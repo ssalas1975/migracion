@@ -1,11 +1,8 @@
 <?php
 /**
- * Date field
- *
- * @link https://contactform7.com/date-field/
- */
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+** A base module for the following types of tags:
+** 	[date] and [date*]		# Date
+**/
 
 /* form_tag handler */
 
@@ -109,7 +106,7 @@ function wpcf7_swv_add_date_rules( $schema, $contact_form ) {
 
 	foreach ( $tags as $tag ) {
 		if ( $tag->is_required() ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'required', array(
 					'field' => $tag->name,
 					'error' => wpcf7_get_message( 'invalid_required' ),
@@ -117,7 +114,7 @@ function wpcf7_swv_add_date_rules( $schema, $contact_form ) {
 			);
 		}
 
-		$schema->addRule(
+		$schema->add_rule(
 			wpcf7_swv_create_rule( 'date', array(
 				'field' => $tag->name,
 				'error' => wpcf7_get_message( 'invalid_date' ),
@@ -128,7 +125,7 @@ function wpcf7_swv_add_date_rules( $schema, $contact_form ) {
 		$max = $tag->get_date_option( 'max' );
 
 		if ( false !== $min ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'mindate', array(
 					'field' => $tag->name,
 					'threshold' => $min,
@@ -138,7 +135,7 @@ function wpcf7_swv_add_date_rules( $schema, $contact_form ) {
 		}
 
 		if ( false !== $max ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'maxdate', array(
 					'field' => $tag->name,
 					'threshold' => $max,
@@ -192,11 +189,7 @@ function wpcf7_tag_generator_date( $contact_form, $options ) {
 		'date' => array(
 			'display_name' => __( 'Date field', 'contact-form-7' ),
 			'heading' => __( 'Date field form-tag generator', 'contact-form-7' ),
-			'description' => sprintf(
-				/* translators: %s: URL to date input field doc */
-				__( 'Generates a form-tag for a <a href="%s">date input field</a>.', 'contact-form-7' ),
-				'https://contactform7.com/date-field/'
-			),
+			'description' => __( 'Generates a form-tag for a <a href="https://contactform7.com/date-field/">date input field</a>.', 'contact-form-7' ),
 		),
 	);
 

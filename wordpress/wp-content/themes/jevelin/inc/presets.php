@@ -1,5 +1,5 @@
 <?php
-if ( ! function_exists( 'jevelin_page_builder_predefined_templates_full' ) ) :
+if( !function_exists( 'jevelin_page_builder_predefined_templates_full' ) ) :
     add_filter(
         'fw_ext_builder:predefined_templates:page-builder:full',
         'jevelin_page_builder_predefined_templates_full'

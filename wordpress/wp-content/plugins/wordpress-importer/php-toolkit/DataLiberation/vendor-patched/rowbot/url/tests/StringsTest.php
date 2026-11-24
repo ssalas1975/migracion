@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Tests;
+namespace Rowbot\URL\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\String\Exception\RegexException;
-use VendorPrefix\Rowbot\URL\String\Exception\UndefinedIndexException;
-use VendorPrefix\Rowbot\URL\String\StringList;
-use VendorPrefix\Rowbot\URL\String\Utf8String;
+use Rowbot\URL\String\Exception\RegexException;
+use Rowbot\URL\String\Exception\UndefinedIndexException;
+use Rowbot\URL\String\StringList;
+use Rowbot\URL\String\Utf8String;
 use ValueError;
 
 class StringsTest extends TestCase {

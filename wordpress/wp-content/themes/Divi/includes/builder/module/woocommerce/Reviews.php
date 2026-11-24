@@ -13,8 +13,6 @@ if ( ! class_exists( 'ET_Builder_Module_Gallery' ) ) {
 	require_once ET_BUILDER_DIR_RESOLVED_PATH . '/module/Comments.php';
 }
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Class representing WooCommerce Reviews component.
  */
@@ -28,10 +26,9 @@ class ET_Builder_Module_Woocommerce_Reviews extends ET_Builder_Module_Comments {
 		parent::init();
 
 		// Define basic module information.
-		$this->name        = esc_html__( 'Woo Product Reviews', 'et_builder' );
-		$this->plural      = esc_html__( 'Woo Product Reviews', 'et_builder' );
-		$this->slug        = 'et_pb_wc_reviews';
-		$this->folder_name = 'et_pb_woo_modules';
+		$this->name   = esc_html__( 'Woo Reviews', 'et_builder' );
+		$this->plural = esc_html__( 'Woo Reviews', 'et_builder' );
+		$this->slug   = 'et_pb_wc_reviews';
 
 		// Modify toggle settings.
 		$this->settings_modal_toggles['general']['toggles']['main_content'] = array(
@@ -192,20 +189,6 @@ class ET_Builder_Module_Woocommerce_Reviews extends ET_Builder_Module_Comments {
 				),
 			)
 		);
-		$fields['show_rating']    = array(
-			'label'            => esc_html__( 'Show Rating', 'et_builder' ),
-			'type'             => 'yes_no_button',
-			'option_category'  => 'configuration',
-			'options'          => array(
-				'on'  => esc_html__( 'Yes', 'et_builder' ),
-				'off' => esc_html__( 'No', 'et_builder' ),
-			),
-			'default_on_front' => 'on',
-			'toggle_slug'      => 'elements',
-			'description'      => esc_html__( 'Turn rating on or off.', 'et_builder' ),
-			'mobile_options'   => true,
-			'hover'            => 'tabs',
-		);
 		$fields['__reviews']      = array(
 			'type'                => 'computed',
 			'computed_callback'   => array(
@@ -280,7 +263,7 @@ class ET_Builder_Module_Woocommerce_Reviews extends ET_Builder_Module_Comments {
 
 		$is_tb = et_builder_tb_enabled();
 
-		if ( $is_tb || is_et_pb_preview() ) {
+		if ( $is_tb ) {
 			global $product;
 
 			et_theme_builder_wc_set_global_objects();
@@ -294,7 +277,7 @@ class ET_Builder_Module_Woocommerce_Reviews extends ET_Builder_Module_Comments {
 
 		$reviews_markup = self::get_reviews_markup( $product, $args['header_level'], true );
 
-		if ( $is_tb || is_et_pb_preview() ) {
+		if ( $is_tb ) {
 			et_theme_builder_wc_reset_global_objects();
 		}
 

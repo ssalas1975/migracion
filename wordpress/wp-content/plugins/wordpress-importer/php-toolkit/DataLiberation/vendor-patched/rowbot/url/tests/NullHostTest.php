@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Tests;
+namespace Rowbot\URL\Tests;
 
 use PHPUnit\Framework\TestCase;
-use VendorPrefix\Rowbot\URL\Component\Host\NullHost;
-use VendorPrefix\Rowbot\URL\Component\Host\StringHost;
+use Rowbot\URL\Component\Host\NullHost;
+use Rowbot\URL\Component\Host\StringHost;
 
 class NullHostTest extends TestCase {
 	public function testNullHostSerializesToEmptyString(): void {

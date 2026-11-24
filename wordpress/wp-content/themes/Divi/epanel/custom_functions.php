@@ -25,13 +25,13 @@ function et_activate_features() {
 	}
 
 	/* activate shortcodes */
-	require_once get_template_directory() . '/epanel/shortcodes/shortcodes.php';
+	require_once TEMPLATEPATH . '/epanel/shortcodes/shortcodes.php';
 
 	/* activate page templates */
-	require_once get_template_directory() . '/includes/page_templates/page_templates.php';
+	require_once TEMPLATEPATH . '/includes/page_templates/page_templates.php';
 
 	/* import epanel settings */
-	require_once get_template_directory() . '/includes/import_settings.php';
+	require_once TEMPLATEPATH . '/includes/import_settings.php';
 }
 
 add_filter( 'widget_text', 'do_shortcode' );
@@ -187,25 +187,21 @@ function et_epanel_handle_custom_css_output( $css, $stylesheet ) {
 add_filter( 'wp_get_custom_css', 'et_epanel_handle_custom_css_output', 999, 2 );
 endif;
 
+/**
+ * Gets option value from the single theme option, stored as an array in the database
+ * if all options stored in one row.
+ * Stores the serialized array with theme options into the global variable on the first function run on the page.
+ *
+ * If options are stored as separate rows in database, it simply uses get_option() function.
+ *
+ * @param string $option_name Theme option name.
+ * @param string $default_value Default value that should be set if the theme option isn't set.
+ * @param string $used_for_object "Object" name that should be translated into corresponding "object" if WPML is activated.
+ * @return mixed Theme option value or false if not found.
+ */
 if ( ! function_exists( 'et_get_option' ) ) {
-	/**
-	 * Gets option value from the single theme option, stored as an array in the database
-	 * if all options stored in one row.
-	 * Stores the serialized array with theme options into the global variable on the first function run on the page.
-	 *
-	 * If options are stored as separate rows in database, it simply uses get_option() function.
-	 *
-	 * @param string $option_name Theme option name.
-	 * @param string $default_value Default value that should be set if the theme option isn't set.
-	 * @param string $used_for_object "Object" name that should be translated into corresponding "object" if WPML is activated.
-	 * @param bool   $force_default_value Is return provided default.
-	 * @param bool   $is_global_setting Is Global Setting.
-	 * @param string $global_setting_main_name Global Setting name.
-	 * @param string $global_setting_sub_name Global Setting sub name.
-	 * @param bool   $is_product_setting Product setting flag.
-	 * @return mixed Theme option value or false if not found.
-	 */
-	function et_get_option( $option_name, $default_value = '', $used_for_object = '', $force_default_value = false, $is_global_setting = false, $global_setting_main_name = '', $global_setting_sub_name = '', $is_product_setting = false ) {
+
+	function et_get_option( $option_name, $default_value = '', $used_for_object = '', $force_default_value = false, $is_global_setting = false, $global_setting_main_name = '', $global_setting_sub_name = '' ){
 		global $et_theme_options, $shortname;
 
 		$et_one_row_option_name = '';
@@ -218,11 +214,7 @@ if ( ! function_exists( 'et_get_option' ) ) {
 			if ( false !== $et_global_setting && isset( $et_global_setting[ $global_setting_sub_name ] ) ) {
 				$option_value = $et_global_setting[ $global_setting_sub_name ];
 			}
-		} elseif ( $is_product_setting ) {
-			$et_product_setting_name = 'et_' . $shortname . '_' . $option_name;
-
-			$option_value = $force_default_value ? get_option( $et_product_setting_name, $default_value ) : get_option( $et_product_setting_name );
-		} elseif ( et_options_stored_in_one_row() ) {
+		} else if ( et_options_stored_in_one_row() ) {
 			$et_theme_options_name = 'et_' . $shortname;
 
 			if ( ! isset( $et_theme_options ) || is_customize_preview() ) {
@@ -236,7 +228,7 @@ if ( ! function_exists( 'et_get_option' ) ) {
 		}
 
 		// option value might be equal to false, so check if the option is not set in the database
-		if ( et_options_stored_in_one_row() && ! $is_product_setting && ! isset( $et_theme_options[ $option_name ] ) && ( ! empty( $default_value ) || $force_default_value ) ) {
+		if ( et_options_stored_in_one_row() && ! isset( $et_theme_options[ $option_name ] ) && ( ! empty( $default_value ) || $force_default_value ) ) {
 			$option_value = $default_value;
 		}
 
@@ -253,20 +245,8 @@ if ( ! function_exists( 'et_get_option' ) ) {
 }
 
 if ( ! function_exists( 'et_update_option' ) ) {
-	/**
-	 * Update option value in theme option, stored as an array in the database
-	 * if all options stored in one row.
-	 *
-	 * If options are stored as separate rows in database, it simply uses update_option() function.
-	 *
-	 * @param string $option_name Theme option name.
-	 * @param string $new_value Theme option value.
-	 * @param bool   $is_new_global_setting Global setting flag.
-	 * @param string $global_setting_main_name Global setting name.
-	 * @param string $global_setting_sub_name Global setting sub name.
-	 * @param bool   $is_product_setting Product setting flag.
-	 */
-	function et_update_option( $option_name, $new_value, $is_new_global_setting = false, $global_setting_main_name = '', $global_setting_sub_name = '', $is_product_setting = false ) {
+
+	function et_update_option( $option_name, $new_value, $is_new_global_setting = false, $global_setting_main_name = '', $global_setting_sub_name = '' ){
 		global $et_theme_options, $shortname;
 
 		if ( $is_new_global_setting && '' !== $global_setting_main_name && '' !== $global_setting_sub_name ) {
@@ -282,18 +262,13 @@ if ( ! function_exists( 'et_update_option' ) ) {
 
 			update_option( $global_setting_main_name, $global_setting );
 
-		} elseif ( $is_product_setting ) {
-			$et_product_setting_name = 'et_' . $shortname . '_' . $option_name;
-
-			// Update option and disable autoload of this option.
-			update_option( $et_product_setting_name, $new_value, false );
-		} elseif ( et_options_stored_in_one_row() ) {
+		} else if ( et_options_stored_in_one_row() ) {
 			$et_theme_options_name = 'et_' . $shortname;
 
 			if ( ! isset( $et_theme_options ) || is_customize_preview() ) {
 				$et_theme_options = get_option( $et_theme_options_name );
 			}
-			$et_theme_options[ $option_name ] = $new_value;
+			$et_theme_options[$option_name] = $new_value;
 
 			update_option( $et_theme_options_name, $et_theme_options );
 
@@ -812,7 +787,7 @@ if ( ! function_exists( 'show_page_menu' ) ) {
 
 		//excluded pages
 		if ( $menupages = et_get_option( $shortname.'_menupages' ) ) {
-			$exclude_pages = is_array( $menupages ) ? implode( ',', $menupages ) : '';
+			$exclude_pages = implode( ",", $menupages );
 		}
 
 		//dropdown for pages
@@ -850,7 +825,7 @@ if ( ! function_exists( 'show_categories_menu' ) ) {
 
 		//excluded categories
 		if ( $menucats = et_get_option( $shortname.'_menucats' ) ) {
-			$exclude_cats = implode( ',', (array) $menucats );
+			$exclude_cats = implode( ",", $menucats );
 		}
 
 		//hide empty categories
@@ -1123,7 +1098,7 @@ if ( ! function_exists( 'elegant_titles_filter' ) ) {
 		#if the title is being displayed on the homepage
 		if ( ( is_home() || is_front_page() ) && ! elegant_is_blog_posts_page() ) {
 			if ( 'on' === et_get_option( $shortname . '_seo_home_title' ) ) {
-				$custom_title = strval( et_get_option( $shortname . '_seo_home_titletext' ) );
+				$custom_title = et_get_option( $shortname . '_seo_home_titletext' );
 			} else {
 				$seo_home_type = et_get_option( $shortname . '_seo_home_type' );
 				$seo_home_separate = et_get_option( $shortname . '_seo_home_separate' );
@@ -1143,7 +1118,7 @@ if ( ! function_exists( 'elegant_titles_filter' ) ) {
 			global $wp_query;
 			$postid = elegant_is_blog_posts_page() ? intval( get_option( 'page_for_posts' ) ) : $wp_query->post->ID;
 			$key = et_get_option( $shortname . '_seo_single_field_title' );
-			$exists3 = $key ? get_post_meta( $postid, $key, true ) : '';
+			$exists3 = get_post_meta( $postid, '' . $key . '', true );
 			if ( 'on' === et_get_option( $shortname . '_seo_single_title' ) && '' !== $exists3 ) {
 				$custom_title = $exists3;
 			} else {
@@ -1247,8 +1222,9 @@ if ( ! function_exists( 'elegant_description' ) ) {
 				$postid = elegant_is_blog_posts_page() ? intval( get_option( 'page_for_posts' ) ) : $wp_query->post->ID;
 			}
 
-			$key2   = et_get_option( $shortname . '_seo_single_field_description' );
-			$exists = ( $postid && $key2 ) ? get_post_meta( $postid, $key2, true ) : '';
+			$key2 = et_get_option( $shortname.'_seo_single_field_description' );
+
+			if ( isset( $postid ) ) $exists = get_post_meta( $postid, ''.$key2.'', true );
 
 			if ( $exists !== '' ) {
 				echo '<meta name="description" content="' . esc_attr( $exists ) . '" />';
@@ -1321,10 +1297,11 @@ if ( ! function_exists( 'elegant_keywords' ) ) {
 				$postid = elegant_is_blog_posts_page() ? intval( get_option( 'page_for_posts' ) ) : $wp_query->post->ID;
 			}
 
-			$key3    = et_get_option( $shortname . '_seo_single_field_keywords' );
-			$exists4 = ( $postid && $key3 ) ? get_post_meta( $postid, $key3, true ) : '';
+			$key3 = et_get_option( $shortname.'_seo_single_field_keywords' );
 
-			if ( '' !== $exists4 ) {
+			if (isset( $postid )) $exists4 = get_post_meta( $postid, ''.$key3.'', true );
+
+			if ( isset( $exists4 ) && $exists4 !== '' ) {
 				if ( is_single() || is_page() || elegant_is_blog_posts_page() ) echo '<meta name="keywords" content="' . esc_attr( $exists4 ) . '" />';
 			}
 		}
@@ -1336,11 +1313,6 @@ if ( ! function_exists( 'elegant_keywords' ) ) {
 if ( ! function_exists( 'elegant_canonical' ) ) {
 
 	function elegant_canonical() {
-		// Don't use ePanel SEO if 'rel_canonical' is registered for `wp_head`.
-		if ( has_action( 'embed_head', 'rel_canonical' ) && is_singular() ) {
-			return;
-		}
-
 		// Don't use ePanel SEO if a SEO plugin is active.
 		if ( et_is_seo_plugin_active() ) {
 			return;
@@ -1383,7 +1355,7 @@ function add_favicon(){
 
 	// If the `has_site_icon` function doesn't exist (ie we're on < WP 4.3) or if the site icon has not been set,
 	// and when we have a icon URL from theme option
-	if ( ( ! function_exists( 'has_site_icon' ) || ! has_site_icon() ) && ! empty( $favicon_url ) ) {
+	if ( ( ! function_exists( 'has_site_icon' ) || ! has_site_icon() ) && false !== $favicon_url && '' !== $favicon_url ) {
 		echo '<link rel="shortcut icon" href="' . esc_url( $favicon_url ) . '" />';
 	} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
 		et_update_option( $shortname . '_favicon', '' );
@@ -1405,7 +1377,7 @@ function et_create_images_temp_folder(){
 	if ( false !== $et_images_temp_folder ) return;
 
 	$uploads_dir = wp_upload_dir();
-	$destination_dir = ( false === $uploads_dir['error'] ) ? path_join( $uploads_dir['basedir'], 'et_temp' ) : '';
+	$destination_dir = ( false === $uploads_dir['error'] ) ? path_join( $uploads_dir['basedir'], 'et_temp' ) : null;
 
 	if ( ! wp_mkdir_p( $destination_dir ) ) update_option( 'et_images_temp_folder', '' );
 	else {

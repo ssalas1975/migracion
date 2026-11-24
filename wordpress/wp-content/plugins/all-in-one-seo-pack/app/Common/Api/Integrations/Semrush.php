@@ -29,7 +29,7 @@ class Semrush {
 		if ( empty( $keyphrase ) || empty( $database ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => 'Invalid keyword.'
+				'message' => 'Invalid keyphrase.'
 			], 400 );
 		}
 

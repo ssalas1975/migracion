@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace VendorPrefix\Brick\Math\Exception;
+namespace Brick\Math\Exception;
 
-use VendorPrefix\Brick\Math\BigInteger;
+use Brick\Math\BigInteger;
 
 /**
  * Exception thrown when an integer overflow occurs.

@@ -29,15 +29,12 @@ class ET_Builder_Google_Fonts_Feature extends ET_Builder_Global_Feature_Base {
 	 * @since 4.10.0
 	 */
 	public function __construct() {
-		// need to set this filter up front, bc as soon as the parent __construct
-		// is called then it will prime the cache so it needs
-		// this cache index filter to be setup right away.
-		add_filter( 'et_global_feature_cache_index_items', [ 'ET_Builder_Google_Fonts_Feature', 'cache_index_items' ], 10, 2 );
-
 		parent::__construct();
 
 		if ( self::enabled() ) {
 			self::setup_transient();
+
+			add_filter( 'et_global_feature_cache_index_items', [ 'ET_Builder_Google_Fonts_Feature', 'cache_index_items' ], 10, 2 );
 		}
 	}
 
@@ -107,42 +104,7 @@ class ET_Builder_Google_Fonts_Feature extends ET_Builder_Global_Feature_Base {
 		} else {
 			$option_state = et_get_option( $shortname . '_' . $sub_option, 'on' );
 		}
-		
-		/**
-		 * Filters the option state before it's returned.
-		 * Allows other plugins to enable or disable a Google Font feature from code.
-		 *
-		 * @since 4.19.1
-		 *
-		 * @param bool   $is_enabled Whether the sub option is enabled.
-		 * @param string $sub_option Google Fonts sub option.
-		 */
-		return apply_filters( 'et_builder_google_fonts_is_enabled', 'on' === $option_state, $sub_option );
-	}
-	
-	/**
-	 * Builds the full URL to the Google Font css file to load the fonts
-	 * provided by the parameter.
-	 *
-	 * @since 4.19.1
-	 *
-	 * @param array $google_fonts_url_args An array containing query-parameters.
-	 *
-	 * @return string The full URL to the Google Fonts resource.
-	 */
-	public function get_google_fonts_url( $google_fonts_url_args ) {
-		$url = add_query_arg( $google_fonts_url_args, 'https://fonts.googleapis.com/css' );
-		$url = esc_url_raw( $url );
-		
-		/**
-		 * Filters the URL of the requested Google Font CSS file.
-		 * Allows swapping Google Fonts with other font sources.
-		 *
-		 * @since 4.19.1
-		 *
-		 * @param string $url The URL to the Google Fonts CSS file to fetch.
-		 */
-		return apply_filters( 'et_builder_google_fonts_get_url', $url );		
+		return 'on' === $option_state;
 	}
 
 	/**
@@ -226,18 +188,8 @@ class ET_Builder_Google_Fonts_Feature extends ET_Builder_Global_Feature_Base {
 			$all_contents .= "\n\n" . $contents;
 		}
 
-		/**
-		 * Filter the unminified CSS file contents after loading it from Googles servers.
-		 *
-		 * @since 4.19.1
-		 *
-		 * @param string $all_contents The concatenated CSS files content that was fetched from Google.
-		 * @param string $url          The Google Fonts URL that was fetched.
-		 */
-		$all_contents = apply_filters( 'et_builder_google_fonts_fetch_content', $all_contents, $url );
-
 		$all_contents = self::minify( $all_contents );
-		
+
 		return $all_contents;
 	}
 
@@ -251,7 +203,6 @@ class ET_Builder_Google_Fonts_Feature extends ET_Builder_Global_Feature_Base {
 	 * @return string Minifed CSS data.
 	 */
 	public static function minify( $data ) {
-		$data = trim( $data );
 		$data = preg_replace( '/\n/smi', '', $data );
 		$data = preg_replace( '/\s\s/smi', '', $data );
 

@@ -2,7 +2,7 @@
 /**
  * Cookie condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -18,16 +18,14 @@ trait CookieCondition {
 	/**
 	 * Processes "Cookie" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition_settings Containing all settings of the condition.
 	 *
 	 * @return boolean Condition output.
 	 */
 	protected function _process_cookie_condition( $condition_settings ) {
-		// Checks for additional display rule for compatibility with Conditional Display older versions which didn't use `displayRule` key.
-		$legacy_display_rule    = isset( $condition_settings['cookieDisplay'] ) ? $condition_settings['cookieDisplay'] : 'cookieExists';
-		$display_rule           = isset( $condition_settings['displayRule'] ) ? $condition_settings['displayRule'] : $legacy_display_rule;
+		$display_rule           = isset( $condition_settings['cookieDisplay'] ) ? $condition_settings['cookieDisplay'] : 'cookieExists';
 		$cookie_name            = isset( $condition_settings['cookieName'] ) ? $condition_settings['cookieName'] : '';
 		$cookie_value           = isset( $condition_settings['cookieValue'] ) ? $condition_settings['cookieValue'] : '';
 		$is_cookie_set          = ( isset( $_COOKIE[ $cookie_name ] ) ) ? true : false;

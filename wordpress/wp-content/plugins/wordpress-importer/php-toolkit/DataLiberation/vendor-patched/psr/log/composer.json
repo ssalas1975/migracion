@@ -19,7 +19,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"VendorPrefix\\Psr\\Log\\": "src"
+			"Psr\\Log\\": "src"
 		}
 	},
 	"extra": {

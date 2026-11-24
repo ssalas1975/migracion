@@ -24,7 +24,7 @@ class Url_Prop_Type extends String_Prop_Type {
 			return true;
 		}
 
-		return false !== filter_var( $value, FILTER_VALIDATE_URL );
+		return (bool) wp_http_validate_url( $value );
 	}
 
 	protected function sanitize_value( $value ) {

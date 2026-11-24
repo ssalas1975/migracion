@@ -1,6 +1,6 @@
 export const PRIMARYS = Object.freeze( [
 	// solidWP brand chart colors
-	'#2060E0',
+	'#955DD6',
 	'#00BA37',
 	'#F86368',
 ] );

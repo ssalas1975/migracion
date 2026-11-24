@@ -10,11 +10,6 @@ namespace ReallySimplePlugins\RSS\Core\Services;
 class SettingsConfigService
 {
     /**
-     * @var array|null
-     */
-    private $fieldsById = null;
-
-    /**
      * Returns recommended settings. Also includes Pro features when enabled.
      * @param bool $includeProFeatures To add/exclude recommended pro settings
      */
@@ -48,7 +43,7 @@ class SettingsConfigService
         ];
 
         if ($includeProFeatures === false) {
-            return $this->applyCurrentFieldStateToItems($features);
+            return $features;
         }
 
         $proFeatures = [
@@ -63,15 +58,7 @@ class SettingsConfigService
                 'title' => esc_html__('Two-Factor Authentication', 'really-simple-ssl'),
                 'id' => 'two_fa',
                 'premium' => true,
-                'options' => [
-                    'login_protection_enabled',
-                    'enable_passkey_login',
-                    'two_fa_enabled_roles_totp',
-                ],
-                'option_values' => [
-                    'enable_passkey_login' => true,
-                    'two_fa_enabled_roles_totp' => ['administrator'],
-                ],
+                'options' => ['login_protection_enabled'],
                 'activated' => true,
             ],
             [
@@ -90,7 +77,7 @@ class SettingsConfigService
             ],
         ];
 
-        return $this->applyCurrentFieldStateToItems(array_merge($features, $proFeatures));
+        return array_merge($features, $proFeatures);
     }
 
     /**
@@ -126,7 +113,7 @@ class SettingsConfigService
      */
     public function getRecommendedProSettings(): array
     {
-        return $this->applyCurrentFieldStateToItems([
+        return [
             [
                 'title' => esc_html__('Firewall', 'really-simple-ssl'),
                 'id' => 'firewall',
@@ -138,16 +125,8 @@ class SettingsConfigService
                 'title' => esc_html__('Two-Factor Authentication', 'really-simple-ssl'),
                 'id' => 'two_fa',
                 'premium' => true,
-                'options' => [
-                    'login_protection_enabled',
-                    'enable_passkey_login',
-                    'two_fa_enabled_roles_totp',
-                ],
-                // TOTP onboarding depends on login protection, while the roles field needs an explicit default role.
-                'option_values' => [
-                    'enable_passkey_login' => true,
-                    'two_fa_enabled_roles_totp' => ['administrator'],
-                ],
+                'options' => ['two_fa_enabled_roles_totp'],
+                'value' => ['administrator'],
                 'activated' => true,
             ],
             [
@@ -165,17 +144,11 @@ class SettingsConfigService
                     'upgrade_insecure_requests',
                     'x_content_type_options',
                     'hsts',
-                    'x_xss_protection',
+                    ['x_xss_protection' => 'zero'],
                     'x_content_type_options',
-                    'x_frame_options',
-                    'referrer_policy',
-                    'csp_frame_ancestors',
-                ],
-                'option_values' => [
-                    'x_xss_protection' => 'zero',
-                    'x_frame_options' => 'SAMEORIGIN',
-                    'referrer_policy' => 'strict-origin-when-cross-origin',
-                    'csp_frame_ancestors' => 'self',
+                    ['x_frame_options' => 'SAMEORIGIN'],
+                    ['referrer_policy' => 'strict-origin-when-cross-origin'],
+                    ['csp_frame_ancestors' => 'self'],
                 ],
                 'activated' => true,
             ],
@@ -198,50 +171,6 @@ class SettingsConfigService
                 'options' => ['enforce_password_security_enabled', 'enable_hibp_check'],
                 'activated' => true,
             ],
-        ]);
-    }
-
-    /**
-     * Keep onboarding feature choices in sync with server-side field blockers.
-     */
-    private function applyCurrentFieldStateToItems(array $items): array
-    {
-        $fieldsById = $this->getFieldsById();
-
-        return array_map(function(array $item) use ($fieldsById): array {
-            foreach ($item['options'] ?? [] as $optionId) {
-                $field = $fieldsById[$optionId] ?? [];
-                if (empty($field['prerequisite_blocker'])) {
-                    continue;
-                }
-
-                $item['activated'] = false;
-                $item['disabled'] = true;
-
-                if (!empty($field['disabledTooltipText'])) {
-                    $item['description'] = $field['disabledTooltipText'];
-                }
-
-                break;
-            }
-
-            return $item;
-        }, $items);
-    }
-
-    private function getFieldsById(): array
-    {
-        if ($this->fieldsById !== null) {
-            return $this->fieldsById;
-        }
-
-        $this->fieldsById = [];
-        foreach (rsssl_fields(true) as $field) {
-            if (!empty($field['id'])) {
-                $this->fieldsById[$field['id']] = $field;
-            }
-        }
-
-        return $this->fieldsById;
+        ];
     }
 }

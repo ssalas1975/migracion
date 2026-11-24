@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component;
+namespace Rowbot\URL\Component;
 
 use Countable;
-use VendorPrefix\Rowbot\URL\URLRecord;
+use Rowbot\URL\URLRecord;
 
 interface PathInterface extends Countable {
 	public function first(): PathSegment;

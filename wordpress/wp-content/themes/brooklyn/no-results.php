@@ -21,11 +21,11 @@ $header_style = ot_get_option('ut_global_headline_style'); ?>
 
 		<?php elseif ( is_search() ) : ?>
 
-			<?php esc_html_e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'unitedthemes' ); ?>
+			<?php _e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'unitedthemes' ); ?>
 
 		<?php else : ?>
 
-			<?php esc_html_e( 'It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help.', 'unitedthemes' ); ?>
+			<?php _e( 'It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help.', 'unitedthemes' ); ?>
 
 		<?php endif; ?>
         </p>

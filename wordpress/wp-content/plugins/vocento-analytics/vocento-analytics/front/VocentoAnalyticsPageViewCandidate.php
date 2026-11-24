@@ -46,45 +46,9 @@ class VocentoAnalyticsPageViewCandidate
 
         return;
     }
-    
-    static function load_script_DTM_head()
-    {
-        $container = VocentoAnalyticsContainer::getFrontContainer();
-        $datapropertyid = $container->dtm->data["datapropertyid"];
-        if ($container->dtm->enable) {
-            $html = file_get_contents(getcwd() . '/wp-content/plugins/vocento-analytics/vocento-analytics/inc/dtm/header.html');
-            $html = str_replace("@datapropertyid@", $datapropertyid, $html); 
-            echo $html;
-        }
-
-
-
-    }
-
-    static function load_noscrip_Content()
-    {
-        $container = VocentoAnalyticsContainer::getFrontContainer();
-        $reporsuit = $container->dtm->data["reportsuit"];
-        $id = $container->dtm->data["id"];
-        
-        if ($container->dtm->enable) {
-            $html = file_get_contents(getcwd() . '/wp-content/plugins/vocento-analytics/vocento-analytics/inc/dtm/body.html');
-            $html = str_replace("@voces@", $reporsuit, $html);
-
-            switch_to_blog( get_current_blog_id() );
-            $html = str_replace("@number@", get_option('dtmid'), $html);
-            restore_current_blog();
-            
-            
-            $html = str_replace("@permalink@", get_permalink(), $html);
-            return $html;
-        }
-    }
 
 }
 
 
 add_action('init', array('VocentoAnalyticsPageViewCandidate', 'createPVC_rule'));
-add_filter( 'the_content', array('VocentoAnalyticsPageViewCandidate', 'load_noscrip_Content') );
-add_action('wp_head', array('VocentoAnalyticsPageViewCandidate', 'load_script_DTM_head') );
 add_action('parse_request', array('VocentoAnalyticsPageViewCandidate', 'parseRequest'));

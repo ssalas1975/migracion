@@ -2,38 +2,20 @@
 # This file is distributed under the same license as the Plugins - One Click Demo Import - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2025-09-11 18:50:01+0000\n"
+"PO-Revision-Date: 2021-07-13 12:07:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: GlotPress/4.0.3\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
 "Language: es\n"
 "Project-Id-Version: Plugins - One Click Demo Import - Stable (latest release)\n"
 
-#: inc/WPFormsImporter.php:74 inc/WPFormsImporter.php:94
-msgid "Importing WPForms"
-msgstr "Importando WPForms"
-
-#: inc/WPFormsImporter.php:72
-msgid "WPForms import finished successfully!"
-msgstr "¡La importación de WPForms ha finalizado correctamente!"
-
-#: inc/WPFormsImporter.php:60
-msgid "The WPForms plugin's version is not >= v1.8.6, so the WPForms import was skipped!"
-msgstr "La versión del plugin WPForms no es >= v1.8.6, por lo que se ha omitido la importación de WPForms."
-
-#: inc/WPFormsImporter.php:53
-msgid "The WPForms plugin is not activated, so the WPForms import was skipped!"
-msgstr "El plugin WPForms no está activado, por lo que se ha omitido la importación de WPForms."
-
 #. Author URI of the plugin
-#: one-click-demo-import.php
 msgid "https://ocdi.com"
 msgstr "https://ocdi.com"
 
 #. Author of the plugin
-#: one-click-demo-import.php
 msgid "OCDI"
 msgstr "OCDI"
 
@@ -392,112 +374,112 @@ msgid "All in One SEO"
 msgstr "All in One SEO"
 
 #: inc/PluginInstaller.php:86
-msgid "Join 6,000,000+ professionals who build smarter forms and surveys with WPForms."
-msgstr "Únete a más de 6.000.000 de profesionales que crean formularios y encuestas más inteligentes con WPForms."
+msgid "Join 4,000,000+ professionals who build smarter forms and surveys with WPForms."
+msgstr "Únete a más de 4.000.000 de profesionales que crean formularios y encuestas más inteligentes con WPForms."
 
 #: inc/PluginInstaller.php:85
 msgid "WPForms"
 msgstr "WPForms"
 
-#: inc/Helpers.php:602 inc/Helpers.php:603 inc/Helpers.php:604
-#: inc/Helpers.php:605
+#: inc/Helpers.php:568 inc/Helpers.php:569 inc/Helpers.php:570
+#: inc/Helpers.php:571
 msgid "not defined!"
 msgstr "¡no definido!"
 
 #. translators: %1$s - new line break, %2$s - the site URL, %3$s - the file
 #. path for content import, %4$s - the file path for widgets import, %5$s - the
 #. file path for widgets import, %6$s - the file path for redux import.
-#: inc/Helpers.php:599
+#: inc/Helpers.php:565
 msgid "Files info:%1$sSite URL = %2$s%1$sData file = %3$s%1$sWidget file = %4$s%1$sCustomizer file = %5$s%1$sRedux files:%1$s%6$s"
 msgstr "Información de archivos:%1$sURL del sitio = %2$s%1$sArchivo de datos = %3$s%1$sArchivo de widget = %4$s%1$sArchivo del personalizador = %5$s%1$sArchivos de Redux:%1$s %6$s"
 
 #. translators: %s - the max execution time.
-#: inc/Helpers.php:595
+#: inc/Helpers.php:561
 msgid "Initial max execution time = %s"
 msgstr "Tiempo de ejecución máximo inicial = %s"
 
-#: inc/Helpers.php:569
+#: inc/Helpers.php:535
 msgid "The import files were successfully uploaded!"
 msgstr "¡Los archivos de importación se subieron correctamente!"
 
 #. translators: %s - the error message.
-#: inc/Helpers.php:559
+#: inc/Helpers.php:525
 msgid "Redux file was not uploaded. Error: %s"
 msgstr "El archivo Redux no se subió. Error: %s"
 
-#: inc/Helpers.php:541
+#: inc/Helpers.php:507
 msgid "Missing Redux option name! Please also enter the Redux option name!"
 msgstr "Falta el nombre de la opción de Redux.  ¡Introduce también el nombre de la opción Redux!"
 
 #. translators: %s - the error message.
-#: inc/Helpers.php:528
+#: inc/Helpers.php:494
 msgid "Customizer file was not uploaded. Error: %s"
 msgstr "No se subió el archivo del personalizador.  Error: %s"
 
 #. translators: %s - the error message.
-#: inc/Helpers.php:511
+#: inc/Helpers.php:477
 msgid "Widget file was not uploaded. Error: %s"
 msgstr "El archivo de widget no se subió. Error: %s"
 
-#: inc/Helpers.php:498 inc/Helpers.php:515 inc/Helpers.php:532
-#: inc/Helpers.php:543 inc/Helpers.php:563 inc/Helpers.php:571
+#: inc/Helpers.php:464 inc/Helpers.php:481 inc/Helpers.php:498
+#: inc/Helpers.php:509 inc/Helpers.php:529 inc/Helpers.php:537
 msgid "Upload files"
 msgstr "Subir archivos"
 
 #. translators: %s - the error message.
-#: inc/Helpers.php:494
+#: inc/Helpers.php:460
 msgid "Content file was not uploaded. Error: %s"
 msgstr "El archivo de contenido no se subió. Error: %s"
 
-#: inc/Helpers.php:465
+#: inc/Helpers.php:431
 msgid "No file provided."
 msgstr "No se proporcionó ningún archivo."
 
 #. translators: %1$s - opening div and paragraph HTML tags, %2$s - closing div
 #. and paragraph HTML tags.
-#: inc/Helpers.php:421
+#: inc/Helpers.php:398
 msgid "%1$sYour user role isn't high enough. You don't have permission to import demo data.%2$s"
 msgstr "%1$sTu perfil de usuario no es lo suficientemente alto. No tienes permiso para importar datos de muestra.%2$s"
 
-#: inc/Helpers.php:387
+#: inc/Helpers.php:364
 msgid "One Click Demo Import - "
 msgstr "One Click Demo Import - "
 
-#: inc/Helpers.php:347
+#: inc/Helpers.php:324
 msgid "Your WordPress login credentials don't allow to use WP_Filesystem!"
 msgstr "¡Tus credenciales de acceso de WordPress no te permiten usar «WP_Filesystem»!"
 
-#: inc/Helpers.php:339
+#: inc/Helpers.php:316
 msgid "An error occurred while retrieving reading/writing permissions to your server (could not retrieve WP filesystem credentials)!"
 msgstr "¡Ha ocurrido un error al recuperar los permisos de lectura/escritura de tu servidor (no se han podido recuperar las credenciales del sistema de archivos WP)!"
 
 #. translators: %1$s and %2$s - strong HTML tags, %3$s - HTML link to a doc
 #. page.
-#: inc/Helpers.php:322
+#: inc/Helpers.php:299
 msgid "This WordPress page does not have %1$sdirect%2$s write file access. This plugin needs it in order to save the demo import xml file to the upload directory of your site. You can change this setting with these instructions: %3$s."
 msgstr "Esta página de WordPress no tiene acceso %1$sdirecto%2$s de escritura de archivos. Este plugin lo necesita para poder guardar el archivo XML de importación de la demostración en el directorio de subidas de tu sitio. Puedes cambiar este ajuste con estas instrucciones: %3$s."
 
 #. translators: %1$s - br HTML tag, %2$s - file path
-#: inc/Helpers.php:299
+#: inc/Helpers.php:276
 msgid "An error occurred while reading a file from your server! Tried reading file from path: %1$s%2$s."
 msgstr "¡Ha ocurrido un error al leer un archivo de tu servidor! Se ha intentado leer el archivo: %1$s%2$s."
 
 #. translators: %1$s - br HTML tag, %2$s - file path
-#: inc/Helpers.php:222 inc/Helpers.php:265
+#: inc/Helpers.php:199 inc/Helpers.php:242
 msgid "An error occurred while writing file to your server! Tried to write a file to: %1$s%2$s."
 msgstr "¡Ha ocurrido un error al escribir un archivo en tu servidor! Se ha intentado escribir un archivo en: %1$s%2$s."
 
 #. translators: %s - the name of the Redux option.
-#: inc/ReduxImporter.php:62
+#: inc/ReduxImporter.php:57
 msgid "The Redux option name: %s, was not found in this WP site, so it was not imported!"
 msgstr "¡La opción Redux %s no se ha encontrado en este sitio WP, por lo que no se ha importado!"
 
 #. translators: %s - the name of the Redux option.
-#: inc/ReduxImporter.php:56
+#: inc/ReduxImporter.php:51
 msgid "Redux settings import for: %s finished successfully!"
 msgstr "¡La importación de los ajustes de Redux %s ha finalizado correctamente!"
 
-#: inc/ReduxImporter.php:32 inc/ReduxImporter.php:58 inc/ReduxImporter.php:71
+#: inc/ReduxImporter.php:32 inc/ReduxImporter.php:53 inc/ReduxImporter.php:66
 msgid "Importing Redux settings"
 msgstr "Ajustes de importación de Redux"
 
@@ -505,39 +487,39 @@ msgstr "Ajustes de importación de Redux"
 msgid "The Redux plugin is not activated, so the Redux import was skipped!"
 msgstr "¡El plugin Redux no está activo, por lo que se ha omitido la importación de Redux!"
 
-#: inc/Importer.php:179
+#: inc/Importer.php:174
 msgid "New AJAX call!"
 msgstr "¡Nueva llamada AJAX!"
 
-#: inc/WidgetImporter.php:353
+#: inc/WidgetImporter.php:333
 msgid "No results for widget import!"
 msgstr "¡No hay resultados para la importación de widgets!"
 
-#: inc/WidgetImporter.php:306
+#: inc/WidgetImporter.php:286
 msgid "No Title"
 msgstr "Sin título"
 
-#: inc/WidgetImporter.php:300
+#: inc/WidgetImporter.php:280
 msgid "Imported to Inactive"
 msgstr "Importado a inactivo"
 
-#: inc/WidgetImporter.php:296
+#: inc/WidgetImporter.php:276
 msgid "Imported"
 msgstr "Importado"
 
-#: inc/WidgetImporter.php:231
+#: inc/WidgetImporter.php:211
 msgid "Widget already exists"
 msgstr "El widget ya existe"
 
-#: inc/WidgetImporter.php:180
+#: inc/WidgetImporter.php:178
 msgid "Site does not support widget"
 msgstr "El sitio no es compatible con widgets"
 
-#: inc/WidgetImporter.php:159
+#: inc/WidgetImporter.php:157
 msgid "Sidebar does not exist in theme (moving widget to Inactive)"
 msgstr "La barra lateral no existe en el tema (moviendo los widgets a inactivos)"
 
-#: inc/WidgetImporter.php:120
+#: inc/WidgetImporter.php:118
 msgid "Error: Widget import data could not be read. Please try a different file."
 msgstr "Error: no se han podido leer los datos de importación de widgets. Por favor, prueba un archivo diferente."
 
@@ -550,92 +532,92 @@ msgid "Importing widgets"
 msgstr "Importando los widgets"
 
 #. translators: %s - link to the log file.
-#: inc/OneClickDemoImport.php:489
+#: inc/OneClickDemoImport.php:469
 msgid "<p><a href=\"%s\" target=\"_blank\">View error log</a> for more information.</p>"
 msgstr "<p><a href=\"%s\" target=\"_blank\">Mira el registro de errores</a> para más información.</p>"
 
-#: inc/OneClickDemoImport.php:485
+#: inc/OneClickDemoImport.php:465
 msgid "Your import completed, but some things may not have imported properly."
 msgstr "La importación se ha completado, pero puede que algunas cosas no se hayan importado correctamente."
 
-#: inc/OneClickDemoImport.php:482
+#: inc/OneClickDemoImport.php:462
 msgid "Successful Import"
 msgstr "Importación correcta"
 
-#: inc/OneClickDemoImport.php:354
+#: inc/OneClickDemoImport.php:343
 msgid "No import files specified!"
 msgstr "¡No se han especificado archivos para importar!"
 
 #. translators: %s - the name of the selected import.
-#: inc/OneClickDemoImport.php:345
+#: inc/OneClickDemoImport.php:334
 msgid "The import files for: %s were successfully downloaded!"
 msgstr "Los archivos de importación para %s ¡han sido descargados correctamente!"
 
-#: inc/OneClickDemoImport.php:338 inc/OneClickDemoImport.php:349
+#: inc/OneClickDemoImport.php:327 inc/OneClickDemoImport.php:338
 msgid "Downloaded files"
 msgstr "Archivos descargados"
 
-#: inc/OneClickDemoImport.php:280 inc/OneClickDemoImport.php:325
+#: inc/OneClickDemoImport.php:269 inc/OneClickDemoImport.php:314
 msgid "Manually uploaded files"
 msgstr "Archivos subidos manualmente"
 
-#: inc/OneClickDemoImport.php:265
+#: inc/OneClickDemoImport.php:254
 msgid "Manual import files are missing! Please select the import files and try again."
 msgstr "¡Faltan los archivos de importación manual! Por favor, selecciona los archivos y vuelve a intentarlo."
 
-#: inc/OneClickDemoImport.php:248
+#: inc/OneClickDemoImport.php:237
 msgid "Invalid file type detected! Please select a JSON file for the Redux Import."
 msgstr "¡Se ha detectado un tipo de archivo no válido! Por favor, selecciona un archivo JSON para la importación de Redux."
 
-#: inc/OneClickDemoImport.php:247
+#: inc/OneClickDemoImport.php:236
 msgid "Invalid file type detected! Please select a DAT file for the Customizer Import."
 msgstr "¡Se ha detectado un tipo de archivo no válido! Por favor, selecciona un archivo DAT para la importación del personalizador."
 
-#: inc/OneClickDemoImport.php:246
+#: inc/OneClickDemoImport.php:235
 msgid "Invalid file type detected! Please select a JSON or WIE file for the Widgets Import."
 msgstr "¡Se ha detectado un tipo de archivo no válido! Por favor, selecciona un archivo JSON o WIE para la importación de widgets."
 
-#: inc/OneClickDemoImport.php:245
+#: inc/OneClickDemoImport.php:234
 msgid "Invalid file type detected! Please select an XML file for the Content Import."
 msgstr "¡Se ha detectado un tipo de archivo no válido! Por favor, selecciona un archivo XML para la importación de contenido."
 
-#: inc/OneClickDemoImport.php:244
+#: inc/OneClickDemoImport.php:233
 msgid "Looks like some of the plugins failed to install. Please try again. If this issue persists, please manually install the failing plugins and come back to this step to import the theme demo data."
 msgstr "Parece que algunos de los plugins no se han instalado correctamente. Por favor, vuelve a intentarlo. Si este problema continua, prueba instalando manualmente los plugins y vuelve a este paso para importar los datos del tema."
 
-#: inc/OneClickDemoImport.php:243
+#: inc/OneClickDemoImport.php:232
 msgid "Whoops, there was a problem importing your content."
 msgstr "Ups, ha habido un problema al importar tu contenido."
 
-#: inc/OneClickDemoImport.php:242
+#: inc/OneClickDemoImport.php:231
 msgid "Import Failed"
 msgstr "Importación fallida"
 
-#: inc/OneClickDemoImport.php:239
+#: inc/OneClickDemoImport.php:228
 msgid "Successfully Imported!"
 msgstr "¡Importado correctamente!"
 
-#: inc/OneClickDemoImport.php:238 inc/WPCLICommands.php:153
+#: inc/WPCLICommands.php:153 inc/OneClickDemoImport.php:227
 msgid "Importing..."
 msgstr "Importando..."
 
-#: inc/OneClickDemoImport.php:237
+#: inc/OneClickDemoImport.php:226
 msgid "Installing..."
 msgstr "Instalando..."
 
-#: inc/OneClickDemoImport.php:236
+#: inc/OneClickDemoImport.php:225
 msgid "Selected demo import:"
 msgstr "Importación de demostración seleccionada:"
 
-#: inc/OneClickDemoImport.php:235
+#: inc/OneClickDemoImport.php:224
 msgid "Yes, import!"
 msgstr "¡Sí, importar!"
 
-#: inc/OneClickDemoImport.php:233
+#: inc/OneClickDemoImport.php:222
 msgid "Are you sure?"
 msgstr "¿Estás seguro?"
 
-#: inc/OneClickDemoImport.php:232
+#: inc/OneClickDemoImport.php:221
 msgid "No preview image defined for this import."
 msgstr "No hay imagen de previsualización definida para esta importación."
 
@@ -671,19 +653,19 @@ msgstr "Buscar demostraciones..."
 msgid "All Demos"
 msgstr "Todas las demostraciones"
 
-#: inc/Helpers.php:782 views/plugin-page.php:290
+#: views/plugin-page.php:290 inc/Helpers.php:743
 msgid "Import Demo Data"
 msgstr "Importar datos de ejemplo"
 
-#: inc/OneClickDemoImport.php:234 views/plugin-page.php:276
+#: views/plugin-page.php:276 inc/OneClickDemoImport.php:223
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: inc/OneClickDemoImport.php:241 views/plugin-page.php:270
+#: views/plugin-page.php:270 inc/OneClickDemoImport.php:230
 msgid "Installed"
 msgstr "Instalado"
 
-#: inc/OneClickDemoImport.php:240 views/plugin-page.php:270
+#: views/plugin-page.php:270 inc/OneClickDemoImport.php:229
 msgid "Install Plugin"
 msgstr "Instalar plugin"
 
@@ -821,7 +803,7 @@ msgstr "Por %s"
 msgid "Version: %s"
 msgstr "Versión: %s"
 
-#: inc/ViewHelpers.php:52 views/plugin-page.php:74
+#: views/plugin-page.php:74 inc/ViewHelpers.php:52
 msgid "Theme screenshot"
 msgstr "Captura de pantalla de tema"
 
@@ -859,19 +841,19 @@ msgstr "¿Quieres utilizar los mejores plugins para el trabajo? Aquí tienes la 
 msgid "Install Recommended Plugins"
 msgstr "Instalar los plugins recomendados"
 
-#: inc/OneClickDemoImport.php:925
+#: views/import.php:130
 msgid "Visit Site"
 msgstr "Visitar sitio"
 
-#: inc/OneClickDemoImport.php:919
+#: views/import.php:129
 msgid "Theme Settings"
 msgstr "Ajustes del tema"
 
-#: inc/OneClickDemoImport.php:481 views/import.php:121
+#: views/import.php:121 inc/OneClickDemoImport.php:461
 msgid "Congrats, your demo was imported successfully. You can now begin editing your site."
 msgstr "Felicidades, tu demo se ha importado con éxito. Ahora puedes empezar a editar tu sitio."
 
-#: inc/OneClickDemoImport.php:480 views/import.php:118
+#: views/import.php:118 inc/OneClickDemoImport.php:460
 msgid "Import Complete!"
 msgstr "¡Importación completa!"
 
@@ -887,7 +869,7 @@ msgstr "Por favor, espera mientras importamos tu contenido. No actualices la pá
 msgid "Importing Content"
 msgstr "Importando contenido"
 
-#: views/import.php:99 views/plugin-page.php:277
+#: views/plugin-page.php:277 views/import.php:99
 msgid "Continue & Import"
 msgstr "Continuar e importar"
 
@@ -929,21 +911,19 @@ msgstr "Antes de importar tu demostración"
 
 #. translators: %1$s - the PHP version, %2$s and %3$s - strong HTML tags, %4$s
 #. - br HTMl tag.
-#: one-click-demo-import.php:60
-msgid "The %2$sOne Click Demo Import%3$s plugin requires %2$sPHP 7.4+%3$s to run properly. Please contact your hosting company and ask them to update the PHP version of your site to at least PHP 7.4%4$s Your current version of PHP: %2$s%1$s%3$s"
-msgstr "El plugin %2$sOne Click Demo Import%3$s requiere %2$sPHP 7.4+%3$s para funcionar correctamente. Por favor, ponte en contacto con tu empresa de alojamiento y pídeles que actualicen la versión de PHP de tu sitio a, al menos, PHP 7.4%4$s Tu versión actual de PHP: %2$s%1$s%3$s"
+#: one-click-demo-import.php:58
+msgid "The %2$sOne Click Demo Import%3$s plugin requires %2$sPHP 5.6+%3$s to run properly. Please contact your hosting company and ask them to update the PHP version of your site to at least PHP 7.4%4$s Your current version of PHP: %2$s%1$s%3$s"
+msgstr "El plugin %2$sOne Click Demo Import%3$s requiere %2$sPHP 5.6+%3$s para funcionar correctamente. Por favor, ponte en contacto con tu empresa de alojamiento y pídeles que actualicen la versión de PHP de tu sitio a, al menos, PHP 7.4%4$s Tu versión actual de PHP: %2$s%1$s%3$s"
 
 #. Description of the plugin
-#: one-click-demo-import.php
 msgid "Import your content, widgets and theme settings with one click. Theme authors! Enable simple demo import for your theme demo data."
 msgstr "Importa tu contenido, widgets y ajustes del tema con un solo clic. ¡Autores de temas! Activa la importación sencilla de demos para los datos de muestra de tu tema."
 
 #. Plugin URI of the plugin
-#: one-click-demo-import.php
 msgid "https://wordpress.org/plugins/one-click-demo-import/"
 msgstr "https://wordpress.org/plugins/one-click-demo-import/"
 
 #. Plugin Name of the plugin
-#: one-click-demo-import.php inc/Helpers.php:781 inc/ViewHelpers.php:19
+#: inc/Helpers.php:742 inc/ViewHelpers.php:19
 msgid "One Click Demo Import"
 msgstr "One Click Demo Import"

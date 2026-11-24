@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\Idna\Bin;
+namespace Rowbot\Idna\Bin;
 
-use VendorPrefix\Rowbot\Idna\Idna;
+use Rowbot\Idna\Idna;
 use RuntimeException;
 
 use function array_map;

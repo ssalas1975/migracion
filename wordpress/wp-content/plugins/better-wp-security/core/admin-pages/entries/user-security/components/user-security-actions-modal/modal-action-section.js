@@ -8,7 +8,7 @@
 import { useContext } from '@wordpress/element';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Text, TextWeight } from '@ithemes/ui';
 

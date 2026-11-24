@@ -1,5 +1,14 @@
 <?php
 
+/* 
+Description: Creates a set of nice buttons
+Author: UnitedThemes 
+Version: 1.0 
+Author URI: http://www.unitedthemes.com 
+License: GNU General Public License version 3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+*/
+
 $absolute_path = __FILE__;
 $path_to_file = explode( 'wp-content', $absolute_path );
 $path_to_wp = $path_to_file[0];
@@ -15,7 +24,7 @@ require_once( $path_to_wp . '/wp-load.php' );
 <title><?php _e( 'Insert Button' , 'ut_shortcodes' ); ?></title>
 
 <link rel="stylesheet" href="<?php echo plugins_url( 'css/ut.style.css' , __FILE__ ); ?>" />
-<link rel="stylesheet" href="'//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css'" />
+<link rel="stylesheet" href="<?php echo plugins_url( '../css/font-awesome.css' , __FILE__ ); ?>" />
 
 <script language="javascript" type="text/javascript" src="<?php echo get_option('siteurl') ?>/wp-includes/js/jquery/jquery.js"></script>
 
@@ -55,7 +64,6 @@ require_once( $path_to_wp . '/wp-load.php' );
 		$('.ut-insert-button').click(function(event){
 			var url    = jQuery('#ut-button-dialog input#button-url').val(),
 				text   = jQuery('#ut-button-dialog input#button-text').val(),
-                title  = jQuery('#ut-button-dialog input#button-title').val(),
 				color  = jQuery('#ut-button-dialog select#button-color').val(),	
 				target = jQuery('#ut-button-dialog select#button-target').val(),
 				size   = jQuery('#ut-button-dialog select#button-size').val(),
@@ -85,15 +93,11 @@ require_once( $path_to_wp . '/wp-load.php' );
 				if(shape)
 					output += ' shape="' + shape + '" ';
 				
-                // only insert if the title field is not blank
-				if(title)
-					output += ' title="' + title + '" ';
-                
 				// check to see if the TEXT field is blank
 				if(text) {	
 					output += ']'+ text + '[/ut_button] ';
 				}
-                
+				
 				
 			// if it is blank, use the selected text, if present
 			else {
@@ -118,7 +122,7 @@ require_once( $path_to_wp . '/wp-load.php' );
 	<div id="ut-button-dialog" class="ut-admin">
     	
         <header>
-            <h2><span><?php _e('Button Generator', 'ut_shortcodes' ); ?></span></h2>
+            <h2><span><i class="icon-foursquare"></i> <?php _e('Button Generator', 'ut_shortcodes' ); ?></span></h2>
         </header>
         
         <div class="well">
@@ -137,13 +141,6 @@ require_once( $path_to_wp . '/wp-load.php' );
             </div>
             <div class="ut-option-value">
             	<input type="text" class="form-control input-sm" id="button-text" placeholder="Text">
-          	</div>
-            
-            <div class="ut-option-field">
-            	<label for="button-title" class="col-lg-2 control-label"><?php _e('Title', 'ut_shortcodes' ); ?></label>
-            </div>
-            <div class="ut-option-value">
-            	<input type="text" class="form-control input-sm" id="button-title" placeholder="Title">
           	</div>
             
             <div class="ut-option-field">

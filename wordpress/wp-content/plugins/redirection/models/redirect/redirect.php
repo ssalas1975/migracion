@@ -5,8 +5,6 @@ require_once __DIR__ . '/redirect-filter.php';
 require_once __DIR__ . '/redirect-options.php';
 require_once __DIR__ . '/redirect-cache.php';
 
-use Redirection\Database\Status;
-
 /**
  * Redirect class
  *
@@ -404,7 +402,7 @@ class Red_Item {
 	 * @return Red_Item[]
 	 */
 	public static function get_for_url( $url ) {
-		$status = new Status();
+		$status = new Red_Database_Status();
 
 		// deprecate
 		if ( $status->does_support( '4.0' ) ) {
@@ -472,10 +470,9 @@ class Red_Item {
 				FROM {$wpdb->prefix}redirection_items INNER JOIN {$wpdb->prefix}redirection_groups ON
 				{$wpdb->prefix}redirection_groups.id={$wpdb->prefix}redirection_items.group_id AND {$wpdb->prefix}redirection_groups.status='enabled'
 				AND {$wpdb->prefix}redirection_groups.module_id=%d WHERE ({$wpdb->prefix}redirection_items.regex=1
-				OR {$wpdb->prefix}redirection_items.url=%s) LIMIT %d",
+				OR {$wpdb->prefix}redirection_items.url=%s)",
 				WordPress_Module::MODULE_ID,
-				$url,
-				self::MAX_REDIRECTS
+				$url
 			)
 		);
 
@@ -682,7 +679,7 @@ class Red_Item {
 
 		$result = $wpdb->update( $wpdb->prefix . 'redirection_items', $data, array( 'id' => $this->id ) );
 		if ( $result !== false ) {
-			do_action( 'redirection_redirect_updated', $this->id, self::get_by_id( $this->id ) );
+			do_action( 'redirection_redirect_updated', $this, self::get_by_id( $this->id ) );
 			$this->load_from_data( $data );
 
 			Red_Module::flush( $this->group_id );

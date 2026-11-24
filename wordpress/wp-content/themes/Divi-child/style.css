@@ -1,0 +1,80 @@
+/*
+ Theme Name:     Vocento.com
+ Theme URI: http://www.elegantthemes.com/gallery/divi/
+ Description:    Vocento.com
+ Author:         Elegant Themes
+ Author URI:     https://www.elegantthemes.com
+ Template:       Divi
+ Version:        1.0.0
+*/
+
+@import url("../Divi/style.css");
+
+
+.page-id-10163 #main-header { background-color:black; }
+
+.page-id-10163 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13689 #main-header { background-color:black; }
+
+.page-id-13689 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13683 #main-header { background-color:black; }
+
+.page-id-13683 div#et-main-area { margin-top:0 !important; }
+
+.page-id-14000 #main-header { background-color:black; }
+
+.page-id-14000 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13697 #main-header { background-color:black; }
+
+.page-id-13697 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13620 #main-header { background-color:black; }
+
+.page-id-13620 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13655 #main-header { background-color:black; }
+
+.page-id-13655 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13736 #main-header { background-color:black; }
+
+.page-id-13736 div#et-main-area { margin-top:0 !important; }
+
+.page-id-14116 #main-header { background-color:black; }
+
+.page-id-14116 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13689 #main-header { background-color:black; }
+
+.page-id-13689 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13660 #main-header { background-color:black; }
+
+.page-id-13660 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13663 #main-header {background-color:black;}
+
+.page-id-13663 div#et-main-area { margin-top:0 !important; }
+
+.page-id-13648 #main-header {background-color:black;}
+
+.page-id-13648 div#et-main-area { margin-top:0 !important; }
+
+.page-id-14116 #main-header {background-color:black;}
+
+.page-id-14116 div#et-main-area { margin-top:0 !important; }
+
+.page-id-14140 #main-header { background-color:black; }
+
+.page-id-14140 div#et-main-area { margin-top:0 !important; }
+
+.header_new_tamplate {
+	background-color: black !important;;
+}
+
+.main_area_new_tamplate {
+	margin-top: 0px !important;
+}

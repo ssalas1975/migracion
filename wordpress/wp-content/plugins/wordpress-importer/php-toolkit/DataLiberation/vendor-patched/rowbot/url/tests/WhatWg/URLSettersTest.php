@@ -1,9 +1,9 @@
 <?php
 
-namespace VendorPrefix\Rowbot\URL\Tests\WhatWg;
+namespace Rowbot\URL\Tests\WhatWg;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use VendorPrefix\Rowbot\URL\URL;
+use Rowbot\URL\URL;
 
 /**
  * @see https://github.com/web-platform-tests/wpt/blob/master/url/url-setters.html

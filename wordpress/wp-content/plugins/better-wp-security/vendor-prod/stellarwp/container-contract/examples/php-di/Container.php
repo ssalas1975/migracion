@@ -1,11 +1,11 @@
 <?php
 
-namespace iThemesSecurity\Strauss\Your\Namespace;
+namespace Your\Namespace;
 
-use iThemesSecurity\Strauss\StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\ContainerContract\ContainerInterface;
 
 // If you are including PHP-DI container using Strauss (recommended), then:
-use iThemesSecurity\Strauss\Your\Namespace\DI\Container as PHPDIContainer;
+use Your\Namespace\DI\Container as PHPDIContainer;
 
 // If you are including the PHP-DI container directly, then you'd want to do:
 //use DI\Container as PHPDIContainer;

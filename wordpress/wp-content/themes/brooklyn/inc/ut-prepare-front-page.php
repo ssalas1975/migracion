@@ -58,18 +58,21 @@ if ( ! function_exists( 'ut_prepare_front_query' ) ) :
 		
 		    /* needed variables and arrays */
 			$ut_query_pages = array();
+		
 			
 			/* check if primary navigation has been created and set */
 			if ( has_nav_menu( 'primary' ) ) :
+				
 				
 				/* get primary navigation ID */
 				$ut_theme_locations = get_nav_menu_locations();
 				$ut_menu_objects = get_term( $ut_theme_locations['primary'] , 'nav_menu' );
 				$ut_menu_id = $ut_menu_objects->term_id;
 				
+				
 				/* now we get all menu items from primary navigation  */
 				$menu_args = array(
-					'orderby'   =>  'menu_order'
+					'orderby'                => 'menu_order'
 				);
 				
 				$ut_menu_items = wp_get_nav_menu_items( $ut_menu_id , $menu_args );
@@ -80,8 +83,8 @@ if ( ! function_exists( 'ut_prepare_front_query' ) ) :
 					
 					$blog_page_id = get_option('page_for_posts');
 					$frontpage_id = get_option('page_on_front');
-                    
-					if( $ut_menu_item->menutype != 'page' && $blog_page_id != $ut_menu_item->object_id && $frontpage_id != $ut_menu_item->object_id) {
+
+					if( $ut_menu_item->menutype == 'section' && $blog_page_id != $ut_menu_item->object_id && $frontpage_id != $ut_menu_item->object_id) {
 							
 						$ut_query_pages[] = $ut_menu_item->object_id;						
 						
@@ -92,16 +95,16 @@ if ( ! function_exists( 'ut_prepare_front_query' ) ) :
 					}
 					
 				}
-                
+				
 				/* return query arguements */
 				if( !empty( $ut_query_pages ) ) {
 						
 					/* query args for main query  */
 					$pagequery = array(
 							
-                            'posts_per_page' => count($ut_query_pages),
 							'post_type' => 'page',
 							'post__in' => $ut_query_pages,
+							'posts_per_page' => count($ut_query_pages),
 							'orderby'=> 'post__in'
 					
 					);
@@ -110,7 +113,7 @@ if ( ! function_exists( 'ut_prepare_front_query' ) ) :
 					
 				} else {
 					
-					/* return empty arguments */
+					/* return empty arguements */
 					return array();
 					
 				}

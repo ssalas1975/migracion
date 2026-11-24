@@ -44,7 +44,7 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
             if ($this->useMysqli) {
                 mysqli_free_result($this->results);
             } else {
-                mysql_free_result($this->results);
+                mysqli_free_result($this->results);
             }
             $this->results = null;
         }
@@ -56,7 +56,7 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
         if ($this->useMysqli) {
             return mysqli_fetch_assoc($this->results);
         } else {
-            return mysql_fetch_assoc($this->results);
+            return mysqli_fetch_assoc($this->results);
         }
     }
 
@@ -70,7 +70,7 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
      * @return void
      */
     public function queryDataSource(&$sql, $queryOptions) {
-        // For performance reasons, we bypass $wpdb so we can call mysql_unbuffered_query
+        // For performance reasons, we bypass $wpdb so we can call mysqli_unbuffered_query
 
         $this->useMysqli = $this->shouldUseMySqli();
 
@@ -82,9 +82,9 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
                 return;
             }
         } else {
-            $con = mysql_connect(DB_HOST, DB_USER, DB_PASSWORD, true);
+            $con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, true);
             if (!$con) {
-                trigger_error("MySQL Connection failed: " . mysql_error($con), E_USER_NOTICE);
+                trigger_error("MySQL Connection failed: " . mysqli_error($con), E_USER_NOTICE);
                 return;
             }
         }
@@ -111,31 +111,31 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
                     if ($this->useMysqli) {
                         mysqli_query($con, $setCharset);
                     } else {
-                        mysql_query($setCharset, $con);
+                        mysqli_query($setCharset, $con);
                     }
                 }
             }
         }
 
         if (!$this->useMysqli) {
-            if (!mysql_select_db(DB_NAME, $con)) {
-                trigger_error('MySQL DB Select failed: ' . mysql_error(), E_USER_NOTICE);
+            if (!mysqli_select_db(DB_NAME, $con)) {
+                trigger_error('MySQL DB Select failed: ' . mysqli_error(), E_USER_NOTICE);
                 return;
             }
         }
 
         if (isset($queryOptions['unbuffered']) && $queryOptions['unbuffered'] === 'true') {
-            // FYI: using mysql_unbuffered_query disrupted nested shortcodes if the nested one does a query also
+            // FYI: using mysqli_unbuffered_query disrupted nested shortcodes if the nested one does a query also
             if ($this->useMysqli) {
                 $this->results = mysqli_query($con, $sql, MYSQLI_USE_RESULT);
                 if (!$this->results) {
-                    trigger_error('mysqli_query failed: ' . mysql_error(), E_USER_NOTICE);
+                    trigger_error('mysqli_query failed: ' . mysqli_error(), E_USER_NOTICE);
                     return;
                 }
             } else {
-                $this->results = mysql_unbuffered_query($sql, $con);
+                $this->results = mysqli_unbuffered_query($sql, $con);
                 if (!$this->results) {
-                    trigger_error('mysql_unbuffered_query failed: ' . mysql_error(), E_USER_NOTICE);
+                    trigger_error('mysqli_unbuffered_query failed: ' . mysqli_error(), E_USER_NOTICE);
                     return;
                 }
             }
@@ -143,13 +143,13 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
             if ($this->useMysqli) {
                 $this->results = @mysqli_query($con, $sql);
                 if (!$this->results) {
-                    trigger_error('mysqli_query failed. Try adding <code>unbuffered="true"</code> to your short code. <br/>' . mysql_error(), E_USER_WARNING);
+                    trigger_error('mysqli_query failed. Try adding <code>unbuffered="true"</code> to your short code. <br/>' . mysqli_error(), E_USER_WARNING);
                     return;
                 }
             } else {
-                $this->results = @mysql_query($sql, $con);
+                $this->results = @mysqli_query($sql, $con);
                 if (!$this->results) {
-                    trigger_error('mysql_query failed. Try adding <code>unbuffered="true"</code> to your short code. <br/>' . mysql_error(), E_USER_WARNING);
+                    trigger_error('mysqli_query failed. Try adding <code>unbuffered="true"</code> to your short code. <br/>' . mysqli_error(), E_USER_WARNING);
                     return;
                 }
             }
@@ -162,7 +162,7 @@ class CFDBQueryResultIterator extends CFDBAbstractQueryResultsIterator {
         if ( function_exists( 'mysqli_connect' ) ) {
             if ( defined( 'WP_USE_EXT_MYSQL' ) ) {
                 $use_mysqli = ! WP_USE_EXT_MYSQL;
-            } elseif ( version_compare( phpversion(), '5.5', '>=' ) || ! function_exists( 'mysql_connect' ) ) {
+            } elseif ( version_compare( phpversion(), '5.5', '>=' ) || ! function_exists( 'mysqli_connect' ) ) {
                 $use_mysqli = true;
             } elseif ( false !== strpos( $GLOBALS['wp_version'], '-' ) ) {
                 $use_mysqli = true;

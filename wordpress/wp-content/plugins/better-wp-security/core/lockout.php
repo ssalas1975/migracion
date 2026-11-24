@@ -25,7 +25,7 @@ require_once( __DIR__ . '/lib/lockout/abstract-context.php' );
  * Class ITSEC_Lockout
  *
  * The ITSEC Lockout class is the centralized controller for detecting and blocking already locked-out users. Other
- * Kadence Security modules instruct ITSEC_Lockout to save a lock out to storage, but ITSEC Lockout will never lock
+ * Solid Security modules instruct ITSEC_Lockout to save a lock out to storage, but ITSEC Lockout will never lock
  * out a user itself.
  *
  * If a user attempts to login with valid credentials and their user ID is marked as locked out, they will be prevented
@@ -62,7 +62,7 @@ require_once( __DIR__ . '/lib/lockout/abstract-context.php' );
  *
  * After the lockout has been stored, the request will be immediately exited.
  *
- * Kadence Security supports two types of whitelists. Temporary and permanent whitelists. Permanent whitelists are
+ * Solid Security supports two types of whitelists. Temporary and permanent whitelists. Permanent whitelists are
  * configured in the Global Settings module and will permanently prevent a user with that IP from being locked out.
  * The temporary whitelist is a global list of admin level user's IP addresses. Whenever an admin user is logged-in and
  * using the site, their IP will be added to the whitelist for 24 hours.
@@ -135,7 +135,7 @@ final class ITSEC_Lockout {
 	/**
 	 * On every page load, check if the current host is locked out.
 	 *
-	 * When a host becomes locked out, Kadence Security performs a quick ban. This will cause an IP block to be
+	 * When a host becomes locked out, Solid Security performs a quick ban. This will cause an IP block to be
 	 * written to the site's server configuration file. This ip block might not immediately take effect, particularly
 	 * on Nginx systems. So on every page load we check that if the current host is locked out or not.
 	 */
@@ -213,8 +213,6 @@ final class ITSEC_Lockout {
 	/**
 	 * Find the lockout for a given type and identifier.
 	 *
-	 * @since 9.0.10.1 IPv6 hosts are looked up by their network prefix.
-	 *
 	 * @param string $type
 	 * @param string $identifier
 	 *
@@ -236,10 +234,6 @@ final class ITSEC_Lockout {
 				break;
 			default:
 				return null;
-		}
-
-		if ( 'host' === $type ) {
-			$identifier = ITSEC_Lib_IP_Tools::get_lockout_host( $identifier );
 		}
 
 		$data = $wpdb->get_row( $wpdb->prepare(
@@ -298,8 +292,6 @@ final class ITSEC_Lockout {
 	/**
 	 * Check if a given host is locked out.
 	 *
-	 * @since 9.0.10.1 IPv6 hosts are checked by their network prefix.
-	 *
 	 * @param string $host
 	 *
 	 * @return bool
@@ -308,8 +300,6 @@ final class ITSEC_Lockout {
 
 		/** @var wpdb $wpdb */
 		global $wpdb;
-
-		$host = ITSEC_Lib_IP_Tools::get_lockout_host( $host );
 
 		return (bool) $wpdb->get_var( $wpdb->prepare(
 			"SELECT `lockout_host` FROM `{$wpdb->base_prefix}itsec_lockouts` WHERE `lockout_active`=1 AND `lockout_expire_gmt` > %s AND `lockout_host` = %s;",
@@ -381,21 +371,9 @@ final class ITSEC_Lockout {
 		}
 	}
 
-	/**
-	 * Record a failed attempt for a host and check whether it has reached the lockout limit.
-	 *
-	 * @since 9.0.10.1 IPv6 hosts are tracked by their network prefix.
-	 *
-	 * @param string $host
-	 * @param array  $event_data
-	 * @param array  $options
-	 *
-	 * @return bool
-	 */
 	private function create_host_temp_event( $host, $event_data, $options ) {
 		global $wpdb;
 
-		$host                    = ITSEC_Lib_IP_Tools::get_lockout_host( $host );
 		$event_data['temp_host'] = $host;
 
 		$wpdb->insert( "{$wpdb->base_prefix}itsec_temp", $event_data );
@@ -509,8 +487,6 @@ final class ITSEC_Lockout {
 	/**
 	 * Create a lockout.
 	 *
-	 * @since 9.0.10.1 IPv6 hosts are locked out by their network prefix.
-	 *
 	 * @param Lockout\Context|array $args_or_context
 	 *
 	 * @return array
@@ -553,10 +529,6 @@ final class ITSEC_Lockout {
 
 		$whitelisted = ITSEC_Lib::is_ip_whitelisted( $host );
 		$blacklisted = false;
-
-		if ( false !== $host ) {
-			$host = ITSEC_Lib_IP_Tools::get_lockout_host( $host );
-		}
 
 		$log_data = array(
 			'module'         => $module,
@@ -792,8 +764,6 @@ final class ITSEC_Lockout {
 	/**
 	 * Executes lockout (locks user out)
 	 *
-	 * @since 9.0.7 Safe to call before pluggable functions are loaded.
-	 *
 	 * @param Execute_Lock\Context|array $context
 	 *
 	 * @return void
@@ -815,7 +785,7 @@ final class ITSEC_Lockout {
 			$message = ITSEC_Modules::get_setting( 'global', 'community_lockout_message' );
 
 			if ( ! $message ) {
-				$message = __( 'Your IP address has been flagged as a threat by the Kadence Security network.', 'better-wp-security' );
+				$message = __( 'Your IP address has been flagged as a threat by the Solid Security network.', 'better-wp-security' );
 			}
 		} elseif ( $context instanceof Execute_Lock\User_Context || $context instanceof Execute_Lock\Username_Context ) {
 
@@ -858,13 +828,11 @@ final class ITSEC_Lockout {
 		}
 
 		if ( headers_sent() ) {
-			if ( $current_user instanceof WP_User ) {
-				wp_destroy_current_session();
-				wp_set_current_user( 0 );
+			wp_destroy_current_session();
+			wp_set_current_user( 0 );
 
-				if ( $current_user->exists() ) {
-					do_action( 'wp_logout', $current_user->ID );
-				}
+			if ( $current_user instanceof WP_User && $current_user->exists() ) {
+				do_action( 'wp_logout', $current_user->ID );
 			}
 		} else {
 			if ( $current_user instanceof WP_User && $current_user->exists() ) {

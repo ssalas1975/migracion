@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -174,6 +174,12 @@ $options = array(
 			        ),
 
 			    ),
+			),
+
+			'border_radius'   => array(
+				'label' => esc_html__( 'Border Radius', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter border radius in px', 'jevelin' ),
+				'type'  => 'text',
 			),
 
 			'icon_color' => array(

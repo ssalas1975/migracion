@@ -1,5 +1,5 @@
-<?php if ( ! defined( 'FW' ) ) {
-	die( 'Forbidden' );
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) {
+	die( 'Forbidden.' );
 }
 
 $options = array(
@@ -45,7 +45,7 @@ $options = array(
 
 					'image' => array(
 						'label' => esc_html__( 'Image', 'jevelin' ),
-						'desc'  => esc_html__( 'Upload image', 'jevelin' ),
+						'desc'  => esc_html__( 'Upload image for style 2 and style 3 only', 'jevelin' ),
 						'type'  => 'upload',
 					),
 
@@ -139,7 +139,7 @@ $options = array(
 			    'label' => esc_html__('Accent Color', 'jevelin'),
 			    'desc'  => esc_html__('Choose accent color or Leave it empty for global value', 'jevelin'),
 			),
-			
+
 		),
 	),
 

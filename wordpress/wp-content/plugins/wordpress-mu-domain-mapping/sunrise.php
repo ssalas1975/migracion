@@ -8,6 +8,7 @@ if ( defined( 'COOKIE_DOMAIN' ) ) {
 
 $wpdb->dmtable = $wpdb->base_prefix . 'domain_mapping';
 $dm_domain = $_SERVER[ 'HTTP_HOST' ];
+var_dump($dm_domain);
 
 if( ( $nowww = preg_replace( '|^www\.|', '', $dm_domain ) ) != $dm_domain )
 	$where = $wpdb->prepare( 'domain IN (%s,%s)', $dm_domain, $nowww );

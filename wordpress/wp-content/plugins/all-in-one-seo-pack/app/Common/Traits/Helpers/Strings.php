@@ -290,44 +290,14 @@ trait Strings {
 	}
 
 	/**
-	 * Lowercases a registered post type/taxonomy label so it reads naturally inside a sentence.
-	 *
-	 * Labels are registered in title case ("Category", "Product categories"), which reads wrong
-	 * mid-sentence: "Your Category is 49 words long".
-	 *
-	 * NOTE: Applied in every locale. Languages that capitalize all nouns (German, for one) get a
-	 * lowercased noun here; the surrounding strings are translatable, so a translator can phrase
-	 * around it.
-	 *
-	 * @since 5.0.1
-	 *
-	 * @param  string $label The registered label.
-	 * @return string        The label, lowercased.
-	 */
-	public function lowercaseLabel( $label ) {
-		if ( ! is_string( $label ) || '' === $label ) {
-			return '';
-		}
-
-		return function_exists( 'mb_strtolower' )
-			? mb_strtolower( $label, $this->getCharset() )
-			: strtolower( $label );
-	}
-
-	/**
 	 * Returns the string after all HTML entities have been decoded.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.10 Coerce non-string input to an empty string before using it as the static cache key (PHP 8.5 deprecates null offsets).
+	 * @since 4.0.0
 	 *
 	 * @param  string $string The string to decode.
 	 * @return string         The decoded string.
 	 */
 	public function decodeHtmlEntities( $string ) {
-		if ( ! is_string( $string ) ) {
-			return '';
-		}
-
 		static $decodeHtmlEntities = [];
 		if ( isset( $decodeHtmlEntities[ $string ] ) ) {
 			return $decodeHtmlEntities[ $string ];
@@ -335,7 +305,7 @@ trait Strings {
 
 		// We must manually decode non-breaking spaces since html_entity_decode doesn't do this.
 		$string                        = $this->pregReplace( '/&nbsp;/', ' ', $string );
-		$decodeHtmlEntities[ $string ] = html_entity_decode( $string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		$decodeHtmlEntities[ $string ] = html_entity_decode( (string) $string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 
 		return $decodeHtmlEntities[ $string ];
 	}
@@ -411,56 +381,20 @@ trait Strings {
 	/**
 	 * Returns the given JSON formatted data tags as a comma separated list with their values instead.
 	 *
-	 * @since   4.1.0
-	 * @version 4.9.8 Tolerate scalar tags and invalid JSON instead of throwing a TypeError.
-	 * @version 5.0.2 Delegates the tag walk to {@see jsonTagsToList()}.
+	 * @since 4.1.0
 	 *
 	 * @param  string|array $tags The Array or JSON formatted data tags.
 	 * @return string             The comma separated values.
 	 */
 	public function jsonTagsToCommaSeparatedList( $tags ) {
-		if ( is_string( $tags ) ) {
-			$decoded = json_decode( $tags );
-
-			// If the string isn't valid JSON, it's likely already a plain (comma separated) list.
-			if ( null === $decoded && 'null' !== strtolower( trim( $tags ) ) ) {
-				return $tags;
-			}
-
-			$tags = $decoded;
-		}
-
-		return implode( ',', $this->jsonTagsToList( $tags ) );
-	}
-
-	/**
-	 * Returns the values of the given JSON formatted data tags as a list.
-	 *
-	 * NOTE: Tolerates scalar tags and tags without a value, which imports and direct writes produce.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  string|array $tags The Array or JSON formatted data tags.
-	 * @return string[]           The tag values.
-	 */
-	public function jsonTagsToList( $tags ) {
-		if ( is_string( $tags ) ) {
-			$tags = json_decode( $tags );
-		}
+		$tags = is_string( $tags ) ? json_decode( $tags ) : $tags;
 
 		$values = [];
-		foreach ( (array) $tags as $k => $tag ) {
-			if ( is_object( $tag ) ) {
-				$values[ $k ] = $tag->value ?? '';
-			} elseif ( is_array( $tag ) ) {
-				$values[ $k ] = $tag['value'] ?? '';
-			} else {
-				// Plain scalar tags (e.g. a JSON array of strings) are used as-is.
-				$values[ $k ] = (string) $tag;
-			}
+		foreach ( $tags as $k => $tag ) {
+			$values[ $k ] = is_object( $tag ) ? $tag->value : $tag['value'];
 		}
 
-		return $values;
+		return implode( ',', $values );
 	}
 
 	/**

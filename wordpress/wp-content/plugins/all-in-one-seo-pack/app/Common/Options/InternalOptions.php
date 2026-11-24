@@ -47,9 +47,12 @@ class InternalOptions {
 	protected $defaults = [
 		// phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 		'internal'     => [
+			'connectLicenseKey' => [ 'type' => 'string' ],
 			'lastActiveVersion' => [ 'type' => 'string', 'default' => '0.0' ],
-			'lastSchemaVersion' => [ 'type' => 'string', 'default' => '0.0' ],
 			'migratedVersion'   => [ 'type' => 'string' ],
+			'siteAnalysis'      => [
+				'connectToken' => [ 'type' => 'string' ],
+			],
 			'headlineAnalysis'  => [
 				'headlines' => [ 'type' => 'array', 'default' => [] ]
 			],
@@ -58,22 +61,21 @@ class InternalOptions {
 			'categoryOther'     => [ 'type' => 'string' ],
 			'deprecatedOptions' => [ 'type' => 'array', 'default' => [] ],
 			'searchStatistics'  => [
-				'profile' => [
-					'siteurl'    => [ 'type' => 'string', 'default' => '' ],
-					'authedsite' => [ 'type' => 'string', 'default' => '' ]
-				],
-				'rolling' => [ 'type' => 'string', 'default' => 'last28Days' ],
-				'site'    => [
+				'profile'    => [ 'type' => 'array', 'default' => [] ],
+				'trustToken' => [ 'type' => 'string' ],
+				'rolling'    => [ 'type' => 'string', 'default' => 'last28Days' ],
+				'site'       => [
 					'verified'  => [ 'type' => 'boolean', 'default' => false ],
 					'lastFetch' => [ 'type' => 'number', 'default' => 0 ]
 				],
-				'sitemap' => [
+				'sitemap'    => [
 					'list'      => [ 'type' => 'array', 'default' => [] ],
 					'ignored'   => [ 'type' => 'array', 'default' => [] ],
 					'lastFetch' => [ 'type' => 'number', 'default' => 0 ]
 				]
 			],
 			'ai'                => [
+				'accessToken'         => [ 'type' => 'string', 'default' => '' ],
 				'isTrialAccessToken'  => [ 'type' => 'boolean', 'default' => false ],
 				'isManuallyConnected' => [ 'type' => 'boolean', 'default' => false ],
 				'credits'             => [
@@ -94,8 +96,10 @@ class InternalOptions {
 		],
 		'integrations' => [
 			'semrush' => [
-				'tokenType' => [ 'type' => 'string' ],
-				'expires'   => [ 'type' => 'string' ]
+				'accessToken'  => [ 'type' => 'string' ],
+				'tokenType'    => [ 'type' => 'string' ],
+				'expires'      => [ 'type' => 'string' ],
+				'refreshToken' => [ 'type' => 'string' ]
 			]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound

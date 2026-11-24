@@ -8,7 +8,6 @@ use League\HTMLToMarkdown\Coerce;
 use League\HTMLToMarkdown\Configuration;
 use League\HTMLToMarkdown\ConfigurationAwareInterface;
 use League\HTMLToMarkdown\ElementInterface;
-use League\HTMLToMarkdown\NoBreakSpaces;
 use League\HTMLToMarkdown\PreConverterInterface;
 
 class TableConverter implements ConverterInterface, PreConverterInterface, ConfigurationAwareInterface
@@ -59,11 +58,10 @@ class TableConverter implements ConverterInterface, PreConverterInterface, Confi
                 $this->columnAlignments = [];
                 if ($this->caption) {
                     $side = $this->config->getOption('table_caption_side');
-                    // Kept apart from the rows, since it can contain a block of HTML which would take them in
                     if ($side === 'top') {
-                        $value = $this->caption . "\n\n" . $value;
+                        $value = $this->caption . "\n" . $value;
                     } elseif ($side === 'bottom') {
-                        $value .= "\n" . $this->caption . "\n";
+                        $value .= $this->caption;
                     }
 
                     $this->caption = null;
@@ -71,8 +69,7 @@ class TableConverter implements ConverterInterface, PreConverterInterface, Confi
 
                 return $value . "\n";
             case 'caption':
-                // A leading no-break space is kept, as whatever follows it wasn't escaped as being at the start of the line
-                $this->caption = \ltrim(NoBreakSpaces::rtrim($value));
+                $this->caption = \trim($value);
 
                 return '';
             case 'tr':
@@ -92,15 +89,10 @@ class TableConverter implements ConverterInterface, PreConverterInterface, Confi
                     $this->columnAlignments[] = self::$alignments[$align] ?? '---';
                 }
 
-                $value  = \str_replace("\n", ' ', $value);
-                $escape = Coerce::toString($this->config->getOption('table_pipe_escape') ?? '\|');
-                $value  = \preg_replace_callback('/(?<!\\\\)(\\\\*)\|/', static function (array $matches) use ($escape): string {
-                    // Those in regular text have already been escaped with a backslash
-                    return (string) \substr($matches[1], 0, \strlen($matches[1]) - \strlen($matches[1]) % 2) . $escape;
-                }, $value);
-                \assert($value !== null);
+                $value = \str_replace("\n", ' ', $value);
+                $value = \str_replace('|', Coerce::toString($this->config->getOption('table_pipe_escape') ?? '\|'), $value);
 
-                return '| ' . NoBreakSpaces::trim($value) . ' ';
+                return '| ' . \trim($value) . ' ';
             case 'thead':
             case 'tbody':
             case 'tfoot':

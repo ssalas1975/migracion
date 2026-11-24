@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\Component\Host\Serializer;
+namespace Rowbot\URL\Component\Host\Serializer;
 
 /**
  * @see https://url.spec.whatwg.org/#concept-host-serializer

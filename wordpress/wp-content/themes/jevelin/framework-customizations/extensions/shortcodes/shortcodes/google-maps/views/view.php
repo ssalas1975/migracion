@@ -3,7 +3,7 @@
 /* Google maps HTML
 /*-----------------------------------------------------------------------------------*/
 
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 ?>
 
 <div class="sh-google-map" id="google-map-<?php echo esc_attr($atts['id']); ?>">

@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'iThemesSecurity\\Strauss\\Pimple' => array($vendorDir . '/pimple/pimple/src'),
+    'Pimple' => array($vendorDir . '/pimple/pimple/src'),
 );

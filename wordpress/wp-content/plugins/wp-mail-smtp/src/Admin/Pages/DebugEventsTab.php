@@ -359,7 +359,8 @@ class DebugEventsTab extends PageAbstract {
 	 */
 	public function process_post( $data ) {
 
-		// Intentional literal: this is the defensive floor for the only globally-writing path through the parent-page dispatcher.
+		$this->check_admin_referer();
+
 		if ( WP::use_global_plugin_settings() && ! current_user_can( 'manage_network_options' ) ) {
 			wp_die( esc_html__( 'You don\'t have the capability to perform this action.', 'wp-mail-smtp' ) );
 		}

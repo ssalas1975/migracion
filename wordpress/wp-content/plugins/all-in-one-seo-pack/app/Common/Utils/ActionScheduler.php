@@ -25,12 +25,10 @@ class ActionScheduler {
 	/**
 	 * Class constructor.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 Cancel orphaned actions before Action Scheduler executes them.
+	 * @since 4.0.0
 	 */
 	public function __construct() {
 		add_action( 'action_scheduler_after_execute', [ $this, 'cleanup' ], 1000, 2 );
-		add_action( 'action_scheduler_before_execute', [ $this, 'maybeCancelOrphanedAction' ] );
 
 		// Note: \ActionScheduler is first loaded on `plugins_loaded` action hook.
 		add_action( 'plugins_loaded', [ $this, 'maybeRecreateTables' ] );
@@ -92,43 +90,6 @@ class ActionScheduler {
 	}
 
 	/**
-	 * Cancels one of our scheduled actions when nothing is listening to its hook.
-	 * Hooked into `action_scheduler_before_execute` action hook.
-	 *
-	 * NOTE: It has to cancel rather than let the action fail - a failed recurring action is still rescheduled.
-	 * NOTE: Anything we schedule must register its callback unconditionally - the queue runners execute actions
-	 * over admin-ajax and WP-Cron, so a callback registered only outside those contexts reads as orphaned.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @param  int $actionId The ID of the action that is about to run.
-	 * @return void
-	 */
-	public function maybeCancelOrphanedAction( $actionId ) {
-		if ( ! class_exists( 'ActionScheduler' ) ) {
-			return;
-		}
-
-		try {
-			$action = \ActionScheduler::store()->fetch_action( $actionId );
-		} catch ( \Exception $e ) {
-			return;
-		}
-
-		if ( $this->actionSchedulerGroup !== $action->get_group() ) {
-			return;
-		}
-
-		// An addon whose license gate is closed never boots, so it never registers its callbacks, but the recurring
-		// actions it scheduled while it was running are still there. Without this they'd fail and reschedule forever.
-		if ( has_action( $action->get_hook() ) ) {
-			return;
-		}
-
-		$this->unschedule( $action->get_hook(), $action->get_args() );
-	}
-
-	/**
 	 * Cleans up the Action Scheduler tables after one of our actions completes.
 	 * Hooked into `action_scheduler_after_execute` action hook.
 	 *
@@ -177,38 +138,8 @@ class ActionScheduler {
 			);"
 		);
 
-		// Remove any duplicate pending actions, keeping only the earliest per hook+args combination.
-		$this->deduplicatePendingActions( $prefix );
-
 		// Set a transient to prevent this from running again for a while.
 		aioseo()->core->cache->update( 'action_scheduler_log_cleanup', true, DAY_IN_SECONDS );
-	}
-
-	/**
-	 * Removes duplicate pending actions for the aioseo group, keeping only the earliest per hook+args.
-	 *
-	 * @since 4.9.5.2
-	 *
-	 * @param  string $prefix The database table prefix.
-	 * @return void
-	 */
-	private function deduplicatePendingActions( $prefix ) {
-		aioseo()->core->db->execute(
-			"DELETE aa FROM {$prefix}actionscheduler_actions AS aa
-			JOIN {$prefix}actionscheduler_groups AS ag ON ag.group_id = aa.group_id
-			WHERE ag.slug = '{$this->actionSchedulerGroup}'
-			AND aa.status = 'pending'
-			AND aa.action_id NOT IN (
-				SELECT action_id FROM (
-					SELECT MIN(aa2.action_id) AS action_id
-					FROM {$prefix}actionscheduler_actions AS aa2
-					JOIN {$prefix}actionscheduler_groups AS ag2 ON ag2.group_id = aa2.group_id
-					WHERE ag2.slug = '{$this->actionSchedulerGroup}'
-					AND aa2.status = 'pending'
-					GROUP BY aa2.hook, aa2.args
-				) AS keepers
-			);"
-		);
 	}
 
 	/**
@@ -231,8 +162,8 @@ class ActionScheduler {
 			return false;
 		}
 
-		// Set lock for 60 seconds.
-		set_transient( $lockKey, 1, 60 );
+		// Set lock for 5 seconds.
+		set_transient( $lockKey, 1, 5 );
 
 		try {
 			if ( $forceSchedule || ! $this->isScheduled( $actionName, $args ) ) {
@@ -314,8 +245,8 @@ class ActionScheduler {
 			return false;
 		}
 
-		// Set lock for 60 seconds.
-		set_transient( $lockKey, 1, 60 );
+		// Set lock for 5 seconds.
+		set_transient( $lockKey, 1, 5 );
 
 		try {
 			if ( ! $this->isScheduled( $actionName, $args ) ) {
@@ -351,8 +282,8 @@ class ActionScheduler {
 			return;
 		}
 
-		// Set lock for 60 seconds.
-		set_transient( $lockKey, 1, 60 );
+		// Set lock for 5 seconds.
+		set_transient( $lockKey, 1, 5 );
 
 		try {
 			// Only schedule if not already scheduled to prevent duplicate actions.

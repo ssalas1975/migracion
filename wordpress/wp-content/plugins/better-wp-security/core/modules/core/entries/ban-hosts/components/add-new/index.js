@@ -11,7 +11,7 @@ import { useMemo, useState, useRef } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { SurfaceVariant } from '@ithemes/ui';
 

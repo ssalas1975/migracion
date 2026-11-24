@@ -20,9 +20,6 @@ abstract class WPML_Page_Builders_Register_Strings {
 	 */
 	private $string_registration;
 
-	/** @var int $string_location */
-	private $string_location;
-
 	/**
 	 * WPML_Page_Builders_Register_Strings constructor.
 	 *
@@ -48,18 +45,13 @@ abstract class WPML_Page_Builders_Register_Strings {
 
 		do_action( 'wpml_start_string_package_registration', $package );
 
-		$this->string_location = 1;
-
 		$data = get_post_meta( $post->ID, $this->data_settings->get_meta_field(), false );
 
 		if ( $data ) {
-			$converted = $this->data_settings->convert_data_to_array( $data );
-			if ( is_array( $converted ) ) {
-				$this->register_strings_for_modules(
-					$converted,
-					$package
-				);
-			}
+			$this->register_strings_for_modules(
+				$this->data_settings->convert_data_to_array( $data ),
+				$package
+			);
 		}
 
 		do_action( 'wpml_delete_unused_package_strings', $package );
@@ -79,12 +71,8 @@ abstract class WPML_Page_Builders_Register_Strings {
 				$string->get_value(),
 				$string->get_editor_type(),
 				$string->get_title(),
-				$string->get_name(),
-				$this->string_location,
-				$string->get_wrap_tag()
+				$string->get_name()
 			);
-
-			$this->string_location++;
 		}
 	}
 

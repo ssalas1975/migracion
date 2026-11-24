@@ -1,8 +1,6 @@
 <?php
 
-use Redirection\Database\Database;
-use Redirection\Database\Schema\Latest;
-use Redirection\Database\Status;
+require_once dirname( REDIRECTION_FILE ) . '/database/database.php';
 
 /**
  * Diagnostic and repair tool for Redirection plugin
@@ -46,7 +44,7 @@ class Red_Fixer {
 	 * @return DebugInfo
 	 */
 	public function get_debug() {
-		$status = new Status();
+		$status = new Red_Database_Status();
 		$ip = [];
 
 		foreach ( Redirection_Request::get_ip_headers() as $var ) {
@@ -71,8 +69,8 @@ class Red_Fixer {
 	 */
 	public function save_debug( $name, $value ) {
 		if ( $name === 'database' ) {
-			$database = new Database();
-			$status = new Status();
+			$database = new Red_Database();
+			$status = new Red_Database_Status();
 
 			foreach ( $database->get_upgrades() as $upgrade ) {
 				if ( $value === $upgrade->get_version() ) {
@@ -108,7 +106,7 @@ class Red_Fixer {
 					'id' => 'db',
 					'name' => __( 'Database tables', 'redirection' ),
 				],
-				$this->get_database_status( Database::get_latest_database() )
+				$this->get_database_status( Red_Database::get_latest_database() )
 			),
 			[
 				'name' => __( 'Valid groups', 'redirection' ),
@@ -147,7 +145,7 @@ class Red_Fixer {
 	/**
 	 * Get database table status
 	 *
-	 * @param Latest $database Database instance.
+	 * @param Red_Latest_Database $database Database instance.
 	 * @return array{status: string, message: string}
 	 */
 	private function get_database_status( $database ) {
@@ -225,7 +223,7 @@ class Red_Fixer {
 	 * @return bool|WP_Error
 	 */
 	private function fix_db() {
-		$database = Database::get_latest_database();
+		$database = Red_Database::get_latest_database();
 		return $database->install();
 	}
 
@@ -235,8 +233,8 @@ class Red_Fixer {
 	 * @return bool|WP_Error
 	 */
 	private function fix_groups() {
-		if ( Red_Group::create( __( 'Redirections', 'redirection' ), 1 ) === false ) {
-			return new WP_Error( 'redirect_group_create_failed', 'Unable to create group' );
+		if ( Red_Group::create( 'new group', 1 ) === false ) {
+			return new WP_Error( 'Unable to create group' );
 		}
 
 		return true;
@@ -245,59 +243,34 @@ class Red_Fixer {
 	/**
 	 * Fix redirects with invalid groups
 	 *
-	 * @return bool|WP_Error
+	 * @return void
 	 */
 	private function fix_redirect_groups() {
 		global $wpdb;
 
 		$missing = $this->get_missing();
-		$group_id = $this->get_valid_group();
-
-		if ( is_wp_error( $group_id ) ) {
-			return $group_id;
-		}
 
 		foreach ( $missing as $row ) {
-			$wpdb->update( $wpdb->prefix . 'redirection_items', array( 'group_id' => $group_id ), array( 'id' => $row->id ) );
+			$wpdb->update( $wpdb->prefix . 'redirection_items', array( 'group_id' => $this->get_valid_group() ), array( 'id' => $row->id ) );
 		}
-
-		return true;
 	}
 
 	/**
 	 * Fix invalid monitor group setting
 	 *
-	 * @return bool|WP_Error
+	 * @return void
 	 */
 	private function fix_monitor() {
-		$group_id = $this->get_valid_group();
-
-		if ( is_wp_error( $group_id ) ) {
-			return $group_id;
-		}
-
-		red_set_options( array( 'monitor_post' => $group_id ) );
-
-		return true;
+		red_set_options( array( 'monitor_post' => $this->get_valid_group() ) );
 	}
 
 	/**
 	 * Get a valid group ID
 	 *
-	 * @return int|WP_Error
+	 * @return int
 	 */
 	private function get_valid_group() {
 		$groups = Red_Group::get_all();
-
-		if ( count( $groups ) === 0 ) {
-			$group = Red_Group::create( __( 'Redirections', 'redirection' ), 1 );
-
-			if ( $group !== false ) {
-				return $group->get_id();
-			}
-
-			return new WP_Error( 'redirect_group_create_failed', 'Unable to create group' );
-		}
 
 		return $groups[0]['id'];
 	}

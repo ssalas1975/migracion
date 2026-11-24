@@ -1,0 +1,15 @@
+<svg version="1.1" id="svg-lightbulb-icon" <?php echo edgtf_quadric_get_inline_style($color); ?>   xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="81.5px" height="106.33px" viewBox="0 0 81.5 106.33" enable-background="new 0 0 81.5 106.33" xml:space="preserve">
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M71.231,70.776 71.231,86.1 40.906,103.607 10.578,86.1 "/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M25.516,42.477 10.599,51.088 2.643,36.583 19.092,26.95 "/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M56.387,42.503 71.25,51.083 79.207,36.579 62.5,26.795 "/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M71.231,51.083 71.231,51.083 40.906,68.592 10.578,51.083 10.578,51.083 "/>
+	<path fill="none" d="M19.073,24.371c0-12.03,9.743-21.773,21.771-21.773c12.029,0,21.773,9.743,21.773,21.773 c0,0.71-0.523,10.773-8.727,21.334c-2.4,3.188-2.003,9.595-1.981,9.595c-3.376,0-6.145,0-9.525,0c-1.031,0-2.063,0-3.09,0 c-3.376,0-6.195,0-9.57,0c0.023,0,0.463-6.406-1.929-9.595C19.584,35.136,19.073,25.082,19.073,24.371z"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-miterlimit="10" d="M19.073,24.371c0-12.03,9.743-21.773,21.771-21.773	c12.029,0,21.773,9.743,21.773,21.773c0,0.71-0.523,10.773-8.727,21.334c-2.4,3.188-2.003,9.595-1.981,9.595 c-3.376,0-6.145,3-9.525,3c-1.031,0-2.063,0-3.09,0c-3.376,0-6.195-3-9.57-3c0.023,0,0.463-6.406-1.929-9.595 C19.584,35.136,19.073,25.082,19.073,24.371z"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" d="M37.607,58.084 33.122,37.834 37.693,35.384 40.837,37.834 44.428,35.384 48.77,37.834 44.285,58.088 	"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linecap="round" stroke-linejoin="bevel" stroke-miterlimit="10" d="M30.097,65.438"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-miterlimit="10" d="M29.827,54.191 29.827,61.262 41.009,67.483 52.065,61.326 52.013,54.191 "/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linejoin="round" stroke-miterlimit="10" d="M71.228,86.17 40.904,103.677 10.576,86.17 10.576,70.109 	"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linejoin="round" stroke-miterlimit="10" d="M71.228,70.443 71.228,86.17 40.904,103.677 40.904,68.91 71.228,51.153 	"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linejoin="round" stroke-miterlimit="10" d="M40.904,68.91 71.228,51.153 79.188,65.908 48.861,83.416 Z"/>
+	<path fill="none" stroke="#484F59" stroke-width="3" stroke-linejoin="round" stroke-miterlimit="10" d="M40.946,68.941 10.623,51.184 2.662,65.938 32.988,83.449 Z"/>
+</svg>

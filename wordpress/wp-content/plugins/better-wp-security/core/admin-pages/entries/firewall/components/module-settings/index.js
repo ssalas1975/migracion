@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { FlexBlock } from '@wordpress/components';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Button, Surface } from '@ithemes/ui';
 

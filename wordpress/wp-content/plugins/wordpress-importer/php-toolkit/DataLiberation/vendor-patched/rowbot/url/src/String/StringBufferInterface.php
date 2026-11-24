@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\String;
+namespace Rowbot\URL\String;
 
 use IteratorAggregate;
-use VendorPrefix\Rowbot\URL\Component\PathSegment;
-use VendorPrefix\Rowbot\URL\Component\Scheme;
+use Rowbot\URL\Component\PathSegment;
+use Rowbot\URL\Component\Scheme;
 
 /**
  * @extends IteratorAggregate<int, string>

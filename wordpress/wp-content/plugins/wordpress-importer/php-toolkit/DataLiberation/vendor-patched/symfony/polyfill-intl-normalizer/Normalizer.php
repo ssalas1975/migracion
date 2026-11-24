@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace VendorPrefix\Symfony\Polyfill\Intl\Normalizer;
+namespace Symfony\Polyfill\Intl\Normalizer;
 
 use ValueError;
 

@@ -164,9 +164,9 @@ class Dynamic_Tags_Editor_Config {
 			return null;
 		}
 
-		$is_convertible = ! isset( $control['name'], $control['section'], $control['label'], $control['default'] );
+		$is_convertable = ! isset( $control['name'], $control['section'], $control['label'], $control['default'] );
 
-		if ( $is_convertible ) {
+		if ( $is_convertable ) {
 			throw new \Exception( 'Control must have name, section, label, and default' );
 		}
 
@@ -180,29 +180,27 @@ class Dynamic_Tags_Editor_Config {
 	 * @throws \Exception If control is missing options.
 	 */
 	private function convert_select_control_to_atomic( $control, $tag = [] ) {
+		$options = $this->extract_select_options_from_control( $control );
+
+		if ( empty( $options ) ) {
+			throw new \Exception( 'Select control must have options' );
+		}
+
+		$options = apply_filters( 'elementor/atomic/dynamic_tags/select_control_options', $options, $control, $tag );
+
+		$options = array_map(
+			fn( $key, $value ) => [
+				'value' => $key,
+				'label' => $value,
+			],
+			array_keys( $options ),
+			$options
+		);
+
 		$select_control = Select_Control::bind_to( $control['name'] )
 			->set_placeholder( $control['placeholder'] ?? '' )
+			->set_options( $options )
 			->set_label( $control['atomic_label'] ?? $control['label'] );
-
-		if ( $this->has_select_control_groups( $control ) ) {
-			$groups = $this->extract_select_groups_from_control( $control, $tag );
-
-			if ( empty( $groups ) ) {
-				throw new \Exception( 'Select control must have options' );
-			}
-
-			$select_control->set_groups( $groups );
-		} else {
-			$options = $this->extract_select_options_from_control( $control );
-
-			if ( empty( $options ) ) {
-				throw new \Exception( 'Select control must have options' );
-			}
-
-			$options = apply_filters( 'elementor/atomic/dynamic_tags/select_control_options', $options, $control, $tag );
-
-			$select_control->set_options( $this->map_select_options( $options ) );
-		}
 
 		if ( isset( $control['collection_id'] ) ) {
 			$select_control->set_collection_id( $control['collection_id'] );
@@ -211,28 +209,23 @@ class Dynamic_Tags_Editor_Config {
 		return $select_control;
 	}
 
-	private function has_select_control_groups( $control ): bool {
-		if ( ! empty( $control['options'] ) ) {
-			return false;
+	private function extract_select_options_from_control( $control ): array {
+		$options = $control['options'] ?? [];
+
+		if ( ! empty( $options ) ) {
+			return $options;
 		}
 
-		return ! empty( $control['groups'] ) && is_array( $control['groups'] );
-	}
-
-	private function extract_select_options_from_control( $control ): array {
-		return $control['options'] ?? [];
-	}
-
-	private function extract_select_groups_from_control( $control, $tag = [] ): array {
-		$sanitized_groups = [];
-		$flat_options = [];
+		if ( empty( $control['groups'] ) || ! is_array( $control['groups'] ) ) {
+			return $options;
+		}
 
 		foreach ( $control['groups'] as $group ) {
 			if ( empty( $group['options'] ) || ! is_array( $group['options'] ) ) {
 				continue;
 			}
 
-			$options = array_filter(
+			$filtered = array_filter(
 				$group['options'],
 				static function ( $label, $key ) {
 					return is_string( $key );
@@ -240,47 +233,10 @@ class Dynamic_Tags_Editor_Config {
 				ARRAY_FILTER_USE_BOTH
 			);
 
-			if ( empty( $options ) ) {
-				continue;
-			}
-
-			$sanitized_groups[] = [
-				'label'   => $group['label'] ?? '',
-				'options' => $options,
-			];
-
-			$flat_options = array_merge( $flat_options, $options );
+			$options = array_merge( $options, $filtered );
 		}
 
-		$filtered_options = apply_filters( 'elementor/atomic/dynamic_tags/select_control_options', $flat_options, $control, $tag );
-
-		$groups = [];
-
-		foreach ( $sanitized_groups as $group ) {
-			$group_options = array_intersect_key( $filtered_options, $group['options'] );
-
-			if ( empty( $group_options ) ) {
-				continue;
-			}
-
-			$groups[] = [
-				'label'   => $group['label'],
-				'options' => $this->map_select_options( $group_options ),
-			];
-		}
-
-		return apply_filters( 'elementor/atomic/dynamic_tags/select_control_groups', $groups, $control, $tag );
-	}
-
-	private function map_select_options( array $options ): array {
-		return array_map(
-			fn( $key, $value ) => [
-				'value' => $key,
-				'label' => $value,
-			],
-			array_keys( $options ),
-			$options
-		);
+		return $options;
 	}
 
 	/**

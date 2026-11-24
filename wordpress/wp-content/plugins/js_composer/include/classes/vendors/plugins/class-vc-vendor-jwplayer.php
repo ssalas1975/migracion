@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * JWPLayer loader.
  * @since 4.3
  */
-class Vc_Vendor_Jwplayer {
+class Vc_Vendor_Jwplayer implements Vc_Vendor_Interface {
 	/**
 	 * Dublicate jwplayer logic for editor, when used in frontend editor mode.
 	 *
@@ -16,21 +16,21 @@ class Vc_Vendor_Jwplayer {
 	public function load() {
 
 		add_action( 'wp_enqueue_scripts', array(
-			$this,
+			&$this,
 			'vc_load_iframe_jscss',
 		) );
 		add_filter( 'vc_front_render_shortcodes', array(
-			$this,
+			&$this,
 			'renderShortcodes',
 		) );
 		add_filter( 'vc_frontend_template_the_content', array(
-			$this,
+			&$this,
 			'wrapPlaceholder',
 		) );
 
 		// fix for #1065
 		add_filter( 'vc_shortcode_content_filter_after', array(
-			$this,
+			&$this,
 			'renderShortcodesPreview',
 		) );
 	}
@@ -38,13 +38,12 @@ class Vc_Vendor_Jwplayer {
 	/**
 	 * @param $output
 	 *
-	 * @return mixed|string
 	 * @since 4.3
 	 *
+	 * @return mixed|string
 	 */
 	public function renderShortcodes( $output ) {
 		$output = str_replace( '][jwplayer', '] [jwplayer', $output ); // fixes jwplayer shortcode regex..
-		/** @noinspection PhpUndefinedClassInspection */
 		$data = JWP6_Shortcode::the_content_filter( $output );
 		preg_match_all( '/(jwplayer-\d+)/', $data, $matches );
 		$pairs = array_unique( $matches[0] );
@@ -59,22 +58,12 @@ class Vc_Vendor_Jwplayer {
 		return $data;
 	}
 
-	/**
-	 * @param $content
-	 * @return mixed
-	 */
 	public function wrapPlaceholder( $content ) {
-		add_shortcode( 'jwplayer', array(
-			$this,
-			'renderPlaceholder',
-		) );
+		add_shortcode( 'jwplayer', array( &$this, 'renderPlaceholder' ) );
 
 		return $content;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function renderPlaceholder() {
 		return '<div class="vc_placeholder-jwplayer"></div>';
 	}
@@ -82,13 +71,12 @@ class Vc_Vendor_Jwplayer {
 	/**
 	 * @param $output
 	 *
-	 * @return string
 	 * @since 4.3, due to #1065
 	 *
+	 * @return string
 	 */
 	public function renderShortcodesPreview( $output ) {
 		$output = str_replace( '][jwplayer', '] [jwplayer', $output ); // fixes jwplayer shortcode regex..
-
 		return $output;
 	}
 
@@ -97,6 +85,6 @@ class Vc_Vendor_Jwplayer {
 	 * @todo check it for preview mode (check is it needed)
 	 */
 	public function vc_load_iframe_jscss() {
-		wp_enqueue_script( 'vc_vendor_jwplayer', vc_asset_url( 'js/frontend_editor/vendors/plugins/jwplayer.js' ), array( 'jquery-core' ), '1.0', true );
+		wp_enqueue_script( 'vc_vendor_jwplayer', vc_asset_url( 'js/frontend_editor/vendors/plugins/jwplayer.js' ), array( 'jquery' ), '1.0', true );
 	}
 }

@@ -1,4 +1,4 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if (!defined( 'FW' ) && !function_exists( 'jevelin_framework' )) die('Forbidden.');
 if(!function_exists('jevelin_shortcode_toggler_css')) :
 	function jevelin_shortcode_toggler_css ($data) {
 		$atts = jevelin_shortcode_options($data,'toggler');

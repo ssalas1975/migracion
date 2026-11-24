@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Kadence dependencies
+ * SolidWP dependencies
  */
 import { Heading, Text, TextSize, TextWeight } from '@ithemes/ui';
 

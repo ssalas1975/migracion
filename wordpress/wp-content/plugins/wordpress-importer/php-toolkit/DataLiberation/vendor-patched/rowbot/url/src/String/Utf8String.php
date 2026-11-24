@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace VendorPrefix\Rowbot\URL\String;
+namespace Rowbot\URL\String;
 
-use VendorPrefix\Rowbot\URL\String\Exception\EncodingException;
+use Rowbot\URL\String\Exception\EncodingException;
 
 use function mb_convert_encoding;
 use function mb_scrub;

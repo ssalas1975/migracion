@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<nodes>
+<item><name>Asturias</name><link>http://www.elcomercio.es/asturias/</link></item>
+<item><name>Oviedo</name><link>http://www.elcomercio.es/oviedo/</link></item>
+<item><name>Gijón</name><link>http://www.elcomercio.es/gijon/</link></item>
+<item><name>Avilés</name><link>http://www.elcomercio.es/aviles/</link></item>
+<item><name>Política</name><link>http://www.elcomercio.es/politica/</link></item>
+<item><name>Mundo</name><link>http://www.elcomercio.es/internacional/</link></item>
+<item><name>Economía</name><link>http://www.elcomercio.es/economia/</link></item>
+<item><name>Deportes</name><link>http://www.elcomercio.es/deportes/</link></item>
+<item><name>Culturas</name><link>http://www.elcomercio.es/culturas/</link></item>
+<item><name>Tecnología</name><link>http://www.elcomercio.es/tecnologia/</link></item>
+<item><name>Gente</name><link>http://www.elcomercio.es/gente-estilo/</link></item>
+<item><name>Planes</name><link>http://www.elcomercio.es/planes/</link></item>
+</nodes>

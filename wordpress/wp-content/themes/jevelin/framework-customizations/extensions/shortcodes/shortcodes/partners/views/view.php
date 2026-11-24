@@ -1,10 +1,11 @@
-<?php if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+<?php if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* Partners HTML
 /*-----------------------------------------------------------------------------------*/
 $id = ( isset( $atts['id'] ) ) ? $atts['id'] : $id_rand;
 $class = '';
 $class.= ( isset( $atts['padding'] ) && $atts['padding'] == true ) ? ' sh-partners-carousel-additional-padding' : '';
+$class.= ( isset( $atts['padding_horizontal'] ) && $atts['padding_horizontal'] == false ) ? ' sh-partners-carousel-additional-horizontal-padding-remove' : '';
 $autoplay = ( isset( $atts['autoplay'] ) && $atts['autoplay'] > 0 ) ? ( $atts['autoplay'] * 1000 ) : 5000;
 $partners = ( isset( $atts['partners'] ) ) ? $atts['partners'] : '';
 $columns = ( isset( $atts['columns'] ) ) ? $atts['columns'] : '5';
@@ -18,60 +19,30 @@ endif;
 
 <?php /* Visual Composer Optimization */ ?>
 <?php if( jevelin_is_vc_front() ) : ?>
-	<script type="text/javascript">
-		jQuery(document).ready(function ($) {
-			if( $.isFunction( $.fn.slick ) ) {
+<style media="screen">
+	#partners-<?php echo esc_attr( $id ); ?> {
+		opacity: 1;
+		overflow: visible;
+		height: auto;
+	}
 
-				var partner_autoplay = parseInt( $('#partners-<?php echo esc_attr( $id ); ?>').attr('data-autoplay') );
-				var partner_carousel_columns = parseInt($('#partners-<?php echo esc_attr( $id ); ?>').attr('data-id') );
-				var partner_carousel_columns_responsive1 = partner_carousel_columns;
-				var partner_carousel_columns_responsive2 = 2;
+	#partners-<?php echo esc_attr( $id ); ?> .sh-partners-carousel-item {
+		display: inline-block;
+		vertical-align: middle;
+		text-align: center;
+		margin-right: -4px;
+		width: <?php echo ( 100 / $columns ); ?>%;
+	}
 
-				if( partner_carousel_columns > 4 ) {
-					partner_carousel_columns_responsive1 = 4;
-				}
+	#partners-<?php echo esc_attr( $id ); ?> .sh-partners-carousel-item > div {
+		display: table;
+		margin: 0 auto;
+	}
 
-				if( partner_carousel_columns == 1 ) {
-					partner_carousel_columns_responsive2 = 1;
-				}
-
-				if( partner_autoplay < 1 || !partner_autoplay ) {
-					partner_autoplay = 5000;
-				}
-
-				$('#partners-<?php echo esc_attr( $id ); ?>').slick({
-					infinite: true,
-					dots: false,
-					arrows: false,
-					slidesToShow: partner_carousel_columns,
-					slidesToScroll: 1,
-					autoplay: true,
-					autoplaySpeed: partner_autoplay,
-					responsive: [
-						{
-							breakpoint: 1025,
-							settings: {
-								slidesToShow: partner_carousel_columns_responsive1
-							}
-						},{
-							breakpoint: 800,
-							settings: {
-								slidesToShow: partner_carousel_columns_responsive2,
-								pauseOnHover: false
-							}
-						},{
-							breakpoint: 550,
-							settings: {
-								slidesToShow: 1,
-								pauseOnHover: false
-							}
-						}
-					],
-				});
-
-			}
-		});
-	</script>
+	#partners-<?php echo esc_attr( $id ); ?> .sh-partners-carousel-item:nth-child(n+<?php echo ( intval( $columns ) + 1 ); ?>) {
+		display: none;
+	}
+</style>
 <?php endif; ?>
 
 
@@ -86,7 +57,7 @@ endif;
 				$image = ( isset( $atts['id'] ) ) ? jevelin_get_image( $content['logo'] ) : jevelin_get_small_thumb( $content['logo'], 'large' );
 			endif;
 		?>
-			<div class="<?php if( $website ) : ?>sh-partners-carousel-item-link<?php endif; ?>">
+			<div class="sh-partners-carousel-item <?php if( $website ) : ?>sh-partners-carousel-item-link<?php endif; ?>">
 				<div class="sh-partners-carousel-item-content">
 					<?php if( $website ) : ?>
 						<a href="<?php echo esc_url( $website ); ?>" target="_blank">

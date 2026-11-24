@@ -2,7 +2,7 @@
 /**
  * Tags Condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -18,7 +18,7 @@ trait TagsCondition {
 	/**
 	 * Processes "Tags" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition_settings Containing all settings of the condition.
 	 *
@@ -31,9 +31,8 @@ trait TagsCondition {
 			return false;
 		}
 
-		// Checks for additional display rule for compatibility with Conditional Display older versions which didn't use `displayRule` key.
-		$legacy_display_rule          = isset( $condition_settings['tagsDisplay'] ) ? $condition_settings['tagsDisplay'] : 'is';
-		$display_rule                 = isset( $condition_settings['displayRule'] ) ? $condition_settings['displayRule'] : $legacy_display_rule;
+		// Get condition's settings.
+		$display_rule                 = isset( $condition_settings['tagsDisplay'] ) ? $condition_settings['tagsDisplay'] : 'is';
 		$tags_raw                     = isset( $condition_settings['tags'] ) ? $condition_settings['tags'] : [];
 		$tags                         = array_map(
 			function( $item ) {

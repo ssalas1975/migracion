@@ -5,6 +5,8 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 		$id = ( $id_rand ) ? $id_rand : $atts['id'];
 		$style = ( isset( $atts['style'] ) ) ? $atts['style'] : '1';
 		$font_size = ( isset( $atts['font_size'] ) ) ? $atts['font_size'] : '';
+		$icon_size = ( isset( $atts['icon_size'] ) ) ? $atts['icon_size'] : '';
+		$font_weight = ( isset( $atts['font_weight'] ) ) ? $atts['font_weight'] : '700';
 		$radius = ( isset( $atts['radius'] ) ) ? $atts['radius'] : '0';
 		$background_color = ( isset( $atts['background_color'] ) ) ? $atts['background_color'] : '#3f3f3f';
 		$text_color = ( isset( $atts['text_color'] ) ) ? $atts['text_color'] : '#ffffff';
@@ -13,6 +15,9 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 		$image = ( isset( $atts['image'] ) ) ? $atts['image'] : '';
 		$shadow = ( isset( $atts['shadow'] ) ) ? $atts['shadow'] : 'none';
 		$full = ( isset( $atts['full'] ) ) ? $atts['full'] : '';
+		$height = ( isset( $atts['height'] ) ) ? $atts['height'] : '';
+		$line_height = ( isset( $atts['line_height'] ) ) ? $atts['line_height'] : '';
+		$leftright_padding = ( isset( $atts['leftright_padding'] ) ) ? $atts['leftright_padding'] : '';
 		$alignment = ( isset( $atts['alignment'] ) ) ? $atts['alignment'] : 'left';
 		$margin = ( isset( $atts['margin'] ) ) ? $atts['margin'] : '';
 		$background_hover_color = ( isset( $atts['background_hover_color'] ) ) ? $atts['background_hover_color'] : '';
@@ -23,7 +28,42 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 		ob_start(); ?>
 
 
+
+			<?php if( $icon_size ) : ?>
+				#button-<?php echo esc_attr( $id ); ?> .sh-button-icon i {
+					font-size: <?php echo jevelin_addpx( $icon_size ); ?>;
+				}
+			<?php endif; ?>
+
+
+			<?php if( $font_weight && $font_weight != 700 ) : ?>
+				#button-<?php echo esc_attr( $id ); ?> .sh-button-text {
+					font-weight: <?php echo esc_attr( $font_weight ); ?>;
+				}
+			<?php endif; ?>
+
+
 			#button-<?php echo esc_attr( $id ); ?> .sh-button {
+				<?php if( $height ) : ?>
+					line-height: <?php echo jevelin_addpx( $height ); ?>;
+					height: <?php echo jevelin_addpx( $height ); ?>;
+					padding-top: 0;
+				    padding-bottom: 0;
+				<?php endif; ?>
+
+				<?php if( $line_height ) : ?>
+					line-height: <?php echo jevelin_addpx( $line_height ); ?>;
+					padding-top: 0;
+				    padding-bottom: 0;
+				<?php elseif( $height ) : ?>
+					line-height: <?php echo jevelin_addpx( $height ); ?>;
+				<?php endif; ?>
+
+				<?php if( $leftright_padding ) : ?>
+					padding-left: <?php echo jevelin_addpx( $leftright_padding ); ?>;
+				    padding-right: <?php echo jevelin_addpx( $leftright_padding ); ?>;
+				<?php endif; ?>
+
 				<?php if( $font_size ) : ?>
 					font-size: <?php echo jevelin_addpx( $font_size ); ?>;
 				<?php endif; ?>
@@ -48,8 +88,8 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 					border: <?php echo esc_attr( $border_size ); ?>px solid <?php echo esc_attr( $border_color ); ?>;
 				<?php endif; ?>
 
-				<?php if( jevelin_get_image( $image ) ) : ?>
-					background-image: url( <?php echo jevelin_get_image( $image ); ?> );
+				<?php if( $image ) : ?>
+					background-image: url( <?php echo ( $image && !is_array( $image ) ) ? jevelin_get_small_thumb( $image ) : jevelin_get_image_size( $image ); ?> );
 				<?php endif; ?>
 
 				<?php if( $shadow == 'simple' ) : ?>
@@ -69,16 +109,18 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 			}
 
 			#button-<?php echo esc_attr( $id ); ?>  {
-				<?php if( $margin ) : ?>
-					margin: <?php echo esc_attr( $margin ); ?>;
-				<?php endif; ?>
-
 				<?php if( $alignment == 'center' ) : ?>
 					text-align: center;
 				<?php elseif( $alignment == 'right' ) : ?>
 					text-align: right;
 				<?php endif; ?>
 			}
+
+			<?php if( $margin ) : ?>
+				#button-<?php echo esc_attr( $id ); ?> .sh-element-margin {
+					margin: <?php echo esc_attr( $margin ); ?>;
+				}
+			<?php endif; ?>
 
 			#button-<?php echo esc_attr( $id ); ?>:not(.sh-button-style-2) .sh-button:hover {
 				<?php if( $background_hover_color ) : ?>
@@ -137,6 +179,22 @@ if( !function_exists( 'jevelin_shortcode_button_css' ) ) :
 				@media (max-width: 800px) {
 					#button-<?php echo esc_attr($id); ?> {
 						text-align: center;
+					}
+				}
+			<?php endif; ?>
+
+			<?php if( $alignment_mobile == 'right' ) : ?>
+				@media (max-width: 800px) {
+					#button-<?php echo esc_attr($id); ?> {
+						text-align: right;
+					}
+				}
+			<?php endif; ?>
+
+			<?php if( $alignment_mobile == 'left' ) : ?>
+				@media (max-width: 800px) {
+					#button-<?php echo esc_attr($id); ?> {
+						text-align: left;
 					}
 				}
 			<?php endif; ?>

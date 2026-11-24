@@ -2,7 +2,7 @@
 class vcj_button extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_button', array( $this, '_html' ) );
     }
 
@@ -73,11 +73,13 @@ class vcj_button extends WPBakeryShortCode {
     array (
       'param_name' => 'alignment_mobile',
       'heading' => 'Mobile Alignment',
-      'description' => 'Choose mobile alignment',
+      'description' => 'Select mobile alignment',
       'value' => 
       array (
         'Default' => 'default',
+        'Left' => 'left',
         'Center' => 'center',
+        'Right' => 'right',
       ),
       'type' => 'dropdown',
       'class' => '',
@@ -113,6 +115,17 @@ class vcj_button extends WPBakeryShortCode {
     ),
     7 => 
     array (
+      'param_name' => 'icon_size',
+      'heading' => 'Icon Size',
+      'description' => 'Enter icon size (with <b>px</b>)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Icon',
+    ),
+    8 => 
+    array (
       'param_name' => 'icon_alignment',
       'heading' => 'Icon Alignment',
       'description' => 'Choose icon alignment',
@@ -126,7 +139,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 'left',
       'group' => 'Icon',
     ),
-    8 => 
+    9 => 
     array (
       'param_name' => 'style',
       'heading' => 'Button Style',
@@ -143,7 +156,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '1',
       'group' => 'Styling',
     ),
-    9 => 
+    10 => 
     array (
       'param_name' => 'size',
       'heading' => 'Button Size',
@@ -162,7 +175,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 'medium',
       'group' => 'Styling',
     ),
-    10 => 
+    11 => 
     array (
       'param_name' => 'font_size',
       'heading' => 'Font Size',
@@ -173,7 +186,28 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
-    11 => 
+    12 => 
+    array (
+      'param_name' => 'font_weight',
+      'heading' => 'Font Weight',
+      'description' => 'Select font weight',
+      'value' => 
+      array (
+        'Extra Light' => 200,
+        'Light' => 300,
+        'Normal' => 400,
+        'Medium' => 500,
+        'Semi-bold' => 600,
+        'Bold' => 700,
+        'Extra Bold' => 800,
+        'Black' => 900,
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => '700',
+      'group' => 'Styling',
+    ),
+    13 => 
     array (
       'param_name' => 'radius',
       'heading' => 'Button Radius',
@@ -184,7 +218,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 0,
       'group' => 'Styling',
     ),
-    12 => 
+    14 => 
     array (
       'param_name' => 'border_size',
       'heading' => 'Border Size',
@@ -195,7 +229,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 2,
       'group' => 'Styling',
     ),
-    13 => 
+    15 => 
     array (
       'param_name' => 'shadow',
       'heading' => 'Shadow',
@@ -213,7 +247,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 'none',
       'group' => 'Styling',
     ),
-    14 => 
+    16 => 
     array (
       'param_name' => 'full',
       'heading' => 'Button 100% Width',
@@ -228,7 +262,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => false,
       'group' => 'Styling',
     ),
-    15 => 
+    17 => 
     array (
       'param_name' => 'tale',
       'heading' => 'Button Tale',
@@ -244,18 +278,40 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 'none',
       'group' => 'Styling',
     ),
-    16 => 
+    18 => 
     array (
-      'param_name' => 'margin',
-      'heading' => 'Margin',
-      'description' => 'Enter your custom margin (<b>top right bottom left</b>)',
-      'value' => '0px 0px 15px 0px',
+      'param_name' => 'height',
+      'heading' => 'Button Height',
+      'description' => 'Enter your custom button height (with px)',
+      'value' => '',
       'type' => 'textfield',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => '',
       'group' => 'Styling',
     ),
-    17 => 
+    19 => 
+    array (
+      'param_name' => 'line_height',
+      'heading' => 'Button Line Height',
+      'description' => 'Enter your custom button line height (with px)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    20 => 
+    array (
+      'param_name' => 'leftright_padding',
+      'heading' => 'Button Left/Right Padding',
+      'description' => 'Enter your custom button left/right padding (with px)',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    21 => 
     array (
       'param_name' => 'text_color',
       'heading' => 'Text Color',
@@ -266,7 +322,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '#ffffff',
       'group' => 'Colors',
     ),
-    18 => 
+    22 => 
     array (
       'param_name' => 'text_hover_color',
       'heading' => 'Text Hover Color',
@@ -277,7 +333,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Colors',
     ),
-    19 => 
+    23 => 
     array (
       'param_name' => 'background_color',
       'heading' => 'Background Color',
@@ -288,7 +344,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '#3f3f3f',
       'group' => 'Colors',
     ),
-    20 => 
+    24 => 
     array (
       'param_name' => 'background_hover_color',
       'heading' => 'Background Hover Color',
@@ -299,7 +355,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Colors',
     ),
-    21 => 
+    25 => 
     array (
       'param_name' => 'border_color',
       'heading' => 'Border Color',
@@ -310,7 +366,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Colors',
     ),
-    22 => 
+    26 => 
     array (
       'param_name' => 'border_hover_color',
       'heading' => 'Border Hover Color',
@@ -321,7 +377,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Colors',
     ),
-    23 => 
+    27 => 
     array (
       'param_name' => 'animation',
       'heading' => 'Animation',
@@ -378,7 +434,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 'none',
       'group' => 'Show Animation',
     ),
-    24 => 
+    28 => 
     array (
       'param_name' => 'animation_speed',
       'heading' => 'Animation Speed',
@@ -389,7 +445,7 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 2,
       'group' => 'Show Animation',
     ),
-    25 => 
+    29 => 
     array (
       'param_name' => 'animation_delay',
       'heading' => 'Animation Delay',
@@ -400,6 +456,32 @@ class vcj_button extends WPBakeryShortCode {
       'std' => 0,
       'group' => 'Show Animation',
     ),
+    30 => 
+    array (
+      'param_name' => 'inline_element',
+      'heading' => 'Inline Element',
+      'description' => 'Enable for multiple elements to add them in one line Doesnt work in WPbakery page builder front-end mode',
+      'value' => 
+      array (
+        'Disabled' => 'disabled',
+        'Enabled' => 'enabled',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'disabled',
+      'group' => 'Position',
+    ),
+    31 => 
+    array (
+      'param_name' => 'margin',
+      'heading' => 'Margin',
+      'description' => 'Enter your custom margin (<b>top right bottom left</b>)',
+      'value' => '0px 0px 15px 0px',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '0px 0px 15px 0px',
+      'group' => 'Position',
+    ),
   ),
 ) );
     }
@@ -408,8 +490,9 @@ class vcj_button extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/button/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/button/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/button/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/button/static.php';
         if( function_exists( 'jevelin_shortcode_button_css' ) ) :
             jevelin_shortcode_button_css( $atts, $id_rand );
         endif;

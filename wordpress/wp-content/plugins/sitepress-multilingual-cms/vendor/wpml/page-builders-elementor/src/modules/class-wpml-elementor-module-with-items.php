@@ -22,10 +22,8 @@ abstract class WPML_Elementor_Module_With_Items implements IWPML_Page_Builders_M
 	 */
 	abstract protected function get_editor_type( $field );
 
-	/**
-	 * @return string
-	 */
-	abstract public function get_items_field();
+	/** @return string */
+	abstract protected function get_items_field();
 
 	/**
 	 * @param string|int $node_id
@@ -58,7 +56,7 @@ abstract class WPML_Elementor_Module_With_Items implements IWPML_Page_Builders_M
 
 						$strings[] = new WPML_PB_String(
 							$item[ $key ][ $inner_field ],
-							$this->get_string_name( $node_id, $item[ $key ][ $inner_field ], $inner_field, $element['widgetType'], $item['_id'] ),
+							$this->get_string_name( $node_id, $item[ $key ][ $inner_field ], $inner_field, $item['_id'] ),
 							$this->get_title( $inner_field ),
 							$this->get_editor_type( $inner_field )
 						);

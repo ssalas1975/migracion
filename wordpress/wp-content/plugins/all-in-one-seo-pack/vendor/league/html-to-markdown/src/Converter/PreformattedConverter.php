@@ -4,56 +4,35 @@ declare(strict_types=1);
 
 namespace League\HTMLToMarkdown\Converter;
 
-use League\HTMLToMarkdown\Backticks;
-use League\HTMLToMarkdown\Configuration;
-use League\HTMLToMarkdown\ConfigurationAwareInterface;
 use League\HTMLToMarkdown\ElementInterface;
-use League\HTMLToMarkdown\RawHtml;
 
-class PreformattedConverter implements ConverterInterface, ConfigurationAwareInterface
+class PreformattedConverter implements ConverterInterface
 {
-    /** @var Configuration|null */
-    protected $config;
-
-    public function setConfig(Configuration $config): void
-    {
-        $this->config = $config;
-    }
-
     public function convert(ElementInterface $element): string
     {
-        if (RawHtml::cannotBeFenced($element, $this->config)) {
-            return RawHtml::fromCode($this->getContent($element), 'pre');
-        }
-
-        return $this->convertToFencedCodeBlock($element) . "\n\n";
-    }
-
-    private function getContent(ElementInterface $element): string
-    {
-        return RawHtml::getContentWithoutTags($element, ['pre']);
-    }
-
-    private function convertToFencedCodeBlock(ElementInterface $element): string
-    {
-        $preContent = $this->getContent($element);
-
-        // A newline right after the <pre> start tag is not part of the content (HTML spec), but the parser keeps it.
-        // Not done in getContent(), as a <pre> kept as raw HTML gets this newline dropped when it is rendered.
-        $preContent = \preg_replace('/^(?:\r\n|\r|\n)/', '', $preContent);
+        $preContent = \html_entity_decode($element->getChildrenAsString());
+        $preContent = \preg_replace('/<pre\b[^>]*>/', '', $preContent);
         \assert($preContent !== null);
+        $preContent = \str_replace('</pre>', '', $preContent);
 
-        // A nested code tag has already been converted into a fenced code block, so there's nothing more to convert
-        $trimmedContent = \trim($preContent);
-        if ($this->isFencedCodeBlock($trimmedContent)) {
-            return $trimmedContent;
+        /*
+         * Checking for the code tag.
+         * Usually pre tags are used along with code tags. This conditional will check for already converted code tags,
+         * which use backticks, and if those backticks are at the beginning and at the end of the string it means
+         * there's no more information to convert.
+         */
+
+        $firstBacktick = \strpos(\trim($preContent), '`');
+        $lastBacktick  = \strrpos(\trim($preContent), '`');
+        if ($firstBacktick === 0 && $lastBacktick === \strlen(\trim($preContent)) - 1) {
+            return $preContent . "\n\n";
         }
 
         // If the execution reaches this point it means it's just a pre tag, with no code tag nested
 
         // Empty lines are a special case
         if ($preContent === '') {
-            return "```\n```";
+            return "```\n```\n\n";
         }
 
         // Normalizing new lines
@@ -65,19 +44,8 @@ class PreformattedConverter implements ConverterInterface, ConfigurationAwareInt
             $preContent .= "\n";
         }
 
-        $fence = Backticks::fenceFor($preContent);
-
-        return $fence . "\n" . $preContent . $fence;
-    }
-
-    private function isFencedCodeBlock(string $markdown): bool
-    {
-        if (\preg_match('/^(`{3,})[^`\n]*\n(.*\n)?\1\z/s', $markdown, $matches) !== 1) {
-            return false;
-        }
-
-        // Anything else containing a fence of its own would end the block early
-        return Backticks::longestRun($matches[2] ?? '') < \strlen($matches[1]);
+        // Use three backticks
+        return "```\n" . $preContent . "```\n\n";
     }
 
     /**

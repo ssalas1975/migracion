@@ -1,11 +1,7 @@
 <?php
 /**
- * File uploading field
- *
- * @link https://contactform7.com/file-uploading-and-attachment/
- */
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+** A base module for [file] and [file*]
+**/
 
 /* form_tag handler */
 
@@ -86,7 +82,7 @@ function wpcf7_swv_add_file_rules( $schema, $contact_form ) {
 
 	foreach ( $tags as $tag ) {
 		if ( $tag->is_required() ) {
-			$schema->addRule(
+			$schema->add_rule(
 				wpcf7_swv_create_rule( 'requiredfile', array(
 					'field' => $tag->name,
 					'error' => wpcf7_get_message( 'invalid_required' ),
@@ -94,7 +90,7 @@ function wpcf7_swv_add_file_rules( $schema, $contact_form ) {
 			);
 		}
 
-		$schema->addRule(
+		$schema->add_rule(
 			wpcf7_swv_create_rule( 'file', array(
 				'field' => $tag->name,
 				'accept' => explode( ',', wpcf7_acceptable_filetypes(
@@ -104,7 +100,7 @@ function wpcf7_swv_add_file_rules( $schema, $contact_form ) {
 			) )
 		);
 
-		$schema->addRule(
+		$schema->add_rule(
 			wpcf7_swv_create_rule( 'maxfilesize', array(
 				'field' => $tag->name,
 				'threshold' => $tag->get_limit_option(),
@@ -154,11 +150,7 @@ function wpcf7_tag_generator_file( $contact_form, $options ) {
 		'file' => array(
 			'display_name' => __( 'File uploading field', 'contact-form-7' ),
 			'heading' => __( 'File uploading field form-tag generator', 'contact-form-7' ),
-			'description' => sprintf(
-				/* translators: %s: URL to file uploading field doc */
-				__( 'Generates a form-tag for a <a href="%s">file uploading field</a>.', 'contact-form-7' ),
-				'https://contactform7.com/file-uploading-and-attachment/'
-			),
+			'description' => __( 'Generates a form-tag for a <a href="https://contactform7.com/file-uploading-and-attachment/">file uploading field</a>.', 'contact-form-7' ),
 		),
 	);
 

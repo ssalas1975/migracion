@@ -19,7 +19,7 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 			case 'select': return ut_generate_select_option( $name, $attr_opt, $type, $code ); 
 			break;
 			
-			case 'effect': return ut_generate_effect_option( $name, $type, $code, $attr_opt ); 
+			case 'effect': return ut_generate_effect_option( $name, $type, $code ); 
 			break;
 			
 		case 'custom':
@@ -54,124 +54,8 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 					$return .= '</div>';
 					
 				$return .= '<button type="button" data-group="tabgroup" class="btn btn-primary btn-xs add-list-item">' . __('Add Tab', 'ut_shortcodes' ) . '</button><div class="clear"></div><br />';
-			            
-			} elseif($name == 'videotestgroup' ) {
-                
-                $return .= '<p><label>'.__( 'Manage Video Testimonials' , 'ut_shortcodes' ).'</label></p>';
-                
-                    $return .= '<div class="sc-vidtest-items" data-name="item" data-type="s">';
-						$return .= '<div class="sc-testvids well-white">';
-                            
-                            $return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Author' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="ut-option-value">';
-								$return .= '<input data-group="videotestgroup" class="sc-vidtest-item video-author form-control propertychange" type="text" name="" value="" />';
-							$return .= '</div>';
-							
-							$return .= '<div class="hr"></div>';
-                            
-                            $return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Company' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="ut-option-value">';
-								$return .= '<input data-group="videotestgroup" class="sc-vidtest-item video-company form-control propertychange" type="text" name="" value="" />';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="hr"></div>';
-                            
-                            $return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Poster Image' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="ut-option-value ut-media-access" style="margin-bottom:10px;">';
-									$return .= '<input data-group="videotestgroup" class="sc-vidtest-item form-control video-poster propertychange" type="text" value="" />';
-									$return .= ut_media_access( __('Add Poster Image', 'ut_shortcodes' ) );
-							$return .= '</div>';
-							
-							$return .= '<div class="hr"></div>';
-                            
-                            $return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Video Source' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="ut-option-value">';
-								$return .= '<input data-group="videotestgroup" class="sc-vidtest-item video-source form-control propertychange" type="text" name="" value="" />';
-                                $return .= '<span class="description">' . __('You can insert one of these video sources:' , 'ut_shortcodes') . '</span><br />';
-                                $return .= '<ol>';
-                                    $return .= '<li><span class="description"><a target="_blank" href="http://codex.wordpress.org/Video_Shortcode">' . __('WordPress Video Shortcode' , 'ut_shortcodes') . '</a></span></li>';                                
-                                    $return .= '<li><span class="description"><a target="_blank" href="http://codex.wordpress.org/Embeds">' . __('WordPress Embeds' , 'ut_shortcodes') . '</a><br /> like : http://www.youtube.com/watch?v=dQw4w9WgXcQ</span></li>';
-                                $return .= '</ol>';
-                                
-							$return .= '</div>';
-							
-							$return .= '<div class="hr"></div>';
-                            
-                            $return .= '<div class="live-group-select-parent">';
-                            
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Activate Boxed Layout?' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                
-                                    $return .= '<select data-group="videotestgroup" class="video-box-state sc-live-group-select sc-select-live">';
-                                        $return .= '<option value="off">' . __('no, thanks!' , 'ut_shortcodes') . '</option>';
-                                        $return .= '<option value="on">' . __('yes, please!' , 'ut_shortcodes') . '</option>';
-                                    $return .= '</select>';
-                                
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="clear"></div>';
-                                
-                                $return .= '<div class="live-group-select-children">';
-                                
-                                    $return  .= '<div class="ut-option-field">';
-                                        $return .= '<label>' . __('Choose Style' , 'ut_shortcodes') . ': </label>';
-                                    $return .= '</div>';
-                                    
-                                    $return .= '<div class="ut-option-value">';
-                                    
-                                        $return .= '<select data-group="videotestgroup" class="video-box-style sc-select-live">';
-                                            $return .= '<option data-for="" value="dark">' . __('Dark' , 'ut_shortcodes') . '</option>';
-                                            $return .= '<option data-for="" value="light">' . __('Light' , 'ut_shortcodes') . '</option>';
-                                        $return .= '</select>';
-                                    
-                                    $return .= '</div>';
-                                    
-                                    $return .= '<div class="clear"></div>';
-                                    
-                                $return .= '</div>';
-                                
-                            $return .= '</div>';
-                            
-                            $return .= '<div class="hr"></div>';
-                            
-                            $return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Animation Effect' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-                            
-                            $return .= '<div class="ut-option-value">';
-                            
-                                $return .= '<select data-group="videotestgroup" class="video-box-effect sc-select-live">';
-                                    $return .= '<option value="">Choose Animation Effect</option>';
-                                    $return .= '<option value="fadeIn">fadeIn</option>';
-                                    $return .= '<option value="slideInRight">slideInRight</option>';
-                                    $return .= '<option value="slideInLeft">slideInLeft</option>';
-                                $return .= '</select>';
-                            
-                            $return .= '</div>';
-                            
-                            $return .= '<div class="hr"></div>';                           
-                            
-                        $return .= '</div>';
-					$return .= '</div>';       
-                            
-                $return .= '<button type="button" data-group="videotestgroup" class="btn btn-primary btn-xs add-videotest-item">' . __('Add Video Testimonial', 'ut_shortcodes' ) . '</button><div class="clear"></div><br />';            
-            
-            } elseif( $name == 'verticaltabgroup' ) {
+			
+			} elseif( $name == 'verticaltabgroup' ) {
 				
 				$return .= '<p><label>'.__( 'Manage Vertical Image Tabs' , 'ut_shortcodes' ).'</label></p>';
 				
@@ -202,295 +86,7 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 					$return .= '</div>';
 					
 				$return .= '<button type="button" data-group="tabgroup" class="btn btn-primary btn-xs add-list-item">' . __('Add Tab', 'ut_shortcodes' ) . '</button><div class="clear"></div><br />';
-			
-            } elseif( $name == 'highlightgroup' ) {
-                                
-                $return .= '<p><label>'.__( 'Manage Left Service Boxes' , 'ut_shortcodes' ).'</label></p>';
-                
-                $return .= '<div class="sc-highlight-items" data-name="item" data-type="s">';
-                    $return .= '<div class="sc-highlights well-white ut-jquery-ui">';
-                        
-                        $return  .= '<div id="hightlight-left-manager-box">';
-                        
-                            $return .= '<h3>' . __( 'Service Box 1' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="left" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="left" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="left" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="left" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';                                                         
-                                
-                            $return .= '</div>';
-                            
-                            $return .= '<h3>' . __( 'Service Box 2' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="left" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="left" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="left" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="left" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';                                
-                                
-                            $return .= '</div>';
-                            
-                            $return .= '<h3>' . __( 'Service Box 3' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="left" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="left" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="left" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="left" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';                                
-                                
-                            $return .= '</div>';
-                        
-                        $return  .= '</div>';
-                        
-                        $return .= '<div class="clear"></div>';
-                        
-                    $return  .= '</div>';
-                $return .= '</div>';
-                
-                $return .= '<p><label>'.__( 'Manage Right Service Boxes' , 'ut_shortcodes' ).'</label></p>';
-                
-                $return .= '<div class="sc-highlight-items" data-name="item" data-type="s">';
-                    $return .= '<div class="sc-highlights well-white ut-jquery-ui">';
-                        
-                        $return  .= '<div id="hightlight-right-manager-box">';
-                        
-                            $return .= '<h3>' . __( 'Service Box 1' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="right" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="right" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="right" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="right" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';                                
-                                
-                            $return .= '</div>';
-                            
-                            $return .= '<h3>' . __( 'Service Box 2' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="right" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="right" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="right" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="right" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';                                
-                                
-                            $return .= '</div>';
-                            
-                            $return .= '<h3>' . __( 'Service Box 3' , 'ut_shortcodes') . '</h3>';
-                            $return .= '<div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Title' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input data-group="highlightgroup" data-align="right" class="sc-highlight-item form-control propertychange" type="text" name="" value="" />';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Content' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<textarea data-group="highlightgroup" data-align="right" class="sc-highlight-text form-control propertychange" type="text" name="" /></textarea>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Box Icon' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="ut-option-value">';
-                                    $return .= '<input style="margin-bottom:10px !important;" data-align="right" class="sc-highlight-icon attr form-control" type="text" data-attrname="icon" value="" />';
-                                    $return .= '<a href="#" data-group="highlightgroup" class="btn btn-primary btn-sm open-ut-modal sc-highlight-modal"> ' . __('Choose Icon' , 'ut_shortcodes') . '</a>';
-                                $return .= '</div>';
-                                
-                                $return .= '<div class="hr"></div>';
-                                
-                                $return  .= '<div class="ut-option-field">';
-                                    $return .= '<label>' . __('Icon Color' , 'ut_shortcodes') . ': </label>';
-                                $return .= '</div>';
-                                
-			                    $return .= '<div class="ut-option-value"><input data-group="highlightgroup" data-align="right" class="sc-highlight-color attr color-picker-hex form-control ut-color-picker" type="text" data-attrname="iconcolor" value="" /></div>';
-                                $return .= '<div class="clear"></div>';
-                                
-                            $return .= '</div>';
-                        
-                        $return  .= '</div>';
-                        
-                        $return .= '<div class="clear"></div>';
-                        
-                    $return  .= '</div>';
-                $return .= '</div>';                       
-            		
+					
 			} elseif( $name == 'clientgroup' ) {
 				
 				$return .= '<p><label>'.__( 'Manage Clients' , 'ut_shortcodes' ).'</label></p>';
@@ -530,37 +126,6 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 					
 				$return .= '<button type="button" data-group="clientgroup" class="btn btn-primary btn-xs add-client-item">'.__('Add Client', 'ut_shortcodes' ).'</button><div class="clear"></div><br />';
 			
-            } elseif( $name == 'imagerotator' ) {
-				
-				$return .= '<p><label>'.__( 'Manage Images' , 'ut_shortcodes' ).'</label></p>';
-				
-					$return .= '<div class="sc-irotator-items" data-name="item" data-type="s">';
-						$return .= '<div class="sc-irotator well-white">';
-																					
-							$return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Link' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-							
-							$return .= '<div class="ut-option-value">';
-								$return .= '<input data-group="irotatorgroup" class="sc-irotator-item form-control irotator-url propertychange" type="text" name="" value="" />';
-							$return .= '</div>';
-														
-							$return  .= '<div class="ut-option-field">';
-								$return .= '<label>' . __('Upload Image' , 'ut_shortcodes') . ': </label>';
-							$return .= '</div>';
-							
-							$return .= '<div class="ut-option-value ut-media-access" style="margin-bottom:10px;">';
-									$return .= '<input data-group="irotatorgroup" class="sc-irotator-item form-control irotator-image propertychange" type="text" value="" />';
-									$return .= ut_media_access( __('Add Image', 'ut_shortcodes' ) );
-							$return .= '</div>';
-															
-							$return .= '<button data-group="irotatorgroup" type="button" class="btn btn-danger btn-xs remove-group-item"><i class="fa fa-trash-o"></i></button>';							
-							
-					   $return .= '</div>';
-					$return .= '</div>';
-					
-				$return .= '<button type="button" data-group="irotatorgroup" class="btn btn-primary btn-xs add-irotator-item">'.__('Add Image', 'ut_shortcodes' ).'</button><div class="clear"></div><br />';
-                
 			} elseif( $name == 'quoterotator' ) {
 				
 				$return .= '<p><label>'.__( 'Manage Quotes' , 'ut_shortcodes' ).'</label></p>';
@@ -840,11 +405,6 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 			}
 			break;
 		
-        case 'alert':
-            
-            $return .= '<div class="ut-option-alert">'.$attr_opt['desc'].'</div>';
-            break;
-        
 		case 'colorpicker':
 			
 			$attr_opt['def'] = (isset($attr_opt['def']) && !empty($attr_opt['def'])) ? $attr_opt['def'] : '';
@@ -870,55 +430,17 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 			
 			$attr_opt['def'] = (isset($attr_opt['def']) && !empty($attr_opt['def'])) ? $attr_opt['def'] : '';
 			
-            /* config */            
-            $min   = !empty($attr_opt['min'])   ? $attr_opt['min']   : '0';
-            $max   = !empty($attr_opt['max'])   ? $attr_opt['max']   : '1';
-            $step  = !empty($attr_opt['step'])  ? $attr_opt['step']  : '0.1';
-            $value = !empty($attr_opt['value']) ? $attr_opt['value'] : '0.8';            
-            
 			$return .= '<div class="ut-option-field"><label for="sc-opt-'.$name.'">'.$attr_opt['title'].': </label></div>';
 			$return .= '<div class="ut-option-value ut-range-slider-group ut-jquery-ui">';
-				$return .= '<div class="ut-range-slider" data-min="' . $min . '" data-max="' . $max . '" data-step="' . $step . '" data-value="' . $value . '"></div>';
-				$return .= '<span class="ut-range-value">' . $value . '</span>';
+				$return .= '<div class="ut-range-slider"></div>';
+				$return .= '<span class="ut-range-value">0.8</span>';
 				$return .= '<input class="attr form-control ut-hidden-range-input" type="text" data-attrname="'.$name.'" value="'.$attr_opt['def'].'" />';
 			$return .= '</div>';
 			
 			break;
+			
 		
-        case 'spacing':
-            
-            $return .= '<div class="ut-option-field">';
-				$return .= '<label for="sc-opt-'.$name.'">'.$attr_opt['title'].': </label><br />';
-                
-                if( !empty($attr_opt['desc']) ) {
-					$return .= '<div class="clear"></div>';
-                    $return .= '<span class="description" style="margin-top:10px; display:block;">'.$attr_opt['desc'].'</span>';
-				}
-                
-			$return .= '</div>';
-            
-            $return .= '<div class="ut-option-value">';
-                
-                $return .= '<div class="ut-spacing-group">';
-                    
-                    $return .= '<div class="ut-spacing-left"><input class="attr form-control" type="text" data-attrname="'.$name.'_left" value="" /></div>';
-                    $return .= '<div class="ut-spacing-top"><input class="attr form-control" type="text" data-attrname="'.$name.'_top" value="" /></div>';
-                    $return .= '<div class="ut-spacing-right"><input class="attr form-control" type="text" data-attrname="'.$name.'_right" value="" /></div>';
-                    $return .= '<div class="clear"></div>';
-                    $return .= '<div class="ut-spacing-bottom"><input class="attr form-control" type="text" data-attrname="'.$name.'_bottom" value="" /></div>';
-                        
-                $return .= '</div>';
-                
-            $return .= '</div>';
-            
-            break;	
-		
-        case 'separator':
-            
-            $return .= '<h4 class="ut-option-separator">' . $attr_opt['title'] . ':</h4>';
-            break;
-        
-		case 'mediaaccess':
+		case 'mediaacess':
 			
 			$attr_opt['def'] = (isset($attr_opt['def']) && !empty($attr_opt['def'])) ? $attr_opt['def'] : '';
 			
@@ -930,11 +452,6 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
                 
                 $return .= '<input class="attr form-control" type="text" data-attrname="'.$name.'" value="'.$attr_opt['def'].'" />';
                 $return .= ut_media_access( $attr_opt['title'] );
-                
-                if( isset($attr_opt['desc']) && !empty($attr_opt['desc']) ) {
-					$return .= '<div class="clear"></div>';
-                    $return .= '<span class="description" style="margin-top:10px; display:block;">'.$attr_opt['desc'].'</span>';
-				}
 
             $return .= '</div>';
 			
@@ -962,10 +479,8 @@ if ( !function_exists( 'ut_get_option_element' ) ) {
 			
 		}
 		
-        if($attr_opt['type'] != 'separator'){
-		    $return .= '<div class="hr"></div>';
-        }
-        
+		$return .= '<div class="hr"></div>';
+		
 		return $return;
 		
 	}
@@ -1072,14 +587,14 @@ if ( !function_exists( 'ut_generate_select_option' ) ) {
 */
 if ( !function_exists( 'ut_generate_effect_option' ) ) {
 
-	function ut_generate_effect_option( $name, $type, $code, $attr_opt ) {
+	function ut_generate_effect_option( $name, $type, $code ) {
 		
 		/* values */
 		$values = ut_recognized_animation_effects();
 		
 		/* start output */
 		$return  = '<div class="ut-option-field">';
-			$return .= '<label for="'.$name.'">' . $attr_opt['title'] . ': </label>';
+			$return .= '<label for="'.$name.'">' . __( 'Choose Effect' , 'ut_shortcodes' ) . ': </label>';
 		$return .= '</div>';
 			
 		$return .= '<div class="ut-option-value">';
@@ -1106,9 +621,8 @@ if ( !function_exists( 'ut_generate_effect_option' ) ) {
 			}
 		
 		$return .= '</div>';
-		
-        $return .= '<div class="hr"></div>';
-        
+		$return .= '<div class="hr"></div>';
+			
 		return $return;
 		
 	}
@@ -1166,7 +680,7 @@ if ( !function_exists( 'ut_generate_sc_select' ) ) {
 		}
 		
 		$select .= '</select></p>';
-        
+		
 		return $select;
 		
 	}

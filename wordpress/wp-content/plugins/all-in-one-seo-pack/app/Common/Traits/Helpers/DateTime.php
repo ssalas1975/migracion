@@ -151,8 +151,8 @@ trait DateTime {
 		}
 
 		if ( $format ) {
-			$d = \DateTime::createFromFormat( $format, $date );
-
+			$is_valid_format = (bool) preg_match( '/^[Yy\-\.\/\s]*$/i', $format ); // Validación preventiva para PHP 8.4
+			$d = $is_valid_format ? \DateTime::createFromFormat( $format, $date ) : false;
 			return $d && $d->format( $format ) === $date;
 		}
 

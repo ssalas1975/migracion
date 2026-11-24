@@ -1,7 +1,5 @@
 <?php
 
-use WPML\Core\Twig_Environment;
-
 /**
  * @author OnTheGo Systems
  */

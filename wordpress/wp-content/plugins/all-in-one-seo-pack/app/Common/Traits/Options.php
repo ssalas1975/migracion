@@ -240,8 +240,7 @@ trait Options {
 	/**
 	 * Sets the option value and saves to the database.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Localized keywords go through {@see jsonTagsToCommaSeparatedList()}.
+	 * @since 4.0.0
 	 *
 	 * @param  string $name  The name of the option.
 	 * @param  mixed  $value The value to set.
@@ -288,7 +287,12 @@ trait Options {
 			$localizedValue = $defaults[ $name ]['value'];
 
 			if ( 'keywords' === $name ) {
-				$localizedValue = aioseo()->helpers->jsonTagsToCommaSeparatedList( $localizedValue );
+				$keywords = json_decode( $localizedValue ) ? json_decode( $localizedValue ) : [];
+				foreach ( $keywords as $k => $keyword ) {
+					$keywords[ $k ] = $keyword->value;
+				}
+
+				$localizedValue = implode( ',', $keywords );
 			}
 
 			$this->localized[ $localizedKey ] = $localizedValue;
@@ -481,11 +485,8 @@ trait Options {
 
 		// Refactor options.
 		$resetValues = $this->resetValues( $defaults, $this->defaultsMerged, $keys, $include, $exclude );
-		// resetValues() returns every key it touched in full, so replacing the top-level keys is enough.
-		// A recursive merge would overwrite list values item by item, leaving the tail of a longer stored value behind.
-		if ( is_array( $defaults ) && is_array( $resetValues ) ) {
-			$defaults = array_replace( $defaults, $resetValues );
-		}
+		// We need to call our helper method instead of the built-in array_replace_recursive() function here because we want values to be replaced with empty arrays.
+		$defaults = aioseo()->helpers->arrayReplaceRecursive( $defaults, $resetValues );
 
 		$originalDefaults = json_decode( wp_json_encode( $cachedOptions[ $originalGroupKey ] ), true );
 		$pointer          = &$originalDefaults; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -551,12 +552,6 @@ trait Options {
 		// Add LLMS cleanup when doing a full reset
 		aioseo()->actionScheduler->unschedule( aioseo()->llms->llmsTxtSingleAction );
 		aioseo()->actionScheduler->unschedule( aioseo()->llms->llmsTxtRecurrentAction );
-
-		// llms-full.txt is Pro-only, but a Pro->Lite downgrade can leave it (and its scheduled
-		// actions) behind. On Lite clean them up here; on Pro the override handles it.
-		if ( ! aioseo()->pro ) {
-			aioseo()->llms->cleanupLlmsFullTxt();
-		}
 
 		// Regenerate the LLMS files after reset
 		aioseo()->llms->generateLlmsTxt();
@@ -689,18 +684,16 @@ trait Options {
 	/**
 	 * Updates the options in the database.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Only fall back to the full defaults when none were passed; fixed param types.
+	 * @since 4.0.0
 	 *
-	 * @param  string|null $optionsName An optional option name to update.
-	 * @param  array|null  $defaults    The defaults to filter the options by.
-	 * @param  array|null  $options     An optional options array.
+	 * @param  string     $optionsName An optional option name to update.
+	 * @param  string     $defaults    The defaults to filter the options by.
+	 * @param  array|null $options     An optional options array.
 	 * @return void
 	 */
 	public function update( $optionsName = null, $defaults = null, $options = null ) {
-		// For $defaults an empty array is a deliberate answer; promoting it to the full defaults overfills the row.
 		$optionsName = empty( $optionsName ) ? $this->optionsName : $optionsName;
-		$defaults    = null === $defaults ? $this->defaults : $defaults;
+		$defaults    = empty( $defaults ) ? $this->defaults : $defaults;
 
 		// First, we need to filter our options.
 		$options = $this->filterOptions( $defaults, $options );
@@ -724,12 +717,11 @@ trait Options {
 	/**
 	 * Updates the options in the database.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.2 Only fall back to the full defaults when none were passed; fixed param types.
+	 * @since 4.1.4
 	 *
-	 * @param  boolean     $force       Whether or not to force an immediate save.
-	 * @param  string|null $optionsName An optional option name to update.
-	 * @param  array|null  $defaults    The defaults to filter the options by.
+	 * @param  boolean $force       Whether or not to force an immediate save.
+	 * @param  string  $optionsName An optional option name to update.
+	 * @param  string  $defaults    The defaults to filter the options by.
 	 * @return void
 	 */
 	public function save( $force = false, $optionsName = null, $defaults = null ) {
@@ -737,9 +729,8 @@ trait Options {
 			return;
 		}
 
-		// See the note in update() on why $defaults isn't tested with empty().
 		$optionsName = empty( $optionsName ) ? $this->optionsName : $optionsName;
-		$defaults    = null === $defaults ? $this->defaults : $defaults;
+		$defaults    = empty( $defaults ) ? $this->defaults : $defaults;
 
 		$this->update( $optionsName );
 
@@ -912,8 +903,7 @@ trait Options {
 	 * Converts an associative array of values into a structure
 	 * that works with our defaults.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Localized keywords go through {@see jsonTagsToCommaSeparatedList()}.
+	 * @since 4.0.0
 	 *
 	 * @param  array $defaults The defaults array we are currently working with.
 	 * @param  array $values   The values to adjust.
@@ -941,7 +931,12 @@ trait Options {
 					$localizedKey  .= $key;
 					$localizedValue = $newValue;
 					if ( 'keywords' === $key ) {
-						$localizedValue = aioseo()->helpers->jsonTagsToCommaSeparatedList( $localizedValue );
+						$keywords = json_decode( $localizedValue ) ? json_decode( $localizedValue ) : [];
+						foreach ( $keywords as $k => $keyword ) {
+							$keywords[ $k ] = $keyword->value;
+						}
+
+						$localizedValue = implode( ',', $keywords );
 					}
 
 					$this->localized[ $localizedKey ] = $localizedValue;
@@ -1048,25 +1043,9 @@ trait Options {
 	}
 
 	/**
-	 * Restores the current blog, then re-reads this instance's options for it.
-	 *
-	 * NOTE: Other option names loaded while switched still answer for that blog.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @return void
-	 */
-	public function refreshAfterRestore() {
-		aioseo()->helpers->restoreCurrentBlog();
-
-		$this->refresh();
-	}
-
-	/**
 	 * Returns the DB options.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.3 Don't recreate a missing row during an uninstall.
+	 * @since 4.1.4
 	 *
 	 * @param  string $optionsName The options name.
 	 * @return array               The options.
@@ -1074,23 +1053,7 @@ trait Options {
 	public function getDbOptions( $optionsName ) {
 		$cache = aioseo()->core->optionsCache->getDb( $optionsName );
 		if ( empty( $cache ) ) {
-			// NOTE: get_option() can return a non-string (e.g. an array from a row stored
-			// unencoded), which fatals in json_decode() on PHP 8+.
-			$dbOptions = get_option( $optionsName );
-			if ( is_string( $dbOptions ) ) {
-				$options = json_decode( $dbOptions, true );
-			} else {
-				// Row holds a non-string value (typically a serialized array left by an
-				// external tool: WP-CLI `--format=json`, site migration plugin, etc.).
-				// Use the data as-is and mark the instance dirty so the shutdown save
-				// rewrites the row as JSON — self-heals the corrupted storage.
-				$options = is_array( $dbOptions ) ? $dbOptions : [];
-
-				// A row missing during an uninstall was just removed by it, so it isn't written back on shutdown.
-				if ( false !== $dbOptions || ! aioseo()->core->isUninstalling() ) {
-					$this->shouldSave = true;
-				}
-			}
+			$options = json_decode( get_option( $optionsName ), true );
 			$options = ! empty( $options ) ? $options : [];
 
 			// Set the cache.

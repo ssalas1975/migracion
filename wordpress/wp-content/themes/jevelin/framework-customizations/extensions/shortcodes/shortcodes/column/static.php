@@ -1,4 +1,4 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if (!defined( 'FW' ) && !function_exists( 'jevelin_framework' )) die('Forbidden.');
 wp_enqueue_style('fw-ext-builder-frontend-grid');
 
 if(!function_exists('jevelin_shortcode_column_css')) :
@@ -120,7 +120,7 @@ if(!function_exists('jevelin_shortcode_column_css')) :
 			<?php endif; ?>
 
 
-			<?php if( $padding_mobile_atts['padding'] ) : ?>
+			<?php if( !empty( $padding_mobile_atts['padding'] ) ) : ?>
 				@media (max-width: 800px) {
 					.sh-column-<?php echo esc_attr( $atts['id'] ); ?><?php echo ( isset( $atts['background_padding'] ) && $atts['background_padding'] == 'on' ) ? ' .sh-column-wrapper' : ''; ?> {
 						padding: <?php echo esc_attr( $padding_mobile_atts['padding'] ); ?>;
@@ -143,7 +143,7 @@ if(!function_exists('jevelin_shortcode_column_css')) :
 				}
 			<?php endif; ?>
 
-			<?php if( $margin_mobile_atts['margin'] ) : ?>
+			<?php if( !empty( $margin_mobile_atts['margin'] ) ) : ?>
 				@media (max-width: 1024px) {
 					.sh-column-<?php echo esc_attr( $atts['id'] ); ?><?php echo ( isset( $atts['background_padding'] ) && $atts['background_padding'] == 'on' ) ? ' .sh-column-wrapper' : ''; ?> {
 						margin: <?php echo esc_attr( $margin_mobile_atts['margin'] ); ?>;

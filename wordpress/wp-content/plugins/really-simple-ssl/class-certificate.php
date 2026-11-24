@@ -11,6 +11,10 @@ if ( ! class_exists( 'rsssl_certificate' ) ) {
 			self::$_this = $this;
 		}
 
+		public static function this() {
+			return self::$_this;
+		}
+
 		/**
 		 *
 		 * @since 3.0

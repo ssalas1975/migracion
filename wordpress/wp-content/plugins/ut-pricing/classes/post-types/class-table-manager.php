@@ -10,17 +10,17 @@ class UT_Table_Manager {
 	private $assets_url;
 	private $token;
 
-	public function __construct( $file ) {		
-                
+	public function __construct( $file ) {
+		
 		$this->dir = dirname( $file );
 		$this->file = $file;
 		$this->assets_dir = trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url = esc_url( trailingslashit( plugins_url( '/assets/', $file ) ) );
 		$this->token = 'ut-table-manager';
-               
+
 		// Regsiter post type
-		add_action( 'init' , array( $this, 'register_post_type' ) ); 
-        
+		add_action( 'init' , array( $this, 'register_post_type' ) );
+
 		if ( is_admin() ) {
 
 			// Handle custom fields for post
@@ -35,31 +35,28 @@ class UT_Table_Manager {
 
 			// Handle post columns
 			add_filter( 'manage_edit-' . $this->token . '_columns', array( $this, 'register_custom_column_headings' ), 10, 1 );
-			add_action( 'manage_posts_custom_column', array( $this, 'register_custom_columns' ), 10, 2 );
+			add_action( 'manage_pages_custom_column', array( $this, 'register_custom_columns' ), 10, 2 );
+			
+			// add a few custom styles for edit page
+			add_action('admin_print_styles-edit.php', array( &$this, 'register_panel_styles' ) );
 			
 			// add a few custom styles for post page
 			add_action('admin_print_styles-post.php', array( &$this, 'register_settings_styles' ) );
             add_action('admin_print_styles-post-new.php', array( &$this, 'register_settings_styles' ) ); 
 			
-            // menu icon
-            add_action( 'admin_head', array( &$this, 'add_menu_icon' ) );
-            
+
 		}
 
 	}
 	
-    public function add_menu_icon() {
-    
-        echo '<style type="text/css"> #adminmenu .menu-icon-'.$this->token.' div.wp-menu-image:before { content: "\f163"; } </style>';
-    
-    }
+	public function register_panel_styles() {
+		
+		wp_enqueue_style('ut-panel-styles', $this->assets_url . 'css/admin/ut.panel.css');
+	
+	}
 	
 	public function register_settings_styles() {
 		
-        global $post, $post_ID;        
-        
-        if( get_post_type($post_ID) == $this->token ) {
-        
 		/* core style files */
 		wp_enqueue_style('wp-color-picker');
 		
@@ -74,9 +71,7 @@ class UT_Table_Manager {
 		
 		/* custom js files */
         wp_enqueue_script('ut-table-manager-scripts', $this->assets_url . 'admin/js/ut.table.manager.js' , array( 'wp-color-picker' ) );
-	    
-        }
-        
+	
 	}
 	
 	/**
@@ -86,19 +81,19 @@ class UT_Table_Manager {
 	public function register_post_type() {
 
 		$labels = array(
-			'name' => _x( 'United Themes - Pricing Table Manager', 'post type general name' , 'ut_table_lang' ),
-			'singular_name' => _x( 'United Themes - Pricing Table Manager', 'post type singular name' , 'ut_table_lang' ),
-			'add_new' => _x( 'Add UT Pricing Table', $this->token , 'ut_table_lang' ),
-			'add_new_item' => sprintf( __( 'Add %s' , 'ut_table_lang' ), __( 'UT Pricing Table' , 'ut_table_lang' ) ),
+			'name' => _x( 'Table Manager', 'post type general name' , 'ut_table_lang' ),
+			'singular_name' => _x( 'Table Manager', 'post type singular name' , 'ut_table_lang' ),
+			'add_new' => _x( 'Add New Pricing Table', $this->token , 'ut_table_lang' ),
+			'add_new_item' => sprintf( __( 'Add New %s' , 'ut_table_lang' ), __( 'Table' , 'ut_table_lang' ) ),
 			'edit_item' => sprintf( __( 'Edit %s' , 'ut_table_lang' ), __( 'Table' , 'ut_table_lang' ) ),
 			'new_item' => sprintf( __( 'New %s' , 'ut_table_lang' ), __( 'Table' , 'ut_table_lang' ) ),
-			'all_items' => sprintf( __( 'All %s' , 'ut_table_lang' ), __( 'UT Pricing Tables' , 'ut_table_lang' ) ),
+			'all_items' => sprintf( __( 'All %s' , 'ut_table_lang' ), __( 'Tables' , 'ut_table_lang' ) ),
 			'view_item' => sprintf( __( 'View %s' , 'ut_table_lang' ), __( 'Tables' , 'ut_table_lang' ) ),
 			'search_items' => sprintf( __( 'Search %s' , 'ut_table_lang' ), __( 'Tables' , 'ut_table_lang' ) ),
 			'not_found' =>  sprintf( __( 'No %s Found' , 'ut_table_lang' ), __( 'Tables' , 'ut_table_lang' ) ),
 			'not_found_in_trash' => sprintf( __( 'No %s Found In Trash' , 'ut_table_lang' ), __( 'Posts' , 'ut_table_lang' ) ),
 			'parent_item_colon' => '',
-			'menu_name' => __( 'UT Pricing Tables' , 'ut_table_lang' )
+			'menu_name' => __( 'Pricing Tables' , 'ut_table_lang' )
 		);
 
 		$args = array(
@@ -116,7 +111,7 @@ class UT_Table_Manager {
 			'hierarchical' => false,
 			'supports' => array( 'title' ),
 			'menu_position' => 5,
-			'menu_icon' => ''
+			'menu_icon' => UT_PRICING_URL . 'assets/images/icons/table_add.png'
 		);
 
 		register_post_type( $this->token, $args );
@@ -166,7 +161,7 @@ class UT_Table_Manager {
 		switch ( $column_name ) {
 
 			case 'pricing-shortcode':
-				echo '[ut_pricing id="' . $post->ID . '"]';
+				echo '<span class="ut-shortcode-label">[ut_pricing id="' . $post->ID . '"]</span>';
 			break;
 
 			default:
@@ -206,7 +201,7 @@ class UT_Table_Manager {
 	 * @return void
 	 */
 	public function meta_box_setup() {
-		add_meta_box( 'ut-table-manager', __( 'United Themes - Pricing Table Settings' , 'ut_table_lang' ) . ' v' . UT_PRICING_VERSION, array( &$this, 'meta_box_content' ), $this->token, 'normal', 'high' );
+		add_meta_box( 'ut-table-manager', __( 'Table Settings' , 'ut_table_lang' ), array( &$this, 'meta_box_content' ), $this->token, 'normal', 'high' );
 		add_meta_box( 'ut-table-manager-info', __( 'Usage' , 'ut_table_lang' ), array( &$this, 'meta_box_content_info' ), $this->token, 'side', 'high' );
 	}
 
@@ -231,11 +226,11 @@ class UT_Table_Manager {
 				
 	}
     
-    public function selected_array( $key , $current , $haystack , $offset = false ) {
+    public function selected_array( $current , $key , $haystack , $offset = false ) {
 		
-		if( $offset && isset( $haystack[$offset][$key] ) ) {
+		if( $offset && isset( $haystack[$offset] ) ) {
 			
-			$haystack = $haystack[$offset][$key];
+			$haystack = $haystack[$offset];
 			
 			if( !is_array($haystack) )
 			return selected( $haystack, $current , false );
@@ -281,10 +276,10 @@ class UT_Table_Manager {
 		$html .= '<input type="hidden" name="' . $this->token . '_nonce" id="' . $this->token . '_nonce" value="' . wp_create_nonce( plugin_basename( $this->dir ) ) . '" />';
 
 		if ( 0 < count( $field_data ) ) {
-            
+			
 			$html .= '<table class="form-table">' . "\n";
 			$html .= '<tbody>' . "\n";
-			$html .= '<tr valign="top"><td class="clearfix">' . "\n";
+			$html .= '<tr valign="top"><td>' . "\n";
 			
 			foreach ( $field_data as $k => $v ) {
 				
@@ -293,46 +288,8 @@ class UT_Table_Manager {
 				if ( isset( $fields[$k] ) && isset( $fields[$k][0] ) ) {
 					$data = $fields[$k][0];
 				}
-                                
-                if( $v['type'] == 'select' ) {
-                        
-                        $html .= '<div class="ut-admin-info-box">';
-                        
-                            $html .= '<span class="ut-section-title">' . $v['name'] . '</span>';
-                            
-                            /* data available */
-                            $data = maybe_unserialize( $data );
-                            
-                            $html .= '<div class="ut-section-panel">';
-                            $html .= '<select name="' . esc_attr( $k ) . '[style]" id="' . esc_attr( $k ) . '_style">';
-                                
-                                $html .= '<option value="ut-pt-wrap-style-1" ' . $this->selected_array( 'style' , 'ut-pt-wrap-style-1' , $data , false ) . '>'  . __('Style One' , 'ut_table_lang') . '</option>';
-                                $html .= '<option value="ut-pt-wrap-style-2" ' . $this->selected_array( 'style' , 'ut-pt-wrap-style-2' , $data , false ) . '>'  . __('Style Two' , 'ut_table_lang') . '</option>';
-                                $html .= '<option value="ut-pt-wrap-style-3" ' . $this->selected_array( 'style' , 'ut-pt-wrap-style-3' , $data , false ) . '>'  . __('Style Three (Transparent only for Parallax Background)' , 'ut_table_lang') . '</option>';
-                                $html .= '<option value="ut-pt-wrap-style-4" ' . $this->selected_array( 'style' , 'ut-pt-wrap-style-4' , $data , false ) . '>'  . __('Style Four' , 'ut_table_lang') . '</option>';
-                                
-                            $html .= '</select>';  
-                            $html .= __('Choose between 3 nice table layout styles (default : Style One).' , 'ut_table_lang');                      
-                            $html .= '</div>' . "\n";
-                        
-                        $html .= '</div>' . "\n";
-                        
-                        $html .= '<div class="ut-admin-info-box">';
-                        
-                            $html .= '<span class="ut-section-title">' . __('United Themes - Pricing Table Shortcode' , 'ut_table_lang') . '</span>';                        
-                            
-                            $html .= '<div class="ut-section-panel">';
-                            
-                                $html .= '<textarea readonly class="ut-shortcode-code">[ut_pricing id="' . $post_id . '"]</textarea>';
-                                $html .= __('Simply copy this United Themes - Pricing Table Shortcode and place <br /> it inside the text editor of the section / page you like to display the <br />pricing table in. ' , 'ut_table_lang');
-                                                  
-                            $html .= '</div>' . "\n";
-                        
-                        $html .= '</div>' . "\n"; 
-                        
-                        $html .= '<div class="clear"></div>';                       
-                
-                } elseif( $v['type'] == 'ut_table_data' ) {
+
+				if( $v['type'] == 'ut_table_data' ) {
 					
                     $data = maybe_unserialize( $data );
 					
@@ -355,7 +312,7 @@ class UT_Table_Manager {
 								
 								$html .= '<tr valign="top">';
 									
-									$html .= '<th scope="row"><h2>Column One</h2></th>';
+									$html .= '<th scope="row"><h1>First <span>Col</span></h1></th>';
 									$html .= '<td></td>';
 									
 								$html .= '</tr>';								
@@ -381,8 +338,7 @@ class UT_Table_Manager {
 									
 									$html .= '<th scope="row">' . __('Featured Headline' , 'ut_table_lang') . '</th>';									
 									$html .= '<td><input type="text" class="regular-text" value="' . $this->validate_value( $data , 'featured_headline' , 1 ) . '" name="' . esc_attr( $k ) . '[1][featured_headline]" id="' . esc_attr( $k ) . '_featured_headline_1" /> <label for="' . esc_attr( $k ) . '_featured_headline_1"></label>';
-									$html .= '<p>' . __('Only available for Pricing Table Style One.' , 'ut_table_lang') . '</p>';
-                                    
+									
 								$html .= '</tr>';
 								
 								/* column 1 custom header */
@@ -444,7 +400,7 @@ class UT_Table_Manager {
 											
 											foreach( $data[1]['features'] as $key => $dataset ) {
 												
-												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[1][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="ut-admin-remove remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
+												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[1][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="button remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
 												$c = $key;
 												
 											}
@@ -454,14 +410,14 @@ class UT_Table_Manager {
 									}
 									
 									$html .= '<th scope="row">';
-										$html .= __( 'Manage Rows' , 'ut_table_lang' ) . '<br /><br />';
-										$html .= '<span data-column="1" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add-feature ut-admin-add">' . __('Add Row' , 'ut_table_lang') . '</span>';
+										$html .= '<p>' . __( 'Manage Features' , 'ut_table_lang' ) . '</p><br />';
+										$html .= '<span data-column="1" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add button button-primary add-feature">' . __('Add Feature' , 'ut_table_lang') . '</span>';
 									$html .= '</th>';
 
 																	
 									$html .= '<td>';
 										
-										$html .= '<div class="ut-admin-features" id="ut-repeat-' . esc_attr( $k ) . '-1">';
+										$html .= '<div id="ut-repeat-' . esc_attr( $k ) . '-1">';
 										
 											$html .= $features;
 											
@@ -487,12 +443,12 @@ class UT_Table_Manager {
 										$html .= '<td><input type="text" class="regular-text" value="' . $this->validate_value( $data , 'button_link' , 1 ) . '" name="' . esc_attr( $k ) . '[1][button_link]" id="' . esc_attr( $k ) . '_button_link_1" /> <label for="' . esc_attr( $k ) . '_button_link_1"></label>';
 										
 									$html .= '</tr>';
-                                    
+									
 									/* column 1 button target */
 									$html .= '<tr valign="top">';
-										$html .= '<th scope="row">' . __('Button Target' , 'ut_table_lang') . '</th>';
+										$html .= '<th scope="row">' . __('Button Target' , 'ut_portfolio_lang') . '</th>';
 										
-										$html .= '<td><select name="' . esc_attr( $k ) . '[1][button_target]" id="' . esc_attr( $k ) . '_button_target">';
+										$html .= '<td><select name="' . esc_attr( $k ) . '[1][style]" id="' . esc_attr( $k ) . '_style">';
 											$html .= '<option value="_self" ' . $this->selected_array( 'button_target' , '_self' , $data , 1 ) . '>' . __('_self' , 'ut_table_lang') . '</option>';
 											$html .= '<option value="_blank" ' . $this->selected_array( 'button_target' , '_blank' , $data , 1 ) . '>' . __('_blank' , 'ut_table_lang') . '</option>';
 										$html .= '</select></td>';
@@ -513,7 +469,7 @@ class UT_Table_Manager {
 								
 								$html .= '<tr valign="top">';
 									
-									$html .= '<th scope="row"><h2>Column Two</h2></th>';
+									$html .= '<th scope="row"><h1>Second <span>Col</span></h1></th>';
 									$html .= '<td></td>';
 									
 								$html .= '</tr>';
@@ -539,8 +495,7 @@ class UT_Table_Manager {
 									
 									$html .= '<th scope="row">' . __('Featured Headline' , 'ut_table_lang') . '</th>';									
 									$html .= '<td><input type="text" class="regular-text" value="' . $this->validate_value( $data , 'featured_headline' , 2 ) . '" name="' . esc_attr( $k ) . '[2][featured_headline]" id="' . esc_attr( $k ) . '_featured_headline_2" /> <label for="' . esc_attr( $k ) . '_featured_headline_2"></label>';
-									$html .= '<p>' . __('Only available for Pricing Table Style One.' , 'ut_table_lang') . '</p>';
-                                    
+									
 								$html .= '</tr>';
 								
 								/* column 2 custom header */
@@ -602,7 +557,7 @@ class UT_Table_Manager {
 											
 											foreach( $data[2]['features'] as $key => $dataset ) {
 												
-												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[2][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="ut-admin-remove remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
+												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[2][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="button remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
 												$c = $key;
 												
 											}
@@ -612,14 +567,14 @@ class UT_Table_Manager {
 									}
 									
 									$html .= '<th scope="row">';
-										$html .= __( 'Manage Rows' , 'ut_table_lang' ) . '<br /><br />';
-										$html .= '<span data-column="2" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add-feature ut-admin-add">' . __('Add Row' , 'ut_table_lang') . '</span>';
+										$html .= '<p>' . __( 'Manage Features' , 'ut_table_lang' ) . '</p><br />';
+										$html .= '<span data-column="2" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add button button-primary add-feature">' . __('Add Feature' , 'ut_table_lang') . '</span>';
 									$html .= '</th>';
 
 																	
 									$html .= '<td>';
 										
-										$html .= '<div class="ut-admin-features" id="ut-repeat-' . esc_attr( $k ) . '-2">';
+										$html .= '<div id="ut-repeat-' . esc_attr( $k ) . '-2">';
 										
 											$html .= $features;
 											
@@ -647,9 +602,9 @@ class UT_Table_Manager {
 								
 								/* column 2 button target */
 								$html .= '<tr valign="top">';
-									$html .= '<th scope="row">' . __('Button Target' , 'ut_table_lang') . '</th>';
+									$html .= '<th scope="row">' . __('Button Target' , 'ut_portfolio_lang') . '</th>';
 									
-									$html .= '<td><select name="' . esc_attr( $k ) . '[2][button_target]" id="' . esc_attr( $k ) . '_button_target">';
+									$html .= '<td><select name="' . esc_attr( $k ) . '[2][style]" id="' . esc_attr( $k ) . '_style">';
 										$html .= '<option value="_self" ' . $this->selected_array( 'button_target' , '_self' , $data , 2 ) . '>' . __('_self' , 'ut_table_lang') . '</option>';
 										$html .= '<option value="_blank" ' . $this->selected_array( 'button_target' , '_blank' , $data , 2 ) . '>' . __('_blank' , 'ut_table_lang') . '</option>';
 									$html .= '</select></td>';
@@ -669,7 +624,7 @@ class UT_Table_Manager {
 								
 								$html .= '<tr valign="top">';
 									
-									$html .= '<th scope="row"><h2>Column Three</h2></th>';
+									$html .= '<th scope="row"><h1>Third <span>Col</span></h1></th>';
 									$html .= '<td></td>';
 									
 								$html .= '</tr>';
@@ -695,8 +650,7 @@ class UT_Table_Manager {
 									
 									$html .= '<th scope="row">' . __('Featured Headline' , 'ut_table_lang') . '</th>';									
 									$html .= '<td><input type="text" class="regular-text" value="' . $this->validate_value( $data , 'featured_headline' , 3 ) . '" name="' . esc_attr( $k ) . '[3][featured_headline]" id="' . esc_attr( $k ) . '_featured_headline_3" /> <label for="' . esc_attr( $k ) . '_featured_headline_3"></label>';
-									$html .= '<p>' . __('Only available for Pricing Table Style One.' , 'ut_table_lang') . '</p>';
-                                    
+									
 								$html .= '</tr>';	
 															
 								/* column 3 custom header */
@@ -758,7 +712,7 @@ class UT_Table_Manager {
 											
 											foreach( $data[3]['features'] as $key => $dataset ) {
 												
-												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[3][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="ut-admin-remove remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
+												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[3][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="button remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
 												$c = $key;
 												
 											}
@@ -768,14 +722,14 @@ class UT_Table_Manager {
 									}
 									
 									$html .= '<th scope="row">';
-										$html .= __( 'Manage Rows' , 'ut_table_lang' ) . '<br /><br />';
-										$html .= '<span data-column="3" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add-feature ut-admin-add">' . __('Add Row' , 'ut_table_lang') . '</span>';
+										$html .= '<p>' . __( 'Manage Features' , 'ut_table_lang' ) . '</p><br />';
+										$html .= '<span data-column="3" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add button button-primary add-feature">' . __('Add Feature' , 'ut_table_lang') . '</span>';
 									$html .= '</th>';
 
 																	
 									$html .= '<td>';
 										
-										$html .= '<div class="ut-admin-features" id="ut-repeat-' . esc_attr( $k ) . '-3">';
+										$html .= '<div id="ut-repeat-' . esc_attr( $k ) . '-3">';
 										
 											$html .= $features;
 											
@@ -803,9 +757,9 @@ class UT_Table_Manager {
 								
 								/* column 3 button target */
 								$html .= '<tr valign="top">';
-									$html .= '<th scope="row">' . __('Button Target' , 'ut_table_lang') . '</th>';
+									$html .= '<th scope="row">' . __('Button Target' , 'ut_portfolio_lang') . '</th>';
 									
-									$html .= '<td><select name="' . esc_attr( $k ) . '[3][button_target]" id="' . esc_attr( $k ) . '_button_target">';
+									$html .= '<td><select name="' . esc_attr( $k ) . '[3][style]" id="' . esc_attr( $k ) . '_style">';
 										$html .= '<option value="_self" ' . $this->selected_array( 'button_target' , '_self' , $data , 3 ) . '>' . __('_self' , 'ut_table_lang') . '</option>';
 										$html .= '<option value="_blank" ' . $this->selected_array( 'button_target' , '_blank' , $data , 3 ) . '>' . __('_blank' , 'ut_table_lang') . '</option>';
 									$html .= '</select></td>';
@@ -825,7 +779,7 @@ class UT_Table_Manager {
 								
 								$html .= '<tr valign="top">';
 									
-									$html .= '<th scope="row"><h2>Column Four</h2></th>';
+									$html .= '<th scope="row"><h1>Fourth <span>Col</span></h1></th>';
 									$html .= '<td></td>';
 									
 								$html .= '</tr>';
@@ -851,8 +805,7 @@ class UT_Table_Manager {
 									
 									$html .= '<th scope="row">' . __('Featured Headline' , 'ut_table_lang') . '</th>';									
 									$html .= '<td><input type="text" class="regular-text" value="' . $this->validate_value( $data , 'featured_headline' , 4 ) . '" name="' . esc_attr( $k ) . '[4][featured_headline]" id="' . esc_attr( $k ) . '_featured_headline_4" /> <label for="' . esc_attr( $k ) . '_featured_headline_4"></label>';
-									$html .= '<p>' . __('Only available for Pricing Table Style One.' , 'ut_table_lang') . '</p>';
-                                    
+									
 								$html .= '</tr>';
 								
 								/* column 4 custom header */
@@ -914,7 +867,7 @@ class UT_Table_Manager {
 											
 											foreach( $data[4]['features'] as $key => $dataset ) {
 												
-												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[4][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="ut-admin-remove remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
+												$features .= '<p><input type="text" class="regular-text" name="' . esc_attr( $k ) . '[4][features]['.$key.'][title]" value="' . $dataset['title'] . '" /><span class="button remove-feature">' . __('X' , 'ut_table_lang') . '</span></p>';
 												$c = $key;
 												
 											}
@@ -924,14 +877,14 @@ class UT_Table_Manager {
 									}
 									
 									$html .= '<th scope="row">';
-										$html .= __( 'Manage Rows' , 'ut_table_lang' ) . '<br /><br />';
-										$html .= '<span data-column="4" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add-feature ut-admin-add">' . __('Add Row' , 'ut_table_lang') . '</span>';
+										$html .= '<p>' . __( 'Manage Features' , 'ut_table_lang' ) . '</p><br />';
+										$html .= '<span data-column="4" data-featuregroup="' . esc_attr( $k ) . '" data-featurecount="'.$c.'" class="add button button-primary add-feature">' . __('Add Feature' , 'ut_table_lang') . '</span>';
 									$html .= '</th>';
 
 																	
 									$html .= '<td>';
 										
-										$html .= '<div class="ut-admin-features" id="ut-repeat-' . esc_attr( $k ) . '-4">';
+										$html .= '<div id="ut-repeat-' . esc_attr( $k ) . '-4">';
 										
 											$html .= $features;
 											
@@ -959,9 +912,9 @@ class UT_Table_Manager {
 								
 								/* column 4 button target */
 								$html .= '<tr valign="top">';
-									$html .= '<th scope="row">' . __('Button Target' , 'ut_table_lang') . '</th>';
+									$html .= '<th scope="row">' . __('Button Target' , 'ut_portfolio_lang') . '</th>';
 									
-									$html .= '<td><select name="' . esc_attr( $k ) . '[4][button_target]" id="' . esc_attr( $k ) . '_button_target">';
+									$html .= '<td><select name="' . esc_attr( $k ) . '[4][style]" id="' . esc_attr( $k ) . '_style">';
 										$html .= '<option value="_self" ' . $this->selected_array( 'button_target' , '_self' , $data , 4 ) . '>' . __('_self' , 'ut_table_lang') . '</option>';
 										$html .= '<option value="_blank" ' . $this->selected_array( 'button_target' , '_blank' , $data , 4 ) . '>' . __('_blank' , 'ut_table_lang') . '</option>';
 									$html .= '</select></td>';
@@ -986,22 +939,7 @@ class UT_Table_Manager {
 				}
 
 			}
-            
-            $html .= '<div class="ut-admin-info-box" style="margin-top:40px; margin-bottom:0px;">';
-            
-            $html .= '<span class="ut-section-title">' . __('United Themes - Pricing Table Shortcode' , 'ut_table_lang') . '</span>';                        
-            
-                $html .= '<div class="ut-section-panel">';
-                
-                    $html .= '<textarea readonly class="ut-shortcode-code">[ut_pricing id="' . $post_id . '"]</textarea>';
-                    $html .= __('Simply copy this United Themes - Pricing Table Shortcode and place <br /> it inside the text editor of the section / page you like to display the <br />pricing table in.' , 'ut_table_lang');
-                                      
-                $html .= '</div>' . "\n";
-            
-            $html .= '</div>' . "\n";
-            
-            
-            
+
 			$html .= '</tbody>' . "\n";
 			$html .= '</table>' . "\n";
 		}
@@ -1014,8 +952,8 @@ class UT_Table_Manager {
 		
 		global $post_id;
 		
-		$info  = '<p><strong>' . __('United Themes - Pricing Table Shortcode' , 'ut_table_lang') . '</strong></p>';
-		$info .= '<textarea readonly class="ut-shortcode-code">[ut_pricing id="' . $post_id . '"]</textarea>';
+		$info  = '<p><strong>' . __('Shortcode' , 'ut_portfolio_lang') . '</strong></p>';
+		$info .= '<span class="ut-shortcode-code">[ut_pricing id="' . $post_id . '"]</span>';
 		
 		echo $info;
 	
@@ -1074,14 +1012,6 @@ class UT_Table_Manager {
 	public function get_custom_fields_settings() {
 		
 		$fields = array();
-        
-        $fields['ut_table_style'] = array(
-		    'name' => __( 'United Themes - Pricing Table Style' , 'ut_table_lang' ),
-		    'description' => '',
-		    'type' => 'select',
-		    'default' => '',
-		    'section' => 'plugin-data'
-		);        
 
 		$fields['ut_table_data'] = array(
 		    'name' => __( 'Pricing Table Options' , 'ut_table_lang' ),
@@ -1090,7 +1020,7 @@ class UT_Table_Manager {
 		    'default' => '',
 		    'section' => 'plugin-data'
 		);
-        
+
 		return $fields;
 		
 	}

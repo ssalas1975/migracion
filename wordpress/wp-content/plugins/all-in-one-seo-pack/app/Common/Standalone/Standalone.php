@@ -105,15 +105,6 @@ class Standalone {
 	public $standaloneBlocks = [];
 
 	/**
-	 * DetailsColumn class instance.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @var DetailsColumn
-	 */
-	public $detailsColumn = null;
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.2.0
@@ -121,15 +112,14 @@ class Standalone {
 	public function __construct() {
 		$this->headlineAnalyzer = new HeadlineAnalyzer();
 		$this->flyoutMenu       = new FlyoutMenu();
-		$this->seoPreview       = aioseo()->pro ? new ProStandalone\SeoPreview() : new SeoPreview();
+		$this->seoPreview       = new SeoPreview();
 		$this->setupWizard      = new SetupWizard();
 		$this->primaryTerm      = aioseo()->pro ? new ProStandalone\PrimaryTerm() : new PrimaryTerm();
 		$this->userProfileTab   = new UserProfileTab();
 		$this->buddyPress       = aioseo()->pro ? new ProStandalone\BuddyPress\BuddyPress() : new BuddyPress\BuddyPress();
 		$this->bbPress          = aioseo()->pro ? new ProStandalone\BbPress\BbPress() : new BbPress\BbPress();
-		$this->detailsColumn    = aioseo()->pro ? new ProStandalone\DetailsColumn() : new DetailsColumn();
 
-		aioseo()->pro ? new ProStandalone\NpsSurvey() : null;
+		aioseo()->pro ? new ProStandalone\DetailsColumn() : new DetailsColumn();
 
 		new AdminBarNoindexWarning();
 		new LimitModifiedDate();

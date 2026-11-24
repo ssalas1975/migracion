@@ -2,8 +2,7 @@
 
 require_once __DIR__ . '/modules/wordpress.php';
 require_once __DIR__ . '/models/canonical.php';
-
-use Redirection\Database\Status;
+require_once __DIR__ . '/database/database-status.php';
 
 /**
  * This powers all of the front-end redirecting
@@ -78,7 +77,7 @@ class Redirection {
 	 * @return boolean
 	 */
 	public function can_start() {
-		$status = new Status();
+		$status = new Red_Database_Status();
 		if ( $status->needs_installing() ) {
 			return false;
 		}

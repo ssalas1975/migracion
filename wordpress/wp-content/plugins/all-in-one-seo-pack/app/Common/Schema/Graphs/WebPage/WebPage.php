@@ -28,8 +28,7 @@ class WebPage extends Graphs\Graph {
 	/**
 	 * Returns the graph data.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 about now follows {@see isHomePage()} instead of is_front_page().
+	 * @since 4.0.0
 	 *
 	 * @return array $data The graph data.
 	 */
@@ -39,7 +38,7 @@ class WebPage extends Graphs\Graph {
 			'@type'       => $this->type,
 			'@id'         => aioseo()->schema->context['url'] . '#' . strtolower( $this->type ),
 			'url'         => aioseo()->schema->context['url'],
-			'name'        => aioseo()->tags->escapeTags( aioseo()->meta->title->getTitle() ),
+			'name'        => aioseo()->meta->title->getTitle(),
 			'description' => aioseo()->schema->context['description'],
 			'inLanguage'  => aioseo()->helpers->currentLanguageCodeBCP47(),
 			'isPartOf'    => [ '@id' => $homeUrl . '#website' ]
@@ -91,7 +90,7 @@ class WebPage extends Graphs\Graph {
 			return $this->getAddonData( $data, 'webPage' );
 		}
 
-		if ( aioseo()->helpers->isHomePage() ) {
+		if ( is_front_page() ) {
 			$data['about'] = [ '@id' => trailingslashit( home_url() ) . '#' . aioseo()->options->searchAppearance->global->schema->siteRepresents ];
 		}
 

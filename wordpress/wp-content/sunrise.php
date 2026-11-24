@@ -1,4 +1,5 @@
 <?php
+
 if ( !defined( 'SUNRISE_LOADED' ) )
 	define( 'SUNRISE_LOADED', 1 );
 
@@ -17,6 +18,10 @@ else
 $wpdb->suppress_errors();
 $domain_mapping_id = $wpdb->get_var( "SELECT blog_id FROM {$wpdb->dmtable} WHERE {$where} ORDER BY CHAR_LENGTH(domain) DESC LIMIT 1" );
 $wpdb->suppress_errors( false );
+
+
+
+
 if( $domain_mapping_id ) {
 	$current_blog = $wpdb->get_row("SELECT * FROM {$wpdb->blogs} WHERE blog_id = '$domain_mapping_id' LIMIT 1");
 	$current_blog->domain = $dm_domain;
@@ -32,6 +37,28 @@ if( $domain_mapping_id ) {
 		$current_site->site_name = get_site_option( 'site_name' );
 	elseif ( function_exists( 'get_current_site_name' ) )
 		$current_site = get_current_site_name( $current_site );
+
+/*
+var_dump($wpdb->blogs);
+echo '---';
+var_dump($domain_mapping_id);
+echo '---';
+var_dump($current_site->blog_id);
+echo '---';
+var_dump($current_site->site_name );
+echo '---';
+global $switched;
+switch_to_blog($domain_mapping_id);
+var_dump($current_blog);
+echo '---';
+var_dump( get_site_option( 'site_name') );
+echo '-----';
+var_dump( get_current_site_name( $current_site ) );
+echo '-----';
+var_dump("SELECT blog_id FROM {$wpdb->blogs} WHERE domain='{$current_site->domain}' AND path='{$current_site->path}'");
+echo '-----';
+var_dump("SELECT * FROM {$wpdb->blogs} WHERE blog_id = '$domain_mapping_id' LIMIT 1");
+die('9999');*/
 
 	define( 'DOMAIN_MAPPING', 1 );
 }

@@ -160,8 +160,8 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 				'image'     => array(
 					'css'          => array(
 						'main' => array(
-							'border_radii'  => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
-							'border_styles' => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+							'border_radii'  => '%%order_class%% .et_pb_post .entry-featured-image-url img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+							'border_styles' => '%%order_class%% .et_pb_post .entry-featured-image-url img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
 						),
 					),
 					'label_prefix' => et_builder_i18n( 'Image' ),
@@ -177,7 +177,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 					'tab_slug'          => 'advanced',
 					'toggle_slug'       => 'image',
 					'css'               => array(
-						'main'    => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+						'main'    => '%%order_class%% .entry-featured-image-url, %%order_class%% img, %%order_class%% .et_pb_slides, %%order_class%% .et_pb_video_overlay',
 						'overlay' => 'inset',
 					),
 					'default_on_fronts' => array(
@@ -832,22 +832,6 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 
 		$query_args['paged'] = $paged;
 
-		// WP_Query doesn't return sticky posts when it performed via Ajax.
-		// This happens because `is_home` is false in this case, but on FE it's true if no category set for the query.
-		// Set `is_home` = true to emulate the FE behavior with sticky posts in VB.
-		if ( empty( $query_args['cat'] ) ) {
-			add_action(
-				'pre_get_posts',
-				function( $query ) {
-					if ( true === $query->get( 'et_is_home' ) ) {
-						$query->is_home = true;
-					}
-				}
-			);
-
-			$query_args['et_is_home'] = true;
-		}
-
 		if ( '' !== $args['offset_number'] && ! empty( $args['offset_number'] ) ) {
 			/**
 			 * Offset + pagination don't play well. Manual offset calculation required
@@ -876,7 +860,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 		 * Filters Blog module's main query.
 		 *
 		 * @since 4.7.0
-		 * @since 4.11.0 Pass modified module attributes.
+		 * @since ?? Pass modified module attributes.
 		 *
 		 * @param WP_Query $query
 		 * @param array    $args  Modified module attributes.
@@ -967,18 +951,14 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 										echo '<div class="et_pb_image_container">';
 									}
 									?>
-										<?php if ( get_permalink() ) { ?>
-											<a href="<?php the_permalink(); ?>" class="entry-featured-image-url">
-										<?php } ?>
+										<a href="<?php esc_url( the_permalink() ); ?>" class="entry-featured-image-url">
 											<?php print_thumbnail( $thumb, $thumbnail['use_timthumb'], $titletext, $width, $height ); ?>
 											<?php
 											if ( 'on' === $args['use_overlay'] ) {
 												echo et_core_esc_previously( $overlay_output );
 											}
 											?>
-										<?php if ( get_permalink() ) { ?>
-											</a>
-										<?php } ?>
+										</a>
 									<?php
 									if ( 'on' !== $args['fullwidth'] ) {
 										echo '</div>';
@@ -989,13 +969,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 
 						<?php if ( 'off' === $args['fullwidth'] || ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) ) { ?>
 							<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) ) { ?>
-								<<?php echo et_core_esc_previously( $processed_header_level ); ?> class="entry-title">
-									<?php if ( get_permalink() ) { ?>
-										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-									<?php } else { ?>
-										<?php the_title(); ?>
-									<?php } ?>
-								</<?php echo et_core_esc_previously( $processed_header_level ); ?>>
+								<<?php echo et_core_esc_previously( $processed_header_level ); ?> class="entry-title"><a href="<?php esc_url( the_permalink() ); ?>"><?php the_title(); ?></a></<?php echo et_core_esc_previously( $processed_header_level ); ?>>
 							<?php } ?>
 
 							<?php
@@ -1008,11 +982,9 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 									? ' | '
 									: '';
 
-								// phpcs:disable WordPress.WP.I18n.NoEmptyStrings -- intentionally used.
 								$date = 'on' === $args['show_date']
-									? et_get_safe_localization( sprintf( __( '%s', 'et_builder' ), '<span class="published">' . esc_html( get_the_date( str_replace( '\\\\', '\\', $args['meta_date'] ) ) ) . '</span>' ) )
+									? et_get_safe_localization( sprintf( __( '%s', 'et_builder' ), '<span class="published">' . esc_html( get_the_date( $args['meta_date'] ) ) . '</span>' ) )
 									: '';
-								// phpcs:enable
 
 								$date_separator = ( ( 'on' === $args['show_author'] || 'on' === $args['show_date'] ) && 'on' === $args['show_categories'] )
 									? ' | '
@@ -1337,22 +1309,6 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 					'icon_sticky' => $hover_icon_sticky,
 				)
 			);
-
-			// Overlay Icon Styles.
-			$this->generate_styles(
-				array(
-					'hover'          => false,
-					'utility_arg'    => 'icon_font_family',
-					'render_slug'    => $render_slug,
-					'base_attr_name' => 'hover_icon',
-					'important'      => true,
-					'selector'       => '%%order_class%% .et_overlay:before',
-					'processor'      => array(
-						'ET_Builder_Module_Helper_Style_Processor',
-						'process_extended_icon',
-					),
-				)
-			);
 		}
 
 		$overlay_class = 'on' === $use_overlay ? ' et_pb_has_overlay' : '';
@@ -1489,7 +1445,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 		 * Filters Blog module's main query.
 		 *
 		 * @since 4.7.0
-		 * @since 4.11.0 Pass modified module attributes.
+		 * @since ?? Pass modified module attributes.
 		 *
 		 * @param WP_Query $wp_query
 		 * @param array    $attrs    Modified module attributes.
@@ -1610,13 +1566,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 
 				<?php if ( 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) || post_password_required( $post ) ) { ?>
 					<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) || post_password_required( $post ) ) { ?>
-					<<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?> class="entry-title">
-						<?php if ( get_permalink() ) { ?>
-							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-						<?php } else { ?>
-							<?php the_title(); ?>
-						<?php } ?>
-					</<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?>>
+					<<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?> class="entry-title"><a href="<?php esc_url( the_permalink() ); ?>"><?php the_title(); ?></a></<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?>>
 				<?php } ?>
 
 					<?php
@@ -1791,8 +1741,6 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 					<div class="%1$s">
 					%7$s
 					%6$s
-					%10$s
-					%11$s
 					<div class="et_pb_ajax_pagination_container">
 						%2$s
 					</div>
@@ -1806,9 +1754,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 				$video_background,
 				$parallax_image_background,
 				$this->drop_shadow_back_compatibility( $render_slug ),
-				et_core_esc_previously( $data_background_layout ),
-				et_core_esc_previously( $this->background_pattern() ), // #10
-				et_core_esc_previously( $this->background_mask() ) // #11
+				et_core_esc_previously( $data_background_layout )
 			);
 		} else {
 			// Module classname
@@ -1832,8 +1778,6 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 				'<div%4$s class="%1$s"%8$s>
 				%6$s
 				%5$s
-				%9$s
-				%10$s
 				<div class="et_pb_ajax_pagination_container">
 					%2$s
 				</div>
@@ -1845,9 +1789,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 				$video_background, // #5
 				$parallax_image_background,
 				$this->drop_shadow_back_compatibility( $render_slug ),
-				et_core_esc_previously( $data_background_layout ),
-				et_core_esc_previously( $this->background_pattern() ), // #9
-				et_core_esc_previously( $this->background_mask() ) // #10
+				et_core_esc_previously( $data_background_layout )
 			);
 		}
 

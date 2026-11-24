@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
+if ( ! defined( 'FW' ) && !function_exists( 'jevelin_framework' ) ) { die( 'Forbidden.' ); }
 /*-----------------------------------------------------------------------------------*/
 /* Counter HTML
 /*-----------------------------------------------------------------------------------*/
@@ -73,6 +73,10 @@ endif;
 		<?php if( $subtitle ) : ?>
 			<div class="sh-counter-subtitle"><?php echo esc_attr( $subtitle ); ?></div>
 		<?php endif; ?>
+
+	<?php elseif( $style == 'style7' ) : /* Number Only */ ?>
+
+		<div class="sh-counter-number sh-counter-animate<?php echo esc_attr( $size_class ); ?>"><?php echo intval( $number ); ?></div>
 
 	<?php else : ?>
 

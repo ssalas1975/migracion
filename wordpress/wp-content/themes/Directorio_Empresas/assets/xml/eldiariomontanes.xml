@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<nodes>
+
+<item><name>Cantabria</name><link>http://www.eldiariomontanes.es/cantabria/</link></item>
+<item><name>Santander</name><link>http://www.eldiariomontanes.es/santander/</link></item>
+<item><name>Torrelavega</name><link>http://www.eldiariomontanes.es/torrelavega-besaya/</link></item>
+<item><name>España</name><link>http://www.eldiariomontanes.es/nacional/</link></item>
+<item><name>Mundo</name><link>http://www.eldiariomontanes.es/internacional/</link></item>
+<item><name>Economía</name><link>http://www.eldiariomontanes.es/economia/</link></item>
+<item><name>Deportes</name><link>http://www.eldiariomontanes.es/deportes/</link></item>
+<item><name>Cultura(s)</name><link>http://www.eldiariomontanes.es/culturas/</link></item>
+<item><name>Tecnología</name><link>http://www.eldiariomontanes.es/tecnologia/</link></item>
+<item><name>Gente</name><link>http://www.eldiariomontanes.es/gente-estilo/</link></item>
+<item><name>Planes</name><link>http://www.eldiariomontanes.es/planes/</link></item>
+
+</nodes>

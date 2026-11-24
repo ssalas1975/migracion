@@ -18,7 +18,7 @@
 if ( post_password_required() )
 	return;
 ?>
-<div class="<?php echo is_singular("post") ? "grid-85 prefix-15 tablet-grid-80 tablet-prefix-20 mobile-grid-100" : "grid-100 tablet-grid-100 mobile-grid-100"; ?>">
+<div class="grid-100 tablet-grid-100 mobile-grid-100">
 <div id="comments" class="comments-area clearfix">
 			<?php // You can start editing here -- including this comment! ?>
         
@@ -44,8 +44,8 @@ if ( post_password_required() )
                 <?php if ( get_comment_pages_count() > 1 && get_option( 'page_comments' ) ) : // are there comments to navigate through ?>
                 <nav id="comment-nav-below" class="comment-navigation" role="navigation">
                     <?php _e( 'Comment navigation', 'unitedthemes' ); ?>
-                    <div class="nav-previous"><?php previous_comments_link( esc_html__( '&larr; Older Comments', 'unitedthemes' ) ); ?></div>
-                    <div class="nav-next"><?php next_comments_link( esc_html__( 'Newer Comments &rarr;', 'unitedthemes' ) ); ?></div>
+                    <div class="nav-previous"><?php previous_comments_link( __( '&larr; Older Comments', 'unitedthemes' ) ); ?></div>
+                    <div class="nav-next"><?php next_comments_link( __( 'Newer Comments &rarr;', 'unitedthemes' ) ); ?></div>
                 </nav><!-- #comment-nav-below -->
                 <?php endif; // check for comment navigation ?>
         
@@ -55,7 +55,7 @@ if ( post_password_required() )
                 // If comments are closed and there are comments, let's leave a little note, shall we?
                 if ( ! comments_open() && '0' != get_comments_number() && post_type_supports( get_post_type(), 'comments' ) ) :
             ?>
-                <p class="no-comments"><?php esc_html_e( 'Comments are closed.', 'unitedthemes' ); ?></p>
+                <p class="no-comments"><?php _e( 'Comments are closed.', 'unitedthemes' ); ?></p>
             <?php endif; ?>
         
             <?php comment_form(); ?>

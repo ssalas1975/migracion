@@ -30,7 +30,7 @@ if( !function_exists( 'jevelin_shortcode_heading_animation_css' ) ) :
 				}
 			<?php endif; ?>
 
-			<?php if( $size_atts['responsive_size'] ) : ?>
+			<?php if( !empty( $size_atts['responsive_size'] ) ) : ?>
 				@media (max-width: 1024px) {
 					#heading-animated-<?php echo esc_attr( $id ); ?> .sh-heading-content {
 						font-size: <?php echo jevelin_addpx( $size_atts['responsive_size'] ); ?>!important;
@@ -39,7 +39,7 @@ if( !function_exists( 'jevelin_shortcode_heading_animation_css' ) ) :
 			<?php endif; ?>
 
 			#heading-animated-<?php echo esc_attr( $id ); ?> .sh-heading-animated-content {
-				<?php if( $size_atts['desktop_size'] ) : ?>
+				<?php if( !empty( $size_atts['desktop_size'] ) ) : ?>
 					font-size: <?php echo jevelin_addpx( $size_atts['desktop_size'] ); ?>;
 				<?php endif; ?>
 

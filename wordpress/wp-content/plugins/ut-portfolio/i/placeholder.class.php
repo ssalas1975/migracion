@@ -18,7 +18,7 @@ class Placeholder {
         $this->cacheDir        = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cache';
         $this->expires         = 604800;
         $this->maxHeight       = 2000;
-        $this->maxWidth        = 2560;
+        $this->maxWidth        = 2000;
     }
 
     /**
