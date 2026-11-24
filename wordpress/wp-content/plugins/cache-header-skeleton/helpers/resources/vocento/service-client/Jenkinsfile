@@ -1,6 +1,0 @@
-#!/usr/bin/env groovy
-
-echo 'Run initPhpLibraryPipeline form global pipelines library.'
-
-initPhpLibraryPipeline{
-}

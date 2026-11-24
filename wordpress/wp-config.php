@@ -1,10 +1,4 @@
 <?php
-
-// BEGIN Kadence Security - Do not modify or remove this line
-// Kadence Security Config Details: 2
-define( 'DISALLOW_FILE_EDIT', true ); // Disable File Editor - Security > Settings > WordPress Tweaks > File Editor
-// END Kadence Security - Do not modify or remove this line
-
 /**
  * The base configuration for WordPress
  *
@@ -81,14 +75,14 @@ define( 'DB_COLLATE', getenv_docker('WORDPRESS_DB_COLLATE', '') );
  *
  * @since 2.6.0
  */
-define( 'AUTH_KEY',         getenv_docker('WORDPRESS_AUTH_KEY',         '4708b821d95025e71e1f5281325b0c3c7cbd905b') );
-define( 'SECURE_AUTH_KEY',  getenv_docker('WORDPRESS_SECURE_AUTH_KEY',  'a233622c1e179db41055dbbe444fd061fb583522') );
-define( 'LOGGED_IN_KEY',    getenv_docker('WORDPRESS_LOGGED_IN_KEY',    '99aecb5d9632eb330d0589d7ef27ab649cbe8f2d') );
-define( 'NONCE_KEY',        getenv_docker('WORDPRESS_NONCE_KEY',        '70db8a446e1fecdc72378901af636ae20caf2ab9') );
-define( 'AUTH_SALT',        getenv_docker('WORDPRESS_AUTH_SALT',        '2f096aec200a86d2f2244c1a40824bed4fa92d27') );
-define( 'SECURE_AUTH_SALT', getenv_docker('WORDPRESS_SECURE_AUTH_SALT', 'f80d18318212ceda3f51ed1f2d0ec59b95812dae') );
-define( 'LOGGED_IN_SALT',   getenv_docker('WORDPRESS_LOGGED_IN_SALT',   '2e956206eedd711882b6b845c43639737a98f0ac') );
-define( 'NONCE_SALT',       getenv_docker('WORDPRESS_NONCE_SALT',       'dd916c48c35de49f842dd849c97b62bfc6e82b41') );
+define( 'AUTH_KEY',         getenv_docker('WORDPRESS_AUTH_KEY',         '464b053275bd470e4640167956fbcb82d75f5c54') );
+define( 'SECURE_AUTH_KEY',  getenv_docker('WORDPRESS_SECURE_AUTH_KEY',  '803e4b9390f86c7701707946609a3202147f3a95') );
+define( 'LOGGED_IN_KEY',    getenv_docker('WORDPRESS_LOGGED_IN_KEY',    '7c052a397c05178345af76548e85bea18c56f436') );
+define( 'NONCE_KEY',        getenv_docker('WORDPRESS_NONCE_KEY',        '9fbe1a2e2a3d0f0f1c0ba948663a74a4f382e080') );
+define( 'AUTH_SALT',        getenv_docker('WORDPRESS_AUTH_SALT',        'b21772b74097cf6cae6fd4d2320d599da663800d') );
+define( 'SECURE_AUTH_SALT', getenv_docker('WORDPRESS_SECURE_AUTH_SALT', '72752147d4214db2a0738a7087225e2c3f8dc420') );
+define( 'LOGGED_IN_SALT',   getenv_docker('WORDPRESS_LOGGED_IN_SALT',   'ab28951fc8c072aebf729de6a0776cd3f5e69326') );
+define( 'NONCE_SALT',       getenv_docker('WORDPRESS_NONCE_SALT',       'c08fbca3ed6359f61799e6ba27c5a3c7b1cd8d44') );
 // (See also https://wordpress.stackexchange.com/a/152905/199287)
 
 /**#@-*/
@@ -119,7 +113,7 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
  *
  * @link https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
  */
-define( 'WP_DEBUG', true );
+define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
@@ -135,14 +129,6 @@ if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 }
 
 /* That's all, stop editing! Happy publishing. */
-/* Multisite */
-define( 'MULTISITE', true );
-define( 'SUBDOMAIN_INSTALL', false );
-define( 'DOMAIN_CURRENT_SITE', 'localhost:8080' );
-define( 'PATH_CURRENT_SITE', '/' );
-define( 'SITE_ID_CURRENT_SITE', 1 );
-define( 'BLOG_ID_CURRENT_SITE', 1 );
-
 
 /** Absolute path to the WordPress directory. */
 if ( ! defined( 'ABSPATH' ) ) {
