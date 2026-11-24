@@ -9,11 +9,15 @@ class AAL_Hook_Comments extends AAL_Hook_Base {
 		if ( is_null( $comment ) )
 			$comment = get_comment( $id );
 
+		if ( AAL_Hook_WooCommerce::is_hpos() && 'order_note' === $comment->comment_type ) {
+			return;
+		}
+
 		$args = array(
 			'action'         => $action,
 			'object_type'    => 'Comments',
 			'object_subtype' => get_post_type( $comment->comment_post_ID ),
-			'object_name'    => esc_html( get_the_title( $comment->comment_post_ID ) ),
+			'object_name'    => get_post_field( 'post_title', $comment->comment_post_ID ),
 			'object_id'      => $id,
 		);
 

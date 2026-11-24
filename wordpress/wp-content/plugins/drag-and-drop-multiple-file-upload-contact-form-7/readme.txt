@@ -4,8 +4,8 @@ Donate link : http://codedropz.com/donation
 Tags: drag and drop, contact form 7, ajax uploader, multiple file, upload
 Requires at least: 3.0.1
 Tested up to: 7.0
-Stable tag: 1.4.1
-Requires PHP: 5.2.4
+Stable tag: 1.4.2
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -184,6 +184,13 @@ To install this plugin see below:
 7. Remote Storage - Pro Features
 
 == Changelog ==
+= 1.4.2 =
+- Security - Fixed stored XSS via uploaded files. (Via Wordfence)
+- Security - Hardened file upload checks and upload folder protection. (Via WPScan)
+- Bug Fix - Fixed "Unauthorized Request!" and "File not safe" errors when removing files.
+- Bug Fix - Fixed "filetypes:*" upload issues, long file names and PHP 8 errors.
+- Improved - Minimum PHP version is now 7.4.
+
 = 1.4.1 =
 - Security - Improved file type validation and upload security to prevent unauthorized file uploads. Reported by "Jakub Herman" (Via WPScan).
 - Bug Fixes - Add script to check if cron schedule to avoid interuption on auto delete features.

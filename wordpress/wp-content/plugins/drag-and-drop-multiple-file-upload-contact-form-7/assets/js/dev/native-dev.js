@@ -2,7 +2,7 @@
  * CodeDropz Uploader
  * Copyright 2018 Glen Mongaya
  * CodeDrop Drag&Drop Uploader
- * @version 1.4.1
+ * @version 1.4.2
  * @author CodeDropz, Glen Don L. Mongaya
  * @license The MIT License (MIT)
  */
@@ -249,8 +249,8 @@
                 }
 
                 // Validate file type
-                regex_type = new RegExp("(.*?)\.("+ options.supported_type +")$");
-                if ( has_error === false && !( regex_type.test( file.name.toLowerCase() ) ) ) {
+                var regex_type = new RegExp("(.*?)\\.("+ options.supported_type +")$");
+                if ( has_error === false && options.supported_type && !( regex_type.test( file.name.toLowerCase() ) ) ) {
                     document.querySelector('#' + progressBarID + ' .dnd-upload-details').insertAdjacentHTML('beforeend', '<span class="has-error">' + dnd_cf7_uploader.drag_n_drop_upload.inavalid_type + '</span>');
                     has_error = true;
                 }
@@ -353,7 +353,7 @@
                     </div>
                     <div class="dnd-upload-details">
                         <span class="name"><span>${dnd_escape_html(file.name)}</span><em>(${CodeDropz_Object.bytesToSize(file.size)})</em></span>
-                        <a href="#" title="${dnd_cf7_uploader.drag_n_drop_upload.delete.title}" class="remove-file" data-storage="${dataStorageName}" data-name="${input.dataset.name}">
+                        <a href="#" title="${dnd_cf7_uploader.drag_n_drop_upload.delete.title}" class="remove-file" data-storage="${dataStorageName}" data-name="${input.dataset.name}" data-folder="${sessionID}" data-token="${folderToken}">
                         <span class="dnd-icon-remove"></span>
                         </a>
                         <span class="dnd-progress-bar"><span></span></span>
@@ -414,8 +414,8 @@
                 if( bytes === 0 )
                     return '0';
 
-                kBytes = (bytes / 1024);
-                fileSize = ( kBytes >= 1024 ? ( kBytes / 1024 ).toFixed(2) + 'MB' : kBytes.toFixed(2) + 'KB' );
+                var kBytes = (bytes / 1024);
+                var fileSize = ( kBytes >= 1024 ? ( kBytes / 1024 ).toFixed(2) + 'MB' : kBytes.toFixed(2) + 'KB' );
 
                 return fileSize;
             },
@@ -451,7 +451,7 @@
             removeStorageData = _self.parentElement.getAttribute("data-storage"),
             uploadName        = _self.parentElement.getAttribute("data-name"),
             storageCount      = Number(localStorage.getItem(removeStorageData)),
-			sessionId         = dnd_upload_cf7_unique_id();
+			sessionId         = _self.parentElement.getAttribute("data-folder");
 
         // Direct remove the file if there's any error.
         if (_dnd_status.classList.contains("in-progress") || _dnd_status.querySelector(".has-error")) {
@@ -470,32 +470,36 @@
         xhr.open("POST", dnd_cf7_uploader.ajax_url);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.onload = function() {
-            if (this.status === 200) {
-                var response = JSON.parse(this.responseText);
-                if (response.success) {
+            var response = {};
+            try { response = JSON.parse(this.responseText) || {}; } catch (e) {} // Non-JSON reply (e.g. blocked by a security/firewall plugin).
+            if (this.status === 200 && response.success) {
 
-                    // Reduce file count and status bar element.
-                    _dnd_status.remove();
-                    localStorage.setItem(removeStorageData, storageCount - 1);
+                // Reduce file count and status bar element.
+                _dnd_status.remove();
+                localStorage.setItem(removeStorageData, storageCount - 1);
 
-                    // Remove error msg
-                    if ( _parent_wrap.querySelectorAll(".dnd-upload-status").length <= 1 ){
-                        if( _parent_wrap.querySelector(".has-error-msg") ){
-                            _parent_wrap.querySelector(".has-error-msg").remove();
-                        }
+                // Remove error msg
+                if ( _parent_wrap.querySelectorAll(".dnd-upload-status").length <= 1 ){
+                    if( _parent_wrap.querySelector(".has-error-msg") ){
+                        _parent_wrap.querySelector(".has-error-msg").remove();
                     }
+                }
 
-                    // Update Counter
-                    _parent_wrap.querySelector(".dnd-upload-counter span").textContent = Number(localStorage.getItem(removeStorageData)) - 1;
-                } else {
-					const upload_details = _dnd_status.querySelector('.dnd-upload-details');
-					if ( upload_details ) {
-						const errorMsg = document.createElement('span');
-						errorMsg.classList.add('has-error-msg');
-						errorMsg.textContent = response.data;
-						upload_details.appendChild( errorMsg );
-					}
-				}
+                // Update Counter
+                _parent_wrap.querySelector(".dnd-upload-counter span").textContent = Number(localStorage.getItem(removeStorageData)) - 1;
+            } else {
+
+                // Reset the remove icon so the user can try again.
+                _self.classList.remove("deleting");
+                _self.textContent = "";
+
+                const upload_details = _dnd_status.querySelector('.dnd-upload-details');
+                if ( upload_details ) {
+                    const errorMsg = document.createElement('span');
+                    errorMsg.classList.add('has-error-msg');
+                    errorMsg.textContent = response.data || 'Error: Unable to delete the file.';
+                    upload_details.appendChild( errorMsg );
+                }
             }
         };
 
@@ -505,7 +509,7 @@
             "&security=" + dnd_cf7_uploader.ajax_nonce +
 			"&upload_folder=" + sessionId +
 			"&upload_name=" + encodeURIComponent( uploadName || '' ) +
-			"&token=" + localStorage.getItem( 'dnd_cf7_token_' + sessionId ),
+			"&token=" + _self.parentElement.getAttribute("data-token"),
         );
 
         document.querySelectorAll(".has-error-msg").forEach(function(el) {

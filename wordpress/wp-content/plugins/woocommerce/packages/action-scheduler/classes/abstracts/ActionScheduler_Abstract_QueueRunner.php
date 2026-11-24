@@ -63,7 +63,7 @@ abstract class ActionScheduler_Abstract_QueueRunner extends ActionScheduler_Abst
 	public function process_action( $action_id, $context = '' ) {
 		// Temporarily override the error handler while we process the current action.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-		$error_handler = set_error_handler(
+		set_error_handler(
 			/**
 			 * Temporary error handler which can catch errors and convert them into exceptions. This facilitates more
 			 * robust error handling across all supported PHP versions.
@@ -73,7 +73,7 @@ abstract class ActionScheduler_Abstract_QueueRunner extends ActionScheduler_Abst
 			 * @param int    $type    Error level expressed as an integer.
 			 * @param string $message Error message.
 			 */
-			function ( $type, $message ) use ( &$error_handler ) {
+			function ( $type, $message ) {
 				throw new Exception( $message );
 			},
 			E_USER_ERROR | E_RECOVERABLE_ERROR
@@ -86,20 +86,6 @@ abstract class ActionScheduler_Abstract_QueueRunner extends ActionScheduler_Abst
 		 */
 		$valid_action = true;
 		try {
-			$error_handler_nested = set_error_handler(
-				/**
-				 * Nested error handler to handle errors within the try block.
-				 *
-				 * @throws Exception
-				 *
-				 * @param int    $type    Error level expressed as an integer.
-				 * @param string $message Error message.
-				 */
-				function ( $type, $message ) use ( &$error_handler_nested, &$error_handler ) {
-					throw new Exception( $message );
-				},
-				E_USER_ERROR | E_RECOVERABLE_ERROR
-			);
 			try {
 				do_action( 'action_scheduler_before_execute', $action_id, $context );
 

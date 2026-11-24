@@ -225,13 +225,15 @@
 		$dir = dnd_get_upload_dir();
 		if( isset( $dir['upload_dir'] ) && is_dir( $dir['upload_dir'] ) ) {
 			// Generate .htaccess & index.php file`
-			$htaccess_file = path_join( dirname( $dir['upload_dir'] ), '.htaccess' );
+			// Always use the plugin base folder, never "wp-content/uploads" itself ("send as links" mode).
+			$htaccess_file = path_join( wp_upload_dir()['basedir'], wpcf7_dnd_dir . '/.htaccess' );
 			$dirs = array(
-				dirname( $dir['upload_dir'] ),
+				dirname( $htaccess_file ),
 				$dir['upload_dir']
 			);
 
-			if ( ! file_exists( $htaccess_file ) ) {
+			// Create or update once (no media rules yet).
+			if ( ! file_exists( $htaccess_file ) || false === strpos( (string) file_get_contents( $htaccess_file ), 'video/mp4' ) ) {
 				if ( $handle = fopen( $htaccess_file, 'w' ) ) {
 					fwrite(
 						$handle,
@@ -245,7 +247,27 @@
 						"  <IfModule !authz_core_module>\n" .
 						"    Deny from all\n" .
 						"  </IfModule>\n" .
-						"</FilesMatch>\n"
+						"</FilesMatch>\n\n" .
+						"# No MIME sniffing, and force download except common viewable types (email/admin links).\n" .
+						"<IfModule mod_headers.c>\n" .
+						"  Header set X-Content-Type-Options \"nosniff\"\n" .
+						"  Header set Content-Disposition \"attachment\"\n" .
+						"  <FilesMatch \"(?i)\.(jpe?g|png|gif|webp|pdf|txt|mp4|m4v|webm|mov|ogv|3gp|mp3|wav|ogg|oga|m4a)$\">\n" .
+						"    Header unset Content-Disposition\n" .
+						"  </FilesMatch>\n" .
+						"</IfModule>\n\n" .
+						"# Media types so browsers can play them.\n" .
+						"<IfModule mod_mime.c>\n" .
+						"  AddType video/mp4 .mp4 .m4v\n" .
+						"  AddType video/webm .webm\n" .
+						"  AddType video/quicktime .mov\n" .
+						"  AddType video/ogg .ogv\n" .
+						"  AddType video/3gpp .3gp\n" .
+						"  AddType audio/mpeg .mp3\n" .
+						"  AddType audio/wav .wav\n" .
+						"  AddType audio/ogg .ogg .oga\n" .
+						"  AddType audio/mp4 .m4a\n" .
+						"</IfModule>\n"
 					);
 					fclose( $handle );
 				}
@@ -1101,7 +1123,19 @@
 			wp_send_json_error( 'Error: Unauthorized to upload or modify this folder.' );
 		}
 
+		// Block claiming expired folder with files.
+		$base    = dnd_get_upload_dir();
+		$old_dir = is_array( $base ) ? $base['upload_dir'] . '/' . $folder : '';
+		if ( false === $existing_token && $old_dir && is_dir( $old_dir ) && ! dnd_cf7_is_dir_empty( $old_dir ) ) {
+			wp_send_json_error( 'Error: Unauthorized to upload or modify this folder.' );
+		}
+
 		$path = dnd_get_upload_dir( $folder ); // ok
+
+		// Folder could not be created (permissions / disk full): stop instead of writing to a wrong path.
+		if ( ! is_array( $path ) ) {
+			wp_send_json_error( dnd_cf7_error_msg( 'failed_upload' ) );
+		}
 
 		// input type file 'name'
 		$name = 'upload-file';
@@ -1124,7 +1158,7 @@
 			wp_send_json_error( '('. $file['error'] .') ' . ( $failed_error ? esc_html( $failed_error ) : dnd_cf7_error_msg('failed_upload') ) );
 		}
 
-		/* Get allowed extension */
+		/* Get allowed extension @todo: add `wpcf7_file_extension_safelist` cf7 hook*/
 		$supported_type = ( isset( $allowed_types["$cf7_upload_name"] ) ? $allowed_types["$cf7_upload_name"] : dnd_upload_default_ext() );
 
 		// Create type pattern for anti script
@@ -1140,6 +1174,14 @@
 			wp_send_json_error( esc_html( dnd_cf7_settings('drag_n_drop_error_invalid_file') ) ?: dnd_cf7_error_msg('invalid_type') );
 		}
 
+		// Shorten very long file names.
+		if ( strlen( $filename ) > 200 ) {
+			$dot      = strrpos( $filename, '.' );
+			$ext      = ( false !== $dot ) ? substr( $filename, $dot ) : '';
+			$name     = ( false !== $dot ) ? substr( $filename, 0, $dot ) : $filename;
+			$filename = preg_replace( '/[\xC0-\xFF][\x80-\xBF]*$/', '', substr( $name, 0, 180 ) ) . $ext;
+		}
+
 		// Check unique name
         $filename = wp_unique_filename( $path['upload_dir'], $filename );
 
@@ -1150,12 +1192,15 @@
 		$filename = dnd_cf7_remove_icons( $filename );
 
 		// @since 1.3.9.9 moved up so the extension below is checked post-mutation, not pre-mutation.
-		$filename = wpcf7_antiscript_file_name( $filename );
+		// "*" = any type: only WordPress allowed extensions are kept, anything else is stored as ".txt". (@since 1.4.2)
+		$original_ext = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) ); // Before renaming, so the blacklist still applies.
+		$safe_list = ( '*' === $supported_type ) ? explode( '|', implode( '|', array_keys( get_allowed_mime_types() ) ) ) : explode( '|', $supported_type );
+		$filename  = dnd_cf7_antiscript_name( $filename , $safe_list );
 
 		// Get file extension
         $extension = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
 
-		// @Since 1.4.0 - Check if the file is unsafe.
+		// @Since 1.4.2 - Check if the file is unsafe.
 		if ( dnd_cf7_is_unsafe_file( $filename, $tmp_file ) ) {
 			wp_send_json_error( esc_html( dnd_cf7_settings('drag_n_drop_error_invalid_file') ) ?: dnd_cf7_error_msg('invalid_type') );
 		}
@@ -1167,7 +1212,7 @@
 			$type_ext           = ( $file_type['ext'] !== false ? strtolower( $file_type['ext'] ) : $extension );
 			$error_invalid_type = esc_html( dnd_cf7_settings('drag_n_drop_error_invalid_file') ) ?: dnd_cf7_error_msg('invalid_type');
 
-			if ( ! empty( $blacklist_types ) && in_array( $type_ext, $blacklist_types, true ) ) {
+			if ( empty( $type_ext ) || in_array( $original_ext, $blacklist_types, true ) || ! empty( $blacklist_types ) && in_array( $type_ext, $blacklist_types, true ) ) {
 				wp_send_json_error( $error_invalid_type );
 			} elseif ( in_array( $type_ext, $not_allowed_ext, true ) || dnd_cf7_is_dangerous_filename( $filename ) ) {
 				wp_send_json_error( $error_invalid_type );
@@ -1228,7 +1273,7 @@
 			// Security added Oct 2026 - ownership is already verified before the upload (see above),
 			// so here we only save the token when the folder is new.
 			if ( false === $existing_token ) {
-				set_transient( $token_key, $client_token, 12 * HOUR_IN_SECONDS );
+				set_transient( $token_key, $client_token, DAY_IN_SECONDS ); // Match 24h JS session.
 			}
 
             // Setup path and files url.
@@ -1287,6 +1332,11 @@
 		// Get folder directory
 		$dir = dnd_get_upload_dir();
 
+		// Upload folder is missing or not readable: nothing to delete.
+		if ( ! is_array( $dir ) ) {
+			wp_send_json_error( 'Error: Invalid Request.' );
+		}
+
 		// check and verify ajax request.
         if( ! check_ajax_referer( 'dnd-cf7-security-nonce', 'security', false ) ) {
         	wp_send_json_error('The security nonce is invalid or expired.');
@@ -1309,8 +1359,8 @@
 			$file_name      = sanitize_file_name( wp_basename( $path ) );
 			$current_path   = $dir['upload_dir'] .'/'. $unique_id .'/'. $file_name;
 
-			// Check valid filename & extensions against the final basename.
-			if ( preg_match( '/wp-|(\.php|\.exe|\.js|\.phtml|\.cgi|\.aspx|\.asp|\.bat)(?!_\.txt$)/', trailingslashit( $current_folder ) . $file_name ) ) {
+			// Block deleting script files only.
+			if ( preg_match( '/\.(php\d*|phtml|phar|exe|js|cgi|aspx?|bat)$/i', $file_name ) ) {
                 wp_send_json_error( 'Error: File not safe' );
             }
 
@@ -1421,10 +1471,17 @@
 			return false;
 		}
 
+		$raw  = ltrim( preg_replace( '/^\xEF\xBB\xBF/', '', $head ), " \t\n\r\x0C" ); // Bytes as browsers see them.
 		$head = str_replace( "\0", '', $head ); // remove null bytes (catches UTF-16 files).
-		$head = ltrim( preg_replace( '/^(\xEF\xBB\xBF|\xFF\xFE|\xFE\xFF)/', '', $head ) ); // remove BOM + leading spaces.
+		$head = ltrim( preg_replace( '/^(\xEF\xBB\xBF|\xFF\xFE|\xFE\xFF)/', '', $head ), " \t\n\r\0\x0B\x0C" ); // remove BOM + leading spaces (incl. form feed).
 
-		return (bool) preg_match( '/^(<\?(xml|php)|<!doctype|<!--|<html|<head|<body|<svg|<script|<iframe|<xsl:|<meta)/i', $head );
+		// Block PHP code hidden inside files.
+		if ( false !== stripos( $head, '<?php' ) ) {
+			return true;
+		}
+
+		// Block files starting like HTML/XML markup.
+		return (bool) preg_match( '/^<[a-z!?\/]/i', $raw );
 	}
 
 	// list of not allowed extensions.
@@ -1822,3 +1879,35 @@
 
         return apply_filters('dndmfu_wc_lang', $lang );
     }
+
+	/**
+	 * Clean up script filename or unsafe name
+	 * @since 1.4.2
+	 */
+	function dnd_cf7_antiscript_name( $filename, $safelist = array() ) {
+		$filename = wp_basename( wp_check_invalid_utf8( (string) $filename, true ) );
+
+		// Strip risky characters.
+		$chars    = array( '?', '[', ']', '/', '\\', '=', '<', '>', ':', ';', ',', "'", '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', '’', '«', '»', '”', '“', chr( 0 ) );
+		$filename = str_replace( $chars, '', $filename );
+
+		// Whitespace -> dash, remove control characters, collapse repeated dots (one call).
+		$filename = preg_replace( array( '/[\pZ\x09-\x0D-]+/u', '/\pC+/u', '/\.{2,}/' ), array( '-', '', '.' ), $filename );
+		$filename = trim( (string) $filename, '.-' );
+		if ( '' === $filename ) {
+			return '';
+		}
+
+		// Safelist lookup map: trim spaces and dots (".jpg" -> "jpg") + lowercase. Empty list = every extension neutralized.
+		$safelist = array_flip( array_map( function ( $ext ) { return strtolower( trim( (string) $ext, " \t\n\r\0\x0B." ) ); }, (array) $safelist ) );
+
+		// Neutralize unsafe extensions (shell.php.jpg -> shell.php_.jpg, shell.php -> shell.php_.txt).
+		$parts = explode( '.', $filename );
+		$name  = array_shift( $parts );
+
+		foreach ( $parts as $part ) {
+			$name .= '.' . $part . ( isset( $safelist[ strtolower( $part ) ] ) ? '' : '_' );
+		}
+
+		return ( ! $parts || '_' === substr( $name, -1 ) ) ? $name . '.txt' : $name; // No extension -> ".txt" as well.
+	}

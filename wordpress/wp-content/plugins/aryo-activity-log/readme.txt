@@ -4,7 +4,7 @@ Tags: Activity Log, User Log, Audit Log, Security, Email Log,
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 2.18.0
+Stable tag: 2.19.0
 License: GPLv2 or later
 
 Monitor every change on your WordPress site — who did what, when, and where it came from — for a complete audit trail and stronger security.
@@ -52,7 +52,8 @@ If you have more than a handful of users, keeping track of who did what by hand 
 * <strong>Export</strong> - Exported activity log file
 * <strong>Request Source</strong> - WP Admin, REST API, WP-CLI, WP-Cron, XML-RPC, WP Abilities, and Application Password name when used
 * <strong>AI Agents</strong> - Lets AI agents read your logs on WordPress 6.9 or later, once you turn it on in the settings. They can query logs, summarize activity, and detect suspicious events like repeated failed logins, new or promoted administrator accounts, and changes to sensitive settings.
-* <strong>WooCommerce</strong> - Track products, orders, customers, and more
+* <strong>WooCommerce</strong> - Track order status changes, refunds and notes, including High-Performance Order Storage (HPOS), plus staff changes to product price, SKU and stock, and to coupon settings
+* <strong>WP-CLI</strong> - List, summarize and erase log entries with the `wp activity-log` command
 * <strong>bbPress</strong> - Forums, topics, replies, taxonomies, and other actions
 * <strong>Emails sent from WordPress site</strong> - Sending successful, sending failed
 * <strong>Dashboard Widget</strong> - Recent activity timeline on the WordPress dashboard (for users who can view the log), grouped by day, with load more and a link to the full log
@@ -142,7 +143,7 @@ Yes. Activity Log fully supports Multisite, logging activity per site and cleani
 
 = Does this work with WooCommerce? =
 
-Yes. Products, orders, and customers are tracked right out of the box, since Activity Log records changes across any post type and taxonomy — no extra setup needed.
+Yes. With High-Performance Order Storage (HPOS), order creation, status changes, refunds, notes, trash, restore and delete are logged when made by staff. Orders stored as posts are logged like any other post type. Products and coupons are logged as posts too, with extra rows for staff changes to product price, SKU and stock, and to coupon settings.
 
 = Can I exclude specific events from being logged? =
 
@@ -154,13 +155,21 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
+= 2.19.0 - 2026-11-22 =
+* New: Log WooCommerce order activity (HPOS) and staff changes to product price, SKU and stock, and to coupon settings
+* New: Added `--all` to `wp activity-log list` to stream every matching entry in batches
+* Tweak: Removed the unused legacy WooCommerce integration
+* Fix: Translate topic names in the logs filter
+* Fix: Personal data eraser now anonymizes user entries on sites where the `meta` column migration has not run
+* Fix: Show object names with special characters (such as `&` and apostrophes) correctly in the logs table, export and REST API
+
 = 2.18.0 - 2026-10-28 =
 * New: Anonymize a user's activity log entries through the WordPress personal data eraser
 * New: Log application password and password reset events
 * New: Log theme and plugin file editor changes
-* New: Added the wp activity-log WP-CLI command with list, stats and erase subcommands
-* New: Incremental log fetching with after_id in the REST API and abilities
-* New: Export logs as JSON Lines, also available via wp activity-log list --format=jsonl
+* New: Added the `wp activity-log` WP-CLI command with `list`, `stats` and `erase` subcommands
+* New: Incremental log fetching with `after_id` in the REST API and abilities
+* New: Export logs as JSON Lines, also available via `wp activity-log list --format=jsonl`
 * Tweak: Log an entry when all activity logs are erased
 * Tweak: Run old logs cleanup hourly instead of daily so large sites catch up faster
 * Tweak: Export logs in batches to support large sites
@@ -173,7 +182,7 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 * Fix: Log role changes made by adding or removing a single role, and detect users promoted to administrator with several roles
 * Fix: Different events logged in the same second are no longer dropped as duplicates
 * Fix: PHP 8.4 deprecation notices flooding the debug log during CSV export
-* Fix: Keep log IDs increasing after erasing all logs, so incremental after_id fetching keeps working
+* Fix: Keep log IDs increasing after erasing all logs, so incremental `after_id` fetching keeps working
 
 = 2.17.0 - 2026-10-25 =
 * New: Show old and new values for settings, posts, users, user roles, comments, plugin versions, themes, WordPress core version, widget and term changes

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Cookie Compliance for WordPress – Cookie Consent, GDPR &amp; CCPA - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-06 09:23:17+0000\n"
+"PO-Revision-Date: 2026-11-22 12:56:23+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,7 +11,32 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: Plugins - Cookie Compliance for WordPress – Cookie Consent, GDPR &amp; CCPA - Stable (latest release)\n"
 
-#: includes/welcome-api.php:5392
+#: includes/welcome.php:544
+msgid "Color of switches that are off."
+msgstr "Color de los conmutadores desactivados."
+
+#: includes/welcome.php:541
+msgid "Color of switches that are on and the reopen button."
+msgstr "Color de los conmutadores activados y del botón de reabrir."
+
+#: includes/welcome-api.php:5554
+msgid "We could not use a license for this site right now. Please try again later."
+msgstr "No hemos podido usar una licencia para este sitio ahora mismo. Inténtalo de nuevo más tarde."
+
+#: includes/welcome-api.php:5549
+msgid "Choose a plan to use."
+msgstr "Elige un plan para usar."
+
+#: includes/welcome-api.php:5544
+msgid "This site is already on a paid plan."
+msgstr "Este sitio ya está en un plan de pago."
+
+#: includes/welcome-api.php:3435 includes/welcome-api.php:5501
+#: includes/welcome-api.php:5536
+msgid "Connect this site to Cookie Compliance first."
+msgstr "Conecta este sitio a Cookie Compliance primero."
+
+#: includes/welcome-api.php:5430
 msgid "Publish your banner in the Cookie Compliance dashboard first, then choose a style."
 msgstr "Publica tu banner en el escritorio de Cookie Compliance primero, luego elige un estilo."
 
@@ -31,20 +56,20 @@ msgstr "Abrir escritorio"
 msgid "The Cookie Compliance dashboard is not clear to me."
 msgstr "No tengo claro el escritorio de Cookie Compliance."
 
-#: includes/welcome-api.php:5527
+#: includes/welcome-api.php:5705
 msgid "Choose a country."
 msgstr "Elegir un país."
 
-#: includes/welcome-api.php:5471
+#: includes/welcome-api.php:5649
 msgid "Could not load the country list."
 msgstr "No se ha podido cargar la lista de países."
 
-#: includes/welcome-api.php:3401 includes/welcome-api.php:5481
-#: includes/welcome-api.php:5520
+#: includes/welcome-api.php:3405 includes/welcome-api.php:5659
+#: includes/welcome-api.php:5698
 msgid "Connect this site to Cookie Compliance first, then choose the country."
 msgstr "Conecta este sitio a Cookie Compliance primero, luego elige el país."
 
-#: includes/welcome-api.php:1375
+#: includes/welcome-api.php:1377
 msgid "Your laws could not be applied to your live site. Please try again or visit the portal."
 msgstr "Tus leyes no se han podido aplicar a tu sitio en vivo. Por favor, inténtalo de nuevo o visita el portal."
 
@@ -132,83 +157,83 @@ msgstr "Los últimos %s100%s consentimientos de privacidad visibles"
 msgid "%s1,000%s visits per 30-day cycle"
 msgstr "%s1.000%s visitas por ciclo de 30 días"
 
-#: includes/welcome-api.php:5395
+#: includes/welcome-api.php:5433
 msgid "The banner style could not be saved. Please try again."
 msgstr "No se ha podido guardar el estilo del banner. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:5381
+#: includes/welcome-api.php:5419
 msgid "Banner style is available once this site is on the New engine."
 msgstr "El estilo del banner estará disponible una vez que este sitio use el motor nuevo."
 
-#: includes/welcome-api.php:5375
+#: includes/welcome-api.php:5413
 msgid "Choose Standard or Compact."
 msgstr "Elige Estándar o Compacto."
 
-#: includes/welcome-api.php:5366
+#: includes/welcome-api.php:5404
 msgid "Connect this site to Cookie Compliance first, then choose a style."
 msgstr "Conecta primero este sitio a Cookie Compliance y luego elige un estilo."
 
-#: includes/welcome-api.php:5359
+#: includes/welcome-api.php:5397
 msgid "Shared settings are off. Each site uses its own settings — manage them from each site's dashboard."
 msgstr "Los ajustes compartidos están desactivados. Cada sitio usa sus propios ajustes: gestiónalos desde el escritorio de cada sitio."
 
-#: includes/welcome-api.php:2700
+#: includes/welcome-api.php:2704
 msgid "Your site now uses that app, but its banner settings have not loaded yet. Reopen this page, or use Pull latest settings, to try again."
 msgstr "Tu sitio ya usa esa aplicación, pero sus ajustes del banner aún no se han cargado. Vuelve a abrir esta página, o usa Obtener los últimos ajustes, para intentarlo de nuevo."
 
-#: includes/welcome-api.php:2267
+#: includes/welcome-api.php:2271
 msgid "That app is no longer on your account. Please sign in again."
 msgstr "Esa aplicación ya no está en tu cuenta. Por favor accede de nuevo."
 
-#: includes/welcome-api.php:1977
+#: includes/welcome-api.php:1981
 msgid "Too many attempts. Try again in 15 minutes."
 msgstr "Demasiados intentos. Inténtalo de nuevo en 15 minutos."
 
-#: includes/welcome-api.php:1970
+#: includes/welcome-api.php:1974
 msgid "Your sign-in session has expired. Please sign in again."
 msgstr "Tu sesión de inicio de sesión ha caducado. Inicia sesión de nuevo."
 
-#: includes/welcome-api.php:1873
+#: includes/welcome-api.php:1877
 msgid "Another sign-in step is in progress. Wait a moment and try again."
 msgstr "Hay otro paso de inicio de sesión en curso. Espera un momento e inténtalo de nuevo."
 
-#: includes/welcome-api.php:1868 includes/welcome.php:738
+#: includes/welcome-api.php:1872 includes/welcome.php:738
 msgid "Choose one of your apps, or create a new app for this site."
 msgstr "Elige una de tus aplicaciones, o crea una aplicación nueva para este sitio."
 
-#: includes/welcome-api.php:1771
+#: includes/welcome-api.php:1775
 msgid "We could not send a new code. Please try again."
 msgstr "No hemos podido enviar un código nuevo. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:1759
+#: includes/welcome-api.php:1763
 msgid "Please wait a minute before requesting another code."
 msgstr "Espera un minuto antes de solicitar otro código."
 
-#: includes/welcome-api.php:1735
+#: includes/welcome-api.php:1739
 msgid "A code cannot be sent by email for this account."
 msgstr "No se puede enviar un código por correo electrónico para esta cuenta."
 
-#: includes/welcome-api.php:1703
+#: includes/welcome-api.php:1707
 msgid "That code did not work. Check it and try again."
 msgstr "Ese código no funcionó. Compruebalo e inténtalo de nuevo."
 
-#: includes/welcome-api.php:1648 includes/welcome-api.php:1748
+#: includes/welcome-api.php:1652 includes/welcome-api.php:1752
 msgid "Another verification is in progress. Wait a moment and try again."
 msgstr "Otra verificación está en curso. Espera un momento e inténtalo de nuevo."
 
-#: includes/welcome-api.php:1635
+#: includes/welcome-api.php:1639
 msgid "Enter the verification code."
 msgstr "Introduce el código de verificación."
 
-#: includes/welcome-api.php:1628
+#: includes/welcome-api.php:1632
 msgid "Choose how you want to verify."
 msgstr "Elige como quieres verificar."
 
-#: includes/welcome-api.php:1533
+#: includes/welcome-api.php:1537
 msgid "Two-step verification is on for this account, but this plugin could not tell how to ask for the code. Connect with your App ID and App Secret Key from the Cookie Compliance dashboard."
 msgstr "La verificación en dos pasos está activada en esta cuenta, pero este complemento no ha podido determinar cómo solicitar el código. Inicia sesión con tu ID de aplicación y tu clave secreta de aplicación desde el panel de control de Cookie Compliance."
 
-#: includes/welcome-api.php:968
+#: includes/welcome-api.php:970
 msgid "The Do Not Sell link must be a full web address starting with https:// or http://. Nothing was saved."
 msgstr "El enlace «No vender» debe ser una dirección web completa que empiece por https:// o http://. No se ha guardado nada."
 
@@ -373,43 +398,43 @@ msgstr "Continuar"
 msgid "The admin has been switched."
 msgstr "La administración se ha cambiado."
 
-#: includes/welcome-api.php:3613 includes/welcome-api.php:3678
+#: includes/welcome-api.php:3651 includes/welcome-api.php:3716
 msgid "We could not reach Cookie Compliance to load your consent records. This does not mean there are none on file — please try again in a moment."
 msgstr "No hemos podido contactar con Cookie Compliance para cargar tus registros de consentimiento. Esto no significa que no haya ninguno archivado; inténtalo de nuevo en un momento."
 
-#: includes/welcome-api.php:2545
+#: includes/welcome-api.php:2549
 msgid "We could not reach Cookie Compliance to activate this site. Your settings are unchanged — please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para activar este sitio. Tus ajustes no han cambiado; inténtalo de nuevo."
 
-#: includes/welcome-api.php:2470
+#: includes/welcome-api.php:2474
 msgid "We could not reach Cookie Compliance to finish setting up this site. Your settings are unchanged — please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para terminar de configurar este sitio. Tus ajustes no han cambiado; inténtalo de nuevo."
 
-#: includes/welcome-api.php:2333
+#: includes/welcome-api.php:2337
 msgid "We could not reach Cookie Compliance to read your plan. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para leer tu plan. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:2168
+#: includes/welcome-api.php:2172
 msgid "We could not reach Cookie Compliance to list your sites. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para listar tus sitios. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:801
+#: includes/welcome-api.php:803
 msgid "We could not reach Cookie Compliance to activate this site. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para activar este sitio. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:781
+#: includes/welcome-api.php:783
 msgid "We could not reach Cookie Compliance to finish setting up this site. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para terminar de configurar este sitio. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:568
+#: includes/welcome-api.php:570
 msgid "We could not reach Cookie Compliance to create your account. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para crear tu cuenta. Inténtalo de nuevo."
 
-#: includes/welcome-api.php:475
+#: includes/welcome-api.php:477
 msgid "We could not confirm your upgrade with Cookie Compliance — the connection failed while we were waiting for an answer, so we do not know whether the payment went through. Please check your email for a receipt and contact support before trying again, so you are not charged twice."
 msgstr "No hemos podido confirmar tu actualización con Cookie Compliance: la conexión falló mientras esperábamos una respuesta, así que no sabemos si el pago se ha procesado. Comprueba tu correo electrónico por si hay un recibo y contacta con soporte antes de volver a intentarlo, para que no te cobren dos veces."
 
-#: includes/welcome-api.php:339
+#: includes/welcome-api.php:341
 msgid "We could not reach Cookie Compliance to look up your billing details. Please try again."
 msgstr "No hemos podido contactar con Cookie Compliance para consultar tus datos de facturación. Inténtalo de nuevo."
 
@@ -515,7 +540,7 @@ msgstr "Google reCAPTCHA no se ha cargado porque necesita tu consentimiento. Ace
 msgid "Please accept cookies to use this form. It is protected by Google reCAPTCHA, which cannot load until you do."
 msgstr "Acepta las cookies para usar este formulario. Está protegido por Google reCAPTCHA, que no se puede cargar hasta que lo hagas."
 
-#: includes/welcome-api.php:275
+#: includes/welcome-api.php:277
 msgid "Unable to initialize payment. Please try again later."
 msgstr "No se pudo iniciar el pago. Inténtalo de nuevo más tarde."
 
@@ -623,7 +648,7 @@ msgstr "Acepta las cookies para enviar este formulario. Este formulario está pr
 msgid "Could not save: the settings payload could not be decoded. Please retry."
 msgstr "No se pudo guardar: no se pudo decodificar la carga de ajustes. Vuelve a intentarlo."
 
-#: includes/welcome-api.php:216
+#: includes/welcome-api.php:218
 msgid "License assignment failed."
 msgstr "Error en la asignación de la licencia."
 
@@ -808,7 +833,7 @@ msgstr "Ve a Cookie Compliance ahora. O accede cuando quieras desde tu %spágina
 msgid "No credit card · Free to start"
 msgstr "Sin tarjeta de crédito · Inicio gratis"
 
-#: includes/welcome-api.php:202
+#: includes/welcome-api.php:204
 msgid "Invalid subscription."
 msgstr "Suscripción no válida."
 
@@ -884,11 +909,11 @@ msgid_plural "%d domains remaining on your plan."
 msgstr[0] "%d dominio restante en tu plan."
 msgstr[1] "%d dominios restantes en tu plan."
 
-#: includes/welcome-api.php:1442
+#: includes/welcome-api.php:1446
 msgid "Failed to sync configuration. Please check your app ID and try again."
 msgstr "Error al sincronizar la configuración. Comprueba tu ID de aplicación y vuelve a intentarlo."
 
-#: includes/welcome-api.php:1437
+#: includes/welcome-api.php:1439
 msgid "Configuration synced successfully."
 msgstr "Configuración sincronizada correctamente."
 
@@ -1280,7 +1305,7 @@ msgstr "Puedes ver los registros individuales desplegando una sola fila de datos
 msgid "The table below shows the consent records from your website accumulated from the last thirty days."
 msgstr "La siguiente tabla muestra los registros de consentimiento de tu sitio web acumulados en los últimos treinta días."
 
-#: includes/welcome-api.php:3436
+#: includes/welcome-api.php:3471
 msgid "\"AppID\" is not allowed to be empty."
 msgstr "No se permite que \"AppID\" esté vacío."
 
@@ -1490,7 +1515,7 @@ msgstr "%s1 idioma adicional%s"
 msgid "%sCompliance Failed!%sYour website does not achieve minimum viable compliance. %sSign up to Cookie Compliance%s to bring your site into compliance with the latest data privacy rules and regulations."
 msgstr "¡%sCumplimiento fallido!%sTu sitio web no alcanza el cumplimiento mínimo viable. %sRegístrate en Cookie Compliance%s para que tu sitio cumpla con las normas y regulaciones de privacidad de datos más recientes."
 
-#: includes/welcome-api.php:536
+#: includes/welcome-api.php:538
 msgid "The password contains illegal characters or does not meet the conditions."
 msgstr "La contraseña contiene caracteres ilegales o no cumple las condiciones."
 
@@ -1739,11 +1764,11 @@ msgstr "anual"
 msgid "monthly"
 msgstr "mensual"
 
-#: includes/welcome-api.php:413
+#: includes/welcome-api.php:415
 msgid "No payment method token."
 msgstr "No se ha encontrado ningún token de método de pago."
 
-#: includes/welcome-api.php:407
+#: includes/welcome-api.php:409
 msgid "Unable to create payment mehotd."
 msgstr "No se ha podido crear un método de pago."
 
@@ -2182,17 +2207,9 @@ msgstr "Color del texto del encabezado."
 msgid "Color of the body text."
 msgstr "Color del texto del cuerpo."
 
-#: includes/welcome.php:544
-msgid "Color of the borders and inactive elements."
-msgstr "Color de los bordes y los elementos inactivos."
-
 #: includes/welcome.php:542
 msgid "Color of the banner background."
 msgstr "Color del fondo del banner."
-
-#: includes/welcome.php:541
-msgid "Color of the buttons and interactive elements."
-msgstr "Color de los botones y de los elementos interactivos."
 
 #: includes/welcome.php:539
 msgid "Adjust the banner color scheme"
@@ -2246,40 +2263,40 @@ msgstr "URL del sitio"
 msgid "Please fill all the required fields."
 msgstr "Por favor, rellena todos los campos obligatorios."
 
-#: includes/welcome-api.php:542
+#: includes/welcome-api.php:544
 msgid "Passwords do not match."
 msgstr "Las contraseñas no coinciden."
 
-#: includes/welcome-api.php:530 includes/welcome-api.php:878
+#: includes/welcome-api.php:532 includes/welcome-api.php:880
 msgid "Password is not allowed to be empty."
 msgstr "El campo de la contraseña no puede estar vacío."
 
-#: includes/welcome-api.php:520 includes/welcome-api.php:869
+#: includes/welcome-api.php:522 includes/welcome-api.php:871
 msgid "Email is not allowed to be empty."
 msgstr "El campo del correo electrónico no puede estar vacío."
 
-#: includes/welcome-api.php:511
+#: includes/welcome-api.php:513
 msgid "Please accept the Terms of Service to proceed."
 msgstr "Por favor, acepta los términos de servicio para continuar."
 
-#: includes/welcome-api.php:368
+#: includes/welcome-api.php:370
 msgid "Unable to create customer data."
 msgstr "No ha sido posible crear los datos de cliente."
 
-#: includes/welcome-api.php:316
+#: includes/welcome-api.php:318
 msgid "Empty plan or payment method data."
 msgstr "Datos del plan o del método de pago vacíos."
 
-#: includes/welcome-api.php:279 includes/welcome-api.php:609
-#: includes/welcome-api.php:619 includes/welcome-api.php:700
-#: includes/welcome-api.php:901 includes/welcome-api.php:1820
-#: includes/welcome-api.php:2306 includes/welcome-api.php:3477
-#: includes/welcome-api.php:5629 includes/welcome.php:133
+#: includes/welcome-api.php:281 includes/welcome-api.php:611
+#: includes/welcome-api.php:621 includes/welcome-api.php:702
+#: includes/welcome-api.php:903 includes/welcome-api.php:1824
+#: includes/welcome-api.php:2310 includes/welcome-api.php:3515
+#: includes/welcome-api.php:5807 includes/welcome.php:133
 msgid "Unexpected error occurred. Please try again later."
 msgstr "Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde."
 
-#: includes/welcome-api.php:103 includes/welcome-api.php:107
-#: includes/welcome-api.php:114 includes/welcome-api.php:127
+#: includes/welcome-api.php:105 includes/welcome-api.php:109
+#: includes/welcome-api.php:116 includes/welcome-api.php:129
 #: includes/welcome.php:235 includes/welcome.php:263 includes/welcome.php:266
 msgid "You do not have permission to access this page."
 msgstr "No tienes permiso para acceder a esta página."

@@ -96,6 +96,23 @@ __( 'sent', 'aryo-activity-log' );
 /* translators: Log action key shown in the activity log. Translate as a readable label, e.g. "Logged out". */
 __( 'failed', 'aryo-activity-log' );
 
+// WooCommerce
+__( 'WooCommerce', 'aryo-activity-log' );
+/* translators: WooCommerce object subtype shown in the activity log. */
+__( 'shop_order', 'aryo-activity-log' );
+/* translators: WooCommerce object subtype shown in the activity log. */
+__( 'product', 'aryo-activity-log' );
+/* translators: WooCommerce object subtype shown in the activity log. */
+__( 'product_variation', 'aryo-activity-log' );
+/* translators: WooCommerce object subtype shown in the activity log. */
+__( 'shop_coupon', 'aryo-activity-log' );
+/* translators: Log action key shown in the activity log. Translate as a readable label, e.g. "Logged out". */
+__( 'status_changed', 'aryo-activity-log' );
+/* translators: Log action key shown in the activity log. Translate as a readable label, e.g. "Logged out". */
+__( 'refunded', 'aryo-activity-log' );
+/* translators: Log action key shown in the activity log. Translate as a readable label, e.g. "Logged out". */
+__( 'note_added', 'aryo-activity-log' );
+
 // Comments
 __( 'Comments', 'aryo-activity-log' );
 /* translators: Log action key shown in the activity log. Translate as a readable label, e.g. "Logged out". */

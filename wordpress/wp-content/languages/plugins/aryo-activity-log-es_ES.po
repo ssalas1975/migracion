@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Activity Log – Monitor User and Agent Changes - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-08 21:02:06+0000\n"
+"PO-Revision-Date: 2026-11-23 17:30:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,48 @@ msgstr ""
 "X-Generator: GlotPress/4.1.0\n"
 "Language: es\n"
 "Project-Id-Version: Plugins - Activity Log – Monitor User and Agent Changes - Stable (latest release)\n"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:114
+msgid "note_added"
+msgstr "note_added"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:112
+msgid "refunded"
+msgstr "reembolsado"
+
+#. translators: Log action key shown in the activity log. Translate as a
+#. readable label, e.g. "Logged out".
+#: i18n/strings.php:110
+msgid "status_changed"
+msgstr "status_changed"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:108
+msgid "shop_coupon"
+msgstr "shop_coupon"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:106
+msgid "product_variation"
+msgstr "product_variation"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:104
+msgid "product"
+msgstr "product"
+
+#. translators: WooCommerce object subtype shown in the activity log.
+#: i18n/strings.php:102
+msgid "shop_order"
+msgstr "shop_order"
+
+#: i18n/strings.php:100
+msgid "WooCommerce"
+msgstr "WooCommerce"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "File updated".
@@ -47,7 +89,7 @@ msgstr "app_password_revoked"
 msgid "app_password_created"
 msgstr "app_password_created"
 
-#: classes/class-aal-privacy.php:190
+#: classes/class-aal-privacy.php:195
 msgid "When you request erasure of your personal data, your activity log entries are anonymized and a record of the erasure request is kept."
 msgstr "Cuando solicitas el borrado de tus datos personales, tus entradas del registro de actividad se anonimizan y se conserva un registro de la solicitud de borrado."
 
@@ -68,7 +110,7 @@ msgstr "Hora (ISO 8601)"
 msgid "Use next_after_id from the previous response as after_id to fetch only new events."
 msgstr "Usa next_after_id de la respuesta anterior como after_id para obtener solo los eventos nuevos."
 
-#: classes/class-aal-privacy.php:189
+#: classes/class-aal-privacy.php:194
 msgid "If you are a registered user, we save your content activity like create/update/delete posts and comments. When a profile or comment is updated, we may also store the previous and new values of the changed fields (for example email address or display name) in the activity log."
 msgstr "Si eres un usuario registrado, guardamos tu actividad de contenido, como crear, actualizar o borrar entradas y comentarios. Cuando se actualiza un perfil o un comentario, también podemos almacenar los valores anteriores y nuevos de los campos modificados (por ejemplo, la dirección de correo electrónico o el nombre para mostrar) en el registro de actividad."
 
@@ -82,61 +124,61 @@ msgstr "Actividad reciente"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:260
+#: i18n/strings.php:277
 msgid "upload_url_path"
 msgstr "upload_url_path"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:258
+#: i18n/strings.php:275
 msgid "upload_path"
 msgstr "upload_path"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:250
+#: i18n/strings.php:267
 msgid "medium_large_size_h"
 msgstr "medium_large_size_h"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:248
+#: i18n/strings.php:265
 msgid "medium_large_size_w"
 msgstr "medium_large_size_w"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:228
+#: i18n/strings.php:245
 msgid "show_comments_cookies_opt_in"
 msgstr "show_comments_cookies_opt_in"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:226
+#: i18n/strings.php:243
 msgid "disallowed_keys"
 msgstr "disallowed_keys"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:218
+#: i18n/strings.php:235
 msgid "comment_previously_approved"
 msgstr "comment_previously_approved"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:144
+#: i18n/strings.php:161
 msgid "site_icon"
 msgstr "site_icon"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:136
+#: i18n/strings.php:153
 msgid "gmt_offset"
 msgstr "gmt_offset"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:126
+#: i18n/strings.php:143
 msgid "new_admin_email"
 msgstr "new_admin_email"
 
@@ -148,27 +190,27 @@ msgstr "Cuando está activado, las capacidades de solo lectura de Activity Log s
 msgid "Expose activity log to AI agents"
 msgstr "Exponer el registro de actividad a los agentes de IA"
 
-#: classes/class-aal-log-query.php:769
+#: classes/class-aal-log-query.php:813
 msgid "Invalid date_from or date_to value."
 msgstr "Valor de date_from o date_to no válido."
 
-#: classes/class-aal-log-query.php:745
+#: classes/class-aal-log-query.php:789
 msgid "Invalid period value."
 msgstr "Valor de periodo no válido."
 
-#: classes/class-aal-log-query.php:710
+#: classes/class-aal-log-query.php:754
 msgid "The date range may not exceed 90 days."
 msgstr "El intervalo de datos ni puede superar los 90 días."
 
-#: classes/class-aal-log-query.php:701
+#: classes/class-aal-log-query.php:745
 msgid "date_from must not be after date_to."
 msgstr "date_from no debe estar después de date_to."
 
-#: classes/class-aal-log-query.php:684
+#: classes/class-aal-log-query.php:728
 msgid "date_from and date_to must both be set."
 msgstr "Se debe establecer tanto date_from como date_to."
 
-#: classes/class-aal-log-query.php:675
+#: classes/class-aal-log-query.php:719
 msgid "Provide either period or date_from/date_to, not both."
 msgstr "Indica periodo o date_from/date_to, pero no ambos."
 
@@ -338,7 +380,7 @@ msgstr "No tienes permisos para gestionar ajustes."
 msgid "Activity Log – Monitor User and Agent Changes"
 msgstr "Registro de actividad - Supervisa los cambios de usuarios y agentes"
 
-#: classes/class-aal-rest.php:444
+#: classes/class-aal-rest.php:455
 msgid "Invalid promotion ID."
 msgstr "ID de promoción no válido."
 
@@ -351,12 +393,12 @@ msgid "Activity Log: admin assets are not built. Run `npm run build` in the plug
 msgstr "Registros de actividad: los assets de administración no están compilados. Ejecuta npm run build en el directorio del plugin."
 
 #. translators: %s: Class name.
-#: aryo-activity-log.php:150
+#: aryo-activity-log.php:147
 msgid "Unserializing instances of the singleton \"%s\" class is forbidden."
 msgstr "Deserializar instancias de la clase singleton «%s» está prohibido."
 
 #. translators: %s: Class name.
-#: aryo-activity-log.php:130
+#: aryo-activity-log.php:127
 msgid "Cloning instances of the singleton \"%s\" class is forbidden."
 msgstr "Clonar instancias de la clase singleton «%s» está prohibido."
 
@@ -404,8 +446,8 @@ msgstr "API REST"
 msgid "WP Abilities"
 msgstr "WP Abilities"
 
-#: classes/class-aal-export.php:105 classes/class-aal-log-query.php:634
-#: classes/class-aal-privacy.php:211 classes/class-aal-privacy.php:213
+#: classes/class-aal-export.php:105 classes/class-aal-log-query.php:678
+#: classes/class-aal-privacy.php:216 classes/class-aal-privacy.php:218
 msgid "App Password"
 msgstr "Contraseña de aplicación"
 
@@ -413,32 +455,32 @@ msgstr "Contraseña de aplicación"
 msgid "Application Password"
 msgstr "Contraseña de aplicación"
 
-#: classes/class-aal-cli.php:96 classes/class-aal-export.php:106
-#: classes/class-aal-privacy.php:162 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:98 classes/class-aal-export.php:106
+#: classes/class-aal-privacy.php:167 assets/js/admin/build/index.js:1
 msgid "Source"
 msgstr "Fuente"
 
-#: classes/class-aal-rest.php:522
+#: classes/class-aal-rest.php:533
 msgid "Install Plugin"
 msgstr "Instalar plugin"
 
-#: classes/class-aal-rest.php:521
+#: classes/class-aal-rest.php:532
 msgid "Activate Plugin"
 msgstr "Activar plugin"
 
-#: classes/class-aal-rest.php:472
+#: classes/class-aal-rest.php:483
 msgid "Reduce image sizes without losing quality and improve your site speed."
 msgstr "Reduce tamaños de imagen sin perder calidad y mejora la velocidad de tu sitio."
 
-#: classes/class-aal-rest.php:471
+#: classes/class-aal-rest.php:482
 msgid "Optimize Your Images for a Faster Website!"
 msgstr "¡Optimiza tus imágenes para tener una web más rápida!"
 
-#: classes/class-aal-rest.php:466
+#: classes/class-aal-rest.php:477
 msgid "Use Site Mailer for improved email deliverability, detailed email logs, and an easy setup."
 msgstr "Usar el servicio de envío del sitio para mejorar la entrega de correos electrónicos, registros detallados de correos y fácil configuración."
 
-#: classes/class-aal-rest.php:465
+#: classes/class-aal-rest.php:476
 msgid "Ensure your emails avoid the spam folder!"
 msgstr "¡Asegúrate de que tus correos electrónicos eviten la carpeta de spam!"
 
@@ -497,13 +539,13 @@ msgstr "Detectada la IP del visitante"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:272
+#: i18n/strings.php:289
 msgid "wp_page_for_privacy_policy"
 msgstr "pagina_de_wp_de_politica_de_privacidad"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:132
+#: i18n/strings.php:149
 msgid "WPLANG"
 msgstr "WPLANG"
 
@@ -531,22 +573,22 @@ msgstr "Adjuntos"
 msgid "Posts"
 msgstr "Entradas"
 
-#: classes/class-aal-log-presenter.php:368
+#: classes/class-aal-log-presenter.php:373
 msgid "Username:"
 msgstr "Nombre de usuario:"
 
-#: classes/class-aal-cli.php:100 classes/class-aal-export.php:109
-#: classes/class-aal-privacy.php:148 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:102 classes/class-aal-export.php:109
+#: classes/class-aal-privacy.php:153 assets/js/admin/build/index.js:1
 msgid "Meta"
 msgstr "Meta"
 
-#: classes/class-aal-cli.php:99 classes/class-aal-export.php:108
-#: classes/class-aal-privacy.php:144 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:101 classes/class-aal-export.php:108
+#: classes/class-aal-privacy.php:149 assets/js/admin/build/index.js:1
 msgid "Context"
 msgstr "Contexto"
 
-#: classes/class-aal-cli.php:98 classes/class-aal-export.php:107
-#: classes/class-aal-privacy.php:140 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:100 classes/class-aal-export.php:107
+#: classes/class-aal-privacy.php:145 assets/js/admin/build/index.js:1
 msgid "Topic"
 msgstr "Debate"
 
@@ -601,7 +643,7 @@ msgstr "Activity Log Team"
 msgid "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
 msgstr "https://activitylog.io/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
 
-#: classes/class-aal-privacy.php:132
+#: classes/class-aal-privacy.php:137
 msgid "Time"
 msgstr "Hora"
 
@@ -628,7 +670,7 @@ msgstr "ID de usuario"
 msgid "Users"
 msgstr "Usuarios"
 
-#: classes/class-aal-cli.php:93
+#: classes/class-aal-cli.php:95
 msgid "ID"
 msgstr "Identidad"
 
@@ -636,402 +678,402 @@ msgstr "Identidad"
 msgid "Plugins"
 msgstr "Plugins"
 
-#: classes/class-aal-log-presenter.php:265 classes/class-aal-log-query.php:575
-#: classes/class-aal-log-query.php:817 classes/class-aal-log-query.php:1213
+#: classes/class-aal-log-presenter.php:265 classes/class-aal-log-query.php:619
+#: classes/class-aal-log-query.php:861 classes/class-aal-log-query.php:1257
 msgid "N/A"
 msgstr "N/D"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:277
+#: i18n/strings.php:294
 msgid "downloaded"
 msgstr "descargado"
 
-#: i18n/strings.php:275
+#: i18n/strings.php:292
 msgid "Export"
 msgstr "Exportar"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:268
+#: i18n/strings.php:285
 msgid "tag_base"
 msgstr "tag_base"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:266
+#: i18n/strings.php:283
 msgid "category_base"
 msgstr "category_base"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:264
+#: i18n/strings.php:281
 msgid "permalink_structure"
 msgstr "permalink_structure"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:256
+#: i18n/strings.php:273
 msgid "uploads_use_yearmonth_folders"
 msgstr "uploads_use_yearmonth_folders"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:254
+#: i18n/strings.php:271
 msgid "large_size_h"
 msgstr "large_size_h"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:252
+#: i18n/strings.php:269
 msgid "large_size_w"
 msgstr "large_size_w"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:246
+#: i18n/strings.php:263
 msgid "medium_size_h"
 msgstr "medium_size_h"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:244
+#: i18n/strings.php:261
 msgid "medium_size_w"
 msgstr "medium_size_w"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:242
+#: i18n/strings.php:259
 msgid "thumbnail_crop"
 msgstr "thumbnail_crop"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:240
+#: i18n/strings.php:257
 msgid "thumbnail_size_h"
 msgstr "thumbnail_size_h"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:238
+#: i18n/strings.php:255
 msgid "thumbnail_size_w"
 msgstr "thumbnail_size_w"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:234
+#: i18n/strings.php:251
 msgid "avatar_default"
 msgstr "avatar_default"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:232
+#: i18n/strings.php:249
 msgid "avatar_rating"
 msgstr "avatar_rating"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:230
+#: i18n/strings.php:247
 msgid "show_avatars"
 msgstr "show_avatars"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:224
+#: i18n/strings.php:241
 msgid "blacklist_keys"
 msgstr "blacklist_keys"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:222
+#: i18n/strings.php:239
 msgid "moderation_keys"
 msgstr "moderation_keys"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:220
+#: i18n/strings.php:237
 msgid "comment_max_links"
 msgstr "comment_max_links"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:216
+#: i18n/strings.php:233
 msgid "comment_whitelist"
 msgstr "comment_whitelist"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:214
+#: i18n/strings.php:231
 msgid "comment_moderation"
 msgstr "comment_moderation"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:212
+#: i18n/strings.php:229
 msgid "moderation_notify"
 msgstr "moderation_notify"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:210
+#: i18n/strings.php:227
 msgid "comments_notify"
 msgstr "comments_notify"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:208
+#: i18n/strings.php:225
 msgid "comment_order"
 msgstr "comment_order"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:206
+#: i18n/strings.php:223
 msgid "default_comments_page"
 msgstr "default_comments_page"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:204
+#: i18n/strings.php:221
 msgid "comments_per_page"
 msgstr "comments_per_page"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:202
+#: i18n/strings.php:219
 msgid "page_comments"
 msgstr "page_comments"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:200
+#: i18n/strings.php:217
 msgid "thread_comments_depth"
 msgstr "thread_comments_depth"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:198
+#: i18n/strings.php:215
 msgid "thread_comments"
 msgstr "thread_comments"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:196
+#: i18n/strings.php:213
 msgid "close_comments_days_old"
 msgstr "close_comments_days_old"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:194
+#: i18n/strings.php:211
 msgid "close_comments_for_old_posts"
 msgstr "close_comments_for_old_posts"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:192
+#: i18n/strings.php:209
 msgid "comment_registration"
 msgstr "comment_registration"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:190
+#: i18n/strings.php:207
 msgid "require_name_email"
 msgstr "require_name_email"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:188
+#: i18n/strings.php:205
 msgid "default_comment_status"
 msgstr "default_comment_status"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:186
+#: i18n/strings.php:203
 msgid "default_ping_status"
 msgstr "default_ping_status"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:184
+#: i18n/strings.php:201
 msgid "default_pingback_flag"
 msgstr "default_pingback_flag"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:180
+#: i18n/strings.php:197
 msgid "blog_public"
 msgstr "blog_public"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:178
+#: i18n/strings.php:195
 msgid "rss_use_excerpt"
 msgstr "rss_use_excerpt"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:176
+#: i18n/strings.php:193
 msgid "posts_per_rss"
 msgstr "posts_per_rss"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:174
+#: i18n/strings.php:191
 msgid "posts_per_page"
 msgstr "posts_per_page"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:172
+#: i18n/strings.php:189
 msgid "page_for_posts"
 msgstr "page_for_posts"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:170
+#: i18n/strings.php:187
 msgid "page_on_front"
 msgstr "page_on_front"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:168
+#: i18n/strings.php:185
 msgid "show_on_front"
 msgstr "show_on_front"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:164
+#: i18n/strings.php:181
 msgid "ping_sites"
 msgstr "ping_sites"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:162
+#: i18n/strings.php:179
 msgid "default_email_category"
 msgstr "default_email_category"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:160
+#: i18n/strings.php:177
 msgid "mailserver_pass"
 msgstr "mailserver_pass"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:158
+#: i18n/strings.php:175
 msgid "mailserver_login"
 msgstr "mailserver_login"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:156
+#: i18n/strings.php:173
 msgid "mailserver_url"
 msgstr "mailserver_url"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:154
+#: i18n/strings.php:171
 msgid "default_post_format"
 msgstr "default_post_format"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:152
+#: i18n/strings.php:169
 msgid "default_category"
 msgstr "default_category"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:150
+#: i18n/strings.php:167
 msgid "use_balanceTags"
 msgstr "use_balanceTags"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:148
+#: i18n/strings.php:165
 msgid "use_smilies"
 msgstr "use_smilies"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:142
+#: i18n/strings.php:159
 msgid "start_of_week"
 msgstr "start_of_week"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:140
+#: i18n/strings.php:157
 msgid "time_format"
 msgstr "time_format"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:138
+#: i18n/strings.php:155
 msgid "date_format"
 msgstr "date_format"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:134
+#: i18n/strings.php:151
 msgid "timezone_string"
 msgstr "timezone_string"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:130
+#: i18n/strings.php:147
 msgid "default_role"
 msgstr "default_role"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:128
+#: i18n/strings.php:145
 msgid "users_can_register"
 msgstr "users_can_register"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:124
+#: i18n/strings.php:141
 msgid "admin_email"
 msgstr "admin_email"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:122
+#: i18n/strings.php:139
 msgid "home"
 msgstr "home"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:120
+#: i18n/strings.php:137
 msgid "siteurl"
 msgstr "siteurl"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:118
+#: i18n/strings.php:135
 msgid "blogdescription"
 msgstr "blogdescription"
 
 #. translators: WordPress option name shown in the activity log. Translate as a
 #. readable setting name.
-#: i18n/strings.php:116
+#: i18n/strings.php:133
 msgid "blogname"
 msgstr "blogname"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:112
+#: i18n/strings.php:129
 msgid "unspammed"
 msgstr "unspammed"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:110
+#: i18n/strings.php:127
 msgid "spammed"
 msgstr "spammed"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:108
+#: i18n/strings.php:125
 msgid "untrashed"
 msgstr "untrashed"
 
@@ -1043,23 +1085,23 @@ msgstr "trashed"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:106
+#: i18n/strings.php:123
 msgid "unapproved"
 msgstr "unapproved"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:104
+#: i18n/strings.php:121
 msgid "approved"
 msgstr "approved"
 
 #. translators: Log action key shown in the activity log. Translate as a
 #. readable label, e.g. "Logged out".
-#: i18n/strings.php:102
+#: i18n/strings.php:119
 msgid "pending"
 msgstr "pendiente"
 
-#: i18n/strings.php:100
+#: i18n/strings.php:117
 msgid "Comments"
 msgstr "Comentarios"
 
@@ -1075,11 +1117,11 @@ msgstr "WordPress actualizado"
 msgid "Core"
 msgstr "Núcleo"
 
-#: i18n/strings.php:287
+#: i18n/strings.php:304
 msgid "Taxonomy"
 msgstr "Taxonomía"
 
-#: i18n/strings.php:286
+#: i18n/strings.php:303
 msgid "Menu"
 msgstr "Menú"
 
@@ -1087,7 +1129,7 @@ msgstr "Menú"
 msgid "Options"
 msgstr "Opciones"
 
-#: i18n/strings.php:285
+#: i18n/strings.php:302
 msgid "Widget"
 msgstr "Widget"
 
@@ -1095,7 +1137,7 @@ msgstr "Widget"
 msgid "Theme Customizer"
 msgstr "Personalizador de temas"
 
-#: i18n/strings.php:284
+#: i18n/strings.php:301
 msgid "Theme"
 msgstr "Tema"
 
@@ -1117,7 +1159,7 @@ msgstr "desactivado"
 msgid "activated"
 msgstr "activado"
 
-#: i18n/strings.php:283
+#: i18n/strings.php:300
 msgid "Plugin"
 msgstr "Plugin"
 
@@ -1133,7 +1175,7 @@ msgstr "logged_in"
 msgid "logged_out"
 msgstr "logged_out"
 
-#: i18n/strings.php:281
+#: i18n/strings.php:298
 msgid "Attachment"
 msgstr "Adjunto"
 
@@ -1155,7 +1197,7 @@ msgstr "actualizado"
 msgid "created"
 msgstr "creado"
 
-#: i18n/strings.php:280
+#: i18n/strings.php:297
 msgid "Post"
 msgstr "Entrada"
 
@@ -1175,8 +1217,8 @@ msgstr "¡Sé consciente de cualquier actividad que se esté llevando a cabo en 
 msgid "(no title)"
 msgstr "(sin título)"
 
-#: classes/class-aal-cli.php:95 classes/class-aal-export.php:104
-#: i18n/strings.php:282 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:97 classes/class-aal-export.php:104
+#: i18n/strings.php:299 assets/js/admin/build/index.js:1
 msgid "User"
 msgstr "Usuario"
 
@@ -1212,13 +1254,13 @@ msgstr "Ajustes del registro de actividad"
 msgid "Settings"
 msgstr "Ajustes"
 
-#: classes/class-aal-abilities.php:79 classes/class-aal-privacy.php:125
-#: classes/class-aal-privacy.php:193 classes/class-aal-settings.php:21
+#: classes/class-aal-abilities.php:79 classes/class-aal-privacy.php:130
+#: classes/class-aal-privacy.php:198 classes/class-aal-settings.php:21
 #: i18n/strings.php:5
 msgid "Activity Log"
 msgstr "Activity Log"
 
-#: classes/class-aal-log-presenter.php:374
+#: classes/class-aal-log-presenter.php:379
 msgid "All"
 msgstr "Todo"
 
@@ -1231,17 +1273,17 @@ msgstr "Desconocido"
 msgid "%s ago"
 msgstr "Hace %s"
 
-#: classes/class-aal-cli.php:101 classes/class-aal-export.php:110
-#: classes/class-aal-privacy.php:136 assets/js/admin/build/index.js:1
+#: classes/class-aal-cli.php:103 classes/class-aal-export.php:110
+#: classes/class-aal-privacy.php:141 assets/js/admin/build/index.js:1
 msgid "Action"
 msgstr "Acción"
 
-#: classes/class-aal-cli.php:97 classes/class-aal-export.php:268
-#: classes/class-aal-privacy.php:152
+#: classes/class-aal-cli.php:99 classes/class-aal-export.php:247
+#: classes/class-aal-privacy.php:157
 msgid "IP"
 msgstr "IP"
 
-#: classes/class-aal-cli.php:94 classes/class-aal-export.php:103
+#: classes/class-aal-cli.php:96 classes/class-aal-export.php:103
 #: assets/js/admin/build/index.js:1
 msgid "Date"
 msgstr "Fecha"
