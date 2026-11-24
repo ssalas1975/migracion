@@ -45,8 +45,6 @@
 - Site Health check — diagnostics
 
 ## Agent Specializations
-- **PHP 8.4 compatibility auditor** — scan plugins/themes for fatal errors
-- **Staging environment manager** — create/link staging, verify configs
-- **Multisite config specialist** — handle path-based subdomains, `wp-config.php`
-- **Performance tester** — GTmetrix/PageSpeed, e-commerce flows
-- **Production roller** — file + DB migration, post-deploy monitoring
+- **migration-orchestrator** — Coordina la migración completa de PHP 7.4 → 8.4 y WP 6.9 → 7.1.5, delegando a `php84-auditor` y `migration-planner` con aprobación humana y verificación en cada fase
+- **php84-auditor** — Auditor de código PHP para detectar incompatibilidades, depreciaciones y cambios de comportamiento al migrar a PHP 8.4 (propiedades dinámicas, paso de null, firmas de métodos, funciones obsoletas, WordPressisms)
+- **migration-planner** — Diseña planes de implementación paso a paso con matriz de riesgo, fases con rollback y verificaciones QA para cada componente
