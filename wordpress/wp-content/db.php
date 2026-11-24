@@ -16,7 +16,8 @@ $wpdb = true;
 if ( defined('WPDB_PATH') )
 	require_once(WPDB_PATH);
 else
-	require_once( ABSPATH . WPINC . '/wp-db.php' );
+  require_once ABSPATH . WPINC . '/class-wpdb.php';
+	// require_once( ABSPATH . WPINC . '/wp-db.php' );
 
 if ( defined('DB_CONFIG_FILE') && file_exists( DB_CONFIG_FILE ) ) {
 

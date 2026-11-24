@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Slider, Gallery, and Carousel by MetaSlider &#8211; Image Slider, Video Slider - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-12 09:25:26+0000\n"
+"PO-Revision-Date: 2026-11-23 12:39:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,64 @@ msgstr ""
 "X-Generator: GlotPress/4.1.0\n"
 "Language: es\n"
 "Project-Id-Version: Plugins - Slider, Gallery, and Carousel by MetaSlider &#8211; Image Slider, Video Slider - Stable (latest release)\n"
+
+#. translators: 1: the PHP version MetaSlider needs, 2: the site's PHP version
+#: ml-slider.php:38
+msgid "MetaSlider Slideshow needs PHP %1$s or higher, but this site runs PHP %2$s. MetaSlider Slideshow is turned off until PHP is updated."
+msgstr "MetaSlider Slideshow necesita PHP %1$s o superior, pero este sitio ejecuta PHP %2$s. MetaSlider Slideshow está desactivado hasta que se actualice PHP."
+
+#: admin/support/Campaigns.php:195
+msgid "Maybe later"
+msgstr "Quizás más tarde"
+
+#: admin/support/campaign-list.php:42
+msgid "Get Slideshow Pro"
+msgstr "Obtener Slideshow Pro"
+
+#: admin/support/campaign-list.php:40
+msgid "And many more features"
+msgstr "Y muchas más características"
+
+#: admin/support/campaign-list.php:37
+msgid "Theme editor"
+msgstr "Editor de temas"
+
+#: admin/support/campaign-list.php:36
+msgid "Scheduled slides"
+msgstr "Diapositivas programadas"
+
+#: admin/support/campaign-list.php:35
+msgid "WooCommerce slides"
+msgstr "Diapositivas de WooCommerce"
+
+#: admin/support/campaign-list.php:34
+msgid "YouTube & TikTok slides"
+msgstr "Diapositivas de YouTube y TikTok"
+
+#: admin/support/campaign-list.php:33
+msgid "Animated slides"
+msgstr "Diapositivas animadas"
+
+#. translators: %s: the discount, e.g. 50%
+#: admin/support/campaign-list.php:27
+msgid "Get Slideshow Pro and save %s!"
+msgstr "¡Obtén Slideshow Pro y ahorra un %s!"
+
+#: admin/support/campaign-list.php:24
+msgid "Thanks for being a loyal MetaSlider user!"
+msgstr "¡Gracias por ser un usuario fiel de MetaSlider!"
+
+#: admin/routes/api.php:955
+msgid "This answer could not be saved."
+msgstr "No se ha podido guardar esta respuesta."
+
+#: admin/routes/api.php:267
+msgid "This slideshow is not used in any published content."
+msgstr "Este pase de diapositivas no se utiliza en ningún contenido publicado."
+
+#: admin/Pages.php:181
+msgid "Could not load the usage. Please try again."
+msgstr "No se ha podido cargar el uso. Por favor, inténtalo de nuevo."
 
 #. translators: %s: device name, e.g. Smartphone
 #: modules/local_video/tabs/mobile.php:55
