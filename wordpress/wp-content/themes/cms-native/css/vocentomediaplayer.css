@@ -1,0 +1,32 @@
+#svg {
+    width: 50%;
+}
+
+#svg circle {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+    stroke: #dee0e1;
+    stroke-width: 15px;
+}
+#svg #bar {
+    stroke: #507991;
+}
+
+input {
+    color: #000;
+}
+.controls {
+    position: absolute;
+    margin-top: 23px;
+    margin-left: 23px;
+    width: 30px;
+}
+
+#titulomediaplayer {
+    float: left;
+    margin-top: 25px;
+}
+
+figure.video img {
+    width: 100%;
+}

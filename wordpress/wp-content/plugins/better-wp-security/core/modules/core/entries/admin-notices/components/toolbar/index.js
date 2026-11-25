@@ -2,20 +2,14 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { ThemeProvider } from '@emotion/react';
 
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Popover, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-
-/**
- * iThemes dependencies
- */
-import { solidTheme } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -31,7 +25,7 @@ export default function Toolbar() {
 		noticesLoaded: select( 'ithemes-security/admin-notices' ).areNoticesLoaded(),
 	} ) );
 	return (
-		<ThemeProvider theme={ solidTheme }>
+		<Fragment>
 			<Button
 				id="itsec-admin-notices-toolbar-trigger"
 				className={ classnames( 'ab-item ab-empty-item', {
@@ -71,6 +65,6 @@ export default function Toolbar() {
 					/>
 				</Popover>
 			) }
-		</ThemeProvider>
+		</Fragment>
 	);
 }

@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace iThemesSecurity\Strauss\Pimple\Exception;
+namespace Pimple\Exception;
 
-use iThemesSecurity\Strauss\Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerExceptionInterface;
 
 /**
  * A closure or invokable object was expected.

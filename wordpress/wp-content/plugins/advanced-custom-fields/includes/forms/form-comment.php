@@ -13,13 +13,6 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 
 	class acf_form_comment {
 
-		/**
-		 * The post the comment form being rendered is for, from comments_open().
-		 *
-		 * @var integer
-		 */
-		private $comment_form_post_id = 0;
-
 
 		/**
 		 * This function will setup the class functionality
@@ -37,7 +30,6 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 			// render
-			add_filter( 'comments_open', array( $this, 'remember_comment_form_post' ), PHP_INT_MAX, 2 );
 			add_filter( 'comment_form_field_comment', array( $this, 'comment_form_field_comment' ), 999, 1 );
 
 			// add_action( 'comment_form_logged_in_after',       array( $this, 'add_comment') );
@@ -183,12 +175,8 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 		 */
 		function comment_form_field_comment( $html ) {
 
-			// The post the form is for, which comment_form() can be given instead of the global post.
-			$post = get_post( $this->comment_form_post_id ? $this->comment_form_post_id : null );
-
-			if ( ! $post ) {
-				return $html;
-			}
+			// global
+			global $post;
 
 			// vars
 			$post_id = false;
@@ -224,8 +212,7 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 			foreach ( $field_groups as $field_group ) {
 				$fields = acf_get_fields( $field_group );
 
-				// New comments are rendered for the post they are posted on.
-				acf_render_fields( $fields, $post_id, 'p', $field_group['instruction_placement'], array( 'render_id' => 'comment_new/' . $post->ID ) );
+				acf_render_fields( $fields, $post_id, 'p', $field_group['instruction_placement'] );
 			}
 
 				echo '</div>';
@@ -236,24 +223,6 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 
 			// return
 			return $html;
-		}
-
-		/**
-		 * Records the post comment_form() checks comments are open for, which is the post its form is for.
-		 *
-		 * comment_form() can be given a post other than the global one, and its comment field filter
-		 * isn't passed the post.
-		 *
-		 * @since 6.8.11
-		 *
-		 * @param boolean $open    Whether comments are open.
-		 * @param integer $post_id The post ID.
-		 * @return boolean
-		 */
-		public function remember_comment_form_post( $open, $post_id ) {
-			$this->comment_form_post_id = (int) $post_id;
-
-			return $open;
 		}
 
 		/**
@@ -275,8 +244,9 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 					return $comment_id;
 				}
 
-				// Restrict $_POST['acf'] to fields rendered for this comment, or belonging to field groups that apply to it.
-				$this->restrict_save_input( $comment_id );
+				// Restrict $_POST['acf'] to keys of fields belonging to field groups that apply to this comment.
+				$allowed_keys = $this->get_allowed_field_keys( $comment_id );
+				$_POST['acf'] = array_intersect_key( $_POST['acf'], array_flip( $allowed_keys ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Verified above; sanitized below.
 
 				if ( empty( $_POST['acf'] ) ) {
 					return $comment_id;
@@ -292,35 +262,60 @@ if ( ! class_exists( 'acf_form_comment' ) ) :
 		}
 
 		/**
-		 * Restricts the submitted values to fields rendered for the comment, or belonging to field groups
-		 * whose comment location rules match the comment's post type.
+		 * Returns the top-level ACF field keys that are allowed to be saved for
+		 * the given comment. Built from the field groups whose comment location
+		 * rules match the comment's post type.
 		 *
-		 * New comments are rendered for the post they are posted on; existing comments for themselves.
-		 *
-		 * @since 6.8.11
+		 * @since 6.8.7
 		 *
 		 * @param integer $comment_id The ID of comment being saved.
-		 * @return void
+		 * @return array
 		 */
-		private function restrict_save_input( $comment_id ) {
-			$comment    = get_comment( $comment_id );
-			$render_ids = array();
-			$screen     = array();
+		private function get_allowed_field_keys( $comment_id ) {
+			$keys    = array();
+			$comment = get_comment( $comment_id );
 
 			if ( $comment ) {
-				$render_ids = array( current_action() === 'comment_post' ? 'comment_new/' . $comment->comment_post_ID : 'comment_' . $comment->comment_ID );
-				$screen     = array( 'comment' => get_post_type( $comment->comment_post_ID ) );
+				$field_groups = acf_get_field_groups(
+					array(
+						'comment' => get_post_type( $comment->comment_post_ID ),
+					)
+				);
+
+				foreach ( $field_groups as $field_group ) {
+					foreach ( acf_get_fields( $field_group ) as $field ) {
+						$prefix = $field['prefix'] ?? 'acf';
+
+						if ( $prefix === 'acf' ) {
+							if ( ! empty( $field['key'] ) ) {
+								$keys[] = $field['key'];
+							}
+						} elseif ( preg_match( '/^acf\[([^]]+)]$/', $prefix, $matches ) ) {
+							$keys[] = $matches[1];
+						}
+					}
+				}
 			}
 
-			acf_restrict_save_input(
-				array(
-					'context'    => 'comment',
-					'post_id'    => 'comment_' . $comment_id,
-					'render_ids' => $render_ids,
-					'screen'     => $screen,
-					'filter_arg' => $comment_id,
-				)
-			);
+			$keys = array_values( array_unique( array_filter( $keys ) ) );
+
+			/**
+			 * Filters the list of $_POST['acf'] keys a comment submission is allowed to save.
+			 *
+			 * Use this to permit additional field keys when a developer dynamically injects
+			 * fields into the comment form via JavaScript that aren't part of a field group
+			 * whose location rules target this comment.
+			 *
+			 * @since 6.8.7
+			 *
+			 * @param array $keys       The allowed top-level $_POST['acf'] keys.
+			 * @param int   $comment_id The comment being saved.
+			 */
+			$keys = apply_filters( 'acf/form/comment/allowed_field_keys', $keys, $comment_id );
+
+			// Re-normalize after the filter so a misbehaving callback can't break array_flip().
+			$keys = array_filter( (array) $keys, 'is_scalar' );
+			return array_values( array_unique( array_filter( array_map( 'strval', $keys ) ) ) );
 		}
 
 

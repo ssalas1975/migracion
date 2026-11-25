@@ -6,7 +6,8 @@ import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { OnboardMain, OnboardEmptyMain } from '../../components';
+import { NoticeList } from '@ithemes/security-components';
+import { Main, Navigation, Sidebar } from '../../components';
 import { usePages } from '../../page-registration';
 
 export default function Import() {
@@ -22,9 +23,19 @@ export default function Import() {
 
 	return (
 		<Switch>
-			{ pages.map( ( { id, render } ) => (
+			{ pages.map( ( { id, render: Component } ) => (
 				<Route path={ `${ path }/:page(${ id })` } key={ id }>
-					<OnboardMain url={ url } render={ render } />
+					<Sidebar>
+						<Navigation
+							guided
+							allowBack
+							allowForward={ id !== 'select-export' }
+						/>
+					</Sidebar>
+					<Main>
+						<NoticeList />
+						<Component />
+					</Main>
 				</Route>
 			) ) }
 
@@ -32,7 +43,10 @@ export default function Import() {
 				{ pages.length > 0 && (
 					<Redirect to={ `${ url }/${ pages[ 0 ].id }` } />
 				) }
-				<OnboardEmptyMain />
+				<Sidebar>
+					<Navigation guided allowBack />
+				</Sidebar>
+				<Main />
 			</Route>
 		</Switch>
 	);

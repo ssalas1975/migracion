@@ -13,22 +13,19 @@ import { controls } from '@wordpress/data';
  */
 import { apiFetch } from '../controls';
 import { fetchModules, receiveSettings } from './actions';
-import { STORE_NAME } from './constant';
+import { STORE_NAME } from './';
 
-export function *getModules() {
-	yield fetchModules();
-}
+export const getModules = {
+	*fulfill() {
+		yield fetchModules();
+	},
+	isFulfilled( state ) {
+		return state.modules.length > 0;
+	},
+};
 
 export const getSettings = {
 	*fulfill( module ) {
-		const config = yield controls.resolveSelect( STORE_NAME, 'getModule', module );
-
-		/* A module that declares no settings has no settings route, and the endpoint answers 404 for it. */
-		if ( ! config?.settings ) {
-			yield receiveSettings( module, {} );
-			return;
-		}
-
 		const settings = yield apiFetch( {
 			path: `/ithemes-security/v1/settings/${ module }`,
 		} );

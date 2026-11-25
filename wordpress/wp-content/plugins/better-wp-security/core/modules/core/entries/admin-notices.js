@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies
  */
-import domReady from '@wordpress/dom-ready';
-import { createRoot } from '@wordpress/element';
 import { setLocaleData } from '@wordpress/i18n';
+import { render } from '@wordpress/element';
+import domReady from '@wordpress/dom-ready';
 
 // Silence warnings until JS i18n is stable.
 setLocaleData( { '': {} }, 'better-wp-security' );
@@ -19,7 +19,5 @@ domReady( () => {
 	);
 	const portalEl = document.getElementById( 'itsec-admin-notices-root' );
 
-	if ( containerEl ) {
-		createRoot( containerEl ).render( <App portalEl={ portalEl } /> );
-	}
+	return render( <App portalEl={ portalEl } />, containerEl );
 } );

@@ -152,8 +152,5 @@
         }
       }
     }
-  },
-  "telemetry-settings": {
-    "enabled": true
   }
 }

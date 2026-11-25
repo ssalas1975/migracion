@@ -109,24 +109,23 @@ final class Legacy_Password_Requirement implements Password_Requirement, \ArrayA
 		return false;
 	}
 
-	public function getIterator(): \Traversable {
+	public function getIterator() {
 		return new \ArrayIterator( $this->config );
 	}
 
-	public function offsetExists( $offset ): bool {
+	public function offsetExists( $offset ) {
 		return isset( $this->config[ $offset ] );
 	}
 
-	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		return $this->config[ $offset ] ?? null;
 	}
 
-	public function offsetSet( $offset, $value ): void {
+	public function offsetSet( $offset, $value ) {
 
 	}
 
-	public function offsetUnset( $offset ): void {
+	public function offsetUnset( $offset ) {
 
 	}
 }

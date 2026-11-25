@@ -7,126 +7,74 @@ import { isEmpty, size, map } from 'lodash';
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
-import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * iThemes dependencies
- */
-import { Button, Heading, SurfaceVariant, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
+import { autop } from '@wordpress/autop';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Markup } from '@ithemes/security-components';
-import { StyledHeader, StyledMessage, StyledNotice, StyledFooter, StyledMeta, StyledMetaItem } from './styles';
+import './style.scss';
 
 export default function Notice( { notice } ) {
 	return (
-		<StyledNotice>
-			<StyledHeader severity={ notice.severity }>
-				<Heading
-					level={ 4 }
-					size={ TextSize.NORMAL }
-					weight={ TextWeight.HEAVY }
-					variant={ TextVariant.DARK }
-				>
-					<Markup noWrap content={ notice.title || formatMessage( notice.message, notice ) } />
-				</Heading>
-				{ map(
-					notice.actions,
-					( action, slug ) =>
-						action.style === 'primary' && (
-							<PrimaryAction key={ slug } notice={ notice } action={ action } />
-						)
-				) }
-			</StyledHeader>
+		<article
+			className={ `itsec-admin-notice itsec-admin-notice--severity-${ notice.severity }` }
+		>
+			<header className="itsec-admin-notice__header">
+				<div className="itsec-admin-notice__header-inset">
+					<h4
+						dangerouslySetInnerHTML={ {
+							__html:
+								notice.title ||
+								formatMessage( notice.message, notice ),
+						} }
+					/>
+					{ map(
+						notice.actions,
+						( action, slug ) =>
+							action.style === 'primary' && (
+								<Button key={ slug } href={ action.uri }>
+									{ action.title }
+								</Button>
+							)
+					) }
+				</div>
+			</header>
 
 			{ notice.title && notice.message && (
-				<StyledMessage>
-					<Text as="p">
-						<Markup noWrap content={ formatMessage( notice.message, notice ) } />
-					</Text>
-				</StyledMessage>
+				<section
+					className="itsec-admin-notice__message"
+					dangerouslySetInnerHTML={ {
+						__html: autop(
+							formatMessage( notice.message, notice )
+						),
+					} }
+				/>
 			) }
 
 			{ hasMeta( notice ) && (
-				<StyledMeta as="dl" variant={ SurfaceVariant.TERTIARY }>
+				<dl className="itsec-admin-notice__meta">
 					{ map(
 						notice.meta,
 						( meta, key ) =>
 							key !== 'created_at' && (
 								<Fragment key={ key }>
-									<StyledMetaItem
-										as="dt"
-										weight={ TextWeight.HEAVY }
-										variant={ TextVariant.DARK }
-										text={ meta.label }
-										textTransform="uppercase"
-									/>
-									<StyledMetaItem
-										as="dd"
-										size={ TextSize.SMALL }
-										variant={ TextVariant.MUTED }
-										text={ meta.formatted }
-									/>
+									<dt>{ meta.label }</dt>
+									<dd>{ meta.formatted }</dd>
 								</Fragment>
 							)
 					) }
-				</StyledMeta>
+				</dl>
 			) }
 
 			{ notice.meta.created_at && (
-				<StyledFooter>
-					<Text
-						as="time"
-						dateTime={ notice.meta.created_at.value }
-						text={ notice.meta.created_at.formatted }
-						size={ TextSize.SMALL }
-					/>
-				</StyledFooter>
+				<footer className="itsec-admin-notice__footer">
+					<time dateTime={ notice.meta.created_at.value }>
+						{ notice.meta.created_at.formatted }
+					</time>
+				</footer>
 			) }
-		</StyledNotice>
-	);
-}
-
-function PrimaryAction( { notice, action } ) {
-	const isInProgress = useSelect( ( select ) =>
-		select( 'ithemes-security/admin-notices' )
-			.getInProgressActions( notice.id )
-			.includes( action.id ),
-	[ notice.id, action.id ]
-	);
-	const { doNoticeAction } = useDispatch( 'ithemes-security/admin-notices' );
-	// Intentionally uses string-based API because we only want to refresh modules if they are in use.
-	const { fetchModules } = useDispatch( 'ithemes-security/modules' ) || {};
-
-	const onClick = async ( e ) => {
-		if ( ! action.uri ) {
-			e.preventDefault();
-			await doNoticeAction( notice.id, action.id );
-			fetchModules?.();
-		}
-	};
-
-	// We don't want to cause a dependency on the settings page entry.
-	if ( action.route && window.itsec?.pages?.settings?.history ) {
-		return <PrimaryRouteAction route={ action.route } title={ action.title } history={ window.itsec?.pages?.settings?.history } />;
-	}
-
-	return (
-		<Button href={ action.uri } onClick={ onClick } isBusy={ isInProgress }>
-			{ action.title }
-		</Button>
-	);
-}
-
-function PrimaryRouteAction( { title, route, history } ) {
-	const onClick = () => history.push( route );
-
-	return (
-		<Button onClick={ onClick } href={ history.createHref( route ) }>
-			{ title }
-		</Button>
+		</article>
 	);
 }
 

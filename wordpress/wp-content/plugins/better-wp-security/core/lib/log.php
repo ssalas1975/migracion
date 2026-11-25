@@ -72,9 +72,9 @@ final class ITSEC_Log {
 	private static function add( $module, $code, $data, $type, $parent_id = 0, $overrides = array() ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			$url = 'wp-cli';
-		} elseif ( ( is_callable( 'wp_doing_cron' ) && wp_doing_cron() ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		} else if ( ( is_callable( 'wp_doing_cron' ) && wp_doing_cron() ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
 			$url = 'wp-cron';
-		} elseif ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
+		} else if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
 			$url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		} else {
 			$url = 'unknown';
@@ -100,7 +100,7 @@ final class ITSEC_Log {
 
 		if ( 'database' === $log_type ) {
 			$id = self::add_to_db( $data );
-		} elseif ( 'file' === $log_type ) {
+		} else if ( 'file' === $log_type ) {
 			$id = self::add_to_file( $data );
 		} else {
 			$id = self::add_to_db( $data );
@@ -124,19 +124,7 @@ final class ITSEC_Log {
 				$format[] = '%s';
 
 				if ( ! is_string( $value ) ) {
-					$data[ $key ] = serialize( $value );
-				}
-			}
-
-			$col_length = $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key );
-
-			if ( is_array( $col_length ) ) {
-				$truncate_to = $col_length['length'] - 3;
-				
-				if ( is_string( $value ) && strlen( $value ) > $truncate_to ) {
-					$truncated_value = substr( $value, 0, $truncate_to ) . '...';
-
-					$data[ $key ] = $truncated_value;
+					$data[$key] = serialize( $value );
 				}
 			}
 		}
@@ -145,7 +133,6 @@ final class ITSEC_Log {
 
 		if ( false === $result ) {
 			error_log( "Failed to insert log entry: {$wpdb->last_error}" );
-
 			return new WP_Error( 'itsec-log-failed-db-insert', sprintf( esc_html__( 'Failed to insert log entry: %s', 'better-wp-security' ), $wpdb->last_error ) );
 		}
 
@@ -204,7 +191,7 @@ final class ITSEC_Log {
 		}
 
 		$log_location = ITSEC_Modules::get_setting( 'global', 'log_location' );
-		$log_info     = ITSEC_Modules::get_setting( 'global', 'log_info' );
+		$log_info = ITSEC_Modules::get_setting( 'global', 'log_info' );
 
 		if ( empty( $log_info ) ) {
 			$log_info = substr( sanitize_title( get_bloginfo( 'name' ) ), 0, 20 ) . '-' . wp_generate_password( 30, false );
@@ -229,59 +216,6 @@ final class ITSEC_Log {
 		return ITSEC_Log_Util::get_entries( $filters, $limit, $page, $sort_by_column, $sort_direction, $columns );
 	}
 
-	/**
-	 * Gets log entries for a lockout host.
-	 *
-	 * IPv6 lockouts are tracked by network prefix, but each log entry stores the address it came from.
-	 * When the `remote_ip` filter is a CIDR range, entries are matched by whether their address falls
-	 * inside it. Any other value is filtered as usual.
-	 *
-	 * @since 9.0.10.1
-	 *
-	 * @param array        $filters        The log filters, as accepted by {@see ITSEC_Log::get_entries()}.
-	 * @param int          $limit          The number of entries to return.
-	 * @param int          $page           The page of entries to return.
-	 * @param string|array $sort_by_column The column to sort by.
-	 * @param string       $sort_direction The sort direction.
-	 * @param array|string $columns        The columns to return.
-	 *
-	 * @return array|false
-	 */
-	public static function get_entries_for_host( $filters = [], $limit = 100, $page = 1, $sort_by_column = 'timestamp', $sort_direction = 'DESC', $columns = false ) {
-		$host = isset( $filters['remote_ip'] ) ? $filters['remote_ip'] : '';
-
-		if ( ! is_string( $host ) || ! str_contains( $host, '/' ) ) {
-			return self::get_entries( $filters, $limit, $page, $sort_by_column, $sort_direction, $columns );
-		}
-
-		unset( $filters['remote_ip'] );
-
-		$limit   = $limit > 0 ? (int) $limit : 100;
-		$offset  = max( 0, ( (int) $page - 1 ) * $limit );
-		$matches = [];
-
-		// Scan at most 1,000 entries, which is enough to fill a page of history without loading the whole log.
-		for ( $scan_page = 1; $scan_page <= 10; $scan_page++ ) {
-			$entries = self::get_entries( $filters, 100, $scan_page, $sort_by_column, $sort_direction, $columns );
-
-			if ( ! is_array( $entries ) ) {
-				return $entries;
-			}
-
-			foreach ( $entries as $entry ) {
-				if ( isset( $entry['remote_ip'] ) && ITSEC_Lib_IP_Tools::in_range( $entry['remote_ip'], $host ) ) {
-					$matches[] = $entry;
-				}
-			}
-
-			if ( count( $entries ) < 100 || count( $matches ) >= $offset + $limit ) {
-				break;
-			}
-		}
-
-		return array_slice( $matches, $offset, $limit );
-	}
-
 	public static function get_entry( $id ) {
 		require_once( dirname( __FILE__ ) . '/log-util.php' );
 
@@ -292,7 +226,6 @@ final class ITSEC_Log {
 
 	public static function get_number_of_entries( $filters = array() ) {
 		$filters['__get_count'] = true;
-
 		return self::get_entries( $filters );
 	}
 
@@ -325,7 +258,7 @@ final class ITSEC_Log {
 		global $wpdb;
 
 		$database_entry_expiration = date( 'Y-m-d H:i:s', ITSEC_Core::get_current_time_gmt() - ( ITSEC_Modules::get_setting( 'global', 'log_rotation' ) * DAY_IN_SECONDS ) );
-		$query                     = $wpdb->prepare( "DELETE FROM `{$wpdb->base_prefix}itsec_logs` WHERE timestamp<%s", $database_entry_expiration );
+		$query = $wpdb->prepare( "DELETE FROM `{$wpdb->base_prefix}itsec_logs` WHERE timestamp<%s", $database_entry_expiration );
 		$wpdb->query( $query );
 
 
@@ -342,7 +275,7 @@ final class ITSEC_Log {
 			self::delete_old_logs( $days_to_keep );
 		}
 
-		$log           = self::get_log_file_path();
+		$log = self::get_log_file_path();
 		$max_file_size = 10 * 1024 * 1024; // 10MiB
 
 		if ( ! file_exists( $log ) || filesize( $log ) < $max_file_size ) {
@@ -354,7 +287,7 @@ final class ITSEC_Log {
 
 		foreach ( $files as $index => $file ) {
 			if ( ! preg_match( '/^' . preg_quote( $log, '/' ) . '\.\d+$/', $file ) ) {
-				unset( $files[ $index ] );
+				unset( $files[$index] );
 			}
 		}
 
@@ -363,14 +296,14 @@ final class ITSEC_Log {
 
 		$files_to_delete = array();
 		$files_to_rotate = array();
-		$max_files       = apply_filters( 'itsec_log_max_log_files', 100 );
+		$max_files = apply_filters( 'itsec_log_max_log_files', 100 );
 
 		foreach ( $files as $index => $file ) {
 			$number = intval( pathinfo( $file, PATHINFO_EXTENSION ) );
 
 			if ( $number > $max_files ) {
 				$files_to_delete[] = $file;
-			} elseif ( $number === $index + 1 && $number !== $max_files ) {
+			} else if ( $number === $index + 1 && $number !== $max_files ) {
 				$files_to_rotate[] = $file;
 			}
 		}

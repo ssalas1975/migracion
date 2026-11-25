@@ -11,27 +11,23 @@ import {
 	TextControl,
 	TextareaControl,
 	SelectControl,
+	Button,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { useInstanceId } from '@wordpress/compose';
 
 /**
- * Solid dependencies
- */
-import { PageHeader } from '@ithemes/ui';
-
-/**
  * Internal dependencies
  */
 import {
+	PageHeader,
 	PrimaryForm,
 	PrimaryFormSection,
 } from '@ithemes/security.pages.settings';
 import { TextareaListControl } from '@ithemes/security-components';
-import { Markup } from '@ithemes/security-ui';
-import { UserRoleList, Save } from '..';
-import { StyledNotification, StyledTagDescription, StyledTagList, StyledTagName } from './styles';
+import { UserRoleList } from '..';
+import './style.scss';
 
 const tags = [ 'a', 'i', 'b', 'h2', 'h3', 'h4', 'h5', 'h6', 'p' ];
 
@@ -40,54 +36,70 @@ export default function Notification( {
 	settings,
 	onChange,
 	usersAndRoles,
+	isSaving,
+	isDirty,
+	onSubmit,
+	onUndo,
+	saveLabel = __( 'Save All', 'better-wp-security' ),
+	allowCleanSave = false,
 	apiError,
 } ) {
 	const isEnabled = ! notification.optional || settings.enabled;
 
 	return (
 		<>
-			<StyledNotification>
-				<PageHeader
-					title={ notification.l10n.label }
-					description={ <Markup content={ notification.l10n.description } noWrap /> }
-					hasBorder
-				/>
-				<PrimaryForm apiError={ apiError } hasPadding>
-					{ notification.optional && (
-						<CheckboxControl
-							className="itsec-nc-notification__enabled"
-							label={ __( 'Enabled', 'better-wp-security' ) }
-							checked={ settings.enabled }
-							onChange={ ( enabled ) =>
-								onChange( { ...settings, enabled } )
-							}
-							__nextHasNoMarginBottom
-						/>
-					) }
+			<PageHeader
+				title={ notification.l10n.label }
+				description={ notification.l10n.description }
+			/>
+			<PrimaryForm
+				saveLabel={ saveLabel }
+				saveDisabled={ ! isDirty && ! allowCleanSave }
+				isSaving={ isSaving }
+				onSubmit={ onSubmit }
+				apiError={ apiError }
+				buttons={ [
+					<Button
+						key="undo"
+						onClick={ onUndo }
+						disabled={ ! isDirty }
+					>
+						{ __( 'Undo Changes', 'better-wp-security' ) }
+					</Button>,
+				] }
+			>
+				{ notification.optional && (
+					<CheckboxControl
+						className="itsec-nc-notification__enabled"
+						label={ __( 'Enabled', 'better-wp-security' ) }
+						checked={ settings.enabled }
+						onChange={ ( enabled ) =>
+							onChange( { ...settings, enabled } )
+						}
+					/>
+				) }
 
-					{ isEnabled && (
-						<>
-							<Customize
-								notification={ notification }
-								settings={ settings }
-								onChange={ onChange }
-							/>
-							<Schedule
-								notification={ notification }
-								settings={ settings }
-								onChange={ onChange }
-							/>
-							<Recipients
-								notification={ notification }
-								settings={ settings }
-								onChange={ onChange }
-								usersAndRoles={ usersAndRoles }
-							/>
-						</>
-					) }
-				</PrimaryForm>
-			</StyledNotification>
-			<Save />
+				{ isEnabled && (
+					<>
+						<Customize
+							notification={ notification }
+							settings={ settings }
+							onChange={ onChange }
+						/>
+						<Schedule
+							notification={ notification }
+							settings={ settings }
+							onChange={ onChange }
+						/>
+						<Recipients
+							notification={ notification }
+							settings={ settings }
+							onChange={ onChange }
+							usersAndRoles={ usersAndRoles }
+						/>
+					</>
+				) }
+			</PrimaryForm>
 		</>
 	);
 }
@@ -144,19 +156,19 @@ function Customize( { notification, settings, onChange } ) {
 					/>
 
 					{ notification.tags && (
-						<StyledTagList>
+						<dl>
 							{ map(
 								notification.l10n.tags,
 								( description, tag ) => (
 									<Fragment key={ tag }>
-										<StyledTagName>
+										<dt>
 											<code>{ tag }</code>
-										</StyledTagName>
-										<StyledTagDescription>{ description }</StyledTagDescription>
+										</dt>
+										<dd>{ description }</dd>
 									</Fragment>
 								)
 							) }
-						</StyledTagList>
+						</dl>
 					) }
 				</>
 			) }

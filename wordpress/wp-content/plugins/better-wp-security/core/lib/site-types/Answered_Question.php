@@ -24,9 +24,6 @@ final class Answered_Question implements Answer_Details {
 	/** @var string[] */
 	private $modules;
 
-	/** @var string[] */
-	private $disabled;
-
 	/** @var array */
 	private $settings;
 
@@ -39,7 +36,6 @@ final class Answered_Question implements Answer_Details {
 	 * @param array        $user_group_settings
 	 * @param string[]     $canonical_group_substitutions
 	 * @param string[]     $modules
-	 * @param string[]     $disabled
 	 * @param array        $settings
 	 */
 	public function __construct(
@@ -49,7 +45,6 @@ final class Answered_Question implements Answer_Details {
 		array $user_group_settings = [],
 		array $canonical_group_substitutions = [],
 		array $modules = [],
-		array $disabled = [],
 		array $settings = []
 	) {
 		$this->question                      = $question;
@@ -58,7 +53,6 @@ final class Answered_Question implements Answer_Details {
 		$this->user_group_settings           = $user_group_settings;
 		$this->canonical_group_substitutions = $canonical_group_substitutions;
 		$this->modules                       = $modules;
-		$this->disabled                      = $disabled;
 		$this->settings                      = $settings;
 	}
 
@@ -70,7 +64,6 @@ final class Answered_Question implements Answer_Details {
 			$details->get_user_group_settings(),
 			$details->get_canonical_user_group_substitutions(),
 			$details->get_enabled_modules(),
-			$details->get_disabled_modules(),
 			$details->get_settings()
 		);
 	}
@@ -101,9 +94,5 @@ final class Answered_Question implements Answer_Details {
 
 	public function get_enabled_modules(): array {
 		return $this->modules;
-	}
-
-	public function get_disabled_modules(): array {
-		return $this->disabled;
 	}
 }

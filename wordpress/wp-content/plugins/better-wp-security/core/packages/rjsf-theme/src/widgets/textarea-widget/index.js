@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { without } from 'lodash';
-import { getUiOptions } from '@rjsf/utils';
 
 /**
  * WordPress dependencies
@@ -27,8 +26,7 @@ export default function TextareaWidget( {
 	onChange,
 	...inputProps
 } ) {
-	const options = getUiOptions( uiSchema );
-	const { rows, placeholder, description = schema.description } = options;
+	const description = uiSchema[ 'ui:description' ] || schema.description;
 
 	return (
 		<TextareaControl
@@ -40,8 +38,6 @@ export default function TextareaWidget( {
 			help={ <Markup noWrap content={ description } /> }
 			onBlur={ onBlur && ( ( e ) => onBlur( id, e.target.value ) ) }
 			onFocus={ onFocus && ( ( e ) => onFocus( id, e.target.value ) ) }
-			rows={ rows }
-			placeholder={ placeholder }
 			{ ...without( inputProps, [
 				'autofocus',
 				'formContext',

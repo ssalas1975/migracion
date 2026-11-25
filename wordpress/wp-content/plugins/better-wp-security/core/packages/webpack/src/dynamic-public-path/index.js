@@ -1,5 +1,4 @@
 const path = require( 'path' );
-const { NormalModule } = require( 'webpack' );
 
 function DynamicPublicPathPlugin( propertyName ) {
 	this.propertyName = propertyName;
@@ -9,7 +8,7 @@ DynamicPublicPathPlugin.prototype.apply = function( compiler ) {
 	compiler.hooks.thisCompilation.tap(
 		'dynamic-public-path',
 		( compilation ) => {
-			NormalModule.getCompilationHooks( compilation ).loader.tap(
+			compilation.hooks.normalModuleLoader.tap(
 				'dynamic-public-path',
 				( loaderContext ) => {
 					const entryFiles = [];
@@ -17,7 +16,7 @@ DynamicPublicPathPlugin.prototype.apply = function( compiler ) {
 						entry
 					) {
 						entryFiles.push(
-							path.join( compiler.options.context, entry.import[ 0 ] )
+							path.join( compiler.options.context, entry )
 						);
 					} );
 

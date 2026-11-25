@@ -14,13 +14,14 @@ import { useMemo } from '@wordpress/element';
  */
 import { useSingletonEffect } from '@ithemes/security-hocs';
 import { LineGraph, PieChart } from './renderers';
-import * as securitySummary from './security-summary';
+import * as activeLockouts from './active-lockouts';
+import * as bannedUsers from './banned-users-list';
 
 export function useRegisterCards() {
 	const { registerCard } = useDispatch( 'ithemes-security/dashboard' );
 
 	useSingletonEffect( useRegisterCards, () =>
-		[ securitySummary ].forEach( ( { slug, settings } ) =>
+		[ activeLockouts, bannedUsers ].forEach( ( { slug, settings } ) =>
 			registerCard( slug, settings )
 		)
 	);

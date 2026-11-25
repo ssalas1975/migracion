@@ -8,30 +8,37 @@ import { __ } from '@wordpress/i18n';
  */
 import { SelectableCard } from '../../../../components';
 import Question from '../question';
-import { StyledSelectableCardContainer, self, client } from '../styles';
 
-export default function IsClient( { question, onAnswer, isAnswering } ) {
+export default function IsClient( { question, onAnswer } ) {
 	return (
 		<Question
 			prompt={ question.prompt }
 			description={ question.description }
 		>
-			<StyledSelectableCardContainer>
+			<div className="itsec-site-type-questions-list">
 				<SelectableCard
-					disabled={ isAnswering }
 					onClick={ () => onAnswer( false ) }
-					title={ __( 'My Own Website', 'better-wp-security' ) }
+					title={ __( 'Self', 'better-wp-security' ) }
+					description={ __(
+						'This is my own personal site.',
+						'better-wp-security'
+					) }
 					direction="vertical"
-					icon={ self }
+					icon="admin-users"
+					className="itsec-site-type-question"
 				/>
 				<SelectableCard
-					disabled={ isAnswering }
 					onClick={ () => onAnswer( true ) }
-					title={ __( 'Client Website', 'better-wp-security' ) }
+					title={ __( 'Client', 'better-wp-security' ) }
+					description={ __(
+						"I'm making this for a client.",
+						'better-wp-security'
+					) }
 					direction="vertical"
-					icon={ client }
+					icon="businessperson"
+					className="itsec-site-type-question"
 				/>
-			</StyledSelectableCardContainer>
+			</div>
 		</Question>
 	);
 }

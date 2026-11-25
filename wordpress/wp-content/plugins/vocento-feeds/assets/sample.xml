@@ -1,0 +1,206 @@
+﻿<?xml version="1.0"?>
+<vcf_root_object>
+  <site>
+    <stdclass>
+      <blog_id>2</blog_id>
+      <site_id>1</site_id>
+      <domain>dev-blogs.mujerhoy.com</domain>
+      <path>/patry-fit-style/</path>
+      <registered>2015-11-30 14:26:20</registered>
+      <last_updated>2016-02-26 08:57:24</last_updated>
+      <public>1</public>
+      <archived>0</archived>
+      <mature>0</mature>
+      <spam>0</spam>
+      <deleted>0</deleted>
+      <lang_id>0</lang_id>
+      <blogname>Patry Fit Style</blogname>
+      <siteurl>http://dev-blogs.mujerhoy.com/patry-fit-style</siteurl>
+      <post_count>82</post_count>
+    </stdclass>
+  </site>
+  <posts>
+    <!--post-->
+    <node>
+      <ID>1</ID>
+      <post_author>1</post_author>
+      <post_date>2015-11-30 14:26:21</post_date>
+      <post_date_gmt>2015-11-30 14:26:21</post_date_gmt>
+      <post_content>Welcome to <a href="http://dev-blogs.mujerhoy.com/">Blogs MujerHoy Sites</a>. This is your first post. Edit or delete it, then start blogging!</post_content>
+      <post_title>Hello world!</post_title>
+      <post_excerpt/>
+      <post_status>publish</post_status>
+      <comment_status>open</comment_status>
+      <ping_status>open</ping_status>
+      <post_password/>
+      <post_name>hello-world</post_name>
+      <to_ping/>
+      <pinged/>
+      <post_modified>2016-02-26 08:57:24</post_modified>
+      <post_modified_gmt>2016-02-26 08:57:24</post_modified_gmt>
+      <post_content_filtered/>
+      <post_parent>0</post_parent>
+      <guid>http://dev-blogs.mujerhoy.com/patry-fit-style/?p=1</guid>
+      <menu_order>0</menu_order>
+      <post_type>post</post_type>
+      <post_mime_type/>
+      <comment_count>1</comment_count>
+      <filter>raw</filter>
+      <ancestors/>
+      <post_category>
+        <node>4</node>
+      </post_category>
+      <tags_input>
+        <node>tag name</node>
+      </tags_input>
+      <blog_id>2</blog_id>
+      <post_date_unix>1448893581</post_date_unix>
+      <post_date_gtm_unix>1448893581</post_date_gtm_unix>
+      <post_modified_unix>1456477044</post_modified_unix>
+      <post_modified_gtm_unix>1456477044</post_modified_gtm_unix>
+      <post_permalink>http://dev-blogs.mujerhoy.com/patry-fit-style/2015/11/30/hello-world.html</post_permalink>
+      <post_author_name>javi</post_author_name>
+      <post_categories>
+        <node>
+          <term_id>4</term_id>
+          <name>categoty</name>
+          <slug>categoty</slug>
+          <term_group>0</term_group>
+          <term_taxonomy_id>4</term_taxonomy_id>
+          <taxonomy>category</taxonomy>
+          <description/>
+          <parent>0</parent>
+          <count>1</count>
+          <object_id>1</object_id>
+          <filter>raw</filter>
+          <cat_ID>4</cat_ID>
+          <category_count>1</category_count>
+          <category_description/>
+          <cat_name>categoty</cat_name>
+          <category_nicename>categoty</category_nicename>
+          <category_parent>0</category_parent>
+        </node>
+      </post_categories>
+   <post_images>
+<node>
+<ID>72</ID>
+<post_author>1</post_author>
+<post_date>2016-03-01 09:15:10</post_date>
+<post_date_gmt>2016-03-01 09:15:10</post_date_gmt>
+<post_content/>
+<post_title>ajax-loader</post_title>
+<post_excerpt/>
+<post_status>inherit</post_status>
+<comment_status>open</comment_status>
+<ping_status>closed</ping_status>
+<post_password/>
+<post_name>ajax-loader</post_name>
+<to_ping/>
+<pinged/>
+<post_modified>2016-03-01 09:15:10</post_modified>
+<post_modified_gmt>2016-03-01 09:15:10</post_modified_gmt>
+<post_content_filtered/>
+<post_parent>1</post_parent>
+<guid>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</guid>
+<menu_order>0</menu_order>
+<post_type>attachment</post_type>
+<post_mime_type>image/gif</post_mime_type>
+<comment_count>0</comment_count>
+<filter>raw</filter>
+<ancestors>
+<node>1</node>
+</ancestors>
+<post_category/>
+<tags_input/>
+<sizes>
+<thumbnail>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</thumbnail>
+<medium>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</medium>
+<large>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</large>
+<listado>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</listado>
+<principal>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</principal>
+</sizes>
+</node>
+</post_images>
+<post_featured_image>
+<url>
+http://dev-blogs.mujerhoy.com/consultorio-psicologico/wp-content/uploads/sites/10/2016/01/ajax-loader.gif
+</url>
+<width>16</width>
+<height>11</height>
+</post_featured_image>
+      <post_audio/>
+      <post_video/>
+      
+      <!--Si plugin Vocento topics está activo-->
+      
+      <topics>
+        <stdclass>
+          <id>12345</id>
+          <label>José María Aznar López</label>
+          <value>Jose-Maria-Aznar-Lopez</value>
+        </stdclass>
+      </topics>
+      
+      <!--FIN Vocento topics -->
+      
+      <tags>
+        <stdclass>
+          <term_id>5</term_id>
+          <name>tag name</name>
+          <slug>tag-name</slug>
+          <term_group>0</term_group>
+          <term_taxonomy_id>5</term_taxonomy_id>
+          <taxonomy>post_tag</taxonomy>
+          <description/>
+          <parent>0</parent>
+          <count>1</count>
+          <filter>raw</filter>
+        </stdclass>
+      </tags>
+      
+      <!--Si ACF está activo-->
+      
+      <custom_fields>
+        <field_name>field_value</field_name>
+      </custom_fields>
+      
+      <!--FIN ACF -->
+
+      
+    </node>
+    <!--FIN post-->
+    
+</posts>
+</vcf_root_object>

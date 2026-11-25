@@ -28,9 +28,6 @@ final class Answer_Handler implements Answer_Details {
 	/** @var array */
 	private $modules = [];
 
-	/** @var string[] */
-	private $disable = [];
-
 	/** @var Answer_Details[] */
 	private $previous;
 
@@ -118,24 +115,7 @@ final class Answer_Handler implements Answer_Details {
 	 * @return $this
 	 */
 	public function enable_module( string $module ): self {
-		if ( ! in_array( $module, $this->modules, true ) ) {
-			$this->modules[] = $module;
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Disables the selected module.
-	 *
-	 * @param string $module
-	 *
-	 * @return $this
-	 */
-	public function disable_module( string $module ): self {
-		if ( ! in_array( $module, $this->modules, true ) ) {
-			$this->disable[] = $module;
-		}
+		$this->modules[] = $module;
 
 		return $this;
 	}
@@ -169,11 +149,6 @@ final class Answer_Handler implements Answer_Details {
 
 	public function get_enabled_modules(): array {
 		return $this->modules;
-	}
-
-	public function get_disabled_modules(): array {
-		return $this->disable;
-
 	}
 
 	/**

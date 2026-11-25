@@ -11,7 +11,6 @@ import { controls } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from './constant';
 import { apiFetch } from './controls';
 import {
 	path,
@@ -88,7 +87,7 @@ export const getGroupSettings = {
 export const getGroupsBySetting = {
 	*fulfill() {
 		yield controls.resolveSelect(
-			STORE_NAME,
+			'ithemes-security/user-groups',
 			'getMatchables'
 		);
 	},

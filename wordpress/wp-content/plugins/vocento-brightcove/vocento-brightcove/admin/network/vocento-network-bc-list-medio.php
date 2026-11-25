@@ -1,0 +1,145 @@
+<?php
+class VCBC_Network_List_Medio
+{
+    /**
+     * Holds the values to be used in the fields callbacks
+     */
+    private $options;
+	private $messages=array();
+
+    /**
+     * Start up
+     */
+    public function __construct()
+    {
+		
+        //refrescamos los tokens que hayan caducado
+        vcbc_init_tokens();
+
+        //Registramos los settings
+        add_action( 'admin_init', function(){
+
+         
+          
+            register_setting(
+                'vocentovcbc_option_group', // Option group
+                'vocentovcbc_options', // Option name
+                array( $this, 'sanitize' ) // Sanitize
+            );
+
+        } );
+
+        //Recuperamos state
+        $this->get_state();
+
+
+
+
+
+    }
+
+    
+    public function get_state(){
+        if(isset($_GET["state"]))
+        {
+            switch($_GET["state"]){
+                case "deleted":
+                    $this->addMessage ("Medio eliminado correctamente");
+                    break;
+            }
+        }
+    }
+
+    
+    public function render_page()
+    {
+        // Set class property
+        $this->options = get_site_option( 'vocentovcbc_options' );
+       
+?>
+
+    <div class="wrap vcbc-add-medio-wrapper">
+    <h2>Vocento BC: <span>Listado de medios</span></h2>
+    <br />
+    <?php
+        $this->displayMessages();
+    ?>
+    <div class="bc-medio-list">
+        <?php 
+
+        if( isset($this->options['vcbc_medios'] )){
+
+            $jsonconfig=json_decode($this->options['vcbc_medios'],true);
+
+            echo "<table id='vcf-table' class='vcf-c-lines'>";
+            echo "<thead class='line-head'>";
+            echo "<tr>";
+            echo "<th class='name' style='text-align:left;'>Medio</th>";
+            echo "<th class='name' style='text-align:left;'>Account ID</th>";
+            echo "<th class='url' style='text-align:left;'>Nº videos</th>";
+            echo "<th class='url' >Estado</th>";
+            echo "<th class='edit'>Editar</th>";
+        
+            echo "</tr>";
+            echo "</thead>";
+            echo "<tbody>";
+            foreach($jsonconfig as $medio){
+
+                if(VC_CMSAPI_OAuth::GET_CURRENT_TOKEN($medio['vcbc_medio_accid'],$medio['vcbc_medio_id']))
+                    $icon=plugins_url( '/vocento-brightcove/vocento-brightcove/admin/assets/img/active.png' );
+                else
+                    $icon=plugins_url( '/vocento-brightcove/vocento-brightcove/admin/assets/img/inactive.png' );
+
+                $edit_url = add_query_arg(vcbv_compose_form_params("network_vcbc_add_medio","bc_ec_medio",$medio["vcbc_medio_id"]), network_admin_url('admin.php'));
+                echo "<tr >";
+                echo "<td class='name'>".$medio["vcbc_medio_name"]."</td>";
+                echo "<td class='name'>".$medio["vcbc_medio_accid"]."</td>";
+                echo "<td class='url'>". VC_CMSAPI_Video::COUNT($medio["vcbc_medio_accid"],false,false,$medio['vcbc_medio_id'])."</td>";
+                echo "<td class='state' style='text-align:center;'><img src='$icon'/></td>";
+                echo "<td class='edit'  style='text-align:center;'><a href='$edit_url'><img src='". plugins_url( '/vocento-brightcove/vocento-brightcove/admin/assets/img/edit.png' )."'/></a></td>";
+             
+                echo "</tr>";
+            }
+            echo "</tbody>";
+            echo "</table>";
+            
+        }
+        
+        ?>
+
+
+
+    </div>
+
+
+</div>
+
+<script>
+    jQuery(document).ready(function () {
+        jQuery('#vcf-table').DataTable();
+    });
+</script>
+
+<?php
+
+    }
+
+
+    public function addErrorMessage($error)
+    {
+		array_push($this->messages,array('class'=>'notice-error', 'msg'=>$error));
+	}
+	
+    public function addMessage($mesage)
+    {
+		array_push($this->messages,array('class'=>'notice-success', 'msg'=>$mesage));
+	}
+
+	public function displayMessages()
+    {
+		foreach($this->messages as $msg){
+			echo "<div class='notice  ".$msg['class']."'>".$msg['msg']."</div>";
+		}
+	}
+
+}

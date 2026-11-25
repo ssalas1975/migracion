@@ -336,9 +336,7 @@ class JsonCommand {
 			}
 
 			$local_post['ID'] = $post['ID'];
-
-			// WP-CLI users have server access, so skip sanitization.
-			$result = acf_skip_internal_post_sanitization( 'acf_import_internal_post_type', $local_post, $post_type );
+			$result           = acf_import_internal_post_type( $local_post, $post_type );
 
 			if ( empty( $result ) || ! isset( $result['ID'] ) ) {
 				WP_CLI::warning( sprintf( "Failed to sync item with key '%s'.", $key ) );
@@ -458,8 +456,7 @@ class JsonCommand {
 				$to_import['ID'] = $post->ID;
 			}
 
-			// WP-CLI users have server access, so skip sanitization.
-			$result = acf_skip_internal_post_sanitization( 'acf_import_internal_post_type', $to_import, $post_type );
+			$result = acf_import_internal_post_type( $to_import, $post_type );
 
 			if ( empty( $result ) || ! isset( $result['ID'] ) ) {
 				WP_CLI::warning( sprintf( "Failed to import item with key '%s'.", $to_import['key'] ) );

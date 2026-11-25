@@ -23,11 +23,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace iThemesSecurity\Strauss\Pimple\Psr11;
 
-use iThemesSecurity\Strauss\Pimple\Container as PimpleContainer;
-use iThemesSecurity\Strauss\Pimple\Exception\UnknownIdentifierException;
-use iThemesSecurity\Strauss\Psr\Container\ContainerInterface;
+namespace Pimple\Psr11;
+
+use Pimple\Container as PimpleContainer;
+use Pimple\Exception\UnknownIdentifierException;
+use Psr\Container\ContainerInterface;
+
 /**
  * Pimple PSR-11 service locator.
  *
@@ -36,32 +38,37 @@ use iThemesSecurity\Strauss\Psr\Container\ContainerInterface;
 class ServiceLocator implements ContainerInterface
 {
     private $container;
-    private $aliases = [];
+    private $aliases = array();
+
     /**
-     * @param \PimpleContainer $container The Container instance used to locate services
+     * @param PimpleContainer $container The Container instance used to locate services
      * @param array           $ids       Array of service ids that can be located. String keys can be used to define aliases
      */
     public function __construct(PimpleContainer $container, array $ids)
     {
         $this->container = $container;
+
         foreach ($ids as $key => $id) {
             $this->aliases[\is_int($key) ? $id : $key] = $id;
         }
     }
+
     /**
      * {@inheritdoc}
      */
-    public function get(string $id)
+    public function get($id)
     {
         if (!isset($this->aliases[$id])) {
             throw new UnknownIdentifierException($id);
         }
+
         return $this->container[$this->aliases[$id]];
     }
+
     /**
      * {@inheritdoc}
      */
-    public function has(string $id): bool
+    public function has($id)
     {
         return isset($this->aliases[$id]) && isset($this->container[$this->aliases[$id]]);
     }

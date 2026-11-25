@@ -125,7 +125,6 @@ if ( ! class_exists( 'ACF_Data' ) ) :
 		 * @return  type Description.
 		 */
 		function _key( $name = '' ) {
-			$name = $name ?? '';
 			return isset( $this->aliases[ $name ] ) ? $this->aliases[ $name ] : $name;
 		}
 
@@ -157,7 +156,7 @@ if ( ! class_exists( 'ACF_Data' ) ) :
 		 * @return  type Description.
 		 */
 		function is( $key = '' ) {
-			return isset( $this->data[ $key ?? '' ] );
+			return isset( $this->data[ $key ] );
 		}
 
 		/**
@@ -219,7 +218,7 @@ if ( ! class_exists( 'ACF_Data' ) ) :
 
 				// Set single.
 			} else {
-				$this->data[ $name ?? '' ] = $value;
+				$this->data[ $name ] = $value;
 			}
 
 			// Return this for chaining.
@@ -260,7 +259,7 @@ if ( ! class_exists( 'ACF_Data' ) ) :
 		function remove( $name = '' ) {
 
 			// Remove data.
-			unset( $this->data[ $name ?? '' ] );
+			unset( $this->data[ $name ] );
 
 			// Return this for chaining.
 			return $this;

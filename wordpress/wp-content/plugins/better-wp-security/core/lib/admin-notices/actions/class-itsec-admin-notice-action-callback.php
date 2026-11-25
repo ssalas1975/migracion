@@ -34,8 +34,4 @@ class ITSEC_Admin_Notice_Action_Callback implements ITSEC_Admin_Notice_Action {
 	public function get_uri() {
 		return '';
 	}
-
-	public function get_route(): string {
-		return '';
-	}
 }

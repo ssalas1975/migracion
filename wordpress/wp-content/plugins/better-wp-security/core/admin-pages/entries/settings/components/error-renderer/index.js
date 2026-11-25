@@ -19,7 +19,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { FlexSpacer } from '@ithemes/security-components';
-import { HiResIcon } from '@ithemes/security-ui';
 import { Crash as Icon } from '@ithemes/security-style-guide';
 import './style.scss';
 
@@ -29,16 +28,16 @@ export default function ErrorRenderer( { error } ) {
 	return (
 		<Card className="itsec-error-renderer">
 			<CardBody>
-				<HiResIcon icon={ <Icon /> } />
+				<Icon />
 			</CardBody>
 			<CardFooter isShady>
 				{ __( 'An unexpected error occurred.', 'better-wp-security' ) }
 				<FlexSpacer />
-				<Button variant="secondary" onClick={ () => window.location.reload() }>
+				<Button isSecondary onClick={ () => window.location.reload() }>
 					{ __( 'Refresh', 'better-wp-security' ) }
 				</Button>
 				<ClipboardButton
-					variant="primary"
+					isPrimary
 					text={ `Page: ${ pathname }\nError: ${ error.stack }` }
 				>
 					{ __( 'Copy Error', 'better-wp-security' ) }

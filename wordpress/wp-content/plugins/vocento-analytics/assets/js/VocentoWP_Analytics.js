@@ -203,16 +203,32 @@
         }
     },
     init: function () {
-        //Solo marcamos si que viene de la home si no estamos en la home y solo con voc_ho=0
-        if (VocentoWP_Analytics.comScore.ho_type == 0 && document.location != ('http://' + document.domain + '/'))
-            VocentoWP_Analytics.comScore.data.voc_ho = (document.referrer == ('http://' + document.domain + '/') || document.referrer == ('http://' + document.domain + '/index.html')) ? 1 : 0;
-        VocentoWP_Analytics.comScore.data.voc_adp = ((VocentoWP_Analytics.utils.common.getCookie('voc_mobile')) ? 2 : 0);
-        //si el dominio es auto en comscore
-        if (VocentoWP_Analytics.comScore.data.voc_site_auto == true)
-            VocentoWP_Analytics.comScore.data.voc_site = VocentoWP_Analytics.utils.common.getDomain();
-        //si el dominio es auto en chartbeat
-        if (VocentoWP_Analytics.chartbeat.data.domain_auto == true)
-            VocentoWP_Analytics.chartbeat.data.domain = window.location.host;
+        // //Solo marcamos si que viene de la home si no estamos en la home y solo con voc_ho=0
+        // if (VocentoWP_Analytics.comScore.ho_type == 0 && document.location != ('http://' + document.domain + '/'))
+        //     VocentoWP_Analytics.comScore.data.voc_ho = (document.referrer == ('http://' + document.domain + '/') || document.referrer == ('http://' + document.domain + '/index.html')) ? 1 : 0;
+        // VocentoWP_Analytics.comScore.data.voc_adp = ((VocentoWP_Analytics.utils.common.getCookie('voc_mobile')) ? 2 : 0);
+        // //si el dominio es auto en comscore
+        // if (VocentoWP_Analytics.comScore.data.voc_site_auto == true)
+        //     VocentoWP_Analytics.comScore.data.voc_site = VocentoWP_Analytics.utils.common.getDomain();
+        // //si el dominio es auto en chartbeat
+        // if (VocentoWP_Analytics.chartbeat.data.domain_auto == true)
+        //     VocentoWP_Analytics.chartbeat.data.domain = window.location.host;
+        // VocentoWP_Analytics.utils.gigya.init();
+        let result = document.location.pathname.includes("eslaliga");
+
+        if(result !== true){
+            console.log(document.location.pathname)
+            //Solo marcamos si que viene de la home si no estamos en la home y solo con voc_ho=0
+            if (VocentoWP_Analytics.comScore.ho_type == 0 && document.location != ('http://' + document.domain + '/'))
+                VocentoWP_Analytics.comScore.data.voc_ho = (document.referrer == ('http://' + document.domain + '/') || document.referrer == ('http://' + document.domain + '/index.html')) ? 1 : 0;
+            VocentoWP_Analytics.comScore.data.voc_adp = ((VocentoWP_Analytics.utils.common.getCookie('voc_mobile')) ? 2 : 0);
+            //si el dominio es auto en comscore
+            if (VocentoWP_Analytics.comScore.data.voc_site_auto == true)
+                VocentoWP_Analytics.comScore.data.voc_site = VocentoWP_Analytics.utils.common.getDomain();
+            //si el dominio es auto en chartbeat
+            if (VocentoWP_Analytics.chartbeat.data.domain_auto == true)
+                VocentoWP_Analytics.chartbeat.data.domain = window.location.host;
+        }
         VocentoWP_Analytics.utils.gigya.init();
     }
 };

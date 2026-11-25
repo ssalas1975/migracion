@@ -1,0 +1,50 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Name>VocentoFeedsPods</Name>
+    <ProjectGuid>{2bf31a70-74c2-44f1-8574-2a8a0eabaa61}</ProjectGuid>
+    <RootNamespace>VocentoFeedsPods</RootNamespace>
+    <OutputType>Library</OutputType>
+    <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <IncludeDebugInformation>true</IncludeDebugInformation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <IncludeDebugInformation>false</IncludeDebugInformation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="assets\css\jquery-ui.css" />
+    <Compile Include="assets\css\jquery.dataTables.min.css" />
+    <Compile Include="assets\css\style.css" />
+    <Compile Include="assets\img\icon-check.png" />
+    <Compile Include="assets\img\loading.gif" />
+    <Compile Include="assets\js\jquery-ui.min.js" />
+    <Compile Include="assets\js\jquery.dataTables.min.js" />
+    <Compile Include="assets\js\Meytel.JsonTree.js" />
+    <Compile Include="assets\clone.xslt" />
+    <Compile Include="assets\sample.xml" />
+    <Compile Include="vocento-feeds\classes\XML\XMLSerializer.php" />
+    <Compile Include="vocento-feeds\classes\vcf-enums.php" />
+    <Compile Include="vocento-feeds\classes\vcf-root-object.php" />
+    <Compile Include="vocento-feeds\services\sample.php" />
+    <Compile Include="vocento-feeds\services\wildcard.php" />
+    <Compile Include="vocento-feeds\services\wildcard_network.php" />
+    <Compile Include="vocento-feeds\functions.php" />
+    <Compile Include="vocento-feeds\VocentoFeedsEdit.php" />
+    <Compile Include="vocento-feeds\VocentoFeedsEditNetwork.php" />
+    <Compile Include="vocento-feeds\VocentoFeedsSettings.php" />
+    <Compile Include="vocento-feeds\VocentoFeedsSettingsNetwork.php" />
+    <Compile Include="vocento-feeds.php" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\css" />
+    <Folder Include="assets\img" />
+    <Folder Include="assets\js" />
+    <Folder Include="assets" />
+    <Folder Include="vocento-feeds\classes\XML" />
+    <Folder Include="vocento-feeds\classes" />
+    <Folder Include="vocento-feeds\services" />
+    <Folder Include="vocento-feeds" />
+  </ItemGroup>
+</Project>

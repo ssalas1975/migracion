@@ -28,7 +28,6 @@ import {
 const DEFAULT_STATE = {
 	bySelf: {},
 	queries: {},
-	queryParams: {},
 	querying: [],
 	creating: [],
 	updating: [],
@@ -100,10 +99,6 @@ export default function bans( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				querying: [ ...state.querying, action.queryId ],
-				queryParams: {
-					...state.queryParams,
-					[ action.queryId ]: action.queryParams || state.queryParams[ action.queryId ],
-				},
 			};
 		case FINISH_QUERY:
 		case FAILED_QUERY:

@@ -326,8 +326,7 @@ function acf_duplicate_internal_post_type( $id = 0, $new_post_id = 0, $post_type
 	$instance = acf_get_internal_post_type_instance( $post_type );
 
 	if ( $instance ) {
-		// The settings are copied from the database, so skip sanitization.
-		return acf_skip_internal_post_sanitization( array( $instance, 'duplicate_post' ), $id, $new_post_id );
+		return $instance->duplicate_post( $id, $new_post_id );
 	}
 
 	return false;
@@ -345,8 +344,7 @@ function acf_update_internal_post_type_active_status( $id, $activate = true, $po
 	$instance = acf_get_internal_post_type_instance( $post_type );
 
 	if ( $instance ) {
-		// Only the status changes and the settings come from the database, so skip sanitization.
-		return acf_skip_internal_post_sanitization( array( $instance, 'update_post_active_status' ), $id, $activate );
+		return $instance->update_post_active_status( $id, $activate );
 	}
 
 	return false;

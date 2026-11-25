@@ -1,17 +1,7 @@
 /**
- * External dependencies
- */
-import createSelector from 'rememo';
-import { merge, cloneDeep, find } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { createRegistrySelector } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { MODULES_STORE_NAME } from './';
 
 /**
@@ -21,12 +11,9 @@ import { MODULES_STORE_NAME } from './';
  * @param {number} userId
  * @return {Object} User data.
  */
-export const getUser = createSelector(
-	( state, userId ) => state.users.optimisticEdits[ userId ]
-		? merge( cloneDeep( state.users.byId[ userId ] ), state.users.optimisticEdits[ userId ] )
-		: state.users.byId[ userId ],
-	( state, userId ) => [ state.users.byId[ userId ], state.users.optimisticEdits[ userId ] ]
-);
+export function getUser( state, userId ) {
+	return state.users.byId[ userId ];
+}
 
 /**
  * Get the current user.
@@ -35,38 +22,7 @@ export const getUser = createSelector(
  * @return {Object} The current user object.
  */
 export function getCurrentUser( state ) {
-	return getUser( state, getCurrentUserId( state ) );
-}
-
-/**
- * Get the current user id.
- *
- * @param {Object} state The store state.
- * @return {number} The current user id.
- */
-export function getCurrentUserId( state ) {
-	return state.users.currentId;
-}
-
-/**
- * Is the given user being updated.
- *
- * @param {Object} state  The store state.
- * @param {number} userId The user id to query.
- * @return {boolean} True if saving.
- */
-export function isSavingUser( state, userId ) {
-	return state.users.saving.includes( userId );
-}
-
-/**
- * Is the current user being updated.
- *
- * @param {Object} state The store state.
- * @return {boolean} True if saving.
- */
-export function isSavingCurrentUser( state ) {
-	return isSavingUser( state, state.users.currentId );
+	return state.users.byId[ state.users.currentId ];
 }
 
 export function getIndex( state ) {
@@ -87,15 +43,23 @@ export function getSchema( state, schemaId ) {
 		return null;
 	}
 
-	return find( index.routes, ( route ) => route?.schema?.title === schemaId )?.schema;
+	for ( const route in index.routes ) {
+		if ( ! index.routes.hasOwnProperty( route ) ) {
+			continue;
+		}
+
+		const schema = index.routes[ route ].schema;
+
+		if ( schema && schema.title === schemaId ) {
+			return schema;
+		}
+	}
+
+	return null;
 }
 
 export function getRoles( state ) {
 	return state.index?.roles || null;
-}
-
-export function getRequirementsInfo( state ) {
-	return state.index?.requirements_info || null;
 }
 
 export function getActorTypes( state ) {
@@ -123,24 +87,4 @@ export const getFeatureFlags = createRegistrySelector(
 
 export function getBatchMaxItems( state ) {
 	return state.batchMaxItems;
-}
-
-export function getServerType( state ) {
-	return state.index?.server_type || null;
-}
-
-export function getInstallType( state ) {
-	return state.index?.install_type || null;
-}
-
-export function hasPatchstack( state ) {
-	return state.index?.has_patchstack || null;
-}
-
-export function isLiquidWebCustomer( state ) {
-	return state.index?.is_lw_customer || null;
-}
-
-export function getAdminUrl( state ) {
-	return state.adminUrl;
 }

@@ -26,7 +26,6 @@ include_once ('vocento-analytics/classes/VocentoAnalyticsCrazyEgg.php');
 include_once ('vocento-analytics/classes/VocentoAnalyticsSoftClick.php');
 include_once ('vocento-analytics/classes/VocentoAnalyticsInspectlet.php');
 include_once ('vocento-analytics/classes/VocentoAnalyticsKrux.php');
-include_once ('vocento-analytics/classes/VocentoAnalyticsDTM.php');
 include_once ('vocento-analytics/classes/VocentoAnalyticsHOType.php');
 include_once ('vocento-analytics/classes/VocentoAnalyticsContainer.php');
 
@@ -45,7 +44,6 @@ include_once ('vocento-analytics/admin/VocentoAnalyticsAdminOverview.php');
 include_once ('vocento-analytics/admin/VocentoAnalyticsAdminSoftClick.php');
 include_once ('vocento-analytics/admin/VocentoAnalyticsAdminInspectlet.php');
 include_once ('vocento-analytics/admin/VocentoAnalyticsAdminHelp.php');
-include_once ('vocento-analytics/admin/VocentoAnalyticsAdminDTM.php');
 include_once ('vocento-analytics/admin/VocentoAnalyticsAdminImportExport.php');
 
 //Metabox
@@ -86,6 +84,9 @@ else{
     new VocentoAnalyticsFrontManager();
     new VocentoAnalyticsPageViewCandidate();
 }
+
+
+
 
 
 

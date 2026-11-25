@@ -51,7 +51,6 @@ class VocentoAnalyticsAdminBase
         $this->options_analytics["vcanly_softclick_use_network"] = $this->get_default_network($this->options_analytics["vcanly_softclick_use_network"]);
         $this->options_analytics["vcanly_inspectlet_use_network"] = $this->get_default_network($this->options_analytics["vcanly_inspectlet_use_network"]);
         $this->options_analytics["vcanly_krux_use_network"] = $this->get_default_network($this->options_analytics["vcanly_krux_use_network"]);
-        $this->options_analytics["vcanly_dtm_use_network"] = $this->get_default_network($this->options_analytics["vcanly_dtm_use_network"]);
 
 
         if (!is_array($this->options_analytics_options)) {
@@ -176,8 +175,6 @@ class VocentoAnalyticsAdminBase
                         network_admin_url('admin.php')); ?>">Conf. Inspectlet</a>
                 <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("network_vcanly_krux", "", ""),
                         network_admin_url('admin.php')); ?>">Conf. Krux</a>
-                <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("network_vcanly_dtm", "", ""),
-                    network_admin_url('admin.php')); ?>">Conf. DTM</a>
                 <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("network_vcanly_wordpress", "", ""),
                         network_admin_url('admin.php')); ?>">Conf. Wordpress</a>
             </ul>
@@ -211,8 +208,6 @@ class VocentoAnalyticsAdminBase
                         admin_url('admin.php')); ?>">Conf. Inspectlet</a>
                 <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("site_vcanly_krux", "", ""),
                         admin_url('admin.php')); ?>">Conf. Krux</a>
-                <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("site_vcanly_dtm", "", ""),
-                    admin_url('admin.php')); ?>">Conf. DTM</a>
                 <li><a href="<?php echo add_query_arg(vcanly_composeFormParams("site_vcanly_wordpress", "", ""),
                         admin_url('admin.php')); ?>">Conf. Wordpress</a>
             </ul>

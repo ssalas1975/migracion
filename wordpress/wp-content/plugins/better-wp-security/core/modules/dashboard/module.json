@@ -8,7 +8,8 @@
     "group": {
       "type": "multiple",
       "title": "Enable Dashboard Creation",
-      "description": "Allow users to create new Kadence Security Dashboards."
+      "description": "Allow users to create new iThemes Security Dashboards.",
+      "default": "administrator"
     }
   },
   "settings": {

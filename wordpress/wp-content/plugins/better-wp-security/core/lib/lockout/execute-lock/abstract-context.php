@@ -53,28 +53,27 @@ abstract class Context implements ArrayAccess, IteratorAggregate {
 		);
 	}
 
-	public function getIterator(): \Traversable {
+	public function getIterator() {
 		return new ArrayIterator( $this->to_legacy() );
 	}
 
-	public function offsetExists( $offset ): bool {
+	public function offsetExists( $offset ) {
 		$legacy = $this->to_legacy();
 
 		return isset( $legacy[ $offset ] );
 	}
 
-	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		$legacy = $this->to_legacy();
 
 		return $legacy[ $offset ];
 	}
 
-	public function offsetSet( $offset, $value ): void {
+	public function offsetSet( $offset, $value ) {
 		// no-op
 	}
 
-	public function offsetUnset( $offset ): void {
+	public function offsetUnset( $offset ) {
 		// no-op
 	}
 }

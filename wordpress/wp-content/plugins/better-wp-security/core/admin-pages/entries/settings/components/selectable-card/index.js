@@ -1,63 +1,78 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
-import { arrowRight as goIcon } from '@wordpress/icons';
+import { Link } from 'react-router-dom';
+import classnames from 'classnames';
 
 /**
- * Solid dependencies
+ * WordPress dependencies
  */
-import { SurfaceVariant, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
+import { Card, CardBody, Icon } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import {
-	StyledSelectableCard,
-	StyledTitle,
-	StyledDescription,
-	StyledIconContainer,
-	StyledIcon,
-	StyledGoIcon,
-	StyledButtonWrapper,
-} from './styles';
+import './style.scss';
 
 export default function SelectableCard( {
+	to,
 	onClick,
 	title,
 	description,
 	icon,
+	fillIcon,
+	recommended,
 	direction = 'horizontal',
-	className,
-	disabled,
-	isSelected,
+	className: userClassName,
 } ) {
-	return (
-		<StyledButtonWrapper
-			onClick={ onClick }
-			className={ className }
-			variant="none"
-			disabled={ disabled }
-			aria-pressed={ isSelected }
-		>
-			<StyledSelectableCard direction={ direction }>
-				<StyledIconContainer variant={ SurfaceVariant.SECONDARY }>
-					<StyledIcon icon={ icon } size={ 30 } />
-				</StyledIconContainer>
-				<StyledTitle
-					level={ 4 }
-					size={ TextSize.LARGE }
-					weight={ TextWeight.HEAVY }
-					text={ title }
-				/>
-				{ description && (
-					<StyledDescription
-						variant={ TextVariant.MUTED }
-						text={ description }
-						align={ direction === 'vertical' ? 'center' : 'left' }
-					/>
-				) }
-				{ direction === 'horizontal' && <StyledGoIcon icon={ goIcon } /> }
-			</StyledSelectableCard>
-		</StyledButtonWrapper>
+	const className = classnames(
+		'itsec-selectable-card',
+		`itsec-selectable-card--${ direction }`,
+		userClassName,
+		{
+			'itsec-selectable-card--fill-icon': fillIcon,
+			'itsec-selectable-card--recommended': recommended,
+		}
 	);
+
+	const card = (
+		<Card>
+			<CardBody>
+				<div className="itsec-selectable-card__content">
+					<Icon icon={ icon } />
+					<div className="itsec-selectable-card__text">
+						<h4 className="itsec-selectable-card__title">
+							{ title }
+						</h4>
+						<p className="itsec-selectable-card__description">
+							{ description }
+						</p>
+					</div>
+				</div>
+			</CardBody>
+		</Card>
+	);
+
+	if ( to ) {
+		return (
+			<Link to={ to } className={ className }>
+				{ card }
+			</Link>
+		);
+	}
+
+	if ( onClick ) {
+		return (
+			<button
+				aria-label={ title }
+				type="button"
+				onClick={ onClick }
+				className={ className }
+			>
+				{ card }
+			</button>
+		);
+	}
+
+	return card;
 }

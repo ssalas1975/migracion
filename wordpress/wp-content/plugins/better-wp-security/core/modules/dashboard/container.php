@@ -1,26 +1,25 @@
 <?php
 
-use iThemesSecurity\Dashboard\Cards\Security_Summary_Card;
 use iThemesSecurity\User_Groups\Matcher;
-use iThemesSecurity\Strauss\Pimple\Container;
+use Pimple\Container;
 
 return static function ( Container $c ) {
 	$c[ ITSEC_Dashboard::class ] = static function ( Container $c ) {
 		return new ITSEC_Dashboard( $c[ Matcher::class ] );
 	};
 
-	ITSEC_Lib::extend_if_able( $c,'dashboard.cards', function ( $cards ) use ( $c ) {
-		$cards[] = new Security_Summary_Card();
-		$cards[] = new ITSEC_Dashboard_Card_Line_Graph( 'brute-force', __( 'Threats Blocked', 'better-wp-security' ), [
+	$c->extend( 'dashboard.cards', function ( $cards ) use ( $c ) {
+		$cards[] = new ITSEC_Dashboard_Card_Active_Lockouts();
+		$cards[] = new ITSEC_Dashboard_Card_Line_Graph( 'brute-force', __( 'Brute Force Attacks', 'better-wp-security' ), [
 			[
-				'events' => [ 'local-brute-force', 'network-brute-force', 'firewall-block' ],
+				'events' => [ 'local-brute-force', 'network-brute-force' ],
 				'label'  => __( 'Attacks', 'better-wp-security' ),
 			],
-		], [], 'dashboard' );
+		] );
 		$cards[] = new ITSEC_Dashboard_Card_Pie_Chart( 'lockout', __( 'Lockouts', 'better-wp-security' ), [
 			[
 				'events' => 'lockout-host',
-				'label'  => __( 'IP Addresses', 'better-wp-security' ),
+				'label'  => __( 'Hosts', 'better-wp-security' ),
 			],
 			[
 				'events' => 'lockout-user',
@@ -38,7 +37,11 @@ return static function ( Container $c ) {
 
 				return $itsec_lockout->get_lockouts( 'all', array( 'return' => 'count', 'current' => false ) );
 			},
-		], 'dashboard' );
+		] );
+
+		if ( $c['ban-hosts.repositories'] ) {
+			$cards[] = new ITSEC_Dashboard_Card_Banned_Users();
+		}
 
 		return $cards;
 	} );

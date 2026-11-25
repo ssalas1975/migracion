@@ -44,7 +44,6 @@ export default function useMergeRefs( refs ) {
 		} );
 
 		previousRefs.current = refs;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, refs );
 
 	// No dependencies, must be reset after every render so ref callbacks are

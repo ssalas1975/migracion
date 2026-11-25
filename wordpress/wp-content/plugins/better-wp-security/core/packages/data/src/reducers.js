@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { omit } from 'lodash';
-
-/**
  * Internal dependencies
  */
 import {
@@ -15,15 +10,12 @@ import {
 	RECEIVE_CURRENT_USER_ID,
 	LOAD_INITIAL_FEATURE_FLAGS,
 	RECEIVE_BATCH_MAX_ITEMS,
-	RECEIVE_ADMIN_URL,
 } from './actions';
 
 const DEFAULT_STATE = {
 	users: {
 		currentId: 0,
 		byId: {},
-		saving: [],
-		optimisticEdits: {},
 	},
 	index: null,
 	actors: {
@@ -33,7 +25,6 @@ const DEFAULT_STATE = {
 	siteInfo: null,
 	featureFlags: [],
 	batchMaxItems: 0,
-	adminUrl: '',
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -42,35 +33,6 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				index: action.index,
-			};
-		case 'START_SAVING_USER':
-			return {
-				...state,
-				users: {
-					...state.users,
-					saving: [ ...state.users.saving, action.id ],
-					optimisticEdits: action.optimistic
-						? {
-							...state.users.optimisticEdits,
-							[ action.id ]: action.data,
-						}
-						: state.users.optimisticEdits,
-				},
-			};
-		case 'FINISH_SAVING_USER':
-		case 'FAILED_SAVING_USER':
-			return {
-				...state,
-				users: {
-					...state.users,
-					saving: state.users.saving.filter(
-						( id ) => id !== action.id
-					),
-					optimisticEdits: omit(
-						state.users.optimisticEdits,
-						action.id
-					),
-				},
 			};
 		case RECEIVE_USER:
 			return {
@@ -124,11 +86,6 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				batchMaxItems: action.maxItems,
-			};
-		case RECEIVE_ADMIN_URL:
-			return {
-				...state,
-				adminUrl: action.adminUrl,
 			};
 		default:
 			return state;

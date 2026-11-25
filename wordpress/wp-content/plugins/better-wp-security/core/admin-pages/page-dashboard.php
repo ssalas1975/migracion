@@ -4,9 +4,13 @@ add_action( 'admin_enqueue_scripts', function () {
 	$primary_id = ITSEC_Dashboard_Util::get_primary_dashboard_id();
 
 	$preload_requests = [
-		'/?_fields=name,description,url,home,multisite'  => [
+		'/?_fields=name,description,url,home'            => [
 			'route' => '/',
-			'query' => [ '_fields' => 'name,description,url,home,multisite' ],
+			'query' => [ '_fields' => 'name,description,url,home' ],
+		],
+		'/ithemes-security/v1?context=help'              => [
+			'route' => '/ithemes-security/v1',
+			'query' => [ 'context' => 'help' ],
 		],
 		'/ithemes-security/v1/dashboard-static',
 		'/ithemes-security/v1/dashboards?_embed=1'       => [
