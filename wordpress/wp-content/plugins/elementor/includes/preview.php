@@ -2,8 +2,6 @@
 namespace Elementor;
 
 use Elementor\Core\Base\App;
-use Elementor\Core\Editor\Editor;
-use Elementor\Core\Settings\Manager as SettingsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -18,11 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class Preview extends App {
-
-	/**
-	 * The priority of the preview enqueued styles.
-	 */
-	const ENQUEUED_STYLES_PRIORITY = 20;
 
 	/**
 	 * Is Preview.
@@ -94,11 +87,6 @@ class Preview extends App {
 		$this->post_id = get_the_ID();
 		$this->is_preview = true;
 
-		// Send Document-Isolation-Policy on the preview iframe so it shares
-		// an agent cluster with the editor parent and synchronous DOM access
-		// (e.g. iframe.contentWindow.elementorFrontend) keeps working.
-		Editor::send_document_isolation_policy_header();
-
 		// Don't redirect to permalink.
 		remove_action( 'template_redirect', 'redirect_canonical' );
 
@@ -114,7 +102,7 @@ class Preview extends App {
 		add_action( 'wp_enqueue_scripts', function() {
 			$this->enqueue_styles();
 			$this->enqueue_scripts();
-		}, self::ENQUEUED_STYLES_PRIORITY );
+		} );
 
 		add_filter( 'the_content', [ $this, 'builder_wrapper' ], 999999 );
 
@@ -201,18 +189,6 @@ class Preview extends App {
 	}
 
 	/**
-	 * Whether WordPress post preview or Elementor preview iframe is active.
-	 *
-	 * @since 4.1.0
-	 * @access public
-	 *
-	 * @return bool
-	 */
-	public function is_editor_or_preview() {
-		return is_preview() || $this->is_preview_mode();
-	}
-
-	/**
 	 * Builder wrapper.
 	 *
 	 * Used to add an empty HTML wrapper for the builder, the javascript will add
@@ -253,11 +229,9 @@ class Preview extends App {
 
 		Plugin::$instance->frontend->enqueue_styles();
 
-		Plugin::$instance->elements_manager->enqueue_elements_styles();
-
 		Plugin::$instance->widgets_manager->enqueue_widgets_styles();
 
-		$suffix = Utils::is_script_debug() ? '' : '.min';
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		$direction_suffix = is_rtl() ? '-rtl' : '';
 
@@ -277,14 +251,18 @@ class Preview extends App {
 			ELEMENTOR_VERSION
 		);
 
-		wp_enqueue_style(
-			'e-theme-ui-light',
-			$this->get_css_assets_url( 'theme-light' ),
-			[],
-			ELEMENTOR_VERSION
-		);
-
 		wp_enqueue_style( 'editor-preview' );
+
+		if ( ! Plugin::$instance->experiments->is_feature_active( 'e_dom_optimization' ) ) {
+			wp_register_style(
+				'editor-preview-legacy',
+				ELEMENTOR_ASSETS_URL . 'css/editor-preview-legacy' . $direction_suffix . $suffix . '.css',
+				[],
+				ELEMENTOR_VERSION
+			);
+
+			wp_enqueue_style( 'editor-preview-legacy' );
+		}
 
 		// Handle the 'wp audio' in editor preview.
 		wp_enqueue_style( 'wp-mediaelement' );
@@ -313,9 +291,8 @@ class Preview extends App {
 		Plugin::$instance->frontend->register_scripts();
 
 		Plugin::$instance->widgets_manager->enqueue_widgets_scripts();
-		Plugin::$instance->elements_manager->enqueue_elements_scripts();
 
-		$suffix = Utils::is_script_debug() ? '' : '.min';
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		wp_enqueue_script(
 			'elementor-inline-editor',

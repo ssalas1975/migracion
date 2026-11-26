@@ -142,7 +142,7 @@ class CFDBFilterParser extends CFDBParserBase implements CFDBEvaluator {
         // Sometimes get HTML codes for greater-than and less-than; replace them with actual symbols
         $comparisonExpression = str_replace('&gt;', '>', $comparisonExpression);
         $comparisonExpression = str_replace('&lt;', '<', $comparisonExpression);
-        return preg_split('/(===)|(==)|(=)|(!==)|(!=)|(<>)|(<=)|(<)|(>=)|(>)|(~~)|(\[in\])|(\[!in\])/',
+        return preg_split('/(===)|(==)|(=)|(!==)|(!=)|(<>)|(<=)|(<)|(>=)|(>)|(~~)/',
                 $comparisonExpression, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
     }
 
@@ -212,10 +212,7 @@ class CFDBFilterParser extends CFDBParserBase implements CFDBEvaluator {
 
             if ($andExpr[0] === 'submit_time') {
                 if (!is_numeric($right)) {
-                    $tmp = strtotime($right);
-                    if ($tmp) {
-                        $right = $tmp;
-                    }
+                    $right = strtotime($right);
                 }
             }
 
@@ -292,14 +289,6 @@ class CFDBFilterParser extends CFDBParserBase implements CFDBEvaluator {
 
             case '~~':
                 $retVal = @preg_match($right, $left) > 0;
-                break;
-
-            case '[in]':
-                $retVal = in_array($left, explode(',', $right));
-                break;
-
-            case '[!in]':
-                $retVal = !in_array($left, explode(',', $right));
                 break;
 
             default:

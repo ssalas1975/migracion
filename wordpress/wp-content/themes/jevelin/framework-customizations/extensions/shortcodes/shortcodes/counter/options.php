@@ -15,6 +15,13 @@ $options = array(
 				'value' => ''
 			),
 
+			'number_symbol'  => array(
+				'label' => esc_html__( 'Number Symbol', 'jevelin' ),
+				'desc'  => esc_html__( 'Here you can add symbol like + after number', 'jevelin' ),
+				'type'  => 'text',
+				'value' => ''
+			),
+
 			'title'   => array(
 				'label' => esc_html__( 'Title', 'jevelin' ),
 				'desc'  => esc_html__( 'Enter title', 'jevelin' ),
@@ -76,6 +83,7 @@ $options = array(
 			                'style4' => esc_html__('Style 4', 'jevelin'),
 			                'style5' => esc_html__('Style 5', 'jevelin'),
 			                'style6' => esc_html__('Style 6', 'jevelin'),
+							'style7' => esc_html__('Number Only', 'jevelin'),
 			            ),
 			            'desc'    => esc_html__('Select main style', 'jevelin'),
 			        )
@@ -225,6 +233,7 @@ $options = array(
 					'200' => esc_html__( 'Extra Light', 'jevelin' ),
 					'300' => esc_html__( 'Light', 'jevelin' ),
 					'400' => esc_html__( 'Normal', 'jevelin' ),
+					'500' => esc_html__( 'Medium', 'jevelin' ),
 					'600' => esc_html__( 'Semi-bold', 'jevelin' ),
 					'700' => esc_html__( 'Bold', 'jevelin' ),
 					'900' => esc_html__( 'Extra Bold', 'jevelin' ),

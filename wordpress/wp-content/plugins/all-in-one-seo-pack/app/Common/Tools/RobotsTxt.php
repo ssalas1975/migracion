@@ -10,38 +10,18 @@ use AIOSEO\Plugin\Common\Models;
 
 class RobotsTxt {
 	/**
-	 * The directives a custom rule can use.
-	 *
-	 * @since 5.0.4
-	 *
-	 * @var string[]
-	 */
-	const RULE_DIRECTIVES = [ 'allow', 'disallow', 'clean-param', 'crawl-delay' ];
-
-	/**
-	 * Which directives are allowed to be extracted.
-	 *
-	 * @since 4.4.2
-	 *
-	 * @var array
-	 */
-	private $allowedDirectives = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.0.0
 	 */
 	public function __construct() {
-		$this->allowedDirectives = array_merge( [ 'user-agent' ], self::RULE_DIRECTIVES );
+		add_filter( 'robots_txt', [ $this, 'buildRules' ], 10000, 2 );
 
-		add_filter( 'robots_txt', [ $this, 'buildRules' ], 10000 );
-
-		if ( ! is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+		if ( ! is_admin() ) {
 			return;
 		}
 
-		add_action( 'admin_init', [ $this, 'checkForPhysicalFiles' ] );
+		add_action( 'init', [ $this, 'checkForPhysicalFiles' ] );
 	}
 
 	/**
@@ -58,46 +38,39 @@ class RobotsTxt {
 			return $original;
 		}
 
-		$searchAppearanceRules = $this->extractSearchAppearanceRules();
-		$networkRules          = [];
-		if ( is_multisite() ) {
-			$searchAppearanceRules = array_merge(
-				$searchAppearanceRules,
-				$this->extractSearchAppearanceRules( aioseo()->networkOptions->tools->robots->rules )
-			);
-			$networkRules          = aioseo()->networkOptions->tools->robots->enable ? aioseo()->networkOptions->tools->robots->rules : [];
-		}
-
+		$original      = explode( "\n", $original );
 		$originalRules = $this->extractRules( $original );
-		$ruleset       = $this->mergeRules( $originalRules, $this->groupRulesByUserAgent( $searchAppearanceRules ) );
-		if ( ! aioseo()->options->tools->robots->enable ) {
-			$ruleset = $this->mergeRules( $ruleset, $this->groupRulesByUserAgent( $networkRules ) );
-		} else {
-			$ruleset = $this->mergeRules(
-				$ruleset,
-				$this->mergeRules( $this->groupRulesByUserAgent( $networkRules ), $this->groupRulesByUserAgent( aioseo()->options->tools->robots->rules ) ),
-				true
-			);
+		$networkRules  = [];
+		if ( is_multisite() ) {
+			switch_to_blog( aioseo()->helpers->getNetworkId() );
+			$options = aioseo()->options->noConflict();
+			$options->initNetwork();
+			$networkRules = $options->tools->robots->enable ? $options->tools->robots->rules : [];
+			restore_current_blog();
 		}
 
-		/**
-		 * Any plugin can wrongly modify the robots.txt output by hoking into the `do_robots` action hook,
-		 * instead of hooking into the `robots_txt` filter hook.
-		 * For the first scenario, to make sure our output doesn't conflict with theirs, a new line is necessary.
-		 */
-		return $this->stringifyRuleset( $ruleset ) . "\n";
+		if ( ! aioseo()->options->tools->robots->enable ) {
+			$networkAndOriginal = $this->mergeRules( $originalRules, $this->parseRules( $networkRules ) );
+			$networkAndOriginal = $this->robotsArrayUnique( $networkAndOriginal );
+
+			return $this->stringify( $networkAndOriginal );
+		}
+
+		$allRules = $this->mergeRules( $originalRules, $this->mergeRules( $this->parseRules( $networkRules ), $this->parseRules( aioseo()->options->tools->robots->rules ) ), true );
+		$allRules = $this->robotsArrayUnique( $allRules );
+
+		return $this->stringify( $allRules );
 	}
 
 	/**
 	 * Merges two rulesets.
 	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
+	 * @since 4.0.0
 	 *
-	 * @param  array   $rules1          An array of rules to merge with.
-	 * @param  array   $rules2          An array of rules to merge.
-	 * @param  boolean $allowOverride   Whether to allow overriding.
-	 * @param  boolean $allowDuplicates Whether to allow duplicates.
+	 * @param  array          $rules1   An array of rules to merge with.
+	 * @param  array          $rules2   An array of rules to merge.
+	 * @param  boolean $allowOverride   Whether or not to allow overriding.
+	 * @param  boolean $allowduplicates Whether or not to allow duplicates.
 	 * @return array                    The validated rules.
 	 */
 	private function mergeRules( $rules1, $rules2, $allowOverride = false, $allowDuplicates = false ) {
@@ -107,29 +80,34 @@ class RobotsTxt {
 			}
 
 			if ( empty( $rules1[ $userAgent ] ) ) {
-				$rules1[ $userAgent ] = array_unique( $rules2[ $userAgent ] );
-
+				$rules1[ $userAgent ] = $rules2[ $userAgent ];
 				continue;
 			}
 
 			list( $rules1, $rules2 ) = $this->mergeRulesHelper( 'allow', $userAgent, $rules, $rules1, $rules2, $allowDuplicates, $allowOverride );
+
 			list( $rules1, $rules2 ) = $this->mergeRulesHelper( 'disallow', $userAgent, $rules, $rules1, $rules2, $allowDuplicates, $allowOverride );
 
-			$rules1[ $userAgent ] = array_unique( array_merge(
-				$rules1[ $userAgent ],
-				$rules2[ $userAgent ]
-			) );
+			$allow = array_merge(
+				array_values( $rules1[ $userAgent ]['allow'] ),
+				array_values( $rules2[ $userAgent ]['allow'] )
+			);
+			$rules1[ $userAgent ]['allow'] = array_unique( $allow );
+
+			$disallow = array_merge(
+				array_values( $rules1[ $userAgent ]['disallow'] ),
+				array_values( $rules2[ $userAgent ]['disallow'] )
+			);
+			$rules1[ $userAgent ]['disallow'] = array_unique( $disallow );
 		}
 
 		return $rules1;
 	}
 
 	/**
-	 * Helper function for {@see mergeRules()}.
+	 * Helper function for mergeRules().
 	 *
-	 * @since   4.1.2
-	 * @version 4.4.2
-	 * @version 5.0.5 Escape the rule value with preg_quote() in the match pattern.
+	 * @since 4.1.2
 	 *
 	 * @param  string $directive       The directive (allow/disallow).
 	 * @param  string $userAgent       The user agent.
@@ -142,26 +120,49 @@ class RobotsTxt {
 	 */
 	private function mergeRulesHelper( $directive, $userAgent, $rules, $rules1, $rules2, $allowDuplicates, $allowOverride ) {
 		$otherDirective = ( 'allow' === $directive ) ? 'disallow' : 'allow';
-		foreach ( $rules as $index1 => $rule ) {
-			list( , $ruleValue ) = $this->parseRule( $rule );
-			$index2 = array_search( "$otherDirective: $ruleValue", $rules1[ $userAgent ], true );
+
+		foreach ( $rules[ $directive ] as $index1 => $path ) {
+			$index2 = array_search( $path, $rules1[ $userAgent ][ $otherDirective ], true );
 			if ( false !== $index2 && ! $allowDuplicates ) {
 				if ( $allowOverride ) {
-					unset( $rules1[ $userAgent ][ $index2 ] );
+					unset( $rules1[ $userAgent ][ $otherDirective ][ $index2 ] );
 				} else {
-					unset( $rules2[ $userAgent ][ $index1 ] );
+					unset( $rules2[ $userAgent ][ $directive ][ $index1 ] );
 				}
 			}
 
-			$pattern = str_replace( '\*', '(.*)', preg_quote( $ruleValue, '#' ) );
+			$pattern = '^' . str_replace(
+				[
+					'.',
+					'/',
+					'*',
+					'?'
+				],
+				[
+					'\.',
+					'\/',
+					'(.*)',
+					'\?'
+				],
+				$path
+			) . '$';
 
-			foreach ( $rules1[ $userAgent ] as $rule1 ) {
+			foreach ( $rules1[ $userAgent ][ $directive ] as $p ) {
 				$matches = [];
-				preg_match( "#^$otherDirective: $pattern$#", (string) $rule1, $matches );
+				preg_match( "/{$pattern}/", $p, $matches );
 			}
 
 			if ( ! empty( $matches ) && ! $allowDuplicates ) {
-				unset( $rules2[ $userAgent ][ $index1 ] );
+				unset( $rules2[ $userAgent ][ $directive ][ $index1 ] );
+			}
+
+			foreach ( $rules1[ $userAgent ][ $otherDirective ] as $p ) {
+				$matches = [];
+				preg_match( "/{$pattern}/", $p, $matches );
+			}
+
+			if ( ! empty( $matches ) && ! $allowDuplicates ) {
+				unset( $rules2[ $userAgent ][ $directive ][ $index1 ] );
 			}
 		}
 
@@ -169,55 +170,42 @@ class RobotsTxt {
 	}
 
 	/**
-	 * Parses a rule and extracts the directive and value.
-	 *
-	 * @since 4.4.2
-	 *
-	 * @param  string $rule The rule to parse.
-	 * @return array        An array containing the parsed directive and value.
-	 */
-	private function parseRule( $rule ) {
-		list( $directive, $value ) = array_map( 'trim', array_pad( explode( ':', $rule, 2 ), 2, '' ) );
-
-		return [ $directive, $value ];
-	}
-
-	/**
 	 * Stringifies the parsed rules.
-	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
-	 * @version 5.0.5 Print a rule whose value is '0'.
 	 *
 	 * @param  array  $allRules The rules array.
 	 * @return string           The stringified rules.
 	 */
-	private function stringifyRuleset( $allRules ) {
+	private function stringify( $allRules ) {
 		$robots = [];
-		foreach ( $allRules as $userAgent => $rules ) {
-			if ( empty( $userAgent ) ) {
+		foreach ( $allRules as $agent => $rules ) {
+			if ( empty( $agent ) ) {
 				continue;
 			}
 
-			$robots[] = "\r\nUser-agent: $userAgent";
-			foreach ( $rules as $rule ) {
-				list( $directive, $value ) = $this->parseRule( $rule );
-				if ( empty( $directive ) || '' === $value ) {
-					continue;
-				}
+			$robots[] = sprintf( 'User-agent: %s', $agent );
 
-				$robots[] = sprintf( '%s: %s', ucfirst( $directive ), $value );
+			foreach ( $rules as $type => $path ) {
+				foreach ( $path as $p ) {
+					if ( empty( $p ) ) {
+						continue;
+					}
+
+					$robots[] = sprintf( '%s: %s', ucfirst( $type ), $p );
+				}
 			}
+
+			$robots[] = '';
 		}
 
-		$robots      = implode( "\r\n", $robots );
+		$robots = implode( "\r\n", $robots ) . "\r\n";
+
 		$sitemapUrls = $this->getSitemapRules();
 		if ( ! empty( $sitemapUrls ) ) {
 			$sitemapUrls = implode( "\r\n", $sitemapUrls );
-			$robots      .= "\r\n\r\n$sitemapUrls";
+			$robots     .= $sitemapUrls . "\r\n\r\n";
 		}
 
-		return trim( $robots );
+		return $robots;
 	}
 
 	/**
@@ -228,279 +216,76 @@ class RobotsTxt {
 	 * @return array An array of the Sitemap URLs.
 	 */
 	private function getSitemapRules() {
-		$defaultSitemaps = $this->extractSitemapUrls( aioseo()->robotsTxt->getDefaultRobotsTxtContent() );
-		$sitemapRules    = aioseo()->sitemap->helpers->getSitemapUrlsPrefixed();
+		$defaultRobots   = $this->getDefaultRobots();
+		$defaultSitemaps = $this->extractSitemapUrls( $defaultRobots );
+		$sitemapRules    = aioseo()->sitemap->helpers->getSitemapUrls();
 
 		return array_diff( $sitemapRules, $defaultSitemaps );
 	}
 
 	/**
-	 * Extracts the Search Appearance related rules.
-	 *
-	 * @since   4.8.1
-	 * @version 5.0.2 Guard against a non-array rules value and non-string rule entries.
-	 *
-	 * @param  array $rules The rules to extract from.
-	 * @return array        The Search Appearance related rules.
-	 */
-	public function extractSearchAppearanceRules( $rules = [] ) {
-		$currentRules = $rules ?: aioseo()->options->tools->robots->rules;
-		if ( ! is_array( $currentRules ) ) {
-			return [];
-		}
-
-		return array_filter( $currentRules, function ( $rule ) {
-			$parseRule = $this->decodeStoredRule( $rule );
-
-			return ! empty( $parseRule['bot'] ) || ! empty( $parseRule['preventCrawling'] );
-		} );
-	}
-
-	/**
-	 * Decodes a stored rule entry.
-	 *
-	 * NOTE: an import or external write can store a native array instead of a JSON string.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  mixed $rule The stored entry.
-	 * @return mixed       The decoded rule, or null if the entry can't be decoded.
-	 */
-	public function decodeStoredRule( $rule ) {
-		if ( is_array( $rule ) ) {
-			return $rule;
-		}
-
-		return is_string( $rule ) ? json_decode( $rule, true ) : null;
-	}
-
-	/**
-	 * Normalizes stored robots rules into canonical JSON strings.
-	 *
-	 * NOTE: classifies the decoded entry whatever its encoding; a non-rule string would render as a blank editor row.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  mixed $rules The raw rules value from options.
-	 * @return array        Canonical JSON-string rules.
-	 */
-	public function normalizeRules( $rules ) {
-		if ( ! is_array( $rules ) ) {
-			return [];
-		}
-
-		$normalized = [];
-		foreach ( $rules as $rule ) {
-			$decoded = $this->decodeStoredRule( $rule );
-			if ( ! $this->isRuleShaped( $decoded ) ) {
-				continue;
-			}
-
-			$encoded = is_string( $rule ) ? $rule : $this->encodeRule( $decoded );
-			if ( is_string( $encoded ) ) {
-				$normalized[] = $encoded;
-			}
-		}
-
-		return array_values( $normalized );
-	}
-
-	/**
-	 * Encodes a rule into its canonical stored form.
-	 *
-	 * NOTE: slashes stay unescaped so a repaired rule matches what the editor's JSON.stringify() writes.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  array        $rule The rule to encode.
-	 * @return string|false       The canonical JSON string, or false if it can't be encoded.
-	 */
-	public function encodeRule( $rule ) {
-		return wp_json_encode( $rule, JSON_UNESCAPED_SLASHES );
-	}
-
-	/**
-	 * Removes duplicate rules, comparing the rules they describe instead of their raw strings.
-	 *
-	 * NOTE: not array_unique() — it stringifies a native-array entry to "Array", collapsing unrelated entries.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  array $rules The JSON-encoded rules.
-	 * @return array        The rules without duplicates.
-	 */
-	public function uniqueRules( $rules ) {
-		$unique = [];
-		foreach ( $rules as $rule ) {
-			$decoded = $this->decodeStoredRule( $rule );
-			if ( is_array( $decoded ) ) {
-				ksort( $decoded );
-				$key = (string) wp_json_encode( $decoded );
-			} else {
-				// An entry that doesn't decode to a rule has no canonical form; only exact copies are duplicates.
-				$key = 'raw:' . (string) wp_json_encode( $rule );
-			}
-
-			if ( ! array_key_exists( $key, $unique ) ) {
-				$unique[ $key ] = $rule;
-			}
-		}
-
-		return array_values( $unique );
-	}
-
-	/**
-	 * Whether an entry has the shape of a custom robots rule: an array carrying every rule field.
-	 *
-	 * NOTE: keys, not values — the editor stores a row before it is filled in, and that row must survive a reload.
-	 * The JS mirror in `src/vue/utils/robots.js` has to classify every entry exactly the way this does.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  mixed $rule The decoded entry to test.
-	 * @return bool        Whether the entry is a rule record.
-	 */
-	private function isRuleShaped( $rule ) {
-		if ( ! is_array( $rule ) ) {
-			return false;
-		}
-
-		foreach ( [ 'userAgent', 'directive', 'fieldValue' ] as $field ) {
-			if ( ! array_key_exists( $field, $rule ) ) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Whether a rule field holds a usable value.
-	 *
-	 * NOTE: deliberately not empty() — '0' and 0 are values a user can store, and the JS mirror in
-	 * `src/vue/utils/robots.js` has to classify every entry exactly the way this does.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  mixed $value The field value to test.
-	 * @return bool         Whether the value is a non-empty string or a number.
-	 */
-	private function isRuleValueFilled( $value ) {
-		if ( ! is_string( $value ) && ! is_int( $value ) && ! is_float( $value ) ) {
-			return false;
-		}
-
-		return '' !== (string) $value;
-	}
-
-	/**
 	 * Parses the rules.
 	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
-	 * @version 5.0.2 Guard against a non-array rules value; decode via {@see decodeStoredRule()}.
-	 * @version 5.0.3 Skip a rule whose user agent, directive or value is not a string or number.
-	 * @version 5.0.5 Keep a '0' value; strip line breaks from every field.
+	 * @since 4.0.0
 	 *
-	 * @param  array $rules An array of rules.
-	 * @return array        The rules grouped by user agent.
+	 * @return array|mixed The rules.
 	 */
-	private function groupRulesByUserAgent( $rules ) {
-		if ( ! is_array( $rules ) ) {
-			return [];
-		}
-
-		$groups = [];
+	private function parseRules( $rules ) {
+		$robots = [];
 		foreach ( $rules as $rule ) {
-			$r = $this->decodeStoredRule( $rule );
-			if ( empty( $r['userAgent'] ) ) {
-				continue;
+			$r = json_decode( $rule );
+			if ( empty( $robots[ $r->userAgent ] ) ) {
+				$robots[ $r->userAgent ] = [
+					'allow'    => [],
+					'disallow' => []
+				];
+
 			}
 
-			// An import can store any JSON type in any field; only a string or number can key a group or print as a line.
-			if (
-				! $this->isRuleValueFilled( $r['userAgent'] ) ||
-				! $this->isRuleValueFilled( $r['directive'] ?? null ) ||
-				! $this->isRuleValueFilled( $r['fieldValue'] ?? null )
-			) {
-				continue;
-			}
-
-			// A line break inside a field would print the rest of it as a separate, forged directive line.
-			// A float key would be truncated to an int; the string keeps it apart, as the JS preview does.
-			$userAgent  = str_replace( [ "\r", "\n" ], '', (string) $r['userAgent'] );
-			$directive  = str_replace( [ "\r", "\n" ], '', (string) $r['directive'] );
-			$fieldValue = str_replace( [ "\r", "\n" ], '', (string) $r['fieldValue'] );
-			if ( '' === $userAgent || '' === $directive || '' === $fieldValue ) {
-				continue;
-			}
-
-			if ( empty( $groups[ $userAgent ] ) ) {
-				$groups[ $userAgent ] = [];
-			}
-
-			$groups[ $userAgent ][] = "$directive: $fieldValue";
+			$robots[ $r->userAgent ][ $r->rule ][] = $r->directoryPath;
 		}
 
-		return $groups;
+		return $robots;
 	}
 
 	/**
 	 * Extract rules from a string.
 	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
+	 * @since 4.0.0
 	 *
-	 * @param  string $lines The lines to extract from.
-	 * @return array         An array of extracted rules.
+	 * @param  array $lines The lines to extract from.
+	 * @return array        An array of extracted rules.
 	 */
 	public function extractRules( $lines ) {
-		$lines              = array_filter( array_map( 'trim', explode( "\n", (string) $lines ) ) );
-		$rules              = [];
-		$userAgent          = null;
-		$prevDirective      = null;
-		$prevValue          = null;
-		$siblingsUserAgents = [];
+		$rules     = [];
+		$userAgent = null;
 		foreach ( $lines as $line ) {
-			list( $directive, $value ) = $this->parseRule( $line );
-			if ( empty( $directive ) || empty( $value ) ) {
+			if ( empty( $line ) ) {
 				continue;
 			}
 
-			$directive = strtolower( $directive );
-			if ( ! in_array( $directive, $this->allowedDirectives, true ) ) {
+			$array = array_map( 'trim', explode( ':', $line ) );
+			if ( $array && count( $array ) !== 2 ) {
+				// Invalid line, let's keep going.
 				continue;
 			}
 
-			$value = $this->sanitizeDirectiveValue( $directive, $value );
-			if ( ! $value ) {
-				continue;
+			$operand = $array[0];
+			switch ( strtolower( $operand ) ) {
+				case 'user-agent':
+					$userAgent = $array[1];
+					$rules[ $userAgent ] = ! empty( $rules[ $userAgent ] ) ? $rules[ $userAgent ] : [
+						'allow'    => [],
+						'disallow' => []
+					];
+					break;
+				case 'allow':
+				case 'disallow':
+					$rules[ $userAgent ][ strtolower( $operand ) ][] = $this->sanitizePath( $array[1] );
+					break;
+				default:
+					break;
 			}
-
-			if ( 'user-agent' === $directive ) {
-				if (
-					! empty( $prevDirective ) &&
-					! empty( $prevValue ) &&
-					'user-agent' === $prevDirective
-				) {
-					$siblingsUserAgents[] = $prevValue;
-				}
-
-				$userAgent           = $value;
-				$rules[ $userAgent ] = ! empty( $rules[ $userAgent ] ) ? $rules[ $userAgent ] : [];
-			} else {
-				$rules[ $userAgent ][] = "$directive: $value";
-				if ( $siblingsUserAgents ) {
-					foreach ( $siblingsUserAgents as $siblingUserAgent ) {
-						$rules[ $siblingUserAgent ] = $rules[ $userAgent ];
-					}
-
-					$siblingsUserAgents = [];
-				}
-			}
-
-			$prevDirective = $directive;
-			$prevValue     = $value;
 		}
 
 		return $rules;
@@ -511,13 +296,16 @@ class RobotsTxt {
 	 *
 	 * @since 4.0.10
 	 *
-	 * @param  string $lines The lines to extract from.
-	 * @return array         An array of sitemap URLs.
+	 * @param  array $lines The lines to extract from.
+	 * @return array        An array of sitemap URLs.
 	 */
 	public function extractSitemapUrls( $lines ) {
-		$lines       = array_filter( array_map( 'trim', explode( "\n", (string) $lines ) ) );
 		$sitemapUrls = [];
 		foreach ( $lines as $line ) {
+			if ( empty( $line ) ) {
+				continue;
+			}
+
 			$array = array_map( 'trim', explode( 'sitemap:', strtolower( $line ) ) );
 			if ( ! empty( $array[1] ) ) {
 				$sitemapUrls[] = trim( $line );
@@ -528,37 +316,32 @@ class RobotsTxt {
 	}
 
 	/**
-	 * Sanitize the robots.txt rule directive value.
+	 * Sanitize the path on import.
 	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
+	 * @since 4.0.0
 	 *
-	 * @param  string $directive The directive.
-	 * @param  string $value     The value.
-	 * @return string            The directive value.
+	 * @param  string $path The path to sanitize.
+	 * @return string       The sanitized path.
 	 */
-	private function sanitizeDirectiveValue( $directive, $value ) {
-		// Percent-encoded characters are stripped from our option values, so we decode.
-		$value = rawurldecode( trim( $value ) );
-		if ( ! $value ) {
-			return $value;
+	private function sanitizePath( $path ) {
+		// if path does not have a trailing wild card (*) or does not refer to a file (with extension), add trailing slash.
+		if ( '*' !== substr( $path, -1 ) && false === strpos( $path, '.' ) ) {
+			$path = trailingslashit( $path );
 		}
 
-		$value = preg_replace( '/[><]/', '', (string) $value );
-
-		if ( 'user-agent' === $directive ) {
-			$value = preg_replace( '/[^a-z0-9\-_*,.\s]/i', '', (string) $value );
+		// if path does not have a leading slash, add it.
+		if ( '/' !== substr( $path, 0, 1 ) ) {
+			$path = '/' . $path;
 		}
 
-		if ( 'allow' === $directive || 'disallow' === $directive ) {
-			$value = preg_replace( '/^\/+/', '/', (string) $value );
-		}
+		// convert everything to lower case.
+		$path = strtolower( $path );
 
-		return $value;
+		return $path;
 	}
 
 	/**
-	 * Check if a physical robots.txt file exists, and if it does add a notice.
+	 * Check if a physical robots.txt file exists, and if it does. Add a notice.
 	 *
 	 * @since 4.0.0
 	 *
@@ -587,9 +370,9 @@ class RobotsTxt {
 			'type'              => 'error',
 			'level'             => [ 'all' ],
 			'button1_label'     => __( 'Import and Delete', 'all-in-one-seo-pack' ),
-			'button1_action'    => 'http://action#tools/import-robots-txt?redirect=aioseo-tools:robots-editor',
+			'button1_action'    => 'http://action#tools/import-robots-txt?redirect=aioseo-tools',
 			'button2_label'     => __( 'Delete', 'all-in-one-seo-pack' ),
-			'button2_action'    => 'http://action#tools/delete-robots-txt?redirect=aioseo-tools:robots-editor',
+			'button2_action'    => 'http://action#tools/delete-robots-txt?redirect=aioseo-tools',
 			'start'             => gmdate( 'Y-m-d H:i:s' )
 		] );
 	}
@@ -597,138 +380,44 @@ class RobotsTxt {
 	/**
 	 * Import physical robots.txt file.
 	 *
-	 * @since   4.0.0
-	 * @version 4.4.2
+	 * @since 4.0.0
 	 *
-	 * @param  int|string $blogId The blog ID or 'network'.
-	 * @throws \Exception         If request fails or file is not readable.
-	 * @return boolean            Whether the file imported correctly.
+	 * @return boolean Whether or not the file imported correctly.
 	 */
-	public function importPhysicalRobotsTxt( $blogId ) {
-		try {
-			$fs = aioseo()->core->fs;
-			if ( ! $fs->isWpfsValid() ) {
-				$invalid = true;
-			}
+	public function importPhysicalRobotsTxt( $network = false ) {
+		$fs = aioseo()->core->fs;
+		if ( ! $fs->isWpfsValid() ) {
+			return false;
+		}
 
-			$file = trailingslashit( $fs->fs->abspath() ) . 'robots.txt';
-			if (
-				isset( $invalid ) ||
-				! $fs->isReadable( $file )
-			) {
-				throw new \Exception( esc_html__( 'There was an error importing the static robots.txt file.', 'all-in-one-seo-pack' ) );
-			}
+		$file = trailingslashit( $fs->fs->abspath() ) . 'robots.txt';
+		if ( ! $fs->isReadable( $file ) ) {
+			return false;
+		}
 
-			$lines = trim( (string) $fs->getContents( $file ) );
-			if ( $lines ) {
-				$this->importRobotsTxtFromText( $lines, $blogId );
-			}
-
+		$lines = $fs->getContentsArray( $file );
+		if ( ! $lines ) {
 			return true;
-		} catch ( \Exception $e ) {
-			throw new \Exception( esc_html( $e->getMessage() ) );
-		}
-	}
-
-	/**
-	 * Import robots.txt from a URL.
-	 *
-	 * @since   4.4.2
-	 * @version 5.0.2 Merge through {@see saveImportedRules()}.
-	 *
-	 * @param  string     $text   The text to import from.
-	 * @param  int|string $blogId The blog ID or 'network'.
-	 * @throws \Exception         If no User-agent is found.
-	 * @return boolean            Whether the file imported correctly or not.
-	 */
-	public function importRobotsTxtFromText( $text, $blogId ) {
-		$newRules = $this->extractRules( $text );
-		if ( ! key( $newRules ) ) {
-			throw new \Exception( esc_html__( 'No User-agent found in the content beginning.', 'all-in-one-seo-pack' ) );
 		}
 
-		$this->saveImportedRules( $newRules, $blogId );
+		$allRules = $this->extractRules( $lines );
+
+		if ( $network ) {
+			aioseo()->options->initNetwork();
+		}
+
+		$currentRules = $this->parseRules( aioseo()->options->tools->robots->rules );
+		$allRules     = $this->mergeRules( $currentRules, $allRules, false, true );
+
+		aioseo()->options->tools->robots->rules = aioseo()->robotsTxt->prepareRobotsTxt( $allRules );
 
 		return true;
-	}
-
-	/**
-	 * Import robots.txt from a URL.
-	 *
-	 * @since   4.4.2
-	 * @version 5.0.2 Merge through {@see saveImportedRules()}.
-	 *
-	 * @param  string     $url    The URL to import from.
-	 * @param  int|string $blogId The blog ID or 'network'.
-	 * @throws \Exception         If request fails.
-	 * @return bool               Whether the import was successful or not.
-	 */
-	public function importRobotsTxtFromUrl( $url, $blogId ) {
-		$request = wp_remote_get( $url, [
-			'timeout'   => 10,
-			'sslverify' => false
-		] );
-
-		$robotsTxtContent = wp_remote_retrieve_body( $request );
-		if ( ! $robotsTxtContent ) {
-			throw new \Exception( esc_html__( 'There was an error importing the robots.txt content from the URL.', 'all-in-one-seo-pack' ) );
-		}
-
-		$this->saveImportedRules( $this->extractRules( $robotsTxtContent ), $blogId );
-
-		return true;
-	}
-
-	/**
-	 * Merges freshly imported rules into the stored ones.
-	 *
-	 * @since 5.0.2
-	 *
-	 * @param  array      $newRules The extracted rules to merge in.
-	 * @param  int|string $blogId   The blog ID or 'network'.
-	 * @return void
-	 */
-	private function saveImportedRules( $newRules, $blogId ) {
-		$options = 'network' === $blogId ? aioseo()->networkOptions : aioseo()->options;
-
-		// Normalize before merging — the stored value may not be an array, and array_merge() rejects that.
-		$options->tools->robots->rules = $this->uniqueRules( array_merge(
-			$this->normalizeRules( $options->tools->robots->rules ),
-			$this->prepareRobotsTxt( $newRules )
-		) );
-	}
-
-	/**
-	 * Deletes the physical robots.txt file.
-	 *
-	 * @since 4.4.5
-	 *
-	 * @throws \Exception If the file is not readable, or it can't be deleted.
-	 * @return true       True if the file was successfully deleted.
-	 */
-	public function deletePhysicalRobotsTxt() {
-		try {
-			$fs = aioseo()->core->fs;
-			if (
-				! $fs->isWpfsValid() ||
-				! $fs->fs->delete( trailingslashit( $fs->fs->abspath() ) . 'robots.txt' )
-			) {
-				throw new \Exception( __( 'There was an error deleting the physical robots.txt file.', 'all-in-one-seo-pack' ) );
-			}
-
-			Models\Notification::deleteNotificationByName( 'robots-physical-file' );
-
-			return true;
-		} catch ( \Exception $e ) {
-			throw new \Exception( esc_html( $e->getMessage() ) );
-		}
 	}
 
 	/**
 	 * Prepare robots.txt rules to save.
 	 *
-	 * @since   4.1.4
-	 * @version 5.0.2 Encode through {@see encodeRule()}.
+	 * @since 4.1.4
 	 *
 	 * @param  array $allRules Array with the rules.
 	 * @return array           The prepared rules array.
@@ -740,29 +429,24 @@ class RobotsTxt {
 				continue;
 			}
 
-			foreach ( $rules as $rule ) {
-				list( $directive, $value ) = $this->parseRule( $rule );
-				if ( empty( $directive ) || empty( $value ) ) {
-					continue;
-				}
+			foreach ( $rules as $rule => $path ) {
+				foreach ( $path as $p ) {
+					if ( empty( $p ) ) {
+						continue;
+					}
 
-				if (
-					'*' === $userAgent &&
-					(
-						'allow' === $directive && '/wp-admin/admin-ajax.php' === $value ||
-						'disallow' === $directive && '/wp-admin/' === $value
-					)
-				) {
-					continue;
-				}
+					if ( '*' === $userAgent && 'allow' === $rule && '/wp-admin/admin-ajax.php' === $p ) {
+						continue;
+					}
+					if ( '*' === $userAgent && 'disallow' === $rule && '/wp-admin/' === $p ) {
+						continue;
+					}
 
-				$encoded = $this->encodeRule( [
-					'userAgent'  => $userAgent,
-					'directive'  => $directive,
-					'fieldValue' => $value
-				] );
-				if ( is_string( $encoded ) ) {
-					$robots[] = $encoded;
+					$robots[] = wp_json_encode( [
+						'userAgent'     => $userAgent,
+						'rule'          => $rule,
+						'directoryPath' => $p
+					] );
 				}
 			}
 		}
@@ -794,155 +478,80 @@ class RobotsTxt {
 	}
 
 	/**
+	 * Delete robots.txt physical file.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return mixed The response from the delete method of WP_Filesystem.
+	 */
+	public function deletePhysicalRobotsTxt() {
+		$fs = aioseo()->core->fs;
+		if ( ! $fs->isWpfsValid() ) {
+			return false;
+		}
+
+		$file = trailingslashit( $fs->fs->abspath() ) . 'robots.txt';
+
+		return $fs->fs->delete( $file );
+	}
+
+	/**
 	 * Get the default Robots.txt lines (excluding our own).
 	 *
-	 * @since   4.1.7
-	 * @version 4.4.2
+	 * @since 4.1.7
 	 *
-	 * @return string The robots.txt content rules (excluding our own).
+	 * @return array An array of robots.txt rules (excluding our own).
 	 */
-	public function getDefaultRobotsTxtContent() {
+	public function getDefaultRobots() {
 		// First, we need to remove our filter, so that it doesn't run unintentionally.
 		remove_filter( 'robots_txt', [ $this, 'buildRules' ], 10000 );
 
 		ob_start();
-		do_robots();
+		do_action( 'do_robots' );
 		if ( is_admin() ) {
-			header( 'Content-Type: text/html; charset=utf-8' );
+			// conflict with WooCommerce etc. cause the page to render as text/plain.
+			header( 'Content-Type:text/html' );
 		}
-		$rules = strval( ob_get_clean() );
+		$rules = ob_get_clean();
 
 		// Add the filter back.
-		add_filter( 'robots_txt', [ $this, 'buildRules' ], 10000 );
+		add_filter( 'robots_txt', [ $this, 'buildRules' ], 10000, 2 );
 
-		return $rules;
+		return explode( "\n", $rules );
 	}
 
 	/**
-	 * Returns the parsed default Robots.txt rules for the current blog.
+	 * Get the default Robots.txt rules (excluding our own).
 	 *
-	 * NOTE: The request runs with the main site's plugins loaded, and switch_to_blog() cannot load another site's.
-	 * On the main site those are its own plugins, so their rules stay. On a subsite only the callbacks every site
-	 * loads are kept: core, must-use and network-activated plugins.
+	 * @since 4.0.0
 	 *
-	 * @since 5.0.3
-	 *
-	 * @return array The parsed default rules.
+	 * @return array An array of robots.txt rules (excluding our own).
 	 */
-	public function getDefaultRulesForCurrentBlog() {
-		$robotsFilters = $GLOBALS['wp_filter']['robots_txt'] ?? null;
-		$robotsActions = $GLOBALS['wp_filter']['do_robotstxt'] ?? null;
+	public function getDefaultRules() {
+		$originalRobots = $this->getDefaultRobots();
 
-		// New hooks rather than edits, so the originals restore untouched below.
-		if ( ! is_main_site() ) {
-			$sitewidePlugins = array_keys( (array) get_site_option( 'active_sitewide_plugins', [] ) );
-			if ( null !== $robotsFilters ) {
-				$GLOBALS['wp_filter']['robots_txt'] = $this->getSitewideHook( 'robots_txt', $robotsFilters, $sitewidePlugins );
-			}
-			if ( null !== $robotsActions ) {
-				$GLOBALS['wp_filter']['do_robotstxt'] = $this->getSitewideHook( 'do_robotstxt', $robotsActions, $sitewidePlugins );
-			}
-		}
-
-		// do_robots() also sends a text/plain header that would overwrite this REST response's JSON type.
-		$contentType = null;
-		foreach ( headers_list() as $header ) {
-			if ( 0 === stripos( $header, 'content-type:' ) ) {
-				$contentType = $header;
-				break;
-			}
-		}
-
-		try {
-			$rules = $this->extractRules( $this->getDefaultRobotsTxtContent() );
-		} finally {
-			if ( null !== $contentType && ! headers_sent() ) {
-				header( $contentType );
-			}
-
-			if ( null !== $robotsFilters ) {
-				$GLOBALS['wp_filter']['robots_txt'] = $robotsFilters;
-			}
-			if ( null !== $robotsActions ) {
-				$GLOBALS['wp_filter']['do_robotstxt'] = $robotsActions;
-			}
-		}
-
-		return $rules;
+		return $this->extractRules( $originalRobots );
 	}
 
 	/**
-	 * Returns a copy of the given hook with only the callbacks every site in the network loads.
+	 * Makes the rules unique.
 	 *
-	 * @since 5.0.3
+	 * @since 4.0.0
 	 *
-	 * @param  string   $hookName        The hook name.
-	 * @param  \WP_Hook $hook            The hook.
-	 * @param  array    $sitewidePlugins The network-activated plugin basenames.
-	 * @return \WP_Hook                  The copy.
+	 * @param  array $s An array to make unique.
+	 * @return array    The unique array.
 	 */
-	private function getSitewideHook( $hookName, $hook, $sitewidePlugins ) {
-		$sitewideHook = new \WP_Hook();
-		foreach ( $hook->callbacks as $priority => $callbacks ) {
-			foreach ( $callbacks as $callback ) {
-				if ( $this->isSitewideCallback( $callback['function'], $sitewidePlugins ) ) {
-					$sitewideHook->add_filter( $hookName, $callback['function'], $priority, $callback['accepted_args'] );
-				}
+	private function robotsArrayUnique( &$s ) {
+		foreach ( $s as $i => &$e ) {
+			if ( is_array( $e ) && ! empty( $e ) ) {
+				$e = $this->robotsArrayUnique( $e );
 			}
 		}
-
-		return $sitewideHook;
-	}
-
-	/**
-	 * Checks whether the given callback is defined by core, a must-use plugin or a network-activated plugin.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @param  callable $callback        The callback.
-	 * @param  array    $sitewidePlugins The network-activated plugin basenames.
-	 * @return bool                      Whether every site in the network loads the callback.
-	 */
-	private function isSitewideCallback( $callback, $sitewidePlugins ) {
-		try {
-			if ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
-				$callback = explode( '::', $callback, 2 );
-			}
-
-			if ( is_array( $callback ) ) {
-				$reflection = new \ReflectionMethod( $callback[0], $callback[1] );
-			} elseif ( is_object( $callback ) && ! $callback instanceof \Closure ) {
-				$reflection = new \ReflectionMethod( $callback, '__invoke' );
-			} else {
-				$reflection = new \ReflectionFunction( $callback );
-			}
-		} catch ( \Throwable $e ) {
-			return false;
+		if ( is_numeric( $i ) ) {
+			return array_unique( $s, SORT_REGULAR );
+		} else {
+			return $s;
 		}
-
-		$file = $reflection->getFileName();
-		if ( ! $file ) {
-			return false;
-		}
-
-		// Checked first, because plugin_basename() strips the must-use plugins folder as well.
-		$file = wp_normalize_path( $file );
-		foreach ( [ ABSPATH . WPINC, WPMU_PLUGIN_DIR ] as $dir ) {
-			if ( 0 === strpos( $file, trailingslashit( wp_normalize_path( $dir ) ) ) ) {
-				return true;
-			}
-		}
-
-		// plugin_basename() maps a symlinked plugin's resolved path back to its folder; Reflection returns the former.
-		$basename = plugin_basename( $file );
-		foreach ( $sitewidePlugins as $plugin ) {
-			// A single-file plugin has no folder of its own, so only its file counts.
-			if ( '.' === dirname( $plugin ) ? $basename === $plugin : 0 === strpos( $basename, trailingslashit( dirname( $plugin ) ) ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -954,83 +563,28 @@ class RobotsTxt {
 	 * @return boolean Whether the rewrite rules are set or not.
 	 */
 	public function rewriteRulesExist() {
+		// We don't want to check if a migration is being restarted.
+		if ( isset( $_GET['aioseo-v3-migration'] ) && 'i-want-to-migrate' === wp_unslash( $_GET['aioseo-v3-migration'] ) ) { // phpcs:ignore HM.Security.ValidatedSanitizedInput.InputNotSanitized
+			return true;
+		}
+
 		// If we have a physical file, it's almost impossible to tell if the rewrite rules are set.
 		// The only scenario is if we still get a 404.
+		if ( $this->hasPhysicalRobotsTxt() ) {
+			$response = wp_remote_get( aioseo()->helpers->getSiteUrl() . '/robots.txt' );
+			if ( 300 <= wp_remote_retrieve_response_code( $response ) ) {
+				return false;
+			}
+
+			// Since we got a 200, we are going to assume they exist. Once the file is deleted, we can tell for sure.
+			return true;
+		}
+
 		$response = wp_remote_get( aioseo()->helpers->getSiteUrl() . '/robots.txt' );
-		if ( 299 < wp_remote_retrieve_response_code( $response ) ) {
+		if ( 300 <= wp_remote_retrieve_response_code( $response ) ) {
 			return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Reset the Search Appearance related rules.
-	 *
-	 * @since   4.8.1
-	 * @version 5.0.2 Normalize the stored rules before filtering them.
-	 *
-	 * @return void
-	 */
-	public function resetSearchAppearanceRules() {
-		$newRules = [];
-		foreach ( $this->normalizeRules( aioseo()->options->tools->robots->rules ) as $rule ) {
-			$parseRule = $this->decodeStoredRule( $rule );
-			if ( empty( $parseRule['bot'] ) && empty( $parseRule['preventCrawling'] ) ) {
-				$newRules[] = $rule;
-			}
-		}
-
-		aioseo()->options->tools->robots->rules = $newRules;
-	}
-
-	/**
-	 * Rebuilds the Search Appearance related rules from the current option values.
-	 * NOTE: PHP counterpart to the RobotsTxt.js watchers for code that changes these options outside the admin UI (e.g. importers).
-	 *
-	 * @since 5.0.5
-	 *
-	 * @return void
-	 */
-	public function syncSearchAppearanceRules() {
-		$this->resetSearchAppearanceRules();
-
-		$newRules = [];
-
-		$unwantedBots  = aioseo()->options->searchAppearance->advanced->unwantedBots->all();
-		$botUserAgents = [
-			'AdsBot'          => 'googleAdsBot',
-			'Google-Extended' => 'googleGeminiVertexAiBots',
-			'GPTBot'          => 'openAiGptBot',
-			'CCBot'           => 'commonCrawlCcBot'
-		];
-
-		foreach ( $botUserAgents as $userAgent => $optionName ) {
-			if ( empty( $unwantedBots['all'] ) && empty( $unwantedBots['settings'][ $optionName ] ) ) {
-				continue;
-			}
-
-			$newRules[] = $this->encodeRule( [
-				'userAgent'  => $userAgent,
-				'directive'  => 'disallow',
-				'fieldValue' => '/',
-				'readOnly'   => true,
-				'bot'        => true
-			] );
-		}
-
-		if ( aioseo()->options->searchAppearance->advanced->searchCleanup->settings->preventCrawling ) {
-			foreach ( [ '/?s=', '/page/*/?s=', '/search/' ] as $fieldValue ) {
-				$newRules[] = $this->encodeRule( [
-					'userAgent'       => '*',
-					'directive'       => 'disallow',
-					'fieldValue'      => $fieldValue,
-					'readOnly'        => true,
-					'preventCrawling' => true
-				] );
-			}
-		}
-
-		aioseo()->options->tools->robots->rules = $this->uniqueRules( array_merge( $newRules, aioseo()->options->tools->robots->rules ) );
 	}
 }

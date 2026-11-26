@@ -22,24 +22,6 @@ class Migration {
 	public $oldOptions = [];
 
 	/**
-	 * Meta class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Meta
-	 */
-	public $meta = null;
-
-	/**
-	 * Helpers class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Helpers
-	 */
-	public $helpers = null;
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.0.0
@@ -51,11 +33,15 @@ class Migration {
 		// NOTE: This needs to go above the is_admin check in order for it to run at all.
 		add_action( 'aioseo_migrate_post_meta', [ $this->meta, 'migratePostMeta' ] );
 
+		if ( ! is_admin() ) {
+			return;
+		}
+
 		if ( wp_doing_ajax() || wp_doing_cron() ) {
 			return;
 		}
 
-		add_action( 'admin_init', [ $this, 'init' ], 2000 );
+		add_action( 'init', [ $this, 'init' ], 2000 );
 	}
 
 	/**
@@ -90,8 +76,8 @@ class Migration {
 			aioseo()->core->cache->delete( 'v3_migration_in_progress_terms' );
 
 			try {
-				aioseo()->actionScheduler->unschedule( 'aioseo_migrate_post_meta' );
-				aioseo()->actionScheduler->unschedule( 'aioseo_migrate_term_meta' );
+				aioseo()->helpers->unscheduleAction( 'aioseo_migrate_post_meta' );
+				aioseo()->helpers->unscheduleAction( 'aioseo_migrate_term_meta' );
 			} catch ( \Exception $e ) {
 				// Do nothing.
 			}
@@ -189,6 +175,10 @@ class Migration {
 			new RobotsTxt();
 		}
 
+		if ( ! empty( $this->oldOptions['modules']['aiosp_feature_manager_options']['aiosp_feature_manager_enable_bad_robots'] ) ) {
+			new BadRobots();
+		}
+
 		if ( aioseo()->helpers->isWpmlActive() ) {
 			new Wpml();
 		}
@@ -231,16 +221,6 @@ class Migration {
 	 * @return bool Whether the V3 migration is running.
 	 */
 	public function isMigrationRunning() {
-		static $migrationRunning = null;
-		if ( null !== $migrationRunning ) {
-			return $migrationRunning;
-		}
-
-		$migrationRunning = (
-			aioseo()->core->cache->get( 'v3_migration_in_progress_settings' ) ||
-			aioseo()->core->cache->get( 'v3_migration_in_progress_posts' )
-		) ?? false;
-
-		return $migrationRunning;
+		return aioseo()->core->cache->get( 'v3_migration_in_progress_settings' ) || aioseo()->core->cache->get( 'v3_migration_in_progress_posts' );
 	}
 }

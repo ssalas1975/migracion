@@ -10,41 +10,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable
+ // phpcs:disable
 ?>
 
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0">
 	<channel><?php
-	// Yandex doesn't support some tags so we need to check the user agent.
-	if ( ! aioseo()->helpers->isYandexUserAgent() ) {
+	if( ! $isYandexBot ) {
 		?>
 
-		<title><?php aioseo()->sitemap->output->escapeAndEcho( $title, false ); ?></title>
+		<title><?php aioseo()->sitemap->output->escapeAndEcho( $title, false ) ?></title>
 		<link><?php aioseo()->sitemap->output->escapeAndEcho( $link ); ?></link>
 		<?php if ( $description ) {
 		?><description><?php aioseo()->sitemap->output->escapeAndEcho( $description ); ?></description>
 		<?php }
-		?><?php if ( ! empty( $entries[0]['pubDate'] ) ) {
+		?><?php if ( isset( $entries[0] ) && ( array_key_exists( 'pubDate', $entries[0] ) || ! $entries[0]['pubDate'] ) ) {
 		?><lastBuildDate><?php aioseo()->sitemap->output->escapeAndEcho( $entries[0]['pubDate'] ); ?></lastBuildDate>
 		<?php }
 		?><docs>https://validator.w3.org/feed/docs/rss2.html</docs>
-		<atom:link href="<?php echo aioseo()->sitemap->helpers->getUrl( 'rss' ); ?>" rel="self" type="application/rss+xml" />
-		<ttl><?php aioseo()->sitemap->output->escapeAndEcho( $ttl ); ?></ttl>
+		<ttl>0</ttl>
 
 <?php }
 foreach ( $entries as $entry ) {
-		if ( empty( $entry['guid'] ) ) {
+		if ( ! is_array( $entry ) || ! array_key_exists( 'guid', $entry ) || ! $entry['guid'] ) {
 			continue;
 			}?>
 		<item>
 			<guid><?php aioseo()->sitemap->output->escapeAndEcho( $entry['guid'] ); ?></guid>
 			<link><?php aioseo()->sitemap->output->escapeAndEcho( $entry['guid'] ); ?></link><?php
-			if ( ! empty( $entry['title'] ) ) {
+			if ( array_key_exists( 'title', $entry ) && $entry['title'] ) {
 				?>
 
 			<title><?php aioseo()->sitemap->output->escapeAndEcho( $entry['title'], false ); ?></title><?php
 			}
-			if ( ! empty( $entry['pubDate'] ) ) {
+			if ( array_key_exists( 'pubDate', $entry ) && $entry['pubDate'] ) {
 				?>
 
 			<pubDate><?php aioseo()->sitemap->output->escapeAndEcho( $entry['pubDate'] ); ?></pubDate><?php

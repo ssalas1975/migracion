@@ -7,7 +7,7 @@ if ( ! defined( 'FW' ) ) { die( 'Forbidden' ); }
 $class = array();
 $class[] = 'sh-text-group'; ?>
 
-<div id="text-group-<?php echo esc_attr( $atts['id'] ); ?>" class="<?php echo esc_attr( implode( " ", $css_class ) ); ?>">
+<div id="text-group-<?php echo esc_attr( $atts['id'] ); ?>" class="<?php echo esc_attr( implode( " ", $class ) ); ?>">
 
 	<?php if( $atts['content'] && $atts['content_two'] ) : ?>
 		<?php if( isset( $atts['layout'] ) && $atts['layout'] == 'layout2' ) : ?>

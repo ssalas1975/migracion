@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>RENDIBÚ 2014, concurso de Artes</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="RENDIBÚ; 2014, concurso de Artes ">
+<meta name="keywords" content="rendibu, arte, concurso, artes, 2014, la verdad, laverdad">
+
+
+<script type="text/javascript">
+<!--
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+//-->
+</script>
+
+<style>
+		body {
+
+		}
+		#wrapper {
+			width:600px; 
+			margin:0 auto; 
+			border-radius:0 0 5px 5px;
+			-moz-border-radius:0 0 5px 5px;
+			-webkit-border-radius: 0 0 5px 5px;
+			background:#fff; 
+			border:1px solid ; 
+			padding:25px; 
+			border-top:none; 
+			box-shadow:0 0 5px ;
+			-moz-box-shadow:0 0 5px;
+			-webkit-box-shadow:0 0 5px;
+			text-align:left;
+		}
+		#lightbox {
+			position:fixed; /* keeps the lightbox window in the current viewport */
+			top:0; 
+			left:0; 
+			width:100%; 
+			height:100%; 
+			background:url(overlay.png) repeat; 
+			text-align:center;
+		}
+		#lightbox p {
+			text-align:right; 
+			color:#fff; 
+			margin-right:20px; 
+			font-size:12px; 
+		}
+		#lightbox img {
+			box-shadow:0 0 25px;
+			-webkit-box-shadow:0 0 0px;
+			-moz-box-shadow:0 0 25px;
+			max-width:940px;
+		}
+		</style>
+
+ <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+<script>
+jQuery(document).ready(function($) {
+	
+	$('.lightbox_trigger').click(function(e) {
+		
+		//prevent default action (hyperlink)
+		e.preventDefault();
+		
+		//Get clicked link href
+		var image_href = $(this).attr("href");
+		
+		/* 	
+		If the lightbox window HTML already exists in document, 
+		change the img src to to match the href of whatever link was clicked
+		
+		If the lightbox window HTML doesn't exists, create it and insert it.
+		(This will only happen the first time around)
+		*/
+		
+		if ($('#lightbox').length > 0) { // #lightbox exists
+			
+			//place href as img src value
+			$('#content').html('<img src="' + image_href + '" />');
+		   	
+			//show lightbox window - you could use .show('fast') for a transition
+			$('#lightbox').show();
+		}
+		
+		else { //#lightbox does not exist - create and insert (runs 1st time only)
+			
+			//create HTML markup for lightbox window
+			var lightbox = 
+			'<div id="lightbox">' +
+				'<p>Click to close</p>' +
+				'<div id="content">' + //insert clicked link's href into img src
+					'<img src="' + image_href +'" />' +
+				'</div>' +	
+			'</div>';
+				
+			//insert lightbox HTML into page
+			$('body').append(lightbox);
+		}
+		
+	});
+	
+	//Click anywhere on the page to get rid of lightbox window
+	$('#lightbox').live('click', function() { //must use live, as the lightbox element is inserted into the DOM
+		$('#lightbox').hide();
+	});
+
+});
+</script>
+ 
+<style type="text/css">
+<!--
+body {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+-->
+</style></head>
+
+<body onLoad="MM_preloadImages('images/menu_bases_0.png','images/menu_video_1.png','images/menu_contacto_1.png','images/menu_ediciones_1.png','images/bases_diseno_1.png','images/bases_videoarte_1.png','images/bases_cortos_1.png','images/bases_relatos_1.png','images/bases_videomaqueta_1.png','images/foto4_1.jpg','images/foto3_1.jpg','images/foto6_1.jpg','images/foto2_1.jpg','images/foto5_1.jpg','images/foto1_1.jpg','images/menu_facebook_1.png','images/menu_twitter_1.png','images/logo_1.png','images/menu_flecha_1.png')">
+<!--#include virtual="/_includes/semillas.html"-->
+<table width="900" border="0" align="center" cellspacing="0" style="background-color:#f0f0f0">
+  <tr>
+    <td width="900"><div align="center">
+      <div align="center" style="width:900px;&gt;&lt;a href="http:="http:"//www.laverdad.es" target="_blank">
+        <div style="padding-left:650px"><img style="padding-top:5px" src="images/logo-laverdad.png" alt="laverdad.es"  border="0" align="absmiddle" /></div>
+        </a></div>
+      <a href="index.html"> <br />
+    </a><a href="index.html" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('PELO IS BEAUTIFUL','','images/logo_1.png',1)"><img style="padding-bottom:5px" src="images/logo.png" alt="PELO IS BEAUTIFUL" name="PELO IS BEAUTIFUL" width="500" height="156" border="0" id="PELO IS BEAUTIFUL" /></a></div></td>
+  </tr>
+  <tr>
+    <td height="793" valign="top">
+    
+<div style="z-index: 9999;position: absolute;width:210px;margin-left:55px;margin-top:40px;">
+<a href="bases.html" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('BASES','','images/menu_bases_0.png',1)">
+<img src="images/menu_bases_1.png" alt="BASES" name="BASES"  border="0" id="BASES" /></a>
+<br>   
+<br>   
+<a href="video.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('BEAUTIFUL VIDEO','','images/menu_video_1.png',1)">
+<img src="images/menu_video_0.png" alt="BEAUTIFUL VIDEO" name="BEAUTIFUL VIDEO"  border="0" style="margin-top:-5px"></a>
+<br>   
+<br>
+<a href="mailto:rendibu@laverdad.es" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('CONTACTO','','images/menu_contacto_1.png',1)">
+<img src="images/menu_contacto_0.png" alt="CONTACTO" name="CONTACTO"  border="0"></a>
+<br>   
+<br>
+<a href="ediciones.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('EDICIONES ANTERIORES','','images/menu_ediciones_1.png',1)">
+<img src="images/menu_ediciones_0.png" alt="EDICIONES ANTERIORES" name="EDICIONES ANTERIORES" border="0"></a>
+<br />
+<br />
+<a href="finalistas.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('FINALISTAS','','images/menu_finalistas_1.png',1)">
+<img src="images/menu_finalistas_0.png" alt="FINALISTAS" name="FINALISTAS" border="0"></a>
+<br>   
+<br>
+<a href="fiesta2014.html" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('FIESTA 2014','','images/menu_fiesta_1.png',1)">
+<img src="images/menu_fiesta_0.png" alt="FIESTA 2014" name="FIESTA 2014" border="0"></a>
+<br />
+<br />
+<a href="http://www.facebook.com/rendibu/" target="_blank" onmouseover="MM_swapImage('Facebook','','images/menu_facebook_1.png',1)" onmouseout="MM_swapImgRestore()"><img src="images/menu_facebook_0.png" alt="Facebook" name="Facebook" width="24" height="24"  border="0" id="Facebook" /></a>&nbsp;&nbsp;&nbsp;<a href="http://twitter.com/rendibu" target="_blank" onmouseover="MM_swapImage('Twitter','','images/menu_twitter_1.png',1)" onmouseout="MM_swapImgRestore()"><img src="images/menu_twitter_0.png" alt="Twitter" name="Twitter" width="24" height="24" border="0" id="Twitter" /></a><br>
+</div>
+
+    <table width="529" border="0" align="center" cellspacing="0">
+    
+        <tr>
+          <th width="250" style="padding-top:30px" scope="col"><a class="lightbox_trigger" href="images/foto4.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto4','','images/foto4_1.jpg',1)"><img src="images/foto4_0.jpg" name="Foto4" width="250" height="327" border="0" id="Foto4" /></a></th>
+          <th width="23" style="padding-top:100px" scope="col">&nbsp;</th>
+          <th width="250" style="padding-top:30px" scope="col"><a class="lightbox_trigger" href="images/foto3.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto3','','images/foto3_1.jpg',1)"><img src="images/foto3_0.jpg" name="Foto3" width="250" height="327" border="0" id="Foto3" /></a></th>
+        </tr>
+        <tr>
+          <th scope="col" style="padding-top:25px"><a class="lightbox_trigger" href="images/foto6.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto6','','images/foto6_1.jpg',1)"><img src="images/foto6_0.jpg" name="Foto6" width="250" height="327" border="0" id="Foto6" /></a></th>
+          <th scope="col" style="padding-top:60px">&nbsp;</th>
+          <th scope="col" style="padding-top:25px"><a  class="lightbox_trigger" href="images/foto2.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto2','','images/foto2_1.jpg',1)"><img src="images/foto2_0.jpg" name="Foto2" width="250" height="327" border="0" id="Foto2" /></a></th>
+        </tr>
+        <tr>
+          <th scope="col" style="padding-top:25px;padding-bottom:20px;"><a class="lightbox_trigger" href="images/foto7.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto7','','images/foto7_1.jpg',1)"><img src="images/foto7_0.jpg" name="Foto7" width="250" height="327" border="0" id="Foto7" /></a></th>
+          <th scope="col" style="padding-top:60px">&nbsp;</th>
+          <th scope="col" style="padding-top:25px;padding-bottom:20px;"><a class="lightbox_trigger" href="images/foto1.jpg" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Foto1','','images/foto1_1.jpg',1)"><img src="images/foto1_0.jpg" name="Foto1" width="250" height="327" border="0" id="Foto1" /></a></th>
+    </table>
+
+	</td>
+  </tr>
+  <tr>
+      <td align="center"><img src="images/patrocinadores.png" /></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -46,13 +46,15 @@ abstract class Endpoint {
 	/**
 	 * Endpoint constructor.
 	 *
+	 * run `$this->>register()`.
+	 *
 	 * @param \Elementor\Data\Base\Controller $controller
 	 *
-	 * @throws \Exception If invalid controller.
+	 * @throws \Exception
 	 */
 	public function __construct( $controller ) {
 		if ( ! ( $controller instanceof Controller ) ) {
-			throw new \Exception( 'Invalid controller.' );
+			throw new \Exception( 'Invalid controller' );
 		}
 
 		$this->controller = $controller;
@@ -90,7 +92,7 @@ abstract class Endpoint {
 	 *
 	 * By default: register get items route.
 	 *
-	 * @throws \Exception If invalid endpoint registered.
+	 * @throws \Exception
 	 */
 	protected function register() {
 		$this->register_items_route();
@@ -103,7 +105,7 @@ abstract class Endpoint {
 	 * @param string $endpoint_class
 	 *
 	 * @return \Elementor\Data\Base\SubEndpoint
-	 * @throws \Exception If invalid sub endpoint registered.
+	 * @throws \Exception
 	 */
 	protected function register_sub_endpoint( $route, $endpoint_class ) {
 		$endpoint_instance = new $endpoint_class( $route, $this );
@@ -135,12 +137,12 @@ abstract class Endpoint {
 	 *
 	 * All reset requests from the client should pass this function.
 	 *
-	 * @param string           $methods
+	 * @param string $methods
 	 * @param \WP_REST_Request $request
-	 * @param bool             $is_multi
+	 * @param bool $is_multi
 	 *
 	 * @return mixed|\WP_Error|\WP_HTTP_Response|\WP_REST_Response
-	 * @throws \Exception If invalid method.
+	 * @throws \Exception
 	 */
 	public function base_callback( $methods, $request, $is_multi = false ) {
 		// TODO: Find better solution.
@@ -189,7 +191,7 @@ abstract class Endpoint {
 	/**
 	 * Retrieves one item from the collection.
 	 *
-	 * @param string           $id
+	 * @param string $id
 	 * @param \WP_REST_Request $request Full data about the request.
 	 *
 	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
@@ -214,7 +216,7 @@ abstract class Endpoint {
 	/**
 	 * Creates one item.
 	 *
-	 * @param string           $id id of request item.
+	 * @param string $id id of request item.
 	 * @param \WP_REST_Request $request Full data about the request.
 	 *
 	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
@@ -237,7 +239,7 @@ abstract class Endpoint {
 	/**
 	 * Updates one item.
 	 *
-	 * @param string           $id id of request item.
+	 * @param string $id id of request item.
 	 * @param \WP_REST_Request $request Full data about the request.
 	 *
 	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
@@ -260,7 +262,7 @@ abstract class Endpoint {
 	/**
 	 * Delete one item.
 	 *
-	 * @param string           $id id of request item.
+	 * @param string $id id of request item.
 	 * @param \WP_REST_Request $request Full data about the request.
 	 *
 	 * @return \WP_Error|\WP_REST_Response Response object on success, or WP_Error object on failure.
@@ -283,11 +285,11 @@ abstract class Endpoint {
 	/**
 	 * Register item route.
 	 *
-	 * @param string $methods
-	 * @param array  $args
+	 * @param array $args
 	 * @param string $route
+	 * @param string $methods
 	 *
-	 * @throws \Exception If invalid method.
+	 * @throws \Exception
 	 */
 	public function register_item_route( $methods = WP_REST_Server::READABLE, $args = [], $route = '/' ) {
 		$args = array_merge( [
@@ -311,7 +313,7 @@ abstract class Endpoint {
 	 *
 	 * @param string $methods
 	 *
-	 * @throws \Exception If invalid method.
+	 * @throws \Exception
 	 */
 	public function register_items_route( $methods = WP_REST_Server::READABLE ) {
 		$this->register_route( '', $methods, function ( $request ) use ( $methods ) {
@@ -324,11 +326,11 @@ abstract class Endpoint {
 	 *
 	 * @param string $route
 	 * @param string $methods
-	 * @param null   $callback
-	 * @param array  $args
+	 * @param null $callback
+	 * @param array $args
 	 *
 	 * @return bool
-	 * @throws \Exception If invalid method.
+	 * @throws \Exception
 	 */
 	public function register_route( $route = '', $methods = WP_REST_Server::READABLE, $callback = null, $args = [] ) {
 		if ( ! in_array( $methods, self::AVAILABLE_METHODS, true ) ) {

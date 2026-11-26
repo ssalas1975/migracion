@@ -1,0 +1,59 @@
+<!-- Begin comScore Tag -->
+<script type="text/javascript">
+
+voc_site='laverdad';
+voc_se='local';
+voc_s1='eventos';
+voc_s2='innovamurcia';
+voc_s3=''; 
+voc_s4='';
+voc_pu='wordpress';
+voc_ed='especiales';
+voc_pr='1';
+
+var ns_site=voc_site||"";
+var voc_site=voc_site||"";
+var voc_se=voc_se||"";
+var voc_s1=voc_s1||"";
+var voc_s2=voc_s2||"";
+var voc_s3=voc_s3||""; 
+var voc_s4=voc_s4||"";
+var voc_tn=voc_tn||"";
+//var voc_tc=voc_tc||"";
+//var voc_ed=voc_ed||"";
+//var voc_au=voc_au||"";
+//var voc_or=voc_or||"";
+//var voc_pr=voc_pr||"";
+//var voc_fep=voc_fep||"";
+//var voc_fem=voc_fem||"";
+//var voc_ho=0;
+var voc_name=(voc_se!=''?voc_se+'.':'')+(voc_s1!=''?voc_s1+'.':'')+(voc_s2!=''?voc_s2+'.':'')+(voc_s3!=''?voc_s3+'.':'')+(voc_s4!=''?voc_s4+'.':'')+voc_tn;
+var voc_adb=0; if(typeof Vocento == 'undefined' || typeof Vocento.checkAdBlock=='undefined'){voc_adb=1;}
+var _comscore = _comscore || [];
+_comscore.push({ c1: "2", c2: "7715761",
+ns_site: ns_site,
+voc_site: voc_site,
+name: voc_name,
+voc_se: voc_se,
+voc_s1: voc_s1,
+voc_s2: voc_s2,
+voc_s3: voc_s3,
+voc_s4: voc_s4,
+voc_tn: voc_tn,
+voc_ho: "",
+voc_tc: "",
+voc_ed: voc_ed,
+voc_au: "",
+voc_fep: "",
+voc_fem: "",
+voc_or: "",
+voc_pr: voc_pr,
+voc_adb:voc_adb
+});
+(function() {
+var s = document.createElement("script"), el =document.getElementsByTagName("script")[0]; s.async = true;s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+el.parentNode.insertBefore(s, el);
+})();
+</script>
+<noscript><img src="http://b.scorecardresearch.com/p?c1=2&c2=7715761&cv=2.0&cj=1"/></noscript>
+<!-- End comScore Tag -->

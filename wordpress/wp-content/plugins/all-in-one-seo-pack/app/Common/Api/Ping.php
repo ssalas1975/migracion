@@ -17,7 +17,8 @@ class Ping {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return \WP_REST_Response The response.
+	 * @param  \WP_REST_Request  $request The REST Request
+	 * @return \WP_REST_Response          The response.
 	 */
 	public static function ping() {
 		return new \WP_REST_Response( [

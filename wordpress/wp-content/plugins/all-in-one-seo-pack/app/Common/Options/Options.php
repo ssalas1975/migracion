@@ -34,24 +34,16 @@ class Options {
 			'baidu'                     => [ 'type' => 'string' ],
 			'pinterest'                 => [ 'type' => 'string' ],
 			'microsoftClarityProjectId' => [ 'type' => 'string' ],
+			'alexa'                     => [ 'type' => 'string' ],
 			'norton'                    => [ 'type' => 'string' ],
 			'miscellaneousVerification' => [ 'type' => 'html' ]
 		],
-		'aiContent'        => [
-			'country'          => [ 'type' => 'string', 'default' => 'us' ],
-			'language'         => [ 'type' => 'string', 'default' => 'en' ],
-			'tone'             => [ 'type' => 'string', 'default' => 'formal' ],
-			'audience'         => [ 'type' => 'string', 'default' => 'general' ],
-			'imageQuality'     => [ 'type' => 'string', 'default' => 'medium' ],
-			'imageStyle'       => [ 'type' => 'string', 'default' => 'auto' ],
-			'imageAspectRatio' => [ 'type' => 'string', 'default' => 'landscape' ],
-			'imageModel'       => [ 'type' => 'string', 'default' => 'gemini-3.1-flash-image' ]
-		],
 		'breadcrumbs'      => [
-			'separator'             => [ 'type' => 'string', 'default' => '&raquo;', 'preserveHtml' => true ],
+			'enable'                => [ 'type' => 'boolean', 'default' => true ],
+			'separator'             => [ 'type' => 'string', 'default' => '&raquo;' ],
 			'homepageLink'          => [ 'type' => 'boolean', 'default' => true ],
 			'homepageLabel'         => [ 'type' => 'string', 'default' => 'Home' ],
-			'breadcrumbPrefix'      => [ 'type' => 'string', 'localized' => true, 'default' => '' ],
+			'breadcrumbPrefix'      => [ 'type' => 'string' ],
 			'archiveFormat'         => [ 'type' => 'string', 'default' => 'Archives for #breadcrumb_archive_post_type_name', 'localized' => true ],
 			'searchResultFormat'    => [ 'type' => 'string', 'default' => 'Search Results for \'#breadcrumb_search_string\'', 'localized' => true ],
 			'errorFormat404'        => [ 'type' => 'string', 'default' => '404 - Page Not Found', 'localized' => true ],
@@ -64,31 +56,16 @@ class Options {
 			'before' => [ 'type' => 'html' ],
 			'after'  => [
 				'type'    => 'html',
-				'default' => '&lt;p&gt;The post #post_link first appeared on #site_link.&lt;/p&gt;'
+				'default' => <<<TEMPLATE
+&lt;p&gt;The post #post_link first appeared on #site_link.&lt;/p&gt;
+TEMPLATE
 			]
 		],
 		'advanced'         => [
 			'truSeo'           => [ 'type' => 'boolean', 'default' => true ],
-			// Which object types TruSEO analyses. Taxonomies default to product categories only —
-			// a term carries no body content, so the analysis only makes sense where the
-			// description doubles as landing-page copy. Unregistered types are filtered out at
-			// read time, so this default is inert without WooCommerce.
-			'truSeoObjects'    => [
-				'postTypes'  => [
-					'all'      => [ 'type' => 'boolean', 'default' => true ],
-					'included' => [ 'type' => 'array', 'default' => [ 'post', 'page', 'product' ] ]
-				],
-				'taxonomies' => [
-					'all'      => [ 'type' => 'boolean', 'default' => false ],
-					'included' => [ 'type' => 'array', 'default' => [ 'product_cat' ] ]
-				]
-			],
 			'headlineAnalyzer' => [ 'type' => 'boolean', 'default' => true ],
 			'seoAnalysis'      => [ 'type' => 'boolean', 'default' => true ],
-			'spellChecker'     => [ 'type' => 'boolean', 'default' => true ],
-			'highlighter'      => [ 'type' => 'boolean', 'default' => true ],
-			'highlighterStyle' => [ 'type' => 'string', 'default' => 'underline' ],
-			'dashboardWidgets' => [ 'type' => 'array', 'default' => [ 'seoSetup', 'seoChecklist', 'seoOverview', 'seoNews' ] ],
+			'dashboardWidget'  => [ 'type' => 'boolean', 'default' => true ],
 			'announcements'    => [ 'type' => 'boolean', 'default' => true ],
 			'postTypes'        => [
 				'all'      => [ 'type' => 'boolean', 'default' => true ],
@@ -98,11 +75,7 @@ class Options {
 				'all'      => [ 'type' => 'boolean', 'default' => true ],
 				'included' => [ 'type' => 'array', 'default' => [ 'category', 'post_tag', 'product_cat', 'product_tag' ] ],
 			],
-			'uninstall'        => [ 'type' => 'boolean', 'default' => false ],
-			'emailSummary'     => [
-				'enable'     => [ 'type' => 'boolean', 'default' => false ],
-				'recipients' => [ 'type' => 'array', 'default' => [] ]
-			]
+			'uninstall'        => [ 'type' => 'boolean', 'default' => false ]
 		],
 		'sitemap'          => [
 			'general' => [
@@ -188,38 +161,18 @@ class Options {
 					'excludeTerms'  => [ 'type' => 'array', 'default' => [] ]
 				]
 			],
-			'llms'    => [
-				'enable'           => [ 'type' => 'boolean', 'default' => false ],
-				'convertToMd'      => [ 'type' => 'boolean', 'default' => false ],
-				'advancedSettings' => [
-					'title'           => [ 'type' => 'string', 'localized' => true, 'default' => '#site_title' ],
-					'description'     => [ 'type' => 'string', 'localized' => true, 'default' => '#tagline' ],
-					'linksPerPostTax' => [ 'type' => 'number', 'default' => 1000 ],
-					'postTypes'       => [
-						'all'      => [ 'type' => 'boolean', 'default' => true ],
-						'included' => [ 'type' => 'array', 'default' => [ 'post', 'page', 'product' ] ]
-					],
-					'taxonomies'      => [
-						'all'      => [ 'type' => 'boolean', 'default' => true ],
-						'included' => [ 'type' => 'array', 'default' => [] ],
-					],
-					'excludePosts'    => [ 'type' => 'array', 'default' => [] ],
-					'excludeTerms'    => [ 'type' => 'array', 'default' => [] ]
-				]
-			],
 		],
 		'social'           => [
-			'profiles' => [
-				'sameUsername'   => [
+			'profiles'           => [
+				'sameUsername' => [
 					'enable'   => [ 'type' => 'boolean', 'default' => false ],
 					'username' => [ 'type' => 'string' ],
-					'included' => [ 'type' => 'array', 'default' => [ 'facebookPageUrl', 'twitterUrl', 'tiktokUrl', 'pinterestUrl', 'instagramUrl', 'youtubeUrl', 'linkedinUrl' ] ]
+					'included' => [ 'type' => 'array', 'default' => [ 'facebookPageUrl', 'twitterUrl', 'pinterestUrl', 'instagramUrl', 'youtubeUrl', 'linkedinUrl' ] ]
 				],
-				'urls'           => [
+				'urls'         => [
 					'facebookPageUrl' => [ 'type' => 'string' ],
 					'twitterUrl'      => [ 'type' => 'string' ],
 					'instagramUrl'    => [ 'type' => 'string' ],
-					'tiktokUrl'       => [ 'type' => 'string' ],
 					'pinterestUrl'    => [ 'type' => 'string' ],
 					'youtubeUrl'      => [ 'type' => 'string' ],
 					'linkedinUrl'     => [ 'type' => 'string' ],
@@ -228,14 +181,11 @@ class Options {
 					'soundCloudUrl'   => [ 'type' => 'string' ],
 					'wikipediaUrl'    => [ 'type' => 'string' ],
 					'myspaceUrl'      => [ 'type' => 'string' ],
-					'googlePlacesUrl' => [ 'type' => 'string' ],
-					'wordPressUrl'    => [ 'type' => 'string' ],
-					'blueskyUrl'      => [ 'type' => 'string' ],
-					'threadsUrl'      => [ 'type' => 'string' ]
-				],
-				'additionalUrls' => [ 'type' => 'string' ]
+					'googlePlacesUrl' => [ 'type' => 'string' ]
+				]
 			],
-			'facebook' => [
+			'siteSocialProfiles' => [ 'type' => 'array' ],
+			'facebook'           => [
 				'general'  => [
 					'enable'                  => [ 'type' => 'boolean', 'default' => true ],
 					'defaultImageSourcePosts' => [ 'type' => 'string', 'default' => 'default' ],
@@ -265,11 +215,11 @@ class Options {
 					'usePostTagsInTags'   => [ 'type' => 'boolean', 'default' => true ]
 				]
 			],
-			'twitter'  => [
+			'twitter'            => [
 				'general'  => [
 					'enable'                  => [ 'type' => 'boolean', 'default' => true ],
 					'useOgData'               => [ 'type' => 'boolean', 'default' => true ],
-					'defaultCardType'         => [ 'type' => 'string', 'default' => 'summary_large_image' ],
+					'defaultCardType'         => [ 'type' => 'string', 'default' => 'summary' ],
 					'defaultImageSourcePosts' => [ 'type' => 'string', 'default' => 'default' ],
 					'customFieldImagePosts'   => [ 'type' => 'string' ],
 					'defaultImagePosts'       => [ 'type' => 'string', 'default' => '' ],
@@ -286,29 +236,20 @@ class Options {
 		],
 		'searchAppearance' => [
 			'global'   => [
-				'separator'       => [ 'type' => 'string', 'default' => '&#45;', 'preserveHtml' => true ],
+				'separator'       => [ 'type' => 'string', 'default' => '&#45;' ],
 				'siteTitle'       => [ 'type' => 'string', 'localized' => true, 'default' => '#site_title #separator_sa #tagline' ],
 				'metaDescription' => [ 'type' => 'string', 'localized' => true, 'default' => '#tagline' ],
 				'keywords'        => [ 'type' => 'string', 'localized' => true ],
 				'schema'          => [
-					'websiteName'             => [ 'type' => 'string', 'default' => '#site_title' ],
-					'websiteAlternateName'    => [ 'type' => 'string' ],
-					'siteRepresents'          => [ 'type' => 'string', 'default' => 'organization' ],
-					'person'                  => [ 'type' => 'string' ],
-					'organizationName'        => [ 'type' => 'string', 'default' => '#site_title' ],
-					'organizationDescription' => [ 'type' => 'string', 'default' => '#tagline' ],
-					'organizationLogo'        => [ 'type' => 'string' ],
-					'personName'              => [ 'type' => 'string' ],
-					'personLogo'              => [ 'type' => 'string' ],
-					'phone'                   => [ 'type' => 'string' ],
-					'email'                   => [ 'type' => 'string' ],
-					'foundingDate'            => [ 'type' => 'string' ],
-					'numberOfEmployees'       => [
-						'isRange' => [ 'type' => 'boolean' ],
-						'from'    => [ 'type' => 'number' ],
-						'to'      => [ 'type' => 'number' ],
-						'number'  => [ 'type' => 'number' ]
-					]
+					'siteRepresents'    => [ 'type' => 'string', 'default' => 'organization' ],
+					'person'            => [ 'type' => 'string' ],
+					'organizationName'  => [ 'type' => 'string' ],
+					'organizationLogo'  => [ 'type' => 'string' ],
+					'personName'        => [ 'type' => 'string' ],
+					'personLogo'        => [ 'type' => 'string' ],
+					'phone'             => [ 'type' => 'string' ],
+					'contactType'       => [ 'type' => 'string' ],
+					'contactTypeManual' => [ 'type' => 'string' ]
 				]
 			],
 			'advanced' => [
@@ -328,63 +269,16 @@ class Options {
 					'maxVideoPreview'   => [ 'type' => 'number', 'default' => -1 ],
 					'maxImagePreview'   => [ 'type' => 'string', 'default' => 'large' ]
 				],
+				'sitelinks'                    => [ 'type' => 'boolean', 'default' => true ],
 				'noIndexEmptyCat'              => [ 'type' => 'boolean', 'default' => true ],
 				'removeStopWords'              => [ 'type' => 'boolean', 'default' => false ],
+				'noPaginationForCanonical'     => [ 'type' => 'boolean', 'default' => true ],
 				'useKeywords'                  => [ 'type' => 'boolean', 'default' => false ],
 				'keywordsLooking'              => [ 'type' => 'boolean', 'default' => true ],
 				'useCategoriesForMetaKeywords' => [ 'type' => 'boolean', 'default' => false ],
 				'useTagsForMetaKeywords'       => [ 'type' => 'boolean', 'default' => false ],
 				'dynamicallyGenerateKeywords'  => [ 'type' => 'boolean', 'default' => false ],
-				'pagedFormat'                  => [ 'type' => 'string', 'default' => '#separator_sa Page #page_number', 'localized' => true ],
-				'runShortcodes'                => [ 'type' => 'boolean', 'default' => false ],
-				'crawlCleanup'                 => [
-					'enable' => [ 'type' => 'boolean', 'default' => false ],
-					'feeds'  => [
-						'global'         => [ 'type' => 'boolean', 'default' => true ],
-						'globalComments' => [ 'type' => 'boolean', 'default' => false ],
-						'staticBlogPage' => [ 'type' => 'boolean', 'default' => true ],
-						'authors'        => [ 'type' => 'boolean', 'default' => true ],
-						'postComments'   => [ 'type' => 'boolean', 'default' => false ],
-						'search'         => [ 'type' => 'boolean', 'default' => false ],
-						'attachments'    => [ 'type' => 'boolean', 'default' => false ],
-						'archives'       => [
-							'all'      => [ 'type' => 'boolean', 'default' => false ],
-							'included' => [ 'type' => 'array', 'default' => [] ],
-						],
-						'taxonomies'     => [
-							'all'      => [ 'type' => 'boolean', 'default' => false ],
-							'included' => [ 'type' => 'array', 'default' => [ 'category' ] ],
-						],
-						'atom'           => [ 'type' => 'boolean', 'default' => false ],
-						'rdf'            => [ 'type' => 'boolean', 'default' => false ],
-						'paginated'      => [ 'type' => 'boolean', 'default' => false ]
-					]
-				],
-				'unwantedBots'                 => [
-					'all'      => [ 'type' => 'boolean', 'default' => false ],
-					'settings' => [
-						'googleAdsBot'             => [ 'type' => 'boolean', 'default' => false ],
-						'openAiGptBot'             => [ 'type' => 'boolean', 'default' => false ],
-						'commonCrawlCcBot'         => [ 'type' => 'boolean', 'default' => false ],
-						'googleGeminiVertexAiBots' => [ 'type' => 'boolean', 'default' => false ]
-					]
-				],
-				'searchCleanup'                => [
-					'enable'   => [ 'type' => 'boolean', 'default' => false ],
-					'settings' => [
-						'maxAllowedNumberOfChars' => [ 'type' => 'number', 'default' => 50 ],
-						'emojisAndSymbols'        => [ 'type' => 'boolean', 'default' => false ],
-						'commonPatterns'          => [ 'type' => 'boolean', 'default' => false ],
-						'redirectPrettyUrls'      => [ 'type' => 'boolean', 'default' => false ],
-						'preventCrawling'         => [ 'type' => 'boolean', 'default' => false ]
-					]
-				],
-				'blockArgs'                    => [
-					'enable'                => [ 'type' => 'boolean', 'default' => false ],
-					'optimizeUtmParameters' => [ 'type' => 'boolean', 'default' => false ],
-					'logsRetention'         => [ 'type' => 'string', 'default' => '{"label":"1 week","value":"week"}' ]
-				],
-				'removeCategoryBase'           => [ 'type' => 'boolean', 'default' => false ]
+				'pagedFormat'                  => [ 'type' => 'string', 'default' => '- Page #page_number', 'localized' => true ]
 			],
 			'archives' => [
 				'author' => [
@@ -461,12 +355,6 @@ class Options {
 				]
 			]
 		],
-		'searchStatistics' => [
-			'postTypes' => [
-				'all'      => [ 'type' => 'boolean', 'default' => true ],
-				'included' => [ 'type' => 'array', 'default' => [ 'post', 'page' ] ],
-			]
-		],
 		'tools'            => [
 			'robots'       => [
 				'enable'         => [ 'type' => 'boolean', 'default' => false ],
@@ -478,21 +366,23 @@ class Options {
 					'lastTime' => [ 'type' => 'string' ],
 					'data'     => [ 'type' => 'string' ],
 				]
-			],
-			'seoAlerts'    => [
-				'enable'         => [ 'type' => 'boolean', 'default' => true ],
-				'alerts'         => [
-					'noindexHomepage' => [ 'type' => 'boolean', 'default' => true ],
-					'robotsTxtError'  => [ 'type' => 'boolean', 'default' => true ],
-					'xmlSitemapError' => [ 'type' => 'boolean', 'default' => true ]
-				],
-				'recipients'     => [ 'type' => 'array', 'default' => [] ],
-				'slackMemberIds' => [ 'type' => 'array', 'default' => [] ]
 			]
 		],
 		'deprecated'       => [
-			'breadcrumbs'      => [
-				'enable' => [ 'type' => 'boolean', 'default' => true ]
+			'webmasterTools'   => [
+				'googleAnalytics' => [
+					'id'                        => [ 'type' => 'string' ],
+					'advanced'                  => [ 'type' => 'boolean', 'default' => false ],
+					'trackingDomain'            => [ 'type' => 'string' ],
+					'multipleDomains'           => [ 'type' => 'boolean', 'default' => false ],
+					'additionalDomains'         => [ 'type' => 'html' ],
+					'anonymizeIp'               => [ 'type' => 'boolean', 'default' => false ],
+					'displayAdvertiserTracking' => [ 'type' => 'boolean', 'default' => false ],
+					'excludeUsers'              => [ 'type' => 'array', 'default' => [] ],
+					'trackOutboundLinks'        => [ 'type' => 'boolean', 'default' => false ],
+					'enhancedLinkAttribution'   => [ 'type' => 'boolean', 'default' => false ],
+					'enhancedEcommerce'         => [ 'type' => 'boolean', 'default' => false ]
+				]
 			],
 			'searchAppearance' => [
 				'global'   => [
@@ -503,11 +393,10 @@ class Options {
 				],
 				'advanced' => [
 					'autogenerateDescriptions'               => [ 'type' => 'boolean', 'default' => true ],
-					'runShortcodesInDescription'             => [ 'type' => 'boolean', 'default' => true ], // TODO: Remove this in a future update.
+					'runShortcodesInDescription'             => [ 'type' => 'boolean', 'default' => true ],
 					'useContentForAutogeneratedDescriptions' => [ 'type' => 'boolean', 'default' => false ],
 					'excludePosts'                           => [ 'type' => 'array', 'default' => [] ],
 					'excludeTerms'                           => [ 'type' => 'array', 'default' => [] ],
-					'noPaginationForCanonical'               => [ 'type' => 'boolean', 'default' => true ]
 				]
 			],
 			'sitemap'          => [
@@ -516,12 +405,18 @@ class Options {
 						'dynamic' => [ 'type' => 'boolean', 'default' => true ]
 					]
 				]
-			]
-		],
-		'writingAssistant' => [
-			'postTypes' => [
-				'all'      => [ 'type' => 'boolean', 'default' => true ],
-				'included' => [ 'type' => 'array', 'default' => [ 'post', 'page' ] ],
+			],
+			'tools'            => [
+				'blocker' => [
+					'blockBots'    => [ 'type' => 'boolean' ],
+					'blockReferer' => [ 'type' => 'boolean' ],
+					'track'        => [ 'type' => 'boolean' ],
+					'custom'       => [
+						'enable'  => [ 'type' => 'boolean' ],
+						'bots'    => [ 'type' => 'html', 'default' => '' ],
+						'referer' => [ 'type' => 'html', 'default' => '' ]
+					]
+				]
 			]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
@@ -535,7 +430,7 @@ class Options {
 	 * @param string $optionsName An array of options.
 	 */
 	public function __construct( $optionsName = 'aioseo_options' ) {
-		$this->optionsName = $optionsName;
+		$this->optionsName = is_network_admin() ? $optionsName . '_network' : $optionsName;
 
 		$this->init();
 
@@ -549,9 +444,9 @@ class Options {
 	 *
 	 * @return void
 	 */
-	public function init() {
+	protected function init() {
 		$this->setInitialDefaults();
-		add_action( 'init', [ $this, 'translateDefaults' ] );
+		$this->translateDefaults();
 
 		$this->setDbOptions();
 
@@ -601,17 +496,9 @@ class Options {
 
 		$hasInitialized = true;
 
-		$siteLogoUrl = aioseo()->helpers->getSiteLogoUrl();
-
-		$this->defaults['searchAppearance']['global']['schema']['organizationLogo']['default'] = $siteLogoUrl ? $siteLogoUrl : '';
-		$this->defaults['searchAppearance']['global']['schema']['personLogo']['default']       = $siteLogoUrl ? $siteLogoUrl : '';
-
-		$this->defaults['advanced']['emailSummary']['recipients']['default'] = [
-			[
-				'email'     => get_bloginfo( 'admin_email' ),
-				'frequency' => 'monthly',
-			]
-		];
+		$this->defaults['searchAppearance']['global']['schema']['organizationName']['default'] = aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'name' ) );
+		$this->defaults['deprecated']['tools']['blocker']['custom']['bots']['default']         = implode( "\n", aioseo()->badBotBlocker->getBotList() );
+		$this->defaults['deprecated']['tools']['blocker']['custom']['referer']['default']      = implode( "\n", aioseo()->badBotBlocker->getRefererList() );
 	}
 
 	/**
@@ -641,6 +528,9 @@ class Options {
 		$this->defaults['breadcrumbs']['archiveFormat']['default']      = sprintf( '%1$s #breadcrumb_archive_post_type_name', __( 'Archives for', 'all-in-one-seo-pack' ) );
 		$this->defaults['breadcrumbs']['searchResultFormat']['default'] = sprintf( '%1$s \'#breadcrumb_search_string\'', __( 'Search Results for', 'all-in-one-seo-pack' ) );
 		$this->defaults['breadcrumbs']['errorFormat404']['default']     = __( '404 - Page Not Found', 'all-in-one-seo-pack' );
+
+		$this->defaults['searchAppearance']['global']['schema']['organizationName']['default'] = aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'name' ) );
+		$this->defaults['searchAppearance']['global']['schema']['organizationLogo']['default'] = aioseo()->helpers->getSiteLogoUrl() ? aioseo()->helpers->getSiteLogoUrl() : '';
 	}
 
 	/**
@@ -652,28 +542,17 @@ class Options {
 	 * @return void
 	 */
 	public function sanitizeAndSave( $options ) {
-		$sitemapOptions                  = ! empty( $options['sitemap'] ) ? $options['sitemap'] : null;
-		$oldSitemapOptions               = aioseo()->options->sitemap->all();
-		$generalSitemapOptions           = ! empty( $options['sitemap']['general'] ) ? $options['sitemap']['general'] : null;
-		$oldGeneralSitemapOptions        = aioseo()->options->sitemap->general->all();
-		$deprecatedGeneralSitemapOptions = ! empty( $options['deprecated']['sitemap']['general'] )
+		$sitemapOptions           = ! empty( $options['sitemap']['general'] ) ? $options['sitemap']['general'] : null;
+		$oldSitemapOptions        = aioseo()->options->sitemap->general->all();
+		$deprecatedSitemapOptions = ! empty( $options['deprecated']['sitemap']['general'] )
 				? $options['deprecated']['sitemap']['general']
 				: null;
-		$oldDeprecatedGeneralSitemapOptions = aioseo()->options->deprecated->sitemap->general->all();
-		$oldPhoneOption                     = aioseo()->options->searchAppearance->global->schema->phone;
-		$phoneNumberOptions                 = isset( $options['searchAppearance']['global']['schema']['phone'] )
+		$oldDeprecatedSitemapOptions = aioseo()->options->deprecated->sitemap->general->all();
+		$oldPhoneOption              = aioseo()->options->searchAppearance->global->schema->phone;
+		$phoneNumberOptions          = isset( $options['searchAppearance']['global']['schema']['phone'] )
 				? $options['searchAppearance']['global']['schema']['phone']
 				: null;
-		$oldHtmlSitemapUrl = aioseo()->options->sitemap->html->pageUrl;
-		$logsRetention     = isset( $options['searchAppearance']['advanced']['blockArgs']['logsRetention'] ) ? $options['searchAppearance']['advanced']['blockArgs']['logsRetention'] : null;
-		$oldLogsRetention  = aioseo()->options->searchAppearance->advanced->blockArgs->logsRetention;
-
-		$oldLlmsOptions = aioseo()->options->sitemap->llms->all();
-		$llmsOptions    = isset( $options['sitemap']['llms'] ) ? $options['sitemap']['llms'] : null;
-
-		// Remove category base.
-		$removeCategoryBase    = isset( $options['searchAppearance']['advanced']['removeCategoryBase'] ) ? $options['searchAppearance']['advanced']['removeCategoryBase'] : null;
-		$removeCategoryBaseOld = aioseo()->options->searchAppearance->advanced->removeCategoryBase;
+		$oldHtmlSitemapUrl = $this->sitemap->html->pageUrl;
 
 		$options = $this->maybeRemoveUnfilteredHtmlFields( $options );
 
@@ -683,32 +562,68 @@ class Options {
 			return;
 		}
 
-		$this->sanitizeEmailSummary( $options );
-		$this->sanitizeSeoAlerts( $options );
-
-		// First, recursively replace the new options into the cached state.
-		// It's important we use the helper method since we want to replace populated arrays with empty ones if needed (when a setting was cleared out).
+		// Refactor options.
 		$cachedOptions = aioseo()->core->optionsCache->getOptions( $this->optionsName );
-		$dbOptions     = aioseo()->helpers->arrayReplaceRecursive(
+		$dbOptions     = array_replace_recursive(
 			$cachedOptions,
 			$this->addValueToValuesArray( $cachedOptions, $options, [], true )
 		);
 
-		// Now, we must also intersect both arrays to delete any individual keys that were unset.
-		// We must do this because, while arrayReplaceRecursive will update the values for keys or empty them out,
-		// it will keys that aren't present in the replacement array unaffected in the target array.
-		$dbOptions = aioseo()->helpers->arrayIntersectRecursive(
-			$dbOptions,
-			$this->addValueToValuesArray( $cachedOptions, $options, [], true ),
-			'value'
-		);
+		// TODO: Refactor this into an array since importing old settings imports fail because new settings might not exist in the $options being passed in here. (i.e. 'html' below).
+		// The above works for most options, but there are a few that need to be forcibly updated.
+		if ( $sitemapOptions ) {
+			$dbOptions['sitemap']['general']['postTypes']['included']['value']            = $this->sanitizeField( $options['sitemap']['general']['postTypes']['included'], 'array' );
+			$dbOptions['sitemap']['general']['taxonomies']['included']['value']           = $this->sanitizeField( $options['sitemap']['general']['taxonomies']['included'], 'array' );
+			$dbOptions['sitemap']['general']['additionalPages']['pages']['value']         = $this->sanitizeField( $options['sitemap']['general']['additionalPages']['pages'], 'array' );
+			$dbOptions['sitemap']['general']['advancedSettings']['excludePosts']['value'] = $this->sanitizeField( $options['sitemap']['general']['advancedSettings']['excludePosts'], 'array' );
+			$dbOptions['sitemap']['general']['advancedSettings']['excludeTerms']['value'] = $this->sanitizeField( $options['sitemap']['general']['advancedSettings']['excludeTerms'], 'array' );
+			$dbOptions['sitemap']['rss']['postTypes']['included']['value']                = $this->sanitizeField( $options['sitemap']['rss']['postTypes']['included'], 'array' );
+			$dbOptions['sitemap']['html']['postTypes']['included']['value']               = $this->sanitizeField( $options['sitemap']['html']['postTypes']['included'], 'array' );
+			$dbOptions['sitemap']['html']['taxonomies']['included']['value']              = $this->sanitizeField( $options['sitemap']['html']['taxonomies']['included'], 'array' );
+			$dbOptions['sitemap']['html']['advancedSettings']['excludePosts']['value']    = $this->sanitizeField( $options['sitemap']['html']['advancedSettings']['excludePosts'], 'array' );
+			$dbOptions['sitemap']['html']['advancedSettings']['excludeTerms']['value']    = $this->sanitizeField( $options['sitemap']['html']['advancedSettings']['excludeTerms'], 'array' );
+		}
 
-		if ( isset( $options['social']['profiles']['additionalUrls'] ) ) {
-			$dbOptions['social']['profiles']['additionalUrls'] = preg_replace( '/\h/', "\n", (string) $options['social']['profiles']['additionalUrls'] );
+		// Advanced options.
+		if ( ! empty( $options['advanced'] ) ) {
+			if ( isset( $options['advanced']['postTypes']['included'] ) ) {
+				$dbOptions['advanced']['postTypes']['included']['value'] = $this->sanitizeField( $options['advanced']['postTypes']['included'], 'array' );
+			}
+
+			if ( isset( $options['advanced']['taxonomies']['included'] ) ) {
+				$dbOptions['advanced']['taxonomies']['included']['value'] = $this->sanitizeField( $options['advanced']['taxonomies']['included'], 'array' );
+			}
+		}
+
+		// Tools.
+		if ( ! empty( $options['tools'] ) ) {
+			if ( isset( $options['tools']['robots']['rules'] ) ) {
+				$dbOptions['tools']['robots']['rules']['value'] = $this->sanitizeField( $options['tools']['robots']['rules'], 'array' );
+			}
+		}
+
+		// Deprecated options.
+		if ( ! empty( $options['deprecated'] ) ) {
+
+			if ( isset( $options['deprecated']['webmasterTools']['googleAnalytics']['excludeUsers'] ) ) {
+				$dbOptions['deprecated']['webmasterTools']['googleAnalytics']['excludeUsers']['value'] = $this->sanitizeField( $options['deprecated']['webmasterTools']['googleAnalytics']['excludeUsers'], 'array' ); // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			}
+			if ( isset( $options['deprecated']['searchAppearance']['advanced']['excludePosts'] ) ) {
+				$dbOptions['deprecated']['searchAppearance']['advanced']['excludePosts']['value'] = $this->sanitizeField( $options['deprecated']['searchAppearance']['advanced']['excludePosts'], 'array' ); // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			}
+
+			if ( isset( $options['deprecated']['searchAppearance']['advanced']['excludeTerms'] ) ) {
+				$dbOptions['deprecated']['searchAppearance']['advanced']['excludeTerms']['value'] = $this->sanitizeField( $options['deprecated']['searchAppearance']['advanced']['excludeTerms'], 'array' ); // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			}
+		}
+
+		// Social networks.
+		if ( isset( $options['social']['profiles']['sameUsername']['included'] ) ) {
+			$dbOptions['social']['profiles']['sameUsername']['included']['value'] = $this->sanitizeField( $options['social']['profiles']['sameUsername']['included'], 'array' );
 		}
 
 		$newOptions = ! empty( $options['sitemap']['html'] ) ? $options['sitemap']['html'] : null;
-		if ( ! empty( $newOptions ) && aioseo()->options->sitemap->html->enable ) {
+		if ( ! empty( $newOptions ) && $this->sitemap->html->enable ) {
 			$newOptions = ! empty( $options['sitemap']['html'] ) ? $options['sitemap']['html'] : null;
 
 			$pageUrl = wp_parse_url( $newOptions['pageUrl'] );
@@ -722,13 +637,12 @@ class Options {
 			}
 		}
 
-		// Update the cache state.
 		aioseo()->core->optionsCache->setOptions( $this->optionsName, $dbOptions );
 
 		// Update localized options.
 		update_option( $this->optionsName . '_localized', $this->localized );
 
-		// Finally, save the new values to the DB.
+		// Update values.
 		$this->save( true );
 
 		// If phone settings have changed, let's see if we need to dump the phone number notice.
@@ -744,141 +658,23 @@ class Options {
 
 		// If sitemap settings were changed, static files need to be regenerated.
 		if (
-			! empty( $deprecatedGeneralSitemapOptions ) &&
-			! empty( $generalSitemapOptions )
+			! empty( $deprecatedSitemapOptions ) &&
+			! empty( $sitemapOptions )
 		) {
 			if (
 				(
-					aioseo()->helpers->arraysDifferent( $oldGeneralSitemapOptions, $generalSitemapOptions ) ||
-					aioseo()->helpers->arraysDifferent( $oldDeprecatedGeneralSitemapOptions, $deprecatedGeneralSitemapOptions )
+					aioseo()->helpers->arraysDifferent( $oldSitemapOptions, $sitemapOptions ) ||
+					aioseo()->helpers->arraysDifferent( $oldDeprecatedSitemapOptions, $deprecatedSitemapOptions )
 				) &&
-				$generalSitemapOptions['advancedSettings']['enable'] &&
-				! $deprecatedGeneralSitemapOptions['advancedSettings']['dynamic']
+				$sitemapOptions['advancedSettings']['enable'] &&
+				! $deprecatedSitemapOptions['advancedSettings']['dynamic']
 			) {
 				aioseo()->sitemap->scheduleRegeneration();
 			}
 		}
 
-		if (
-			! empty( $llmsOptions ) &&
-			aioseo()->helpers->arraysDifferent( $oldLlmsOptions, $llmsOptions )
-		) {
-			if ( $llmsOptions['enable'] ) {
-				if ( $oldLlmsOptions['enable'] ) {
-					// If it was enabled before, we need to schedule a single generation.
-					aioseo()->llms->scheduleSingleGenerationForLlmsTxt();
-				} else {
-					// Otherwise we need to schedule a recurrent generation.
-					aioseo()->llms->scheduleRecurrentGenerationForLlmsTxt();
-				}
-			} else {
-				aioseo()->actionScheduler->unschedule( aioseo()->llms->llmsTxtSingleAction );
-				aioseo()->actionScheduler->unschedule( aioseo()->llms->llmsTxtRecurrentAction );
-				aioseo()->llms->deleteLlmsFile();
-
-				// Lite has no enableFull toggle, so clear any llms-full.txt (and its leftover
-				// actions) a prior Pro install left behind. On Pro the enableFull branch handles it.
-				if ( ! aioseo()->pro ) {
-					aioseo()->llms->cleanupLlmsFullTxt();
-				}
-			}
-		}
-
-		// Add or remove schedule for clearing crawl cleanup logs.
-		if ( ! empty( $logsRetention ) && $oldLogsRetention !== $logsRetention ) {
-			aioseo()->crawlCleanup->scheduleClearingLogs();
-		}
-
-		if ( ! empty( $sitemapOptions ) ) {
-			aioseo()->searchStatistics->sitemap->maybeSync( $oldSitemapOptions, $sitemapOptions );
-		}
-
-		if (
-			null !== $removeCategoryBase &&
-			$removeCategoryBase !== $removeCategoryBaseOld
-		) {
-			aioseo()->options->flushRewriteRules();
-		}
-
 		// This is required in order for the Pro options to be refreshed before they save data again.
 		$this->refresh();
-	}
-
-	/**
-	 * Sanitizes the `emailSummary` option.
-	 *
-	 * @since 4.7.2
-	 *
-	 * @param  array $options All options, passed by reference.
-	 * @return void
-	 */
-	private function sanitizeEmailSummary( &$options ) {
-		foreach ( ( $options['advanced']['emailSummary']['recipients'] ?? [] ) as $k => &$recipient ) {
-			$recipient['email'] = is_email( $recipient['email'] );
-
-			// Remove empty emails.
-			if ( empty( $recipient['email'] ) ) {
-				unset( $options['advanced']['emailSummary']['recipients'][ $k ] );
-
-				continue;
-			}
-
-			// Remove duplicate emails with the same frequency.
-			foreach ( $options['advanced']['emailSummary']['recipients'] as $k2 => $recipient2 ) {
-				if (
-					$k !== $k2 &&
-					$recipient['email'] === $recipient2['email'] &&
-					$recipient['frequency'] === $recipient2['frequency']
-				) {
-					unset( $options['advanced']['emailSummary']['recipients'][ $k ] );
-
-					break;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Sanitizes the SEO Alerts options.
-	 *
-	 * NOTE: Drops empty email recipients, and routes the Slack webhook URL to sensitive options
-	 * so it isn't exposed through the readable options endpoint. The webhook is only touched when
-	 * the key is present (the user changed it); a non-empty but invalid URL is left unchanged.
-	 *
-	 * @since 4.9.9
-	 *
-	 * @param  array $options All options, passed by reference.
-	 * @return void
-	 */
-	private function sanitizeSeoAlerts( &$options ) {
-		if ( ! isset( $options['tools']['seoAlerts'] ) ) {
-			return;
-		}
-
-		// Remove empty email recipients before saving.
-		if ( isset( $options['tools']['seoAlerts']['recipients'] ) && is_array( $options['tools']['seoAlerts']['recipients'] ) ) {
-			$options['tools']['seoAlerts']['recipients'] = array_values( array_filter(
-				$options['tools']['seoAlerts']['recipients'],
-				function( $recipient ) {
-					return is_array( $recipient ) && '' !== trim( (string) ( $recipient['email'] ?? '' ) );
-				}
-			) );
-		}
-
-		if ( ! isset( $options['tools']['seoAlerts']['slackWebhookUrl'] ) ) {
-			return;
-		}
-
-		$webhookUrl = esc_url_raw( trim( (string) $options['tools']['seoAlerts']['slackWebhookUrl'] ) );
-
-		// Never keep the webhook URL in the regular (publicly-readable) options.
-		unset( $options['tools']['seoAlerts']['slackWebhookUrl'] );
-
-		if ( '' === $webhookUrl ) {
-			aioseo()->sensitiveOptions->set( 'seoAlertsSlackWebhookUrl', '' );
-		} elseif ( aioseo()->seoAlerts->slack->isValidWebhookUrl( $webhookUrl ) ) {
-			aioseo()->sensitiveOptions->set( 'seoAlertsSlackWebhookUrl', $webhookUrl );
-		}
 	}
 
 	/**
@@ -890,29 +686,27 @@ class Options {
 	 * @return array          An array of options.
 	 */
 	private function maybeRemoveUnfilteredHtmlFields( $options ) {
-		if ( current_user_can( 'unfiltered_html' ) ) {
-			return $options;
-		}
+		if ( ! current_user_can( 'unfiltered_html' ) ) {
+			if (
+				! empty( $options['webmasterTools'] ) &&
+				isset( $options['webmasterTools']['miscellaneousVerification'] )
+			) {
+				unset( $options['webmasterTools']['miscellaneousVerification'] );
+			}
 
-		if (
-			! empty( $options['webmasterTools'] ) &&
-			isset( $options['webmasterTools']['miscellaneousVerification'] )
-		) {
-			unset( $options['webmasterTools']['miscellaneousVerification'] );
-		}
+			if (
+				! empty( $options['rssContent'] ) &&
+				isset( $options['rssContent']['before'] )
+			) {
+				unset( $options['rssContent']['before'] );
+			}
 
-		if (
-			! empty( $options['rssContent'] ) &&
-			isset( $options['rssContent']['before'] )
-		) {
-			unset( $options['rssContent']['before'] );
-		}
-
-		if (
-			! empty( $options['rssContent'] ) &&
-			isset( $options['rssContent']['after'] )
-		) {
-			unset( $options['rssContent']['after'] );
+			if (
+				! empty( $options['rssContent'] ) &&
+				isset( $options['rssContent']['after'] )
+			) {
+				unset( $options['rssContent']['after'] );
+			}
 		}
 
 		return $options;

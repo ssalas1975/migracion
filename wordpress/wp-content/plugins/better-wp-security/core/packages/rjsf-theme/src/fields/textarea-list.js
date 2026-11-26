@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { getUiOptions } from '@rjsf/utils';
+import { utils } from '@rjsf/core';
 
 /**
  * Internal dependencies
  */
 import { TextareaListControl, Markup } from '@ithemes/security-components';
+
+const { getUiOptions } = utils;
 
 export default function TextareaListField( {
 	uiSchema,

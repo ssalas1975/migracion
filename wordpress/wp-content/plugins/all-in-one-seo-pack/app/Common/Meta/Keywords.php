@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
-
 /**
  * Handles the keywords.
  *
@@ -17,9 +15,7 @@ class Keywords {
 	/**
 	 * Get the keywords for the meta output.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Fall back to the configured keywords when generation yields none.
-	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @since 4.0.0
 	 *
 	 * @return string The keywords as a string.
 	 */
@@ -28,24 +24,14 @@ class Keywords {
 			return '';
 		}
 
-		if ( BuddyPressIntegration::isComponentPage() ) {
-			return aioseo()->standalone->buddyPress->component->getMeta( 'keywords' );
-		}
-
 		$isStaticArchive = aioseo()->helpers->isWooCommerceShopPage() || aioseo()->helpers->isStaticPostsPage();
 		$dynamicContent  = is_archive() || is_post_type_archive() || is_home() || aioseo()->helpers->isWooCommerceShopPage() || is_category() || is_tag() || is_tax();
 		$generate        = aioseo()->options->searchAppearance->advanced->dynamicallyGenerateKeywords;
 		if ( $dynamicContent && $generate ) {
-			$generatedKeywords = $this->getGeneratedKeywords();
-
-			// Generation reads the main loop, which some plugins replace with a placeholder post
-			// (e.g. bbPress theme compat). Keep the configured keywords instead of dropping the tag.
-			if ( ! empty( $generatedKeywords ) ) {
-				return $this->prepareKeywords( $generatedKeywords );
-			}
+			return $this->prepareKeywords( $this->getGeneratedKeywords() );
 		}
 
-		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
+		if ( is_front_page() && ! aioseo()->helpers->isStaticHomePage() ) {
 			$keywords = $this->extractMetaKeywords( aioseo()->options->searchAppearance->global->keywords );
 
 			return $this->prepareKeywords( $keywords );
@@ -70,61 +56,35 @@ class Keywords {
 				return $this->prepareKeywords( $keywords );
 			}
 
-			$postType = get_queried_object();
+			$postType       = get_queried_object();
+			$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+			if ( $postType && $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+				$keywords = $this->extractMetaKeywords( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->advanced->keywords );
 
-			return is_a( $postType, 'WP_Post_Type' )
-				? $this->prepareKeywords( $this->getArchiveKeywords( $postType->name ) )
-				: '';
+				return $this->prepareKeywords( $keywords );
+			}
+
+			return '';
 		}
 
 		return $this->prepareKeywords( $this->getAllKeywords() );
 	}
 
 	/**
-	 * Retrieves the default keywords for the archive template.
-	 *
-	 * @since 4.7.6
-	 *
-	 * @param  string $postType The post type.
-	 * @return array            The keywords.
-	 */
-	public function getArchiveKeywords( $postType ) {
-		static $archiveKeywords = [];
-		if ( isset( $archiveKeywords[ $postType ] ) ) {
-			return $archiveKeywords[ $postType ];
-		}
-
-		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		if ( $dynamicOptions->searchAppearance->archives->has( $postType ) ) {
-			$allArchives    = aioseo()->dynamicOptions->searchAppearance->archives->all();
-			$archiveOptions = $allArchives[ $postType ] ?? [];
-
-			if ( ! empty( $archiveOptions['advanced']['keywords'] ) ) {
-				$keywords = $this->extractMetaKeywords( $archiveOptions['advanced']['keywords'] );
-			}
-		}
-
-		$archiveKeywords[ $postType ] = empty( $keywords ) ? [] : $keywords;
-
-		return $archiveKeywords[ $postType ];
-	}
-
-	/**
 	 * Get generated keywords for an archive page.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @since 4.0.0
 	 *
 	 * @return array An array of generated keywords.
 	 */
 	private function getGeneratedKeywords() {
-		global $posts, $wp_query; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+		global $posts, $wp_query;
 
 		$keywords        = [];
 		$isStaticArchive = aioseo()->helpers->isWooCommerceShopPage() || aioseo()->helpers->isStaticPostsPage();
 		if ( $isStaticArchive ) {
 			$keywords = $this->getAllKeywords();
-		} elseif ( aioseo()->helpers->isBlogIndexHomePage() ) {
+		} elseif ( is_front_page() && ! aioseo()->helpers->isStaticHomePage() ) {
 			$keywords = $this->extractMetaKeywords( aioseo()->options->searchAppearance->global->keywords );
 		} elseif ( is_category() || is_tag() || is_tax() ) {
 			$metaData = aioseo()->meta->metaData->getMetaData();
@@ -139,7 +99,6 @@ class Keywords {
 		}
 
 		// Turn off current query so we can get specific post data.
-		// phpcs:disable Squiz.NamingConventions.ValidVariableName
 		$originalTag      = $wp_query->is_tag;
 		$originalTax      = $wp_query->is_tax;
 		$originalCategory = $wp_query->is_category;
@@ -149,21 +108,18 @@ class Keywords {
 		$wp_query->is_category = false;
 
 		foreach ( $wpPosts as $post ) {
-			$metaData = aioseo()->meta->metaData->getMetaData( $post );
-			if ( empty( $metaData->keywords ) ) {
-				continue;
-			}
-
+			$metaData    = aioseo()->meta->metaData->getMetaData( $post );
 			$tmpKeywords = $this->extractMetaKeywords( $metaData->keywords );
-			foreach ( $tmpKeywords as $keyword ) {
-				$keywords[] = $keyword;
+			if ( count( $tmpKeywords ) ) {
+				foreach ( $tmpKeywords as $keyword ) {
+					$keywords[] = $keyword;
+				}
 			}
 		}
 
 		$wp_query->is_tag      = $originalTag;
 		$wp_query->is_tax      = $originalTax;
 		$wp_query->is_category = $originalCategory;
-		// phpcs:enable Squiz.NamingConventions.ValidVariableName
 
 		return $keywords;
 	}
@@ -173,7 +129,7 @@ class Keywords {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return array A list of unique keywords.
+	 * @return string A comma-separated list of unique keywords.
 	 */
 	public function getAllKeywords() {
 		$keywords = [];
@@ -204,7 +160,7 @@ class Keywords {
 	 * @param  array  $keywords Raw keywords.
 	 * @return string           A list of prepared keywords, comma-separated.
 	 */
-	public function prepareKeywords( $keywords ) {
+	protected function prepareKeywords( $keywords ) {
 		$keywords = $this->getUniqueKeywords( $keywords );
 		$keywords = trim( $keywords );
 		$keywords = aioseo()->helpers->internationalize( $keywords );
@@ -234,9 +190,9 @@ class Keywords {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  array        $keywords The keywords.
-	 * @param  boolean      $toString Whether or not to turn it into a comma separated string.
-	 * @return string|array           The keywords.
+	 * @param  array   $keywords The keywords.
+	 * @param  boolean $toString Whether or not to turn it into a comma separated string.
+	 * @return string            The keywords string.
 	 */
 	public function getUniqueKeywords( $keywords, $toString = true ) {
 		$keywords = $this->keywordsToLowerCase( $keywords );
@@ -269,13 +225,19 @@ class Keywords {
 	/**
 	 * Extract keywords and then return as a string.
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.2 Delegates to jsonTagsToList(), which tolerates scalar entries.
-	 *
-	 * @param  array|string $keywords An array of keywords or a json string.
-	 * @return array                  An array of keywords that were extracted.
+	 * @param  string $keywords A json encoded string of keywords.
+	 * @return string           A string of keywords that were extracted.
 	 */
 	public function extractMetaKeywords( $keywords ) {
-		return array_map( 'trim', aioseo()->helpers->jsonTagsToList( $keywords ) );
+		$extracted = [];
+		$keywords  = ! empty( $keywords ) ? json_decode( $keywords ) : null;
+
+		if ( ! empty( $keywords ) ) {
+			foreach ( $keywords as $keyword ) {
+				$extracted[] = trim( $keyword->value );
+			}
+		}
+
+		return $extracted;
 	}
 }

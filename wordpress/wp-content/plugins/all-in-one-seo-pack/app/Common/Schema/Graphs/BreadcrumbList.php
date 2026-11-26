@@ -17,75 +17,50 @@ class BreadcrumbList extends Graph {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return array The graph data.
+	 * @return array $data The graph data.
 	 */
 	public function get() {
-		$breadcrumbs = aioseo()->breadcrumbs->frontend->getBreadcrumbs() ?? [];
-		if ( ! $breadcrumbs ) {
+		$breadcrumbs = isset( aioseo()->schema->context['breadcrumb'] ) ? aioseo()->schema->context['breadcrumb'] : '';
+		if ( ! $breadcrumbs || ! count( $breadcrumbs ) ) {
 			return [];
-		}
-
-		// Set the position for each breadcrumb.
-		$position = 1;
-		foreach ( $breadcrumbs as $k => $breadcrumb ) {
-			if ( ! isset( $breadcrumb['position'] ) ) {
-				$breadcrumbs[ $k ]['position'] = $position;
-			}
-			$position++;
-		}
-
-		$trailLength = count( $breadcrumbs );
-		if ( ! $trailLength ) {
-			return [];
-		}
-
-		$listItems = [];
-		foreach ( $breadcrumbs as $breadcrumb ) {
-			if ( empty( $breadcrumb['link'] ) || ! is_scalar( $breadcrumb['link'] ) ) {
-				continue;
-			}
-
-			$listItem = [
-				'@type'    => 'ListItem',
-				'@id'      => $breadcrumb['link'] . '#listItem',
-				'position' => $breadcrumb['position'],
-				'name'     => $breadcrumb['label'] ?? ''
-			];
-
-			// Don't add "item" prop for last crumb.
-			if ( $trailLength !== $breadcrumb['position'] ) {
-				$listItem['item'] = $breadcrumb['link'];
-			}
-
-			if ( 1 === $trailLength ) {
-				$listItems[] = $listItem;
-				continue;
-			}
-
-			if ( $trailLength > $breadcrumb['position'] && ! empty( $breadcrumbs[ $breadcrumb['position'] ]['label'] ) ) {
-				$listItem['nextItem'] = [
-					'@type' => 'ListItem',
-					'@id'   => $breadcrumbs[ $breadcrumb['position'] ]['link'] . '#listItem',
-					'name'  => $breadcrumbs[ $breadcrumb['position'] ]['label'],
-				];
-			}
-
-			if ( 1 < $breadcrumb['position'] && ! empty( $breadcrumbs[ $breadcrumb['position'] - 2 ]['label'] ) ) {
-				$listItem['previousItem'] = [
-					'@type' => 'ListItem',
-					'@id'   => $breadcrumbs[ $breadcrumb['position'] - 2 ]['link'] . '#listItem',
-					'name'  => $breadcrumbs[ $breadcrumb['position'] - 2 ]['label'],
-				];
-			}
-
-			$listItems[] = $listItem;
 		}
 
 		$data = [
 			'@type'           => 'BreadcrumbList',
 			'@id'             => aioseo()->schema->context['url'] . '#breadcrumblist',
-			'itemListElement' => $listItems
+			'itemListElement' => []
 		];
+
+		$trailLength = count( $breadcrumbs );
+		foreach ( $breadcrumbs as $breadcrumb ) {
+			$listItem = [
+				'@type'    => 'ListItem',
+				'@id'      => $breadcrumb['url'] . '#listItem',
+				'position' => $breadcrumb['position'],
+				'item'     => [
+					'@type'       => 'WebPage',
+					'@id'         => $breadcrumb['url'],
+					'name'        => ! empty( $breadcrumb['name'] ) ? $breadcrumb['name'] : '',
+					'description' => ! empty( $breadcrumb['description'] ) ? $breadcrumb['description'] : '',
+					'url'         => $breadcrumb['url'],
+				]
+			];
+
+			if ( 1 === $trailLength ) {
+				$data['itemListElement'][] = $listItem;
+				continue;
+			}
+
+			if ( $trailLength > $breadcrumb['position'] ) {
+				$listItem['nextItem'] = $breadcrumbs[ $breadcrumb['position'] ]['url'] . '#listItem';
+			}
+
+			if ( 1 < $breadcrumb['position'] ) {
+				$listItem['previousItem'] = $breadcrumbs[ $breadcrumb['position'] - 2 ]['url'] . '#listItem';
+			}
+
+			$data['itemListElement'][] = $listItem;
+		}
 
 		return $data;
 	}

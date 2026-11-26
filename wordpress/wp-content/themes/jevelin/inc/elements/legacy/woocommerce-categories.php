@@ -2,7 +2,7 @@
 class vcj_woocommerce_categories extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_woocommerce_categories', array( $this, '_html' ) );
     }
 
@@ -65,8 +65,9 @@ class vcj_woocommerce_categories extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-categories/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-categories/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-categories/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-categories/static.php';
         if( function_exists( 'jevelin_shortcode_woocommerce_categories_css' ) ) :
             jevelin_shortcode_woocommerce_categories_css( $atts, $id_rand );
         endif;

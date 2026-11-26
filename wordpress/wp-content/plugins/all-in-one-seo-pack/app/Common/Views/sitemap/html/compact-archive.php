@@ -1,11 +1,6 @@
 <?php
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-// phpcs:disable Generic.ControlStructures.InlineControlStructure.NotAllowed
-
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+	// phpcs:disable Generic.ControlStructures.InlineControlStructure.NotAllowed
 ?>
 <div class="aioseo-html-sitemap">
 	<div class="aioseo-html-sitemap-compact-archive">

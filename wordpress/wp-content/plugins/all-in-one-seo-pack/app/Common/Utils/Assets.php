@@ -28,23 +28,23 @@ class Assets {
 	/**
 	 * Class constructor.
 	 *
-	 * @since   4.1.9
-	 * @version 5.0.3 The manifest path is built by {@see distPath()}.
+	 * @since 4.1.9
 	 *
-	 * @param \AIOSEO\Plugin\Common\Core\Core $core The AIOSEO Core class.
+	 * @param Core $core The AIOSEO Core class.
 	 */
 	public function __construct( $core ) {
-		$this->core         = $core;
-		$this->version      = aioseo()->version;
-		$this->manifestFile = $this->distPath( 'manifest.php' );
-		$this->isDev        = aioseo()->isDev;
+		$this->core              = $core;
+		$this->version           = aioseo()->version;
+		$this->manifestFile      = AIOSEO_DIR . '/dist/' . aioseo()->versionPath . '/manifest.json';
+		$this->assetManifestFile = AIOSEO_DIR . '/dist/' . aioseo()->versionPath . '/manifest-assets.json';
+		$this->isDev             = aioseo()->isDev;
 
 		if ( $this->isDev ) {
 			$this->domain = getenv( 'VITE_AIOSEO_DOMAIN' );
 			$this->port   = getenv( 'VITE_AIOSEO_DEV_PORT' );
 		}
 
-		add_filter( 'script_loader_tag', [ $this, 'scriptLoaderTag' ], 10, 3 );
+		add_filter( 'script_loader_tag', [ $this, 'scriptLoaderTag' ], 10, 2 );
 		add_action( 'admin_head', [ $this, 'devRefreshRuntime' ] );
 		add_action( 'wp_head', [ $this, 'devRefreshRuntime' ] );
 	}
@@ -68,45 +68,7 @@ class Assets {
 	 * @return string The base path URL.
 	 */
 	private function basePath() {
-		return $this->normalizeAssetsHost( plugins_url( 'dist/' . aioseo()->versionPath . '/assets/', AIOSEO_FILE ) );
-	}
-
-	/**
-	 * Get the filesystem path of a file inside the built dist directory.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @param  string $path The path inside the dist directory.
-	 * @return string       The absolute filesystem path.
-	 */
-	private function distPath( $path = '' ) {
-		return AIOSEO_DIR . '/dist/' . aioseo()->versionPath . '/' . ltrim( $path, '/' );
-	}
-
-	/**
-	 * Get the script dependencies the build recorded for an asset.
-	 *
-	 * NOTE: The manifest lists what webpack externalized, so a package a bundle reads off a global
-	 * instead of importing is absent from it and has to be declared by the caller.
-	 *
-	 * @since 5.0.3
-	 *
-	 * @param  string $asset    The asset path inside the assets directory, without an extension.
-	 * @param  array  $fallback The dependencies to use when no manifest is readable.
-	 * @return array            The script dependencies.
-	 */
-	public function getAssetDependencies( $asset, $fallback = [] ) {
-		// Keep the lookup inside the dist directory, since the path reaches the filesystem.
-		if ( false !== strpos( $asset, '..' ) ) {
-			return $fallback;
-		}
-
-		$manifest = $this->distPath( 'assets/' . ltrim( $asset, '/' ) . '.asset.json' );
-		$data     = json_decode( (string) aioseo()->core->fs->getContents( $manifest ), true );
-
-		return empty( $data['dependencies'] ) || ! is_array( $data['dependencies'] )
-			? $fallback
-			: $data['dependencies'];
+		return plugins_url( 'dist/' . aioseo()->versionPath . '/assets/', AIOSEO_FILE );
 	}
 
 	/**

@@ -1,0 +1,336 @@
+# Translation of Plugins - AccessPress Social Share - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - AccessPress Social Share - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-12-06 13:36:57+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - AccessPress Social Share - Stable (latest release)\n"
+
+#: inc/backend/main-page.php:367
+msgid "Fetch the share counts from HTTP url as well? "
+msgstr "¿Recuperar el contador de la url HTTP también?"
+
+#: inc/backend/main-page.php:411
+msgid "Enable cache? "
+msgstr "¿Habilitar la caché?"
+
+#: inc/backend/main-page.php:408
+msgid "Open in popup window"
+msgstr "Abrir en una ventana popup"
+
+#: inc/backend/main-page.php:296 inc/backend/main-page.php:307
+msgid "Use"
+msgstr "Usar"
+
+#: inc/backend/main-page.php:296 inc/backend/main-page.php:307
+msgid " to show Twitter share counts"
+msgstr "mostrar el contador de Twitter"
+
+#: inc/backend/main-page.php:284
+msgid "Don't show Twitter share counts"
+msgstr "No mostrar el contador de Twitter"
+
+#: inc/backend/main-page.php:73
+msgid "About"
+msgstr "Acerca de"
+
+#: inc/backend/main-page.php:232 inc/backend/main-page.php:266
+#: inc/backend/main-page.php:323 inc/backend/main-page.php:363
+#: inc/backend/main-page.php:374 inc/backend/main-page.php:418
+msgid "Yes"
+msgstr "Si"
+
+#: inc/backend/main-page.php:227 inc/backend/main-page.php:261
+#: inc/backend/main-page.php:318 inc/backend/main-page.php:358
+#: inc/backend/main-page.php:382 inc/backend/main-page.php:426
+msgid "No"
+msgstr "No"
+
+#: inc/backend/main-page.php:135
+msgid "Archives"
+msgstr "Archivos"
+
+#: inc/backend/main-page.php:119
+msgid "Posts"
+msgstr "Entradas"
+
+#: inc/frontend/content-filter.php:93 inc/frontend/content-filter.php:96
+#: inc/frontend/shortcode.php:144 inc/frontend/shortcode.php:147
+msgid "Share on Facebook"
+msgstr "Compartir en Facebook"
+
+#: inc/frontend/content-filter.php:97 inc/frontend/content-filter.php:177
+#: inc/frontend/content-filter.php:216 inc/frontend/content-filter.php:232
+#: inc/frontend/shortcode.php:148 inc/frontend/shortcode.php:232
+#: inc/frontend/shortcode.php:253 inc/frontend/shortcode.php:269
+msgid "Share"
+msgstr "Compartir"
+
+#: inc/frontend/content-filter.php:135 inc/frontend/content-filter.php:138
+#: inc/frontend/shortcode.php:190 inc/frontend/shortcode.php:193
+msgid "Share on Twitter"
+msgstr "Compartir en Twitter"
+
+#: inc/frontend/content-filter.php:138 inc/frontend/shortcode.php:193
+msgid "Tweet"
+msgstr "Tweet"
+
+#: inc/frontend/content-filter.php:173 inc/frontend/content-filter.php:176
+#: inc/frontend/shortcode.php:228 inc/frontend/shortcode.php:231
+msgid "Share on Pinterest"
+msgstr "Compartir en Pinterest"
+
+#: inc/backend/main-page.php:70
+msgid "Display Settings"
+msgstr "Ajustes de visualización"
+
+#. Author URI of the plugin
+msgid "http://accesspressthemes.com"
+msgstr "http://accesspressthemes.com"
+
+#. Author of the plugin
+msgid "AccessPress Themes"
+msgstr "Tema AccessPress"
+
+#. Description of the plugin
+msgid "A plugin to add various social media shares to a site with dynamic configuration options."
+msgstr "Un plugin para añadir varios recursos de redes sociales a un sitio con opciones de configuración dinámicas."
+
+#. Plugin URI of the plugin
+msgid "https://accesspressthemes.com/wordpress-plugins/accesspress-social-share/"
+msgstr "https://accesspressthemes.com/wordpress-plugins/accesspress-social-share/"
+
+#: inc/frontend/content-filter.php:284 inc/frontend/shortcode.php:319
+msgid " Shares"
+msgstr "Comparte"
+
+#: inc/frontend/content-filter.php:283 inc/frontend/shortcode.php:318
+msgid " Total"
+msgstr " Total"
+
+#: inc/frontend/content-filter.php:264 inc/frontend/content-filter.php:266
+#: inc/frontend/content-filter.php:267 inc/frontend/shortcode.php:299
+#: inc/frontend/shortcode.php:301 inc/frontend/shortcode.php:302
+msgid "Print"
+msgstr "Impresión"
+
+#: inc/frontend/content-filter.php:252 inc/frontend/shortcode.php:288
+msgid "Send email"
+msgstr "Enviar correo electrónico"
+
+#: inc/frontend/content-filter.php:249 inc/frontend/shortcode.php:285
+msgid "Share it on Email"
+msgstr "Compartir por el correo electrónico"
+
+#: inc/frontend/content-filter.php:228 inc/frontend/content-filter.php:231
+#: inc/frontend/shortcode.php:265 inc/frontend/shortcode.php:268
+msgid "Share on Digg"
+msgstr "Compartir en Digg"
+
+#: inc/frontend/content-filter.php:213 inc/frontend/content-filter.php:215
+#: inc/frontend/shortcode.php:250 inc/frontend/shortcode.php:252
+msgid "Share on LinkedIn"
+msgstr "Compartir en Linkedin"
+
+#: inc/backend/main-page.php:34
+msgid "Settings Saved Successfully."
+msgstr "Ajustes guardados con éxito."
+
+#: inc/backend/save-button.php:8
+msgid "Are you sure you want to clear cache share counter?"
+msgstr "¿Estás seguro de que quieres limpiar la caché del contador?"
+
+#: inc/backend/save-button.php:7
+msgid "Are you sure you want to restore default settings?"
+msgstr "¿Estás seguro de que quieres restaurar la configuración predeterminada?"
+
+#: inc/backend/save-button.php:4
+msgid "Save settings"
+msgstr "Guardar ajustes"
+
+#: inc/backend/main-page.php:451
+msgid "Email body:"
+msgstr "Cuerpo del correo electrónico:"
+
+#: inc/backend/main-page.php:447
+msgid "Email subject:"
+msgstr "Asunto del correo electrónico:"
+
+#: inc/backend/main-page.php:445
+msgid "Email Settings:"
+msgstr "Ajustes del correo electrónico:"
+
+#: inc/backend/main-page.php:440
+msgid "Please enter the time in hours in which the social share counter should be updated from social networks. Default is 24 hours."
+msgstr "Por favor, introduzca el tiempo en horas en el cual el contador de la red social debería actualizarse desde las redes sociales. El valor predeterminado es 24 horas."
+
+#: inc/backend/main-page.php:433
+msgid "Cache Period:"
+msgstr "Período de la caché:"
+
+#: inc/backend/main-page.php:431
+msgid "Cache Settings: "
+msgstr "Ajustes de la caché:"
+
+#: inc/backend/main-page.php:402
+msgid "Open in new window/Tab"
+msgstr "Abrir en una nueva ventana/Tab"
+
+#: inc/backend/main-page.php:397
+msgid "Open in same window"
+msgstr "Abrir en la misma ventana"
+
+#: inc/backend/main-page.php:392
+msgid "Social share link options:"
+msgstr "Opciones de enlace de los botones sociales:"
+
+#: inc/backend/main-page.php:353
+msgid "Social share total counter enable?"
+msgstr "¿Habilitar el contador total de los botones sociales?"
+
+#: inc/backend/main-page.php:256
+msgid "Social share counter enable?"
+msgstr "¿Habilitar el contador de los botones sociales?"
+
+#: inc/backend/main-page.php:251
+msgid "Twitter username:"
+msgstr "Nombre de usuario de Twitter:"
+
+#: inc/backend/main-page.php:247
+msgid "Please enter the share text to make it appear above social share icons. Leave blank if you don't want to use share text."
+msgstr "Por favor, introduce el texto que aparecerá encima del icono de la red social. Déjalo en blanco si no quieres usar el texto."
+
+#: inc/backend/main-page.php:240
+msgid "Share text:"
+msgstr "Texto de compartir:"
+
+#: inc/backend/main-page.php:235
+msgid "Please set this value if you don't want to use plguins frontend assets(js and css files)."
+msgstr "Por favor, establezca este valor si no desea usar complementos de plugins en el frontend (archivos js y css)."
+
+#: inc/backend/main-page.php:222
+msgid "Disable the plugins frontend assets?"
+msgstr "¿Desactivar archivos del plugin (assets) de la interfaz de usuario?"
+
+#: inc/backend/main-page.php:219
+msgid "Please setup these additional settings:"
+msgstr "Por favor, establezca estos ajustes adicionales:"
+
+#: inc/backend/main-page.php:218
+msgid "Miscellaneous settings: "
+msgstr "Otros ajustes:"
+
+#: inc/backend/main-page.php:205
+msgid "Please choose any one out of available icon themes:"
+msgstr "Por favor, elija cualquiera de los temas de iconos disponibles:"
+
+#: inc/backend/main-page.php:204
+msgid "Social icons sets: "
+msgstr "Conjunto de iconos sociales:"
+
+#: inc/backend/main-page.php:180
+msgid "Both(Below content and Above content)"
+msgstr "Ambos (debajo y arriba del contenido)"
+
+#: inc/backend/main-page.php:173
+msgid "Above content"
+msgstr "Encima del contenido"
+
+#: inc/backend/main-page.php:166
+msgid "Below content"
+msgstr "Debajo del contenido"
+
+#: inc/backend/main-page.php:160
+msgid "Please choose the option where you want to display the social share:"
+msgstr "Por favor, elige la ubicación de los botones sociales:"
+
+#: inc/backend/main-page.php:159
+msgid "Display position:"
+msgstr "Elegir la posición:"
+
+#: inc/backend/main-page.php:152
+msgid "Other (search results, etc)"
+msgstr "Otro (resultados de la búsqueda, etc)"
+
+#: inc/backend/main-page.php:147
+msgid "Categories"
+msgstr "Categorías"
+
+#: inc/backend/main-page.php:141
+msgid "Attachment pages"
+msgstr "Páginas de adjuntos"
+
+#: inc/backend/main-page.php:130
+msgid "Front Page"
+msgstr "Página de inicio"
+
+#: inc/backend/main-page.php:124
+msgid "Pages"
+msgstr "Páginas"
+
+#: inc/backend/main-page.php:114
+msgid "Please choose the options where you want to display social share icons:"
+msgstr "Por favor, elige la ubicación de los botones sociales."
+
+#: inc/backend/main-page.php:113
+msgid "Share options:"
+msgstr "Opciones de compartir:"
+
+#: inc/backend/main-page.php:79
+msgid "Please choose the social media you want to display. Also you can order these social media's by drag and drop:"
+msgstr "Por favor, elige la red social que quieres mostrar. También puedes ordenar los botones sociales arrastrando y soltando:"
+
+#: inc/backend/main-page.php:78
+msgid "Social Media chooser:"
+msgstr "Elegir redes sociales:"
+
+#: inc/backend/main-page.php:72
+msgid "How To Use"
+msgstr "Cómo usarlo"
+
+#: inc/backend/main-page.php:71
+msgid "Miscellaneous"
+msgstr "Otras opciones"
+
+#: inc/backend/main-page.php:69
+msgid "Share Options"
+msgstr "Opciones de compartir"
+
+#: inc/backend/how-to-use.php:9 inc/backend/main-page.php:68
+msgid "Social Networks"
+msgstr "Redes Sociales"
+
+#: inc/backend/main-page.php:9
+msgid "Follow us for new updates"
+msgstr "Síguenos para nuevas actualizaciones"
+
+#. Plugin Name of the plugin
+#: inc/backend/about-apss.php:4 inc/backend/main-page.php:6
+#: inc/backend/main-page.php:26
+msgid "AccessPress Social Share"
+msgstr "AccessPress Social Share"
+
+#: inc/backend/about-apss.php:2
+msgid "About Us"
+msgstr "Sobre nosotros"
+
+#: accesspress-social-share.php:429
+msgid "Hide share icons in content"
+msgstr "Ocultar los iconos sociales en el contenido"
+
+#: inc/backend/main-page.php:50
+msgid "Cache cleared Successfully"
+msgstr "Caché limpiado con éxito"
+
+#: inc/backend/main-page.php:42
+msgid "Settings restored successfully."
+msgstr "Ajustes restaurados con éxito."
+
+#: inc/frontend/content-filter.php:253 inc/frontend/shortcode.php:289
+msgid "Mail"
+msgstr "Correo"

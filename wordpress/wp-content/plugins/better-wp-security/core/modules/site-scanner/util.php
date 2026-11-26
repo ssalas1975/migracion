@@ -1,9 +1,5 @@
 <?php
 
-use iThemesSecurity\Site_Scanner\Repository\Vulnerabilities_Options;
-use iThemesSecurity\Site_Scanner\Repository\Vulnerabilities_Repository;
-use iThemesSecurity\Site_Scanner\Vulnerability;
-
 class ITSEC_Site_Scanner_Util {
 
 	const GRANT = 'itsec-site-scanner-manage-scan';
@@ -40,14 +36,7 @@ class ITSEC_Site_Scanner_Util {
 		}
 
 		if ( ! empty( $results['entries']['vulnerabilities'] ) ) {
-			foreach ( $results['entries']['vulnerabilities'] as $vulnerability ) {
-				foreach ( $vulnerability['issues'] as $issue ) {
-					if ( ! ITSEC_Site_Scanner_Util::is_issue_muted( $issue['id'] ) ) {
-						$codes[] = 'vulnerable-software';
-						break 2;
-					}
-				}
-			}
+			$codes[] = 'vulnerable-software';
 		}
 
 		if ( $codes ) {
@@ -220,50 +209,26 @@ class ITSEC_Site_Scanner_Util {
 	 * @return array|WP_Error
 	 */
 	public static function mute_issue( $issue_id, array $args = [] ) {
-		$repository          = ITSEC_Modules::get_container()
-		                                    ->get( Vulnerabilities_Repository::class );
-		$found_vulnerability = $repository->find( $issue_id );
-
-		if ( ! $found_vulnerability->is_success() ) {
-			return $found_vulnerability->get_error();
+		if ( static::is_issue_muted( $issue_id ) ) {
+			return new \WP_Error( 'itsec_site_scanner_issue_already_muted', __( 'This issue has already been muted.', 'better-wp-security' ), array( 'status' => \WP_Http::BAD_REQUEST ) );
 		}
 
-		$vulnerability = $found_vulnerability->get_data();
+		$issue    = array_merge( [
+			'id'       => $issue_id,
+			'muted_by' => get_current_user_id(),
+			'muted_at' => ITSEC_Core::get_current_time_gmt(),
+		], $args );
+		$issues   = static::get_muted_issues();
+		$issues[] = $issue;
 
-		if ( ! $vulnerability ) {
-			return new WP_Error(
-				'itsec.site-scanner.vulnerabilities.mute.not-found',
-				__( 'Vulnerability not found.', 'better-wp-security' ),
-				[
-					'id' => $issue_id,
-				]
-			);
+		$updated = ITSEC_Modules::set_setting( 'site-scanner', 'muted_issues', $issues );
+		$error   = ITSEC_Lib::updated_settings_to_wp_error( $updated );
+
+		if ( is_wp_error( $error ) ) {
+			return $error;
 		}
 
-		if ( $vulnerability->is_muted() ) {
-			return new WP_Error(
-				'itsec_site_scanner_issue_already_muted',
-				__( 'Issue already muted.', 'better-wp-security' ),
-				[
-					'id' => $issue_id,
-				]
-			);
-		}
-
-		$muted_by = wp_get_current_user();
-
-		if ( isset( $args['muted_by'] ) ) {
-			$muted_by = get_userdata( $args['muted_by'] );
-		}
-
-		$vulnerability->muted( $muted_by && $muted_by->exists() ? $muted_by : null );
-		$persisted = $repository->persist( $vulnerability );
-
-		if ( $persisted->is_success() ) {
-			return self::format_vulnerability( $vulnerability );
-		}
-
-		return $persisted->get_error();
+		return $issue;
 	}
 
 	/**
@@ -285,38 +250,17 @@ class ITSEC_Site_Scanner_Util {
 	 * @return bool|WP_Error
 	 */
 	public static function unmute_issue( $issue_id ) {
-		$repository          = ITSEC_Modules::get_container()
-		                                    ->get( Vulnerabilities_Repository::class );
-		$found_vulnerability = $repository->find( $issue_id );
-
-		if ( ! $found_vulnerability->is_success() ) {
-			return $found_vulnerability->get_error();
+		if ( ! static::is_issue_muted( $issue_id ) ) {
+			return new \WP_Error( 'itsec_site_scanner_issue_not_muted', __( 'This issue is not muted.', 'better-wp-security' ), array( 'status' => \WP_Http::BAD_REQUEST ) );
 		}
 
-		$vulnerability = $found_vulnerability->get_data();
+		$issues = static::get_muted_issues();
+		$issues = wp_list_filter( $issues, [ 'id' => $issue_id ], 'NOT' );
 
-		if ( ! $vulnerability ) {
-			return true;
-		}
+		$updated = ITSEC_Modules::set_setting( 'site-scanner', 'muted_issues', $issues );
+		$error   = ITSEC_Lib::updated_settings_to_wp_error( $updated );
 
-		if ( ! $vulnerability->is_muted() ) {
-			return new WP_Error(
-				'itsec_site_scanner_issue_not_muted',
-				__( 'Issue already not muted.', 'better-wp-security' ),
-				[
-					'id' => $issue_id,
-				]
-			);
-		}
-
-		$vulnerability->unmute();
-		$persisted = $repository->persist( $vulnerability );
-
-		if ( $persisted->is_success() ) {
-			return true;
-		}
-
-		return $persisted->get_error();
+		return is_wp_error( $error ) ? $error : true;
 	}
 
 	/**
@@ -326,20 +270,14 @@ class ITSEC_Site_Scanner_Util {
 	 *
 	 * @return array|null
 	 */
-	public static function get_muted_issue( $issue_id ): ?array {
-		$repository    = ITSEC_Modules::get_container()
-		                              ->get( Vulnerabilities_Repository::class );
-		$vulnerability = $repository->find( $issue_id );
-
-		if ( ! $vulnerability->is_success() || ! $vulnerability->get_data() ) {
-			return null;
+	public static function get_muted_issue( $issue_id ) {
+		foreach ( static::get_muted_issues() as $issue ) {
+			if ( $issue['id'] === $issue_id ) {
+				return $issue;
+			}
 		}
 
-		if ( ! $vulnerability->get_data()->is_muted() ) {
-			return null;
-		}
-
-		return self::format_vulnerability( $vulnerability->get_data() );
+		return null;
 	}
 
 	/**
@@ -348,25 +286,6 @@ class ITSEC_Site_Scanner_Util {
 	 * @return array[]
 	 */
 	public static function get_muted_issues() {
-		$repository      = ITSEC_Modules::get_container()
-		                                ->get( Vulnerabilities_Repository::class );
-		$vulnerabilities = $repository->get_vulnerabilities(
-			( new Vulnerabilities_Options() )
-				->set_resolutions( [ Vulnerability::R_MUTED ] )
-		);
-
-		if ( $vulnerabilities->is_success() ) {
-			return array_map( [ self::class, 'format_vulnerability' ], $vulnerabilities->get_data() );
-		}
-
-		return [];
-	}
-
-	private static function format_vulnerability( Vulnerability $vulnerability ): array {
-		return [
-			'id'       => $vulnerability->get_id(),
-			'muted_by' => $vulnerability->get_resolved_by() ? $vulnerability->get_resolved_by()->ID : 0,
-			'muted_at' => $vulnerability->get_resolved_at()->getTimestamp(),
-		];
+		return ITSEC_Modules::get_setting( 'site-scanner', 'muted_issues', [] );
 	}
 }

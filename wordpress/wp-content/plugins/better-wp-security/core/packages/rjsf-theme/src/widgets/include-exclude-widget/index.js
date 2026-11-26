@@ -207,7 +207,7 @@ function Listbox( {
 				</ActiveDescendantContainer>
 			</BaseControl>
 			<Button
-				variant="secondary"
+				isSecondary
 				disabled={ ! selected }
 				className="itsec-rjsf-include-exclude-widget__move"
 				onClick={ () => onToggle( selected ) }

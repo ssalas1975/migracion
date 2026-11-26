@@ -397,9 +397,6 @@ class REST extends \WP_REST_Controller {
 					'rel'              => 'create-form',
 					'href'             => rest_url( sprintf( '%s/%s/%s', $this->namespace, $this->rest_base, $source ) ),
 					'submissionSchema' => \ITSEC_Lib_REST::sanitize_schema_for_output( $schema ),
-					'targetHints'      => [
-						'allow' => \ITSEC_Core::current_user_can_manage() ? [ 'GET', 'POST' ] : [ 'GET' ],
-					],
 					'title'            => $schema['title'] ?? __( 'Add Ban', 'better-wp-security' ),
 				];
 			}
@@ -414,7 +411,7 @@ class REST extends \WP_REST_Controller {
 		}
 
 		$schema = [
-			'$schema'    => 'http://json-schema.org/draft-07/schema#',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'ithemes-security-ban',
 			'type'       => 'object',
 			'properties' => [

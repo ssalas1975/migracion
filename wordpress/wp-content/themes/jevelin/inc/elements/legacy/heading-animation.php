@@ -2,7 +2,7 @@
 class vcj_heading_animation extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_heading_animation', array( $this, '_html' ) );
     }
 
@@ -20,10 +20,10 @@ class vcj_heading_animation extends WPBakeryShortCode {
       'param_name' => 'content2',
       'heading' => 'Content',
       'description' => 'Enter content',
-      'value' => 0,
+      'value' => '',
       'type' => 'param_group',
       'class' => '',
-      'std' => 0,
+      'std' => '',
       'group' => 'General',
       'params' => 
       array (
@@ -211,7 +211,7 @@ class vcj_heading_animation extends WPBakeryShortCode {
       'value' => '0px 0px 15px 0px',
       'type' => 'textfield',
       'class' => '',
-      'std' => '0px 0px 0px 0px',
+      'std' => '0px 0px 15px 0px',
       'group' => 'Styling',
     ),
     13 => 
@@ -233,8 +233,9 @@ class vcj_heading_animation extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/heading-animation/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/heading-animation/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/heading-animation/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/heading-animation/static.php';
         if( function_exists( 'jevelin_shortcode_heading_animation_css' ) ) :
             jevelin_shortcode_heading_animation_css( $atts, $id_rand );
         endif;

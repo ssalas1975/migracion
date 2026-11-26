@@ -5,37 +5,27 @@ $A2A_SHARE_SAVE_services = array(
 	"facebook" => array(
 		"name" => "Facebook",
 		"icon" => "facebook",
-		"color" => "0866FF",
+		"color" => "1877F2",
 	),
-	"mastodon" => array(
-		"name" => "Mastodon",
-		"icon" => "mastodon",
-		"color" => "6364FF",
-	),
-	"bluesky" => array(
-		"name" => "Bluesky",
-		"icon" => "bluesky",
-		"color" => "1285fe",
+	"twitter" => array(
+		"name" => "Twitter",
+		"icon" => "twitter",
+		"color" => "1D9BF0",
 	),
 	"pinterest" => array(
 		"name" => "Pinterest",
 		"icon" => "pinterest",
-		"color" => "e60023",
-	),
-	"whatsapp" => array(
-		"name" => "WhatsApp",
-		"icon" => "whatsapp",
-		"color" => "12AF0A",
+		"color" => "BD081C",
 	),
 	"email" => array(
 		"name" => "Email",
 		"icon" => "email",
-		"color" => "888990",
+		"color" => "0166FF",
 	),
 	"tumblr" => array(
 		"name" => "Tumblr",
 		"icon" => "tumblr",
-		"color" => "001935",
+		"color" => "35465C",
 	),
 	"reddit" => array(
 		"name" => "Reddit",
@@ -47,6 +37,11 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "linkedin",
 		"color" => "007BB5",
 	),
+	"whatsapp" => array(
+		"name" => "WhatsApp",
+		"icon" => "whatsapp",
+		"color" => "12AF0A",
+	),
 	"amazon_wish_list" => array(
 		"name" => "Amazon Wish List",
 		"icon" => "amazon",
@@ -55,7 +50,7 @@ $A2A_SHARE_SAVE_services = array(
 	"aol_mail" => array(
 		"name" => "AOL Mail",
 		"icon" => "aol",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"balatarin" => array(
 		"name" => "Balatarin",
@@ -65,7 +60,12 @@ $A2A_SHARE_SAVE_services = array(
 	"bibsonomy" => array(
 		"name" => "BibSonomy",
 		"icon" => "bibsonomy",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
+	),
+	"bitty_browser" => array(
+		"name" => "Bitty Browser",
+		"icon" => "bitty",
+		"color" => "999",
 	),
 	"blogger" => array(
 		"name" => "Blogger",
@@ -90,12 +90,27 @@ $A2A_SHARE_SAVE_services = array(
 	"buffer" => array(
 		"name" => "Buffer",
 		"icon" => "buffer",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
+	),
+	"care2_news" => array(
+		"name" => "Care2 News",
+		"icon" => "care2",
+		"color" => "6EB43F",
+	),
+	"citeulike" => array(
+		"name" => "CiteULike",
+		"icon" => "citeulike",
+		"color" => "2781CD",
 	),
 	"copy_link" => array(
 		"name" => "Copy Link",
 		"icon" => "link",
-		"color" => "888990",
+		"color" => "0166FF",
+	),
+	"design_float" => array(
+		"name" => "Design Float",
+		"icon" => "designfloat",
+		"color" => "8AC8FF",
 	),
 	"diary_ru" => array(
 		"name" => "Diary.Ru",
@@ -110,7 +125,7 @@ $A2A_SHARE_SAVE_services = array(
 	"digg" => array(
 		"name" => "Digg",
 		"icon" => "digg",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"diigo" => array(
 		"name" => "Diigo",
@@ -126,6 +141,11 @@ $A2A_SHARE_SAVE_services = array(
 		"name" => "Draugiem",
 		"icon" => "draugiem",
 		"color" => "F60",
+	),
+	"dzone" => array(
+		"name" => "DZone",
+		"icon" => "dzone",
+		"color" => "82C251",
 	),
 	"evernote" => array(
 		"name" => "Evernote",
@@ -150,17 +170,17 @@ $A2A_SHARE_SAVE_services = array(
 	"google_gmail" => array(
 		"name" => "Gmail",
 		"icon" => "gmail",
-		"color" => "EA4335",
+		"color" => "DD5347",
+	),
+	"google_bookmarks" => array(
+		"name" => "Google Bookmarks",
+		"icon" => "google",
+		"color" => "4285F4",
 	),
 	"google_classroom" => array(
 		"name" => "Google Classroom",
 		"icon" => "google_classroom",
 		"color" => "FFC112",
-	),
-	"google_translate" => array(
-		"name" => "Google Translate",
-		"icon" => "google_translate",
-		"color" => "528ff5",
 	),
 	"hacker_news" => array(
 		"name" => "Hacker News",
@@ -180,17 +200,22 @@ $A2A_SHARE_SAVE_services = array(
 	"instapaper" => array(
 		"name" => "Instapaper",
 		"icon" => "instapaper",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"kakao" => array(
 		"name" => "Kakao",
 		"icon" => "kakao",
 		"color" => "FCB700",
 	),
+	"kik" => array(
+		"name" => "Kik",
+		"icon" => "kik",
+		"color" => "2A2A2A",
+	),
 	"known" => array(
 		"name" => "Known",
 		"icon" => "known",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"line" => array(
 		"name" => "Line",
@@ -207,6 +232,11 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "mail_ru",
 		"color" => "356FAC",
 	),
+	"mastodon" => array(
+		"name" => "Mastodon",
+		"icon" => "mastodon",
+		"color" => "2b90d9",
+	),
 	"mendeley" => array(
 		"name" => "Mendeley",
 		"icon" => "mendeley",
@@ -216,11 +246,6 @@ $A2A_SHARE_SAVE_services = array(
 		"name" => "Meneame",
 		"icon" => "meneame",
 		"color" => "FF7D12",
-	),
-	"sms" => array(
-		"name" => "Message",
-		"icon" => "sms",
-		"color" => "6CBE45",
 	),
 	"facebook_messenger" => array(
 		"name" => "Messenger",
@@ -232,16 +257,6 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "mewe",
 		"color" => "007DA1",
 	),
-	"micro_blog" => array(
-		"name" => "Micro.blog",
-		"icon" => "micro_blog",
-		"color" => "FF8800",
-	),
-	"mix" => array(
-		"name" => "Mix",
-		"icon" => "mix",
-		"color" => "ff8226",
-	),
 	"mixi" => array(
 		"name" => "Mixi",
 		"icon" => "mixi",
@@ -250,7 +265,12 @@ $A2A_SHARE_SAVE_services = array(
 	"myspace" => array(
 		"name" => "MySpace",
 		"icon" => "myspace",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
+	),
+	"netvouz" => array(
+		"name" => "Netvouz",
+		"icon" => "netvouz",
+		"color" => "6C3",
 	),
 	"odnoklassniki" => array(
 		"name" => "Odnoklassniki",
@@ -285,12 +305,17 @@ $A2A_SHARE_SAVE_services = array(
 	"print" => array(
 		"name" => "Print",
 		"icon" => "print",
-		"color" => "888990",
+		"color" => "0166FF",
 	),
 	"printfriendly" => array(
 		"name" => "PrintFriendly",
 		"icon" => "printfriendly",
 		"color" => "6D9F00",
+	),
+	"protopage_bookmarks" => array(
+		"name" => "Protopage Bookmarks",
+		"icon" => "protopage",
+		"color" => "413FFF",
 	),
 	"pusha" => array(
 		"name" => "Pusha",
@@ -300,17 +325,12 @@ $A2A_SHARE_SAVE_services = array(
 	"kindle_it" => array(
 		"name" => "Push to Kindle",
 		"icon" => "kindle",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"qzone" => array(
 		"name" => "Qzone",
 		"icon" => "qzone",
 		"color" => "2B82D9",
-	),
-	"raindrop_io" => array(
-		"name" => "Raindrop.io",
-		"icon" => "raindrop_io",
-		"color" => "0B7ED0",
 	),
 	"rediff" => array(
 		"name" => "Rediff MyPage",
@@ -321,6 +341,11 @@ $A2A_SHARE_SAVE_services = array(
 		"name" => "Refind",
 		"icon" => "refind",
 		"color" => "1492ef",
+	),
+	"renren" => array(
+		"name" => "Renren",
+		"icon" => "renren",
+		"color" => "005EAC",
 	),
 	"sina_weibo" => array(
 		"name" => "Sina Weibo",
@@ -342,10 +367,15 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "slashdot",
 		"color" => "004242",
 	),
+	"sms" => array(
+		"name" => "SMS",
+		"icon" => "sms",
+		"color" => "6CBE45",
+	),
 	"snapchat" => array(
 		"name" => "Snapchat",
 		"icon" => "snapchat",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"stocktwits" => array(
 		"name" => "StockTwits",
@@ -362,45 +392,40 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "symbaloo",
 		"color" => "6DA8F7",
 	),
-	"microsoft_teams" => array(
-		"name" => "Teams",
-		"icon" => "microsoft_teams",
-		"color" => "5059C9",
-	),
 	"telegram" => array(
 		"name" => "Telegram",
 		"icon" => "telegram",
 		"color" => "2CA5E0",
 	),
-	"threads" => array(
-		"name" => "Threads",
-		"icon" => "threads",
-		"color" => "1A1A1A",
-	),
 	"threema" => array(
 		"name" => "Threema",
 		"icon" => "threema",
-		"color" => "1A1A1A",
+		"color" => "2A2A2A",
 	),
 	"trello" => array(
 		"name" => "Trello",
 		"icon" => "trello",
 		"color" => "0079BF",
 	),
+	"tuenti" => array(
+		"name" => "Tuenti",
+		"icon" => "tuenti",
+		"color" => "0075C9",
+	),
 	"twiddla" => array(
 		"name" => "Twiddla",
 		"icon" => "twiddla",
-		"color" => "1A1A1A",
-	),
-	"twitter" => array(
-		"name" => "Twitter",
-		"icon" => "twitter",
-		"color" => "1D9BF0",
+		"color" => "2A2A2A",
 	),
 	"typepad_post" => array(
-		"name" => "TypePad",
+		"name" => "TypePad Post",
 		"icon" => "typepad",
 		"color" => "D2DE61",
+	),
+	"viadeo" => array(
+		"name" => "Viadeo",
+		"icon" => "viadeo",
+		"color" => "2A2A2A",
 	),
 	"viber" => array(
 		"name" => "Viber",
@@ -412,6 +437,11 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "vk",
 		"color" => "587EA3",
 	),
+	"wanelo" => array(
+		"name" => "Wanelo",
+		"icon" => "wanelo",
+		"color" => "9cb092",
+	),
 	"wechat" => array(
 		"name" => "WeChat",
 		"icon" => "wechat",
@@ -420,17 +450,12 @@ $A2A_SHARE_SAVE_services = array(
 	"wordpress" => array(
 		"name" => "WordPress",
 		"icon" => "wordpress",
-		"color" => "585C60",
+		"color" => "464646",
 	),
 	"wykop" => array(
 		"name" => "Wykop",
 		"icon" => "wykop",
 		"color" => "367DA9",
-	),
-	"x" => array(
-		"name" => "X",
-		"icon" => "x",
-		"color" => "1A1A1A",
 	),
 	"xing" => array(
 		"name" => "XING",
@@ -442,6 +467,11 @@ $A2A_SHARE_SAVE_services = array(
 		"icon" => "yahoo",
 		"color" => "400090",
 	),
+	"yoolink" => array(
+		"name" => "Yoolink",
+		"icon" => "yoolink",
+		"color" => "A2C538",
+	),
 	"yummly" => array(
 		"name" => "Yummly",
 		"icon" => "yummly",
@@ -452,139 +482,103 @@ $A2A_SHARE_SAVE_services = array(
 
 $A2A_FOLLOW_services = array(
 	
-	'facebook' => array(
+	'facebook' => array( 
 		'name' => 'Facebook',
 		'href' => 'https://www.facebook.com/${id}',
 		'icon' => 'facebook',
 		'color' => '3B5998',
 	),
-	'threads' => array(
-		'name' => 'Threads',
-		'href' => 'https://www.threads.com/@${id}',
-		'icon' => 'threads',
-		'color' => '2A2A2A',
+	'twitter' => array( 
+		'name' => 'Twitter',
+		'href' => 'https://twitter.com/${id}',
+		'icon' => 'twitter',
+		'color' => '55ACEE',
 	),
-	'instagram' => array(
+	'instagram' => array( 
 		'name' => 'Instagram',
 		'href' => 'https://www.instagram.com/${id}',
 		'icon' => 'instagram',
 		'color' => 'E4405F',
 	),
-	'tiktok' => array(
-		'name' => 'TikTok',
-		'href' => 'https://www.tiktok.com/@${id}',
-		'icon' => 'tiktok',
-		'color' => '2A2A2A',
-	),
-	'pinterest' => array(
+	'pinterest' => array( 
 		'name' => 'Pinterest',
 		'href' => 'https://www.pinterest.com/${id}',
 		'icon' => 'pinterest',
 		'color' => 'BD081C',
 	),
-	'behance' => array(
+	'behance' => array( 
 		'name' => 'Behance',
 		'href' => 'https://www.behance.net/${id}',
 		'icon' => 'behance',
 		'color' => '007EFF',
 	),
-	'bluesky' => array(
-		'name' => 'Bluesky',
-		'href' => 'https://bsky.app/profile/${id}',
-		'icon' => 'bluesky',
-		'color' => '1285FE',
-	),
-	'flickr' => array(
+	'flickr' => array( 
 		'name' => 'Flickr',
 		'href' => 'https://www.flickr.com/photos/${id}',
 		'icon' => 'flickr',
 		'color' => 'FF0084',
 	),
-	'foursquare' => array(
+	'foursquare' => array( 
 		'name' => 'Foursquare',
 		'href' => 'https://foursquare.com/${id}',
 		'icon' => 'foursquare',
 		'color' => 'F94877',
 	),
-	'github' => array(
+	'github' => array( 
 		'name' => 'GitHub',
 		'href' => 'https://github.com/${id}',
 		'icon' => 'github',
 		'color' => '2A2A2A',
 	),
-	'google_maps' => array(
-		'name' => 'Google Maps',
-		'href' => 'https://goo.gl/maps/xweTPfsMoFTXHrCF7',
-		'icon' => 'google_maps',
-		'color' => '34A853',
-	),
-	'linkedin' => array(
+	'linkedin' => array( 
 		'name' => 'LinkedIn',
 		'href' => 'https://www.linkedin.com/in/${id}',
 		'icon' => 'linkedin',
 		'color' => '007BB5',
 	),
-	'linkedin_company' => array(
+	'linkedin_company' => array( 
 		'name' => 'LinkedIn Company',
 		'href' => 'https://www.linkedin.com/company/${id}',
 		'icon' => 'linkedin',
 		'color' => '007BB5',
 	),
-	'medium' => array(
+	'medium' => array( 
 		'name' => 'Medium',
 		'href' => 'https://medium.com/@${id}',
 		'icon' => 'medium',
 		'color' => '2A2A2A',
 	),
-	'snapchat' => array(
+	'snapchat' => array( 
 		'name' => 'Snapchat',
 		'href' => 'https://www.snapchat.com/add/${id}',
 		'icon' => 'snapchat',
 		'color' => '2A2A2A',
 	),
-	'tumblr' => array(
+	'tumblr' => array( 
 		'name' => 'Tumblr',
 		'href' => 'http://${id}.tumblr.com',
 		'icon' => 'tumblr',
 		'color' => '35465C',
 	),
-	'twitter' => array(
-		'name' => 'Twitter',
-		'href' => 'https://x.com/${id}',
-		'icon' => 'twitter',
-		'color' => '55ACEE',
-	),
-	'vimeo' => array(
+	'vimeo' => array( 
 		'name' => 'Vimeo',
 		'href' => 'https://vimeo.com/${id}',
 		'icon' => 'vimeo',
 		'color' => '1AB7EA',
 	),
-	'x' => array(
-		'name' => 'X',
-		'href' => 'https://x.com/${id}',
-		'icon' => 'x',
-		'color' => '2A2A2A',
-	),
-	'yelp' => array(
-		'name' => 'Yelp',
-		'href' => 'https://www.yelp.com/biz/greens-restaurant-san-francisco-5',
-		'icon' => 'yelp',
-		'color' => 'FF1A1A',
-	),
-	'youtube' => array(
+	'youtube' => array( 
 		'name' => 'YouTube',
 		'href' => 'https://www.youtube.com/user/${id}',
 		'icon' => 'youtube',
 		'color' => 'FF0000',
 	),
-	'youtube_channel' => array(
+	'youtube_channel' => array( 
 		'name' => 'YouTube Channel',
 		'href' => 'https://www.youtube.com/channel/${id}',
 		'icon' => 'youtube',
 		'color' => 'FF0000',
 	),
-	'feed' => array(
+	'feed' => array( 
 		'name' => 'RSS Feed',
 		'href' => 'http://www.example.com/feed/',
 		'icon' => 'feed',

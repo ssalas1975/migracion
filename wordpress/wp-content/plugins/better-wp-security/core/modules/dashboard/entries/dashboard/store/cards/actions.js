@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { set, castArray } from 'lodash';
+import { set } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { select, dispatch, controls } from '@wordpress/data';
+import { select } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -187,18 +187,6 @@ export function failedQueryDashboardCard( cardId, error ) {
 	};
 }
 
-export function *addAvailableCardsToDashboard( dashboardId ) {
-	const cards = yield controls.select(
-		'ithemes-security/dashboard',
-		'getDashboardAddableCardLDOs',
-		dashboardId
-	);
-
-	for ( const card of cards ) {
-		yield* addDashboardCard( card.href, {} );
-	}
-}
-
 /**
  * Add a card to the dashboard.
  *
@@ -352,17 +340,6 @@ export function* refreshDashboardCards( dashboardId ) {
 	yield finishRefreshDashboardCards( dashboardId );
 
 	return updates;
-}
-
-export function* refreshDashboardCardsOfType( dashboardId, types ) {
-	types = castArray( types );
-	const cards = select( 'ithemes-security/dashboard' ).getDashboardCards( dashboardId );
-
-	for ( const card of cards ) {
-		if ( types.includes( card.card ) ) {
-			dispatch( 'ithemes-security/dashboard' ).refreshDashboardCard( card.id );
-		}
-	}
 }
 
 export function* refreshDashboardCard( cardId ) {

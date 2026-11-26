@@ -2,6 +2,25 @@
 /* Theme Options
 /*-----------------------------------------------------------------------------------*/
 
+body.appearance_page_fw-settings .wrap {
+	margin-left: 0;
+	margin-right: 0px;
+}
+
+form.fw-settings-form.fw-backend-side-tabs {
+	max-width: 1400px;
+	margin: 0 auto;
+}
+
+@media (max-width: 1600px) {
+    form.fw-settings-form.fw-backend-side-tabs {
+        margin-left: 10px;
+        margin-right: 30px;
+    }
+}
+
+
+
 .jevelin-live-documentation,
 .jevelin-live-support {
 	width: 100%;
@@ -9,7 +28,7 @@
 }
 
 .fw-backend-side-tabs .fw-options-tabs-first-level > .fw-options-tabs-contents > .fw-inner {
-	min-height: 812px!important;
+	min-height: 1012px!important;
 }
 
 #wpwrap {
@@ -46,10 +65,24 @@ h3 span.initialized {
 
 .fw-settings-form-header {
 	background-color: #3f3f3f!important;
-	padding: 10px 0;!important;
-	background-image: url(../../img/admin_background.jpg)!important;
-	background-position: 50% 50%!important;
+	padding: 10px 0;
+	background-image: url(../../img/admin-background.png)!important;
+	background-position: 0% 0%!important;
 	background-size: cover!important;
+	border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+@media (min-width: 1025px) {
+	.fw-settings-form-header {
+		position: sticky;
+		top: 32px;
+		z-index: 4000;
+	}
+}
+
+.fw-settings-form-header > div {
+	padding: 10px 15px 10px 20px!important;
 }
 
 .fw-settings-form-header h2 {
@@ -67,11 +100,12 @@ h3 span.initialized {
 	color: #a5a1a9!important;
 	font-weight: 400!important;
 	opacity: 1!important;
-	width: 223px;
-	height: 37px;
+	width: 95px;
+	height: 23px;
 	display: block;
-	margin-left: -5px!important;
-	background-image: url(../../img/admin_logo.png)!important;
+	margin-left: 5px!important;
+	margin-top: -3px;
+	background-image: url(../../img/admin-logo.png)!important;
 }
 
 
@@ -85,7 +119,6 @@ h3 span.initialized {
 
 .form-header-buttons {
 	padding-right: 30px;
-	padding-top: 5px;
 }
 
 .fw-settings-form-header .submit-button-reset {
@@ -96,29 +129,33 @@ h3 span.initialized {
 	margin-left: 15px!important;
 	margin-right: 0px!important;
 	margin-right: -20px!important;
-	background-color: #47c9e5!important;
+	background-color: #00b50f!important;
 	padding: 0 28px!important;
+	text-transform: uppercase;
 }
 
 .fw-settings-form-header .submit-button-reset,
 .fw-settings-form-header .submit-button-save {
 	position: relative;
 	color: #fff!important;
-	text-transform: uppercase;
 	font-weight: 600!important;
 	border-radius: 100px!important;
-	height: 50px!important;
-	line-height: 48px!important;
+	height: 45px!important;
+	line-height: 43px!important;
 	text-decoration: none!important;
 	border: none!important;
-	font-size: 14px!important;
+	font-size: 13px!important;
 	text-shadow: none!important;
 	transition: 0.3s all ease-in-out;
 }
 
+.fw-settings-form-header .submit-button-save {
+	font-size: 11px!important;
+}
+
 .fw-settings-form-header .submit-button-save:hover,
 .fw-settings-form-header .submit-button-save:focus {
-	background-color: #36BFDC!important;
+	background-color: #4cb78c!important;
 }
 
 
@@ -126,10 +163,9 @@ h3 span.initialized {
 
 .form-footer-buttons {
 	border-color: transparent!important;
-	background-color: #f8f8f8!important;
+	background-color: transparent!important;
 	margin-left: 230px!important;
 	margin-top: -100px!important;
-	border-left: 1px solid #e8e8e8!important;
 	padding-left: 35px;
 	height: 99px!important;
 }
@@ -137,23 +173,23 @@ h3 span.initialized {
 .form-footer-buttons .button-primary {
 	margin-right: 15px!important;
 	margin-left: 0px!important;
-	background-color: #47c9e5!important;
+	background-color: #00b50f!important;
 	padding: 0 28px!important;
 	transition: 0.3s all ease-in-out;
+	text-transform: uppercase;
+	font-size: 11px;
 }
 
 .form-footer-buttons .button-secondary,
 .form-footer-buttons .button-primary {
 	position: relative;
 	color: #fff!important;
-	text-transform: uppercase;
 	font-weight: 600!important;
 	border-radius: 100px!important;
-	height: 50px!important;
-	line-height: 48px!important;
+	height: 45px!important;
+	line-height: 43px!important;
 	text-decoration: none!important;
 	border: none!important;
-	font-size: 14px!important;
 	bottom: -5px!important;
 	text-shadow: none!important;
 }
@@ -161,11 +197,13 @@ h3 span.initialized {
 .form-footer-buttons .button-secondary {
 	background-color: transparent!important;
 	color: #626262!important;
+	font-size: 13px!important;
+	font-weight: normal!important;
 }
 
 .form-footer-buttons .button-primary:hover,
 .form-footer-buttons .button-primary:focus {
-	background-color: #36BFDC!important;
+	background-color: #4cb78c!important;
 }
 
 .form-footer-buttons::before{
@@ -183,6 +221,11 @@ h3 span.initialized {
 	font-weight: 400!important;
 	padding-left: 25px!important;
 	text-transform: none!important;
+	font-size: 13px!important;
+	margin: 5px 0px!important;
+	margin-left: 30px!important;
+	border-radius: 5px;
+	width: auto!important;
 }
 
 .ui-state-default.ui-tabs-active {
@@ -195,8 +238,6 @@ h3 span.initialized {
 .ui-state-default.ui-tabs-active .fw-wp-link {
 	color: #fff!important;
 	font-weight: 600!important;
-	font-size: 14px!important;
-	background-color: #334644!important;
 }
 
 .ui-state-default.ui-tabs-active .fw-wp-link::after {
@@ -216,13 +257,6 @@ h3 span.initialized {
 	opacity: 1;
 }
 
-.ui-state-default.ui-tabs-active:not(:first-child) {
-	border-top: 1px solid #f5f5f5!important;
-}
-
-.ui-state-default.ui-tabs-active:not(:last-child) {
-	border-bottom: 1px solid #f5f5f5!important;
-}
 
 .ui-state-default .fw-wp-link:before {
 	content: "\e60f";
@@ -284,41 +318,45 @@ h3 span.initialized {
 	content: "\e654";
 }
 
-/* WooCoommerce */
+/* Carousel */
 .ui-state-default:nth-child(10) .fw-wp-link:before {
+	content: "\e711";
+}
+
+/* WooCoommerce */
+.ui-state-default:nth-child(11) .fw-wp-link:before {
 	content: "\e60d";
 }
 
+/* Lazy loading */
+.ui-state-default:nth-child(12) .fw-wp-link:before {
+	content: "\e652";
+}
+
 /* Page Loader */
-.ui-state-default:nth-child(11) .fw-wp-link:before {
+.ui-state-default:nth-child(13) .fw-wp-link:before {
 	content: "\e698";
 }
 
 /* 404 Page */
-.ui-state-default:nth-child(12) .fw-wp-link:before {
+.ui-state-default:nth-child(14) .fw-wp-link:before {
 	content: "\e6c5";
 }
 
 /* Notice*/
-.ui-state-default:nth-child(13) .fw-wp-link:before {
+.ui-state-default:nth-child(15) .fw-wp-link:before {
 	content: "\e718";
 }
 
 /* Custom Code */
-.ui-state-default:nth-child(14) .fw-wp-link:before {
+.ui-state-default:nth-child(16) .fw-wp-link:before {
 	content: "\e67c";
 }
 
-/* Theme Documentation */
-.ui-state-default:nth-child(15) .fw-wp-link:before {
-	content: "\e717";
+/* Import / Export */
+.ui-state-default:nth-child(17) .fw-wp-link:before {
+	content: "\e619";
 }
-
-/* Theme Support */
-.ui-state-default:nth-child(16) .fw-wp-link:before {
-	content: "\e718";
-}
-
 
 
 
@@ -363,7 +401,7 @@ h3 span.initialized {
 
 
 .fw-backend-postboxes .handlediv {
-	display: none;
+	display: none!important;
 }
 
 .fw-backend-postboxes .hndle {
@@ -374,7 +412,7 @@ h3 span.initialized {
 
 .ui-state-default {
 	text-transform: uppercase!important;
-	border-bottom: 1px solid #e8e8e8!important;
+	border-width: 0px!important;
 }
 
 .ui-state-default a.nav-tab {
@@ -395,18 +433,19 @@ body .fw-options-tabs-list li a {
 /* Navigation Structure */
 
 .fw-backend-side-tabs .fw-options-tabs-first-level {
-	background: #f8f8f8!important;
+	background: transparent!important;
+	border-width: 0px!important
 }
 
 @media screen and (min-width: 782px) {
 
 	.fw-options-tabs-list {
-		width: 230px!important;
+		width: 245px!important;
 		padding-bottom: 0!important;
 	}
 
 	#wpwrap .fw-options-tabs-wrapper .fw-options-tabs-contents {
-		margin-left: 230px!important;
+		margin-left: 245px!important;
 	}
 
 }
@@ -416,11 +455,12 @@ body .fw-options-tabs-list li a {
 
 .fw-postbox {
 	padding: 32px 35px;
+	padding-top: 16px;
 }
 
 .fw-postbox .hndle {
 	line-height: normal!important;
-	height: 52px!important;
+	height: 35px!important;
 	padding: 0 !important;
 }
 
@@ -429,8 +469,8 @@ body .fw-options-tabs-list li a {
 }
 
 .fw-postbox .hndle span {
-	color: #2f2f2f!important;
-	font-size: 24px!important;
+	color: #3f3f3f!important;
+	font-size: 21px!important;
 }
 
 
@@ -442,6 +482,11 @@ body .fw-options-tabs-list li a {
 
 .fw-backend-option-design-default {
 	padding: 24px 0px 21px!important;
+	border-bottom-width: 0px!important;
+}
+
+.fw-backend-side-tabs .fw-backend-postboxes > .fw-postbox > .hndle:after {
+	display: none!important;
 }
 
 
@@ -483,13 +528,6 @@ body .fw-options-tabs-list li a {
 }
 
 
-.fw-option-type-switch .adaptive-switch.switch-right .switch-dot span {
-	background-color: #3B7DB5!important;
-}
-
-.fw-option-type-switch .adaptive-switch.switch-right .switch-switcher label.switch-label {
-	color: #3B7DB5!important;
-}
 
 .fw-option-typography-v2-option-subset,
 .fw-option-typography-v2-option-weight {
@@ -537,24 +575,28 @@ body .fw-options-tabs-list li a {
 
 
 
+
+
+
+
 .fw-backend-option .fw-clear {
 	clear: none!important;
 }
 
 .fw-backend-option .fw-backend-option-label {
-	width: 25%!important;
+	width: 35%!important;
 }
 
 .fw-backend-option .fw-backend-option-desc {
 	margin-left: 0!important;
-	width: 18%!important;
+	width: 28%!important;
 	color: #9e9e9e;
 	font-size: 14px;
 }
 
 .fw-backend-option .fw-backend-option-input {
 	float: right!important;
-	width: 75%!important;
+	width: 65%!important;
 }
 
 .fw-backend-option:after {
@@ -563,7 +605,40 @@ body .fw-options-tabs-list li a {
 	content: "";
 }
 
+@media (min-width: 1200px) {
+	.fw-backend-option .fw-backend-option-label {
+		width: calc(300px)!important;
+	}
 
+	.fw-backend-option .fw-backend-option-desc {
+		width: calc(250px)!important;
+	}
+
+	.fw-backend-option .fw-backend-option-input {
+		width: calc(100% - 300px)!important;
+	}
+}
+
+
+
+.fw-options-tabs-wrapper select.fw-option-type-select {
+	padding: 0 10px!important;
+    height: 40px!important;
+	line-height: 40px!important;
+    border-radius: 5px!important;
+    font-size: 13px!important;
+}
+
+.fw-options-tabs-wrapper input.fw-option-type-text {
+	padding: 0 14px!important;
+    height: 40px!important;
+	line-height: 40px!important;
+    border-radius: 5px!important;
+}
+
+.fw-option-type-upload.images-only .thumb img {
+    border-radius: 5px!important;
+}
 
 
 
@@ -610,4 +685,126 @@ body .fw-options-tabs-list li a {
 .sh-demo-content-link {
 	position: relative;
 	margin-top: 4px;
+}
+
+
+
+
+/* Import button */
+.sh-theme-settings-import-submit {
+	display: inline-block;
+	position: relative;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 100px;
+    height: 45px;
+    line-height: 43px;
+    text-decoration: none;
+    border: none;
+    font-size: 13px;
+    text-shadow: none;
+    background-color: #c13535;
+    padding: 0 28px;
+    transition: 0.3s all ease-in-out;
+	cursor: pointer;
+	margin-top: 20px;
+}
+
+.sh-theme-settings-import-submit:focus,
+.sh-theme-settings-import-submit:hover {
+	background-color: #a72222;
+}
+
+
+
+
+/*
+** Theme Settings Loading Screen
+*/
+body.appearance_page_fw-settings.sh-adminbody-loading .fw-settings-form.fw-backend-side-tabs {
+	opacity: 0;
+}
+
+
+body .fw-settings-form-header {
+	background-color: transparent!important;
+	background-image: none!important;
+}
+
+form.fw-settings-form.fw-backend-side-tabs {
+	background-color: #fff!important;
+	border-radius: 5px;
+	box-shadow: 0 5px 15px rgba(0,0,0,0.05)!important;
+	overflow: hidden;
+	font-family: 'Montserrat', sans-serif;
+	margin-top: 45px;
+}
+
+.fw-settings-form-header .submit-button-reset {
+	color: #5d5d5d!important;
+	font-weight: normal!important;
+}
+
+.fw-backend-side-tabs .fw-options-tabs-first-level > .fw-options-tabs-contents > .fw-inner {
+	border-right-width: 0px!important;
+	border-left-width: 0px!important;
+}
+
+body .fw-settings-form-header {
+	margin-top: 0px!important;
+	top: 0px!important;
+}
+
+.fw-backend-side-tabs .fw-settings-form-header h2 a {
+	display: none;
+}
+
+.fw-settings-form-header h2:after {
+	content: "Theme Settings";
+    font-size: 24px;
+    color: #3f3f3f;
+    font-weight: bold;
+    padding-left: 10px;
+    padding-top: 10px;
+    display: block;
+}
+
+
+.fw-backend-option-design-default > .fw-backend-option-label label,
+.fw-backend-option-design-default > .fw-backend-option-desc > .fw-inner {
+	font-size: 13px!important;
+}
+
+.fw-backend-option-design-default > .fw-backend-option-desc > .fw-inner {
+	font-style: normal!important;
+}
+
+body .fw-postbox .hndle {
+	cursor: default!important;
+}
+
+
+
+
+/* Custom CSS / JS */
+#fw-backend-option-fw-option-custom_css textarea,
+#fw-backend-option-fw-option-custom_js textarea {
+	height: 350px!important;
+	padding: 20px!important;
+	font-family: 'Montserrat', sans-serif;
+}
+
+#fw-backend-option-fw-option-custom_css .fw-pull-left,
+#fw-backend-option-fw-option-custom_js .fw-pull-left {
+	max-width: 100%;
+}
+
+.wp-picker-container .wp-color-result.button .color-alpha {
+	height: 22px!important;
+}
+
+
+
+.fw-backend-option .button.wp-color-result > .color-alpha {
+	height: 28px!important;
 }

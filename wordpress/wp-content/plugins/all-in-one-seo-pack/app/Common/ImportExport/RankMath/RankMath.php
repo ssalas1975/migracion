@@ -26,15 +26,25 @@ class RankMath extends ImportExport\Importer {
 	];
 
 	/**
+	 * The post action name.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @var string
+	 */
+	public $postActionName = 'aioseo_import_post_meta_rank_math';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param ImportExport\ImportExport $importer the ImportExport class.
+	 * @param ImportExport $importer the ImportExport class.
 	 */
 	public function __construct( $importer ) {
 		$this->helpers  = new Helpers();
 		$this->postMeta = new PostMeta();
+		add_action( $this->postActionName, [ $this->postMeta, 'importPostMeta' ] );
 
 		$plugins = $this->plugins;
 		foreach ( $plugins as $key => $plugin ) {

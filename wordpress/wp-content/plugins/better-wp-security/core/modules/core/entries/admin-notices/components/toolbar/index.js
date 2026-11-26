@@ -2,20 +2,15 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { ThemeProvider } from '@emotion/react';
 
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Popover, Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-
-/**
- * iThemes dependencies
- */
-import { solidTheme } from '@ithemes/ui';
+import { compose, withState } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -23,22 +18,16 @@ import { solidTheme } from '@ithemes/ui';
 import Panel from '../panel';
 import './style.scss';
 
-export default function Toolbar() {
-	const [ isToggled, setIsToggled ] = useState( false );
-
-	const { notices, noticesLoaded } = useSelect( ( select ) => ( {
-		notices: select( 'ithemes-security/admin-notices' ).getNotices(),
-		noticesLoaded: select( 'ithemes-security/admin-notices' ).areNoticesLoaded(),
-	} ) );
+function Toolbar( { notices, noticesLoaded, isToggled, setState } ) {
 	return (
-		<ThemeProvider theme={ solidTheme }>
+		<Fragment>
 			<Button
 				id="itsec-admin-notices-toolbar-trigger"
 				className={ classnames( 'ab-item ab-empty-item', {
 					'itsec-admin-notices-toolbar--has-notices':
 						notices.length > 0,
 				} ) }
-				onClick={ () => setIsToggled( ! isToggled ) }
+				onClick={ () => setState( { isToggled: ! isToggled } ) }
 				aria-expanded={ isToggled }
 			>
 				<span className="it-icon-itsec" />
@@ -61,16 +50,26 @@ export default function Toolbar() {
 					focusOnMount="container"
 					position="bottom center"
 					headerTitle={ __( 'Security', 'better-wp-security' ) }
-					onClose={ () => setIsToggled( false ) }
-					onFocusOutside={ () => setIsToggled( false ) }
+					onClose={ () => setState( { isToggled: false } ) }
+					onFocusOutside={ () => setState( { isToggled: false } ) }
 				>
 					<Panel
 						notices={ notices }
 						loaded={ noticesLoaded }
-						close={ () => setIsToggled( false ) }
+						close={ () => setState( { isToggled: false } ) }
 					/>
 				</Popover>
 			) }
-		</ThemeProvider>
+		</Fragment>
 	);
 }
+
+export default compose( [
+	withSelect( ( select ) => ( {
+		notices: select( 'ithemes-security/admin-notices' ).getNotices(),
+		noticesLoaded: select(
+			'ithemes-security/admin-notices'
+		).areNoticesLoaded(),
+	} ) ),
+	withState( { isToggled: false } ),
+] )( Toolbar );

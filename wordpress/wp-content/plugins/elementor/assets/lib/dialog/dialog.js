@@ -1,5 +1,5 @@
 /*!
- * Dialogs Manager v4.9.4
+ * Dialogs Manager v4.9.0
  * https://github.com/kobizz/dialogs-manager
  *
  * Copyright Kobi Zaltzberg
@@ -63,8 +63,6 @@
 		var self = this,
 			elements = {},
 			settings = {};
-		
-		self.openDialogs = [];
 
 		var initElements = function() {
 
@@ -105,23 +103,7 @@
 			return Object.create(settings);
 		};
 
-		this.maybeLoadAssets = async function () {
-			const isFrontend = !! window.elementorFrontend?.utils?.assetsLoader;
-
-			if ( ! isFrontend ) {
-				return;
-			}
-
-			try {
-				await elementorFrontend.utils.assetsLoader.load( 'style', 'dialog' );
-			} catch ( error ) {
-				console.error( 'Failed to load assets:', error );
-			}
-		};
-
-		this.init = function (settings) {
-
-			this.maybeLoadAssets();
+		this.init = function(settings) {
 
 			initSettings(settings);
 
@@ -181,7 +163,7 @@
 			var effect = settings.effects[intent],
 				$widget = elements.widget;
 
-			if ('function' === typeof effect) {
+			if ($.isFunction(effect)) {
 				effect.apply($widget, params);
 			} else {
 
@@ -312,7 +294,7 @@
 					settings.closeButtonOptions.iconClass = settings.closeButtonClass;
 				}
 
-				const $button = $('<a>', settings.closeButtonOptions.attributes),
+				const $button = $('<div>', settings.closeButtonOptions.attributes),
 					$buttonIcon = $(settings.closeButtonOptions.iconElement).addClass(settings.closeButtonOptions.iconClass);
 
 				$button.append($buttonIcon);
@@ -334,13 +316,7 @@
 
 			classes.push(self.getSettings('className'));
 
-			elements.widget
-				.addClass(classes.join(' '))
-				.attr({
-					'aria-modal': true,
-					'role': 'document',
-					'tabindex': 0,
-				});
+			elements.widget.addClass(classes.join(' '));
 		};
 
 		var initSettings = function(parent, userSettings) {
@@ -354,10 +330,10 @@
 				classes: {
 					globalPrefix: parentSettings.classPrefix,
 					prefix: parentSettings.classPrefix + '-' + widgetName,
-					preventScroll: parentSettings.classPrefix + '-prevent-scroll',
+					preventScroll: parentSettings.classPrefix + '-prevent-scroll'
 				},
 				selectors: {
-					preventClose: '.' + parentSettings.classPrefix + '-prevent-close',
+					preventClose: '.' + parentSettings.classPrefix + '-prevent-close'
 				},
 				container: 'body',
 				preventScroll: false,
@@ -365,12 +341,7 @@
 				closeButton: false,
 				closeButtonOptions: {
 					iconClass: parentSettings.classPrefix + '-close-button-icon',
-					attributes: {
-						role: 'button',
-						'tabindex': 0,
-						'aria-label': 'Close',
-						href: '#',
-					},
+					attributes: {},
 					iconElement: '<i>',
 				},
 				position: {
@@ -378,7 +349,7 @@
 					my: 'center',
 					at: 'center',
 					enable: true,
-					autoRefresh: false,
+					autoRefresh: false
 				},
 				hide: {
 					auto: false,
@@ -388,8 +359,8 @@
 					onOutsideContextMenu: false,
 					onBackgroundClick: true,
 					onEscKeyPress: true,
-					ignore: '',
-				},
+					ignore: ''
+				}
 			};
 
 			$.extend(true, settings, self.getDefaultSettings(), userSettings);
@@ -483,12 +454,6 @@
 		};
 
 		this.destroy = function() {
-			const widgetId = self.getElements('widget')?.attr('id'),
-				index = self.parent.openDialogs.lastIndexOf(widgetId);
-
-			if (index !== -1) {
-				self.parent.openDialogs.splice(index, 1);
-			}
 
 			unbindEvents();
 
@@ -521,16 +486,6 @@
 				return;
 			}
 
-			const widgetId = self.getElements('widget')?.attr('id'),
-				openDialogs = self.parent.openDialogs,
-				topDialogId = openDialogs[openDialogs.length - 1];
-
-			if (topDialogId !== widgetId) {
-				return;
-			}
-
-			openDialogs.pop();
-
 			clearTimeout(hideTimeOut);
 
 			callEffect('hide', arguments);
@@ -551,8 +506,6 @@
 			if (!(parent instanceof DialogsManager.Instance)) {
 				throw 'The ' + self.widgetName + ' must to be initialized from an instance of DialogsManager.Instance';
 			}
-
-			self.parent = parent;
 
 			ensureClosureMethods();
 
@@ -697,10 +650,6 @@
 
 			self.trigger('show');
 
-			const widgetId = self.getElements('widget')?.attr('id');
-
-			self.parent.openDialogs.push(widgetId);
-
 			return self;
 		};
 
@@ -751,8 +700,7 @@
 		var self = this;
 
 		if (self.getSettings('closeButton')) {
-			self.getElements('closeButton').on('click', function(event) {
-				event.preventDefault();
+			self.getElements('closeButton').on('click', function() {
 				self.hide();
 			});
 		}
@@ -825,7 +773,7 @@
 					}
 				}
 
-				this.focusedButton = this.buttons[nextButtonIndex].trigger('focus');
+				this.focusedButton = this.buttons[nextButtonIndex].focus();
 			}
 		},
 		addButton: function(options) {
@@ -848,7 +796,7 @@
 					self.hide();
 				}
 
-				if ('function' === typeof options.callback) {
+				if ($.isFunction(options.callback)) {
 					options.callback.call(this, self);
 				}
 			};
@@ -921,7 +869,7 @@
 			}
 
 			if (this.focusedButton) {
-				this.focusedButton.trigger('focus');
+				this.focusedButton.focus();
 			}
 		},
 		unbindHotKeys: function() {

@@ -11,17 +11,13 @@ function et_theme_builder_load_portability() {
 		return;
 	}
 
-	// Get all the roles that can edit theme options and other posts.
-	$tb_applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options', 'edit_others_posts' ] );
-
 	et_core_load_component( 'portability' );
 	et_core_portability_register(
 		'et_theme_builder',
 		array(
-			'name'          => esc_html__( 'Divi Theme Builder', 'et_builder' ),
-			'type'          => 'theme_builder',
-			'view'          => 'et_theme_builder' === et_()->array_get( $_GET, 'page' ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No need to use nonce.
-			'applicability' => $tb_applicability_roles,
+			'name' => esc_html__( 'Divi Theme Builder', 'et_builder' ),
+			'type' => 'theme_builder',
+			'view' => 'et_theme_builder' === et_()->array_get( $_GET, 'page' ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No need to use nonce.
 		)
 	);
 }
@@ -37,11 +33,7 @@ add_action( 'admin_init', 'et_theme_builder_load_portability' );
  * @return void
  */
 function et_theme_builder_add_admin_page( $parent ) {
-	if (
-		! et_pb_is_allowed( 'theme_builder' )
-		|| ! current_user_can( 'edit_theme_options' )
-		|| ! current_user_can( 'edit_others_posts' )
-	) {
+	if ( ! et_pb_is_allowed( 'theme_builder' ) ) {
 		return;
 	}
 
@@ -65,7 +57,7 @@ function et_theme_builder_add_admin_page( $parent ) {
  * @return void
  */
 function et_theme_builder_enqueue_scripts() {
-	if ( ! et_builder_is_tb_admin_screen() && ! et_builder_is_et_onboarding_page() ) {
+	if ( ! et_builder_is_tb_admin_screen() ) {
 		return;
 	}
 
@@ -254,10 +246,6 @@ function et_theme_builder_enqueue_scripts() {
 	et_builder_load_library();
 
 	ET_Cloud_App::load_js();
-
-	if ( et_pb_is_allowed( 'divi_ai' ) ) {
-		ET_AI_App::load_js();
-	}
 }
 add_action( 'admin_enqueue_scripts', 'et_theme_builder_enqueue_scripts' );
 

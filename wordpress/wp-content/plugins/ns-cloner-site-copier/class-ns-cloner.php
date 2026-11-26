@@ -19,7 +19,7 @@ final class NS_Cloner {
 	 *
 	 * @var string
 	 */
-	public $version = '4.4.9.2';
+	public $version = '4.4.7.5';
 
 	/**
 	 * Menu Slug
@@ -174,7 +174,7 @@ final class NS_Cloner {
 		// Install custom tables after cloner init.
 		add_action( 'ns_cloner_init', array( $this, 'install_tables' ) );
 
-		add_action( 'init', array( $this, 'load_text_domain' ) );
+		add_action( 'after_setup_theme', array( $this, 'load_text_domain' ) );
 
 		// Only load rest of plugin if it could be needed (not on frontend).
 		$should_load = is_admin() || ( wp_doing_ajax() && is_user_logged_in() ) || ( defined( 'WP_CLI' ) && WP_CLI ) || ns_is_signup_allowed() || wp_doing_cron();
@@ -221,7 +221,7 @@ final class NS_Cloner {
 						array( $this->process_manager, 'copy_tables' ),
 						array( $this->process_manager, 'copy_files' ),
 					),
-					'report'      => function () {
+					'report'      => function() {
 						// Success message.
 						ns_cloner()->report->add_report( '_message', __( 'Site cloned successfully!', 'ns-cloner-site-copier' ) );
 						// Source site.
@@ -269,6 +269,7 @@ final class NS_Cloner {
 		 * This action automatically triggers the init() function for each registered addon.
 		 */
 		do_action( 'ns_cloner_init' );
+
 	}
 
 	/**
@@ -358,7 +359,7 @@ final class NS_Cloner {
 			__( 'NS Cloner', 'ns-cloner-site-copier' ),
 			$this->capability,
 			$this->menu_slug,
-			function () {
+			function() {
 				ns_cloner()->render( 'main' );
 			},
 			plugin_dir_url( __FILE__ ) . 'images/cloner-admin-icon.png',
@@ -373,7 +374,7 @@ final class NS_Cloner {
 			__( 'Logs / Status', 'ns-cloner-site-copier' ),
 			$this->capability,
 			'ns-cloner-logs',
-			function () {
+			function() {
 				ns_cloner()->render( 'logs' );
 			},
 		);
@@ -476,7 +477,7 @@ final class NS_Cloner {
 			if ( $has_base_prefix ) {
 				$tables = array_filter(
 					$tables,
-					function ( $table ) use ( $global_pattern, $subsite_pattern, $temp_pattern ) {
+					function( $table ) use ( $global_pattern, $subsite_pattern, $temp_pattern ) {
 						return ! preg_match( $global_pattern, $table )
 							&& ! preg_match( $subsite_pattern, $table )
 							&& ! preg_match( $temp_pattern, $table );
@@ -489,7 +490,7 @@ final class NS_Cloner {
 			$all_tables = $this->db->get_col( "SHOW TABLES LIKE '{$prefix}%'" );
 			$tables     = array_filter(
 				$all_tables,
-				function ( $table ) use ( $global_pattern, $subsite_pattern, $temp_pattern, $site_id, $exclude_global ) {
+				function( $table ) use ( $global_pattern, $subsite_pattern, $temp_pattern, $site_id, $exclude_global ) {
 					if ( $this->db->base_prefix !== $this->db->get_blog_prefix( $site_id ) ) {
 						// For sites where main ID != 1 (example: base = wp_, main site prefix = wp_2_),
 						// anything that matches the prefix (example: wp_2_) counts as a site table.
@@ -513,15 +514,15 @@ final class NS_Cloner {
 	/**
 	 * Check whether the current user can run a clone operation and whether nonce is valid, then optionally die or return false.
 	 *
-	 * @param bool $fail Whether to die on failure.
+	 * @param bool $die Whether to die on failure.
 	 * @return bool
 	 */
-	public function check_permissions( $fail = true ) {
+	public function check_permissions( $die = true ) {
 		$current_action      = ns_cloner_request()->get( 'action', 'default' );
 		$required_capability = apply_filters( "ns_cloner_capability_{$current_action}", $this->capability );
 		// Check that current user has sufficient permissions.
 		if ( ! current_user_can( $required_capability ) ) {
-			if ( $fail ) {
+			if ( $die ) {
 				if ( wp_doing_ajax() ) {
 					wp_die( -1, 403 );
 				} else {
@@ -532,7 +533,7 @@ final class NS_Cloner {
 			}
 		}
 		// Check that there is a valid nonce present.
-		$valid_nonce = check_ajax_referer( 'ns_cloner', 'clone_nonce', $fail );
+		$valid_nonce = check_ajax_referer( 'ns_cloner', 'clone_nonce', $die );
 		if ( ! $valid_nonce ) {
 			return false;
 		}
@@ -718,7 +719,8 @@ final class NS_Cloner {
 			'description'    => '',
 			'multisite_only' => true,
 			'steps'          => array(),
-			'report'         => function () {
+			'report'         => function() {
+
 			},
 		);
 		// Register by adding to the clone_modes array.
@@ -790,7 +792,7 @@ final class NS_Cloner {
 		foreach ( $clone_modes as $clone_mode_id ) {
 			add_action(
 				"ns_cloner_process_{$clone_mode_id}",
-				function () use ( $callback ) {
+				function() use ( $callback ) {
 					// Get the function name to refer to and log it.
 					$callback_name = is_array( $callback ) ? $callback[1] : $callback;
 					$callback_ref  = is_array( $callback ) ? get_class( $callback[0] ) . '::' . $callback[1] : $callback;

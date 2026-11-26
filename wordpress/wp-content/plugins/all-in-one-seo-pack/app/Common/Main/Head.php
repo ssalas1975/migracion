@@ -24,60 +24,16 @@ class Head {
 	private static $pageTitle = null;
 
 	/**
-	 * Title class instance.
-	 *
-	 * @since 4.3.9
-	 *
-	 * @var Title
-	 */
-	private $title;
-
-	/**
-	 * Links class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Meta\Links
-	 */
-	protected $links = null;
-
-	/**
-	 * Keywords class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Meta\Keywords
-	 */
-	protected $keywords = null;
-
-	/**
-	 * Verification class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Meta\SiteVerification
-	 */
-	protected $verification = null;
-
-	/**
-	 * The views to output.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var array
-	 */
-	protected $views = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.0.0
 	 */
 	public function __construct() {
+		add_action( 'init', [ $this, 'addAnalytics' ] );
 		add_action( 'wp', [ $this, 'registerTitleHooks' ], 1000 );
-		add_action( 'wp_head', [ $this, 'wpHead' ], 1 );
+		add_action( 'wp_head', [ $this, 'init' ], 1 );
 
-		$this->title        = new Title();
+		$this->analytics    = new GoogleAnalytics();
 		$this->links        = new Meta\Links();
 		$this->keywords     = new Meta\Keywords();
 		$this->verification = new Meta\SiteVerification();
@@ -87,6 +43,19 @@ class Head {
 			'schema'  => AIOSEO_DIR . '/app/Common/Views/main/schema.php',
 			'clarity' => AIOSEO_DIR . '/app/Common/Views/main/clarity.php'
 		];
+	}
+
+	/**
+	 * Adds analytics to the views if needed.
+	 *
+	 * @since 4.0.5
+	 *
+	 * @return void
+	 */
+	public function addAnalytics() {
+		if ( $this->analytics->canShowScript() ) {
+			$this->views['analytics'] = AIOSEO_DIR . '/app/Common/Views/main/analytics.php';
+		}
 	}
 
 	/**
@@ -103,31 +72,20 @@ class Head {
 
 		add_filter( 'pre_get_document_title', [ $this, 'getTitle' ], 99999 );
 		add_filter( 'wp_title', [ $this, 'getTitle' ], 99999 );
-		if ( ! current_theme_supports( 'title-tag' ) && ! aioseo()->helpers->isBlockTheme() ) {
-			// WP 6.9 introduced template enhancement output buffering that starts on
-			// wp_before_include_template (priority 1000). Starting our buffer on template_redirect
-			// causes a level mismatch because WP's enhancement buffer opens on top of ours.
-			// Using wp_before_include_template at a higher priority ensures our buffer starts AFTER
-			// the enhancement buffer, making it the innermost buffer that can be properly closed.
-			// On WP < 6.9, wp_before_include_template doesn't exist, so we use template_redirect.
-			if ( version_compare( get_bloginfo( 'version' ), '6.9', '>=' ) ) {
-				add_action( 'wp_before_include_template', [ $this->title, 'startOutputBuffering' ], 99999 );
-			} else {
-				add_action( 'template_redirect', [ $this->title, 'startOutputBuffering' ], 99999 );
-			}
-			add_action( 'wp_head', [ $this->title, 'endOutputBuffering' ], 99999 );
+		if ( ! current_theme_supports( 'title-tag' ) ) {
+			add_action( 'template_redirect', [ $this, 'startOutputBuffering' ] );
+			add_action( 'wp_footer', [ $this, 'rewriteTitle' ], -2 );
 		}
 	}
 
 	/**
-	 * Outputs the head.
+	 * Initializes the class.
 	 *
 	 * @since 4.0.5
-	 * @version 4.6.1
 	 *
 	 * @return void
 	 */
-	public function wpHead() {
+	public function init() {
 		$included = new Meta\Included();
 		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ! $included->isIncluded() ) {
 			return;
@@ -154,6 +112,43 @@ class Head {
 	}
 
 	/**
+	 * Starts our output buffering.
+	 *
+	 * @since 4.0.5
+	 *
+	 * @return void
+	 */
+	public function startOutputBuffering() {
+		ob_start();
+	}
+
+	/**
+	 * Rewrites the page title using output buffering.
+	 *
+	 * @since 4.0.5
+	 *
+	 * @return void
+	 */
+	public function rewriteTitle() {
+		$content   = apply_filters( 'aioseo_flush_output_buffer', true ) ? ob_get_clean() : ob_get_contents();
+		$split     = explode( '</head>', $content );
+		$head      = $split[0] . '</head>';
+
+		unset( $split[0] );
+		$body = implode( '</head>', $split );
+
+		// Remove all existing title tags.
+		$head = preg_replace( '#<title.*?\/title>#s', '', $head );
+
+		// Add the new title tag to our own comment block.
+		$pageTitle = aioseo()->helpers->escapeRegexReplacement( $this->getTitle() );
+		$head      = preg_replace( '#(<!--\sAll\sin\sOne\sSEO[a-zA-Z\s0-9.]+\s-->)#', "$1\r\n\t\t<title>$pageTitle</title>", $head, 1 );
+
+		$content = $head . $body;
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
 	 * The output function itself.
 	 *
 	 * @since 4.0.0
@@ -171,11 +166,11 @@ class Head {
 		echo "\n\t\t<!-- " . sprintf(
 			'%1$s %2$s',
 			esc_html( AIOSEO_PLUGIN_NAME ),
-			aioseo()->helpers->getAioseoVersion() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		) . " - aioseo.com -->\n";
+			aioseo()->version // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		) . " -->\n";
 
 		foreach ( $views as $view ) {
-			require $view;
+			require( $view );
 		}
 
 		echo "\t\t<!-- " . esc_html( AIOSEO_PLUGIN_NAME ) . " -->\n\n";

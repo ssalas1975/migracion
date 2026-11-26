@@ -263,9 +263,7 @@ class DiviExtension {
 		$this->_set_bundle_dependencies();
 
 		// Setup translations.
-		if ( ! empty( $this->gettext_domain ) ) {
-			load_plugin_textdomain( $this->gettext_domain, false, basename( $this->plugin_dir ) . '/languages' );
-		}
+		load_plugin_textdomain( $this->gettext_domain, false, basename( $this->plugin_dir ) . '/languages' );
 
 		// Register callbacks.
 		register_activation_hook( trailingslashit( $this->plugin_dir ) . $this->name . '.php', array( $this, 'wp_hook_activate' ) );

@@ -116,5 +116,7 @@ class NS_Cloner_Section_Advertise_Pro extends NS_Cloner_Section {
 		);
 		echo '</p>';
 		$this->close_section_box();
+
 	}
+
 }

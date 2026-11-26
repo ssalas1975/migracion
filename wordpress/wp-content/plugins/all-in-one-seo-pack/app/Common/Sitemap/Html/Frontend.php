@@ -36,7 +36,7 @@ class Frontend {
 	 * @since 4.1.3
 	 */
 	public function __construct() {
-		$this->query = new Query();
+		$this->query = new Query;
 	}
 
 	/**
@@ -106,7 +106,7 @@ class Frontend {
 		foreach ( $posts as $post ) {
 			$entry = [
 				'id'     => $post->ID,
-				'title'  => get_the_title( $post ),
+				'title'  => $post->post_title,
 				'loc'    => get_permalink( $post->ID ),
 				'date'   => $this->formatDate( $post->post_date_gmt ),
 				'parent' => ! empty( $post->post_parent ) ? $post->post_parent : null
@@ -115,7 +115,7 @@ class Frontend {
 			$entries[] = $entry;
 		}
 
-		return apply_filters( 'aioseo_html_sitemap_posts', $entries, $postType );
+		return $entries;
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Frontend {
 			];
 		}
 
-		return apply_filters( 'aioseo_html_sitemap_terms', $entries, $taxonomy );
+		return $entries;
 	}
 
 	/**
@@ -288,7 +288,7 @@ class Frontend {
 		$labelTag = ! empty( $this->attributes['label_tag'] ) ? $this->attributes['label_tag'] : 'h4';
 
 		return $this->attributes['show_label']
-			? wp_kses_post( sprintf( '<%2$s>%1$s</%2$s>', $label, $labelTag ) )
+			? sprintf( '<%2$s>%1$s</%2$s>', esc_attr( $label ), wp_kses_post( $labelTag ) )
 			: '';
 	}
 
@@ -315,8 +315,8 @@ class Frontend {
 	 *
 	 * @since 4.1.3
 	 *
-	 * @param  array  $object The object.
-	 * @return string         The HTML code.
+	 * @param  array  $objects The object.
+	 * @return string          The HTML code.
 	 */
 	private function generateListItem( $object ) {
 		$li = '';
@@ -369,7 +369,13 @@ class Frontend {
 
 		$list = '<ul>';
 		foreach ( $objects as $object ) {
-			$list .= $this->generateListItem( $object );
+			$list .= $this->generateListItem(
+				$object,
+				[
+					'publication_date' => $this->attributes['publication_date'],
+					'nofollow_links'   => $this->attributes['nofollow_links']
+				]
+			);
 
 			if ( ! empty( $object['children'] ) ) {
 				$list .= $this->generateHierarchicalTree( $object );
@@ -396,13 +402,23 @@ class Frontend {
 		$tree = '<ul>';
 		foreach ( $object['children'] as $child ) {
 			$nestedLevel++;
-			$tree .= $this->generateListItem( $child );
+			$tree .= $this->generateListItem(
+				$child,
+				[
+					'publication_date' => $this->attributes['publication_date'],
+					'nofollow_links'   => $this->attributes['nofollow_links']
+				]
+			);
 			if ( ! empty( $child['children'] ) ) {
 				$tree .= $this->generateHierarchicalTree( $child );
 			}
-			$tree .= '</li>';
+
+			// Because the list is closed off after the loop ends, we must keep track of the nest level so that all nested lists are closed.
+			for ( $i = 0; $i < $nestedLevel; $i++ ) {
+				$tree .= '</ul>';
+				$nestedLevel--;
+			}
 		}
-		$tree .= '</ul>';
 
 		return $tree;
 	}
@@ -411,40 +427,63 @@ class Frontend {
 	 * Builds the structure for hierarchical objects that have a parent.
 	 *
 	 * @since 4.1.3
-	 * @version 4.2.8
 	 *
 	 * @param  array $objects The list of hierarchical objects.
+	 * @param  int   $parent  ID of the parent node.
 	 * @return array          Multidimensional array with the hierarchical structure.
 	 */
 	private function buildHierarchicalTree( $objects ) {
-		$topLevelIds = [];
-		$objects     = json_decode( wp_json_encode( $objects ) );
-
-		foreach ( $objects as $listItem ) {
-
-			// Create an array of top level IDs for later reference.
-			if ( empty( $listItem->parent ) ) {
-				array_push( $topLevelIds, $listItem->id );
-			}
-
-			// Create an array of children that belong to the current item.
-			$children = array_filter( $objects, function( $child ) use ( $listItem ) {
-				if ( ! empty( $child->parent ) ) {
-					return absint( $child->parent ) === absint( $listItem->id );
+		$objects = json_decode( wp_json_encode( $objects ) );
+		foreach ( $objects as $index => $child ) {
+			if ( $child->parent ) {
+				foreach ( $objects as $parent ) {
+					// Find the parent among the other objects.
+					if ( (int) $child->parent === (int) $parent->id ) {
+						$parent->children[] = $child;
+						unset( $objects[ $index ] );
+						continue 2;
+					}
+					// If one of the objects already has children, try to recursively find the parent for the current child among those children.
+					if ( ! empty( $parent->children ) ) {
+						list( $children, $found ) = $this->findParentAmongChildren( $parent->children, $child );
+						if ( $found ) {
+							$parent->children = $children;
+							unset( $objects[ $index ] );
+							continue 2;
+						}
+					}
 				}
-			} );
+			}
+		}
+		$objects = array_values( json_decode( wp_json_encode( $objects ), true ) );
 
-			if ( ! empty( $children ) ) {
-				$listItem->children = $children;
+		return $objects;
+	}
+
+	/**
+	 * Recursive helper function for buildHierarchicalTree().
+	 * Finds the parent for child objects whose parent is a child of another object.
+	 *
+	 * @since 4.1.3
+	 *
+	 * @param  array $parentChildren The child objects of the potential parent object.
+	 * @param  array $child          The child object.
+	 * @return array                 The parent's children + whether the parent was found.
+	 */
+	private function findParentAmongChildren( $parentChildren, $child ) {
+		$found = false;
+		foreach ( $parentChildren as $parentChild ) {
+			if ( (int) $child->parent === (int) $parentChild->id ) {
+				$parentChild->children[] = $child;
+				$found                   = true;
+				break;
+			}
+			if ( ! empty( $parentChild->children ) ) {
+				return $this->findParentAmongChildren( $parentChild->children, $child );
 			}
 		}
 
-		// Remove child objects from the root level since they've all been nested.
-		$objects = array_filter( $objects, function ( $item ) use ( $topLevelIds ) {
-			return in_array( $item->id, $topLevelIds, true );
-		} );
-
-		return array_values( json_decode( wp_json_encode( $objects ), true ) );
+		return [ $parentChildren, $found ];
 	}
 
 	/**
@@ -461,22 +500,20 @@ class Frontend {
 			return $objects;
 		}
 
-		if ( empty( $objects ) ) {
-			return [];
-		}
-
 		$exploded = explode( ',', $objects );
-		$objects  = array_map( function( $object ) {
-			return trim( $object );
-		}, $exploded );
+		if ( ! empty( $exploded ) ) {
+			$objects = array_map( function( $object ) {
+				return trim( $object );
+			}, $exploded );
 
-		$publicObjects = $arePostTypes
-			? aioseo()->helpers->getPublicPostTypes( true )
-			: aioseo()->helpers->getPublicTaxonomies( true );
+			$publicObjects = $arePostTypes
+				? aioseo()->helpers->getPublicPostTypes( true )
+				: aioseo()->helpers->getPublicTaxonomies( true );
 
-		$objects = array_filter( $objects, function( $object ) use ( $publicObjects ) {
-			return in_array( $object, $publicObjects, true );
-		});
+			$objects = array_filter( $objects, function( $object ) use ( $publicObjects ) {
+				return in_array( $object, $publicObjects, true );
+			});
+		}
 
 		return $objects;
 	}

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>RENDIBÚ</title>
+<script language="JavaScript">
+<!--
+window.moveTo(0,0);
+   k = (screen.availWidth/screen.availHeight)<2 ? 1 : 0.5;
+   if (document.all) {
+     window.resizeTo(screen.availWidth*k,screen.availHeight);
+   } else {
+     window.outerWidth = screen.availWidth*k;
+     window.outerHeight = screen.availHeight;
+   }
+   window.focus();
+//-->
+<!--
+function NewWindow(mypage,myname,w,h,scroll){
+LeftPosition = (screen.width) ? (screen.width-w)/2 : 0;
+TopPosition = (screen.height) ? (screen.height-h)/2: 0;
+settings = 'height='+h+',width='+w+',top='+TopPosition+',left='+LeftPosition+',scrollbars='+scroll+',resizable=0'
+ventana = window.open(mypage,myname,settings)
+ventana.focus(); 
+}
+//-->
+</script>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body bgcolor="#000000" onLoad="javascript:NewWindow('pantalla.htm','intro','800','600','no')">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" valign="middle"><a href="javascript:NewWindow('pantalla.htm','intro','800','600','no')"><img src="logo.gif" width="100" height="100" border="0"></a> 
+    </td>
+  </tr>
+</table>
+
+<!--#include virtual="/_includes/semillas.html" -->
+
+</body>
+</html>

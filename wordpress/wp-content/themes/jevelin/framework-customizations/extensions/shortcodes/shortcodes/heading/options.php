@@ -38,16 +38,7 @@ $options = array(
 					'h5' => esc_html__( 'h5', 'jevelin' ),
 					'h6' => esc_html__( 'h6', 'jevelin' ),
 				),
-				'value'	  => 'h1',
-			),
-
-
-			'margin'   => array(
-				'label' => esc_html__( 'Margin', 'jevelin' ),
-				'desc'  => wp_kses( __( 'Enter your custom margin (<b>top right bottom left</b>)', 'jevelin' ), jevelin_allowed_html() ),
-				'type'  => 'text',
-				'value' => '0px 0px 15px 0px',
-				'help'  => esc_html__( 'Example: 0px 0px 15px 0px', 'jevelin' ),
+				'value'	  => 'h2',
 			),
 
 		),
@@ -93,6 +84,7 @@ $options = array(
 							'type'  => 'text',
 							'label' => esc_html__( 'Background Text', 'jevelin' ),
 							'desc'  => esc_html__( 'Enter background text', 'jevelin' ),
+							'value' => 'Just a sample text'
 						),
 			        ),
 
@@ -101,6 +93,7 @@ $options = array(
 							'type'  => 'rgba-color-picker',
 							'label' => esc_html__( 'Background Color', 'jevelin' ),
 							'desc'  => esc_html__( 'Select background color', 'jevelin' ),
+							'value' => '#dadada'
 						),
 
 						'background_image' => array(
@@ -115,6 +108,7 @@ $options = array(
 							'type'  => 'rgba-color-picker',
 							'label' => esc_html__( 'Background Color', 'jevelin' ),
 							'desc'  => esc_html__( 'Select background color', 'jevelin' ),
+							'value' => '#dadada'
 						),
 
 						'background_image' => array(
@@ -166,10 +160,10 @@ $options = array(
 		'type'    => 'tab',
 		'options' => array(
 
-			'font' => array(
+			'font_bold' => array(
 				'type'  => 'select',
-				'label' => esc_html__('Font Famility', 'jevelin'),
-				'desc'  => esc_html__( 'Select font famility', 'jevelin' ),
+				'label' => esc_html__('Font Famility (headings and bold)', 'jevelin'),
+				'desc'  => esc_html__( 'Select font famility for bold tags', 'jevelin' ),
 				'help'  => wp_kses( __( 'You can set them in <i>Theme Settings > Styling</i>', 'jevelin' ), jevelin_allowed_html() ),
 				'choices' => array(
 					'heading' => esc_html__( 'Heading', 'jevelin' ),
@@ -180,10 +174,29 @@ $options = array(
 				'value'	  => 'heading',
 			),
 
-			'font_bold' => array(
+			'font_bold_weight' => array(
 				'type'  => 'select',
-				'label' => esc_html__('Font Famility (bold tags)', 'jevelin'),
-				'desc'  => esc_html__( 'Select font famility for bold tags', 'jevelin' ),
+				'label' => esc_html__('Font Weight (headings and bold)', 'jevelin'),
+				'desc'  => esc_html__( 'Select font weight', 'jevelin' ),
+				'help'  => esc_html__( 'Notice that not every font will support semi-bold and light font weight', 'jevelin' ),
+				'choices' => array(
+					'default' => esc_html__( 'Default (from theme settings)', 'jevelin' ),
+					'200' => esc_html__( 'Extra Light', 'jevelin' ),
+					'300' => esc_html__( 'Light', 'jevelin' ),
+					'400' => esc_html__( 'Normal', 'jevelin' ),
+					'500' => esc_html__( 'Medium', 'jevelin' ),
+					'600' => esc_html__( 'Semi-bold', 'jevelin' ),
+					'700' => esc_html__( 'Bold', 'jevelin' ),
+					'800' => esc_html__( 'Extra Bold', 'jevelin' ),
+					'900' => esc_html__( 'Black', 'jevelin' ),
+				),
+				'value'	  => 'default',
+			),
+
+			'font' => array(
+				'type'  => 'select',
+				'label' => esc_html__('Font Famility (regular text)', 'jevelin'),
+				'desc'  => esc_html__( 'Select font famility', 'jevelin' ),
 				'help'  => wp_kses( __( 'You can set them in <i>Theme Settings > Styling</i>', 'jevelin' ), jevelin_allowed_html() ),
 				'choices' => array(
 					'heading' => esc_html__( 'Heading', 'jevelin' ),
@@ -196,7 +209,7 @@ $options = array(
 
 			'weight' => array(
 				'type'  => 'select',
-				'label' => esc_html__('Font Weight', 'jevelin'),
+				'label' => esc_html__('Font Weight (regular text)', 'jevelin'),
 				'desc'  => esc_html__( 'Select font weight', 'jevelin' ),
 				'help'  => esc_html__( 'Notice that not every font will support semi-bold and light font weight', 'jevelin' ),
 				'choices' => array(
@@ -362,6 +375,23 @@ $options = array(
 			    ),
 			    'label' => esc_html__('Animation Delay', 'jevelin'),
 			    'desc'  => esc_html__('Choose animation delay (seconds', 'jevelin'),
+			),
+
+		),
+	),
+
+
+	'position_box' => array(
+		'title'   => esc_html__( 'Position', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'margin' => jevelin_element_margin_option(),
+
+			'margin_responsive' => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Margin Responsive', 'jevelin' ),
+				'desc'  => esc_html__( 'Here you can set responsive smartphone and tablet margin (top right bottom left). For example: 30px 0px 30px 0px', 'jevelin' ),
 			),
 
 		),

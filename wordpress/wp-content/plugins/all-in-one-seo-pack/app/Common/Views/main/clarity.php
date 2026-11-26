@@ -10,10 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $projectId = aioseo()->options->webmasterTools->microsoftClarityProjectId;
 
-if ( empty( $projectId ) || aioseo()->helpers->isAmpPage() ) {
+if ( empty( $projectId ) ) {
 	return;
 }
 ?>

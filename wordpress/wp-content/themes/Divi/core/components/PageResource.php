@@ -63,7 +63,6 @@ class ET_Core_PageResource {
 		'divi',
 		'builder',
 		'epanel',
-		'epanel_temp',
 		'extra',
 		'core',
 		'bloom',
@@ -288,13 +287,6 @@ class ET_Core_PageResource {
 	 * @var string
 	 */
 	public $write_file_location;
-
-	/**
-	 * The output location where this resource should be output.
-	 *
-	 * @var string
-	 */
-	public $location;
 
 	/**
 	 * ET_Core_PageResource constructor
@@ -1030,15 +1022,6 @@ class ET_Core_PageResource {
 		if ( $force ) {
 			delete_option( 'et_core_page_resource_remove_all' );
 		}
-
-		/**
-		 * Fires when the static resources are removed.
-		 *
-		 * @since 4.21.1
-		 *
-		 * @param mixed $post_id The post ID.
-		 */
-		do_action( 'et_core_static_resources_removed', $post_id );
 	}
 
 	/**

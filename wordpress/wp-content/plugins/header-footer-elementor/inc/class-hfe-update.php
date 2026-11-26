@@ -3,8 +3,9 @@
  * Theme Update
  *
  * @package     Header Footer Elementor
+ * @author      Nikhil Chavan <email@nikhilchavan.com>
  * @copyright   Copyright (c) 2019, Header Footer Elementor
- * @link        https://github.com/brainstormforce/header-footer-elementor
+ * @link        https://github.com/Nikschavan/header-footer-elementor/
  * @since       HFE 1.1.4
  */
 
@@ -27,8 +28,7 @@ if ( ! class_exists( 'HFE_Update' ) ) {
 		 * @since 1.1.4
 		 * @var string
 		 */
-		// phpcs:ignore
-		private string $db_option_key = '_hfe_db_version'; 
+		private $db_option_key = '_hfe_db_version';
 
 		/**
 		 *  Constructor
@@ -49,7 +49,6 @@ if ( ! class_exists( 'HFE_Update' ) ) {
 		 * Implement theme update logic.
 		 *
 		 * @since 1.1.4
-		 * @return void
 		 */
 		public function init() {
 			do_action( 'hfe_update_before' );
@@ -65,13 +64,7 @@ if ( ! class_exists( 'HFE_Update' ) ) {
 			}
 
 			// flush rewrite rules on plugin update.
-			flush_rewrite_rules();  // PHPCS:Ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
-
-			// Track plugin update event (re-trackable on each version change via $force = true).
-			// Skip on fresh install ($db_version is false) — only track actual updates.
-			if ( false !== $db_version && class_exists( 'HFE_Analytics_Events' ) ) {
-				HFE_Analytics_Events::track( 'plugin_updated', HFE_VER, [ 'from_version' => $db_version ], true );
-			}
+			flush_rewrite_rules();
 
 			$this->update_db_version();
 
@@ -113,20 +106,20 @@ if ( ! class_exists( 'HFE_Update' ) ) {
 		/**
 		 * Get header or footer template id based on the meta query.
 		 *
-		 * @param  string $type Type of the template header/footer.
+		 * @param  String $type Type of the template header/footer.
 		 *
-		 * @return mixed  Returns the header or footer template id if found, else returns string ''.
+		 * @return Mixed  Returns the header or footer template id if found, else returns string ''.
 		 */
 		public function get_legacy_template_id( $type ) {
 			$args = [
 				'post_type'    => 'elementor-hf',
 				'meta_key'     => 'ehf_template_type',
-				'meta_value'   => $type, // PHPCS:Ignore  WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_value'   => $type,
 				'meta_type'    => 'post',
 				'meta_compare' => '>=',
 				'orderby'      => 'meta_value',
 				'order'        => 'ASC',
-				'meta_query'   => [  // PHPCS:Ignore  WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'meta_query'   => [
 					'relation' => 'OR',
 					[
 						'key'     => 'ehf_template_type',
@@ -154,7 +147,7 @@ if ( ! class_exists( 'HFE_Update' ) ) {
 		 * Check if db upgrade is required.
 		 *
 		 * @since 1.1.4
-		 * @return bool True if stored database version is lower than constant; false if otherwise.
+		 * @return true|false True if stored database version is lower than constant; false if otherwise.
 		 */
 		private function needs_db_update() {
 			$db_version = get_option( $this->db_option_key, false );

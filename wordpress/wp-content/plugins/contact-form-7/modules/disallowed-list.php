@@ -1,11 +1,4 @@
 <?php
-/**
- * Disallowed list
- *
- * @link https://contactform7.com/comment-blacklist/
- */
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 add_filter( 'wpcf7_spam', 'wpcf7_disallowed_list', 10, 2 );
 
@@ -36,11 +29,10 @@ function wpcf7_disallowed_list( $spam, $submission ) {
 
 	if ( $word ) {
 		if ( is_bool( $word ) ) {
-			$reason = __( 'Disallowed words are used.', 'contact-form-7' );
+			$reason = __( "Disallowed words are used.", 'contact-form-7' );
 		} else {
 			$reason = sprintf(
-				/* translators: %s: comma separated list of disallowed words */
-				__( 'Disallowed words (%s) are used.', 'contact-form-7' ),
+				__( "Disallowed words (%s) are used.", 'contact-form-7' ),
 				implode( ', ', (array) $word )
 			);
 		}

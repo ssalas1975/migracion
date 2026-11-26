@@ -21,11 +21,8 @@ class Global_Theme_Compatibility {
 
 	/**
 	 * Run all the Actions / Filters.
-	 *
-	 * @return void
 	 */
-	// phpcs:ignore
-	public function hooks(): void {
+	public function hooks() {
 		if ( hfe_header_enabled() ) {
 			// Replace header.php.
 			add_action( 'get_header', [ $this, 'option_override_header' ] );
@@ -51,12 +48,9 @@ class Global_Theme_Compatibility {
 	 * Force full width CSS for the header.
 	 *
 	 * @since 1.2.0
-	 *
-	 *  // phpcs:ignore
 	 * @return void
 	 */
-	// phpcs:ignore
-	public function force_fullwidth(): void {
+	public function force_fullwidth() {
 		$css = '
 		.force-stretched-header {
 			width: 100vw;
@@ -85,11 +79,9 @@ class Global_Theme_Compatibility {
 	 *
 	 * @since 1.2.0
 	 *
-	 * // phpcs:ignore
 	 * @return void
 	 */
-	// phpcs:ignore
-	public function option_override_header(): void {
+	public function option_override_header() {
 		$templates   = [];
 		$templates[] = 'header.php';
 		locate_template( $templates, true );

@@ -1,10 +1,6 @@
 <?php
-namespace AIOSEO\Plugin\Common\Traits\Helpers;
 
-// Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace AIOSEO\Plugin\Common\Traits\Helpers;
 
 /**
  * Contains constant specific helper methods.
@@ -164,7 +160,8 @@ trait Constants {
 			'KZ' => 'Kazakhstan',
 			'KE' => 'Kenya',
 			'KI' => 'Kiribati',
-			'KR' => 'South Korea',
+			'KP' => 'South Korea',
+			'KR' => 'North Korea',
 			'KW' => 'Kuwait',
 			'KG' => 'Kyrgyzstan',
 			'LA' => 'Lao People\'s Democratic Republic',
@@ -297,4 +294,5 @@ trait Constants {
 			'AX' => 'Åland Islands'
 		];
 	}
+
 }

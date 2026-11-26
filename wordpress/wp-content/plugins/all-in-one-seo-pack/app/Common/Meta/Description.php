@@ -6,23 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
-
 /**
  * Handles the (Open Graph) description.
  *
  * @since 4.0.0
  */
 class Description {
-	/**
-	 * Helpers class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Helpers
-	 */
-	public $helpers = null;
-
 	/**
 	 * Class constructor.
 	 *
@@ -46,15 +35,7 @@ class Description {
 			return $description ? $description : aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'description' ) );
 		}
 
-		$description = aioseo()->options->searchAppearance->global->metaDescription;
-		if ( aioseo()->helpers->isWpmlActive() ) {
-			// Allow WPML to translate the title if the homepage is not static.
-			// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-			$description = apply_filters( 'wpml_translate_single_string', $description, 'admin_texts_aioseo_options_localized', '[aioseo_options_localized]searchAppearance_global_metaDescription' );
-			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		}
-
-		$description = $this->helpers->prepare( $description );
+		$description = $this->helpers->prepare( aioseo()->options->searchAppearance->global->metaDescription );
 
 		return $description ? $description : aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'description' ) );
 	}
@@ -64,16 +45,12 @@ class Description {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_Post $post    The post object (optional).
-	 * @param  boolean  $default Whether we want the default value, not the post one.
-	 * @return string            The page description.
+	 * @param  WP_Post $post    The post object (optional).
+	 * @param  boolean $default Whether we want the default value, not the post one.
+	 * @return string           The page description.
 	 */
 	public function getDescription( $post = null, $default = false ) {
-		if ( BuddyPressIntegration::isComponentPage() ) {
-			return aioseo()->standalone->buddyPress->component->getMeta( 'description' );
-		}
-
-		if ( is_home() ) {
+		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
 			return $this->getHomePageDescription();
 		}
 
@@ -84,11 +61,7 @@ class Description {
 			}
 
 			if ( is_attachment() ) {
-				$post = empty( $post ) ? aioseo()->helpers->getPost() : $post;
-				if ( empty( $post ) ) {
-					return '';
-				}
-
+				$post    = empty( $post ) ? aioseo()->helpers->getPost() : $post;
 				$caption = wp_get_attachment_caption( $post->ID );
 
 				return $caption ? $this->helpers->prepare( $caption ) : $this->helpers->prepare( $post->post_content );
@@ -96,7 +69,7 @@ class Description {
 		}
 
 		if ( is_category() || is_tag() || is_tax() ) {
-			$term = $post ? $post : aioseo()->helpers->getTerm();
+			$term = $post ? $post : get_queried_object();
 
 			return $this->getTermDescription( $term, $default );
 		}
@@ -109,7 +82,7 @@ class Description {
 
 			$author = get_queried_object();
 
-			return $author ? $this->helpers->prepare( aioseo()->tags->escapeTags( get_the_author_meta( 'description', $author->ID ) ) ) : '';
+			return $author ? $this->helpers->prepare( get_the_author_meta( 'description', $author->ID ) ) : '';
 		}
 
 		if ( is_date() ) {
@@ -120,10 +93,11 @@ class Description {
 			return $this->helpers->prepare( aioseo()->options->searchAppearance->archives->search->metaDescription );
 		}
 
-		if ( is_post_type_archive() ) {
-			$postType = get_queried_object();
-			if ( is_a( $postType, 'WP_Post_Type' ) ) {
-				return $this->helpers->prepare( $this->getArchiveDescription( $postType->name ) );
+		if ( is_archive() ) {
+			$postType       = get_queried_object();
+			$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+			if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+				return $this->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->metaDescription );
 			}
 		}
 
@@ -135,9 +109,9 @@ class Description {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_Post|int $post    The post object or ID.
-	 * @param  boolean      $default Whether we want the default value, not the post one.
-	 * @return string                The post description.
+	 * @param  WP_Post|int $post    The post object or ID.
+	 * @param  boolean     $default Whether we want the default value, not the post one.
+	 * @return string               The post description.
 	 */
 	public function getPostDescription( $post, $default = false ) {
 		$post = $post && is_object( $post ) ? $post : aioseo()->helpers->getPost( $post );
@@ -153,7 +127,7 @@ class Description {
 		$description = '';
 		$metaData    = aioseo()->meta->metaData->getMetaData( $post );
 		if ( ! empty( $metaData->description ) && ! $default ) {
-			$description = $this->helpers->prepare( $metaData->description, $post->ID, false );
+			$description = $this->helpers->prepare( $metaData->description, $post->ID, false, false );
 		}
 
 		if (
@@ -183,7 +157,7 @@ class Description {
 
 			$description = $this->helpers->sanitize( $description, $post->ID, $default );
 			if ( ! $description && $generateDescriptions && $post->post_content ) {
-				$description = $this->helpers->sanitize( aioseo()->helpers->getDescriptionFromContent( $post ), $post->ID, $default );
+				$description = $this->helpers->sanitize( aioseo()->helpers->getDescriptionFromContent( $post ), $post->ID, $default, false );
 			}
 		}
 
@@ -191,7 +165,7 @@ class Description {
 			if ( in_array( 'descriptionFormat', aioseo()->internalOptions->deprecatedOptions, true ) ) {
 				$descriptionFormat = aioseo()->options->deprecated->searchAppearance->global->descriptionFormat;
 				if ( $descriptionFormat ) {
-					$description = preg_replace( '/#description/', $description, (string) $descriptionFormat );
+					$description = preg_replace( '/#description/', $description, $descriptionFormat );
 				}
 			}
 		}
@@ -199,30 +173,6 @@ class Description {
 		$posts[ $post->ID ] = $description ? $this->helpers->prepare( $description, $post->ID, $default ) : $this->helpers->prepare( term_description( '' ), $post->ID, $default );
 
 		return $posts[ $post->ID ];
-	}
-
-	/**
-	 * Retrieve the default description for the archive template.
-	 *
-	 * @since 4.7.6
-	 *
-	 * @param  string $postType The custom post type.
-	 * @return string           The description.
-	 */
-	public function getArchiveDescription( $postType ) {
-		static $archiveDescription = [];
-		if ( isset( $archiveDescription[ $postType ] ) ) {
-			return $archiveDescription[ $postType ];
-		}
-
-		$archiveDescription[ $postType ] = '';
-
-		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		if ( $dynamicOptions->searchAppearance->archives->has( $postType ) ) {
-			$archiveDescription[ $postType ] = aioseo()->dynamicOptions->searchAppearance->archives->{$postType}->metaDescription;
-		}
-
-		return $archiveDescription[ $postType ];
 	}
 
 	/**
@@ -253,9 +203,9 @@ class Description {
 	 *
 	 * @since 4.0.6
 	 *
-	 * @param  \WP_Term $term    The term object.
-	 * @param  boolean  $default Whether we want the default value, not the post one.
-	 * @return string            The term description.
+	 * @param  WP_Term $term    The term object.
+	 * @param  boolean $default Whether we want the default value, not the post one.
+	 * @return string           The term description.
 	 */
 	public function getTermDescription( $term, $default = false ) {
 		if ( ! is_a( $term, 'WP_Term' ) ) {
@@ -279,8 +229,7 @@ class Description {
 
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
 		if ( ! $description && $dynamicOptions->searchAppearance->taxonomies->has( $term->taxonomy ) ) {
-			$metaDescription = aioseo()->dynamicOptions->searchAppearance->taxonomies->{$term->taxonomy}->metaDescription;
-			$description     = $this->helpers->prepare( aioseo()->tags->replaceTermTags( $metaDescription, $term ), false, $default );
+			$description = $this->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->taxonomies->{$term->taxonomy}->metaDescription, false, $default );
 		}
 
 		$terms[ $term->term_id ] = $description ? $description : $this->helpers->prepare( term_description( $term->term_id ), false, $default );

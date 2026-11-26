@@ -46,19 +46,16 @@ class PostMeta {
 	 * @return void
 	 */
 	public function importPostMeta() {
-		$postsPerAction  = apply_filters( 'aioseo_import_yoast_seo_posts_per_action', 100 );
-		$publicPostTypes = aioseo()->helpers->getPublicPostTypes( true );
-		$timeStarted     = esc_sql( gmdate( 'Y-m-d H:i:s', aioseo()->core->cache->get( 'import_post_meta_yoast_seo' ) ) );
+		$postsPerAction  = 100;
+		$publicPostTypes = implode( "', '", aioseo()->helpers->getPublicPostTypes( true ) );
+		$timeStarted     = gmdate( 'Y-m-d H:i:s', aioseo()->core->cache->get( 'import_post_meta_yoast_seo' ) );
 
 		$posts = aioseo()->core->db
 			->start( 'posts' . ' as p' )
 			->select( 'p.ID, p.post_type' )
 			->leftJoin( 'aioseo_posts as ap', '`p`.`ID` = `ap`.`post_id`' )
-			->join( 'postmeta as pm', '`p`.`ID` = `pm`.`post_id`' )
-			->whereIn( 'p.post_type', $publicPostTypes )
+			->whereRaw( "( p.post_type IN ( '$publicPostTypes' ) )" )
 			->whereRaw( "( ap.post_id IS NULL OR ap.updated < '$timeStarted' )" )
-			->whereLike( 'pm.meta_key', '_yoast_wpseo_%', true )
-			->groupBy( 'p.ID' )
 			->orderBy( 'p.ID DESC' )
 			->limit( $postsPerAction )
 			->run()
@@ -87,7 +84,7 @@ class PostMeta {
 			'_yoast_wpseo_twitter-image'         => 'twitter_image_custom_url',
 			'_yoast_wpseo_schema_page_type'      => '',
 			'_yoast_wpseo_schema_article_type'   => '',
-			'_yoast_wpseo_is_cornerstone'        => 'pillar_content'
+			'_yoast_wpseo_primary_category'      => 'og_article_section'
 		];
 
 		foreach ( $posts as $post ) {
@@ -95,85 +92,59 @@ class PostMeta {
 				->start( 'postmeta' . ' as pm' )
 				->select( 'pm.meta_key, pm.meta_value' )
 				->where( 'pm.post_id', $post->ID )
-				->whereLike( 'pm.meta_key', '_yoast_wpseo_%', true )
+				->whereRaw( "`pm`.`meta_key` LIKE '_yoast_wpseo_%'" )
 				->run()
 				->result();
 
-			if ( ! $postMeta || ! count( $postMeta ) ) {
-				// Skip posts with no Yoast meta (shouldn't happen with our query filter, but defensive check).
-				continue;
-			}
-
+			$categories    = aioseo()->helpers->getAllCategories( $post->ID );
 			$featuredImage = get_the_post_thumbnail_url( $post->ID );
 			$meta          = [
-				'post_id'                  => (int) $post->ID,
-				'twitter_use_og'           => true,
-				'og_image_type'            => $featuredImage ? 'featured' : 'content',
-				'pillar_content'           => 0,
-				'canonical_url'            => '',
-				'robots_default'           => true,
-				'robots_noarchive'         => false,
-				'robots_nofollow'          => false,
-				'robots_noimageindex'      => false,
-				'robots_noindex'           => false,
-				'robots_noodp'             => false,
-				'robots_nosnippet'         => false,
-				'title'                    => '',
-				'description'              => '',
-				'og_title'                 => '',
-				'og_description'           => '',
-				'og_image_custom_url'      => '',
-				'twitter_title'            => '',
-				'twitter_description'      => '',
-				'twitter_image_custom_url' => '',
-				'twitter_image_type'       => 'default'
+				'post_id'            => (int) $post->ID,
+				'twitter_use_og'     => true,
+				'og_image_type'      => $featuredImage ? 'featured' : 'content',
+				'og_article_section' => ! empty( $categories ) ? $categories[0] : null
 			];
+
+			if ( ! $postMeta || ! count( $postMeta ) ) {
+				$aioseoPost = Models\Post::getPost( (int) $post->ID );
+				$aioseoPost->set( $meta );
+				$aioseoPost->save();
+
+				aioseo()->migration->meta->migrateAdditionalPostMeta( $post->ID );
+				continue;
+			}
 
 			$title = '';
 			foreach ( $postMeta as $record ) {
 				$name  = $record->meta_key;
 				$value = $record->meta_value;
 
-				// Handles primary taxonomy terms.
-				// We need to handle it separately because it's stored in a different format.
-				if ( false !== stripos( $name, '_yoast_wpseo_primary_' ) ) {
-					sscanf( $name, '_yoast_wpseo_primary_%s', $taxonomy );
-					if ( null === $taxonomy ) {
-						continue;
-					}
-
-					$options = new \stdClass();
-					if ( isset( $meta['primary_term'] ) ) {
-						$options = json_decode( $meta['primary_term'] );
-					}
-
-					$options->$taxonomy   = (int) $value;
-					$meta['primary_term'] = wp_json_encode( $options );
-				}
-
 				if ( ! in_array( $name, array_keys( $mappedMeta ), true ) ) {
 					continue;
 				}
 
 				switch ( $name ) {
+					case '_yoast_wpseo_primary_category':
+						$primaryCategory = get_cat_name( $value );
+						foreach ( $categories as $category ) {
+							if ( aioseo()->helpers->toLowerCase( $primaryCategory ) === aioseo()->helpers->toLowerCase( $category ) ) {
+								$meta[ $mappedMeta[ $name ] ] = $category;
+								break 2;
+							}
+						}
+
+						$meta[ $mappedMeta[ $name ] ] = ! empty( $categories ) ? $categories[0] : ( ! empty( $primaryCategory ) ? $primaryCategory : '' );
+						break;
 					case '_yoast_wpseo_meta-robots-noindex':
 					case '_yoast_wpseo_meta-robots-nofollow':
 						if ( (bool) $value ) {
-							$meta[ $mappedMeta[ $name ] ] = (bool) $value;
-							$meta['robots_default']       = false;
+							$meta[ $mappedMeta[ $name ] ]       = ! empty( $value );
+							$meta['robots_default'] = false;
 						}
 						break;
 					case '_yoast_wpseo_meta-robots-adv':
-						$supportedValues = [ 'index', 'noarchive', 'noimageindex', 'nosnippet' ];
-						foreach ( $supportedValues as $val ) {
-							$meta[ "robots_$val" ] = false;
-						}
-
-						// This is a separated foreach so we can import any and all values.
 						$values = explode( ',', $value );
 						if ( $values ) {
-							$meta['robots_default'] = false;
-
 							foreach ( $values as $value ) {
 								$meta[ "robots_$value" ] = true;
 							}
@@ -196,17 +167,12 @@ class PostMeta {
 						if ( in_array( $post->post_type, [ 'post', 'page', 'attachment' ], true ) ) {
 							break;
 						}
-
-						if ( ! in_array( $value, ImportExport\SearchAppearance::$supportedWebPageGraphs, true ) ) {
-							break;
+						if ( in_array( $value, ImportExport\SearchAppearance::$supportedWebPageGraphs, true ) ) {
+							$meta[ $mappedMeta[ $name ] ] = 'WebPage';
+							$options          = new \stdClass();
+							$options->webPage = [ 'webPageType' => $value ];
 						}
-
-						$meta[ $mappedMeta[ $name ] ] = 'WebPage';
-						$meta['schema_type_options']  = wp_json_encode( [
-							'webPage' => [
-								'webPageType' => $value
-							]
-						] );
+						$meta['schema_type_options'] = wp_json_encode( $options );
 						break;
 					case '_yoast_wpseo_schema_article_type':
 						$value = aioseo()->helpers->pregReplace( '#\s#', '', $value );
@@ -235,16 +201,11 @@ class PostMeta {
 						$meta['schema_type_options'] = wp_json_encode( $options );
 						break;
 					case '_yoast_wpseo_focuskw':
-						$focusKeyphrase = [
-							'focus' => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $value ) ]
+						$keyphrase = [
+							'focus'      => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $value ) ],
+							'additional' => []
 						];
-
-						// Merge with existing keyphrases if the array key already exists.
-						if ( ! empty( $meta['keyphrases'] ) ) {
-							$meta['keyphrases'] = array_merge( $meta['keyphrases'], $focusKeyphrase );
-						} else {
-							$meta['keyphrases'] = $focusKeyphrase;
-						}
+						$meta['keyphrases'] = $keyphrase;
 						break;
 					case '_yoast_wpseo_focuskeywords':
 						$keyphrases = [];
@@ -252,23 +213,14 @@ class PostMeta {
 							$keyphrases = (array) json_decode( $meta[ $mappedMeta[ $name ] ] );
 						}
 
-						$yoastKeyphrases = json_decode( $value, true );
-						if ( is_array( $yoastKeyphrases ) ) {
-							foreach ( $yoastKeyphrases as $yoastKeyphrase ) {
-								if ( ! empty( $yoastKeyphrase['keyword'] ) ) {
-									$keyphrase = [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $yoastKeyphrase['keyword'] ) ];
-
-									if ( ! isset( $keyphrases['additional'] ) ) {
-										$keyphrases['additional'] = [];
-									}
-
-									$keyphrases['additional'][] = $keyphrase;
-								}
-							}
+						$yoastKeyphrases = json_decode( $value );
+						for ( $i = 0; $i < count( $yoastKeyphrases ); $i++ ) {
+							$keyphrase = [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $yoastKeyphrases[ $i ]->keyword ) ];
+							$keyphrases['additional'][ $i ] = $keyphrase;
 						}
 
 						if ( ! empty( $keyphrases ) ) {
-							// Merge with existing keyphrases if the array key already exists.
+							// Merge previous 'keyphrases' with the focus keyword.
 							if ( ! empty( $meta['keyphrases'] ) ) {
 								$meta['keyphrases'] = array_merge( $meta['keyphrases'], $keyphrases );
 							} else {
@@ -296,12 +248,6 @@ class PostMeta {
 						if ( '_yoast_wpseo_title' === $name ) {
 							$title = $value;
 						}
-
-						$meta[ $mappedMeta[ $name ] ] = esc_html( wp_strip_all_tags( strval( $value ) ) );
-						break;
-					case '_yoast_wpseo_is_cornerstone':
-						$meta['pillar_content'] = (bool) $value ? 1 : 0;
-						break;
 					default:
 						$meta[ $mappedMeta[ $name ] ] = esc_html( wp_strip_all_tags( strval( $value ) ) );
 						break;
@@ -314,9 +260,8 @@ class PostMeta {
 				$meta['twitter_title']  = $title;
 			}
 
-			if ( isset( $meta['keyphrases'] ) ) {
-				// The keyphrases column is only kept for backwards compatibility; the post editor reads the keyword columns.
-				$meta = array_merge( $meta, Models\Post::getKeywordColumnsFromKeyphrases( $meta['keyphrases'] ) );
+			if ( ! empty( $meta['keyphrases'] ) && is_array( $meta['keyphrases'] ) ) {
+				$meta['keyphrases'] = wp_json_encode( $meta['keyphrases'] );
 			}
 
 			$aioseoPost = Models\Post::getPost( (int) $post->ID );
@@ -324,14 +269,11 @@ class PostMeta {
 			$aioseoPost->save();
 
 			aioseo()->migration->meta->migrateAdditionalPostMeta( $post->ID );
-
-			// Clear the Overview cache.
-			aioseo()->postSettings->clearPostTypeOverviewCache( $post->ID );
 		}
 
 		if ( count( $posts ) === $postsPerAction ) {
 			try {
-				as_schedule_single_action( time() + 30, aioseo()->importExport->yoastSeo->postActionName, [], 'aioseo' );
+				as_schedule_single_action( time() + 5, aioseo()->importExport->yoastSeo->postActionName, [], 'aioseo' );
 			} catch ( \Exception $e ) {
 				// Do nothing.
 			}

@@ -5,7 +5,7 @@
 
 
 /**
- * http://codex.wordpress.org/Content_Width
+ * https://codex.wordpress.org/Content_Width
  */
 if ( ! isset($content_width)) {
     $content_width = 1200;
@@ -63,7 +63,8 @@ class Jevelin_Sync_Customizer_Options {
      * If a customizer option also exists in settings options, copy its value to settings option value
      */
 
-     public static function _action_after_customizer_save_delay(){
+     public static function _action_after_customizer_save_delay() {
+         Jevelin_Sync_Customizer_Options::_action_after_customizer_save();
          wp_schedule_single_event(time() + 0, 'customize_save_after_delay');
      }
 
@@ -128,6 +129,24 @@ if ( ! function_exists( 'jevelin_include_custom_option_types' ) ) :
         }
     }
     add_action('fw_option_types_init', 'jevelin_include_custom_option_types');
+endif;
+
+
+/**
+ * Change Header Content
+ */
+if( !function_exists('jevelin_before_header_nav_content') ) :
+    add_filter( 'jevelin_before_header_nav' , 'jevelin_before_header_nav_content' );
+    function jevelin_before_header_nav_content( $blog_id ) {
+        //
+    }
+endif;
+
+if( !function_exists('jevelin_after_header_nav_content') ) :
+    add_filter( 'jevelin_after_header_nav' , 'jevelin_after_header_nav_content' );
+    function jevelin_after_header_nav_content( $blog_id ) {
+        //
+    }
 endif;
 
 
@@ -269,9 +288,10 @@ if ( ! function_exists( 'jevelin_filter_theme_body_classes' ) ) :
 			$classes[] = $ipad_navigation;
 		}
 
-
-//var_dump( jevelin_option( 'header_sticky', true ) ); die;
-
+        $header_mobile_layout = ( jevelin_option( 'header_mobile_spacing', 'compact' ) == 'compact'  ) ? 'sh-header-mobile-spacing-compact' : '';
+        if( $header_mobile_layout ) {
+            $classes[] = $header_mobile_layout;
+        }
 
 		$header_sticky = ( jevelin_option( 'header_sticky', true ) == true  ) ? 'sh-body-header-sticky' : '';
 		if( $header_sticky ) {
@@ -288,6 +308,32 @@ if ( ! function_exists( 'jevelin_filter_theme_body_classes' ) ) :
 			$classes[] = $blog_style;
 		}
 
+        $carousel_dots_style = jevelin_option( 'carousel_dots_style', 'style1' );
+		if( $carousel_dots_style ) {
+			$classes[] = 'carousel-dot-'.$carousel_dots_style;
+		}
+
+        $carousel_dots_spacing = jevelin_option( 'carousel_dots_spacing', '5px' );
+		if( $carousel_dots_spacing ) {
+			$classes[] = 'carousel-dot-spacing-'.$carousel_dots_spacing;
+		}
+
+        $carousel_dots_size = jevelin_option( 'carousel_dots_size', 'standard' );
+		if( $carousel_dots_size ) {
+			$classes[] = 'carousel-dot-size-'.$carousel_dots_size;
+		}
+
+        $carousel_dots_active_background_color = jevelin_option( 'carousel_dots_active_background_color' );
+		if( $carousel_dots_active_background_color ) {
+			$classes[] = 'carousel-dot-active-background';
+		}
+
+        $boxed_layout_val = jevelin_option('page_layout');
+        $boxed_layout = ( isset( $boxed_layout_val['page_layout'] ) ) ? esc_attr($boxed_layout_val['page_layout']) : 'line';
+        if( $boxed_layout == 'boxed' ) :
+			$classes[] = 'sh-boxed-layout';
+        endif;
+
         $header_layout = jevelin_header_layout();
 		if( $header_layout == 'left-1' || $header_layout == 'left-2' ) {
 			$classes[] = 'header-in-left-side';
@@ -299,7 +345,7 @@ if ( ! function_exists( 'jevelin_filter_theme_body_classes' ) ) :
 
 		return $classes;
 	}
-	add_filter( 'body_class', 'jevelin_filter_theme_body_classes' );
+	add_filter( 'body_class', 'jevelin_filter_theme_body_classes', 1000, 2 );
 endif;
 
 
@@ -407,7 +453,7 @@ if ( defined( 'FW' ) ):
 
 			wp_enqueue_script(
 				'jevelin-show-form-errors',
-				get_template_directory_uri() . '/js/form-errors.js',
+				get_template_directory_uri() . '/js/plugins/form-errors.js',
 				array( 'jquery' ),
 				'1.0',
 				true
@@ -469,6 +515,16 @@ if ( ! function_exists( 'jevelin_theme_widgets' ) ) :
 		));
 
         register_sidebar( array(
+			'name'          => esc_html__( 'Portfolio Widgets', 'jevelin' ),
+			'id'            => 'portfolio-widgets',
+			'description'   => esc_html__( 'Can be used in builder widget area.', 'jevelin' ),
+			'before_widget' => '<div id="%1$s" class="widget-item %2$s">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h3 class="widget-title">',
+			'after_title'   => '</h3>',
+		));
+
+        register_sidebar( array(
 			'name'          => esc_html__( 'Other Widgets', 'jevelin' ),
 			'id'            => 'other-widgets',
 			'description'   => esc_html__( 'Can be used in builder widget area.', 'jevelin' ),
@@ -496,7 +552,7 @@ if ( defined( 'FW' ) && !function_exists( 'jevelin_form_errors' ) ):
 
 		wp_enqueue_script(
 			'jevelin-theme-show-form-errors',
-			get_template_directory_uri() . '/js/form-errors.js',
+			get_template_directory_uri() . '/js/plugins/form-errors.js',
 			array( 'jquery' ),
 			'1.0',
 			true
@@ -870,10 +926,14 @@ endif;
 /**
  * Admin panel - load styles in posts
  */
-if( !function_exists('jevelin_admin_enqueue_styles') && is_admin() && isset( $_GET['post'] ) && $_GET['post'] > 0 ) :
+global $pagenow;
+if( !function_exists('jevelin_admin_enqueue_styles') && is_admin() &&
+( ( isset( $_GET['post'] ) && $_GET['post'] > 0 ) || ( isset( $_GET['post_id'] ) && $_GET['post_id'] > 0 ) || ( trim( $pagenow ) == 'post-new.php' ) ) ) :
 
     function jevelin_admin_enqueue_styles() {
         wp_enqueue_style( 'jevelin-theme-options', get_template_directory_uri() . '/css/admin/theme-options-editor.css' );
+        wp_enqueue_style( 'jevelin-theme-vc', get_template_directory_uri() . '/css/admin/vc.css' );
+        wp_enqueue_script( 'jevelin-theme-options', get_template_directory_uri() . '/js/admin/vc.js', array( 'jquery' ) );
     }
     add_action( 'admin_enqueue_scripts', 'jevelin_admin_enqueue_styles' );
 
@@ -898,6 +958,20 @@ endif;
  */
 function jevelin_customizer_styles() { ?>
 	<style>
+        .fw-backend-option {
+            opacity: 1!important;
+        }
+
+        .customize-control h3.sh-custom-group-divder {
+            font-size: 24px!important;
+            margin-bottom: 0px!important;
+            line-height: 1.1!important;
+        }
+
+        .fw-backend-customizer-option .button.wp-color-result > .color-alpha {
+            height: 28px!important;
+        }
+
         <?php /* Fix for Unyson Framework 2.7.9 color picker issue */
         if( is_admin() && defined( 'FW' ) && defined('WP_PLUGIN_DIR') ) :
             $unyson = get_plugin_data( WP_PLUGIN_DIR. '/unyson/unyson.php' );
@@ -949,6 +1023,107 @@ add_action( 'customize_controls_print_styles', 'jevelin_customizer_styles', 999 
 if ( ! function_exists( 'jevelin_admin_styling' ) ) :
     add_action('admin_head', 'jevelin_admin_styling');
     function jevelin_admin_styling() { ?>
+
+        <?php
+            /* Gutenberg - Page Settings option reset to default fix */
+        ?>
+        <script type="text/javascript">
+            /*
+            * Gutenberg - Page Settings option reset to default fix
+            */
+            <?php if( jevelin_is_gutenberg_page() ) : ?>
+                var GuttenbergPageSettingsFixAdded = 0;
+                jQuery( function($) {
+
+
+                    // while content is loading
+                    function GuttenbergPageSettingsFix(){
+                        if( document.readyState != "complete" ) {
+                            if( $('#fw-options-box-page_settings ul.ui-tabs-nav.ui-widget-header > li').length ) {
+                                $('#fw-options-box-page_settings ul.ui-tabs-nav.ui-widget-header > li').each( function() {
+                                    $(this).find('a').trigger( 'click' );
+                                });
+                                $('#fw-options-box-page_settings ul.ui-tabs-nav.ui-widget-header > li:first-child > a').trigger( 'click' );
+                                GuttenbergPageSettingsFixAdded++;
+                                // console.log( 'tabs ready' );
+                            }
+                            if( GuttenbergPageSettingsFixAdded == 0 ) {
+                                setTimeout( GuttenbergPageSettingsFix, 15 );
+                            }
+                        }
+                    }
+                    GuttenbergPageSettingsFix();
+
+
+                    // when content is loaded
+                    jQuery( window ).load( function() {
+                        if( GuttenbergPageSettingsFixAdded == 0 ) {
+                            $('#fw-options-box-page_settings ul.ui-tabs-nav.ui-widget-header > li').each( function() {
+                                $(this).find('a').trigger( 'click' );
+                            });
+                            $('#fw-options-box-page_settings ul.ui-tabs-nav.ui-widget-header > li:first-child > a').trigger( 'click' );
+                            // console.log( 'tabs ready' );
+                            GuttenbergPageSettingsFixAdded++;
+                        }
+                    });
+
+
+                    // Fix - Portfolio Custom Fields not working
+                    if( $('body').hasClass('post-type-fw-portfolio') ) {
+                        jQuery( window ).load( function() {
+                            setTimeout(function() {
+                                $('#fw-backend-option-fw-option-info .fw-option-box').each( function() {
+                                    $(this).html( $(this).html() );
+                                });
+                            }, 500);
+                            setTimeout(function() {
+                                $('#fw-backend-option-fw-option-info .fw-option-box').each( function() {
+                                    $(this).html( $(this).html() );
+                                });
+                            }, 3000);
+                        });
+
+                        $( ".block-editor" ).on( "click", "#fw-backend-option-fw-option-info .dashicons-no-alt", function() {
+                            $(this).closest('.fw-option-box.fw-backend-options-virtual-context').remove();
+                        });
+
+                        $( ".block-editor" ).on( "click", "#fw-backend-option-fw-option-info .hndle.ui-sortable-handle", function() {
+                            if( $(this).parent().hasClass('closed') ) {
+                                $(this).parent().removeClass('closed');
+                            } else {
+                                $(this).parent().addClass('closed');
+                            }
+                        });
+                    }
+
+
+                });
+            <?php endif; ?>
+        </script>
+
+        <?php /* If portfolio page */ ?>
+        <?php
+        if( jevelin_is_gutenberg_page() ) : ?>
+            <script>
+                jQuery(function($){
+                    $(window).load(function (){
+                        if( $('body').hasClass('post-type-fw-portfolio') && $('.components-panel__body .editor-post-featured-image').length ) {
+                            setTimeout(function() { $('.components-panel__body .editor-post-featured-image').parent().hide(); }, 10);
+                            setTimeout(function() { $('.components-panel__body .editor-post-featured-image').parent().hide(); }, 100);
+                            setTimeout(function() { $('.components-panel__body .editor-post-featured-image').parent().hide(); }, 300);
+                            setTimeout(function() { $('.components-panel__body .editor-post-featured-image').parent().hide(); }, 800);
+                        }
+                    });
+                });
+            </script>
+            <style media="screen">
+                .post-type-fw-portfolio .components-panel__body .editor-post-featured-image {
+                    display: none!important;
+                }
+            </style>
+        <?php endif; ?>
+
+
         <script type="text/javascript">
             function htmlDecode(value) {
                return (typeof value === 'undefined') ? '' : jQuery('<div/>').html(value).text();
@@ -988,6 +1163,65 @@ if ( ! function_exists( 'jevelin_admin_styling' ) ) :
                 <?php endif; ?>
 
 
+                /* Post format meta box show */
+                <?php if( jevelin_is_gutenberg_page() ) : ?>
+
+                    jQuery( window ).load( function() {
+                        var post_format = $('.editor-post-format .editor-post-format__content select option:selected').val();
+                        if( post_format != 0 ) {
+                            $('#fw-options-box-post-format-0').hide();
+                            $('#fw-options-box-post-format-gallery').hide();
+                            $('#fw-options-box-post-format-quote').hide();
+                            $('#fw-options-box-post-format-link').hide();
+                            $('#fw-options-box-post-format-video').hide();
+                            $('#fw-options-box-post-format-audio').hide();
+                            $('#fw-options-box-post-format-'+post_format).show();
+
+                            if( post_format == 'standard' ) {
+                                $('#fw-options-box-post-format-0').show();
+                            }
+                        }
+
+                        $('.editor-post-format .editor-post-format__content select').on( 'change', function() {
+                            var post_format_change = $(this).find('option:selected').val();
+                            $('#fw-options-box-post-format-0').hide();
+                            $('#fw-options-box-post-format-gallery').hide();
+                            $('#fw-options-box-post-format-quote').hide();
+                            $('#fw-options-box-post-format-link').hide();
+                            $('#fw-options-box-post-format-video').hide();
+                            $('#fw-options-box-post-format-audio').hide();
+                            $('#fw-options-box-post-format-'+ post_format_change ).show();
+
+                            if( post_format_change == 'standard' ) {
+                                $('#fw-options-box-post-format-0').show();
+                            }
+                        });
+                    });
+
+                <?php else : ?>
+
+                    var post_format = $('input[name=post_format]:checked', '#post-formats-select').val();
+                    if( post_format != 0 ) {
+                        $('#fw-options-box-post-format-'+post_format).show();
+                    } else {
+                        $('#fw-options-box-post-format-0').show();
+                    }
+
+                    $('input[name=post_format]').on( 'change', function() {
+                        var post_format_change = $(this).val();
+
+                        $('#fw-options-box-post-format-0').hide();
+                        $('#fw-options-box-post-format-gallery').hide();
+                        $('#fw-options-box-post-format-quote').hide();
+                        $('#fw-options-box-post-format-link').hide();
+                        $('#fw-options-box-post-format-video').hide();
+                        $('#fw-options-box-post-format-audio').hide();
+                        $('#fw-options-box-post-format-'+ post_format_change ).show();
+                    });
+
+                <?php endif; ?>
+
+
                 var timeoutId;
                 $(document).on('widget-updated widget-added', function(){
                     clearTimeout(timeoutId);
@@ -997,23 +1231,13 @@ if ( ! function_exists( 'jevelin_admin_styling' ) ) :
                 });
 
                 $('.mega-menu-column-new-row').parent().parent().remove();
-                var post_format = $('input[name=post_format]:checked', '#post-formats-select').val();
-                if( post_format != 0 ) {
-                    $('#fw-options-box-post-format-'+post_format).show();
-                }
-
-                $('input[name=post_format]').change(function() {
-                    $('#fw-options-box-post-format-0').hide();
-                    $('#fw-options-box-post-format-gallery').hide();
-                    $('#fw-options-box-post-format-quote').hide();
-                    $('#fw-options-box-post-format-link').hide();
-                    $('#fw-options-box-post-format-video').hide();
-                    $('#fw-options-box-post-format-audio').hide();
-                    $('#fw-options-box-post-format-'+$(this).val()).show();
-                });
 
                 $('.sh-demo-install-issues-button').on('click', function(){
                     $('.sh-demo-install-issues').toggle('fast');
+                });
+
+                $(window).load(function() {
+                    $('body').removeClass( 'sh-adminbody-loading' );
                 });
 
                 /* Visual Composer Comptatibility Mode to fix Unyson Builder Related isues */
@@ -1104,11 +1328,6 @@ if ( ! function_exists( 'jevelin_admin_styling' ) ) :
             .widget-inside .fw-backend-option-type-multi-picker .fw-backend-option {
                 padding-left: 0px!important;
                 padding-right: 0px!important;
-            }
-
-            .fw-extensions-list .not-compatible,
-            #fw-extensions-list-available .toggle-not-compat-ext-btn-wrapper {
-                display: none!important;
             }
 
             .sh-demo-install-descr {
@@ -1233,6 +1452,14 @@ if ( ! function_exists( 'jevelin_admin_styling' ) ) :
     <?php }
 endif;
 
+if( !function_exists( 'jevelin_add_admin_body_classes' ) ) :
+    add_filter('admin_body_class', 'jevelin_add_admin_body_classes');
+    function jevelin_add_admin_body_classes( $classes ) {
+        $classes.= ' sh-adminbody-loading';
+        return $classes;
+    }
+endif;
+
 
 /**
  * Admin panel - link to theme options
@@ -1242,7 +1469,7 @@ if ( !function_exists( 'jevelin_theme_options_link' ) && current_user_can('manag
     function jevelin_theme_options_link( $wp_admin_bar ) {
         $args = array(
             'id'    => 'jevelin-options',
-            'title' => 'Jevelin',
+            'title' => 'Jevelin Settings',
             'href'  => get_admin_url().'/themes.php?page=fw-settings',
         );
         $wp_admin_bar->add_node( $args );
@@ -1290,9 +1517,10 @@ endif;
 
 
 /**
- * Jevelin Predefined Templates
+ * Jevelin Predefined Templates - Deprecated
  */
-/*if( is_admin() ) :
-    require_once trailingslashit( get_template_directory() ) . '/inc/presets.php';
+if ( ( $e = get_option( 'fw_active_extensions' ) ) && isset( $e['page-builder'] ) ) :
+    if( is_admin() ) :
+        require_once trailingslashit( get_template_directory() ) . '/inc/presets.php';
+    endif;
 endif;
-*/

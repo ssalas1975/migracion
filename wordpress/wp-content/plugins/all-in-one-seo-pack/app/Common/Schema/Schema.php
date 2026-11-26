@@ -6,9 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
-use AIOSEO\Plugin\Common\Integrations\BbPress as BbPressIntegration;
-
 /**
  * Builds our schema.
  *
@@ -16,9 +13,9 @@ use AIOSEO\Plugin\Common\Integrations\BbPress as BbPressIntegration;
  */
 class Schema {
 	/**
-	 * The graphs that need to be generated.
+	 * The included graphs.
 	 *
-	 * @since 4.2.5
+	 * @since 4.0.0
 	 *
 	 * @var array
 	 */
@@ -33,27 +30,6 @@ class Schema {
 	 */
 	public $context = [];
 
-	/**
-	 * Helpers class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Helpers
-	 */
-	public $helpers = null;
-
-	/**
-	 * The subdirectories that contain graph classes.
-	 *
-	 * @since 4.2.5
-	 *
-	 * @var array
-	 */
-	protected $graphSubDirectories = [
-		'Article',
-		'KnowledgeGraph',
-		'WebPage'
-	];
 
 	/**
 	 * All existing WebPage graphs.
@@ -62,7 +38,7 @@ class Schema {
 	 *
 	 * @var array
 	 */
-	public $webPageGraphs = [
+	protected $webPageGraphs = [
 		'WebPage',
 		'AboutPage',
 		'CheckoutPage',
@@ -84,304 +60,212 @@ class Schema {
 	 * @var array
 	 */
 	public $nullableFields = [
-		'price',                // Needs to be 0 if free for Software Application.
-		'ratingValue',          // Needs to be 0 for 0-star ratings.
-		'value',                // Needs to be 0 if free for product shipping details.
-		'minValue',             // Needs to be 0 for product delivery time.
-		'maxValue',             // Needs to be 0 for product delivery time.
-		'suggestedMinAge',      // Needs to be 0 for PeopleAudience minimum age.
-		'valueAddedTaxIncluded' // Needs to be `false` for WooCommerce products with tax-exclusive pricing.
+		'price' // Needs to be 0 if free for Software Application.
 	];
 
 	/**
-	 * List of mapped parents with properties that are allowed to contain a restricted set of HTML tags.
-	 *
-	 * @since 4.2.3
-	 *
-	 * @var array
-	 */
-	public $htmlAllowedFields = [
-		// FAQPage
-		'acceptedAnswer' => [
-			'text'
-		]
-	];
-
-	/**
-	 * Whether we are generating the validator output.
-	 *
-	 * @since 4.6.3
-	 *
-	 * @var bool
-	 */
-	public $generatingValidatorOutput = false;
-
-	/**
-	 * Class constructor.
-	 */
-	public function __construct() {
-		// No AJAX check since we need to be able to grab the schema output via the REST API.
-		if ( wp_doing_cron() ) {
-			return;
-		}
-
-		$this->helpers = new Helpers();
-	}
-
-	/**
-	 * Returns the JSON schema output.
+	 * Returns the JSON schema for the requested page.
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return string The JSON schema output.
+	 * @return string The JSON schema.
 	 */
 	public function get() {
-		// First, check if the schema is disabled.
-		if ( ! $this->helpers->isEnabled() ) {
+		// First, let's check if it's disabled.
+		if (
+			apply_filters( 'aioseo_schema_disable', false ) ||
+			( in_array( 'enableSchemaMarkup', aioseo()->internalOptions->deprecatedOptions, true ) && ! aioseo()->options->deprecated->searchAppearance->global->schema->enableSchemaMarkup )
+		) {
 			return '';
 		}
 
-		$this->determineSmartGraphsAndContext();
-
-		return $this->generateSchema();
-	}
-
-	/**
-	 * Generates the JSON schema after the graphs/context have been determined.
-	 *
-	 * @since 4.2.5
-	 *
-	 * @return string The JSON schema output.
-	 */
-	protected function generateSchema() {
-		// Now, filter the graphs.
-		$this->graphs = apply_filters(
-			'aioseo_schema_graphs',
-			array_unique( array_filter( array_values( $this->graphs ) ) )
-		);
-
+		$this->init();
 		if ( ! $this->graphs ) {
 			return '';
 		}
 
-		// Check if a WebPage graph is included. Otherwise add the default one.
-		$webPageGraphFound = false;
-		foreach ( $this->graphs as $graphName ) {
-			if ( in_array( $graphName, $this->webPageGraphs, true ) ) {
-				$webPageGraphFound = true;
-				break;
-			}
-		}
-
-		if ( ! $webPageGraphFound ) {
-			$this->graphs[] = 'WebPage';
-		}
-
-		// Now that we've determined the graphs, start generating their data.
 		$schema = [
 			'@context' => 'https://schema.org',
 			'@graph'   => []
 		];
 
-		// By determining the length of the array after every iteration, we are able to add additional graphs during runtime.
-		// e.g. The Article graph may require a Person graph to be output for the author.
-		$this->graphs = array_values( $this->graphs );
-		for ( $i = 0; $i < count( $this->graphs ); $i++ ) {
-			$namespace = $this->getGraphNamespace( $this->graphs[ $i ] );
-			if ( $namespace ) {
-				$schema['@graph'][] = ( new $namespace() )->get();
+		$graphs = apply_filters( 'aioseo_schema_graphs', array_unique( array_filter( $this->graphs ) ) );
+		foreach ( $graphs as $graph ) {
+			if ( class_exists( "\AIOSEO\Plugin\Common\Schema\Graphs\\$graph" ) ) {
+				$namespace = "\AIOSEO\Plugin\Common\Schema\Graphs\\$graph";
+
+				//if graph is actually a fully qualified class name
+				if ( class_exists( $graph ) ) {
+					$namespace = $graph;
+				}
+
+				$schema['@graph'][] = array_filter( ( new $namespace )->get() );
 			}
 		}
 
-		return aioseo()->schema->helpers->getOutput( $schema );
+		$schema['@graph'] = apply_filters( 'aioseo_schema_output', $schema['@graph'] );
+		$schema['@graph'] = array_values( $this->cleanData( $schema['@graph'] ) );
+
+		return isset( $_GET['aioseo-dev'] ) ? wp_json_encode( $schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : wp_json_encode( $schema );
 	}
 
 	/**
-	 * Gets the relevant namespace for the given graph.
+	 * Determines the context and graphs for the requested page.
 	 *
-	 * @since 4.2.5
+	 * This can't run in the constructor since the queried object needs to be available first.
 	 *
-	 * @param  string $graphName The graph name.
-	 * @return string            The namespace.
-	 */
-	protected function getGraphNamespace( $graphName ) {
-		$namespace = "\AIOSEO\Plugin\Common\Schema\Graphs\\{$graphName}";
-		if ( class_exists( $namespace ) ) {
-			return $namespace;
-		}
-
-		// If we can't find it in the root dir, check if we can find it in a sub dir.
-		foreach ( $this->graphSubDirectories as $dirName ) {
-			$namespace = "\AIOSEO\Plugin\Common\Schema\Graphs\\{$dirName}\\{$graphName}";
-			if ( class_exists( $namespace ) ) {
-				return $namespace;
-			}
-		}
-
-		return '';
-	}
-
-	/**
-	 * Determines the smart graphs that need to be output by default, as well as the current context.
-	 *
-	 * @since   4.2.5
-	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @since 4.0.0
 	 *
 	 * @return void
 	 */
-	protected function determineSmartGraphsAndContext() {
-		$this->graphs = array_merge( $this->graphs, $this->getDefaultGraphs() );
+	protected function init() {
+		$context      = new Context();
+		$this->graphs = [
+			'WebSite',
+			ucfirst( aioseo()->options->searchAppearance->global->schema->siteRepresents ),
+			'BreadcrumbList'
+		];
 
-		$contextInstance = new Context();
-		$this->context   = $contextInstance->defaults();
-
-		if ( BuddyPressIntegration::isComponentPage() ) {
-			aioseo()->standalone->buddyPress->component->determineSchemaGraphsAndContext();
-
-			return;
-		}
-
-		if ( BbPressIntegration::isComponentPage() ) {
-			aioseo()->standalone->bbPress->component->determineSchemaGraphsAndContext();
-
-			return;
-		}
-
-		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
+		if ( is_front_page() && 'posts' === get_option( 'show_on_front' ) ) {
 			$this->graphs[] = 'CollectionPage';
-			$this->context  = $contextInstance->home();
+			$this->context  = $context->home();
 
 			return;
 		}
 
 		if ( is_home() || aioseo()->helpers->isWooCommerceShopPage() ) {
 			$this->graphs[] = 'CollectionPage';
-			$this->context  = $contextInstance->post();
+			$this->context  = $context->post();
 
 			return;
 		}
 
 		if ( is_singular() ) {
-			$this->determineContextSingular( $contextInstance );
+			$this->context = $context->post();
 
-			if ( is_singular( 'web-story' ) ) {
-				$this->graphs[] = 'AmpStory';
+			// Check if we're on a BuddyPress member page.
+			if ( function_exists( 'bp_is_user' ) && bp_is_user() ) {
+				array_push( $this->graphs, 'ProfilePage', 'PersonAuthor' );
+
+				return;
 			}
+
+			$post = aioseo()->helpers->getPost();
+			if ( $post && 'page' !== $post->post_type ) {
+				$this->graphs[] = 'PersonAuthor';
+			}
+
+			$postGraphs = $this->getPostGraphs( $post );
+			if ( is_array( $postGraphs ) ) {
+				$this->graphs = array_merge( $this->graphs, $postGraphs );
+
+				return;
+			}
+			$this->graphs[] = $postGraphs;
 		}
 
 		if ( is_category() || is_tag() || is_tax() ) {
 			$this->graphs[] = 'CollectionPage';
-			$this->context  = $contextInstance->term();
+			$this->context  = $context->term();
 
 			return;
 		}
 
 		if ( is_author() ) {
-			$this->graphs[] = 'ProfilePage';
-			$this->graphs[] = 'PersonAuthor';
-			$this->context  = $contextInstance->author();
+			array_push( $this->graphs, 'CollectionPage', 'PersonAuthor' );
+			$this->context = $context->author();
+
+			return;
 		}
 
 		if ( is_post_type_archive() ) {
 			$this->graphs[] = 'CollectionPage';
-			$this->context  = $contextInstance->postArchive();
+			$this->context  = $context->postArchive();
 
 			return;
 		}
 
 		if ( is_date() ) {
 			$this->graphs[] = 'CollectionPage';
-			$this->context  = $contextInstance->date();
+			$this->context  = $context->date();
 
 			return;
 		}
 
 		if ( is_search() ) {
 			$this->graphs[] = 'SearchResultsPage';
-			$this->context  = $contextInstance->search();
+			$this->context  = $context->search();
 
 			return;
 		}
 
 		if ( is_404() ) {
-			$this->context = $contextInstance->notFound();
+			$this->context = $context->notFound();
 		}
 	}
 
 	/**
-	 * Determines the smart graphs and context for singular pages.
+	 * Returns the graph names that are set for the post.
 	 *
-	 * @since 4.2.6
+	 * @since 4.0.0
 	 *
-	 * @param  Context $contextInstance The Context class instance.
-	 * @return void
+	 * @param  WP_Post      The post object.
+	 * @return string|array The graph name(s).
 	 */
-	protected function determineContextSingular( $contextInstance ) {
-		// If the current request is for the validator, we can't include the default graph here.
-		// We need to include the default graph that the validator sent.
-		// Don't do this if we're in Pro since we then need to get it from the post meta.
-		if ( ! $this->generatingValidatorOutput ) {
-			$this->graphs[] = $this->getDefaultPostGraph();
-		}
-
-		$this->context = $contextInstance->post();
-	}
-
-	/**
-	 * Returns the default graph for the post type.
-	 *
-	 * @since 4.2.6
-	 *
-	 * @return string The default graph.
-	 */
-	public function getDefaultPostGraph() {
-		return $this->getDefaultPostTypeGraph();
-	}
-
-	/**
-	 * Returns the default graph for the current post type.
-	 *
-	 * @since 4.2.5
-	 *
-	 * @param  \WP_Post $post The post object.
-	 * @return string         The default graph.
-	 */
-	public function getDefaultPostTypeGraph( $post = null ) {
-		$post = $post ? $post : aioseo()->helpers->getPost();
-		if ( ! is_a( $post, 'WP_Post' ) ) {
-			return '';
-		}
-
+	public function getPostGraphs( $post = null ) {
+		$post           = is_object( $post ) ? $post : aioseo()->helpers->getPost();
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+
 		if ( ! $dynamicOptions->searchAppearance->postTypes->has( $post->post_type ) ) {
-			return '';
+			return 'WebPage';
 		}
 
-		$defaultType = $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->schemaType;
-		switch ( $defaultType ) {
-			case 'Article':
-				return $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->articleType;
+		$schemaType = $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->schemaType;
+		switch ( $schemaType ) {
 			case 'WebPage':
-				return $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->webPageType;
+				return ucfirst( $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->webPageType );
+			case 'Article':
+				return [ 'WebPage', ucfirst( $dynamicOptions->searchAppearance->postTypes->{$post->post_type}->articleType ) ];
+			case 'none':
+				return '';
 			default:
-				return $defaultType;
+				// This fixes a bug from WPForms Form Pages.
+				if ( 'default' === $schemaType ) {
+					return 'WebPage';
+				}
+
+				// Check if the schema type isn't already WebPage or one of its child graphs.
+				if ( in_array( $schemaType, $this->webPageGraphs, true ) ) {
+					return ucfirst( $schemaType );
+				}
+
+				return [ 'WebPage', ucfirst( $schemaType ) ];
 		}
 	}
 
 	/**
-	 * Returns the default graphs that should be output on every page, regardless of its type.
+	 * Strips HTML and removes all blank properties in each of our graphs.
 	 *
-	 * @since 4.2.5
+	 * @since 4.0.13
 	 *
-	 * @return array The default graphs.
+	 * @param  array $data The graph data.
+	 * @return array       The cleaned graph data.
 	 */
-	protected function getDefaultGraphs() {
-		$siteRepresents = ucfirst( aioseo()->options->searchAppearance->global->schema->siteRepresents );
+	protected function cleanData( $data ) {
+		foreach ( $data as $k => &$v ) {
+			if ( is_array( $v ) ) {
+				$v = $this->cleanData( $v );
+			} else {
+				$v = is_int( $v ) ? $v : trim( wp_strip_all_tags( $v ) );
+			}
 
-		return [
-			'BreadcrumbList',
-			'Kg' . $siteRepresents,
-			'WebSite'
-		];
+			if ( empty( $v ) && ! in_array( $k, $this->nullableFields, true ) ) {
+				unset( $data[ $k ] );
+			} else {
+				$data[ $k ] = $v;
+			}
+		}
+
+		return $data;
 	}
 }

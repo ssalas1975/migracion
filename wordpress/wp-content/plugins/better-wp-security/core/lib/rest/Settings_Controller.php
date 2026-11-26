@@ -2,9 +2,7 @@
 
 namespace iThemesSecurity\Lib\REST;
 
-use iThemesSecurity\Lib\Result;
 use iThemesSecurity\Module_Config;
-use ITSEC_Response;
 
 final class Settings_Controller extends \WP_REST_Controller {
 
@@ -106,11 +104,7 @@ final class Settings_Controller extends \WP_REST_Controller {
 		}
 
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $request['id'] ) ) {
-			return new \WP_Error(
-				'rest_unsupported_module',
-				__( 'This module does not have settings.', 'better-wp-security' ),
-				[ 'status' => \WP_Http::NOT_FOUND ]
-			);
+			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
 		}
 
 		$settings = $request->get_json_params() ?: $request->get_body_params();
@@ -142,11 +136,7 @@ final class Settings_Controller extends \WP_REST_Controller {
 		}
 
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $request['id'] ) ) {
-			return new \WP_Error(
-				'rest_unsupported_module',
-				__( 'This module does not have settings.', 'better-wp-security' ),
-				[ 'status' => \WP_Http::NOT_FOUND ]
-			);
+			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
 		}
 
 		$current = $obj->get_all();
@@ -205,11 +195,7 @@ final class Settings_Controller extends \WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $item->get_id() ) ) {
-			return new \WP_Error(
-				'rest_unsupported_module',
-				__( 'This module does not have settings.', 'better-wp-security' ),
-				[ 'status' => \WP_Http::NOT_FOUND ]
-			);
+			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
 		}
 
 		$settings = $obj->prepare_for_rest();
@@ -229,19 +215,13 @@ final class Settings_Controller extends \WP_REST_Controller {
 			$settings[ $setting ] = new \stdClass();
 		}
 
-		$response = new \WP_REST_Response( $settings );
-
-		$response_headers = Result::from_response()->as_rest_response()->get_headers();
-		$response->set_headers( $response_headers );
-		ITSEC_Response::get_instance()->reset_messages();
-
-		return $response;
+		return new \WP_REST_Response( $settings );
 	}
 
 	public function get_item_schema() {
 		return [
 			'title'      => 'ithemes-security-settings',
-			'$schema'    => 'http://json-schema.org/draft-07/schema#',
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'type'       => 'object',
 			'properties' => [],
 		];

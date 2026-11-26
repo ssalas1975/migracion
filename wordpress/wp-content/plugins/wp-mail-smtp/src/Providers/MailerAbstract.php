@@ -3,8 +3,7 @@
 namespace WPMailSMTP\Providers;
 
 use WPMailSMTP\Admin\DebugEvents\DebugEvents;
-use WPMailSMTP\ConnectionInterface;
-use WPMailSMTP\Helpers\Helpers;
+use WPMailSMTP\Debug;
 use WPMailSMTP\MailCatcherInterface;
 use WPMailSMTP\Options;
 use WPMailSMTP\WP;
@@ -86,15 +85,6 @@ abstract class MailerAbstract implements MailerInterface {
 	protected $error_message = '';
 
 	/**
-	 * The error code recorded when email sending failed.
-	 *
-	 * @since 4.8.0
-	 *
-	 * @var string
-	 */
-	protected $error_code = '';
-
-	/**
 	 * Should the email sent by this mailer have its "sent status" verified via its API?
 	 *
 	 * @since 2.5.0
@@ -104,45 +94,19 @@ abstract class MailerAbstract implements MailerInterface {
 	protected $verify_sent_status = false;
 
 	/**
-	 * The Connection object.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @var ConnectionInterface
-	 */
-	protected $connection;
-
-	/**
-	 * The connection options object.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @var Options
-	 */
-	protected $connection_options;
-
-	/**
 	 * Mailer constructor.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param MailCatcherInterface $phpmailer  The MailCatcher object.
-	 * @param ConnectionInterface  $connection The Connection object.
+	 * @param MailCatcherInterface $phpmailer The MailCatcher object.
 	 */
-	public function __construct( MailCatcherInterface $phpmailer, $connection = null ) {
+	public function __construct( MailCatcherInterface $phpmailer ) {
 
-		if ( ! is_null( $connection ) ) {
-			$this->connection = $connection;
-		} else {
-			$this->connection = wp_mail_smtp()->get_connections_manager()->get_primary_connection();
-		}
-
-		$this->connection_options = $this->connection->get_options();
-		$this->mailer             = $this->connection->get_mailer_slug();
-		$this->options            = Options::init();
+		$this->options = Options::init();
+		$this->mailer  = $this->options->get( 'mail', 'mailer' );
 
 		// Only non-SMTP mailers need URL and extra processing for PHPMailer class.
-		if ( ! $this->connection_options->is_mailer_smtp() && empty( $this->url ) ) {
+		if ( ! $this->options->is_mailer_smtp() && empty( $this->url ) ) {
 			return;
 		}
 
@@ -166,7 +130,7 @@ abstract class MailerAbstract implements MailerInterface {
 		$this->phpmailer = $phpmailer;
 
 		// Prevent working with those methods, as they are not needed for SMTP-like mailers.
-		if ( $this->connection_options->is_mailer_smtp() ) {
+		if ( $this->options->is_mailer_smtp() ) {
 			return;
 		}
 
@@ -313,7 +277,7 @@ abstract class MailerAbstract implements MailerInterface {
 		$response = wp_safe_remote_post( $this->url, $params );
 
 		DebugEvents::add_debug(
-			esc_html__( 'An email request was sent.', 'wp-mail-smtp' )
+			esc_html__( 'An email request was sent.' )
 		);
 
 		$this->process_response( $response );
@@ -325,25 +289,22 @@ abstract class MailerAbstract implements MailerInterface {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed $response Response array.
+	 * @param mixed $response
 	 */
 	protected function process_response( $response ) {
 
 		if ( is_wp_error( $response ) ) {
 			// Save the error text.
-			foreach ( $response->errors as $error_code => $error_message ) {
-				$this->error_message .= Helpers::format_error_message( $error_message, $error_code ) . WP::EOL;
+			$errors = $response->get_error_messages();
+			foreach ( $errors as $error ) {
+				$this->error_message .= $error . PHP_EOL;
 			}
 
 			return;
 		}
 
-		if ( wp_remote_retrieve_response_code( $response ) !== $this->email_sent_code ) {
-			$this->error_code = wp_remote_retrieve_response_code( $response );
-		}
-
 		if ( isset( $response['body'] ) && WP::is_json( $response['body'] ) ) {
-			$response['body'] = json_decode( $response['body'] );
+			$response['body'] = \json_decode( $response['body'] );
 		}
 
 		$this->response = $response;
@@ -412,49 +373,6 @@ abstract class MailerAbstract implements MailerInterface {
 	}
 
 	/**
-	 * The error code when email sending failed.
-	 * Should be overwritten when appropriate.
-	 *
-	 * @since 4.8.0
-	 *
-	 * @return string
-	 */
-	public function get_response_error_code() {
-
-		return ! empty( $this->error_code ) ? $this->error_code : '';
-	}
-
-	/**
-	 * Get a header from the retained send response.
-	 *
-	 * @since 4.9.0
-	 *
-	 * @param string $name Header name (case-insensitive).
-	 *
-	 * @return string
-	 */
-	public function get_response_header( $name ) {
-
-		return wp_remote_retrieve_header( $this->response, $name );
-	}
-
-	/**
-	 * Get the HTTP response code.
-	 *
-	 * @since 4.8.0
-	 *
-	 * @return int
-	 */
-	public function get_response_code() {
-
-		if ( empty( $this->response ) || ! is_array( $this->response ) ) {
-			return 0;
-		}
-
-		return (int) wp_remote_retrieve_response_code( $this->response );
-	}
-
-	/**
 	 * Whether the mailer supports the current PHP version or not.
 	 *
 	 * @since 1.0.0
@@ -463,7 +381,7 @@ abstract class MailerAbstract implements MailerInterface {
 	 */
 	public function is_php_compatible() {
 
-		$options = wp_mail_smtp()->get_providers()->get_options( $this->mailer, $this->connection );
+		$options = wp_mail_smtp()->get_providers()->get_options( $this->mailer );
 
 		return version_compare( phpversion(), $options->get_php_version(), '>=' );
 	}
@@ -483,31 +401,31 @@ abstract class MailerAbstract implements MailerInterface {
 		$smtp_text = array();
 
 		// Mail mailer has nothing to return.
-		if ( $this->connection_options->is_mailer_smtp() ) {
+		if ( $this->options->is_mailer_smtp() ) {
 			// phpcs:disable
+			$smtp_text[] = '<strong>ErrorInfo:</strong> ' . make_clickable( wp_strip_all_tags( $phpmailer->ErrorInfo ) );
 			$smtp_text[] = '<strong>Host:</strong> ' . $phpmailer->Host;
 			$smtp_text[] = '<strong>Port:</strong> ' . $phpmailer->Port;
-			$smtp_text[] = '<strong>SMTPSecure:</strong> ' . Helpers::pvar( $phpmailer->SMTPSecure );
-			$smtp_text[] = '<strong>SMTPAutoTLS:</strong> ' . Helpers::pvar( $phpmailer->SMTPAutoTLS );
-			$smtp_text[] = '<strong>SMTPAuth:</strong> ' . Helpers::pvar( $phpmailer->SMTPAuth );
+			$smtp_text[] = '<strong>SMTPSecure:</strong> ' . Debug::pvar( $phpmailer->SMTPSecure );
+			$smtp_text[] = '<strong>SMTPAutoTLS:</strong> ' . Debug::pvar( $phpmailer->SMTPAutoTLS );
+			$smtp_text[] = '<strong>SMTPAuth:</strong> ' . Debug::pvar( $phpmailer->SMTPAuth );
 			if ( ! empty( $phpmailer->SMTPOptions ) ) {
 				$smtp_text[] = '<strong>SMTPOptions:</strong> <code>' . wp_json_encode( $phpmailer->SMTPOptions ) . '</code>';
 			}
 			// phpcs:enable
 		}
 
-		$smtp_text[] = '<br><strong>' . esc_html__( 'Server:', 'wp-mail-smtp' ) . '</strong>';
-		$smtp_text[] = '<strong>OpenSSL:</strong> ' . ( extension_loaded( 'openssl' ) && defined( 'OPENSSL_VERSION_TEXT' ) ? OPENSSL_VERSION_TEXT : esc_html__( 'No', 'wp-mail-smtp' ) );
-
+		$smtp_text[] = '<br><strong>Server:</strong>';
+		$smtp_text[] = '<strong>OpenSSL:</strong> ' . ( extension_loaded( 'openssl' ) && defined( 'OPENSSL_VERSION_TEXT' ) ? OPENSSL_VERSION_TEXT : 'No' );
 		if ( function_exists( 'apache_get_modules' ) ) {
 			$modules     = apache_get_modules();
-			$smtp_text[] = '<strong>Apache.mod_security:</strong> ' . ( in_array( 'mod_security', $modules, true ) || in_array( 'mod_security2', $modules, true ) ? esc_html__( 'Yes', 'wp-mail-smtp' ) : esc_html__( 'No', 'wp-mail-smtp' ) );
+			$smtp_text[] = '<strong>Apache.mod_security:</strong> ' . ( in_array( 'mod_security', $modules, true ) || in_array( 'mod_security2', $modules, true ) ? 'Yes' : 'No' );
 		}
 		if ( function_exists( 'selinux_is_enabled' ) ) {
-			$smtp_text[] = '<strong>OS.SELinux:</strong> ' . ( selinux_is_enabled() ? esc_html__( 'Yes', 'wp-mail-smtp' ) : esc_html__( 'No', 'wp-mail-smtp' ) );
+			$smtp_text[] = '<strong>OS.SELinux:</strong> ' . ( selinux_is_enabled() ? 'Yes' : 'No' );
 		}
 		if ( function_exists( 'grsecurity_is_enabled' ) ) {
-			$smtp_text[] = '<strong>OS.grsecurity:</strong> ' . ( grsecurity_is_enabled() ? esc_html__( 'Yes', 'wp-mail-smtp' ) : esc_html__( 'No', 'wp-mail-smtp' ) );
+			$smtp_text[] = '<strong>OS.grsecurity:</strong> ' . ( grsecurity_is_enabled() ? 'Yes' : 'No' );
 		}
 
 		return implode( '<br>', $smtp_text );
@@ -605,15 +523,15 @@ abstract class MailerAbstract implements MailerInterface {
 	}
 
 	/**
-	 * Get PHPMailer attachment file content.
+	 * Get the PHPMailer attachment file content.
 	 *
 	 * @since 3.1.0
 	 *
 	 * @param array $attachment PHPMailer attachment.
 	 *
-	 * @return string|false
+	 * @return string
 	 */
-	public function get_attachment_file_content( $attachment ) {
+	protected function get_attachment_file_content( $attachment ) {
 
 		$file = false;
 
@@ -632,127 +550,5 @@ abstract class MailerAbstract implements MailerInterface {
 		}
 
 		return $file;
-	}
-
-	/**
-	 * Get PHPMailer attachment file size.
-	 *
-	 * @since 3.4.0
-	 *
-	 * @param array $attachment PHPMailer attachment.
-	 *
-	 * @return int|false
-	 */
-	public function get_attachment_file_size( $attachment ) {
-
-		$size = false;
-
-		if ( $attachment[5] === true ) {  // Whether there is string attachment.
-			$size = Helpers::strsize( $attachment[0] );
-		} elseif ( is_file( $attachment[0] ) && is_readable( $attachment[0] ) ) {
-			$size = filesize( $attachment[0] );
-		}
-
-		return $size;
-	}
-
-	/**
-	 * Get PHPMailer attachment file name.
-	 *
-	 * @since 3.4.0
-	 *
-	 * @param array $attachment PHPMailer attachment.
-	 *
-	 * @return string
-	 */
-	public function get_attachment_file_name( $attachment ) {
-
-		$filetype = str_replace( ';', '', trim( $attachment[4] ) );
-
-		return ! empty( $attachment[2] ) ? trim( $attachment[2] ) : 'file-' . wp_hash( microtime() ) . '.' . $filetype;
-	}
-
-	/**
-	 * Perform remote request with merged default params.
-	 *
-	 * @since 3.4.0
-	 *
-	 * @param string $url    Request url.
-	 * @param array  $params Request params.
-	 *
-	 * @return array
-	 */
-	public function remote_request( $url, $params ) {
-
-		if ( ! isset( $params['method'] ) ) {
-			$params['method'] = 'POST';
-		}
-
-		$params = Options::array_merge_recursive( $this->get_default_params(), $params );
-
-		/**
-		 * Filters request params.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param array          $params Request params.
-		 * @param MailerAbstract $mailer Mailer object.
-		 */
-		$params = apply_filters( 'wp_mail_smtp_providers_mailer_remote_request_params', $params, $this );
-
-		/**
-		 * Filters request url.
-		 *
-		 * @since 3.4.0
-		 *
-		 * @param string         $url    Request url.
-		 * @param MailerAbstract $mailer Mailer object.
-		 */
-		$url = apply_filters( 'wp_mail_smtp_providers_mailer_remote_request_url', $url, $this );
-
-		return wp_safe_remote_request( $url, $params );
-	}
-
-	/**
-	 * Get the Connection object.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @return ConnectionInterface
-	 */
-	public function get_connection() {
-
-		return $this->connection;
-	}
-
-	/**
-	 * Sanitize email header values.
-	 *
-	 * @param string $name  Name of the header.
-	 * @param string $value Value of the header.
-	 *
-	 * @since 3.11.1
-	 */
-	public function sanitize_header_value( $name, $value ) {
-
-		if (
-			in_array(
-				strtolower( $name ),
-				[
-					'cc',
-					'bcc',
-					'reply-to',
-					'message-id',
-					'list-unsubscribe',
-					'references',
-					'in-reply-to'
-				],
-				true
-			)
-		) {
-			return $value;
-		}
-
-		return WP::sanitize_value( $value );
 	}
 }

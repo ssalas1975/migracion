@@ -29,13 +29,13 @@ if ( post_password_required() || ( defined('FW') && jevelin_option('page_comment
 			?>
 				<<?php echo esc_attr( $tag ); ?> <?php comment_class( empty( $args['has_children'] ) ? '' : 'parent' ) ?> id="comment-<?php comment_ID() ?>">
 
-				<div id="div-comment-<?php comment_ID() ?>" class="comment-body">
+				<div id="div-comment-<?php comment_ID() ?>" class="comment-body" itemscope="itemscope" itemtype="http://schema.org/Comment">
 					<div class="comment-column-left">
 						<div class="comment-thumb"><?php if ( $args['avatar_size'] != 0 ) echo get_avatar( $comment, $args['avatar_size'] ); ?></div>
 					</div>
 					<div class="comment-column-right">
 
-						<?php printf( '<span class="sh-comment-author">%s</span>', get_comment_author_link() ); ?>
+						<?php printf( '<span class="sh-comment-author" itemprop="author">%s</span>', get_comment_author_link() ); ?>
 						<?php if ( $comment->comment_approved == '0' ) : ?>
 							<em class="comment-awaiting-moderation"><?php esc_html_e( 'Your comment is awaiting moderation.', 'jevelin' ); ?></em>
 						<?php endif; ?>
@@ -43,12 +43,17 @@ if ( post_password_required() || ( defined('FW') && jevelin_option('page_comment
 						<span class="sh-comment-date">
 							<a href="<?php echo htmlspecialchars( get_comment_link( $comment->comment_ID ) ); ?>">
 								<?php
+									$meta_data = get_comment_date( 'Y-m-d|H:i:s' );
+						            $meta_data = str_replace( '|', 'T', $meta_data ) . '+00:00';
+						        ?>
+								<meta itemprop="datePublished" value="<?php echo esc_attr( $meta_data ); ?>">
+								<?php
 									echo get_comment_date().' '.esc_html__('at', 'jevelin').' '.get_comment_time();
 								?>
 							</a>
 						</span>
 
-						<div class="sh-comment-content">
+						<div class="sh-comment-content" itemprop="text">
 							<?php comment_text(); ?>
 						</div>
 
@@ -92,30 +97,35 @@ if ( post_password_required() || ( defined('FW') && jevelin_option('page_comment
 
 
 	<div class="sh-comment-form">
-		<?php comment_form(array(
+		<?php
+		$fields_required_val = get_option( 'require_name_email', true );
+		$fields_required_icon = ( $fields_required_val ) ? '<i class="icon-check sh-accent-color"></i>' : '';
+		$fields_required_field = ( $fields_required_val ) ? 'required' : '';
+		$fields = array(
+			'author' =>
+				'<label>' . esc_html__( 'Name ', 'jevelin' ) . $fields_required_icon . ' </label>
+				<p class="comment-form-author">
+					<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" '.$fields_required_field.'  />
+				</p>',
+
+			'email' =>
+				'<label>' . esc_html__( 'Email ', 'jevelin' ) . $fields_required_icon . ' </label>
+				<p class="comment-form-email">
+					<input id="email" name="email" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .'" '.$fields_required_field.' />
+				</p>',
+
+			'url' =>
+				'<label>' . esc_html__( 'Website ', 'jevelin' ) . ' </label>
+				<p class="comment-form-url">
+					<input id="url" name="url" type="text" value="' . esc_attr( $commenter['comment_author_url'] ) . '"  />
+				</p>'
+			);
+
+		comment_form( array(
 			'label_submit' => esc_html__( 'Send a comment', 'jevelin' ),
 			'comment_notes_after' => '',
 			'comment_notes_before' => '',
-			'fields' => apply_filters( 'comment_form_default_fields', array(
-				'author' =>
-					'<label>' . esc_html__( 'Name ', 'jevelin' ) . ' <i class="icon-check sh-accent-color"></i></label>
-					<p class="comment-form-author">
-						<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" required />
-					</p>',
-
-				'email' =>
-					'<label>' . esc_html__( 'Email ', 'jevelin' ) . ' <i class="icon-check sh-accent-color"></i></label>
-					<p class="comment-form-email">
-						<input id="email" name="email" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .'" required />
-					</p>',
-
-				'url' =>
-					'<label>' . esc_html__( 'Website ', 'jevelin' ) . ' <i class="icon-check sh-accent-color"></i></label>
-					<p class="comment-form-url">
-						<input id="url" name="url" type="text" value="' . esc_attr( $commenter['comment_author_url'] ) . '"  />
-					</p>'
-				)
-			),
+			'fields' => apply_filters( 'comment_form_default_fields', $fields ),
 			'comment_field' =>  '<label>' . esc_html__( 'Message ', 'jevelin' ) . ' <i class="icon-check sh-accent-color"></i></label>
 			<p class="comment-form-comment">
 				<textarea id="comment" name="comment" cols="45" rows="8" aria-required="true" required></textarea>

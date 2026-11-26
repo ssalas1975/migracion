@@ -47,6 +47,17 @@ $options = array(
 		'type'  => 'upload',
 	),
 
+	'image_size' => array(
+		'type'    => 'select',
+		'label'   => esc_html__('Placeholder Size', 'jevelin'),
+		'desc'	=> esc_html__( 'Select uploaded placeholder image size', 'jevelin' ),
+		'value' => 'large',
+		'choices' => array(
+			'large' => esc_html__( 'Large', 'jevelin' ),
+			'full' => esc_html__( 'Full', 'jevelin' ),
+		)
+	),
+
 	'placeholder_icon' => array(
 		'type' => 'switch',
 		'label' => esc_html__( 'Placholder Icon', 'jevelin' ),

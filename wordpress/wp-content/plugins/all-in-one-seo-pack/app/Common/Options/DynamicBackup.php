@@ -40,13 +40,13 @@ class DynamicBackup {
 	protected $shouldBackup = false;
 
 	/**
-	 * The option defaults.
+	 * The options from the DB.
 	 *
 	 * @since 4.1.3
 	 *
 	 * @var array
 	 */
-	protected $defaultOptions = [];
+	protected $options = [];
 
 	/**
 	 * The public post types.
@@ -81,10 +81,6 @@ class DynamicBackup {
 	 * @since 4.1.3
 	 */
 	public function __construct() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		add_action( 'wp_loaded', [ $this, 'init' ], 5000 );
 		add_action( 'shutdown', [ $this, 'updateBackup' ] );
 	}
@@ -100,7 +96,7 @@ class DynamicBackup {
 		if ( $this->shouldBackup ) {
 			$this->shouldBackup = false;
 			$backup = aioseo()->dynamicOptions->convertOptionsToValues( $this->backup, 'value' );
-			update_option( $this->optionsName, wp_json_encode( $backup ), 'no' );
+			update_option( $this->optionsName, wp_json_encode( $backup ) );
 		}
 	}
 
@@ -116,16 +112,15 @@ class DynamicBackup {
 		$this->taxonomies = wp_list_pluck( aioseo()->helpers->getPublicTaxonomies( false, true ), 'name' );
 		$this->archives   = wp_list_pluck( aioseo()->helpers->getPublicPostTypes( false, true, true ), 'name' );
 
-		$rawBackup = get_option( $this->optionsName );
-		$backup    = is_string( $rawBackup ) ? json_decode( $rawBackup, true ) : $rawBackup;
+		$backup = json_decode( get_option( $this->optionsName ), true );
 		if ( empty( $backup ) ) {
-			update_option( $this->optionsName, '{}', 'no' );
+			update_option( $this->optionsName, '{}' );
 
 			return;
 		}
 
-		$this->backup         = $backup;
-		$this->defaultOptions = aioseo()->dynamicOptions->getDefaults();
+		$this->backup  = $backup;
+		$this->options = aioseo()->dynamicOptions->getDefaults();
 
 		$this->restorePostTypes();
 		$this->restoreTaxonomies();
@@ -205,46 +200,32 @@ class DynamicBackup {
 	 *
 	 * @since 4.1.3
 	 *
-	 * @param  array $backupOptions The options to be restored.
-	 * @param  array $groups        The group that the option should be restored to.
 	 * @return void
+	 * @param  array $backupOptions The options to be restored.
+	 * @param  array $groups        The group that the option should be restored.
 	 */
 	protected function restoreOptions( $backupOptions, $groups ) {
-		$defaultOptions = $this->defaultOptions;
+		$groupPath = $this->options;
 		foreach ( $groups as $group ) {
-			if ( ! isset( $defaultOptions[ $group ] ) ) {
-				return;
+			if ( ! isset( $groupPath[ $group ] ) ) {
+				return false;
 			}
-
-			$defaultOptions = $defaultOptions[ $group ];
+			$groupPath = $groupPath[ $group ];
 		}
 
-		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+		$options = aioseo()->dynamicOptions->noConflict();
 		foreach ( $backupOptions as $setting => $value ) {
-			// Check if the option exists before proceeding. If not, it might be a group.
-			$type = $defaultOptions[ $setting ]['type'] ?? '';
-			if (
-				! $type &&
-				is_array( $value ) &&
-				aioseo()->helpers->isArrayAssociative( $value )
-			) {
-				$nextGroups = array_merge( $groups, [ $setting ] );
-
-				$this->restoreOptions( $backupOptions[ $setting ], $nextGroups );
-
-				continue;
-			}
-
-			// If we still can't find the option, it might be a group.
+			// Check if the option exists by checking if the type is defined.
+			$type = ! empty( $groupPath[ $setting ]['type'] ) ? $groupPath[ $setting ]['type'] : '';
 			if ( ! $type ) {
 				continue;
 			}
 
 			foreach ( $groups as $group ) {
-				$dynamicOptions = $dynamicOptions->$group;
+				$options = $options->$group;
 			}
 
-			$dynamicOptions->$setting = $value;
+			$options->$setting = $value;
 		}
 	}
 

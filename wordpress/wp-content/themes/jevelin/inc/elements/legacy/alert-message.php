@@ -2,7 +2,7 @@
 class vcj_alert_message extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_alert_message', array( $this, '_html' ) );
     }
 
@@ -74,21 +74,6 @@ class vcj_alert_message extends WPBakeryShortCode {
     ),
     4 => 
     array (
-      'param_name' => 'close',
-      'heading' => 'Closable',
-      'description' => 'Message can be closed',
-      'value' => 
-      array (
-        'No' => false,
-        'Yes' => true,
-      ),
-      'type' => 'dropdown',
-      'class' => '',
-      'std' => true,
-      'group' => 'General',
-    ),
-    5 => 
-    array (
       'param_name' => 'alignment',
       'heading' => 'Alignment',
       'description' => 'Choose message information alignment',
@@ -100,6 +85,21 @@ class vcj_alert_message extends WPBakeryShortCode {
       'type' => 'dropdown',
       'class' => '',
       'std' => 'left',
+      'group' => 'General',
+    ),
+    5 => 
+    array (
+      'param_name' => 'close',
+      'heading' => 'Closable',
+      'description' => 'Message can be closed',
+      'value' => 
+      array (
+        'No' => false,
+        'Yes' => true,
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => true,
       'group' => 'General',
     ),
     6 => 
@@ -143,8 +143,9 @@ class vcj_alert_message extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/alert-message/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/alert-message/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/alert-message/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/alert-message/static.php';
         if( function_exists( 'jevelin_shortcode_alert_message_css' ) ) :
             jevelin_shortcode_alert_message_css( $atts, $id_rand );
         endif;

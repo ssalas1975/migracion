@@ -40,7 +40,6 @@ class PostMeta {
 		'_seopress_social_fb_title'      => 'og_title',
 		'_seopress_titles_desc'          => 'description',
 		'_seopress_titles_title'         => 'title',
-		'_seopress_robots_primary_cat'   => 'primary_term'
 	];
 
 	/**
@@ -49,7 +48,7 @@ class PostMeta {
 	 * @since 4.1.4
 	 */
 	public function scheduleImport() {
-		if ( aioseo()->actionScheduler->scheduleSingle( aioseo()->importExport->seoPress->postActionName, 0 ) ) {
+		if ( aioseo()->helpers->scheduleSingleAction( aioseo()->importExport->seoPress->postActionName, 0 ) ) {
 			if ( ! aioseo()->core->cache->get( 'import_post_meta_seopress' ) ) {
 				aioseo()->core->cache->update( 'import_post_meta_seopress', time(), WEEK_IN_SECONDS );
 			}
@@ -64,19 +63,18 @@ class PostMeta {
 	 * @return void
 	 */
 	public function importPostMeta() {
-		$postsPerAction  = apply_filters( 'aioseo_import_seopress_posts_per_action', 100 );
-		$publicPostTypes = aioseo()->helpers->getPublicPostTypes( true );
-		$timeStarted     = esc_sql( gmdate( 'Y-m-d H:i:s', aioseo()->core->cache->get( 'import_post_meta_seopress' ) ) );
+		$postsPerAction  = 100;
+		$publicPostTypes = implode( "', '", aioseo()->helpers->getPublicPostTypes( true ) );
+		$timeStarted     = gmdate( 'Y-m-d H:i:s', aioseo()->core->cache->get( 'import_post_meta_seopress' ) );
 
 		$posts = aioseo()->core->db
 			->start( 'posts as p' )
 			->select( 'p.ID, p.post_type' )
 			->join( 'postmeta as pm', '`p`.`ID` = `pm`.`post_id`' )
 			->leftJoin( 'aioseo_posts as ap', '`p`.`ID` = `ap`.`post_id`' )
-			->whereLike( 'pm.meta_key', '_seopress_%', true )
-			->whereIn( 'p.post_type', $publicPostTypes )
+			->whereRaw( "pm.meta_key LIKE '_seopress_%'" )
+			->whereRaw( "( p.post_type IN ( '$publicPostTypes' ) )" )
 			->whereRaw( "( ap.post_id IS NULL OR ap.updated < '$timeStarted' )" )
-			->groupBy( 'p.ID' )
 			->orderBy( 'p.ID DESC' )
 			->limit( $postsPerAction )
 			->run()
@@ -93,12 +91,11 @@ class PostMeta {
 				->start( 'postmeta' . ' as pm' )
 				->select( 'pm.meta_key, pm.meta_value' )
 				->where( 'pm.post_id', $post->ID )
-				->whereLike( 'pm.meta_key', '_seopress_%', true )
+				->whereRaw( "`pm`.`meta_key` LIKE '_seopress_%'" )
 				->run()
 				->result();
 
 			if ( ! $postMeta || ! count( $postMeta ) ) {
-				// Skip posts with no SEOPress meta (shouldn't happen with our query filter, but defensive check).
 				continue;
 			}
 
@@ -109,15 +106,10 @@ class PostMeta {
 			$aioseoPost = Models\Post::getPost( (int) $post->ID );
 			$aioseoPost->set( $meta );
 			$aioseoPost->save();
-
-			aioseo()->migration->meta->migrateAdditionalPostMeta( $post->ID );
-
-			// Clear the Overview cache.
-			aioseo()->postSettings->clearPostTypeOverviewCache( $post->ID );
 		}
 
 		if ( count( $posts ) === $postsPerAction ) {
-			aioseo()->actionScheduler->scheduleSingle( aioseo()->importExport->seoPress->postActionName, 30, [], true );
+			aioseo()->helpers->scheduleSingleAction( aioseo()->importExport->seoPress->postActionName, 5, [], true );
 		} else {
 			aioseo()->core->cache->delete( 'import_post_meta_seopress' );
 		}
@@ -132,19 +124,7 @@ class PostMeta {
 	 * @return array           The meta data.
 	 */
 	public function getMetaData( $postMeta, $postId ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$meta = [
-			'robots_default'      => true,
-			'robots_noarchive'    => false,
-			'canonical_url'       => '',
-			'robots_nofollow'     => false,
-			'robots_noimageindex' => false,
-			'robots_noindex'      => false,
-			'robots_noodp'        => false,
-			'robots_nosnippet'    => false,
-			'twitter_use_og'      => aioseo()->options->social->twitter->general->useOgData,
-			'twitter_title'       => '',
-			'twitter_description' => ''
-		];
+		$meta = [];
 		foreach ( $postMeta as $record ) {
 			$name  = $record->meta_key;
 			$value = $record->meta_value;
@@ -155,17 +135,11 @@ class PostMeta {
 
 			switch ( $name ) {
 				case '_seopress_analysis_target_kw':
-					$keyphrases     = array_map( 'trim', explode( ',', $value ) );
-					$keyphraseArray = [
-						'focus'      => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $keyphrases[0] ) ],
+					$keyphrase = [
+						'focus'      => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $value ) ],
 						'additional' => []
 					];
-					unset( $keyphrases[0] );
-					foreach ( $keyphrases as $keyphrase ) {
-						$keyphraseArray['additional'][] = [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $keyphrase ) ];
-					}
-
-					$meta['keyphrases'] = $keyphraseArray;
+					$meta['keyphrases'] = wp_json_encode( $keyphrase );
 					break;
 				case '_seopress_robots_snippet':
 				case '_seopress_robots_archive':
@@ -174,29 +148,18 @@ class PostMeta {
 				case '_seopress_robots_follow':
 				case '_seopress_robots_index':
 					if ( 'yes' === $value ) {
-						$meta['robots_default']             = false;
+						$meta['robots_default']       = false;
 						$meta[ $this->mappedMeta[ $name ] ] = true;
 					}
 					break;
 				case '_seopress_social_twitter_img':
-					$meta['twitter_use_og']             = false;
-					$meta['twitter_image_type']         = 'custom_image';
+					$meta['twitter_use_og']       = false;
+					$meta['twitter_image_type']   = 'custom_image';
 					$meta[ $this->mappedMeta[ $name ] ] = esc_url( $value );
-					break;
-				case '_seopress_social_twitter_desc':
-				case '_seopress_social_twitter_title':
-					$meta['twitter_use_og']             = false;
-					$meta[ $this->mappedMeta[ $name ] ] = esc_html( wp_strip_all_tags( strval( $value ) ) );
 					break;
 				case '_seopress_social_fb_img':
-					$meta['og_image_type']              = 'custom_image';
+					$meta['og_image_type']        = 'custom_image';
 					$meta[ $this->mappedMeta[ $name ] ] = esc_url( $value );
-					break;
-				case '_seopress_robots_primary_cat':
-					$taxonomy                           = 'category';
-					$options                            = new \stdClass();
-					$options->$taxonomy                 = (int) $value;
-					$meta[ $this->mappedMeta[ $name ] ] = wp_json_encode( $options );
 					break;
 				case '_seopress_titles_title':
 				case '_seopress_titles_desc':
@@ -205,11 +168,6 @@ class PostMeta {
 					$meta[ $this->mappedMeta[ $name ] ] = esc_html( wp_strip_all_tags( strval( $value ) ) );
 					break;
 			}
-		}
-
-		if ( isset( $meta['keyphrases'] ) ) {
-			// The keyphrases column is only kept for backwards compatibility; the post editor reads the keyword columns.
-			$meta = array_merge( $meta, Models\Post::getKeywordColumnsFromKeyphrases( $meta['keyphrases'] ) );
 		}
 
 		return $meta;

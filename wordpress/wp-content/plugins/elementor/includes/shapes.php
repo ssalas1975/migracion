@@ -104,11 +104,8 @@ class Shapes {
 	 * @return string Shape file path.
 	 */
 	public static function get_shape_path( $shape, $is_negative = false ) {
-		if ( ! isset( self::$shapes[ $shape ] ) ) {
-			return '';
-		}
 
-		if ( isset( self::$shapes[ $shape ]['path'] ) ) {
+		if ( isset( self::$shapes[ $shape ] ) && isset( self::$shapes[ $shape ]['path'] ) ) {
 			$path = self::$shapes[ $shape ]['path'];
 			return ( $is_negative ) ? str_replace( '.svg', '-negative.svg', $path ) : $path;
 		}
@@ -134,100 +131,82 @@ class Shapes {
 	private static function init_shapes() {
 		$native_shapes = [
 			'mountains' => [
-				'title' => esc_html_x( 'Mountains', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/mountains.svg',
+				'title' => _x( 'Mountains', 'Shapes', 'elementor' ),
 				'has_flip' => true,
 			],
 			'drops' => [
-				'title' => esc_html_x( 'Drops', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/drops.svg',
+				'title' => _x( 'Drops', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 				'height_only' => true,
 			],
 			'clouds' => [
-				'title' => esc_html_x( 'Clouds', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/clouds.svg',
+				'title' => _x( 'Clouds', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 				'height_only' => true,
 			],
 			'zigzag' => [
-				'title' => esc_html_x( 'Zigzag', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/zigzag.svg',
+				'title' => _x( 'Zigzag', 'Shapes', 'elementor' ),
 			],
 			'pyramids' => [
-				'title' => esc_html_x( 'Pyramids', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/pyramids.svg',
+				'title' => _x( 'Pyramids', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 			],
 			'triangle' => [
-				'title' => esc_html_x( 'Triangle', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/triangle.svg',
+				'title' => _x( 'Triangle', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 			],
 			'triangle-asymmetrical' => [
-				'title' => esc_html_x( 'Triangle Asymmetrical', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/triangle-asymmetrical.svg',
+				'title' => _x( 'Triangle Asymmetrical', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 			],
 			'tilt' => [
-				'title' => esc_html_x( 'Tilt', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/tilt.svg',
+				'title' => _x( 'Tilt', 'Shapes', 'elementor' ),
 				'has_flip' => true,
 				'height_only' => true,
 			],
 			'opacity-tilt' => [
-				'title' => esc_html_x( 'Tilt Opacity', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/opacity-tilt.svg',
+				'title' => _x( 'Tilt Opacity', 'Shapes', 'elementor' ),
 				'has_flip' => true,
 			],
 			'opacity-fan' => [
-				'title' => esc_html_x( 'Fan Opacity', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/opacity-fan.svg',
+				'title' => _x( 'Fan Opacity', 'Shapes', 'elementor' ),
 			],
 			'curve' => [
-				'title' => esc_html_x( 'Curve', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/curve.svg',
+				'title' => _x( 'Curve', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 			],
 			'curve-asymmetrical' => [
-				'title' => esc_html_x( 'Curve Asymmetrical', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/curve-asymmetrical.svg',
+				'title' => _x( 'Curve Asymmetrical', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 			],
 			'waves' => [
-				'title' => esc_html_x( 'Waves', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/waves.svg',
+				'title' => _x( 'Waves', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 				'has_flip' => true,
 			],
 			'wave-brush' => [
-				'title' => esc_html_x( 'Waves Brush', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/wave-brush.svg',
+				'title' => _x( 'Waves Brush', 'Shapes', 'elementor' ),
 				'has_flip' => true,
 			],
 			'waves-pattern' => [
-				'title' => esc_html_x( 'Waves Pattern', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/waves-pattern.svg',
+				'title' => _x( 'Waves Pattern', 'Shapes', 'elementor' ),
 				'has_flip' => true,
 			],
-			'book' => [
-				'title' => esc_html_x( 'Book', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/book.svg',
+			'arrow' => [
+				'title' => _x( 'Arrow', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 			],
 			'split' => [
-				'title' => esc_html_x( 'Split', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/split.svg',
+				'title' => _x( 'Split', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 			],
-			'arrow' => [
-				'title' => esc_html_x( 'Arrow', 'Shapes', 'elementor' ),
-				'image' => ELEMENTOR_ASSETS_URL . 'shapes/arrow.svg',
+			'book' => [
+				'title' => _x( 'Book', 'Shapes', 'elementor' ),
 				'has_negative' => true,
 			],
 		];
@@ -250,9 +229,7 @@ class Shapes {
 		if ( null !== $additional_shapes ) {
 			return $additional_shapes;
 		}
-
 		$additional_shapes = [];
-
 		/**
 		 * Additional shapes.
 		 *
@@ -263,14 +240,6 @@ class Shapes {
 		 * @param array $additional_shapes Additional Elementor shapes.
 		 */
 		$additional_shapes = apply_filters( 'elementor/shapes/additional_shapes', $additional_shapes );
-
-		// BC for addons that add additional shapes the old way using `url` instead of `image`.
-		foreach ( $additional_shapes as $shape_name => $shape_settings ) {
-			if ( ! isset( $shape_settings['image'] ) && isset( $shape_settings['url'] ) ) {
-				$additional_shapes[ $shape_name ]['image'] = $shape_settings['url'];
-			}
-		}
-
 		return $additional_shapes;
 	}
 

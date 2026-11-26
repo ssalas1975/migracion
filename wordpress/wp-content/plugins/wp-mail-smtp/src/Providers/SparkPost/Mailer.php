@@ -2,8 +2,6 @@
 
 namespace WPMailSMTP\Providers\SparkPost;
 
-use WPMailSMTP\ConnectionInterface;
-use WPMailSMTP\Helpers\Helpers;
 use WPMailSMTP\WP;
 use WPMailSMTP\MailCatcherInterface;
 use WPMailSMTP\Providers\MailerAbstract;
@@ -38,26 +36,25 @@ class Mailer extends MailerAbstract {
 	 *
 	 * @since 3.2.0
 	 *
-	 * @param MailCatcherInterface $phpmailer  The MailCatcher object.
-	 * @param ConnectionInterface  $connection The Connection object.
+	 * @param MailCatcherInterface $phpmailer The MailCatcher object.
 	 */
-	public function __construct( $phpmailer, $connection = null ) {
+	public function __construct( $phpmailer ) {
 
 		// Default value should be defined before the parent class constructor fires.
 		$this->url = self::API_BASE_US;
 
 		// We want to prefill everything from MailCatcher class, which extends PHPMailer.
-		parent::__construct( $phpmailer, $connection );
+		parent::__construct( $phpmailer );
 
 		// We have a special API URL to query in case of EU region.
-		if ( $this->connection_options->get( $this->mailer, 'region' ) === 'EU' ) {
+		if ( $this->options->get( $this->mailer, 'region' ) === 'EU' ) {
 			$this->url = self::API_BASE_EU;
 		}
 
 		$this->url .= '/transmissions';
 
 		// Set mailer specific headers.
-		$this->set_header( 'Authorization', $this->connection_options->get( $this->mailer, 'api_key' ) );
+		$this->set_header( 'Authorization', $this->options->get( $this->mailer, 'api_key' ) );
 		$this->set_header( 'Content-Type', 'application/json' );
 
 		// Set default body params.
@@ -131,7 +128,10 @@ class Mailer extends MailerAbstract {
 		}
 
 		$headers = isset( $this->body['content']['headers'] ) ? (array) $this->body['content']['headers'] : [];
-		$value   = $this->sanitize_header_value( $name, $value );
+
+		if ( ! in_array( $name, [ 'Message-ID', 'CC' ], true ) ) {
+			$value = WP::sanitize_value( $value );
+		}
 
 		$headers[ $name ] = $value;
 
@@ -383,8 +383,10 @@ class Mailer extends MailerAbstract {
 				continue;
 			}
 
+			$filetype = str_replace( ';', '', trim( $attachment[4] ) );
+
 			$data[] = [
-				'name' => $this->get_attachment_file_name( $attachment ),
+				'name' => empty( $attachment[2] ) ? 'file-' . wp_hash( microtime() ) . '.' . $filetype : trim( $attachment[2] ),
 				'data' => base64_encode( $file ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 				'type' => $attachment[4],
 			];
@@ -445,49 +447,39 @@ class Mailer extends MailerAbstract {
 	 *
 	 * @return string
 	 */
-	public function get_response_error() { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.NestingLevel.MaxExceeded
+	public function get_response_error() { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
 
-		$error_text[] = $this->error_message;
+		if ( empty( $this->response ) ) {
+			return '';
+		}
 
-		if ( ! empty( $this->response ) ) {
-			$body = wp_remote_retrieve_body( $this->response );
+		$body = wp_remote_retrieve_body( $this->response );
 
-			if ( ! empty( $body->errors ) && is_array( $body->errors ) ) {
-				foreach ( $body->errors as $error ) {
-					if ( ! empty( $error->message ) ) {
-						$message     = $error->message;
-						$code        = ! empty( $error->code ) ? $error->code : '';
-						$description = ! empty( $error->description ) ? $error->description : '';
+		$error_text = [];
 
-						$error_text[] = Helpers::format_error_message( $message, $code, $description );
-					}
+		if ( ! empty( $body->errors ) ) {
+			foreach ( $body->errors as $error ) {
+				$message = [];
+
+				if ( isset( $error->code ) ) {
+					$message[] = $error->code;
 				}
-			} else {
-				$error_text[] = WP::wp_remote_get_response_error_message( $this->response );
+
+				if ( isset( $error->message ) ) {
+					$message[] = $error->message;
+				}
+
+				if ( isset( $error->description ) ) {
+					$message[] = $error->description;
+				}
+
+				$error_text[] = implode( ' - ', $message );
 			}
+		} elseif ( ! empty( $this->error_message ) ) {
+			$error_text[] = $this->error_message;
 		}
 
-		return implode( WP::EOL, array_map( 'esc_textarea', array_filter( $error_text ) ) );
-	}
-
-	/**
-	 * Get the error code from the SparkPost API response.
-	 *
-	 * @since 4.8.0
-	 *
-	 * @return string
-	 */
-	public function get_response_error_code() {
-
-		if ( ! empty( $this->response ) ) {
-			$body = wp_remote_retrieve_body( $this->response );
-
-			if ( ! empty( $body->errors ) && is_array( $body->errors ) && ! empty( $body->errors[0]->code ) ) {
-				return $body->errors[0]->code;
-			}
-		}
-
-		return parent::get_response_error_code();
+		return implode( PHP_EOL, array_map( 'esc_textarea', $error_text ) );
 	}
 
 	/**
@@ -499,12 +491,12 @@ class Mailer extends MailerAbstract {
 	 */
 	public function get_debug_info() {
 
-		$options = $this->connection_options->get_group( $this->mailer );
+		$options = $this->options->get_group( $this->mailer );
 
 		$text[] = '<strong>' . esc_html__( 'API Key:', 'wp-mail-smtp' ) . '</strong> ' .
-							( ! empty( $options['api_key'] ) ? esc_html__( 'Yes', 'wp-mail-smtp' ) : esc_html__( 'No', 'wp-mail-smtp' ) );
+							( ! empty( $options['api_key'] ) ? 'Yes' : 'No' );
 		$text[] = '<strong>' . esc_html__( 'Region:', 'wp-mail-smtp' ) . '</strong> ' .
-							( ! empty( $options['region'] ) ? esc_html__( 'Yes', 'wp-mail-smtp' ) : esc_html__( 'No', 'wp-mail-smtp' ) );
+							( ! empty( $options['region'] ) ? 'Yes' : 'No' );
 
 		return implode( '<br>', $text );
 	}
@@ -520,7 +512,7 @@ class Mailer extends MailerAbstract {
 	 */
 	public function is_mailer_complete() {
 
-		$options = $this->connection_options->get_group( $this->mailer );
+		$options = $this->options->get_group( $this->mailer );
 
 		if ( ! empty( $options['api_key'] ) ) {
 			return true;

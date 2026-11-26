@@ -21,12 +21,10 @@ class Plugins {
 	 * @return \WP_REST_Response          The response.
 	 */
 	public static function installPlugins( $request ) {
-		$error   = esc_html__( 'Installation failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
-		$body    = $request->get_json_params();
-		$plugins = ! empty( $body['plugins'] ) ? $body['plugins'] : [];
-		$network = ! empty( $body['network'] ) ? $body['network'] : false;
+		$error = esc_html__( 'Installation failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
+		$body  = $request->get_json_params();
 
-		if ( ! is_array( $plugins ) ) {
+		if ( ! is_array( $body ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => $error
@@ -42,7 +40,7 @@ class Plugins {
 
 		$failed    = [];
 		$completed = [];
-		foreach ( $plugins as $plugin ) {
+		foreach ( $body as $plugin ) {
 			if ( empty( $plugin['plugin'] ) ) {
 				return new \WP_REST_Response( [
 					'success' => false,
@@ -50,7 +48,7 @@ class Plugins {
 				], 400 );
 			}
 
-			$result = aioseo()->addons->installAddon( $plugin['plugin'], $network );
+			$result = aioseo()->addons->installAddon( $plugin['plugin'] );
 			if ( ! $result ) {
 				$failed[] = $plugin['plugin'];
 			} else {
@@ -74,12 +72,10 @@ class Plugins {
 	 * @return \WP_REST_Response          The response.
 	 */
 	public static function upgradePlugins( $request ) {
-		$error   = esc_html__( 'Plugin update failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
-		$body    = $request->get_json_params();
-		$plugins = ! empty( $body['plugins'] ) ? $body['plugins'] : [];
-		$network = ! empty( $body['network'] ) ? $body['network'] : false;
+		$error = esc_html__( 'Plugin update failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
+		$body  = $request->get_json_params();
 
-		if ( ! is_array( $plugins ) ) {
+		if ( ! is_array( $body ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => $error
@@ -95,7 +91,7 @@ class Plugins {
 
 		$failed    = [];
 		$completed = [];
-		foreach ( $plugins as $plugin ) {
+		foreach ( $body as $plugin ) {
 			if ( empty( $plugin['plugin'] ) ) {
 				return new \WP_REST_Response( [
 					'success' => false,
@@ -103,7 +99,7 @@ class Plugins {
 				], 400 );
 			}
 
-			$result = aioseo()->addons->upgradeAddon( $plugin['plugin'], $network );
+			$result = aioseo()->addons->upgradeAddon( $plugin['plugin'] );
 			if ( ! $result ) {
 				$failed[] = $plugin['plugin'];
 			} else {
@@ -127,19 +123,17 @@ class Plugins {
 	 * @return \WP_REST_Response          The response.
 	 */
 	public static function deactivatePlugins( $request ) {
-		$error   = esc_html__( 'Deactivation failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
-		$body    = $request->get_json_params();
-		$plugins = ! empty( $body['plugins'] ) ? $body['plugins'] : [];
-		$network = ! empty( $body['network'] ) ? $body['network'] : false;
+		$error = esc_html__( 'Deactivation failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
+		$body  = $request->get_json_params();
 
-		if ( ! is_array( $plugins ) ) {
+		if ( ! is_array( $body ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => $error
 			], 400 );
 		}
 
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => $error
@@ -150,7 +144,7 @@ class Plugins {
 
 		$failed    = [];
 		$completed = [];
-		foreach ( $plugins as $plugin ) {
+		foreach ( $body as $plugin ) {
 			if ( empty( $plugin['plugin'] ) ) {
 				return new \WP_REST_Response( [
 					'success' => false,
@@ -158,10 +152,10 @@ class Plugins {
 				], 400 );
 			}
 
-			deactivate_plugins( $plugin['plugin'], false, $network );
+			// Activate the plugin silently.
+			$activated = deactivate_plugins( $plugin['plugin'] );
 
-			$stillActive = $network ? is_plugin_active_for_network( $plugin['plugin'] ) : is_plugin_active( $plugin['plugin'] );
-			if ( $stillActive ) {
+			if ( is_wp_error( $activated ) ) {
 				$failed[] = $plugin['plugin'];
 			}
 

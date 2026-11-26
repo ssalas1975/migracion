@@ -14,14 +14,14 @@ export default function CheckboxesWidget( props ) {
 		schema,
 		uiSchema = {},
 	} = props;
-	const { enumOptions, enumDisabled = [], style } = options;
+	const { enumOptions, enumDisabled = [], enumDescriptions = [] } = options;
 
 	const description = uiSchema[ 'ui:description' ] || schema.description;
-	const optionList = enumOptions.map( ( option ) => ( {
+	const optionList = enumOptions.map( ( option, i ) => ( {
 		...option,
 		disabled: enumDisabled.includes( option.value ),
-		help: option.schema.description && (
-			<Markup noWrap content={ option.schema.description } />
+		help: enumDescriptions[ i ] && (
+			<Markup noWrap content={ enumDescriptions[ i ] } />
 		),
 	} ) );
 
@@ -34,7 +34,6 @@ export default function CheckboxesWidget( props ) {
 			help={ <Markup noWrap content={ description } /> }
 			readOnly={ readonly }
 			disabled={ disabled }
-			style={ style }
 		/>
 	);
 }

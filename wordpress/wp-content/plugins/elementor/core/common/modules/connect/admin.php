@@ -1,12 +1,8 @@
 <?php
 namespace Elementor\Core\Common\Modules\Connect;
 
-use Elementor\Core\Admin\Menu\Admin_Menu_Manager;
 use Elementor\Plugin;
 use Elementor\Settings;
-use Elementor\Utils;
-use Elementor\Modules\EditorOne\Classes\Menu_Data_Provider;
-use Elementor\Core\Common\Modules\Connect\AdminMenuItems\Editor_One_Connect_Menu;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -18,32 +14,29 @@ class Admin {
 
 	public static $url = '';
 
-	private function get_valid_redirect_to_from_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only reading a URL parameter.
-		$raw = Utils::get_super_global_value( $_GET, 'redirect_to' );
+	/**
+	 * @since 2.3.0
+	 * @access public
+	 */
+	public function register_admin_menu() {
+		$submenu_page = add_submenu_page(
+			Settings::PAGE_ID,
+			__( 'Connect', 'elementor' ),
+			__( 'Connect', 'elementor' ),
+			'edit_posts',
+			self::PAGE_ID,
+			[ $this, 'render_page' ]
+		);
 
-		if ( ! $raw ) {
-			return '';
-		}
-
-		$raw = esc_url_raw( $raw );
-
-		$validated = wp_validate_redirect( $raw, '' );
-		if ( ! $validated ) {
-			return '';
-		}
-
-		$admin_host = wp_parse_url( admin_url(), PHP_URL_HOST );
-		$dest_host  = wp_parse_url( $validated, PHP_URL_HOST );
-		if ( $dest_host && $admin_host && ! hash_equals( $admin_host, $dest_host ) ) {
-			return '';
-		}
-
-		return $validated;
+		add_action( 'load-' . $submenu_page, [ $this, 'on_load_page' ] );
 	}
 
-	public function register_editor_one_menu( Menu_Data_Provider $menu_data_provider ) {
-		$menu_data_provider->register_menu( new Editor_One_Connect_Menu() );
+	/**
+	 * @since 2.3.0
+	 * @access public
+	 */
+	public function hide_menu_item() {
+		remove_submenu_page( Settings::PAGE_ID, self::PAGE_ID );
 	}
 
 	/**
@@ -51,41 +44,23 @@ class Admin {
 	 * @access public
 	 */
 	public function on_load_page() {
-		if ( ! $this->user_has_enough_permissions() ) {
-			wp_die( 'You do not have sufficient permissions to access this page.', 'You do not have sufficient permissions to access this page.', [
-				'back_link' => true,
-			] );
-		}
-
-		// Allow a per-request default landing URL when provided via a safe `redirect_to` parameter.
-		$maybe_redirect_to = $this->get_valid_redirect_to_from_request();
-		if ( $maybe_redirect_to ) {
-			self::$url = $maybe_redirect_to;
-		}
-
 		if ( isset( $_GET['action'], $_GET['app'] ) ) {
 			$manager = Plugin::$instance->common->get_component( 'connect' );
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$app_slug = Utils::get_super_global_value( $_GET, 'app' );
+			$app_slug = $_GET['app'];
 			$app = $manager->get_app( $app_slug );
-
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$action = Utils::get_super_global_value( $_GET, 'action' );
-
-			$nonce_action = $app_slug . $action;
+			$nonce_action = $_GET['app'] . $_GET['action'];
 
 			if ( ! $app ) {
 				wp_die( 'Unknown app: ' . esc_attr( $app_slug ) );
 			}
 
-			if ( ! wp_verify_nonce( Utils::get_super_global_value( $_GET, 'nonce' ), $nonce_action ) ) {
+			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], $nonce_action ) ) {
 				wp_die( 'Invalid Nonce', 'Invalid Nonce', [
 					'back_link' => true,
 				] );
 			}
 
-			$method = 'action_' . $action;
+			$method = 'action_' . $_GET['action'];
 
 			if ( method_exists( $app, $method ) ) {
 				call_user_func( [ $app, $method ] );
@@ -93,16 +68,32 @@ class Admin {
 		}
 	}
 
-	private function user_has_enough_permissions() {
-		if ( current_user_can( 'manage_options' ) ) {
-			return true;
-		}
+	/**
+	 * @since 2.3.0
+	 * @access public
+	 */
+	public function render_page() {
+		$apps = Plugin::$instance->common->get_component( 'connect' )->get_apps();
+		?>
+		<style>
+			.elementor-connect-app-wrapper{
+				margin-bottom: 50px;
+				overflow: hidden;
+			}
+		</style>
+		<div class="wrap">
+			<?php
 
-		if ( 'library' === Utils::get_super_global_value( $_GET, 'app' ) ) {
-			return current_user_can( 'edit_posts' );
-		}
+			/** @var \Elementor\Core\Common\Modules\Connect\Apps\Base_App $app */
+			foreach ( $apps as $app ) {
+				echo '<div class="elementor-connect-app-wrapper">';
+				$app->render_admin_widget();
+				echo '</div>';
+			}
 
-		return false;
+			?>
+		</div><!-- /.wrap -->
+		<?php
 	}
 
 	/**
@@ -112,12 +103,7 @@ class Admin {
 	public function __construct() {
 		self::$url = admin_url( 'admin.php?page=' . self::PAGE_ID );
 
-		add_action( 'elementor/editor-one/menu/register', [ $this, 'register_editor_one_menu' ] );
-
-		add_action( 'elementor/editor-one/menu/after_register_hidden_submenus', function ( array $hooks ) {
-			if ( ! empty( $hooks[ static::PAGE_ID ] ) ) {
-				add_action( 'load-' . $hooks[ static::PAGE_ID ], [ $this, 'on_load_page' ] );
-			}
-		} );
+		add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 206 );
+		add_action( 'admin_head', [ $this, 'hide_menu_item' ] );
 	}
 }

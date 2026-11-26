@@ -2,10 +2,9 @@
 Contributors: wordpressdotorg
 Donate link: https://wordpressfoundation.org/donate/
 Tags: importer, wordpress
-Requires at least: 5.2
-Tested up to: 6.8
-Requires PHP: 7.2
-Stable tag: 0.9.7
+Requires at least: 3.7
+Tested up to: 5.4
+Stable tag: 0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,64 +38,6 @@ If you would prefer to do things manually then follow these instructions:
 1. Go to the Tools -> Import screen, click on WordPress
 
 == Changelog ==
-
-= 0.9.7 =
-* Skip the `_wp_attachment_edit_root_id` meta key on import. It stores an attachment ID from the source site, and attachment IDs change on import, so the imported value could point at an unrelated attachment on the destination site.
-
-= 0.9.6 =
-* Skip the `_wp_font_face_file` meta key on import. Font attachments regenerate this meta locally, and the imported value pointed at a file path from the source site.
-* Prefix bundled vendor namespaces (`Rowbot\URL`, `Brick\Math`, `Psr\Log`, and others) with `VendorPrefix\` to avoid class redefinition errors when another plugin bundles the same libraries.
-* Add a Live Preview blueprint so the plugin can be tried in WordPress Playground from the plugin directory page.
-* Code refactoring: extract single-post processing into a separate process_post() method, continuing the streaming preparation work.
-
-= 0.9.5 =
-* Rewrite CSS URLs in block markup (e.g., cover blocks with background images).
-* Code refactoring: Extract import processing logic into separate methods to prepare for future streaming support.
-* Update Playwright and @playwright/test dependencies from 1.55.0 to 1.56.1.
-* Clean up vendor-patched dependencies by removing dotfiles and GitHub workflow files.
-
-= 0.9.4 =
-* Fix a bug that caused self-closing blocks to be incorrectly serialized during URL rewriting.
-
-= 0.9.3 =
-* Rewrite attachment URLs to the new URL structure
-
-= 0.9.2 =
-* Rewrite site URLs in block attributes.
-
-= 0.9.1 =
-* Add support for rewriting site URLs in post content and excerpts.
-
-= 0.9.0 =
-* Introduce a new XML parser class `WXR_Parser_XML_Processor` that replaces the
-  deprecated `WXR_Parser_Regex` class.
-
-= 0.8.4 =
-* Fix a bug on deserialization of untrusted input.
-* Update compatibility tested-up-to to WordPress 6.7.2.
-
-= 0.8.3 =
-* Update compatibility tested-up-to to WordPress 6.7.
-* Update call to `post_exists` to include `post_type` in the query
-* PHP 8.4 compatibility fixes.
-
-= 0.8.2 =
-* Update compatibility tested-up-to to WordPress 6.4.2.
-* Update doc URL references.
-* Adjust workflow triggers.
-
-= 0.8.1 =
-* Update compatibility tested-up-to to WordPress 6.2.
-* Update paths to build status badges.
-
-= 0.8 =
-* Update minimum WordPress requirement to 5.2.
-* Update minimum PHP requirement to 5.6.
-* Update compatibility tested-up-to to WordPress 6.1.
-* PHP 8.0, 8.1, and 8.2 compatibility fixes.
-* Fix a bug causing blank lines in content to be ignored when using the Regex Parser.
-* Fix a bug resulting in a PHP fatal error when IMPORT_DEBUG is enabled and a category creation error occurs.
-* Improved Unit testing & automated testing.
 
 = 0.7 =
 * Update minimum WordPress requirement to 3.7 and ensure compatibility with PHP 7.4.

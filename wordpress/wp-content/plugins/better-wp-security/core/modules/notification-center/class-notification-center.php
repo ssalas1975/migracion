@@ -107,7 +107,6 @@ final class ITSEC_Notification_Center {
 	 */
 	public function clear_notifications_cache() {
 		$this->notifications = null;
-		$this->strings       = [];
 	}
 
 	/**
@@ -150,50 +149,6 @@ final class ITSEC_Notification_Center {
 		$settings = $this->get_notification_settings( $notification );
 
 		return ! empty( $settings['enabled'] );
-	}
-
-	/**
-	 * Enables a notification.
-	 *
-	 * @param string $notification
-	 *
-	 * @return bool
-	 */
-	public function enable_notification( string $notification ): bool {
-		return $this->set_notification_status( $notification, true );
-	}
-
-	/**
-	 * Disables a notification.
-	 *
-	 * @param string $notification
-	 *
-	 * @return bool
-	 */
-	public function disable_notification( string $notification ): bool {
-		return $this->set_notification_status( $notification, false );
-	}
-
-	private function set_notification_status( string $notification, bool $status ): bool {
-		$config = $this->get_notification( $notification );
-
-		if ( ! $config ) {
-			return false;
-		}
-
-		if ( empty( $config['optional'] ) ) {
-			return false;
-		}
-
-		$settings = ITSEC_Modules::get_setting( 'notification-center', 'notifications' );
-
-		$settings[ $notification ]['enabled'] = $status;
-		$settings[ $notification ]['subject'] = $settings[ $notification ]['subject'] ?? '';
-		$settings[ $notification ]['message'] = $settings[ $notification ]['message'] ?? '';
-
-		$result = ITSEC_Modules::set_setting( 'notification-center', 'notifications', $settings );
-
-		return is_array( $result ) && $result['saved'];
 	}
 
 	/**
@@ -667,7 +622,7 @@ final class ITSEC_Notification_Center {
 
 		if ( $display ) {
 			$href = esc_attr( "#itsec-notification-center-notification-settings--{$display}" );
-			echo '<a href="' . $href . '" class="itsec-notification-center-link" data-module-link="notification-center">' . esc_html__( 'Notification Center', 'better-wp-security' ) . '</a>';
+			echo '<a href="' . $href .'" class="itsec-notification-center-link" data-module-link="notification-center">' . esc_html__( 'Notification Center', 'better-wp-security' ) . '</a>';
 		}
 	}
 
@@ -778,7 +733,6 @@ final class ITSEC_Notification_Center {
 	 * @param bool     $silent             If true, will not update last sent times or destroy data. Defaults to false.
 	 *
 	 * @return array Notification slugs keyed to send success.
-	 * @since 8.7.2 Write directly to storage to avoid settings validation that could silently block saving due to validation errors.
 	 */
 	public function send_scheduled_notifications( $notification_slugs, $silent = false ) {
 
@@ -800,31 +754,22 @@ final class ITSEC_Notification_Center {
 			return $sent;
 		}
 
-		$storage = ITSEC_Storage::get( 'notification-center' );
-
-		if ( ! is_array( $storage ) ) {
-			$storage = array();
-		}
+		$settings = ITSEC_Modules::get_settings( 'notification-center' );
 
 		foreach ( $notification_slugs as $slug ) {
+
+			// Only clear queued data if the notification was actually able to be sent.
 			if ( ! empty( $sent[ $slug ] ) ) {
-				$storage['data'][ $slug ]      = array();
-				$storage['last_sent'][ $slug ] = ITSEC_Core::get_current_time_gmt();
+				$settings['data'][ $slug ]      = array();
+				$settings['last_sent'][ $slug ] = ITSEC_Core::get_current_time_gmt();
 			} else {
 				// Retry sending the notification in 6 hours.
-				$storage['resend_at'][ $slug ] = ITSEC_Core::get_current_time_gmt() + 6 * HOUR_IN_SECONDS;
+				$settings['resend_at'][ $slug ] = ITSEC_Core::get_current_time_gmt() + 6 * HOUR_IN_SECONDS;
 			}
 		}
 
-		// Using ITSEC_Storage to avoid settings schema validation that could silently
-		// block saving due to validation errors.
-		ITSEC_Storage::set( 'notification-center', $storage );
-
-		if ( ! ITSEC_Storage::save() ) {
-			ITSEC_Log::add_error( 'notification_center', 'save_failed', array(
-				'notifications' => $notification_slugs,
-			) );
-		}
+		ITSEC_Modules::set_settings( 'notification-center', $settings );
+		ITSEC_Storage::save();
 
 		return $sent;
 	}

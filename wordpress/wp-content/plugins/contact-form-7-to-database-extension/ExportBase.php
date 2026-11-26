@@ -564,15 +564,7 @@ class ExportBase {
             $formNameClause = '`form_name` in ( ' . implode(', ', $formNameArray) . ' )';
         }
         else if ($formName !== null && $formName != '*') { // * => all forms
-            $formNameLength = strlen($formName);
-            if ($formNameLength > 2 && strpos($formName, '/') === 0 && $formName[$formNameLength - 1] == '/') {
-                // Regular Expression
-                // Get rid of the enclosing '/' for MySQL REGEX
-                $pattern = substr($formName, 1, $formNameLength - 2);
-                $formNameClause =  "`form_name` REGEXP '". $this->escapeString($pattern) . "'";
-            }
-            else if (strpos($formName, ',') !== false) {
-                // Comma-delimited list of forms
+            if (strpos($formName, ',') !== false) {
                 $formNameArray = explode(',', $formName);
                 $formNameArray[] = $formName; // in case the form name is literally the string with commas in it
                 $formNameArray = $this->escapeAndQuoteArrayValues($formNameArray);

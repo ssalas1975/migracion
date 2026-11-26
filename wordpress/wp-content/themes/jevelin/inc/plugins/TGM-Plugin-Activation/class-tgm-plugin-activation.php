@@ -762,8 +762,13 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 			wp_clean_plugins_cache( false );
 
 			?>
+
 			<div class="tgmpa wrap">
-				<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+
+				<?php if( function_exists( 'sh_tgmpa_message' ) ) : ?>
+					<?php echo sh_tgmpa_message(); ?>
+				<?php endif; ?>
+
 				<?php $plugin_table->prepare_items(); ?>
 
 				<?php
@@ -883,6 +888,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 				unset( $title );
 
 				if ( 'update' === $install_type ) {
+					echo '<div class="tgmpa wrap">';
 					$skin_args['plugin'] = $this->plugins[ $slug ]['file_path'];
 					$skin                = new Plugin_Upgrader_Skin( $skin_args );
 				} else {
@@ -926,7 +932,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 
 				// Display message based on if all plugins are now active or not.
 				if ( $this->is_tgmpa_complete() ) {
-					echo '<p>', sprintf( esc_html( $this->strings['complete'] ), '<a href="' . esc_url( self_admin_url() ) . '">' . esc_html( $this->strings['dashboard'] ) . '</a>' ), '</p>';
+					echo '<p>', sprintf( esc_html( $this->strings['complete'] ), '<a href="' . esc_url( admin_url( 'admin.php?page=shufflehound_dashboard' ) ) . '">' . esc_html( $this->strings['dashboard'] ) . '</a>' ), '</p>';
 					echo '<style type="text/css">#adminmenu .wp-submenu li.current { display: none !important; }</style>';
 				} else {
 					echo '<p><a href="', esc_url( $this->get_tgmpa_url() ), '" target="_parent">', esc_html( $this->strings['return'] ), '</a></p>';
@@ -940,6 +946,11 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 				if ( false === $this->activate_single_plugin( $this->plugins[ $slug ]['file_path'], $slug ) ) {
 					return true; // Finish execution of the function early as we encountered an error.
 				}
+			}
+
+
+			if ( 'update' === $install_type ) {
+				echo '</div>';
 			}
 
 			return false;
@@ -1707,7 +1718,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 				$link = sprintf(
 					'<a href="%1$s" target="_blank">%2$s</a>',
 					esc_url( $this->plugins[ $slug ]['external_url'] ),
-					esc_html( $this->plugins[ $slug ]['name'] )
+					esc_html( $this->plugins[ $slug ]['name'] ) // Shufflehound custom changes
 				);
 			} elseif ( 'repo' === $this->plugins[ $slug ]['source_type'] ) {
 				$url = add_query_arg(
@@ -1724,10 +1735,10 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 				$link = sprintf(
 					'<a href="%1$s" class="thickbox">%2$s</a>',
 					esc_url( $url ),
-					esc_html( $this->plugins[ $slug ]['name'] )
+					esc_html( $this->plugins[ $slug ]['name'] ) // Shufflehound custom changes
 				);
 			} else {
-				$link = esc_html( $this->plugins[ $slug ]['name'] ); // No hyperlink.
+				$link = esc_html( $this->plugins[ $slug ]['name'] ); // No hyperlink. // Shufflehound custom changes
 			}
 
 			return $link;
@@ -2326,6 +2337,7 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 			}
 
 			foreach ( $plugins[ $this->view_context ] as $slug => $plugin ) {
+				$i = $plugin['order'];
 				$table_data[ $i ]['sanitized_plugin']  = $plugin['name'];
 				$table_data[ $i ]['slug']              = $slug;
 				$table_data[ $i ]['plugin']            = '<strong>' . $this->tgmpa->get_info_link( $slug ) . '</strong>';
@@ -2335,6 +2347,22 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 				$table_data[ $i ]['installed_version'] = $this->tgmpa->get_installed_version( $slug );
 				$table_data[ $i ]['minimum_version']   = $plugin['version'];
 				$table_data[ $i ]['available_version'] = $this->tgmpa->does_plugin_have_update( $slug );
+
+
+				/* Shufflehound Custom Changes - Starts */
+				$table_data[ $i ]['order']  = $i;
+				$table_data[ $i ]['type'] = str_replace( 'Recommended', 'Optional', $table_data[ $i ]['type'] );
+				$table_data[ $i ]['type'] = '<span class="tgmpa-plugin-type">' . $table_data[ $i ]['type'] .'</span>';
+
+				if( isset( $plugin['desc'] ) ) :
+					$table_data[ $i ]['plugin'].= '<p class="tgmpa-plugin-desc">'. esc_attr( $plugin['desc'] ) .'</p>';
+				endif;
+
+				if( isset( $plugin['image'] ) ) :
+					$table_data[ $i ]['plugin'].= '<div class="tgmpa-plugin-image"><img src="' . get_template_directory_uri() . '/inc/core/assets/plugins/'. esc_attr( $plugin['image'] ) .'" /></div>';
+				endif;
+				/* Shufflehound Custom Changes - Ends */
+
 
 				// Prep the upgrade notice info.
 				$upgrade_notice = $this->tgmpa->get_upgrade_notice( $slug );
@@ -2498,13 +2526,15 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 		public function sort_table_items( $items ) {
 			$type = array();
 			$name = array();
+			$order = array();
 
 			foreach ( $items as $i => $plugin ) {
+				$order[ $i ] = $i;
 				$type[ $i ] = $plugin['type']; // Required / recommended.
 				$name[ $i ] = $plugin['sanitized_plugin'];
 			}
 
-			array_multisort( $type, SORT_DESC, $name, SORT_ASC, $items );
+			array_multisort( $order, SORT_ASC, $items );
 
 			return $items;
 		}
@@ -2672,7 +2702,7 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 		 * @since 2.2.0
 		 */
 		public function no_items() {
-			echo esc_html__( 'No plugins to install, update or activate.', 'jevelin' ) . ' <a href="' . esc_url( self_admin_url() ) . '"> ' . esc_html( $this->tgmpa->strings['dashboard'] ) . '</a>';
+			echo esc_html__( 'No plugins to install, update or activate.', 'jevelin' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=shufflehound_dashboard' ) ) . '"> ' . esc_html( $this->tgmpa->strings['dashboard'] ) . '</a>';
 			echo '<style type="text/css">#adminmenu .wp-submenu li.current { display: none !important; }</style>';
 		}
 
@@ -2790,7 +2820,7 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 		 * @param object $item The current item.
 		 */
 		public function single_row( $item ) {
-			echo '<tr class="' . esc_attr( 'tgmpa-type-' . strtolower( $item['type'] ) ) . '">';
+			echo '<tr class="' . esc_attr( 'tgmpa-type-' . strtolower( strip_tags ( $item['type'] ) ) ) . '">';
 			$this->single_row_columns( $item );
 			echo '</tr>';
 
@@ -3022,7 +3052,9 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 
 				// Wrap the install process with the appropriate HTML.
 				echo '<div class="tgmpa">',
-					'<h2 style="font-size: 23px; font-weight: 400; line-height: 29px; margin: 0; padding: 9px 15px 4px 0;">', esc_html( get_admin_page_title() ), '</h2>
+					'<div class="shufflehound-dashboard-message">
+					      <h1 style="margin-bottom: 0px;">Installing Plugins</h1>
+					</div>
 					<div class="update-php" style="width: 100%; height: 98%; min-height: 850px; padding-top: 1px;">';
 
 				// Process the bulk installation submissions.
@@ -3731,7 +3763,7 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 							echo '<style type="text/css">#adminmenu .wp-submenu li.current { display: none !important; }</style>';
 							$update_actions['dashboard'] = sprintf(
 								esc_html( $this->tgmpa->strings['complete'] ),
-								'<a href="' . esc_url( self_admin_url() ) . '">' . esc_html( $this->tgmpa->strings['dashboard'] ) . '</a>'
+								'<a href="' . esc_url( admin_url( 'admin.php?page=shufflehound_dashboard' ) ) . '">' . esc_html( $this->tgmpa->strings['dashboard'] ) . '</a>'
 							);
 						} else {
 							$update_actions['tgmpa_page'] = '<a href="' . esc_url( $this->tgmpa->get_tgmpa_url() ) . '" target="_parent">' . esc_html( $this->tgmpa->strings['return'] ) . '</a>';

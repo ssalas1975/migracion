@@ -1,25 +1,23 @@
 /**
- * iThemes dependencies
- */
-import { List } from '@ithemes/ui';
-
-/**
  * Internal dependencies
  */
 import Notice from '../notice';
 import NoticeActions from '../notice-actions';
-import { StyledNoticeItem } from './styles';
+import './style.scss';
 
 function NoticeList( { notices } ) {
 	return (
-		<List gap={ 4 }>
+		<ul className="itsec-admin-notice-list">
 			{ notices.map( ( notice ) => (
-				<StyledNoticeItem key={ notice.id }>
-					<Notice notice={ notice } noticeId={ notice.id } />
+				<li
+					className="itsec-admin-notice-list-item-container"
+					key={ notice.id }
+				>
 					<NoticeActions notice={ notice } />
-				</StyledNoticeItem>
+					<Notice notice={ notice } noticeId={ notice.id } />
+				</li>
 			) ) }
-		</List>
+		</ul>
 	);
 }
 

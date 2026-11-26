@@ -1,0 +1,293 @@
+@charset "utf-8"; 
+
+/* CSS Document */
+/******************************
+GENERAL STYLES
+ *******************************/
+
+ @font-face {
+font-family: Geomanist;
+src: url(Geomanist-Black.otf);
+}
+
+@font-face {
+font-family: 'Geomanist';
+src: url('geomanist-black-webfont.eot');
+src: url('geomanist-black-webfont.eot?#iefix') format('embedded-opentype'),
+url('geomanist-black-webfont.woff') format('woff'),
+url('geomanist-black-webfont.ttf') format('truetype'),
+url('geomanist-black-webfont.svg#Geomanist') format('svg');
+}
+
+ 
+html,body {
+	width: 100%;
+	height: 100%;
+}
+#okplayer{
+	left: -50px !important;
+}
+/******************************
+NAVIGATION
+ *******************************/
+.navigation {
+	z-index: 1;
+	padding: 20px;
+	list-style: none;
+	padding-top: 300px;
+	margin-right: -265px;
+}
+.navigation li {
+	width: 10px;
+	height: 10px;
+	border-radius: 5px;
+	margin: -14px auto 10px;
+	position: relative;
+	margin-bottom: 10px;
+	box-shadow: 0 0 0 1px #444;
+	background-color: rgba(255,255,255,0.2);
+}
+.navigation li:hover,.navigation li.active {
+	box-shadow: 0 0 0 1px #000;
+	/*background-color: #000 !important;*/
+	cursor: pointer;
+}
+.navigation li:first-child {
+	display: none;
+}
+
+.bola1  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 10px;
+    box-shadow: 0 0 0 3px #ffffff!important;
+    background-color: #ffffff!important;
+}
+
+.bola2  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 10px;
+    box-shadow: 0 0 0 3px #e65c6f!important;
+    background-color: #e65c6f!important;
+}
+
+.bola3  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 10px;
+    box-shadow: 0 0 0 3px #b0e466!important;
+    background-color: #b0e466!important;
+}
+
+
+.bola4  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 10px;
+    box-shadow: 0 0 0 3px #ffea00!important;
+    background-color: #ffea00!important;
+}
+
+
+.bola5  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 13px;
+    box-shadow: 0 0 0 3px #37deb4!important;
+    background-color: #37deb4!important;
+}
+
+.bola6  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 13px;
+    box-shadow: 0 0 0 3px #aeaeae!important;
+    background-color: #aeaeae!important;
+}
+
+.bola7  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 13px;
+    box-shadow: 0 0 0 3px #8abdff!important;
+    background-color: #8abdff!important;
+}
+
+.bola8  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 13px;
+    box-shadow: 0 0 0 3px #e65d6f!important;
+    background-color: #e65d6f!important;
+}
+
+.bola9  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 10px;
+    box-shadow: 0 0 0 3px #ffea00!important;
+    background-color: #ffea00!important;
+}
+
+.bola10  {
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 13px;
+    box-shadow: 0 0 0 3px #000!important;
+    background-color: #000!important;
+}
+
+.bolinche  {
+   margin-left: 1px;
+   text-align: right; margin-top: 7px; width: 268px;
+}
+
+.bolinche a  {
+   color:#7e1610;
+}
+
+.texto {
+	display: block; width: 576px; height: 17px;
+	color:#7e1610;
+	font-family: Geomanist, serif;
+	font-size:14px;
+	font-weight: bold;
+}
+
+.emblem-area {
+    	background-color: rgba(191, 150, 61, 0)!important;
+}
+
+.grey-bg {
+    background-color: rgba(191, 150, 61, 0)!important;
+}
+
+.static-side-navigation-wrap {
+text-align: right!important;
+}
+
+
+/******************************
+SLIDES
+ *******************************/
+.slide {
+	height: 100%;
+	width: 100%;
+	  background-position: 50% 50%;
+	  background-repeat: no-repeat;
+	  background-attachment: fixed;
+	  background-size: cover;
+	overflow-x: hidden !important;
+}
+/*this class will be activated on mobile devices in order to switch off the parallax effect*/
+.parallax-off {
+	background-attachment:scroll !important;
+	background-size:cover !important;
+	}
+
+
+/*SET THE BG IMAGES IN SHOWCASE PARALLAX SLIDES VIA CSS*/
+
+#slide1 {
+	background-image: url(../images/parallax/slide01-bg.jpg);
+}
+#slide2 {
+	background-image: url(../images/parallax/slide02-bg.jpg);
+}
+#slide3 {
+		background-image: url(../images/parallax/slide03-bg.jpg);
+}
+#slide4 {
+	background-image: url(../images/parallax/slide04-bg.jpg);
+}
+#slide5 {
+	background-image: url(../images/parallax/slide05-bg.jpg);
+}
+#slide6 {
+	background-image: url(../images/parallax/slide06-bg.jpg);
+}
+#slide7 {
+	background-image: url(../images/parallax/slide07-bg.jpg);
+}
+#slide8 {
+	background-image: url(../images/parallax/slide08-bg.jpg);
+}
+#slide9 {
+	background-image: url(../images/parallax/slide09-bg.jpg);
+}
+#slide10 {
+	background-image: url(../images/parallax/slide01-bg.jpg);
+}
+
+
+/*SET POSTER IMAGES FOR EACH VIDEO (TO BE DISPLAYED ON MOBILE DEVICES WHERE VIDEO IS NOT SUPPORTED)*/
+#video-container-01.poster-img{
+	background-image: url(../videos/posters/01.jpg); 
+}
+#video-container-02.poster-img{
+	background-image: url(../videos/posters/02.jpg); 
+}
+#video-container-03.poster-img{
+	background-image: url(../videos/posters/03.jpg);  
+}
+
+
+/*SET POSTER IMAGE FOR INTRO BG VIDEO WHERE VIDEO IS NOT SUPPORTED)*/
+.intro-video-bg.poster-img{
+	background-image: url(../videos/posters/01.jpg); 
+	background-size: cover !important;
+	width: 100%;
+	height:100%;
+}
+
+a.scroll {
+	font-size:14px!important;
+	font-family: Geomanist!important;
+	color:#7e1511!important;
+	
+}
+
+.dark  {
+	text-decoration:none!important;
+	font-size:14px!important;
+	font-family: Geomanist!important;
+	color:#7e1511!important;
+}
+
+.dark  a {
+	
+	font-size:14px!important;
+	font-family: Geomanist!important;
+	color:#7e1511!important;
+}

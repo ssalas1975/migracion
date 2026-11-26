@@ -51,6 +51,18 @@ class Module extends BaseModule {
 		add_filter( 'elementor/tracker/send_tracking_data_params', [ $this, 'add_tracking_data' ] );
 	}
 
+	public static function get_experimental_data() {
+		return [
+			'name' => 'favorite-widgets',
+			'title' => esc_html__( 'Favorite Widgets', 'elementor' ),
+			'description' => esc_html__( 'Mark widgets as favorites by right clicking them. Favorite widgets will always appear at the top of the editor panel for easy access.', 'elementor' ),
+			'release_status' => Manager::RELEASE_STATUS_STABLE,
+			'new_site' => [
+				'default_active' => true,
+			],
+		];
+	}
+
 	/**
 	 * Add usage data related to favorites.
 	 *
@@ -94,9 +106,9 @@ class Module extends BaseModule {
 	/**
 	 * Merge new user favorites to a type.
 	 *
-	 * @param string       $type
-	 * @param array|string $favorites
-	 * @param bool         $store
+	 * @param string        $type
+	 * @param array|string  $favorites
+	 * @param bool          $store
 	 *
 	 * @return array|bool
 	 */
@@ -107,9 +119,9 @@ class Module extends BaseModule {
 	/**
 	 * Delete existing favorites from a type.
 	 *
-	 * @param string       $type
-	 * @param array|string $favorites
-	 * @param bool         $store
+	 * @param string        $type
+	 * @param array|string  $favorites
+	 * @param bool          $store
 	 *
 	 * @return array|int
 	 */
@@ -167,10 +179,10 @@ class Module extends BaseModule {
 	/**
 	 * Register a new type class.
 	 *
-	 * @param string $class_name
+	 * @param string $class
 	 */
-	public function register( $class_name ) {
-		$type_instance = new $class_name();
+	public function register( $class ) {
+		$type_instance = new $class();
 
 		$this->types[ $type_instance->get_name() ] = $type_instance;
 	}
@@ -238,10 +250,11 @@ class Module extends BaseModule {
 	 * Throw action doesn't exist exception.
 	 *
 	 * @param string $action
-	 *
-	 * @throws \InvalidArgumentException If favorite action fails or validation errors occur.
 	 */
 	public function action_doesnt_exists( $action ) {
-		throw new \InvalidArgumentException( sprintf( "Action '%s' to apply on favorites doesn't exists", esc_html( $action ) ) );
+		throw new \InvalidArgumentException( sprintf(
+			"Action '%s' to apply on favorites doesn't exists",
+			$action
+		) );
 	}
 }

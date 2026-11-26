@@ -24,7 +24,7 @@ msgid "Please add a new style first"
 msgstr ""
 
 #: assets/tinymce/config.php:45
-msgid "Choose Style"
+msgid "Select Style"
 msgstr ""
 
 #: assets/tinymce/config.php:46
@@ -117,7 +117,7 @@ msgid "Right"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:122
-msgid "Primary Units:"
+msgid "Main format:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:122
@@ -145,7 +145,7 @@ msgid "Seconds"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:123
-msgid "Additional Units:"
+msgid "Secondary format:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:123
@@ -171,12 +171,12 @@ msgid "Animation for seconds:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:126
-msgid "Show Time Labels:"
+msgid "Display time label text:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:128
 #: classes/class-uji-countdown-admin.php:130
-msgid "Counter Size:"
+msgid "Timer Size:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:132
@@ -192,7 +192,7 @@ msgid "Up"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:134
-msgid "Ring Colors:"
+msgid "Select Line Color:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:134
@@ -204,7 +204,7 @@ msgid "Line"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:136
-msgid "Ring Thickness:"
+msgid "Thickness:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:138
@@ -258,7 +258,7 @@ msgid "Style Type:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:279
-msgid "Choose Style:"
+msgid "Select Style:"
 msgstr ""
 
 #: classes/class-uji-countdown-admin.php:425

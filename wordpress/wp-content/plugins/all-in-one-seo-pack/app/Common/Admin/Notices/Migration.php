@@ -26,7 +26,8 @@ class Migration {
 			return;
 		}
 
-		$this->showNotice();
+		// Disable the notice for now since it is almost unnecessary. We can come back and revisit this in the future.
+		// $this->showNotice();
 	}
 
 	/**

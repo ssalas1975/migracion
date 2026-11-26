@@ -7,6 +7,14 @@ $id = ( isset( $atts['id'] ) ) ? $atts['id'] : $id_rand;
 $columns = ( isset( $atts['columns'] ) ) ? $atts['columns'] : '3columns';
 $dots = ( isset( $atts['dots'] ) ) ? $atts['dots'] : 'dots1';
 
+/* Lazy Loading */
+if( isset( $atts['lazy'] ) && $atts['lazy'] == 'default' ) :
+	$lazy = ( jevelin_option('lazy_loading') == 'enabled' ) ? 1 : 0;
+else :
+	$lazy = ( isset( $atts['lazy'] ) && $atts['lazy'] == 'enabled' ) ? 1 : 0;
+endif;
+
+/* Image Sizes */
 if( isset( $atts['image_ratio'] ) && $atts['image_ratio'] == 'landscape' ) :
 	$image_ratio = 'post-thumbnail';
 elseif( isset( $atts['image_ratio'] ) && $atts['image_ratio'] == 'portrait' ) :
@@ -36,8 +44,13 @@ if( isset( $atts['overlay'] ) && $atts['overlay'] == 'off' ) :
 	$class.= ' sh-image-gallery-nozoom' ;
 endif;
 
+
 /* Images */
-$images = ( !isset( $atts['id'] ) ) ? explode( ',', $atts['images'] ) : $atts['images'];
+$images = [];
+if( isset( $atts['images'] ) ) :
+	$images = ( !isset( $atts['id'] ) ) ? explode( ',', $atts['images'] ) : $atts['images'];
+endif;
+
 
 /* If Visual Composer */
 if( !isset( $atts['id'] ) ) :
@@ -130,11 +143,40 @@ endif;
 	<?php foreach( $images as $image ) :
 		$attachment_id = ( isset( $image['attachment_id'] ) ) ? $image['attachment_id'] : $image;
 		$attachment_lightbox = ( isset( $image['attachment_id'] ) ) ? jevelin_get_image_size( $image, 'large' ) : jevelin_get_small_thumb( $attachment_id, 'large' );
+
+		if( $lazy && $attachment_id > 0 ) :
+			$image_media = wp_get_attachment_metadata( $attachment_id );
+
+			if( $image_ratio == 'full' ) :
+				$image_width = ( isset( $image_media['width'] ) ) ? $image_media['width'] : 0;
+				$image_height = ( isset( $image_media['height'] ) ) ? $image_media['height'] : 0;
+				$ratio = ( $image_height / $image_width ) * 100;
+			else :
+				$image_width = 0;
+				$image_height = 0;
+				$ratio = 0;
+			endif;
+
+		endif;
 	?>
 		<div class="sh-image-gallery-item">
 			<div class="sh-gallery-item">
 				<div class="post-meta-thumb">
-					<img src="<?php echo jevelin_get_small_thumb( $attachment_id, $image_ratio ); ?>" alt="<?php echo esc_attr( jevelin_get_image_alt( $attachment_id ) ); ?>" />
+
+					<?php if( $lazy ) : ?>
+						<?php if( $image_width > 0 ) : ?>
+							<div class="ratio-container" style="padding-top: <?php echo esc_attr( $ratio ); ?>%;">
+								<div class="ratio-content">
+									<img class="lazy" data-src="<?php echo jevelin_get_small_thumb( $attachment_id, $image_ratio ); ?>" alt="<?php echo esc_attr( jevelin_get_image_alt( $attachment_id ) ); ?>" />
+								</div>
+							</div>
+						<?php else : ?>
+							<img class="lazy" data-src="<?php echo jevelin_get_small_thumb( $attachment_id, $image_ratio ); ?>" alt="<?php echo esc_attr( jevelin_get_image_alt( $attachment_id ) ); ?>" />
+						<?php endif; ?>
+					<?php else : ?>
+						<img src="<?php echo jevelin_get_small_thumb( $attachment_id, $image_ratio ); ?>" alt="<?php echo esc_attr( jevelin_get_image_alt( $attachment_id ) ); ?>" />
+					<?php endif; ?>
+
 					<?php if( !isset( $atts['overlay'] ) || $atts['overlay'] != 'off' ) : ?>
 						<?php jevelin_blog_overlay( $attachment_lightbox, 0, 1, ':imgCollection'.$id ); ?>
 					<?php endif; ?>

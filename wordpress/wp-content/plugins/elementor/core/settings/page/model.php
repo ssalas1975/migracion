@@ -122,11 +122,8 @@ class Model extends CSS_Model {
 		$document = Plugin::$instance->documents->get( $this->post->ID );
 
 		return [
-			'title' => sprintf(
-				/* translators: %s: Document title. */
-				esc_html__( '%s Settings', 'elementor' ),
-				$document::get_title()
-			),
+			/* translators: %s: Document title. */
+			'title' => sprintf( esc_html__( '%s Settings', 'elementor' ), $document::get_title() ),
 		];
 	}
 
@@ -149,7 +146,7 @@ class Model extends CSS_Model {
 			 * @var \Elementor\Modules\PageTemplates\Module $page_templates_module
 			 */
 			$page_templates_module = Plugin::$instance->modules_manager->get_modules( 'page-templates' );
-			$is_elementor_template = (bool) $page_templates_module->get_template_path( $element_data['settings']['template'] );
+			$is_elementor_template = ! ! $page_templates_module->get_template_path( $element_data['settings']['template'] );
 
 			if ( ! $is_elementor_template ) {
 				unset( $element_data['settings']['template'] );
@@ -168,7 +165,7 @@ class Model extends CSS_Model {
 	 * @access protected
 	 */
 	protected function register_controls() {
-		// Check if it's a real model, or abstract (for example - on import ).
+		// Check if it's a real model, or abstract (for example - on import )
 		if ( $this->post->ID ) {
 			$document = Plugin::$instance->documents->get_doc_or_auto_save( $this->post->ID );
 

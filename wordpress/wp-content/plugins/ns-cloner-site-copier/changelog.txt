@@ -1,20 +1,3 @@
-= 4.4.9.2 - 2026.05.04 =
-* Fix: Handle hooks when a site is being created to avoid errors with site activated plugins
-* Code improvements
-
-= 4.4.9.1 - 2025.11.26 =
-* Fix translation notices
-* Other code fixes
-
-= 4.4.9 - 2025.06.10 =
-* Fix: Custom code for cloning from external plugins.
-* Code improvements
-
-= 4.4.8 - 2025.04.24 =
-* Fix: Cron scheduling - do not schedule cloner cron on sub-sites
-* Fix: PHP notice on number precision
-* Code improvements
-
 = 4.4.7.5 - 2024.11.25 =
 * Fix: Text domain loading
 

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<title>Rendibú 2018</title>
+<meta name="description" content="Especial del Rendibú'18 organizado por LA VERDAD">
+<script src="https://www.w3schools.com/lib/w3.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+body{
+	background-color:rgba(0,0,0,1);
+	background-image: url(images/Oso-dormido.jpg);
+	background-attachment:fixed;
+	background-size: cover;
+	background-repeat:no-repeat;
+	cursor :none;
+	}
+
+#movil {
+	background-image: url(images/mobile_vertical_375x667.gif)!important;
+	background-attachment:fixed!important;
+	background-size: cover!important;
+	background-repeat:no-repeat!important;
+	cursor :none!important;
+	height:100%;
+	width:100%;
+	background-color:rgba(0,0,0,0.9)!important;
+
+	position:fixed;
+	top:0;
+	left:0;
+
+}
+	
+
+#night {
+	background-color:rgba(0,0,0,0.9)!important;
+	height:100%;
+	width:100%;
+	position:fixed;
+	top:0;
+	left:0;
+	display:none;
+}
+
+
+
+#lamp {
+	background-image:url(images/lamp.png);
+	width:200px;
+	height:200px;
+	border-radius:100px;
+	position:absolute;
+	top:0;
+	left:0;	
+}
+#text {
+	z-index:500;
+	position:relative;
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 667px)
+  and (orientation: portrait) {
+  
+    #movil {
+	background-image: url(images/mobile_vertical_375x667.gif)!important;
+	background-attachment:fixed!important;
+	background-size: cover!important;
+	background-repeat:no-repeat!important;
+	cursor :none!important;
+	height:100%;
+	width:100%;
+	background-color:rgba(0,0,0,0.9)!important;
+
+	position:fixed;
+	top:0;
+	left:0;
+
+}
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 667px)
+  and (orientation: landscape) {
+  
+    #movil {
+	background-image: url(images/mobile_horizontal_375x667.gif)!important;
+	background-attachment:fixed!important;
+	background-size: cover!important;
+	background-repeat:no-repeat!important;
+	cursor :none!important;
+	height:100%;
+	width:100%;
+	background-color:rgba(0,0,0,0.9)!important;
+
+	position:fixed;
+	top:0;
+	left:0;
+
+}
+
+}
+
+
+
+@media screen and (min-device-width: 765px) 
+and (orientation: portrait) {
+
+     #movil {
+	background-image: url(images/ipad_vertical_768x1024.gif)!important;
+	background-attachment:fixed!important;
+	background-size: cover!important;
+	background-repeat:no-repeat!important;
+	cursor :none!important;
+	height:100%;
+	width:100%;
+	background-color:rgba(0,0,0,0.9)!important;
+
+	position:fixed;
+	top:0;
+	left:0;
+
+}
+
+}
+
+@media screen and (min-device-width: 765px) 
+and (orientation: landscape ) {
+
+     #movil {
+	background-image: url(images/ipad_horizontal_1024x768.gif)!important;
+	background-attachment:fixed!important;
+	background-size: cover!important;
+	background-repeat:no-repeat!important;
+	cursor :none!important;
+	height:100%;
+	width:100%;
+	background-color:rgba(0,0,0,0.9)!important;
+
+	position:fixed;
+	top:0;
+	left:0;
+
+}
+
+}
+
+
+
+
+</style>
+
+
+<script>
+$(document).ready(function(){
+	$('#switch_on').click(function(){
+		$('#night').css({display:"none"});
+		$('#lamp').remove();
+		});
+	
+		$('#night').css({display:"block"});
+		
+		
+	   if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i)){
+     
+                } else {
+               $('body').append('<div id=\"lamp\"></div>');
+                }
+	
+	
+	
+		$(document).mousemove(function(e){
+		var x=e.pageX;
+		var y=e.pageY;
+		$('#lamp').css({"top":y-100, "left":x-100});
+		});
+	});
+</script>
+
+</head>
+
+<body>
+
+<!--#include virtual="_includes/semillas.html"--> 
+							
+		<script>
+                if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i)){
+                document.write("<div id=movil><img src='images/logo-teaser.png' /></div>");
+                } else {
+                document.write("<div id=text><img src='images/logo-teaser.png' /></div><div id=night></div>");
+                }
+		</script>	
+
+
+
+</body>
+
+</html>

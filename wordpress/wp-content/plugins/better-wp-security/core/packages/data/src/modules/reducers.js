@@ -32,7 +32,6 @@ const DEFAULT_STATE = {
 	settingEdits: {},
 	savingSettings: [],
 	errors: {},
-	results: {},
 };
 
 export default function( state = DEFAULT_STATE, action ) {
@@ -120,10 +119,6 @@ export default function( state = DEFAULT_STATE, action ) {
 					...state.settings,
 					[ action.module ]: action.settings,
 				},
-				results: {
-					...state.results,
-					[ action.module ]: action.result || {},
-				},
 			};
 		case EDIT_SETTINGS:
 			return {
@@ -159,13 +154,11 @@ export default function( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				settingEdits: omit( state.settingEdits, action.modules ),
-				errors: omit( state.errors, action.modules ),
 			};
 		case START_SAVING_SETTINGS:
 			return {
 				...state,
 				savingSettings: [ ...state.savingSettings, ...action.modules ],
-				results: omit( state.results, action.modules ),
 			};
 		case FINISH_SAVING_SETTINGS:
 			return {

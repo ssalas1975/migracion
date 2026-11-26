@@ -1,10 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { Toolbar, ToolbarButton } from '@wordpress/components';
+import { Popover, Toolbar, ToolbarButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
-import { help as helpIcon, settings as settingsIcon } from '@wordpress/icons';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -12,14 +11,14 @@ import { help as helpIcon, settings as settingsIcon } from '@wordpress/icons';
 import { AdminBarSlot } from '@ithemes/security.dashboard.api';
 import { useGlobalNavigationUrl } from '@ithemes/security-utils';
 import { useCanWrite, useConfigContext } from '../../utils';
-import { Logo } from '@ithemes/security-ui';
+import EditCards from '../edit-cards';
 import './style.scss';
 
 export default function( { dashboardId } ) {
 	const canWrite = useCanWrite();
 	const settingsUrl = useGlobalNavigationUrl( 'settings' );
 	const { canManage } = useConfigContext();
-	const { canCreate, canEdit } = useSelect(
+	const { canCreate, canEdit, editingCards } = useSelect(
 		( select ) => ( {
 			canCreate: select(
 				'ithemes-security/dashboard'
@@ -27,8 +26,14 @@ export default function( { dashboardId } ) {
 			canEdit: select( 'ithemes-security/dashboard' ).canEditDashboard(
 				dashboardId
 			),
+			editingCards: select(
+				'ithemes-security/dashboard'
+			).isEditingCards(),
 		} ),
 		[ dashboardId ]
+	);
+	const { openEditCards, closeEditCards } = useDispatch(
+		'ithemes-security/dashboard'
 	);
 
 	if ( ! canWrite && ! canManage ) {
@@ -37,26 +42,76 @@ export default function( { dashboardId } ) {
 
 	return (
 		<div className="itsec-dashboard-toolbar">
-			<Logo />
 			<Toolbar label={ __( 'Dashboard Toolbar', 'better-wp-security' ) }>
 				{ canManage && (
 					<ToolbarButton
 						text={ __( 'Settings', 'better-wp-security' ) }
-						icon={ settingsIcon }
+						icon="admin-settings"
 						href={ settingsUrl }
 					/>
 				) }
 				<AdminBarSlot />
-				{ ( canEdit || canCreate ) && (
-					<ToolbarButton
-						icon={ helpIcon }
-						className="itsec-admin-bar__help"
-						href="https://go.solidwp.com/security-help-center"
-						text={ __( 'Help', 'better-wp-security' ) }
-						target="_blank"
-					/>
+				{ canEdit && (
+					<>
+						<ToolbarButton
+							text={ __( 'Edit Cards', 'better-wp-security' ) }
+							icon="layout"
+							className="itsec-admin-bar-edit-cards__trigger"
+							aria-expanded={ editingCards }
+							onClick={
+								editingCards ? closeEditCards : openEditCards
+							}
+						/>
+						{ editingCards && (
+							<Popover
+								className="itsec-admin-bar-edit-cards__content"
+								position="bottom"
+								headerTitle={ __( 'Edit Cards', 'better-wp-security' ) }
+								expandOnMobile
+								onClickOutside={ closeEditCards }
+								onClose={ closeEditCards }
+								focusOnMount="container"
+							>
+								<EditCards
+									dashboardId={ dashboardId }
+									close={ closeEditCards }
+								/>
+							</Popover>
+						) }
+					</>
 				) }
+				{ ( canEdit || canCreate ) && <Help /> }
 			</Toolbar>
 		</div>
+	);
+}
+
+function Help() {
+	const { page } = useSelect( ( select ) => ( {
+		page: select( 'ithemes-security/dashboard' ).getCurrentPage(),
+	} ) );
+	const { viewHelp, viewPrevious } = useDispatch(
+		'ithemes-security/dashboard'
+	);
+
+	const onClick = () => {
+		if ( page === 'help' ) {
+			viewPrevious();
+		} else {
+			viewHelp();
+		}
+	};
+
+	return (
+		<ToolbarButton
+			icon="editor-help"
+			className="itsec-admin-bar__help"
+			onClick={ onClick }
+			text={
+				page === 'help'
+					? __( 'Exit Help', 'better-wp-security' )
+					: __( 'Help', 'better-wp-security' )
+			}
+		/>
 	);
 }

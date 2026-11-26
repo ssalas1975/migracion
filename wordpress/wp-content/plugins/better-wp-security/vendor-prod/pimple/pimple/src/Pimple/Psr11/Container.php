@@ -24,10 +24,10 @@
  * THE SOFTWARE.
  */
 
-namespace iThemesSecurity\Strauss\Pimple\Psr11;
+namespace Pimple\Psr11;
 
-use iThemesSecurity\Strauss\Pimple\Container as PimpleContainer;
-use iThemesSecurity\Strauss\Psr\Container\ContainerInterface;
+use Pimple\Container as PimpleContainer;
+use Psr\Container\ContainerInterface;
 
 /**
  * PSR-11 compliant wrapper.
@@ -43,12 +43,12 @@ final class Container implements ContainerInterface
         $this->pimple = $pimple;
     }
 
-    public function get(string $id)
+    public function get($id)
     {
         return $this->pimple[$id];
     }
 
-    public function has(string $id): bool
+    public function has($id)
     {
         return isset($this->pimple[$id]);
     }

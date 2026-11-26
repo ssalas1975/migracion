@@ -10,18 +10,15 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see 	    https://docs.woocommerce.com/document/template-structure/
- * @author  WooThemes
+ * @see     https://docs.woocommerce.com/document/template-structure/
  * @package WooCommerce/Templates
- * @version 3.1.0
+ * @version 3.5.0
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-
-wc_print_notices();
-
+defined( 'ABSPATH' ) || exit;
+/*
+ * @hooked wc_empty_cart_message - 10
+ */
+do_action( 'woocommerce_cart_is_empty' );
 ?>
 
 <p class="cart-empty">

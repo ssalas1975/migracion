@@ -13,15 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Widget extends \WP_Widget {
 	/**
-	 * The default attributes.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var array
-	 */
-	private $defaults = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.1.3
@@ -53,9 +44,7 @@ class Widget extends \WP_Widget {
 		];
 
 		// Translators: 1 - The plugin short name ("AIOSEO").
-		$name = sprintf( esc_html__( '%1$s - HTML Sitemap', 'all-in-one-seo-pack' ), AIOSEO_PLUGIN_SHORT_NAME );
-		$name .= ' ' . esc_html__( '(legacy)', 'all-in-one-seo-pack' );
-		parent::__construct( $widgetSlug, $name, $widgetOptions, $controlOptions );
+		parent::__construct( $widgetSlug, sprintf( esc_html__( '%1$s - HTML Sitemap', 'all-in-one-seo-pack' ), AIOSEO_PLUGIN_SHORT_NAME ), $widgetOptions, $controlOptions );
 	}
 
 	/**
@@ -164,7 +153,7 @@ class Widget extends \WP_Widget {
 		$taxonomyObjects = aioseo()->helpers->getPublicTaxonomies();
 		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-		include AIOSEO_DIR . '/app/Common/Views/sitemap/html/widget-options.php';
+		include( AIOSEO_DIR . '/app/Common/Views/sitemap/html/widget-options.php' );
 	}
 
 	/**

@@ -8,6 +8,16 @@ $testimonials = ( isset( $atts['testimonials'] ) ) ? $atts['testimonials'] : '';
 $icon_close = ( isset( $atts['icon_close'] ) ) ? $atts['icon_close'] : 'fa fa-chevron-up';
 $icon = ( isset( $atts['icon'] ) ) ? $atts['icon'] : 'fa fa-chevron-down';
 $icon_position = ( isset( $atts['icon_position'] ) ) ? $atts['icon_position'] : 'left';
+$icon_position = ( isset( $atts['icon_position'] ) ) ? $atts['icon_position'] : 'left';
+
+if( !isset( $atts['collapsed'] ) ) :
+	$collapsed = 1;
+elseif( $atts['collapsed'] == 1 || $atts['collapsed'] == 'true' ) :
+	$collapsed = 1;
+else :
+	$collapsed = 0;
+endif;
+
 
 /* If Visual Composer */
 if( !isset( $atts['id'] ) ) :
@@ -21,16 +31,25 @@ endif;
 <div class="sh-accordion sh-accordion-<?php echo esc_attr( $style ); ?> panel-group" id="accordion-<?php echo esc_attr( $id ); ?>" role="tablist" aria-multiselectable="true">
 	<?php
 		$i = 0;
-		if( isset($atts['collapsed']) && $atts['collapsed'] != true ) :
+		if( $collapsed != true ) :
 			$i++;
 		endif;
 	?>
 
 	<?php
 	if( is_array( $testimonials ) && count( $testimonials ) ) :
+	wp_reset_postdata();
+
 	foreach( $testimonials as $item ) :
 		$title = ( isset( $item['title'] ) ) ? $item['title'] : '';
 		$content = ( isset( $item['content'] ) ) ? $item['content'] : '';
+
+		if( !isset( $atts['id'] ) ) :
+			$icon_current = $icon;
+		else :
+			$icon_current = ( $style == 'style1 sh-accordion-style6' && isset( $item['icon'] ) && $item['icon'] ) ? $item['icon'] : $icon;
+		endif;
+
 		$i++;
 		$collapse = 'collapse-'.$id.'-'.$i;
 		$heading = 'heading-'.$id.'-'.$i; ?>
@@ -47,10 +66,10 @@ endif;
 									<span class="sh-accordion-icon">
 
 										<?php if( $icon_close ) : ?>
-											<i class="open-icon <?php echo esc_attr( $icon ); ?>"></i>
+											<i class="open-icon <?php echo esc_attr( $icon_current ); ?>"></i>
 											<i class="close-icon <?php echo esc_attr( $icon_close ); ?>"></i>
 										<?php else : ?>
-											<i class="<?php echo esc_attr( $icon ); ?>"></i>
+											<i class="<?php echo esc_attr( $icon_current ); ?>"></i>
 										<?php endif; ?>
 
 									</span>
@@ -70,10 +89,10 @@ endif;
 									<span class="sh-accordion-icon">
 
 										<?php if( $icon_close ) : ?>
-											<i class="open-icon <?php echo esc_attr( $icon ); ?>"></i>
+											<i class="open-icon <?php echo esc_attr( $icon_current ); ?>"></i>
 											<i class="close-icon <?php echo esc_attr( $icon_close ); ?>"></i>
 										<?php else : ?>
-											<i class="<?php echo esc_attr( $icon ); ?>"></i>
+											<i class="<?php echo esc_attr( $icon_current ); ?>"></i>
 										<?php endif; ?>
 
 									</span>

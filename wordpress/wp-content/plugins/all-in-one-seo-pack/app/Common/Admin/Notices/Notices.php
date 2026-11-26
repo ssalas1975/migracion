@@ -21,71 +21,15 @@ class Notices {
 	 *
 	 * @var string
 	 */
-	private $url = 'https://plugin-cdn.aioseo.com/notifications.json';
-
-	/**
-	 * Review class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Review
-	 */
-	private $review = null;
-
-	/**
-	 * Migration class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Migration
-	 */
-	private $migration = null;
-
-	/**
-	 * Import class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var Import
-	 */
-	private $import = null;
-
-	/**
-	 * DeprecatedWordPress class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var DeprecatedWordPress
-	 */
-	private $deprecatedWordPress = null;
-
-	/**
-	 * ConflictingPlugins class instance.
-	 *
-	 * @since 4.5.1
-	 *
-	 * @var ConflictingPlugins
-	 */
-	private $conflictingPlugins = null;
-
-	/**
-	 * The action name for the notifications update.
-	 *
-	 * @since 4.9.4.2
-	 *
-	 * @var string
-	 */
-	private $actionName = 'aioseo_admin_notifications_update';
+	private $url = 'https://plugin-cdn.aioseo.com/wp-content/notifications.json';
 
 	/**
 	 * Class Constructor.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.4.2 Schedule notifications update as a daily recurring action.
+	 * @since 4.0.0
 	 */
 	public function __construct() {
-		add_action( 'admin_init', [ $this, 'scheduleNotificationsUpdate' ] );
-		add_action( $this->actionName, [ $this, 'update' ] );
+		add_action( 'aioseo_admin_notifications_update', [ $this, 'update' ] );
 
 		if ( ! is_admin() ) {
 			return;
@@ -98,24 +42,8 @@ class Notices {
 		$this->migration           = new Migration();
 		$this->import              = new Import();
 		$this->deprecatedWordPress = new DeprecatedWordPress();
-		$this->conflictingPlugins  = new ConflictingPlugins();
 
-		add_action( 'admin_notices', [ $this, 'notices' ] );
-	}
-
-	/**
-	 * Schedules the daily recurring notifications update.
-	 *
-	 * @since 4.9.4.2
-	 *
-	 * @return void
-	 */
-	public function scheduleNotificationsUpdate() {
-		if ( aioseo()->actionScheduler->isScheduled( $this->actionName ) ) {
-			return;
-		}
-
-		aioseo()->actionScheduler->scheduleRecurrent( $this->actionName, 0, DAY_IN_SECONDS );
+		add_action( 'admin_notices', [ $this, 'notice' ] );
 	}
 
 	/**
@@ -131,8 +59,29 @@ class Notices {
 			aioseo()->updates->addInitialCustomTablesForV4();
 		}
 
+		$this->maybeUpdate();
 		$this->initInternalNotices();
 		$this->deleteInternalNotices();
+	}
+
+	/**
+	 * Checks if we should update our notifications.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return void
+	 */
+	private function maybeUpdate() {
+		$nextRun = aioseo()->core->cache->get( 'admin_notifications_update' );
+		if ( null !== $nextRun && time() < $nextRun ) {
+			return;
+		}
+
+		// Schedule the action.
+		aioseo()->helpers->scheduleAsyncAction( 'aioseo_admin_notifications_update' );
+
+		// Update the cache.
+		aioseo()->core->cache->update( 'admin_notifications_update', time() + DAY_IN_SECONDS );
 	}
 
 	/**
@@ -194,9 +143,6 @@ class Notices {
 			$n->button2_action  = $buttons['button2']['url'];
 			$n->dismissed       = 0;
 			$n->save();
-
-			// Since we've added a new remote notification, let's show the notification drawer.
-			aioseo()->core->cache->update( 'show_notifications_drawer', true );
 		}
 	}
 
@@ -208,20 +154,14 @@ class Notices {
 	 * @return array An array of notifications.
 	 */
 	private function fetch() {
-		$cacheKey = 'notifications_last_fetched';
-		if ( null !== aioseo()->core->cache->get( $cacheKey ) ) {
-			return [];
-		}
-
-		aioseo()->core->cache->update( $cacheKey, true, 12 * HOUR_IN_SECONDS );
-
-		$response = aioseo()->helpers->wpRemoteGet( $this->getUrl() );
+		$response = wp_remote_get( $this->getUrl() . '?' . time() );
 
 		if ( is_wp_error( $response ) ) {
 			return [];
 		}
 
 		$body = wp_remote_retrieve_body( $response );
+
 		if ( empty( $body ) ) {
 			return [];
 		}
@@ -314,8 +254,8 @@ class Notices {
 	 */
 	public function versionMatch( $currentVersion, $compareVersion ) {
 		if ( is_array( $compareVersion ) ) {
-			foreach ( $compareVersion as $compare_single ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
-				$recursiveResult = $this->versionMatch( $currentVersion, $compare_single ); // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+			foreach ( $compareVersion as $compare_single ) {
+				$recursiveResult = $this->versionMatch( $currentVersion, $compare_single );
 				if ( $recursiveResult ) {
 					return true;
 				}
@@ -379,17 +319,11 @@ class Notices {
 	 *
 	 * @return void
 	 */
-	public function notices() {
-		// Double check we're actually in the admin before outputting anything.
-		if ( ! is_admin() ) {
-			return;
-		}
-
+	public function notice() {
 		$this->review->maybeShowNotice();
 		$this->migration->maybeShowNotice();
 		$this->import->maybeShowNotice();
 		$this->deprecatedWordPress->maybeShowNotice();
-		$this->conflictingPlugins->maybeShowNotice();
 	}
 
 	/**
@@ -421,15 +355,6 @@ class Notices {
 
 			Models\Notification::deleteNotificationByName( 'install-mi' );
 		}
-
-		if ( $pluginData['optinMonster']['installed'] ) {
-			$notification = Models\Notification::getNotificationByName( 'install-om' );
-			if ( ! $notification->exists() ) {
-				return;
-			}
-
-			Models\Notification::deleteNotificationByName( 'install-om' );
-		}
 	}
 
 	/**
@@ -460,7 +385,7 @@ class Notices {
 	 */
 	private function blogVisibility() {
 		$notification = Models\Notification::getNotificationByName( 'blog-visibility' );
-		if ( ! aioseo()->helpers->isSearchEnginesDiscouraged() ) {
+		if ( get_option( 'blog_public' ) ) {
 			if ( $notification->exists() ) {
 				Models\Notification::deleteNotificationByName( 'blog-visibility' );
 			}
@@ -468,7 +393,7 @@ class Notices {
 			return;
 		}
 
-		if ( $notification->exists() || ! current_user_can( 'manage_options' ) ) {
+		if ( $notification->exists() ) {
 			return;
 		}
 
@@ -550,7 +475,7 @@ class Notices {
 	 * @param  mixed  $newValue   The new value.
 	 * @return void
 	 */
-	public function maybeResetBlogVisibility( $optionName, $oldValue = '', $newValue = '' ) {
+	public function maybeResetBlogVisibility( $optionName, $oldValue, $newValue ) {
 		if ( 'blog_public' === $optionName ) {
 			if ( 1 === intval( $newValue ) ) {
 				$notification = Models\Notification::getNotificationByName( 'blog-visibility' );
@@ -612,6 +537,61 @@ class Notices {
 			'button1_action'    => 'http://action#sitemap/deactivate-conflicting-plugins?refresh',
 			'button2_label'     => __( 'Remind Me Later', 'all-in-one-seo-pack' ),
 			'button2_action'    => 'http://action#notification/conflicting-plugins-reminder',
+			'start'             => gmdate( 'Y-m-d H:i:s' )
+		] );
+	}
+
+	/**
+	 * Add a notice if the user is using deprecated filters.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @return void
+	 */
+	public function deprecatedFilters( $filters = [] ) {
+		if ( empty( $filters ) ) {
+			return;
+		}
+
+		// We've updated our notification so let's remove the old one if it exists.
+		$notification = Models\Notification::getNotificationByName( 'deprecated-filters' );
+		if ( $notification->exists() ) {
+			Models\Notification::deleteNotificationByName( 'deprecated-filters' );
+		}
+
+		$content = sprintf(
+			// Translators: 1 - The plugin short name ("AIOSEO"), 2 - Opening link tag, 3 - Closing link tag.
+			__( 'Warning: %1$s has detected the use of filters that have been deprecated on your site. These filters may be in use by another plugin or your theme. If that is the case, these filters most likely will not work with this plugin. Please make sure you have updated all your plugins. If you have manually added these filters, please %2$scheck out our documentation%3$s for the updated filters to use.', 'all-in-one-seo-pack' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+			AIOSEO_PLUGIN_SHORT_NAME,
+			'<a target="_blank" href="' . aioseo()->helpers->utmUrl( AIOSEO_MARKETING_URL . 'docs/aioseo-filter-hooks/', 'deprecated-filters-notice' ) . '">',
+			'</a>'
+		) . '<ul>';
+
+		foreach ( $filters as $filter ) {
+			$content .= '<li><strong>' . $filter . '</strong></li>';
+		}
+
+		$content .= '</ul>';
+
+		// Update an existing notice.
+		$notification = Models\Notification::getNotificationByName( 'deprecated-filters-v2' );
+		if ( $notification->exists() ) {
+			$notification->content = $content;
+			$notification->save();
+
+			return;
+		}
+
+		// Create a new one if it doesn't exist.
+		Models\Notification::addNotification( [
+			'slug'              => uniqid(),
+			'notification_name' => 'deprecated-filters-v2',
+			'title'             => __( 'Deprecated Filters Detected', 'all-in-one-seo-pack' ),
+			'content'           => $content,
+			'type'              => 'warning',
+			'level'             => [ 'all' ],
+			'button1_label'     => __( 'Remind Me Later', 'all-in-one-seo-pack' ),
+			'button1_action'    => 'http://action#notification/deprecated-filters-reminder',
 			'start'             => gmdate( 'Y-m-d H:i:s' )
 		] );
 	}

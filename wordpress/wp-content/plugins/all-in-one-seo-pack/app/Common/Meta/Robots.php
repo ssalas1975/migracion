@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
-
 /**
  * Handles the robots meta tag.
  *
@@ -97,24 +95,13 @@ class Robots {
 	 * @return mixed The robots meta tag value or false.
 	 */
 	public function meta() {
-		// We need this check to happen first as spammers can attempt to make the page appear like a post or term by using URL params e.g. "cat=".
-		if ( is_search() ) {
-			$this->globalValues( [ 'archives', 'search' ] );
-
-			return $this->metaHelper();
-		}
-
-		if ( BuddyPressIntegration::isComponentPage() ) {
-			return aioseo()->standalone->buddyPress->component->getMeta( 'robots' );
-		}
-
 		if ( is_category() || is_tag() || is_tax() ) {
 			$this->term();
 
 			return $this->metaHelper();
 		}
 
-		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
+		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
 			$this->globalValues();
 
 			return $this->metaHelper();
@@ -139,6 +126,12 @@ class Robots {
 			return $this->metaHelper();
 		}
 
+		if ( is_search() ) {
+			$this->globalValues( [ 'archives', 'search' ] );
+
+			return $this->metaHelper();
+		}
+
 		if ( is_404() ) {
 			return apply_filters( 'aioseo_404_robots', 'noindex' );
 		}
@@ -155,15 +148,14 @@ class Robots {
 	 *
 	 * Acts as a helper for meta().
 	 *
-	 * @since   4.0.0
-	 * @version 5.0.3 Homepage guardrail now follows {@see isHomePage()}.
+	 * @since 4.0.0
 	 *
 	 * @param  bool         $array Whether or not to return the value as an array.
 	 * @return array|string        The robots meta tag value.
 	 */
 	public function metaHelper( $array = false ) {
 		$pageNumber = aioseo()->helpers->getPageNumber();
-		if ( 1 < $pageNumber || aioseo()->helpers->getCommentPageNumber() ) {
+		if ( 1 < $pageNumber || 0 < (int) get_query_var( 'cpage', 0 ) ) {
 			if (
 				aioseo()->options->searchAppearance->advanced->globalRobotsMeta->default ||
 				aioseo()->options->searchAppearance->advanced->globalRobotsMeta->noindexPaginated
@@ -180,17 +172,17 @@ class Robots {
 		}
 
 		// Never allow users to noindex the first page of the homepage.
-		if ( aioseo()->helpers->isHomePage() && 1 === $pageNumber ) {
+		if ( is_front_page() && 1 === $pageNumber ) {
 			$this->attributes['noindex'] = '';
 		}
 
 		// Because we prevent WordPress Core from outputting a robots tag in disableWpRobotsCore(), we need to noindex/nofollow non-public sites ourselves.
-		if ( aioseo()->helpers->isSearchEnginesDiscouraged() ) {
+		if ( ! get_option( 'blog_public' ) ) {
 			$this->attributes['noindex']  = 'noindex';
 			$this->attributes['nofollow'] = 'nofollow';
 		}
 
-		$this->attributes = array_filter( (array) apply_filters( 'aioseo_robots_meta', $this->attributes ) );
+		$this->attributes = array_filter( apply_filters( 'aioseo_robots_meta', $this->attributes ) );
 
 		return $array ? $this->attributes : implode( ', ', $this->attributes );
 	}
@@ -229,72 +221,15 @@ class Robots {
 	 */
 	public function term( $term = null ) {
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		$term           = is_a( $term, 'WP_Term' ) ? $term : aioseo()->helpers->getTerm();
-
-		// Misbehaving themes/plugins can manipulate the loop and make archives return a post as the queried object.
-		if ( ! is_a( $term, 'WP_Term' ) ) {
-			return;
-		}
+		$term           = is_a( $term, 'WP_Term' ) ? $term : get_queried_object();
 
 		if ( $dynamicOptions->searchAppearance->taxonomies->has( $term->taxonomy ) ) {
 			$this->globalValues( [ 'taxonomies', $term->taxonomy ], true );
-		} else {
-			$this->globalValues();
+
+			return;
 		}
 
-		$this->noindexEmptyCategory( $term );
-	}
-
-	/**
-	 * Sets noindex on empty category archives when the "noindex empty categories" option is enabled.
-	 *
-	 * @since   5.0.4
-	 *
-	 * @param  \WP_Term|null $term The term being evaluated.
-	 * @return void
-	 */
-	protected function noindexEmptyCategory( $term ) {
-		// Empty categories add no value in search results, so honour the option when set.
-		if (
-			is_a( $term, 'WP_Term' ) &&
-			'category' === $term->taxonomy &&
-			aioseo()->options->searchAppearance->advanced->noIndexEmptyCat &&
-			! $this->categoryHasPosts( $term )
-		) {
-			$this->attributes['noindex'] = 'noindex';
-		}
-	}
-
-	/**
-	 * Checks whether a category archive lists any posts.
-	 *
-	 * NOTE: $term->count only covers directly assigned posts, but the archive also lists every descendant's.
-	 *
-	 * @since 5.0.4
-	 *
-	 * @param  \WP_Term $term The category.
-	 * @return bool           True if the category or any of its descendants has posts.
-	 */
-	protected function categoryHasPosts( $term ) {
-		if ( ! empty( $term->count ) ) {
-			return true;
-		}
-
-		$descendantIds = get_term_children( $term->term_id, 'category' );
-		if ( empty( $descendantIds ) || is_wp_error( $descendantIds ) ) {
-			return false;
-		}
-
-		$nonEmptyIds = get_terms( [
-			'taxonomy'     => 'category',
-			'include'      => $descendantIds,
-			'hide_empty'   => true,
-			'hierarchical' => false,
-			'fields'       => 'ids',
-			'number'       => 1
-		] );
-
-		return ! empty( $nonEmptyIds ) && ! is_wp_error( $nonEmptyIds );
+		$this->globalValues();
 	}
 
 	/**
@@ -306,8 +241,9 @@ class Robots {
 	 */
 	private function archives() {
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-		$postType       = aioseo()->helpers->getTerm();
-		if ( ! empty( $postType->name ) && $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+		$postType       = get_queried_object();
+
+		if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
 			$this->globalValues( [ 'archives', $postType->name ], true );
 		}
 	}
@@ -321,17 +257,14 @@ class Robots {
 	 * @param  boolean $isDynamicOption Whether this is for a dynamic option.
 	 * @return void
 	 */
-	public function globalValues( $optionOrder = [], $isDynamicOption = false ) {
+	protected function globalValues( $optionOrder = [], $isDynamicOption = false ) {
 		$robotsMeta = [];
 		if ( count( $optionOrder ) ) {
-			$options = $isDynamicOption
-				? aioseo()->dynamicOptions->noConflict( true )->searchAppearance
-				: aioseo()->options->noConflict()->searchAppearance;
-
+			$options = $isDynamicOption ? aioseo()->dynamicOptions->noConflict()->searchAppearance : aioseo()->options->noConflict()->searchAppearance;
 			foreach ( $optionOrder as $option ) {
 				if ( ! $options->has( $option, false ) ) {
 					return;
-				}
+				};
 				$options = $options->$option;
 			}
 
@@ -340,22 +273,9 @@ class Robots {
 				$this->attributes['noindex'] = 'noindex';
 			}
 
-			// Probe with has() rather than a chained isset(): the latter runs both __isset()
-			// and __get(), each pushing the sub-group, so the traversal lands on
-			// `advanced.advanced` and the object's own robots meta is never found.
-			$hasRobotsMeta = $options->has( 'advanced', false );
-			if ( $hasRobotsMeta ) {
-				$options       = $options->advanced;
-				$hasRobotsMeta = $options->has( 'robotsMeta', false );
-			}
-
-			if ( ! $hasRobotsMeta ) {
+			$robotsMeta = $options->advanced->robotsMeta->all();
+			if ( $robotsMeta['default'] ) {
 				$robotsMeta = aioseo()->options->searchAppearance->advanced->globalRobotsMeta->all();
-			} else {
-				$robotsMeta = $options->robotsMeta->all();
-				if ( $robotsMeta['default'] ) {
-					$robotsMeta = aioseo()->options->searchAppearance->advanced->globalRobotsMeta->all();
-				}
 			}
 		} else {
 			$robotsMeta = aioseo()->options->searchAppearance->advanced->globalRobotsMeta->all();
@@ -387,7 +307,7 @@ class Robots {
 			$this->attributes['notranslate'] = 'notranslate';
 		}
 		$maxSnippet = $robotsMeta['maxSnippet'];
-		if ( ! $noSnippet && is_numeric( $maxSnippet ) ) {
+		if ( ! $noSnippet && $maxSnippet && intval( $maxSnippet ) ) {
 			$this->attributes['max-snippet'] = "max-snippet:$maxSnippet";
 		}
 		$maxImagePreview = $robotsMeta['maxImagePreview'];
@@ -396,7 +316,7 @@ class Robots {
 			$this->attributes['max-image-preview'] = "max-image-preview:$maxImagePreview";
 		}
 		$maxVideoPreview = $robotsMeta['maxVideoPreview'];
-		if ( isset( $maxVideoPreview ) && is_numeric( $maxVideoPreview ) ) {
+		if ( $maxVideoPreview && intval( $maxVideoPreview ) ) {
 			$this->attributes['max-video-preview'] = "max-video-preview:$maxVideoPreview";
 		}
 
@@ -412,7 +332,7 @@ class Robots {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \AIOSEO\Plugin\Common\Models\Post|\AIOSEO\Plugin\Pro\Models\Term $metaData The post/term meta data.
+	 * @param  array $metaData The post/term meta data.
 	 * @return void
 	 */
 	protected function metaValues( $metaData ) {
@@ -434,13 +354,13 @@ class Robots {
 		if ( $metaData->robots_notranslate ) {
 			$this->attributes['notranslate'] = 'notranslate';
 		}
-		if ( ! $metaData->robots_nosnippet && isset( $metaData->robots_max_snippet ) && is_numeric( $metaData->robots_max_snippet ) ) {
+		if ( ! $metaData->robots_nosnippet && $metaData->robots_max_snippet && intval( $metaData->robots_max_snippet ) ) {
 			$this->attributes['max-snippet'] = "max-snippet:$metaData->robots_max_snippet";
 		}
 		if ( ! $metaData->robots_noimageindex && $metaData->robots_max_imagepreview && in_array( $metaData->robots_max_imagepreview, [ 'none', 'standard', 'large' ], true ) ) {
 			$this->attributes['max-image-preview'] = "max-image-preview:$metaData->robots_max_imagepreview";
 		}
-		if ( isset( $metaData->robots_max_videopreview ) && is_numeric( $metaData->robots_max_videopreview ) ) {
+		if ( $metaData->robots_max_videopreview && intval( $metaData->robots_max_videopreview ) ) {
 			$this->attributes['max-video-preview'] = "max-video-preview:$metaData->robots_max_videopreview";
 		}
 

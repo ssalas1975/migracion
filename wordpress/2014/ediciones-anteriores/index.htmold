@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<META NAME="Author" CONTENT="F33">
+
+<META NAME="Description" CONTENT="RENDIBÚ, Concurso de Artes Multimedia">
+
+<META NAME="Keywords" CONTENT="rendibu,concurso,arte,multimedia,murcia,la verdad,digital">
+
+<META NAME="Copyright" CONTENT="©2008 F33">
+
+<META NAME="Distribution" CONTENT="Global"><META NAME="Robots" CONTENT="All"><META NAME="rating" CONTENT="General">
+
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache"><META HTTP-EQUIV="Expires" CONTENT="-1">
+
+<title>RENDIBÚ, Concurso de Artes Multimedia</title>
+
+<style type="text/css"><!--
+
+*{ margin:0; padding:0;}
+
+body{ background-color:#000000; }
+
+-->
+
+</style>
+
+<script src="Scripts/AC_RunActiveContent.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+AC_FL_RunContent( 'codebase','http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,28,0','width','100%','height','100%','title','Rendibu','src','rendibu','quality','high','pluginspage','http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash','movie','rendibu' ); //end AC code
+
+</script>
+
+<noscript><object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,28,0" width="100%" height="100%" title="Rendibu">
+
+  <param name="movie" value="rendibu.swf" />
+
+  <param name="quality" value="high" />
+
+  <embed src="rendibu.swf" quality="high" pluginspage="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" width="100%" height="100%"></embed>
+
+</object></noscript>
+<!-- OJD VERSION="1.2" -->
+<SCRIPT LANGUAGE="JavaScript"> 
+<!--
+var IVW="http://laverdad.ojdinteractiva.com/cgi-bin/ivw/CP/rendibu";
+document.write("<IMG SRC=\""+IVW+"?r="+escape(document.referrer)+"\" WIDTH=\"1\" HEIGHT=\"1\">");
+// -->
+</SCRIPT>
+<NOSCRIPT>
+<IMG SRC="http://laverdad.ojdinteractiva.com/cgi-bin/ivw/CP/rendibu" WIDTH="1" HEIGHT="1">
+</NOSCRIPT>
+<!-- /OJD -->
+
+
+<!-- START Nielsen//NetRatings SiteCensus V5.1 -->
+<!-- COPYRIGHT 2005 Nielsen//NetRatings -->
+<script language="JavaScript" type="text/javascript">
+<!--
+	var _rsCI="es-vocento";
+	var _rsCG="0";
+	var _rsDT=0;
+	var _rsDU=0; 
+	var _rsDO=0; 
+	var _rsX6=0;  
+	var _rsSI=escape(window.location);
+	var _rsLP=location.protocol.indexOf('https')>-1?'https:':'http:';
+	var _rsRP=escape(document.referrer);
+	var _rsND=_rsLP+'//secure-uk.imrworldwide.com/';
+
+	if (parseInt(navigator.appVersion)>=4)
+	{
+		var _rsRD=(new Date()).getTime();
+		var _rsSE=0;	
+		var _rsSV="";
+		var _rsSM=0;
+		_rsCL='<scr'+'ipt language="JavaScript" type="text/javascript" src="'+_rsND+'v51.js"><\/scr'+'ipt>';
+	}
+	else
+	{
+		_rsCL='<img src="'+_rsND+'cgi-bin/m?ci='+_rsCI+'&cg='+_rsCG+'&si='+_rsSI+'&rp='+_rsRP+'">';
+	}
+	document.write(_rsCL);
+//-->
+</script>
+<script language="JavaScript" type="text/javascript">
+</script>
+<noscript>
+<img src="//secure-uk.imrworldwide.com/cgi-bin/m?ci=es-vocento&amp; cg=0" alt="">
+</noscript>
+<!-- END Nielsen // Netratings SiteCensus V5.1 -->
+</body>
+
+</html>
+

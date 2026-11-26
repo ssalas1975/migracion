@@ -5,7 +5,7 @@ import createSelector from 'rememo';
 import { find, get, isObject, filter } from 'lodash';
 
 /**
- * WordPress dependencies
+ * WordPres dependencies
  */
 import { createRegistrySelector } from '@wordpress/data';
 
@@ -86,17 +86,6 @@ export function getQueryHeaderLinks( state, queryId, rel ) {
  */
 export function getQueryHeader( state, queryId, header ) {
 	return get( state, [ 'queries', queryId, 'headers', header ] );
-}
-
-/**
- * Gets the query parameters for a query.
- *
- * @param {Object} state   State object.
- * @param {string} queryId Query id.
- * @return {Object|undefined} The parameters, if any.
- */
-export function getQueryParams( state, queryId ) {
-	return get( state, [ 'queryParams', queryId ] );
 }
 
 /**

@@ -3,11 +3,11 @@
   "status": "always-active",
   "type": "recommended",
   "title": "Strong Passwords",
-  "description": "Require strong passwords approved by the WordPress password strength meter.",
+  "description": "Force users to use strong passwords as rated by the WordPress password meter.",
   "password-requirements": {
     "strength": {
       "title": "Strong Passwords",
-      "description": "Require strong passwords approved by the WordPress password strength meter.",
+      "description": "Force users to use strong passwords as rated by the WordPress password meter.",
       "user-group": true
     }
   }

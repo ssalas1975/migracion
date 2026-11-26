@@ -17,15 +17,6 @@ use AIOSEO\Plugin\Common\Models;
  */
 class SocialMeta {
 	/**
-	 * List of options.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var array
-	 */
-	private $options = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.0.0
@@ -67,13 +58,12 @@ class SocialMeta {
 			'myspace_url'   => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'myspaceUrl' ] ],
 			'pinterest_url' => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'pinterestUrl' ] ],
 			'youtube_url'   => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'youtubeUrl' ] ],
-			'wikipedia_url' => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'wikipediaUrl' ] ],
-			'wordpress_url' => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'wordPressUrl' ] ],
+			'wikipedia_url' => [ 'type' => 'string', 'newOption' => [ 'social', 'profiles', 'urls', 'wikipediaUrl' ] ]
 		];
 
 		if ( ! empty( $this->options['twitter_site'] ) ) {
 			aioseo()->options->social->profiles->urls->twitterUrl =
-				'https://x.com/' . aioseo()->helpers->sanitizeOption( $this->options['twitter_site'] );
+				'https://twitter.com/' . aioseo()->helpers->sanitizeOption( $this->options['twitter_site'] );
 		}
 
 		aioseo()->importExport->yoastSeo->helpers->mapOldToNew( $settings, $this->options );
@@ -97,18 +87,11 @@ class SocialMeta {
 		}
 
 		$settings = [
-			'opengraph' => [ 'type' => 'boolean', 'newOption' => [ 'social', 'facebook', 'general', 'enable' ] ],
+			'opengraph'          => [ 'type' => 'boolean', 'newOption' => [ 'social', 'facebook', 'general', 'enable' ] ],
+			'og_frontpage_title' => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'title' ] ],
+			'og_frontpage_desc'  => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'description' ] ],
+			'og_frontpage_image' => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'image' ] ],
 		];
-
-		if ( ! aioseo()->importExport->yoastSeo->searchAppearance->hasImportedHomepageSocialSettings ) {
-			// These settings were moved to the Search Appearance tab of Yoast, but we'll leave this here to support older versions.
-			// However, we want to make sure we import them only if the other ones aren't set.
-			$settings = array_merge( $settings, [
-				'og_frontpage_title' => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'title' ] ],
-				'og_frontpage_desc'  => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'description' ] ],
-				'og_frontpage_image' => [ 'type' => 'string', 'newOption' => [ 'social', 'facebook', 'homePage', 'image' ] ]
-			] );
-		}
 
 		aioseo()->importExport->yoastSeo->helpers->mapOldToNew( $settings, $this->options, true );
 

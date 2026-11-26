@@ -43,4 +43,21 @@ class Control_Tabs extends Base_UI_Control {
 	 * @access public
 	 */
 	public function content_template() {}
+
+	/**
+	 * Get tabs control default settings.
+	 *
+	 * Retrieve the default settings of the tabs control. Used to return the
+	 * default settings while initializing the tabs control.
+	 *
+	 * @since 1.0.0
+	 * @access protected
+	 *
+	 * @return array Control default settings.
+	 */
+	protected function get_default_settings() {
+		return [
+			'separator' => 'none',
+		];
+	}
 }

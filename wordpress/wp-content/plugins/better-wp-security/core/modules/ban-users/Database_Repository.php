@@ -200,7 +200,7 @@ final class Database_Repository implements Repository, Creatable, Updatable, Del
 			'properties' => [
 				'host'       => [
 					'type'        => 'string',
-					'title'       => __( 'IP', 'better-wp-security' ),
+					'title'       => __( 'Host', 'better-wp-security' ),
 					'description' => __( 'The IP address to ban.', 'better-wp-security' ),
 					'arg_options' => [
 						'validate_callback' => 'ITSEC_Lib_REST::validate_ip',
@@ -236,9 +236,10 @@ final class Database_Repository implements Repository, Creatable, Updatable, Del
 					'ui:widget' => 'hidden',
 				],
 				'comment'    => [
-					'ui:widget'      => 'textarea',
-					'ui:rows'        => 2,
-					'ui:placeholder' => __( 'Made fraudulent purchases.', 'better-wp-security' ),
+					'ui:widget'  => 'textarea',
+					'ui:options' => [
+						'rows' => 4,
+					],
 				],
 			],
 		];
@@ -258,8 +259,10 @@ final class Database_Repository implements Repository, Creatable, Updatable, Del
 			],
 			'uiSchema'   => [
 				'comment' => [
-					'ui:widget' => 'textarea',
-					'ui:rows'   => 2,
+					'ui:widget'  => 'textarea',
+					'ui:options' => [
+						'rows' => 4,
+					],
 				],
 			],
 		];
@@ -386,7 +389,7 @@ final class Database_Repository implements Repository, Creatable, Updatable, Del
 	}
 
 	public function get_export_title(): string {
-		return __( 'Banned IPs', 'better-wp-security' );
+		return __( 'Banned Users', 'better-wp-security' );
 	}
 
 	public function get_export_description(): string {

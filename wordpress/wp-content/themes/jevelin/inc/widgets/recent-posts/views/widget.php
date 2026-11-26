@@ -14,6 +14,8 @@
 	<?php
 		$elements = jevelin_option( 'post_elements' );
 		echo wp_kses_post( $before_widget );
+
+		$blog_style = jevelin_option( 'blog_style', 'style1' );
 	?>
 	<div class="wrap-recent-posts">
 		<?php echo wp_kses_post( $title ); ?>
@@ -48,7 +50,7 @@
 							<div class="sh-recent-posts-widgets-item-content">
 						<?php endif; ?>
 
-							<?php if( jevelin_option( 'blog_style', 'style1' ) == 'style2' ) : ?>
+							<?php if( $blog_style == 'style2' ) : ?>
 
 								<span class="post-meta-categories">
 						            <?php echo jevelin_show_categories(); ?>

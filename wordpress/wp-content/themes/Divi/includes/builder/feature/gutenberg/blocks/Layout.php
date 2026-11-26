@@ -155,10 +155,9 @@ class ET_GB_Block_Layout {
 		et_core_portability_register(
 			'et_builder',
 			array(
-				'title' => esc_html__( 'Import & Export Layouts', 'et_builder' ),
-				'name'  => esc_html__( 'Divi Builder Layout', 'et_builder' ),
-				'type'  => 'post',
-				'view'  => true,
+				'name' => esc_html__( 'Divi Builder Layout', 'et_builder' ),
+				'type' => 'post',
+				'view' => true,
 			)
 		);
 	}

@@ -6,12 +6,13 @@ import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { ToolbarFill } from '@ithemes/security-ui';
-import { Search } from '@ithemes/security-search';
+import { NoticeList } from '@ithemes/security-components';
 import { usePages } from '../../page-registration';
 import {
+	Navigation,
+	AdvancedNavigation,
 	Main,
-	NoticeList,
+	Sidebar,
 } from '../../components';
 
 export default function Settings() {
@@ -19,27 +20,30 @@ export default function Settings() {
 	const { url, path } = useRouteMatch();
 
 	return (
-		<>
-			<ToolbarFill area="main">
-				<Search />
-			</ToolbarFill>
-			<Switch>
-				{ pages.map( ( { id, render: Component } ) => (
-					<Route path={ `${ path }/:page(${ id })` } key={ id }>
-						<Main>
-							<NoticeList />
-							<Component />
-						</Main>
-					</Route>
-				) ) }
-
-				<Route path={ url }>
-					{ pages.length > 0 && (
-						<Redirect to={ `${ url }/${ pages[ 0 ].id }` } />
-					) }
-					<Main />
+		<Switch>
+			{ pages.map( ( { id, render: Component } ) => (
+				<Route path={ `${ path }/:page(${ id })` } key={ id }>
+					<Sidebar>
+						<Navigation />
+						<AdvancedNavigation />
+					</Sidebar>
+					<Main>
+						<NoticeList />
+						<Component />
+					</Main>
 				</Route>
-			</Switch>
-		</>
+			) ) }
+
+			<Route path={ url }>
+				{ pages.length > 0 && (
+					<Redirect to={ `${ url }/${ pages[ 0 ].id }` } />
+				) }
+				<Sidebar>
+					<Navigation />
+					<AdvancedNavigation />
+				</Sidebar>
+				<Main />
+			</Route>
+		</Switch>
 	);
 }

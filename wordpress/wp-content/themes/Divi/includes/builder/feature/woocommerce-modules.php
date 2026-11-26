@@ -1049,9 +1049,7 @@ function et_builder_wc_render_module_template( $function_name, $args = array(), 
 			}
 			break;
 		case 'wc_get_stock_html':
-			if ( is_a( $product, 'WC_Product' ) ) {
-				echo wc_get_stock_html( $product ); // phpcs:ignore WordPress.Security.EscapeOutput -- `wc_get_stock_html` include woocommerce's `single-product/stock.php` template.
-			}
+			echo wc_get_stock_html( $product ); // phpcs:ignore WordPress.Security.EscapeOutput -- `wc_get_stock_html` include woocommerce's `single-product/stock.php` template.
 			break;
 		case 'wc_print_notice':
 			$message = et_()->array_get( $args, 'wc_cart_message', '' );
@@ -1060,17 +1058,15 @@ function et_builder_wc_render_module_template( $function_name, $args = array(), 
 			call_user_func( $function_name, $message );
 			break;
 		case 'wc_print_notices':
-			if ( isset( WC()->session ) ) {
-				// Save existing notices to restore them as many times as we need.
-				$et_wc_cached_notices = WC()->session->get( 'wc_notices', array() );
+			// Save existing notices to restore them as many times as we need.
+			$et_wc_cached_notices = WC()->session->get( 'wc_notices', array() );
 
-				// @phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- Using for consistency.
-				call_user_func( $function_name );
+			// @phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
+			call_user_func( $function_name );
 
-				// Restore notices which were removed after wc_print_notices() executed to render multiple modules on page.
-				if ( ! empty( $et_wc_cached_notices ) && empty( WC()->session->get( 'wc_notices', array() ) ) ) {
-					WC()->session->set( 'wc_notices', $et_wc_cached_notices );
-				}
+			// Restore notices which were removed after wc_print_notices() executed to render multiple modules on page.
+			if ( ! empty( $et_wc_cached_notices ) && empty( WC()->session->get( 'wc_notices', array() ) ) ) {
+				WC()->session->set( 'wc_notices', $et_wc_cached_notices );
 			}
 			break;
 		case 'woocommerce_checkout_login_form':
@@ -1095,19 +1091,17 @@ function et_builder_wc_render_module_template( $function_name, $args = array(), 
 			wc_get_template( 'cart/cart-empty.php' );
 			break;
 		case 'woocommerce_output_all_notices':
-			if ( isset( WC()->session ) ) {
-				// Save existing notices to restore them as many times as we need.
-				$et_wc_cached_notices = WC()->session->get( 'wc_notices', array() );
+			// Save existing notices to restore them as many times as we need.
+			$et_wc_cached_notices = WC()->session->get( 'wc_notices', array() );
 
-				if ( function_exists( $function_name ) ) {
-					// @phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- Using for consistency.
-					call_user_func( $function_name );
-				}
+			if ( function_exists( $function_name ) ) {
+				// @phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- Using for consistency.
+				call_user_func( $function_name );
+			}
 
-				// Restore notices which were removed after wc_print_notices() executed to render multiple modules on page.
-				if ( ! empty( $et_wc_cached_notices ) && empty( WC()->session->get( 'wc_notices', array() ) ) ) {
-					WC()->session->set( 'wc_notices', $et_wc_cached_notices );
-				}
+			// Restore notices which were removed after wc_print_notices() executed to render multiple modules on page.
+			if ( ! empty( $et_wc_cached_notices ) && empty( WC()->session->get( 'wc_notices', array() ) ) ) {
+				WC()->session->set( 'wc_notices', $et_wc_cached_notices );
 			}
 			break;
 		case 'woocommerce_template_single_price':
@@ -1276,31 +1270,16 @@ function et_builder_wc_disable_default_layout() {
 function et_builder_wc_relocate_single_product_summary() {
 	global $post, $wp_filter;
 
-	if ( ! $post ) {
-		return;
-	}
-
-	$tb_body_layout    = ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE;
-	$tb_body_override  = et_theme_builder_overrides_layout( $tb_body_layout );
-	$tb_layouts        = et_theme_builder_get_template_layouts();
-	$tb_body_layout_id = $tb_body_override ? $tb_layouts[$tb_body_layout]['id'] : false;
-	$tb_body_content   = $tb_body_layout_id ? get_post_field( 'post_content', $tb_body_layout_id ) : '';
-	$has_wc_module     = et_builder_has_woocommerce_module( $post->post_content );
-	$has_wc_module_tb  = et_builder_has_woocommerce_module( $tb_body_content );
-	$hook              = et_()->array_get( $wp_filter, 'woocommerce_single_product_summary', null );
-
-	// Bail early if there is no `woocommerce_single_product_summary` hook callbacks or
-	// if there is no WooCommerce module in the content of current page and TB body layout.
-	if (
-		( ! $has_wc_module && ! $has_wc_module_tb )
-		|| empty( $hook->callbacks ) 
-	) {
+	// Bail early if there is no `woocommerce_single_product_summary` hook callbacks.
+	$hook = et_()->array_get( $wp_filter, 'woocommerce_single_product_summary', null );
+	if ( empty( $hook->callbacks ) ) {
 		return;
 	}
 
 	$is_copy_needed = false;
 	$is_move_needed = false;
 	$post_id        = ! empty( $post->ID ) ? $post->ID : false;
+	$post_type      = ! empty( $post->post_type ) ? $post->post_type : '';
 
 	// Product related pages.
 	$is_product          = function_exists( 'is_product' ) && is_product();
@@ -1330,7 +1309,10 @@ function et_builder_wc_relocate_single_product_summary() {
 	// - Builder is used.
 	// - TB Body layout overrides the content.
 	if ( $is_product ) {
-		if ( et_pb_is_pagebuilder_used( $post_id ) || $tb_body_override ) {
+		if (
+			et_pb_is_pagebuilder_used( $post_id )
+			|| et_theme_builder_overrides_layout( ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE )
+		) {
 			$is_move_needed = true;
 		}
 	}

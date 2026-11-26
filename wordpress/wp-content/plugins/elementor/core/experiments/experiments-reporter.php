@@ -44,7 +44,6 @@ class Experiments_Reporter extends Base {
 		$tracking_keys = [
 			'default',
 			'state',
-			'tags',
 		];
 
 		foreach ( $experiments_manager->get_features() as $feature_name => $feature_data ) {
@@ -52,10 +51,6 @@ class Experiments_Reporter extends Base {
 
 			// Extract only tracking keys.
 			foreach ( $tracking_keys as $tracking_key ) {
-				if ( empty( $feature_data[ $tracking_key ] ) ) {
-					continue;
-				}
-
 				$data_to_collect[ $tracking_key ] = $feature_data[ $tracking_key ];
 			}
 
@@ -91,9 +86,7 @@ class Experiments_Reporter extends Base {
 				$output .= "\t";
 			}
 
-			$title = isset( $experiment['title'] ) ? $experiment['title'] : $experiment['name'];
-
-			$output .= $title . ': ' . $state . PHP_EOL;
+			$output .= $experiment['title'] . ': ' . $state . PHP_EOL;
 
 			$is_first_item = false;
 		}
@@ -119,9 +112,7 @@ class Experiments_Reporter extends Base {
 			// If the state is default, add the default state to the string.
 			$state = Plugin::$instance->experiments->get_feature_state_label( $experiment );
 
-			$title = isset( $experiment['title'] ) ? $experiment['title'] : $experiment['name'];
-
-			$output .= '<tr><td>' . esc_html( $title ) . ': </td>';
+			$output .= '<tr><td>' . esc_html( $experiment['title'] ) . ': </td>';
 			$output .= '<td>' . esc_html( $state ) . '</td>';
 			$output .= '</tr>';
 		}

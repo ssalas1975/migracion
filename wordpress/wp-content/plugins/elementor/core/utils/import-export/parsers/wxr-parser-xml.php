@@ -1,7 +1,6 @@
 <?php
 namespace Elementor\Core\Utils\ImportExport\Parsers;
 
-use Elementor\Utils;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -172,7 +171,7 @@ class WXR_Parser_XML {
 
 		xml_set_element_handler( $xml, $tag_open_callback, $tag_close_callback );
 
-		if ( ! xml_parse( $xml, Utils::file_get_contents( $file ), true ) ) {
+		if ( ! xml_parse( $xml, file_get_contents( $file ), true ) ) {
 			$current_line = xml_get_current_line_number( $xml );
 			$current_column = xml_get_current_column_number( $xml );
 			$error_code = xml_get_error_code( $xml );
@@ -190,7 +189,7 @@ class WXR_Parser_XML {
 			return new WP_Error( 'WXR_parse_error', esc_html__( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'elementor' ) );
 		}
 
-		return [
+		return array(
 			'authors' => $this->authors,
 			'posts' => $this->posts,
 			'categories' => $this->category,
@@ -199,7 +198,7 @@ class WXR_Parser_XML {
 			'base_url' => $this->base_url,
 			'base_blog_url' => $this->base_blog_url,
 			'version' => $this->wxr_version,
-		];
+		);
 	}
 
 	private function tag_open( $tag, $attr ) {
@@ -335,7 +334,7 @@ class WXR_Parser_XML {
 				if ( $this->in_sub_tag ) {
 					$this->sub_data[ $this->in_sub_tag ] = $this->cdata;
 					$this->in_sub_tag = false;
-				} elseif ( $this->in_tag ) {
+				} else if ( $this->in_tag ) {
 					$this->data[ $this->in_tag ] = $this->cdata;
 					$this->in_tag = false;
 				}

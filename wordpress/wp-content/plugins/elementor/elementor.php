@@ -1,13 +1,12 @@
 <?php
 /**
  * Plugin Name: Elementor
- * Description: The Elementor Website Builder has it all: drag and drop page builder, Atomic Editor, pixel perfect design, global and reusable style systems, mobile responsive editing, and more. Get started now!
+ * Description: The Elementor Website Builder has it all: drag and drop page builder, pixel perfect design, mobile responsive editing, and more. Get started now!
  * Plugin URI: https://elementor.com/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash
- * Version: 4.4.1
  * Author: Elementor.com
+ * Version: 3.6.2
  * Author URI: https://elementor.com/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash
- * Requires PHP: 7.4
- * Requires at least: 6.8
+ *
  * Text Domain: elementor
  *
  * @package Elementor
@@ -28,8 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'ELEMENTOR_VERSION', '4.4.1' );
-define( 'ELEMENTOR_MINIMUM_WP_VERSION', '6.8' );
+define( 'ELEMENTOR_VERSION', '3.6.2' );
+define( 'ELEMENTOR_PREVIOUS_STABLE_VERSION', '3.1.4' );
 
 define( 'ELEMENTOR__FILE__', __FILE__ );
 define( 'ELEMENTOR_PLUGIN_BASE', plugin_basename( ELEMENTOR__FILE__ ) );
@@ -45,34 +44,27 @@ define( 'ELEMENTOR_MODULES_PATH', plugin_dir_path( ELEMENTOR__FILE__ ) . '/modul
 define( 'ELEMENTOR_ASSETS_PATH', ELEMENTOR_PATH . 'assets/' );
 define( 'ELEMENTOR_ASSETS_URL', ELEMENTOR_URL . 'assets/' );
 
-if ( ! defined( 'ELEMENTOR_EDITOR_EVENTS_MIXPANEL_TOKEN' ) ) {
-	define( 'ELEMENTOR_EDITOR_EVENTS_MIXPANEL_TOKEN', '150605b3b9f979922f2ac5a52e2dcfe9' );
-}
+add_action( 'plugins_loaded', 'elementor_load_plugin_textdomain' );
 
-if ( file_exists( ELEMENTOR_PATH . 'vendor/autoload_packages.php' ) ) {
-	require_once ELEMENTOR_PATH . 'vendor/autoload_packages.php';
-} elseif ( file_exists( ELEMENTOR_PATH . 'vendor/autoload.php' ) ) {
-	require_once ELEMENTOR_PATH . 'vendor/autoload.php';
-	// We need this file because of the DI\create function that we are using.
-	// Autoload classmap doesn't include this file.
-}
-
-$deprecation_func_file = ELEMENTOR_PATH . 'vendor_prefixed/twig/symfony/deprecation-contracts/function.php';
-if ( file_exists( $deprecation_func_file ) ) {
-	require_once $deprecation_func_file;
-	if ( ! function_exists( 'trigger_deprecation' ) ) {
-		function trigger_deprecation( string $package, string $version, string $message, ...$args ): void {
-			\ElementorDeps\trigger_deprecation( $package, $version, $message, ...$args );
-		}
-	}
-}
-
-if ( ! version_compare( PHP_VERSION, '7.4', '>=' ) ) {
+if ( ! version_compare( PHP_VERSION, '5.6', '>=' ) ) {
 	add_action( 'admin_notices', 'elementor_fail_php_version' );
-} elseif ( ! version_compare( get_bloginfo( 'version' ), ELEMENTOR_MINIMUM_WP_VERSION, '>=' ) ) {
+} elseif ( ! version_compare( get_bloginfo( 'version' ), '5.2', '>=' ) ) {
 	add_action( 'admin_notices', 'elementor_fail_wp_version' );
 } else {
 	require ELEMENTOR_PATH . 'includes/plugin.php';
+}
+
+/**
+ * Load Elementor textdomain.
+ *
+ * Load gettext translate for Elementor text domain.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function elementor_load_plugin_textdomain() {
+	load_plugin_textdomain( 'elementor' );
 }
 
 /**
@@ -85,17 +77,9 @@ if ( ! version_compare( PHP_VERSION, '7.4', '>=' ) ) {
  * @return void
  */
 function elementor_fail_php_version() {
-	$html_message = sprintf(
-		'<div class="error"><h3>%1$s</h3><p>%2$s <a href="https://go.elementor.com/wp-dash-update-php/" target="_blank">%3$s</a></p></div>',
-		esc_html__( 'Elementor isn’t running because PHP is outdated.', 'elementor' ),
-		sprintf(
-			/* translators: %s: PHP version. */
-			esc_html__( 'Update to version %s and get back to creating!', 'elementor' ),
-			'7.4'
-		),
-		esc_html__( 'Show me how', 'elementor' )
-	);
-
+	/* translators: %s: PHP version. */
+	$message = sprintf( esc_html__( 'Elementor requires PHP version %s+, plugin is currently NOT RUNNING.', 'elementor' ), '5.6' );
+	$html_message = sprintf( '<div class="error">%s</div>', wpautop( $message ) );
 	echo wp_kses_post( $html_message );
 }
 
@@ -109,16 +93,8 @@ function elementor_fail_php_version() {
  * @return void
  */
 function elementor_fail_wp_version() {
-	$html_message = sprintf(
-		'<div class="error"><h3>%1$s</h3><p>%2$s <a href="https://go.elementor.com/wp-dash-update-wordpress/" target="_blank">%3$s</a></p></div>',
-		esc_html__( 'Elementor isn’t running because WordPress is outdated.', 'elementor' ),
-		sprintf(
-			/* translators: %s: WordPress version. */
-			esc_html__( 'Update to version %s and get back to creating!', 'elementor' ),
-			ELEMENTOR_MINIMUM_WP_VERSION
-		),
-		esc_html__( 'Show me how', 'elementor' )
-	);
-
+	/* translators: %s: WordPress version. */
+	$message = sprintf( esc_html__( 'Elementor requires WordPress version %s+. Because you are using an earlier version, the plugin is currently NOT RUNNING.', 'elementor' ), '5.2' );
+	$html_message = sprintf( '<div class="error">%s</div>', wpautop( $message ) );
 	echo wp_kses_post( $html_message );
 }

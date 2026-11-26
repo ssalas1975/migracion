@@ -28,6 +28,7 @@ $options = array(
 					'h4' => esc_html__( 'h4', 'jevelin' ),
 					'h5' => esc_html__( 'h5', 'jevelin' ),
 					'h6' => esc_html__( 'h6', 'jevelin' ),
+					'span' => esc_html__( 'span', 'jevelin' ),
 				),
 				'value'	  => 'h2',
 			),
@@ -56,16 +57,49 @@ $options = array(
 				'desc'  => esc_html__( 'Select text hover color', 'jevelin' ),
 			),
 
-			'margin'   => array(
-				'label' => esc_html__( 'Margin', 'jevelin' ),
-				'desc'  => wp_kses( __( 'Enter your custom margin (<b>top right bottom left</b>)', 'jevelin' ), jevelin_allowed_html() ),
+			'hover_element' => array(
+	            'label'   => esc_html__('Hover Element', 'jevelin'),
+	            'desc'    => esc_html__('Choose hover element', 'jevelin'),
+				'help'  => esc_html__( 'This element will start hover animation', 'jevelin' ),
+	            'type'    => 'select',
+	            'choices' => array(
+	                'heading' => esc_html__('Heading', 'jevelin'),
+	                'column' => esc_html__('Column', 'jevelin'),
+	                'section' => esc_html__('Section', 'jevelin'),
+	            ),
+	            'value' => 'heading'
+	        ),
+
+		),
+	),
+
+
+	'likn_options' => array(
+		'title'   => esc_html__( 'Link', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'link'   => array(
+				'label' => esc_html__( 'Link', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter heading link', 'jevelin' ), jevelin_allowed_html() ),
 				'type'  => 'text',
-				'value' => '0px 0px 15px 0px',
-				'help'  => esc_html__( 'Example: 0px 0px 15px 0px', 'jevelin' ),
+				'value' => '',
+			),
+
+			'link_target'   => array(
+				'label' => esc_html__( 'Link Target', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter heading link', 'jevelin' ), jevelin_allowed_html() ),
+				'type'    => 'select',
+	            'choices' => array(
+	                '_self' => esc_html__('Open in current window', 'jevelin'),
+	                '_blank' => esc_html__('Open in new tab', 'jevelin'),
+	            ),
+	            'value' => '_self',
 			),
 
 		),
 	),
+
 
 	'typography_options' => array(
 		'title'   => esc_html__( 'Typography', 'jevelin' ),
@@ -96,9 +130,11 @@ $options = array(
 					'200' => esc_html__( 'Extra Light', 'jevelin' ),
 					'300' => esc_html__( 'Light', 'jevelin' ),
 					'400' => esc_html__( 'Normal', 'jevelin' ),
+					'500' => esc_html__( 'Medium', 'jevelin' ),
 					'600' => esc_html__( 'Semi-bold', 'jevelin' ),
 					'700' => esc_html__( 'Bold', 'jevelin' ),
-					'900' => esc_html__( 'Extra Bold', 'jevelin' ),
+					'800' => esc_html__( 'Extra Bold', 'jevelin' ),
+					'900' => esc_html__( 'Black', 'jevelin' ),
 				),
 				'value'	  => '700',
 			),
@@ -262,6 +298,23 @@ $options = array(
 			    ),
 			    'label' => esc_html__('Animation Delay', 'jevelin'),
 			    'desc'  => esc_html__('Choose animation delay (seconds', 'jevelin'),
+			),
+
+		),
+	),
+
+	'position_box' => array(
+		'title'   => esc_html__( 'Position', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'inline_element' => jevelin_element_inline_option(),
+			'margin' => jevelin_element_margin_option(),
+
+			'margin_responsive' => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Margin Responsive', 'jevelin' ),
+				'desc'  => esc_html__( 'Here you can set responsive smartphone and tablet margin (top right bottom left). For example: 30px 0px 30px 0px', 'jevelin' ),
 			),
 
 		),

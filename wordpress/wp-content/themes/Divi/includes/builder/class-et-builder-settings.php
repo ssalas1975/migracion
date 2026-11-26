@@ -654,7 +654,7 @@ class ET_Builder_Settings {
 		$color_palette              = implode( '|', et_pb_get_default_color_palette() );
 		$default                    = array( '#000000', '#FFFFFF', '#E02B20', '#E09900', '#EDF000', '#7CDA24', '#0C71C3', '#8300E9' );
 		$et_pb_saved_color_palette  = '' !== $color_palette ? $color_palette : $default;
-		$et_pb_global_color_palette = et_builder_get_all_global_colors( true );
+		$et_pb_global_color_palette = et_get_option( 'et_global_colors' );
 		$is_default[]               = $et_pb_saved_color_palette === $default ? 'et_pb_color_palette' : '';
 
 		$gutter_width            = get_post_meta( $post_id, '_et_pb_gutter_width', true );
@@ -672,16 +672,12 @@ class ET_Builder_Settings {
 		$et_pb_dark_text_color = '' !== $dark_text_color ? $dark_text_color : $default;
 		$is_default[]          = strtolower( $et_pb_dark_text_color ) === $default ? 'et_pb_dark_text_color' : '';
 
-		$content_area_background_color = get_post_meta( $post_id, '_et_pb_content_area_background_color', true );
-
-		$content_area_background_color       = et_builder_is_global_color( $content_area_background_color ) ? et_builder_get_global_color( $content_area_background_color ) : $content_area_background_color;
+		$content_area_background_color       = get_post_meta( $post_id, '_et_pb_content_area_background_color', true );
 		$default                             = et_()->array_get( $fields, array( 'et_pb_content_area_background_color', 'default' ) );
 		$et_pb_content_area_background_color = '' !== $content_area_background_color ? $content_area_background_color : $default;
 		$is_default[]                        = strtolower( $et_pb_content_area_background_color ) === $default ? 'et_pb_content_area_background_color' : '';
 
 		$section_background_color = get_post_meta( $post_id, '_et_pb_section_background_color', true );
-
-		$section_background_color = et_builder_is_global_color( $section_background_color ) ? et_builder_get_global_color( $section_background_color ) : $section_background_color;
 
 		$default                        = et_()->array_get( $fields, array( 'et_pb_section_background_color', 'default' ) );
 		$et_pb_section_background_color = '' !== $section_background_color ? $section_background_color : $default;
@@ -731,7 +727,6 @@ class ET_Builder_Settings {
 			'et_pb_page_z_index'                      => get_post_meta( $post_id, '_et_pb_page_z_index', true ),
 			'global_colors_info'                      => $page_global_colors_info ? $page_global_colors_info : '{}',
 		);
-
 		/**
 		 * Filters Divi Builder page settings values.
 		 *

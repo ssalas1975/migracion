@@ -1,4 +1,4 @@
-@mixin table($spacing: 1em, $use_th_border_top: true) {
+@mixin table($spacing: 1em) {
     --itsec-table-spacing: #{$spacing};
 
     border-spacing: 0;
@@ -6,40 +6,31 @@
     & thead th {
         padding-top: var(--itsec-table-spacing);
         padding-bottom: var(--itsec-table-spacing);
-        color: $kadence-text-color-normal;
+        color: $dark-gray-500;
         text-transform: uppercase;
         font-weight: normal;
-        background: $kadence-surface-tertiary;
-        @if $use_th_border_top {
-            border-top: 1px solid $kadence-border-normal;
-        }
+        border-bottom: 1px solid $light-gray-500;
+        border-top: 1px solid $light-gray-500;
     }
 
-    :where(&) th,
-    :where(&) td {
+    & th,
+    & td {
         text-align: left;
         padding: var(--itsec-table-spacing);
-        border-bottom: 1px solid $kadence-border-normal;
     }
 
-    :where(&) tbody th {
+    & tbody th {
         font-weight: normal;
-    }
-
-    & tbody tr:last-child {
-        > * {
-            border: none;
-        }
     }
 }
 
-@mixin sticky-table($spacing: 1em, $use_th_border_top: true) {
-    @include table($spacing, $use_th_border_top);
+@mixin sticky-table($spacing: 1em) {
+    @include table($spacing);
 
     & thead th {
         position: sticky;
         top: 0;
-        background: $kadence-surface-tertiary;
+        background: white;
     }
 }
 
@@ -65,7 +56,8 @@
 
     padding: .5em 1em;
     background: $alternate;
-    color: $kadence-text-color-normal;
+    color: $primary;
+    border: 1px solid $primary;
     transition: background-color 300ms, color 150ms;
 
     &:hover {

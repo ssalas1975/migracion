@@ -49,8 +49,7 @@ class Helpers {
 				if ( ! $options->has( $lastOption, false ) ) {
 					$error = true;
 					break;
-				}
-
+				};
 				if ( count( $values['newOption'] ) - 1 !== $i ) {
 					$options = $options->$lastOption;
 				}
@@ -109,7 +108,7 @@ class Helpers {
 			'%date%'                   => '#archive_date',
 			'%day%'                    => '#post_day',
 			'%month%'                  => '#post_month',
-			'%monthnum%'               => '#post_month',
+			'%monthnum%'               => '#monthnum',
 			'%year%'                   => '#post_year',
 			'%current_date%'           => '#current_date',
 			'%current_day%'            => '#current_day',
@@ -148,9 +147,9 @@ class Helpers {
 			'%[^%]*_author_lastname%'  => '#author_last_name',
 		];
 
-		if ( preg_match_all( '#%cf_([^%]*)%#', (string) $string, $matches ) && ! empty( $matches[1] ) ) {
+		if ( preg_match_all( '#%cf_([^%]*)%#', $string, $matches ) && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $name ) {
-				if ( preg_match( '#\s#', (string) $name ) ) {
+				if ( preg_match( '#\s#', $name ) ) {
 					$notification = Models\Notification::getNotificationByName( 'v3-migration-custom-field' );
 					if ( ! $notification->notification_name ) {
 						Models\Notification::addNotification( [
@@ -177,9 +176,9 @@ class Helpers {
 			}
 		}
 
-		if ( preg_match_all( '#%tax_([^%]*)%#', (string) $string, $matches ) && ! empty( $matches[1] ) ) {
+		if ( preg_match_all( '#%tax_([^%]*)%#', $string, $matches ) && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $name ) {
-				if ( ! preg_match( '#\s#', (string) $name ) ) {
+				if ( ! preg_match( '#\s#', $name ) ) {
 					$string = aioseo()->helpers->pregReplace( "#%tax_$name%#", "#tax_name-$name", $string );
 				}
 			}
@@ -189,7 +188,7 @@ class Helpers {
 			$string = aioseo()->helpers->pregReplace( "#$macro(?![a-zA-Z0-9_])#im", $tag, $string );
 		}
 
-		$string = preg_replace( '/%([a-f0-9]{2}[^%]*)%/i', '#$1#', (string) $string );
+		$string = preg_replace( '/%([a-f0-9]{2}[^%]*)%/i', '#$1#', $string );
 
 		return $string;
 	}
@@ -223,7 +222,7 @@ class Helpers {
 			$keywords[] = $keyword;
 		}
 
-		return $keywords;
+		return wp_json_encode( $keywords );
 	}
 
 	/**
@@ -235,13 +234,13 @@ class Helpers {
 	 */
 	public static function redoMigration() {
 		aioseo()->core->db->delete( 'options' )
-			->whereLike( 'option_name', 'aioseo_options_internal%', true )
+			->whereRaw( "`option_name` LIKE 'aioseo_options_internal%'" )
 			->run();
 
 		aioseo()->core->cache->delete( 'v3_migration_in_progress_posts' );
 		aioseo()->core->cache->delete( 'v3_migration_in_progress_terms' );
 
-		aioseo()->actionScheduler->unschedule( 'aioseo_migrate_post_meta' );
-		aioseo()->actionScheduler->unschedule( 'aioseo_migrate_term_meta' );
+		aioseo()->helpers->unscheduleAction( 'aioseo_migrate_post_meta' );
+		aioseo()->helpers->unscheduleAction( 'aioseo_migrate_term_meta' );
 	}
 }

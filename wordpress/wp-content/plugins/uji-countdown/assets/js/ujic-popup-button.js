@@ -48,7 +48,7 @@
 							{
 								type: 'listbox',
 								name: 'ujic_style',
-								label: 'Choose Style:',
+								label: 'Select Style:',
 								tooltip: 'Select saved style',
 								values: ujic_styles,
 							},

@@ -24,7 +24,7 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 	 * @since 2.1.0
 	 * @access protected
 	 *
-	 * @var array $fields CSS filter control fields.
+	 * @param array $fields CSS filter control fields.
 	 *
 	 * @return array Processed fields.
 	 */
@@ -59,7 +59,7 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 		$controls = [];
 
 		$controls['blur'] = [
-			'label' => esc_html_x( 'Blur', 'Filter Control', 'elementor' ),
+			'label' => _x( 'Blur', 'Filter Control', 'elementor' ),
 			'type' => Controls_Manager::SLIDER,
 			'required' => 'true',
 			'range' => [
@@ -78,7 +78,7 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 		];
 
 		$controls['brightness'] = [
-			'label' => esc_html_x( 'Brightness', 'Filter Control', 'elementor' ),
+			'label' => _x( 'Brightness', 'Filter Control', 'elementor' ),
 			'type' => Controls_Manager::SLIDER,
 			'render_type' => 'ui',
 			'required' => 'true',
@@ -91,10 +91,11 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 					'max' => 200,
 				],
 			],
+			'separator' => 'none',
 		];
 
 		$controls['contrast'] = [
-			'label' => esc_html_x( 'Contrast', 'Filter Control', 'elementor' ),
+			'label' => _x( 'Contrast', 'Filter Control', 'elementor' ),
 			'type' => Controls_Manager::SLIDER,
 			'render_type' => 'ui',
 			'required' => 'true',
@@ -107,10 +108,11 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 					'max' => 200,
 				],
 			],
+			'separator' => 'none',
 		];
 
 		$controls['saturate'] = [
-			'label' => esc_html_x( 'Saturation', 'Filter Control', 'elementor' ),
+			'label' => _x( 'Saturation', 'Filter Control', 'elementor' ),
 			'type' => Controls_Manager::SLIDER,
 			'render_type' => 'ui',
 			'required' => 'true',
@@ -123,10 +125,11 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 					'max' => 200,
 				],
 			],
+			'separator' => 'none',
 		];
 
 		$controls['hue'] = [
-			'label' => esc_html_x( 'Hue', 'Filter Control', 'elementor' ),
+			'label' => _x( 'Hue', 'Filter Control', 'elementor' ),
 			'type' => Controls_Manager::SLIDER,
 			'render_type' => 'ui',
 			'required' => 'true',
@@ -139,6 +142,7 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 					'max' => 360,
 				],
 			],
+			'separator' => 'none',
 		];
 
 		return $controls;
@@ -159,7 +163,7 @@ class Group_Control_Css_Filter extends Group_Control_Base {
 		return [
 			'popover' => [
 				'starter_name' => 'css_filter',
-				'starter_title' => esc_html__( 'CSS Filters', 'elementor' ),
+				'starter_title' => _x( 'CSS Filters', 'Filter Control', 'elementor' ),
 				'settings' => [
 					'render_type' => 'ui',
 				],

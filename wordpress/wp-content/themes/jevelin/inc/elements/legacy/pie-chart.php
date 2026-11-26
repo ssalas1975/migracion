@@ -2,7 +2,7 @@
 class vcj_pie_chart extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_pie_chart', array( $this, '_html' ) );
     }
 
@@ -106,8 +106,9 @@ class vcj_pie_chart extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/pie-chart/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/pie-chart/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/pie-chart/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/pie-chart/static.php';
         if( function_exists( 'jevelin_shortcode_pie_chart_css' ) ) :
             jevelin_shortcode_pie_chart_css( $atts, $id_rand );
         endif;

@@ -80,4 +80,5 @@ class NS_Cloner_Section_Create_Target extends NS_Cloner_Section {
 			$this->errors[] = $error;
 		}
 	}
+
 }

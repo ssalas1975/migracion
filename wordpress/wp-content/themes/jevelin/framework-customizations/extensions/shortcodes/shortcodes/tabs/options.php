@@ -39,6 +39,7 @@ $options = array(
 					'icon'    => array(
 						'type'  => 'new-icon',
 						'label' => esc_html__('Icon', 'jevelin'),
+						'desc' => esc_html__( 'Enter title', 'jevelin' ),
 						'set' => 'jevelin-icons',
 					),
 

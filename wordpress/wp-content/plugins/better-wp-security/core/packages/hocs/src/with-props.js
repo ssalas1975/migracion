@@ -9,7 +9,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
  *
  * @param {Object} props
  *
- * @return {import('@wordpress/element').Component} Debounced component.
+ * @return {WPComponent} Debounced component.
  */
 export default function withProps( props ) {
 	return createHigherOrderComponent( ( WrappedComponent ) => {

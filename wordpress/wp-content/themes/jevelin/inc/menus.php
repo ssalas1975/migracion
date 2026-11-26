@@ -6,6 +6,9 @@
 // This theme uses wp_nav_menu() in two locations.
 register_nav_menus( array(
 	'header'   => esc_html__( 'Header Navigation', 'jevelin' ),
+	'header-left'   => esc_html__( 'Header Navigation (left side)', 'jevelin' ),
+	'header-right'   => esc_html__( 'Header Navigation (right side)', 'jevelin' ),
+	'topbar'   => esc_html__( 'Top Bar Navigation', 'jevelin' ),
 	//'secondary' => esc_html__( 'Header Secondary Menu', 'jevelin' ),
 ) );
 

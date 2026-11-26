@@ -40,7 +40,7 @@ class CustomTemplatedPathPlugin {
 		compiler.hooks.compilation.tap(
 			'CustomTemplatedPathPlugin',
 			( compilation ) => {
-				compilation.hooks.assetPath.tap(
+				compilation.mainTemplate.hooks.assetPath.tap(
 					'CustomTemplatedPathPlugin',
 					( path, data ) => {
 						for ( let i = 0; i < this.handlers.length; i++ ) {

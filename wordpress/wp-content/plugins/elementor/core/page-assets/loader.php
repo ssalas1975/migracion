@@ -3,12 +3,9 @@ namespace Elementor\Core\Page_Assets;
 
 use Elementor\Core\Base\Module;
 use Elementor\Plugin;
-use Elementor\Control_Animation;
-use Elementor\Control_Exit_Animation;
-use Elementor\Control_Hover_Animation;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit; // Exit if accessed directly
 }
 
 /**
@@ -19,79 +16,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 3.3.0
  */
 class Loader extends Module {
-	private array $assets = [];
+	private $assets;
 
-	public function get_name(): string {
+	public function get_name() {
 		return 'assets-loader';
 	}
 
-	private function init_assets(): void {
-		$assets = [
-			'styles' => $this->init_styles(),
+	private function init_assets() {
+		$this->assets = [
+			'styles' => [
+				'e-animations' => [
+					'src' => $this->get_css_assets_url( 'animations', 'assets/lib/animations/', true ),
+					'version' => ELEMENTOR_VERSION,
+					'dependencies' => [],
+				],
+			],
 			'scripts' => [],
 		];
-
-		$this->assets = $assets;
 	}
 
-	private function init_styles(): array {
-		$styles = [
-			'e-shapes' => [
-				'src' => $this->get_css_assets_url( 'shapes', 'assets/css/conditionals/' ),
-				'version' => ELEMENTOR_VERSION,
-				'dependencies' => [],
-			],
-			'e-swiper' => [
-				'src' => $this->get_css_assets_url( 'e-swiper', 'assets/css/conditionals/' ),
-				'version' => ELEMENTOR_VERSION,
-				'dependencies' => [ 'swiper' ],
-			],
-			'swiper' => [
-				'src' => $this->get_css_assets_url( 'swiper', 'assets/lib/swiper/v8/css/' ),
-				'version' => '8.4.5',
-				'dependencies' => [],
-			],
-		];
-
-		return array_merge( $styles, $this->get_animation_styles() );
-	}
-
-	private function get_animations(): array {
-		$grouped_animations = Control_Animation::get_default_animations();
-		$grouped_animations['hover'] = Control_Hover_Animation::get_default_animations();
-		$exit_animations = Control_Exit_Animation::get_default_animations();
-
-		$grouped_animations = array_merge( $grouped_animations, $exit_animations );
-
-		$animations = [];
-
-		foreach ( $grouped_animations as $group_label => $group ) {
-			foreach ( $group as $animation_key => $animation_label ) {
-				$animations[ $animation_key ] = $group_label;
-			}
-		}
-
-		return $animations;
-	}
-
-	private function get_animation_styles(): array {
-		$animations = $this->get_animations();
-		$styles = [];
-
-		foreach ( $animations as $animation => $group_label ) {
-			$style_prefix = 'hover' === $group_label ? 'e-animation-' : '';
-
-			$styles[ 'e-animation-' . $animation ] = [
-				'src' => $this->get_css_assets_url( $style_prefix . $animation, 'assets/lib/animations/styles/' ),
-				'version' => ELEMENTOR_VERSION,
-				'dependencies' => [],
-			];
-		}
-
-		return $styles;
-	}
-
-	public function get_assets(): array {
+	public function get_assets() {
 		if ( ! $this->assets ) {
 			$this->init_assets();
 		}
@@ -100,12 +44,12 @@ class Loader extends Module {
 	}
 
 	/**
-	 * @param array $assets_data {
+	 * @param array $assets {
 	 *     @type array 'styles'
 	 *     @type array 'scripts'
 	 * }
 	 */
-	public function enable_assets( array $assets_data ): void {
+	public function enable_assets( array $assets_data ) {
 		if ( ! $this->assets ) {
 			$this->init_assets();
 		}
@@ -113,12 +57,6 @@ class Loader extends Module {
 		foreach ( $assets_data as $assets_type => $assets_list ) {
 			foreach ( $assets_list as $asset_name ) {
 				$this->assets[ $assets_type ][ $asset_name ]['enabled'] = true;
-
-				if ( 'scripts' === $assets_type ) {
-					wp_enqueue_script( $asset_name );
-				} else {
-					wp_enqueue_style( $asset_name );
-				}
 			}
 		}
 	}
@@ -129,7 +67,7 @@ class Loader extends Module {
 	 *     @type array 'scripts'
 	 * }
 	 */
-	public function add_assets( array $assets ): void {
+	public function add_assets( array $assets ) {
 		if ( ! $this->assets ) {
 			$this->init_assets();
 		}
@@ -137,20 +75,14 @@ class Loader extends Module {
 		$this->assets = array_replace_recursive( $this->assets, $assets );
 	}
 
-	/**
-	 * @deprecated 3.22.0
-	 */
-	public function enqueue_assets(): void {
+	public function enqueue_assets() {
 		$assets = $this->get_assets();
 		$is_preview_mode = Plugin::$instance->preview->is_preview_mode();
+		$is_optimized_assets_loading = Plugin::$instance->experiments->is_feature_active( 'e_optimized_assets_loading' );
 
 		foreach ( $assets as $assets_type => $assets_type_data ) {
 			foreach ( $assets_type_data as $asset_name => $asset_data ) {
-				if ( empty( $asset_data['src'] ) ) {
-					continue;
-				}
-
-				if ( ! empty( $asset_data['enabled'] ) || $is_preview_mode ) {
+				if ( ! empty( $asset_data['enabled'] ) || $is_preview_mode || ! $is_optimized_assets_loading ) {
 					if ( 'scripts' === $assets_type ) {
 						wp_enqueue_script( $asset_name, $asset_data['src'], $asset_data['dependencies'], $asset_data['version'], true );
 					} else {
@@ -161,7 +93,7 @@ class Loader extends Module {
 		}
 	}
 
-	private function register_assets(): void {
+	private function register_assets() {
 		$assets = $this->get_assets();
 
 		foreach ( $assets as $assets_type => $assets_type_data ) {

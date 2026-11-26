@@ -2,7 +2,7 @@
 class vcj_woocommerce_recent_products_ajax extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_woocommerce_recent_products_ajax', array( $this, '_html' ) );
     }
 
@@ -76,8 +76,9 @@ class vcj_woocommerce_recent_products_ajax extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-recent-products-ajax/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-recent-products-ajax/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-recent-products-ajax/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/woocommerce-recent-products-ajax/static.php';
         if( function_exists( 'jevelin_shortcode_woocommerce_recent_products_ajax_css' ) ) :
             jevelin_shortcode_woocommerce_recent_products_ajax_css( $atts, $id_rand );
         endif;

@@ -1,7 +1,5 @@
 <?php
 
-use iThemesSecurity\Dashboard\REST\Events_Controller;
-
 /**
  * Class ITSEC_Dashboard_REST
  */
@@ -18,6 +16,16 @@ class ITSEC_Dashboard_REST {
 	 * Register dashboard REST routes.
 	 */
 	public function register_routes() {
+		require_once( dirname( __FILE__ ) . '/class-itsec-dashboard-util.php' );
+		require_once( dirname( __FILE__ ) . '/rest/abstract-itsec-rest-dashboard-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-dashboards-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-cards-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-card-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-unknown-card-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-available-cards-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-layout-controller.php' );
+		require_once( dirname( __FILE__ ) . '/rest/class-itsec-rest-dashboard-static-controller.php' );
+
 		$available = new ITSEC_REST_Dashboard_Available_Cards_Controller();
 		$available->register_routes();
 
@@ -32,9 +40,6 @@ class ITSEC_Dashboard_REST {
 
 		$static = new ITSEC_REST_Dashboard_Static_Controller();
 		$static->register_routes();
-
-		$events = new Events_Controller();
-		$events->register_routes();
 	}
 
 	/**

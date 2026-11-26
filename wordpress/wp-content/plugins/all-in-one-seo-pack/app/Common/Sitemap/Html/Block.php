@@ -11,16 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.1.3
  */
-class Block {
-	/**
-	 * Class constructor.
-	 *
-	 * @since 4.1.1
-	 */
-	public function __construct() {
-		add_action( 'init', [ $this, 'register' ] );
-	}
-
+class Block extends \AIOSEO\Plugin\Common\Utils\Blocks {
 	/**
 	 * Registers the block.
 	 *
@@ -29,8 +20,8 @@ class Block {
 	 * @return void
 	 */
 	public function register() {
-		aioseo()->blocks->registerBlock(
-			'html-sitemap', [
+		register_block_type(
+			'aioseo/html-sitemap', [
 				'attributes'      => [
 					'default'          => [
 						'type'    => 'boolean',
@@ -89,7 +80,8 @@ class Block {
 						'default' => false
 					]
 				],
-				'render_callback' => [ $this, 'render' ]
+				'render_callback' => [ $this, 'render' ],
+				'editor_style'    => 'aioseo-html-sitemap'
 			]
 		);
 	}
@@ -126,13 +118,7 @@ class Block {
 
 		$attributes = aioseo()->htmlSitemap->frontend->getAttributes( $attributes );
 
-		$sitemap = aioseo()->htmlSitemap->frontend->output( false, $attributes );
-		if ( empty( $sitemap ) ) {
-			return $sitemap;
-		}
-
-		// The editor wraps the rendered block in this class, so we need to mirror it on the frontend.
-		return '<div class="' . esc_attr( aioseo()->blocks->getBlockDefaultClassName( 'html-sitemap' ) ) . '">' . $sitemap . '</div>';
+		return aioseo()->htmlSitemap->frontend->output( false, $attributes );
 	}
 
 	/**

@@ -34,11 +34,6 @@ class Heartbeat {
 	public function heartbeat_received( $response, $data ) {
 		if ( isset( $data['elementor_post_lock']['post_ID'] ) ) {
 			$post_id = $data['elementor_post_lock']['post_ID'];
-
-			if ( ! current_user_can( 'edit_post', $post_id ) ) {
-				return $response;
-			}
-
 			$locked_user = Plugin::$instance->editor->get_locked_user( $post_id );
 
 			if ( ! $locked_user || ! empty( $data['elementor_force_post_lock'] ) ) {
@@ -47,27 +42,11 @@ class Heartbeat {
 				$response['locked_user'] = $locked_user->display_name;
 			}
 
-			if ( array_key_exists( 'elementor_has_unsaved', $data ) ) {
-				do_action( 'elementor/heartbeat/unsaved_signal', $post_id, $data['elementor_has_unsaved'] );
-			}
-
-			if ( array_key_exists( 'elementor_has_unpersisted', $data ) ) {
-				do_action( 'elementor/heartbeat/unpersisted_signal', $post_id, $data['elementor_has_unpersisted'] );
-			}
-
-			$mutation_marker = apply_filters( 'elementor/heartbeat/mutation_marker', null, $post_id );
-			if ( $mutation_marker ) {
-				$response['elementor_mcp_mutation'] = $mutation_marker;
-			}
-
-			$response['elementor_server_time'] = time();
-
 			/** @var Core\Common\Modules\Ajax\Module $ajax */
 			$ajax = Plugin::$instance->common->get_component( 'ajax' );
 
 			$response['elementorNonce'] = $ajax->create_nonce();
 		}
-
 		return $response;
 	}
 
@@ -91,10 +70,6 @@ class Heartbeat {
 	 */
 	public function refresh_nonces( $response, $data ) {
 		if ( isset( $data['elementor_post_lock']['post_ID'] ) ) {
-			if ( ! current_user_can( 'edit_post', $data['elementor_post_lock']['post_ID'] ) ) {
-				return $response;
-			}
-
 			/** @var Core\Common\Modules\Ajax\Module $ajax */
 			$ajax = Plugin::$instance->common->get_component( 'ajax' );
 

@@ -13,7 +13,7 @@ $url = jevelin_post_option( get_the_ID(), 'post-url' );
 if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
@@ -50,10 +50,10 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 
 <?php
 	/* Layout for Masonry version 2 */
-	elseif( $style == 'masonry masonry2' ) :
+	elseif( $style == 'masonry masonry2' || $style == 'grid masonry2' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
@@ -90,7 +90,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif( $style == 'grid' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
@@ -112,7 +112,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 			</div>
 
 			<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-				<h2><?php the_title(); ?></h2>
+				<h2 itemprop="headline"><?php the_title(); ?></h2>
 			</a>
 
 			<div class="post-meta post-meta-one">
@@ -120,7 +120,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 			</div>
 
 			<?php if( get_the_excerpt() ) : ?>
-				<div class="post-content">
+				<div class="post-content" itemprop="text">
 					<?php the_excerpt(); ?>
 				</div>
 			<?php endif; ?>
@@ -139,7 +139,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 ?>
 
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container">
 
 			<div class="row">
@@ -162,7 +162,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 							</div>
 
 							<a href="<?php echo esc_url( $url ); ?>" class="post-title">
-								<h2>
+								<h2 itemprop="headline">
 									<?php if( jevelin_post_option( get_the_ID(), 'post-url-title' ) ) :
 										echo jevelin_post_option( get_the_ID(), 'post-url-title' );
 									else :
@@ -172,7 +172,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 							</a>
 
 							<?php if( $url ) : ?>
-								<div class="post-content">
+								<div class="post-content" itemprop="text">
 									<?php echo esc_url( $url ); ?>
 								</div>
 							<?php endif; ?>
@@ -195,7 +195,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 	elseif( $style == 'medium' || $style == 'small' ) :
 ?>
 
-	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
+	<article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?> <?php Jevelin_Schema::blog(); ?>>
 		<div class="post-container sh-group">
 			<?php jevelin_popover( jevelin_post_option( get_the_ID(), 'post-popover' ) ); ?>
 
@@ -219,7 +219,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 			<div class="post-right-side">
 
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
-					<h2><?php the_title(); ?></h2>
+					<h2 itemprop="headline"><?php the_title(); ?></h2>
 				</a>
 
 				<div class="post-meta post-meta-one">
@@ -227,7 +227,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 				</div>
 
 				<?php if( get_the_excerpt() ) : ?>
-					<div class="post-content">
+					<div class="post-content" itemprop="text">
 						<?php the_excerpt(); ?>
 					</div>
 				<?php endif; ?>
@@ -276,11 +276,17 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 			<?php endif; ?>
 
 			<?php if( is_single() ) : ?>
+				<?php if( jevelin_post_option( get_the_ID(), 'post-copyrights' ) ) : ?>
+					<div class="post-copyrights">
+						<?php echo ( jevelin_post_option( get_the_ID(), 'post-copyrights' ) ); ?>
+					</div>
+				<?php endif; ?>
+
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-title">
 					<?php if( !is_single() ) : ?>
-						<h2><?php the_title(); ?></h2>
+						<h2 itemprop="headline"><?php the_title(); ?></h2>
 					<?php else : ?>
-						<h1><?php the_title(); ?></h1>
+						<h1 itemprop="headline"><?php the_title(); ?></h1>
 					<?php endif; ?>
 				</a>
 
@@ -294,7 +300,7 @@ if ( $style == 'masonry' || $style == 'masonry masonry-shadow' ) :
 				</div>
 
 				<?php if( get_the_excerpt() || the_content() ) : ?>
-					<div class="post-content">
+					<div class="post-content" itemprop="text">
 						<?php
 							if( !is_single() ) :
 								the_excerpt();

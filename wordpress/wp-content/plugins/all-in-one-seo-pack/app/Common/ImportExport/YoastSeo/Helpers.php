@@ -29,7 +29,7 @@ class Helpers extends ImportExport\Helpers {
 	public function macrosToSmartTags( $string, $postType = null, $pageType = null ) {
 		$macros = $this->getMacros( $postType, $pageType );
 
-		if ( preg_match( '#%%BLOGDESCLINK%%#', (string) $string ) ) {
+		if ( preg_match( '#%%BLOGDESCLINK%%#', $string ) ) {
 			$blogDescriptionLink = '<a href="' .
 				aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'url' ) ) . '">' .
 				aioseo()->helpers->decodeHtmlEntities( get_bloginfo( 'name' ) ) . ' - ' .
@@ -38,17 +38,17 @@ class Helpers extends ImportExport\Helpers {
 			$string = str_replace( '%%BLOGDESCLINK%%', $blogDescriptionLink, $string );
 		}
 
-		if ( preg_match_all( '#%%cf_([^%]*)%%#', (string) $string, $matches ) && ! empty( $matches[1] ) ) {
+		if ( preg_match_all( '#%%cf_([^%]*)%%#', $string, $matches ) && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $name ) {
-				if ( ! preg_match( '#\s#', (string) $name ) ) {
+				if ( ! preg_match( '#\s#', $name ) ) {
 					$string = aioseo()->helpers->pregReplace( "#%%cf_$name%%#", "#custom_field-$name", $string );
 				}
 			}
 		}
 
-		if ( preg_match_all( '#%%tax_([^%]*)%%#', (string) $string, $matches ) && ! empty( $matches[1] ) ) {
+		if ( preg_match_all( '#%%tax_([^%]*)%%#', $string, $matches ) && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $name ) {
-				if ( ! preg_match( '#\s#', (string) $name ) ) {
+				if ( ! preg_match( '#\s#', $name ) ) {
 					$string = aioseo()->helpers->pregReplace( "#%%tax_$name%%#", "#tax_name-$name", $string );
 				}
 			}
@@ -62,27 +62,6 @@ class Helpers extends ImportExport\Helpers {
 		$string = aioseo()->helpers->pregReplace( '/%[^\%\s]*\([^\%]*\)%/i', '', aioseo()->helpers->pregReplace( '/%[^\%\s]*%/i', '', $string ) );
 
 		return trim( $string );
-	}
-
-	/**
-	 * Returns a Yoast option value as a usable string, or null if the value isn't string-coercible.
-	 * NOTE: Old or corrupted installs can store unexpected types that emit warnings when coerced via PHP string functions.
-	 *
-	 * @since 5.0.5
-	 *
-	 * @param  mixed       $value The raw Yoast option value.
-	 * @return string|null        The value as a string, or null if not string-coercible.
-	 */
-	public function sanitizeStringValue( $value ) {
-		if ( is_string( $value ) ) {
-			return $value;
-		}
-
-		if ( is_int( $value ) || is_float( $value ) ) {
-			return (string) $value;
-		}
-
-		return null;
 	}
 
 	/**

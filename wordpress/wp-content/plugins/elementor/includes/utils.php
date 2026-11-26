@@ -1,8 +1,6 @@
 <?php
 namespace Elementor;
 
-use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
-use Elementor\Core\Files\Fonts\Google_Font;
 use Elementor\Core\Utils\Collection;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,26 +21,14 @@ class Utils {
 
 	const EDITOR_BREAK_LINES_OPTION_KEY = 'elementor_editor_break_lines';
 
-	const CUSTOM_ATTRIBUTE_NAME_PATTERN = '/^[a-zA-Z0-9_-]+$/D';
-
-	const CUSTOM_ATTRIBUTE_PAIR_PATTERN = '/([a-zA-Z0-9_-]+)\s*=\s*(["\'])(.*?)\2/s';
-
-	const EVENT_HANDLER_ATTRIBUTE_NAME_PATTERN = '/^on[a-z]*$/iD';
-	const BLOCKED_CUSTOM_ATTRIBUTE_NAME_PREFIXES = [ 'x-' ];
-
-	const URL_CUSTOM_ATTRIBUTE_NAMES = [ 'action', 'formaction', 'href', 'src' ];
-
-	const HTML_CUSTOM_ATTRIBUTE_NAMES = [ 'srcdoc' ];
-
 	/**
-	 * A list of safe tags for `validate_html_tag` method.
+	 * A list of safe tage for `validate_html_tag` method.
 	 */
 	const ALLOWED_HTML_WRAPPER_TAGS = [
 		'a',
 		'article',
 		'aside',
 		'button',
-		'form',
 		'div',
 		'footer',
 		'h1',
@@ -57,27 +43,6 @@ class Utils {
 		'p',
 		'section',
 		'span',
-	];
-
-	/**
-	 * Tags that must never be usable as an HTML wrapper tag, regardless of what
-	 * `elementor/allowed_html_wrapper_tags` filters return. These are the classic
-	 * script-execution / markup-injection vectors (XSS), so they're enforced as a
-	 * hard denylist rather than left to filter authors to avoid re-adding them.
-	 */
-	const FORBIDDEN_HTML_WRAPPER_TAGS = [
-		'script',
-		'iframe',
-		'object',
-		'embed',
-		'style',
-		'link',
-		'meta',
-		'base',
-		'noscript',
-		'template',
-		'svg',
-		'math',
 	];
 
 	const EXTENDED_ALLOWED_HTML_TAGS = [
@@ -126,24 +91,7 @@ class Utils {
 	];
 
 	/**
-	 * Variables for free to pro upsale modal promotions
-	 */
-
-	const ANIMATED_HEADLINE = 'animated_headline';
-
-	const CTA = 'cta';
-
-	const VIDEO_PLAYLIST = 'video_playlist';
-
-	const TESTIMONIAL_WIDGET = 'testimonial_widget';
-
-	const IMAGE_CAROUSEL = 'image_carousel';
-
-	/**
-	 * Whether WordPress CLI mode is enabled or not.
-	 *
-	 * @access public
-	 * @static
+	 * Is WP CLI.
 	 *
 	 * @return bool
 	 */
@@ -152,40 +100,18 @@ class Utils {
 	}
 
 	/**
+	 * Is script debug.
+	 *
 	 * Whether script debug is enabled or not.
 	 *
 	 * @since 1.0.0
 	 * @access public
 	 * @static
 	 *
-	 * @return bool
+	 * @return bool True if it's a script debug is active, false otherwise.
 	 */
 	public static function is_script_debug() {
 		return defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-	}
-
-	/**
-	 * Whether Elementor debug is enabled or not.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool
-	 */
-	public static function is_elementor_debug() {
-		return defined( 'ELEMENTOR_DEBUG' ) && ELEMENTOR_DEBUG;
-	}
-
-	/**
-	 * Whether Elementor test mode is enabled or not.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool
-	 */
-	public static function is_elementor_tests() {
-		return defined( 'ELEMENTOR_TESTS' ) && ELEMENTOR_TESTS;
 	}
 
 	/**
@@ -229,63 +155,46 @@ class Utils {
 	 * @static
 	 * @access public
 	 *
-	 * @param string $from
-	 * @param string $to
+	 * @param $from
+	 * @param $to
 	 *
 	 * @return string
-	 * @throws \Exception If URLs are missing or invalid URLs provided.
+	 * @throws \Exception
 	 */
 	public static function replace_urls( $from, $to ) {
 		$from = trim( $from );
 		$to = trim( $to );
 
-		if ( empty( $from ) ) {
-			throw new \Exception( 'Couldn’t replace your address because the old URL was not provided. Try again by entering the old URL.' );
-		}
-
-		if ( empty( $to ) ) {
-			throw new \Exception( 'Couldn’t replace your address because the new URL was not provided. Try again by entering the new URL.' );
-		}
-
 		if ( $from === $to ) {
-			throw new \Exception( 'Couldn’t replace your address because both of the URLs provided are identical. Try again by entering different URLs.' );
+			throw new \Exception( esc_html__( 'The `from` and `to` URL\'s must be different', 'elementor' ) );
 		}
 
 		$is_valid_urls = ( filter_var( $from, FILTER_VALIDATE_URL ) && filter_var( $to, FILTER_VALIDATE_URL ) );
-
 		if ( ! $is_valid_urls ) {
-			throw new \Exception( 'Couldn’t replace your address because at least one of the URLs provided are invalid. Try again by entering valid URLs.' );
+			throw new \Exception( esc_html__( 'The `from` and `to` URL\'s must be valid URL\'s', 'elementor' ) );
 		}
 
 		global $wpdb;
-		$escaped_from = str_replace( '/', '\\/', $from );
-		$escaped_to = str_replace( '/', '\\/', $to );
-		$meta_value_like = '[%'; // meta_value LIKE '[%' are json formatted
 
+		// @codingStandardsIgnoreStart cannot use `$wpdb->prepare` because it remove's the backslashes
 		$rows_affected = $wpdb->query(
-			$wpdb->prepare(
-				"UPDATE {$wpdb->postmeta} " .
-				'SET `meta_value` = REPLACE(`meta_value`, %s, %s) ' .
-				"WHERE `meta_key` = '_elementor_data' AND `meta_value` LIKE %s;",
-				$escaped_from,
-				$escaped_to,
-				$meta_value_like
-			)
-		);
+			"UPDATE {$wpdb->postmeta} " .
+			"SET `meta_value` = REPLACE(`meta_value`, '" . str_replace( '/', '\\\/', $from ) . "', '" . str_replace( '/', '\\\/', $to ) . "') " .
+			"WHERE `meta_key` = '_elementor_data' AND `meta_value` LIKE '[%' ;" ); // meta_value LIKE '[%' are json formatted
+		// @codingStandardsIgnoreEnd
 
 		if ( false === $rows_affected ) {
-			throw new \Exception( 'An error occurred while replacing URL\'s.' );
+			throw new \Exception( esc_html__( 'An error occurred', 'elementor' ) );
 		}
 
 		// Allow externals to replace-urls, when they have to.
 		$rows_affected += (int) apply_filters( 'elementor/tools/replace-urls', 0, $from, $to );
 
 		Plugin::$instance->files_manager->clear_cache();
-		Google_Font::clear_cache();
 
 		return sprintf(
 			/* translators: %d: Number of rows. */
-			_n( '%d database row affected.', '%d database rows affected.', $rows_affected, 'elementor' ),
+			_n( '%d row affected.', '%d rows affected.', $rows_affected, 'elementor' ),
 			$rows_affected
 		);
 	}
@@ -314,7 +223,7 @@ class Utils {
 		 * Filters whether the post type supports editing with Elementor.
 		 *
 		 * @since 1.0.0
-		 * @deprecated 2.2.0 Use `elementor/utils/is_post_support` hook Instead.
+		 * @deprecated 2.2.0 Use `elementor/utils/is_post_support` Instead
 		 *
 		 * @param bool $is_supported Whether the post type supports editing with Elementor.
 		 * @param int $post_id Post ID.
@@ -433,8 +342,8 @@ class Utils {
 			define( 'DONOTCDN', true );
 		}
 
-		if ( ! defined( 'DONOTCACHEOBJECT' ) ) {
-			define( 'DONOTCACHEOBJECT', true );
+		if ( ! defined( 'DONOTCACHCEOBJECT' ) ) {
+			define( 'DONOTCACHCEOBJECT', true );
 		}
 
 		// Set the headers to prevent caching for the different browsers.
@@ -475,10 +384,10 @@ class Utils {
 	 *
 	 * @since 1.9.0
 	 * @access public
-	 * @deprecated 3.3.0 Use `Plugin::$instance->documents->get_create_new_post_url()` instead.
+	 * @deprecated 3.3.0
 	 * @static
 	 *
-	 * @param string      $post_type Optional. Post type slug. Default is 'page'.
+	 * @param string $post_type Optional. Post type slug. Default is 'page'.
 	 * @param string|null $template_type Optional. Query arg 'template_type'. Default is null.
 	 *
 	 * @return string A URL for creating new post using Elementor.
@@ -547,12 +456,12 @@ class Utils {
 	 * @access public
 	 * @static
 	 */
-	public static function array_inject( $base_array, $key, $insert ) {
-		$length = array_search( $key, array_keys( $base_array ), true ) + 1;
+	public static function array_inject( $array, $key, $insert ) {
+		$length = array_search( $key, array_keys( $array ), true ) + 1;
 
-		return array_slice( $base_array, 0, $length, true ) +
+		return array_slice( $array, 0, $length, true ) +
 			$insert +
-			array_slice( $base_array, $length, null, true );
+			array_slice( $array, $length, null, true );
 	}
 
 	/**
@@ -598,7 +507,7 @@ class Utils {
 		 *
 		 * Filters the meta tag containing the viewport information.
 		 *
-		 * This hook can be used to change the initial viewport meta tag set by Elementor
+		 * This hook can be used to change the intial viewport meta tag set by Elementor
 		 * and replace it with a different viewport tag.
 		 *
 		 * @since 2.5.0
@@ -615,10 +524,9 @@ class Utils {
 	 * Add Elementor Config js vars to the relevant script handle,
 	 * WP will wrap it with <script> tag.
 	 * To make sure this script runs thru the `script_loader_tag` hook, use a known handle value.
-	 *
 	 * @param string $handle
 	 * @param string $js_var
-	 * @param mixed  $config
+	 * @param mixed $config
 	 */
 	public static function print_js_config( $handle, $js_var, $config ) {
 		$config = wp_json_encode( $config );
@@ -650,7 +558,7 @@ class Utils {
 	/**
 	 * Checks a control value for being empty, including a string of '0' not covered by PHP's empty().
 	 *
-	 * @param mixed       $source
+	 * @param mixed $source
 	 * @param bool|string $key
 	 *
 	 * @return bool
@@ -671,52 +579,13 @@ class Utils {
 		return defined( 'ELEMENTOR_PRO_VERSION' );
 	}
 
-	public static function is_license_active(): bool {
-		return class_exists( '\ElementorPro\License\API' ) && \ElementorPro\License\API::is_license_active();
-	}
-
-	public static function is_license_expired(): bool {
-		return class_exists( '\ElementorPro\License\API' ) && \ElementorPro\License\API::is_license_expired();
-	}
-
-	public static function get_license_access_tier(): string {
-		if ( ! self::is_license_active() ) {
-			return ConnectModule::ACCESS_TIER_FREE;
-		}
-
-		return (string) \ElementorPro\License\API::get_access_tier();
-	}
-
-	public static function is_pro_installed_and_not_active(): bool {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		$file_path = self::get_elementor_pro_file_path();
-		$installed_plugins = get_plugins();
-
-		if ( ! isset( $installed_plugins[ $file_path ] ) ) {
-			return false;
-		}
-
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		return ! is_plugin_active( $file_path );
-	}
-
-	private static function get_elementor_pro_file_path(): string {
-		return 'elementor-pro/elementor-pro.php';
-	}
-
 	/**
 	 * Convert HTMLEntities to UTF-8 characters
 	 *
-	 * @param string $html_string
+	 * @param $string
 	 * @return string
 	 */
-	public static function urlencode_html_entities( $html_string ) {
+	public static function urlencode_html_entities( $string ) {
 		$entities_dictionary = [
 			'&#145;' => "'", // Opening single quote
 			'&#146;' => "'", // Closing single quote
@@ -731,9 +600,9 @@ class Utils {
 		];
 
 		// Decode decimal entities
-		$html_string = str_replace( array_keys( $entities_dictionary ), array_values( $entities_dictionary ), $html_string );
+		$string = str_replace( array_keys( $entities_dictionary ), array_values( $entities_dictionary ), $string );
 
-		return rawurlencode( html_entity_decode( $html_string, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		return rawurlencode( html_entity_decode( $string, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
 	}
 
 	/**
@@ -781,101 +650,17 @@ class Utils {
 		return $result;
 	}
 
-	public static function is_allowed_custom_attribute_name( $name, bool $allow_unfiltered_names = false ): bool {
-		if ( ! is_string( $name ) || ! preg_match( self::CUSTOM_ATTRIBUTE_NAME_PATTERN, $name ) ) {
-			return false;
-		}
-
-		if ( $allow_unfiltered_names ) {
-			return true;
-		}
-
-		$normalized_name = strtolower( $name );
-
-		if ( self::is_html_custom_attribute_name( $normalized_name ) ) {
-			return false;
-		}
-
-		if ( preg_match( self::EVENT_HANDLER_ATTRIBUTE_NAME_PATTERN, $name ) ) {
-			return false;
-		}
-
-		foreach ( self::BLOCKED_CUSTOM_ATTRIBUTE_NAME_PREFIXES as $prefix ) {
-			if ( 0 === strpos( $normalized_name, $prefix ) ) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private static function is_html_custom_attribute_name( string $name ): bool {
-		return in_array( strtolower( $name ), self::HTML_CUSTOM_ATTRIBUTE_NAMES, true );
-	}
-
-	private static function escape_custom_attribute_value( string $name, string $value ): string {
-		if ( self::is_html_custom_attribute_name( $name ) ) {
-			return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8', true );
-		}
-
-		return esc_attr( $value );
-	}
-
-	public static function sanitize_custom_attribute_value( string $name, string $value ): string {
-		$normalized_name = strtolower( $name );
-
-		if ( in_array( $normalized_name, self::URL_CUSTOM_ATTRIBUTE_NAMES, true ) ) {
-			return wp_kses_bad_protocol( $value, wp_allowed_protocols() );
-		}
-
-		if ( self::is_html_custom_attribute_name( $normalized_name ) ) {
-			return wp_kses_post( $value );
-		}
-
-		return $value;
-	}
-
-	public static function sanitize_custom_attributes_string( $attributes_string, bool $allow_unfiltered_names = false ): string {
-		if ( ! is_string( $attributes_string ) || '' === $attributes_string ) {
-			return '';
-		}
-
-		preg_match_all( self::CUSTOM_ATTRIBUTE_PAIR_PATTERN, $attributes_string, $matches, PREG_SET_ORDER );
-
-		$sanitized = [];
-
-		foreach ( $matches as $match ) {
-			$name = $match[1];
-
-			if ( ! self::is_allowed_custom_attribute_name( $name, $allow_unfiltered_names ) ) {
-				continue;
-			}
-
-			$value = html_entity_decode( $match[3], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-			$value = self::sanitize_custom_attribute_value( $name, $value );
-			$sanitized[] = $name . '="' . self::escape_custom_attribute_value( $name, $value ) . '"';
-		}
-
-		return implode( ' ', $sanitized );
-	}
-
 	public static function find_element_recursive( $elements, $id ) {
 		foreach ( $elements as $element ) {
 			if ( $id === $element['id'] ) {
 				return $element;
 			}
 
-			$inner_elements = apply_filters(
-				'elementor/utils/find_element_recursive/inner_elements',
-				$element['elements'] ?? [],
-				$element
-			);
+			if ( ! empty( $element['elements'] ) ) {
+				$element = self::find_element_recursive( $element['elements'], $id );
 
-			if ( ! empty( $inner_elements ) ) {
-				$found = self::find_element_recursive( $inner_elements, $id );
-
-				if ( $found ) {
-					return $found;
+				if ( $element ) {
+					return $element;
 				}
 			}
 		}
@@ -892,8 +677,8 @@ class Utils {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @param string $menu_slug
-	 * @param string $new_label
+	 * @param $menu_slug
+	 * @param $new_label
 	 * @access public
 	 */
 	public static function change_submenu_first_item_label( $menu_slug, $new_label ) {
@@ -907,43 +692,6 @@ class Utils {
 	}
 
 	/**
-	 * @var string[]|null
-	 */
-	private static $resolved_allowed_html_wrapper_tags;
-
-	/**
-	 * Get allowed HTML wrapper tags.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return string[]
-	 */
-	public static function get_allowed_html_wrapper_tags(): array {
-		if ( null !== self::$resolved_allowed_html_wrapper_tags ) {
-			return self::$resolved_allowed_html_wrapper_tags;
-		}
-
-		/**
-		 * Allowed HTML wrapper tags.
-		 *
-		 * Filters the list of allowed HTML tag names used by `validate_html_tag()`.
-		 *
-		 * Note: tags in `Utils::FORBIDDEN_HTML_WRAPPER_TAGS` (e.g. `script`, `iframe`,
-		 * `object`) are always stripped after this filter runs and cannot be re-added,
-		 * to prevent XSS via a wrapper tag that executes script or embeds external content.
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param string[] $tags A list of lowercase HTML tag name strings.
-		 */
-		$tags = apply_filters( 'elementor/allowed_html_wrapper_tags', self::ALLOWED_HTML_WRAPPER_TAGS );
-
-		self::$resolved_allowed_html_wrapper_tags = self::normalize_allowed_html_wrapper_tags( $tags );
-
-		return self::$resolved_allowed_html_wrapper_tags;
-	}
-
-	/**
 	 * Validate an HTML tag against a safe allowed list.
 	 *
 	 * @param string $tag
@@ -951,32 +699,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function validate_html_tag( $tag ) {
-		return $tag && in_array( strtolower( $tag ), self::get_allowed_html_wrapper_tags(), true ) ? $tag : 'div';
-	}
-
-	/**
-	 * @param array $tags
-	 *
-	 * @return string[]
-	 */
-	private static function normalize_allowed_html_wrapper_tags( array $tags ): array {
-		$normalized_tags = [];
-
-		foreach ( $tags as $tag ) {
-			if ( ! is_string( $tag ) ) {
-				continue;
-			}
-
-			$tag = strtolower( $tag );
-
-			if ( in_array( $tag, self::FORBIDDEN_HTML_WRAPPER_TAGS, true ) ) {
-				continue;
-			}
-
-			$normalized_tags[] = $tag;
-		}
-
-		return array_values( array_unique( $normalized_tags ) );
+		return in_array( strtolower( $tag ), self::ALLOWED_HTML_WRAPPER_TAGS ) ? $tag : 'div';
 	}
 
 	/**
@@ -992,8 +715,8 @@ class Utils {
 	/**
 	 * Print internal content (not user input) without escaping.
 	 */
-	public static function print_unescaped_internal_string( $internal_string ) {
-		echo $internal_string; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	public static function print_unescaped_internal_string( $string ) {
+		echo $string; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -1020,23 +743,19 @@ class Utils {
 		return new \WP_Query( $args );
 	}
 
-	public static function print_wp_kses_extended( $text, array $tags ) {
+	public static function print_wp_kses_extended( $string, array $tags ) {
 		$allowed_html = wp_kses_allowed_html( 'post' );
+		// Since PHP 5.6 cannot use isset() on the result of an expression.
+		$extended_allowed_html_tags = self::EXTENDED_ALLOWED_HTML_TAGS;
 
 		foreach ( $tags as $tag ) {
-			if ( isset( self::EXTENDED_ALLOWED_HTML_TAGS[ $tag ] ) ) {
+			if ( isset( $extended_allowed_html_tags[ $tag ] ) ) {
 				$extended_tags = apply_filters( "elementor/extended_allowed_html_tags/{$tag}", self::EXTENDED_ALLOWED_HTML_TAGS[ $tag ] );
 				$allowed_html = array_replace_recursive( $allowed_html, $extended_tags );
 			}
 		}
 
-		echo wp_kses( $text, $allowed_html );
-	}
-
-	public static function kses_post_deep( $data ) {
-		return map_deep( $data, function ( $value ) {
-			return is_string( $value ) ? wp_kses_post( $value ) : $value;
-		} );
+		echo wp_kses( $string, $allowed_html );
 	}
 
 	public static function is_elementor_path( $path ) {
@@ -1059,140 +778,5 @@ class Utils {
 			->find(function ( $p ) use ( $path ) {
 				return false !== strpos( $path, $p );
 			} );
-	}
-
-	/**
-	 * @param string $file
-	 * @param mixed  ...$args
-	 * @return false|string
-	 */
-	public static function file_get_contents( $file, ...$args ) {
-		if ( ! is_file( $file ) || ! is_readable( $file ) ) {
-			return false;
-		}
-		return file_get_contents( $file, ...$args );
-	}
-
-	public static function get_super_global_value( $super_global, $key ) {
-		if ( ! isset( $super_global[ $key ] ) ) {
-			return null;
-		}
-
-		if ( $_FILES === $super_global ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			return isset( $super_global[ $key ]['name'] ) ?
-				self::sanitize_file_name( $super_global[ $key ] ) :
-				self::sanitize_multi_upload( $super_global[ $key ] );
-		}
-
-		return wp_kses_post_deep( wp_unslash( $super_global[ $key ] ) );
-	}
-
-	private static function sanitize_multi_upload( $fields ) {
-		return array_map( function( $field ) {
-			return array_map( 'self::sanitize_file_name', $field );
-		}, $fields );
-	}
-
-	private static function sanitize_file_name( $file ) {
-		$file['name'] = sanitize_file_name( $file['name'] );
-
-		return $file;
-	}
-
-	/**
-	 * Return specific object property value if exist from array of keys.
-	 *
-	 * @param array $base_array
-	 * @param array $keys
-	 * @return mixed|null
-	 */
-	public static function get_array_value_by_keys( $base_array, $keys ) {
-		$keys = (array) $keys;
-		foreach ( $keys as $key ) {
-			if ( ! isset( $base_array[ $key ] ) ) {
-				return null;
-			}
-			$base_array = $base_array[ $key ];
-		}
-		return $base_array;
-	}
-
-	public static function get_cached_callback( $callback, $cache_key, $cache_time = 24 * HOUR_IN_SECONDS ) {
-		$cache = get_site_transient( $cache_key );
-
-		if ( ! $cache ) {
-			$cache = call_user_func( $callback );
-
-			if ( ! is_wp_error( $cache ) ) {
-				set_site_transient( $cache_key, $cache, $cache_time );
-			}
-		}
-
-		return $cache;
-	}
-
-	public static function is_sale_time(): bool {
-		$sale_start_time = gmmktime( 10, 0, 0, 6, 15, 2026 );
-		$sale_end_time = gmmktime( 3, 59, 0, 6, 17, 2026 );
-
-		$now_time = gmdate( 'U' );
-
-		return $now_time >= $sale_start_time && $now_time <= $sale_end_time;
-	}
-
-	public static function safe_throw( string $message ) {
-		if ( ! static::is_elementor_debug() ) {
-			return;
-		}
-
-		throw new \Exception( esc_html( $message ) );
-	}
-
-	public static function has_invalid_post_permissions( $post ): bool {
-		$is_image_attachment = 'attachment' === $post->post_type && strpos( $post->post_mime_type, 'image/' ) === 0;
-
-		if ( $is_image_attachment ) {
-			return false;
-		}
-
-		$is_private = 'private' === $post->post_status
-			&& ! current_user_can( 'read_private_posts', $post->ID );
-
-		$not_allowed = 'publish' !== $post->post_status
-			&& ! current_user_can( 'edit_post', $post->ID );
-
-		$password_required = post_password_required( $post->ID )
-			&& ! current_user_can( 'edit_post', $post->ID );
-
-		return $is_private || $not_allowed || $password_required;
-	}
-
-	public static function is_custom_kit_applied() {
-		return (bool) Plugin::$instance->kits_manager->get_previous_id();
-	}
-
-	public static function decode_string( string $encoded_string, ?string $fallback = '' ) {
-		try {
-			return base64_decode( $encoded_string, true ) ?? $fallback;
-		} catch ( \Exception $e ) {
-			return $fallback;
-		}
-	}
-
-	public static function encode_string( string $decoded_string ): string {
-		return base64_encode( $decoded_string );
-	}
-
-	public static function html_to_plain_text( string $html ): string {
-		if ( empty( $html ) ) {
-			return '';
-		}
-
-		$text = preg_replace( '#<br\s*/?\s*>#i', ' ', $html );
-		$text = preg_replace( '#</?[a-z][^>]*>#i', ' ', $text );
-		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
-		$text = str_replace( "\xE2\x80\x8B", '', $text );
-
-		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }

@@ -217,7 +217,7 @@ class WordPress extends Base {
 	 */
 	public function get_language() {
 		return [
-			'value' => get_locale(),
+			'value' => get_bloginfo( 'language' ),
 		];
 	}
 

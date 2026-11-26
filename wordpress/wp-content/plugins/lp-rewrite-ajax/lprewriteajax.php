@@ -3,7 +3,7 @@
 Plugin Name: Rewrite Ajax Request Url
 Plugin URI: http://www.lasprovincias.es
 Description: Sobrescribe la ubicación donde se reciben las peticiones ajax de WP. De esta forma en producción se puede utilizar AJAX con cualquier plugin
-Version: 3.0
+Version: 2.0
 Author: Raúl Gómez
 Author URI: http://www.lasprovincias.es
 License: GPL2

@@ -1,7 +1,7 @@
 <?php
 define('DOING_AJAX', true);
 
-if (!isset( $_POST['action']))
+if (!isset( $_REQUEST['action']))
     die('-1');
 
 //relative to where your plugin is located
@@ -15,22 +15,21 @@ send_nosniff_header();
 header('Cache-Control: no-cache');
 header('Pragma: no-cache');
 
-$action = esc_attr($_POST['action']);
+$action = esc_attr($_REQUEST['action']);
 
 //A bit of security
-/*$allowed_actions = array(
+$allowed_actions = array(
     'lpportadapdf_dorsal',
     'lpportadapdf_imprimir',
-);*/
+);
 
 //if(in_array($action, $allowed_actions)){
-if(is_user_logged_in())
+  if(is_user_logged_in())
     do_action('wp_ajax_'.$action);
-else
-    do_action('wp_ajax_nopriv_'.$action);
-
+ else
+   do_action('wp_ajax_nopriv_'.$action);
 //}
 //else{
-//    die('-1');
+ //   die('-1');
 //}
 ?>

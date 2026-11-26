@@ -1,0 +1,17 @@
+<?php
+	$sendTo = "yo@fundacion33.com";
+	$from=$_POST['EMAIL'];
+	$headers = "From:".$_POST["NOMBRE"];
+	$headers .= "<$from>\n";
+	$headers .= "Reply-To:$from\n"; 
+	$headers .="X-Mailer:PHP/".phpversion();
+	$message = "Nombre: ".$_POST['NOMBRE']."\r\n";
+	$message.= "Dirección:".$_POST['DIRECCION']."\r\n";
+	$message.= "Telefono:".$_POST['TELEFONO']."\r\n\n";
+	$message.= $_POST['COMENTARIO'];
+	if(mail($sendTo, $_POST['subject'], $message, $headers)){
+		$estado="ok";
+	}else{
+		$estado="error";
+	}
+?>

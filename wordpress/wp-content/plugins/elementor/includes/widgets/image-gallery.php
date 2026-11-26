@@ -72,49 +72,6 @@ class Widget_Image_Gallery extends Widget_Base {
 		return [ 'image', 'photo', 'visual', 'gallery' ];
 	}
 
-	protected function is_dynamic_content(): bool {
-		return false;
-	}
-
-	/**
-	 * Get style dependencies.
-	 *
-	 * Retrieve the list of style dependencies the widget requires.
-	 *
-	 * @since 3.24.0
-	 * @access public
-	 *
-	 * @return array Widget style dependencies.
-	 */
-	public function get_style_depends(): array {
-		return [ 'widget-image-gallery' ];
-	}
-
-	/**
-	 * Get widget upsale data.
-	 *
-	 * Retrieve the widget promotion data.
-	 *
-	 * @since 3.18.0
-	 * @access protected
-	 *
-	 * @return array Widget promotion data.
-	 */
-	protected function get_upsale_data() {
-		return [
-			'condition' => ! Utils::has_pro(),
-			'image' => esc_url( ELEMENTOR_ASSETS_URL . 'images/go-pro.svg' ),
-			'image_alt' => esc_attr__( 'Upgrade', 'elementor' ),
-			'description' => esc_html__( 'Use interesting masonry layouts and other overlay features with Elementor\'s Pro Gallery widget.', 'elementor' ),
-			'upgrade_url' => esc_url( 'https://go.elementor.com/go-pro-basic-gallery-widget/' ),
-			'upgrade_text' => esc_html__( 'Upgrade Now', 'elementor' ),
-		];
-	}
-
-	public function has_widget_inner_wrapper(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'e_optimized_markup' );
-	}
-
 	/**
 	 * Register image gallery widget controls.
 	 *
@@ -127,7 +84,7 @@ class Widget_Image_Gallery extends Widget_Base {
 		$this->start_controls_section(
 			'section_gallery',
 			[
-				'label' => esc_html__( 'Basic Gallery', 'elementor' ),
+				'label' => esc_html__( 'Image Gallery', 'elementor' ),
 			]
 		);
 
@@ -148,6 +105,7 @@ class Widget_Image_Gallery extends Widget_Base {
 			[
 				'name' => 'thumbnail', // Usage: `{name}_size` and `{name}_custom_dimension`, in this case `thumbnail_size` and `thumbnail_custom_dimension`.
 				'exclude' => [ 'custom' ],
+				'separator' => 'none',
 			]
 		);
 
@@ -161,22 +119,6 @@ class Widget_Image_Gallery extends Widget_Base {
 				'type' => Controls_Manager::SELECT,
 				'default' => 4,
 				'options' => $gallery_columns,
-			]
-		);
-
-		$this->add_control(
-			'gallery_display_caption',
-			[
-				'label' => esc_html__( 'Caption', 'elementor' ),
-				'type' => Controls_Manager::SELECT,
-				'default' => '',
-				'options' => [
-					'none' => esc_html__( 'None', 'elementor' ),
-					'' => esc_html__( 'Attachment Caption', 'elementor' ),
-				],
-				'selectors' => [
-					'{{WRAPPER}} .gallery-item .gallery-caption' => 'display: {{VALUE}};',
-				],
 			]
 		);
 
@@ -199,12 +141,6 @@ class Widget_Image_Gallery extends Widget_Base {
 			[
 				'label' => esc_html__( 'Lightbox', 'elementor' ),
 				'type' => Controls_Manager::SELECT,
-				'description' => sprintf(
-					/* translators: 1: Link open tag, 2: Link close tag. */
-					esc_html__( 'Manage your site’s lightbox settings in the %1$sLightbox panel%2$s.', 'elementor' ),
-					'<a href="javascript: $e.run( \'panel/global/open\' ).then( () => $e.route( \'panel/global/settings-lightbox\' ) )">',
-					'</a>'
-				),
 				'default' => 'default',
 				'options' => [
 					'default' => esc_html__( 'Default', 'elementor' ),
@@ -213,46 +149,6 @@ class Widget_Image_Gallery extends Widget_Base {
 				],
 				'condition' => [
 					'gallery_link' => 'file',
-				],
-				'assets' => [
-					'styles' => [
-						[
-							'name' => 'e-swiper',
-							'conditions' => [
-								'terms' => [
-									[
-										'name' => 'gallery_link',
-										'operator' => '===',
-										'value' => 'file',
-									],
-									[
-										'name' => 'open_lightbox',
-										'operator' => '!==',
-										'value' => 'no',
-									],
-								],
-							],
-						],
-					],
-					'scripts' => [
-						[
-							'name' => 'swiper',
-							'conditions' => [
-								'terms' => [
-									[
-										'name' => 'gallery_link',
-										'operator' => '===',
-										'value' => 'file',
-									],
-									[
-										'name' => 'open_lightbox',
-										'operator' => '!==',
-										'value' => 'no',
-									],
-								],
-							],
-						],
-					],
 				],
 			]
 		);
@@ -270,6 +166,15 @@ class Widget_Image_Gallery extends Widget_Base {
 			]
 		);
 
+		$this->add_control(
+			'view',
+			[
+				'label' => esc_html__( 'View', 'elementor' ),
+				'type' => Controls_Manager::HIDDEN,
+				'default' => 'traditional',
+			]
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -283,7 +188,7 @@ class Widget_Image_Gallery extends Widget_Base {
 		$this->add_control(
 			'image_spacing',
 			[
-				'label' => esc_html__( 'Gap', 'elementor' ),
+				'label' => esc_html__( 'Spacing', 'elementor' ),
 				'type' => Controls_Manager::SELECT,
 				'options' => [
 					'' => esc_html__( 'Default', 'elementor' ),
@@ -300,18 +205,12 @@ class Widget_Image_Gallery extends Widget_Base {
 		$this->add_control(
 			'image_spacing_custom',
 			[
-				'label' => esc_html__( 'Custom Gap', 'elementor' ),
+				'label' => esc_html__( 'Image Spacing', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
+				'show_label' => false,
 				'range' => [
 					'px' => [
 						'max' => 100,
-					],
-					'em' => [
-						'max' => 10,
-					],
-					'rem' => [
-						'max' => 10,
 					],
 				],
 				'default' => [
@@ -336,12 +235,12 @@ class Widget_Image_Gallery extends Widget_Base {
 			]
 		);
 
-		$this->add_responsive_control(
+		$this->add_control(
 			'image_border_radius',
 			[
 				'label' => esc_html__( 'Border Radius', 'elementor' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
+				'size_units' => [ 'px', '%' ],
 				'selectors' => [
 					'{{WRAPPER}} .gallery-item img' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -355,39 +254,47 @@ class Widget_Image_Gallery extends Widget_Base {
 			[
 				'label' => esc_html__( 'Caption', 'elementor' ),
 				'tab' => Controls_Manager::TAB_STYLE,
-				'condition' => [
-					'gallery_display_caption' => '',
+			]
+		);
+
+		$this->add_control(
+			'gallery_display_caption',
+			[
+				'label' => esc_html__( 'Display', 'elementor' ),
+				'type' => Controls_Manager::SELECT,
+				'default' => '',
+				'options' => [
+					'' => esc_html__( 'Show', 'elementor' ),
+					'none' => esc_html__( 'Hide', 'elementor' ),
+				],
+				'selectors' => [
+					'{{WRAPPER}} .gallery-item .gallery-caption' => 'display: {{VALUE}};',
 				],
 			]
 		);
 
-		$this->add_responsive_control(
+		$this->add_control(
 			'align',
 			[
 				'label' => esc_html__( 'Alignment', 'elementor' ),
 				'type' => Controls_Manager::CHOOSE,
 				'options' => [
-					'start' => [
-						'title' => esc_html__( 'Start', 'elementor' ),
+					'left' => [
+						'title' => esc_html__( 'Left', 'elementor' ),
 						'icon' => 'eicon-text-align-left',
 					],
 					'center' => [
 						'title' => esc_html__( 'Center', 'elementor' ),
 						'icon' => 'eicon-text-align-center',
 					],
-					'end' => [
-						'title' => esc_html__( 'End', 'elementor' ),
+					'right' => [
+						'title' => esc_html__( 'Right', 'elementor' ),
 						'icon' => 'eicon-text-align-right',
 					],
 					'justify' => [
 						'title' => esc_html__( 'Justified', 'elementor' ),
 						'icon' => 'eicon-text-align-justify',
 					],
-				],
-				'classes' => 'elementor-control-start-end',
-				'selectors_dictionary' => [
-					'left' => is_rtl() ? 'end' : 'start',
-					'right' => is_rtl() ? 'start' : 'end',
 				],
 				'default' => 'center',
 				'selectors' => [
@@ -433,24 +340,6 @@ class Widget_Image_Gallery extends Widget_Base {
 			[
 				'name' => 'caption_shadow',
 				'selector' => '{{WRAPPER}} .gallery-item .gallery-caption',
-				'condition' => [
-					'gallery_display_caption' => '',
-				],
-			]
-		);
-
-		$this->add_responsive_control(
-			'caption_space',
-			[
-				'label' => esc_html__( 'Spacing', 'elementor' ),
-				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
-				'selectors' => [
-					'{{WRAPPER}} .gallery-item .gallery-caption' => 'margin-block-start: {{SIZE}}{{UNIT}};',
-				],
-				'condition' => [
-					'gallery_display_caption' => '',
-				],
 			]
 		);
 
@@ -499,25 +388,5 @@ class Widget_Image_Gallery extends Widget_Base {
 			?>
 		</div>
 		<?php
-	}
-
-	public function render_markdown(): string {
-		$settings = $this->get_settings_for_display();
-		if ( empty( $settings['wp_gallery'] ) ) {
-			return '';
-		}
-		$images = [];
-		foreach ( $settings['wp_gallery'] as $image ) {
-			$url = $image['url'] ?? '';
-			if ( empty( $url ) ) {
-				continue;
-			}
-			$alt = '';
-			if ( ! empty( $image['id'] ) ) {
-				$alt = get_post_meta( $image['id'], '_wp_attachment_image_alt', true );
-			}
-			$images[] = '![' . $alt . '](' . esc_url( $url ) . ')';
-		}
-		return implode( "\n\n", $images );
 	}
 }

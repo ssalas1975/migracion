@@ -141,7 +141,6 @@ return array(
 	'Import Divi Builder Templates'                        => esc_html__( 'Import Divi Builder Templates', 'et_builder' ),
 	'Import Presets'                                       => esc_html__( 'Import Presets', 'et_builder' ),
 	'Import Templates'                                     => esc_html__( 'Import Templates', 'et_builder' ),
-	'Export Templates'                                     => esc_html__( 'Export Templates', 'et_builder' ),
 	'Options'                                              => esc_html__( 'Options', 'et_builder' ),
 	'Override Existing Default Website Template'           => esc_html__( 'Override Existing Default Website Template', 'et_builder' ),
 	'Loaded Template'                                      => esc_html__( 'Loaded Template', 'et_builder' ),
@@ -165,7 +164,4 @@ return array(
 	'$cloudUpgradeMessage'                                 => esc_html__( 'All Divi users can store up to %s items to their Divi Cloud for free. To save more items to your cloud and unlock unlimited storage, upgrade your Divi Cloud membership today. If you build Divi websites for a living, Divi Cloud is an awesome add-on and an amazing time saver. You are going to love it!', 'et_builder' ),
 	'Saving To Divi Cloud'                                 => esc_html__( 'Saving To Divi Cloud', 'et_builder' ),
 	'Return To Theme Builder'                              => esc_html__( 'Return To Theme Builder', 'et_builder' ),
-	'My Divi Cloud'                                        => esc_html__( 'My Divi Cloud', 'et_builder' ),
-	'My Cloud'                                             => esc_html__( 'My Cloud', 'et_builder' ),
-	'Choose Library'                                       => esc_html__( 'Choose Library', 'et_builder' ),
 );

@@ -4,10 +4,6 @@ namespace iThemesSecurity\Actor;
 
 final class User_Factory implements Actor_Factory {
 	public function make( $identifier ) {
-		if ( ! function_exists( 'get_userdata' ) ) {
-			return null;
-		}
-
 		$user = get_userdata( $identifier );
 
 		if ( ! $user ) {

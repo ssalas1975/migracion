@@ -1,124 +1,115 @@
 <?php
-
 /**
  * Walks every table in db that then walks every row and column replacing searches with replaces
  * large tables are split into 50k row blocks to save on memory.
  *
  * Standard: PSR-2
- *
  * @link http://www.php-fig.org/psr/psr-2 Full Documentation
+ *
+ * @package SC\DUPX\UpdateEngine
+ *
  */
-
 defined('ABSPATH') || defined('DUPXABSPATH') || exit;
-
-use Duplicator\Installer\Core\Deploy\Multisite;
-use Duplicator\Installer\Core\InstState;
-use Duplicator\Installer\Core\Params\Models\SiteOwrMap;
-use Duplicator\Installer\Utils\Log\Log;
-use Duplicator\Installer\Core\Params\PrmMng;
-use Duplicator\Installer\Utils\ReplaceEngine\ReplaceMng;
-use Duplicator\Libs\Snap\SnapDB;
-use Duplicator\Libs\SearchReplace\SerializedData;
-use Duplicator\Libs\SearchReplace\ValueReplacer;
 
 class DUPX_UpdateEngine
 {
-    const SR_PRORITY_HIGH                 = 5;
-    const SR_PRORITY_DEFAULT              = 10;
-    const SR_PRORITY_LOW                  = 20;
-    const SR_PRORITY_NETWORK_SUBSITE_HIGH = 4;
-    const SR_PRORITY_NETWORK_SUBSITE      = 5;
-    const SR_PRORITY_GENERIC_SUBST        = 10;
-    const SR_PRORITY_GENERIC_SUBST_P1     = 10;
-    const SR_PRORITY_GENERIC_SUBST_P2     = 11;
-    const SR_PRORITY_GENERIC_SUBST_P3     = 12;
-    const SR_PRORITY_GENERIC_SUBST_P4     = 13;
-    const SR_PRORITY_CUSTOM               = 20;
+
+    const SERIALIZE_OPEN_STR_REGEX   = '/^(s:\d+:")/';
+    const SERIALIZE_OPEN_SUBSTR_LEN  = 25;
+    const SERIALIZE_CLOSE_STR_REGEX  = '/^";}*(?:"|a:|s:|S:|b:|d:|i:|o:|O:|C:|r:|R:|N;|$)/';
+    const SERIALIZE_CLOSE_SUBSTR_LEN = 50;
+    const SERIALIZE_CLOSE_STR        = '";';
+    const SERIALIZE_CLOSE_STR_LEN    = 2;
+
+    private static $report = null;
 
     /**
-     * Used to report on all log errors into the installer-txt.log
+     *  Used to report on all log errors into the installer-txt.log
      *
-     * @return void
+     * @return string Writes the results of the update engine tables to the log
      */
-    public static function logErrors(): void
+    public static function logErrors()
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
 
         if (!empty($s3Funcs->report['errsql'])) {
-            Log::info("--------------------------------------");
-            Log::info("DATA-REPLACE ERRORS (MySQL)");
+            DUPX_Log::info("--------------------------------------");
+            DUPX_Log::info("DATA-REPLACE ERRORS (MySQL)");
             foreach ($s3Funcs->report['errsql'] as $error) {
-                Log::info($error);
+                DUPX_Log::info($error);
             }
-            Log::info("");
+            DUPX_Log::info("");
         }
         if (!empty($s3Funcs->report['errser'])) {
-            Log::info("--------------------------------------");
-            Log::info("DATA-REPLACE ERRORS (Serialization):");
+            DUPX_Log::info("--------------------------------------");
+            DUPX_Log::info("DATA-REPLACE ERRORS (Serialization):");
             foreach ($s3Funcs->report['errser'] as $error) {
-                Log::info($error);
+                DUPX_Log::info($error);
             }
-            Log::info("");
+            DUPX_Log::info("");
         }
         if (!empty($s3Funcs->report['errkey'])) {
-            Log::info("--------------------------------------");
-            Log::info("DATA-REPLACE ERRORS (Key):");
-            Log::info('Use SQL: SELECT @row := @row + 1 as row, t.* FROM some_table t, (SELECT @row := 0) r');
+            DUPX_Log::info("--------------------------------------");
+            DUPX_Log::info("DATA-REPLACE ERRORS (Key):");
+            DUPX_Log::info('Use SQL: SELECT @row := @row + 1 as row, t.* FROM some_table t, (SELECT @row := 0) r');
             foreach ($s3Funcs->report['errkey'] as $error) {
-                Log::info($error);
+                DUPX_Log::info($error);
             }
         }
     }
 
     /**
-     * Used to report on all log stats into the installer-txt.log
+     *  Used to report on all log stats into the installer-txt.log
      *
-     * @return void
+     * @return string Writes the results of the update engine tables to the log
      */
-    public static function logStats(): void
+    public static function logStats()
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
-        Log::resetIndent();
+        DUPX_Log::resetIndent();
 
         if (!empty($s3Funcs->report) && is_array($s3Funcs->report)) {
-            $stats  = "--------------------------------------\n";
+            $stats = "--------------------------------------\n";
             $stats .= sprintf("SCANNED:\tTables:%d \t|\t Rows:%d \t|\t Cells:%d \n", $s3Funcs->report['scan_tables'], $s3Funcs->report['scan_rows'], $s3Funcs->report['scan_cells']);
             $stats .= sprintf("UPDATED:\tTables:%d \t|\t Rows:%d \t|\t Cells:%d \n", $s3Funcs->report['updt_tables'], $s3Funcs->report['updt_rows'], $s3Funcs->report['updt_cells']);
             $stats .= sprintf("ERRORS:\t\t%d \nRUNTIME:\t%f sec", $s3Funcs->report['err_all'], $s3Funcs->report['time']);
-            Log::info($stats);
+            DUPX_Log::info($stats);
         }
     }
 
     /**
      * Returns only the text type columns of a table ignoring all numeric types
      *
+     * @param obj $conn A valid database link handle
      * @param string $table A valid table name
      *
-     * @return ?string[] All the column names of a table or NULL on error
+     * @return array All the column names of a table
      */
-    private static function getTextColumns($table): ?array
+    private static function getTextColumns($table)
     {
         $dbh = DUPX_S3_Funcs::getInstance()->getDbConnection();
 
-        $type_where  = '';
+        $type_where = '';
         $type_where .= "type LIKE '%char%' OR ";
         $type_where .= "type LIKE '%text' OR ";
         $type_where .= "type LIKE '%blob' ";
-        $sql         = "SHOW COLUMNS FROM `" . mysqli_real_escape_string($dbh, $table) . "` WHERE {$type_where}";
+        $sql        = "SHOW COLUMNS FROM `".mysqli_real_escape_string($dbh, $table)."` WHERE {$type_where}";
 
-        $result = DUPX_DB::mysqli_query($dbh, $sql);
-        if (!$result || mysqli_num_rows($result) === 0) {
+        $result = DUPX_DB::mysqli_query($dbh, $sql, __FILE__, __LINE__);
+        if (!$result) {
             return null;
         }
 
-        $fields = [];
-        while ($row    = mysqli_fetch_assoc($result)) {
-            $fields[] = $row['Field'];
+        $fields = array();
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $fields[] = $row['Field'];
+            }
         }
 
         //Return Primary which is needed for index lookup.  LIKE '%PRIMARY%' is less accurate with lookup
         //$result = mysqli_query($dbh, "SHOW INDEX FROM `{$table}` WHERE KEY_NAME LIKE '%PRIMARY%'");
-        $result = DUPX_DB::mysqli_query($dbh, "SHOW INDEX FROM `" . mysqli_real_escape_string($dbh, $table) . "`");
+        $result = mysqli_query($dbh, "SHOW INDEX FROM `".mysqli_real_escape_string($dbh, $table)."`");
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $fields[] = $row['Column_name'];
@@ -128,26 +119,14 @@ class DUPX_UpdateEngine
         return (count($fields) > 0) ? array_unique($fields) : null;
     }
 
-    /**
-     * Set column safe
-     *
-     * @param string $str column name
-     *
-     * @return void
-     */
-    public static function set_sql_column_safe(&$str): void
+    public static function set_sql_column_safe(&$str)
     {
         $str = "`$str`";
     }
 
-    /**
-     * Load init
-     *
-     * @return void
-     */
-    public static function loadInit(): void
+    public static function loadInit()
     {
-        Log::info('ENGINE LOAD INIT', Log::LV_DEBUG);
+        DUPX_Log::info('ENGINE LOAD INIT', DUPX_Log::LV_DEBUG);
         $s3Funcs                          = DUPX_S3_Funcs::getInstance();
         $s3Funcs->report['profile_start'] = DUPX_U::getMicrotime();
 
@@ -158,11 +137,11 @@ class DUPX_UpdateEngine
     /**
      * Begins the processing for replace logic
      *
-     * @param string[] $tables The tables we want to look at
+     * @param array $tables The tables we want to look at
      *
-     * @return array<string,mixed> Collection of information gathered during the run.
+     * @return array Collection of information gathered during the run.
      */
-    public static function load($tables = [])
+    public static function load($tables = array())
     {
         self::loadInit();
 
@@ -176,14 +155,9 @@ class DUPX_UpdateEngine
         return self::loadEnd();
     }
 
-    /**
-     * Commit and save
-     *
-     * @return void
-     */
-    public static function commitAndSave(): void
+    public static function commitAndSave()
     {
-        Log::info('ENGINE COMMIT AND SAVE', Log::LV_DEBUG);
+        DUPX_Log::info('ENGINE COMMIT AND SAVE', DUPX_Log::LV_DEBUG);
 
         $dbh = DUPX_S3_Funcs::getInstance()->getDbConnection();
 
@@ -193,50 +167,39 @@ class DUPX_UpdateEngine
         DUPX_NOTICE_MANAGER::getInstance()->saveNotices();
     }
 
-    /**
-     * Load end
-     *
-     * @return array<string,mixed>
-     */
     public static function loadEnd()
     {
-        Log::info('ENGINE LOAD END', Log::LV_DEBUG);
-        return DUPX_S3_Funcs::getInstance()->reportLoadEnd();
+        $s3Funcs = DUPX_S3_Funcs::getInstance();
+        DUPX_Log::info('ENGINE LOAD END', DUPX_Log::LV_DEBUG);
+
+        $s3Funcs->report['profile_end'] = DUPX_U::getMicrotime();
+        $s3Funcs->report['time']        = DUPX_U::elapsedTime($s3Funcs->report['profile_end'], $s3Funcs->report['profile_start']);
+        $s3Funcs->report['errsql_sum']  = empty($s3Funcs->report['errsql']) ? 0 : count($s3Funcs->report['errsql']);
+        $s3Funcs->report['errser_sum']  = empty($s3Funcs->report['errser']) ? 0 : count($s3Funcs->report['errser']);
+        $s3Funcs->report['errkey_sum']  = empty($s3Funcs->report['errkey']) ? 0 : count($s3Funcs->report['errkey']);
+        $s3Funcs->report['err_all']     = $s3Funcs->report['errsql_sum'] + $s3Funcs->report['errser_sum'] + $s3Funcs->report['errkey_sum'];
+
+        return $s3Funcs->report;
     }
 
-    /**
-     * Get table row params default
-     *
-     * @param string $table table name
-     *
-     * @return array<string,mixed>
-     */
-    public static function getTableRowParamsDefault($table = ''): array
+    public static function getTableRowParamsDefault($table = '')
     {
-        return [
+        return array(
             'table'         => $table,
             'updated'       => false,
             'row_count'     => 0,
-            'columns'       => [],
-            'columnsMaxLen' => [],
+            'columns'       => array(),
             'colList'       => '*',
             'colMsg'        => 'every column',
-            'srList'        => [],
+            'columnsSRList' => array(),
             'pages'         => 0,
             'page_size'     => 0,
             'page'          => 0,
-            'current_row'   => 0,
-        ];
+            'current_row'   => 0
+        );
     }
 
-    /**
-     * Get table row params
-     *
-     * @param string $table table name
-     *
-     * @return array<string,mixed>|null
-     */
-    private static function getTableRowsParams($table): ?array
+    private static function getTableRowsParams($table)
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
         $dbh     = $s3Funcs->getDbConnection();
@@ -244,11 +207,11 @@ class DUPX_UpdateEngine
         $rowsParams = self::getTableRowParamsDefault($table);
 
         // Count the number of rows we have in the table if large we'll split into blocks
-        $rowsParams['row_count'] = DUPX_DB::mysqli_query($dbh, "SELECT COUNT(*) FROM `" . mysqli_real_escape_string($dbh, $rowsParams['table']) . "`");
+        $rowsParams['row_count'] = mysqli_query($dbh, "SELECT COUNT(*) FROM `".mysqli_real_escape_string($dbh, $rowsParams['table'])."`");
         if (!$rowsParams['row_count']) {
             return null;
         }
-        $rows_result = mysqli_fetch_array($rowsParams['row_count']);
+        $rows_result             = mysqli_fetch_array($rowsParams['row_count']);
         @mysqli_free_result($rowsParams['row_count']);
         $rowsParams['row_count'] = $rows_result[0];
         if ($rowsParams['row_count'] == 0) {
@@ -258,28 +221,24 @@ class DUPX_UpdateEngine
         }
 
         // Get a list of columns in this table
-        $sql    = 'DESCRIBE ' . mysqli_real_escape_string($dbh, $rowsParams['table']);
-        $fields = DUPX_DB::mysqli_query($dbh, $sql);
+        $sql    = 'DESCRIBE '.mysqli_real_escape_string($dbh, $rowsParams['table']);
+        $fields = mysqli_query($dbh, $sql);
         if (!$fields) {
             return null;
         }
         while ($column = mysqli_fetch_array($fields)) {
-            $rowsParams['columns'][$column['Field']] = $column['Key'] == 'PRI';
-            if (preg_match('/(?:var)?char\((\d+)\)/i', $column['Type'], $m)) {
-                $rowsParams['columnsMaxLen'][$column['Field']] = (int) $m[1];
-            }
+            $rowsParams['columns'][$column['Field']] = $column['Key'] == 'PRI' ? true : false;
         }
 
-        $rowsParams['page_size']  = $GLOBALS['DATABASE_PAGE_SIZE'];
-        $rowsParams['pages']      = ceil($rowsParams['row_count'] / $rowsParams['page_size']);
-        $rowsParams['lastOffset'] = 0;
+        $rowsParams['page_size'] = $GLOBALS['DATABASE_PAGE_SIZE'];
+        $rowsParams['pages']     = ceil($rowsParams['row_count'] / $rowsParams['page_size']);
 
         // Grab the columns of the table.  Only grab text based columns because
         // they are the only data types that should allow any type of search/replace logic
-        if (!PrmMng::getInstance()->getValue(PrmMng::PARAM_FULL_SEARCH)) {
+        if (!$s3Funcs->getPost('fullsearch')) {
             $rowsParams['colList'] = self::getTextColumns($rowsParams['table']);
             if ($rowsParams['colList'] != null && is_array($rowsParams['colList'])) {
-                array_walk($rowsParams['colList'], [self::class, 'set_sql_column_safe']);
+                array_walk($rowsParams['colList'], array(__CLASS__, 'set_sql_column_safe'));
                 $rowsParams['colList'] = implode(',', $rowsParams['colList']);
             }
             $rowsParams['colMsg'] = (empty($rowsParams['colList'])) ? 'every column' : 'text columns';
@@ -295,40 +254,26 @@ class DUPX_UpdateEngine
             return null;
         } else {
             // PREPARE SEARCH AN REPLACE LISF FOR TABLES
-            $rowsParams['srList'] = ReplaceMng::getInstance()->getSearchReplaceList($rowsParams['table']);
+            $rowsParams['columnsSRList'] = self::getColumnsSearchReplaceList($rowsParams['table'], $rowsParams['columns']);
             return $rowsParams;
         }
     }
 
-    /**
-     * Log evaluate table
-     *
-     * @param array<string,mixed> $rowsParams table params
-     *
-     * @return void
-     */
-    public static function logEvaluateTable($rowsParams): void
+    public static function logEvaluateTable($rowsParams)
     {
-        Log::resetIndent();
-        $log  = "\n" . 'EVALUATE TABLE: ' . str_pad(Log::v2str($rowsParams['table']), 50, '_', STR_PAD_RIGHT);
-        $log .= '[ROWS:' . str_pad($rowsParams['row_count'], 6, " ", STR_PAD_LEFT) . ']';
-        $log .= '[PG:' . str_pad($rowsParams['pages'], 4, " ", STR_PAD_LEFT) . ']';
-        $log .= '[SCAN:' . $rowsParams['colMsg'] . ']';
-        if (Log::isLevel(Log::LV_DETAILED)) {
-            $log .= '[COLS: ' . $rowsParams['colList'] . ']';
+        DUPX_Log::resetIndent();
+        $log = "\n".'EVALUATE TABLE: '.str_pad(DUPX_Log::varToString($rowsParams['table']), 50, '_', STR_PAD_RIGHT);
+        $log .= '[ROWS:'.str_pad($rowsParams['row_count'], 6, " ", STR_PAD_LEFT).']';
+        $log .= '[PG:'.str_pad($rowsParams['pages'], 4, " ", STR_PAD_LEFT).']';
+        $log .= '[SCAN:'.$rowsParams['colMsg'].']';
+        if (DUPX_Log::isLevel(DUPX_Log::LV_DETAILED)) {
+            $log .= '[COLS: '.$rowsParams['colList'].']';
         }
-        Log::info($log);
-        Log::incIndent();
+        DUPX_Log::info($log);
+        DUPX_Log::incIndent();
     }
 
-    /**
-     * Evaluate table
-     *
-     * @param string $table table name
-     *
-     * @return bool
-     */
-    public static function evaluateTalbe($table): bool
+    public static function evaluateTalbe($table)
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
 
@@ -346,17 +291,8 @@ class DUPX_UpdateEngine
         if ($s3Funcs->cTableParams['updated']) {
             $s3Funcs->report['updt_tables']++;
         }
-        return true;
     }
 
-    /**
-     * Evaluate table rows
-     *
-     * @param string $table table name
-     * @param int    $page  page number
-     *
-     * @return bool
-     */
     public static function evaluateTableRows($table, $page)
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
@@ -368,48 +304,22 @@ class DUPX_UpdateEngine
 
         $s3Funcs->cTableParams['page'] = $page;
         if ($s3Funcs->cTableParams['page'] >= $s3Funcs->cTableParams['pages']) {
-            Log::info('ENGINE EXIT PAGE:' . Log::v2str($table) . ' PAGES:' . $s3Funcs->cTableParams['pages'], Log::LV_DEBUG);
+            DUPX_Log::info('ENGINE EXIT PAGE:'.DUPX_Log::varToString($table).' PAGES:'.$s3Funcs->cTableParams['pages'], DUPX_Log::LV_DEBUG);
             return false;
         }
 
-        return self::evaluatePagedRows($s3Funcs->cTableParams);
+        self::evaluatePagedRows($s3Funcs->cTableParams);
     }
 
-    /**
-     * Init table params
-     *
-     * @param string $table table name
-     *
-     * @return bool
-     */
-    public static function initTableParams($table): bool
+    public static function initTableParams($table)
     {
         $s3Funcs = DUPX_S3_Funcs::getInstance();
-
         if (is_null($s3Funcs->cTableParams) || $s3Funcs->cTableParams['table'] !== $table) {
-            Log::resetIndent();
-            Log::info("\n" . 'ENGINE INIT TABLE PARAMS ' . Log::v2str($table), Log::LV_DETAILED);
-            if (!DUPX_DB_Functions::getInstance()->tablesExist($table)) {
-                Log::info('ENGINE TABLE DOESN\'T EXIST IN THE DATABASE', Log::LV_DEBUG);
-                $longMsg = <<<MSG
-The table could not be found in the database.
-If the "Skip Database Extraction" option was chosen in step 2, make sure you insert the database manually before continuing to step 3.
-                   
-Also, verify the database that was inserted contains the urls and paths of the original site before step 3 for proper migration.
-MSG;
-                DUPX_NOTICE_MANAGER::getInstance()->addFinalReportNotice([
-                    'shortMsg' => 'Table ' . $table . ' doesn\'t exist in the database',
-                    'level'    => DUPX_NOTICE_ITEM::HARD_WARNING,
-                    'longMsg'  => $longMsg,
-                    'sections' => 'search_replace',
-                ]);
-                return false;
-            }
-
+            DUPX_Log::info('ENGINE INIT TABLE PARAMS '.DUPX_Log::varToString($table), DUPX_Log::LV_DETAILED);
             $s3Funcs->report['scan_tables']++;
 
             if (($s3Funcs->cTableParams = self::getTableRowsParams($table)) === null) {
-                Log::info('ENGINE TABLE PARAMS EMPTY', Log::LV_DEBUG);
+                DUPX_Log::info('ENGINE TABLE PARAMS EMPTY', DUPX_Log::LV_DEBUG);
                 return false;
             }
         }
@@ -418,11 +328,11 @@ MSG;
     }
 
     /**
-     * Evaluate rows with pagination
+     * evaluate rows with pagination
      *
-     * @param array<string,mixed> $rowsParams table params
+     * @param array $rowsParams
      *
-     * @return bool if true table is modified and updated
+     * @return boolean // if true table is modified and updated
      */
     private static function evaluatePagedRows(&$rowsParams)
     {
@@ -432,76 +342,66 @@ MSG;
         $start    = $rowsParams['page'] * $rowsParams['page_size'];
         $end      = $start + $rowsParams['page_size'] - 1;
 
-        if (Log::isLevel(Log::LV_DETAILED)) {
-            $scan_count = min($rowsParams['row_count'], $end);
-            Log::info('ENGINE EV TABLE ' . str_pad(Log::v2str($rowsParams['table']), 50, '_', STR_PAD_RIGHT) .
-                '[PAGE:' . str_pad($rowsParams['page'], 4, " ", STR_PAD_LEFT) . ']' .
-                '[START:' . str_pad((string) $start, 6, " ", STR_PAD_LEFT) .
-                '[OFFSET:' . str_pad(Log::v2str($rowsParams['lastOffset']), 8, " ", STR_PAD_LEFT) . ']' .
-                '[OF:' . str_pad($scan_count, 6, " ", STR_PAD_LEFT) . ']', Log::LV_DETAILED);
+        $sql  = sprintf("SELECT {$rowsParams['colList']} FROM `%s` LIMIT %d, %d", $rowsParams['table'], $start, $rowsParams['page_size']);
+        $data = DUPX_DB::mysqli_query($dbh, $sql, __FILE__, __LINE__);
+
+        $scan_count = min($rowsParams['row_count'], $end);
+        if (DUPX_Log::isLevel(DUPX_Log::LV_DETAILED)) {
+            DUPX_Log::info('ENGINE EV TABLE '.str_pad(DUPX_Log::varToString($rowsParams['table']), 50, '_', STR_PAD_RIGHT).
+                '[PAGE:'.str_pad($rowsParams['page'], 4, " ", STR_PAD_LEFT).']'.
+                '[START:'.str_pad($start, 6, " ", STR_PAD_LEFT).']'.
+                '[OF:'.str_pad($scan_count, 6, " ", STR_PAD_LEFT).']', DUPX_Log::LV_DETAILED);
         }
 
-        $data = SnapDB::selectUsingPrimaryKeyAsOffset(
-            $dbh,
-            "SELECT " . $rowsParams['colList'] . " FROM `" . $rowsParams['table'] . "` WHERE 1",
-            $rowsParams['table'],
-            $rowsParams['lastOffset'],
-            $rowsParams['page_size'],
-            $rowsParams['lastOffset'],
-            [
-                'DUPX_DB',
-                'query_log_callback',
-            ]
-        );
+        if (!$data) {
+            $errMsg                      = mysqli_error($dbh);
+            $s3Funcs->report['errsql'][] = $errMsg;
+            $nManager->addFinalReportNotice(array(
+                'shortMsg' => 'DATA-REPLACE ERRORS: MySQL',
+                'level'    => DUPX_NOTICE_ITEM::SOFT_WARNING,
+                'longMsg'  => $errMsg,
+                'sections' => 'search_replace'
+            ));
+        }
 
         //Loops every row
         while ($row = mysqli_fetch_assoc($data)) {
             self::evaluateRow($rowsParams, $row);
         }
+
+        //DUPX_U::fcgiFlush();
         @mysqli_free_result($data);
 
         return $rowsParams['updated'];
     }
 
     /**
-     * Return max serialize len
+     * evaluate single row columns
      *
-     * @return int
+     * @param array $rowsParams
+     * @param array $row
+     *
+     * @return boolean true if row is modified and updated
      */
-    private static function getMaxSerializeLen()
+    private static function evaluateRow(&$rowsParams, $row)
     {
-        static $maxLen = null;
-        if (is_null($maxLen)) {
-            $maxLen = PrmMng::getInstance()->getValue(PrmMng::PARAM_MAX_SERIALIZE_CHECK) * 1000000;
-        }
-        return $maxLen;
-    }
-
-    /**
-     * Evaluate single row columns
-     *
-     * @param array<string,mixed>  $rowsParams table params
-     * @param array<string,scalar> $row        row data
-     *
-     * @return bool true if row is modified and updated
-     */
-    private static function evaluateRow(&$rowsParams, array $row)
-    {
-        $nManager = DUPX_NOTICE_MANAGER::getInstance();
-        $s3Funcs  = DUPX_S3_Funcs::getInstance();
-        $dbh      = $s3Funcs->getDbConnection();
+        $nManager             = DUPX_NOTICE_MANAGER::getInstance();
+        $s3Funcs              = DUPX_S3_Funcs::getInstance();
+        $dbh                  = $s3Funcs->getDbConnection();
+        $maxSerializeLenCheck = $s3Funcs->getPost('maxSerializeStrlen');
 
         $s3Funcs->report['scan_rows']++;
         $rowsParams['current_row']++;
 
-        $upd_col    = [];
-        $upd_sql    = [];
-        $where_sql  = [];
+        $upd_col    = array();
+        $upd_sql    = array();
+        $where_sql  = array();
         $upd        = false;
         $serial_err = false;
         $is_unkeyed = !in_array(true, $rowsParams['columns']);
 
-        $rowErrors = [];
+        $rowErrors = array();
+
 
         //Loops every cell
         foreach ($rowsParams['columns'] as $column => $primary_key) {
@@ -510,432 +410,564 @@ MSG;
                 continue;
             }
 
-            $safe_column = '`' . mysqli_real_escape_string($dbh, $column) . '`';
-            $edited_data = $originalData = $row[$column];
+            $safe_column     = '`'.mysqli_real_escape_string($dbh, $column).'`';
+            $edited_data     = $originalData    = $row[$column];
+            $base64converted = false;
+            $txt_found       = false;
 
             //Unkeyed table code
             //Added this here to add all columns to $where_sql
             //The if statement with $txt_found would skip additional columns -TG
             if ($is_unkeyed && !empty($originalData)) {
-                $where_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($dbh, $originalData) . '"';
+                $where_sql[] = $safe_column.' = "'.mysqli_real_escape_string($dbh, $originalData).'"';
             }
 
             //Only replacing string values
             if (!empty($row[$column]) && !is_numeric($row[$column]) && $primary_key != 1) {
-                // skip tables with no search and replace list
-                if (empty($rowsParams['srList'])) {
+                // get search and reaplace list for column
+                $tColList        = &$rowsParams['columnsSRList'][$column]['list'];
+                $tColSearchList  = &$rowsParams['columnsSRList'][$column]['sList'];
+                $tColreplaceList = &$rowsParams['columnsSRList'][$column]['rList'];
+                $tColExactMatch  = $rowsParams['columnsSRList'][$column]['exactMatch'];
+
+                // skip empty search col
+                if (empty($tColSearchList)) {
                     continue;
                 }
 
-                // SEARCH AND REPLACE
-                $replaced = self::getTableReplacer($rowsParams)->replace((string) $originalData);
-                if ($replaced->isRejected()) {
-                    $substrData = substr((string) $originalData, 0, Log::isLevel(Log::LV_DEBUG) ? 20000 : 1000);
-                    $message    = 'ENGINE: ' . $replaced->getError() .
-                        "\n\tDATA: " . $substrData;
+                // Search strings in data
+                foreach ($tColList as $item) {
+                    if (strpos($edited_data, $item['search']) !== false) {
+                        $txt_found = true;
+                        break;
+                    }
+                }
 
-                    Log::info($message);
+                if (!$txt_found) {
+                    //if not found decetc Base 64
+                    if (($decoded = DUPX_U::is_base64($row[$column])) !== false) {
+                        $edited_data     = $decoded;
+                        $base64converted = true;
+
+                        // Search strings in data decoded
+                        foreach ($tColList as $item) {
+                            if (strpos($edited_data, $item['search']) !== false) {
+                                $txt_found = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    //Skip table cell if match not found
+                    if (!$txt_found) {
+                        continue;
+                    }
+                }
+
+                // 0 no limit
+                if ($maxSerializeLenCheck > 0 && self::is_serialized_string($edited_data) && strlen($edited_data) > $maxSerializeLenCheck) {
                     $serial_err         = true;
-                    $rowErrors[$column] = $message;
-                    continue;
+                    $trimLen            = DUPX_Log::isLevel(DUPX_Log::LV_HARD_DEBUG) ? 10000 : 200;
+                    $rowErrors[$column] = 'ENGINE: serialize data too big to convert; data len:'.strlen($edited_data).' Max size:'.$maxSerializeLenCheck;
+                    $rowErrors[$column] .= "\n\tDATA: ".mb_strimwidth($edited_data, 0, $trimLen, ' [...]');
+                } else {
+                    //Replace logic - level 1: simple check on any string or serlized strings
+                    if ($tColExactMatch) {
+                        // if is exact match search and replace the itentical string
+                        if (($rIndex = array_search($edited_data, $tColSearchList)) !== false) {
+                            DUPX_Log::info("ColExactMatch ".$column.' search:'.$edited_data.' replace:'.$tColreplaceList[$rIndex].' index:'.$rIndex, DUPX_Log::LV_DEBUG);
+                            $edited_data = $tColreplaceList[$rIndex];
+                        }
+                    } else {
+                        // search if column contain search list
+                        $edited_data = self::searchAndReplaceItems($tColSearchList, $tColreplaceList, $edited_data);
+
+                        //Replace logic - level 2: repair serialized strings that have become broken
+                        // check value without unserialize it
+                        if (self::is_serialized_string($edited_data)) {
+                            $serial_check = self::fixSerialString($edited_data);
+                            if ($serial_check['fixed']) {
+                                $edited_data = $serial_check['data'];
+                            } else {
+                                $trimLen            = DUPX_Log::isLevel(DUPX_Log::LV_HARD_DEBUG) ? 10000 : 200;
+                                $message            = 'ENGINE: serialize data serial check error'.
+                                    "\n\tDATA: ".mb_strimwidth($edited_data, 0, $trimLen, ' [...]');
+                                DUPX_Log::info($message);
+                                $serial_err         = true;
+                                $rowErrors[$column] = $message;
+                            }
+                        }
+                    }
                 }
-                $edited_data = $replaced->getValue();
+            }
+
+            //Base 64 encode
+            if ($base64converted) {
+                $edited_data = base64_encode($edited_data);
             }
 
             //Change was made
             if ($serial_err == false && $edited_data != $originalData) {
-                // Truncate if value exceeds varchar/char column limit (skip serialized data to avoid corruption)
-                if (isset($rowsParams['columnsMaxLen'][$column]) && strlen($edited_data) > $rowsParams['columnsMaxLen'][$column]) {
-                    if (SerializedData::isSerialized((string) $edited_data)) {
-                        Log::info(
-                            'ENGINE: Skipping column ' . $column . ' - serialized data (' .
-                            strlen($edited_data) . ' chars) exceeds column limit (' .
-                            $rowsParams['columnsMaxLen'][$column] . ')' .
-                            "\n\tTABLE: " . $rowsParams['table']
-                        );
-                        continue;
-                    }
-                    Log::info(
-                        'ENGINE: Truncating column ' . $column . ' from ' .
-                        strlen($edited_data) . ' to ' . $rowsParams['columnsMaxLen'][$column] . ' chars' .
-                        "\n\tTABLE: " . $rowsParams['table']
-                    );
-                    $edited_data = substr($edited_data, 0, $rowsParams['columnsMaxLen'][$column]);
-                }
                 $s3Funcs->report['updt_cells']++;
                 $upd_col[] = $safe_column;
-                $upd_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($dbh, $edited_data) . '"';
+                $upd_sql[] = $safe_column.' = "'.mysqli_real_escape_string($dbh, $edited_data).'"';
                 $upd       = true;
             }
 
             if ($primary_key) {
-                $where_sql[] = $safe_column . ' = "' . mysqli_real_escape_string($dbh, $originalData) . '"';
+                $where_sql[] = $safe_column.' = "'.mysqli_real_escape_string($dbh, $originalData).'"';
             }
         }
 
         foreach ($rowErrors as $errCol => $msgCol) {
-            $longMsg                     = $msgCol . "\n\tTABLE:" . $rowsParams['table'] . ' COLUMN: ' . $errCol . ' WHERE: ' . implode(' AND ', $where_sql);
+            $longMsg                     = $msgCol."\n\tTABLE:".$rowsParams['table'].' COLUMN: '.$errCol.' WHERE: '.implode(' AND ', array_filter($where_sql));
             $s3Funcs->report['errser'][] = $longMsg;
-            $nManager->addFinalReportNotice([
+
+            $nManager->addFinalReportNotice(array(
                 'shortMsg'    => 'DATA-REPLACE ERROR: Serialization',
                 'level'       => DUPX_NOTICE_ITEM::SOFT_WARNING,
                 'longMsg'     => $longMsg,
                 'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
+                'sections'    => 'search_replace'
+            ));
         }
 
         //PERFORM ROW UPDATE
         if ($upd && !empty($where_sql)) {
-            $sql    = "UPDATE `{$rowsParams['table']}` SET " . implode(', ', $upd_sql) . ' WHERE ' . implode(' AND ', $where_sql);
-            $result = DUPX_DB::mysqli_query($dbh, $sql);
+            $sql    = "UPDATE `{$rowsParams['table']}` SET ".implode(', ', $upd_sql).' WHERE '.implode(' AND ', array_filter($where_sql));
+            $result = DUPX_DB::mysqli_query($dbh, $sql, __FILE__, __LINE__);
 
             if ($result) {
                 $s3Funcs->report['updt_rows']++;
                 $rowsParams['updated'] = true;
             } else {
-                $errMsg                      = mysqli_error($dbh) . "\n\tTABLE:" . $rowsParams['table'] . ' WHERE: ' . implode(' AND ', $where_sql);
-                $s3Funcs->report['errsql'][] = 'DB ERROR: ' . $errMsg . (Log::isLevel(Log::LV_DETAILED) ? "\nSQL: [{$sql}]\n" : '');
-                $nManager->addFinalReportNotice([
+                $errMsg                      = mysqli_error($dbh)."\n\tTABLE:".$rowsParams['table'].' COLUMN: '.$errCol.' WHERE: '.implode(' AND ', array_filter($where_sql));
+                $s3Funcs->report['errsql'][] = ($GLOBALS['LOGGING'] == 1) ? 'DB ERROR: '.$errMsg : 'DB ERROR: '.$errMsg."\nSQL: [{$sql}]\n";
+                $nManager->addFinalReportNotice(array(
                     'shortMsg'    => 'DATA-REPLACE ERRORS: MySQL',
                     'level'       => DUPX_NOTICE_ITEM::SOFT_WARNING,
                     'longMsg'     => $errMsg,
                     'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                    'sections'    => 'search_replace',
-                ]);
+                    'sections'    => 'search_replace'
+                ));
             }
         } elseif ($upd) {
             $errMsg                      = sprintf("Row [%s] on Table [%s] requires a manual update.", $rowsParams['current_row'], $rowsParams['table']);
             $s3Funcs->report['errkey'][] = $errMsg;
 
-            $nManager->addFinalReportNotice([
+            $nManager->addFinalReportNotice(array(
                 'shortMsg' => 'DATA-REPLACE ERROR: Key',
                 'level'    => DUPX_NOTICE_ITEM::SOFT_WARNING,
                 'longMsg'  => $errMsg,
-                'sections' => 'search_replace',
-            ]);
+                'sections' => 'search_replace'
+            ));
         }
 
         return $rowsParams['updated'];
     }
 
-    /**
-     * Returns the replacer of a table, built once per table
-     *
-     * @param array<string,mixed> $rowsParams table params
-     *
-     * @return ValueReplacer
-     */
-    private static function getTableReplacer(array $rowsParams): ValueReplacer
+    private static function getColumnsSearchReplaceList($table, $columns)
     {
-        static $table    = null;
-        static $replacer = null;
-
-        if ($replacer === null || $table !== $rowsParams['table']) {
-            $table    = $rowsParams['table'];
-            $replacer = new ValueReplacer($rowsParams['srList'], self::getMaxSerializeLen());
-        }
-        return $replacer;
-    }
-
-    /**
-     * Replace site table
-     *
-     * @return void
-     */
-    public static function replaceSiteTable(): void
-    {
-        if (!InstState::isNewSiteIsMultisite()) {
-            return;
+        // PREPARE SEARCH AN REPLACE LISF FOR TABLES
+        $srManager   = DUPX_S_R_MANAGER::getInstance();
+        $searchList  = array();
+        $replaceList = array();
+        $list        = $srManager->getSearchReplaceList($table);
+        foreach ($list as $item) {
+            $searchList[]  = $item['search'];
+            $replaceList[] = $item['replace'];
         }
 
-        $s3Funcs       = DUPX_S3_Funcs::getInstance();
-        $nManager      = DUPX_NOTICE_MANAGER::getInstance();
-        $paramsManager = PrmMng::getInstance();
-        $dbh           = $s3Funcs->getDbConnection();
-
-        $networkId = DUPX_ArchiveConfig::getInstance()->wpInfo->network_id;
-        $prefix    = $paramsManager->getValue(PrmMng::PARAM_DB_TABLE_PREFIX);
-        $siteTalbe = $prefix . 'site';
-        if (!in_array($siteTalbe, DUPX_DB::getTables($dbh))) {
-            Log::info("NOT SITE TABLE[" . $siteTalbe . "] FOUND, SKIP UPDATE");
-            return;
-        }
-        Log::info("ENGINE UPDATE SITE TABLE");
-
-        $escapedSiteTable = mysqli_real_escape_string($dbh, $siteTalbe);
-
-        $rUrlInfo = parse_url($paramsManager->getValue(PrmMng::PARAM_URL_NEW));
-        $rHost    = isset($rUrlInfo['host']) ? mysqli_real_escape_string($dbh, $rUrlInfo['host']) : '';
-        $rPath    = $rUrlInfo['path'] ?? '';
-        $rPath    = mysqli_real_escape_string($dbh, (rtrim($rPath, '/') . '/'));
-
-        $sql = 'UPDATE ' . $escapedSiteTable . ' SET `domain` = "' . $rHost . '", `path` = "' . $rPath . '" WHERE ' . $escapedSiteTable . '.`id` = ' . $networkId;
-        if (DUPX_DB::mysqli_query($dbh, $sql) === false) {
-            $errMsg                      = 'site table updates error' .
-                "\n\t" . mysqli_error($dbh) .
-                "\n\tTABLE:" . $siteTalbe . ' HOST: ' . $rHost . ' PATH: ' . $rPath . ' SUBSITEID: ' . $networkId;
-            $s3Funcs->report['errsql'][] = 'DB ERROR: ' . $errMsg . (Log::isLevel(Log::LV_DETAILED) ? "\nSQL: [{$sql}]\n" : '');
-            $nManager->addFinalReportNotice([
-                'shortMsg'    => 'DATA-REPLACE ERRORS: MySQL',
-                'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                'longMsg'     => $errMsg,
-                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
-        } else {
-            Log::info('ENGINE SITE TALBE UPDATED ID:' . $networkId . ' DOMAIN:' . $rHost . ' PATH:' . $rPath, Log::LV_DETAILED);
-        }
-    }
-
-    /**
-     * Replace blogs table
-     *
-     * @return void
-     */
-    public static function replaceBlogsTable(): void
-    {
-        if (!InstState::isNewSiteIsMultisite()) {
-            return;
-        }
-
-        $s3Funcs       = DUPX_S3_Funcs::getInstance();
-        $nManager      = DUPX_NOTICE_MANAGER::getInstance();
-        $paramsManager = PrmMng::getInstance();
-        $dbh           = $s3Funcs->getDbConnection();
-
-        Log::resetIndent();
-        $newMuUrls = Multisite::getMappedSubisteURLs();
-
-        Log::info("ENGINE UPDATE BLOGS TABLE\n" . Log::v2str($newMuUrls));
-
-        $escapedTablePrefix = mysqli_real_escape_string($dbh, PrmMng::getInstance()->getValue(PrmMng::PARAM_DB_TABLE_PREFIX));
-        $table              = '`' . $escapedTablePrefix . 'blogs`';
-
-        foreach ($newMuUrls as $currentSubid => $newSiteUrl) {
-            $rUrlInfo = parse_url($newSiteUrl);
-            $rHost    = isset($rUrlInfo['host']) ? mysqli_real_escape_string($dbh, $rUrlInfo['host']) : '';
-            $rPath    = $rUrlInfo['path'] ?? '';
-            $rPath    = mysqli_real_escape_string($dbh, (rtrim($rPath, '/') . '/'));
-
-            $sql = 'UPDATE ' . $table . ' SET `domain` = \'' . $rHost . '\', `path` = \'' . $rPath . '\' WHERE ' . $table . '.`blog_id` = ' . $currentSubid;
-            if (DUPX_DB::mysqli_query($dbh, $sql) === false) {
-                $errMsg                      = 'blogs table updates error' .
-                    "\n\t" . mysqli_error($dbh) .
-                    "\n\tTABLE:" . $table . ' HOST: ' . $rHost . ' PATH: ' . $rPath . ' SUBSITEID: ' . $currentSubid;
-                $s3Funcs->report['errsql'][] = 'DB ERROR: ' . $errMsg . (Log::isLevel(Log::LV_DETAILED) ? "\nSQL: [{$sql}]\n" : '');
-                $nManager->addFinalReportNotice([
-                    'shortMsg'    => 'DATA-REPLACE ERRORS: MySQL',
-                    'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                    'longMsg'     => $errMsg,
-                    'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                    'sections'    => 'search_replace',
-                ]);
+        $columnsSRList = array();
+        foreach ($columns as $column => $primary_key) {
+            if (($cScope = self::getSearchReplaceCustomScope($table, $column)) === false) {
+                // if don't have custom scope get normal search and reaplce table list
+                $columnsSRList[$column] = array(
+                    'list'       => &$list,
+                    'sList'      => &$searchList,
+                    'rList'      => &$replaceList,
+                    'exactMatch' => false
+                );
             } else {
-                Log::info('ENGINE BLOG TALBE UPDATED ID:' . $currentSubid . ' DOMAIN:' . $rHost . ' PATH:' . $rPath, Log::LV_DETAILED);
-            }
-        }
-    }
-
-    /**
-     * Update table prefix
-     *
-     * @param mysqli $dbh       database connection
-     * @param string $table     table name
-     * @param string $column    column name
-     * @param string $oldPrefix old prefix
-     * @param string $newPrefix new prefix
-     *
-     * @return bool
-     */
-    public static function updateTablePrefix($dbh, $table, $column, $oldPrefix, $newPrefix): bool
-    {
-        if ($oldPrefix === $newPrefix) {
-            return true;
-        }
-
-        Log::info('UPDATE KEYS PREFIX ON ' . $table . ' COLUMN ' . $column . ' FROM ' . $oldPrefix . ' TO ' . $newPrefix);
-
-        $lenOldPrefix          = strlen($oldPrefix) + 1;
-        $regexOldTablePrefix   = mysqli_real_escape_string($dbh, SnapDB::quoteRegex($oldPrefix));
-        $escapedNewTablePrefix = mysqli_real_escape_string($dbh, $newPrefix);
-
-        // remove old prefix values if exists
-        $sql = 'DELETE FROM ' . $table . ' WHERE ' . $column . ' IN ('
-            . 'SELECT CONCAT(\'' . $escapedNewTablePrefix . '\',SUBSTRING(' . $column . ' , ' . $lenOldPrefix . ')) '
-            . 'FROM (SELECT * FROM ' . $table . ' WHERE `' . $column . '` REGEXP \'^' . $regexOldTablePrefix . '\') selectTableAlias'
-            . ')';
-
-        if (DUPX_DB::mysqli_query($dbh, $sql) === false) {
-            $nManager = DUPX_NOTICE_MANAGER::getInstance();
-            $s3Funcs  = DUPX_S3_Funcs::getInstance();
-            $errMsg   = 'Query error on table prefix user meta ' . "\n\t" . mysqli_error($dbh);
-
-            $s3Funcs->report['errsql'][] = 'DB ERROR: ' . $errMsg . (Log::isLevel(Log::LV_DETAILED) ? "\nSQL: [{$sql}]\n" : '');
-            $nManager->addFinalReportNotice([
-                'shortMsg'    => 'UPDATE PREFIX TABLE ERROR',
-                'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                'longMsg'     => $errMsg,
-                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
-            return false;
-        }
-
-        /// rename table prefix value
-        $sql = 'UPDATE ' . $table . ' SET ' . $column . ' = CONCAT(\'' . $escapedNewTablePrefix . '\',SUBSTRING(' . $column . ' , ' . $lenOldPrefix . ')) WHERE `' . $column . '` REGEXP \'^' . $regexOldTablePrefix . '\'';
-        if (DUPX_DB::mysqli_query($dbh, $sql) === false) {
-            $nManager = DUPX_NOTICE_MANAGER::getInstance();
-            $s3Funcs  = DUPX_S3_Funcs::getInstance();
-            $errMsg   = 'Query error on table prefix user meta ' . "\n\t" . mysqli_error($dbh);
-
-            $s3Funcs->report['errsql'][] = 'DB ERROR: ' . $errMsg . (Log::isLevel(Log::LV_DETAILED) ? "\nSQL: [{$sql}]\n" : '');
-            $nManager->addFinalReportNotice([
-                'shortMsg'    => 'UPDATE PREFIX TABLE ERROR',
-                'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                'longMsg'     => $errMsg,
-                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Update table prefix keys for add site on multisite
-     *
-     * @return bool
-     */
-    protected static function updateKeysForAddSiteToMultisite(): bool
-    {
-        Log::info("\nUPDATE PREFIX KEY TABLES FOR ADDON MULTISITE");
-
-        $s3Funcs  = DUPX_S3_Funcs::getInstance();
-        $nManager = DUPX_NOTICE_MANAGER::getInstance();
-        $dbh      = $s3Funcs->getDbConnection();
-
-        /** @var SiteOwrMap[] $overwriteMapping */
-        $overwriteMapping = PrmMng::getInstance()->getValue(PrmMng::PARAM_SUBSITE_OVERWRITE_MAPPING);
-
-        $tables = DUPX_DB_Tables::getInstance()->getNewTablesNames();
-        if (!is_array($tables)) {
-            $nManager->addFinalReportNotice([
-                'shortMsg'    => 'CAN\'T FIND ANY TABLE IN DATABASE',
-                'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
-            return false;
-        }
-
-        foreach ($overwriteMapping as $map) {
-            $sourceInfo = $map->getSourceSiteInfo();
-            $targetInfo = $map->getTargetSiteInfo();
-
-            $oldPrefix = $sourceInfo['blog_prefix'];
-            $newPrefix = $targetInfo['blog_prefix'];
-
-            if ($oldPrefix == $newPrefix) {
-                continue;
-            }
-
-            $optionsTable = mysqli_real_escape_string($dbh, DUPX_DB_Functions::getOptionsTableName($newPrefix));
-
-            if (in_array($optionsTable, $tables)) {
-                Log::info('UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' FROM ' . $oldPrefix . ' TO ' . $newPrefix);
-                self::updateTablePrefix($dbh, $optionsTable, 'option_name', $oldPrefix, $newPrefix);
-            } else {
-                Log::info('CAN\'T UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' BACAUSE TABLE NOT IN LIST', Log::LV_DETAILED);
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Update table prefix keys
-     *
-     * @return bool
-     */
-    public static function updateTablePrefixKeys()
-    {
-        if (InstState::isAddSiteOnMultisite()) {
-            return self::updateKeysForAddSiteToMultisite();
-        }
-
-        if (!DUPX_ArchiveConfig::getInstance()->isTablePrefixChanged()) {
-            return true;
-        }
-
-        Log::info("\nUPDATE PREFIX KEY TABLES");
-
-        $nManager      = DUPX_NOTICE_MANAGER::getInstance();
-        $s3Funcs       = DUPX_S3_Funcs::getInstance();
-        $paramsManager = PrmMng::getInstance();
-        $archiveConfig = DUPX_ArchiveConfig::getInstance();
-
-        $dbh = $s3Funcs->getDbConnection();
-
-        $oldPrefix    = DUPX_ArchiveConfig::getInstance()->wp_tableprefix;
-        $newPrefix    = $paramsManager->getValue(PrmMng::PARAM_DB_TABLE_PREFIX);
-        $optionsTable = mysqli_real_escape_string($dbh, DUPX_DB_Functions::getOptionsTableName());
-
-        $tables = DUPX_DB_Tables::getInstance()->getNewTablesNames();
-        if (!is_array($tables)) {
-            $nManager->addFinalReportNotice([
-                'shortMsg'    => 'CAN\'T FIND ANY TABLE IN DATABASE',
-                'level'       => DUPX_NOTICE_ITEM::CRITICAL,
-                'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-                'sections'    => 'search_replace',
-            ]);
-            return false;
-        }
-
-        if (in_array($optionsTable, $tables)) {
-            Log::info('UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' FROM ' . $oldPrefix . ' TO ' . $newPrefix);
-            self::updateTablePrefix($dbh, $optionsTable, 'option_name', $oldPrefix, $newPrefix);
-        } else {
-            Log::info('CAN\'T UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' BACAUSE TABLE NOT IN LIST', Log::LV_DETAILED);
-        }
-
-        $usermetaTable = DUPX_DB_Functions::getUserMetaTableName();
-        if (in_array($usermetaTable, $tables)) {
-            Log::info('UPDATE PREFIX IN TABLE ' . Log::v2str($usermetaTable) . ' FROM ' . $oldPrefix . ' TO ' . $newPrefix);
-            self::updateTablePrefix($dbh, $usermetaTable, 'meta_key', $oldPrefix, $newPrefix);
-        } else {
-            Log::info('CAN\'T UPDATE PREFIX IN TABLE ' . Log::v2str($usermetaTable) . ' BACAUSE TABLE NOT IN LIST', Log::LV_DETAILED);
-        }
-
-        if (
-            InstState::isInstType(
-                [
-                    InstState::TYPE_MSUBDOMAIN,
-                    InstState::TYPE_MSUBFOLDER,
-                ]
-            )
-        ) {
-            foreach ($archiveConfig->subsites as $subsiteInfo) {
-                $oldSubsitePrefix = $subsiteInfo->blog_prefix;
-
-                // main prefix already done
-                if ($oldPrefix == $oldSubsitePrefix) {
-                    continue;
+                // if column have custom scope overvrite default table search/replace list
+                $columnsSRList[$column] = array(
+                    'list'       => $srManager->getSearchReplaceList($cScope, true, false),
+                    'sList'      => array(),
+                    'rList'      => array(),
+                    'exactMatch' => self::isExactMatch($table, $column)
+                );
+                foreach ($columnsSRList[$column]['list'] as $item) {
+                    $columnsSRList[$column]['sList'][] = $item['search'];
+                    $columnsSRList[$column]['rList'][] = $item['replace'];
                 }
+            }
+        }
 
-                $newSubsitePrefix = $archiveConfig->getSubsitePrefixByParam($subsiteInfo->id);
-                Log::info('SUBSITE ID: ' . Log::v2str($subsiteInfo->id) . ' NEW SUBSITE PREFIX:' . Log::v2str($newSubsitePrefix), Log::LV_DEBUG);
+        return $columnsSRList;
+    }
 
-                $optionsTable = $newSubsitePrefix . 'options';
-                if (in_array($optionsTable, $tables)) {
-                    Log::info('UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' FROM ' . $oldSubsitePrefix . ' TO ' . $newSubsitePrefix);
-                    self::updateTablePrefix($dbh, $optionsTable, 'option_name', $oldSubsitePrefix, $newSubsitePrefix);
+    /**
+     * searches and replaces strings without deserializing
+     * recursion for arrays
+     *
+     * @param array $search
+     * @param array $replace
+     * @param mixed $data
+     *
+     * @return mixed
+     */
+    public static function searchAndReplaceItems($search, $replace, $data)
+    {
+
+        if (empty($data) || is_numeric($data) || is_bool($data) || is_callable($data)) {
+
+            /* do nothing */
+        } else if (is_string($data)) {
+
+            //  Multiple replace string. If the string is serialized will fixed with fixSerialString
+            $data = str_replace($search, $replace, $data);
+        } else if (is_array($data)) {
+
+            $_tmp = array();
+            foreach ($data as $key => $value) {
+
+                // prevent recursion overhead
+                if (empty($value) || is_numeric($value) || is_bool($value) || is_callable($value) || is_object($data)) {
+
+                    $_tmp[$key] = $value;
                 } else {
-                    Log::info('CAN\'T UPDATE PREFIX IN TABLE ' . Log::v2str($optionsTable) . ' BACAUSE TABLE NOT IN LIST', Log::LV_DETAILED);
+
+                    $_tmp[$key] = self::searchAndReplaceItems($search, $replace, $value, false);
+                }
+            }
+
+            $data = $_tmp;
+            unset($_tmp);
+        } elseif (is_object($data)) {
+            // it can never be an object type
+            DUPX_Log::info("OBJECT DATA IMPOSSIBLE\n");
+        }
+
+        return $data;
+    }
+
+    /**
+     * FROM WORDPRESS
+     * Check value to find if it was serialized.
+     *
+     * If $data is not an string, then returned value will always be false.
+     * Serialized data is always a string.
+     *
+     * @since 2.0.5
+     *
+     * @param string $data   Value to check to see if was serialized.
+     * @param bool   $strict Optional. Whether to be strict about the end of the string. Default true.
+     * @return bool False if not serialized and true if it was.
+     */
+    public static function is_serialized_string($data, $strict = true)
+    {
+        // if it isn't a string, it isn't serialized.
+        if (!is_string($data)) {
+            return false;
+        }
+        $data = trim($data);
+        if ('N;' == $data) {
+            return true;
+        }
+        if (strlen($data) < 4) {
+            return false;
+        }
+        if (':' !== $data[1]) {
+            return false;
+        }
+        if ($strict) {
+            $lastc = substr($data, -1);
+            if (';' !== $lastc && '}' !== $lastc) {
+                return false;
+            }
+        } else {
+            $semicolon = strpos($data, ';');
+            $brace     = strpos($data, '}');
+            // Either ; or } must exist.
+            if (false === $semicolon && false === $brace) {
+                return false;
+            }
+            // But neither must be in the first X characters.
+            if (false !== $semicolon && $semicolon < 3) {
+                return false;
+            }
+            if (false !== $brace && $brace < 4) {
+                return false;
+            }
+        }
+        $token = $data[0];
+        switch ($token) {
+            case 's' :
+                if ($strict) {
+                    if ('"' !== substr($data, -2, 1)) {
+                        return false;
+                    }
+                } elseif (false === strpos($data, '"')) {
+                    return false;
+                }
+            // or else fall through
+            case 'a' :
+            case 'O' :
+                return (bool) preg_match("/^{$token}:[0-9]+:/s", $data);
+            case 'b' :
+            case 'i' :
+            case 'd' :
+                $end = $strict ? '$' : '';
+                return (bool) preg_match("/^{$token}:[0-9.E-]+;$end/", $data);
+        }
+        return false;
+    }
+
+    /**
+     * Test if a string in properly serialized
+     *
+     * @param string $data Any string type
+     *
+     * @return bool Is the string a serialized string
+     */
+    public static function unserializeTest($data)
+    {
+        if (!is_string($data)) {
+            return false;
+        } else if ($data === 'b:0;') {
+            return true;
+        } else {
+            try {
+                DUPX_Handler::setMode(DUPX_Handler::MODE_OFF);
+                $unserialize_ret = @unserialize($data);
+                DUPX_Handler::setMode();
+                return ($unserialize_ret !== false);
+            }
+            catch (Exception $e) {
+                DUPX_Log::info("Unserialize exception: ".$e->getMessage());
+                //DEBUG ONLY:
+                DUPX_Log::info("Serialized data\n".$data, DUPX_Log::LV_DEBUG);
+                return false;
+            }
+        }
+    }
+    /**
+     * custom columns list
+     * if the table / column pair exists in this array then the search scope will be overwritten with that contained in the array
+     *
+     * @var array
+     */
+    private static $customScopes = array(
+        'signups' => array(
+            'domain' => array(
+                'scope' => 'domain_host',
+                'exact' => true
+            ),
+            'path'   => array(
+                'scope' => 'domain_path',
+                'exact' => true
+            )
+        ),
+        'site'    => array(
+            'domain' => array(
+                'scope' => 'domain_host',
+                'exact' => true
+            ),
+            'path'   => array(
+                'scope' => 'domain_path',
+                'exact' => true
+            )
+        )
+    );
+
+    /**
+     *
+     * @param string $table
+     * @param string $column
+     * @return boolean|string  false if custom scope not found or return custom scoper for table/column
+     */
+    private static function getSearchReplaceCustomScope($table, $column)
+    {
+        if (strpos($table, $GLOBALS['DUPX_AC']->wp_tableprefix) !== 0) {
+            return false;
+        }
+
+        $table_key = substr($table, strlen($GLOBALS['DUPX_AC']->wp_tableprefix));
+
+        if (!array_key_exists($table_key, self::$customScopes)) {
+            return false;
+        }
+
+        if (!array_key_exists($column, self::$customScopes[$table_key])) {
+            return false;
+        }
+
+        return self::$customScopes[$table_key][$column]['scope'];
+    }
+
+    /**
+     *
+     * @param string $table
+     * @param string $column
+     * @return boolean if true search a exact match in column if false search as LIKE
+     */
+    private static function isExactMatch($table, $column)
+    {
+        if (strpos($table, $GLOBALS['DUPX_AC']->wp_tableprefix) !== 0) {
+            return false;
+        }
+
+        $table_key = substr($table, strlen($GLOBALS['DUPX_AC']->wp_tableprefix));
+
+        if (!array_key_exists($table_key, self::$customScopes)) {
+            return false;
+        }
+
+        if (!array_key_exists($column, self::$customScopes[$table_key])) {
+            return false;
+        }
+
+        return self::$customScopes[$table_key][$column]['exact'];
+    }
+
+    /**
+     *  Fixes the string length of a string object that has been serialized but the length is broken
+     *
+     * @param string $data The string object to recalculate the size on.
+     *
+     * @return string  A serialized string that fixes and string length types
+     */
+    public static function fixSerialString($data)
+    {
+        $result = array(
+            'data'  => null,
+            'fixed' => false,
+            'tried' => false
+        );
+
+        // check if serialized string must be fixed
+        if (self::unserializeTest($data)) {
+            $result['data']  = $data;
+            $result['fixed'] = true;
+        } else {
+            $result['tried']  = true;
+            $serialized_fixed = self::recursiveFixSerialString($data);
+            if (self::unserializeTest($serialized_fixed)) {
+                $result['data']  = $serialized_fixed;
+                $result['fixed'] = true;
+            } else {
+                $result['fixed'] = false;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *  Fixes the string length of a string object that has been serialized but the length is broken
+     *  Work on nested serialized string recursively.
+     *
+     *  @param string $data	The string ojbect to recalculate the size on.
+     *
+     *  @return string  A serialized string that fixes and string length types
+     */
+    public static function recursiveFixSerialString($data)
+    {
+
+        if (!self::is_serialized_string($data)) {
+            return $data;
+        }
+
+        $result  = '';
+        $matches = null;
+
+        $openLevel     = 0;
+        $openContent   = '';
+        $openContentL2 = '';
+
+        // parse every char
+        for ($i = 0; $i < strlen($data); $i++) {
+
+            $cChar = $data[$i];
+
+            $addChar = true;
+
+            if ($cChar == 's') {
+                // test if is a open string
+                if (preg_match(self::SERIALIZE_OPEN_STR_REGEX, substr($data, $i, self::SERIALIZE_OPEN_SUBSTR_LEN), $matches)) {
+
+                    if ($openLevel > 1) {
+                        $openContentL2 .= $matches[0];
+                    }
+
+                    $addChar = false;
+
+                    $openLevel++;
+
+                    $i += strlen($matches[0]) - 1;
+                }
+            } else if ($openLevel > 0 && $cChar == '"') {
+
+                // test if is a close string
+                if (preg_match(self::SERIALIZE_CLOSE_STR_REGEX, substr($data, $i, self::SERIALIZE_CLOSE_SUBSTR_LEN))) {
+                    $addChar = false;
+
+                    switch ($openLevel) {
+                        case 1:
+                            // level 1
+                            // flush string content
+                            $result .= 's:'.strlen($openContent).':"'.$openContent.'";';
+
+                            $openContent = '';
+
+                            break;
+                        case 2;
+                            // level 2
+                            // fix serial string level2
+                            $sublevelstr = self::recursiveFixSerialString($openContentL2);
+
+                            // flush content on level 1
+                            $openContent .= 's:'.strlen($sublevelstr).':"'.$sublevelstr.'";';
+
+                            $openContentL2 = '';
+
+                            break;
+                        default:
+                            // level > 2
+                            // keep writing at level 2; it will be corrected with recursion
+                            $openContentL2 .= self::SERIALIZE_CLOSE_STR;
+                            break;
+                    }
+
+                    $openLevel--;
+                    $i += self::SERIALIZE_CLOSE_STR_LEN - 1;
+                }
+            }
+
+            if ($addChar) {
+                switch ($openLevel) {
+                    case 0:
+                        // level 0
+                        // add char on result
+                        $result .= $cChar;
+
+                        break;
+                    case 1:
+                        // level 1
+                        // add char on content level1
+                        $openContent .= $cChar;
+
+                        break;
+                    default:
+                        // level > 1
+                        // add char on content level2
+                        $openContentL2 .= $cChar;
+
+                        break;
                 }
             }
         }
 
-        return true;
+        return $result;
     }
 }

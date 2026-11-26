@@ -7,26 +7,6 @@
  */
 
 /**
- * Sanitizes the post content before saving it.
- *
- * This function is used as a filter callback for the 'pre_post_content' filter hook.
- * It removes the 'data-et-multi-view' attribute from the post content, unless the current user has the 'unfiltered_html' capability.
- *
- * @since 4.25.1
- *
- * @param string $post_content The post content to be sanitized.
- * @return string The sanitized post content.
- */
-function et_builder_sanitize_post_content_before_saving( $post_content ) {
-	if ( current_user_can( 'unfiltered_html' ) ) {
-		return $post_content;
-	}
-
-	return str_ireplace( 'data-et-multi-view', '', $post_content );
-}
-add_filter( 'pre_post_content', 'et_builder_sanitize_post_content_before_saving' );
-
-/**
  * Render a builder layout to string.
  *
  * @since 4.0.8
@@ -55,12 +35,10 @@ add_filter( 'et_builder_render_layout', 'shortcode_unautop' );
 add_filter( 'et_builder_render_layout', 'prepend_attachment' );
 add_filter( 'et_builder_render_layout', 'do_shortcode', 11 ); // AFTER wpautop().
 
-// Temporarily remove wp_filter_content_tags() from the_content, then call it again by
-// running et_builder_filter_content_image_tags() after do_shortcode() to fill any
+// Run et_builder_filter_content_image_tags() after do_shortcode() to fill any
 // missing height and width attributes on the image. Those attributes are required
 // to add loading "lazy" attribute on the image. In this case, we set the order as
 // 12 because TB runs do_shortcode() on order 11.
-remove_filter( 'the_content', 'wp_filter_content_tags' );
 add_filter( 'the_content', 'et_builder_filter_content_image_tags', 12 );
 add_filter( 'et_builder_render_layout', 'et_builder_filter_content_image_tags', 12 );
 
@@ -182,15 +160,12 @@ if ( ! function_exists( 'et_builder_load_library' ) ) :
 	function et_builder_load_library() {
 		// Initialize the Divi Library.
 		require_once ET_BUILDER_DIR . 'feature/Library.php';
-		require_once ET_BUILDER_DIR . 'feature/SplitLibrary.php';
 
-		// Initialize Divi Cloud and AI.
+		// Initialize DiviCloud.
 		if ( defined( 'ET_BUILDER_PLUGIN_ACTIVE' ) ) {
 			require_once ET_BUILDER_PLUGIN_DIR . '/cloud/cloud-app.php';
-			require_once ET_BUILDER_PLUGIN_DIR . '/ai-app/ai-app.php';
 		} else {
 			require_once get_template_directory() . '/cloud/cloud-app.php';
-			require_once get_template_directory() . '/ai-app/ai-app.php';
 		}
 	}
 endif;
@@ -239,38 +214,8 @@ function et_pb_video_get_oembed_thumbnail() {
 		add_filter( 'oembed_dataparse', 'et_pb_video_oembed_data_parse', 10, 3 );
 		// Save thumbnail.
 		$image_src = wp_oembed_get( $video_url );
-
-		// If the image src is empty try making a remote call with domain referer in case it's domain-restricted vimeo video.
-		// Ref: https://developer.vimeo.com/api/oembed/videos#embedding-videos-with-domain-privacy .
-		$is_vimeo_url = false !== strpos( $video_url, 'vimeo.com' );
-
-		if ( $is_vimeo_url && ! $image_src ) {
-			$vimeo_url      = add_query_arg( 'url', $video_url, 'https://vimeo.com/api/oembed.json' );
-			$vimeo_response = wp_remote_get(
-				$vimeo_url,
-				array(
-					'headers' => array(
-						'Referer' => get_site_url(),
-					),
-				)
-			);
-
-			if ( $vimeo_response ) {
-				$vimeo_response_body = wp_remote_retrieve_body( $vimeo_response );
-
-				if ( $vimeo_response_body ) {
-					$vimeo_response_body = (array) json_decode( $vimeo_response_body );
-
-					if ( ! empty( $vimeo_response_body['thumbnail_url'] ) ) {
-						$image_src = $vimeo_response_body['thumbnail_url'];
-					}
-				}
-			}
-		}
-
 		// Set back to normal.
 		remove_filter( 'oembed_dataparse', 'et_pb_video_oembed_data_parse', 10, 3 );
-
 		if ( '' === $image_src ) {
 			die( -1 );
 		}
@@ -2589,7 +2534,6 @@ function et_fb_get_nonces() {
 		'processImportedData'             => wp_create_nonce( 'et_fb_process_imported_data_nonce' ),
 		'retrieveLibraryModules'          => wp_create_nonce( 'et_fb_retrieve_library_modules_nonce' ),
 		'saveLibraryModules'              => wp_create_nonce( 'et_fb_save_library_modules_nonce' ),
-		'splitLibraryItem'                => wp_create_nonce( 'et_builder_split_library_item' ),
 		'clearTempPresets'                => wp_create_nonce( 'et_fb_clear_temp_presets_nonce' ),
 		'saveCloudItemContent'            => wp_create_nonce( 'et_fb_save_cloud_item_nonce' ),
 		'removeLibraryModules'            => wp_create_nonce( 'et_fb_remove_library_modules_nonce' ),
@@ -2603,7 +2547,6 @@ function et_fb_get_nonces() {
 		'libraryLayoutsData'              => wp_create_nonce( 'et_builder_library_get_layouts_data' ),
 		'libraryGetLayout'                => wp_create_nonce( 'et_builder_library_get_layout' ),
 		'libraryUpdateLayout'             => wp_create_nonce( 'et_builder_library_update_layout' ),
-		'libraryConvertLayout'            => wp_create_nonce( 'et_builder_library_convert_layout' ),
 		'libraryUpdateTerms'              => wp_create_nonce( 'et_builder_library_update_terms' ),
 		'libraryUpdateLocation'           => wp_create_nonce( 'et_builder_library_toggle_item_location' ),
 		'libraryUpdateAccount'            => wp_create_nonce( 'et_builder_library_update_account' ),
@@ -2628,12 +2571,9 @@ function et_fb_get_nonces() {
 		'getDisplayConditionsStatus'      => wp_create_nonce( 'et_builder_ajax_get_display_conditions_status' ),
 		'getPostMetaFields'               => wp_create_nonce( 'et_builder_ajax_get_post_meta_fields' ),
 		'globalColorsSave'                => wp_create_nonce( 'et_builder_global_colors_save' ),
-		'globalColorsGet'                 => wp_create_nonce( 'et_builder_global_colors_get' ),
 		'defaultColorsUpdate'             => wp_create_nonce( 'et_builder_default_colors_update' ),
 		'saveDomainToken'                 => wp_create_nonce( 'et_builder_ajax_save_domain_token' ),
 		'beforeAfterComponents'           => wp_create_nonce( 'et_fb_fetch_before_after_components_nonce' ),
-		'aiLayoutSaveDefaults'            => wp_create_nonce( 'et_ai_layout_save_defaults' ),
-		'saveCustomizerFonts'             => wp_create_nonce( 'et_pb_save_customizer_fonts_nonce' ),
 	);
 
 	return array_merge( $nonces, $fb_nonces );
@@ -4692,9 +4632,6 @@ function et_pb_register_builder_portabilities() {
 	// Don't overwrite global.
 	$_shortname = empty( $shortname ) ? 'divi' : $shortname;
 
-	// get all the roles that can edit theme options.
-	$applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options' ] );
-
 	// Make sure the Portability is loaded.
 	et_core_load_component( 'portability' );
 
@@ -4702,12 +4639,10 @@ function et_pb_register_builder_portabilities() {
 		// phpcs:disable WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
 		// Register the Roles Editor portability.
 		$pb_roles = array(
-			'title'         => esc_html__( 'Import & Export Roles', 'et_builder' ),
-			'name'          => esc_html__( 'Divi Role Editor Settings', 'et_builder' ),
-			'type'          => 'options',
-			'target'        => 'et_pb_role_settings',
-			'view'          => ( isset( $_GET['page'] ) && "et_{$_shortname}_role_editor" === $_GET['page'] ),
-			'applicability' => $applicability_roles,
+			'name'   => esc_html__( 'Divi Role Editor Settings', 'et_builder' ),
+			'type'   => 'options',
+			'target' => 'et_pb_role_settings',
+			'view'   => ( isset( $_GET['page'] ) && "et_{$_shortname}_role_editor" === $_GET['page'] ),
 		);
 		et_core_portability_register( 'et_pb_roles', $pb_roles );
 		// phpcs:enable
@@ -4716,17 +4651,15 @@ function et_pb_register_builder_portabilities() {
 	if ( current_user_can( 'edit_posts' ) ) {
 		// Register the Builder individual layouts portability.
 		$args = array(
-			'title' => esc_html__( 'Import & Export Layouts', 'et_builder' ),
-			'name'  => esc_html__( 'Divi Builder Layout', 'et_builder' ),
-			'type'  => 'post',
-			'view'  => ( function_exists( 'et_builder_should_load_framework' ) && et_builder_should_load_framework() ),
+			'name' => esc_html__( 'Divi Builder Layout', 'et_builder' ),
+			'type' => 'post',
+			'view' => ( function_exists( 'et_builder_should_load_framework' ) && et_builder_should_load_framework() ),
 		);
 		et_core_portability_register( 'et_builder', $args );
 
 		// phpcs:disable WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
 		// Register the Builder Layouts Post Type portability.
 		$layouts = array(
-			'title'  => esc_html__( 'Import & Export Layouts', 'et_builder' ),
 			'name'   => esc_html__( 'Divi Builder Layouts', 'et_builder' ),
 			'type'   => 'post_type',
 			'target' => ET_BUILDER_LAYOUT_POST_TYPE,
@@ -5149,8 +5082,6 @@ if ( ! function_exists( 'et_builder_get_font_family' ) ) :
 	 * @return string
 	 */
 	function et_builder_get_font_family( $font_name, $use_important = false ) {
-		$is_global_font        = in_array( $font_name, array( '--et_global_heading_font', '--et_global_body_font' ), true );
-		$font_name             = $is_global_font ? '--et_global_heading_font' === $font_name ? et_get_option( 'heading_font', '' ) : et_get_option( 'body_font', '' ) : $font_name;
 		$user_fonts            = et_builder_get_custom_fonts();
 		$fonts                 = isset( $user_fonts[ $font_name ] ) ? $user_fonts : et_builder_get_fonts();
 		$removed_fonts_mapping = et_builder_old_fonts_mapping();
@@ -5166,9 +5097,7 @@ if ( ! function_exists( 'et_builder_get_font_family' ) ) :
 		}
 
 		if ( '' !== $font_style ) {
-			$is_global_font_weigth = in_array( $font_style, array( '--et_global_heading_font_weight', '--et_global_body_font_weight' ), true );
-			$font_weight_value     = $is_global_font_weigth ? '--et_global_heading_font_weight' === $font_style ? et_get_option( 'heading_font_weight', '' ) : et_get_option( 'body_font_weight', '' ) : $font_style;
-			$font_weight           = sprintf( ' font-weight: %1$s;', esc_html( $font_style ) );
+			$font_weight = sprintf( ' font-weight: %1$s;', esc_html( $font_style ) );
 		}
 
 		$style = sprintf(
@@ -6264,18 +6193,6 @@ function et_builder_is_tb_admin_screen() {
 	return is_admin() && 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'et_theme_builder' === $_GET['page'];
 }
 
-/**
- * Check if the current screen is the Divi Onboarding administration screen.
- *
- * @since ??
- *
- * @return bool
- */
-function et_builder_is_et_onboarding_page() {
-	// phpcs:ignore WordPress.Security.NonceVerification -- this is generic read-only, bool returning helper function, and not a state changing action that is susceptible to CSRF attack.
-	return is_admin() && isset( $_GET['page'] ) && 'et_onboarding' === $_GET['page'];
-}
-
 if ( ! function_exists( 'et_builder_filter_bfb_enabled' ) ) :
 	/**
 	 * Theme implementation for BFB enabled check.
@@ -7033,11 +6950,7 @@ if ( ! function_exists( 'et_fb_delete_builder_assets' ) ) :
 		);
 
 		foreach ( $image_cache_keys as $image_cache_key ) {
-			$cache_file_name = ET_Core_Cache_File::get_cache_file_name( $image_cache_key );
-
-			if ( file_exists( $cache_file_name ) ) {
-				@unlink( $cache_file_name ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- unlink may fail with the permissions denied error.
-			}
+			@unlink( ET_Core_Cache_File::get_cache_file_name( $image_cache_key ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- unlink may fail with the permissions denied error.
 		}
 
 		/**
@@ -7401,63 +7314,4 @@ function et_light_debug_backtrace() {
 	}
 
 	return array_slice( $light_debug_backtrace, 1 );
-}
-
-/**
- * Get all global colors.
- *
- * @since 4.9.0
- *
- * @return array
- */
-function et_builder_get_all_global_colors( $include_customizer = false ) {
-	if ( $include_customizer ) {
-		$primary_color   = et_get_option( 'accent_color', '#2ea3f2' );
-		$secondary_color = et_get_option( 'secondary_accent_color', '#2ea3f2' );
-		$heading_color   = et_get_option( 'header_color', '#666666' );
-		$body_color      = et_get_option( 'font_color', '#666666' );
-
-		$saved_global_colors = et_get_option( 'et_global_colors' );
-
-		if ( empty( $saved_global_colors ) ) {
-			$saved_global_colors = [];
-		}
-
-		// Remove customizer global colors if exist for any reason.
-		// For example if user imported global colors on old version of Divi which doesn't support customizer colors.
-		$excluded_keys = [
-			'gcid-primary-color',
-			'gcid-secondary-color',
-			'gcid-heading-color',
-			'gcid-body-color',
-		];
-
-		foreach ( $excluded_keys as $excluded_key ) {
-			unset( $saved_global_colors[ $excluded_key ] );
-		}
-
-		return array_merge(
-			[
-				'gcid-primary-color'   => [
-					'color'  => $primary_color,
-					'active' => 'yes',
-				],
-				'gcid-secondary-color' => [
-					'color'  => $secondary_color,
-					'active' => 'yes',
-				],
-				'gcid-heading-color'   => [
-					'color'  => $heading_color,
-					'active' => 'yes',
-				],
-				'gcid-body-color'      => [
-					'color'  => $body_color,
-					'active' => 'yes',
-				],
-			],
-			$saved_global_colors
-		);
-	}
-
-	return et_get_option( 'et_global_colors' );
 }

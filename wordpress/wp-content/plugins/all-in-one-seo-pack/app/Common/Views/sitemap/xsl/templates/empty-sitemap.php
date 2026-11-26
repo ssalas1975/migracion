@@ -5,8 +5,6 @@
  * @since 4.1.5
  */
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,10 +23,7 @@ if ( 'xml-sitemap' !== $data['utmMedium'] ) {
 	if ( ! empty( $data['items'] ) ) {
 		aioseo()->templates->getTemplate(
 			'sitemap/xsl/partials/breadcrumb.php',
-			[
-				'index' => ! empty( $data['index'] ),
-				'items' => $data['items']
-			]
+			[ 'items' => $data['items'] ]
 		);
 	}
 	?>

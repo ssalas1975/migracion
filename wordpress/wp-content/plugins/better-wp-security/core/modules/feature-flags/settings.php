@@ -15,12 +15,9 @@ final class Settings extends Config_Settings {
 		foreach ( \ITSEC_Lib_Feature_Flags::get_available_flags() as $flag => $config ) {
 			list( $reason_code ) = \ITSEC_Lib_Feature_Flags::get_reason( $flag );
 
-			$one = [ 'enum'        => [ $flag ],
-			         'title'       => $config['title'],
-			         'description' => $this->prepare_flag_description( $flag )
-			];
-
-			$schema['properties']['enabled']['items']['oneOf'][] = $one;
+			$schema['properties']['enabled']['items']['enum'][]      = $flag;
+			$schema['properties']['enabled']['items']['enumNames'][] = $config['title'];
+			$schema['uiSchema']['enabled']['ui:enumDescriptions'][]  = $this->prepare_flag_description( $flag );
 
 			if ( $reason_code === 'constant' ) {
 				$schema['uiSchema']['enabled']['ui:enumDisabled'][] = $flag;

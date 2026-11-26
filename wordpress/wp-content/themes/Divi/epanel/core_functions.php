@@ -4,38 +4,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( '-1' );
 }
 
-if ( ! defined( 'ET_EPANEL_URI' ) ) {
-	define( 'ET_EPANEL_URI', get_template_directory_uri() . '/epanel' );
-}
-
-if ( ! defined( 'ET_EPANEL_DIR' ) ) {
-	define( 'ET_EPANEL_DIR', get_template_directory() . '/epanel' );
-}
-
 /********* ePanel v.3.2 ************/
 
 /* Admin scripts + ajax jquery code */
 if ( ! function_exists( 'et_epanel_admin_js' ) ) {
 
-	/**
-	 * Enqueue Admin scripts.
-	 *
-	 * @return void
-	 */
-	function et_epanel_admin_js() {
+	function et_epanel_admin_js(){
 		global $themename;
 
-		if ( ! defined( 'ET_EPANEL_URI' ) ) {
-			define( 'ET_EPANEL_URI', get_template_directory_uri() . '/epanel' );
-		}
-
-		if ( ! defined( 'ET_EPANEL_DIR' ) ) {
-			define( 'ET_EPANEL_DIR', get_template_directory() . '/epanel' );
-		}
-
-		$epanel_jsfolder = ET_EPANEL_URI . '/js';
-		$core_version    = defined( 'ET_CORE_VERSION' ) ? ET_CORE_VERSION : '';
-		$et_debug        = defined( 'ET_DEBUG' ) && ET_DEBUG;
+		$epanel_jsfolder = get_template_directory_uri() . '/epanel/js';
 
 		et_core_load_main_fonts();
 
@@ -50,39 +27,12 @@ if ( ! function_exists( 'et_epanel_admin_js' ) ) {
 		wp_enqueue_script( 'wp-color-picker-alpha', $wp_color_picker_alpha_uri, array( 'jquery', 'wp-color-picker' ), et_get_theme_version(), true );
 
 		wp_enqueue_script( 'epanel_functions_init', $epanel_jsfolder . '/functions-init.js', array( 'jquery', 'jquery-ui-tabs', 'jquery-form', 'epanel_colorpicker', 'epanel_eye', 'epanel_checkbox', 'wp-color-picker-alpha' ), et_get_theme_version() );
-
-		$args = array(
-			'et_core_portability' => true,
-			'context'             => 'epanel',
-			'name'                => 'save',
-			'nonce'               => wp_create_nonce( 'et_core_portability_export' ),
-		);
-
-		$epanel_save_url = add_query_arg( $args, admin_url() );
-
-		wp_localize_script(
-			'epanel_functions_init',
-			'ePanelSettings',
-			[
-				'clearpath'       => get_template_directory_uri() . '/epanel/images/empty.png',
-				'currentTheme'    => et_core_get_theme_info( 'Name' ),
-				'epanel_nonce'    => wp_create_nonce( 'epanel_nonce' ),
-				'help_label'      => esc_html__( 'Help', $themename ), // phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain -- Following the standard.
-				'et_core_nonces'  => et_core_get_nonces(),
-				'epanel_save_url' => $epanel_save_url,
-				'allowedCaps'     => array(
-					'portability' => et_pb_is_allowed( 'portability' ) ? et_pb_is_allowed( 'et_code_snippets_portability' ) : false,
-					'addLibrary'  => et_pb_is_allowed( 'divi_library' ) ? et_pb_is_allowed( 'add_library' ) : false,
-					'saveLibrary' => et_pb_is_allowed( 'divi_library' ) ? et_pb_is_allowed( 'save_library' ) : false,
-				),
-				'i18n'            => [
-					// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralDomain -- Following the standard.
-					'Code Snippet' => esc_html__( 'Code Snippet', $themename ),
-					'Theme Option' => esc_html__( 'Theme Option', $themename ),
-					// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralDomain
-				],
-			]
-		);
+		wp_localize_script( 'epanel_functions_init', 'ePanelSettings', array(
+			'clearpath'      => get_template_directory_uri() . '/epanel/images/empty.png',
+			'epanel_nonce'   => wp_create_nonce( 'epanel_nonce' ),
+			'help_label'     => esc_html__( 'Help', $themename ),
+			'et_core_nonces' => et_core_get_nonces(),
+		) );
 
 		// Use WP 4.9 CodeMirror Editor for some fields
 		if ( function_exists( 'wp_enqueue_code_editor' ) ) {
@@ -95,9 +45,6 @@ if ( ! function_exists( 'et_epanel_admin_js' ) ) {
 			wp_enqueue_script( 'jshint' );
 			wp_enqueue_script( 'htmlhint' );
 		}
-
-		et_builder_load_library();
-		ET_Cloud_App::load_js();
 	}
 
 }
@@ -317,37 +264,6 @@ if ( ! function_exists( 'et_build_epanel' ) ) {
 										)
 									);
 									?>
-									<?php
-									if ( et_pb_is_allowed( 'divi_library' ) ) {
-										if ( et_pb_is_allowed( 'save_library' ) ) :
-											?>
-											<a
-												href="#"
-												class="et-defaults-button epanel-save"
-												title="<?php esc_attr_e( 'Save Theme Options', $themename ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain -- Theme Name could be Extra or Divi ?>"
-											>
-												<span class="label">
-													<?php esc_html_e( 'Save Theme Options', $themename ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain -- Theme Name could be Extra or Divi ?>
-												</span>
-											</a>
-											<?php
-										endif;
-
-										if ( et_pb_is_allowed( 'add_library' ) ) :
-											?>
-												<a
-													href="#"
-													class="et-defaults-button epanel-add"
-													title="<?php esc_attr_e( 'Add Theme Options', $themename ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain -- Theme Name could be Extra or Divi ?>"
-												>
-												<span class="label">
-													<?php esc_html_e( 'Add Theme Options', $themename ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain -- Theme Name could be Extra or Divi ?>
-												</span>
-											</a>
-											<?php
-										endif;
-									}
-									?>
 								</div>
 								<ul id="epanel-mainmenu">
 									<?php
@@ -417,11 +333,8 @@ if ( ! function_exists( 'et_build_epanel' ) ) {
 														<?php
 
 															if ( 'et_automatic_updates_options' === $global_setting_main_name ) {
-																$setting = array();
-
-																// phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact -- Indentation is correct.
-																if ( is_array( get_site_option( $global_setting_main_name ) ) ) {
-																	$setting = get_site_option( $global_setting_main_name );
+																if ( ! $setting = get_site_option( $global_setting_main_name ) ) {
+																	$setting = get_option( $global_setting_main_name, array() );
 																}
 
 																$et_input_value = isset( $setting[ $global_setting_sub_name ] ) ? $setting[ $global_setting_sub_name ] : '';
@@ -828,22 +741,8 @@ if ( ! function_exists( 'et_build_epanel' ) ) {
 }
 /* --------------------------------------------- */
 
-add_action( 'wp_ajax_save_epanel_temp', 'et_epanel_save_temp_callback' );
 add_action( 'wp_ajax_save_epanel', 'et_epanel_save_callback' );
 
-/** Save temporary files */
-function et_epanel_save_temp_callback() {
-	if ( ! current_user_can( 'edit_theme_options' ) ) {
-		die();
-	}
-
-	check_ajax_referer( 'et_core_save_theme_options' );
-	epanel_save_data( 'ajax' );
-
-	die();
-}
-
-/** Save temporary files */
 function et_epanel_save_callback() {
 	check_ajax_referer( 'epanel_nonce' );
 	epanel_save_data( 'ajax' );
@@ -883,13 +782,11 @@ if ( ! function_exists( 'epanel_save_data' ) ) {
 			$epanel = isset( $_GET['page'] ) ? $_GET['page'] : basename( __FILE__ );
 			$redirect_url = esc_url_raw( add_query_arg( 'page', $epanel, admin_url( 'admin.php' ) ) );
 
-			if ( 'save_epanel' === $_POST['action'] || 'save_epanel_temp' === $_POST['action'] ) {
+			if ( 'save_epanel' === $_POST['action'] ) {
 				if ( 'ajax' !== $source ) check_admin_referer( 'epanel_nonce' );
 
-				$updates_options = array();
-
-				if ( is_array( get_site_option( 'et_automatic_updates_options' ) ) ) {
-					$updates_options = get_option( 'et_automatic_updates_options' );
+				if ( ! $updates_options = get_site_option( 'et_automatic_updates_options' ) ) {
+					$updates_options = get_option( 'et_automatic_updates_options', array() );
 				}
 
 				// Network Admins can edit options like Super Admins but content will be filtered
@@ -900,7 +797,6 @@ if ( ! function_exists( 'epanel_save_data' ) ) {
 					kses_remove_filters();
 				}
 
-				$shortname .= 'save_epanel_temp' === $_POST['action'] ? '_' . get_current_user_id() : '';
 				foreach ( $options as $value ) {
 					$et_option_name   = $et_option_new_value = false;
 					$is_builder_field = isset( $value['is_builder_field'] ) && $value['is_builder_field'];
@@ -1064,7 +960,7 @@ if ( ! function_exists( 'epanel_save_data' ) ) {
 							 */
 							do_action( 'et_epanel_update_option', $et_option_name, $et_option_new_value );
 
-							if ( 'et_automatic_updates_options' === $global_setting_main_name && 'save_epanel_temp' !== $_POST['action'] ) {
+							if ( 'et_automatic_updates_options' === $global_setting_main_name ) {
 								$updates_options[ $global_setting_sub_name ] = $et_option_new_value;
 
 								update_site_option( $global_setting_main_name, $updates_options );
@@ -1148,9 +1044,6 @@ if ( 'themes.php' === $pagenow && isset( $_GET['page'] ) && ( $_GET['page'] === 
 function et_epanel_register_portability() {
 	global $shortname, $themename, $options;
 
-	// get all the roles that can edit theme options.
-	$applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options' ] );
-
 	// Make sure the Portability is loaded.
 	et_core_load_component( 'portability' );
 
@@ -1166,44 +1059,17 @@ function et_epanel_register_portability() {
 		}
 	}
 
-	// reason: explanation Follwoing the standard and  Not processing form data.
-	// phpcs:disable.
-	// WordPress.WP.I18n.NonSingularStringLiteralDomain.
-	// WordPress.Security.NonceVerification.Recommended.
 	// Register the portability.
-	et_core_portability_register(
-		'epanel',
-		array(
-			'title'   => esc_html__( 'Import & Export Theme Options', $themename ),
-			'name'    => sprintf(
-				esc_html__( '%s Theme Options', $themename ),
-				$themename
-			),
-			'type'    => 'options',
-			'target'  => "et_{$shortname}",
-			'include' => $include,
-			'view'    => ( isset( $_GET['page'] ) && "et_{$shortname}_options" === $_GET['page'] ),
-			'applicability' => $applicability_roles,
-		)
-	);
-
-	// Register the portability.
-	et_core_portability_register(
-		'epanel_temp',
-		array(
-			'title'   => esc_html__( 'Import & Export Theme Options', $themename ),
-			'name'    => sprintf(
-				esc_html__( '%s Theme Options', $themename ),
-				$themename
-			),
-			'type'    => 'options',
-			'target'  => "et_{$shortname}_" . get_current_user_id(),
-			'include' => $include,
-			'view'    => ( isset( $_GET['page'] ) && "et_{$shortname}_options" === $_GET['page'] ),
-			'applicability' => $applicability_roles,
-		)
-	);
-	// phpcs:enable
+	et_core_portability_register( 'epanel', array(
+		'name'    => sprintf(
+			esc_html__( '%s Theme Options', $themename ),
+			$themename
+		),
+		'type'    => 'options',
+		'target'  => "et_{$shortname}",
+		'include' => $include,
+		'view'    => ( isset( $_GET['page'] ) && $_GET['page'] === "et_{$shortname}_options" ), // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+	) );
 }
 add_action( 'admin_init', 'et_epanel_register_portability' );
 
@@ -1227,32 +1093,3 @@ function et_epanel_flush_rewrite_rules_on_post_type_integration( $et_option_name
     }
 }
 add_action( 'et_epanel_update_option', 'et_epanel_flush_rewrite_rules_on_post_type_integration', 10, 2 );
-
-if ( ! function_exists( 'et_theme_options_library_admin_enqueue_scripts' ) ) {
-	/**
-	 * Enqueue Theme Options library scripts on Theme options page.
-	 *
-	 * @since ??
-	 *
-	 * @param string $hook_suffix Page hook suffix.
-	 * @return void
-	 */
-	function et_theme_options_library_admin_enqueue_scripts( $hook_suffix ) {
-		global $shortname;
-
-		$is_options_page = 'toplevel_page_et_' . $shortname . '_options' === $hook_suffix;
-
-		// Only used on theme options page.
-		if ( ! $is_options_page ) {
-			return;
-		}
-
-		if ( ! class_exists( 'ET_Theme_Options_Library_App' ) ) {
-			require_once ET_EPANEL_DIR . '/theme-options-library/theme-options-library-app.php';
-		}
-
-		ET_Theme_Options_Library_App::load_js();
-	}
-
-	add_action( 'admin_enqueue_scripts', 'et_theme_options_library_admin_enqueue_scripts' );
-}

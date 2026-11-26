@@ -2,7 +2,7 @@
 
 namespace WPMailSMTP\Providers\Mail;
 
-use WPMailSMTP\Admin\SetupWizard\Launcher as SetupWizardLauncher;
+use WPMailSMTP\Admin\SetupWizard;
 use WPMailSMTP\Providers\OptionsAbstract;
 
 /**
@@ -48,8 +48,8 @@ class Options extends OptionsAbstract {
 						],
 					]
 				),
-				esc_url( wp_mail_smtp()->get_utm_url( 'https://wpmailsmtp.com/docs/a-complete-guide-to-wp-mail-smtp-mailers/', 'Default mailer - any other email provider' ) ),
-				esc_url( SetupWizardLauncher::get_url() )
+				'https://wpmailsmtp.com/docs/a-complete-guide-to-wp-mail-smtp-mailers/',
+				esc_url( SetupWizard::get_site_url() )
 			);
 			?>
 		</blockquote>

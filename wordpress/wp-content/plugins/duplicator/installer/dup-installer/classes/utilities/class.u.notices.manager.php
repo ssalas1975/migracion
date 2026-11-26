@@ -1,17 +1,14 @@
 <?php
-
 /**
  * Notice manager
  *
  * Standard: PSR-2
- *
  * @link http://www.php-fig.org/psr/psr-2 Full Documentation
+ *
+ * @package SC\DUPX\U
+ *
  */
-
 defined('ABSPATH') || defined('DUPXABSPATH') || exit;
-
-use Duplicator\Installer\Utils\Log\Log;
-use Duplicator\Libs\Snap\SnapJson;
 
 /**
  * Notice manager
@@ -26,22 +23,37 @@ final class DUPX_NOTICE_MANAGER
     const ADD_UNIQUE_APPEND_IF_EXISTS  = 4; // append long msg if already exists item
     const ADD_UNIQUE_PREPEND           = 5; // append long msg
     const ADD_UNIQUE_PREPEND_IF_EXISTS = 6; // prepend long msg if already exists item
-    const DEFAULT_UNIQUE_ID_PREFIX     = '__auto_unique_id__';
+    const DEFAULT_UNIQUE_ID_PREFIX = '__auto_unique_id__';
 
-    /** @var int */
     private static $uniqueCountId = 0;
-    /** @var DUPX_NOTICE_ITEM[] */
-    private $nextStepNotices = [];
-    /** @var DUPX_NOTICE_ITEM[] */
-    private $finalReporNotices = [];
-    /** @var ?self */
-    private static $instance;
-    /** @var string */
-    private $persistanceFile;
 
     /**
      *
-     * @return self
+     * @var DUPX_NOTICE_ITEM[]
+     */
+    private $nextStepNotices = array();
+
+    /**
+     *
+     * @var DUPX_NOTICE_ITEM[]
+     */
+    private $finalReporNotices = array();
+
+    /**
+     *
+     * @var DUPX_NOTICE_MANAGER
+     */
+    private static $instance = null;
+
+    /**
+     *
+     * @var string
+     */
+    private $persistanceFile = null;
+
+    /**
+     *
+     * @return DUPX_S_R_MANAGER
      */
     public static function getInstance()
     {
@@ -52,9 +64,6 @@ final class DUPX_NOTICE_MANAGER
         return self::$instance;
     }
 
-    /**
-     * Class constructor
-     */
     private function __construct()
     {
         $this->persistanceFile = $GLOBALS["NOTICES_FILE_PATH"];
@@ -63,21 +72,16 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      * save notices from json file
-     *
-     * @return bool
      */
-    public function saveNotices(): bool
+    public function saveNotices()
     {
-        if (class_exists(\Duplicator\Installer\Utils\Log\Log::class, false)) {
-            Log::info('SAVE NOTICES', Log::LV_DEBUG);
-        }
-        $notices = [
-            'globalData'  => [
-                'uniqueCountId' => self::$uniqueCountId,
-            ],
-            'nextStep'    => [],
-            'finalReport' => [],
-        ];
+        $notices = array(
+            'globalData' => array(
+                'uniqueCountId' => self::$uniqueCountId
+            ),
+            'nextStep' => array(),
+            'finalReport' => array()
+        );
 
         foreach ($this->nextStepNotices as $uniqueId => $notice) {
             $notices['nextStep'][$uniqueId] = $notice->toArray();
@@ -87,30 +91,20 @@ final class DUPX_NOTICE_MANAGER
             $notices['finalReport'][$uniqueId] = $notice->toArray();
         }
 
-        $json = SnapJson::jsonEncodePPrint($notices);
-        if (file_put_contents($this->persistanceFile, $json) === false) {
-            return false;
-        } else {
-            return true;
-        }
+        file_put_contents($this->persistanceFile, DupLiteSnapJsonU::wp_json_encode_pprint($notices));
     }
 
     /**
      * load notice from json file
-     *
-     * @return void
      */
-    private function loadNotices(): void
+    private function loadNotices()
     {
         if (file_exists($this->persistanceFile)) {
-            if (class_exists(\Duplicator\Installer\Utils\Log\Log::class, false)) {
-                Log::info('LOAD NOTICES', Log::LV_DEBUG);
-            }
             $json    = file_get_contents($this->persistanceFile);
             $notices = json_decode($json, true);
 
-            $this->nextStepNotices   = [];
-            $this->finalReporNotices = [];
+            $this->nextStepNotices   = array();
+            $this->finalReporNotices = array();
 
             if (!empty($notices['nextStep'])) {
                 foreach ($notices['nextStep'] as $uniqueId => $notice) {
@@ -132,16 +126,11 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      * remove all notices and save reset file
-     *
-     * @return void
      */
-    public function resetNotices(): void
+    public function resetNotices()
     {
-        if (class_exists(\Duplicator\Installer\Utils\Log\Log::class, false)) {
-            Log::info('RESET NOTICES', Log::LV_DEBUG);
-        }
-        $this->nextStepNotices   = [];
-        $this->finalReporNotices = [];
+        $this->nextStepNotices   = array();
+        $this->finalReporNotices = array();
         self::$uniqueCountId     = 0;
         $this->saveNotices();
     }
@@ -149,11 +138,10 @@ final class DUPX_NOTICE_MANAGER
     /**
      * return next step notice by id
      *
-     * @param string $id notice id
-     *
-     * @return ?DUPX_NOTICE_ITEM
+     * @param string $id
+     * @return DUPX_NOTICE_ITEM
      */
-    public function getNextStepNoticeById($id): ?\DUPX_NOTICE_ITEM
+    public function getNextStepNoticeById($id)
     {
         if (isset($this->nextStepNotices[$id])) {
             return $this->nextStepNotices[$id];
@@ -165,11 +153,10 @@ final class DUPX_NOTICE_MANAGER
     /**
      * return last report notice by id
      *
-     * @param string $id notice id
-     *
-     * @return ?DUPX_NOTICE_ITEM
+     * @param string $id
+     * @return DUPX_NOTICE_ITEM
      */
-    public function getFinalReporNoticeById($id): ?\DUPX_NOTICE_ITEM
+    public function getFinalReporNoticeById($id)
     {
         if (isset($this->finalReporNotices[$id])) {
             return $this->finalReporNotices[$id];
@@ -180,33 +167,49 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param array<string,mixed>|DUPX_NOTICE_ITEM $item     if string add new notice obj with item message and level param
-     *                                                       if array must be [ 'shortMsg' => text, 'level' => level,
-     *                                                       'longMsg' => html text, 'sections' => sections list, 'faqLink' =>
-     *                                                       [ 'url' => external link 'label' => link text if empty get
-     *                                                       external url link ] ]
-     * @param int                                  $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string                               $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param array|DUPX_NOTICE_ITEM $item // if string add new notice obj with item message and level param
+     *                                            // if array must be [
+     *                                                                   'shortMsg' => text,
+     *                                                                   'level' => level,
+     *                                                                   'longMsg' => html text,
+     *                                                                   'sections' => sections list,
+     *                                                                   'faqLink' => [
+     *                                                                                     'url' => external link
+     *                                                                                     'label' => link text if empty get external url link
+     *                                                                               ]
+     *                                                                 ]
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
-     * @return string   notice insert id
+     * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     public function addBothNextAndFinalReportNotice($item, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
         $this->addNextStepNotice($item, $mode, $uniqueId);
-        return $this->addFinalReportNotice($item, $mode, $uniqueId);
+        $this->addFinalReportNotice($item, $mode, $uniqueId);
     }
 
     /**
      *
-     * @param array<string,mixed>|DUPX_NOTICE_ITEM $item     if string add new notice obj with item message and level param
-     *                                                       if array must be [ 'shortMsg' => text, 'level' => level,
-     *                                                       'longMsg' => html text, 'sections' => sections list, 'faqLink' =>
-     *                                                       [ 'url' => external link 'label' => link text if empty get
-     *                                                       external url link ] ]
-     * @param int                                  $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string                               $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param array|DUPX_NOTICE_ITEM $item // if string add new notice obj with item message and level param
+     *                                            // if array must be [
+     *                                                                   'shortMsg' => text,
+     *                                                                   'level' => level,
+     *                                                                   'longMsg' => html text,
+     *                                                                   'sections' => sections list,
+     *                                                                   'faqLink' => [
+     *                                                                                     'url' => external link
+     *                                                                                     'label' => link text if empty get external url link
+     *                                                                               ]
+     *                                                                 ]
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
-     * @return string notice insert id
+     * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     public function addNextStepNotice($item, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
@@ -219,32 +222,42 @@ final class DUPX_NOTICE_MANAGER
     /**
      * addNextStepNotice wrapper to add simple message with error level
      *
-     * @param string $message  message text
-     * @param int    $level    warning level
-     * @param int    $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param string $message
+     * @param int $level        // warning level
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
      * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     public function addNextStepNoticeMessage($message, $level = DUPX_NOTICE_ITEM::INFO, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
-        return $this->addNextStepNotice([
-            'shortMsg' => $message,
-            'level'    => $level,
-        ], $mode, $uniqueId);
+        return $this->addNextStepNotice(array(
+                'shortMsg' => $message,
+                'level' => $level,
+                ), $mode, $uniqueId);
     }
 
     /**
      *
-     * @param array<string,mixed>|DUPX_NOTICE_ITEM $item     if string add new notice obj with item message and level param
-     *                                                       if array must be [ 'shortMsg' => text, 'level' => level,
-     *                                                       'longMsg' => html text, 'sections' => sections list, 'faqLink' =>
-     *                                                       [ 'url' => external link 'label' => link text if empty get
-     *                                                       external url link ] ]
-     * @param int                                  $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string                               $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param array|DUPX_NOTICE_ITEM $item // if string add new notice obj with item message and level param
+     *                                            // if array must be [
+     *                                                                   'shortMsg' => text,
+     *                                                                   'level' => level,
+     *                                                                   'longMsg' => html text,
+     *                                                                   'sections' => sections list,
+     *                                                                   'faqLink' => [
+     *                                                                                     'url' => external link
+     *                                                                                     'label' => link text if empty get external url link
+     *                                                                               ]
+     *                                                                 ]
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
-     * @return string notice insert id
+     * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     public function addFinalReportNotice($item, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
@@ -257,35 +270,45 @@ final class DUPX_NOTICE_MANAGER
     /**
      * addFinalReportNotice wrapper to add simple message with error level
      *
-     * @param string          $message  message text
-     * @param string|string[] $sections message sections on final report
-     * @param int             $level    warning level
-     * @param int             $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string          $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param string $message
+     * @param string|string[] $sections   // message sections on final report
+     * @param int $level        // warning level
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
-     * @return string notice insert id
+     * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     public function addFinalReportNoticeMessage($message, $sections, $level = DUPX_NOTICE_ITEM::INFO, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
-        return $this->addFinalReportNotice([
-            'shortMsg' => $message,
-            'level'    => $level,
-            'sections' => $sections,
-        ], $mode, $uniqueId);
+        return $this->addFinalReportNotice(array(
+                'shortMsg' => $message,
+                'level' => $level,
+                'sections' => $sections,
+                ), $mode, $uniqueId);
     }
 
     /**
      *
-     * @param array<string,array<string,mixed>|DUPX_NOTICE_ITEM> $list     notice list
-     * @param array<string,mixed>|DUPX_NOTICE_ITEM               $item     if string add new notice obj with item message and level param
-     *                                                                     if array must be [ 'shortMsg' => text, 'level' => level,
-     *                                                                     'longMsg' => html text, 'sections' => sections list, 'faqLink'
-     *                                                                     => [ 'url' => external link 'label' => link text if empty get
-     *                                                                     external url link ] ]
-     * @param int                                                $mode     ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE
-     * @param string                                             $uniqueId used for ADD_UNIQUE or ADD_UNIQUE_UPDATE
+     * @param array $list
+     * @param array|DUPX_NOTICE_ITEM $item // if string add new notice obj with item message and level param
+     *                                            // if array must be [
+     *                                                                   'shortMsg' => text,
+     *                                                                   'level' => level,
+     *                                                                   'longMsg' => html text,
+     *                                                                   'sections' => sections list,
+     *                                                                   'faqLink' => [
+     *                                                                                     'url' => external link
+     *                                                                                     'label' => link text if empty get external url link
+     *                                                                               ]
+     *                                                                 ]
+     * @param int $mode         // ADD_NORMAL | ADD_UNIQUE | ADD_UNIQUE_UPDATE | ADD_UNIQUE_APPEND
+     * @param string $uniqueId  // used for ADD_UNIQUE or ADD_UNIQUE_UPDATE or ADD_UNIQUE_APPEND
      *
-     * @return false|string notice insert id
+     * @return string   // notice insert id
+     *
+     * @throws Exception
      */
     private static function addReportNoticeToList(&$list, $item, $mode = self::ADD_NORMAL, $uniqueId = null)
     {
@@ -297,7 +320,7 @@ final class DUPX_NOTICE_MANAGER
                 if (isset($list[$uniqueId])) {
                     return $uniqueId;
                 }
-                // no break -> continue on unique update
+            // no break -> continue on unique update
             case self::ADD_UNIQUE_UPDATE:
                 if (empty($uniqueId)) {
                     throw new Exception('uniqueId can\'t be empty');
@@ -311,7 +334,7 @@ final class DUPX_NOTICE_MANAGER
                 if (!isset($list[$uniqueId])) {
                     return false;
                 }
-                // no break
+            // no break
             case self::ADD_UNIQUE_APPEND:
                 if (empty($uniqueId)) {
                     throw new Exception('uniqueId can\'t be empty');
@@ -319,9 +342,9 @@ final class DUPX_NOTICE_MANAGER
                 $insertId = $uniqueId;
                 // if item id exist append long msg
                 if (isset($list[$uniqueId])) {
-                    $tempObj                   = self::getObjFromParams($item);
+                    $tempObj                  = self::getObjFromParams($item);
                     $list[$uniqueId]->longMsg .= $tempObj->longMsg;
-                    $item                      = $list[$uniqueId];
+                    $item                     = $list[$uniqueId];
                 }
                 break;
             case self::ADD_UNIQUE_PREPEND_IF_EXISTS:
@@ -331,7 +354,7 @@ final class DUPX_NOTICE_MANAGER
                 if (!isset($list[$uniqueId])) {
                     return false;
                 }
-                // no break
+            // no break
             case self::ADD_UNIQUE_PREPEND:
                 if (empty($uniqueId)) {
                     throw new Exception('uniqueId can\'t be empty');
@@ -340,13 +363,17 @@ final class DUPX_NOTICE_MANAGER
                 // if item id exist append long msg
                 if (isset($list[$uniqueId])) {
                     $tempObj                  = self::getObjFromParams($item);
-                    $list[$uniqueId]->longMsg = $tempObj->longMsg . $list[$uniqueId]->longMsg;
+                    $list[$uniqueId]->longMsg = $tempObj->longMsg.$list[$uniqueId]->longMsg;
                     $item                     = $list[$uniqueId];
                 }
                 break;
             case self::ADD_NORMAL:
             default:
-                $insertId = empty($uniqueId) ? self::getNewAutoUniqueId() : $uniqueId;
+                if (empty($uniqueId)) {
+                    $insertId = self::getNewAutoUniqueId();
+                } else {
+                    $insertId = $uniqueId;
+                }
         }
 
         $list[$insertId] = self::getObjFromParams($item);
@@ -355,22 +382,29 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param string|array<string,mixed>|DUPX_NOTICE_ITEM $item  // if string add new notice obj with item message and level param
-     *                                                           // if array must be [ 'shortMsg' => text, 'level' => level,
-     *                                                           'longMsg' => html text, 'sections' => sections list, 'faqLink' =>
-     *                                                           [ 'url' => external link 'label' => link text if empty get
-     *                                                           external url link ] ]
-     * @param int                                         $level message level considered only in the case where $item is a string.
-     *
+     * @param string|array|DUPX_NOTICE_ITEM $item // if string add new notice obj with item message and level param
+     *                                            // if array must be [
+     *                                                                   'shortMsg' => text,
+     *                                                                   'level' => level,
+     *                                                                   'longMsg' => html text,
+     *                                                                   'sections' => sections list,
+     *                                                                   'faqLink' => [
+     *                                                                                     'url' => external link
+     *                                                                                     'label' => link text if empty get external url link
+     *                                                                               ]
+     *                                                                 ]
+     * @param int $level message level considered only in the case where $item is a string.
      * @return \DUPX_NOTICE_ITEM
+     *
+     * @throws Exception
      */
     private static function getObjFromParams($item, $level = DUPX_NOTICE_ITEM::INFO)
     {
         if ($item instanceof DUPX_NOTICE_ITEM) {
             $newObj = $item;
-        } elseif (is_array($item)) {
+        } else if (is_array($item)) {
             $newObj = DUPX_NOTICE_ITEM::getItemFromArray($item);
-        } elseif (is_string($item)) {
+        } else if (is_string($item)) {
             $newObj = new DUPX_NOTICE_ITEM($item, $level);
         } else {
             throw new Exception('Notice input not valid');
@@ -381,35 +415,35 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param null|string $section  if null is count global
-     * @param int         $level    error level
-     * @param string      $operator > < >= <= = !=
+     * @param null|string $section if null is count global
+     * @param int $level error level
+     * @param string $operator > < >= <= = !=
      *
      * @return int
      */
-    public function countFinalReportNotices($section = null, $level = DUPX_NOTICE_ITEM::INFO, $operator = '>='): int
+    public function countFinalReportNotices($section = null, $level = DUPX_NOTICE_ITEM::INFO, $operator = '>=')
     {
         $result = 0;
         foreach ($this->finalReporNotices as $notice) {
             if (is_null($section) || in_array($section, $notice->sections)) {
                 switch ($operator) {
                     case '>=':
-                        $result += (int) ($notice->level >= $level);
+                        $result        += (int) ($notice->level >= $level);
                         break;
                     case '>':
-                        $result += (int) ($notice->level > $level);
+                        $result        += (int) ($notice->level > $level);
                         break;
                     case '=':
-                        $result += (int) ($notice->level = $level);
+                        $result        += (int) ($notice->level = $level);
                         break;
                     case '<=':
-                        $result += (int) ($notice->level <= $level);
+                        $result        += (int) ($notice->level <= $level);
                         break;
                     case '<':
-                        $result += (int) ($notice->level < $level);
+                        $result        += (int) ($notice->level < $level);
                         break;
                     case '!=':
-                        $result += (int) ($notice->level != $level);
+                        $result        += (int) ($notice->level != $level);
                         break;
                 }
             }
@@ -418,21 +452,9 @@ final class DUPX_NOTICE_MANAGER
     }
 
     /**
-     * Final report notices
-     *
-     * @return DUPX_NOTICE_ITEM[]
-     */
-    public function getFinalReportNotices(): array
-    {
-        return $this->finalReporNotices;
-    }
-
-    /**
      * sort final report notice from priority and notice level
-     *
-     * @return void
      */
-    public function sortFinalReport(): void
+    public function sortFinalReport()
     {
         uasort($this->finalReporNotices, 'DUPX_NOTICE_ITEM::sortNoticeForPriorityAndLevel');
     }
@@ -440,11 +462,9 @@ final class DUPX_NOTICE_MANAGER
     /**
      * display final final report notice section
      *
-     * @param string $section if null is a global result
-     *
-     * @return void
+     * @param string $section
      */
-    public function displayFinalReport($section): void
+    public function displayFinalReport($section)
     {
         foreach ($this->finalReporNotices as $id => $notice) {
             if (in_array($section, $notice->sections)) {
@@ -455,17 +475,15 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param string $section if null is a global result
-     * @param string $title   section title
-     *
-     * @return void
+     * @param string $section
+     * @param string $title
      */
-    public function displayFinalRepostSectionHtml($section, $title): void
+    public function displayFinalRepostSectionHtml($section, $title)
     {
         if ($this->haveSection($section)) {
             ?>
-            <div id="report-section-<?php echo $section; ?>" class="section">
-                <div class="section-title"><?php echo $title; ?></div>
+            <div id="report-section-<?php echo $section; ?>" class="section" >
+                <div class="section-title" ><?php echo $title; ?></div>
                 <div class="section-content">
                     <?php
                     $this->displayFinalReport($section);
@@ -478,11 +496,10 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param string $section Notice section
-     *
+     * @param string $section
      * @return boolean
      */
-    public function haveSection($section): bool
+    public function haveSection($section)
     {
         foreach ($this->finalReporNotices as $notice) {
             if (in_array($section, $notice->sections)) {
@@ -494,9 +511,10 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param null|string $section if null is a global result
+     * @param null|string $section  if null is a global result
      *
-     * @return int returns the worst level found
+     * @return int // returns the worst level found
+     *
      */
     public function getSectionErrLevel($section = null)
     {
@@ -512,10 +530,9 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param string $section if null is a global result
-     * @param bool   $echo    if true echo notices
-     *
-     * @return string
+     * @param string $section
+     * @param bool $echo
+     * @return void|string
      */
     public function getSectionErrLevelHtml($section = null, $echo = true)
     {
@@ -525,72 +542,53 @@ final class DUPX_NOTICE_MANAGER
     /**
      * Displa next step notice message
      *
-     * @param bool $deleteAfterDisaply if true delete notices after display
-     *
+     * @param bool $deleteListAfterDisaply
      * @return void
      */
-    public function displayStepMessages($deleteAfterDisaply = true): void
+    public function displayStepMessages($deleteListAfterDisaply = true)
     {
         if (empty($this->nextStepNotices)) {
             return;
         }
-        $this->nextStepMessages($deleteAfterDisaply);
-    }
-
-    /**
-     * Displa next step notice message
-     *
-     * @param bool $deleteAfterDisaply if true delete notices after display
-     * @param bool $echo               if true echo notices
-     *
-     * @return string
-     */
-    public function nextStepMessages($deleteAfterDisaply, $echo = true)
-    {
-        ob_start();
-        foreach ($this->nextStepNotices as $notice) {
-            self::stepMsg($notice);
-        }
-
-        if ($deleteAfterDisaply) {
-            $this->nextStepNotices = [];
+        ?>
+        <div id="step-messages">
+            <?php
+            foreach ($this->nextStepNotices as $notice) {
+                self::stepMsg($notice);
+            }
+            ?>
+        </div>
+        <?php
+        if ($deleteListAfterDisaply) {
+            $this->nextStepNotices = array();
             $this->saveNotices();
         }
-        if ($echo) {
-            ob_end_flush();
-            return '';
-        } else {
-            return ob_get_clean();
-        }
     }
 
     /**
      *
-     * @param DUPX_NOTICE_ITEM $notice notice to display
-     *
-     * @return void
+     * @param DUPX_NOTICE_ITEM $notice
      */
-    private static function stepMsg($notice): void
+    private static function stepMsg($notice)
     {
-        $classes     = [
+        $classes     = array(
             'notice',
             'next-step',
-            self::getClassFromLevel($notice->level),
-        ];
+            self::getClassFromLevel($notice->level)
+        );
         $haveContent = !empty($notice->faqLink) || !empty($notice->longMsg);
         ?>
         <div class="<?php echo implode(' ', $classes); ?>">
-            <?php echo self::getNextStepLevelIcon($notice->level); ?>
             <div class="title">
-                <?php echo '<b>' . htmlentities($notice->shortMsg) . '</b>'; ?>
+                <?php echo self::getNextStepLevelPrefixMessage($notice->level).': <b>'.htmlentities($notice->shortMsg).'</b>'; ?>
             </div>
             <?php if ($haveContent) { ?>
-                <div class="title-separator"></div>
+                <div class="title-separator" ></div>
                 <?php
                 ob_start();
                 if (!empty($notice->faqLink)) {
                     ?>
-                    See FAQ: <a href="<?php echo $notice->faqLink['url']; ?>" target="_blank">
+                    See FAQ: <a href="<?php echo $notice->faqLink['url']; ?>" >
                         <b><?php echo htmlentities(empty($notice->faqLink['label']) ? $notice->faqLink['url'] : $notice->faqLink['label']); ?></b>
                     </a>
                     <?php
@@ -601,7 +599,7 @@ final class DUPX_NOTICE_MANAGER
                 if (!empty($notice->longMsg)) {
                     switch ($notice->longMsgMode) {
                         case DUPX_NOTICE_ITEM::MSG_MODE_PRE:
-                            echo '<pre>' . htmlentities($notice->longMsg) . '</pre>';
+                            echo '<pre>'.htmlentities($notice->longMsg).'</pre>';
                             break;
                         case DUPX_NOTICE_ITEM::MSG_MODE_HTML:
                             echo $notice->longMsg;
@@ -621,39 +619,37 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param string           $id     notice id
-     * @param DUPX_NOTICE_ITEM $notice notice to display
-     *
-     * @return void
+     * @param string $id
+     * @param DUPX_NOTICE_ITEM $notice
      */
-    private static function finalReportNotice($id, $notice): void
+    private static function finalReportNotice($id, $notice)
     {
-        $classes        = [
+        $classes        = array(
             'notice-report',
             'notice',
-            self::getClassFromLevel($notice->level),
-        ];
+            self::getClassFromLevel($notice->level)
+        );
         $haveContent    = !empty($notice->faqLink) || !empty($notice->longMsg);
-        $contentId      = 'notice-content-' . $id;
+        $contentId      = 'notice-content-'.$id;
         $iconClasses    = $haveContent ? 'fa fa-caret-right' : 'fa fa-toggle-empty';
-        $toggleLinkData = $haveContent ? 'data-type="toggle" data-target="#' . $contentId . '"' : '';
+        $toggleLinkData = $haveContent ? 'data-type="toggle" data-target="#'.$contentId.'"' : '';
         ?>
         <div class="<?php echo implode(' ', $classes); ?>">
             <div class="title" <?php echo $toggleLinkData; ?>>
-                <i class="<?php echo $iconClasses; ?>"></i> <?php echo htmlentities($notice->shortMsg); ?>
+                <i class="<?php echo $iconClasses; ?>"></i>  <?php echo htmlentities($notice->shortMsg); ?>
             </div>
             <?php
             if ($haveContent) {
-                $infoClasses = ['info'];
+                $infoClasses = array('info');
                 if (!$notice->open) {
                     $infoClasses[] = 'no-display';
                 }
                 ?>
-                <div id="<?php echo $contentId; ?>" class="<?php echo implode(' ', $infoClasses); ?>">
+                <div id="<?php echo $contentId; ?>" class="<?php echo implode(' ', $infoClasses); ?>" >
                     <?php
                     if (!empty($notice->faqLink)) {
                         ?>
-                        <b>See FAQ</b>: <a href="<?php echo $notice->faqLink['url']; ?>" target="_blank">
+                        <b>See FAQ</b>: <a href="<?php echo $notice->faqLink['url']; ?>" >
                             <?php echo htmlentities(empty($notice->faqLink['label']) ? $notice->faqLink['url'] : $notice->faqLink['label']); ?>
                         </a>
                         <?php
@@ -664,7 +660,7 @@ final class DUPX_NOTICE_MANAGER
                     if (!empty($notice->longMsg)) {
                         switch ($notice->longMsgMode) {
                             case DUPX_NOTICE_ITEM::MSG_MODE_PRE:
-                                echo '<pre>' . htmlentities($notice->longMsg) . '</pre>';
+                                echo '<pre>'.htmlentities($notice->longMsg).'</pre>';
                                 break;
                             case DUPX_NOTICE_ITEM::MSG_MODE_HTML:
                                 echo $notice->longMsg;
@@ -685,90 +681,61 @@ final class DUPX_NOTICE_MANAGER
 
     /**
      *
-     * @param DUPX_NOTICE_ITEM $notice notice to convert
-     *
-     * @return string
+     * @param DUPX_NOTICE_ITEM $notice
      */
-    private static function noticeToText($notice): string
+    private static function noticeToText($notice)
     {
-        $result = '-----------------------' . "\n" .
-            '[' . self::getNextStepLevelPrefixMessage($notice->level, false) . '] ' . $notice->shortMsg;
+        $result = '-----------------------'."\n".
+            '['.self::getNextStepLevelPrefixMessage($notice->level, false).'] '.$notice->shortMsg;
 
         if (!empty($notice->sections)) {
-            $result .= "\n\t" . 'SECTIONS: ' . implode(',', $notice->sections);
+            $result .= "\n\t".'SECTIONS: '.implode(',', $notice->sections);
         }
         if (!empty($notice->longMsg)) {
-            $result .= "\n\t" . 'LONG MSG: ' . preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", strip_tags($notice->longMsg));
+            $result .= "\n\t".'LONG MSG: '.$notice->longMsg;
         }
-        return $result . "\n";
+        return $result."\n";
     }
 
-    /**
-     * Write next step notices in log
-     *
-     * @param boolean $title if true write title
-     *
-     * @return void
-     */
-    public function nextStepLog($title = true): void
+    public function nextStepLog()
     {
-        if (empty($this->nextStepNotices)) {
-            return;
-        }
-
-        if ($title) {
-            Log::info(
-                "\n====================================\n" .
-                    'NEXT STEP NOTICES' . "\n" .
-                    '===================================='
-            );
-        }
-        foreach ($this->nextStepNotices as $notice) {
-            Log::info(self::noticeToText($notice));
-        }
-        if ($title) {
-            Log::info(
-                '===================================='
-            );
-        }
-    }
-
-    /**
-     * Write final report notices in log
-     *
-     * @param string[] $sections sections to display
-     *
-     * @return void
-     */
-    public function finalReportLog($sections = []): void
-    {
-        if (empty($this->finalReporNotices)) {
-            return;
-        }
-
-        Log::info(
-            "\n====================================\n" .
-                'FINAL REPORT NOTICES LIST' . "\n" .
-                '===================================='
-        );
-        foreach ($this->finalReporNotices as $notice) {
-            if (count(array_intersect($notice->sections, $sections)) > 0) {
-                Log::info(self::noticeToText($notice));
+        if (!empty($this->nextStepNotices)) {
+            DUPX_Log::info(
+                '===================================='."\n".
+                'NEXT STEP NOTICES'."\n".
+                '====================================');
+            foreach ($this->nextStepNotices as $notice) {
+                DUPX_Log::info(self::noticeToText($notice));
             }
+            DUPX_Log::info(
+                '====================================');
         }
-        Log::info(
-            '===================================='
-        );
+    }
+
+    public function finalReportLog($sections = array())
+    {
+        if (!empty($this->finalReporNotices)) {
+            DUPX_Log::info(
+                '===================================='."\n".
+                'FINAL REPORT NOTICES LIST'."\n".
+                '====================================');
+            foreach ($this->finalReporNotices as $notice) {
+                if (count(array_intersect($notice->sections, $sections)) > 0) {
+                    DUPX_Log::info(self::noticeToText($notice));
+                }
+            }
+            DUPX_Log::info(
+                '====================================');
+        }
     }
 
     /**
-     * Get html class from level
+     * get html class from level
      *
-     * @param int $level error level
-     *
+     * @param int $level
      * @return string
      */
-    private static function getClassFromLevel($level): string
+    private static function getClassFromLevel($level)
     {
         switch ($level) {
             case DUPX_NOTICE_ITEM::INFO:
@@ -784,17 +751,14 @@ final class DUPX_NOTICE_MANAGER
             case DUPX_NOTICE_ITEM::FATAL:
                 return 'l-fatal';
         }
-
-        return '';
     }
 
     /**
-     * Get level label from level
+     * get level label from level
      *
-     * @param int  $level error level
-     * @param bool $echo  if true echo label
-     *
-     * @return string
+     * @param int $level
+     * @param bool $echo
+     * @return type
      */
     public static function getErrorLevelHtml($level, $echo = true)
     {
@@ -818,8 +782,7 @@ final class DUPX_NOTICE_MANAGER
                 $label = 'fatal error';
                 break;
             default:
-                $label = '';
-                break;
+                return;
         }
         $classes = self::getClassFromLevel($level);
         ob_start();
@@ -828,7 +791,6 @@ final class DUPX_NOTICE_MANAGER
         <?php
         if ($echo) {
             ob_end_flush();
-            return '';
         } else {
             return ob_get_clean();
         }
@@ -837,12 +799,11 @@ final class DUPX_NOTICE_MANAGER
     /**
      * get next step message prefix
      *
-     * @param int  $level error level
-     * @param bool $echo  if true echo prefix
-     *
+     * @param int $level
+     * @param bool $echo
      * @return string
      */
-    public static function getNextStepLevelPrefixMessage($level, $echo = true): string
+    public static function getNextStepLevelPrefixMessage($level, $echo = true)
     {
         switch ($level) {
             case DUPX_NOTICE_ITEM::INFO:
@@ -858,64 +819,19 @@ final class DUPX_NOTICE_MANAGER
                 $label = 'WARNING';
                 break;
             case DUPX_NOTICE_ITEM::CRITICAL:
-                $label = 'ERROR';
+                $label = 'CRITICAL ERROR';
                 break;
             case DUPX_NOTICE_ITEM::FATAL:
                 $label = 'FATAL ERROR';
                 break;
             default:
-                $label = '';
-                break;
+                return;
         }
 
         if ($echo) {
             echo $label;
-            return '';
         } else {
             return $label;
-        }
-    }
-
-    /**
-     * get next step message icon
-     *
-     * @param int  $level error level
-     * @param bool $echo  if true echo icon
-     *
-     * @return string
-     */
-    public static function getNextStepLevelIcon($level, $echo = true): string
-    {
-        switch ($level) {
-            case DUPX_NOTICE_ITEM::INFO:
-                $iconClass = 'fa-info-circle fa-lg';
-                break;
-            case DUPX_NOTICE_ITEM::NOTICE:
-                $iconClass = 'fa-info-circle fa-lg';
-                break;
-            case DUPX_NOTICE_ITEM::SOFT_WARNING:
-                $iconClass = 'fa-exclamation-triangle fa-lg';
-                break;
-            case DUPX_NOTICE_ITEM::HARD_WARNING:
-                $iconClass = 'fa-exclamation-circle fa-lg';
-                break;
-            case DUPX_NOTICE_ITEM::CRITICAL:
-                $iconClass = 'fa-exclamation-circle fa-lg';
-                break;
-            case DUPX_NOTICE_ITEM::FATAL:
-                $iconClass = 'fa-exclamation-circle fa-lg';
-                break;
-            default:
-                return '';
-        }
-
-        $result = '<i class="fas ' . $iconClass . '" title="' . self::getNextStepLevelPrefixMessage($level, false) . '" ></i>';
-
-        if ($echo) {
-            echo $result;
-            return '';
-        } else {
-            return $result;
         }
     }
 
@@ -924,36 +840,33 @@ final class DUPX_NOTICE_MANAGER
      *
      * @return string
      */
-    private static function getNewAutoUniqueId(): string
+    private static function getNewAutoUniqueId()
     {
-        self::$uniqueCountId++;
-        return self::DEFAULT_UNIQUE_ID_PREFIX . self::$uniqueCountId;
+        self::$uniqueCountId ++;
+        return self::DEFAULT_UNIQUE_ID_PREFIX.self::$uniqueCountId;
     }
 
     /**
      * function for internal test
+     *
      * display all messages levels
-     *
-     * @return void
      */
-    public static function testNextStepMessaesLevels(): void
+    public static function testNextStepMessaesLevels()
     {
         $manager = self::getInstance();
-        $manager->addNextStepNoticeMessage('Level info (' . DUPX_NOTICE_ITEM::INFO . ')', DUPX_NOTICE_ITEM::INFO);
-        $manager->addNextStepNoticeMessage('Level notice (' . DUPX_NOTICE_ITEM::NOTICE . ')', DUPX_NOTICE_ITEM::NOTICE);
-        $manager->addNextStepNoticeMessage('Level soft warning (' . DUPX_NOTICE_ITEM::SOFT_WARNING . ')', DUPX_NOTICE_ITEM::SOFT_WARNING);
-        $manager->addNextStepNoticeMessage('Level hard warning (' . DUPX_NOTICE_ITEM::HARD_WARNING . ')', DUPX_NOTICE_ITEM::HARD_WARNING);
-        $manager->addNextStepNoticeMessage('Level critical error (' . DUPX_NOTICE_ITEM::CRITICAL . ')', DUPX_NOTICE_ITEM::CRITICAL);
-        $manager->addNextStepNoticeMessage('Level fatal error (' . DUPX_NOTICE_ITEM::FATAL . ')', DUPX_NOTICE_ITEM::FATAL);
+        $manager->addNextStepNoticeMessage('Level info ('.DUPX_NOTICE_ITEM::INFO.')', DUPX_NOTICE_ITEM::INFO);
+        $manager->addNextStepNoticeMessage('Level notice ('.DUPX_NOTICE_ITEM::NOTICE.')', DUPX_NOTICE_ITEM::NOTICE);
+        $manager->addNextStepNoticeMessage('Level soft warning ('.DUPX_NOTICE_ITEM::SOFT_WARNING.')', DUPX_NOTICE_ITEM::SOFT_WARNING);
+        $manager->addNextStepNoticeMessage('Level hard warning ('.DUPX_NOTICE_ITEM::HARD_WARNING.')', DUPX_NOTICE_ITEM::HARD_WARNING);
+        $manager->addNextStepNoticeMessage('Level critical error ('.DUPX_NOTICE_ITEM::CRITICAL.')', DUPX_NOTICE_ITEM::CRITICAL);
+        $manager->addNextStepNoticeMessage('Level fatal error ('.DUPX_NOTICE_ITEM::FATAL.')', DUPX_NOTICE_ITEM::FATAL);
         $manager->saveNotices();
     }
 
     /**
      * test function
-     *
-     * @return void
      */
-    public static function testNextStepFullMessageData(): void
+    public static function testNextStepFullMessageData()
     {
         $manager = self::getInstance();
         $longMsg = <<<LONGMSG
@@ -967,16 +880,16 @@ final class DUPX_NOTICE_MANAGER
             <li>Aenean varius ipsum vitae lorem tempus rhoncus.</li>
             </ul>
 LONGMSG;
-        $manager->addNextStepNotice([
-            'shortMsg'    => 'Full elements next step message MODE HTML',
-            'level'       => DUPX_NOTICE_ITEM::HARD_WARNING,
-            'longMsg'     => $longMsg,
+        $manager->addNextStepNotice(array(
+            'shortMsg' => 'Full elements next step message MODE HTML',
+            'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+            'longMsg' => $longMsg,
             'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
-            'faqLink'     => [
-                'url'   => 'http://www.google.it',
-                'label' => 'google link',
-            ],
-        ]);
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            )
+        ));
 
         $longMsg = <<<LONGMSG
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc a auctor erat, et lobortis libero.
@@ -986,16 +899,16 @@ LONGMSG;
        at luctus nunc dapibus. Etiam blandit maximus dapibus. Nullam eu porttitor augue. Suspendisse pulvinar, massa eget condimentum aliquet, dolor massa tempus dui, vel rhoncus tellus ligula non odio.
            Ut ac faucibus tellus, in lobortis odio.
 LONGMSG;
-        $manager->addNextStepNotice([
-            'shortMsg'    => 'Full elements next step message MODE PRE',
-            'level'       => DUPX_NOTICE_ITEM::HARD_WARNING,
-            'longMsg'     => $longMsg,
+        $manager->addNextStepNotice(array(
+            'shortMsg' => 'Full elements next step message MODE PRE',
+            'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+            'longMsg' => $longMsg,
             'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_PRE,
-            'faqLink'     => [
-                'url'   => 'http://www.google.it',
-                'label' => 'google link',
-            ],
-        ]);
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            )
+        ));
 
         $longMsg = <<<LONGMSG
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc a auctor erat, et lobortis libero.
@@ -1005,45 +918,78 @@ LONGMSG;
        at luctus nunc dapibus. Etiam blandit maximus dapibus. Nullam eu porttitor augue. Suspendisse pulvinar, massa eget condimentum aliquet, dolor massa tempus dui, vel rhoncus tellus ligula non odio.
            Ut ac faucibus tellus, in lobortis odio.
 LONGMSG;
-        $manager->addNextStepNotice([
-            'shortMsg'    => 'Full elements next step message MODE DEFAULT',
-            'level'       => DUPX_NOTICE_ITEM::HARD_WARNING,
-            'longMsg'     => $longMsg,
+        $manager->addNextStepNotice(array(
+            'shortMsg' => 'Full elements next step message MODE DEFAULT',
+            'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+            'longMsg' => $longMsg,
             'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_DEFAULT,
-            'faqLink'     => [
-                'url'   => 'http://www.google.it',
-                'label' => 'google link',
-            ],
-        ]);
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            )
+        ));
+
+
+        $longMsg = <<<LONGMSG
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam cursus porttitor consectetur. Nunc faucibus elementum nisl nec ornare. Phasellus sit amet urna in diam ultricies ornare nec sit amet nibh. Nulla a aliquet leo. Quisque aliquet posuere lectus sit amet commodo. Nullam tempus enim eget urna rutrum egestas. Aliquam eget lorem nisl. Nulla tincidunt massa erat. Phasellus lectus tellus, mollis sit amet aliquam in, dapibus quis metus. Nunc venenatis nulla vitae convallis accumsan.
+
+Mauris eu ullamcorper metus. Aenean ultricies et turpis eget mollis. Aliquam auctor, elit scelerisque placerat pellentesque, quam augue fermentum lectus, vel pretium nisi justo sit amet ante. Donec blandit porttitor tempus. Duis vulputate nulla ut orci rutrum, et consectetur urna mollis. Sed at iaculis velit. Pellentesque id quam turpis. Curabitur eu ligula velit. Cras gravida, ipsum sed iaculis eleifend, mauris nunc posuere quam, vel blandit nisi justo congue ligula. Phasellus aliquam eu odio ac porttitor. Fusce dictum mollis turpis sit amet fringilla.
+
+Nulla eu ligula mauris. Fusce lobortis ligula elit, a interdum nibh pulvinar eu. Pellentesque rhoncus nec turpis id blandit. Morbi fringilla, justo non varius consequat, arcu ante efficitur ante, sit amet cursus lorem elit vel odio. Phasellus neque ligula, vehicula vel ipsum sed, volutpat dignissim eros. Curabitur at lacus id felis elementum auctor. Nullam ac tempus nisi. Phasellus nibh purus, aliquam nec purus ut, sodales lobortis nulla. Cras viverra dictum magna, ac malesuada nibh dictum ac. Mauris euismod, magna sit amet pretium posuere, ligula nibh ultrices tellus, sit amet pretium odio urna egestas justo. Suspendisse purus erat, eleifend sed magna in, efficitur interdum nibh.
+
+Vivamus nibh nunc, fermentum non tortor volutpat, consectetur vulputate velit. Phasellus lobortis, purus et faucibus mollis, metus eros viverra ante, sit amet euismod nibh est eu orci. Duis sodales cursus lacinia. Praesent laoreet ut ipsum ut interdum. Praesent venenatis massa vitae ligula consequat aliquet. Fusce in purus in odio molestie laoreet at ac augue. Fusce consectetur elit a magna mollis aliquet.
+
+Nulla eros nisi, dapibus eget diam vitae, tincidunt blandit odio. Fusce interdum tellus nec varius condimentum. Fusce non magna a purus sodales imperdiet sit amet vitae ligula. Quisque viverra leo sit amet mi egestas, et posuere nunc tincidunt. Suspendisse feugiat malesuada urna sed tincidunt. Morbi a urna sed magna volutpat pellentesque sit amet ac mauris. Nulla sed ultrices dui. Etiam massa arcu, tempor ut erat at, cursus malesuada ipsum. Duis sit amet felis dolor.
+
+Morbi gravida nisl nunc, vulputate iaculis risus vehicula non. Proin cursus, velit et laoreet consectetur, lacus libero sagittis lacus, quis accumsan odio lectus non erat. Aenean dolor lectus, euismod sit amet justo eget, dictum gravida nisl. Phasellus sed nunc non odio ullamcorper rhoncus non ut ipsum. Duis ante ligula, pellentesque sit amet imperdiet eget, congue vel dui. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla facilisi. Suspendisse luctus leo eget justo mollis, convallis convallis ex suscipit. Integer et justo eget odio lobortis sollicitudin. Pellentesque accumsan rhoncus augue, luctus suscipit ex accumsan nec. Maecenas lacinia consectetur risus at bibendum. Etiam venenatis purus lorem, sit amet elementum turpis tristique eu. Proin vulputate faucibus feugiat. Nunc vehicula congue odio consequat vulputate. Quisque bibendum augue id iaculis faucibus. Donec blandit cursus sem, eget accumsan orci commodo sed.
+
+Suspendisse iaculis est quam, sed scelerisque purus tincidunt non. Cras hendrerit ante turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse purus ipsum, rutrum id sem in, venenatis laoreet metus. Aliquam ac bibendum mauris. Cras egestas rhoncus est, sed lacinia nibh vestibulum id. Proin diam quam, sagittis congue molestie ac, rhoncus et mauris. Phasellus massa neque, ornare vel erat a, rutrum pharetra arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi et nulla eget massa auctor fermentum. Quisque maximus tellus sed cursus cursus. Ut vehicula erat at purus aliquet, quis imperdiet dui sagittis. Nullam eget quam leo.
+
+Nulla magna ipsum, congue nec dui ut, lacinia malesuada felis. Cras mattis metus non maximus venenatis. Aliquam euismod est vitae erat sollicitudin, at pellentesque augue sollicitudin. Curabitur euismod maximus cursus. In tortor dui, convallis sed sapien ac, varius congue metus. Nunc ullamcorper ac orci sit amet finibus. Vivamus molestie nibh vitae quam rhoncus, eu ultrices est molestie. Maecenas consectetur eu quam sit amet placerat.
+
+Curabitur ut fermentum mauris. Donec et congue nibh. Sed cursus elit sit amet convallis varius. Donec malesuada porta odio condimentum varius. Pellentesque ornare tempor ante, ut volutpat nulla lobortis sed. Nunc congue aliquet erat ac elementum. Quisque a ex sit amet turpis placerat sagittis eget ac ligula. Etiam in augue malesuada, aliquam est non, lacinia justo. Vivamus tincidunt dolor orci, id dignissim lorem maximus at. Vivamus ligula mauris, venenatis vel nibh id, lacinia ultrices ipsum. Mauris cursus, urna ac rutrum aliquet, risus ipsum tincidunt purus, sit amet blandit nunc sem sit amet nibh.
+
+Nam eleifend risus lacus, eu pharetra risus egestas eu. Maecenas hendrerit nisl in semper placerat. Vestibulum massa tellus, laoreet non euismod quis, sollicitudin id sapien. Morbi vel cursus metus. Aenean tincidunt nisi est, ut elementum est auctor id. Duis auctor elit leo, ac scelerisque risus suscipit et. Pellentesque lectus nisi, ultricies in elit sed, pulvinar iaculis massa. Morbi viverra eros mi, pretium facilisis neque egestas id. Curabitur non massa accumsan, porttitor sem vitae, ultricies lacus. Curabitur blandit nisl velit. Mauris sollicitudin ultricies purus sit amet placerat. Fusce ac neque sed leo venenatis laoreet ut non ex. Integer elementum rhoncus orci, eu maximus neque tempus eu. Curabitur euismod dignissim tellus, vitae lacinia metus. Mauris imperdiet metus vitae vulputate accumsan. Duis eget luctus nibh, sit amet finibus libero.
+
+LONGMSG;
+        $manager->addNextStepNotice(array(
+            'shortMsg' => 'Full elements LONG LONG',
+            'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+            'longMsg' => $longMsg,
+            'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_DEFAULT,
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            )
+        ));
+
+
+
 
         $manager->saveNotices();
     }
 
     /**
      * test function
-     *
-     * @return void
      */
-    public static function testFinalReporMessaesLevels(): void
+    public static function testFinalReporMessaesLevels()
     {
         $section = 'general';
 
         $manager = self::getInstance();
-        $manager->addFinalReportNoticeMessage('Level info (' . DUPX_NOTICE_ITEM::INFO . ')', $section, DUPX_NOTICE_ITEM::INFO, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_0');
-        $manager->addFinalReportNoticeMessage('Level notice (' . DUPX_NOTICE_ITEM::NOTICE . ')', $section, DUPX_NOTICE_ITEM::NOTICE, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_1');
-        $manager->addFinalReportNoticeMessage('Level soft warning (' . DUPX_NOTICE_ITEM::SOFT_WARNING . ')', $section, DUPX_NOTICE_ITEM::SOFT_WARNING, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_2');
-        $manager->addFinalReportNoticeMessage('Level hard warning (' . DUPX_NOTICE_ITEM::HARD_WARNING . ')', $section, DUPX_NOTICE_ITEM::HARD_WARNING, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_3');
-        $manager->addFinalReportNoticeMessage('Level critical error (' . DUPX_NOTICE_ITEM::CRITICAL . ')', $section, DUPX_NOTICE_ITEM::CRITICAL, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_4');
-        $manager->addFinalReportNoticeMessage('Level fatal error (' . DUPX_NOTICE_ITEM::FATAL . ')', $section, DUPX_NOTICE_ITEM::FATAL, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_5');
+        $manager->addFinalReportNoticeMessage('Level info ('.DUPX_NOTICE_ITEM::INFO.')', $section, DUPX_NOTICE_ITEM::INFO, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_0');
+        $manager->addFinalReportNoticeMessage('Level notice ('.DUPX_NOTICE_ITEM::NOTICE.')', $section, DUPX_NOTICE_ITEM::NOTICE, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_1');
+        $manager->addFinalReportNoticeMessage('Level soft warning ('.DUPX_NOTICE_ITEM::SOFT_WARNING.')', $section, DUPX_NOTICE_ITEM::SOFT_WARNING, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_2');
+        $manager->addFinalReportNoticeMessage('Level hard warning ('.DUPX_NOTICE_ITEM::HARD_WARNING.')', $section, DUPX_NOTICE_ITEM::HARD_WARNING, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_3');
+        $manager->addFinalReportNoticeMessage('Level critical error ('.DUPX_NOTICE_ITEM::CRITICAL.')', $section, DUPX_NOTICE_ITEM::CRITICAL, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_4');
+        $manager->addFinalReportNoticeMessage('Level fatal error ('.DUPX_NOTICE_ITEM::FATAL.')', $section, DUPX_NOTICE_ITEM::FATAL, DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_5');
         $manager->saveNotices();
     }
 
     /**
      * test function
-     *
-     * @return void
      */
-    public static function testFinalReportFullMessages(): void
+    public static function testFinalReportFullMessages()
     {
         $section = 'general';
         $manager = self::getInstance();
@@ -1060,31 +1006,41 @@ LONGMSG;
             </ul>
 LONGMSG;
 
-        $manager->addFinalReportNotice([
-            'shortMsg'    => 'Full elements final report message',
-            'level'       => DUPX_NOTICE_ITEM::HARD_WARNING,
-            'longMsg'     => $longMsg,
+        $manager->addFinalReportNotice(array(
+            'shortMsg' => 'Full elements final report message',
+            'level' => DUPX_NOTICE_ITEM::HARD_WARNING,
+            'longMsg' => $longMsg,
             'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
-            'sections'    => $section,
-            'faqLink'     => [
-                'url'   => 'http://www.google.it',
-                'label' => 'google link',
-            ],
-        ], DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_full_1');
+            'sections' => $section,
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            )
+            ), DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_full_1');
 
-        $manager->addFinalReportNotice([
-            'shortMsg'    => 'Full elements final report message info high priority',
-            'level'       => DUPX_NOTICE_ITEM::INFO,
-            'longMsg'     => $longMsg,
+        $manager->addFinalReportNotice(array(
+            'shortMsg' => 'Full elements final report message info high priority',
+            'level' => DUPX_NOTICE_ITEM::INFO,
+            'longMsg' => $longMsg,
             'longMsgMode' => DUPX_NOTICE_ITEM::MSG_MODE_HTML,
-            'sections'    => $section,
-            'faqLink'     => [
-                'url'   => 'http://www.google.it',
-                'label' => 'google link',
-            ],
-            'priority'    => 5,
-        ], DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_full_2');
+            'sections' => $section,
+            'faqLink' => array(
+                'url' => 'http://www.google.it',
+                'label' => 'google link'
+            ),
+            'priority' => 5
+            ), DUPX_NOTICE_MANAGER::ADD_UNIQUE, 'test_fr_full_2');
         $manager->saveNotices();
+    }
+
+    //PHP 8 Requires method to be public
+    public function __wakeup()
+    {
+    }
+
+    private function __clone()
+    {
+
     }
 }
 
@@ -1100,49 +1056,78 @@ class DUPX_NOTICE_ITEM
     const MSG_MODE_HTML    = 'html';
     const MSG_MODE_PRE     = 'pre';
 
-    /** @var string text */
+    /**
+     *
+     * @var string text
+     */
     public $shortMsg = '';
-    /** @var string html text */
+
+    /**
+     *
+     * @var string html text
+     */
     public $longMsg = '';
-    /** @var string if true long msg can be html */
+
+    /**
+     *
+     * @var bool if true long msg can be html
+     */
     public $longMsgMode = self::MSG_MODE_DEFAULT;
-    /** @var ?array{url:string,label:string} $faqLink Faq link */
-    public $faqLink;
-    /** @var string[] notice sections for final report only */
-    public $sections = [];
-    /** @var int */
+
+    /**
+     *
+     * @var null|array // null = no faq link
+     *                    array( 'label' => link text , 'url' => faq url)
+     */
+    public $faqLink = array(
+        'label' => '',
+        'url' => ''
+    );
+
+    /**
+     *
+     * @var string[] notice sections for final report only
+     */
+    public $sections = array();
+
+    /**
+     *
+     * @var int
+     */
     public $level = self::NOTICE;
-    /** @var int */
+
+    /**
+     *
+     * @var int
+     */
     public $priority = 10;
-    /** @var bool if true notice start open. For final report only */
+
+    /**
+     *
+     * @var bool if true notice start open. For final report only
+     */
     public $open = false;
 
     /**
-     * Class constructor
      *
-     * @param string                          $shortMsg    short mssage
-     * @param int                             $level       Levels ENUM: INFO,NOTICE,SOFT_WARNING,HARD_WARNING,CRITICAL,FATAL
-     * @param string                          $longMsg     html text
-     * @param string|string[]                 $sections    notice sections for final report only
-     * @param ?array{url:string,label:string} $faqLink     Faq link
-     * @param int                             $priority    before lower priority
-     * @param bool                            $open        if true notice start open. For final report only
-     * @param string                          $longMsgMode ENUM: MSG_MODE_DEFAULT, MSG_MODE_HTML, MSG_MODE_PRE
+     * @param string $shortMsg text
+     * @param int $level
+     * @param string $longMsg html text
+     * @param string|string[] $sections
+     * @param null|array $faqLink [
+     *                              'url' => external link
+     *                              'label' => link text if empty get external url link
+     *                          ]
+     * @param int priority
+     * @param bool open
+     * @param string longMsgMode MSG_MODE_DEFAULT | MSG_MODE_HTML | MSG_MODE_PRE
      */
-    public function __construct(
-        $shortMsg,
-        $level = self::INFO,
-        $longMsg = '',
-        $sections = [],
-        $faqLink = null,
-        $priority = 10,
-        $open = false,
-        $longMsgMode = self::MSG_MODE_DEFAULT
-    ) {
+    public function __construct($shortMsg, $level = self::INFO, $longMsg = '', $sections = array(), $faqLink = null, $priority = 10, $open = false, $longMsgMode = self::MSG_MODE_DEFAULT)
+    {
         $this->shortMsg    = (string) $shortMsg;
         $this->level       = (int) $level;
         $this->longMsg     = (string) $longMsg;
-        $this->sections    = is_array($sections) ? $sections : [$sections];
+        $this->sections    = is_array($sections) ? $sections : array($sections);
         $this->faqLink     = $faqLink;
         $this->priority    = $priority;
         $this->open        = $open;
@@ -1150,102 +1135,114 @@ class DUPX_NOTICE_ITEM
     }
 
     /**
-     * Item to array
      *
-     * @return array<string,mixed>
+     * @return array        [
+     *                          'shortMsg' => text,
+     *                          'level' => level,
+     *                          'longMsg' => html text,
+     *                          'sections' => string|string[],
+     *                          'faqLink' => [
+     *                              'url' => external link
+     *                              'label' => link text if empty get external url link
+     *                          ]
+     *                          'priority' => int low first
+     *                          'open' => if true the tab is opene on final report
+     *                          'longMsgMode'=> MSG_MODE_DEFAULT | MSG_MODE_HTML | MSG_MODE_PRE
+     *                      ]
      */
-    public function toArray(): array
+    public function toArray()
     {
-        return [
-            'shortMsg'    => $this->shortMsg,
-            'level'       => $this->level,
-            'longMsg'     => $this->longMsg,
-            'sections'    => $this->sections,
-            'faqLink'     => $this->faqLink,
-            'priority'    => $this->priority,
-            'open'        => $this->open,
-            'longMsgMode' => $this->longMsgMode,
-        ];
+        return array(
+            'shortMsg' => $this->shortMsg,
+            'level' => $this->level,
+            'longMsg' => $this->longMsg,
+            'sections' => $this->sections,
+            'faqLink' => $this->faqLink,
+            'priority' => $this->priority,
+            'open' => $this->open,
+            'longMsgMode' => $this->longMsgMode
+        );
     }
 
     /**
-     * Get item from array
-     * [
-     *   'shortMsg' => text,
-     *   'level' => level,
-     *   'longMsg' => html text,
-     *   'sections' => string|string[],
-     *   'faqLink' => [
-     *   'url' => external link
-     *   'label' => link text if empty get external url link
-     *   ]
-     *   ]
      *
-     * @param array<string,mixed> $array array
-     *
-     * @return self
+     * @return array        [
+     *                          'shortMsg' => text,
+     *                          'level' => level,
+     *                          'longMsg' => html text,
+     *                          'sections' => string|string[],
+     *                          'faqLink' => [
+     *                              'url' => external link
+     *                              'label' => link text if empty get external url link
+     *                          ],
+     *                          priority
+     *                          open
+     *                          longMsgMode
+     *                      ]
+     * @return DUPX_NOTICE_ITEM
      */
-    public static function getItemFromArray($array): self
+    public static function getItemFromArray($array)
     {
         if (isset($array['sections']) && !is_array($array['sections'])) {
-            $array['sections'] = empty($array['sections']) ? [] : [$array['sections']];
+            if (empty($array['sections'])) {
+                $array['sections'] = array();
+            } else {
+                $array['sections'] = array($array['sections']);
+            }
         }
         $params = array_merge(self::getDefaultArrayParams(), $array);
-        return new self($params['shortMsg'], $params['level'], $params['longMsg'], $params['sections'], $params['faqLink'], $params['priority'], $params['open'], $params['longMsgMode']);
+        $result = new self($params['shortMsg'], $params['level'], $params['longMsg'], $params['sections'], $params['faqLink'], $params['priority'], $params['open'], $params['longMsgMode']);
+        return $result;
     }
 
     /**
-     * Return default array params
-     * [
-     *   'shortMsg' => text,
-     *   'level' => level,
-     *   'longMsg' => html text,
-     *   'sections' => string|string[],
-     *   'faqLink' => [
-     *       'url' => external link
-     *       'label' => link text if empty get external url link
-     *   ],
-     *   priority
-     *   open
-     *   longMsgMode
-     * ]
      *
-     * @return array<string,mixed>
+     * @return array        [
+     *                          'shortMsg' => text,
+     *                          'level' => level,
+     *                          'longMsg' => html text,
+     *                          'sections' => string|string[],
+     *                          'faqLink' => [
+     *                              'url' => external link
+     *                              'label' => link text if empty get external url link
+     *                          ],
+     *                          priority
+     *                          open
+     *                          longMsgMode
+     *                      ]
      */
-    public static function getDefaultArrayParams(): array
+    public static function getDefaultArrayParams()
     {
-        return [
-            'shortMsg'    => '',
-            'level'       => self::INFO,
-            'longMsg'     => '',
-            'sections'    => [],
-            'faqLink'     => null,
-            'priority'    => 10,
-            'open'        => false,
-            'longMsgMode' => self::MSG_MODE_DEFAULT,
-        ];
+        return array(
+            'shortMsg' => '',
+            'level' => self::INFO,
+            'longMsg' => '',
+            'sections' => array(),
+            'faqLink' => null,
+            'priority' => 10,
+            'open' => false,
+            'longMsgMode' => self::MSG_MODE_DEFAULT
+        );
     }
 
     /**
      * before lower priority
      * before highest level
      *
-     * @param self $a notice
-     * @param self $b notice
-     *
-     * @return int
+     * @param DUPX_NOTICE_ITEM $a
+     * @param DUPX_NOTICE_ITEM $b
      */
-    public static function sortNoticeForPriorityAndLevel($a, $b): int
+    public static function sortNoticeForPriorityAndLevel($a, $b)
     {
         if ($a->priority == $b->priority) {
             if ($a->level == $b->level) {
                 return 0;
-            } elseif ($a->level < $b->level) {
+            } else if ($a->level < $b->level) {
                 return 1;
             } else {
                 return -1;
             }
-        } elseif ($a->priority < $b->priority) {
+        } else if ($a->priority < $b->priority) {
             return -1;
         } else {
             return 1;

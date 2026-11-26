@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Help {
 	/**
-	 * Source of the documentation content.
+	 * Source of notifications content.
 	 *
 	 * @since 4.0.0
 	 *
@@ -26,7 +26,7 @@ class Help {
 	private $settings = [
 		'docsUrl'          => 'https://aioseo.com/docs/',
 		'supportTicketUrl' => 'https://aioseo.com/account/support/',
-		'upgradeUrl'       => 'https://aioseo.com/pricing/'
+		'upgradeUrl'       => 'https://aioseo.com/pricing/',
 	];
 
 	/**
@@ -45,33 +45,31 @@ class Help {
 	}
 
 	/**
-	 * Returns the help docs for our menus.
+	 * Get docs from the cache.
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return array The help docs.
+	 * @return array Docs data.
 	 */
 	public function getDocs() {
-		$helpDocs = aioseo()->core->networkCache->get( 'admin_help_docs' );
-		if ( null !== $helpDocs ) {
-			if ( is_array( $helpDocs ) ) {
-				return $helpDocs;
+		$aioseoAdminHelpDocs          = aioseo()->core->cache->get( 'admin_help_docs' );
+		$aioseoAdminHelpDocsCacheTime = WEEK_IN_SECONDS;
+		if ( null === $aioseoAdminHelpDocs ) {
+			$request = wp_remote_get( $this->getUrl() );
+
+			if ( is_wp_error( $request ) ) {
+				return false;
 			}
 
-			return json_decode( $helpDocs, true );
+			$response = $request['response'];
+
+			if ( ( $response['code'] <= 200 ) && ( $response['code'] > 299 ) ) {
+				$aioseoAdminHelpDocsCacheTime = 10 * MINUTE_IN_SECONDS;
+			}
+			$aioseoAdminHelpDocs = wp_remote_retrieve_body( $request );
+			aioseo()->core->cache->update( 'admin_help_docs', $aioseoAdminHelpDocs, $aioseoAdminHelpDocsCacheTime );
 		}
 
-		$request = aioseo()->helpers->wpRemoteGet( $this->getUrl() );
-		if ( is_wp_error( $request ) ) {
-			aioseo()->core->networkCache->update( 'admin_help_docs', [], DAY_IN_SECONDS );
-
-			return [];
-		}
-
-		$helpDocs = wp_remote_retrieve_body( $request );
-
-		aioseo()->core->networkCache->update( 'admin_help_docs', $helpDocs, WEEK_IN_SECONDS );
-
-		return json_decode( $helpDocs, true );
+		return $aioseoAdminHelpDocs;
 	}
 }

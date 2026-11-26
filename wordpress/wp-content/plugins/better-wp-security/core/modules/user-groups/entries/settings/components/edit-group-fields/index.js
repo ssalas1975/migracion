@@ -4,7 +4,7 @@
 import { GroupLabel, PanelRoles, PanelUsers } from '../';
 import './style.scss';
 
-export default function EditGroupFields( { groupId, disabled } ) {
+function EditGroupFields( { groupId, disabled } ) {
 	return (
 		<>
 			<GroupLabel groupId={ groupId } disabled={ disabled } />
@@ -13,3 +13,5 @@ export default function EditGroupFields( { groupId, disabled } ) {
 		</>
 	);
 }
+
+export default EditGroupFields;

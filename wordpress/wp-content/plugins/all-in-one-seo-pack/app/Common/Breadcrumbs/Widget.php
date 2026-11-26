@@ -13,15 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Widget extends \WP_Widget {
 	/**
-	 * The default attributes.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var array
-	 */
-	private $defaults = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.1.1
@@ -46,10 +37,8 @@ class Widget extends \WP_Widget {
 			'id_base' => $widgetSlug,
 		];
 
-		// Translators: 1 - The plugin short name ("AIOSEO").
-		$name = sprintf( esc_html__( '%1$s - Breadcrumbs', 'all-in-one-seo-pack' ), AIOSEO_PLUGIN_SHORT_NAME );
-		$name .= ' ' . esc_html__( '(legacy)', 'all-in-one-seo-pack' );
-		parent::__construct( $widgetSlug, $name, $widgetOps, $controlOps );
+		// Load widget.
+		parent::__construct( $widgetSlug, esc_html__( 'AIOSEO - Breadcrumbs', 'all-in-one-seo-pack' ), $widgetOps, $controlOps );
 	}
 
 	/**
@@ -62,34 +51,25 @@ class Widget extends \WP_Widget {
 	 * @return void
 	 */
 	public function widget( $args, $instance ) {
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		// Merge with defaults.
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Title.
 		if ( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'];
-			echo apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
-			echo $args['after_title'];
+			echo $args['before_title'] . apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				'widget_title', $instance['title'], $instance, $this->id_base
+			) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		// If not being previewed in the Customizer maybe show the dummy preview.
-		if (
-			! is_customize_preview() &&
-			(
-				false !== strpos( wp_get_referer(), admin_url( 'widgets.php' ) ) ||
-				false !== strpos( wp_get_referer(), admin_url( 'customize.php' ) )
-			)
-		) {
-			aioseo()->breadcrumbs->frontend->preview();
-		} else {
-			aioseo()->breadcrumbs->frontend->display();
-		}
+		// Breadcrumb.
+		! empty( $_GET['legacy-widget-preview'] ) ? aioseo()->breadcrumbs->frontend->preview() : aioseo()->breadcrumbs->frontend->display();
 
-		echo $args['after_widget'];
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Workaround for a bug in the Gutenberg widget preview.
+		echo '<span style="display: none">a</span>';  // TODO: remove this when the preview bug is fixed.
+
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

@@ -41,7 +41,7 @@ class MetaData {
 	 * @param  array   $fields An array of fields to update.
 	 * @return void
 	 */
-	public function updateWpmlLocalization( $postId, $fields = [], $job = null ) {
+	public function updateWpmlLocalization( $postId, $fields, $job ) {
 		$aioseoFields = [
 			'_aioseo_title',
 			'_aioseo_description',
@@ -93,8 +93,8 @@ class MetaData {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_Post         $post The post object (optional).
-	 * @return Models\Post|bool       The meta data or false.
+	 * @param  WP_Post    $post The post object (optional).
+	 * @return array|bool       The meta data or false.
 	 */
 	public function getMetaData( $post = null ) {
 		if ( ! $post ) {
@@ -104,14 +104,13 @@ class MetaData {
 		if ( $post ) {
 			$post = is_object( $post ) ? $post : aioseo()->helpers->getPost( $post );
 			// If we still have no post, let's return false.
-			if ( ! is_a( $post, 'WP_Post' ) ) {
+			if ( empty( $post ) ) {
 				return false;
 			}
 
 			if ( isset( $this->posts[ $post->ID ] ) ) {
 				return $this->posts[ $post->ID ];
 			}
-
 			$this->posts[ $post->ID ] = Models\Post::getPost( $post->ID );
 
 			if ( ! $this->posts[ $post->ID ]->exists() ) {
@@ -152,8 +151,8 @@ class MetaData {
 	 *
 	 * @since 4.1.7
 	 *
-	 * @param  int         $postId   The post ID.
-	 * @param  Models\Post $metaData The meta data.
+	 * @param  int  $postId   The post ID.
+	 * @param  Post $metaData The meta data.
 	 * @return void
 	 */
 	public function bustPostCache( $postId, $metaData = null ) {

@@ -2,8 +2,6 @@
 
 namespace WPMailSMTP\Tasks;
 
-use ActionScheduler;
-
 /**
  * Class Task.
  *
@@ -89,15 +87,6 @@ class Task {
 	private $interval;
 
 	/**
-	 * Whether this task is unique.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @var bool
-	 */
-	private $unique = false;
-
-	/**
 	 * Task constructor.
 	 *
 	 * @since 2.1.0
@@ -118,22 +107,6 @@ class Task {
 		if ( empty( $this->action ) ) {
 			throw new \UnexpectedValueException( 'Task action cannot be empty.' );
 		}
-	}
-
-	/**
-	 * Register the task's callbacks.
-	 *
-	 * @since 4.10.0
-	 */
-	public function hooks() {
-	}
-
-	/**
-	 * Schedule the task.
-	 *
-	 * @since 4.10.0
-	 */
-	public function init() {
 	}
 
 	/**
@@ -187,20 +160,6 @@ class Task {
 	}
 
 	/**
-	 * Set this task as unique.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @return Task
-	 */
-	public function unique() {
-
-		$this->unique = true;
-
-		return $this;
-	}
-
-	/**
 	 * Pass any number of params that should be saved to Meta table.
 	 *
 	 * @since 2.1.0
@@ -209,11 +168,7 @@ class Task {
 	 */
 	public function params() {
 
-		$args = func_get_args();
-
-		if ( ! empty( $args ) ) {
-			$this->params = $args;
-		}
+		$this->params = func_get_args();
 
 		return $this;
 	}
@@ -236,24 +191,22 @@ class Task {
 		}
 
 		// Save data to tasks meta table.
-		if ( ! is_null( $this->params ) ) {
-			$task_meta = new Meta();
+		$task_meta = new Meta();
 
-			// No processing if meta table was not created.
-			if ( ! $task_meta->table_exists() ) {
-				return $action_id;
-			}
+		// No processing if meta table was not created on multisite subsite.
+		if ( is_multisite() && ! $task_meta->table_exists() ) {
+			return $action_id;
+		}
 
-			$this->meta_id = $task_meta->add(
-				[
-					'action' => $this->action,
-					'data'   => isset( $this->params ) ? $this->params : [],
-				]
-			);
+		$this->meta_id = $task_meta->add(
+			[
+				'action' => $this->action,
+				'data'   => isset( $this->params ) ? $this->params : [],
+			]
+		);
 
-			if ( empty( $this->meta_id ) ) {
-				return $action_id;
-			}
+		if ( empty( $this->meta_id ) ) {
+			return $action_id;
 		}
 
 		// Prevent 500 errors when Action Scheduler tables don't exist.
@@ -294,8 +247,7 @@ class Task {
 		return as_enqueue_async_action(
 			$this->action,
 			[ $this->meta_id ],
-			Tasks::GROUP,
-			$this->unique
+			Tasks::GROUP
 		);
 	}
 
@@ -317,8 +269,7 @@ class Task {
 			$this->interval,
 			$this->action,
 			[ $this->meta_id ],
-			Tasks::GROUP,
-			$this->unique
+			Tasks::GROUP
 		);
 	}
 
@@ -339,8 +290,7 @@ class Task {
 			$this->timestamp,
 			$this->action,
 			[ $this->meta_id ],
-			Tasks::GROUP,
-			$this->unique
+			Tasks::GROUP
 		);
 	}
 
@@ -363,103 +313,5 @@ class Task {
 		as_unschedule_all_actions( $this->action );
 
 		return true;
-	}
-
-	/**
-	 * Cancel all occurrences of this task,
-	 * preventing it from re-registering itself.
-	 *
-	 * @since 4.0.0
-	 */
-	public function cancel_force() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
-
-		add_action( 'shutdown', [ $this, 'cancel' ], PHP_INT_MAX );
-	}
-
-	/**
-	 * Remove completed occurrences of this task.
-	 *
-	 * @since 4.1.0
-	 *
-	 * @param int $limit The amount of rows to remove.
-	 */
-	protected function remove_completed( $limit = 0 ) {
-
-		// Make sure that all used functions, classes, and methods exist.
-		if (
-			! function_exists( 'as_get_scheduled_actions' ) ||
-			! class_exists( 'ActionScheduler' ) ||
-			! method_exists( 'ActionScheduler', 'store' ) ||
-			! class_exists( 'ActionScheduler_Store' ) ||
-			! method_exists( 'ActionScheduler_Store', 'delete_action' )
-		) {
-			return;
-		}
-
-		// Cap the query result to prevent performing a large number of individual delete actions at once.
-		$per_page = min( 10, max( 0, intval( $limit ) ) );
-
-		// Get completed occurrences of this task.
-		$action_ids = as_get_scheduled_actions(
-			[
-				'hook'     => $this->action,
-				'status'   => 'complete',
-				'per_page' => $per_page,
-			],
-			'ids'
-		);
-
-		if ( empty( $action_ids ) ) {
-			return;
-		}
-
-		// Delete actions through the Action Scheduler API so that associated
-		// `actionscheduler_logs` rows are cleaned up via the
-		// `action_scheduler_deleted_action` hook.
-		foreach ( $action_ids as $action_id ) {
-			ActionScheduler::store()->delete_action( $action_id );
-		}
-	}
-
-	/**
-	 * Remove pending occurrences of this task.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param int $limit The amount of rows to remove.
-	 */
-	protected function remove_pending( $limit = 0 ) {
-
-		// Make sure that all used functions, classes, and methods exist.
-		if (
-			! function_exists( 'as_get_scheduled_actions' ) ||
-			! class_exists( 'ActionScheduler' ) ||
-			! method_exists( 'ActionScheduler', 'store' ) ||
-			! class_exists( 'ActionScheduler_Store' ) ||
-			! method_exists( 'ActionScheduler_Store', 'delete_action' )
-		) {
-			return;
-		}
-
-		$per_page = max( 0, intval( $limit ) );
-
-		// Get all pending license check actions.
-		$action_ids = as_get_scheduled_actions(
-			[
-				'hook'     => $this->action,
-				'status'   => 'pending',
-				'per_page' => $per_page,
-			],
-			'ids'
-		);
-
-		if ( empty( $action_ids ) ) {
-			return;
-		}
-
-		// Delete all pending license check actions.
-		foreach ( $action_ids as $action_id ) {
-			ActionScheduler::store()->delete_action( $action_id );
-		}
 	}
 }

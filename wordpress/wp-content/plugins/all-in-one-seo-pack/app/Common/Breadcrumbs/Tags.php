@@ -25,8 +25,7 @@ class Tags {
 	/**
 	 * Replace the tags in the string provided.
 	 *
-	 * @since   4.1.1
-	 * @version 5.0.5.1 Escape the tag values and stop decoding the whole string.
+	 * @since 4.1.1
 	 *
 	 * @param  string  $string           The string with tags.
 	 * @param  array   $item             The breadcrumb item.
@@ -34,21 +33,20 @@ class Tags {
 	 * @return string                    The string with tags replaced.
 	 */
 	public function replaceTags( $string, $item, $stripPunctuation = false ) {
-		if ( ! $string || ! preg_match( '/#/', (string) $string ) ) {
+		if ( ! $string || ! preg_match( '/#/', $string ) ) {
 			return $string;
 		}
 
 		// Replace separator tag so we don't strip it as punctuation.
 		$separatorTag = aioseo()->tags->denotationChar . 'separator_sa';
-		$string       = preg_replace( "/$separatorTag(?![a-zA-Z0-9_])/im", '>thisisjustarandomplaceholder<', (string) $string );
+		$string       = preg_replace( "/$separatorTag(?![a-zA-Z0-9_])/im", '>thisisjustarandomplaceholder<', $string );
 
 		// Replace custom breadcrumb tags.
 		foreach ( $this->getTags() as $tag ) {
 			$tagId   = aioseo()->tags->denotationChar . $tag['id'];
 			$pattern = "/$tagId(?![a-zA-Z0-9_])/im";
-			if ( preg_match( $pattern, (string) $string ) ) {
-				$tagValue = str_replace( '$', '\$', $this->escapeTagValue( $tag['id'], $this->getTagValue( $tag, $item ) ) );
-				$string   = preg_replace( $pattern, $tagValue, (string) $string );
+			if ( preg_match( $pattern, $string ) ) {
+				$string = preg_replace( $pattern, $this->getTagValue( $tag, $item ), $string );
 			}
 		}
 
@@ -56,58 +54,23 @@ class Tags {
 			$string = aioseo()->helpers->stripPunctuation( $string );
 		}
 
-		// Remove any remaining tags from the title attribute.
-		// Only the title is decoded: decoding the whole string would turn encoded tag values into live markup.
-		$string = preg_replace_callback( '/title="([^"]*)"/i', function ( $matches ) {
-			$sanitizedTitle = wp_strip_all_tags( aioseo()->helpers->decodeHtmlEntities( $matches[1] ) );
-
-			return 'title="' . esc_attr( $sanitizedTitle ) . '"';
-		}, (string) $string );
-
 		return preg_replace(
 			'/>thisisjustarandomplaceholder<(?![a-zA-Z0-9_])/im',
 			aioseo()->helpers->decodeHtmlEntities( aioseo()->options->searchAppearance->global->separator ),
-			(string) $string
+			$string
 		);
-	}
-
-	/**
-	 * Escapes a tag value for the crumb's HTML.
-	 *
-	 * @since 5.0.5.1
-	 *
-	 * @param  string $tagId The tag ID.
-	 * @param  mixed  $value The tag value.
-	 * @return string        The escaped tag value.
-	 */
-	protected function escapeTagValue( $tagId, $value ) {
-		$value = (string) $value;
-
-		switch ( $tagId ) {
-			case 'breadcrumb_link':
-				return esc_url( $value );
-			// These return markup.
-			case 'breadcrumb_separator':
-			case 'breadcrumb_wc_product_price':
-				return $value;
-			default:
-				// Decoded first so the entities WordPress already stored aren't double-encoded.
-				return esc_html( aioseo()->helpers->decodeHtmlEntities( $value ) );
-		}
 	}
 
 	/**
 	 * Get the value of the tag to replace.
 	 *
-	 * @since   4.1.1
-	 * @version 5.0.3 Return an empty value when the crumb isn't of the tag's kind.
+	 * @since 4.1.1
 	 *
 	 * @param  string $tag  The tag to look for.
 	 * @param  int    $item The crumb array.
 	 * @return string       The value of the tag.
 	 */
 	public function getTagValue( $tag, $item ) {
-		$product = false;
 		if ( 0 === stripos( $tag['id'], 'breadcrumb_wc_product_' ) ) {
 			$product = wc_get_product( $item['reference'] );
 			if ( ! $product ) {
@@ -121,22 +84,21 @@ class Tags {
 			case 'breadcrumb_separator':
 				return aioseo()->breadcrumbs->frontend->getSeparator();
 			case 'breadcrumb_wc_product_price':
-				return $product ? wc_price( $product->get_price() ) : '';
+				return wc_price( $product->get_price() );
 			case 'breadcrumb_wc_product_sku':
-				return $product ? $product->get_sku() : '';
+				return $product->get_sku();
 			case 'breadcrumb_wc_product_brand':
-				return $product ? aioseo()->helpers->getWooCommerceBrand( $product->get_id() ) : '';
-			// A template can use any tag on any crumb, so each one only applies to crumbs of its own kind.
+				return aioseo()->helpers->getWooCommerceBrand( $product->get_id() );
 			case 'breadcrumb_author_first_name':
-				return is_a( $item['reference'], 'WP_User' ) ? $item['reference']->first_name : '';
+				return $item['reference']->first_name;
 			case 'breadcrumb_author_last_name':
-				return is_a( $item['reference'], 'WP_User' ) ? $item['reference']->last_name : '';
+				return $item['reference']->last_name;
 			case 'breadcrumb_archive_post_type_name':
-				return is_a( $item['reference'], 'WP_Post_Type' ) ? $item['reference']->label : '';
+				return $item['reference']->label;
 			case 'breadcrumb_search_string':
-				return is_scalar( $item['reference'] ) ? (string) $item['reference'] : '';
+				return $item['reference'];
 			case 'breadcrumb_format_page_number':
-				return is_array( $item['reference'] ) && isset( $item['reference']['paged'] ) ? $item['reference']['paged'] : '';
+				return $item['reference']['paged'];
 			default:
 				return $item['label'];
 		}
@@ -164,13 +126,13 @@ class Tags {
 			[
 				'id'          => 'breadcrumb_post_title',
 				// Translators: 1 - The type of page (Post, Page, Category, Tag, etc.).
-				'name'        => sprintf( _x( '%1$s Title', 'SEO template tag', 'all-in-one-seo-pack' ), 'Post' ),
+				'name'        => sprintf( __( '%1$s Title', 'all-in-one-seo-pack' ), 'Post' ),
 				'description' => __( 'The original title of the current post.', 'all-in-one-seo-pack' )
 			],
 			[
 				'id'          => 'breadcrumb_taxonomy_title',
 				// Translators: 1 - The type of page (Post, Page, Category, Tag, etc.).
-				'name'        => sprintf( _x( '%1$s Title', 'SEO template tag', 'all-in-one-seo-pack' ), 'Category' ),
+				'name'        => sprintf( __( '%1$s Title', 'all-in-one-seo-pack' ), 'Category' ),
 				// Translators: 1 - The name of a taxonomy.
 				'description' => sprintf( __( 'The %1$s title.', 'all-in-one-seo-pack' ), 'Category' )
 			],

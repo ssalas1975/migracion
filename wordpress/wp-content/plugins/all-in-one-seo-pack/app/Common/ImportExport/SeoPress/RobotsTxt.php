@@ -15,21 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class RobotsTxt {
 	/**
-	 * List of options.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var array
-	 */
-	private $options = [];
-
-	/**
 	 * Class constructor.
 	 *
 	 * @since 4.1.4
 	 */
 	public function __construct() {
-		$this->options = get_option( 'seopress_pro_option_name', [] );
+		$this->options = get_option( 'seopress_pro_option_name' );
 		if ( empty( $this->options ) ) {
 			return;
 		}
@@ -51,12 +42,9 @@ class RobotsTxt {
 	 * @return void
 	 */
 	public function migrateRobotsTxt() {
-		$lines = ! empty( $this->options['seopress_robots_file'] ) ? (string) $this->options['seopress_robots_file'] : '';
+		$lines    = explode( "\n", $this->options['seopress_robots_file'] );
+		$allRules = aioseo()->robotsTxt->extractRules( $lines );
 
-		if ( $lines ) {
-			$allRules = aioseo()->robotsTxt->extractRules( $lines );
-
-			aioseo()->options->tools->robots->rules = aioseo()->robotsTxt->prepareRobotsTxt( $allRules );
-		}
+		aioseo()->options->tools->robots->rules = aioseo()->robotsTxt->prepareRobotsTxt( $allRules );
 	}
 }

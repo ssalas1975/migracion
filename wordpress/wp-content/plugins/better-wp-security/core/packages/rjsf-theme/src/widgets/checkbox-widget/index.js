@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { schemaRequiresTrueValue } from '@rjsf/utils';
+import { utils } from '@rjsf/core';
 
 /**
  * WordPress dependencies
@@ -25,7 +25,7 @@ export default function CheckboxWidget( {
 	onFocus,
 	onChange,
 } ) {
-	const required = schemaRequiresTrueValue( schema );
+	const required = utils.schemaRequiresTrueValue( schema );
 	const description = uiSchema[ 'ui:description' ] || schema.description;
 
 	return (

@@ -4,11 +4,11 @@ final class ITSEC_Log_Util {
 	public static function get_type_counts( $min_timestamp = 0 ) {
 		global $wpdb;
 
-		$where   = [];
+		$where = [];
 		$prepare = [];
 
 		if ( $min_timestamp > 0 ) {
-			$where[]   = 'init_timestamp > %s';
+			$where[]        = 'init_timestamp > %s';
 			$prepare[] = date( 'Y-m-d H:i:s', $min_timestamp );
 		}
 
@@ -33,10 +33,10 @@ final class ITSEC_Log_Util {
 				$result['type'] = 'process';
 			}
 
-			if ( isset( $counts[ $result['type'] ] ) ) {
-				$counts[ $result['type'] ] += $result['count'];
+			if ( isset( $counts[$result['type']] ) ) {
+				$counts[$result['type']] += $result['count'];
 			} else {
-				$counts[ $result['type'] ] = $result['count'];
+				$counts[$result['type']] = $result['count'];
 			}
 		}
 
@@ -91,11 +91,8 @@ final class ITSEC_Log_Util {
 		);
 
 
-		$get_count     = false;
+		$get_count = false;
 		$min_timestamp = $max_timestamp = false;
-
-		$search = $filters['__search'] ?? '';
-		unset( $filters['__search'] );
 
 		if ( isset( $filters['__get_count'] ) ) {
 			if ( $filters['__get_count'] ) {
@@ -117,23 +114,23 @@ final class ITSEC_Log_Util {
 
 
 		$limit = max( 0, min( 100, intval( $limit ) ) );
-		$page  = max( 1, intval( $page ) );
+		$page = max( 1, intval( $page ) );
 
 		if ( is_array( $sort_by_column ) ) {
 			$regex_valid_columns = '(?:' . implode( '|', $valid_columns ) . ')';
 
 			foreach ( $sort_by_column as $index => $sort_by ) {
 				if ( in_array( $sort_by, $valid_columns ) ) {
-					$sort_by_column[ $index ] = "$sort_by DESC";
-				} elseif ( ! preg_match( "/^$regex_valid_columns\s+(?:DESC|ASC)$/i", $sort_by ) ) {
-					unset( $sort_by_column[ $index ] );
+					$sort_by_column[$index] = "$sort_by DESC";
+				} else if ( ! preg_match( "/^$regex_valid_columns\s+(?:DESC|ASC)$/i", $sort_by ) ) {
+					unset( $sort_by_column[$index] );
 				}
 			}
 
 			if ( empty( $sort_by_column ) ) {
 				$sort_by_column = 'timestamp';
 			}
-		} elseif ( ! in_array( $sort_by_column, $valid_columns ) ) {
+		} else if ( ! in_array( $sort_by_column, $valid_columns ) ) {
 			$sort_by_column = 'timestamp';
 		}
 
@@ -144,7 +141,7 @@ final class ITSEC_Log_Util {
 
 		if ( false === $columns ) {
 			$columns = $valid_columns;
-		} elseif ( 'all' === $columns ) {
+		} else if ( 'all' === $columns ) {
 			$columns = array_merge( $valid_columns, array( 'data' ) );
 		}
 
@@ -162,7 +159,7 @@ final class ITSEC_Log_Util {
 
 		foreach ( (array) $filters as $column => $value ) {
 			if ( preg_match( '/^(.+)_not$/', $column, $match ) ) {
-				$not    = true;
+				$not = true;
 				$column = $match[1];
 			} else {
 				$not = false;
@@ -175,49 +172,23 @@ final class ITSEC_Log_Util {
 
 				if ( 'min' === $match[2] ) {
 					$where_entries[] = "'$column'>=%s";
-					$prepare_args[]  = $value;
+					$prepare_args[] = $value;
 				} else {
 					$where_entries[] = "'column'<=%s";
-					$prepare_args[]  = $value;
+					$prepare_args[] = $value;
 				}
-			} elseif ( ! in_array( $column, $valid_columns ) ) {
+			} else if ( ! in_array( $column, $valid_columns ) ) {
 				continue;
-			} elseif ( is_array( $value ) ) {
+			} else if ( is_array( $value ) ) {
 				if ( ! empty( $value ) ) {
-					$exact = [];
-					$like  = [];
-
-					foreach ( $value as $term ) {
-						if ( false === strpos( $term, '%' ) ) {
-							$exact[] = $term;
-						} else {
-							$like[] = $term;
-						}
+					if ( $not ) {
+						$where_entries[] = "$column NOT IN (" . implode( ', ', array_fill( 0, count( $value ), '%s' ) ) . ")";
+					} else {
+						$where_entries[] = "$column IN (" . implode( ', ', array_fill( 0, count( $value ), '%s' ) ) . ")";
 					}
-
-					$list_wheres = [];
-
-					if ( $exact ) {
-						$operator = $not ? 'NOT IN' : 'IN';
-
-						$list_wheres[] = "$column $operator (" . implode( ', ', array_fill( 0, count( $exact ), '%s' ) ) . ")";
-						$prepare_args  = array_merge( $prepare_args, $exact );
-					}
-
-					if ( $like ) {
-						$operator = $not ? 'NOT LIKE' : 'LIKE';
-
-						$list_wheres[] = "(" . implode( ' OR ', array_fill( 0, count( $like ), "{$column} {$operator} %s" ) ) . ")";
-						$prepare_args  = array_merge( $prepare_args, $like );
-					}
-
-					if ( count( $list_wheres ) === 1 ) {
-						$where_entries[] = $list_wheres[0];
-					} elseif ( count( $list_wheres ) === 2 ) {
-						$where_entries[] = "({$list_wheres[0]} OR {$list_wheres[1]})";
-					}
+					$prepare_args = array_merge( $prepare_args, $value );
 				}
-			} elseif ( false !== strpos( $value, '%' ) ) {
+			} else if ( false !== strpos( $value, '%' ) ) {
 				if ( $not ) {
 					$where_entries[] = "$column NOT LIKE %s";
 				} else {
@@ -236,49 +207,29 @@ final class ITSEC_Log_Util {
 
 		if ( false !== $min_timestamp ) {
 			$where_entries[] = 'timestamp>%s';
-			$prepare_args[]  = date( 'Y-m-d H:i:s', $min_timestamp );
+			$prepare_args[] = date( 'Y-m-d H:i:s', $min_timestamp );
 		}
 
 		if ( false !== $max_timestamp ) {
 			$where_entries[] = 'timestamp<%s';
-			$prepare_args[]  = date( 'Y-m-d H:i:s', $max_timestamp );
-		}
-
-		if ( $search ) {
-			$where_entries[] = '(remote_ip LIKE %s OR url LIKE %s)';
-			$prepare_args[] = $wpdb->esc_like( $search ) . '%';
-			$prepare_args[] = '%' . $wpdb->esc_like( $search ) . '%';
+			$prepare_args[] = date( 'Y-m-d H:i:s', $max_timestamp );
 		}
 
 		if ( $where_entries ) {
 			$query .= ' WHERE ' . implode( ' AND ', $where_entries );
 		}
 
-	if ( ! $get_count ) {
-		if ( ! is_array( $sort_by_column ) ) {
-			$sort_by_column = array( "$sort_by_column $sort_direction" );
-		}
-
-		// Add id ASC as a secondary sort as a tie-breaker to ensure deterministic ordering.
-		$needs_id_sort = true;
-
-		foreach ( $sort_by_column as $sort ) {
-			if ( preg_match( '/^id\s+/', $sort ) ) {
-				$needs_id_sort = false;
-				break;
+		if ( ! $get_count ) {
+			if ( ! is_array( $sort_by_column ) ) {
+				$sort_by_column = array( "$sort_by_column $sort_direction" );
 			}
-		}
-		
-		if ( $needs_id_sort ) {
-			$sort_by_column[] = "id ASC";
-		}
 
-		$query .= ' ORDER BY ' . implode( ', ', $sort_by_column );
+			$query .= ' ORDER BY ' . implode( ', ', $sort_by_column );
 
 
 			if ( $limit > 0 ) {
 				$offset = ( $page - 1 ) * $limit;
-				$query  .= " LIMIT $offset,$limit";
+				$query .= " LIMIT $offset,$limit";
 			}
 		}
 
@@ -304,7 +255,7 @@ final class ITSEC_Log_Util {
 			$data = unserialize( $row['data'] );
 
 			if ( false !== $data || 'b:0;' === $row['data'] ) {
-				$rows[ $index ]['data'] = $data;
+				$rows[$index]['data'] = $data;
 			}
 		}
 
@@ -379,13 +330,13 @@ final class ITSEC_Log_Util {
 	public static function migrate_old_log_entries() {
 		global $wpdb;
 
-		$max         = 50;
+		$max = 50;
 		$num_entries = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}itsec_log" );
-		$num_loops   = min( $max, $num_entries );
+		$num_loops = min( $max, $num_entries );
 
-		for ( $count = 1; $count <= $num_loops; $count ++ ) {
+		for ( $count = 1; $count <= $num_loops; $count++ ) {
 			$old_entry = $wpdb->get_row( "SELECT * FROM {$wpdb->prefix}itsec_log ORDER BY log_date_gmt LIMIT 1", ARRAY_A );
-			$entry     = self::get_new_log_entry_from_old( $old_entry );
+			$entry = self::get_new_log_entry_from_old( $old_entry );
 
 			$wpdb->insert( "{$wpdb->base_prefix}itsec_logs", $entry );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}itsec_log WHERE log_id=%d", $old_entry['log_id'] ) );
@@ -430,38 +381,38 @@ final class ITSEC_Log_Util {
 					$entry['code'] = 'whitelisted-host-triggered-host-lockout';
 				}
 			}
-		} elseif ( 'file_change' === $old_entry['log_type'] ) {
+		} else if ( 'file_change' === $old_entry['log_type'] ) {
 			$entry['type'] = 'warning';
 			$entry['code'] = 'changes-found';
 			$entry['data'] = $old_entry['log_data'];
-		} elseif ( 'malware' === $old_entry['log_type'] ) {
+		} else if ( 'malware' === $old_entry['log_type'] ) {
 			$entry['code'] = 'scan';
 			$entry['data'] = array( 'results' => $old_entry['log_data'] );
-		} elseif ( 'backup' === $old_entry['log_type'] ) {
+		} else if ( 'backup' === $old_entry['log_type'] ) {
 			$entry['code'] = 'details';
-		} elseif ( 'four_oh_four' === $old_entry['log_type'] ) {
+		} else if ( 'four_oh_four' === $old_entry['log_type'] ) {
 			$entry['code'] = 'found_404';
-		} elseif ( 'ipcheck' === $old_entry['log_type'] ) {
+		} else if ( 'ipcheck' === $old_entry['log_type'] ) {
 			if ( empty( $old_entry['log_data'] ) ) {
 				$entry['code'] = 'failed-login-by-blocked-ip';
 			} else {
 				$entry['type'] = 'action';
 				$entry['code'] = 'ip-blocked';
 			}
-		} elseif ( 'brute_force' === $old_entry['log_type'] ) {
+		} else if ( 'brute_force' === $old_entry['log_type'] ) {
 			if ( 'admin' === $old_entry['log_username'] ) {
 				$entry['code'] = 'auto-ban-admin-username';
 			} else {
 				$entry['code'] = 'invalid-login';
 			}
-		} elseif ( 'away_mode' === $old_entry['log_type'] ) {
+		} else if ( 'away_mode' === $old_entry['log_type'] ) {
 			$entry['code'] = 'away-mode-active';
-		} elseif ( 'recaptcha' === $old_entry['log_type'] ) {
+		} else if ( 'recaptcha' === $old_entry['log_type'] ) {
 			$entry['code'] = 'failed-validation';
-		} elseif ( 'user_logging' === $old_entry['log_type'] ) {
+		} else if ( 'user_logging' === $old_entry['log_type'] ) {
 			if ( isset( $old_entry['log_data']['post'] ) ) {
 				$entry['code'] = 'post-status-changed';
-			} elseif ( empty( $old_entry['log_username'] ) ) {
+			} else if ( empty( $old_entry['log_username'] ) ) {
 				$entry['code'] = 'user-logged-out';
 			} else {
 				$entry['code'] = 'user-logged-in';

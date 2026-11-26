@@ -17,7 +17,8 @@ import './style.scss';
 
 export default function SplitButton( {
 	className,
-	variant,
+	isPrimary,
+	isSecondary,
 	isSmall,
 	controls,
 	...rest
@@ -25,7 +26,8 @@ export default function SplitButton( {
 	const button = (
 		<Button
 			className="itsec-split-button__main"
-			variant={ variant }
+			isPrimary={ isPrimary }
+			isSecondary={ isSecondary }
 			isSmall={ isSmall }
 			{ ...rest }
 		/>
@@ -54,8 +56,9 @@ export default function SplitButton( {
 					focusOnMount: 'container',
 				} }
 				toggleProps={ {
+					isPrimary,
+					isSecondary,
 					isSmall,
-					variant,
 				} }
 				controls={ controls }
 			/>

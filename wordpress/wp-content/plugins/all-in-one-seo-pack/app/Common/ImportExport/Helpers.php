@@ -57,8 +57,7 @@ abstract class Helpers {
 				if ( ! $options->has( $lastOption, false ) ) {
 					$error = true;
 					break;
-				}
-
+				};
 				if ( count( $values['newOption'] ) - 1 !== $i ) {
 					$options = $options->$lastOption;
 				}

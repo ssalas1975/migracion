@@ -196,8 +196,6 @@ class Summary {
 			wp_mail_smtp()->get_admin()->get_admin_page_url( Area::SLUG )
 		);
 
-		$link_style = "-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #72777c;font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-weight: normal;padding: 0;margin: 0;text-align: left;mso-line-height-rule: exactly;line-height: 140%;text-decoration: underline;";
-
 		ob_start();
 		?>
 		</td>
@@ -207,12 +205,10 @@ class Summary {
 			<td class="footer" align="center" valign="top" style="word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 30px 0px;vertical-align: top;text-align: center;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #777777;font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-weight: normal;margin: 0;mso-line-height-rule: exactly;line-height: 140%;font-size: 13px;border-collapse: collapse !important;">
 				<?php
 				echo wp_kses(
-					sprintf(
-						/* translators: %1$s - link to a site; %2$s - opening link tag; %3$s - closing link tag. */
-						__( 'This email was auto-generated and sent from %1$s. Learn %2$show to disable it%3$s.', 'wp-mail-smtp' ),
-						'<a href="' . esc_url( home_url() ) . '" style="' . $link_style . '">' . esc_html( wp_specialchars_decode( get_bloginfo( 'name' ) ) ) . '</a>',
-						'<a href="' . esc_url( $settings_link ) . '" style="' . $link_style . '">',
-						'</a>'
+					sprintf( /* translators: %1$s - link to a site; %2$s - link to the settings page. */
+						__( 'This email was auto-generated and sent from %1$s. Learn %2$s.', 'wp-mail-smtp' ),
+						'<a href="' . esc_url( home_url() ) . '" style="-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #72777c;font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;font-weight: normal;padding: 0;margin: 0;text-align: left;mso-line-height-rule: exactly;line-height: 140%;text-decoration: underline;">' . esc_html( wp_specialchars_decode( get_bloginfo( 'name' ) ) ) . '</a>',
+						'<a href="' . esc_url( $settings_link ) . '" style="-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #72777c;font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;font-weight: normal;padding: 0;margin: 0;text-align: left;mso-line-height-rule: exactly;line-height: 140%;text-decoration: underline;">' . esc_html__( 'how to disable it', 'wp-mail-smtp' ) . '</a>'
 					),
 					[
 						'a' => [
@@ -258,7 +254,7 @@ class Summary {
 			<?php esc_html_e( 'Hi there,', 'wp-mail-smtp' ); ?>
 		</h6>
 		<p class="main-description dark-white-color" style="margin: 0;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #444444;font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-weight: normal;padding: 0;text-align: left;mso-line-height-rule: exactly;line-height: 19px;font-size: 16px;margin-bottom: 40px;">
-			<?php esc_html_e( 'Let’s see how many emails you’ve sent with WP Mail SMTP.', 'wp-mail-smtp' ); ?>
+			<?php esc_html_e( 'Let’s see how your emails performed in the past week.', 'wp-mail-smtp' ); ?>
 		</p>
 
 		<table class="stats-totals-wrapper two" style="border-collapse: collapse;border-spacing: 0;padding: 0;vertical-align: top;text-align: left;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;width: 100%;">
@@ -279,8 +275,8 @@ class Summary {
 					echo $this->get_stats_total_html( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						__( 'Last week', 'wp-mail-smtp' ),
 						'icon-check.png',
+						$reports->get_total_weekly_emails_sent( 'now' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						$reports->get_total_weekly_emails_sent( 'previous' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						$reports->get_total_weekly_emails_sent( 'two_weeks_ago' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						'#6AA08B'
 					);
 					?>

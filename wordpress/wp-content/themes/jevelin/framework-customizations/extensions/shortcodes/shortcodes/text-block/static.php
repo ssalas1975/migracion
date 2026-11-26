@@ -7,7 +7,11 @@ if( !function_exists( 'jevelin_shortcode_text_block_css' ) ) :
 		$paragraph_whitespace = ( isset( $atts['paragraph_whitespace'] ) ) ? $atts['paragraph_whitespace'] : true;
 		$margin = ( isset( $atts['margin'] ) ) ? $atts['margin'] : '0px 0px 15px 0px';
 		$text_size = ( isset( $atts['text_size'] ) ) ? $atts['text_size'] : '';
+		$text_size_mobile = ( isset( $atts['text_size_mobile'] ) ) ? $atts['text_size_mobile'] : '';
 		$text_color = ( isset( $atts['text_color'] ) ) ? $atts['text_color'] : '';
+		$link_color = ( isset( $atts['link_color'] ) ) ? $atts['link_color'] : '';
+		$link_hover_color = ( isset( $atts['link_hover_color'] ) ) ? $atts['link_hover_color'] : '';
+		$link_hover_color = ( $link_hover_color ) ? $link_hover_color : jevelin_option('link_hover_color');
 		ob_start(); ?>
 
 
@@ -26,6 +30,27 @@ if( !function_exists( 'jevelin_shortcode_text_block_css' ) ) :
 					<?php endif; ?>
 				}
 			<?php endif; ?>
+
+
+			<?php if( $text_size_mobile ) : ?>
+				@media (max-width: 800px) {
+					#text-block-<?php echo esc_attr( $id ); ?> {
+						font-size: <?php echo jevelin_addpx( $text_size_mobile ); ?>;
+					}
+				}
+			<?php endif; ?>
+
+
+			<?php if( $link_color ) : ?>
+				#text-block-<?php echo esc_attr( $id ); ?> a {
+					color: <?php echo esc_attr( $link_color ); ?>;
+				}
+			<?php endif; ?>
+
+			#text-block-<?php echo esc_attr( $id ); ?> a:hover,
+			#text-block-<?php echo esc_attr( $id ); ?> a:focus {
+				color: <?php echo esc_attr( $link_hover_color ); ?>;
+			}
 
 			<?php if( $line_height ) : ?>
 				#text-block-<?php echo esc_attr( $id ); ?> p,

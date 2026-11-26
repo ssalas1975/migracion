@@ -33,14 +33,16 @@
 	}
 	#>
 	<# if ( itemActions.sort ) { #>
-	<button class="elementor-repeater-row-tool elementor-repeater-row-tools elementor-repeater-tool-sort" aria-label="<?php echo esc_attr__( 'Reorder', 'elementor' ); ?>">
-		<i class="eicon-cursor-move" aria-hidden="true"></i>
-	</button>
+	<div class="elementor-repeater-row-tool elementor-repeater-row-tools elementor-repeater-tool-sort">
+		<i class="eicon-cursor-move"></i>
+		<span class="elementor-screen-only"><?php echo esc_html__( 'Reorder', 'elementor' ); ?></span>
+	</div>
 	<# } #>
-	<button class="elementor-repeater-row-tool elementor-repeater-tool-{{{ removeClass }}}" aria-label="<?php echo esc_attr__( 'Remove', 'elementor' ); ?>">
+	<div class="elementor-repeater-row-tool elementor-repeater-tool-{{{ removeClass }}}">
 		<i class="{{{ removeIcon }}}" aria-hidden="true"></i>
 		<# if ( itemActions.remove ) { #>
+			<span class="elementor-screen-only"><?php echo esc_html__( 'Remove', 'elementor' ); ?></span>
 		<# } #>
-	</button>
+	</div>
 	<div class="elementor-repeater-row-controls"></div>
 </script>

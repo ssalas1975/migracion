@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 
 /********* Shortcodes v.3.0 ************/
 
@@ -174,7 +173,7 @@ function et_add_simple_buttons(){
 
 	$buttons[] = array('name' => 'twitter',
 					'options' => array(
-						'display_name' => 'x',
+						'display_name' => 'twitter',
 						'open_tag' => '\n[twitter name="name"]',
 						'close_tag' => '[/twitter]\n',
 						'key' => ''
@@ -330,9 +329,8 @@ function et_box($atts, $content = null) {
 
 	$id = ($id !== '') ? " id='" . esc_attr( $id ) . "'" : '';
 	$class = ($class !== '') ? esc_attr( ' ' . $class ) : '';
-	$type = ($type !== '') ? esc_attr( 'et-' . $type ) : '';
 
-	$output = "<div{$id} class='et-box{$class} {$type}'>
+	$output = "<div{$id} class='et-box{$class} et-{$type}'>
 					<div class='et-box-content'>";
 	$output .= do_shortcode($content);
 	$output .= "</div></div>";
@@ -583,7 +581,7 @@ function et_tabtext($atts, $content = null) {
 	$content = et_content_helper($content);
 
 	$id = ($id !== '') ? " id='" . esc_attr( $id ) . "'" : '';
-	$class = ($class !== '') ? " class='" . esc_attr( $class ) . "'" : '';
+	$class = ($class !== '') ? esc_attr( ' ' . $class ) : '';
 
 	$output = "
 		<li{$id}{$class}><a href='#'>
@@ -752,7 +750,7 @@ function et_custom_list($atts, $content = null) {
 
 	$content = et_content_helper($content);
 
-	$type = ( $type !== 'checkmark' ) ? ' etlist-' . esc_attr( $type ) : '';
+	$type = ( $type !== 'checkmark' ) ? ' etlist-' . $type : '';
 
 	$output = "
 		<div class='et-custom-list{$type}'>

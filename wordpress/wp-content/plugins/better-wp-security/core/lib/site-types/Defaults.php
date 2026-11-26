@@ -79,7 +79,7 @@ final class Defaults {
 		'buddypress/bp-loader.php'                          => [
 			'type'      => Site_Type::NETWORK,
 			'questions' => [
-				Question::SELECT_END_USERS => [ 'subscriber' ],
+				Question::SELECT_END_USERS => [ 'give_donor', 'subscriber' ],
 			],
 		],
 		'bbpress/bbpress.php'                               => [

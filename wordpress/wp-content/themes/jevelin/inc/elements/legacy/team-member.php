@@ -2,7 +2,7 @@
 class vcj_team_member extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_team_member', array( $this, '_html' ) );
     }
 
@@ -243,6 +243,22 @@ class vcj_team_member extends WPBakeryShortCode {
       'std' => '',
       'group' => 'Styling',
     ),
+    19 => 
+    array (
+      'param_name' => 'lazy',
+      'heading' => 'Lazy Loading',
+      'description' => 'Choose to enable to disable lazy loading',
+      'value' => 
+      array (
+        'Default (from theme settings)' => 'default',
+        'Disabled' => 'disabled',
+        'Enabled' => 'enabled',
+      ),
+      'type' => 'dropdown',
+      'class' => '',
+      'std' => 'default',
+      'group' => 'Lazy Loading',
+    ),
   ),
 ) );
     }
@@ -251,8 +267,9 @@ class vcj_team_member extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/team-member/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/team-member/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/team-member/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/team-member/static.php';
         if( function_exists( 'jevelin_shortcode_team_member_css' ) ) :
             jevelin_shortcode_team_member_css( $atts, $id_rand );
         endif;

@@ -13,6 +13,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 ?>
 
-<div id="<?php echo esc_attr( $columnName ); ?>-<?php echo esc_attr( $termId ); ?>">
-	<?php require AIOSEO_DIR . '/app/Common/Views/parts/loader.php'; ?>
-</div>
+<div id="<?php echo esc_attr( $columnName ); ?>-<?php echo esc_attr( $termId ); ?>"></div>

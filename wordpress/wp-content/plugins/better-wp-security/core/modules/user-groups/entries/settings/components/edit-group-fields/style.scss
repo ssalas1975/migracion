@@ -11,7 +11,9 @@
         }
 
         &:nth-child(n + 2) {
-            margin-top: 1.25rem;
+            border-top: 1px solid $border-color;
+            margin-top: 1rem;
+            padding-top: 1rem;
         }
 
         > .components-base-control__field {
@@ -19,10 +21,7 @@
 
             > .components-base-control__label {
                 grid-column: label;
-                color: $kadence-text-color-dark;
-                font-size: $kadence-text-size-normal;
-                font-weight: 600;
-                text-transform: none;
+                font-size: 1rem;
             }
         }
 

@@ -11,7 +11,7 @@
  * Item refers to any cloud item, preset for example.
  * Item Items refers to any cloud item's items. Preset's items are templates.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param string $item_type Item type.
  * @param int    $item_id Item Id.
@@ -36,7 +36,7 @@ function et_theme_builder_library_get_item_items( $item_type, $item_id ) {
 /**
  * Get theme builder library item `use on` or `exclude from` data.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param int    $post_id Post ID.
  * @param string $key     Meta key (_et_use_on OR _et_exclude_from).
@@ -73,7 +73,7 @@ function et_theme_builder_library_get_item_use_or_exclude_data( $post_id, $key, 
 /**
  * Processes item taxonomies for inclusion in the theme builder library UI items data.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param WP_POST $post          Unprocessed item.
  * @param object  $item          Currently processing item.
@@ -136,7 +136,7 @@ function et_theme_builder_library_process_item_taxonomy( $post, $item, $index, &
 /**
  * Gets the terms list and processes it into desired format.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param string $term_name Term Name.
  *
@@ -165,7 +165,7 @@ function et_theme_builder_library_get_processed_terms( $term_name ) {
 /**
  * Get item description.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param integer $post_id             Post ID.
  * @param boolean $is_default_template Whether it is default template or not.
@@ -215,7 +215,7 @@ function et_theme_builder_library_get_item_description( $post_id, $is_default_te
 /**
  * Get item description.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array $template Payload Template data.
  *
@@ -265,9 +265,116 @@ function et_theme_builder_library_get_item_description_from_payload( $template )
 }
 
 /**
+ * Generates items data for the theme builder's library UI.
+ *
+ * @param string $item_type Item type.
+ *
+ * @since ??
+ *
+ * @return array $data
+ */
+function et_theme_builder_library_get_library_items_data( $item_type ) {
+	$_                  = ET_Core_Data_Utils::instance();
+	$tb_items           = ET_Builder_Post_Type_TBItem::instance();
+	$tb_item_tags       = ET_Builder_Post_Taxonomy_LayoutTag::instance();
+	$tb_item_categories = ET_Builder_Post_Taxonomy_LayoutCategory::instance();
+	$tb_item_types      = ET_Builder_Post_Taxonomy_TBItemType::instance();
+
+	$item_categories = array();
+	$item_tags       = array();
+	$item_types      = array();
+	$items           = array();
+	$index           = 0;
+
+	$set_template_flag = '1';
+
+	$posts = $tb_items
+		->query()
+		->not()->with_meta( '_et_set_template', $set_template_flag )
+		->run( array( 'post_status' => array( 'publish', 'trash' ) ) );
+
+	$posts = $_->array_sort_by( is_array( $posts ) ? $posts : array( $posts ), 'post_name' );
+
+	foreach ( $posts as $post ) {
+		$item = new stdClass();
+
+		setup_postdata( $post );
+
+		$item->id    = $post->ID;
+		$item->index = $index;
+		$item->date  = $post->post_date;
+		$types       = wp_get_post_terms( $item->id, $tb_item_types->name );
+
+		if ( ! $types ) {
+			continue;
+		}
+
+		$item->type = $types[0]->slug;
+
+		if ( $item_type !== $item->type ) {
+			continue;
+		}
+
+		$title = html_entity_decode( $post->post_title );
+
+		if ( $title ) {
+			// Remove periods since we use dot notation to retrieve translation.
+			str_replace( '.', '', $title );
+
+			$item->name = et_core_intentionally_unescaped( $title, 'react_jsx' );
+		}
+
+		$item->slug = $post->post_name;
+		$item->url  = esc_url( wp_make_link_relative( get_permalink( $post ) ) );
+
+		$item->short_name   = '';
+		$item->is_default   = get_post_meta( $item->id, '_et_default', true );
+		$item->description  = et_theme_builder_library_get_item_description( $item->id, $item->is_default );
+		$item->is_favorite  = $tb_items->is_favorite( $item->id );
+		$item->isTrash      = 'trash' === $post->post_status; // phpcs:ignore ET.Sniffs.ValidVariableName.UsedPropertyNotSnakeCase -- This is valid format for the property in the Cloud App.
+		$item->categories   = array();
+		$item->category_ids = array();
+		$item->tags         = array();
+		$item->tag_ids      = array();
+
+		et_theme_builder_library_process_item_taxonomy(
+			$post,
+			$item,
+			$index,
+			$item_categories,
+			$tb_item_categories->name,
+			'category'
+		);
+		et_theme_builder_library_process_item_taxonomy(
+			$post,
+			$item,
+			$index,
+			$item_tags,
+			$tb_item_tags->name,
+			'tag'
+		);
+
+		$item->item_items = et_theme_builder_library_get_item_items( $item_type, $post->ID );
+
+		wp_reset_postdata();
+
+		$items[] = $item;
+
+		$index++;
+	}
+
+	return array(
+		'categories' => et_theme_builder_library_get_processed_terms( $tb_item_categories->name ),
+		'tags'       => et_theme_builder_library_get_processed_terms( $tb_item_tags->name ),
+		'items'      => $items,
+	);
+}
+
+
+/**
  * Get all terms of an item and merge any newly passed IDs with the list.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param string $new_terms_list List of new terms.
  * @param array  $taxonomies Taxonomies.
@@ -299,7 +406,7 @@ function et_theme_builder_library_get_all_item_terms( $new_terms_list, $taxonomi
 /**
  * Insert the theme builder library item duplication post.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param string $title      Title.
  * @param string $content    Content.
@@ -323,9 +430,356 @@ function et_theme_builder_library_insert_post( $title, $content, $tax_input = ar
 }
 
 /**
+ * Update the theme builder library item. Following updates supported:
+ * - Delete
+ * - Delete Permanently
+ * - Restore
+ * - Rename
+ * - Edit Categories/Tags
+ * - Toggle Favorite status
+ * - Duplicate
+ *
+ * @since ??
+ *
+ * @param array $payload Array with the update details.
+ *
+ * @return array Updated item details
+ */
+function et_theme_builder_library_update_item_data( $payload ) {
+	$update_details = isset( $payload['update_details'] ) ? $payload['update_details'] : array();
+
+	if (
+		empty( $update_details['updateType'] ) ||
+		empty( $update_details['itemType'] )
+	) {
+		return false;
+	}
+
+	$_                  = ET_Core_Data_Utils::instance();
+	$tb_items           = ET_Builder_Post_Type_TBItem::instance();
+	$tb_item_types      = ET_Builder_Post_Taxonomy_TBItemType::instance();
+	$tb_item_tags       = ET_Builder_Post_Taxonomy_LayoutTag::instance();
+	$tb_item_categories = ET_Builder_Post_Taxonomy_LayoutCategory::instance();
+
+	$update_details  = $payload['update_details'];
+	$update_type     = $update_details['updateType'];
+	$item_type       = $update_details['itemType'];
+	$item_id         = intval( $payload['item_id'] );
+	$categories      = empty( $update_details['itemCategories'] ) ? [] : array_unique( array_map( 'intval', $update_details['itemCategories'] ) );
+	$tags            = empty( $update_details['itemTags'] ) ? [] : array_unique( array_map( 'intval', $update_details['itemTags'] ) );
+	$favorite_status = 'on' === sanitize_text_field( $update_details['favoriteStatus'] ) ? 'favorite' : '';
+	$item_update     = array( 'ID' => $item_id );
+	$new_id          = '';
+	$type_template   = ET_THEME_BUILDER_ITEM_TEMPLATE === $item_type;
+	$type_set        = ET_THEME_BUILDER_ITEM_SET === $item_type;
+
+	switch ( $update_type ) {
+		case 'delete':
+			if ( ET_THEME_BUILDER_ITEM_SET === $item_type ) {
+				$templates = get_post_meta( $item_id, '_et_template_id', false );
+
+				foreach ( $templates as $template ) {
+					$template_id = is_string( $template ) ? absint( $template ) : 0;
+
+					wp_trash_post( $template_id );
+				}
+			}
+
+			wp_trash_post( $item_id );
+			break;
+		case 'delete_permanently':
+			if ( ET_THEME_BUILDER_ITEM_SET === $item_type ) {
+				$templates = get_post_meta( $item_id, '_et_template_id', false );
+
+				foreach ( $templates as $template ) {
+					$template_id = is_string( $template ) ? absint( $template ) : 0;
+
+					wp_delete_post( $template_id, true );
+				}
+			}
+
+			wp_delete_post( $item_id, true );
+			break;
+		case 'restore':
+			// wp_untrash_post() restores the post to `draft` by default, we have to set `publish` status via filter.
+			add_filter(
+				'wp_untrash_post_status',
+				function() {
+					return 'publish';
+				}
+			);
+			wp_untrash_post( $item_id );
+			remove_filter(
+				'wp_untrash_post_status',
+				function() {
+					return 'publish';
+				}
+			);
+			break;
+		case 'rename':
+			$item_update['post_title'] = sanitize_text_field( $update_details['itemName'] );
+			wp_update_post( $item_update );
+			break;
+		case 'edit_cats':
+			wp_set_object_terms( $item_id, $categories, $tb_item_categories->name );
+			wp_set_object_terms( $item_id, $tags, $tb_item_tags->name );
+			break;
+		case 'toggle_fav':
+			update_post_meta( $item_id, 'favorite_status', $favorite_status );
+			break;
+		case 'duplicate':
+		case 'duplicate_and_delete':
+			if ( ! empty( $update_details['newCategoryName'] ) ) {
+				$categories = et_theme_builder_library_get_all_item_terms(
+					$update_details['newCategoryName'],
+					$categories,
+					$tb_item_categories->name
+				);
+			}
+
+			if ( ! empty( $update_details['newTagName'] ) ) {
+				$tags = et_theme_builder_library_get_all_item_terms(
+					$update_details['newTagName'],
+					$tags,
+					$tb_item_tags->name
+				);
+			}
+
+			$title              = sanitize_text_field( $update_details['itemName'] );
+			$meta_input         = array( 'favorite_status' => $favorite_status );
+			$content_details    = $_->array_get( $update_details, 'content', null );
+			$is_item_from_cloud = isset( $content_details );
+			$tax_input          = array(
+				$tb_item_categories->name => $categories,
+				$tb_item_tags->name       => $tags,
+				$tb_item_types->name      => $item_type,
+			);
+
+			if ( $is_item_from_cloud ) {
+				$meta_input['_et_has_default_template'] = (int) filter_var( $content_details['has_default_template'], FILTER_VALIDATE_BOOLEAN );
+				$meta_input['_et_has_global_layouts']   = (int) filter_var( $content_details['has_global_layouts'], FILTER_VALIDATE_BOOLEAN );
+
+				if ( $type_set ) {
+					$set_id     = et_theme_builder_library_insert_post( $title, '', $tax_input, $meta_input );
+					$meta_input = array(); // Reset.
+				}
+
+				$templates = $_->array_get( $content_details, 'templates', array() );
+
+				foreach ( $templates as $template ) :
+					/**
+					 * $layouts_reference: content -> templates -> layouts
+					 * $layouts_detail:    content -> layouts
+					 */
+					$layouts_reference = $_->array_get( $template, 'layouts', array() );
+					$layouts_detail    = $_->array_get( $content_details, 'layouts', array() );
+					$full_layout       = array();
+
+					$meta_input['_et_template_title'] = sanitize_text_field( $_->array_get( $template, 'title', '' ) );
+
+					$use_on       = array_map( 'sanitize_text_field', $_->array_get( $template, 'use_on', array() ) );
+					$exclude_from = array_map( 'sanitize_text_field', $_->array_get( $template, 'exclude_from', array() ) );
+
+					$meta_input['_et_autogenerated_title'] = (int) filter_var( $template['autogenerated_title'], FILTER_VALIDATE_BOOLEAN );
+					$meta_input['_et_default']             = (int) filter_var( $template['default'], FILTER_VALIDATE_BOOLEAN );
+					$meta_input['_et_enabled']             = (int) filter_var( $template['enabled'], FILTER_VALIDATE_BOOLEAN );
+
+					if ( isset( $layouts_reference['header'] ) ) {
+						$layout_id  = (int) $layouts_reference['header']['id'];
+						$is_enabled = $layouts_reference['header']['enabled'];
+
+						$meta_input['_et_header_layout_enabled'] = (int) filter_var( $is_enabled, FILTER_VALIDATE_BOOLEAN );
+
+						if ( $layout_id ) {
+							$is_global = $layouts_detail[ $layout_id ]['theme_builder']['is_global'];
+
+							$full_layout['header']['post_content']   = wp_unslash( $layouts_detail[ $layout_id ]['data'][ $layout_id ] );
+							$meta_input['_et_header_layout_global']  = (int) filter_var( $is_global, FILTER_VALIDATE_BOOLEAN );
+						}
+					} else {
+						// if area is empty and is not explicitly disabled save it as enabled.
+						$meta_input['_et_header_layout_enabled'] = 1;
+					}
+
+					if ( isset( $layouts_reference['body'] ) ) {
+						$layout_id  = (int) $layouts_reference['body']['id'];
+						$is_enabled = $layouts_reference['body']['enabled'];
+
+						$meta_input['_et_body_layout_enabled'] = (int) filter_var( $is_enabled, FILTER_VALIDATE_BOOLEAN );
+
+						if ( $layout_id ) {
+							$is_global = $layouts_detail[ $layout_id ]['theme_builder']['is_global'];
+
+							$full_layout['body']['post_content']   = wp_unslash( $layouts_detail[ $layout_id ]['data'][ $layout_id ] );
+							$meta_input['_et_body_layout_global']  = (int) filter_var( $is_global, FILTER_VALIDATE_BOOLEAN );
+						}
+					} else {
+						// if area is empty and is not explicitly disabled save it as enabled.
+						$meta_input['_et_body_layout_enabled'] = 1;
+					}
+
+					if ( isset( $layouts_reference['footer'] ) ) {
+						$layout_id  = (int) $layouts_reference['footer']['id'];
+						$is_enabled = $layouts_reference['footer']['enabled'];
+
+						$meta_input['_et_footer_layout_enabled'] = (int) filter_var( $is_enabled, FILTER_VALIDATE_BOOLEAN );
+
+						if ( $layout_id ) {
+							$is_global = $layouts_detail[ $layout_id ]['theme_builder']['is_global'];
+
+							$full_layout['footer']['post_content']   = wp_unslash( $layouts_detail[ $layout_id ]['data'][ $layout_id ] );
+							$meta_input['_et_footer_layout_global']  = (int) filter_var( $is_global, FILTER_VALIDATE_BOOLEAN );
+						}
+					} else {
+						// if area is empty and is not explicitly disabled save it as enabled.
+						$meta_input['_et_footer_layout_enabled'] = 1;
+					}
+
+					$title   = $type_set ? $meta_input['_et_template_title'] : $title;
+					$content = wp_json_encode( $full_layout );
+					$new_id  = et_theme_builder_library_insert_post( $title, wp_slash( $content ), $tax_input, $meta_input );
+
+					foreach ( $use_on as $condition ) {
+						add_post_meta( $new_id, '_et_use_on', sanitize_text_field( $condition ) );
+					}
+
+					foreach ( $exclude_from as $condition ) {
+						add_post_meta( $new_id, '_et_exclude_from', sanitize_text_field( $condition ) );
+					}
+
+					if ( $type_set ) {
+						add_post_meta( $new_id, '_et_set_template', 1 );
+						add_post_meta( $set_id, '_et_template_id', $new_id );
+
+						if ( $meta_input['_et_default'] ) {
+							add_post_meta( $set_id, '_et_default_template_id', $new_id );
+						}
+					}
+
+				endforeach;
+			} else {
+				/**
+				 * For local item duplication.
+				 */
+				if ( $type_template ) {
+					$meta_input = array_merge(
+						$meta_input,
+						et_theme_builder_get_template_settings( $item_id, false )
+					);
+
+					$use_on       = $meta_input['_et_use_on'];
+					$exclude_from = $meta_input['_et_exclude_from'];
+
+					// Remove from post meta insertion.
+					unset( $meta_input['_et_use_on'], $meta_input['_et_exclude_from'] );
+				} else {
+					$meta_keys = array(
+						'_et_has_global_layouts',
+						'_et_has_default_template',
+					);
+
+					foreach ( $meta_keys as $key ) {
+						$meta_input[ $key ] = get_post_meta( $item_id, $key, true );
+					}
+				}
+
+				$content = get_the_content( null, false, $item_id );
+				$new_id  = et_theme_builder_library_insert_post( $title, wp_slash( $content ), $tax_input, $meta_input );
+
+				if ( $type_template ) {
+					foreach ( $use_on as $condition ) {
+						add_post_meta( $new_id, '_et_use_on', sanitize_text_field( $condition ) );
+					}
+
+					foreach ( $exclude_from as $condition ) {
+						add_post_meta( $new_id, '_et_exclude_from', sanitize_text_field( $condition ) );
+					}
+				} else {
+					$template_ids = get_post_meta( $item_id, '_et_template_id', false );
+					$template_map = [];
+
+					foreach ( $template_ids as $maybe_template_id ) {
+						$template_id  = absint( $maybe_template_id );
+						$library_item = new ET_Theme_Builder_Local_Library_Item( $template_id );
+
+						$duplicated_template_id       = $library_item->duplicate_item();
+						$template_map[ $template_id ] = $duplicated_template_id;
+					}
+
+					$maybe_default_template_id = get_post_meta( $item_id, '_et_default_template_id', true );
+					$default_template_id       = absint( $maybe_default_template_id );
+
+					if ( 0 !== $default_template_id ) {
+						$duplicated_default_template_id = $template_map[ $default_template_id ];
+						update_post_meta( $new_id, '_et_default_template_id', $duplicated_default_template_id );
+					}
+
+					foreach ( $template_map as $duplicated_template_id ) {
+						add_post_meta( $new_id, '_et_template_id', $duplicated_template_id );
+					}
+				}
+			}
+			break;
+	}
+
+	$processed_new_tags = array();
+	$processed_new_cats = array();
+
+	$updated_tags = get_terms(
+		array(
+			'taxonomy'   => $tb_item_tags->name,
+			'hide_empty' => false,
+		)
+	);
+
+	$updated_categories = get_terms(
+		array(
+			'taxonomy'   => $tb_item_categories->name,
+			'hide_empty' => false,
+		)
+	);
+
+	if ( ! empty( $updated_tags ) ) {
+		foreach ( $updated_tags as $single_tag ) {
+			$processed_new_tags[] = array(
+				'name'     => $single_tag->name,
+				'id'       => $single_tag->term_id,
+				'count'    => $single_tag->count,
+				'location' => 'local',
+			);
+		}
+	}
+
+	if ( ! empty( $updated_categories ) ) {
+		foreach ( $updated_categories as $single_category ) {
+			$processed_new_cats[] = array(
+				'name'     => $single_category->name,
+				'id'       => $single_category->term_id,
+				'count'    => $single_category->count,
+				'location' => 'local',
+			);
+		}
+	}
+
+	$new_item_id = isset( $set_id ) ? $set_id : $new_id;
+
+	return array(
+		'updatedItem'  => $item_id,
+		'newItem'      => $new_item_id,
+		'updateType'   => $update_type,
+		'categories'   => $categories,
+		'tags'         => $tags,
+		'updatedTerms' => array(
+			'categories' => $processed_new_cats,
+			'tags'       => $processed_new_tags,
+		),
+	);
+}
+
+/**
  * Get the theme builder library temporary item info.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array  $template       Template.
  * @param string $layout_type    Layout type.
@@ -352,10 +806,6 @@ function et_theme_builder_library_get_temp_item_info( $template, $layout_type, $
 	if ( $is_global && isset( $global_layouts[ $layout_type ] ) ) {
 		$layout_id = $global_layouts[ $layout_type ];
 	} else {
-		if ( ! current_user_can( 'edit_others_posts' ) ) {
-			return;
-		}
-
 		$layout_id = wp_insert_post(
 			array(
 				'post_content' => $content,
@@ -373,7 +823,7 @@ function et_theme_builder_library_get_temp_item_info( $template, $layout_type, $
 /**
  * Save the theme builder library temporary cloud item.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array $template_info  Template info.
  * @param array $layouts_detail Template layouts.
@@ -426,7 +876,7 @@ function et_theme_builder_library_save_temp_cloud_layout_data( $template_info, $
 /**
  * Save the theme builder library temporary item.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param integer $id      Template ID.
  * @param object  $content Template content.
@@ -435,10 +885,6 @@ function et_theme_builder_library_save_temp_cloud_layout_data( $template_info, $
  * @return array
  */
 function et_theme_builder_library_save_temp_local_layout_data( $id, $content, $global_layouts = array() ) {
-	if ( ! current_user_can( 'edit_others_posts' ) ) {
-		wp_die();
-	}
-
 	$template      = array();
 	$layout_types  = array( 'header', 'body', 'footer' );
 	$is_cloud_item = false;
@@ -469,46 +915,30 @@ function et_theme_builder_library_save_temp_local_layout_data( $id, $content, $g
 /**
  * Remove the theme builder library temporary item.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array $data Template Ids.
  *
  * @return void
  */
 function et_theme_builder_library_remove_temp_layout_data( $data ) {
-	if ( ! current_user_can( 'delete_others_posts' ) ) {
-		wp_die();
-	}
-
 	if ( isset( $data['layouts']['header'] ) ) {
-		$post_id = absint( $data['layouts']['header']['id'] );
-
-		if ( current_user_can( 'edit_post', $post_id ) && ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE === get_post_type( $post_id ) ) {
-			wp_delete_post( $post_id, true );
-		}
+		wp_delete_post( $data['layouts']['header']['id'], true );
 	}
 
 	if ( isset( $data['layouts']['body'] ) ) {
-		$post_id = absint( $data['layouts']['body']['id'] );
-
-		if ( current_user_can( 'edit_post', $post_id ) && ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE === get_post_type( $post_id ) ) {
-			wp_delete_post( $post_id, true );
-		}
+		wp_delete_post( $data['layouts']['body']['id'], true );
 	}
 
 	if ( isset( $data['layouts']['footer'] ) ) {
-		$post_id = absint( $data['layouts']['footer']['id'] );
-
-		if ( current_user_can( 'edit_post', $post_id ) && ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE === get_post_type( $post_id ) ) {
-			wp_delete_post( $post_id, true );
-		}
+		wp_delete_post( $data['layouts']['footer']['id'], true );
 	}
 }
 
 /**
  * Get the theme builder library exported content.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array $ids Items Id.
  *
@@ -658,7 +1088,7 @@ function et_theme_builder_library_get_exported_content( $ids ) {
 /**
  * Gets Preset Items.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param int $item_id Item Id.
  *
@@ -689,7 +1119,7 @@ function et_theme_builder_library_get_set_items_data( $item_id ) {
 /**
  * Update library taxonomy terms.
  *
- * @since 4.18.0
+ * @since ??
  *
  * @param array  $payload             Item payload.
  * @param string $et_library_taxonomy Taxonomy.

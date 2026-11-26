@@ -3,7 +3,6 @@ namespace Elementor\Core\Logger;
 
 use Elementor\Core\Base\Module as BaseModule;
 use Elementor\Core\Common\Modules\Ajax\Module;
-use Elementor\Core\Editor\Editor;
 use Elementor\Core\Logger\Loggers\Logger_Interface;
 use Elementor\Core\Logger\Items\PHP;
 use Elementor\Core\Logger\Items\JS;
@@ -12,7 +11,7 @@ use Elementor\Modules\System_Info\Module as System_Info;
 use Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit; // Exit if accessed directly
 }
 
 class Manager extends BaseModule {
@@ -118,6 +117,7 @@ class Manager extends BaseModule {
 	 * Log Elementor errors and save them in the database.
 	 *
 	 * Fired by `wp_ajax_elementor_js_log` action.
+	 *
 	 */
 	public function js_log() {
 		/** @var Module $ajax */
@@ -128,19 +128,13 @@ class Manager extends BaseModule {
 			wp_send_json_error();
 		}
 
-		if ( ! current_user_can( Editor::EDITING_CAPABILITY ) ) {
-			wp_send_json_error( 'Permission denied' );
-		}
-
 		// PHPCS - See comment above.
-		$data = Utils::get_super_global_value( $_POST, 'data' ) ?? []; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-		array_walk_recursive( $data, function( &$value ) {
+		array_walk_recursive( $_POST['data'], function( &$value ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$value = sanitize_text_field( $value );
 		} );
 
 		// PHPCS - See comment above.
-		foreach ( $data as $error ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		foreach ( $_POST['data'] as $error ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$error['type'] = Logger_Interface::LEVEL_ERROR;
 
 			if ( ! empty( $error['customFields'] ) ) {
@@ -154,8 +148,8 @@ class Manager extends BaseModule {
 		wp_send_json_success();
 	}
 
-	public function register_logger( $name, $class_name ) {
-		$this->loggers[ $name ] = $class_name;
+	public function register_logger( $name, $class ) {
+		$this->loggers[ $name ] = $class;
 	}
 
 	public function set_default_logger( $name ) {
@@ -200,7 +194,7 @@ class Manager extends BaseModule {
 
 	/**
 	 * @param string $message
-	 * @param array  $args
+	 * @param array $args
 	 *
 	 * @return void
 	 */
@@ -210,7 +204,7 @@ class Manager extends BaseModule {
 
 	/**
 	 * @param string $message
-	 * @param array  $args
+	 * @param array $args
 	 *
 	 * @return void
 	 */
@@ -220,7 +214,7 @@ class Manager extends BaseModule {
 
 	/**
 	 * @param string $message
-	 * @param array  $args
+	 * @param array $args
 	 *
 	 * @return void
 	 */
@@ -230,7 +224,7 @@ class Manager extends BaseModule {
 
 	/**
 	 * @param string $message
-	 * @param array  $args
+	 * @param array $args
 	 *
 	 * @return void
 	 */
@@ -246,6 +240,7 @@ class Manager extends BaseModule {
 			E_COMPILE_ERROR => Logger_Interface::LEVEL_ERROR,
 			E_RECOVERABLE_ERROR => Logger_Interface::LEVEL_ERROR,
 			E_PARSE => Logger_Interface::LEVEL_ERROR,
+			E_STRICT => Logger_Interface::LEVEL_ERROR,
 
 			E_WARNING => Logger_Interface::LEVEL_WARNING,
 			E_USER_WARNING => Logger_Interface::LEVEL_WARNING,

@@ -47,7 +47,7 @@ function Notice( {
 							key={ index }
 							href={ url }
 							isSmall={ ! isLink && ! url }
-							variant={ ( url || isLink ) && 'link' }
+							isLink={ isLink || url }
 							onClick={
 								url
 									? undefined

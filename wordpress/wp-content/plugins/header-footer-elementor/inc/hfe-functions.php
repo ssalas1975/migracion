@@ -5,8 +5,6 @@
  * @package  header-footer-elementor
  */
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Checks if Header is enabled from HFE.
  *
@@ -77,32 +75,31 @@ function get_hfe_footer_id() {
  * Display header markup.
  *
  * @since  1.0.2
- * @return void
  */
 function hfe_render_header() {
 
-	if ( false === apply_filters( 'enable_hfe_render_header', true ) ) {
+	if ( false == apply_filters( 'enable_hfe_render_header', true ) ) {
 		return;
 	}
 
 	?>
 		<header id="masthead" itemscope="itemscope" itemtype="https://schema.org/WPHeader">
-			<p class="main-title bhf-hidden" itemprop="headline"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></p>
+			<p class="main-title bhf-hidden" itemprop="headline"><a href="<?php echo bloginfo( 'url' ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></p>
 			<?php Header_Footer_Elementor::get_header_content(); ?>
 		</header>
 
 	<?php
+
 }
 
 /**
  * Display footer markup.
  *
  * @since  1.0.2
- * @return void
  */
 function hfe_render_footer() {
 
-	if ( false === apply_filters( 'enable_hfe_render_footer', true ) ) {
+	if ( false == apply_filters( 'enable_hfe_render_footer', true ) ) {
 		return;
 	}
 
@@ -111,6 +108,7 @@ function hfe_render_footer() {
 			<?php Header_Footer_Elementor::get_footer_content(); ?>
 		</footer>
 	<?php
+
 }
 
 
@@ -153,11 +151,10 @@ function hfe_is_before_footer_enabled() {
  * Display before footer markup.
  *
  * @since  1.0.2
- * @return void
  */
 function hfe_render_before_footer() {
 
-	if ( false === apply_filters( 'enable_hfe_render_before_footer', true ) ) {
+	if ( false == apply_filters( 'enable_hfe_render_before_footer', true ) ) {
 		return;
 	}
 
@@ -166,4 +163,5 @@ function hfe_render_before_footer() {
 			<?php Header_Footer_Elementor::get_before_footer_content(); ?>
 		</div>
 	<?php
+
 }

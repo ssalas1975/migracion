@@ -6,18 +6,13 @@ import { get, flatten } from 'lodash';
 /**
  * WordPress dependencies
  */
+import { Button } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 
 /**
- * iThemes dependencies
- */
-import { Button } from '@ithemes/ui';
-
-/**
  * Internal dependencies
  */
-import { FlexSpacer } from '@ithemes/security-components';
 import Footer from './';
 
 function FooterSchemaActions( { card, callingRpcs, onComplete, children } ) {
@@ -42,18 +37,11 @@ function FooterSchemaActions( { card, callingRpcs, onComplete, children } ) {
 
 	return (
 		<Footer>
-			{ links.map( ( link ) => (
-				<span key={ link.href }>
-					<Button variant="link" href={ link.href }>
-						{ link.title }
-					</Button>
-				</span>
-			) ) }
-			<FlexSpacer />
 			{ rpcs.map( ( link, i ) => (
-				<span key={ link.href }>
+				<span className="itsec-card-footer__action" key={ link.href }>
 					<Button
-						variant={ i === 0 ? 'primary' : 'secondary' }
+						isSmall
+						isPrimary={ i === 0 }
 						onClick={ () =>
 							! callingRpcs.includes( link.href ) &&
 							onClick( link.href )
@@ -61,6 +49,13 @@ function FooterSchemaActions( { card, callingRpcs, onComplete, children } ) {
 						isBusy={ callingRpcs.includes( link.href ) }
 						aria-disabled={ callingRpcs.includes( link.href ) }
 					>
+						{ link.title }
+					</Button>
+				</span>
+			) ) }
+			{ links.map( ( link ) => (
+				<span className="itsec-card-footer__action" key={ link.href }>
+					<Button isSmall isLink href={ link.href }>
 						{ link.title }
 					</Button>
 				</span>

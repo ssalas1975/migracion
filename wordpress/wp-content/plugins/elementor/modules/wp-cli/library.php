@@ -6,7 +6,7 @@ use Elementor\Plugin;
 use Elementor\TemplateLibrary\Source_Local;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit; // Exit if accessed directly
 }
 
 /**
@@ -41,12 +41,13 @@ class Library extends \WP_CLI_Command {
 		$network = isset( $assoc_args['network'] ) && is_multisite();
 
 		if ( $network ) {
-			$blog_ids = get_sites( [
-				'fields' => 'ids',
-				'number' => 0,
-			] );
+			/** @var \WP_Site[] $sites */
+			$sites = get_sites();
 
-			foreach ( $blog_ids as $blog_id ) {
+			foreach ( $sites as $keys => $blog ) {
+				// Cast $blog as an array instead of  object
+				$blog_id = $blog->blog_id;
+
 				switch_to_blog( $blog_id );
 
 				\WP_CLI::line( 'Site #' . $blog_id . ' - ' . get_option( 'blogname' ) );
@@ -66,17 +67,10 @@ class Library extends \WP_CLI_Command {
 	/**
 	 * Import template files to the Library.
 	 *
-	 *  [--returnType]
-	 *      Forms of output. Possible values are 'ids', 'info'.
-	 *      if this parameter won't be specified, the import info will be output.
-	 *
 	 * ## EXAMPLES
 	 *
 	 *  1. wp elementor library import <file-path>
 	 *      - This will import a file or a zip of multiple files to the library.
-	 *      - file-path can be a path or url.
-	 *
-	 *  2. wp elementor library import <file-path> --returnType=info,ids
 	 *
 	 * @param $args
 	 * @param $assoc_args
@@ -84,25 +78,15 @@ class Library extends \WP_CLI_Command {
 	 * @since  2.8.0
 	 * @access public
 	 */
-	public function import( $args, $assoc_args ) {
+	public function import( $args ) {
 		if ( empty( $args[0] ) ) {
 			\WP_CLI::error( 'Please set file path.' );
 		}
 
 		$file = $args[0];
-		$imported_items_ids = [];
-		$return_type = \WP_CLI\Utils\get_flag_value( $assoc_args, 'returnType', 'info' );
 
 		/** @var Source_Local $source */
 		$source = Plugin::$instance->templates_manager->get_source( 'local' );
-
-		if ( filter_var( $file, FILTER_VALIDATE_URL ) ) {
-			$tmp_path = download_url( $file );
-			if ( is_wp_error( $tmp_path ) ) {
-				\WP_CLI::error( $tmp_path->get_error_message() );
-			}
-			$file = $tmp_path;
-		}
 
 		$imported_items = $source->import_template( basename( $file ), $file );
 
@@ -110,22 +94,9 @@ class Library extends \WP_CLI_Command {
 			\WP_CLI::error( $imported_items->get_error_message() );
 		}
 
-		foreach ( $imported_items as $item ) {
-			$imported_items_ids[] = $item['template_id'];
-		}
-		$imported_items_ids = implode( ',', $imported_items_ids );
-
-		if ( 'ids' === $return_type ) {
-			\WP_CLI::line( $imported_items_ids );
-		} else {
-			\WP_CLI::success( count( $imported_items ) . ' item(s) has been imported.' );
-		}
-
-		if ( isset( $tmp_path ) ) {
-			// Remove the temporary file, now that we're done with it.
-			Plugin::$instance->uploads_manager->remove_file_or_dir( $file );
-		}
+		\WP_CLI::success( count( $imported_items ) . ' item(s) has been imported.' );
 	}
+
 
 	/**
 	 * Import all template files from a directory.

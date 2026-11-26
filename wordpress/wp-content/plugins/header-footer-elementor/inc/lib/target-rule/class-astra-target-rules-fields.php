@@ -308,10 +308,6 @@ class Astra_Target_Rules_Fields {
 
 		check_ajax_referer( 'hfe-get-posts-by-query', 'nonce' );
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( __( 'Unauthorized.', 'header-footer-elementor' ) );
-		}
-
 		$search_string = isset( $_POST['q'] ) ? sanitize_text_field( $_POST['q'] ) : '';
 		$data          = array();
 		$result        = array();
@@ -339,7 +335,7 @@ class Astra_Target_Rules_Fields {
 				array(
 					's'              => $search_string,
 					'post_type'      => $post_type,
-					'posts_per_page' => 50,
+					'posts_per_page' => - 1,
 				)
 			);
 
@@ -769,73 +765,72 @@ class Astra_Target_Rules_Fields {
 		}
 
 		$index = 0;
-		if ( is_array( $saved_values ) && is_array( $saved_values['rule'] ) ) {	
-			foreach ( $saved_values['rule'] as $index => $data ) {
-				$output .= '<div class="astra-target-rule-condition ast-target-rule-' . $index . '" data-rule="' . $index . '" >';
-				/* Condition Selection */
-				$output .= '<span class="target_rule-condition-delete dashicons dashicons-dismiss"></span>';
-				$output .= '<div class="target_rule-condition-wrap" >';
-				$output .= '<select name="' . esc_attr( $input_name ) . '[rule][' . $index . ']" class="target_rule-condition form-control ast-input">';
-				$output .= '<option value="">' . __( 'Select', 'header-footer-elementor' ) . '</option>';
 
-				foreach ( $selection_options as $group => $group_data ) {
-					$output .= '<optgroup label="' . $group_data['label'] . '">';
-					foreach ( $group_data['value'] as $opt_key => $opt_value ) {
+		foreach ( $saved_values['rule'] as $index => $data ) {
+			$output .= '<div class="astra-target-rule-condition ast-target-rule-' . $index . '" data-rule="' . $index . '" >';
+			/* Condition Selection */
+			$output .= '<span class="target_rule-condition-delete dashicons dashicons-dismiss"></span>';
+			$output .= '<div class="target_rule-condition-wrap" >';
+			$output .= '<select name="' . esc_attr( $input_name ) . '[rule][' . $index . ']" class="target_rule-condition form-control ast-input">';
+			$output .= '<option value="">' . __( 'Select', 'header-footer-elementor' ) . '</option>';
 
-						// specific rules.
-						$selected = '';
+			foreach ( $selection_options as $group => $group_data ) {
+				$output .= '<optgroup label="' . $group_data['label'] . '">';
+				foreach ( $group_data['value'] as $opt_key => $opt_value ) {
 
-						if ( $data == $opt_key ) {
-							$selected = 'selected="selected"';
-						}
+					// specific rules.
+					$selected = '';
 
-						$output .= '<option value="' . $opt_key . '" ' . $selected . '>' . $opt_value . '</option>';
+					if ( $data == $opt_key ) {
+						$selected = 'selected="selected"';
 					}
-					$output .= '</optgroup>';
+
+					$output .= '<option value="' . $opt_key . '" ' . $selected . '>' . $opt_value . '</option>';
 				}
-				$output .= '</select>';
-				$output .= '</div>';
-
-				$output .= '</div>';
-
-				/* Specific page selection */
-				$output .= '<div class="target_rule-specific-page-wrap" style="display:none">';
-				$output .= '<select name="' . esc_attr( $input_name ) . '[specific][]" class="target-rule-select2 target_rule-specific-page form-control ast-input " multiple="multiple">';
-
-				if ( 'specifics' == $data && isset( $saved_values['specific'] ) && null != $saved_values['specific'] && is_array( $saved_values['specific'] ) ) {
-					foreach ( $saved_values['specific'] as $data_key => $sel_value ) {
-						// posts.
-						if ( strpos( $sel_value, 'post-' ) !== false ) {
-							$post_id    = (int) str_replace( 'post-', '', $sel_value );
-							$post_title = get_the_title( $post_id );
-							$output    .= '<option value="post-' . $post_id . '" selected="selected" >' . $post_title . '</option>';
-						}
-
-						// taxonomy options.
-						if ( strpos( $sel_value, 'tax-' ) !== false ) {
-							$tax_data = explode( '-', $sel_value );
-
-							$tax_id    = (int) str_replace( 'tax-', '', $sel_value );
-							$term      = get_term( $tax_id );
-							$term_name = '';
-
-							if ( ! is_wp_error( $term ) ) {
-								$term_taxonomy = ucfirst( str_replace( '_', ' ', $term->taxonomy ) );
-
-								if ( isset( $tax_data[2] ) && 'single' === $tax_data[2] ) {
-									$term_name = 'All singulars from ' . $term->name;
-								} else {
-									$term_name = $term->name . ' - ' . $term_taxonomy;
-								}
-							}
-
-							$output .= '<option value="' . $sel_value . '" selected="selected" >' . $term_name . '</option>';
-						}
-					}
-				}
-				$output .= '</select>';
-				$output .= '</div>';
+				$output .= '</optgroup>';
 			}
+			$output .= '</select>';
+			$output .= '</div>';
+
+			$output .= '</div>';
+
+			/* Specific page selection */
+			$output .= '<div class="target_rule-specific-page-wrap" style="display:none">';
+			$output .= '<select name="' . esc_attr( $input_name ) . '[specific][]" class="target-rule-select2 target_rule-specific-page form-control ast-input " multiple="multiple">';
+
+			if ( 'specifics' == $data && isset( $saved_values['specific'] ) && null != $saved_values['specific'] && is_array( $saved_values['specific'] ) ) {
+				foreach ( $saved_values['specific'] as $data_key => $sel_value ) {
+					// posts.
+					if ( strpos( $sel_value, 'post-' ) !== false ) {
+						$post_id    = (int) str_replace( 'post-', '', $sel_value );
+						$post_title = get_the_title( $post_id );
+						$output    .= '<option value="post-' . $post_id . '" selected="selected" >' . $post_title . '</option>';
+					}
+
+					// taxonomy options.
+					if ( strpos( $sel_value, 'tax-' ) !== false ) {
+						$tax_data = explode( '-', $sel_value );
+
+						$tax_id    = (int) str_replace( 'tax-', '', $sel_value );
+						$term      = get_term( $tax_id );
+						$term_name = '';
+
+						if ( ! is_wp_error( $term ) ) {
+							$term_taxonomy = ucfirst( str_replace( '_', ' ', $term->taxonomy ) );
+
+							if ( isset( $tax_data[2] ) && 'single' === $tax_data[2] ) {
+								$term_name = 'All singulars from ' . $term->name;
+							} else {
+								$term_name = $term->name . ' - ' . $term_taxonomy;
+							}
+						}
+
+						$output .= '<option value="' . $sel_value . '" selected="selected" >' . $term_name . '</option>';
+					}
+				}
+			}
+			$output .= '</select>';
+			$output .= '</div>';
 		}
 
 		$output .= '</div>';
@@ -1252,7 +1247,7 @@ class Astra_Target_Rules_Fields {
 		global $wpdb;
 		global $post;
 
-		$post_type = $post_type ? $post_type : $post->post_type;
+		$post_type = $post_type ? esc_sql( $post_type ) : esc_sql( $post->post_type );
 
 		if ( is_array( self::$current_page_data ) && isset( self::$current_page_data[ $post_type ] ) ) {
 			return apply_filters( 'astra_get_display_posts_by_conditions', self::$current_page_data[ $post_type ], $post_type );
@@ -1267,103 +1262,90 @@ class Astra_Target_Rules_Fields {
 
 		/* Meta option is enabled */
 		if ( false === $meta_header ) {
-			$current_post_type = get_post_type();
+			$current_post_type = esc_sql( get_post_type() );
 			$current_post_id   = false;
 			$q_obj             = get_queried_object();
 
-			$current_id = get_the_id();
-			// Find WPML Object ID for current page.
-			if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-				$default_lang = apply_filters( 'wpml_default_language', '' );
-				$current_lang = apply_filters( 'wpml_current_language', '' );
+			$location = isset( $option['location'] ) ? esc_sql( $option['location'] ) : '';
 
-				if ( $default_lang !== $current_lang ) {
-					$current_post_type = get_post_type( $current_id );
-					$current_id        = apply_filters( 'wpml_object_id', $current_id, $current_post_type, true, $default_lang );
-				}
-			}
+			$query = "SELECT p.ID, pm.meta_value FROM {$wpdb->postmeta} as pm
+						INNER JOIN {$wpdb->posts} as p ON pm.post_id = p.ID
+						WHERE pm.meta_key = '{$location}'
+						AND p.post_type = '{$post_type}'
+						AND p.post_status = 'publish'";
 
-			$location = isset( $option['location'] ) ? $option['location'] : '';
-
-			$base_query = $wpdb->prepare(
-				"SELECT p.ID, pm.meta_value FROM {$wpdb->postmeta} as pm
-				INNER JOIN {$wpdb->posts} as p ON pm.post_id = p.ID
-				WHERE pm.meta_key = %s
-				AND p.post_type = %s
-				AND p.post_status = 'publish'",
-				$location,
-				$post_type
-			);
+			$orderby = ' ORDER BY p.post_date DESC';
 
 			/* Entire Website */
-			$like_conditions   = array();
-			$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"basic-global"%' );
+			$meta_args = "pm.meta_value LIKE '%\"basic-global\"%'";
 
 			switch ( $current_page_type ) {
 				case 'is_404':
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-404"%' );
+					$meta_args .= " OR pm.meta_value LIKE '%\"special-404\"%'";
 					break;
 				case 'is_search':
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-search"%' );
+					$meta_args .= " OR pm.meta_value LIKE '%\"special-search\"%'";
 					break;
 				case 'is_archive':
 				case 'is_tax':
 				case 'is_date':
 				case 'is_author':
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"basic-archives"%' );
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"' . $current_post_type . '|all|archive"%' );
+					$meta_args .= " OR pm.meta_value LIKE '%\"basic-archives\"%'";
+					$meta_args .= " OR pm.meta_value LIKE '%\"{$current_post_type}|all|archive\"%'";
 
 					if ( 'is_tax' == $current_page_type && ( is_category() || is_tag() || is_tax() ) ) {
 						if ( is_object( $q_obj ) ) {
-							$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"' . $current_post_type . '|all|taxarchive|' . $q_obj->taxonomy . '"%' );
-							$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"tax-' . $q_obj->term_id . '"%' );
+							$meta_args .= " OR pm.meta_value LIKE '%\"{$current_post_type}|all|taxarchive|{$q_obj->taxonomy}\"%'";
+							$meta_args .= " OR pm.meta_value LIKE '%\"tax-{$q_obj->term_id}\"%'";
 						}
 					} elseif ( 'is_date' == $current_page_type ) {
-						$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-date"%' );
+						$meta_args .= " OR pm.meta_value LIKE '%\"special-date\"%'";
 					} elseif ( 'is_author' == $current_page_type ) {
-						$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-author"%' );
+						$meta_args .= " OR pm.meta_value LIKE '%\"special-author\"%'";
 					}
 					break;
 				case 'is_home':
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-blog"%' );
+					$meta_args .= " OR pm.meta_value LIKE '%\"special-blog\"%'";
 					break;
 				case 'is_front_page':
-					$current_post_id   = $current_id;
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-front"%' );
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"' . $current_post_type . '|all"%' );
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"post-' . $current_id . '"%' );
+					$current_id      = esc_sql( get_the_id() );
+					$current_post_id = $current_id;
+					$meta_args      .= " OR pm.meta_value LIKE '%\"special-front\"%'";
+					$meta_args      .= " OR pm.meta_value LIKE '%\"{$current_post_type}|all\"%'";
+					$meta_args      .= " OR pm.meta_value LIKE '%\"post-{$current_id}\"%'";
 					break;
 				case 'is_singular':
-					$current_post_id   = $current_id;
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"basic-singulars"%' );
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"' . $current_post_type . '|all"%' );
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"post-' . $current_id . '"%' );
+					$current_id      = esc_sql( get_the_id() );
+					$current_post_id = $current_id;
+					$meta_args      .= " OR pm.meta_value LIKE '%\"basic-singulars\"%'";
+					$meta_args      .= " OR pm.meta_value LIKE '%\"{$current_post_type}|all\"%'";
+					$meta_args      .= " OR pm.meta_value LIKE '%\"post-{$current_id}\"%'";
 
-					if ( is_object( $q_obj ) ) {
-						$taxonomies = get_object_taxonomies( $q_obj->post_type );
-						$terms      = wp_get_post_terms( $q_obj->ID, $taxonomies );
+					$taxonomies = get_object_taxonomies( $q_obj->post_type );
+					$terms      = wp_get_post_terms( $q_obj->ID, $taxonomies );
 
-						foreach ( $terms as $key => $term ) {
-							$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"tax-' . $term->term_id . '-single-' . $term->taxonomy . '"%' );
-						}
+					foreach ( $terms as $key => $term ) {
+						$meta_args .= " OR pm.meta_value LIKE '%\"tax-{$term->term_id}-single-{$term->taxonomy}\"%'";
 					}
 
 					break;
 				case 'is_woo_shop_page':
-					$like_conditions[] = $wpdb->prepare( 'pm.meta_value LIKE %s', '%"special-woo-shop"%' );
+					$meta_args .= " OR pm.meta_value LIKE '%\"special-woo-shop\"%'";
 					break;
 				case '':
-					$current_post_id = $current_id;
+					$current_post_id = get_the_id();
 					break;
 			}
 
-			$meta_args = implode( ' OR ', $like_conditions );
-			$posts     = $wpdb->get_results( $base_query . ' AND (' . $meta_args . ') ORDER BY p.post_date DESC' );
+			// Ignore the PHPCS warning about constant declaration.
+			// @codingStandardsIgnoreStart
+			$posts  = $wpdb->get_results( $query . ' AND (' . $meta_args . ')' . $orderby );
+			// @codingStandardsIgnoreEnd
 
 			foreach ( $posts as $local_post ) {
 				self::$current_page_data[ $post_type ][ $local_post->ID ] = array(
 					'id'       => $local_post->ID,
-					'location' => maybe_unserialize( $local_post->meta_value ),
+					'location' => unserialize( $local_post->meta_value ),
 				);
 			}
 
@@ -1447,7 +1429,7 @@ class Astra_Target_Rules_Fields {
 		);
 
 		foreach ( $all_headers as $header ) {
-			$location_rules = maybe_unserialize( $header->meta_value );
+			$location_rules = unserialize( $header->meta_value );
 
 			if ( is_array( $location_rules ) && isset( $location_rules['rule'] ) ) {
 				foreach ( $location_rules['rule'] as $key => $rule ) {

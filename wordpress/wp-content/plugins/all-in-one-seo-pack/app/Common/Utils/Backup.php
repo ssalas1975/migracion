@@ -27,8 +27,7 @@ class Backup {
 	 * @return array An array of backups.
 	 */
 	public function all() {
-		$rawBackups = get_option( $this->optionsName );
-		$backups    = is_string( $rawBackups ) ? json_decode( $rawBackups, true ) : $rawBackups;
+		$backups = json_decode( get_option( $this->optionsName ), true );
 		if ( empty( $backups ) ) {
 			$backups = [];
 		}
@@ -47,13 +46,13 @@ class Backup {
 		$backupTime = time();
 		$options    = $this->getOptions();
 
-		update_option( $this->optionsName . '_' . $backupTime, wp_json_encode( $options ), 'no' );
+		update_option( $this->optionsName . '_' . $backupTime, wp_json_encode( $options ) );
 
 		$backups = $this->all();
 
 		$backups[] = $backupTime;
 
-		update_option( $this->optionsName, wp_json_encode( $backups ), 'no' );
+		update_option( $this->optionsName, wp_json_encode( $backups ) );
 	}
 
 	/**
@@ -74,7 +73,7 @@ class Backup {
 			}
 		}
 
-		update_option( $this->optionsName, wp_json_encode( array_values( $backups ) ), 'no' );
+		update_option( $this->optionsName, wp_json_encode( array_values( $backups ) ) );
 	}
 
 	/**
@@ -85,15 +84,7 @@ class Backup {
 	 * @return void
 	 */
 	public function restore( $backupTime ) {
-		$rawBackup = get_option( $this->optionsName . '_' . $backupTime );
-		$backup    = is_string( $rawBackup ) ? json_decode( $rawBackup, true ) : $rawBackup;
-		if ( ! empty( $backup['options']['tools']['robots']['rules'] ) ) {
-			$backup['options']['tools']['robots']['rules'] = array_merge(
-				aioseo()->robotsTxt->extractSearchAppearanceRules(),
-				$backup['options']['tools']['robots']['rules']
-			);
-		}
-
+		$backup = json_decode( get_option( $this->optionsName . '_' . $backupTime ), true );
 		aioseo()->options->sanitizeAndSave( $backup['options'] );
 		aioseo()->internalOptions->sanitizeAndSave( $backup['internalOptions'] );
 	}

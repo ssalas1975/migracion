@@ -50,6 +50,13 @@ $options = array(
 				'help'  => esc_html__( 'Example: 16px;', 'jevelin' ),
 			),
 
+			'text_size_mobile'   => array(
+				'type'  => 'text',
+				'label' => esc_html__( 'Font Size (responsive)', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter title size (with <b>px</b>) for mobile devices', 'jevelin' ), jevelin_allowed_html() ),
+				'help'  => esc_html__( 'Example: 16px;', 'jevelin' ),
+			),
+
 			'line_height'   => array(
 				'type'  => 'text',
 				'label' => esc_html__( 'Line height', 'jevelin' ),
@@ -60,6 +67,18 @@ $options = array(
 			'text_color' => array(
 			    'label' => esc_html__('Text Color', 'jevelin'),
 			    'desc' => esc_html__( 'Select text color', 'jevelin' ),
+			    'type'  => 'color-picker',
+			),
+
+			'link_color' => array(
+			    'label' => esc_html__('Link Color', 'jevelin'),
+			    'desc' => esc_html__( 'Select link color', 'jevelin' ),
+			    'type'  => 'color-picker',
+			),
+
+			'link_hover_color' => array(
+			    'label' => esc_html__('Link Hover Color', 'jevelin'),
+			    'desc' => esc_html__( 'Select link hover color', 'jevelin' ),
 			    'type'  => 'color-picker',
 			),
 

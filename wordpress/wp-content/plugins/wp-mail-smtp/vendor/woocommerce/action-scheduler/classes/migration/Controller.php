@@ -19,39 +19,18 @@ use Action_Scheduler\WP_CLI\ProgressBar;
  * @codeCoverageIgnore
  */
 class Controller {
-	/**
-	 * Instance.
-	 *
-	 * @var self
-	 */
 	private static $instance;
 
-	/**
-	 * Scheduler instance.
-	 *
-	 * @var Action_Scheduler\Migration\Scheduler
-	 */
+	/** @var Action_Scheduler\Migration\Scheduler */
 	private $migration_scheduler;
 
-	/**
-	 * Class name of the store object.
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	private $store_classname;
 
-	/**
-	 * Class name of the logger object.
-	 *
-	 * @var string
-	 */
+	/** @var string */
 	private $logger_classname;
 
-	/**
-	 * Flag to indicate migrating custom store.
-	 *
-	 * @var bool
-	 */
+	/** @var bool */
 	private $migrate_custom_store;
 
 	/**
@@ -163,7 +142,7 @@ class Controller {
 			}
 		}
 
-		return apply_filters( 'action_scheduler/migration_config', $config ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+		return apply_filters( 'action_scheduler/migration_config', $config );
 	}
 
 	/**
@@ -180,13 +159,7 @@ class Controller {
 	 * Show a dashboard notice that migration is in progress.
 	 */
 	public function display_migration_notice() {
-		wp_admin_notice(
-			__( 'Action Scheduler migration in progress. The list of scheduled actions may be incomplete.', 'action-scheduler' ),
-			array(
-				'type'           => 'warning',
-				'paragraph_wrap' => true,
-			)
-		);
+		printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html__( 'Action Scheduler migration in progress. The list of scheduled actions may be incomplete.', 'action-scheduler' ) );
 	}
 
 	/**
@@ -198,13 +171,15 @@ class Controller {
 		add_action( 'init', array( $this, 'maybe_hook_migration' ) );
 		add_action( 'wp_loaded', array( $this, 'schedule_migration' ) );
 
-		// Action Scheduler may be displayed as a Tools screen or WooCommerce > Status administration screen.
+		// Action Scheduler may be displayed as a Tools screen or WooCommerce > Status administration screen
 		add_action( 'load-tools_page_action-scheduler', array( $this, 'hook_admin_notices' ), 10, 0 );
 		add_action( 'load-woocommerce_page_wc-status', array( $this, 'hook_admin_notices' ), 10, 0 );
 	}
 
 	/**
 	 * Possibly hook the migration scheduler action.
+	 *
+	 * @author Jeremy Pry
 	 */
 	public function maybe_hook_migration() {
 		if ( ! $this->allow_migration() || \ActionScheduler_DataController::is_migration_complete() ) {

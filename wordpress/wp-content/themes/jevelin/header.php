@@ -2,6 +2,7 @@
 /**
  * Header
  */
+
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -20,36 +21,101 @@
 	<?php endif; ?>
 
 	<?php wp_head(); ?>
+    <?php
 
-	<?php
-		$currentBlogId = get_current_blog_id();
-		if( $currentBlogId == 10 || $currentBlogId == 12 )
-		{
-			echo '
-			<script src="//static.vocstatic.com/voonto2/latest/voonto.js" data-cmp="true" data-gdpr-migrate="cookie_layer"></script>
-			<script src="//static.vocstatic.com/tag-manager/latest/vtm.js" data-self-hosted="false" data-property-id="6f5e794197143d0967d6b4da6d90751edbf93ed6" data-analytics-id="ppvv_pro" data-legacy-adbd="true" data-legacy-krux="q8cvcf01d" data-legacy-comscore="7715761" data-legacy-chartbeat="mujerhoy.com"></script> 
-			<script>(function(w,d,s,l,i){w[l]=w[l]||[];var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-KD27TC");</script>
-			<script>TagManager.ready.then(function(){TagManager.track();});</script>
-			';
+    $partsDomain = explode('.', $_SERVER["SERVER_NAME"]);
+    $subdomain = array_shift($partsDomain);
+    $domain = implode('.',$partsDomain);
+    $url = (empty($_SERVER['HTTPS']) ? 'http' : 'https') . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+    ?>
+
+    <!-- ADOBE ANALYTICS -->
+
+	<script>
+
+window.vocento = {
+	config: {
+		vtm: {
+			legacyTracker: false,
+			trackerUrl: '//metrics.lasprovincias.es',
+			evdabEnabled: false
 		}
-	?>
+	},
+	site: {
+		env: 'pro',
+		group: 'ppll',
+		subdomain: '<?php print $subdomain; ?>',
+		tlddomain: '<?php print $domain; ?>',
+		media: 'lasprovincias',
+		name: 'Las Provincias',
+		parent: '',
+		editions: {
+			hasEditions: false,
+			editions: [],
+			main: '',
+			current: '',
+			queryString: ''
+		}
+	}
+};
+
+</script>
+
+<script>
+vocento.tracking = {
+	vtm: {
+		url: "<?php print $url; ?>",
+		domain: "<?php print $domain; ?>",
+		seccion: "",
+		subseccion1: "",
+		subseccion2: "",
+		subseccion3: "",
+		subseccion4: "",
+		titular: "",
+		hiperlocal: "no",
+		tipoContenido: "portada",
+		tipoContenidoA: "portada",
+		plataformaContenido: "contenido-web",
+		idioma: "es",
+		tipoAcceso: "free",
+		tipoDominio: 1,
+		envioStats: "Si",
+		autorizacionContenido: "allow-access",
+		sistemaPublicacion: "wp"
+
+	}
+};
+</script>
+
+<!--script src="//static.vocstatic.com/voonto2/latest/voonto.js" data-cmp="true" data-cmp-position="bottom" data-gdpr-migrate="squido-cookie-message"></script-->
+<script src="//static.vocstatic.com/voonto2/latest/voonto.js" data-experiment="vocento/script" data-cmp="true" data-cmp-position="bottom"></script>
+<script src="//static.vocstatic.com/tag-manager/latest/vtm.js" data-analytics-id="ppll_pro"  data-append="true" data-legacy-wemass="true"></script>
+
+    <script>TagManager.ready.then(function() {TagManager.set({}).track();});</script>
+	
+    <script>
+    Voonto.ready.then(function(app) {
+        if (vocento.dtm.data.navegacionSinCookies == "no"){	
+			(function(w,d,s,l,i){w[l]=w[l]||[];var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        	})(window,document,'script','dataLayer','GTM-57ZG3K');
+			
+        }
+    });
+	</script>
+    <!-- FIN ADOBE ANALYTICS -->
 
 </head>
 <body <?php body_class(); ?>>
 
-<?php
-	$currentBlogId = get_current_blog_id();
-	if( $currentBlogId == 10 || $currentBlogId == 12 )
-	{
-		$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-		echo '
-		<script src="//static.vocstatic.com/dab/latest/strategy.js"></script>
-		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-KD27TC" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<noscript><p><img src="https://sb.scorecardresearch.com/p?c1=2&amp;c2=7715761&amp;ns_site=mujerhoy" height="1" width="1" alt="*" style="height:1px;"></p></noscript>
-		<noscript><img src="https://vocento.d3.sc.omtrdc.net/b/ss/vocgofamily,voces/1/G.4--NS/1231231?pageName=&g=/without-js" width="1" height="1" border="0" /></noscript>
-		';
-	}
-?>
+<!-- Start vocento dtm+gtm+comscore -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id={GTM-57ZG3K}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><img src="//vocento.d3.sc.omtrdc.net/b/ss/voclasprovincias,voces/1/G.4--S/838383838?pageName=&g=<?php echo(isset($_SERVER['HTTPS']) ? 'https' : 'http').'://'.$_SERVER[HTTP_HOST].$_SERVER[REQUEST_URI]; ?>" width="1" height="1" border="0" /></noscript>
+<noscript><img src="//sb.scorecardresearch.com/p?c1=2&amp;c2=7715761&amp" height="1" width="1" alt="*" /></noscript>
+<!-- End vocento dtm+gtm+comscore -->
+
 
 <?php
 	/* Get Titlebar options */
@@ -81,53 +147,99 @@
 			if( $titlebar_style_val2 == 'bottom_titlebar' ) :
 				get_template_part('inc/templates/titlebar' );
 			endif;
+
+			/* Header Template */
+			$header_builder_id = 0;
+			$header_page_template = ( jevelin_post_option( jevelin_page_id(), 'header_layout', 'default' ) != 'default' ) ? jevelin_post_option( jevelin_page_id(), 'header_layout', 'default' ) : 'default';
+			$header_page_template_id = intval( str_replace( 'header-', '', $header_page_template ) );
+			if( $header_page_template != 'default' && is_numeric( strpos( $header_page_template, 'header-' ) ) && $header_page_template_id && get_post_status( $header_page_template_id ) == 'publish' ) :
+				$header_builder_id = $header_page_template_id;
+			else :
+				$header_template = ( jevelin_option( 'header_layout' ) != '1' ) ? jevelin_option( 'header_layout' ) : '1';
+				$header_template_id = intval( str_replace( 'header-', '', $header_template ) );
+
+				if( $header_template != 'default' && is_numeric( strpos( $header_template, 'header-' ) ) && $header_template_id && get_post_status( $header_template_id ) == 'publish' ) :
+					$header_builder_id = $header_template_id;
+				endif;
+			endif;
 		?>
 
 
-		<?php if( jevelin_post_option( jevelin_page_id(), 'header', 'on' ) != 'off' ) : ?>
-			<header class="primary-mobile<?php echo jevelin_header_mobile_style(); ?>">
-				<?php /* Inlcude mobile header */
-					get_template_part('inc/headers/header-mobile' );
-				?>
-			</header>
-			<header class="primary-desktop<?php echo jevelin_header_desktop_style(); ?>">
-				<?php /* Inlcude desktop header */
-					get_template_part('inc/headers/header-'.jevelin_header_layout() );
-				?>
-			</header>
+		<?php if( !in_array( get_post_type( get_the_ID() ), array( 'shufflehound_header', 'shufflehound_footer' ) ) ) : ?>
+			<?php if( jevelin_post_option( jevelin_page_id(), 'header', 'on' ) != 'off' ) : ?>
+				<?php if( $header_builder_id > 0 ) : ?>
+
+					<div class="sh-header-template" role="banner" itemscope="itemscope" itemtype="http://schema.org/WPHeader">
+						<?php if( current_user_can( 'manage_options' ) ) : ?>
+		                    <a target="_blank" href="<?php echo admin_url( 'post.php?vc_action=vc_inline&post_id='.intval( $header_builder_id ).'&post_type=shufflehound_header' ); ?>" class="sh-header-builder-edit">
+		                        <i class="ti-pencil"></i>
+		                        <?php esc_html_e( 'Edit Header', 'jevelin' ); ?>
+		                    </a>
+		                <?php endif;
+							if( class_exists( 'Vc_Manager' ) ) :
+								Vc_Manager::getInstance()->vc()->addShortcodesCustomCss( $header_builder_id );
+								$header_builder_id = ( function_exists( 'pll_get_post' ) ) ? pll_get_post( $header_builder_id ) : $header_builder_id;
+							    $the_post = get_post( $header_builder_id );
+							    echo do_shortcode( $the_post->post_content );
+							endif;
+						?>
+					</div>
+
+				<?php else : ?>
+
+					<div role="banner" itemscope="itemscope" itemtype="http://schema.org/WPHeader">
+						<header class="primary-mobile<?php echo jevelin_header_mobile_style(); ?>">
+							<?php /* Inlcude mobile header */
+								get_template_part('inc/headers/header-mobile' );
+							?>
+						</header>
+						<header class="primary-desktop<?php echo jevelin_header_desktop_style(); ?>">
+							<?php /* Inlcude desktop header */
+								get_template_part('inc/headers/header-'.jevelin_header_layout() );
+							?>
+						</header>
+					</div>
+
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php
+				/* Inlcude breadcrumbs HTML, if not bottom titlebar style */
+				if( $titlebar_style_val2 != 'bottom_titlebar' ) :
+					get_template_part('inc/templates/titlebar' );
+				endif;
+			?>
 		<?php endif; ?>
 
 
 		<?php
-			/* Inlcude breadcrumbs HTML, if not bottom titlebar style */
-			if( $titlebar_style_val2 != 'bottom_titlebar' ) :
-				get_template_part('inc/templates/titlebar' );
-			endif;
-
-			$class = '';
-			if( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) != 'full' ) {
+			if( is_search() ) {
+				$class = ' sh-page-layout-default';
+			} else if( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) != 'full' ) {
 				$class = ' sh-page-layout-default';
 			} else if( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) == 'full' ) {
 				$class = ' sh-page-layout-full';
 			}
 
-			if ( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) == 'default' ||
-			   ( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) == 'global_default' && jevelin_option( 'global_page_layout' ) == 'default' ) ) :
-				$post = get_post();
-				if( $post && preg_match( '/vc_row/', $post->post_content ) ) :
-				    $class = '';
+			if( !is_singular( 'fw-portfolio' ) ) :
+				if( !is_search() && ( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) == 'default' ||
+				   ( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) == 'global_default' && jevelin_option( 'global_page_layout' ) == 'default' ) ) ) :
+					$post = get_post();
+					if( $post && preg_match( '/vc_row/', $post->post_content ) ) :
+					    $class = '';
+					endif;
 				endif;
 			endif;
 		?>
 
 
         <?php /* Unyson Builder Empty Space Preview */
-		if( current_user_can('administrator') &&
+		/*if( current_user_can('administrator') &&
         function_exists( 'fw_ext_page_builder_is_builder_post' ) && fw_ext_page_builder_is_builder_post( jevelin_page_id() ) ) : ?>
             <span class="sh-unyson-frontend-test" style="opacity: 0;" title="Toogle page builder empty spaces visually">
                 <i class="icon icon-eye"></i>
             </span>
-	    <?php endif; ?>
+	    <?php endif;*/ ?>
 
 
 			<div id="wrapper">
@@ -149,10 +261,18 @@
 
 
 				<div class="content-container<?php echo esc_attr( $class ); ?>">
-				<?php if( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) != 'full' ) : ?>
+				<?php
+				if( is_singular( 'fw-portfolio' ) ) :
+					$page_layout = jevelin_option( 'portfolio_single_page_layout', 'default' );
+				elseif( jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' ) != 'global_default' ) :
+					$page_layout = jevelin_post_option( jevelin_page_id(), 'page_layout', 'default' );
+				else :
+					$page_layout = jevelin_option( 'page_layout', 'default' );
+				endif;
+
+				if( $page_layout != 'full' ) : ?>
 					<div class="container entry-content">
 				<?php endif; ?>
-
 
 				<?php
 					/* Inlcude white borders option HTML */

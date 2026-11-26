@@ -1,8 +1,6 @@
 <?php
 namespace Elementor\Modules\DevTools;
 
-use Elementor\Utils;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -21,9 +19,6 @@ class Deprecation {
 	public function get_settings() {
 		return [
 			'soft_notices' => $this->soft_deprecated_notices,
-			'soft_version_count' => self::SOFT_VERSIONS_COUNT,
-			'hard_version_count' => self::HARD_VERSIONS_COUNT,
-			'current_version' => ELEMENTOR_VERSION,
 		];
 	}
 
@@ -66,7 +61,7 @@ class Deprecation {
 	 * @since 3.1.0
 	 *
 	 * @param string $version
-	 * @param int    $count
+	 * @param int $count
 	 *
 	 * @return string|false
 	 */
@@ -187,8 +182,8 @@ class Deprecation {
 	 * @param string $replacement Optional
 	 * @param string $base_version Optional. Default is `null`
 	 *
-	 * @return bool
-	 * @throws \Exception Invalid deprecation.
+	 * @return bool|void
+	 * @throws \Exception
 	 */
 	private function check_deprecation( $entity, $version, $replacement, $base_version = null ) {
 		if ( null === $base_version ) {
@@ -198,7 +193,7 @@ class Deprecation {
 		$diff = $this->compare_version( $base_version, $version );
 
 		if ( false === $diff ) {
-			throw new \Exception( 'Invalid deprecation diff.' );
+			throw new \Exception( 'Invalid deprecation diff' );
 		}
 
 		$print_deprecated = false;
@@ -212,9 +207,12 @@ class Deprecation {
 				];
 			}
 
-			if ( Utils::is_elementor_debug() ) {
+			if ( defined( 'ELEMENTOR_DEBUG' ) && ELEMENTOR_DEBUG ) {
 				$print_deprecated = true;
 			}
+		} else {
+			// Hard deprecated.
+			$print_deprecated = true;
 		}
 
 		return $print_deprecated;
@@ -227,18 +225,18 @@ class Deprecation {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @param string $function_name
+	 * @param string $function
 	 * @param string $version
-	 * @param string $replacement   Optional. Default is ''
-	 * @param string $base_version  Optional. Default is `null`
-	 * @throws \Exception Deprecation error.
+	 * @param string $replacement Optional. Default is ''
+	 * @param string $base_version Optional. Default is `null`
+	 * @throws \Exception
 	 */
-	public function deprecated_function( $function_name, $version, $replacement = '', $base_version = null ) {
-		$print_deprecated = $this->check_deprecation( $function_name, $version, $replacement, $base_version );
+	public function deprecated_function( $function, $version, $replacement = '', $base_version = null ) {
+		$print_deprecated = $this->check_deprecation( $function, $version, $replacement, $base_version );
 
 		if ( $print_deprecated ) {
 			// PHPCS - We need to echo special characters because they can exist in function calls.
-			_deprecated_function( $function_name, esc_html( $version ), $replacement );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			_deprecated_function( $function, esc_html( $version ), $replacement );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 
@@ -247,12 +245,13 @@ class Deprecation {
 	 *
 	 * Handles the deprecation process for hooks.
 	 *
+	 * @since 3.1.0
+	 *
 	 * @param string $hook
 	 * @param string $version
 	 * @param string $replacement Optional. Default is ''
 	 * @param string $base_version Optional. Default is `null`
-	 * @throws \Exception Deprecation error.
-	 * @since 3.1.0
+	 * @throws \Exception
 	 */
 	public function deprecated_hook( $hook, $version, $replacement = '', $base_version = null ) {
 		$print_deprecated = $this->check_deprecation( $hook, $version, $replacement, $base_version );
@@ -273,7 +272,7 @@ class Deprecation {
 	 * @param string $version
 	 * @param string $replacement
 	 * @param string $message
-	 * @throws \Exception Deprecation error.
+	 * @throws \Exception
 	 */
 	public function deprecated_argument( $argument, $version, $replacement = '', $message = '' ) {
 		$print_deprecated = $this->check_deprecation( $argument, $version, $replacement );
@@ -309,14 +308,15 @@ class Deprecation {
 	 *
 	 * A method used to run deprecated actions through Elementor's deprecation process.
 	 *
-	 * @param string      $hook
-	 * @param array       $args
-	 * @param string      $version
-	 * @param string      $replacement
+	 * @since 3.1.0
+	 *
+	 * @param string $hook
+	 * @param array $args
+	 * @param string $version
+	 * @param string $replacement
 	 * @param null|string $base_version
 	 *
-	 * @throws \Exception Deprecation error.
-	 * @since 3.1.0
+	 * @throws \Exception
 	 */
 	public function do_deprecated_action( $hook, $args, $version, $replacement = '', $base_version = null ) {
 		if ( ! has_action( $hook ) ) {
@@ -333,33 +333,21 @@ class Deprecation {
 	 *
 	 * A method used to run deprecated filters through Elementor's deprecation process.
 	 *
-	 * @param string      $hook
-	 * @param array       $args
-	 * @param string      $version
-	 * @param string      $replacement
+	 * @since 3.2.0
+	 *
+	 * @param string $hook
+	 * @param array $args
+	 * @param string $version
+	 * @param string $replacement
 	 * @param null|string $base_version
 	 *
 	 * @return mixed
-	 * @throws \Exception Deprecation error.
-	 * @since 3.2.0
+	 * @throws \Exception
 	 */
 	public function apply_deprecated_filter( $hook, $args, $version, $replacement = '', $base_version = null ) {
 		if ( ! has_action( $hook ) ) {
-			// `$args` should be an array, but in order to keep BC, we need to support non-array values.
-			if ( is_array( $args ) ) {
-				return $args[0] ?? null;
-			}
-
-			return $args;
+			return;
 		}
-
-		// BC - See the comment above.
-		if ( ! is_array( $args ) ) {
-			$args = [ $args ];
-		}
-
-		// Avoid associative arrays.
-		$args = array_values( $args );
 
 		$this->deprecated_hook( $hook, $version, $replacement, $base_version );
 

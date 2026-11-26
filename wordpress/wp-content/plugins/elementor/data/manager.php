@@ -5,7 +5,7 @@ use Elementor\Core\Base\Module as BaseModule;
 use Elementor\Data\Base\Processor;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit; // Exit if accessed directly
 }
 
 class Manager extends BaseModule {
@@ -110,6 +110,7 @@ class Manager extends BaseModule {
 	 *
 	 * @param string $command
 	 * @param string $format
+	 *
 	 */
 	public function register_endpoint_format( $command, $format ) {
 		$this->command_formats[ $command ] = rtrim( $format, '/' );
@@ -154,7 +155,7 @@ class Manager extends BaseModule {
 	 * Command extract args.
 	 *
 	 * @param string $command
-	 * @param array  $args
+	 * @param array $args
 	 *
 	 * @return \stdClass
 	 */
@@ -262,8 +263,8 @@ class Manager extends BaseModule {
 	/**
 	 * Run processor.
 	 *
-	 * @param Processor $processor
-	 * @param array     $data
+	 * @param \Elementor\Data\Base\Processor $processor
+	 * @param array                          $data
 	 *
 	 * @return mixed
 	 */
@@ -280,9 +281,9 @@ class Manager extends BaseModule {
 	 *
 	 * Filter them by class.
 	 *
-	 * @param Processor[] $processors
-	 * @param string      $filter_by_class
-	 * @param array       $data
+	 * @param \Elementor\Data\Base\Processor[] $processors
+	 * @param string $filter_by_class
+	 * @param array $data
 	 *
 	 * @return false|array
 	 */
@@ -313,7 +314,7 @@ class Manager extends BaseModule {
 	 * Use args as query.
 	 *
 	 * @param string $endpoint
-	 * @param array  $args
+	 * @param array $args
 	 * @param string $method
 	 *
 	 * @return \WP_REST_Response
@@ -341,7 +342,7 @@ class Manager extends BaseModule {
 	 * Wrapper for `$this->run_request` return `$response->getData()` instead of `$response`.
 	 *
 	 * @param string $endpoint
-	 * @param array  $args
+	 * @param array $args
 	 * @param string $method
 	 *
 	 * @return array

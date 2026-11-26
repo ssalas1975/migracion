@@ -12,7 +12,7 @@
 	 * @since 1.0.0
 	 * @class ASTCustomizer
 	 */
-	var AstraNotices = {
+	AstraNotices = {
 
 		/**
 		 * Initializes our custom logic for the Customizer.
@@ -80,9 +80,9 @@
 				type: 'POST',
 				data: {
 					action            : 'astra-notice-dismiss',
-					nonce             : bsfAstraNotices._notice_nonce,
+					nonce             : astraNotices._notice_nonce,
 					notice_id         : notice_id,
-					repeat_notice_after : parseInt( repeat_notice_after, 10 ),
+					repeat_notice_after : parseInt( repeat_notice_after ),
 				},
 			});
 

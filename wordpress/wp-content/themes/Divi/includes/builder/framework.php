@@ -174,8 +174,6 @@ require_once ET_BUILDER_DIR . 'feature/background-masks/Functions.php';
 require_once ET_BUILDER_DIR . 'feature/background-masks/PatternFields.php';
 require_once ET_BUILDER_DIR . 'feature/background-masks/MaskFields.php';
 require_once ET_BUILDER_DIR . 'feature/gutenberg/BlockTemplates.php';
-require_once ET_BUILDER_DIR . 'feature/local-library.php';
-require_once ET_BUILDER_DIR . 'feature/ai-button.php';
 
 // Conditional Includes.
 if ( et_is_woocommerce_plugin_active() ) {
@@ -228,12 +226,11 @@ if ( wp_doing_ajax() && ! is_customize_preview() ) {
 			'et_fb_retrieve_builder_data',
 			'et_fb_update_builder_assets',
 			'et_pb_process_custom_font',
-			'et_builder_email_add_account',     // email opt-in module.
-			'et_builder_email_remove_account',  // email opt-in module.
-			'et_builder_email_get_lists',       // email opt-in module.
-			'et_builder_save_settings',         // builder plugin dashboard (global builder settings).
-			'save_epanel',                      // ePanel (global builder settings).
-			'save_epanel_temp',                 // ePanel (temp global builder settings).
+			'et_builder_email_add_account',     // email opt-in module
+			'et_builder_email_remove_account',  // email opt-in module
+			'et_builder_email_get_lists',       // email opt-in module
+			'et_builder_save_settings',         // builder plugin dashboard (global builder settings)
+			'save_epanel',                      // ePanel (global builder settings)
 			'et_builder_library_get_layout',
 			'et_builder_library_update_terms',
 			'et_builder_toggle_cloud_status',
@@ -241,7 +238,6 @@ if ( wp_doing_ajax() && ! is_customize_preview() ) {
 			'et_builder_library_remove_temp_layout',
 			'et_builder_library_clear_temp_presets',
 			'et_builder_library_update_item',
-			'et_builder_library_convert_item',
 			'et_theme_builder_library_update_item',
 			'et_theme_builder_library_save_temp_layout',
 			'et_theme_builder_library_remove_temp_layout',
@@ -264,11 +260,10 @@ if ( wp_doing_ajax() && ! is_customize_preview() ) {
 			'update-theme',
 			'et_safe_mode_update',
 			'et_core_portability_export',
-			'et_core_portability_import_default_presets',
+			'et_core_portability_import',
 			'et_builder_migrate_module_customizer_phase_two',
 			'et_builder_save_global_presets_history',
 			'et_builder_retrieve_global_presets_history',
-			'et_theme_builder_api_export_theme_builder_step',
 			'et_theme_builder_api_import_theme_builder_step',
 			'et_pb_submit_subscribe_form',
 			'et_builder_get_woocommerce_tabs',
@@ -276,9 +271,6 @@ if ( wp_doing_ajax() && ! is_customize_preview() ) {
 			'et_builder_default_colors_update',
 			'et_builder_ajax_save_domain_token',
 			'et_fb_fetch_before_after_components',
-			'et_code_snippets_library_get_items',
-			'et_builder_global_colors_get',
-			'et_update_customizer_fonts',
 		),
 	);
 
@@ -488,7 +480,6 @@ function et_builder_load_modules_styles() {
 		'is_cache_plugin_active' => false === et_pb_detect_cache_plugins() ? 'no' : 'yes',
 		'is_shortcode_tracking'  => get_post_meta( $current_page_id, '_et_pb_enable_shortcode_tracking', true ),
 		'tinymce_uri'            => defined( 'ET_FB_ASSETS_URI' ) ? ET_FB_ASSETS_URI . '/vendors' : '',
-		'accent_color'           => et_builder_accent_color(),
 		/**
 		 * Filters Waypoints options for client side rendering.
 		 *
@@ -824,8 +815,8 @@ function et_builder_body_classes( $classes ) {
 		$layout_type  = et_fb_get_layout_type( $post_id );
 		$layout_scope = et_fb_get_layout_term_slug( $post_id, 'scope' );
 
-		$classes[] = "et_pb_library_page-{$layout_type}";
-		$classes[] = "et_pb_library_page-{$layout_scope}";
+		$classes[] = "et_pb_library_page-${layout_type}";
+		$classes[] = "et_pb_library_page-${layout_scope}";
 	}
 
 	return $classes;
@@ -1175,10 +1166,6 @@ function et_pb_add_non_builder_comment_class( $classes, $class, $comment_ID, $co
  * @return void
  */
 function et_builder_enqueue_open_sans() {
-	if ( wp_style_is( 'et-core-main-fonts', 'enqueued' ) ) {
-		return;
-	}
-
 	$protocol   = is_ssl() ? 'https' : 'http';
 	$query_args = array(
 		'family' => 'Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800',

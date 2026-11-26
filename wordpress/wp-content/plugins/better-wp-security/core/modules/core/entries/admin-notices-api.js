@@ -1,1 +1,1 @@
-export { default as store } from './admin-notices/store';
+import './admin-notices/store';

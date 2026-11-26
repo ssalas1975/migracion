@@ -16,14 +16,12 @@
 		<?php echo wp_kses_post( $title ); ?>
 		<div class="sh-social-widgets">
 			<?php foreach ( $instance as $key => $value ) :
-				if ( empty( $value ) ) {
-					continue;
-				}
-				?>
-				<a href="<?php echo esc_attr( $value ); ?>" class="sh-social-widgets-item" target="_blank">
-					<i class="icon-social-<?php echo esc_attr( $key ); ?>"></i>
-				</a>
-			<?php endforeach; ?>
+				if( $value && $key && in_array( $key, [ 'facebook', 'twitter', 'instagram', 'dribbble', 'behance', 'linkedin', 'youtube' ] ) ) : ?>
+					<a href="<?php echo esc_attr( $value ); ?>" class="sh-social-widgets-item" target="_blank">
+						<i class="icon-social-<?php echo esc_attr( $key ); ?>"></i>
+					</a>
+				<?php endif;
+			endforeach; ?>
 		</div>
 	</div>
 	<?php echo wp_kses_post( $after_widget ); ?>

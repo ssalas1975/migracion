@@ -15,7 +15,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @var \AIOSEO\Plugin\Common\Breadcrumbs\Frontend|\AIOSEO\Plugin\Pro\Breadcrumbs\Frontend
+		 * @var AIOSEO\Plugin\Common\Breadcrumbs\Frontend
 		 */
 		public $frontend;
 
@@ -24,7 +24,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @var Shortcode
+		 * @var AIOSEO\Plugin\Common\Breadcrumbs\Shortcode
 		 */
 		public $shortcode;
 
@@ -33,7 +33,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @var Block
+		 * @var AIOSEO\Plugin\Common\Breadcrumbs\Block
 		 */
 		public $block;
 
@@ -42,7 +42,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @var Tags
+		 * @var AIOSEO\Plugin\Common\Breadcrumbs\Tags
 		 */
 		public $tags;
 
@@ -54,15 +54,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 * @var array An array of crumbs.
 		 */
 		public $breadcrumbs;
-
-		/**
-		 * Array of options to override.
-		 *
-		 * @since 4.8.3
-		 *
-		 * @var array An array of options to override.
-		 */
-		protected $override = [];
 
 		/**
 		 * Breadcrumbs constructor.
@@ -89,11 +80,11 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @param  array $crumbs A single crumb or an array of crumbs.
+		 * @param array $crumbs A single crumb or an array of crumbs.
 		 * @return void
 		 */
 		public function addCrumbs( $crumbs ) {
-			if ( empty( $crumbs ) || ! is_array( $crumbs ) ) {
+			if ( ! is_array( $crumbs ) ) {
 				return;
 			}
 
@@ -110,24 +101,23 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 *
 		 * @since 4.1.1
 		 *
-		 * @param  string $type      The type of breadcrumb ( post, single, page, category, tag, taxonomy, postTypeArchive, date,
-		 *                           author, search, notFound, blog ).
-		 * @param  mixed  $reference The reference can be an object ( WP_Post | WP_Term | WP_Post_Type | WP_User ), an array, an int or a string.
-		 * @param  array  $paged     A reference for a paged crumb.
-		 * @return array             An array of breadcrumbs with their label, link, type and reference.
+		 * @param  string $type       The type of breadcrumb ( post, single, page, category, tag, taxonomy, postTypeArchive, date,
+		 *                            author, search, notFound, blog ).
+		 * @param  mixed  $reference  The reference can be an object ( WP_Post | WP_Term | WP_Post_Type | WP_User ), an array, an int or a string.
+		 * @param  array  $paged      A reference for a paged crumb.
+		 * @return array              An array of breadcrumbs with their label, link, type and reference.
 		 */
 		public function buildBreadcrumbs( $type, $reference, $paged = [] ) {
 			// Clear the breadcrumb array and build a new one.
 			$this->breadcrumbs = [];
 
 			// Add breadcrumb prefix.
-			$this->addCrumbs( $this->getPrefixCrumb( $type, $reference ) );
+			if ( 0 < strlen( aioseo()->options->breadcrumbs->breadcrumbPrefix ) ) {
+				$this->addCrumbs( $this->getPrefixCrumb( $type, $reference ) );
+			}
 
 			// Set a home page in the beginning of the breadcrumb.
 			$this->addCrumbs( $this->maybeGetHomePageCrumb( $type, $reference ) );
-
-			// Woocommerce shop page support.
-			$this->addCrumbs( $this->maybeGetWooCommerceShopCrumb() );
 
 			// Blog home.
 			if (
@@ -175,15 +165,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 					break;
 				case 'preview':
 					$this->addCrumbs( $this->getPreviewCrumb( $reference ) );
-					break;
-				case 'wcProduct':
-					$this->addCrumbs( $this->getPostTaxonomyCrumbs( $reference ) );
-					$this->addCrumbs( $this->getPostParentCrumbs( $reference ) );
-					$this->addCrumbs( $this->getPostCrumb( $reference ) );
-					break;
-				case 'buddypress':
-					$this->addCrumbs( aioseo()->standalone->buddyPress->component->getCrumbs() );
-					break;
 			}
 
 			// Paged crumb.
@@ -196,7 +177,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 				array_pop( $this->breadcrumbs );
 			}
 
-			// Remove empty crumbs.
 			$this->breadcrumbs = array_filter( $this->breadcrumbs );
 
 			return $this->breadcrumbs;
@@ -212,10 +192,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 * @return array             A crumb.
 		 */
 		public function getPrefixCrumb( $type, $reference ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			if ( 0 === strlen( aioseo()->options->breadcrumbs->breadcrumbPrefix ) ) {
-				return [];
-			}
-
 			return $this->makeCrumb( aioseo()->options->breadcrumbs->breadcrumbPrefix, '', 'prefix' );
 		}
 
@@ -283,19 +259,14 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		/**
 		 * Gets the term crumb.
 		 *
-		 * @since   4.1.1
-		 * @version 5.0.2 Return an empty crumb for non-WP_Term input so orphaned terms cannot fatal.
+		 * @since 4.1.1
 		 *
 		 * @param  \WP_Term $term    The term object for reference.
 		 * @param  string   $subType The breadcrumb subType.
 		 * @return array             A crumb.
 		 */
 		public function getTermTaxonomyCrumb( $term, $subType = '' ) {
-			if ( ! is_a( $term, 'WP_Term' ) ) {
-				return [];
-			}
-
-			return $this->makeCrumb( $term->name, aioseo()->helpers->getTermLink( $term ), 'taxonomy', $term, $subType );
+			return $this->makeCrumb( $term->name, get_term_link( $term ), 'taxonomy', $term, $subType );
 		}
 
 		/**
@@ -369,8 +340,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		/**
 		 * Gets an array of crumbs parents for the term.
 		 *
-		 * @since   4.1.1
-		 * @version 5.0.2 Skip orphaned parent terms that no longer resolve to a WP_Term.
+		 * @since 4.1.1
 		 *
 		 * @param  \WP_Term $term A WP_Term object.
 		 * @return array          An array of parent crumbs.
@@ -381,12 +351,8 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 			$termHierarchy = $this->getTermHierarchy( $term->term_id, $term->taxonomy );
 			if ( ! empty( $termHierarchy ) ) {
 				foreach ( $termHierarchy as $parentTermId ) {
-					$parentTerm = aioseo()->helpers->getTerm( $parentTermId, $term->taxonomy );
-					if ( ! is_a( $parentTerm, 'WP_Term' ) ) {
-						continue;
-					}
-
-					$crumbs[] = $this->getTermTaxonomyCrumb( $parentTerm, 'parent' );
+					$parentTerm = get_term( $parentTermId, $term->taxonomy );
+					$crumbs[]   = $this->getTermTaxonomyCrumb( $parentTerm, 'parent' );
 				}
 			}
 
@@ -435,8 +401,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		/**
 		 * Gets a post's taxonomy crumbs.
 		 *
-		 * @since   4.1.1
-		 * @version 5.0.2 Skip terms that no longer resolve to a WP_Term.
+		 * @since 4.1.1
 		 *
 		 * @param  int|\WP_Post $post     An ID or a WP_Post object.
 		 * @param  null         $taxonomy A taxonomy to use. If none is provided the first one with terms selected will be used.
@@ -445,11 +410,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		public function getPostTaxonomyCrumbs( $post, $taxonomy = null ) {
 			$crumbs = [];
 
-			$overrideTaxonomy = $this->getOverride( 'taxonomy' );
-			if ( ! empty( $overrideTaxonomy ) ) {
-				$taxonomy = $overrideTaxonomy;
-			}
-
 			if ( $taxonomy && ! is_array( $taxonomy ) ) {
 				$taxonomy = [ $taxonomy ];
 			}
@@ -457,14 +417,8 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 			$termHierarchy = $this->getPostTaxTermHierarchy( $post, $taxonomy );
 			if ( ! empty( $termHierarchy['terms'] ) ) {
 				foreach ( $termHierarchy['terms'] as $termId ) {
-					// get_ancestors() walks parent pointers without checking the rows still exist,
-					// so an orphaned ancestor reaches us as an ID that no longer resolves.
-					$term = aioseo()->helpers->getTerm( $termId, $termHierarchy['taxonomy'] );
-					if ( ! is_a( $term, 'WP_Term' ) ) {
-						continue;
-					}
-
-					$crumbs[] = $this->makeCrumb( $term->name, aioseo()->helpers->getTermLink( $term, $termHierarchy['taxonomy'] ), 'taxonomy', $term, 'parent' );
+					$term     = get_term( $termId, $termHierarchy['taxonomy'] );
+					$crumbs[] = $this->makeCrumb( $term->name, get_term_link( $term, $termHierarchy['taxonomy'] ), 'taxonomy', $term, 'parent' );
 				}
 			}
 
@@ -493,7 +447,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 					if ( aioseo()->helpers->getHomePageId() === $parentID ) {
 						continue;
 					}
-
 					$crumbs[] = $this->getPostCrumb( get_post( $parentID ), $type, 'parent' );
 				}
 			}
@@ -532,30 +485,21 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		/**
 		 * Gets a home page crumb.
 		 *
-		 * @since   4.1.1
-		 * @version 5.0.2 Home crumb link is now trailing-slashed.
+		 * @since 4.1.1
 		 *
 		 * @return array The home crumb.
 		 */
 		public function getHomePageCrumb() {
 			$homePageId = aioseo()->helpers->getHomePageId();
 
-			$label = '';
-			if ( $homePageId ) {
-				$label = get_the_title( $homePageId );
-			}
-
-			if ( 0 < strlen( aioseo()->options->breadcrumbs->homepageLabel ) ) {
-				$label = aioseo()->options->breadcrumbs->homepageLabel;
-			}
+			$label = ( 0 < strlen( aioseo()->options->breadcrumbs->homepageLabel ) ) ? aioseo()->options->breadcrumbs->homepageLabel : get_the_title( $homePageId );
 
 			// Label fallback.
 			if ( empty( $label ) ) {
 				$label = __( 'Home', 'all-in-one-seo-pack' );
 			}
 
-			// Google flags the origin-only home URL as an invalid URL in the schema output.
-			return $this->makeCrumb( $label, trailingslashit( get_home_url() ), 'homePage', aioseo()->helpers->getHomePage() );
+			return $this->makeCrumb( $label, get_home_url(), 'homePage', aioseo()->helpers->getHomePage() );
 		}
 
 		/**
@@ -571,60 +515,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 			$blogPage = aioseo()->helpers->getBlogPage();
 			if ( null !== $blogPage ) {
 				$crumb = $this->makeCrumb( $blogPage->post_title, get_permalink( $blogPage ), 'blog', $blogPage );
-			}
-
-			return $crumb;
-		}
-
-		/**
-		 * Maybe add the shop crumb to products and product categories.
-		 *
-		 * @since 4.5.5
-		 *
-		 * @return array The shop crumb.
-		 */
-		public function maybeGetWooCommerceShopCrumb() {
-			$crumb = [];
-			if (
-				aioseo()->helpers->isWooCommerceShopPage() ||
-				aioseo()->helpers->isWooCommerceProductPage() ||
-				aioseo()->helpers->isWooCommerceTaxonomyPage()
-			) {
-				$crumb = $this->getWooCommerceShopCrumb();
-			}
-
-			return $crumb;
-		}
-
-		/**
-		 * Gets the shop crumb.
-		 * @see WC_Breadcrumb::prepend_shop_page()
-		 *
-		 * @since 4.5.5
-		 *
-		 * @return array The shop crumb.
-		 */
-		public function getWooCommerceShopCrumb() {
-			$crumb = [];
-
-			if (
-				! function_exists( 'wc_get_page_id' ) ||
-				apply_filters( 'aioseo_woocommerce_breadcrumb_hide_shop', false )
-			) {
-				return $crumb;
-			}
-
-			$shopPageId = wc_get_page_id( 'shop' );
-			$shopPage   = get_post( $shopPageId );
-
-			// WC checks if the permalink contains the shop page in the URI, but we prefer to
-			// always show the shop page as the first crumb if it exists and it's not the home page.
-			if (
-				$shopPageId &&
-				$shopPage &&
-				aioseo()->helpers->getHomePageId() !== $shopPageId
-			) {
-				$crumb = $this->makeCrumb( get_the_title( $shopPage ), get_permalink( $shopPage ), 'wcShop' );
 			}
 
 			return $crumb;
@@ -648,18 +538,9 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 			}
 
 			foreach ( $taxonomies as $taxonomy ) {
-				$primaryTerm         = aioseo()->standalone->primaryTerm->getPrimaryTerm( $post->ID, $taxonomy );
-				$overridePrimaryTerm = $this->getOverride( 'primaryTerm' );
-				if ( ! empty( $overridePrimaryTerm ) ) {
-					$primaryTerm = ! is_a( $overridePrimaryTerm, 'WP_Term' ) ? get_term( $overridePrimaryTerm, $taxonomy ) : $overridePrimaryTerm;
-				}
-
-				$terms = wp_get_object_terms( $post->ID, $taxonomy, [
-					'orderby' => 'term_id',
-					'order'   => 'ASC',
-				] );
+				$terms = wp_get_object_terms( $post->ID, $taxonomy );
 				// Use the first taxonomy with terms.
-				if ( empty( $terms ) || is_wp_error( $terms ) ) {
+				if ( empty( $terms ) ) {
 					continue;
 				}
 
@@ -671,12 +552,6 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 
 					// Merge the current term to be used in the breadcrumbs.
 					$ancestors = array_merge( $ancestors, [ $term->term_id ] );
-
-					// If the current term is the primary term, use it.
-					if ( is_a( $primaryTerm, 'WP_Term' ) && $primaryTerm->term_id === $term->term_id ) {
-						$termHierarchy = $ancestors;
-						break;
-					}
 
 					$termHierarchy = ( count( $termHierarchy ) < count( $ancestors ) ) ? $ancestors : $termHierarchy;
 				}
@@ -737,13 +612,13 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 * @since 4.1.1
 		 *
 		 * @param  int|\WP_Post $post An ID or a WP_Post object.
-		 * @return array              The post parent hierarchy. Empty array if the post ID is empty.
+		 * @return array              The post parent hierarchy.
 		 */
 		public function getPostHierarchy( $post ) {
-			$postId = is_object( $post ) ? ( $post->ID ?? 0 ) : $post;
+			$postId = ! empty( $post->ID ) ? $post->ID : $post;
 
 			// Return a top to bottom hierarchy.
-			return ! empty( $postId ) ? array_reverse( get_ancestors( $postId, '', 'post_type' ) ) : [];
+			return array_reverse( get_ancestors( $postId, '', 'post_type' ) );
 		}
 
 		/**
@@ -754,39 +629,7 @@ namespace AIOSEO\Plugin\Common\Breadcrumbs {
 		 * @return void
 		 */
 		public function registerWidget() {
-			if ( aioseo()->helpers->canRegisterLegacyWidget( 'aioseo-breadcrumb-widget' ) ) {
-				register_widget( 'AIOSEO\Plugin\Common\Breadcrumbs\Widget' );
-			}
-		}
-
-		/**
-		 * Setter for the override property.
-		 *
-		 * @since 4.8.3
-		 *
-		 * @param  array $toOverride Array containing data to override.
-		 * @return void
-		 */
-		public function setOverride( $toOverride = [] ) {
-			$this->override = $toOverride;
-		}
-
-		/**
-		 * Getter for the override property.
-		 *
-		 * @since 4.8.3
-		 *
-		 * @param  string $optionName Optional. The specific option name to retrieve.
-		 * @return array              Array containing data to override.
-		 */
-		public function getOverride( $optionName = null ) {
-			if ( empty( $this->override ) ) {
-				return $optionName ? null : [];
-			}
-
-			$value = isset( $this->override[ $optionName ] ) ? $this->override[ $optionName ] : null;
-
-			return $optionName ? $value : $this->override;
+			register_widget( 'AIOSEO\Plugin\Common\Breadcrumbs\Widget' );
 		}
 	}
 }

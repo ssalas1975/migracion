@@ -225,25 +225,6 @@ final class ITSEC_Lib_Canonical_Roles {
 	}
 
 	/**
-	 * Gets the "real" WordPress roles that overlap with the given canonical roles.
-	 *
-	 * @param ...$canonical string A list of canonical roles.
-	 *
-	 * @return string[]
-	 */
-	public static function get_real_roles_for_canonical( ...$canonical ): array {
-		$real = [];
-
-		foreach ( wp_roles()->roles as $role => $_ ) {
-			if ( in_array( self::get_canonical_role_from_role( $role ), $canonical, true ) ) {
-				$real[] = $role;
-			}
-		}
-
-		return $real;
-	}
-
-	/**
 	 * Get all users that have the given canonical role.
 	 *
 	 * @param string|string[] $canonical
@@ -255,7 +236,13 @@ final class ITSEC_Lib_Canonical_Roles {
 
 		$canonical = (array) $canonical;
 
-		$roles = self::get_real_roles_for_canonical( ...$canonical );
+		$roles = array();
+
+		foreach ( wp_roles()->roles as $role => $_ ) {
+			if ( in_array( self::get_canonical_role_from_role( $role ), $canonical, true ) ) {
+				$roles[] = $role;
+			}
+		}
 
 		if ( empty( $roles ) ) {
 			return array();

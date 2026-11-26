@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Author Page
  */
@@ -45,7 +45,7 @@ get_header();
 		<?php jevelin_pagination(); ?>
 
 	</div>
-	<div id="sidebar" class="sidebar-right">
+	<div id="sidebar" class="sidebar-right" role="complementary" itemscope="itemscope" itemtype="http://schema.org/WPSideBar">
 		<?php get_sidebar(); ?>
 	</div>
 

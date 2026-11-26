@@ -1,10 +1,6 @@
 <?php
 namespace Elementor;
 
-use Elementor\Core\Common\Modules\Ajax\Module as Ajax;
-use Elementor\Core\Editor\Editor;
-use Elementor\Core\Utils\Collection;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -30,38 +26,15 @@ class Images_Manager {
 	 * @access public
 	 */
 	public function get_images_details() {
-		if ( ! $this->verify_request_nonce() ) {
-			wp_send_json_error( 'Invalid nonce', 403 );
-		}
-
-		// Kept at 200: a non-200 status triggers the editor's error toast for Contributors.
-		if ( ! current_user_can( 'publish_posts' ) ) {
-			wp_send_json_error( 'Permission denied' );
-		}
-
-		// PHPCS - Nonce verified by $this->verify_request_nonce().
-		$items = Utils::get_super_global_value( $_POST, 'items' ) ?? []; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// PHPCS - Already validated by wp_ajax.
+		$items = $_POST['items']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$urls  = [];
 
-		foreach ( (array) $items as $item ) {
-			$id = absint( $item['id'] ?? 0 );
-
-			$urls[ $id ] = $this->get_details(
-				$id,
-				$item['size'],
-				$item['is_first_time'],
-				current_user_can( 'edit_post', $id )
-			);
+		foreach ( $items as $item ) {
+			$urls[ $item['id'] ] = $this->get_details( $item['id'], $item['size'], $item['is_first_time'] );
 		}
 
 		wp_send_json_success( $urls );
-	}
-
-	private function verify_request_nonce() {
-		/** @var Ajax $ajax */
-		$ajax = Plugin::$instance->common->get_component( 'ajax' );
-
-		return $ajax->verify_request_nonce();
 	}
 
 	/**
@@ -80,12 +53,10 @@ class Images_Manager {
 	 *                                    values in pixels (in that order).
 	 * @param string       $is_first_time Set 'true' string to force reloading
 	 *                                    all image sizes.
-	 * @param bool         $persist_custom_size Whether to record custom sizes in
-	 *                                    the attachment metadata.
 	 *
 	 * @return array URLs with different image sizes.
 	 */
-	public function get_details( $id, $size, $is_first_time, $persist_custom_size = true ) {
+	public function get_details( $id, $size, $is_first_time ) {
 		if ( ! class_exists( 'Group_Control_Image_Size' ) ) {
 			require_once ELEMENTOR_PATH . '/includes/controls/groups/image-size.php';
 		}
@@ -103,9 +74,6 @@ class Images_Manager {
 			if ( 0 === strpos( $size, 'custom_' ) ) {
 				preg_match( '/custom_(\d*)x(\d*)/', $size, $matches );
 
-				$matches[1] = (int) $matches[1];
-				$matches[2] = (int) $matches[2];
-
 				$instance = [
 					'image_size' => 'custom',
 					'image_custom_dimension' => [
@@ -114,34 +82,9 @@ class Images_Manager {
 					],
 				];
 
-				$url = Group_Control_Image_Size::get_attachment_image_src( $id, 'image', $instance );
-
-				$thumbs_path = BFITHUMB_UPLOAD_DIR . '/' . basename( $url );
-
-				$image_meta = wp_get_attachment_metadata( $id );
-
-				if ( ! $image_meta ) {
-					$urls[ $size ] = null;
-					continue;
-				}
-
-				// Attach custom image to original.
-				$image_meta['sizes'][ 'elementor_' . $size ] = [
-					'file' => $thumbs_path,
-					'width' => $matches[1],
-					'height' => $matches[2],
-					'mime-type' => get_post_mime_type( $id ),
-				];
-
-				if ( $persist_custom_size ) {
-					wp_update_attachment_metadata( $id, $image_meta );
-				}
-
-				$urls[ $size ] = $url;
+				$urls[ $size ] = Group_Control_Image_Size::get_attachment_image_src( $id, 'image', $instance );
 			} else {
-				$image_src = wp_get_attachment_image_src( $id, $size );
-
-				$urls[ $size ] = $image_src ? $image_src[0] : null;
+				$urls[ $size ] = wp_get_attachment_image_src( $id, $size )[0];
 			}
 		}
 
@@ -153,12 +96,13 @@ class Images_Manager {
 	 *
 	 * Used to retrieve an array of image attributes to be used for displaying an image in Elementor's Light Box module.
 	 *
-	 * @param int $id       The ID of the image.
+	 * @param int $id       The ID of the image
 	 *
 	 * @return array An array of image attributes including `title` and `description`.
 	 * @since 2.9.0
 	 * @access public
 	 */
+
 	public function get_lightbox_image_attributes( $id ) {
 		$attributes = [];
 		$kit = Plugin::$instance->kits_manager->get_active_kit();
@@ -186,21 +130,6 @@ class Images_Manager {
 		return $attributes;
 	}
 
-	private function delete_custom_images( $post_id ) {
-		$image_meta = wp_get_attachment_metadata( $post_id );
-		if ( ! empty( $image_meta ) && ! empty( $image_meta['sizes'] ) ) {
-			( new Collection( $image_meta['sizes'] ) )
-			->filter( function ( $value, $key ) {
-				return ( 0 === strpos( $key, 'elementor_custom_' ) );
-			} )
-			->pluck( 'file' )
-			->each( function ( $path ) {
-				$base_dir = wp_get_upload_dir()['basedir'];
-				wp_delete_file( $base_dir . '/' . $path );
-			} );
-		}
-	}
-
 	/**
 	 * Images manager constructor.
 	 *
@@ -211,10 +140,5 @@ class Images_Manager {
 	 */
 	public function __construct() {
 		add_action( 'wp_ajax_elementor_get_images_details', [ $this, 'get_images_details' ] );
-
-		// Delete elementor thumbnail files on deleting its main image.
-		add_action( 'delete_attachment', function ( $post_id ) {
-			$this->delete_custom_images( $post_id );
-		} );
 	}
 }

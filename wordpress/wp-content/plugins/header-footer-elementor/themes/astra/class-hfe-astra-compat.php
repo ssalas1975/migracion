@@ -19,8 +19,6 @@ class HFE_Astra_Compat {
 
 	/**
 	 *  Initiator
-	 *
-	 * @return HFE_Astra_Compat
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -34,8 +32,6 @@ class HFE_Astra_Compat {
 
 	/**
 	 * Run all the Actions / Filters.
-	 *
-	 * @return void
 	 */
 	public function hooks() {
 		if ( hfe_header_enabled() ) {
@@ -55,8 +51,6 @@ class HFE_Astra_Compat {
 
 	/**
 	 * Disable header from the theme.
-	 *
-	 * @return void
 	 */
 	public function astra_setup_header() {
 		remove_action( 'astra_header', 'astra_header_markup' );
@@ -69,8 +63,6 @@ class HFE_Astra_Compat {
 
 	/**
 	 * Disable footer from the theme.
-	 *
-	 * @return void
 	 */
 	public function astra_setup_footer() {
 		remove_action( 'astra_footer', 'astra_footer_markup' );

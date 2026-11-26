@@ -40,45 +40,42 @@ abstract class Usage {
 	protected $enabled = false;
 
 	/**
-	 * The action name for the usage tracking.
-	 *
-	 * @since 4.9.4.2
-	 *
-	 * @var string
-	 */
-	private $actionName = 'aioseo_send_usage_data';
-
-	/**
 	 * Class Constructor.
 	 *
 	 * @since 4.0.0
 	 */
 	public function __construct() {
-		add_action( 'admin_init', [ $this, 'init' ], 2 );
-
-		add_action( $this->actionName, [ $this, 'process' ] );
+		add_action( 'init', [ $this, 'init' ], 2 );
 	}
 
 	/**
 	 * Runs on the init action.
 	 *
-	 * @since   4.0.0
-	 * @version 4.9.4.2 Use AIOSEO wrapper for scheduling; remove extra async action.
+	 * @since 4.0.0
 	 *
 	 * @return void
 	 */
 	public function init() {
-		if ( ! $this->enabled ) {
-			aioseo()->actionScheduler->unschedule( $this->actionName );
+		try {
+			$action = 'aioseo_send_usage_data';
+			if ( ! $this->enabled ) {
+				aioseo()->helpers->unscheduleAction( $action );
 
-			return;
+				return;
+			}
+
+			// Register the action handler.
+			add_action( $action, [ $this, 'process' ] );
+
+			if ( ! as_next_scheduled_action( $action ) ) {
+				as_schedule_recurring_action( $this->generateStartDate(), WEEK_IN_SECONDS, $action, [], 'aioseo' );
+
+				// Run the task immediately using an async action.
+				as_enqueue_async_action( $action, [], 'aioseo' );
+			}
+		} catch ( \Exception $e ) {
+			// Do nothing.
 		}
-
-		if ( aioseo()->actionScheduler->isScheduled( $this->actionName ) ) {
-			return;
-		}
-
-		aioseo()->actionScheduler->scheduleRecurrent( $this->actionName, 0, WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -93,18 +90,18 @@ abstract class Usage {
 			return;
 		}
 
-		$cacheKey = 'usage_tracking_last_sent';
-		if ( null !== aioseo()->core->cache->get( $cacheKey ) ) {
-			return;
-		}
-
-		aioseo()->core->cache->update( $cacheKey, true, DAY_IN_SECONDS );
-
-		aioseo()->helpers->wpRemotePost( $this->getUrl(), [
-			'blocking'         => false,
-			'aioseo_skip_lock' => true,
-			'body'             => wp_json_encode( $this->getData() )
-		] );
+		wp_remote_post(
+			$this->getUrl(),
+			[
+				'timeout'     => 5,
+				'redirection' => 5,
+				'httpversion' => '1.1',
+				'blocking'    => true,
+				'headers'     => [ 'Content-Type' => 'application/json; charset=utf-8' ],
+				'body'        => wp_json_encode( $this->getData() ),
+				'user-agent'  => 'AIOSEO/' . AIOSEO_VERSION . '; ' . get_bloginfo( 'url' ),
+			]
+		);
 	}
 
 	/**
@@ -148,14 +145,14 @@ abstract class Usage {
 			'theme_version'                 => $themeData->version,
 			'user_count'                    => function_exists( 'get_user_count' ) ? get_user_count() : null,
 			'locale'                        => get_locale(),
-			'timezone_offset'               => wp_timezone_string(),
+			'timezone_offset'               => aioseo()->helpers->getTimeZoneOffset(),
 			'email'                         => get_bloginfo( 'admin_email' ),
 			// AIOSEO specific data.
 			'aioseo_version'                => AIOSEO_VERSION,
 			'aioseo_license_key'            => null,
 			'aioseo_license_type'           => null,
 			'aioseo_is_pro'                 => false,
-			"aioseo_{$type}_installed_date" => aioseo()->internalOptions->internal->installed,
+			"aioseo_${type}_installed_date" => aioseo()->internalOptions->internal->installed,
 			'aioseo_settings'               => $this->getSettings()
 		];
 	}
@@ -174,8 +171,6 @@ abstract class Usage {
 				$v = str_replace( '&quot', '&#x5c;&quot', $v );
 			}
 		});
-
-		$settings = $this->filterPrivateSettings( $settings );
 
 		$internal = aioseo()->internalOptions->all();
 		array_walk_recursive( $internal, function( &$v ) {
@@ -217,18 +212,20 @@ abstract class Usage {
 	}
 
 	/**
-	 * Anonimizes or obfuscates the value of certain settings.
+	 * Generate a random start date for usage tracking.
 	 *
-	 * @since 4.3.2
+	 * @since 4.0.0
 	 *
-	 * @param  array $settings The settings.
-	 * @return array           The altered settings.
+	 * @return integer The randomized start date.
 	 */
-	private function filterPrivateSettings( $settings ) {
-		if ( ! empty( $settings['localBusiness']['maps']['apiKey'] ) ) {
-			$settings['localBusiness']['maps']['apiKey'] = true;
-		}
+	private function generateStartDate() {
+		$tracking = [
+			'days'    => wp_rand( 0, 6 ) * DAY_IN_SECONDS,
+			'hours'   => wp_rand( 0, 23 ) * HOUR_IN_SECONDS,
+			'minutes' => wp_rand( 0, 23 ) * HOUR_IN_SECONDS,
+			'seconds' => wp_rand( 0, 59 )
+		];
 
-		return $settings;
+		return strtotime( 'next sunday' ) + array_sum( $tracking );
 	}
 }

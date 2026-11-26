@@ -167,4 +167,5 @@ class NS_Cloner_Ajax {
 			wp_send_json_success( $success_data );
 		}
 	}
+
 }

@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Elementor HTML widget.
  *
  * Elementor widget that insert a custom HTML code into the page.
+ *
  */
 class Widget_Read_More extends Widget_Base {
 
@@ -68,14 +69,6 @@ class Widget_Read_More extends Widget_Base {
 		return [ 'read', 'more', 'tag', 'excerpt' ];
 	}
 
-	protected function is_dynamic_content(): bool {
-		return false;
-	}
-
-	public function has_widget_inner_wrapper(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'e_optimized_markup' );
-	}
-
 	/**
 	 * Register HTML widget controls.
 	 *
@@ -108,13 +101,13 @@ class Widget_Read_More extends Widget_Base {
 		$this->add_control(
 			'theme_support',
 			[
-				'type' => Controls_Manager::ALERT,
-				'alert_type' => 'warning',
-				'content' => sprintf(
+				'type' => Controls_Manager::RAW_HTML,
+				'raw' => sprintf(
 					/* translators: %s: The `the_content` function. */
 					esc_html__( 'Note: This widget only affects themes that use `%s` in archive pages.', 'elementor' ),
 					'the_content'
 				),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
 			]
 		);
 
@@ -156,15 +149,5 @@ class Widget_Read_More extends Widget_Base {
 		?>
 		<!--more {{ settings.link_text }}-->
 		<?php
-	}
-
-	public function render_markdown(): string {
-		$settings = $this->get_settings_for_display();
-		$text = Utils::html_to_plain_text( $settings['link_text'] ?? 'Read More' );
-		$url = ( $settings['link'] ?? [] )['url'] ?? '';
-		if ( ! empty( $url ) ) {
-			return '[' . $text . '](' . esc_url( $url ) . ')';
-		}
-		return $text;
 	}
 }

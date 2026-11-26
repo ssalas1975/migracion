@@ -8,7 +8,7 @@
 
 if ( ! defined( 'ET_BUILDER_PRODUCT_VERSION' ) ) {
 	// Note, this will be updated automatically during grunt release task.
-	define( 'ET_BUILDER_PRODUCT_VERSION', '4.26.0' );
+	define( 'ET_BUILDER_PRODUCT_VERSION', '4.18.0' );
 }
 
 if ( ! defined( 'ET_BUILDER_VERSION' ) ) {
@@ -977,15 +977,14 @@ if ( ! function_exists( 'et_builder_page_creation_options' ) ) :
 					'value_index' => 2,
 				),
 			),
-			'build_with_ai'         => array(
-				'className'       => 'accent-dark-blue',
-				'imgSrc'          => 'layout-insert-build-with-ai.svg',
-				'imgSrcHover'     => 'layout-insert-build-with-ai.svg',
-				'titleText'       => esc_html__( 'Build With AI', 'et_builder' ),
-				'bannerText'      => esc_html__( 'Brand New', 'et_builder' ),
-				'descriptionText' => esc_html__( 'Simply describe your page content, sit back, relax, and let Divi AI build your page with the click of a button.', 'et_builder' ),
-				'buttonText'      => esc_html__( 'Generate Layout', 'et_builder' ),
-				'permission'      => array( 'divi_ai' ),
+			'clone_existing_page'   => array(
+				'className'       => 'accent-green',
+				'imgSrc'          => 'clone.png',
+				'imgSrcHover'     => 'clone.gif',
+				'titleText'       => esc_html__( 'Clone Existing page', 'et_builder' ),
+				'descriptionText' => esc_html__( 'Jump start your layout design by duplicating another page that you’ve already built.', 'et_builder' ),
+				'buttonText'      => esc_html__( 'Choose Page', 'et_builder' ),
+				'permission'      => array( 'load_layout', 'divi_library', 'edit_module' ),
 				'setting'         => array(
 					'value_index' => 3,
 				),
@@ -2543,7 +2542,7 @@ function et_fb_get_shortcode_from_fb_object() {
 
 	// phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['modules'] will not be stored in db.
 	$shortcode_data = isset( $_POST['modules'] ) ? json_decode( stripslashes( $_POST['modules'] ), true ) : array();
-	$layout_type    = isset( $_POST['layout_type'] ) ? sanitize_text_field( $_POST['layout_type'] ) : '';
+	$layout_type    = '';
 
 	$post_content = et_fb_process_to_shortcode( $shortcode_data, array(), $layout_type );
 
@@ -3242,10 +3241,6 @@ if ( ! function_exists( 'et_builder_set_element_font' ) ) :
 				$style .= "$font_family ";
 			}
 
-			// Parse global font weight value.
-			$is_global_font_weigth = in_array( $font_weight, array( '--et_global_heading_font_weight', '--et_global_body_font_weight' ), true );
-			$font_weight           = $is_global_font_weigth ? '--et_global_heading_font_weight' === $font_weight ? et_get_option( 'heading_font_weight', '' ) : et_get_option( 'body_font_weight', '' ) : $font_weight;
-
 			$style .= et_builder_set_element_font_style( 'font-weight', ( '' !== $font_weight_default && ( '' === $font_weight || $font_weight_default === $font_weight ) ), ( '' !== $font_weight ), 'normal', $font_weight, $use_important );
 
 			$style .= et_builder_set_element_font_style( 'font-style', $is_font_italic_default, $is_font_italic, 'normal', 'italic', $use_important );
@@ -3680,8 +3675,9 @@ function et_builder_print_font() {
 			'display' => 'swap',
 		);
 
+		$google_fonts_url = add_query_arg( $google_fonts_url_args, 'https://fonts.googleapis.com/css' );
+		$google_fonts_url = esc_url_raw( $google_fonts_url );
 		$feature_manager  = ET_Builder_Google_Fonts_Feature::instance();
-		$google_fonts_url = $feature_manager->get_google_fonts_url( $google_fonts_url_args );
 		$output_inline    = $feature_manager->is_option_enabled( 'google_fonts_inline' );
 
 		if ( $output_inline ) {
@@ -3782,8 +3778,9 @@ function et_builder_preprint_font() {
 		'display' => 'swap',
 	);
 
+	$google_fonts_url = add_query_arg( $google_fonts_url_args, 'https://fonts.googleapis.com/css' );
+	$google_fonts_url = esc_url_raw( $google_fonts_url );
 	$feature_manager  = ET_Builder_Google_Fonts_Feature::instance();
-	$google_fonts_url = $feature_manager->get_google_fonts_url( $google_fonts_url_args );
 	$output_inline    = $feature_manager->is_option_enabled( 'google_fonts_inline' );
 
 	if ( $output_inline ) {
@@ -5776,6 +5773,7 @@ if ( ! function_exists( 'et_pb_postinfo_meta' ) ) :
 		if ( in_array( 'author', $postinfo, true ) ) {
 			$postinfo_meta[] = ' ' . esc_html__( 'by', 'et_builder' ) . ' <span class="author vcard">' . et_pb_get_the_author_posts_link() . '</span>';
 		}
+
 
 		if ( in_array( 'date', $postinfo, true ) ) {
 			$postinfo_meta[] = '<span class="published">' . esc_html( get_the_time( $date_format ) ) . '</span>';
@@ -9549,12 +9547,6 @@ add_action( 'admin_init', 'et_pb_remove_lb_plugin_force_editor_mode' );
  * Generates array of all Role options
  */
 function et_pb_all_role_options() {
-	// get all the roles that can edit theme options.
-	$applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options' ] );
-
-	// Get all the roles that can edit theme options and edit others posts.
-	$tb_applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options', 'edit_others_posts' ], true );
-
 	// get all the modules and build array of capabilities for them.
 	$all_modules_array  = ET_Builder_Element::get_modules_array();
 	$custom_user_tabs   = ET_Builder_Element::get_tabs();
@@ -9598,7 +9590,7 @@ function et_pb_all_role_options() {
 		? array(
 			'theme_customizer' => array(
 				'name'          => esc_html__( 'Theme Customizer', 'et_builder' ),
-				'applicability' => $applicability_roles,
+				'applicability' => array( 'administrator' ),
 			),
 			'page_options'     => array(
 				'name' => esc_html__( 'Page Options', 'et_builder' ),
@@ -9610,29 +9602,18 @@ function et_pb_all_role_options() {
 		'general_capabilities'        => array(
 			'section_title' => '',
 			'options'       => array(
-				'theme_options'  => array(
+				'theme_options' => array(
 					'name'          => et_is_builder_plugin_active() ? esc_html__( 'Plugin Options', 'et_builder' ) : esc_html__( 'Theme Options', 'et_builder' ),
-					'applicability' => $applicability_roles,
+					'applicability' => array( 'administrator' ),
 				),
-				// Added capabilities, so we can control menu role wise effectively.
-				'divi_library'   => array(
-					'name'          => esc_html__( 'Divi Library', 'et_builder' ),
-					'applicability' => $applicability_roles,
-					'capabilities'  => 'export',
+				'divi_library'  => array(
+					'name' => esc_html__( 'Divi Library', 'et_builder' ),
 				),
-				'theme_builder'  => array(
+				'theme_builder' => array(
 					'name'          => esc_html__( 'Theme Builder', 'et_builder' ),
-					'applicability' => $tb_applicability_roles,
-				),
-				'support_center' => array(
-					'name'          => esc_html__( 'Support Center', 'et_builder' ),
-					'applicability' => $applicability_roles,
-				),
-				'divi_ai'        => array(
-					'name'          => esc_html__( 'Divi AI', 'et_builder' ),
 					'applicability' => array( 'administrator', 'editor' ),
 				),
-				'ab_testing'     => array(
+				'ab_testing'    => array(
 					'name' => esc_html__( 'Split Testing', 'et_builder' ),
 				),
 			),
@@ -9718,15 +9699,9 @@ function et_pb_all_role_options() {
 
 		// Dynamically create an option foreach portability.
 		foreach ( $registered_portabilities as $portability_context => $portability_instance ) {
-			$portability_options = array(
+			$all_role_options['portability']['options'][ "{$portability_context}_portability" ] = array(
 				'name' => esc_html( $portability_instance->name ),
 			);
-
-			if ( isset( $portability_instance->applicability ) ) {
-				$portability_options['applicability'] = $portability_instance->applicability;
-			}
-
-			$all_role_options['portability']['options'][ "{$portability_context}_portability" ] = $portability_options;
 		}
 	}
 
@@ -9796,10 +9771,6 @@ function et_pb_generate_roles_tab( $all_role_options, $role ) {
 	// generate all sections of the form for current role.
 	if ( ! empty( $all_role_options ) ) {
 		foreach ( $all_role_options as $capability_id => $capability_options ) {
-			if ( isset( $capability_options['applicability'] ) && ! in_array( $role, $capability_options['applicability'], true ) ) {
-				continue;
-			}
-
 			$form_sections .= sprintf(
 				'<div class="et_pb_roles_section_container">
 					%1$s
@@ -9843,30 +9814,8 @@ function et_pb_generate_capabilities_output( $cap_array, $role ) {
 	$output = '';
 
 	if ( ! empty( $cap_array ) ) {
-		$user_has_all_capabilities = true;
-		$role_obj                  = get_role( $role );
-
 		foreach ( $cap_array as $capability => $capability_details ) {
 			if ( empty( $capability_details['applicability'] ) || ( ! empty( $capability_details['applicability'] ) && in_array( $role, $capability_details['applicability'], true ) ) ) {
-
-				// $capability_details['capabilities'] is an array of capabilities that are required to see this option.
-				if ( isset( $capability_details['capabilities'] ) ) {
-					if ( is_string( $capability_details['capabilities'] ) && ! $role_obj->has_cap( $capability_details['capabilities'] ) ) {
-						$user_has_all_capabilities = false;
-					} elseif ( is_array( $capability_details['capabilities'] ) ) {
-						foreach ( $capability_details['capabilities'] as $capability ) {
-							if ( ! $role_obj->has_cap( $capability ) ) {
-								$user_has_all_capabilities = false;
-								break;
-							}
-						}
-					}
-
-					if ( ! $user_has_all_capabilities ) {
-						continue;
-					}
-				}
-
 				$output .= sprintf(
 					'<div class="et_pb_capability_option">
 						<span class="et_pb_capability_title">%4$s</span>
@@ -11585,7 +11534,7 @@ function et_fb_add_additional_attrs( $processed_attrs, $output ) {
 			continue;
 		}
 
-		$global_color_info = et_builder_get_all_global_colors( true );
+		$global_color_info = et_builder_get_all_global_colors();
 
 		// If there are no matching Global Colors, return null.
 		if ( ! is_array( $global_color_info ) ) {
@@ -11728,7 +11677,6 @@ if ( ! function_exists( 'et_strip_shortcodes' ) ) :
 		$strip_content_shortcodes = array(
 			'et_pb_code',
 			'et_pb_fullwidth_code',
-			'et_pb_social_media_follow_network',
 		);
 
 		// list of post-based shortcodes.
@@ -12356,7 +12304,7 @@ if ( ! function_exists( 'et_pb_get_value_unit' ) ) :
 
 		if ( substr( $value, ( 0 - $important_length ), $important_length ) === $important ) {
 			$value_length = $value_length - $important_length;
-			$value        = trim( substr( $value, 0, $value_length ) );
+			$value        = substr( $value, 0, $value_length ) . trim();
 		}
 
 		if ( in_array( substr( $value, -3, 3 ), $valid_three_chars_units, true ) ) {
@@ -13301,28 +13249,8 @@ if ( ! function_exists( 'et_builder_global_colors_ajax_save_handler' ) ) :
 			wp_send_json_error();
 		}
 
-		/**
-		 * Fires after global colors are processed.
-		 *
-		 * @since 4.25.0
-		 */
-		do_action( 'et_global_colors_saved', $global_colors );
-
-		// Do not save customizer colors into Global Colors setting.
-		$excluded_keys = [
-			'gcid-primary-color',
-			'gcid-secondary-color',
-			'gcid-heading-color',
-			'gcid-body-color',
-		];
-
-		foreach ( $excluded_keys as $excluded_key ) {
-			unset( $global_colors[ $excluded_key ] );
-		}
-
 		// Global Color data has been sanitized above.
 		et_update_option( 'et_global_colors', $global_colors );
-
 		ET_Core_PageResource::remove_static_resources( 'all', 'all' );
 
 		wp_send_json_success();
@@ -13331,20 +13259,16 @@ endif;
 
 add_action( 'wp_ajax_et_builder_global_colors_save', 'et_builder_global_colors_ajax_save_handler' );
 
-if ( ! function_exists( 'et_builder_global_colors_ajax_get_handler' ) ) :
-	/**
-	 * Global colors AJAX get handler.
-	 *
-	 * @since 4.19.2
-	 */
-	function et_builder_global_colors_ajax_get_handler() {
-		// Get nonce from $_GET.
-		et_core_security_check( 'edit_posts', 'et_builder_global_colors_get', 'et_builder_global_colors_get_nonce', '_GET' );
-		wp_send_json_success( [ 'global_colors' => et_builder_get_all_global_colors( true ) ] );
-	}
-endif;
-
-add_action( 'wp_ajax_et_builder_global_colors_get', 'et_builder_global_colors_ajax_get_handler' );
+/**
+ * Get all global colors.
+ *
+ * @since 4.9.0
+ *
+ * @return array
+ */
+function et_builder_get_all_global_colors() {
+	return et_get_option( 'et_global_colors' );
+}
 
 /**
  * Get a global color info by id.
@@ -13356,7 +13280,7 @@ add_action( 'wp_ajax_et_builder_global_colors_get', 'et_builder_global_colors_aj
  * @return array
  */
 function et_builder_get_global_color_info( $color_id ) {
-	$colors = et_builder_get_all_global_colors( true );
+	$colors = et_builder_get_all_global_colors();
 
 	if ( empty( $colors ) || ! array_key_exists( $color_id, $colors ) ) {
 		return null;
@@ -13369,32 +13293,6 @@ function et_builder_get_global_color_info( $color_id ) {
 	}
 
 	return $colors[ $color_id ];
-}
-
-/**
- * Check if given value is a Global Color Id.
- *
- * @since 4.21.1
- *
- * @param string $attr_value Color value.
- * @return bool
- */
-function et_builder_is_global_color( $attr_value ) {
-	return 0 === strpos( $attr_value, 'gcid-' );
-}
-
-/**
- * Get Global Color by Color Id.
- *
- * @since 4.21.1
- *
- * @param string $color_id Color ID.
- * @return string
- */
-function et_builder_get_global_color( $color_id ) {
-	$color_info = et_builder_get_global_color_info( $color_id );
-
-	return isset( $color_info['color'] ) ? $color_info['color'] : $color_id;
 }
 
 /**
@@ -13461,136 +13359,3 @@ add_filter(
 	10,
 	2
 );
-
-if ( ! function_exists( 'et_pb_get_youtube_url_regex' ) ) :
-	/**
-	 * Regex to match a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * Expected YouTube URL Formats.
-	 * - https://www.youtube.com/watch?v=XXXX.
-	 * - https://www.youtube.com/embed/XXXX.
-	 * - https://youtu.be/XXXX.
-	 *
-	 * To check regex, see: https://regex101.com/r/4FbeMZ/1.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return string YouTube video URL regex.
-	 */
-	function et_pb_get_youtube_url_regex() {
-		return '/^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/i';
-	}
-endif;
-
-if ( ! function_exists( 'et_pb_normalize_youtube_url' ) ) :
-	/**
-	 * Normalize a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * Convert YouTube URL into normalized form: https://www.youtube.com/watch?v=XXXX.
-	 * For https://www.youtube.com/watch?v=XXXX to check regex is https://regex101.com/r/B2qLJy/1.
-	 * For https://www.youtube.com/embed/XXXX to check regex is https://regex101.com/r/oZ3iNP/1.
-	 * For https://youtu.be/XXXX to check regex is https://regex101.com/r/5nqmhF/1.
-	 *
-	 * @param string $url youtube video url.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return string Normalized YouTube URL.
-	 */
-	function et_pb_normalize_youtube_url( $url ) {
-		preg_match( et_pb_get_youtube_url_regex(), esc_url( $url ), $youtube_embed_video );
-
-		return 'https://www.youtube.com/watch?v=' . $youtube_embed_video[1];
-	}
-endif;
-
-if ( ! function_exists( 'et_pb_validate_youtube_url' ) ) :
-	/**
-	 * Validate a YouTube URL from any known/common YouTube URL format.
-	 *
-	 * For https://www.youtube.com/watch?v=XXXX to check regex is https://regex101.com/r/B2qLJy/1.
-	 * For https://www.youtube.com/embed/XXXX to check regex is https://regex101.com/r/oZ3iNP/1.
-	 * For https://youtu.be/XXXX to check regex is https://regex101.com/r/5nqmhF/1.
-	 *
-	 * @param string $url youtube video url.
-	 *
-	 * @since 4.18.1
-	 *
-	 * @return bool Whether provided URL is a valid YouTube URL or not.
-	 */
-	function et_pb_validate_youtube_url( $url ) {
-		preg_match( et_pb_get_youtube_url_regex(), $url, $youtube_embed_video );
-
-		return is_array( $youtube_embed_video ) && ! empty( $youtube_embed_video );
-	}
-endif;
-
-if ( ! function_exists( 'et_update_customizer_colors' ) ) :
-	/**
-	 * Update customizer colors.
-	 *
-	 * @param array $global_colors Global colors.
-	 *
-	 * @since 4.25.0
-	 *
-	 * @return void
-	 */
-	function et_update_customizer_colors( $global_colors ) {
-		$primary_color   = isset( $global_colors['gcid-primary-color']['color'] )
-			? $global_colors['gcid-primary-color']['color']
-			: '';
-		$secondary_color = isset( $global_colors['gcid-secondary-color']['color'] )
-			? $global_colors['gcid-secondary-color']['color']
-			: '';
-		$heading_color   = isset( $global_colors['gcid-header-color']['color'] )
-			? $global_colors['gcid-header-color']['color']
-			: '';
-		$body_color      = isset( $global_colors['gcid-font-color']['color'] )
-			? $global_colors['gcid-font-color']['color']
-			: '';
-
-		if ( ! empty( $primary_color ) ) {
-			et_update_option( 'accent_color', $primary_color );
-		}
-
-		if ( ! empty( $secondary_color ) ) {
-			et_update_option( 'secondary_accent_color', $secondary_color );
-		}
-
-		if ( ! empty( $heading_color ) ) {
-			et_update_option( 'header_color', $heading_color );
-		}
-
-		if ( ! empty( $body_color ) ) {
-			et_update_option( 'font_color', $body_color );
-		}
-	}
-endif;
-
-add_action( 'et_global_colors_saved', 'et_update_customizer_colors' );
-
-/**
- * Ajax Callback :: Update cusomizer fonts.
- */
-function et_update_customizer_fonts() {
-	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['nonce'] ), 'et_pb_save_customizer_fonts_nonce' ) ) {
-		die( -1 );
-	}
-
-	if ( ! current_user_can( 'edit_theme_options' ) ) {
-		die( -1 );
-	}
-
-	$new_heading_font = isset( $_POST['et_pb_heading_font'] ) ? sanitize_text_field( $_POST['et_pb_heading_font'] ) : '';
-	$new_body_font   = isset( $_POST['et_pb_body_font'] ) ? sanitize_text_field( $_POST['et_pb_body_font'] ) : '';
-
-	if ( $new_heading_font ) {
-		et_update_option( 'heading_font', $new_heading_font );
-	}
-
-	if ( $new_body_font ) {
-		et_update_option( 'body_font', $new_body_font );
-	}
-}
-
-add_action( 'wp_ajax_et_update_customizer_fonts', 'et_update_customizer_fonts' );

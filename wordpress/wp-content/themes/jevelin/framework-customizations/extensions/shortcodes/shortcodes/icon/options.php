@@ -37,6 +37,27 @@ $options = array(
 		        'value' => 'center'
 		    ),
 
+			'url'   => array(
+				'label' => esc_html__( 'Icon URL', 'jevelin' ),
+				'desc'  => esc_html__( 'Enter icon URL', 'jevelin' ),
+				'type'  => 'text',
+				'value' => ''
+			),
+
+			'target' => array(
+				'type'  => 'switch',
+				'label'   => esc_html__( 'Icon URL Target', 'jevelin' ),
+				'desc'    => esc_html__( 'Choose if you want to open the URL in a new window', 'jevelin' ),
+				'right-choice' => array(
+					'value' => '_blank',
+					'label' => esc_html__('Yes', 'jevelin'),
+				),
+				'left-choice' => array(
+					'value' => '_self',
+					'label' => esc_html__('No', 'jevelin'),
+				),
+			),
+
 		    'shadow' => array(
 				'label'   => esc_html__('Shadow', 'jevelin'),
 				'desc'    => esc_html__('Choose shadow', 'jevelin'),
@@ -56,6 +77,15 @@ $options = array(
 				'type'  => 'text',
 				'attr'  => array( 'style' => 'max-width: 70px;' ),
 				'value' => '30px'
+			),
+
+			'icon_line_height' => array(
+				'type'  => 'select',
+				'label' => esc_html__('Line Height', 'jevelin'),
+				'desc'  => wp_kses( __( 'Enter line height (with <b>px</b>)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'attr'  => array( 'style' => 'max-width: 70px;' ),
+				'value' => ''
 			),
 
 			'icon_color' => array(
@@ -84,6 +114,94 @@ $options = array(
 			    'label' => esc_html__('Second Hover Color', 'jevelin'),
 			    'desc'  => esc_html__('Select icon hover color to create a hover gradient color (Only for chrome, safari and opera browsers)', 'jevelin'),
 			    'value' => '',
+			),
+
+		),
+	),
+
+	'box_options' => array(
+		'title'   => esc_html__( 'Background Box', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'box_status' => array(
+				'label'   => esc_html__( 'Background Box', 'jevelin' ),
+				'desc'    => esc_html__( 'Enable or disable background box', 'jevelin' ),
+				'type'    => 'radio',
+				'choices' => array(
+					'enabled' => esc_html__( 'Enabled', 'jevelin' ),
+					'disabled' => esc_html__( 'Disabled', 'jevelin' ),
+				),
+				'value' => 'disabled'
+			),
+
+			'box_background_color' => array(
+			    'type'  => 'color-picker',
+			    'label' => esc_html__( 'Background Color', 'jevelin' ),
+			    'desc'  => esc_html__( 'Select box background color', 'jevelin' ),
+			    'value' => '',
+			),
+
+			'box_background_hover_color' => array(
+			    'type'  => 'color-picker',
+			    'label' => esc_html__( 'Background Hover Color', 'jevelin' ),
+			    'desc'  => esc_html__( 'Select box background color', 'jevelin' ),
+			    'value' => '#fafafa',
+			),
+
+			'box_border_radius' => array(
+				'type'  => 'select',
+				'label' => esc_html__( 'Border Radius', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter border radius (with <b>px</b>)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'attr'  => array( 'style' => 'max-width: 70px;' ),
+				'value' => '5px'
+			),
+
+
+
+			'box_border_width' => array(
+				'type'  => 'select',
+				'label' => esc_html__('Border Width', 'jevelin'),
+				'desc'  => wp_kses( __( 'Enter border width', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'attr'  => array( 'style' => 'max-width: 70px;' ),
+				'value' => '0px'
+			),
+
+			'box_border_color' => array(
+			    'type'  => 'color-picker',
+			    'label' => esc_html__( 'Border Color', 'jevelin' ),
+			    'desc'  => esc_html__( 'Select box border color', 'jevelin' ),
+			    'value' => '',
+			),
+
+			'box_border_hover_color' => array(
+			    'type'  => 'color-picker',
+			    'label' => esc_html__( 'Border Hover Color', 'jevelin' ),
+			    'desc'  => esc_html__( 'Select box border hover color', 'jevelin' ),
+			    'value' => '#fafafa',
+			),
+
+
+
+
+			'box_padding' => array(
+				'type'  => 'select',
+				'label' => esc_html__( 'Padding', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter padding (with <b>px</b>, <b>top right bottom left</b>)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'attr'  => array( 'style' => 'max-width: 70px;' ),
+				'value' => '10px 10px 10px 10px'
+			),
+
+			'box_size' => array(
+				'type'  => 'select',
+				'label' => esc_html__( 'Or Box Size in px (width/height)', 'jevelin' ),
+				'desc'  => wp_kses( __( 'Enter box size in px (make sure that padding option is empty)', 'jevelin' ), jevelin_allowed_html() ),
+				'type'  => 'text',
+				'attr'  => array( 'style' => 'max-width: 70px;' ),
+				'value' => ''
 			),
 
 		),
@@ -170,6 +288,17 @@ $options = array(
 			    'label' => esc_html__('Animation Delay', 'jevelin'),
 			    'desc'  => esc_html__('Choose animation delay (seconds', 'jevelin'),
 			),
+
+		),
+	),
+
+	'position_box' => array(
+		'title'   => esc_html__( 'Position', 'jevelin' ),
+		'type'    => 'tab',
+		'options' => array(
+
+			'inline_element' => jevelin_element_inline_option(),
+			'margin' => jevelin_element_margin_option(),
 
 		),
 	),

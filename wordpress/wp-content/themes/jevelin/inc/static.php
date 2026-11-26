@@ -18,6 +18,15 @@ wp_enqueue_script( 'jevelin-plugins', get_template_directory_uri() . '/js/plugin
 wp_enqueue_script( 'jevelin-scripts', get_template_directory_uri() . '/js/scripts.js', array( 'jquery' ) );
 wp_localize_script( 'jevelin-scripts', 'jevelin_loadmore_posts', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ));
 
+if(
+	( function_exists( 'fw_get_db_customizer_option' ) && fw_get_db_customizer_option('smooth-scrooling') == true ) ||
+	( function_exists( 'fw_get_db_settings_option' ) && fw_get_db_settings_option('smooth-scrooling') == true ) &&
+	!function_exists( 'shufflehound_disable_smooth_scrolling' )
+) :
+	wp_enqueue_script( 'smoothscroll', get_template_directory_uri() . '/js/plugins/smoothscroll.js', array( ), '1.4.4', true );
+endif;
+
+
 /* Unminified files
 wp_enqueue_script( 'bootstrap', get_template_directory_uri() . '/js/bootstrap.min.js', array( 'jquery' ), '3.3.4', true );
 wp_enqueue_script( 'sumoselect', get_template_directory_uri() . '/js/jquery.sumoselect.min.js', array( 'jquery' ), '1.0', true );
@@ -43,12 +52,6 @@ wp_enqueue_script( 'hoverdir', get_template_directory_uri() . '/js/jquery.hoverd
 wp_enqueue_script( 'actual', get_template_directory_uri() . '/js/jquery.actual.min.js', array( 'jquery' ), '1.0.16', true );
 wp_enqueue_script( 'jevelin-jquery-cookie', get_template_directory_uri() . '/js/jquery.cookie.js', array( 'jquery' ) );
 
-if( function_exists( 'fw_get_db_customizer_option' ) && fw_get_db_customizer_option('smooth-scrooling') == true ) :
-	wp_enqueue_script( 'smoothscroll', get_template_directory_uri() . '/js/smoothscroll.js', array( ), '1.4.4', true );
-elseif( function_exists( 'fw_get_db_settings_option' ) && fw_get_db_settings_option('smooth-scrooling') == true ) :
-	wp_enqueue_script( 'smoothscroll', get_template_directory_uri() . '/js/smoothscroll.js', array( ), '1.4.4', true );
-endif;
-
 wp_enqueue_script( 'jevelin-scripts', get_template_directory_uri() . '/js/scripts.js', array( 'jquery', 'masonry' ), '1.0', true );*/
 
 
@@ -70,12 +73,31 @@ $upload_dir = wp_upload_dir();
 $file_dir   = $upload_dir['basedir'] . '/jevelin-dynamic-styles.css';
 $file_path  = $upload_dir['baseurl'] . '/jevelin-dynamic-styles.css';
 $updated = get_option( 'jevelin_settings_updated' );
-if( !is_customize_preview() && file_exists( $file_dir ) && $updated > 0 ) :
+if( !is_customize_preview() && file_exists( $file_dir ) && $updated > 0 && jevelin_option( 'theme_options_stored', 'file' ) == 'file' ) :
+	if ( is_ssl() ) :
+		$file_path = str_replace( 'http://', 'https://', $file_path );
+	endif;
+
 	wp_enqueue_style( 'jevelin-theme-settings', $file_path, array(), ''.intval( $updated ).'' );
 else :
 	wp_add_inline_style( 'jevelin-responsive', jevelin_render_css() );
 endif;
 wp_add_inline_style( 'jevelin-responsive', jevelin_render_css_mini() );
+
+
+/*
+** Load Swiper for portfolio
+*/
+if( is_singular( 'fw-portfolio' ) ) :
+	wp_enqueue_style( 'swiper', get_template_directory_uri() . '/css/plugins/swiper.min.css' );
+	wp_enqueue_script( 'swiper', get_template_directory_uri() . '/js/plugins/swiper.min.js' );
+endif;
+
+//if( is_singular( 'post' ) ) :
+	wp_enqueue_style( 'plyr', get_template_directory_uri() . '/css/plugins/plyr.css' );
+	wp_enqueue_script( 'plyr', get_template_directory_uri() . '/js/plugins/plyr.min.js' );
+//endif;
+
 
 
 /* Unminified files
@@ -103,32 +125,35 @@ if( jevelin_option('custom_css') ) :
 endif;
 
 
-add_action( 'wp_head', 'jevelin_render_google_analytics_js' , 100);
-function jevelin_render_google_analytics_js() { ?>
-	<script type="text/javascript">
-		<?php
-	    /*-----------------------------------------------------------------------------------*/
-	    /* Theme Options - Google Analytics
-	    /*-----------------------------------------------------------------------------------*/
-	    ?>
-	    <?php if( jevelin_option('google_analytics') ) : ?>
-	        var _gaq = _gaq || [];
-	        _gaq.push(['_setAccount', '<?php echo esc_js( jevelin_option('google_analytics') ); ?>']);
-	        _gaq.push(['_trackPageview']);
-	        (function() {
-	            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	        })();
-	    <?php endif; ?>
-	</script>
-<?php }
+if ( !function_exists( 'jevelin_render_google_analytics_js' ) ) :
+	add_action( 'wp_head', 'jevelin_render_google_analytics_js' , 100);
+	function jevelin_render_google_analytics_js() { ?>
+		<?php if( jevelin_option('google_analytics') ) :
+		    /*-----------------------------------------------------------------------------------*/
+		    /* Theme Options - Google Analytics
+		    /*-----------------------------------------------------------------------------------*/
+		    ?>
+
+			<!-- Global site tag (gtag.js) - Google Analytics -->
+			<script async src="https://www.googletagmanager.com/gtag/js?id=UA-114739125-1"></script>
+			<script>
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+
+				gtag('config', '<?php echo esc_js( jevelin_option('google_analytics') ); ?>');
+			</script>
+		<?php endif; ?>
+	<?php }
+endif;
 
 
-add_action( 'wp_footer', 'jevelin_render_js' , 100);
-function jevelin_render_js() { ?>
-	<script type="text/javascript"><?php get_template_part('inc/templates/render-js' ); ?></script>
-<?php }
+if ( !function_exists( 'jevelin_render_js' ) ) :
+	add_action( 'wp_footer', 'jevelin_render_js' , 100);
+	function jevelin_render_js() { ?>
+		<script type="text/javascript"><?php get_template_part('inc/templates/render-js' ); ?></script>
+	<?php }
+endif;
 
 
 /**
@@ -188,8 +213,13 @@ if ( function_exists( 'fw_get_db_settings_option' ) ) :
 			endif;
 
 			if( count($font_families) > 0 ) {
+				$font_inline = implode( '|', $font_families );
+				$font_inline = str_replace( 'regular', '400', $font_inline );
+				$font_inline = str_replace( 'italic', 'i', $font_inline );
+				$font_inline = str_replace( ',i,', ',400i,', $font_inline );
+
 				$fonts_args = array(
-					'family' => implode( '|', $font_families ),
+					'family' => $font_inline,
 					'subset' => implode( ',', array_keys($subset) ),
 				);
 
@@ -230,6 +260,16 @@ if( jevelin_option('page_loader', 'off') != 'off' ) :
 	endif;
 endif;
 
+$lightbox_window_max_width = ( jevelin_option('lightbox_window_max_width') > 0 ) ? jevelin_option('lightbox_window_max_width') : 1200;
+$lightbox_window_max_width = intval( $lightbox_window_max_width );
+
+$lightbox_window_max_height = ( jevelin_option('lightbox_window_max_height') > 0 ) ? jevelin_option('lightbox_window_max_height') : 1200;
+$lightbox_window_max_height = intval( $lightbox_window_max_height );
+
+$lightbox_window_size = ( jevelin_option('lightbox_window_size') >= 10 && jevelin_option('lightbox_window_size') <= 100 ) ? jevelin_option('lightbox_window_size') : 80;
+$lightbox_window_size = intval( $lightbox_window_size ) / 100;
+
+
 $scripts_array = array(
 	'page_loader' => $page_loader,
 	'notice' => $jevelin_notice,
@@ -239,6 +279,9 @@ $scripts_array = array(
 	//'lightbox_woocommerce' => ( get_option( 'woocommerce_enable_lightbox' ) != 'yes' ) ? ', .woocommerce-page a[data-rel^="prettyPhoto[product-gallery]"]' : '',
 	'lightbox_opacity' => ( ( jevelin_option('lightbox_opacity') > 0 ) ? esc_js( jevelin_option('lightbox_opacity') ) / 100 : '0.88' ),
 	'lightbox_transition' => ( ( jevelin_option('lightbox_transition') > 0 ) ? esc_js( jevelin_option('lightbox_transition') ) : 'elastic' ),
+	'lightbox_window_max_width' => $lightbox_window_max_width,
+	'lightbox_window_max_height' => $lightbox_window_max_height,
+	'lightbox_window_size' => $lightbox_window_size,
 	'page_numbers_prev' => esc_html__( 'Previous', 'jevelin' ),
 	'page_numbers_next' => esc_html__( 'Next', 'jevelin' ),
 	'rtl_support' => ( ( jevelin_option('rtl_support') ) ? esc_js( jevelin_option('rtl_support') ) : false ),

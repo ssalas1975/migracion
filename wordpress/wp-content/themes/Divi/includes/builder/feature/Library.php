@@ -81,20 +81,6 @@ class ET_Builder_Library {
 	public static $submenu_files = array( 'edit-tags.php?taxonomy=layout_category', 'edit-tags.php?taxonomy=layout_tag' );
 
 	/**
-	 * Instance of `ET_Builder_Post_Taxonomy_LayoutTag`.
-	 *
-	 * @var ET_Builder_Post_Taxonomy_LayoutTag
-	 */
-	public $layout_tags;
-
-	/**
-	 * Instance of `ET_Builder_Post_Taxonomy_LayoutWidth`.
-	 *
-	 * @var ET_Builder_Post_Taxonomy_LayoutWidth
-	 */
-	public $layout_width;
-
-	/**
 	 * ET_Builder_Library constructor.
 	 */
 	public function __construct() {
@@ -366,7 +352,6 @@ class ET_Builder_Library {
 		add_action( 'wp_ajax_et_builder_library_update_terms', array( $this, 'wp_ajax_et_builder_library_update_terms' ) );
 		add_action( 'wp_ajax_et_builder_library_save_temp_layout', array( $this, 'wp_ajax_et_builder_library_save_temp_layout' ) );
 		add_action( 'wp_ajax_et_builder_library_update_item', array( $this, 'wp_ajax_et_builder_library_update_item' ) );
-		add_action( 'wp_ajax_et_builder_library_convert_item', array( $this, 'wp_ajax_et_builder_library_convert_item' ) );
 		add_action( 'wp_ajax_et_builder_library_upload_thumbnail', array( $this, 'wp_ajax_et_builder_library_upload_thumbnail' ) );
 		add_action( 'wp_ajax_et_builder_library_update_account', array( $this, 'wp_ajax_et_builder_library_update_account' ) );
 		add_action( 'wp_ajax_et_builder_library_remove_temp_layout', array( $this, 'wp_ajax_et_builder_library_remove_temp_layout' ) );
@@ -495,17 +480,11 @@ class ET_Builder_Library {
 		$posts = $this->layouts
 			->query()
 			->not()->with_meta( '_et_pb_built_for_post_type', $extra_layout_post_type )
-			->run(
-				array(
-					'post_status' => array( 'publish', 'trash' ),
-					'fields'      => 'ids',
-				)
-			);
+			->run( array( 'post_status' => array( 'publish', 'trash' ) ) );
 
-		$posts = is_array( $posts ) ? $posts : array( $posts );
+		$posts = self::$_->array_sort_by( is_array( $posts ) ? $posts : array( $posts ), 'post_name' );
 
-		foreach ( $posts as $post_id ) {
-			$post   = get_post( $post_id );
+		foreach ( $posts as $post ) {
 			$layout = new stdClass();
 
 			setup_postdata( $post );
@@ -954,7 +933,6 @@ class ET_Builder_Library {
 
 						$layout->is_global     = false;
 						$layout->is_landing    = false;
-						$layout->is_favorite   = $this->layouts->is_favorite( $layout->id );
 						$layout->description   = '';
 						$layout->category_slug = $post_type;
 						// $layout_index is the array index, not the $post->ID
@@ -976,7 +954,7 @@ class ET_Builder_Library {
 
 		if ( count( $categories ) > 1 ) {
 			// Sort categories (post_type in this case) by slug.
-			uasort( $categories, array( 'ET_Builder_Library', 'compare_by_slug' ) );
+			uasort( $categories, array( 'self', 'compare_by_slug' ) );
 		}
 
 		return array(
@@ -1216,7 +1194,6 @@ class ET_Builder_Library {
 				}
 
 				$result['savedShortcode'] = $post_content;
-				$result['shortcode']      = $post_content;
 				break;
 		}
 
@@ -1263,15 +1240,12 @@ class ET_Builder_Library {
 	 * @return string JSON encoded.
 	 */
 	public function wp_ajax_et_builder_library_update_terms() {
-		if ( ! current_user_can( 'manage_categories' ) ) {
-			wp_send_json_error();
-		}
-
 		et_core_security_check( 'edit_posts', 'et_builder_library_update_terms', 'nonce' );
 		$payload = isset( $_POST['payload'] ) ? (array) $_POST['payload'] : array(); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['payload'] is an array, it's value sanitization is done  at the time of accessing value.
 
 		if ( empty( $payload ) ) {
-			wp_send_json_error();
+			wp_send_json_success();
+			return;
 		}
 
 		$new_terms = array();
@@ -1342,29 +1316,13 @@ class ET_Builder_Library {
 		$payload = isset( $_POST['payload'] ) ? (array) $_POST['payload'] : array(); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['payload'] is an array, it's value sanitization is done  at the time of accessing value.
 
 		if ( empty( $payload ) ) {
-			wp_send_json_error();
+			wp_send_json_success();
+			return;
 		}
 
-		$post_id = absint( $payload['id'] );
+		$item_id = (int) $payload['id'];
 
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_send_json_error();
-		}
-
-		$unsupported_post_types = array(
-			ET_BUILDER_LAYOUT_POST_TYPE,
-			ET_THEME_BUILDER_TEMPLATE_POST_TYPE,
-			ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE,
-			ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE,
-			ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE,
-			ET_THEME_BUILDER_THEME_BUILDER_POST_TYPE,
-		);
-
-		if ( ! in_array( get_post_type( $post_id ), $unsupported_post_types, true ) ) {
-			wp_send_json_error();
-		}
-
-		wp_delete_post( $post_id, true );
+		wp_delete_post( $item_id, true );
 
 		wp_send_json_success(
 			array(
@@ -1446,26 +1404,14 @@ class ET_Builder_Library {
 				if ( is_array( $draft_posts ) ) {
 					// Several posts were returned.
 					foreach ( $draft_posts as $post ) {
-						if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-							continue;
-						}
-
 						wp_delete_post( $post->ID, true );
 					}
 				} else {
-					if ( ! current_user_can( 'edit_post', $draft_posts->ID ) ) {
-						wp_send_json_error();
-					}
-
 					// Single post was returned.
 					wp_delete_post( $draft_posts->ID, true );
 				}
 			}
 		} else {
-			if ( ! current_user_can( 'edit_post', $post_id ) ) {
-				wp_send_json_error();
-			}
-
 			wp_delete_post( $post_id, true );
 		}
 	}
@@ -1546,7 +1492,8 @@ class ET_Builder_Library {
 		$payload = isset( $_POST['payload'] ) ? (array) $_POST['payload'] : array(); // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['payload'] is an array, it's value sanitization is done  at the time of accessing value.
 
 		if ( empty( $payload ) ) {
-			wp_send_json_error();
+			wp_send_json_success();
+			return;
 		}
 
 		$update_details = $payload['update_details'];
@@ -1562,9 +1509,7 @@ class ET_Builder_Library {
 			'ID' => $item_id,
 		);
 
-		$is_library_post_type = 'et_pb_layout' === get_post_type( $item_id );
-
-		if ( ! empty( $update_details['newCategoryName'] ) && current_user_can( 'manage_categories' ) ) {
+		if ( ! empty( $update_details['newCategoryName'] ) ) {
 			$new_names_array = explode( ',', $update_details['newCategoryName'] );
 			foreach ( $new_names_array as $new_name ) {
 				if ( '' !== $new_name ) {
@@ -1585,7 +1530,7 @@ class ET_Builder_Library {
 			}
 		}
 
-		if ( ! empty( $update_details['newTagName'] ) && current_user_can( 'manage_categories' ) ) {
+		if ( ! empty( $update_details['newTagName'] ) ) {
 			$new_names_array = explode( ',', $update_details['newTagName'] );
 
 			foreach ( $new_names_array as $new_name ) {
@@ -1611,10 +1556,6 @@ class ET_Builder_Library {
 			case 'duplicate':
 			case 'duplicate_and_delete':
 			case 'duplicate_premade_item':
-			case 'save_existing_page':
-			case 'split_layout':
-			case 'split_section':
-			case 'split_row':
 				$is_item_from_cloud = isset( $update_details['shortcode'] );
 				$title              = sanitize_text_field( $update_details['itemName'] );
 				$meta_input         = array();
@@ -1692,45 +1633,25 @@ class ET_Builder_Library {
 				}
 				break;
 			case 'edit_cats':
-				if ( ! current_user_can( 'manage_categories' ) ) {
-					return;
-				}
-
 				wp_set_object_terms( $item_id, $categories, 'layout_category' );
 				wp_set_object_terms( $item_id, $tags, 'layout_tag' );
 				break;
 			case 'rename':
-				if ( ! current_user_can( 'edit_post', $item_id ) ) {
-					return;
-				}
-
 				$item_update['post_title'] = sanitize_text_field( $update_details['itemName'] );
 				wp_update_post( $item_update );
 				break;
 			case 'toggle_fav':
-				if ( ! current_user_can( 'edit_post', $item_id ) ) {
-					return;
-				}
-
 				$favorite_status = 'on' === sanitize_text_field( $update_details['favoriteStatus'] ) ? 'favorite' : '';
 				update_post_meta( $item_id, 'favorite_status', $favorite_status );
 
 				break;
 			case 'delete':
-				if ( current_user_can( 'delete_post', $item_id ) && $is_library_post_type ) {
-					wp_trash_post( $item_id );
-				}
+				wp_trash_post( $item_id );
 				break;
 			case 'delete_permanently':
-				if ( current_user_can( 'delete_post', $item_id ) && $is_library_post_type ) {
-					wp_delete_post( $item_id, true );
-				}
+				wp_delete_post( $item_id, true );
 				break;
 			case 'restore':
-				if ( ! current_user_can( 'edit_post', $item_id ) || ! $is_library_post_type ) {
-					return;
-				}
-
 				// wp_untrash_post() restores the post to `draft` by default, we have to set `publish` status via filter.
 				add_filter( 'wp_untrash_post_status', array( 'ET_Builder_Library', 'et_builder_set_untrash_status' ) );
 				wp_untrash_post( $item_id );
@@ -1790,122 +1711,6 @@ class ET_Builder_Library {
 				),
 			)
 		);
-	}
-
-	/**
-	 * AJAX Callback: Convert the library item (row/module). Following updates supported:
-	 * - Convert Module To Row
-	 * - Convert Module To Section
-	 * - Convert Row To Section
-	 *
-	 * @since 4.23.1
-	 *
-	 * @global $_POST['payload'] Array with the item details.
-	 */
-	public function wp_ajax_et_builder_library_convert_item() {
-		et_core_security_check( 'edit_posts', 'et_builder_library_convert_layout', 'nonce' );
-		$payload = isset( $_POST['payload'] ) ? (array) $_POST['payload'] : []; // phpcs:ignore ET.Sniffs.ValidatedSanitizedInput -- $_POST['payload'] is an array, it's value sanitization is done at the time of accessing value.
-
-		if ( empty( $payload ) ) {
-			wp_send_json_error();
-		}
-
-		$builder_version   = '_builder_version="' . ET_BUILDER_VERSION . '"';
-		$section_start     = '[et_pb_section fb_built="1" fullwidth="off" ' . $builder_version . ' _module_preset="default"]';
-		$row_start         = '[et_pb_row ' . $builder_version . ' _module_preset="default" theme_builder_area="post_content"]';
-		$column_start      = '[et_pb_column ' . $builder_version . ' _module_preset="default" type="4_4" theme_builder_area="post_content"]';
-		$column_end        = '[/et_pb_column]';
-		$row_end           = '[/et_pb_row]';
-		$section_end       = '[/et_pb_section]';
-		$fullwidth_wrapper = str_replace( 'fullwidth="off"', 'fullwidth="on" template_type="section"', $section_start );
-
-		switch ( $payload['action'] ) {
-			case 'convert_row_to_section':
-				$wrapper_start = $section_start;
-				$wrapper_end   = $section_end;
-				$from_type     = 'row';
-				$to_type       = 'section';
-				break;
-
-			case 'convert_module_to_row':
-				$wrapper_start = $row_start . $column_start;
-				$wrapper_end   = $column_end . $row_end;
-				$from_type     = 'module';
-				$to_type       = 'row';
-				break;
-
-			case 'convert_module_to_section':
-				$wrapper_start = $section_start . $row_start . $column_start;
-				$wrapper_end   = $column_end . $row_end . $section_end;
-				$from_type     = 'module';
-				$to_type       = 'section';
-				break;
-		}
-
-		/**
-		 * For cloud item.
-		 */
-		if ( isset( $payload['content'] ) ) {
-			if ( 'convert_module_to_section' === $payload['action'] && 'fullwidth' === $payload['item']['width'] ) {	
-				// For fullwidth module, there is no row and column.
-				$wrapper_start = $fullwidth_wrapper;
-				$wrapper_end   = $section_end;
-			}
-
-			$post_content = $wrapper_start . wp_unslash( reset( $payload['content']['data'] ) ) . $wrapper_end;
-
-			wp_send_json_success( $post_content );
-		}
-
-		/**
-		 * For local item.
-		 */
-		$post_id = isset( $payload['item']['id'] ) ? absint( $payload['item']['id'] ) : 0;
-		$item    = get_post( $post_id );
-
-		if ( ! $item ) {
-			wp_send_json_error();
-		}
-
-		if ( 'convert_module_to_section' === $payload['action'] ) {
-			$module_type = get_post_meta( $post_id, '_et_pb_module_type', true );
-
-			if ( false !== strpos( $module_type, 'et_pb_fullwidth' ) ) {
-				// For fullwidth module, there is no row and column.
-				$wrapper_start = $fullwidth_wrapper;
-				$wrapper_end   = $section_end;
-			}
-		}
-
-		$scope_terms  = get_the_terms( $post_id, 'scope' );
-		$scope_terms  = wp_list_pluck( $scope_terms, 'slug' );
-		$is_global    = in_array( 'global', $scope_terms, true );
-		$post_content = $wrapper_start . $item->post_content . $wrapper_end;
-
-		$new_id = wp_insert_post(
-			[
-				'ID'           => $is_global ? 0 : $post_id, // If global item, create a new post.
-				'post_content' => $post_content,
-				'post_date'    => $item->post_date,
-				'post_title'   => $item->post_title,
-				'post_type'    => $item->post_type,
-				'post_status'  => 'publish',
-			]
-		);
-
-		if ( is_wp_error( $new_id ) ) {
-			wp_send_json_error( $new_id->get_error_message() );
-		}
-
-		if ( ! $is_global ) {
-			wp_remove_object_terms( $post_id, $from_type, 'layout_type' );
-		}
-
-		add_post_meta( $new_id, '_et_pb_built_for_post_type', 'page' );
-		delete_post_meta( $new_id, '_et_pb_module_type' );
-		wp_set_object_terms( $new_id, $to_type, 'layout_type' );
-
-		wp_send_json_success( $post_content );
 	}
 
 	/**

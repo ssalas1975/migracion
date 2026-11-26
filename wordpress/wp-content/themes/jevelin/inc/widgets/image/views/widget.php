@@ -30,7 +30,7 @@
 				</a>
 			<?php endif; ?>
 
-			<?php if( $params['description'] ) : ?>
+			<?php if( isset( $params['description'] ) && $params['description'] ) : ?>
 				<p class="sh-image-widgets-description">
 					<?php echo esc_attr( $params['description'] ); ?>
 				</p>

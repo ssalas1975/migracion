@@ -1,11 +1,12 @@
 <?php
 namespace Elementor\Data\V2\Base;
 
+use Elementor\Data\V2\Base\Exceptions\WP_Error_Exception;
 use Elementor\Data\V2\Manager;
 use WP_REST_Controller;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit; // Exit if accessed directly
 }
 
 /**
@@ -195,7 +196,7 @@ abstract class Controller extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request
 	 *
-	 * @return bool|\WP_Error
+	 * @return bool
 	 */
 	public function get_permission_callback( $request ) {
 		$is_multi = (bool) $request->get_param( 'is_multi' );
@@ -222,11 +223,16 @@ abstract class Controller extends WP_REST_Controller {
 				break;
 		}
 
+		if ( $result instanceof \WP_Error ) {
+			throw new WP_Error_Exception( $result );
+		}
+
 		return $result;
 	}
 
 	/**
 	 * Checks if a given request has access to create items.
+	 **
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 *

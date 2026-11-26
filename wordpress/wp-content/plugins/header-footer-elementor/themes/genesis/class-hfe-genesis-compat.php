@@ -19,8 +19,6 @@ class HFE_Genesis_Compat {
 
 	/**
 	 *  Initiator
-	 *
-	 * @return HFE_Genesis_Compat
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -34,8 +32,6 @@ class HFE_Genesis_Compat {
 
 	/**
 	 * Run all the Actions / Filters.
-	 *
-	 * @return void
 	 */
 	public function hooks() {
 		if ( hfe_header_enabled() ) {
@@ -59,30 +55,24 @@ class HFE_Genesis_Compat {
 
 	/**
 	 * Disable header from the theme.
-	 *
-	 * @return void
 	 */
 	public function genesis_setup_header() {
-		for ( $priority = 0; $priority < 16; $priority++ ) {
+		for ( $priority = 0; $priority < 16; $priority ++ ) {
 			remove_all_actions( 'genesis_header', $priority );
 		}
 	}
 
 	/**
 	 * Disable footer from the theme.
-	 *
-	 * @return void
 	 */
 	public function genesis_setup_footer() {
-		for ( $priority = 0; $priority < 16; $priority++ ) {
+		for ( $priority = 0; $priority < 16; $priority ++ ) {
 			remove_all_actions( 'genesis_footer', $priority );
 		}
 	}
 
 	/**
 	 * Open markup for header.
-	 *
-	 * @return void
 	 */
 	public function genesis_header_markup_open() {
 		genesis_markup(
@@ -98,8 +88,6 @@ class HFE_Genesis_Compat {
 
 	/**
 	 * Close MArkup for header.
-	 *
-	 * @return void
 	 */
 	public function genesis_header_markup_close() {
 		genesis_structural_wrap( 'header', 'close' );
@@ -113,8 +101,6 @@ class HFE_Genesis_Compat {
 
 	/**
 	 * Open markup for footer.
-	 *
-	 * @return void
 	 */
 	public function genesis_footer_markup_open() {
 		genesis_markup(
@@ -129,8 +115,6 @@ class HFE_Genesis_Compat {
 
 	/**
 	 * Close markup for footer.
-	 *
-	 * @return void
 	 */
 	public function genesis_footer_markup_close() {
 		genesis_structural_wrap( 'footer', 'close' );
@@ -141,6 +125,8 @@ class HFE_Genesis_Compat {
 			]
 		);
 	}
+
+
 }
 
 HFE_Genesis_Compat::instance();

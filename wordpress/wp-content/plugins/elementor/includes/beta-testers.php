@@ -90,13 +90,7 @@ class Beta_Testers {
 		$plugin_slug = basename( ELEMENTOR__FILE__, '.php' );
 
 		$beta_version = $this->get_beta_version();
-
-		$installed_version = ELEMENTOR_VERSION;
-		if ( ! empty( $transient->checked[ ELEMENTOR_PLUGIN_BASE ] ) ) {
-			$installed_version = $transient->checked[ ELEMENTOR_PLUGIN_BASE ];
-		}
-
-		if ( 'false' !== $beta_version && version_compare( $beta_version, $installed_version, '>' ) ) {
+		if ( 'false' !== $beta_version && version_compare( $beta_version, ELEMENTOR_VERSION, '>' ) ) {
 			$response = new \stdClass();
 			$response->plugin = $plugin_slug;
 			$response->slug = $plugin_slug;

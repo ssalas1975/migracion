@@ -242,8 +242,7 @@ function et_fb_get_dynamic_backend_helpers() {
 		? get_post( get_post_thumbnail_id()->post_title )
 		: false;
 
-	$request_type  = $post_type;
-	$user_cloud_id = 0;
+	$request_type = $post_type;
 
 	// Set request_type on 404 pages.
 	if ( is_404() ) {
@@ -270,8 +269,6 @@ function et_fb_get_dynamic_backend_helpers() {
 		if ( ! empty( $_GET['cloudItem'] ) && get_post_status( $post_id ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
 			$remote_item_id  = (int) sanitize_text_field( $_GET['cloudItem'] ); // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
 			$layout_location = 'cloud';
-
-			$user_cloud_id = isset( $_GET['userCloudId'] ) ? sanitize_text_field( $_GET['userCloudId'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification -- This function does not change any state, and is therefore not susceptible to CSRF.
 		}
 	}
 
@@ -332,7 +329,6 @@ function et_fb_get_dynamic_backend_helpers() {
 		'layoutBuiltFor'               => $layout_built_for,
 		'hasPredefinedContent'         => $has_predefined_content,
 		'remoteItemId'                 => $remote_item_id,
-		'userCloudId'                  => $user_cloud_id,
 		'publishCapability'            => ( is_page() && ! current_user_can( 'publish_pages' ) ) || ( ! is_page() && ! current_user_can( 'publish_posts' ) ) ? 'no_publish' : 'publish',
 		'ajaxUrl'                      => is_ssl() ? admin_url( 'admin-ajax.php' ) : admin_url( 'admin-ajax.php', 'http' ),
 		'et_account'                   => et_core_get_et_account(),
@@ -362,19 +358,11 @@ function et_fb_get_dynamic_backend_helpers() {
 		'mediaButtons'                 => et_builder_get_media_buttons(),
 		'shortcode_tags'               => et_fb_shortcode_tags(),
 		'customizer'                   => array(
-			'tablet'       => array(
+			'tablet' => array(
 				'sectionHeight' => et_get_option( 'tablet_section_height' ),
 			),
-			'phone'        => array(
+			'phone'  => array(
 				'sectionHeight' => et_get_option( 'phone_section_height' ),
-			),
-			'fonts'        => array(
-				'heading' => et_get_option( 'heading_font', '' ),
-				'body'    => et_get_option( 'body_font', '' ),
-			),
-			'font_weights' => array(
-				'heading' => et_get_option( 'heading_font_weight', '500' ),
-				'body'    => et_get_option( 'body_font_weight', '500' ),
 			),
 		),
 		'abTesting'                    => is_object( $post ) ? et_builder_ab_options( $post->ID ) : false,
@@ -451,22 +439,6 @@ function et_fb_get_dynamic_backend_helpers() {
 		'globalPresets'                => ET_Builder_Element::get_global_presets(),
 		'module_cache_filename_id'     => ET_Builder_Element::get_cache_filename_id( $post_type ),
 		'registeredPostTypeOptions'    => et_get_registered_post_type_options(),
-		'codeSnippets'                 => [
-			'config' => [
-				'api'    => admin_url( 'admin-ajax.php' ),
-				'nonces' => [
-					'et_code_snippets_library_get_items' => wp_create_nonce( 'et_code_snippets_library_get_items' ),
-				],
-			],
-		],
-		'aiLayout'                     => [
-			'headingFont'      => et_get_option( 'et_ai_layout_heading_font', '' ),
-			'bodyFont'         => et_get_option( 'et_ai_layout_body_font', '' ),
-			'primaryColor'     => et_get_option( 'et_ai_layout_primary_color', '' ),
-			'secondaryColor'   => et_get_option( 'et_ai_layout_secondary_color', '' ),
-			'headingFontColor' => et_get_option( 'et_ai_layout_heading_font_color', '' ),
-			'bodyFontColor'    => et_get_option( 'et_ai_layout_body_font_color', '' ),
-		],
 	);
 
 	// `class_exists` check avoids https://github.com/elegantthemes/Divi/issues/23662 error.
@@ -490,14 +462,6 @@ function et_fb_get_dynamic_backend_helpers() {
 	}
 
 	$helpers['dynamicContentFields'] = et_builder_get_dynamic_content_fields( $post_id, 'edit' );
-
-	$helpers['aiTextFieldEmptyOptions']        = et_builder_get_ai_text_field_empty_options();
-	$helpers['aiImageFieldOptions']            = et_builder_get_ai_text_field_empty_options( true );
-	$helpers['aiTextFieldOptions']             = et_builder_get_ai_text_field_options();
-	$helpers['aiTextOptions']                  = et_builder_get_ai_text_options();
-	$helpers['aiCodeOptions']                  = et_builder_get_ai_code_options();
-	$helpers['aiImageOptions']                 = et_builder_get_ai_image_options();
-	$helpers['aiTextFieldSelectedTextOptions'] = et_builder_get_ai_selected_text_field_options();
 
 	return $helpers;
 }
@@ -892,9 +856,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 				'opacity'        => ET_Global_Settings::get_value( 'all_filter_opacity' ),
 				'blur'           => ET_Global_Settings::get_value( 'all_filter_blur' ),
 				'mix_blend_mode' => ET_Global_Settings::get_value( 'all_mix_blend_mode' ),
-			),
-			'et_pb_heading'            => array(
-				'title' => $modules_defaults['title'],
 			),
 		),
 		'saveModuleLibraryCategories'      => et_fb_prepare_library_terms(),
@@ -1901,7 +1862,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 		ET_Builder_Element::get_help_videos()
 	);
 
-	// phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned -- Invalid warning.
 	// Internationalization.
 	$helpers['i18n'] = array(
 		'modules'                   => array_merge( $modules_i10n, $additional_i10n ),
@@ -1946,13 +1906,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 				'global' => esc_html__( 'Global', 'et_builder' ),
 				'recent' => esc_html__( 'Recent', 'et_builder' ),
 			),
-			'customizerColorLabels' => array(
-				'gcid-primary-color'   => esc_html__( 'Primary Color', 'et_builder' ),
-				'gcid-secondary-color' => esc_html__( 'Secondary Color', 'et_builder' ),
-				'gcid-heading-color'   => esc_html__( 'Heading Text Color', 'et_builder' ),
-				'gcid-body-color'      => esc_html__( 'Body Text Color', 'et_builder' ),
-			),
-			'customizerCannotDelete' => esc_html__( 'cannot be deleted', 'et_builder' ),
 			'uploadGallery'    => array(
 				'uploadButtonText' => esc_html__( 'Update Gallery', 'et_builder' ),
 				'addImages'        => esc_html__( 'Add Gallery Images', 'et_builder' ),
@@ -1965,16 +1918,14 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 				'mapPinAddressInvalid' => esc_html__( 'Invalid Pin and address data. Please try again.', 'et_builder' ),
 			),
 			'tabs'             => array(
-				'general'        => et_builder_i18n( 'Content' ),
-				'design'         => et_builder_i18n( 'Design' ),
-				'advanced'       => et_builder_i18n( 'Design' ),
-				'css'            => et_builder_i18n( 'Advanced' ),
-				'desktop'        => et_builder_i18n( 'Desktop' ),
-				'tablet'         => et_builder_i18n( 'Tablet' ),
-				'phone'          => et_builder_i18n( 'Phone' ),
-				'hover'          => esc_html__( 'Hover', 'et_builder' ),
-				'moduleElements' => esc_html__( 'Module Elements', 'et_builder' ),
-				'freeFormCSS'    => esc_html__( 'Free-Form CSS', 'et_builder' ),
+				'general'  => et_builder_i18n( 'Content' ),
+				'design'   => et_builder_i18n( 'Design' ),
+				'advanced' => et_builder_i18n( 'Design' ),
+				'css'      => et_builder_i18n( 'Advanced' ),
+				'desktop'  => et_builder_i18n( 'Desktop' ),
+				'tablet'   => et_builder_i18n( 'Tablet' ),
+				'phone'    => et_builder_i18n( 'Phone' ),
+				'hover'    => esc_html__( 'Hover', 'et_builder' ),
 			),
 			'additionalButton' => array(
 				'changeApiKey'              => esc_html__( 'Change API Key', 'et_builder' ),
@@ -2004,7 +1955,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			),
 			'cssText'          => esc_html__( 'CSS', 'et_builder' ),
 			'cssSelector'      => esc_html__( 'CSS added here will target the following class:', 'et_builder' ),
-			'cssSelectorFree'  => esc_html__( 'CSS added here can target this element and any sub element using the selector keyword.', 'et_builder' ),
 			'hoverOptions'     => array(
 				'default' => et_builder_i18n( 'Default' ),
 				'hover'   => esc_html__( 'Hover', 'et_builder' ),
@@ -2111,7 +2061,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 				'findReplace' => esc_html__( 'Find & Replace Color', 'et_builder' ),
 				'remove'      => esc_html__( 'Remove Gradient Stop', 'et_builder' ),
 			),
-			'generate_content_with_ai'  => esc_html__( 'Generate Content With AI', 'et_builder' ),
 		),
 		'tooltips'                  => array(
 			'insertModule'         => esc_html__( 'Insert Module', 'et_builder' ),
@@ -2141,7 +2090,7 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'layoutName'           => esc_html__( 'Layout Name', 'et_builder' ),
 			'replaceLayout'        => esc_html__( 'Replace Existing Content', 'et_builder' ),
 			'search'               => esc_html__( 'Search', 'et_builder' ) . '...',
-			'portability'          => esc_html__( 'Import & Export Page Content', 'et_builder' ),
+			'portability'          => esc_html__( 'Portability', 'et_builder' ),
 			'export'               => esc_html__( 'Export', 'et_builder' ),
 			'import'               => esc_html__( 'Import', 'et_builder' ),
 			'exportText'           => esc_html__( 'Exporting your Divi Builder Layout will create a JSON file that can be imported into a different website.', 'et_builder' ),
@@ -2153,12 +2102,10 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'importButton'         => esc_html__( 'Import Divi Builder Layout', 'et_builder' ),
 			'noFile'               => esc_html__( 'No File Selected', 'et_builder' ),
 			'chooseFile'           => esc_html__( 'Choose File', 'et_builder' ),
-			'chooseFiles'           => esc_html__( 'Choose Files', 'et_builder' ),
 			'portabilityOptions'   => esc_html__( 'Options', 'et_builder' ),
 			'includeGlobalPresets' => esc_html__( 'Include Presets', 'et_builder' ),
 			'applyGlobalPresets'   => esc_html__( 'Apply To Exported Layout', 'et_builder' ),
 			'importContextFail'    => esc_html__( 'This file should not be imported in this context.', 'et_builder' ),
-			'bulkImportContextFail'    => esc_html__( 'These files should not be imported in this context.', 'et_builder' ),
 			'closeWindow'              => esc_html__( 'Close Window', 'et_builder' ),
 			'no'                       => esc_html__( 'No', 'et_builder' ),
 			'yes'                      => esc_html__( 'Yes', 'et_builder' ),
@@ -2201,9 +2148,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 					'includeGlobalPresets' => esc_html__( 'Import Presets', 'et_builder' ),
 					'imported'             => esc_html__( 'imported', 'et_builder' ),
 					'ImportToCloud'        => esc_html__( 'Import To Cloud', 'et_builder' ),
-					'selectedFiles'        => esc_html__( 'Selected Files:', 'et_builder' ),
-					'drageFiles'           => esc_html__( 'Drag Files Here', 'et_builder' ),
-					'selectFiles'          => esc_html__( 'Select Files To Import', 'et_builder' ),
 				),
 				'export' => array(
 					'applyGlobalPresets' => esc_html__( 'Apply Presets To Exported Layout' ),
@@ -2213,16 +2157,10 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'favoritesRemove'      => esc_html__( 'Remove From Favorites', 'et_builder' ),
 		),
 		'prompts'                   => array(
-			'importWithLabel'        => esc_html__( 'Import Design Presets?', 'et_builder' ),
-			'importWithContent'      => esc_html__( 'This layout contains global design presets. Check the box below to import these styles as presets, or leave it unchecked to bring them in as static styles.', 'et_builder' ),
-			'import'                 => esc_html__( 'Import', 'et_builder' ),
-			'importPresets'          => esc_html__( 'Import Presets', 'et_builder' ),
-			'close'                  => esc_html__( 'Close', 'et_builder' ),
-			'convertRowtoSection'    => esc_html__( 'Convert Row To Section', 'et_builder' ),
-			'convertModuletoRow'     => esc_html__( 'Convert Module To Row', 'et_builder' ),
-			'convertModuletoSection' => esc_html__( 'Convert Module To Section', 'et_builder' ),
-			'convertToRowMsg'        => esc_html__( 'Conversion completed. Item moved to the Rows library.', 'et_builder' ),
-			'convertToSectionMsg'    => esc_html__( 'Conversion completed. Item moved to the Sections library.', 'et_builder' ),
+			'importWithLabel'   => esc_html__( 'Import Design Presets?', 'et_builder' ),
+			'importWithContent' => esc_html__( 'This layout contains global design presets. Check the box below to import these styles as presets, or leave it unchecked to bring them in as static styles.', 'et_builder' ),
+			'import'            => esc_html__( 'Import', 'et_builder' ),
+			'importPresets'     => esc_html__( 'Import Presets', 'et_builder' ),
 		),
 		'saveModuleLibraryAttrs'    => array(
 			'cancel'                 => et_builder_i18n( 'Cancel' ),
@@ -2251,10 +2189,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'saveText'               => esc_html__( 'Save To Library', 'et_builder' ),
 			'saveToCloudText'        => esc_html__( 'Save To Divi Cloud', 'et_builder' ),
 			'allCategoriesText'      => esc_html__( 'All Categories', 'et_builder' ),
-			'saveIndividual'         => esc_html__( 'Save Individual Items', 'et_builder' ),
-			'saveSectionsIndividual' => esc_html__( 'Also Save All %s Sections as Individual Items', 'et_builder' ),
-			'saveRowsIndividual'     => esc_html__( 'Also Save All %s Rows as Individual Items', 'et_builder' ),
-			'saveModulesIndividual'  => esc_html__( 'Also Save All %s Modules as Individual Items', 'et_builder' ),
 		),
 		'alertModal'                => array(
 			'buttonCancelLabel'  => et_builder_i18n( 'Cancel' ),
@@ -2281,7 +2215,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'show_only'             => esc_html__( 'Show Only', 'et_builder' ),
 			'filterNotice'          => esc_html__( 'No options exist for this search query. <span>Click here</span> to clear your search filters.', 'et_builder' ),
 			'filterNoticeClickable' => esc_html__( 'Click here', 'et_builder' ),
-			'exploreDiviModules'    => esc_html__( 'Explore More Divi Modules', 'et_builder' ),
 			'extend_styles'         => array(
 				'title'   => esc_html__( 'Extend Styles', 'et_builder' ),
 				'button'  => esc_html__( 'Extend', 'et_builder' ),
@@ -2365,32 +2298,12 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 				'filterNotice'          => esc_html__( 'No layers exist for this search query. Click here to clear your search filters.', 'et_builder' ),
 				'filterNoticeClickable' => esc_html__( 'Click here', 'et_builder' ),
 			),
-			'moduleElements'        => array(
-				'part1' => esc_html__( 'Target predefined selectors within this element without the need to write out selectors name. i.e.', 'et_builder' ),
-				'part2' => esc_html__( 'instead of', 'et_builder' ),
-			),
-			'freeFormCSS'           => array(
-				'part1' => esc_html__( 'Write free-form css using the keyword', 'et_builder' ),
-				'part2' => esc_html__( 'to target this module i.e.', 'et_builder' ),
-			),
-			'insertLayout'          => [
-				'title'             => esc_html__( 'Insert Layout', 'et_builder' ),
-				'Premade Layout'    => esc_html__( 'Premade Layout', 'et_builder' ),
-				'Saved Layout'      => esc_html__( 'Saved Layout', 'et_builder' ),
-				'Build With AI'     => esc_html__( 'Build With AI', 'et_builder' ),
-				'Brand New'         => esc_html__( 'Brand New', 'et_builder' ),
-				'premadeLayoutDesc' => esc_html__( 'Select from thousands of premade layouts designed for every type of site', 'et_builder' ),
-				'savedLayoutDesc'   => esc_html__( 'Start from a layout in your Divi Library or clone an existing page', 'et_builder' ),
-				'buildWithAIDesc'   => esc_html__( 'Simply describe your page, sit back, relax and let Divi AI build it for you', 'et_builder' ),
-			],
 		),
 		'selectControl'             => array(
 			'typeToSearch' => esc_html__( 'Start Typing', 'et_builder' ),
 			'subgroups'    => array(
-				'recent'              => esc_html__( 'Recent', 'et_builder' ),
-				'uploaded'            => esc_html__( 'Custom Fonts', 'et_builder' ),
-				'global'              => esc_html__( 'Global Fonts', 'et_builder' ),
-				'global_font_weights' => esc_html__( 'Global Font Weights', 'et_builder' ),
+				'recent'   => esc_html__( 'Recent', 'et_builder' ),
+				'uploaded' => esc_html__( 'Custom Fonts', 'et_builder' ),
 			),
 			'noResults'    => esc_html__( 'No results found', 'et_builder' ),
 			'noTitle'      => esc_html__( '(no title)', 'et_builder' ),
@@ -2497,37 +2410,31 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			)
 		),
 		'fonts'                     => array(
-			'fontWeight'        => esc_html__( 'Font Weight', 'et_builder' ),
-			'fontStyle'         => esc_html__( 'Font Style', 'et_builder' ),
-			'delete'            => esc_html__( 'Delete', 'et_builder' ),
-			'deleteConfirm'     => esc_html__( 'Are You Sure Want To Delete', 'et_builder' ),
-			'confirmAction'     => esc_html__( 'Are You Sure?', 'et_builder' ),
-			'cancel'            => et_builder_i18n( 'Cancel' ),
-			'upload'            => esc_html__( 'Upload', 'et_builder' ),
-			'edit_global'       => esc_html__( 'Edit Global Fonts', 'et_builder' ),
-			'font'              => esc_html__( 'Font', 'et_builder' ),
-			'chooseFile'        => esc_html__( 'Choose Font Files', 'et_builder' ),
-			'supportedFiles'    => esc_html__( 'Supported File Formats', 'et_builder' ),
-			'fileError'         => esc_html__( 'Unsupported File Format', 'et_builder' ),
-			'noFile'            => esc_html__( 'Drag Files Here', 'et_builder' ),
-			'fontName'          => esc_html__( 'Name Your Font', 'et_builder' ),
-			'fontNameLabel'     => esc_html__( 'Font Name', 'et_builder' ),
-			'selectedFiles'     => esc_html__( 'Selected Font Files', 'et_builder' ),
-			'weightsSupport'    => esc_html__( 'Supported Font Weights', 'et_builder' ),
-			'weightsHelp'       => esc_html__( 'Choose the font weights supported by your font. Select "All" if you don\'t know this information or if your font includes all weights.', 'et_builder' ),
-			'noFilesError'      => esc_html__( 'Please Select At Least One File', 'et_builder' ),
-			'searchFonts'       => esc_html__( 'Search Fonts', 'et_builder' ),
-			'underline'         => esc_html__( 'Underline', 'et_builder' ),
-			'strikethrough'     => esc_html__( 'Strikethrough', 'et_builder' ),
-			'color'             => et_builder_i18n( 'Color' ),
-			'style'             => esc_html__( 'Style', 'et_builder' ),
-			'all'               => esc_html__( 'All', 'et_builder' ),
-			'Headings'          => esc_html__( 'Headings', 'et_builder' ),
-			'Body'              => esc_html__( 'Body', 'et_builder' ),
-			'Save'              => esc_html__( 'Save', 'et_builder' ),
-			'Edit Global Fonts' => esc_html__( 'Edit Global Fonts', 'et_builder' ),
-			'Headings Font'     => esc_html__( 'Headings Font', 'et_builder' ),
-			'Body Font'         => esc_html__( 'Body Font', 'et_builder' ),
+			'fontWeight'     => esc_html__( 'Font Weight', 'et_builder' ),
+			'fontStyle'      => esc_html__( 'Font Style', 'et_builder' ),
+			'delete'         => esc_html__( 'Delete', 'et_builder' ),
+			'deleteConfirm'  => esc_html__( 'Are You Sure Want To Delete', 'et_builder' ),
+			'confirmAction'  => esc_html__( 'Are You Sure?', 'et_builder' ),
+			'cancel'         => et_builder_i18n( 'Cancel' ),
+			'upload'         => esc_html__( 'Upload', 'et_builder' ),
+			'font'           => esc_html__( 'Font', 'et_builder' ),
+			'chooseFile'     => esc_html__( 'Choose Font Files', 'et_builder' ),
+			'supportedFiles' => esc_html__( 'Supported File Formats', 'et_builder' ),
+			'fileError'      => esc_html__( 'Unsupported File Format', 'et_builder' ),
+			'noFile'         => esc_html__( 'Drag Files Here', 'et_builder' ),
+			'fontName'       => esc_html__( 'Name Your Font', 'et_builder' ),
+			'fontNameLabel'  => esc_html__( 'Font Name', 'et_builder' ),
+			'selectedFiles'  => esc_html__( 'Selected Font Files', 'et_builder' ),
+			'weightsSupport' => esc_html__( 'Supported Font Weights', 'et_builder' ),
+			'weightsHelp'    => esc_html__( 'Choose the font weights supported by your font. Select "All" if you don\'t know this information or if your font includes all weights.', 'et_builder' ),
+			'noFilesError'   => esc_html__( 'Please Select At Least One File', 'et_builder' ),
+			'searchFonts'    => esc_html__( 'Search Fonts', 'et_builder' ),
+			'underline'      => esc_html__( 'Underline', 'et_builder' ),
+			'strikethrough'  => esc_html__( 'Strikethrough', 'et_builder' ),
+			'color'          => et_builder_i18n( 'Color' ),
+			'style'          => esc_html__( 'Style', 'et_builder' ),
+			'all'            => esc_html__( 'All', 'et_builder' ),
+
 		),
 
 		// Drag and Droploader
@@ -2691,7 +2598,6 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 					'portability'       => esc_html__( 'Portability', 'et_builder' ),
 					'open'              => esc_html__( 'Expand Settings', 'et_builder' ),
 					'close'             => esc_html__( 'Collapse Settings', 'et_builder' ),
-					'insertLayout'      => esc_html__( 'Insert Layout', 'et_builder' ),
 				),
 				'save'       => array(
 					'saveDraft' => esc_html__( 'Save as Draft', 'et_builder' ),
@@ -2863,26 +2769,7 @@ function et_fb_get_static_backend_helpers( $post_type ) {
 			'preset_desktop' => esc_html__( 'Desktop View', 'et_builder' ),
 			'preset_custom'  => esc_html__( 'Custom View', 'et_builder' ),
 		),
-
-		'ai'                        => array(
-			'tooltips' => array(
-				'divi_ai_options' => esc_html__( 'Divi AI Options', 'et_builder' ),
-			),
-			'title'          => esc_html__( 'Title', 'et_builder' ),
-			'excerpt'        => esc_html__( 'Excerpt', 'et_builder' ),
-			'layout_with_ai' => esc_html__( 'Layout With AI', 'et_builder' ),
-			'layout'         => array(
-				'notification' => array(
-					'How Does It Look?'       => esc_html__( 'How Does It Look?', 'et_builder' ),
-					'Would you like to save?' => esc_html__( 'Would you like to save these fonts and colors for future Divi AI layouts?', 'et_builder' ),
-					'No Thanks'               => esc_html__( 'No Thanks', 'et_builder' ),
-					'Yes Please!'             => esc_html__( 'Yes Please!', 'et_builder' ),
-				),
-			),
-			'image'          => esc_html__( 'Featured Image', 'et_builder' ),
-		),
 	);
-	// phpcs:enable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
 
 	$helpers['i18n'] = array_merge(
 		$helpers['i18n'],

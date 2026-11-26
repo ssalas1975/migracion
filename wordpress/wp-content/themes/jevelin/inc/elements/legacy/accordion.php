@@ -2,7 +2,7 @@
 class vcj_accordion extends WPBakeryShortCode {
 
     function __construct() {
-        add_action( 'init', array( $this, '_mapping' ) );
+        add_action( 'init', array( $this, '_mapping' ), 12 );
         add_shortcode( 'vcj_accordion', array( $this, '_html' ) );
     }
 
@@ -46,14 +46,11 @@ class vcj_accordion extends WPBakeryShortCode {
         ),
         2 => 
         array (
-          'param_name' => 'testimonials',
-          'heading' => 'Accordions',
-          'description' => 'Add, remove, edit or reorder your a ccordions',
-          'value' => '',
-          'type' => 'param_group',
-          'class' => '',
-          'std' => '',
-          'group' => 'General',
+          'type' => 'iconpicker',
+          'heading' => 'Icon (for style 5 only)',
+          'description' => 'Choose icon for style 5 only',
+          'param_name' => 'icon',
+          'value' => 'fa fa-chevron-down',
           'settings' => 
           array (
             'emptyIcon' => true,
@@ -182,6 +179,17 @@ class vcj_accordion extends WPBakeryShortCode {
     ),
     8 => 
     array (
+      'param_name' => 'border_radius',
+      'heading' => 'Border Radius',
+      'description' => 'Enter border radius in px',
+      'value' => '',
+      'type' => 'textfield',
+      'class' => '',
+      'std' => '',
+      'group' => 'Styling',
+    ),
+    9 => 
+    array (
       'param_name' => 'icon_color',
       'heading' => 'Icon Color',
       'description' => 'Select icon color (not expanded)',
@@ -191,7 +199,7 @@ class vcj_accordion extends WPBakeryShortCode {
       'std' => '#505050',
       'group' => 'Styling',
     ),
-    9 => 
+    10 => 
     array (
       'param_name' => 'text_color',
       'heading' => 'Heading Text Color',
@@ -202,7 +210,7 @@ class vcj_accordion extends WPBakeryShortCode {
       'std' => '#505050',
       'group' => 'Styling',
     ),
-    10 => 
+    11 => 
     array (
       'param_name' => 'background_color',
       'heading' => 'Heading Background Color',
@@ -213,7 +221,7 @@ class vcj_accordion extends WPBakeryShortCode {
       'std' => '#f4f4f4',
       'group' => 'Styling',
     ),
-    11 => 
+    12 => 
     array (
       'param_name' => 'expanded_text_color',
       'heading' => 'Expanded Heading Text Color',
@@ -224,7 +232,7 @@ class vcj_accordion extends WPBakeryShortCode {
       'std' => '#ffffff',
       'group' => 'Styling',
     ),
-    12 => 
+    13 => 
     array (
       'param_name' => 'expanded_background_color',
       'heading' => 'Expanded Heading Background Color',
@@ -243,8 +251,9 @@ class vcj_accordion extends WPBakeryShortCode {
         $id_rand = jevelin_rand();
         ob_start();
 
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/accordion/views/view.php' );
-        include( trailingslashit( get_template_directory() ) . '/framework-customizations/extensions/shortcodes/shortcodes/accordion/static.php' );
+        $path = trailingslashit( get_template_directory() );
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/accordion/views/view.php';
+        include $path . '/framework-customizations/extensions/shortcodes/shortcodes/accordion/static.php';
         if( function_exists( 'jevelin_shortcode_accordion_css' ) ) :
             jevelin_shortcode_accordion_css( $atts, $id_rand );
         endif;

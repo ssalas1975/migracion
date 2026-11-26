@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Load our manifest to use throughout the app.
+ * Load our manifest to use throughout the app. TODO: Fill out other methods and docblocks.
  *
  * @since 4.1.9
  */
@@ -19,26 +19,17 @@ class Filesystem {
 	 *
 	 * @since 4.1.9
 	 *
-	 * @var \WP_Filesystem_Base
+	 * @var WP_Filesystem
 	 */
 	public $fs = null;
-
-	/**
-	 * Core class instance.
-	 *
-	 * @since 4.2.7
-	 *
-	 * @var \AIOSEO\Plugin\Common\Core\Core
-	 */
-	private $core = null;
 
 	/**
 	 * Class constructor.
 	 *
 	 * @since 4.1.9
 	 *
-	 * @param \AIOSEO\Plugin\Common\Core\Core $core The AIOSEO Core class.
-	 * @param array                           $args Any arguments needed to construct the class with.
+	 * @param Core  $core The AIOSEO Core class.
+	 * @param array $args Any arguments needed to construct the class with.
 	 */
 	public function __construct( $core, $args = [] ) {
 		$this->core = $core;
@@ -54,12 +45,12 @@ class Filesystem {
 	 * @return void
 	 */
 	public function init( $args = [] ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		WP_Filesystem( $args );
 
-		global $wp_filesystem; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
-		if ( is_object( $wp_filesystem ) ) { // phpcs:ignore Squiz.NamingConventions.ValidVariableName
-			$this->fs = $wp_filesystem; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+		global $wp_filesystem;
+		if ( is_object( $wp_filesystem ) ) {
+			$this->fs = $wp_filesystem;
 		}
 	}
 
@@ -255,10 +246,8 @@ class Filesystem {
 		if (
 			! is_a( $this->fs, 'WP_Filesystem_Base' ) ||
 			(
-				// Errors is a WP_Error object.
 				! empty( $this->fs->errors ) &&
-				// We directly check if the errors array is empty for compatibility with WP < 5.1.
-				! empty( $this->fs->errors->errors )
+				$this->fs->errors->has_errors()
 			)
 		) {
 			return false;

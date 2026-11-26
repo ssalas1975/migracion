@@ -1,14 +1,8 @@
 <?php
-// echo 'action '.$_POST['action'];
-// echo 'portfolio_id '.$_POST['portfolio_id'];
-// echo 'show_title '.$_POST['show_title'];
+define('DOING_AJAX', true);
 
-// echo ' peticioes tipo GET ';
-// echo 'action GET ' . $_GET['action'];
-// die('2222222');
-
-// if (!isset( $_POST['action']) ||  !isset($_GET['action']))
-//     die('-1');
+if (!isset($_REQUEST['action']))
+  die('-1');
 
 //relative to where your plugin is located
 require_once('../wp-load.php');
@@ -21,31 +15,25 @@ send_nosniff_header();
 header('Cache-Control: no-cache');
 header('Pragma: no-cache');
 
-$action = (isset($_POST['action'])) ? esc_attr($_POST['action']) : esc_attr($_GET['action']);
-
+$action = esc_attr($_REQUEST['action']);
 
 //A bit of security
 $allowed_actions = array(
-    'alm_query_posts',
-    'alm_acf_query',
-    'alm_nextpage_query',
-    'alm_comments_query',
-    'alm_users_query',
-    'alm_query_previous_post',
-    'alm_query_posts',
-    'ut_get_portfolio_post_content',
-    'excel_pull_ext',
-    'dnd_codedropz_upload',
-    'excel_pull_imgs'
+  'lpportadapdf_dorsal',
+  'lpportadapdf_imprimir',
+  'WPBC_AJX_CALENDAR_LOAD',
+  'WPBC_AJX_BOOKING__CREATE',
+  'et_fb_update_builder_assets'
 );
 
-
-if (in_array($action, $allowed_actions)) {
-    if (is_user_logged_in()) {
-        do_action('wp_ajax_' . $action);
-    } else {
-        do_action('wp_ajax_nopriv_' . $action);
-    }
+//if(in_array($action, $allowed_actions)){
+if (is_user_logged_in()) {
+  do_action('wp_ajax_' . $action, $_REQUEST);
 } else {
-    die('-2');
+  do_action('wp_ajax_nopriv_' . $action, $_REQUEST);
 }
+//}
+//else{
+//   die('-1');
+//}
+?>

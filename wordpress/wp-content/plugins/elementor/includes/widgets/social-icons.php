@@ -70,28 +70,6 @@ class Widget_Social_Icons extends Widget_Base {
 		return [ 'social', 'icon', 'link' ];
 	}
 
-	protected function is_dynamic_content(): bool {
-		return false;
-	}
-
-	/**
-	 * Get style dependencies.
-	 *
-	 * Retrieve the list of style dependencies the widget requires.
-	 *
-	 * @since 3.24.0
-	 * @access public
-	 *
-	 * @return array Widget style dependencies.
-	 */
-	public function get_style_depends(): array {
-		return [ 'widget-social-icons', 'e-apple-webkit' ];
-	}
-
-	public function has_widget_inner_wrapper(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'e_optimized_markup' );
-	}
-
 	/**
 	 * Register social icons widget controls.
 	 *
@@ -161,7 +139,6 @@ class Widget_Social_Icons extends Widget_Base {
 						'steam',
 						'telegram',
 						'thumb-tack',
-						'threads',
 						'tripadvisor',
 						'tumblr',
 						'twitch',
@@ -174,7 +151,6 @@ class Widget_Social_Icons extends Widget_Base {
 						'whatsapp',
 						'wordpress',
 						'xing',
-						'x-twitter',
 						'yelp',
 						'youtube',
 						'500px',
@@ -199,6 +175,7 @@ class Widget_Social_Icons extends Widget_Base {
 				'dynamic' => [
 					'active' => true,
 				],
+				'placeholder' => esc_html__( 'https://your-link.com', 'elementor' ),
 			]
 		);
 
@@ -259,7 +236,7 @@ class Widget_Social_Icons extends Widget_Base {
 					],
 					[
 						'social_icon' => [
-							'value' => 'fab fa-x-twitter',
+							'value' => 'fab fa-twitter',
 							'library' => 'fa-brands',
 						],
 					],
@@ -281,8 +258,8 @@ class Widget_Social_Icons extends Widget_Base {
 				'type' => Controls_Manager::SELECT,
 				'default' => 'rounded',
 				'options' => [
-					'square' => esc_html__( 'Square', 'elementor' ),
 					'rounded' => esc_html__( 'Rounded', 'elementor' ),
+					'square' => esc_html__( 'Square', 'elementor' ),
 					'circle' => esc_html__( 'Circle', 'elementor' ),
 				],
 				'prefix_class' => 'elementor-shape-',
@@ -311,9 +288,8 @@ class Widget_Social_Icons extends Widget_Base {
 			]
 		);
 
-		$align_selector = Plugin::$instance->experiments->is_feature_active( 'e_optimized_markup' ) && ! $this->has_widget_inner_wrapper()
-			? '{{WRAPPER}}'
-			: '{{WRAPPER}} .elementor-widget-container';
+		$start = is_rtl() ? 'end' : 'start';
+		$end = is_rtl() ? 'start' : 'end';
 
 		$this->add_responsive_control(
 			'align',
@@ -337,8 +313,17 @@ class Widget_Social_Icons extends Widget_Base {
 				'prefix_class' => 'e-grid-align%s-',
 				'default' => 'center',
 				'selectors' => [
-					$align_selector => 'text-align: {{VALUE}}',
+					'{{WRAPPER}} .elementor-widget-container' => 'text-align: {{VALUE}}',
 				],
+			]
+		);
+
+		$this->add_control(
+			'view',
+			[
+				'label' => esc_html__( 'View', 'elementor' ),
+				'type' => Controls_Manager::HIDDEN,
+				'default' => 'traditional',
 			]
 		);
 
@@ -399,8 +384,6 @@ class Widget_Social_Icons extends Widget_Base {
 			[
 				'label' => esc_html__( 'Size', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				// The `%' and `em` units are not supported as the widget implements icons differently then other icons.
-				'size_units' => [ 'px', 'rem', 'vw', 'custom' ],
 				'range' => [
 					'px' => [
 						'min' => 6,
@@ -418,8 +401,6 @@ class Widget_Social_Icons extends Widget_Base {
 			[
 				'label' => esc_html__( 'Padding', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				// The `%' unit is not supported.
-				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-social-icon' => '--icon-padding: {{SIZE}}{{UNIT}}',
 				],
@@ -433,14 +414,7 @@ class Widget_Social_Icons extends Widget_Base {
 					'unit' => 'em',
 				],
 				'range' => [
-					'px' => [
-						'max' => 50,
-					],
 					'em' => [
-						'min' => 0,
-						'max' => 5,
-					],
-					'rem' => [
 						'min' => 0,
 						'max' => 5,
 					],
@@ -453,18 +427,10 @@ class Widget_Social_Icons extends Widget_Base {
 			[
 				'label' => esc_html__( 'Spacing', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'range' => [
 					'px' => [
+						'min' => 0,
 						'max' => 100,
-					],
-					'em' => [
-						'min' => 0,
-						'max' => 10,
-					],
-					'rem' => [
-						'min' => 0,
-						'max' => 10,
 					],
 				],
 				'default' => [
@@ -481,7 +447,6 @@ class Widget_Social_Icons extends Widget_Base {
 			[
 				'label' => esc_html__( 'Rows Gap', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'default' => [
 					'size' => 0,
 				],
@@ -500,12 +465,12 @@ class Widget_Social_Icons extends Widget_Base {
 			]
 		);
 
-		$this->add_responsive_control(
+		$this->add_control(
 			'border_radius',
 			[
 				'label' => esc_html__( 'Border Radius', 'elementor' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'custom' ],
+				'size_units' => [ 'px', '%' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-icon' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -577,6 +542,7 @@ class Widget_Social_Icons extends Widget_Base {
 		);
 
 		$this->end_controls_section();
+
 	}
 
 	/**
@@ -589,18 +555,9 @@ class Widget_Social_Icons extends Widget_Base {
 	 */
 	protected function render() {
 		$settings = $this->get_settings_for_display();
-
-		$this->add_render_attribute( 'wrapper', 'class', [ 'elementor-social-icons-wrapper', 'elementor-grid' ] );
-		$this->add_render_attribute( 'item_wrapper', 'class', 'elementor-grid-item' );
-
-		if ( count( $settings['social_icon_list'] ) > 1 ) {
-			$this->add_render_attribute( 'wrapper', 'role', 'list' );
-			$this->add_render_attribute( 'item_wrapper', 'role', 'listitem' );
-		}
-
 		$fallback_defaults = [
 			'fa fa-facebook',
-			'fa fa-x-twitter',
+			'fa fa-twitter',
 			'fa fa-google-plus',
 		];
 
@@ -613,7 +570,7 @@ class Widget_Social_Icons extends Widget_Base {
 		$migration_allowed = Icons_Manager::is_migration_allowed();
 
 		?>
-		<div <?php $this->print_render_attribute_string( 'wrapper' ); ?>>
+		<div class="elementor-social-icons-wrapper elementor-grid">
 			<?php
 			foreach ( $settings['social_icon_list'] as $index => $item ) {
 				$migrated = isset( $item['__fa4_migrated']['social_icon'] );
@@ -653,14 +610,14 @@ class Widget_Social_Icons extends Widget_Base {
 				$this->add_link_attributes( $link_key, $item['link'] );
 
 				?>
-				<span <?php $this->print_render_attribute_string( 'item_wrapper' ); ?>>
+				<span class="elementor-grid-item">
 					<a <?php $this->print_render_attribute_string( $link_key ); ?>>
 						<span class="elementor-screen-only"><?php echo esc_html( ucwords( $social ) ); ?></span>
 						<?php
 						if ( $is_new || $migrated ) {
-							Icons_Manager::render_icon( $item['social_icon'], [ 'aria-hidden' => 'true' ] );
+							Icons_Manager::render_icon( $item['social_icon'] );
 						} else { ?>
-							<i class="<?php echo esc_attr( $item['social'] ); ?>" aria-hidden="true"></i>
+							<i class="<?php echo esc_attr( $item['social'] ); ?>"></i>
 						<?php } ?>
 					</a>
 				</span>
@@ -679,25 +636,15 @@ class Widget_Social_Icons extends Widget_Base {
 	 */
 	protected function content_template() {
 		?>
-		<#
-		view.addRenderAttribute( 'wrapper', 'class', [ 'elementor-social-icons-wrapper', 'elementor-grid' ] );
-		view.addRenderAttribute( 'item_wrapper', 'class', 'elementor-grid-item' );
-
-		if ( settings.social_icon_list.length > 1 ) {
-			view.addRenderAttribute( 'wrapper', 'role', 'list' );
-			view.addRenderAttribute( 'item_wrapper', 'role', 'listitem' );
-		}
-
-		var iconsHTML = {};
-		#>
-		<div {{{ view.getRenderAttributeString( 'wrapper' ) }}}>
+		<# var iconsHTML = {}; #>
+		<div class="elementor-social-icons-wrapper elementor-grid">
 			<# _.each( settings.social_icon_list, function( item, index ) {
 				var link = item.link ? item.link.url : '',
 					migrated = elementor.helpers.isIconMigrated( item, 'social_icon' );
 					social = elementor.helpers.getSocialNetworkNameFromIcon( item.social_icon, item.social, false, migrated );
 				#>
-				<span {{{ view.getRenderAttributeString( 'item_wrapper' ) }}}>
-					<a class="elementor-icon elementor-social-icon elementor-social-icon-{{ social }} elementor-animation-{{ settings.hover_animation }} elementor-repeater-item-{{item._id}}" href="{{ elementor.helpers.sanitizeUrl( link ) }}">
+				<span class="elementor-grid-item">
+					<a class="elementor-icon elementor-social-icon elementor-social-icon-{{ social }} elementor-animation-{{ settings.hover_animation }} elementor-repeater-item-{{item._id}}" href="{{ link }}">
 						<span class="elementor-screen-only">{{{ social }}}</span>
 						<#
 							iconsHTML[ index ] = elementor.helpers.renderIcon( view, item.social_icon, {}, 'i', 'object' );
@@ -712,48 +659,5 @@ class Widget_Social_Icons extends Widget_Base {
 			<# } ); #>
 		</div>
 		<?php
-	}
-
-	public function render_markdown(): string {
-		$settings = $this->get_settings_for_display();
-		if ( empty( $settings['social_icon_list'] ) ) {
-			return '';
-		}
-
-		$migration_allowed = Icons_Manager::is_migration_allowed();
-		$links = [];
-
-		foreach ( $settings['social_icon_list'] as $item ) {
-			$url = $item['link']['url'] ?? '';
-			if ( empty( $url ) ) {
-				continue;
-			}
-
-			$migrated = isset( $item['__fa4_migrated']['social_icon'] );
-			$is_new = empty( $item['social'] ) && $migration_allowed;
-			$social = '';
-
-			if ( ! empty( $item['social'] ) ) {
-				$social = str_replace( 'fa fa-', '', $item['social'] );
-			}
-
-			if ( ( $is_new || $migrated ) && 'svg' !== ( $item['social_icon']['library'] ?? '' ) ) {
-				$parts = explode( ' ', $item['social_icon']['value'] ?? '', 2 );
-				$social = ! empty( $parts[1] ) ? str_replace( 'fa-', '', $parts[1] ) : '';
-			}
-
-			if ( 'svg' === ( $item['social_icon']['library'] ?? '' ) ) {
-				$social = get_post_meta( $item['social_icon']['value']['id'] ?? 0, '_wp_attachment_image_alt', true );
-			}
-
-			$label = ucwords( str_replace( '-', ' ', $social ) );
-			if ( empty( $label ) ) {
-				$label = 'Link';
-			}
-
-			$links[] = '- [' . $label . '](' . esc_url( $url ) . ')';
-		}
-
-		return implode( "\n", $links );
 	}
 }

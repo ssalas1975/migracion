@@ -2,14 +2,9 @@
 namespace Elementor\Modules\System_Info;
 
 use Elementor\Core\Base\Module as BaseModule;
-use Elementor\Modules\EditorOne\Classes\Menu_Data_Provider;
-use Elementor\Modules\System_Info\AdminMenuItems\Editor_One_System_Info_Menu;
-use Elementor\Modules\System_Info\AdminMenuItems\Editor_One_System_Menu;
-use Elementor\Modules\System_Info\Helpers\Model_Helper;
 use Elementor\Modules\System_Info\Reporters\Base;
-use Elementor\Modules\System_Info\Rest\Rest_Api;
+use Elementor\Modules\System_Info\Helpers\Model_Helper;
 use Elementor\Plugin;
-use Elementor\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -71,10 +66,6 @@ class Module extends BaseModule {
 		'mu_plugins' => [],
 	];
 
-	public function get_capability() {
-		return $this->capability;
-	}
-
 	/**
 	 * Main system info page constructor.
 	 *
@@ -121,52 +112,34 @@ class Module extends BaseModule {
 	 * @access private
 	 */
 	private function add_actions() {
-		add_action( 'elementor/editor-one/menu/register', function ( Menu_Data_Provider $menu_data_provider ) {
-			$this->register_editor_one_menu( $menu_data_provider );
-		} );
-
-		add_action( 'wp_ajax_elementor_system_info_download_file', [ $this, 'download_file' ] );
-		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
-	}
-
-	public function register_rest_routes(): void {
-		( new Rest_Api() )->register_routes();
-	}
-
-	public function get_reports_data( string $format = '' ): array {
-		$reports = $this->load_reports( self::get_allowed_reports() );
-
-		return $this->build_reports_data( $reports, $format );
-	}
-
-	private function build_reports_data( array $reports, string $format ): array {
-		$data = [];
-
-		foreach ( $reports as $report_name => $report_details ) {
-			$report = $report_details['report']->get_report( $format );
-
-			if ( is_wp_error( $report ) ) {
-				continue;
-			}
-
-			$report_data = [
-				'label' => $report_details['label'],
-				'report' => $report,
-			];
-
-			if ( ! empty( $report_details['sub'] ) ) {
-				$report_data['sub'] = $this->build_reports_data( $report_details['sub'], $format );
-			}
-
-			$data[ $report_name ] = $report_data;
+		if ( ! Plugin::$instance->experiments->is_feature_active( 'admin_menu_rearrangement' ) ) {
+			add_action( 'admin_menu', [ $this, 'register_menu' ], 500 );
 		}
 
-		return $data;
+		add_action( 'wp_ajax_elementor_system_info_download_file', [ $this, 'download_file' ] );
 	}
 
-	private function register_editor_one_menu( Menu_Data_Provider $menu_data_provider ) {
-		$menu_data_provider->register_menu( new Editor_One_System_Menu() );
-		$menu_data_provider->register_menu( new Editor_One_System_Info_Menu() );
+	/**
+	 * Register admin menu.
+	 *
+	 * Add new Elementor system info admin menu.
+	 *
+	 * Fired by `admin_menu` action.
+	 *
+	 * @since 2.9.0
+	 * @access public
+	 */
+	public function register_menu() {
+		$system_info_text = esc_html__( 'System Info', 'elementor' );
+
+		add_submenu_page(
+			'elementor',
+			$system_info_text,
+			$system_info_text,
+			$this->capability,
+			'elementor-system-info',
+			[ $this, 'display_page' ]
+		);
 	}
 
 	/**
@@ -183,15 +156,9 @@ class Module extends BaseModule {
 		$reports = $this->load_reports( $reports_info );
 		?>
 		<div id="elementor-system-info">
-			<div class="elementor-system-info-header">
-				<h1 class="wp-heading-inline"><?php echo esc_html__( 'System Info', 'elementor' ); ?></h1>
-				<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post">
-					<input type="hidden" name="action" value="elementor_system_info_download_file">
-					<input type="submit" data-id="elementor-system-info-download-file" class="button button-primary" value="<?php echo esc_attr__( 'Download System Info', 'elementor' ); ?>">
-				</form>
-			</div>
+			<h3 class="wp-heading-inline"><?php echo esc_html__( 'System Info', 'elementor' ); ?></h3>
 			<div><?php $this->print_report( $reports, 'html' ); ?></div>
-			<h2><?php echo esc_html__( 'Copy & Paste Info', 'elementor' ); ?></h2>
+			<h3><?php echo esc_html__( 'Copy & Paste Info', 'elementor' ); ?></h3>
 			<div id="elementor-system-info-raw">
 				<label id="elementor-system-info-raw-code-label" for="elementor-system-info-raw-code"><?php echo esc_html__( 'You can copy the below info as simple text with Ctrl+C / Ctrl+V:', 'elementor' ); ?></label>
 				<textarea id="elementor-system-info-raw-code" readonly>
@@ -211,7 +178,7 @@ class Module extends BaseModule {
 			<hr>
 			<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post">
 				<input type="hidden" name="action" value="elementor_system_info_download_file">
-				<input type="submit" data-id="elementor-system-info-download-file" class="button button-primary" value="<?php echo esc_attr__( 'Download System Info', 'elementor' ); ?>">
+				<input type="submit" class="button button-primary" value="<?php echo esc_html__( 'Download System Info', 'elementor' ); ?>">
 			</form>
 		</div>
 		<?php
@@ -229,7 +196,7 @@ class Module extends BaseModule {
 	 */
 	public function download_file() {
 		if ( ! current_user_can( $this->capability ) ) {
-			wp_die( esc_html__( 'You do not have permission to download this file.', 'elementor' ) );
+			wp_die( esc_html__( 'You don\'t have permissions to download this file', 'elementor' ) );
 		}
 
 		$reports_info = self::get_allowed_reports();
@@ -311,8 +278,9 @@ class Module extends BaseModule {
 	 *
 	 * @return \WP_Error|false|Base Base instance if the report was created,
 	 *                                       False or WP_Error otherwise.
-	 * @since 2.9.0
+	 *@since 2.9.0
 	 * @access public
+	 *
 	 */
 	public function create_reporter( array $properties ) {
 		$properties = Model_Helper::prepare_properties( $this->get_settings( 'reporter_properties' ), $properties );

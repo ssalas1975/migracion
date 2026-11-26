@@ -7,7 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Elementor\Core\Kits\Documents\Tabs\Global_Colors;
 use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
-
 /**
  * Elementor accordion widget.
  *
@@ -74,40 +73,6 @@ class Widget_Accordion extends Widget_Base {
 		return [ 'accordion', 'tabs', 'toggle' ];
 	}
 
-	protected function is_dynamic_content(): bool {
-		return false;
-	}
-
-	/**
-	 * Get style dependencies.
-	 *
-	 * Retrieve the list of style dependencies the widget requires.
-	 *
-	 * @since 3.24.0
-	 * @access public
-	 *
-	 * @return array Widget style dependencies.
-	 */
-	public function get_style_depends(): array {
-		return [ 'widget-accordion' ];
-	}
-
-	/**
-	 * Hide widget from panel.
-	 *
-	 * Hide the toggle widget from the panel if nested-accordion experiment is active.
-	 *
-	 * @since 3.15.0
-	 * @return bool
-	 */
-	public function show_in_panel(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'container' );
-	}
-
-	public function has_widget_inner_wrapper(): bool {
-		return ! Plugin::$instance->experiments->is_feature_active( 'e_optimized_markup' );
-	}
-
 	/**
 	 * Register accordion widget controls.
 	 *
@@ -129,7 +94,7 @@ class Widget_Accordion extends Widget_Base {
 		$repeater->add_control(
 			'tab_title',
 			[
-				'label' => esc_html__( 'Title', 'elementor' ),
+				'label' => esc_html__( 'Title & Description', 'elementor' ),
 				'type' => Controls_Manager::TEXT,
 				'default' => esc_html__( 'Accordion Title', 'elementor' ),
 				'dynamic' => [
@@ -145,19 +110,9 @@ class Widget_Accordion extends Widget_Base {
 				'label' => esc_html__( 'Content', 'elementor' ),
 				'type' => Controls_Manager::WYSIWYG,
 				'default' => esc_html__( 'Accordion Content', 'elementor' ),
+				'show_label' => false,
 			]
 		);
-
-		if ( Plugin::$instance->widgets_manager->get_widget_types( 'nested-accordion' ) ) {
-			$this->add_deprecation_message(
-				'3.15.0',
-				esc_html__(
-					'You are currently editing an Accordion Widget in its old version. Any new Accordion widget dragged into the canvas will be the new Accordion widget, with the improved Nested capabilities.',
-					'elementor'
-				),
-				'nested-accordion'
-			);
-		}
 
 		$this->add_control(
 			'tabs',
@@ -176,6 +131,15 @@ class Widget_Accordion extends Widget_Base {
 					],
 				],
 				'title_field' => '{{{ tab_title }}}',
+			]
+		);
+
+		$this->add_control(
+			'view',
+			[
+				'label' => esc_html__( 'View', 'elementor' ),
+				'type' => Controls_Manager::HIDDEN,
+				'default' => 'traditional',
 			]
 		);
 
@@ -280,13 +244,10 @@ class Widget_Accordion extends Widget_Base {
 			[
 				'label' => esc_html__( 'Border Width', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'vw', 'custom' ],
 				'range' => [
 					'px' => [
-						'max' => 20,
-					],
-					'em' => [
-						'max' => 2,
+						'min' => 0,
+						'max' => 10,
 					],
 				],
 				'selectors' => [
@@ -304,8 +265,8 @@ class Widget_Accordion extends Widget_Base {
 				'type' => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .elementor-accordion-item' => 'border-color: {{VALUE}};',
-					'{{WRAPPER}} .elementor-accordion-item .elementor-tab-content' => 'border-block-start-color: {{VALUE}};',
-					'{{WRAPPER}} .elementor-accordion-item .elementor-tab-title.elementor-active' => 'border-block-end-color: {{VALUE}};',
+					'{{WRAPPER}} .elementor-accordion-item .elementor-tab-content' => 'border-top-color: {{VALUE}};',
+					'{{WRAPPER}} .elementor-accordion-item .elementor-tab-title.elementor-active' => 'border-bottom-color: {{VALUE}};',
 				],
 			]
 		);
@@ -393,7 +354,7 @@ class Widget_Accordion extends Widget_Base {
 			[
 				'label' => esc_html__( 'Padding', 'elementor' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'vw', 'custom' ],
+				'size_units' => [ 'px', 'em', '%' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-tab-title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -462,20 +423,15 @@ class Widget_Accordion extends Widget_Base {
 			[
 				'label' => esc_html__( 'Spacing', 'elementor' ),
 				'type' => Controls_Manager::SLIDER,
-				'size_units' => [ 'px', 'em', 'rem', 'custom' ],
 				'range' => [
 					'px' => [
+						'min' => 0,
 						'max' => 100,
-					],
-					'em' => [
-						'max' => 1,
-					],
-					'rem' => [
-						'max' => 1,
 					],
 				],
 				'selectors' => [
-					'{{WRAPPER}} .elementor-accordion-icon' => 'margin-inline-end: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .elementor-accordion-icon.elementor-accordion-icon-left' => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .elementor-accordion-icon.elementor-accordion-icon-right' => 'margin-left: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -539,7 +495,7 @@ class Widget_Accordion extends Widget_Base {
 			[
 				'label' => esc_html__( 'Padding', 'elementor' ),
 				'type' => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%', 'em', 'rem', 'vw', 'custom' ],
+				'size_units' => [ 'px', 'em', '%' ],
 				'selectors' => [
 					'{{WRAPPER}} .elementor-tab-content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
@@ -574,7 +530,7 @@ class Widget_Accordion extends Widget_Base {
 		$has_icon = ( ! $is_new || ! empty( $settings['selected_icon']['value'] ) );
 		$id_int = substr( $this->get_id_int(), 0, 3 );
 		?>
-		<div class="elementor-accordion">
+		<div class="elementor-accordion" role="tablist">
 			<?php
 			foreach ( $settings['tabs'] as $index => $item ) :
 				$tab_count = $index + 1;
@@ -587,7 +543,7 @@ class Widget_Accordion extends Widget_Base {
 					'id' => 'elementor-tab-title-' . $id_int . $tab_count,
 					'class' => [ 'elementor-tab-title' ],
 					'data-tab' => $tab_count,
-					'role' => 'button',
+					'role' => 'tab',
 					'aria-controls' => 'elementor-tab-content-' . $id_int . $tab_count,
 					'aria-expanded' => 'false',
 				] );
@@ -596,7 +552,7 @@ class Widget_Accordion extends Widget_Base {
 					'id' => 'elementor-tab-content-' . $id_int . $tab_count,
 					'class' => [ 'elementor-tab-content', 'elementor-clearfix' ],
 					'data-tab' => $tab_count,
-					'role' => 'region',
+					'role' => 'tabpanel',
 					'aria-labelledby' => 'elementor-tab-title-' . $id_int . $tab_count,
 				] );
 
@@ -616,7 +572,7 @@ class Widget_Accordion extends Widget_Base {
 							<?php } ?>
 							</span>
 						<?php endif; ?>
-						<a class="elementor-accordion-title" tabindex="0"><?php
+						<a class="elementor-accordion-title" href=""><?php
 							$this->print_unescaped_setting( 'tab_title', 'tabs', $index );
 						?></a>
 					</<?php Utils::print_validated_html_tag( $settings['title_html_tag'] ); ?>>
@@ -658,38 +614,9 @@ class Widget_Accordion extends Widget_Base {
 	 * @since 2.9.0
 	 * @access protected
 	 */
-	public function render_markdown(): string {
-		$settings = $this->get_settings_for_display();
-
-		if ( empty( $settings['tabs'] ) ) {
-			return '';
-		}
-
-		$sections = [];
-
-		foreach ( $settings['tabs'] as $item ) {
-			$title = Utils::html_to_plain_text( $item['tab_title'] ?? '' );
-			$content = \Elementor\Modules\MarkdownRender\Html_To_Markdown::convert( $item['tab_content'] ?? '' );
-
-			if ( empty( $title ) && empty( $content ) ) {
-				continue;
-			}
-
-			$section = '### ' . $title;
-
-			if ( ! empty( $content ) ) {
-				$section .= "\n\n" . $content;
-			}
-
-			$sections[] = $section;
-		}
-
-		return implode( "\n\n", $sections );
-	}
-
 	protected function content_template() {
 		?>
-		<div class="elementor-accordion">
+		<div class="elementor-accordion" role="tablist">
 			<#
 			if ( settings.tabs ) {
 				var tabindex = view.getIDInt().toString().substr( 0, 3 ),
@@ -707,7 +634,7 @@ class Widget_Accordion extends Widget_Base {
 						'class': [ 'elementor-tab-title' ],
 						'tabindex': tabindex + tabCount,
 						'data-tab': tabCount,
-						'role': 'button',
+						'role': 'tab',
 						'aria-controls': 'elementor-tab-content-' + tabindex + tabCount,
 						'aria-expanded': 'false',
 					} );
@@ -716,7 +643,7 @@ class Widget_Accordion extends Widget_Base {
 						'id': 'elementor-tab-content-' + tabindex + tabCount,
 						'class': [ 'elementor-tab-content', 'elementor-clearfix' ],
 						'data-tab': tabCount,
-						'role': 'region',
+						'role': 'tabpanel',
 						'aria-labelledby': 'elementor-tab-title-' + tabindex + tabCount
 					} );
 
@@ -737,7 +664,7 @@ class Widget_Accordion extends Widget_Base {
 								<# } #>
 							</span>
 							<# } #>
-							<a class="elementor-accordion-title" tabindex="0">{{{ item.tab_title }}}</a>
+							<a class="elementor-accordion-title" href="">{{{ item.tab_title }}}</a>
 						</{{{ titleHTMLTag }}}>
 						<div {{{ view.getRenderAttributeString( tabContentKey ) }}}>{{{ item.tab_content }}}</div>
 					</div>

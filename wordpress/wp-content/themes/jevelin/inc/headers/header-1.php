@@ -17,6 +17,11 @@
 ?>
 
 <?php /* Header */ ?>
+<?php
+	if( function_exists( 'jevelin_before_header_starts' ) ) :
+		jevelin_before_header_starts();
+	endif;
+?>
 <div class="sh-header-height">
 	<div class="<?php jevelin_header_classes( 1 ); ?>">
 		<div class="container">
@@ -33,6 +38,10 @@
 					<nav id="header-navigation" class="header-standard-position">
 						<?php if ( has_nav_menu( 'header' ) ) : ?>
 							<?php
+								global $blog_id;
+								$current_blog_id = $blog_id;
+								apply_filters( 'jevelin_before_header_nav', $current_blog_id );
+
 								wp_nav_menu( array(
 									'theme_location' => 'header',
 									'depth' => 4,
@@ -40,6 +49,8 @@
 									'menu_class' => 'sh-nav',
 									'items_wrap' => jevelin_nav_wrap()
 								));
+
+				 				apply_filters( 'jevelin_after_header_nav', $current_blog_id );
 							?>
 						<?php else :
 							jevelin_asign_menu();

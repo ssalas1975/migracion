@@ -45,11 +45,15 @@ class Jevelin_Theme_Includes
 			self::include_child_first('/helpers.php');
 			self::include_child_first('/hooks.php');
 			self::include_child_first('/icons.php');
+			self::include_child_first('/amp.php');
+			if( !is_admin() ) :
+				self::include_child_first('/schema.php');
+			endif;
 
 
 			/* Load when in administration panel */
 			if( is_admin() ) :
-			self::include_child_first('/core/start.php');
+				self::include_child_first('/core/start.php');
 				self::include_child_first('/demos-unyson.php');
 				self::include_child_first('/install-plugins.php');
 
@@ -64,6 +68,9 @@ class Jevelin_Theme_Includes
 			/* Load VC */
 			if( defined( 'WPB_VC_VERSION' ) ) :
 				self::include_child_first('/vc.php');
+				self::include_child_first('/vc-sections.php');
+				self::include_child_first('/vc-templates-content.php');
+				self::include_child_first('/vc-templates.php');
 			endif;
 
 

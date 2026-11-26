@@ -1,15 +1,15 @@
 <?php
 namespace Elementor\Modules\LandingPages;
 
+use Elementor\Core\Admin\Menu\Main as MainMenu;
 use Elementor\Core\Base\Module as BaseModule;
 use Elementor\Core\Documents_Manager;
 use Elementor\Core\Experiments\Manager as Experiments_Manager;
 use Elementor\Modules\LandingPages\Documents\Landing_Page;
-use Elementor\Modules\LandingPages\AdminMenuItems\Editor_One_Landing_Pages_Menu;
 use Elementor\Modules\LandingPages\Module as Landing_Pages_Module;
-use Elementor\Modules\EditorOne\Classes\Menu_Data_Provider;
 use Elementor\Plugin;
 use Elementor\TemplateLibrary\Source_Local;
+use Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -20,9 +20,8 @@ class Module extends BaseModule {
 	const DOCUMENT_TYPE = 'landing-page';
 	const CPT = 'e-landing-page';
 	const ADMIN_PAGE_SLUG = 'edit.php?post_type=' . self::CPT;
-	const ACTIVATION_KEY = 'elementor_landing_pages_activation';
 
-	private $has_pages = null;
+	private $posts;
 	private $trashed_posts;
 	private $new_lp_url;
 	private $permalink_structure;
@@ -32,50 +31,26 @@ class Module extends BaseModule {
 	}
 
 	/**
-	 * Register Experimental Feature
+	 * Get Experimental Data
 	 *
 	 * Implementation of this method makes the module an experiment.
 	 *
-	 * @since 3.28.0
+	 * @since 3.1.0
+	 *
+	 * @return array
 	 */
-	private function register_experiment() {
-		Plugin::$instance->experiments->add_feature( [
+	public static function get_experimental_data() {
+		return [
 			'name' => 'landing-pages',
 			'title' => esc_html__( 'Landing Pages', 'elementor' ),
 			'description' => esc_html__( 'Adds a new Elementor content type that allows creating beautiful landing pages instantly in a streamlined workflow.', 'elementor' ),
-			'release_status' => Experiments_Manager::RELEASE_STATUS_BETA,
+			'release_status' => Experiments_Manager::RELEASE_STATUS_STABLE,
 			'default' => Experiments_Manager::STATE_ACTIVE,
 			'new_site' => [
-				'default_inactive' => true,
-				'minimum_installation_version' => '3.22.0',
+				'default_active' => true,
+				'minimum_installation_version' => '3.1.0-beta',
 			],
-			'deprecated' => true,
-		] );
-	}
-
-	/**
-	 * Should activate landing pages
-	 *
-	 * Checks whether the Landing Pages should be activated.
-	 *
-	 * If the activation key set to `1` in wp_options, the Landing Pages feature should be active. Otherwise not.
-	 * This is a backwards compatibility for websites that had Landing Pages, therefore couldn't be deactivated.
-	 * When deleting posts in Landing Pages CPT, Elementor checks again whether this feature should be activated.
-	 *
-	 * @since 3.31.0
-	 */
-	private function should_activate_landing_pages() {
-		if ( '1' === get_option( self::ACTIVATION_KEY ) ) {
-			return true;
-		}
-
-		if ( $this->has_landing_pages() ) {
-			update_option( self::ACTIVATION_KEY, '1' );
-			return true;
-		}
-
-		update_option( self::ACTIVATION_KEY, '0' );
-		return false;
+		];
 	}
 
 	/**
@@ -107,11 +82,21 @@ class Module extends BaseModule {
 		return $this->trashed_posts;
 	}
 
-	private function has_landing_pages() {
-		if ( null !== $this->has_pages ) {
-			return $this->has_pages;
+	/**
+	 * Get Landing Pages Posts
+	 *
+	 * Returns the posts property of a WP_Query run for posts with the Landing Pages CPT.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @return array posts
+	 */
+	private function get_landing_page_posts() {
+		if ( $this->posts ) {
+			return $this->posts;
 		}
 
+		// `'posts_per_page' => 1` is because this is only used as an indicator to whether there are any landing pages.
 		$posts_query = new \WP_Query( [
 			'no_found_rows' => true,
 			'post_type' => self::CPT,
@@ -121,9 +106,9 @@ class Module extends BaseModule {
 			'meta_value' => self::DOCUMENT_TYPE,
 		] );
 
-		$this->has_pages = $posts_query->post_count > 0;
+		$this->posts = $posts_query->posts;
 
-		return $this->has_pages;
+		return $this->posts;
 	}
 
 	/**
@@ -134,7 +119,7 @@ class Module extends BaseModule {
 	 * @since 3.1.0
 	 * @access public
 	 *
-	 * @param \WP_Post $post Post Object.
+	 * @param \WP_Post $post Post Object
 	 *
 	 * @return bool Whether the post was built with Elementor.
 	 */
@@ -142,8 +127,12 @@ class Module extends BaseModule {
 		return self::CPT === $post->post_type;
 	}
 
-	public function get_menu_args() {
-		if ( $this->has_landing_pages() ) {
+	private function get_menu_args() {
+		$posts = $this->get_landing_page_posts();
+
+		// If there are no Landing Pages, show the "Create Your First Landing Page" page.
+		// If there are, show the pages table.
+		if ( ! empty( $posts ) ) {
 			$menu_slug = self::ADMIN_PAGE_SLUG;
 			$function = null;
 		} else {
@@ -157,8 +146,38 @@ class Module extends BaseModule {
 		];
 	}
 
-	private function register_editor_one_menu( Menu_Data_Provider $menu_data_provider ): void {
-		$menu_data_provider->register_menu( new Editor_One_Landing_Pages_Menu( $this ) );
+	private function register_admin_menu( MainMenu $menu ) {
+		$landing_pages_title = esc_html__( 'Landing Pages', 'elementor' );
+
+		$menu_args = array_merge( $this->get_menu_args(), [
+			'page_title' => $landing_pages_title,
+			'menu_title' => $landing_pages_title,
+			'index' => 20,
+		] );
+
+		$menu->add_submenu( $menu_args );
+	}
+
+	/**
+	 * Add Submenu Page
+	 *
+	 * Adds the 'Landing Pages' submenu item to the 'Templates' menu item.
+	 *
+	 * @since 3.1.0
+	 */
+	private function register_admin_menu_legacy() {
+		$landing_pages_title = esc_html__( 'Landing Pages', 'elementor' );
+
+		$menu_args = $this->get_menu_args();
+
+		add_submenu_page(
+			Source_Local::ADMIN_MENU_SLUG,
+			$landing_pages_title,
+			$landing_pages_title,
+			'manage_options',
+			$menu_args['menu_slug'],
+			$menu_args['function']
+		);
 	}
 
 	/**
@@ -203,7 +222,7 @@ class Module extends BaseModule {
 				<?php
 					printf(
 						/* translators: %1$s Link open tag, %2$s: Link close tag. */
-						esc_html__( 'Or view %1$sTrashed Items%2$s', 'elementor' ),
+						esc_html__( 'Or view %1$sTrashed Items%1$s', 'elementor' ),
 						'<a href="' . esc_url( admin_url( 'edit.php?post_status=trash&post_type=' . self::CPT ) ) . '">',
 						'</a>'
 					);
@@ -246,7 +265,7 @@ class Module extends BaseModule {
 				'addNewLandingPageUrl' => $this->get_add_new_landing_page_url(),
 			],
 			'landingPages' => [
-				'landingPagesHasPages' => $this->has_landing_pages(),
+				'landingPagesHasPages' => [] !== $this->get_landing_page_posts(),
 				'isLandingPageAdminEdit' => $this->is_landing_page_admin_edit(),
 			],
 		];
@@ -312,7 +331,7 @@ class Module extends BaseModule {
 		}
 
 		// Any slug prefixes need to be removed from the post link.
-		return trailingslashit( get_home_url() ) . trailingslashit( $post->post_name );
+		return get_home_url() . '/' . $post->post_name . '/';
 	}
 
 	/**
@@ -422,16 +441,6 @@ class Module extends BaseModule {
 	}
 
 	public function __construct() {
-		if ( ! $this->should_activate_landing_pages() ) {
-			return;
-		}
-
-		$this->register_experiment();
-
-		if ( ! Plugin::$instance->experiments->is_feature_active( 'landing-pages' ) ) {
-			return;
-		}
-
 		$this->permalink_structure = get_option( 'permalink_structure' );
 
 		$this->register_landing_page_cpt();
@@ -462,17 +471,15 @@ class Module extends BaseModule {
 			$documents_manager->register_document_type( self::DOCUMENT_TYPE, Landing_Page::get_class_full_name() );
 		} );
 
-		add_action( 'elementor/editor-one/menu/register', function ( Menu_Data_Provider $menu_data_provider ) {
-			$this->register_editor_one_menu( $menu_data_provider );
-		} );
-
-		add_filter( 'elementor/editor-one/menu/elementor_post_types', function ( array $elementor_post_types ): array {
-			$elementor_post_types[ static::CPT ] = [
-				'menu_slug' => 'elementor-editor-templates',
-				'child_slug' => 'edit.php?post_type=' . static::CPT,
-			];
-			return $elementor_post_types;
-		} );
+		if ( Plugin::$instance->experiments->is_feature_active( 'admin_menu_rearrangement' ) ) {
+			add_action( 'elementor/admin/menu_registered/elementor', function( MainMenu $menu ) {
+				$this->register_admin_menu( $menu );
+			} );
+		} else {
+			add_action( 'admin_menu', function() {
+				$this->register_admin_menu_legacy();
+			}, 30 );
+		}
 
 		// Add the custom 'Add New' link for Landing Pages into Elementor's admin config.
 		add_action( 'elementor/admin/localize_settings', function( array $settings ) {
@@ -483,11 +490,6 @@ class Module extends BaseModule {
 			$cpts[] = self::CPT;
 
 			return $cpts;
-		} );
-
-		// When deleting posts in Landing Page CPT, force Elementor to check again whether this feature should be activated.
-		add_action( 'deleted_post_' . self::CPT, function () {
-			delete_option( self::ACTIVATION_KEY );
 		} );
 
 		// In the Landing Pages Admin Table page - Overwrite Template type column header title.

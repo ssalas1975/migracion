@@ -1,17 +1,20 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
-import { Popover } from '@wordpress/components';
+import { ToolbarButton, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
-import { megaphone as icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import Panel from '../panel';
-import { StyledTrigger } from './styles';
 import './style.scss';
 
 export default function() {
@@ -28,12 +31,18 @@ export default function() {
 
 	return (
 		<>
-			<StyledTrigger
+			<ToolbarButton
 				aria-expanded={ isToggled }
-				onClick={ () => ! isToggled && setIsToggled( true ) }
-				icon={ icon }
-				text={ __( 'Alerts', 'better-wp-security' ) }
-				noticesCount={ notices.length }
+				onClick={ () => setIsToggled( ! isToggled ) }
+				icon="megaphone"
+				text={ __( 'Notifications', 'better-wp-security' ) }
+				className={ classnames(
+					'itsec-admin-bar-admin-notices__trigger',
+					{
+						'itsec-admin-bar-admin-notices__trigger--has-notices':
+							notices.length > 0,
+					}
+				) }
 			/>
 			{ isToggled && (
 				<Popover
@@ -48,6 +57,7 @@ export default function() {
 					<Panel
 						notices={ notices }
 						loaded={ noticesLoaded }
+						close={ () => setIsToggled( false ) }
 					/>
 				</Popover>
 			) }

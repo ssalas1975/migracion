@@ -67,4 +67,6 @@ abstract class NS_Cloner_Addon {
 	 */
 	public function admin_enqueue() {
 	}
+
 }
+

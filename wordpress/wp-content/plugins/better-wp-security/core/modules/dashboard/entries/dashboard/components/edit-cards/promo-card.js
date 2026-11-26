@@ -1,27 +1,22 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
-import { external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
-import { StyledCard, StyledButton } from './styles';
+import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 
 export default function PromoCard( { title } ) {
 	return (
-		<StyledCard>
-			<StyledButton
-				/* translators: 1. Dashboard Card Name. */
-				text={ sprintf( __( 'Pro: %s', 'better-wp-security' ), title ) }
-				href="https://go.solidwp.com/buy-solid-security"
-				target="_blank"
-				align="left"
-				icon={ external }
-				iconPosition="right"
-				variant="tertiary"
+		<li className="itsec-edit-cards__card-choice itsec-edit-cards__card-choice--promo">
+			<span className="itsec-edit-cards__card-choice-title">
+				<span>{ __( 'Pro: ', 'better-wp-security' ) }</span>
+				{ title }
+			</span>
+			<Button
+				className="itsec-edit-cards__action itsec-edit-cards__action--add"
+				label={ __( 'Go Pro', 'better-wp-security' ) }
+				href="https://ithemes.com/security/?utm_source=wordpressadmin&utm_medium=dashboardcard&utm_campaign=itsecfreecta"
+				icon="external"
 			/>
-		</StyledCard>
+		</li>
 	);
 }

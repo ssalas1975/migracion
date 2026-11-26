@@ -1,30 +1,30 @@
 <?php
-
 /**
  * godaddy custom hosting class
  *
  * Standard: PSR-2
  *
+ * @package SC\DUPX\DB
  * @link http://www.php-fig.org/psr/psr-2/
+ *
  */
-
 defined('ABSPATH') || defined('DUPXABSPATH') || exit;
-
-use Duplicator\Installer\Core\Params\PrmMng;
 
 /**
  * class for GoDaddy managed hosting
- *
+ * 
  * @todo not yet implemneted
+ * 
  */
 class DUPX_Pantheon_Host implements DUPX_Host_interface
 {
+
     /**
      * return the current host itentifier
      *
      * @return string
      */
-    public static function getIdentifier(): string
+    public static function getIdentifier()
     {
         return DUPX_Custom_Host_Manager::HOST_PANTHEON;
     }
@@ -33,11 +33,11 @@ class DUPX_Pantheon_Host implements DUPX_Host_interface
      * @return bool true if is current host
      * @throws Exception
      */
-    public function isHosting(): bool
+    public function isHosting()
     {
         // check only mu plugin file exists
-
-        $testFile = PrmMng::getInstance()->getValue(PrmMng::PARAM_PATH_MUPLUGINS_NEW) . '/pantheon.php';
+        
+        $testFile = $GLOBALS['DUPX_ROOT'].'/wp-content/mu-plugins/pantheon.php';
         return file_exists($testFile);
     }
 
@@ -47,25 +47,25 @@ class DUPX_Pantheon_Host implements DUPX_Host_interface
      *
      * @return void
      */
-    public function init(): void
+    public function init()
     {
+        
     }
 
     /**
-     *
+     * 
      * @return string
      */
-    public function getLabel(): string
+    public function getLabel()
     {
         return 'Pantheon';
     }
 
     /**
      * this function is called if current hosting is this
-     *
-     * @return void
      */
-    public function setCustomParams(): void
+    public function setCustomParams()
     {
+        
     }
 }

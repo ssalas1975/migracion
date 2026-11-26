@@ -1157,7 +1157,7 @@ class ET_Dynamic_Assets {
 					$assets_data[ $file_type ]['content'][] = $file_content;
 
 					if ( $this->is_rtl ) {
-						$file_rtl = str_replace( ".{$file_type}", "-rtl.{$file_type}", $file );
+						$file_rtl = str_replace( ".${file_type}", "-rtl.{$file_type}", $file );
 
 						if ( file_exists( $file_rtl ) ) {
 							$file_content_rtl = $wp_filesystem->get_contents( $file_rtl );
@@ -1300,7 +1300,7 @@ class ET_Dynamic_Assets {
 		$customizer_gutter      = intval( et_get_option( 'gutter_width', '3' ) );
 		$this->_default_gutters = array_merge( (array) $page_custom_gutter, (array) $customizer_gutter );
 		$no_of_gutters          = substr_count( $this->_all_content, 'use_custom_gutter' );
-		$preset_gutter_val      = ! empty( $this->_presets_attributes['use_custom_gutter'] ) && 'on' === $this->_presets_attributes['use_custom_gutter'] && ! empty( $this->_presets_attributes['gutter_width'] ) ?
+		$preset_gutter_val      = ! empty( $this->_presets_attributes['use_custom_gutter'] ) && 'on' === $this->_presets_attributes['use_custom_gutter'] ?
 			(array) $this->_presets_attributes['gutter_width'] : array();
 
 		if ( $no_of_gutters > count( $matches[0] ) && ! in_array( 'gutter_width="3"', $matches[0], true ) ) {
@@ -1755,11 +1755,6 @@ class ET_Dynamic_Assets {
 					"{$assets_prefix}/css/overlay{$this->_cpt_suffix}.css",
 				),
 			),
-			'et_pb_heading'                     => array(
-				'css' => array(
-					"{$assets_prefix}/css/heading{$this->_cpt_suffix}.css",
-				),
-			),
 			'et_pb_image'                       => array(
 				'css' => array(
 					"{$assets_prefix}/css/image{$this->_cpt_suffix}.css",
@@ -2025,15 +2020,10 @@ class ET_Dynamic_Assets {
 		 * This filter can be used to force loading of a certain Divi module in case their custom one relies on its styles.
 		 *
 		 * @since 4.10.0
-		 * @since 4.18.1
-		 *
-		 * @param array  $required_assets Custom required module slugs.
-		 * @param string $all_content     All content.
 		 */
 		$required_assets = apply_filters(
 			'et_required_module_assets',
-			array(),
-			$this->_all_content
+			array()
 		);
 
 		if ( $used_shortcodes ) {
@@ -2476,7 +2466,7 @@ class ET_Dynamic_Assets {
 				$this->_enqueue_fitvids = true;
 			}
 
-			if ( $this->_enqueue_fitvids || et_disable_js_on_demand() || et_is_media_embedded_in_content( $this->_all_content ) ) {
+			if ( $this->_enqueue_fitvids || et_disable_js_on_demand() ) {
 				wp_enqueue_script( 'fitvids', ET_BUILDER_URI . '/feature/dynamic-assets/assets/js/jquery.fitvids.js', array( 'jquery' ), ET_CORE_VERSION, true );
 			}
 		}
@@ -2488,12 +2478,6 @@ class ET_Dynamic_Assets {
 			);
 
 			$this->_enqueue_comments = $this->check_for_dependency( $comments_deps, $current_shortcodes );
-
-			// We need to set _enqueue_comments to true if Dynamic CSS is disabled, otherwise
-			// comment-reply would never be enqueued and you will not be able to reply to a comment.
-			if ( ! et_use_dynamic_css() ) {
-				$this->_enqueue_comments = true;
-			}
 
 			if ( $this->_enqueue_comments && comments_open() || et_disable_js_on_demand() ) {
 				wp_enqueue_script( 'comment-reply' );
@@ -2632,7 +2616,7 @@ class ET_Dynamic_Assets {
 	 * @since 4.10.0
 	 */
 	public function get_preset_attributes( $content ) {
-		$all_builder_presets = et_get_option( 'builder_global_presets_ng', (object) array(), '', true, false, '', '', true );
+		$all_builder_presets = et_get_option( 'builder_global_presets', (object) array(), '', true );
 		$presets_attributes  = array();
 
 		foreach ( $all_builder_presets as $module => $module_presets ) {

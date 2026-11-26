@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace iThemesSecurity\Strauss\Pimple\Exception;
+namespace Pimple\Exception;
 
-use iThemesSecurity\Strauss\Psr\Container\NotFoundExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * The identifier of a valid service or parameter was expected.

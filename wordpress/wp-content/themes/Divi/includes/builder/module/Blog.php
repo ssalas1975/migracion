@@ -160,8 +160,8 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 				'image'     => array(
 					'css'          => array(
 						'main' => array(
-							'border_radii'  => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
-							'border_styles' => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+							'border_radii'  => '%%order_class%% .et_pb_post .entry-featured-image-url img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+							'border_styles' => '%%order_class%% .et_pb_post .entry-featured-image-url img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
 						),
 					),
 					'label_prefix' => et_builder_i18n( 'Image' ),
@@ -177,7 +177,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 					'tab_slug'          => 'advanced',
 					'toggle_slug'       => 'image',
 					'css'               => array(
-						'main'    => '%%order_class%% .et_pb_post .entry-featured-image-url, %%order_class%% .et_pb_post img, %%order_class%% .et_pb_post .et_pb_slides, %%order_class%% .et_pb_post .et_pb_video_overlay',
+						'main'    => '%%order_class%% .entry-featured-image-url, %%order_class%% img, %%order_class%% .et_pb_slides, %%order_class%% .et_pb_video_overlay',
 						'overlay' => 'inset',
 					),
 					'default_on_fronts' => array(
@@ -967,18 +967,14 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 										echo '<div class="et_pb_image_container">';
 									}
 									?>
-										<?php if ( get_permalink() ) { ?>
-											<a href="<?php the_permalink(); ?>" class="entry-featured-image-url">
-										<?php } ?>
+										<a href="<?php esc_url( the_permalink() ); ?>" class="entry-featured-image-url">
 											<?php print_thumbnail( $thumb, $thumbnail['use_timthumb'], $titletext, $width, $height ); ?>
 											<?php
 											if ( 'on' === $args['use_overlay'] ) {
 												echo et_core_esc_previously( $overlay_output );
 											}
 											?>
-										<?php if ( get_permalink() ) { ?>
-											</a>
-										<?php } ?>
+										</a>
 									<?php
 									if ( 'on' !== $args['fullwidth'] ) {
 										echo '</div>';
@@ -989,13 +985,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 
 						<?php if ( 'off' === $args['fullwidth'] || ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) ) { ?>
 							<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) ) { ?>
-								<<?php echo et_core_esc_previously( $processed_header_level ); ?> class="entry-title">
-									<?php if ( get_permalink() ) { ?>
-										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-									<?php } else { ?>
-										<?php the_title(); ?>
-									<?php } ?>
-								</<?php echo et_core_esc_previously( $processed_header_level ); ?>>
+								<<?php echo et_core_esc_previously( $processed_header_level ); ?> class="entry-title"><a href="<?php esc_url( the_permalink() ); ?>"><?php the_title(); ?></a></<?php echo et_core_esc_previously( $processed_header_level ); ?>>
 							<?php } ?>
 
 							<?php
@@ -1610,13 +1600,7 @@ class ET_Builder_Module_Blog extends ET_Builder_Module_Type_PostBased {
 
 				<?php if ( 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) || post_password_required( $post ) ) { ?>
 					<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) || post_password_required( $post ) ) { ?>
-					<<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?> class="entry-title">
-						<?php if ( get_permalink() ) { ?>
-							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-						<?php } else { ?>
-							<?php the_title(); ?>
-						<?php } ?>
-					</<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?>>
+					<<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?> class="entry-title"><a href="<?php esc_url( the_permalink() ); ?>"><?php the_title(); ?></a></<?php echo et_core_intentionally_unescaped( $processed_header_level, 'fixed_string' ); ?>>
 				<?php } ?>
 
 					<?php

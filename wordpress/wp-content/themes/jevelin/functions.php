@@ -12,7 +12,6 @@ require_once(trailingslashit(get_template_directory()) . '/inc/init.php');
  * Setup Yellow Pencil Pro
  */
 define('YP_THEME_MODE', "true");
-
 add_action('admin_init', function () {
     // Redirect any user trying to access comments page
     global $pagenow;

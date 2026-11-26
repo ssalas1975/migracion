@@ -8,7 +8,7 @@ services:
       WORDPRESS_DB_HOST: "host.docker.internal:3306"  # Usa 172.17.0.1:3306 en Linux
       WORDPRESS_DB_USER: "root"
       WORDPRESS_DB_PASSWORD: "76rh1108"
-      WORDPRESS_DB_NAME: "ms_mhsites"
+      WORDPRESS_DB_NAME: "ms_laverdad"
     volumes:
       - ./wordpress:/var/www/html
 

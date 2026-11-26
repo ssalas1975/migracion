@@ -15,17 +15,14 @@ class HFE_GeneratePress_Compat {
 	/**
 	 * Instance of HFE_GeneratePress_Compat
 	 *
-	 * @var HFE_GeneratePress_Compat|null
+	 * @var HFE_GeneratePress_Compat
 	 */
-	private static $instance = null;
+	private static $instance;
 
 	/**
 	 *  Initiator
-	 *
-	 * @return HFE_GeneratePress_Compat
 	 */
-	// phpcs:ignore
-	public static function instance(): HFE_GeneratePress_Compat {
+	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new HFE_GeneratePress_Compat();
 
@@ -37,11 +34,8 @@ class HFE_GeneratePress_Compat {
 
 	/**
 	 * Run all the Actions / Filters.
-	 * // phpcs:ignore
-	 * @return void
 	 */
-	// phpcs:ignore
-	public function hooks(): void {
+	public function hooks() {
 		if ( hfe_header_enabled() ) {
 			add_action( 'template_redirect', [ $this, 'generatepress_setup_header' ] );
 			add_action( 'generate_header', 'hfe_render_header' );
@@ -59,25 +53,19 @@ class HFE_GeneratePress_Compat {
 
 	/**
 	 * Disable header from the theme.
-	 * // phpcs:ignore
-	 * @return void
 	 */
-	// phpcs:ignore
-	public function generatepress_setup_header(): void {
+	public function generatepress_setup_header() {
 		remove_action( 'generate_header', 'generate_construct_header' );
 	}
 
 	/**
 	 * Disable footer from the theme.
-	 *
-	 * // phpcs:ignore
-	 * @return void
 	 */
-	// phpcs:ignore
-	public function generatepress_setup_footer(): void {
+	public function generatepress_setup_footer() {
 		remove_action( 'generate_footer', 'generate_construct_footer_widgets', 5 );
 		remove_action( 'generate_footer', 'generate_construct_footer' );
 	}
+
 }
 
 HFE_GeneratePress_Compat::instance();
