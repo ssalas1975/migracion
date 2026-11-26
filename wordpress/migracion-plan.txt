@@ -1,0 +1,38 @@
+# Plan de Migración PHP 7.4 → 8.4
+
+## Fase 1: Auditoría de Código
+
+### Archivos modificados:
+- [x] wp-config.php - Ya compatible
+- [x] wp-content/themes/virtue/functions.php - Ya compatible  
+- [x] wp-content/plugins/the-events-calendar/the-events-calendar.php - Ya compatible
+
+### Clases que necesitan `#[\AllowDynamicProperties]`:
+- Virtue Theme Framework
+- Pods (si está activo)
+- Custom plugins: vocento-analytics, configurador-eventos, pidecita-prescripcion-reserva, voc-abc-salud, voc-gistau, voc-premios-*
+
+## Fase 2: Modificaciones de Código
+
+### Archivos a modificar:
+
+1. **wp-content/themes/virtue/lib/classes/** - Clases del framework
+2. **wp-content/plugins/** - Plugins personalizados
+3. **wp-content/themes/Divi-child_PG/** - Child theme functions
+
+## Fase 3: Pruebas
+
+### Checklist:
+- [x] Frontend: navegación, formularios, galerías
+- [x] Backend: admin, creación de contenido  
+- [x] E-commerce: WooCommerce
+- [x] Integraciones: Mailchimp, GA, APIs externas
+- [ ] Performance: GTmetrix/PageSpeed
+- [ ] Monitorizar 24-48h
+
+## Fase 4: Rollout a Producción
+
+1. Backup completo (files + DB)
+2. Migración de archivos
+3. Migración de DB
+4. Verificación post-rollout

@@ -87,10 +87,12 @@ class Admin_Notice {
 		if( !is_multisite() && $this->where == 'network_admin' ) $this->where = 'settings';
 	}
 	
+	#[\AllowDynamicProperties]
 	public function __set( $prop, $val ){
 		$this->$prop = $val;
 	}
-	
+
+	#[\AllowDynamicProperties]
 	public function __get( $prop ){
 		if( $prop == 'user_notice' ){
 			return $this->is_user_notice();

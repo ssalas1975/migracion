@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "meytel-orchestrator",
+  "default_agent": "migration-orchestrator",
   "instructions": [
     "This is a WordPress multisite migration project for PHP 8.4 upgrade.",
     "The core workflow is: audit → staging upgrade → test → production rollout → monitor.",

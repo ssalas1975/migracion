@@ -281,21 +281,15 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 * @return void  Silently fail to set the property when this is tried from outside of this class context.
 		 *               (Inside this class context, the __set() method if not used as there is direct access.)
 		 */
-		public function __set( $name, $value ) {
-			return;
-		}
+		#[\AllowDynamicProperties]
+	public function __set( $name, $value ) {
+		return;
+	}
 
-		/**
-		 * Magic method to get the value of a protected property outside of this class context.
-		 *
-		 * @since 2.5.2
-		 *
-		 * @param string $name Name of an inaccessible property.
-		 * @return mixed The property value.
-		 */
-		public function __get( $name ) {
-			return $this->{$name};
-		}
+	#[\AllowDynamicProperties]
+	public function __get( $name ) {
+		return $this->{$name};
+	}
 
 		/**
 		 * Initialise the interactions between this class and WordPress.

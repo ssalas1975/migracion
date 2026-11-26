@@ -171,6 +171,7 @@ trait Options {
 	 * @param  string $name The name of the property that is missing on the class.
 	 * @return mixed        The value from the options or default/null.
 	 */
+	#[\AllowDynamicProperties]
 	public function __get( $name ) {
 		if ( 'type' === $name ) {
 			$name = '_aioseo_type';
@@ -258,6 +259,7 @@ trait Options {
 	 * @param  mixed  $value The value to set.
 	 * @return void
 	 */
+	#[\AllowDynamicProperties]
 	public function __set( $name, $value ) {
 		if ( $this->setGroupKey( $name, null, $value ) ) {
 			return $this;

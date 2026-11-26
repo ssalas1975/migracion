@@ -704,6 +704,7 @@ abstract class ITSEC_Validator {
 		return $this->settings;
 	}
 
+	#[\AllowDynamicProperties]
 	public function __get( $name ) {
 		if ( 'defaults' === $name ) {
 			_deprecated_function( static::class . '::$defaults', '7.0.0', 'ITSEC_Modules::get_default' );
@@ -716,6 +717,7 @@ abstract class ITSEC_Validator {
 		return null;
 	}
 
+	#[\AllowDynamicProperties]
 	public function __isset( $name ) {
 		return 'defaults' === $name;
 	}
