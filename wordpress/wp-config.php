@@ -140,8 +140,13 @@ if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 
 define( 'DUPLICATOR_AUTH_KEY', 'A[S0=A%Xt/HW)@p,Dn?S*zbDyd.j<j u -Bm#{fgZ$3P{Gf`z|YAQt=3US(_^xO]' );
 /* That's all, stop editing! Happy publishing. */
-
-
+/* Multisite */
+define( 'MULTISITE', true );
+define( 'SUBDOMAIN_INSTALL', false );
+define( 'DOMAIN_CURRENT_SITE', 'localhost:8080' );
+define( 'PATH_CURRENT_SITE', '/' );
+define( 'SITE_ID_CURRENT_SITE', 1 );
+define( 'BLOG_ID_CURRENT_SITE', 1 );
 
 /** Absolute path to the WordPress directory. */
 if ( ! defined( 'ABSPATH' ) ) {
