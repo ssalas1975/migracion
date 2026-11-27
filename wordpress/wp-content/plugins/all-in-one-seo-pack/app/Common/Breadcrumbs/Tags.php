@@ -25,7 +25,8 @@ class Tags {
 	/**
 	 * Replace the tags in the string provided.
 	 *
-	 * @since 4.1.1
+	 * @since   4.1.1
+	 * @version 5.0.5.1 Escape the tag values and stop decoding the whole string.
 	 *
 	 * @param  string  $string           The string with tags.
 	 * @param  array   $item             The breadcrumb item.
@@ -33,20 +34,27 @@ class Tags {
 	 * @return string                    The string with tags replaced.
 	 */
 	public function replaceTags( $string, $item, $stripPunctuation = false ) {
-		if ( ! $string || ! preg_match( '/#/', $string ) ) {
+		if ( ! $string ) {
+			return $string;
+		}
+
+		// Pro custom templates arrive encoded. Decoding happens before any tag value goes in, so only the template's own markup is restored.
+		$string = aioseo()->helpers->decodeHtmlEntities( (string) $string );
+		if ( ! preg_match( '/#/', $string ) ) {
 			return $string;
 		}
 
 		// Replace separator tag so we don't strip it as punctuation.
 		$separatorTag = aioseo()->tags->denotationChar . 'separator_sa';
-		$string       = preg_replace( "/$separatorTag(?![a-zA-Z0-9_])/im", '>thisisjustarandomplaceholder<', $string );
+		$string       = preg_replace( "/$separatorTag(?![a-zA-Z0-9_])/im", '>thisisjustarandomplaceholder<', (string) $string );
 
 		// Replace custom breadcrumb tags.
 		foreach ( $this->getTags() as $tag ) {
 			$tagId   = aioseo()->tags->denotationChar . $tag['id'];
 			$pattern = "/$tagId(?![a-zA-Z0-9_])/im";
-			if ( preg_match( $pattern, $string ) ) {
-				$string = preg_replace( $pattern, $this->getTagValue( $tag, $item ), $string );
+			if ( preg_match( $pattern, (string) $string ) ) {
+				$tagValue = str_replace( '$', '\$', $this->escapeTagValue( $tag['id'], $this->getTagValue( $tag, $item ), $item ) );
+				$string   = preg_replace( $pattern, $tagValue, (string) $string );
 			}
 		}
 
@@ -54,23 +62,89 @@ class Tags {
 			$string = aioseo()->helpers->stripPunctuation( $string );
 		}
 
+		// Remove any remaining tags from the title attribute.
+		// Only the title is decoded: decoding the whole string would turn encoded tag values into live markup.
+		$string = preg_replace_callback( '/title="([^"]*)"/i', function ( $matches ) {
+			$sanitizedTitle = wp_strip_all_tags( aioseo()->helpers->decodeHtmlEntities( $matches[1] ) );
+
+			return 'title="' . esc_attr( $sanitizedTitle ) . '"';
+		}, (string) $string );
+
 		return preg_replace(
 			'/>thisisjustarandomplaceholder<(?![a-zA-Z0-9_])/im',
 			aioseo()->helpers->decodeHtmlEntities( aioseo()->options->searchAppearance->global->separator ),
-			$string
+			(string) $string
 		);
+	}
+
+	/**
+	 * Escapes a tag value for the crumb's HTML.
+	 *
+	 * @since   5.0.5.1
+	 * @version 5.0.6 Added the $item parameter; keep attribute-less inline formatting in text values.
+	 *
+	 * @param  string $tagId The tag ID.
+	 * @param  mixed  $value The tag value.
+	 * @param  array  $item  The breadcrumb item.
+	 * @return string        The escaped tag value.
+	 */
+	protected function escapeTagValue( $tagId, $value, $item = [] ) {
+		$value = (string) $value;
+
+		switch ( $tagId ) {
+			case 'breadcrumb_link':
+				return esc_url( $value );
+			// These return markup.
+			case 'breadcrumb_separator':
+			case 'breadcrumb_wc_product_price':
+				return $value;
+		}
+
+		// Decoded first so the entities WordPress already stored aren't double-encoded.
+		$value = aioseo()->helpers->decodeHtmlEntities( $value );
+
+		// The search crumb comes from the URL, so it never renders markup.
+		if ( ! empty( $item['type'] ) && 'search' === $item['type'] ) {
+			return esc_html( $value );
+		}
+
+		// Titles may use simple inline formatting. With every attribute stripped and the quotes encoded,
+		// the value can't add attributes to the crumb's own tags or break out of the title="" attribute.
+		// A "<" that doesn't open a tag in the browser is text, but wp_kses() would still read "a < b >" as a <b> tag.
+		$value = preg_replace( '/<(?![a-z\/])/i', '&lt;', $value );
+		$value = wp_kses( $value, $this->getAllowedInlineTags() );
+
+		return str_replace( [ '"', "'" ], [ '&quot;', '&#039;' ], $value );
+	}
+
+	/**
+	 * Returns the inline tags a text tag value may keep, without attributes.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @return array The allowed tags for wp_kses().
+	 */
+	private function getAllowedInlineTags() {
+		return [
+			'b'      => [],
+			'em'     => [],
+			'i'      => [],
+			'strong' => []
+		];
 	}
 
 	/**
 	 * Get the value of the tag to replace.
 	 *
-	 * @since 4.1.1
+	 * @since   4.1.1
+	 * @version 5.0.3 Return an empty value when the crumb isn't of the tag's kind.
 	 *
 	 * @param  string $tag  The tag to look for.
 	 * @param  int    $item The crumb array.
 	 * @return string       The value of the tag.
 	 */
 	public function getTagValue( $tag, $item ) {
+		$product = false;
 		if ( 0 === stripos( $tag['id'], 'breadcrumb_wc_product_' ) ) {
 			$product = wc_get_product( $item['reference'] );
 			if ( ! $product ) {
@@ -84,21 +158,22 @@ class Tags {
 			case 'breadcrumb_separator':
 				return aioseo()->breadcrumbs->frontend->getSeparator();
 			case 'breadcrumb_wc_product_price':
-				return wc_price( $product->get_price() );
+				return $product ? wc_price( $product->get_price() ) : '';
 			case 'breadcrumb_wc_product_sku':
-				return $product->get_sku();
+				return $product ? $product->get_sku() : '';
 			case 'breadcrumb_wc_product_brand':
-				return aioseo()->helpers->getWooCommerceBrand( $product->get_id() );
+				return $product ? aioseo()->helpers->getWooCommerceBrand( $product->get_id() ) : '';
+			// A template can use any tag on any crumb, so each one only applies to crumbs of its own kind.
 			case 'breadcrumb_author_first_name':
-				return $item['reference']->first_name;
+				return is_a( $item['reference'], 'WP_User' ) ? $item['reference']->first_name : '';
 			case 'breadcrumb_author_last_name':
-				return $item['reference']->last_name;
+				return is_a( $item['reference'], 'WP_User' ) ? $item['reference']->last_name : '';
 			case 'breadcrumb_archive_post_type_name':
-				return $item['reference']->label;
+				return is_a( $item['reference'], 'WP_Post_Type' ) ? $item['reference']->label : '';
 			case 'breadcrumb_search_string':
-				return $item['reference'];
+				return is_scalar( $item['reference'] ) ? (string) $item['reference'] : '';
 			case 'breadcrumb_format_page_number':
-				return $item['reference']['paged'];
+				return is_array( $item['reference'] ) && isset( $item['reference']['paged'] ) ? $item['reference']['paged'] : '';
 			default:
 				return $item['label'];
 		}
@@ -126,13 +201,13 @@ class Tags {
 			[
 				'id'          => 'breadcrumb_post_title',
 				// Translators: 1 - The type of page (Post, Page, Category, Tag, etc.).
-				'name'        => sprintf( __( '%1$s Title', 'all-in-one-seo-pack' ), 'Post' ),
+				'name'        => sprintf( _x( '%1$s Title', 'SEO template tag', 'all-in-one-seo-pack' ), 'Post' ),
 				'description' => __( 'The original title of the current post.', 'all-in-one-seo-pack' )
 			],
 			[
 				'id'          => 'breadcrumb_taxonomy_title',
 				// Translators: 1 - The type of page (Post, Page, Category, Tag, etc.).
-				'name'        => sprintf( __( '%1$s Title', 'all-in-one-seo-pack' ), 'Category' ),
+				'name'        => sprintf( _x( '%1$s Title', 'SEO template tag', 'all-in-one-seo-pack' ), 'Category' ),
 				// Translators: 1 - The name of a taxonomy.
 				'description' => sprintf( __( 'The %1$s title.', 'all-in-one-seo-pack' ), 'Category' )
 			],

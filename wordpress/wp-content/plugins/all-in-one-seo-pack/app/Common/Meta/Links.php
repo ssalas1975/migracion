@@ -24,7 +24,8 @@ class Links {
 			'prev' => '',
 			'next' => '',
 		];
-		if ( is_home() || is_archive() || is_paged() || is_search() ) {
+
+		if ( is_home() || is_archive() || is_paged() ) {
 			$links = $this->getHomeLinks();
 		}
 
@@ -51,8 +52,8 @@ class Links {
 		$next = '';
 		$page = aioseo()->helpers->getPageNumber();
 
-		global $wp_query;
-		$maxPage = $wp_query->max_num_pages;
+		global $wp_query; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+		$maxPage = $wp_query->max_num_pages; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 		if ( $page > 1 ) {
 			$prev = get_previous_posts_page_link();
 		}
@@ -92,15 +93,15 @@ class Links {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  WP_Post $post The post.
-	 * @return array         An array of link data.
+	 * @param  \WP_Post $post The post.
+	 * @return array          An array of link data.
 	 */
 	private function getPostLinks( $post ) {
 		$prev     = '';
 		$next     = '';
-		$page     = aioseo()->helpers->getPageNumber();
 		$numpages = 1;
-		$content  = $post->post_content;
+		$page     = aioseo()->helpers->getPageNumber();
+		$content  = is_a( $post, 'WP_Post' ) ? $post->post_content : '';
 		if ( false !== strpos( $content, '<!--nextpage-->', 0 ) ) {
 			$content = str_replace( "\n<!--nextpage-->\n", '<!--nextpage-->', $content );
 			$content = str_replace( "\n<!--nextpage-->", '<!--nextpage-->', $content );
@@ -132,13 +133,14 @@ class Links {
 	/**
 	 * This is a clone of _wp_link_page, except that we don't output HTML.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Cast page_on_front to int so the static front page paginates at /page/N/.
 	 *
 	 * @param  integer $number The page number.
 	 * @return string          The URL.
 	 */
 	private function getLinkPage( $number ) {
-		global $wp_rewrite;
+		global $wp_rewrite; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 		$post      = get_post();
 		$queryArgs = [];
 
@@ -147,19 +149,20 @@ class Links {
 		} else {
 			if ( ! get_option( 'permalink_structure' ) || in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 				$url = add_query_arg( 'page', $number, get_permalink() );
-			} elseif ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) === $post->ID ) {
-				$url = trailingslashit( get_permalink() ) . user_trailingslashit( "$wp_rewrite->pagination_base/" . $number, 'single_paged' );
+			} elseif ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post->ID ) {
+				$url = trailingslashit( get_permalink() ) . user_trailingslashit( "$wp_rewrite->pagination_base/" . $number, 'single_paged' ); // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 			} else {
 				$url = trailingslashit( get_permalink() ) . user_trailingslashit( $number, 'single_paged' );
 			}
 		}
 
 		if ( is_preview() ) {
-
+			// phpcs:disable HM.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Recommended	
 			if ( ( 'draft' !== $post->post_status ) && isset( $_GET['preview_id'], $_GET['preview_nonce'] ) ) {
 				$queryArgs['preview_id']    = sanitize_text_field( wp_unslash( $_GET['preview_id'] ) );
 				$queryArgs['preview_nonce'] = sanitize_text_field( wp_unslash( $_GET['preview_nonce'] ) );
 			}
+			// phpcs:enable
 
 			$url = get_preview_post_link( $post, $queryArgs, $url );
 		}

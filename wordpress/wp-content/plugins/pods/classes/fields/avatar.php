@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 require_once __DIR__ . '/file.php';
 
 /**
@@ -27,9 +32,9 @@ class PodsField_Avatar extends PodsField_File {
 	/**
 	 * {@inheritdoc}
 	 */
-	public static $pod_types = array(
+	public static $pod_types = [
 		'user',
-	);
+	];
 
 	/**
 	 * {@inheritdoc}
@@ -65,7 +70,23 @@ class PodsField_Avatar extends PodsField_File {
 		$options[ static::$type . '_wp_gallery_output' ] = 0;
 
 		parent::input( $name, $value, $options, $pod, $id );
+	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function save( $value, $id = null, $name = null, $options = null, $fields = null, $pod = null, $params = null ) {
+		// Clear the avatar cache for the user.
+		pods_cache_clear( true, 'pods_avatars' );
+		pods_cache_clear( true, 'pods_avatar_urls' );
+
+		if ( $id ) {
+			pods_cache_clear( $id, 'pods_avatar_ids' );
+		} else {
+			pods_cache_clear( true, 'pods_avatar_ids' );
+		}
+
+		return parent::save( $value, $id, $name, $options, $fields, $pod, $params );
 	}
 
 	/**
@@ -97,16 +118,16 @@ class PodsField_Avatar extends PodsField_File {
 				$user_avatar = $this->get_avatar_id( $user_id );
 
 				if ( ! empty( $user_avatar ) ) {
-					$attributes = array(
+					$attributes = [
 						'alt'   => '',
 						'class' => 'avatar avatar-' . $size . ' photo',
-					);
+					];
 
 					if ( ! empty( $alt ) ) {
 						$attributes['alt'] = $alt;
 					}
 
-					$user_avatar = pods_image( $user_avatar, array( $size, $size ), 0, $attributes );
+					$user_avatar = pods_image( $user_avatar, [ $size, $size ], 0, $attributes );
 
 					if ( ! empty( $user_avatar ) ) {
 						$avatar = $user_avatar;
@@ -125,36 +146,38 @@ class PodsField_Avatar extends PodsField_File {
 	 *
 	 * @since 2.7.22
 	 *
-	 * @param array $args {
-	 *     Optional. Arguments to return instead of the default arguments.
+	 * @param array $args               {
+	 *                                  Optional. Arguments to return instead of the default arguments.
 	 *
-	 *     @type int    $size           Height and width of the avatar image file in pixels. Default 96.
-	 *     @type int    $height         Display height of the avatar in pixels. Defaults to $size.
-	 *     @type int    $width          Display width of the avatar in pixels. Defaults to $size.
-	 *     @type string $default        URL for the default image or a default type. Accepts '404' (return
+	 * @type int    $size               Height and width of the avatar image file in pixels. Default 96.
+	 * @type int    $height             Display height of the avatar in pixels. Defaults to $size.
+	 * @type int    $width              Display width of the avatar in pixels. Defaults to $size.
+	 * @type string $default            URL for the default image or a default type. Accepts '404' (return
 	 *                                  a 404 instead of a default image), 'retro' (8bit), 'monsterid' (monster),
 	 *                                  'wavatar' (cartoon face), 'indenticon' (the "quilt"), 'mystery', 'mm',
 	 *                                  or 'mysteryman' (The Oyster Man), 'blank' (transparent GIF), or
 	 *                                  'gravatar_default' (the Gravatar logo). Default is the value of the
 	 *                                  'avatar_default' option, with a fallback of 'mystery'.
-	 *     @type bool   $force_default  Whether to always show the default image, never the Gravatar. Default false.
-	 *     @type string $rating         What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
+	 * @type bool   $force_default      Whether to always show the default image, never the Gravatar. Default false.
+	 * @type string $rating             What rating to display avatars up to. Accepts 'G', 'PG', 'R', 'X', and are
 	 *                                  judged in that order. Default is the value of the 'avatar_rating' option.
-	 *     @type string $scheme         URL scheme to use. See set_url_scheme() for accepted values.
+	 * @type string $scheme             URL scheme to use. See set_url_scheme() for accepted values.
 	 *                                  Default null.
-	 *     @type array  $processed_args When the function returns, the value will be the processed/sanitized $args
+	 * @type array  $processed_args     When the function returns, the value will be the processed/sanitized $args
 	 *                                  plus a "found_avatar" guess. Pass as a reference. Default null.
-	 *     @type string $extra_attr     HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
-	 * }
-	 * @param mixed $id_or_email The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
-	 *                           user email, WP_User object, WP_Post object, or WP_Comment object.
+	 * @type string $extra_attr         HTML attributes to insert in the IMG element. Is not sanitized. Default empty.
+	 *                                  }
+	 *
+	 * @param mixed $id_or_email        The Gravatar to retrieve. Accepts a user ID, Gravatar MD5 hash,
+	 *                                  user email, WP_User object, WP_Post object, or WP_Comment object.
+	 *
 	 * @return array {
 	 *     Along with the arguments passed in `$args`, this will contain a couple of extra arguments.
 	 *
-	 *     @type bool   $found_avatar True if we were able to find an avatar for this user,
-	 *                                false or not set if we couldn't.
-	 *     @type string $url          The URL of the avatar we found.
-	 * }
+	 * @type bool   $found_avatar       True if we were able to find an avatar for this user,
+	 *                                  false or not set if we couldn't.
+	 * @type string $url                The URL of the avatar we found.
+	 *                                  }
 	 */
 	public function get_avatar_data( $args, $id_or_email ) {
 		if ( ! $this->allow_avatar_overwrite() ) {
@@ -165,7 +188,7 @@ class PodsField_Avatar extends PodsField_File {
 
 		$args = wp_parse_args(
 			$args,
-			array(
+			[
 				'size'           => 96,
 				'height'         => null,
 				'width'          => null,
@@ -175,7 +198,7 @@ class PodsField_Avatar extends PodsField_File {
 				'scheme'         => null,
 				'processed_args' => null, // If used, should be a reference.
 				'extra_attr'     => '',
-			)
+			]
 		);
 
 		$size = $args['size'];
@@ -192,12 +215,11 @@ class PodsField_Avatar extends PodsField_File {
 			if ( ! empty( $avatar_cached ) ) {
 				$user_avatar_url = $avatar_cached;
 			} else {
-
 				$user_avatar_id = $this->get_avatar_id( $user_id );
 
 				if ( ! empty( $user_avatar_id ) ) {
 
-					$user_avatar_url = pods_image_url( $user_avatar_id, array( $args['width'], $args['height'] ), 0 );
+					$user_avatar_url = pods_image_url( $user_avatar_id, [ $args['width'], $args['height'] ], 0 );
 
 					if ( ! empty( $user_avatar_url ) ) {
 						pods_cache_set( $user_id . '-' . $size, $user_avatar_url, 'pods_avatar_urls', WEEK_IN_SECONDS );
@@ -237,29 +259,41 @@ class PodsField_Avatar extends PodsField_File {
 			if ( ! empty( $avatar_cached ) ) {
 				$avatar_id = $avatar_cached;
 			} else {
-				$avatar_field = pods_transient_get( 'pods_avatar_field' );
+				$avatar_field_name = pods_transient_get( 'pods_avatar_field_name' );
 
-				$user = current( PodsMeta::$user );
+				/** @var \Pods\Whatsit\Pod $user_pod */
+				$user_pod = current( PodsMeta::$user );
 
-				if ( empty( $avatar_field ) ) {
-					foreach ( $user['fields'] as $field ) {
-						if ( 'avatar' === $field['type'] ) {
-							$avatar_field = $field['name'];
-
-							pods_transient_set( 'pods_avatar_field', $avatar_field, WEEK_IN_SECONDS );
-
-							break;
-						}
-					}
-				} elseif ( ! isset( $user['fields'][ $avatar_field ] ) ) {
+				if ( '__null__' === $avatar_field_name ) {
 					$avatar_field = false;
+				} elseif ( empty( $avatar_field_name ) ) {
+					$avatar_fields = $user_pod->get_fields(
+						[
+							'type'  => 'avatar',
+							'limit' => 1,
+						]
+					);
+
+					if ( ! empty( $avatar_fields ) ) {
+						$avatar_field = current( $avatar_fields );
+
+						$avatar_field_name = $avatar_field->get_name();
+
+						pods_transient_set( 'pods_avatar_field_name', $avatar_field_name, WEEK_IN_SECONDS );
+					}
+				} else {
+					$avatar_field = $user_pod->get_field( $avatar_field_name, null, false );
 				}
 
 				if ( ! empty( $avatar_field ) ) {
-					$avatar_id = get_user_meta( $user_id, $avatar_field . '.ID', true );
+					$pod = pods_get_instance( 'user', $user_id );
+
+					$avatar_id = $pod->field( $avatar_field_name . '.ID', true );
 
 					pods_cache_set( $user_id, $avatar_id, 'pods_avatar_ids', WEEK_IN_SECONDS );
-				}//end if
+				} else {
+					pods_transient_set( 'pods_avatar_field_name', '__null__', WEEK_IN_SECONDS );
+				}
 			}//end if
 		}//end if
 
@@ -285,7 +319,7 @@ class PodsField_Avatar extends PodsField_File {
 			$user_id = $id_or_email->user_id;
 		} elseif ( is_object( $id_or_email ) && isset( $id_or_email->ID ) && isset( $id_or_email->user_login ) && 0 < $id_or_email->ID ) {
 			$user_id = $id_or_email->ID;
-		} elseif ( ! is_object( $id_or_email ) && false !== strpos( $id_or_email, '@' ) ) {
+		} elseif ( ! is_object( $id_or_email ) && false !== strpos( (string) $id_or_email, '@' ) ) {
 			$_user = get_user_by( 'email', $id_or_email );
 
 			if ( ! empty( $_user ) ) {
@@ -309,11 +343,11 @@ class PodsField_Avatar extends PodsField_File {
 		if ( is_admin() && ! doing_action( 'admin_bar_menu' ) && function_exists( 'get_current_screen' ) ) {
 			$current_screen = get_current_screen();
 
-			$screens = array(
+			$screens = [
 				'profile',
 				'user-edit',
 				'options-discussion',
-			);
+			];
 
 			if ( $current_screen && in_array( $current_screen->id, $screens, true ) ) {
 				return false;

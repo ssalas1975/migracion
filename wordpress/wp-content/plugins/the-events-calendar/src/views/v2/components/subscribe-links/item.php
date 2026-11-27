@@ -27,13 +27,12 @@ if( ! $item->is_visible( $view ) ) {
 }
 ?>
 
-<li class="tribe-events-c-subscribe-dropdown__list-item">
+<li class="tribe-events-c-subscribe-dropdown__list-item tribe-events-c-subscribe-dropdown__list-item--<?php echo esc_attr( $item->get_slug() ); ?>">
 	<a
 		href="<?php echo esc_url( $item->get_uri( $view ) ); ?>"
 		class="tribe-events-c-subscribe-dropdown__list-item-link"
-		tabindex="0"
 		target="_blank"
-		rel="noopener noreferrer nofollow"
+		rel="noopener noreferrer nofollow noindex"
 	>
 		<?php echo esc_html( $item->get_label( $view ) ); ?>
 	</a>

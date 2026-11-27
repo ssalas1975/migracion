@@ -24,6 +24,7 @@ do_action( 'accesspress_mag_before_body_content' );
         if ( !empty( $accesspress_mag_show_breadcrumbs ) && $accesspress_mag_show_breadcrumbs == '1' ) {
     	    accesspress_mag_breadcrumbs();
         }
+
     ?>
 	<div id="primary" class="content-area">
 		<main id="main" class="site-main">
@@ -43,11 +44,11 @@ do_action( 'accesspress_mag_before_body_content' );
                     $author_nickname = get_the_author_meta( 'display_name' );                
                 ?>
                 <div class="author-avatar">
-                    <a class="author-image" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) );?>"><?php echo $author_avatar; ?></a>
+                    <a class="author-image" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) );?>"><?php echo wp_kses($author_avatar, array( 'img' => array( 'alt' => array(), 'src' => array(), 'srcset' => array(), 'class' => array(), 'height' => array(), 'width' => array() ) )); ?></a>
                 </div><!-- .author-avatar -->
                 <div class="author-desc-wrapper">                
-                    <a class="author-title" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) );?>"><?php echo esc_attr( $author_nickname ); ?></a>
-                    <div class="author-description"><?php echo get_the_author_meta('description');?></div>
+                    <a class="author-title" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) );?>"><?php echo esc_html( $author_nickname ); ?></a>
+                    <div class="author-description"><?php echo esc_html(get_the_author_meta('description')); ?></div>
                     <a href="<?php echo esc_url( get_the_author_meta( 'user_url' ) );?>" target="_blank"><?php echo esc_url( get_the_author_meta( 'user_url' ) );?></a>
                 </div><!-- .author-desc-wrapper-->
             </div><!--author-metabox-->

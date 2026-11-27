@@ -1,5 +1,7 @@
 <?php
 
+use TEC\Events\Linked_Posts\Existing_Match;
+
 class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 	const POSTTYPE = 'tribe_organizer';
 
@@ -14,6 +16,16 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 	protected $event_meta_key = '_EventOrganizerID';
 
 	/**
+	 * @var string The lowercase singular organizer label.
+	 */
+	public $singular_organizer_label_lowercase;
+
+	/**
+	 * @var string The lowercase plural organizer label.
+	 */
+	public $plural_organizer_label_lowercase;
+
+	/**
 	 * Args for organizer post type
 	 * @var array
 	 */
@@ -21,7 +33,7 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 		'public'              => false,
 		'rewrite'             => [ 'slug' => 'organizer', 'with_front' => false ],
 		'show_ui'             => true,
-		'show_in_menu'        => 0,
+		'show_in_menu'        => false,
 		'supports'            => [ 'title', 'editor' ],
 		'capability_type'     => [ 'tribe_organizer', 'tribe_organizers' ],
 		'map_meta_cap'        => true,
@@ -129,6 +141,8 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 			10,
 			2
 		);
+		add_action( 'admin_bar_menu', [ $this, 'edit_organizer_admin_bar_menu_link' ], 80 );
+		add_filter( 'tribe_events_title_tag', [ $this, 'update_organizer_title' ], 10, 3 );
 	}
 
 	/**
@@ -305,6 +319,10 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 	/**
 	 * Saves the event organizer information passed via an event
 	 *
+	 * @since 4.2
+	 * @since 6.18.4.1 An existing organizer is only updated when the current user can edit it.
+	 * @since 6.18.5 A typed name links to an existing organizer when its email and website do not conflict, and never changes that organizer.
+	 *
 	 * @param int|null $id ID of event organizer
 	 * @param array $data The organizer data
 	 * @param string $post_type The post type
@@ -319,9 +337,19 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 				return $data['OrganizerID'];
 			}
 
+			if ( ! current_user_can( 'edit_post', $data['OrganizerID'] ) ) {
+				return $data['OrganizerID'];
+			}
+
 			$this->update( $data['OrganizerID'], $data );
 
 			return $data['OrganizerID'];
+		}
+
+		$existing_id = is_array( $data ) ? tribe( Existing_Match::class )->find_organizer( $data ) : 0;
+
+		if ( $existing_id ) {
+			return $existing_id;
 		}
 
 		return $this->create( $data, $post_status );
@@ -368,6 +396,9 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 	/**
 	 * Creates a new organizer
 	 *
+	 * @since 4.2
+	 * @since 6.18.4.1 A duplicate is only reused when the current user can edit it; otherwise a new organizer is created.
+	 *
 	 * @param array  $data        The organizer data.
 	 * @param string $post_status the intended post status.
 	 * @param bool $avoid_duplicates Whether a check to avoid the insertion of a duplicate organizer
@@ -381,7 +412,7 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 		 *
 		 * If a non `null` value is returned that will be returned and the organizer creation process will bail.
 		 *
-		 * @param mixed $check Whether the organizer insertion process should procede or not.
+		 * @param mixed $check Whether the organizer insertion process should proceed or not.
 		 * @param array $data The data provided to create the organizer.
 		 * @param string $post_status The post status that should be applied to the created organizer.
 		 *
@@ -430,6 +461,11 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 				);
 
 				$found = $duplicates->find_for( $candidate_data );
+
+				// Reusing a match writes the submitted data onto it, so only reuse one the user may edit.
+				if ( false !== $found && ! current_user_can( 'edit_post', $found ) ) {
+					$found = false;
+				}
 			}
 
 			$organizer_id = false === $found
@@ -718,17 +754,110 @@ class Tribe__Events__Organizer extends Tribe__Events__Linked_Posts__Base {
 	 * @since 5.14.0
 	 */
 	public static function add_post_type_metabox() {
-		if ( ! Tribe__Admin__Helpers::instance()->is_post_type_screen( self::POSTTYPE ) ) {
+		if ( ! Tribe__Admin__Helpers::instance()->is_post_type_screen( static::POSTTYPE ) ) {
 			return;
 		}
 
+		$self = self::instance();
+
 		add_meta_box(
 			'tribe_events_organizer_details',
-			sprintf( esc_html__( '%s Information', 'the-events-calendar' ), tribe( 'tec.linked-posts.organizer' )->get_organizer_label_singular() ),
-			[ Tribe__Events__Main::instance(), 'OrganizerMetaBox' ],
-			self::POSTTYPE,
+			sprintf( esc_html__( '%s Information', 'the-events-calendar' ), $self->get_organizer_label_singular() ),
+			[ static::class, 'render_meta_box' ],
+			static::POSTTYPE,
 			'normal',
 			'high'
 		);
+	}
+
+	/**
+	 * Adds the Meta box for Organizers to the Events Post Type.
+	 *
+	 * @since 6.0.0
+	 */
+	public static function render_meta_box() {
+		global $post;
+		$options = '';
+		$style   = '';
+		$postId  = $post->ID;
+		$saved   = false;
+
+		if ( $post->post_type == static::POSTTYPE ) {
+
+			if ( ( is_admin() && isset( $_GET['post'] ) && $_GET['post'] ) || ( ! is_admin() && isset( $postId ) ) ) {
+				$saved = true;
+			}
+
+			if ( $postId ) {
+
+				if ( $saved ) { //if there is a post AND the post has been saved at least once.
+					$organizer_title = apply_filters( 'the_title', $post->post_title, $post->ID );
+				}
+
+				foreach ( Tribe__Events__Main::instance()->organizerTags as $tag ) {
+					if ( metadata_exists( 'post', $postId, $tag ) ) {
+						$$tag = get_post_meta( $postId, $tag, true );
+					}
+				}
+			}
+		}
+		?>
+		<style type="text/css">
+			#EventInfo {
+				border: none;
+			}
+		</style>
+		<div id='eventDetails' class="eventForm">
+			<table cellspacing="0" cellpadding="0" id="EventInfo" class="OrganizerInfo">
+				<?php
+				$hide_organizer_title = true;
+				$organizer_meta_box_template = apply_filters( 'tribe_events_organizer_meta_box_template', Tribe__Events__Main::instance()->plugin_path . 'src/admin-views/organizer-meta-box.php' );
+				if ( ! empty( $organizer_meta_box_template ) ) {
+					include( $organizer_meta_box_template );
+				}
+				?>
+			</table>
+		</div>
+	<?php
+	}
+
+	/**
+	 * Add edit link to admin bar when viewing the tribe_organizer post type archive.
+	 *
+	 * @since 5.16.3
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar The admin bar object.
+	 */
+	public function edit_organizer_admin_bar_menu_link( $wp_admin_bar ) {
+		global $wp_query;
+
+		if ( ! is_admin() && $wp_query->tribe_is_event_organizer ) {
+
+			$title = sprintf( esc_html__( 'Edit %s', 'the-events-calendar' ), $this->singular_organizer_label );
+
+			$wp_admin_bar->add_menu([
+				'id'    => 'edit',
+				'title' => $title,
+				'href'  => admin_url( 'post.php?post=' . $wp_query->queried_object->ID . '&action=edit' ),
+			]);
+		}
+	}
+
+	/**
+	 * Updates the page title on the organizer single page to include the organizer title.
+	 *
+	 * @param string      $new_title The modified page title.
+	 * @param string      $title     The original page title.
+	 * @param string|null $sep       The separator character.
+	 *
+	 * @return string The modified page title.
+	 */
+	public function update_organizer_title( $new_title, $title, $sep = null ) {
+		if ( is_singular( Tribe__Events__Organizer::POSTTYPE ) ) {
+			$organizer = tribe_get_organizer();
+			$new_title = $organizer;
+		}
+
+		return $new_title;
 	}
 }

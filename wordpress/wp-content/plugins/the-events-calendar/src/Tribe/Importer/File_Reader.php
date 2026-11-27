@@ -9,14 +9,30 @@ class Tribe__Events__Importer__File_Reader {
 	private $last_line_read = 0;
 	public $lines;
 
+	/**
+	 * Construct for Tribe__Events__Importer__File_Reader.
+	 *
+	 * @since 5.14.2 - Fix for PHP 8.0.15 to 8.0.17 on getting the last line of the csv file.
+	 *
+	 * @param string $file_path The full path to the file.
+	 */
 	public function __construct( $file_path ) {
-		ini_set( 'auto_detect_line_endings', true );
 		$this->path = $file_path;
 		$this->file = new SplFileObject( $this->path );
 		$this->file->setFlags( SplFileObject::SKIP_EMPTY | SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE );
 		$this->set_csv_params( $this->get_csv_params() );
-		$this->file->seek( $this->file->getSize() );
-		$this->lines = $this->file->key();
+		$this->file->seek( PHP_INT_MAX );
+		$total_lines = $this->file->key();
+		/*
+		 * In PHP 8.0.15 to 8.0.17 or 8.1.2 to 8.1.4 the use of seek() and then key() returns 0 when using the flag SplFileObject::READ_CSV.
+		 * This bug is fixed in PHP 8.0.18 and 8.1.5.
+		 * @see https://github.com/php/php-src/issues/8236 - outlines the issue with seek().
+		 * @see https://github.com/php/php-src/pull/8138 - PR to fix the issue.
+		 */
+		if ( 0 === $total_lines ) {
+			$total_lines = iterator_count( $this->file );
+		}
+		$this->lines = $total_lines;
 		$this->file->rewind();
 
 		add_filter( 'tribe_events_import_row', [ $this, 'sanitize_row' ] );
@@ -91,7 +107,7 @@ class Tribe__Events__Importer__File_Reader {
 	 */
 	public function get_csv_params() {
 		$csv_params = [
-			'delimter'  => ',',
+			'delimiter' => ',',
 			'enclosure' => '"',
 			'escape'    => '\\',
 		];
@@ -99,17 +115,15 @@ class Tribe__Events__Importer__File_Reader {
 		/**
 		 * Set the parameters used for reading and importing CSV files.
 		 *
-		 * @see `SplFileObject::setCsvControl()`
+		 * @see `SplFileObject::setCsvControl()`.
 		 *
 		 * @since 4.6.1
 		 *
-		 * @param array $csv_params (
-		 *      The parameters
-		 *
-		 *      @param string $delimter  The field delimiter (one character only).
-		 *      @param string $enclosure The field enclosure character (one character only).
-		 *      @param string $escape    The field escape character (one character only).
-		 * }
+		 * @param array $csv_params params [
+		 *      string $delimiter  The field delimiter (one character only).
+		 *      string $enclosure The field enclosure character (one character only).
+		 *      string $escape    The field escape character (one character only).
+		 * ]
 		 * @param string $file_path The path to the CSV file
 		 */
 		return apply_filters( 'tribe_events_csv_import_file_parameters', $csv_params, $this->path );
@@ -120,17 +134,16 @@ class Tribe__Events__Importer__File_Reader {
 	 *
 	 * @since 4.6.1
 	 *
-	 * @param array $params (
-	 *      The parameters
+	 * @param array $params [
+	 *      string $delimiter  The field delimiter (one character only).
+	 *      string $enclosure The field enclosure character (one character only).
+	 *      string $escape    The field escape character (one character only).
+	 * ]
 	 *
-	 *      @param string $delimter  The field delimiter (one character only).
-	 *      @param string $enclosure The field enclosure character (one character only).
-	 *      @param string $escape    The field escape character (one character only).
-	 * }
 	 */
 	private function set_csv_params( $params ) {
 		$this->file->setCsvControl(
-			$params['delimter'],
+			$params['delimiter'],
 			$params['enclosure'],
 			$params['escape']
 		);

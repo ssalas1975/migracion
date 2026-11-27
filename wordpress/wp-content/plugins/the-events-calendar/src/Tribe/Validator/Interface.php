@@ -52,6 +52,17 @@ interface Tribe__Events__Validator__Interface extends Tribe__Validator__Interfac
 	public function is_event_id( $event_id );
 
 	/**
+	 * Whether the value is a valid event ID format (numeric and non-empty).
+	 *
+	 * @since 6.17.2
+	 *
+	 * @param int|string $event_id A numeric event ID or string representation of a numeric event ID.
+	 *
+	 * @return bool
+	 */
+	public function is_event_id_format( $event_id );
+
+	/**
 	 * Whether the value is the post name of an existing event or not.
 	 *
 	 * @param string $event_slug
@@ -73,4 +84,15 @@ interface Tribe__Events__Validator__Interface extends Tribe__Validator__Interfac
 	 * @return bool
 	 */
 	public function is_event_id_list( $events, $sep = ',' );
+
+	/**
+	 * Checks if the query is looking for ticketed events and Event Tickets is available.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param bool $value Can be true or false.
+	 *
+	 * @return mixed
+	 */
+	public function supports_ticketed( $value );
 }

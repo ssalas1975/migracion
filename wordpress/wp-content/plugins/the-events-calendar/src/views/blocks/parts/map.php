@@ -9,15 +9,27 @@
  *
  * @link http://evnt.is/1aiy
  *
- * @version 4.7
+ * @version 6.18.4.1
+ * @since 6.2.0 Defer to the block attributes to dictate whether maps should show.
+ * @since 6.18.4.1 Hides the map from users who may not see the Venue.
+ *
+ * @var bool $show_map Whether to show the map or not.
+ * @var ?int $venue_id The ID of the venue to display.
  *
  */
 
-if ( ! tribe_embed_google_map() ) {
+$attributes = $this->get( 'attributes', [] );
+
+if ( ! $show_map ) {
 	return;
 }
 
-$map = tribe_get_embedded_map();
+// Checked before the map is built, because building it hands the address to the map script.
+if ( ! Tribe__Events__Linked_Posts::instance()->is_linked_post_visible( absint( tribe_get_venue_id( $venue_id ) ) ) ) {
+	return;
+}
+
+$map = tribe_get_embedded_map( $venue_id, 310, 256 ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- The template is included in a function scope.
 
 if ( empty( $map ) ) {
 	return;

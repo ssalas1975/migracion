@@ -16,13 +16,13 @@ class Login {
 	public static function init() {
 		wp_register_style( 'lwa-login-styles', plugins_url( 'build/style-index.css', __FILE__ ), array(), LOGIN_WITH_AJAX_VERSION );
 		wp_register_script('lwa-blocks-login-editor', plugins_url( 'build/index.js', __FILE__ ), array('wp-block-editor','wp-blocks','wp-i18n','wp-server-side-render','wp-components','login-with-ajax') );
-		add_action('wp_print_scripts', '\Login_With_AJAX\Blocks\Login::localize_script', 1000);
+		add_action('enqueue_block_editor_assets', '\Login_With_AJAX\Blocks\Login::localize_script', 1000);
 
-		$template_color = LoginWithAjax::get_color_hsl();
-		$template_color['hex'] = LoginWithAjax::get_color_hex(); //save to pass onto colorpicker
+		$template_color = \LoginWithAjax::get_color_hsl();
+		$template_color['hex'] = \LoginWithAjax::get_color_hex(); //save to pass onto colorpicker
 		register_block_type( __DIR__, array(
-			'title'       => _x( 'Login With AJAX', 'block title', 'login-with-ajax' ),
-			'description' => _x( 'Login With AJAX block to generate a login widget.', 'block description', 'login-with-ajax' ),
+			'title'       => _x( 'AJAX Auth', 'block title', 'login-with-ajax' ),
+			'description' => _x( 'AJAX Auth block to generate a login widget.', 'block description', 'login-with-ajax' ),
 			'render_callback' => '\Login_With_AJAX\Blocks\Login::render',
 			'attributes' => array(
 				'title' => array(
@@ -87,7 +87,7 @@ class Login {
 	public static function localize_script(){
 		if( wp_script_is('lwa-blocks-login-editor') ){
 			$templates = array();
-			foreach( LoginWithAjax::get_templates_data() as $template => $data ){ $templates[] = array('label'=> $data->label, 'value'=> $template); }
+			foreach( \LoginWithAjax::get_templates_data() as $template => $data ){ $templates[] = array('label'=> $data->label, 'value'=> $template); }
 			wp_localize_script('lwa-blocks-login-editor', 'LoginWithAjax', array('templates' => $templates ) );
 		}
 	}
@@ -109,7 +109,7 @@ class Login {
 			}elseif( is_user_logged_in() && !empty($attributes['title_loggedin']) ) {
 				echo $args['before_title'];
 				echo '<span class="lwa-title">';
-				echo str_replace('%username%', LoginWithAjax::$current_user->display_name, $attributes['title_loggedin']);
+				echo esc_html( str_replace('%username%', \LoginWithAjax::$current_user->display_name, $attributes['title_loggedin']) );
 				echo '</span>';
 				echo $args['after_title'];
 				// unset title, set to widget_title for future reference
@@ -117,7 +117,8 @@ class Login {
 				unset($attributes['title_loggedin']);
 			}
 		}
-		LoginWithAjax::output( $attributes );
+		unset( $attributes['modal_button_html'] ); // sanitize
+		\LoginWithAjax::output( $attributes );
 		return ob_get_clean();
 	}
 

@@ -33,7 +33,7 @@ class FW_Ext_Backups_Task_Type_DB_Restore extends FW_Ext_Backups_Task_Type {
 			$this->cache_table_index_columns[$table_name] = false;
 
 			foreach ($wpdb->get_results('SHOW INDEX FROM '. $table_name, ARRAY_A) as $row) {
-				if ($row['Key_name'] === 'PRIMARY') {
+				if ($row['Name'] === 'PRIMARY') {
 					$this->cache_table_index_columns[$table_name] = $row['Column_name'];
 					break;
 				}

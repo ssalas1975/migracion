@@ -39,17 +39,45 @@ jQuery(document).ready( function($) {
 				//Login Successful - Extra stuff to do
 				if( data.widget != null ){
 					$.get( data.widget, function(widget_result) {
-						var newWidget = $(widget_result);
-						form.parent('.lwa').replaceWith(newWidget);
-						var lwaSub = newWidget.find('.').show();
-						var lwaOrg = newWidget.parent().find('.lwa-title');
-						lwaOrg.replaceWith(lwaSub);
+						let newWidget = $( $.parseHTML( String(widget_result).trim() ) );
+						// nothing usable came back, so show the logged in state the ordinary way
+						if( newWidget.filter('*').length === 0 ){
+							window.location.reload();
+							return;
+						}
+						let loginForm = $(form);
+						// a 2FA step is submitted from its own modal, the widget to swap belongs to the login form that opened it
+						if( loginForm.attr('data-bound-form') ){
+							let boundForm = $(document).find( loginForm.attr('data-bound-form') );
+							loginForm.closest('.lwa-modal-overlay').removeClass('active').find('.lwa-modal-popup').removeClass('active');
+							if( boundForm.length > 0 ) loginForm = boundForm;
+						}
+						let oldWidget = loginForm.closest('.lwa-wrapper');
+						if( oldWidget.length === 0 ) oldWidget = loginForm.closest('.lwa');
+						// a form inside a modal template is replaced along with the button that opens it
+						let overlay = loginForm.closest('.lwa-modal-overlay');
+						if( overlay.length > 0 ){
+							let trigger = $('.lwa-modal-trigger').filter( function(){ return $(this).data('modal-id') === overlay.attr('id'); } );
+							if( trigger.length > 0 ){
+								oldWidget = trigger.first();
+								overlay.remove();
+							}
+						}
+						oldWidget.replaceWith( newWidget );
+						$(document).triggerHandler('lwa_widget_replaced', [newWidget, data]);
+					}).fail( function(){
+						// the user is logged in at this point, a reload is the safe way to show it
+						window.location.reload();
 					});
 				}else{
 					if(data.redirect == null){
 						window.location.reload();
 					}else{
+						let currentUrl = window.location.href;
 						window.location = data.redirect;
+						if( currentUrl.split('#')[0] === data.redirect.split('#')[0] ){
+							window.location.reload();
+						}
 					}
 				}
 			}
@@ -58,10 +86,16 @@ jQuery(document).ready( function($) {
 
 	// Modal
 	$('.lwa-modal-trigger').each( function(i,e){
-		$(e).find('.lwa-modal-trigger-el, button, a').first().on('click', function(){
+		$(e).find('.lwa-modal-trigger-el, button, a').first().on('click', function( e ){
+			e.preventDefault();
 			var modal_id = $(this).closest('.lwa-modal-trigger').first().data('modal-id');
 			$('#'+modal_id+', #'+modal_id+' .lwa-modal-popup').addClass('active');
 		});
+	});
+	$('a.lwa-modal-trigger[data-modal-id], button.lwa-modal-trigger[data-modal-id]').on('click', function( e ){
+		e.preventDefault();
+		var modal_id = $(this).closest('.lwa-modal-trigger').first().data('modal-id');
+		$('#'+modal_id+', #'+modal_id+' .lwa-modal-popup').addClass('active');
 	});
 	$('.lwa-modal-overlay').each( function(i,e){
 		$('body').append(e);
@@ -119,6 +153,7 @@ jQuery(document).ready( function($) {
 	}
 
 	$(document).triggerHandler('lwa_loaded');
+	document.dispatchEvent( new CustomEvent('lwa_loaded') );
 });
 
 const lwa_init_minimalistic = function(){
@@ -144,7 +179,7 @@ const lwa_init_minimalistic = function(){
 };
 
 /**
- * Various functions related to the submission and execution of a Login With AJAX form.
+ * Various functions related to the submission and execution of a AJAX Auth form.
  * @type {{submit: LoginWithAJAX.submit, addStatusElement: LoginWithAJAX.addStatusElement, handleStatus: LoginWithAJAX.handleStatus, finish: LoginWithAJAX.finish}}
  */
 const LoginWithAJAX = {
@@ -153,8 +188,9 @@ const LoginWithAJAX = {
 	 * @param {jQuery} form Form object which will be submitted.
 	 * @param {object} args Additional args passed as an object or serializeArray() comopatbible format for merging in.
 	 * @param {boolean} override If set to true then only args will be used to submit AJAX request, form data will be ignored.
+	 * @param {boolean} options If set to true then only args will be used to submit AJAX request, form data will be ignored.
 	 */
-	submit : function( form, args = null, override = null ){
+	submit : async function( form, args = null, override = null, options = {} ){
 		//Stop event, add loading pic...
 		if( !(form instanceof jQuery) ) form = jQuery(form);
 		var response = { result : null, skip : false };
@@ -163,14 +199,23 @@ const LoginWithAJAX = {
 		if( response.result === null ) {
 			var ajaxFlag = form.find('.lwa-ajax');
 			if( ajaxFlag.length == 0 ){
-				ajaxFlag = jQuery('<input class="lwa-ajax" name="lwa" type="hidden" value="1" />');
+				ajaxFlag = jQuery('<input class="lwa-ajax" name="lwa" type="hidden" value="1">');
 				form.prepend(ajaxFlag);
 			}
-			LoginWithAJAX.start( form );
+			var ajaxActionFlag = form.find('[name="action"]');
+			if( ajaxActionFlag.length == 0 ){
+				ajaxActionFlag = jQuery('<input class="lwa-ajax-action" name="action" type="hidden" value="login-with-ajax">');
+				form.prepend(ajaxActionFlag);
+			} else {
+				ajaxActionFlag.value = 'login-with-ajax';
+			}
+			if( !('spinner' in options) || options.spinner ) {
+				LoginWithAJAX.start( form );
+			}
 			// Prepare form data, merge in data from args if passed
 			let form_data;
 			if( override ){
-				form_data = [];
+				form_data = [{'name':'lwa', 'value' : 1}, {'name':'action', 'value' : 'login-with-ajax'}];
 			}else{
 				form_data = form.serializeArray();
 			}
@@ -188,12 +233,14 @@ const LoginWithAJAX = {
 			let form_string = jQuery.param(form_data);
 			// Make Ajax Call
 			let form_action = ( typeof LWA === 'undefined' ) ? form.attr('action') : LWA.ajaxurl;
-			jQuery.ajax({
+			// Devs, assume this return a regular JS promise, not a jqXHR object, for future-proofing as one day this will be converted into a JS vanilla fetch response
+			return jQuery.ajax({
 				type: 'POST',
 				url: form_action,
 				data: form_string,
 				success: function (response) {
 					jQuery(document).triggerHandler('lwa_' + response.action, [response, form, statusElement]);
+					document.dispatchEvent( new CustomEvent('lwa_submit_' + response.action, {detail: {response: response, form: form[0], statusElement: statusElement[0]}}) );
 					if( response.skip === 'undefined' || !response.skip ){
 						LoginWithAJAX.handleStatus(response, statusElement);
 					}
@@ -201,17 +248,19 @@ const LoginWithAJAX = {
 				error: function( jqXHR, textStatus, errorThrown ) {
 					response.result = false;
 					jQuery(document).triggerHandler('lwa_ajax_error', [response, jqXHR, textStatus, errorThrown, form, statusElement]);
+					document.dispatchEvent( new CustomEvent('lwa_submit_error', {detail: {response: response, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown, form: form[0], statusElement: statusElement[0]}}) );
 					if( !response.skip ) {
 						response.error = textStatus + ' : ' + errorThrown;
-						LoginWithAJAX.handleStatus({}, statusElement);
+						LoginWithAJAX.handleStatus(response, statusElement);
 					}else{
-						LoginWithAJAX.finish( form );
+						LoginWithAJAX.finish(form);
 					}
 				},
 				complete: function( jqXHR, textStatus ){
 					jQuery(document).triggerHandler('lwa_ajax_complete', [jqXHR, textStatus, form, statusElement]);
+					document.dispatchEvent( new CustomEvent('lwa_submit_complete', {detail: {jqXHR: jqXHR, textStatus: textStatus, form: form[0], statusElement: statusElement[0]}}) );
 					if( textStatus !== 'success' && textStatus !== 'error' ){ // this is already executed on success or error
-						LoginWithAJAX.finish( form );
+						LoginWithAJAX.finish(form);
 					}
 				},
 				dataType: 'jsonp'
@@ -229,7 +278,7 @@ const LoginWithAJAX = {
 	 * @param {jQuery} statusElement The status element in a form where error or success messages are to be added based on the response.
 	 */
 	handleStatus : function( response, statusElement ){
-		this.finish();
+		LoginWithAJAX.finish();
 		statusElement = jQuery(statusElement);
 		if(response.result === true){
 			//Login Successful
@@ -258,22 +307,33 @@ const LoginWithAJAX = {
 	 * @return {jQuery} The status element jQuery object.
 	 */
 	addStatusElement : function( form ){
-		let statusElement = form.find('.lwa-status');
-		jQuery(document).triggerHandler('lwa_addStatusElement', [form, statusElement]);
-		if( statusElement.length === 0 ){
+		let $form = jQuery(form);
+		let statusElement = LoginWithAJAX.getStatusElement($form);
+		if( statusElement === null ){
 			statusElement = jQuery('<span class="lwa-status" role="alert"></span>');
-			form.prepend(statusElement);
+			$form.prepend(statusElement);
 		}
+		jQuery(document).triggerHandler('lwa_addStatusElement', [$form, statusElement]);
 		return statusElement;
 	},
 
-	start : function( wrapper ){
-		if( wrapper.hasClass('lwa') ){
-			wrapper.addClass('lwa-is-working');
-		}else{
-			wrapper.closest('.lwa').addClass('lwa-is-working');
+	getStatusElement : function( form ){
+		let $form = jQuery(form);
+		let statusElement = $form.find('.lwa-status');
+		if( statusElement.length > 0 ) {
+			return statusElement;
 		}
-		jQuery('<div class="lwa-loading"></div>').prependTo(wrapper.closest('.lwa-wrapper'));
+		return null;
+	},
+
+	start : function( wrapper ){
+		let $wrapper = jQuery(wrapper);
+		if( $wrapper.hasClass('lwa') ){
+			$wrapper.addClass('lwa-is-working');
+		}else{
+			$wrapper.closest('.lwa').addClass('lwa-is-working');
+		}
+		jQuery('<div class="lwa-loading"></div>').prependTo($wrapper.closest('.lwa-wrapper'));
 	},
 
 	/**
@@ -281,15 +341,18 @@ const LoginWithAJAX = {
 	 * @param {jQuery} wrapper Form or wrapper element contaning the spinner.
 	 */
 	finish : function( wrapper = null ){
+		if( wrapper ) {
+			let $wrapper = jQuery(wrapper);
+		}
 		jQuery('.lwa-loading').remove();
-		if( wrapper && wrapper.hasClass('lwa-is-working') ){
-			wrapper.removeClass('lwa-is-working');
+		if( wrapper && $wrapper.hasClass('lwa-is-working') ){
+			$wrapper.removeClass('lwa-is-working');
 		}else if( wrapper ){
-			wrapper.closest('.lwa-is-working').removeClass('lwa-is-working');
+			$wrapper.closest('.lwa-is-working').removeClass('lwa-is-working');
 		}else{
 			jQuery('.lwa-is-working').removeClass('lwa-is-working');
 		}
 	},
 };
 // shortcut - legacy
-const lwaAjax = LoginWithAJAX.handleStatus;
+const lwaAjax = function( response, statusElement ){ return LoginWithAJAX.handleStatus( response, statusElement ); };

@@ -1,12 +1,12 @@
 <?php
 namespace AIOSEO\Plugin\Common\Options;
 
-use AIOSEO\Plugin\Common\Traits;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use AIOSEO\Plugin\Common\Traits;
 
 /**
  * Handles the dynamic options.
@@ -42,6 +42,22 @@ class DynamicOptions {
 			'postTypes'  => [],
 			'taxonomies' => [],
 			'archives'   => []
+		],
+		'seoAnalysis'      => [
+			'postTypes'    => [
+				'all'      => [ 'type' => 'boolean', 'default' => true ],
+				'included' => [ 'type' => 'array', 'default' => [ 'post', 'page' ] ],
+			],
+			'postStatuses' => [
+				'all'      => [ 'type' => 'boolean', 'default' => false ],
+				'included' => [ 'type' => 'array', 'default' => [ 'publish', 'draft', 'private' ] ],
+			],
+			'taxonomies'   => [
+				'all'      => [ 'type' => 'boolean', 'default' => true ],
+				'included' => [ 'type' => 'array', 'default' => [] ],
+			],
+			'excludePosts' => [ 'type' => 'array', 'default' => [] ],
+			'excludeTerms' => [ 'type' => 'array', 'default' => [] ]
 		]
 		// phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 	];
@@ -54,7 +70,7 @@ class DynamicOptions {
 	 * @param string $optionsName The options name.
 	 */
 	public function __construct( $optionsName = 'aioseo_options_dynamic' ) {
-		$this->optionsName = is_network_admin() ? $optionsName . '_network' : $optionsName;
+		$this->optionsName = $optionsName;
 
 		// Load defaults in case this is a complete fresh install.
 		$this->init();
@@ -105,7 +121,8 @@ class DynamicOptions {
 	/**
 	 * Sanitizes, then saves the options to the database.
 	 *
-	 * @since 4.1.4
+	 * @since   4.1.4
+	 * @version 4.9.5 Re-runs dynamic defaults to include integrations not loaded during early init.
 	 *
 	 * @param  array $options An array of options to sanitize, then save.
 	 * @return void
@@ -115,22 +132,40 @@ class DynamicOptions {
 			return;
 		}
 
+		// Re-run dynamic defaults to ensure all post types (including BuddyPress) are in the defaults.
+		// This is necessary because some integrations may not be loaded when the class is first initialized.
+		$this->addDynamicDefaults();
+
+		// Refresh the cached options with the updated defaults.
+		$this->setDbOptions();
+
 		$cachedOptions = aioseo()->core->optionsCache->getOptions( $this->optionsName );
 
 		aioseo()->dynamicBackup->maybeBackup( $cachedOptions );
 
-		// Refactor options.
-		$dbOptions = array_replace_recursive(
+		// First, recursively replace the new options into the cached state.
+		// It's important we use the helper method since we want to replace populated arrays with empty ones if needed (when a setting was cleared out).
+		$dbOptions = aioseo()->helpers->arrayReplaceRecursive(
 			$cachedOptions,
 			$this->addValueToValuesArray( $cachedOptions, $options, [], true )
 		);
 
+		// Now, we must also intersect both arrays to delete any individual keys that were unset.
+		// We must do this because, while arrayReplaceRecursive will update the values for keys or empty them out,
+		// it will keys that aren't present in the replacement array unaffected in the target array.
+		$dbOptions = aioseo()->helpers->arrayIntersectRecursive(
+			$dbOptions,
+			$this->addValueToValuesArray( $cachedOptions, $options, [], true ),
+			'value'
+		);
+
+		// Update the cache state.
 		aioseo()->core->optionsCache->setOptions( $this->optionsName, $dbOptions );
 
 		// Update localized options.
 		update_option( $this->optionsName . '_localized', $this->localized );
 
-		// Update values.
+		// Finally, save the new values to the DB.
 		$this->save( true );
 	}
 
@@ -155,14 +190,20 @@ class DynamicOptions {
 	 * @return void
 	 */
 	protected function addDynamicPostTypeDefaults() {
-		$postTypes = aioseo()->helpers->getPublicPostTypes();
+		$postTypes = aioseo()->helpers->getPublicPostTypes( false, false, false, [ 'include' => [ 'buddypress' ] ] );
 		foreach ( $postTypes as $postType ) {
 			if ( 'type' === $postType['name'] ) {
 				$postType['name'] = '_aioseo_type';
 			}
 
-			$defaultTitle       = '#post_title #separator_sa #site_title';
-			$defaultDescription = $postType['hasExcerpt'] ? '#post_excerpt' : '#post_content';
+			$defaultTitle = '#post_title #separator_sa #site_title';
+			if ( ! empty( $postType['defaultTitle'] ) ) {
+				$defaultTitle = $postType['defaultTitle'];
+			}
+			$defaultDescription = ! empty( $postType['supports']['excerpt'] ) ? '#post_excerpt' : '#post_content';
+			if ( ! empty( $postType['defaultDescription'] ) ) {
+				$defaultDescription = $postType['defaultDescription'];
+			}
 			$defaultSchemaType  = 'WebPage';
 			$defaultWebPageType = 'WebPage';
 			$defaultArticleType = 'BlogPosting';
@@ -182,6 +223,10 @@ class DynamicOptions {
 					break;
 				case 'news':
 					$defaultArticleType = 'NewsArticle';
+					break;
+				case 'web-story':
+					$defaultWebPageType = 'WebPage';
+					$defaultSchemaType  = 'WebPage';
 					break;
 				default:
 					break;
@@ -265,6 +310,8 @@ class DynamicOptions {
 				]
 			);
 
+			$this->setDynamicSitemapOptions( 'taxonomies', $taxonomy['name'] );
+
 			$this->defaults['searchAppearance']['taxonomies'][ $taxonomy['name'] ] = $defaultOptions;
 		}
 	}
@@ -277,7 +324,7 @@ class DynamicOptions {
 	 * @return void
 	 */
 	protected function addDynamicArchiveDefaults() {
-		$postTypes = aioseo()->helpers->getPublicPostTypes( false, true );
+		$postTypes = aioseo()->helpers->getPublicPostTypes( false, true, false, [ 'include' => [ 'buddypress' ] ] );
 		foreach ( $postTypes as $postType ) {
 			if ( 'type' === $postType['name'] ) {
 				$postType['name'] = '_aioseo_type';

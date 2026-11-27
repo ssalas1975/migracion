@@ -3886,9 +3886,9 @@ class wpdb {
 			return str_replace( '`', '', $maybe[1] );
 		}
 
-		// SHOW TABLE STATUS and SHOW TABLES WHERE Name = 'wp_posts'
-		if ( preg_match( '/^\s*SHOW\s+(?:TABLE\s+STATUS|(?:FULL\s+)?TABLES).+WHERE\s+Name\s*=\s*("|\')((?:[0-9a-zA-Z$_.-]|[\xC2-\xDF][\x80-\xBF])+)\\1/is', $query, $maybe ) ) {
-			return $maybe[2];
+		// SHOW INDEX FROM and SHOW TABLE STATUS and SHOW TABLES WHERE Name = 'wp_posts'
+		if ( preg_match( '/^SHOW\s+INDEX\s+FROM\s+([\s\S]+?)(?=\s*WHERE\s+Name\s*=)/i', $query, $matches ) ) {
+			return $matches[1];
 		}
 
 		/*

@@ -51,7 +51,7 @@ final class SimpleInjector implements Injector {
 	 *
 	 * @param Instantiator|null $instantiator Optional. Instantiator to use.
 	 */
-	public function __construct( Instantiator $instantiator = null ) {
+	public function __construct( ?Instantiator $instantiator = null ) {
 		$this->instantiator = null !== $instantiator
 			? $instantiator
 			: new FallbackInstantiator();
@@ -313,46 +313,29 @@ final class SimpleInjector implements Injector {
 		ReflectionParameter $parameter,
 		$arguments
 	) {
-		if ( PHP_VERSION_ID >= 70000 ) {
-			if ( ! $parameter->hasType() ) {
-				return $this->resolve_argument_by_name(
-					$class,
-					$parameter,
-					$arguments
-				);
-			}
-
-			$type = $parameter->getType();
-
-			if ( null === $type ||
-				( is_a( $type, 'ReflectionType' ) && method_exists( $type, 'isBuiltin' ) && $type->isBuiltin() )
-			) {
-				return $this->resolve_argument_by_name(
-					$class,
-					$parameter,
-					$arguments
-				);
-			}
-
-			$type = $type instanceof \ReflectionNamedType
-				? $type->getName()
-				: (string) $type;
-		} else {
-			// As $parameter->(has|get)Type() was only introduced with PHP 7.0+,
-			// we need to provide a work-around for PHP 5.6 while we officially
-			// support it.
-
-			$reflection_class = $parameter->getClass();
-			$type             = $reflection_class ? $reflection_class->name : null;
-
-			if ( null === $type ) {
-				return $this->resolve_argument_by_name(
-					$class,
-					$parameter,
-					$arguments
-				);
-			}
+		if ( ! $parameter->hasType() ) {
+			return $this->resolve_argument_by_name(
+				$class,
+				$parameter,
+				$arguments
+			);
 		}
+
+		$type = $parameter->getType();
+
+		if ( null === $type ||
+			( is_a( $type, 'ReflectionType' ) && method_exists( $type, 'isBuiltin' ) && $type->isBuiltin() )
+		) {
+			return $this->resolve_argument_by_name(
+				$class,
+				$parameter,
+				$arguments
+			);
+		}
+
+		$type = $type instanceof \ReflectionNamedType
+			? $type->getName()
+			: (string) $type;
 
 		return $this->make_dependency( $injection_chain, $type );
 	}

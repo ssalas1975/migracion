@@ -37,11 +37,11 @@ class WPBC_Page_AJX_Availability extends WPBC_Page_Structure {
     public function tabs() {
 		$tabs = array();
 		$tabs['availability'] = array(
-			'is_show_top_path'                   => false,  // true | false.  By default value is: false.
-			'left_navigation__default_view_mode' => 'compact',  // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
-			'title'                              => __( 'Days Availability', 'booking' ),  // Title of TAB //FixIn: 9.8.15.2.2.
+			'is_show_top_path'                   => true,   // true | false.  By default value is: true.
+			'left_navigation__default_view_mode' => '',  // FixIn:11.7.1.1: 'compact',  // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
+			'title'                              => __( 'Block Dates', 'booking' ),  // Title of TAB //FixIn: 9.8.15.2.2.
 			'hint'                               => __( 'Define available and unavailable days for your calendar(s).', 'booking' ),   // Hint.
-			'page_title'                         => __( 'Days Availability', 'booking' ),   // Title of Page.
+			'page_title'                         => __( 'Block Dates', 'booking' ),   // Title of Page.
 			'link'                               => '',   // Can be skiped,  then generated link based on Page and Tab tags. Or can  be extenral link.
 			'position'                           => '',   // 'left'  /  'right'  /  ''.
 			'css_classes'                        => '',   // CSS c l a s s(es).
@@ -53,6 +53,7 @@ class WPBC_Page_AJX_Availability extends WPBC_Page_Structure {
 			'hided'                              => false,   // Is this tab hided: true || false.
 			'subtabs'                            => array(),
 			'folder_style'                       => 'order:91;',
+			'is_show_top_navigation'             => true,
 		);
         return $tabs;
     }
@@ -340,9 +341,9 @@ if ( 0 ) {
 						_wpbc.calendar__set_param_value( 220, 'dynamic__week_days__start', [-1] );
 						_wpbc.calendar__set_param_value( 220, 'booking_date_format', 'j M Y' );
 						_wpbc.calendar__set_param_value( 220, 'booking_time_format', 'g:i A' );
-						_wpbc.set_message( 'message_dates_times_unavailable', 'These dates and times in this calendar are already booked or unavailable.' );
-						_wpbc.set_message( 'message_choose_alternative_dates', 'Please choose alternative date(s), times, or adjust the number of slots booked.' );
-						_wpbc.set_message( 'message_cannot_save_in_one_resource', 'It is not possible to store this sequence of the dates into the one same resource.' );
+						_wpbc.set_message( 'message_dates_times_unavailable', <?php echo wp_json_encode( wpbc_frontend_messages__get( 'message_dates_times_unavailable' ) ); ?> );
+						_wpbc.set_message( 'message_choose_alternative_dates', <?php echo wp_json_encode( wpbc_frontend_messages__get( 'message_choose_alternative_dates' ) ); ?> );
+						_wpbc.set_message( 'message_cannot_save_in_one_resource', <?php echo wp_json_encode( wpbc_frontend_messages__get( 'message_cannot_save_in_one_resource' ) ); ?> );
 						_wpbc.calendar__set_param_value( 220, 'is_parent_resource', 0 );
 						_wpbc.calendar__set_param_value( 220, 'booking_capacity_field', 'visitors' );
 						_wpbc.calendar__set_param_value( 220, 'booking_is_dissbale_booking_for_different_sub_resources', 'Off' );
@@ -439,9 +440,9 @@ class WPBC_Page_Availability_General extends WPBC_Page_Structure {
         $tabs = array();
 		// FixIn: 10.12.4.7.  $tabs[ 'general_availability' . ( ++$separator_i ) ] = array_merge( $subtab_default, array( 'type' => 'separator' ,'folder_style' => 'order:200;' ) );
         $tabs[ 'general_availability' ] = array(
-                              'title'		=> __( 'General Availability', 'booking' )										// Title of TAB				//FixIn: 9.8.15.2.2
+                              'title'		=> __( 'Schedule & Rules', 'booking' )										// Title of TAB				//FixIn: 9.8.15.2.2
                             , 'hint'		=> __( 'Define unavailable weekdays for all calendar(s) and unavailable dates depend from today date', 'booking' )						// Hint
-                            , 'page_title'	=> __( 'General Availability', 'booking' )						// Title of Page
+                            , 'page_title'	=> __( 'Schedule & Rules', 'booking' )						// Title of Page
                             , 'link' =>  function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url( true, false ) : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' )                                      // Can be skiped,  then generated link based on Page and Tab tags. Or can  be extenral link
                             , 'position'	=> ''                               // 'left'  ||  'right'  ||  ''
                             , 'css_classes' => 'wpbc_top_tab__general_availability'                               // CSS class(es)

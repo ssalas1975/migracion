@@ -14,18 +14,42 @@ use Tribe\Events\Views\V2\View;
 use Tribe\Events\Views\V2\Views\Traits\With_Fast_Forward_Link;
 use Tribe__Date_Utils as Dates;
 use Tribe__Utils__Array as Arr;
+use Tribe__Context;
+use Tribe\Events\Views\V2\Views\Traits\With_Noindex;
+
+use DateTime;
 
 class Day_View extends View {
 	use With_Fast_Forward_Link;
+	use With_Noindex;
 
 	/**
 	 * Slug for this view
 	 *
 	 * @since 4.9.4
+	 * @deprecated 6.0.7
 	 *
 	 * @var string
 	 */
 	protected $slug = 'day';
+
+	/**
+	 * Statically accessible slug for this view.
+	 *
+	 * @since 6.0.7
+	 *
+	 * @var string
+	 */
+	protected static $view_slug = 'day';
+
+	/**
+	 * Cached dates for the prev/next links.
+	 *
+	 * @since 5.16.1
+	 *
+	 * @var array
+	 */
+	protected array $memoized_dates = [];
 
 	/**
 	 * Visibility for this view.
@@ -36,6 +60,74 @@ class Day_View extends View {
 	 * @var bool
 	 */
 	protected static $publicly_visible = true;
+
+	/**
+	 * Default untranslated value for the label of this view.
+	 *
+	 * @since 6.0.4
+	 *
+	 * @var string
+	 */
+	protected static $label = 'Day';
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function get_view_label(): string {
+		static::$label = _x( 'Day', 'The text label for the Day View.', 'the-events-calendar' );
+
+		return static::filter_view_label( static::$label );
+	}
+
+	/**
+	 * Get the date of the event immediately previous to the current view date.
+	 *
+	 * @since 5.16.1
+	 *
+	 * @param DateTime|false $current_date A DateTime object signifying the current date for the view.
+	 *
+	 * @return DateTime|false Either the previous event chronologically, the previous month, or false if no next event found.
+	 */
+	public function get_previous_event_date( $current_date ) {
+		$context = $this->context instanceof Tribe__Context ? $this->context : null;
+		$args = $this->filter_repository_args( $this->setup_repository_args( $context ) );
+		// This value will mess up our query.
+		unset( $args['date_overlaps'] );
+
+		// Use cache to reduce the performance impact.
+		$cache_key = __METHOD__ . '_' . substr( md5( wp_json_encode( [ $current_date, $args ] ) ), 10 );
+
+		if ( isset( $this->memoized_dates[ $cache_key ] ) ) {
+			return $this->memoized_dates[ $cache_key ];
+		}
+
+		// When dealing with previous event date we only fetch one.
+		$args['posts_per_page'] = 1;
+
+		// Find the first event that starts before the start of today.
+		$prev_event = tribe_events()
+			->by_args( $args )
+			->where( 'starts_before', tribe_beginning_of_day( $current_date->format( 'Y-m-d' ) ) )
+			->order( 'DESC' )
+			->first();
+
+		if ( ! $prev_event instanceof \WP_Post ) {
+			$this->memoized_dates[ $cache_key ] = false;
+
+			return false;
+		}
+
+		// Show the closest date on which that event appears (but not the current date).
+		$prev_event_date = Dates::build_date_object( $prev_event->dates->start );
+		$prev_date       = min(
+			$prev_event_date,
+			$current_date->sub( new \DateInterval( 'P1D' ) )
+		);
+
+		$this->memoized_dates[ $cache_key ] = $prev_date;
+
+		return $prev_date;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -65,6 +157,59 @@ class Day_View extends View {
 		$this->cached_urls[ $cache_key ] = $url;
 
 		return $url;
+	}
+
+	/**
+	 * Get the date of the event immediately after to the current view date.
+	 *
+	 * @since 5.16.1
+	 *
+	 * @param DateTime|false $current_date A DateTime object signifying the current date for the view.
+	 *
+	 * @return DateTime|false Either the next event chronologically, the next month, or false if no next event found.
+	 */
+	public function get_next_event_date( $current_date ) {
+		$context = $this->context instanceof Tribe__Context ? $this->context : null;
+		$args = $this->filter_repository_args( $this->setup_repository_args( $context ) );
+		// This value will mess up our query.
+		unset( $args['date_overlaps'] );
+
+		// Use cache to reduce the performance impact.
+		$cache_key = __METHOD__ . '_' . substr( md5( wp_json_encode( [ $current_date, $args ] ) ), 10 );
+
+		if ( isset( $this->memoized_dates[ $cache_key ] ) ) {
+			return $this->memoized_dates[ $cache_key ];
+		}
+
+		if ( isset( $args['past'] ) && tribe_is_truthy( $args['past'] ) ) {
+			return false;
+		}
+
+		// For the next event date we only care about 1 item.
+		$args['posts_per_page'] = 1;
+
+		// The first event that ends after the end of the month; it could still begin in this month.
+		$next_event = tribe_events()
+			->by_args( $args )
+			->where( 'starts_after', tribe_end_of_day( $current_date->format( 'Y-m-d' ) ) )
+			->order( 'ASC' )
+			->first();
+
+		if ( ! $next_event instanceof \WP_Post ) {
+			$this->memoized_dates[ $cache_key ] = false;
+
+			return false;
+		}
+
+		// At a minimum pick the next month or the month the next event starts in.
+		$next_date = max(
+			Dates::build_date_object( $next_event->dates->start ),
+			$current_date->add( new \DateInterval( 'P1D' ) )
+		);
+
+		$this->memoized_dates[ $cache_key ] = $next_date;
+
+		return $next_date;
 	}
 
 	/**
@@ -98,9 +243,11 @@ class Day_View extends View {
 	}
 
 	/**
+	 * @since 6.17.0 Made $context explicitly nullable.
+	 *
 	 * {@inheritDoc}
 	 */
-	protected function setup_repository_args( \Tribe__Context $context = null ) {
+	protected function setup_repository_args( ?\Tribe__Context $context = null ) {
 
 		$context = null !== $context ? $context : $this->context;
 
@@ -157,7 +304,7 @@ class Day_View extends View {
 			}
 
 			// Make sure the view slug is always set to correctly match rewrites.
-			$input_url     = add_query_arg( [ 'eventDisplay' => $this->slug ], $input_url );
+			$input_url     = add_query_arg( [ 'eventDisplay' => static::$view_slug ], $input_url );
 			$canonical_url = tribe( 'events.rewrite' )->get_clean_url( $input_url );
 
 			if ( ! empty( $passthru_vars ) ) {
@@ -174,11 +321,29 @@ class Day_View extends View {
 	 * {@inheritDoc}
 	 */
 	protected function setup_template_vars() {
+		$template_vars   = parent::setup_template_vars();
+		$sorted_events   = $this->sort_events( $template_vars['events'] );
 
-		$template_vars = parent::setup_template_vars();
-		$sorted_events = $this->sort_events( $template_vars['events'] );
+		$next_date       = Dates::build_date_object( $template_vars['url_event_date'] )->add( new \DateInterval( 'P1D' ) )->format( 'Y-m-d' );
+		$prev_date       = Dates::build_date_object( $template_vars['url_event_date'] )->sub( new \DateInterval( 'P1D' ) )->format( 'Y-m-d' );
 
-		$template_vars['events'] = $sorted_events;
+		$next_event_date = $this->get_next_event_date( Dates::build_date_object( $template_vars['url_event_date'] ) );
+		$prev_event_date = $this->get_previous_event_date( Dates::build_date_object( $template_vars['url_event_date'] ) );
+
+		$index_next_rel  = $next_event_date && $next_date === $next_event_date->format( 'Y-m-d' );
+		$index_prev_rel  = $prev_event_date && $prev_date === $prev_event_date->format( 'Y-m-d' );
+
+		$next_rel        = $index_next_rel ? 'next' : 'noindex';
+		$prev_rel        = $index_prev_rel ? 'prev' : 'noindex';
+
+		$template_vars['show_content_title'] = false;
+
+		$template_vars['events']   = $sorted_events;
+		$template_vars['next_rel'] = $next_rel;
+		$template_vars['prev_rel'] = $prev_rel;
+
+		$enabled_views                      = tribe_get_option( 'tribeEnableViews', [ static::$view_slug ] );
+		$template_vars['day_view_disabled'] = ! in_array( static::$view_slug, $enabled_views, true );
 
 		return $template_vars;
 	}
@@ -257,5 +422,27 @@ class Day_View extends View {
 			$message_key = $this->upcoming_events_count() ? 'day_no_results_found' : 'no_upcoming_events';
 			$this->messages->insert( Messages::TYPE_NOTICE, Messages::for_key( $message_key, $date_label ) );
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @since 6.15.16
+	 */
+	protected function get_default_content_title(): string {
+		// Get the date being displayed.
+		$date_time  = Dates::build_date_object( $this->context->get( 'event_date', 'today' ) );
+		$date_label = date_i18n(
+			tribe_get_date_format( true ),
+			$date_time->getTimestamp() + $date_time->getOffset()
+		);
+
+		// Return formatted title: "Events for [Date]".
+		return sprintf(
+			/* translators: %1$s: Events plural %2$s: Date */
+			esc_html_x( '%1$s for %2$s', 'day view content title', 'the-events-calendar' ),
+			tribe_get_event_label_plural(),
+			$date_label
+		);
 	}
 }

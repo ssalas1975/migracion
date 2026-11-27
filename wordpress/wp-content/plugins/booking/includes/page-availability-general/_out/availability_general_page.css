@@ -163,9 +163,31 @@
   width: 100%
 }
 .wpbc_ag_weekday_grid {
+  -ms-flex-align: start;
+  align-items: start;
   display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(7,minmax(0,1fr))
+}
+.wpbc_ag_weekday_grid .wpbc_ag_weekday_switch {
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-direction: column;
+  flex-direction: column;
   gap: 8px;
-  grid-template-columns: repeat(2,minmax(0,1fr))
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  min-height: 0;
+  min-width: 0;
+  padding: 6px 0 4px;
+  text-align: center
+}
+.wpbc_ag_weekday_grid .wpbc_ag_switch_label {
+  overflow-wrap: normal;
+  white-space: nowrap
+}
+.wpbc_ag_weekday_grid + .wpbc_ag_description {
+  margin-top: 20px
 }
 .wpbc_ag_switch {
   -ms-flex-align: center;
@@ -177,7 +199,10 @@
   display: flex;
   gap: 8px;
   min-height: 36px;
-  padding: 6px 8px
+  padding: 6px 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  min-width: 70px
 }
 .wpbc_ag_switch input {
   height: 1px;
@@ -398,6 +423,120 @@
   border-left: 4px solid #dba617;
   margin: 0 0 12px
 }
+.wpbc_ag_notice_error {
+  background: #fcf0f1;
+  border-color: #d63638;
+  color: #8a2424
+}
+.wpbc_ag_working_time_block {
+  border-radius: var(--wpbc-ts-radius,6px);
+  margin: 10px 0 0
+}
+.wpbc_ag_working_time_block.is-disabled {
+  opacity: .58
+}
+.wpbc_ag_working_time_block.is-disabled .wpbc_ag_description {
+  color: #8c8f94
+}
+.wpbc_ag_working_time_block h4 {
+  margin: 0 0 10px
+}
+.wpbc_ag_working_time_notice {
+  border-left-color: #5459ac
+}
+.wpbc_ag_working_time_rows {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 10px
+}
+.wpbc_ag_working_time_row {
+  -ms-flex-align: start;
+  align-items: flex-start;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 3px 0 7px;
+  width: 100%
+}
+.wpbc_ag_working_time_day {
+  margin: 0;
+  padding: 0
+}
+.wpbc_ag_working_time_intervals {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  width: 100%
+}
+.wpbc_ag_working_time_times {
+  -ms-flex-align: center;
+  align-items: center;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  width: 100%
+}
+.wpbc_ag_working_time_times .wpbc_ag_field_control {
+  -ms-flex: 1 1 0px;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto
+}
+.wpbc_ag_working_time_add {
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-item-align: start;
+  align-self: flex-start;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  gap: 4px
+}
+.wpbc_ag_working_time_remove {
+  -ms-flex-align: center;
+  align-items: center;
+  background: 0 0;
+  border: 0;
+  border-radius: 3px;
+  color: #646970;
+  cursor: pointer;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex: 0 0 28px;
+  flex: 0 0 28px;
+  height: 28px;
+  -ms-flex-pack: center;
+  justify-content: center;
+  padding: 0;
+  width: 28px
+}
+.wpbc_ag_working_time_remove:focus,
+.wpbc_ag_working_time_remove:hover {
+  color: #d63638
+}
+.wpbc_ag_working_time_remove:focus,
+.wpbc_ag_working_time_remove:focus-visible {
+  box-shadow: 0 0 0 2px #2271b1;
+  outline: transparent solid 2px
+}
+.wpbc_ag_working_time_row:not(.is-enabled) .wpbc_ag_working_time_intervals {
+  opacity: .65
+}
+.wpbc_ag_working_time_custom {
+  display: none;
+  margin-top: 10px
+}
+.wpbc_ag_working_time_custom.is-visible {
+  display: block
+}
 .wpbc_ag_scope_title {
   color: #1d2327;
   font-weight: 600;
@@ -444,6 +583,13 @@
     width: 100%
   }
   .wpbc_ag_weekday_grid {
-    grid-template-columns: 1fr
+    gap: 3px;
+    grid-template-columns: repeat(7,minmax(0,1fr))
+  }
+  .wpbc_ag_working_time_times {
+    gap: 4px
+  }
+  .wpbc_ag_working_time_times .wpbc_ag_field_control {
+    min-width: 0
   }
 }

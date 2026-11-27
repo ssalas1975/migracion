@@ -1,11 +1,19 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $attributes             = array();
 $attributes['tabindex'] = 2;
 
-$pick_limit = (int) pods_var( $form_field_type . '_limit', $options, 0 );
+$pick_limit = (int) pods_v( $form_field_type . '_limit', $options, 0 );
 $multiple   = false;
 
-if ( 'multi' == pods_var( $form_field_type . '_format_type', $options ) && 1 != $pick_limit ) {
+if ( 'multi' === pods_v( $form_field_type . '_format_type', $options ) && 1 != $pick_limit ) {
 	$name                  .= '[]';
 	$attributes['multiple'] = 'multiple';
 	$multiple               = true;
@@ -14,12 +22,12 @@ if ( 'multi' == pods_var( $form_field_type . '_format_type', $options ) && 1 != 
 if ( ! is_array( $options['data'] ) && false !== $options['data'] && 0 < strlen( $options['data'] ) ) {
 	$options['data'] = implode( ',', $options['data'] );
 } else {
-	$options['data'] = (array) pods_var_raw( 'data', $options, array(), null, true );
+	$options['data'] = (array) pods_v( 'data', $options, [] );
 }
 
 $attributes = PodsForm::merge_attributes( $attributes, $name, $form_field_type, $options );
 
-if ( pods_var( 'readonly', $options, false ) ) {
+if ( (bool) pods_v( 'readonly', $options, false ) ) {
 	$attributes['readonly'] = 'READONLY';
 
 	$attributes['class'] .= ' pods-form-ui-read-only';
@@ -49,11 +57,11 @@ $selection_made = false;
 
 					$sub_option_label = (string) $sub_option_label;
 
-					$selected            = '';
+					$is_selected = false;
 					$options['selected'] = '';
 
 					if ( ! $selection_made && ( ( ! is_array( $value ) && (string) $sub_option_value === (string) $value ) || ( is_array( $value ) && ( in_array( $sub_option_value, $value ) || in_array( (string) $sub_option_value, $value ) ) ) ) ) {
-						$selected            = ' SELECTED';
+						$is_selected = true;
 						$options['selected'] = 'selected';
 
 						if ( ! $multiple ) {
@@ -67,7 +75,7 @@ $selection_made = false;
 						<?php
 					} else {
 						?>
-						<option value="<?php echo esc_attr( $sub_option_value ); ?>"<?php echo $selected; ?>><?php echo esc_html( $sub_option_label ); ?></option>
+						<option value="<?php echo esc_attr( $sub_option_value ); ?>"<?php selected( $is_selected ); ?>><?php echo esc_html( $sub_option_label ); ?></option>
 						<?php
 					}
 				}//end foreach
@@ -77,11 +85,11 @@ $selection_made = false;
 		} else {
 			$option_label = (string) $option_label;
 
-			$selected            = '';
+			$is_selected = false;
 			$options['selected'] = '';
 
 			if ( ! $selection_made && ( ( ! is_array( $value ) && (string) $option_value === (string) $value ) || ( is_array( $value ) && ( in_array( $option_value, $value ) || in_array( (string) $option_value, $value ) ) ) ) ) {
-				$selected            = ' SELECTED';
+				$is_selected = true;
 				$options['selected'] = 'selected';
 
 				if ( ! $multiple ) {
@@ -95,7 +103,7 @@ $selection_made = false;
 				<?php
 			} else {
 				?>
-				<option value="<?php echo esc_attr( $option_value ); ?>"<?php echo $selected; ?>><?php echo esc_html( $option_label ); ?></option>
+				<option value="<?php echo esc_attr( $option_value ); ?>"<?php selected( $is_selected ); ?>><?php echo esc_html( $option_label ); ?></option>
 				<?php
 			}
 		}//end if

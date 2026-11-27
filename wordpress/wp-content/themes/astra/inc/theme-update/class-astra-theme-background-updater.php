@@ -3,8 +3,6 @@
  * Theme Batch Update
  *
  * @package     Astra
- * @author      Astra
- * @copyright   Copyright (c) 2020, Astra
  * @link        https://wpastra.com/
  * @since 2.1.3
  */
@@ -15,7 +13,6 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 	 * Astra_Theme_Background_Updater Class.
 	 */
 	class Astra_Theme_Background_Updater {
-
 		/**
 		 * Background update class.
 		 *
@@ -29,97 +26,107 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 * @var array
 		 */
 		private static $db_updates = array(
-			'2.1.3' => array(
-				'astra_submenu_below_header',
+			'4.0.0'   => array(
+				'astra_theme_background_updater_4_0_0',
 			),
-			'2.2.0' => array(
-				'astra_page_builder_button_color_compatibility',
-				'astra_vertical_horizontal_padding_migration',
+			'4.0.2'   => array(
+				'astra_theme_background_updater_4_0_2',
 			),
-			'2.3.0' => array(
-				'astra_header_button_new_options',
+			'4.1.0'   => array(
+				'astra_theme_background_updater_4_1_0',
 			),
-			'2.3.3' => array(
-				'astra_elementor_default_color_typo_comp',
+			'4.1.4'   => array(
+				'astra_theme_background_updater_4_1_4',
 			),
-			'2.3.4' => array(
-				'astra_breadcrumb_separator_fix',
+			'4.1.6'   => array(
+				'astra_theme_background_updater_4_1_6',
 			),
-			'2.4.0' => array(
-				'astra_responsive_base_background_option',
-				'astra_update_theme_tablet_breakpoint',
+			'4.1.7'   => array(
+				'astra_theme_background_updater_4_1_7',
 			),
-			'2.4.4' => array(
-				'astra_gtn_full_wide_image_group_css',
+			'4.2.0'   => array(
+				'astra_theme_background_updater_4_2_0',
 			),
-			'2.5.0' => array(
-				'astra_global_button_woo_css',
-				'astra_gtn_full_wide_group_cover_css',
+			'4.2.2'   => array(
+				'astra_theme_background_updater_4_2_2',
 			),
-			'2.5.2' => array(
-				'astra_footer_widget_bg',
+			'4.4.0'   => array(
+				'astra_theme_background_updater_4_4_0',
 			),
-			'2.6.0' => array(
-				'astra_bg_control_migration',
-				'astra_bg_responsive_control_migration',
-				'astra_gutenberg_core_blocks_design_compatibility',
+			'4.5.0'   => array(
+				'astra_theme_background_updater_4_5_0',
 			),
-			'2.6.1' => array(
-				'astra_gutenberg_media_text_block_css_compatibility',
+			'4.5.2'   => array(
+				'astra_theme_background_updater_4_5_2',
 			),
-			'3.0.0' => array(
-				'astra_header_builder_compatibility',
+			'4.6.0'   => array(
+				'astra_theme_background_updater_4_6_0',
 			),
-			'3.0.1' => array(
-				'astra_clear_assets_cache',
+			'4.6.2'   => array(
+				'astra_theme_background_updater_4_6_2',
 			),
-			'3.3.0' => array(
-				'astra_gutenberg_pattern_compatibility',
-				'astra_icons_svg_compatibility',
-				'astra_check_flex_based_css',
+			'4.6.4'   => array(
+				'astra_theme_background_updater_4_6_4',
 			),
-			'3.4.0' => array(
-				'astra_update_cart_style',
+			'4.6.5'   => array(
+				'astra_theme_background_updater_4_6_5',
 			),
-			'3.5.0' => array(
-				'astra_update_related_posts_grid_layout',
-				'astra_site_title_tagline_responsive_control_migration',
+			'4.6.6'   => array(
+				'astra_theme_background_updater_4_6_6',
 			),
-			'3.6.0' => array(
-				'astra_headings_font_support',
-				'astra_remove_logo_max_width',
-				'astra_transparent_header_default_value',
+			'4.6.11'  => array(
+				'astra_theme_background_updater_4_6_11',
 			),
-			'3.6.3' => array(
-				'astra_button_default_values_updated',
+			'4.6.12'  => array(
+				'astra_theme_background_updater_4_6_12',
 			),
-			'3.6.4' => array(
-				'astra_update_underline_link_setting',
+			'4.6.14'  => array(
+				'astra_theme_background_updater_4_6_14',
 			),
-			'3.6.5' => array(
-				'astra_support_block_editor',
+			'4.7.0'   => array(
+				'astra_theme_background_updater_4_7_0',
 			),
-			'3.6.7' => array(
-				'astra_fix_footer_widget_right_margin_case',
-				'astra_remove_elementor_toc_margin',
+			'4.7.1'   => array(
+				'astra_theme_background_updater_4_7_1',
 			),
-			'3.6.8' => array(
-				'astra_set_removal_widget_design_options_flag',
+			'4.8.0'   => array(
+				'astra_theme_background_updater_4_8_0',
 			),
-			'3.6.9' => array(
-				'astra_zero_font_size_comp',
-				'astra_unset_builder_elements_underline',
-				'astra_remove_responsive_account_menu_colors_support',
+			'4.8.2'   => array(
+				'astra_theme_background_updater_4_8_2',
 			),
-			'3.7.0' => array(
-				'astra_global_color_compatibility',
+			'4.8.4'   => array(
+				'astra_theme_background_updater_4_8_4',
 			),
-			'3.7.4' => array(
-				'astra_improve_gutenberg_editor_ui',
+			'4.8.7'   => array(
+				'astra_theme_background_updater_4_8_7',
 			),
-			'3.7.9' => array(
-				'astra_set_default_breadcrumb_separator_option',
-				'astra_fullwidth_layouts_apply_content_background',
+			'4.8.9'   => array(
+				'astra_theme_background_updater_4_8_9',
+			),
+			'4.8.10'  => array(
+				'astra_theme_background_updater_4_8_10',
+			),
+			'4.9.0'   => array(
+				'astra_theme_background_updater_4_9_0',
+			),
+			'4.10.0'  => array(
+				'astra_theme_background_updater_4_10_0',
+			),
+			'4.11.6'  => array(
+				'astra_theme_background_updater_4_11_6',
+			),
+			'4.11.12' => array(
+				'astra_theme_background_updater_4_11_12',
+			),
+			'4.12.0'  => array(
+				'astra_theme_background_updater_4_12_0',
+			),
+			'4.12.2'  => array(
+				'astra_theme_background_updater_4_12_2',
+			),
+			'4.13.11' => array(
+				'astra_theme_background_updater_4_13_11',
 			),
 		);
 
@@ -141,7 +148,6 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 			require_once ASTRA_THEME_DIR . 'inc/theme-update/class-astra-theme-wp-background-process.php';// phpcs:ignore: WPThemeReview.CoreFunctionality.FileInclude.FileIncludeFound
 
 			self::$background_updater = new Astra_Theme_WP_Background_Process();
-
 		}
 
 		/**
@@ -188,14 +194,14 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 
 			$result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
 
-			if ( wp_remote_retrieve_response_code( $result ) >= 300 ) {
+			// A failed loopback (timeout, refused connection, etc.) returns a WP_Error with an empty response code.
+			// Treat it as "cron unavailable" so the caller uses the synchronous fallback; only a healthy loopback is cached below.
+			if ( is_wp_error( $result ) || wp_remote_retrieve_response_code( $result ) >= 300 ) {
 				return true;
-			} else {
-				set_transient( 'astra-theme-cron-test-ok', 1, 3600 );
-				return false;
 			}
 
-			return $migration_fallback;
+			set_transient( 'astra-theme-cron-test-ok', 1, 3600 );
+			return false;
 		}
 
 		/**
@@ -212,14 +218,14 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 				return;
 			}
 
-			$fallback    = $this->test_cron();
 			$db_migrated = $this->check_if_data_migrated();
 			/** @psalm-suppress InvalidArgument */ // phpcs:ignore Generic.Commenting.DocComment.MissingShort
 			$is_queue_running = astra_get_option( 'is_theme_queue_running', false );
 
-			$fallback = ( $db_migrated ) ? $db_migrated : $fallback;
-
 			if ( $this->needs_db_update() && ! $is_queue_running ) {
+				// Only run the blocking wp-cron loopback test when a migration is actually pending.
+				// It just decides background vs synchronous fallback, so running it on every admin or frontend load is wasted work.
+				$fallback = $db_migrated ? $db_migrated : $this->test_cron();
 				$this->update( $fallback );
 			} else {
 				if ( ! $is_queue_running ) {
@@ -232,7 +238,7 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 * Is this a brand new theme install?
 		 *
 		 * @since 2.1.3
-		 * @return boolean
+		 * @return bool
 		 */
 		public function is_new_install() {
 
@@ -251,7 +257,7 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 * Is a DB update needed?
 		 *
 		 * @since 2.1.3
-		 * @return boolean
+		 * @return bool
 		 */
 		private function needs_db_update() {
 			$current_theme_version = astra_get_option( 'theme-auto-version', null );
@@ -261,7 +267,10 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 				return false;
 			}
 
-			return ! is_null( $current_theme_version ) && version_compare( $current_theme_version, max( array_keys( $updates ) ), '<' );
+			$versions = array_keys( $updates );
+			$latest   = $versions[ count( $versions ) - 1 ];
+
+			return ! is_null( $current_theme_version ) && version_compare( $current_theme_version, $latest, '<' );
 		}
 
 		/**
@@ -270,7 +279,7 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 * @since 2.1.3
 		 * @return array
 		 */
-		public function get_db_update_callbacks() {
+		public static function get_db_update_callbacks() {
 			return self::$db_updates;
 		}
 
@@ -279,7 +288,7 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 *
 		 * @since 2.3.1
 		 *
-		 * @return true If the database migration should not be run through CRON.
+		 * @return bool True if the database migration should not be run through CRON.
 		 */
 		public function check_if_data_migrated() {
 
@@ -313,7 +322,7 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 *
 		 * @since 2.3.1
 		 *
-		 * @return true if astra addon version is updated.
+		 * @return bool True if astra addon version is updated.
 		 */
 		public function is_db_version_updated() {
 			// Get auto saved version number.
@@ -323,7 +332,6 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 			return version_compare( $saved_version, ASTRA_THEME_VERSION, '=' );
 		}
 
-
 		/**
 		 * Push all needed DB updates to the queue for processing.
 		 *
@@ -332,6 +340,9 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 		 * @return void
 		 */
 		private function update( $fallback ) {
+			// Detach astra-settings option filters (e.g. WPML admin texts) so fallback migrations read raw values and never persist translated strings back.
+			$detached_option_filters = astra_detach_option_filters();
+
 			$current_db_version = astra_get_option( 'theme-auto-version' );
 
 			if ( count( $this->get_db_update_callbacks() ) > 0 ) {
@@ -356,6 +367,8 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 				self::$background_updater->push_to_queue( 'update_db_version' );
 			}
 			self::$background_updater->save()->dispatch();
+
+			astra_restore_option_filters( $detached_option_filters );
 		}
 
 		/**
@@ -410,11 +423,10 @@ if ( ! class_exists( 'Astra_Theme_Background_Updater' ) ) {
 
 			delete_transient( 'astra-addon-db-migrated' );
 
-			do_action( 'astra_theme_update_after' );
+			do_action( 'astra_theme_update_after', $saved_version );
 		}
 	}
 }
-
 
 /**
  * Kicking this off by creating a new instance

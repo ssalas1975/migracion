@@ -10,7 +10,7 @@
 
 		<?php if ( 'post' == get_post_type() ) : ?>
     		<div class="entry-meta">
-                <?php 
+                <?php
                     do_action( 'accesspress_mag_post_categories' );
                     accesspress_mag_posted_on();
                     do_action( 'accesspress_mag_post_meta' );
@@ -47,12 +47,6 @@
         <?php 
             }
              
-			/* translators: %s: Name of current post */
-			/*the_content( sprintf(
-				__( 'Continue reading %s <span class="meta-nav">&rarr;</span>', 'accesspress-mag' ),
-				the_title( '<span class="screen-reader-text">"', '"</span>', false )
-			) );
-            */
             if( has_excerpt() ) {
                 the_excerpt();
             } else {

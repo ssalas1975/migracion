@@ -21,7 +21,7 @@ if ( ! function_exists( 'tribe_get_event' ) ) {
 	 *                                 object to localize the event in a specific time-frame.
 	 * @param bool             $force  Whether to force a re-fetch ignoring cached results or not.
 	 *
-	 * @return array|mixed|void|WP_Post|null {
+	 * @return array|WP_Post|null {
 	 *                              The Event post object or array, `null` if not found.
 	 *
 	 *                              @type string $start_date The event start date, in `Y-m-d H:i:s` format.
@@ -98,16 +98,14 @@ if ( ! function_exists( 'tribe_get_event' ) ) {
 			return $return;
 		}
 
-		$post = false;
-
-		/** @var Tribe__Cache $cache */
-		$cache = tribe( 'cache' );
-
 		$cache_post = get_post( $event );
 
 		if ( empty( $cache_post ) ) {
 			return null;
 		}
+
+		/** @var Tribe__Cache $cache */
+		$cache = tribe( 'cache' );
 
 		if ( ! isset( $cache['option_start_of_week'] ) ) {
 			$cache['option_start_of_week'] = get_option( 'start_of_week' );
@@ -119,34 +117,32 @@ if ( ! function_exists( 'tribe_get_event' ) ) {
 			$cache['option_gmt_offset'] = get_option( 'gmt_offset' );
 		}
 
+		// Build a memoization cache key salted by the request parameters.
 		$key_fields = [
 			$cache_post->ID,
 			$cache_post->post_modified,
 			// Use the `post_password` field as we show/hide some information depending on that.
 			$cache_post->post_password,
+			$cache_post->post_name,
+			$cache_post->post_status,
+			$cache_post->post_title,
 			// We must include options on cache key, because options influence the hydrated data on the Event object.
-			wp_json_encode( Tribe__Settings_Manager::get_options() ),
-			wp_json_encode( [
-				$cache['option_start_of_week'],
-				$cache['option_timezone_string'],
-				$cache['option_gmt_offset']
-			] ),
+			Tribe__Settings_Manager::get_options(),
+			$cache['option_start_of_week'],
+			$cache['option_timezone_string'],
+			$cache['option_gmt_offset'],
 			$output,
 			$filter,
 		];
 
 		$cache_key = 'tribe_get_event_' . md5( wp_json_encode( $key_fields ) );
 
-		if ( ! $force ) {
-			$post  = $cache->get( $cache_key, Tribe__Cache_Listener::TRIGGER_SAVE_POST );
-		}
+		// Try getting the memoized value.
+		$post = $cache->get( $cache_key, Tribe__Cache_Listener::TRIGGER_SAVE_POST );
 
-		if ( false === $post ) {
-			$post = Event::from_post( $event )->to_post( $output, $filter );
-
-			if ( empty( $post ) ) {
-				return null;
-			}
+		if ( $post === false ) {
+			// No memoized value, build from properties.
+			$post = Event::from_post( $event )->to_post( OBJECT, $filter, $force );
 
 			/**
 			 * Filters the event post object before caching it and returning it.
@@ -163,10 +159,12 @@ if ( ! function_exists( 'tribe_get_event' ) ) {
 			 */
 			$post = apply_filters( 'tribe_get_event', $post, $output, $filter );
 
-			// Dont try to reset cache when forcing.
-			if ( ! $force ) {
-				$cache->set( $cache_key, $post, WEEK_IN_SECONDS, Tribe__Cache_Listener::TRIGGER_SAVE_POST );
-			}
+			// Memoize the value.
+			$cache->set( $cache_key, $post, Tribe__Cache::NON_PERSISTENT, Tribe__Cache_Listener::TRIGGER_SAVE_POST );
+		}
+
+		if ( empty( $post ) ) {
+			return null;
 		}
 
 		/**
@@ -186,10 +184,14 @@ if ( ! function_exists( 'tribe_get_event' ) ) {
 		 */
 		$post = apply_filters( 'tribe_get_event_after', $post, $event, $output, $filter );
 
-		if ( OBJECT !== $output ) {
-			$post = ARRAY_A === $output ? (array) $post : array_values( (array) $post );
+		switch ( $output ) {
+			case ARRAY_A:
+				return (array) $post;
+			case ARRAY_N:
+				return array_values( (array) $post );
 		}
 
+		// In case of output not ARRAY_A or ARRAY_N, we return the post object.
 		return $post;
 	}
 }

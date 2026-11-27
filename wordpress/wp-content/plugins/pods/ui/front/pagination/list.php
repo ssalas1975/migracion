@@ -1,3 +1,12 @@
+<?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <div class="pods-pagination-paginate <?php echo esc_attr( $params->class ); ?>">
 	<?php
 	$args = array(
@@ -13,6 +22,6 @@
 		'type'      => 'list',
 	);
 
-	echo paginate_links( $args );
+	echo paginate_links( $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	?>
 </div>

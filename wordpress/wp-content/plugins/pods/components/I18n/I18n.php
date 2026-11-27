@@ -16,7 +16,10 @@
  * @subpackage i18n
  */
 
-! defined( 'ABSPATH' ) and die();
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
 
 if ( class_exists( 'Pods_Component_I18n' ) ) {
 	return;
@@ -48,6 +51,9 @@ class Pods_Component_I18n extends PodsComponent {
 		'placeholder' => [],
 		'menu_name' => [],
 		'name_admin_bar' => [],
+		'repeatable_add_new_label' => [
+			'depends-on' => [ 'repeatable' => true ],
+		],
 		'boolean_yes_label' => [
 			'depends-on' => [ 'type' => 'boolean' ],
 		],
@@ -130,13 +136,13 @@ class Pods_Component_I18n extends PodsComponent {
 			 */
 
 			// Pod.
-			add_filter( 'pods_admin_setup_edit_tabs', array( $this, 'translation_tab' ), 99, 2 );
+			add_filter( 'pods_admin_setup_edit_tabs', array( $this, 'translation_tab' ), 99, 1 );
 			add_filter( 'pods_admin_setup_edit_options', array( $this, 'translation_options' ), 99, 2 );
 			// Pod Groups.
-			add_filter( 'pods_admin_setup_edit_group_tabs', array( $this, 'translation_tab' ), 99, 2 );
+			add_filter( 'pods_admin_setup_edit_group_tabs', array( $this, 'translation_tab' ), 99, 1 );
 			add_filter( 'pods_admin_setup_edit_group_options', array( $this, 'translation_options' ), 99, 2 );
 			// Pod Fields.
-			add_filter( 'pods_admin_setup_edit_field_tabs', array( $this, 'translation_tab' ), 99, 2 );
+			add_filter( 'pods_admin_setup_edit_field_tabs', array( $this, 'translation_tab' ), 99, 1 );
 			add_filter( 'pods_admin_setup_edit_field_options', array( $this, 'translation_options' ), 99, 2 );
 
 			/**
@@ -249,6 +255,7 @@ class Pods_Component_I18n extends PodsComponent {
 	 * @return bool
 	 */
 	public function is_translatable_field( $name ) {
+		$name = (string) $name;
 
 		// All fields that start with "label".
 		if ( strpos( $name, 'label' ) === 0 && false === strpos( $name, $this->locale ) ) {
@@ -269,7 +276,7 @@ class Pods_Component_I18n extends PodsComponent {
 	 * @since 0.1.0
 	 *
 	 * @param  string $current Current value
-	 * @param  string $key     The key / opion name to search for
+	 * @param  string $key     The key / option name to search for
 	 * @param  array|Pods\Whatsit  $data    Pod data (can also be an options array of a pod or field)
 	 *
 	 * @return mixed
@@ -475,11 +482,6 @@ class Pods_Component_I18n extends PodsComponent {
 
 		if ( ! $this->obj_is_language_enabled( $locale, $pod ) ) {
 			return $options;
-		}
-
-		// Load the pod
-		foreach ( $pod['options'] as $_option => $_value ) {
-			$pod[ $_option ] = $_value;
 		}
 
 		$labels = array(
@@ -728,20 +730,21 @@ class Pods_Component_I18n extends PodsComponent {
 		);
 
 		/**
-		 * Filter the language data
+		 * Filter the language data.
 		 *
 		 * @since 0.1.0
 		 *
-		 * @param array
+		 * @param array $data The language data.
 		 */
 		$data = apply_filters( 'pods_component_i18n_admin_data', $data );
 
 		/**
-		 * Filter the UI fields
+		 * Filter the UI fields.
 		 *
 		 * @since 0.1.0
 		 *
-		 * @param array
+		 * @param array $fields The UI fields.
+		 * @param array $data   The language data.
 		 */
 		$ui['fields'] = apply_filters( 'pods_component_i18n_admin_ui_fields', $ui['fields'], $data );
 

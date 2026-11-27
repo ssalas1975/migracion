@@ -19,35 +19,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;                                             
 // =====================================================================================================================
 
 /**
- * Check if this demo website
+ * Check whether the site is a managed public Booking Calendar live demo.
  *
- * @return bool
+ * This compatibility helper delegates to the shared environment policy so
+ * legacy consumers and newer capability checks cannot classify the same host
+ * differently.
+ *
+ * @return bool True for a managed public live demo.
  */
 function wpbc_is_this_demo() {
-
-//	return true;  //.
-
-	if ( ! class_exists( 'wpdev_bk_personal' ) ) {
-		return false;        // If this is Booking Calendar Free version,  then it's not the demo.
-	}
-
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	if ( ( ( isset( $_SERVER['SCRIPT_FILENAME'] ) ) && ( strpos( $_SERVER['SCRIPT_FILENAME'], 'wpbookingcalendar.com' ) !== false ) ) || ( ( isset( $_SERVER['HTTP_HOST'] ) ) && ( strpos( $_SERVER['HTTP_HOST'], 'wpbookingcalendar.com' ) !== false ) ) ) {
-		return true;
-	} else {
-		return false;
-	}
+	return WPBC_Environment_Policy::is_live_demo();
 }
 
 
 /**
- * Check if this Beta Demo website
+ * Determine whether the current request uses the local beta hostname.
  *
- * @return bool
+ * The comparison intentionally ignores a port and one trailing DNS dot. It
+ * does not classify beta subdomains or path names as the trusted beta host.
+ *
+ * @return bool True only for an HTTP Host whose normalized hostname is `beta`.
  */
 function wpbc_is_this_beta() {
-
-	$is_beta = ( ( isset( $_SERVER['HTTP_HOST'] ) ) && ( 'beta' === $_SERVER['HTTP_HOST'] ) );
+	$http_host = isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '';
+	$http_host = wp_parse_url( 'http://' . ltrim( strtolower( $http_host ), '/' ), PHP_URL_HOST );
+	$is_beta   = is_string( $http_host ) && ( 'beta' === rtrim( $http_host, '.' ) );
 
 	return $is_beta;
 }
@@ -57,6 +53,160 @@ function wpbc_is_this_beta() {
 function wpbc_get_warning_text_in_demo_mode() {
 	// return '<div class="wpbc-error-message wpbc_demo_test_version_warning"><strong>Warning!</strong> Demo test version does not allow changes to these items.</div>'; //Old Style
 	return '<div class="wpbc-settings-notice notice-warning"><strong>Warning!</strong> Demo test version does not allow changes to these items.</div>';
+}
+
+
+function wpbc_get_wpbc_versions_numbers() {
+
+	$version_numbers = array();
+
+	if ( defined( 'WP_BK_VERSION_NUM' ) ) {
+		$version_numbers [] = WP_BK_VERSION_NUM;
+	} else {
+		$version_numbers [] = ( defined( 'WPDEV_BK_VERSION' ) ) ? WPDEV_BK_VERSION : 'N/A';
+	}
+
+	if ( defined( 'WPBC_PRO_VERSION_NUM' ) ) {
+		if ( ( count( $version_numbers ) > 0 ) && ( $version_numbers[0] !== WPBC_PRO_VERSION_NUM ) ) {
+			$version_numbers [] = WPBC_PRO_VERSION_NUM;
+		}
+	}
+
+	$version_numbers_str = implode( ' | ', $version_numbers );
+
+	return $version_numbers_str;
+}
+
+
+/**
+ * Get a changeover-time contract across mixed Free and Pro versions.
+ *
+ * Booking Calendar Free may be updated before Booking Calendar Pro. Pro
+ * versions that predate the data-only contract still expose the established
+ * changeover predicate and global time options. Prefer the current Pro
+ * contract when available; otherwise adapt those released legacy APIs into
+ * the minimum compatible contract used by Free runtime consumers.
+ *
+ * This function must remain Free-owned and must not use the Pro function name:
+ * defining a fallback under the Pro name could cause a redeclaration fatal
+ * when a current Pro version loads later in the same request.
+ *
+ * @param int          $resource_id Booking Resource ID.
+ * @param string|false $request_uri Request URI used for legacy page exceptions,
+ *                                  or false to use the current request.
+ *
+ * @return array<string,mixed> Normalized, data-only changeover contract.
+ */
+function wpbc_get_changeover_time_field_contract_compat( $resource_id, $request_uri = false ) {
+	$resource_id = absint( $resource_id );
+
+	if ( function_exists( 'wpbc_get_changeover_time_field_contract' ) ) {
+		$changeover_contract = wpbc_get_changeover_time_field_contract( $resource_id, $request_uri );
+		if ( is_array( $changeover_contract ) ) {
+			return $changeover_contract;
+		}
+	}
+
+	$is_master_enabled = 'On' === get_bk_option( 'booking_range_selection_time_is_active' );
+	$is_active         = function_exists( 'wpbc_is_booking_used_check_in_out_time' )
+		&& wpbc_is_booking_used_check_in_out_time( $request_uri, $resource_id );
+	$start_time        = sanitize_text_field( (string) get_bk_option( 'booking_range_selection_start_time' ) );
+	$end_time          = sanitize_text_field( (string) get_bk_option( 'booking_range_selection_end_time' ) );
+	$is_valid          = 1 === preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $start_time )
+		&& 1 === preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $end_time );
+
+	return array(
+		'schema_version'     => 1,
+		'is_active'          => (bool) $is_active,
+		'is_valid'           => $is_valid,
+		'start_time'         => $is_valid ? $start_time : '',
+		'end_time'           => $is_valid ? $end_time : '',
+		'configured_mode'    => 'global',
+		'effective_mode'     => 'global',
+		'source'             => 'global',
+		'source_resource_id' => 0,
+		'inherited'          => false,
+		'fallback_used'      => false,
+		'master_enabled'     => $is_master_enabled,
+		'warning'            => '',
+		'fields'             => array(
+			array(
+				'key'            => 'starttime',
+				'source_type'    => 'starttime',
+				'runtime_source' => 'legacy_changeover_options',
+				'is_editable'    => false,
+				'value'          => $is_valid ? $start_time : '',
+			),
+			array(
+				'key'            => 'endtime',
+				'source_type'    => 'endtime',
+				'runtime_source' => 'legacy_changeover_options',
+				'is_editable'    => false,
+				'value'          => $is_valid ? $end_time : '',
+			),
+		),
+	);
+}
+
+
+/**
+ * Prevent the legacy Pro Simple booking form branch from requiring a removed Free file.
+ *
+ * Pro versions before 11.4 require `page-form-simple.php` only when the legacy
+ * `booking_is_use_simple_booking_form` option is enabled. Newer Free versions no longer contain that file. Because the
+ * Pro loader runs on `wpbc_loaded_php_files`, this check must happen immediately before that action is fired; waiting
+ * until `plugins_loaded` is too late and can result in a fatal `require_once` error. Other legacy Pro configurations
+ * remain loadable for the mixed-version compatibility layer.
+ *
+ * @return bool True when an incompatible Pro loader was removed, otherwise false.
+ */
+function wpbc_prevent_incompatible_pro_version_loading() {
+
+	$pro_loader_priority = has_action( 'wpbc_loaded_php_files', 'wpbc_pro_load_php_files' );
+
+	if ( false === $pro_loader_priority ) {
+		return false;
+	}
+
+	$is_legacy_pro_version = (
+		! defined( 'WPBC_PRO_VERSION_NUM' )
+		|| version_compare( WPBC_PRO_VERSION_NUM, WP_BK_PRO_BFB_ONLY_VERSION, '<' )
+	);
+	$is_legacy_simple_form_enabled = ( 'On' === get_bk_option( 'booking_is_use_simple_booking_form' ) );
+	$is_legacy_simple_form_missing = ! file_exists( WPBC_PLUGIN_DIR . '/includes/page-form-simple/page-form-simple.php' );
+
+	if ( ! $is_legacy_pro_version || ! $is_legacy_simple_form_enabled || ! $is_legacy_simple_form_missing ) {
+		return false;
+	}
+
+	remove_action( 'wpbc_loaded_php_files', 'wpbc_pro_load_php_files', $pro_loader_priority );
+
+	if ( is_admin() ) {
+		add_action( 'admin_notices', 'wpbc_show_error__legacy_simple_form_pro_version' );
+	}
+
+	return true;
+}
+
+
+/**
+ * Show an actionable notice after the legacy Simple booking form Pro loader has been disabled.
+ *
+ * @return void
+ */
+function wpbc_show_error__legacy_simple_form_pro_version() {
+
+	$pro_version = defined( 'WPBC_PRO_VERSION_NUM' ) ? WPBC_PRO_VERSION_NUM : __( 'unknown', 'booking' );
+
+	$message = sprintf(
+		/* translators: 1: Installed Pro version, 2: Installed Free version, 3: First Pro version without legacy form pages. */
+		__( 'Booking Calendar Pro %1$s cannot load because its legacy Simple booking form option is enabled, but Booking Calendar %2$s no longer contains that legacy settings module. Pro loading was stopped to prevent a fatal error. Update Booking Calendar Pro to version %3$s or newer; using matching Free and Pro versions is recommended.', 'booking' ),
+		'<strong>' . esc_html( $pro_version ) . '</strong>',
+		'<strong>' . esc_html( WP_BK_VERSION_NUM ) . '</strong>',
+		'<strong>' . esc_html( WP_BK_PRO_BFB_ONLY_VERSION ) . '</strong>'
+	);
+
+	echo '<div class="notice notice-error"><p>' . wp_kses_post( $message ) . '</p></div>';
 }
 
 
@@ -170,6 +320,22 @@ function wpbc_is_show_up() {
 	$is_show_up = ( ( 'hide' !== get_bk_option( 'booking_menu_go_pro' ) ) && ( ! class_exists( 'wpdev_bk_multiuser' ) ) );
 
 	return $is_show_up;
+}
+
+
+/**
+ * Check whether Free-edition upgrade navigation may be shown.
+ *
+ * This combines the existing administrator preference and MultiUser policy
+ * with the product-edition check used by Free-only upgrade actions.
+ *
+ * @since 11.8.0
+ *
+ * @return bool True when Free-edition upgrade navigation may be rendered.
+ */
+function wpbc_is_show_free_upgrade() {
+
+	return wpbc_is_show_up() && ! class_exists( 'wpdev_bk_personal' );
 }
 
 

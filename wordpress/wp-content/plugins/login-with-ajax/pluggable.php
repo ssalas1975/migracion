@@ -60,7 +60,7 @@ function wp_new_user_notification( $user_id, $deprecated = null, $notify = '' ) 
     //generate password link like it's done further down
     $password_link = network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user->user_login), 'login');
     if( !empty($deprecated) ) $password_link = $deprecated; // for <4.3 compatability
-    LoginWithAjax::new_user_notification($user->user_login, $password_link, $user->user_email, $blogname, $deprecated);
+    \LoginWithAjax::new_user_notification($user->user_login, $password_link, $user->user_email, $blogname, $deprecated);
     return;
 	//LWA Customizations END
 	

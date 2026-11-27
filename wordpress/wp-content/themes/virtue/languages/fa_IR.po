@@ -2308,11 +2308,11 @@ msgid "Extra Sidebar"
 msgstr "نوارکناری اضافی"
 
 #: ../themeoptions/options.php:1881
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr "گالری‌های وردپرس"
 
 #: ../themeoptions/options.php:1887
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr "فعالسازی نادیده گرفتن گالری‌های وردپرس"
 
 #: ../themeoptions/options.php:1888

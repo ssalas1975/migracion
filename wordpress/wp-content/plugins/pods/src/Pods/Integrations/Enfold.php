@@ -2,6 +2,11 @@
 
 namespace Pods\Integrations;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\Integration;
 
 /**
@@ -11,9 +16,6 @@ use Pods\Integration;
  */
 class Enfold extends Integration {
 
-	/**
-	 * @inheritdoc
-	 */
 	protected $hooks = [
 		'action' => [],
 		'filter' => [
@@ -21,9 +23,6 @@ class Enfold extends Integration {
 		],
 	];
 
-	/**
-	 * @inheritDoc
-	 */
 	public static function is_active() {
 		global $avia_config;
 

@@ -2,12 +2,17 @@
 
 namespace Pods\REST\V1\Endpoints;
 
-use Tribe__Documentation__Swagger__Provider_Interface as Swagger_Interface;
-use Tribe__REST__Endpoints__CREATE_Endpoint_Interface as CREATE_Interface;
-use Tribe__REST__Endpoints__READ_Endpoint_Interface as READ_Interface;
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\REST\Interfaces\Endpoints\CREATE_Interface;
+use Pods\REST\Interfaces\Endpoints\READ_Interface;
+use Pods\REST\Interfaces\Swagger\Provider_Interface;
 use WP_REST_Request;
 
-class Groups extends Base implements READ_Interface, CREATE_Interface, Swagger_Interface {
+class Groups extends Base implements READ_Interface, CREATE_Interface, Provider_Interface {
 
 	/**
 	 * {@inheritdoc}
@@ -32,16 +37,22 @@ class Groups extends Base implements READ_Interface, CREATE_Interface, Swagger_I
 		$GET_defaults = [
 			'in'      => 'query',
 			'default' => '',
+			'type'    => 'string',
 		];
 
-		// @todo Handle get/post
+		$POST_defaults = [
+			'in'      => 'body',
+			'default' => '',
+			'type'    => 'string',
+		];
 
 		return [
 			'get' => [
+				'summary'    => 'Retrieve a collection of Groups',
 				'parameters' => $this->swaggerize_args( $this->READ_args(), $GET_defaults ),
 				'responses'  => [
 					'200' => [
-						'description' => __( 'Returns all the tickets matching the search criteria.', 'pods' ),
+						'description' => 'Returns a collection of Groups matching the request',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
@@ -60,9 +71,9 @@ class Groups extends Base implements READ_Interface, CREATE_Interface, Swagger_I
 											'type'        => 'integer',
 											'description' => __( 'The total number of result pages matching the search criteria.', 'pods' ),
 										],
-										'tickets'     => [
+										'groups'     => [
 											'type'  => 'array',
-											'items' => [ '$ref' => '#/components/schemas/Ticket' ],
+											'items' => [ '$ref' => '#/components/schemas/Group' ],
 										],
 									],
 								],
@@ -70,7 +81,7 @@ class Groups extends Base implements READ_Interface, CREATE_Interface, Swagger_I
 						],
 					],
 					'400' => [
-						'description' => __( 'One or more of the specified query variables has a bad format.', 'pods' ),
+						'description' => 'The request was invalid or cannot be otherwise served',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
@@ -79,8 +90,54 @@ class Groups extends Base implements READ_Interface, CREATE_Interface, Swagger_I
 							],
 						],
 					],
-					'404' => [
-						'description' => __( 'The requested page was not found.', 'pods' ),
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to access Groups',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+				],
+			],
+			'post' => [
+				'summary'    => 'Create a new Group',
+				'parameters' => $this->swaggerize_args( $this->CREATE_args(), $POST_defaults ),
+				'responses'  => [
+					'201' => [
+						'description' => 'Returns the newly created Group',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'$ref' => '#/components/schemas/Group',
+								],
+							],
+						],
+					],
+					'400' => [
+						'description' => 'The request was invalid or cannot be otherwise served',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to create Groups',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'403' => [
+						'description' => 'Forbidden - creation of this Group is not allowed',
 						'content'     => [
 							'application/json' => [
 								'schema' => [

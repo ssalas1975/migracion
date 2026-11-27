@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Astra functions and definitions
  *
@@ -9,24 +8,31 @@
  * @since 1.0.0
  */
 
-if (!defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
 /**
  * Define Constants
  */
-define('ASTRA_THEME_VERSION', '3.7.9');
-define('ASTRA_THEME_SETTINGS', 'astra-settings');
-define('ASTRA_THEME_DIR', trailingslashit(get_template_directory()));
-define('ASTRA_THEME_URI', trailingslashit(esc_url(get_template_directory_uri())));
-
+define( 'ASTRA_THEME_VERSION', '4.14.3' );
+define( 'ASTRA_THEME_SETTINGS', 'astra-settings' );
+define( 'ASTRA_THEME_DIR', trailingslashit( get_template_directory() ) );
+define( 'ASTRA_THEME_URI', trailingslashit( esc_url( get_template_directory_uri() ) ) );
+define( 'ASTRA_THEME_ORG_VERSION', file_exists( ASTRA_THEME_DIR . 'inc/w-org-version.php' ) );
 
 /**
  * Minimum Version requirement of the Astra Pro addon.
  * This constant will be used to display the notice asking user to update the Astra addon to the version defined below.
  */
-define('ASTRA_EXT_MIN_VER', '3.6.3');
+define( 'ASTRA_EXT_MIN_VER', '4.12.0' );
+
+/**
+ * Load in-house compatibility.
+ */
+if ( ASTRA_THEME_ORG_VERSION ) {
+	require_once ASTRA_THEME_DIR . 'inc/w-org-version.php';
+}
 
 /**
  * Setup helper functions of Astra.
@@ -36,37 +42,47 @@ require_once ASTRA_THEME_DIR . 'inc/core/class-theme-strings.php';
 require_once ASTRA_THEME_DIR . 'inc/core/common-functions.php';
 require_once ASTRA_THEME_DIR . 'inc/core/class-astra-icons.php';
 
+define( 'ASTRA_WEBSITE_BASE_URL', 'https://wpastra.com' );
+
 /**
  * Update theme
  */
-require_once ASTRA_THEME_DIR . 'inc/theme-update/class-astra-theme-update.php';
 require_once ASTRA_THEME_DIR . 'inc/theme-update/astra-update-functions.php';
 require_once ASTRA_THEME_DIR . 'inc/theme-update/class-astra-theme-background-updater.php';
-require_once ASTRA_THEME_DIR . 'inc/theme-update/class-astra-pb-compatibility.php';
-
 
 /**
  * Fonts Files
  */
 require_once ASTRA_THEME_DIR . 'inc/customizer/class-astra-font-families.php';
-if (is_admin()) {
+if ( is_admin() ) {
 	require_once ASTRA_THEME_DIR . 'inc/customizer/class-astra-fonts-data.php';
 }
 
 require_once ASTRA_THEME_DIR . 'inc/lib/webfont/class-astra-webfont-loader.php';
+require_once ASTRA_THEME_DIR . 'inc/lib/docs/class-astra-docs-loader.php';
 require_once ASTRA_THEME_DIR . 'inc/customizer/class-astra-fonts.php';
 
 require_once ASTRA_THEME_DIR . 'inc/dynamic-css/custom-menu-old-header.php';
 require_once ASTRA_THEME_DIR . 'inc/dynamic-css/container-layouts.php';
 require_once ASTRA_THEME_DIR . 'inc/dynamic-css/astra-icons.php';
-require_once ASTRA_THEME_DIR . 'inc/dynamic-css/block-editor-compatibility.php';
 require_once ASTRA_THEME_DIR . 'inc/core/class-astra-walker-page.php';
 require_once ASTRA_THEME_DIR . 'inc/core/class-astra-enqueue-scripts.php';
 require_once ASTRA_THEME_DIR . 'inc/core/class-gutenberg-editor-css.php';
+require_once ASTRA_THEME_DIR . 'inc/core/class-astra-wp-editor-css.php';
+require_once ASTRA_THEME_DIR . 'inc/core/class-astra-command-palette.php';
+require_once ASTRA_THEME_DIR . 'inc/dynamic-css/block-editor-compatibility.php';
 require_once ASTRA_THEME_DIR . 'inc/dynamic-css/inline-on-mobile.php';
 require_once ASTRA_THEME_DIR . 'inc/dynamic-css/content-background.php';
+require_once ASTRA_THEME_DIR . 'inc/dynamic-css/dark-mode.php';
 require_once ASTRA_THEME_DIR . 'inc/class-astra-dynamic-css.php';
 require_once ASTRA_THEME_DIR . 'inc/class-astra-global-palette.php';
+
+// Enable NPS Survey only if the starter templates version is < 4.3.7 or > 4.4.4 to prevent fatal error.
+if ( ! defined( 'ASTRA_SITES_VER' ) || version_compare( ASTRA_SITES_VER, '4.3.7', '<' ) || version_compare( ASTRA_SITES_VER, '4.4.4', '>' ) ) {
+	// NPS Survey Integration
+	require_once ASTRA_THEME_DIR . 'inc/lib/class-astra-nps-notice.php';
+	require_once ASTRA_THEME_DIR . 'inc/lib/class-astra-nps-survey.php';
+}
 
 /**
  * Custom template tags for this theme.
@@ -77,6 +93,7 @@ require_once ASTRA_THEME_DIR . 'inc/template-tags.php';
 require_once ASTRA_THEME_DIR . 'inc/widgets.php';
 require_once ASTRA_THEME_DIR . 'inc/core/theme-hooks.php';
 require_once ASTRA_THEME_DIR . 'inc/admin-functions.php';
+require_once ASTRA_THEME_DIR . 'inc/class-astra-memory-limit-notice.php';
 require_once ASTRA_THEME_DIR . 'inc/core/sidebar-manager.php';
 
 /**
@@ -105,21 +122,30 @@ require_once ASTRA_THEME_DIR . 'inc/core/class-astra-admin-helper.php';
 
 require_once ASTRA_THEME_DIR . 'inc/schema/class-astra-schema.php';
 
-if (is_admin()) {
+/* Setup API */
+require_once ASTRA_THEME_DIR . 'admin/includes/class-astra-learn.php';
+require_once ASTRA_THEME_DIR . 'admin/includes/class-astra-api-init.php';
 
+if ( is_admin() ) {
 	/**
 	 * Admin Menu Settings
 	 */
 	require_once ASTRA_THEME_DIR . 'inc/core/class-astra-admin-settings.php';
-	require_once ASTRA_THEME_DIR . 'inc/lib/astra-notices/class-astra-notices.php';
+	require_once ASTRA_THEME_DIR . 'admin/class-astra-admin-loader.php';
+	require_once ASTRA_THEME_DIR . 'inc/lib/astra-notices/class-bsf-admin-notices.php';
 }
+
+/**
+ * BSF Analytics.
+ */
+require_once ASTRA_THEME_DIR . 'admin/class-astra-bsf-analytics.php';
 
 /**
  * Metabox additions.
  */
 require_once ASTRA_THEME_DIR . 'inc/metabox/class-astra-meta-boxes.php';
-
 require_once ASTRA_THEME_DIR . 'inc/metabox/class-astra-meta-box-operations.php';
+require_once ASTRA_THEME_DIR . 'inc/metabox/class-astra-elementor-editor-settings.php';
 
 /**
  * Customizer additions.
@@ -129,6 +155,7 @@ require_once ASTRA_THEME_DIR . 'inc/customizer/class-astra-customizer.php';
 /**
  * Astra Modules.
  */
+require_once ASTRA_THEME_DIR . 'inc/modules/posts-structures/class-astra-post-structures.php';
 require_once ASTRA_THEME_DIR . 'inc/modules/related-posts/class-astra-related-posts.php';
 
 /**
@@ -151,24 +178,33 @@ require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-ubermeu.php';
 require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-divi-builder.php';
 require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-amp.php';
 require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-yoast-seo.php';
+require_once ASTRA_THEME_DIR . 'inc/compatibility/surecart/class-astra-surecart.php';
+require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-starter-content.php';
+require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-buddypress.php';
 require_once ASTRA_THEME_DIR . 'inc/addons/transparent-header/class-astra-ext-transparent-header.php';
 require_once ASTRA_THEME_DIR . 'inc/addons/breadcrumbs/class-astra-breadcrumbs.php';
+require_once ASTRA_THEME_DIR . 'inc/addons/scroll-to-top/class-astra-scroll-to-top.php';
 require_once ASTRA_THEME_DIR . 'inc/addons/heading-colors/class-astra-heading-colors.php';
 require_once ASTRA_THEME_DIR . 'inc/builder/class-astra-builder-loader.php';
 
 // Elementor Compatibility requires PHP 5.4 for namespaces.
-if (version_compare(PHP_VERSION, '5.4', '>=')) {
+if ( version_compare( PHP_VERSION, '5.4', '>=' ) ) {
 	require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-elementor.php';
 	require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-elementor-pro.php';
 	require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-web-stories.php';
 }
 
-// Beaver Themer compatibility requires PHP 5.3 for anonymus functions.
-if (version_compare(PHP_VERSION, '5.3', '>=')) {
+// Beaver Themer compatibility requires PHP 5.3 for anonymous functions.
+if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 	require_once ASTRA_THEME_DIR . 'inc/compatibility/class-astra-beaver-themer.php';
 }
 
 require_once ASTRA_THEME_DIR . 'inc/core/markup/class-astra-markup.php';
+
+/**
+ * Abilities API integration.
+ */
+require_once ASTRA_THEME_DIR . 'inc/abilities/bootstrap.php';
 
 /**
  * Load deprecated functions
@@ -176,42 +212,3 @@ require_once ASTRA_THEME_DIR . 'inc/core/markup/class-astra-markup.php';
 require_once ASTRA_THEME_DIR . 'inc/core/deprecated/deprecated-filters.php';
 require_once ASTRA_THEME_DIR . 'inc/core/deprecated/deprecated-hooks.php';
 require_once ASTRA_THEME_DIR . 'inc/core/deprecated/deprecated-functions.php';
-add_action('admin_init', function () {
-	// Redirect any user trying to access comments page
-	global $pagenow;
-
-	if ($pagenow === 'edit-comments.php') {
-		wp_redirect(admin_url());
-		exit;
-	}
-
-	// Remove comments metabox from dashboard
-	remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
-
-	// Disable support for comments and trackbacks in post types
-	foreach (get_post_types() as $post_type) {
-		if (post_type_supports($post_type, 'comments')) {
-			remove_post_type_support($post_type, 'comments');
-			remove_post_type_support($post_type, 'trackbacks');
-		}
-	}
-});
-
-// Close comments on the front-end
-add_filter('comments_open', '__return_false', 20, 2);
-add_filter('pings_open', '__return_false', 20, 2);
-
-// Hide existing comments
-add_filter('comments_array', '__return_empty_array', 10, 2);
-
-// Remove comments page in menu
-add_action('admin_menu', function () {
-	remove_menu_page('edit-comments.php');
-});
-
-// Remove comments links from admin bar
-add_action('init', function () {
-	if (is_admin_bar_showing()) {
-		remove_action('admin_bar_menu', 'wp_admin_bar_comments_menu', 60);
-	}
-});

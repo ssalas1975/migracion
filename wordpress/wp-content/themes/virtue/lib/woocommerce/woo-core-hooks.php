@@ -67,6 +67,9 @@ function virtue_woocommerce_cart_fragments_support() {
 			add_filter('add_to_cart_fragments', 'virtue_woocommerce_header_add_to_cart_fragment');
 		}
 		function virtue_woocommerce_header_add_to_cart_fragment( $fragments ) {
+			if ( ! WC()->cart ) {
+				return $fragments;
+			}
 			ob_start(); ?>
 			<a class="cart-contents" href="<?php echo esc_url( wc_get_cart_url() ); ?>" title="<?php esc_attr_e( 'View your shopping cart', 'virtue' ); ?>">
 				<i class="icon-shopping-cart" style="padding-right:5px;"></i>

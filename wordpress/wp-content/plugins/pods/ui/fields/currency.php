@@ -1,4 +1,12 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $field_number = PodsForm::field_loader( 'currency' );
 
 $value = $field_number->format( $value, $name, $options, $pod, $id );
@@ -11,13 +19,13 @@ $attributes             = PodsForm::merge_attributes( $attributes, $name, $form_
 
 global $wp_locale;
 
-if ( '9999.99' == pods_var( 'currency_format', $options ) ) {
+if ( '9999.99' === pods_v( 'currency_format', $options ) ) {
 	$thousands = '';
 	$dot       = '.';
-} elseif ( '9999,99' == pods_var( 'currency_format', $options ) ) {
+} elseif ( '9999,99' === pods_v( 'currency_format', $options ) ) {
 	$thousands = '';
 	$dot       = ',';
-} elseif ( '9.999,99' == pods_var( 'currency_format', $options ) ) {
+} elseif ( '9.999,99' === pods_v( 'currency_format', $options ) ) {
 	$thousands = '.';
 	$dot       = ',';
 } else {
@@ -38,7 +46,7 @@ if ( isset( $currencies[ $currency_format_sign ] ) ) {
 $currency_sign = $currencies[ $currency ]['sign'];
 ?>
 <div class="pods-currency-container">
-	<code class="pods-currency-sign pods-hidden"><?php echo $currency_sign; ?></code>
+	<code class="pods-currency-sign pods-hidden"><?php echo wp_kses_post( $currency_sign ); ?></code>
 	<input<?php PodsForm::attributes( $attributes, $name, $form_field_type, $options ); ?>/>
 </div>
 <script>

@@ -33,13 +33,16 @@ class WPBC_Page_AJX_Bookings extends WPBC_Page_Structure {
 	public function tabs() {
 
 		$is_full_screen = WPBC_User_Custom_Data_Saver::get_user_data_value( wpbc_get_current_user_id(), 'is_full_screen' );
+		$is_full_screen = function_exists( 'wpbc_ui__get_full_screen_mode_from_cookie' )
+			? wpbc_ui__get_full_screen_mode_from_cookie( $is_full_screen )
+			: $is_full_screen;
 		$is_full_screen = ( 'On' === $is_full_screen );
 
 		$tabs                       = array();
 		$tabs['vm_booking_listing'] = array(
-			'is_show_top_path'                   => false,                               // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                // true | false.  By default value is: true.
 			'is_show_top_navigation'             => true,                                // true | false.  By default value is: false.
-			'left_navigation__default_view_mode' => ( $is_full_screen ) ? 'compact' : 'min',   // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
+			'left_navigation__default_view_mode' => '', // FixIn: 11.7.1.1.:  ( $is_full_screen ) ? 'compact' : 'min',   // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => false,                               // Header - Title.  If false, than hidden.
 			'page_description'                   => false,                               // Header - Title Description.  If false, than hidden.
 			'title'                              => __( 'Bookings', 'booking' ),         // Menu - Title.
@@ -141,6 +144,9 @@ class WPBC_Page_AJX_Bookings extends WPBC_Page_Structure {
 				?>
 			</form>
 		</span>
+		<?php if ( defined( 'WPBC_ENABLE_12_0_TIMELINE' ) && true === WPBC_ENABLE_12_0_TIMELINE ) { ?>
+			<div data-wpbc-booking-inspector-booking-listing-host></div>
+		<?php } ?>
 		<?php
 
 		do_action( 'wpbc_hook_settings_page_footer', 'wpbc-ajx_booking' );
@@ -179,6 +185,10 @@ class WPBC_Page_AJX_Bookings extends WPBC_Page_Structure {
 
 	private function show_ajx_booking_listing_container_ajax( $escaped_search_request_params ) {
 
+		if ( class_exists( 'WPBC_AJX_Bookings' ) ) {
+			WPBC_AJX_Bookings::enqueue_js_files_now();
+		}
+
 		?>
 		<div class="wpbc__wrap__booking_listing">
 			<div class="wpbc__list__table wpbc_selectable_table">
@@ -188,20 +198,39 @@ class WPBC_Page_AJX_Bookings extends WPBC_Page_Structure {
 		<script type="text/javascript">
 			jQuery(document).ready(function () {
 
-				// Set Security - Nonce for Ajax  - Listing
-				wpbc_ajx_booking_listing.set_secure_param( 'nonce', '<?php echo esc_attr( wp_create_nonce( 'wpbc_ajx_booking_listing_ajx' . '_wpbcnonce' ) ); ?>' );
-				wpbc_ajx_booking_listing.set_secure_param( 'user_id', '<?php echo esc_attr( wpbc_get_current_user_id() ); ?>' );
-				wpbc_ajx_booking_listing.set_secure_param( 'locale', '<?php echo esc_attr( get_user_locale() ); ?>' );
+				var wpbc_booking_listing_wait_counter = 0;
+				var wpbc_booking_listing_wait_timer = setInterval( function() {
 
-				// Set other parameters
-				wpbc_ajx_booking_listing.set_other_param( 'listing_container', '.wpbc__list__table' );
+					wpbc_booking_listing_wait_counter++;
 
-				wpbc_ajx_booking_listing.set_other_param( 'pagination_container', '.wpbc_ajx_booking_pagination' );
-				wpbc_ajx_booking_listing.set_other_param( 'pagination_container_header', '.wpbc_ajx_booking_pagination_header' );
-				wpbc_ajx_booking_listing.set_other_param( 'pagination_container_footer', '.wpbc_ajx_booking_pagination_footer' );
+					if (
+						'undefined' === typeof wpbc_ajx_booking_listing
+						|| 'function' !== typeof wpbc_ajx_booking_listing.set_secure_param
+						|| 'function' !== typeof wpbc_ajx_booking_send_search_request_with_params
+					) {
+						if ( wpbc_booking_listing_wait_counter > 20 ) {
+							clearInterval( wpbc_booking_listing_wait_timer );
+						}
+						return;
+					}
 
-				// Send Ajax request and show listing after this.
-				wpbc_ajx_booking_send_search_request_with_params( <?php echo wp_json_encode( $escaped_search_request_params ); ?> );
+					clearInterval( wpbc_booking_listing_wait_timer );
+
+					// Set Security - Nonce for Ajax  - Listing
+					wpbc_ajx_booking_listing.set_secure_param( 'nonce', '<?php echo esc_attr( wp_create_nonce( 'wpbc_ajx_booking_listing_ajx' . '_wpbcnonce' ) ); ?>' );
+					wpbc_ajx_booking_listing.set_secure_param( 'user_id', '<?php echo esc_attr( wpbc_get_current_user_id() ); ?>' );
+					wpbc_ajx_booking_listing.set_secure_param( 'locale', '<?php echo esc_attr( get_user_locale() ); ?>' );
+
+					// Set other parameters
+					wpbc_ajx_booking_listing.set_other_param( 'listing_container', '.wpbc__list__table' );
+
+					wpbc_ajx_booking_listing.set_other_param( 'pagination_container', '.wpbc_ajx_booking_pagination' );
+					wpbc_ajx_booking_listing.set_other_param( 'pagination_container_header', '.wpbc_ajx_booking_pagination_header' );
+					wpbc_ajx_booking_listing.set_other_param( 'pagination_container_footer', '.wpbc_ajx_booking_pagination_footer' );
+
+					// Send Ajax request and show listing after this.
+					wpbc_ajx_booking_send_search_request_with_params( <?php echo wp_json_encode( $escaped_search_request_params ); ?> );
+				}, 100 );
 			});
 		</script>
 		<?php

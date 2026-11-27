@@ -40,60 +40,195 @@ function wpbc_in_array(array_here, p_val) {
 }
 
 /**
- * Prevent opening blank windows on WordPress playground for pseudo links like this: <a href="javascript:void(0)"> or # to stay in the same tab.
+ * Keep Booking Calendar action links in their current browsing context.
+ *
+ * WordPress Playground may define a document-wide default target. Its legacy
+ * compatibility fallback therefore adds an explicit target before click
+ * dispatch, including when Booking Calendar inserts links dynamically.
  */
-(function () {
+( function () {
 	'use strict';
 
+	var wpbc_link_scope_selector = [
+		'[data-wpbc-action-link]',
+		'[data-wp-no-blank]',
+		'[data-toggle^="wpbc_"]',
+		'[id^="wpbc_"]',
+		'[class*="wpbc_"]',
+		'[id^="booking_form"]',
+		'.booking_form',
+		'.booking_form_div',
+		'.datepick'
+	].join( ',' );
+
+	/**
+	 * Determine whether the current document is the official WordPress Playground.
+	 *
+	 * The broad legacy-link fallback is intentionally limited to Playground. Other
+	 * environments rely on the explicit targets emitted by Booking Calendar.
+	 *
+	 * @return {boolean} Whether the current origin is WordPress Playground.
+	 */
 	function is_playground_origin() {
-		return location.origin === 'https://playground.wordpress.net';
+		return 'https://playground.wordpress.net' === window.location.origin;
 	}
 
-	function is_pseudo_link(a) {
-		if ( !a || !a.getAttribute ) return true;
-		var href = (a.getAttribute( 'href' ) || '').trim().toLowerCase();
-		return (
-			!href ||
-			href === '#' ||
-			href.indexOf( '#' ) === 0 ||
-			href.indexOf( 'javascript:' ) === 0 ||
-			href.indexOf( 'mailto:' ) === 0 ||
-			href.indexOf( 'tel:' ) === 0
-		);
+	/**
+	 * Determine whether an anchor is an in-page action rather than navigation.
+	 *
+	 * @param {HTMLAnchorElement|null} link Anchor to classify.
+	 * @return {boolean} Whether the href is empty, a fragment, or JavaScript.
+	 */
+	function is_pseudo_link( link ) {
+		if ( ! link || ! link.getAttribute ) {
+			return false;
+		}
+
+		var href = ( link.getAttribute( 'href' ) || '' ).trim().toLowerCase();
+
+		return ! href || 0 === href.indexOf( '#' ) || 0 === href.indexOf( 'javascript:' );
 	}
 
-	function fix_target(a) {
-		if ( ! a ) return;
-		if ( is_pseudo_link( a ) || a.hasAttribute( 'data-wp-no-blank' ) ) {
-			a.target = '_self';
+	/**
+	 * Determine whether an anchor belongs to Booking Calendar user interface.
+	 *
+	 * @param {HTMLAnchorElement|null} link Anchor to inspect.
+	 * @return {boolean} Whether the link or an ancestor has a WPBC UI marker.
+	 */
+	function is_booking_calendar_link( link ) {
+		if ( ! link || ! link.matches ) {
+			return false;
+		}
+
+		return link.matches( wpbc_link_scope_selector )
+			|| ( link.closest && null !== link.closest( wpbc_link_scope_selector ) );
+	}
+
+	/**
+	 * Apply the same-context target to one eligible action link.
+	 *
+	 * The legacy data attribute remains an explicit opt-in even outside a WPBC
+	 * container. Real HTTP, email, telephone, payment, and visitor links remain
+	 * unchanged.
+	 *
+	 * @param {HTMLAnchorElement|null} link Anchor to normalize.
+	 * @return {void}
+	 */
+	function fix_target( link ) {
+		if ( ! link || ! link.hasAttribute ) {
+			return;
+		}
+
+		if ( link.hasAttribute( 'data-wp-no-blank' ) ) {
+			link.setAttribute( 'target', '_self' );
+			return;
+		}
+
+		var explicit_target = ( link.getAttribute( 'target' ) || '' ).trim();
+		if ( explicit_target && '_self' !== explicit_target.toLowerCase() ) {
+			return;
+		}
+
+		if ( is_booking_calendar_link( link ) && is_pseudo_link( link ) ) {
+			link.setAttribute( 'target', '_self' );
 		}
 	}
 
+	/**
+	 * Normalize eligible anchors contained by a document or inserted subtree.
+	 *
+	 * @param {Document|DocumentFragment|Element|null} root Root node to inspect.
+	 * @return {void}
+	 */
+	function fix_links( root ) {
+		if ( ! root ) {
+			return;
+		}
+
+		if ( root.matches && root.matches( 'a[href]' ) ) {
+			fix_target( root );
+		}
+
+		if ( ! root.querySelectorAll ) {
+			return;
+		}
+
+		var links = root.querySelectorAll( 'a[href]' );
+		for ( var link_index = 0; link_index < links.length; link_index++ ) {
+			fix_target( links[ link_index ] );
+		}
+	}
+
+	/**
+	 * Normalize links added or updated after initial page rendering.
+	 *
+	 * @param {MutationRecord[]} mutation_records Observed DOM changes.
+	 * @return {void}
+	 */
+	function handle_mutations( mutation_records ) {
+		for ( var record_index = 0; record_index < mutation_records.length; record_index++ ) {
+			var mutation_record = mutation_records[ record_index ];
+
+			if ( 'attributes' === mutation_record.type ) {
+				fix_target( mutation_record.target );
+				continue;
+			}
+
+			for ( var node_index = 0; node_index < mutation_record.addedNodes.length; node_index++ ) {
+				fix_links( mutation_record.addedNodes[ node_index ] );
+			}
+		}
+	}
+
+	/**
+	 * Resolve and normalize the closest link for an interaction event.
+	 *
+	 * Pointer and focus events happen before click dispatch, providing a fallback
+	 * when another script inserts and activates a link in an unusual sequence.
+	 *
+	 * @param {Event} event Browser interaction event.
+	 * @return {void}
+	 */
+	function fix_event_link( event ) {
+		var link = event.target && event.target.closest ? event.target.closest( 'a[href]' ) : null;
+		fix_target( link );
+	}
+
+	/**
+	 * Initialize immediate and dynamic same-context protection.
+	 *
+	 * @return {void}
+	 */
 	function init_fix() {
-		// Optional: clean up current DOM (harmless—affects only pseudo/datamarked links).
-		var nodes = document.querySelectorAll( 'a[href]' );
-		for ( var i = 0; i < nodes.length; i++ ) fix_target( nodes[i] );
+		// Protect links already present before observers and capture listeners start.
+		fix_links( document );
 
-		// Late bubble-phase listeners (run after Playground's handlers)
-		document.addEventListener( 'click', function (e) {
-			var a = e.target && e.target.closest ? e.target.closest( 'a[href]' ) : null;
-			if ( a ) fix_target( a );
-		}, false );
+		if ( 'function' === typeof window.MutationObserver && document.documentElement ) {
+			var link_observer = new window.MutationObserver( handle_mutations );
+			link_observer.observe(
+				document.documentElement,
+				{
+					attributes     : true,
+					attributeFilter: [ 'href' ],
+					childList      : true,
+					subtree        : true
+				}
+			);
+		}
 
-		document.addEventListener( 'focusin', function (e) {
-			var a = e.target && e.target.closest ? e.target.closest( 'a[href]' ) : null;
-			if ( a ) fix_target( a );
-		} );
+		document.addEventListener( 'pointerdown', fix_event_link, true );
+		document.addEventListener( 'mousedown', fix_event_link, true );
+		document.addEventListener( 'focusin', fix_event_link, true );
+		document.addEventListener( 'click', fix_event_link, true );
 	}
 
-	function schedule_init() {
-		if ( !is_playground_origin() ) return;
-		setTimeout( init_fix, 1000 ); // ensure we attach after Playground's script.
+	if ( ! is_playground_origin() ) {
+		return;
 	}
 
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', schedule_init );
+	if ( document.documentElement ) {
+		init_fix();
 	} else {
-		schedule_init();
+		document.addEventListener( 'DOMContentLoaded', init_fix, { once: true } );
 	}
-})();
+} )();

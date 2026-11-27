@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
+
 /**
  * Contains all WordPress related URL, URI, path, slug, etc. related helper methods.
  *
@@ -17,10 +19,11 @@ trait WpUri {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return string The site's domain.
+	 * @param  bool   $unfiltered Whether to get the unfiltered value.
+	 * @return string             The site's domain.
 	 */
-	public function getSiteDomain() {
-		return wp_parse_url( home_url(), PHP_URL_HOST );
+	public function getSiteDomain( $unfiltered = false ) {
+		return wp_parse_url( $this->getHomeUrl( $unfiltered ), PHP_URL_HOST );
 	}
 
 	/**
@@ -30,10 +33,13 @@ trait WpUri {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return string The site's domain.
+	 * @param  bool   $unfiltered Whether to get the unfiltered value.
+	 * @return string             The site's domain.
 	 */
-	public function getSiteUrl() {
-		return wp_parse_url( home_url(), PHP_URL_SCHEME ) . '://' . wp_parse_url( home_url(), PHP_URL_HOST );
+	public function getSiteUrl( $unfiltered = false ) {
+		$homeUrl = $this->getHomeUrl( $unfiltered );
+
+		return wp_parse_url( $homeUrl, PHP_URL_SCHEME ) . '://' . wp_parse_url( $homeUrl, PHP_URL_HOST );
 	}
 
 	/**
@@ -47,10 +53,10 @@ trait WpUri {
 	public function getUrl( $canonical = false ) {
 		$url = '';
 		if ( is_singular() ) {
-			$objectId = get_queried_object_id();
+			$objectId = aioseo()->helpers->getPostId();
 
 			if ( $canonical ) {
-				$url = wp_get_canonical_url( $objectId );
+				$url = aioseo()->helpers->wpGetCanonicalUrl( $objectId );
 			}
 
 			if ( ! $url ) {
@@ -64,17 +70,14 @@ trait WpUri {
 			return $url;
 		}
 
-		// NOTE: network_home_url() will fall back to home_url() if the site isn't a multisite.
 		global $wp;
-		if ( $wp->did_permalink ) {
-			$url = user_trailingslashit( network_home_url( $wp->request ) );
-		} else {
-			$url = user_trailingslashit( network_home_url( $_SERVER['REQUEST_URI'] ) );
-		}
+		// Permalink url without the query string. A raw "#" from the request line can't be a
+		// fragment here, and left as is it would start a smart tag when the schema is parsed.
+		$url = user_trailingslashit( home_url( str_replace( '#', '%23', (string) $wp->request ) ) );
 
-		$permalinkStructure = get_option( 'permalink_structure' );
-		if ( $canonical && $permalinkStructure ) {
-			$url = explode( '?', $url )[0];
+		// If permalinks are not being used we need to append the query string to the home url.
+		if ( ! $this->usingPermalinks() ) {
+			$url = home_url( ! empty( $wp->query_string ) ? '?' . $wp->query_string : '' );
 		}
 
 		return $url;
@@ -83,18 +86,24 @@ trait WpUri {
 	/**
 	 * Gets the canonical URL for the current page/post.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.2 Use getTermLink() so orphaned ancestors cannot break the URL.
 	 *
 	 * @return string $url The canonical URL.
 	 */
 	public function canonicalUrl() {
-		static $canonicalUrl = '';
-		if ( $canonicalUrl ) {
-			return $canonicalUrl;
+		$queriedObject = get_queried_object(); // Don't use our getTerm helper here.
+		$hash          = md5( wp_json_encode( $queriedObject ?? [] ) );
+
+		static $url = [];
+		if ( isset( $url[ $hash ] ) ) {
+			return $url[ $hash ];
 		}
 
-		if ( is_404() ) {
-			return apply_filters( 'aioseo_canonical_url', '' );
+		if ( is_404() || is_search() ) {
+			$url[ $hash ] = apply_filters( 'aioseo_canonical_url', '' );
+
+			return $url[ $hash ];
 		}
 
 		$metaData = [];
@@ -104,55 +113,65 @@ trait WpUri {
 		}
 
 		if ( is_category() || is_tag() || is_tax() ) {
-			$metaData = aioseo()->meta->metaData->getMetaData( get_queried_object() );
-		}
+			$metaData     = aioseo()->meta->metaData->getMetaData( $queriedObject );
+			$url[ $hash ] = aioseo()->helpers->getTermLink( $queriedObject, $queriedObject->taxonomy ?? '' );
 
-		if ( $metaData && ! empty( $metaData->canonical_url ) ) {
-			return apply_filters( 'aioseo_canonical_url', $this->makeUrlAbsolute( $metaData->canonical_url ) );
-		}
-
-		$url                      = $this->getUrl( true );
-		$noPaginationForCanonical = aioseo()->options->searchAppearance->advanced->noPaginationForCanonical;
-		$pageNumber               = $this->getPageNumber();
-		if ( $noPaginationForCanonical && 1 < $pageNumber ) {
-			$url = preg_replace( '/(\d+|(?<=\/)page\/\d+\/|(?<=\/)comment-page-\d+\/*(#comments)*)$/', '', $url );
-		}
-
-		$url = $this->maybeRemoveTrailingSlash( $url );
-
-		// Get rid of /amp at the end of the URL.
-		if ( ! apply_filters( 'aioseo_disable_canonical_url_amp', false ) ) {
-			$url = preg_replace( '/\/amp$/', '', $url );
-			$url = preg_replace( '/\/amp\/$/', '/', $url );
-		}
-
-		$searchTerm = get_query_var( 's' );
-		if ( is_search() && ! empty( $searchTerm ) ) {
-			$url = add_query_arg( 's', $searchTerm, $url );
-		}
-
-		return apply_filters( 'aioseo_canonical_url', $url );
-	}
-
-	/**
-	 * Formats a given URL as an absolute URL if it is relative.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  string $url The URL.
-	 * @return string $url The absolute URL.
-	 */
-	public function makeUrlAbsolute( $url ) {
-		if ( 0 !== strpos( $url, 'http' ) && '/' !== $url ) {
-			if ( 0 === strpos( $url, '//' ) ) {
-				$scheme = wp_parse_url( home_url(), PHP_URL_SCHEME );
-				$url    = $scheme . ':' . $url;
-			} else {
-				$url = home_url( $url );
+			// Add pagination to the URL. We need to do this here because get_term_link() doesn't handle pagination.
+			// We'll strip it further down if no pagination for canonical is enabled.
+			if ( $this->getPageNumber() > 1 ) {
+				$url[ $hash ] = user_trailingslashit( rtrim( $url[ $hash ], '/' ) . '/page/' . $this->getPageNumber() );
 			}
 		}
 
-		return $url;
+		if ( $metaData && ! empty( $metaData->canonical_url ) ) {
+			$url[ $hash ] = apply_filters( 'aioseo_canonical_url', $this->makeUrlAbsolute( $metaData->canonical_url ) );
+
+			return $url[ $hash ];
+		}
+
+		if ( BuddyPressIntegration::isComponentPage() ) {
+			$url[ $hash ] = aioseo()->standalone->buddyPress->component->getMeta( 'canonical' );
+		}
+
+		if ( empty( $url[ $hash ] ) || is_wp_error( $url[ $hash ] ) ) {
+			$url[ $hash ] = $this->getUrl( true );
+		}
+
+		$pageNumber = $this->getPageNumber();
+		if (
+			in_array( 'noPaginationForCanonical', aioseo()->internalOptions->deprecatedOptions, true ) &&
+			aioseo()->options->deprecated->searchAppearance->advanced->noPaginationForCanonical
+		) {
+			if ( 1 < $pageNumber ) {
+				if ( $this->usingPermalinks() ) {
+					// Replace /page/3 and /page/3/.
+					$url[ $hash ] = preg_replace( "@(?<=/)page/$pageNumber(/|)$@", '', (string) $url[ $hash ] );
+					// Replace /3 and /3/.
+					$url[ $hash ] = preg_replace( "@(?<=/)$pageNumber(/|)$@", '', (string) $url[ $hash ] );
+				} else {
+					// Replace /?page_id=457&paged=1 and /?page_id=457&page=1.
+					$url[ $hash ] = aioseo()->helpers->urlRemoveQueryParameter( $url[ $hash ], [ 'page', 'paged' ] );
+				}
+			}
+
+			// Comment pages.
+			$url[ $hash ] = preg_replace( '/(?<=\/)comment-page-\d+\/*(#comments)*$/', '', (string) $url[ $hash ] );
+		}
+
+		$url[ $hash ] = $this->maybeRemoveTrailingSlash( $url[ $hash ] );
+
+		// Get rid of /amp at the end of the URL.
+		if (
+			aioseo()->helpers->isAmpPage() &&
+			! apply_filters( 'aioseo_disable_canonical_url_amp', false )
+		) {
+			$url[ $hash ] = preg_replace( '/\/amp$/', '', (string) $url[ $hash ] );
+			$url[ $hash ] = preg_replace( '/\/amp\/$/', '/', (string) $url[ $hash ] );
+		}
+
+		$url[ $hash ] = apply_filters( 'aioseo_canonical_url', $url[ $hash ] );
+
+		return $url[ $hash ];
 	}
 
 	/**
@@ -210,7 +229,7 @@ trait WpUri {
 	 * @return string      The formatted image URL.
 	 */
 	public function removeImageDimensions( $url ) {
-		return $this->isValidAttachment( $url ) ? preg_replace( '#(-[0-9]*x[0-9]*)#', '', $url ) : $url;
+		return $this->isValidAttachment( $url ) ? preg_replace( '#(-[0-9]*x[0-9]*|-scaled)#', '', (string) $url ) : $url;
 	}
 
 	/**
@@ -227,43 +246,25 @@ trait WpUri {
 	}
 
 	/**
-	 * Checks whether the given path is unique or not.
-	 *
-	 * @since 4.1.4
-	 *
-	 * @param  string  $path The path.
-	 * @return boolean       Whether the path exists.
-	 */
-	public function pathExists( $path ) {
-		$url = $this->isUrl( $path )
-			? $path
-			: trailingslashit( home_url() ) . trim( $path, '/' );
-
-		$status = wp_remote_retrieve_response_code( wp_remote_get( $url ) );
-		if ( ! $status ) {
-			// If there is no status code, we might be in a local environment with CURL misconfigured.
-			// In that case we can still check if a post exists for the path by quering the DB.
-			// TODO: Add support for terms here.
-			$post = $this->getPostbyPath( $path, OBJECT, $this->getPublicPostTypes( true ) );
-
-			return is_object( $post );
-		}
-
-		return 200 === $status;
-	}
-
-	/**
 	* Retrieves a post by its given path.
 	* Based on the built-in get_page_by_path() function, but only checks ancestry if the post type is actually hierarchical.
 	*
-	* @since 4.1.4
+	* @since   4.1.4
+	* @version 4.9.9 Validate URL prefix against the post type's rewrite slug.
+	*
+	* NOTE: Expects a path relative to the home URL; on subdirectory installs the caller strips the home path.
 	*
 	* @param  string       $path     The path.
 	* @param  string       $output   The output type. OBJECT, ARRAY_A, or ARRAY_N.
 	* @param  string|array $postType The post type(s) to check against.
-	* @return Object|false           The post or false on failure.
+	* @return object|false           The post or false on failure.
 	*/
-	public function getPostByPath( $path, $output = OBJECT, $postType = 'page' ) {
+	public function getPostByPath( $path, $output = OBJECT, $postType = null ) {
+		// If no post type specified, use all public post types
+		if ( null === $postType ) {
+			$postType = $this->getPublicPostTypes( true );
+		}
+
 		$lastChanged = wp_cache_get_last_changed( 'aioseo_posts_by_path' );
 		$hash        = md5( $path . serialize( $postType ) );
 		$cacheKey    = "get_page_by_path:$hash:$lastChanged";
@@ -278,33 +279,47 @@ trait WpUri {
 			return get_post( $cached, $output );
 		}
 
-		$path          = rawurlencode( urldecode( $path ) );
-		$path          = str_replace( '%2F', '/', $path );
+		// post_name is stored lowercase while rawurlencode() emits uppercase hex, so percent-encoded (non-Latin) slugs need the lowercase.
+		$path          = strtolower( rawurlencode( urldecode( $path ) ) );
+		$path          = str_replace( '%2f', '/', $path );
 		$path          = str_replace( '%20', ' ', $path );
 		$parts         = explode( '/', trim( $path, '/' ) );
 		$reversedParts = array_reverse( $parts );
-		$postNames     = "'" . implode( "','", $parts ) . "'";
 
-		$postTypes = is_array( $postType ) ? $postType : [ $postType, 'attachment' ];
-		$postTypes = "'" . implode( "','", $postTypes ) . "'";
+		$postTypes = is_array( $postType ) ? $postType : [ $postType ];
 
 		$posts = aioseo()->core->db->start( 'posts' )
 			->select( 'ID, post_name, post_parent, post_type' )
-			->whereRaw( "post_name in ( $postNames )" )
-			->whereRaw( "post_type in ( $postTypes )" )
+			->whereIn( 'post_name', $parts )
+			->whereIn( 'post_type', $postTypes )
+			->whereIn( 'post_status', [ 'publish' ] )
 			->run()
 			->result();
 
+		if ( empty( $posts ) ) {
+			wp_cache_set( $cacheKey, 0, 'aioseo_posts_by_path' );
+
+			return false;
+		}
+
+		// Create a lookup array for posts by ID for efficient parent lookups
+		$postsById = [];
+		foreach ( $posts as $post ) {
+			$postsById[ $post->ID ] = $post;
+		}
+
 		$foundId = 0;
+		$targetPostTypes = is_array( $postType ) ? $postType : [ $postType ];
+
 		foreach ( $posts as $post ) {
 			if ( $post->post_name === $reversedParts[0] ) {
 				$count = 0;
 				$p     = $post;
 
 				// Loop through the given path parts from right to left, ensuring each matches the post ancestry.
-				while ( 0 !== (int) $p->post_parent && isset( $posts[ $p->post_parent ] ) ) {
+				while ( 0 !== (int) $p->post_parent && isset( $postsById[ $p->post_parent ] ) ) {
 					$count++;
-					$parent = $posts[ $p->post_parent ];
+					$parent = $postsById[ $p->post_parent ];
 					if ( ! isset( $reversedParts[ $count ] ) || $parent->post_name !== $reversedParts[ $count ] ) {
 						break;
 					}
@@ -313,11 +328,17 @@ trait WpUri {
 
 				if (
 					0 === (int) $p->post_parent &&
-					( ! is_post_type_hierarchical( $p->post_type ) || count( $reversedParts ) === $count + 1 ) &&
+					$this->urlPathMatchesPostType( $post, $reversedParts, $count ) &&
 					$p->post_name === $reversedParts[ $count ]
 				) {
 					$foundId = $post->ID;
-					if ( $post->post_type === $postType ) {
+
+					// If we're looking for specific post types, prefer exact matches
+					if ( ! is_array( $postType ) && $post->post_type === $postType ) {
+						break;
+					}
+					// If we're looking for multiple post types, any match is good
+					if ( is_array( $postType ) && in_array( $post->post_type, $targetPostTypes, true ) ) {
 						break;
 					}
 				}
@@ -328,6 +349,47 @@ trait WpUri {
 		wp_cache_set( $cacheKey, $foundId, 'aioseo_posts_by_path' );
 
 		return $foundId ? get_post( $foundId, $output ) : false;
+	}
+
+	/**
+	 * Checks that a candidate post's real permalink matches the requested URL path.
+	 *
+	 * Validating against the candidate's own permalink — rather than a type-level prefix — is correct
+	 * under every permalink structure, including date/category fronts where a post's prefix is per-post,
+	 * while still preventing a built-in Post from shadowing a CPT that shares its slug.
+	 *
+	 * @since   4.9.9
+	 * @version 5.0.3 Validate against the candidate's real permalink instead of a type-level prefix.
+	 *
+	 * @param  \WP_Post|object $post          The candidate post.
+	 * @param  array           $reversedParts The path segments in reverse order.
+	 * @param  int             $count         The ancestry depth already consumed.
+	 * @return bool                           True if the URL path resolves to the candidate.
+	 */
+	private function urlPathMatchesPostType( $post, $reversedParts, $count ) {
+		$permalink = get_permalink( $post->ID );
+
+		// Pretty permalinks: compare the candidate's own permalink path to the requested path.
+		if ( false === strpos( (string) $permalink, '?' ) ) {
+			$permalinkPath = $this->decodeUrl( trim( str_replace( home_url(), '', $permalink ), '/' ) );
+			$requestedPath = $this->decodeUrl( implode( '/', array_reverse( $reversedParts ) ) );
+
+			return $permalinkPath === $requestedPath;
+		}
+
+		// Plain permalinks (e.g. `?p=123`) expose no pretty path; fall back to the type-level prefix.
+		$expectedPrefix = $this->getPostTypeUrlPrefix( $post->post_type );
+
+		// Not served from a pretty path (e.g. built-in `page`, rewrite-less CPTs): keep historical behavior.
+		if ( null === $expectedPrefix ) {
+			return is_post_type_hierarchical( $post->post_type )
+				? count( $reversedParts ) === $count + 1
+				: true;
+		}
+
+		$actualPrefix = implode( '/', array_reverse( array_slice( $reversedParts, $count + 1 ) ) );
+
+		return $actualPrefix === $expectedPrefix;
 	}
 
 	/**
@@ -377,7 +439,7 @@ trait WpUri {
 
 	/**
 	 * Returns the path from a permalink.
-	 * This function will help get the correct path from WP instalations in subfolders.
+	 * This function will help get the correct path from WP installations in subfolders.
 	 *
 	 * @since 4.1.8
 	 *
@@ -385,6 +447,193 @@ trait WpUri {
 	 * @return string            The path without the home_url().
 	 */
 	public function getPermalinkPath( $permalink ) {
-		return  str_replace( get_home_url(), '', $permalink );
+		// We want to get this value straight from the DB to prevent plugins like WPML from filtering it.
+		// This will otherwise mess with things like license activation requests and redirects.
+		$homeUrl = $this->getHomeUrl( true );
+
+		return $this->leadingSlashIt( str_replace( $homeUrl, '', $permalink ) );
+	}
+
+	/**
+	 * Changed if permalinks are different and the before wasn't
+	 * the site url (we don't want to redirect the site URL).
+	 *
+	 * @since 4.2.3
+	 *
+	 * @param  string  $before The URL before the change.
+	 * @param  string  $after  The URL after the change.
+	 * @return boolean         True if the permalink has changed.
+	 */
+	public function hasPermalinkChanged( $before, $after ) {
+		// Check it's not redirecting from the root.
+		if ( $this->getHomePath() === $before || '/' === $before ) {
+			return false;
+		}
+
+		// Are the URLs the same?
+		return ( $before !== $after );
+	}
+
+	/**
+	 * Retrieve the home path.
+	 *
+	 * @since 4.2.3
+	 *
+	 * @param  bool   $unfiltered Whether to get the unfiltered value.
+	 * @return string              The home path.
+	 */
+	public function getHomePath( $unfiltered = false ) {
+		$path = wp_parse_url( $this->getHomeUrl( $unfiltered ), PHP_URL_PATH );
+
+		return $path ? trailingslashit( $path ) : '/';
+	}
+
+	/**
+	 * Returns the home URL.
+	 *
+	 * @since   4.7.3
+	 * @version 5.0.2 Changed visibility to public.
+	 *
+	 * @param  bool   $unfiltered Whether to get the unfiltered value.
+	 * @return string             The home URL.
+	 */
+	public function getHomeUrl( $unfiltered = false ) {
+		$homeUrl = home_url();
+		if ( $unfiltered ) {
+			// We want to get this value straight from the DB to prevent plugins like WPML from filtering it.
+			// This will otherwise mess with things like license activation requests and redirects.
+			$homeUrl = get_option( 'home' );
+		}
+
+		return $homeUrl;
+	}
+
+	/**
+	 * Checks if the given URL is an internal URL for the current site.
+	 *
+	 * @since 4.2.6
+	 *
+	 * @param  string $urlToCheck The URL to check.
+	 * @return bool               Whether the given URL is an internal one.
+	 */
+	public function isInternalUrl( $urlToCheck ) {
+		$parsedHomeUrl    = wp_parse_url( home_url() );
+		$parsedUrlToCheck = wp_parse_url( $urlToCheck );
+
+		return ! empty( $parsedHomeUrl['host'] ) && ! empty( $parsedUrlToCheck['host'] )
+			? $parsedHomeUrl['host'] === $parsedUrlToCheck['host']
+			: false;
+	}
+
+	/**
+	 * Helper for the rest url.
+	 *
+	 * @since 4.4.9
+	 *
+	 * @return string
+	 */
+	public function getRestUrl() {
+		$restUrl = get_rest_url();
+
+		if ( aioseo()->helpers->isWpmlActive() ) {
+			global $sitepress;
+
+			// Replace the rest url 'all' language prefix so our rest calls don't fail.
+			if (
+				is_object( $sitepress ) &&
+				method_exists( $sitepress, 'get_current_language' ) &&
+				method_exists( $sitepress, 'get_default_language' ) &&
+				'all' === $sitepress->get_current_language()
+			) {
+				$restUrl = str_replace(
+					get_home_url( null, '/all/' ),
+					get_home_url( null, '/' . $sitepress->get_default_language() . '/' ),
+					$restUrl
+				);
+			}
+		}
+
+		return $restUrl;
+	}
+
+	/**
+	 * Exclude the home path from a full path.
+	 *
+	 * @since   1.2.3 Moved from aioseo-redirects.
+	 * @version 4.5.8
+	 * @version 5.0.3 Added $ignoreCase and $homePath parameters; the home path is now regex-escaped.
+	 *
+	 * @param  string      $path       The original path.
+	 * @param  bool        $ignoreCase Whether to match the home path ignoring case, as WP::parse_request() does.
+	 * @param  string|null $homePath   The home path to remove. Defaults to {@see getHomePath()}.
+	 * @return string                  The path without WP's home path.
+	 */
+	public function excludeHomePath( $path, $ignoreCase = false, $homePath = null ) {
+		$homePath = null === $homePath ? $this->getHomePath() : $homePath;
+
+		return preg_replace( '@^' . preg_quote( $homePath, '@' ) . '@' . ( $ignoreCase ? 'i' : '' ), '/', (string) $path );
+	}
+
+	/**
+	 * Get the canonical URL for a post.
+	 * This is a duplicate of wp_get_canonical_url() with a fix for issue #6372 where
+	 * posts with paginated comment pages return the wrong canonical URL due to how WordPress sets the cpage var.
+	 * We can remove this once trac ticket 60806 is resolved.
+	 *
+	 * @since   4.6.9
+	 * @version 5.0.2 Paginated static front page now uses the /page/N/ format instead of /N/.
+	 *
+	 * @param  \WP_Post|int|null $post The post object or ID.
+	 * @return string|false            The post's canonical URL, or false if the post is not published.
+	 */
+	public function wpGetCanonicalUrl( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! $post ) {
+			return false;
+		}
+
+		if ( 'publish' !== $post->post_status ) {
+			return false;
+		}
+
+		$canonicalUrl = get_permalink( $post );
+
+		// If a canonical is being generated for the current page, make sure it has pagination if needed.
+		if ( get_queried_object_id() === $post->ID ) {
+			$page = get_query_var( 'page', 0 );
+			if ( $page >= 2 ) {
+				if ( ! get_option( 'permalink_structure' ) ) {
+					$canonicalUrl = add_query_arg( 'page', $page, $canonicalUrl );
+				} elseif ( (int) get_option( 'page_on_front' ) === $post->ID ) {
+					// The static front page paginates at /page/N/, not /N/, since its permalink is home_url('/').
+					global $wp_rewrite; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+					$pagedSegment = $wp_rewrite->pagination_base . '/' . $page; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+					$canonicalUrl = trailingslashit( $canonicalUrl ) . user_trailingslashit( $pagedSegment, 'paged' );
+				} else {
+					$canonicalUrl = trailingslashit( $canonicalUrl ) . user_trailingslashit( $page, 'single_paged' );
+				}
+			}
+
+			$cpage = aioseo()->helpers->getCommentPageNumber(); // We're calling our own function here to get the correct cpage number.
+			if ( $cpage ) {
+				$canonicalUrl = get_comments_pagenum_link( $cpage );
+			}
+		}
+
+		return apply_filters( 'get_canonical_url', $canonicalUrl, $post ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+	}
+
+	/**
+	 * Checks if permalinks are enabled.
+	 *
+	 * @since 4.8.3
+	 *
+	 * @return bool Whether permalinks are enabled.
+	 */
+	public function usingPermalinks() {
+		global $wp_rewrite; // phpcs:ignore Squiz.NamingConventions.ValidVariableName
+
+		return $wp_rewrite->using_permalinks(); // phpcs:ignore Squiz.NamingConventions.ValidVariableName
 	}
 }

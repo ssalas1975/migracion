@@ -1,10 +1,13 @@
 <?php
 namespace Tribe\Events\Admin\Filter_Bar;
 
+use Tribe\Events\Admin\Settings;
 use Tribe__Events__Main;
 use Tribe__Settings_Tab;
 use Tribe__Admin__Helpers;
+use TEC\Common\Contracts\Service_Provider;
 
+_deprecated_class( __NAMESPACE__ . '\Provider', '6.7.0', 'TEC\Events\Admin\Settings\Filter_Bar_Upsell' );
 
 /**
  * Class Provider
@@ -12,8 +15,7 @@ use Tribe__Admin__Helpers;
  * @since 5.14.0
  *
  */
-class Provider extends \tad_DI52_ServiceProvider {
-
+class Provider extends Service_Provider {
 	/**
 	 * Binds and sets up implementations.
 	 *
@@ -41,24 +43,6 @@ class Provider extends \tad_DI52_ServiceProvider {
 	 */
 	public function add_actions() {
 		add_action( 'tribe_settings_do_tabs', [ $this, 'add_tab' ] );
-	}
-
-	/**
-	 * Register Assets.
-	 *
-	 * @since 5.14.0
-	 */
-	public function add_assets() {
-		tribe_asset(
-			Tribe__Events__Main::instance(),
-			'tec-admin-filterbar-upsell',
-			'tec-admin-filterbar-upsell.css',
-			[],
-			'admin_enqueue_scripts',
-			[
-				'conditionals' => [ $this, 'should_enqueue_admin' ],
-			]
-		);
 	}
 
 	/**
@@ -99,7 +83,7 @@ class Provider extends \tad_DI52_ServiceProvider {
 	 *
 	 * @return Tribe__Template
 	 */
-	public function get_upsell_html( $context = [], $echo = false ) {
+	public function get_upsell_html( $context = [], $echo = false ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.echoFound
 
 		return $this->get_template()->template( 'upsell', wp_parse_args( $context ), $echo );
 	}
@@ -108,8 +92,14 @@ class Provider extends \tad_DI52_ServiceProvider {
 	 * Create a Filter Bar upsell tab.
 	 *
 	 * @since 5.14.0
+	 * @since 5.15.0 Early bail if we're not on TEC settings.
 	 */
-	public function add_tab() {
+	public function add_tab( $admin_page ) {
+		$tec_settings_page_id = tribe( Settings::class )::$settings_page_id;
+
+		if ( ! empty( $admin_page ) && $tec_settings_page_id !== $admin_page ) {
+			return;
+		}
 
 		$tec_events_filter_bar_upsell_tab = [
 			'filter_bar-upsell-info-box-description' => [
@@ -128,13 +118,22 @@ class Provider extends \tad_DI52_ServiceProvider {
 		$tec_events_admin_filter_bar_upsell_fields = apply_filters( 'tec_events_filterbar_upgrade_content', $tec_events_filter_bar_upsell_tab );
 
 		new Tribe__Settings_Tab(
-			'filter-view', esc_html__( 'Filters', 'the_events_calendar' ),
+			'filter-view',
+			esc_html_x( 'Filters', 'Label for the Filters tab.', 'the-events-calendar' ),
 			[
 				'priority'      => 40,
 				'fields'        => $tec_events_admin_filter_bar_upsell_fields,
 				'network_admin' => is_network_admin(),
 				'show_save'     => false,
 			]
+		);
+
+		add_filter(
+			'tec_events_settings_tabs_ids',
+			function( $tabs ) {
+				$tabs[] = 'filter-view';
+				return $tabs;
+			}
 		);
 	}
 

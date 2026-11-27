@@ -41,7 +41,7 @@ final class BlockSources implements Conditional, Service, Registerable {
 	/**
 	 * Block source data.
 	 *
-	 * @var array
+	 * @var array|null
 	 */
 	private $block_sources;
 
@@ -65,11 +65,6 @@ final class BlockSources implements Conditional, Service, Registerable {
 	 * @return bool Whether the conditional object is needed.
 	 */
 	public static function is_needed() {
-		// The register_block_type_args filter, which this feature depends on, was introduced in WP 5.5.
-		if ( version_compare( get_bloginfo( 'version' ), '5.5', '<' ) ) {
-			return false;
-		}
-
 		return is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 	}
 

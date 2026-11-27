@@ -1,30 +1,33 @@
 <?php
+
 /**
  * godaddy custom hosting class
  *
  * Standard: PSR-2
  *
- * @package SC\DUPX\DB
  * @link http://www.php-fig.org/psr/psr-2/
- *
  */
+
 defined('ABSPATH') || defined('DUPXABSPATH') || exit;
+
+use Duplicator\Installer\Core\InstState;
+use Duplicator\Installer\Core\Params\Descriptors\ParamDescUsers;
+use Duplicator\Installer\Utils\Log\Log;
+use Duplicator\Installer\Core\Params\PrmMng;
 
 /**
  * class for wordpress.com managed hosting
- * 
+ *
  * @todo not yet implemneted
- * 
  */
 class DUPX_WordpressCom_Host implements DUPX_Host_interface
 {
-
     /**
      * return the current host itentifier
      *
      * @return string
      */
-    public static function getIdentifier()
+    public static function getIdentifier(): string
     {
         return DUPX_Custom_Host_Manager::HOST_WORDPRESSCOM;
     }
@@ -32,11 +35,11 @@ class DUPX_WordpressCom_Host implements DUPX_Host_interface
     /**
      * @return bool true if is current host
      */
-    public function isHosting()
+    public function isHosting(): bool
     {
         // check only mu plugin file exists
 
-        $testFile = $GLOBALS['DUPX_ROOT'].'/wp-content/mu-plugins/wpcomsh-loader.php';
+        $testFile = PrmMng::getInstance()->getValue(PrmMng::PARAM_PATH_MUPLUGINS_NEW) . '/wpcomsh-loader.php';
         return file_exists($testFile);
     }
 
@@ -46,17 +49,32 @@ class DUPX_WordpressCom_Host implements DUPX_Host_interface
      *
      * @return void
      */
-    public function init()
+    public function init(): void
     {
-        
     }
 
     /**
-     * 
+     *
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return 'Wordpress.com';
+    }
+
+    /**
+     * this function is called if current hosting is this
+     *
+     * @return void
+     */
+    public function setCustomParams(): void
+    {
+        $paramsManager = PrmMng::getInstance();
+
+        $paramsManager->setValue(PrmMng::PARAM_ARCHIVE_ENGINE_SKIP_WP_FILES, DUPX_Extraction::FILTER_SKIP_WP_CORE);
+
+        if (!InstState::isRecoveryMode()) {
+            $paramsManager->setValue(PrmMng::PARAM_USERS_MODE, ParamDescUsers::USER_MODE_IMPORT_USERS);
+        }
     }
 }

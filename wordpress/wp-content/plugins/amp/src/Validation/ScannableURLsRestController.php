@@ -126,7 +126,7 @@ final class ScannableURLsRestController extends WP_REST_Controller implements De
 	 * 'search') and a URL to a corresponding AMP page (`amp_url`).
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
@@ -149,7 +149,12 @@ final class ScannableURLsRestController extends WP_REST_Controller implements De
 			}
 		}
 
-		$urls = $this->scannable_url_provider->get_urls();
+		$urls = array_filter(
+			$this->scannable_url_provider->get_urls(),
+			static function ( $item ) {
+				return is_array( $item ) && isset( $item['url'] );
+			}
+		);
 
 		if ( $options_filter ) {
 			foreach ( $filtered_hooks as $filter_hook ) {
@@ -172,7 +177,7 @@ final class ScannableURLsRestController extends WP_REST_Controller implements De
 	 *
 	 * @param array           $item    Scannable URL entry.
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 * @return WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$item = wp_array_slice_assoc( $item, [ 'url', 'type', 'label' ] );

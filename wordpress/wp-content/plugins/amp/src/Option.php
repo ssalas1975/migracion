@@ -167,6 +167,13 @@ interface Option {
 	const DELETE_DATA_AT_UNINSTALL = 'delete_data_at_uninstall';
 
 	/**
+	 * The key of the option storing whether to use native img tag instead of amp-img tag.
+	 *
+	 * @var string
+	 */
+	const USE_NATIVE_IMG_TAG = 'use_native_img_tag';
+
+	/**
 	 * Cached slug when it is defined late.
 	 *
 	 * @var string
@@ -200,6 +207,21 @@ interface Option {
 	 * @var string
 	 */
 	const SUPPRESSED_PLUGINS_USERNAME = 'username';
+
+
+	/**
+	 * Option key for enabling sandboxing.
+	 *
+	 * @var string
+	 */
+	const SANDBOXING_ENABLED = 'sandboxing_enabled';
+
+	/**
+	 * Option key for sandboxing level.
+	 *
+	 * @var string
+	 */
+	const SANDBOXING_LEVEL = 'sandboxing_level';
 
 	/**
 	 * Version of the AMP plugin for which the options were last saved.

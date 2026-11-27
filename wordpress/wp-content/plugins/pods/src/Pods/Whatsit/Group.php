@@ -2,6 +2,12 @@
 
 namespace Pods\Whatsit;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Exception;
 use Pods\Whatsit;
 
 /**
@@ -36,58 +42,64 @@ class Group extends Whatsit {
 			return [];
 		}
 
-		$object_collection = Store::get_instance();
+		$api = pods_api();
 
 		$has_custom_args = ! empty( $args );
 
-		if ( null === $this->_fields || $has_custom_args ) {
-			$filtered_args = [
-				'parent'            => $this->get_parent_id(),
-				'parent_id'         => $this->get_parent_id(),
-				'parent_name'       => $this->get_parent_name(),
-				'parent_identifier' => $this->get_parent_identifier(),
-				'group'             => $this->get_name(),
-				'group_id'          => $this->get_id(),
-				'group_name'        => $this->get_name(),
-				'group_identifier'  => $this->get_identifier(),
-			];
+		if ( null !== $this->_fields && ! $has_custom_args ) {
+			$objects = $this->maybe_get_objects_by_identifier( $this->_fields, $args );
 
-			if ( empty( $filtered_args['parent_id'] ) || empty( $filtered_args['group_id'] ) ) {
-				$filtered_args['bypass_post_type_find'] = true;
+			if ( is_array( $objects ) ) {
+				$this->_fields = pods_clone_objects( $objects );
+
+				/** @var Field[] $objects */
+				return $objects;
 			}
-
-			$filtered_args = array_filter( $filtered_args );
-
-			$args = array_merge( [
-				'orderby'           => 'menu_order title',
-				'order'             => 'ASC',
-			], $filtered_args, $args );
-
-			try {
-				$api = pods_api();
-
-				if ( ! empty( $args['object_type'] ) ) {
-					$objects = $api->_load_objects( $args );
-				} else {
-					$objects = $api->load_fields( $args );
-				}
-			} catch ( \Exception $exception ) {
-				$objects = [];
-			}
-
-			if ( ! $has_custom_args ) {
-				$this->_fields = wp_list_pluck( $objects, 'identifier' );
-			}
-
-			return $objects;
 		}
 
-		$objects = array_map( [ $object_collection, 'get_object' ], $this->_fields );
-		$objects = array_filter( $objects );
+		$filtered_args = [
+			'parent'            => $this->get_parent_id(),
+			'parent_id'         => $this->get_parent_id(),
+			'parent_name'       => $this->get_parent_name(),
+			'parent_identifier' => $this->get_parent_identifier(),
+			'group'             => $this->get_name(),
+			'group_id'          => $this->get_id(),
+			'group_name'        => $this->get_name(),
+			'group_identifier'  => $this->get_identifier(),
+		];
 
-		$names = wp_list_pluck( $objects, 'name' );
+		if ( empty( $filtered_args['parent_id'] ) || empty( $filtered_args['group_id'] ) ) {
+			$filtered_args['bypass_post_type_find'] = true;
+		}
 
-		return array_combine( $names, $objects );
+		$filtered_args = array_filter( $filtered_args );
+
+		$args = array_merge( [
+			'orderby'           => 'menu_order title',
+			'order'             => 'ASC',
+		], $filtered_args, $args );
+
+		try {
+			if ( empty( $args['parent_identifier'] ) && empty( $args['group_id'] ) ) {
+				throw new Exception( 'Invalid parent identifier for field lookup by group not by ID: ' . wp_json_encode( $args, JSON_PRETTY_PRINT ) );
+			}
+
+			if ( ! empty( $args['object_type'] ) ) {
+				$objects = $api->_load_objects( $args );
+			} else {
+				$objects = $api->load_fields( $args );
+			}
+		} catch ( Exception $exception ) {
+			pods_debug_log( $exception );
+
+			$objects = [];
+		}
+
+		if ( ! $has_custom_args ) {
+			$this->_fields = pods_clone_objects( $objects );
+		}
+
+		return $objects;
 	}
 
 	/**
@@ -101,7 +113,11 @@ class Group extends Whatsit {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_arg( $arg, $default = null, $strict = false ) {
+	public function get_arg( $arg, $default = null, $strict = false, $raw = false ) {
+		if ( $raw ) {
+			return parent::get_arg( $arg, $default, $strict, $raw );
+		}
+
 		$arg = (string) $arg;
 
 		$special_args = [

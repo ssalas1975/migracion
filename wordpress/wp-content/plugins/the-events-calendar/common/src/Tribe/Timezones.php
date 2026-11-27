@@ -67,7 +67,7 @@ class Tribe__Timezones {
 	 */
 	public static function wp_timezone_string() {
 		$cache = tribe( 'cache' );
-		if ( ! isset( $cache['option_timezone_string'] ) ) {
+		if ( empty( $cache['option_timezone_string'] ) ) {
 			$cache['option_timezone_string'] = get_option( 'timezone_string' );
 		}
 		if ( ! isset( $cache['option_gmt_offset'] ) ) {
@@ -184,13 +184,14 @@ class Tribe__Timezones {
 	/**
 	 * Tests to see if the timezone string is a UTC offset, ie "UTC+2".
 	 *
-	 * @param string $timezone
+	 * @since 6.13.3 Only matches a signed offset ("UTC+2", "UTC-5.5", "UTC+9:30"), not any string starting with "UTC".
 	 *
-	 * @return bool
+	 * @param string $timezone The timezone string to test.
+	 *
+	 * @return bool Whether the string is a UTC offset.
 	 */
 	public static function is_utc_offset( $timezone ) {
-		$timezone = trim( $timezone );
-		return ( 0 === strpos( $timezone, 'UTC' ) && strlen( $timezone ) > 3 );
+		return 1 === preg_match( '/^UTC[+-]\d{1,4}(?:[.:]\d{1,2})?$/', trim( $timezone ) );
 	}
 
 	/**
@@ -201,8 +202,8 @@ class Tribe__Timezones {
 	 * the event it cannot find/create the desired timezone it will try to return the
 	 * UTC DateTimeZone before bailing.
 	 *
-	 * @param  string $tzstring
-	 * @param  bool   $with_fallback = true
+	 * @param string $tzstring
+	 * @param bool   $with_fallback = true
 	 *
 	 * @return DateTimeZone|false
 	 */
@@ -503,11 +504,11 @@ class Tribe__Timezones {
 	/**
 	 * Try to figure out the Timezone name base on offset
 	 *
-	 * @since  4.0.7
+	 * @since 4.0.7
 	 *
 	 * @todo revise to eliminate all of these: maybe_get_tz_name, apply_offset, timezone_from_utc_offset, and adjust_timestamp
 	 *
-	 * @param  string|int|float $timezone The timezone
+	 * @param string|int|float $timezone The timezone
 	 *
 	 * @return string           The Guessed Timezone String
 	 */

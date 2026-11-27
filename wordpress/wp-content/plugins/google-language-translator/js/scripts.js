@@ -1,60 +1,9 @@
-/*-------------------------------------------------------------------------------*
- * Script for onClick trigger functionality used by flag images
- * Script modified from original GTranslate plugin created by Edvard Ananyan at http://edo.webmaster.am
- * GTranslate Free Version is licensed under GNU/GPL license
- *-------------------------------------------------------------------------------*/
-
-function GLTFireEvent(lang_pair, lang_dest) {
-    try {
-        if (document.createEvent) {
-            var event = document.createEvent("HTMLEvents");
-            event.initEvent(lang_dest, true, true);
-            lang_pair.dispatchEvent(event)
-        } else {
-            var event = document.createEventObject();
-            lang_pair.fireEvent('on' + lang_dest, event)
-        }
-    } catch (e) {}
-}
-
+/* wrapper for doGTranslate function from https://gtranslate.com */
 function doGoogleLanguageTranslator(lang_pair) {
-    if(window.glt_request_uri) return true;
+    if(window.glt_request_uri)
+        return true;
 
-    if (lang_pair.value) lang_pair = lang_pair.value;
-    if (lang_pair == '') return;
-    var lang_dest = lang_pair.split('|')[1];
-    var event;
-    var classic = jQuery('.goog-te-combo');
-    var simple = jQuery('.goog-te-menu-frame:first');
-    var simpleValue = simple.contents().find('.goog-te-menu2-item span.text:contains('+lang_text+')');
-    if (classic.length == 0) {
-      for (var i = 0; i < simple.length; i++) {
-        event = simple[i];
-        //alert('Simple is active.');
-      }
-    } else {
-      for (var i = 0; i < classic.length; i++) {
-        event = classic[i];
-        //alert('Classic is active.');
-      }
-    }
-    if (document.getElementById('google_language_translator') != null) {
-      if (classic.length != 0) {
-        if (lang_prefix != default_lang) {
-          event.value = lang_dest;
-          GLTFireEvent(event, 'change');
-        } else {
-          jQuery('.goog-te-banner-frame:first').contents().find('.goog-close-link').get(0).click();
-        }
-      } else {
-        event.value = lang_dest;
-        if (lang_prefix != default_lang) {
-          simpleValue.click();
-        } else {
-          jQuery('.goog-te-banner-frame:first').contents().find('.goog-close-link').get(0).click();
-        }
-      }
-    }
+    doGTranslate(lang_pair);
 }
 
 jQuery(document).ready(function($) {
@@ -301,6 +250,13 @@ if ( typeof Object.create !== 'function' ) {
             self.calculatePosition();
             self.toolbar.show().css({'opacity': 1}).addClass('animate-'+self.options.animation);
             self.$elem.trigger('toolbarShown');
+
+            // lazy load library
+            if(!window.gt_translate_script) {
+                var e = document.querySelector('#google_language_translator');
+                if(e)
+                    e.dispatchEvent(new FocusEvent('focusin', {bubbles: true}));
+            }
         },
 
         hide: function() {
@@ -364,16 +320,12 @@ jQuery(function($) {
   });
 
   $(document.body).on("click", "a.flag", function() {
-    lang_text = $(this).attr('data-lang');
-    default_lang = window.glt_default_lang || $('#google_language_translator').attr('class').split("-").pop();
-    lang_prefix = $(this).attr("class").split(" ")[2];
-    lang_prefix == default_lang ? l() : n();
-    function l() {
-      doGoogleLanguageTranslator(default_lang + "|" + default_lang);
-    }
-    function n() {
-      doGoogleLanguageTranslator(default_lang + "|" + lang_prefix);
-    }
+    if($(this).attr("href") === "#")
+        event.preventDefault();
+    var lang_text = $(this).attr('data-lang');
+    var default_lang = window.glt_default_lang || window.gtranslateSettings?.default_language || 'en';
+    var lang_prefix = $(this).attr("class").split(" ")[2];
+    doGoogleLanguageTranslator(default_lang + "|" + lang_prefix);
     $(".tool-container").hide();
   });
 
@@ -383,4 +335,3 @@ jQuery(function($) {
     })
   }
 });
-

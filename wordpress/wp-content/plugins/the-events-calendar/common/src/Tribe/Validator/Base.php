@@ -85,7 +85,7 @@ class Tribe__Validator__Base implements Tribe__Validator__Interface {
 	 *
 	 * @since 4.7.19
 	 *
-	 * @param     array|string|int $list
+	 * @param    array|string|int $list
 	 * @param string               $sep
 	 *
 	 * @return bool
@@ -160,7 +160,7 @@ class Tribe__Validator__Base implements Tribe__Validator__Interface {
 			return wp_attachment_is_image( $image );
 		}
 
-		if ( is_string( $image ) ) {
+		if ( is_string( $image ) && current_user_can( 'upload_files' ) ) {
 			$response = wp_remote_head( $image );
 
 			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {

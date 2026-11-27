@@ -18,7 +18,7 @@ use Tribe__Context as Context;
  * @package Tribe\Events\Views\V2
  * @since   4.9.2
  */
-interface View_Interface  extends View_Url_Provider_Interface, Repository_User_Interface {
+interface View_Interface extends View_Url_Provider_Interface, Repository_User_Interface {
 
 	/**
 	 * Returns a View HTML code.
@@ -28,6 +28,27 @@ interface View_Interface  extends View_Url_Provider_Interface, Repository_User_I
 	 * @return string
 	 */
 	public function get_html();
+
+	/**
+	 * Sends, echoing it and exiting, the view HTML on the page.
+	 *
+	 * @since 6.11.1
+	 *
+	 * @param null|string $html A specific HTML string to print on the page or the HTML produced by the view
+	 *                          `get_html` method.
+	 */
+	public function send_html( ?string $html = null );
+
+	/**
+	 * Returns the view label.
+	 *
+	 * It is different from the dynamic get_label because it avoids building a whole instance just for the base label.
+	 *
+	 * @since  6.0.4
+	 *
+	 * @return string
+	 */
+	public static function get_view_label(): string;
 
 	/**
 	 * Returns a View label.
@@ -66,15 +87,17 @@ interface View_Interface  extends View_Url_Provider_Interface, Repository_User_I
 	 * Sets, or unset, the View context.
 	 *
 	 * @since 4.9.2
+	 * @since 6.17.0 Made $context explicitly nullable.
 	 *
 	 * @param \Tribe__Context|null $context Either a context instance or null to make the View use the global one.
 	 */
-	public function set_context( Context $context = null );
+	public function set_context( ?Context $context = null );
 
 	/**
 	 * Sets the View slug, usually the one it was registered with in the `tribe_events_views` filter.
 	 *
 	 * @since 4.9.2
+	 * @deprecated 6.0.7
 	 *
 	 * @param string $slug The slug to set for the View instance.
 	 */
@@ -84,10 +107,21 @@ interface View_Interface  extends View_Url_Provider_Interface, Repository_User_I
 	 * Returns a View slug, usually the one it was registered with in the `tribe_events_views` filter.
 	 *
 	 * @since 4.9.2
+	 * @deprecated 6.0.7
 	 *
 	 * @return string The view slug, usually the one it was registered with in the `tribe_events_views` filter.
 	 */
 	public function get_slug();
+
+	/**
+	 * Statically returns the View slug, thus not requiring the View be instantiated first.
+	 * Usually this is the one it was registered with in the `tribe_events_views` filter.
+	 *
+	 * @since 6.0.7
+	 *
+	 * @return string The view slug, usually the one it was registered with in the `tribe_events_views` filter.
+	 */
+	public static function get_view_slug(): string;
 
 	/**
 	 * Returns a View template path, usually a prefix for the template slug.
@@ -152,12 +186,13 @@ interface View_Interface  extends View_Url_Provider_Interface, Repository_User_I
 	 * Sets a View URL object either from some arguments or from the current URL.
 	 *
 	 * @since 4.9.3
+	 * @since 6.17.0 Made $args explicitly nullable.
 	 *
 	 * @param array|null $args   An associative array of arguments that will be mapped to the corresponding query
 	 *                           arguments by the View, or `null` to use the current URL.
 	 * @param bool       $merge  Whether to merge the arguments or override them.
 	 */
-	public function set_url( array $args = null, $merge = false );
+	public function set_url( ?array $args = null, $merge = false );
 
 	/**
 	 * Returns the post IDs of the posts the View is displaying in the order it's displaying them.
@@ -252,4 +287,13 @@ interface View_Interface  extends View_Url_Provider_Interface, Repository_User_I
 	 * @return View_Interface A reference to the View-like that is being directed.
 	 */
 	public function disable_url_management();
+
+	/**
+	 * Returns the View `en_US` and localized rewrite slugs.
+	 *
+	 * @since 6.0.7
+	 *
+	 * @return array<string> The View `en_US` and localized rewrite slugs.
+	 */
+	public function get_rewrite_slugs(): array;
 }

@@ -78,16 +78,21 @@ function bellows_register_customizer( $config_id , $config_id_root , $wp_customi
 			$setting_id = $setting_op.'['.$field['name'].']';
 
 			$default = isset( $field['default'] ) ? $field['default'] : '';
+
+			$setting_args = array(
+				'default'		=> $default,
+				'type'			=> 'option',
+			);
+
 			if( $field['type'] == 'checkbox' ){
-				$default = $default == 'on' ? true : false;
+				// $default = $default == 'on' ? true : false;
+				$setting_args['sanitize_callback'] = 'bellows_sanitize_checkbox';
+				$setting_args['sanitize_js_callback'] = 'bellows_sanitize_js_checkbox';
 			}
 
 			$wp_customize->add_setting(
 				$setting_id,
-				array(
-					'default'		=> $default,
-					'type'			=> 'option',
-				)
+				$setting_args
 			);
 
 			$field_section_id = $section_id;
@@ -279,3 +284,12 @@ function bellows_generate_menu_preview_styles( $config_id , $fields = false ){
 
 }
 
+
+// Converts '1' => 'on' and '0' => 'off' when saving to DB
+function bellows_sanitize_checkbox( $checked ) {
+  return ( ( isset( $checked ) && true == $checked ) ? 'on' : 'off' );
+}
+// Converts 'on' => 1 and 'off' => 0 when sending values to Customizer JS
+function bellows_sanitize_js_checkbox( $value, $setting ){
+	return $value === 'on' ? 1 : 0;  // integers critical!
+}

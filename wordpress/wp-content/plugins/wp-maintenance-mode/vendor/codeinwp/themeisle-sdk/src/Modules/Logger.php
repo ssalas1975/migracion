@@ -29,6 +29,11 @@ class Logger extends Abstract_Module {
 	 */
 	const TRACKING_ENDPOINT = 'https://api.themeisle.com/tracking/log';
 
+	/**
+	 * Endpoint where to collect telemetry.
+	 */
+	const TELEMETRY_ENDPOINT = 'https://api.themeisle.com/tracking/events';
+
 
 	/**
 	 * Check if we should load the module for this product.
@@ -38,7 +43,6 @@ class Logger extends Abstract_Module {
 	 * @return bool Should we load ?
 	 */
 	public function can_load( $product ) {
-
 		return apply_filters( $product->get_slug() . '_sdk_enable_logger', true );
 	}
 
@@ -51,9 +55,8 @@ class Logger extends Abstract_Module {
 	 */
 	public function load( $product ) {
 		$this->product = $product;
-		$this->setup_notification();
-		$this->setup_actions();
-
+		add_action( 'wp_loaded', array( $this, 'setup_actions' ) );
+		add_action( 'admin_init', array( $this, 'setup_notification' ) );
 		return $this;
 	}
 
@@ -61,12 +64,10 @@ class Logger extends Abstract_Module {
 	 * Setup notification on admin.
 	 */
 	public function setup_notification() {
-		if ( ! $this->product->is_wordpress_available() ) {
+		if ( $this->is_logger_active() ) {
 			return;
 		}
-
 		add_filter( 'themeisle_sdk_registered_notifications', [ $this, 'add_notification' ] );
-
 	}
 
 	/**
@@ -76,12 +77,23 @@ class Logger extends Abstract_Module {
 		if ( ! $this->is_logger_active() ) {
 			return;
 		}
+		add_action(
+			'admin_enqueue_scripts',
+			function() {
+				if ( ! apply_filters( 'themeisle_sdk_enable_telemetry', false ) ) {
+					return;
+				}
+
+				$this->load_telemetry();
+			},
+			PHP_INT_MAX
+		);
+
 		$action_key = $this->product->get_key() . '_log_activity';
 		if ( ! wp_next_scheduled( $action_key ) ) {
 			wp_schedule_single_event( time() + ( wp_rand( 1, 24 ) * 3600 ), $action_key );
 		}
 		add_action( $action_key, array( $this, 'send_log' ) );
-
 	}
 
 	/**
@@ -90,24 +102,40 @@ class Logger extends Abstract_Module {
 	 * @return bool Is logger active?
 	 */
 	private function is_logger_active() {
+		return self::is_logging_active( $this->product );
+	}
+
+	/**
+	 * Check if the logging consent is granted for a product.
+	 *
+	 * Shared with the other telemetry modules (e.g. the crash reporter) so the
+	 * consent semantics live in a single place.
+	 *
+	 * @param \ThemeisleSDK\Product $product Product to check.
+	 *
+	 * @return bool Is logging active for the product?
+	 */
+	public static function is_logging_active( $product ) {
+		if ( apply_filters( 'themeisle_sdk_disable_telemetry', false ) ) {
+			return false;
+		}
 		$default = 'no';
 
-		if ( ! $this->product->is_wordpress_available() ) {
+		if ( ! $product->is_wordpress_available() ) {
 			$default = 'yes';
 		} else {
-			$pro_slug = $this->product->get_pro_slug();
-
-			if ( ! empty( $pro_slug ) ) {
-				$all_products = Loader::get_products();
-				if ( isset( $all_products[ $pro_slug ] ) ) {
+			$all_products = Loader::get_products();
+			foreach ( $all_products as $registered_product ) {
+				if ( $registered_product->requires_license() ) {
 					$default = 'yes';
+					break;
 				}
 			}
 		}
 
-		return ( get_option( $this->product->get_key() . '_logger_flag', $default ) === 'yes' );
-	}
 
+		return ( get_option( $product->get_key() . '_logger_flag', $default ) === 'yes' );
+	}
 	/**
 	 * Add notification to queue.
 	 *
@@ -117,15 +145,15 @@ class Logger extends Abstract_Module {
 	 */
 	public function add_notification( $all_notifications ) {
 
-		$message = apply_filters( $this->product->get_key() . '_logger_heading', 'Do you enjoy <b>{product}</b>? Become a contributor by opting in to our anonymous data tracking. We guarantee no sensitive data is collected.' );
+		$message = apply_filters( $this->product->get_key() . '_logger_heading', Loader::$labels['logger']['notice'] );
 
 		$message       = str_replace(
 			array( '{product}' ),
 			$this->product->get_friendly_name(),
 			$message
 		);
-		$button_submit = apply_filters( $this->product->get_key() . '_logger_button_submit', 'Sure, I would love to help.' );
-		$button_cancel = apply_filters( $this->product->get_key() . '_logger_button_cancel', 'No, thanks.' );
+		$button_submit = apply_filters( $this->product->get_key() . '_logger_button_submit', Loader::$labels['logger']['cta_y'] );
+		$button_cancel = apply_filters( $this->product->get_key() . '_logger_button_cancel', Loader::$labels['logger']['cta_n'] );
 
 		$all_notifications[] = [
 			'id'      => $this->product->get_key() . '_logger_flag',
@@ -164,16 +192,103 @@ class Logger extends Abstract_Module {
 				'timeout'     => 3,
 				'redirection' => 5,
 				'body'        => array(
-					'site'        => get_site_url(),
-					'slug'        => $this->product->get_slug(),
-					'version'     => $this->product->get_version(),
-					'wp_version'  => $wp_version,
-					'locale'      => get_locale(),
-					'data'        => apply_filters( $this->product->get_key() . '_logger_data', array() ),
-					'environment' => $environment,
-					'license'     => apply_filters( $this->product->get_key() . '_license_status', '' ),
+					'site'         => get_site_url(),
+					'slug'         => $this->product->get_slug(),
+					'version'      => $this->product->get_version(),
+					'wp_version'   => $wp_version,
+					'install_time' => $this->product->get_install_time(),
+					'locale'       => get_locale(),
+					'data'         => apply_filters( $this->product->get_key() . '_logger_data', array() ),
+					'environment'  => $environment,
+					'license'      => apply_filters( $this->product->get_key() . '_license_status', '' ),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Load telemetry.
+	 *
+	 * @return void
+	 */
+	public function load_telemetry() {
+		// See which products have telemetry enabled.
+		try {
+			$products_with_telemetry                    = array();
+			$all_products                               = Loader::get_products();
+			$all_products[ $this->product->get_slug() ] = $this->product; // Add current product to the list of products to check for telemetry.
+
+			// Register telemetry params for eligible products.
+			foreach ( $all_products as $product_slug => $product ) {
+
+				// Ignore PRO products.
+				if ( false !== strstr( $product_slug, 'pro' ) ) {
+					continue;
+				}
+
+				$pro_slug   = $product->get_pro_slug();
+				$logger_key = $product->get_key() . '_logger_flag';
+
+				// If the product is not available in the WordPress store, or it's PRO version is installed, activate the logger if it was not initialized -- Pro users are opted in by default.
+				if ( ! $product->is_wordpress_available() || ( ! empty( $pro_slug ) && isset( $all_products[ $pro_slug ] ) ) ) {
+					$logger_flag = get_option( $logger_key );
+
+					if ( false === $logger_flag ) {
+						update_option( $logger_key, 'yes' );
+					}
+				}
+
+				if ( 'yes' === get_option( $product->get_key() . '_logger_flag', 'no' ) ) {
+
+					$main_slug  = explode( '-', $product_slug );
+					$main_slug  = $main_slug[0];
+					$track_hash = Licenser::create_license_hash( str_replace( '-', '_', ! empty( $pro_slug ) ? $pro_slug : $product_slug ) );
+
+					// Check if product was already tracked.
+					$active_telemetry = false;
+					foreach ( $products_with_telemetry as $product_with_telemetry ) {
+						if ( $product_with_telemetry['slug'] === $main_slug ) {
+							$active_telemetry = true;
+							break;
+						}
+					}
+
+					if ( $active_telemetry ) {
+						continue;
+					}
+
+					$products_with_telemetry[] = array(
+						'slug'      => $main_slug,
+						'trackHash' => $track_hash ? $track_hash : 'free',
+						'consent'   => true,
+					);
+				}
+			}
+
+			$products_with_telemetry = apply_filters( 'themeisle_sdk_telemetry_products', $products_with_telemetry );
+
+			if ( 0 === count( $products_with_telemetry ) ) {
+				return;
+			}
+
+			$tracking_handler = apply_filters( 'themeisle_sdk_dependency_script_handler', 'tracking' );
+			if ( ! empty( $tracking_handler ) ) {
+				do_action( 'themeisle_sdk_dependency_enqueue_script', 'tracking' );
+				wp_localize_script(
+					$tracking_handler,
+					'tiTelemetry',
+					array(
+						'products' => $products_with_telemetry,
+						'endpoint' => self::TELEMETRY_ENDPOINT,
+					)
+				);
+			}
+		} catch ( \Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( $e->getMessage() ); // phpcs:ignore
+			}
+		} finally {
+			return;
+		}
 	}
 }

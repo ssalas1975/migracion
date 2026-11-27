@@ -1,5 +1,7 @@
 <?php
 /**
+ * Template for watermarks tab.
+ *
  * @var array $watermark_fields
  * @var array $watermark_sources
  * @var int $offset_x
@@ -9,6 +11,7 @@
  * @var string $offset_label
  * @var string $position_label
  * @var string $preview_label
+ * @var string $preview_nonce
  * @var string $refresh_url
  * @var string $refresh_label
  * @var string $thumbnail_url
@@ -19,128 +22,142 @@
  * @var string $watermark_source
  * @var string $watermark_source_label
  */
+
 ?>
 <table>
-    <tr>
-        <td class="column1">
-            <label for="watermark_automatically_at_upload">
-                <?php print esc_html($watermark_automatically_at_upload_label); ?>
-            </label>
-        </td>
-        <td>
-            <label for="watermark_automatically_at_upload">
-                <?php print esc_html($watermark_automatically_at_upload_label_yes); ?>
-            </label>
-            <input id='watermark_automatically_at_upload'
-                   type="radio"
-                   name="watermark_options[watermark_automatically_at_upload]"
-                   value="1"
-                   <?php checked(TRUE, $watermark_automatically_at_upload_value ? TRUE : FALSE)?>/>
-            <label for="watermark_automatically_at_upload_no">
-                <?php print esc_html($watermark_automatically_at_upload_label_no); ?>
-            </label>
-            <input id='watermark_automatically_at_upload_no'
-                   type="radio"
-                   name="watermark_options[watermark_automatically_at_upload]"
-                   value="0"
-                   <?php checked(FALSE, $watermark_automatically_at_upload_value ? TRUE : FALSE)?>/>
-        </td>
-    </tr>
+	<tr>
+		<td class="column1">
+			<label for="watermark_automatically_at_upload">
+				<?php print esc_html( $watermark_automatically_at_upload_label ); ?>
+			</label>
+		</td>
+		<td>
+			<label for="watermark_automatically_at_upload">
+				<?php print esc_html( $watermark_automatically_at_upload_label_yes ); ?>
+			</label>
+			<input id='watermark_automatically_at_upload'
+					type="radio"
+					name="watermark_options[watermark_automatically_at_upload]"
+					value="1"
+					<?php checked( true, $watermark_automatically_at_upload_value ? true : false ); ?>/>
+			<label for="watermark_automatically_at_upload_no">
+				<?php print esc_html( $watermark_automatically_at_upload_label_no ); ?>
+			</label>
+			<input id='watermark_automatically_at_upload_no'
+					type="radio"
+					name="watermark_options[watermark_automatically_at_upload]"
+					value="0"
+					<?php checked( false, $watermark_automatically_at_upload_value ? true : false ); ?>/>
+		</td>
+	</tr>
 	<tr>
 		<td class="column1">
 			<label for="watermark_source">
-				<?php esc_html_e($watermark_source_label)?>
+				<?php echo esc_html( $watermark_source_label ); ?>
 			</label>
 		</td>
 		<td>
 			<div class="column_wrapper">
 				<select name="watermark_options[wmType]" id="watermark_source">
-				<?php foreach ($watermark_sources as $label => $value): ?>
-					<option value="<?php echo esc_attr($value)?>"
-						    <?php selected($value, $watermark_source) ?>>
-                        <?php esc_html_e($label)?>
-                    </option>
+				<?php foreach ( $watermark_sources as $label => $value ) : ?>
+					<option value="<?php echo esc_attr( $value ); ?>"
+							<?php selected( $value, $watermark_source ); ?>>
+						<?php echo esc_html( $label ); ?>
+					</option>
 				<?php endforeach ?>
 				</select>
 			</div>
 		</td>
 	</tr>
 
-    <tr class="watermark_field hidden">
-        <td>
-            <?php echo $position_label; ?>
-        </td>
-        <td>
-            <table class='nextgen_settings_position' border='1'>
-                <tr>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="topLeft"   <?php checked('topLeft',   $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="topCenter" <?php checked('topCenter', $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="topRight"  <?php checked('topRight',  $position); ?>/></td>
-                </tr>
-                <tr>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="midLeft"   <?php checked('midLeft',   $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="midCenter" <?php checked('midCenter', $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="midRight"  <?php checked('midRight',  $position); ?>/></td>
-                </tr>
-                <tr>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="botLeft"   <?php checked('botLeft',   $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="botCenter" <?php checked('botCenter', $position); ?>/></td>
-                    <td><input type="radio" name="watermark_options[wmPos]" value="botRight"  <?php checked('botRight',  $position); ?>/></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
+	<?php if ( ! empty( $stored_refused_message ) ) { ?>
+		<tr>
+			<td colspan="2">
+				<div class="notice notice-error inline"><p><?php echo esc_html( $stored_refused_message ); ?></p></div>
+			</td>
+		</tr>
+	<?php } ?>
 
-    <tr class="watermark_field hidden">
-        <td>
-            <?php echo $offset_label; ?>
-        </td>
-        <td>
-            <label for='nextgen_settings_wmXpos'>w</label>
-            <input type='number'
-                   id='nextgen_settings_wmXpos'
-                   name='watermark_options[wmXpos]'
-                   placeholder='0'
-                   min='0'
-                   value='<?php echo esc_attr($offset_x) ?>'/> /
-            <input type='number'
-                   id='nextgen_settings_wmYpos'
-                   name='watermark_options[wmYpos]'
-                   placeholder='0'
-                   min='0'
-                   value='<?php echo esc_attr($offset_y) ?>'/>
-            <label for='nextgen_settings_wmYpos'>h</label>
-        </td>
-    </tr>
+	<tr class="watermark_field hidden">
+		<td>
+			<?php echo esc_html( $position_label ); ?>
+		</td>
+		<td>
+			<table class='nextgen_settings_position' border='1'>
+				<tr>
+					<td><input type="radio" name="watermark_options[wmPos]" value="topLeft"   <?php checked( 'topLeft', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="topCenter" <?php checked( 'topCenter', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="topRight"  <?php checked( 'topRight', $position ); ?>/></td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="watermark_options[wmPos]" value="midLeft"   <?php checked( 'midLeft', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="midCenter" <?php checked( 'midCenter', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="midRight"  <?php checked( 'midRight', $position ); ?>/></td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="watermark_options[wmPos]" value="botLeft"   <?php checked( 'botLeft', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="botCenter" <?php checked( 'botCenter', $position ); ?>/></td>
+					<td><input type="radio" name="watermark_options[wmPos]" value="botRight"  <?php checked( 'botRight', $position ); ?>/></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
 
-    <?php if (!is_null($thumbnail_url)) { ?>
-        <tr class="watermark_field hidden">
-            <td>
-                <?php echo $preview_label; ?>
-            </td>
-            <td>
-                <img src='<?php echo $thumbnail_url; ?>'/>
-                <button id='nextgen_settings_preview_refresh' class="button-primary" data-refresh-url='<?php echo $refresh_url; ?>'><?php echo $refresh_label; ?></button>
-            </td>
-        </tr>
-    <?php } ?>
+	<tr class="watermark_field hidden">
+		<td>
+			<?php echo esc_html( $offset_label ); ?>
+		</td>
+		<td>
+			<label for='nextgen_settings_wmXpos'>w</label>
+			<input type='number'
+					id='nextgen_settings_wmXpos'
+					name='watermark_options[wmXpos]'
+					placeholder='0'
+					min='0'
+					value='<?php echo esc_attr( $offset_x ); ?>'/> /
+			<input type='number'
+					id='nextgen_settings_wmYpos'
+					name='watermark_options[wmYpos]'
+					placeholder='0'
+					min='0'
+					value='<?php echo esc_attr( $offset_y ); ?>'/>
+			<label for='nextgen_settings_wmYpos'>h</label>
+		</td>
+	</tr>
 
-    <tr class="watermark_field hidden">
+	<?php if ( ! is_null( $thumbnail_url ) ) { ?>
+		<tr class="watermark_field hidden">
+			<td>
+				<?php echo esc_html( $preview_label ); ?>
+			</td>
+			<td>
+				<img src='<?php echo esc_url( $thumbnail_url . '?' . time() ); ?>'/>
+				<button id='nextgen_settings_preview_refresh' class="button-primary" data-refresh-url='<?php echo esc_attr( $refresh_url ); ?>'><?php echo esc_html( $refresh_label ); ?></button>
+				<?php // The nonce sits AFTER the button: the refresh handler does self.prev() to find the <img>, so a field between them would be picked up instead (#1084 review). form.serialize() still sends it from here. ?>
+				<input type="hidden" name="watermark_preview_nonce" value="<?php echo esc_attr( $preview_nonce ); ?>" />
+			</td>
+		</tr>
+	<?php } ?>
+
+	<tr class="watermark_field hidden">
 		<td colspan="2">
 			<a
 				id="watermark_customization"
 				href="#"
 				class="nextgen_advanced_toggle_link"
-				hidden_label="<?php echo esc_attr($hidden_label)?>"
-				active_label="<?php echo esc_attr($active_label)?>"
+				hidden_label="<?php echo esc_attr( $hidden_label ); ?>"
+				active_label="<?php echo esc_attr( $active_label ); ?>"
 			>
-			<?php esc_html_e($hidden_label)?>
+			<?php echo esc_html( $hidden_label ); ?>
 			</a>
 		</td>
 	</tr>
-	<?php foreach ($watermark_fields as $source_name => $fields): ?>
-	<tbody class="hidden" id="watermark_<?php echo esc_attr($source_name) ?>_source">
-		<?php echo $fields ?>
+	<?php foreach ( $watermark_fields as $source_name => $fields ) : ?>
+	<tbody class="hidden" id="watermark_<?php echo esc_attr( $source_name ); ?>_source">
+		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $fields contains safe HTML form elements
+		echo $fields;
+		?>
 	</tbody>
 	<?php endforeach ?>
 </table>

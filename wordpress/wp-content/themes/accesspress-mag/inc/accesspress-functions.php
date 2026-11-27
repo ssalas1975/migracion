@@ -13,36 +13,10 @@
  * @param array $classes Classes for the body element.
  * @return array
  */
- 
-if ( version_compare( $GLOBALS['wp_version'], '4.1', '<' ) ) :
-	
-	/**
-	 * Title shim for sites older than WordPress 4.1.
-	 *
-	 * @link https://make.wordpress.org/core/2014/10/29/title-tags-in-4-1/
-	 * @todo Remove this function when WordPress 4.3 is released.
-	 */
-	function accesspress_mag_render_title() {
-?>
-		<title><?php wp_title( '|', true, 'right' ); ?></title>
-<?php
-	}
-    
-	add_action( 'wp_head', 'accesspress_mag_render_title' );
-endif;
-$accesspress_mag_default = get_option('accesspress-mag');
+
+$accesspress_mag_default = get_option('accesspress-mag-theme');
 
 /*------------------------------------------------------------------------------------------------*/
-/**
- * Enqueue custom admin panel JS
- */
- 
-function accesspress_mag_admin_scripts() {
-    wp_enqueue_script( 'accesspress-mag-custom-admin', get_template_directory_uri(). '/inc/option-framework/js/custom-admin.js', array( 'jquery' ) );
-    wp_enqueue_style( 'accesspress-mag-admin', get_template_directory_uri(). '/inc/option-framework/css/accesspress-mag-admin.css' );
- }
-add_action( 'admin_enqueue_scripts', 'accesspress_mag_admin_scripts' );
-
 /**
  * Enqueue script for custom customize control.
  */
@@ -119,7 +93,7 @@ function accesspress_mag_slider_cb(){
                                     )
                         );
         if( ( $slider_posts_option == 'cat' ) && ( !empty( $slider_category ) ) ){
-            $slider_args['category_name'] = $slider_category;
+            $slider_args['cat'] = $slider_category;
         }
         $slider_query = new WP_Query( $slider_args );
         $slide_counter = 0; 
@@ -206,6 +180,7 @@ if ( ! function_exists( 'accesspress_mag_slider_mobile_cb' ) ) :
                         );
         if( ( $slider_posts_option == 'cat' ) && ( !empty( $slider_category ) ) ){
             $slider_args['category_name'] = $slider_category;
+
         }
         $slider_query = new WP_Query( $slider_args );
         if( $slider_query->have_posts() )
@@ -372,9 +347,9 @@ if( ! function_exists( 'accesspress_mag_category_details' ) ):
             $cat_id = $single_info -> term_id;
             $cat_name = $single_info -> name;
         }
-        $cat_link = get_category_link( $cat_id );
-        $cat_sec = '<span class="cat-name">'. esc_attr( $cat_name ) .'</span>';
-        echo $cat_sec ;
+        $cat_link = get_category_link( $cat_id ); ?>
+        <span class="cat-name"><?php echo esc_html( $cat_name )?></span>
+        <?php
     }
 endif;
 
@@ -484,7 +459,7 @@ if( ! function_exists( 'accesspress_mag_home_posted_on_cb' ) ):
     function accesspress_mag_home_posted_on_cb(){
         global $post;        
         $show_comment_count = of_get_option( 'show_comment_count', '1' );
-        $show_post_date = of_get_option( 'post_show_date', '1' );
+        $show_post_date = of_get_option( 'show_date_option', '1' );
         
     	$time_string = '<time class="entry-date published updated" datetime="%1$s">%2$s</time>';
     	if ( get_the_time( 'U' ) !== get_the_modified_time( 'U' ) ) {
@@ -499,14 +474,16 @@ if( ! function_exists( 'accesspress_mag_home_posted_on_cb' ) ):
     	);
         
         if($show_post_date==1){
-    	  $posted_on = sprintf(
-        		_x( '%s', 'post date', 'accesspress-mag' ),
-        		'<a href="' . esc_url( get_permalink() ) . '" rel="bookmark">' . $time_string . '</a>'
-        	);	   
+    	  
+            $posted_on = sprintf(
+                /* translators: %s : post date */
+                esc_html_x( 'Posted on %s', 'post date', 'accesspress-mag' ),
+                '<a href="' . esc_url( get_permalink() ) . '" rel="bookmark">' . $time_string . '</a>'
+            );	   
     	} else {
             $posted_on = '';
         }
-        echo '<span class="posted-on">' . $posted_on . '</span>';
+        echo '<span class="posted-on">' . ($posted_on) . '</span>';
         if($show_comment_count==1){
             $post_comment_count = get_comments_number( $post->ID );
             echo '<span class="comment_count"><i class="fa fa-comments"></i>'.esc_attr( $post_comment_count ).'</span>';
@@ -555,7 +532,7 @@ if( ! function_exists( 'accesspress_mag_excerpt' ) ):
     function accesspress_mag_excerpt(){
         global $post;
         $excerpt_type = esc_attr( of_get_option( 'excerpt_type' ) );
-        $excerpt_length = intval( of_get_option( 'excerpt_lenght' ) );
+        $excerpt_length = intval( of_get_option( 'excerpt_lenght','120' ) );
         $excerpt_content = get_the_content($post -> ID);
         
         if( $excerpt_type == 'letters' ){
@@ -563,7 +540,7 @@ if( ! function_exists( 'accesspress_mag_excerpt' ) ):
         } else {
             $excerpt_content = accesspress_mag_word_count( $excerpt_content, $excerpt_length );
         }
-        echo '<p>'. $excerpt_content .'</p>';
+        echo '<p>'. wp_kses_post($excerpt_content) .'</p>';
     }
 endif;
 
@@ -576,13 +553,13 @@ if( ! function_exists( 'accesspress_mag_breadcrumbs' ) ):
       wp_reset_postdata();
       global $post;
       $trans_here = esc_attr( of_get_option( 'trans_you_are_here', 'You are here' ) );
-      if( empty( $trans_here ) ){ $trans_here = __( 'You are here', 'accesspress-mag' ); }
+      if( empty( $trans_here ) ){ $trans_here = esc_html__( 'You are here', 'accesspress-mag' ); }
       
       $trans_home = esc_attr( of_get_option( 'trans_home', 'Home' ) );
-      if( empty( $trans_home ) ){ $trans_home = __( 'Home', 'accesspress-mag' ); }
+      if( empty( $trans_home ) ){ $trans_home = esc_html__( 'Home', 'accesspress-mag' ); }
       
       $search_result_text = esc_attr( of_get_option( 'trans_search_results_for', 'Search Results for' ) );
-      if( empty( $search_result_text ) ) { $search_result_text = __( 'Search Results for ', 'accesspress-mag' ); }
+      if( empty( $search_result_text ) ) { $search_result_text = esc_html__( 'Search Results for ', 'accesspress-mag' ); }
       
         $showOnHome = 0; // 1 - show breadcrumbs on the homepage, 0 - don't show
         $delimiter = '<span class="bread_arrow"> > </span>'; // delimiter between crumbs
@@ -597,97 +574,99 @@ if( ! function_exists( 'accesspress_mag_breadcrumbs' ) ):
       
       if (is_home() || is_front_page()) {
       
-        if ($showOnHome == 1) echo '<div id="accesspres-mag-breadcrumbs"><div class="ak-container"><a href="' . $homeLink . '">' . $home . '</a></div></div>';
+        if ($showOnHome == 1) echo '<div id="accesspres-mag-breadcrumbs"><div class="ak-container"><a href="' . esc_url($homeLink) . '">' . esc_html($home) . '</a></div></div>';
       
       } else {
            if($showHomeLink == 1){ 
-               echo '<div id="accesspres-mag-breadcrumbs" class="clearfix"><span class="bread-you">'.esc_attr( $trans_here ).'</span><div class="ak-container"><a href="' . $homeLink . '">' . $home . '</a> ' . $delimiter . ' ';
+               echo '<div id="accesspres-mag-breadcrumbs" class="clearfix"><span class="bread-you">'.esc_attr( $trans_here ).'</span><div class="ak-container"><a href="' . esc_url($homeLink) . '">' . esc_html( $home ) . '</a> ' . wp_kses_post($delimiter) . ' ';
              } else {
-               echo '<div id="accesspres-mag-breadcrumbs" class="clearfix"><span class="bread-you">'.esc_attr( $trans_here ).'</span><div class="ak-container">' . $home . ' ' . $delimiter . ' ';
+               echo '<div id="accesspres-mag-breadcrumbs" class="clearfix"><span class="bread-you">'.esc_attr( $trans_here ).'</span><div class="ak-container">' . esc_html( $home ) . ' ' . wp_kses_post($delimiter) . ' ';
             }
       
         if ( is_category() ) {
           $thisCat = get_category(get_query_var('cat'), false);
-          if ($thisCat->parent != 0) echo get_category_parents($thisCat->parent, TRUE, ' ' . $delimiter . ' ');
-          echo $before .  single_cat_title('', false) . $after;
+          if ($thisCat->parent != 0) echo wp_kses_post(get_category_parents($thisCat->parent, TRUE, ' ' . $delimiter . ' '));
+          echo wp_kses_post($before) .  esc_html(single_cat_title('', false)) . wp_kses_post($after);
       
         } elseif ( is_search() ) {
-          echo $before . $search_result_text.' "' . get_search_query() . '"' . $after;
+          echo wp_kses_post($before) . esc_html($search_result_text).' "' . esc_html( get_search_query() ) . '"' . wp_kses_post($after);
       
         } elseif ( is_day() ) {
-          echo '<a href="' . get_year_link(get_the_time('Y')) . '">' . get_the_time('Y') . '</a> ' . $delimiter . ' ';
-          echo '<a href="' . get_month_link(get_the_time('Y'),get_the_time('m')) . '">' . get_the_time('F') . '</a> ' . $delimiter . ' ';
-          echo $before . get_the_time('d') . $after;
+          echo '<a href="' . esc_url(get_year_link(get_the_time('Y'))) . '">' . esc_html( get_the_time('Y') ) . '</a> ' . wp_kses_post($delimiter) . ' ';
+          echo '<a href="' . esc_url(get_month_link(get_the_time('Y'),get_the_time('m'))) . '">' . esc_html(get_the_time('F')) . '</a> ' . wp_kses_post($delimiter) . ' ';
+          echo wp_kses_post($before) . esc_html(get_the_time('d')) . wp_kses_post($after);
       
         } elseif ( is_month() ) {
-          echo '<a href="' . get_year_link(get_the_time('Y')) . '">' . get_the_time('Y') . '</a> ' . $delimiter . ' ';
-          echo $before . get_the_time('F') . $after;
+          echo '<a href="' . esc_url(get_year_link(get_the_time('Y'))) . '">' . esc_html( get_the_time('Y') ) . '</a> ' . wp_kses_post($delimiter) . ' ';
+          echo wp_kses_post($before) . esc_html(get_the_time('F')) . wp_kses_post($after);
       
         } elseif ( is_year() ) {
-          echo $before . get_the_time('Y') . $after;
+          echo wp_kses_post($before) . esc_html( get_the_time('Y') ) . wp_kses_post($after);
       
         } elseif ( is_single() && !is_attachment() ) {
           if ( get_post_type() != 'post' ) {
             $post_type = get_post_type_object(get_post_type());
             $slug = $post_type->rewrite;
-            echo '<a href="' . $homeLink . '/' . $slug['slug'] . '/">' . $post_type->labels->singular_name . '</a>';
-            if ($showCurrent == 1) echo ' ' . $delimiter . ' ' . $before . get_the_title() . $after;
+            echo '<a href="' . esc_url($homeLink) . '/' . esc_attr($slug['slug']) . '/">' . esc_html($post_type->labels->singular_name) . '</a>';
+            if ($showCurrent == 1) echo ' ' . wp_kses_post($delimiter) . ' ' . wp_kses_post($before) . esc_html(get_the_title()) . wp_kses_post($after);
           } else {
             $cat = get_the_category(); $cat = $cat[0];
-            $cats = get_category_parents($cat, TRUE, ' ' . $delimiter . ' ');
+            $cats = wp_kses_post(get_category_parents($cat, TRUE, ' ' . $delimiter . ' '));
             if ($showCurrent == 0) $cats = preg_replace("#^(.+)\s$delimiter\s$#", "$1", $cats);
-            echo $cats;
-            if ($showCurrent == 1) echo $before . get_the_title() . $after;
+            echo wp_kses_post($cats);
+            if ($showCurrent == 1) echo wp_kses_post($before) . esc_html(get_the_title()) . wp_kses_post($after);
           }
       
         } elseif ( !is_single() && !is_page() && get_post_type() != 'post' && !is_404() ) {
           $post_type = get_post_type_object(get_post_type());
-          echo $before . $post_type->labels->singular_name . $after;
+          echo wp_kses_post($before) . esc_html($post_type->labels->singular_name) . wp_kses_post($after);
       
         } elseif ( is_attachment() ) {
-          $parent = get_post($post->post_parent);
-          $cat = get_the_category($parent->ID); $cat = $cat[0];
-          echo get_category_parents($cat, TRUE, ' ' . $delimiter . ' ');
-          echo '<a href="' . get_permalink($parent) . '">' . $parent->post_title . '</a>';
-          if ($showCurrent == 1) echo ' ' . $delimiter . ' ' . $before . get_the_title() . $after;
+            $parent = get_post($post->post_parent);
+            if( $parent!=null ){
+              $cat = get_the_category($parent->ID);
+              if( $cat!=null ){
+                  $cat = $cat[0];
+                  echo wp_kses_post(get_category_parents($cat, TRUE, ' ' . $delimiter . ' '));
+              }
+              echo '<a href="' . esc_url(get_permalink($parent)) . '">' . esc_html($parent->post_title) . '</a>';
+              if ($showCurrent == 1) echo ' ' . wp_kses_post($delimiter) . ' ' . wp_kses_post($before) . esc_html(get_the_title()) . wp_kses_post($after);
+            }
       
         } elseif ( is_page() && !$post->post_parent ) {
-          if ($showCurrent == 1) echo $before . get_the_title() . $after;
+          if ($showCurrent == 1) echo wp_kses_post($before) . esc_html(get_the_title()) . wp_kses_post($after);
       
         } elseif ( is_page() && $post->post_parent ) {
           $parent_id  = $post->post_parent;
           $breadcrumbs = array();
           while ($parent_id) {
             $page = get_page($parent_id);
-            $breadcrumbs[] = '<a href="' . get_permalink($page->ID) . '">' . get_the_title($page->ID) . '</a>';
+            $breadcrumbs[] = '<a href="' . esc_url(get_permalink($page->ID)) . '">' . esc_html(get_the_title($page->ID)) . '</a>';
             $parent_id  = $page->post_parent;
           }
           $breadcrumbs = array_reverse($breadcrumbs);
           for ($i = 0; $i < count($breadcrumbs); $i++) {
-            echo $breadcrumbs[$i];
-            if ($i != count($breadcrumbs)-1) echo ' ' . $delimiter . ' ';
+            echo wp_kses_post($breadcrumbs[$i]);
+            if ($i != count($breadcrumbs)-1) echo ' ' . wp_kses_post($delimiter) . ' ';
           }
-          if ($showCurrent == 1) echo ' ' . $delimiter . ' ' . $before . get_the_title() . $after;
+          if ($showCurrent == 1) echo ' ' . wp_kses_post($delimiter) . ' ' . wp_kses_post($before) . esc_html(get_the_title()) . wp_kses_post($after);
       
         } elseif ( is_tag() ) {
-          echo $before . 'Posts tagged "' . single_tag_title('', false) . '"' . $after;
+          echo wp_kses_post($before) . esc_html__("Posts tagged","accesspress-mag") .' "' . esc_html(single_tag_title('', false)) . '"' . wp_kses_post($after);
       
         } elseif ( is_author() ) {
            global $author;
           $userdata = get_userdata($author);
-          echo $before . 'Author: ' . $userdata->display_name . $after;
+          echo wp_kses_post($before) . esc_html__("Author","accesspress-mag") .' : ' . esc_html($userdata->display_name) . wp_kses_post($after);
       
         } elseif ( is_404() ) {
-          echo $before . 'Error 404' . $after;
+          echo wp_kses_post($before) . esc_html__("Error 404","accesspress-mag") . wp_kses_post($after);
         }
-        else
-        {
-            
-        }
+        
       
         if ( get_query_var('paged') ) {
           if ( is_category() || is_day() || is_month() || is_year() || is_search() || is_tag() || is_author() ) echo ' (';
-          echo __('Page' , 'accesspress-mag') . ' ' . get_query_var('paged');
+          echo esc_html__('Page' , 'accesspress-mag') . ' ' . esc_html(get_query_var('paged'));
           if ( is_category() || is_day() || is_month() || is_year() || is_search() || is_tag() || is_author() ) echo ')';
         }	  
         echo '</div></div>';	  
@@ -705,18 +684,18 @@ if( ! function_exists( 'accesspress_mag_woocommerce_breadcrumbs' ) ):
     function accesspress_mag_woocommerce_breadcrumbs() {
         $seperator = ' <span class="bread_arrow"> > </span> ';  
         $trans_home = esc_attr( of_get_option( 'trans_home', 'Home' ) );
-        if( empty( $trans_home ) ){ $trans_home = __( 'Home', 'accesspress-mag' ); }
+        if( empty( $trans_home ) ){ $trans_home = esc_html__( 'Home', 'accesspress-mag' ); }
         $home_text = $trans_home ;
 
         $trans_here = esc_attr( of_get_option( 'trans_you_are_here', 'You are here' ) );
-        if( empty( $trans_here ) ){ $trans_here = __( 'You are here', 'accesspress-mag' ); }
+        if( empty( $trans_here ) ){ $trans_here = esc_html__( 'You are here', 'accesspress-mag' ); }
             return array( 
                 'delimiter' => " ".$seperator." ", 
                 'before' => '', 
                 'after' => '', 
-                'wrap_before' => '<nav class="woocommerce-breadcrumb" itemprop="breadcrumb"><span class="bread-you">'.$trans_here.'</span><div class="ak-container">', 
+                'wrap_before' => '<nav class="woocommerce-breadcrumb" itemprop="breadcrumb"><span class="bread-you">'.esc_html($trans_here).'</span><div class="ak-container">', 
                 'wrap_after' => '</div></nav>', 
-                'home' =>  $home_text
+                'home' =>  esc_html($home_text)
             );
     }
 endif;
@@ -760,7 +739,7 @@ if ( ! function_exists( 'accesspress_mag_random_post' ) ) :
                 while( $get_random_post->have_posts() ) {
                     $get_random_post->the_post();
           ?>
-            <a href="<?php the_permalink(); ?>" title="<?php _e( 'View a random post', 'accesspress-mag' ); ?>"><i class="fa fa-random"></i></a>
+            <a href="<?php the_permalink(); ?>" title="<?php esc_attr_e( 'View a random post', 'accesspress-mag' ); ?>"><i class="fa fa-random"></i></a>
           <?php
                 }
             }
@@ -780,7 +759,7 @@ if( !function_exists( 'accesspress_mag_post_categories_cb' ) ):
     function accesspress_mag_post_categories_cb() {
         if( is_author() || is_tag() || is_archive() || is_home() ){
             $post_categories = get_the_category_list();
-            echo $post_categories;
+            echo wp_kses_post($post_categories);
         }
     }
 endif;

@@ -51,6 +51,14 @@ function wpbc_ajx_bookings_toolbar( $escaped_search_request_params ) {
 
 					wpbc_ajx__ui__booking_resources( $escaped_search_request_params, $default_param_values );
 
+					/**
+					 * Render extension filters after the Booking Resource selector.
+					 *
+					 * @param array<string,mixed> $escaped_search_request_params Sanitized current filter values.
+					 * @param array<string,mixed> $default_param_values          Default filter values.
+					 */
+					do_action( 'wpbc_booking_listing_toolbar_after_resources', $escaped_search_request_params, $default_param_values );
+
 					wpbc_ajx_toolbar_keyword_search( $escaped_search_request_params, $default_param_values );
 
 					wpbc_ajx_toolbar_clear_keyword_search( $escaped_search_request_params, $default_param_values );		// FixIn: 9.7.2.3.
@@ -1120,7 +1128,7 @@ function wpbc_ajx__ui__creation_date( $escaped_search_request_params, $defaults 
 														, 'class'    => 'wpdevbk-filters-section-calendar' 					// CSS Class of select element
 														, 'disabled' => false
 														, 'attr'     => array() 			// Any  additional attributes, if this radio | checkbox element
-														, 'placeholder' => __('To' ,'booking')		// gmdate( 'Y-m-d' )
+														, 'placeholder' => _x( 'To', 'range end', 'booking' )		// gmdate( 'Y-m-d' )
 														, 'value'    => $request_input_el_default[ 'ui_wh_modification_date_checkout']  		// Some Value from optins array that selected by default
 														, 'onfocus' =>  "jQuery('#ui_wh_modification_date_radio_3').prop('checked', true);"					// JavaScript code
 														//, 'onchange' => "console.log( 'ON CHANGE:', jQuery( this ).is(':checked') , 'in element:' , jQuery( this ) );"					// JavaScript code

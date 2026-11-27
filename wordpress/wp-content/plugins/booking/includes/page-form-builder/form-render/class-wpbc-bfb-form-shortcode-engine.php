@@ -31,6 +31,16 @@ class WPBC_BFB_FormShortcodeEngine {
 	/** @var array */
 	public $current_edit_booking = array(); // expects ['parsed_form'=>...]
 
+	/**
+	 * Validated custom parameters supplied through the public booking shortcode.
+	 *
+	 * Values are resolved only after a supported form shortcode has been parsed.
+	 * They must never be used as search-and-replace input for raw form HTML.
+	 *
+	 * @var array<string,string>
+	 */
+	public $custom_params = array();
+
 
 	/* ============================== Public API ============================== */
 
@@ -237,6 +247,7 @@ class WPBC_BFB_FormShortcodeEngine {
 
 		// Parse named attributes from the whole shortcode (id="...", class="...", title="...", aria-*, data-*, style, etc.)
 		list( $named_raw, $consumed ) = $this->parse_named_attributes_from_shortcode( $matches[0] );
+		$named_raw = $this->resolve_custom_parameter_tokens( $named_raw );
 
 		// Legacy-style options (id:..., class:..., etc.) from the unquoted leftovers of $matches[1].
 		if ( isset( $matches[1] ) && trim( $matches[1] ) !== '' ) {
@@ -256,7 +267,7 @@ class WPBC_BFB_FormShortcodeEngine {
 		// Legacy class:... + named class="..."
 		$class_legacy = $this->collect_classes( $options );
 		$class_named  = isset( $named_raw['class'] ) ? trim( $named_raw['class'] ) : '';
-		$btn_classes  = trim( 'wpbc_button_light ' . $class_legacy . ' ' . $class_named );
+		$btn_classes  = trim( 'wpbc_button wpbc_button_primary ' . $class_legacy . ' ' . $class_named );
 		$atts         .= ' class="' . esc_attr( $btn_classes ) . '"';
 
 		// Add safe named attributes (title, aria-*, data-*, style if allowed, etc.)
@@ -285,6 +296,7 @@ class WPBC_BFB_FormShortcodeEngine {
 				}
 			}
 			$quoted = array_values( $quoted );
+			$quoted = $this->resolve_custom_parameter_tokens( $quoted );
 			if ( ! empty( $quoted ) ) {
 				$value = $quoted[ count( $quoted ) - 1 ];
 			}
@@ -1035,6 +1047,9 @@ class WPBC_BFB_FormShortcodeEngine {
 			$raw_values = array_values( $raw_values );
 		}
 
+		$raw_values = $this->resolve_custom_parameter_tokens( $raw_values );
+		$named_raw  = $this->resolve_custom_parameter_tokens( $named_raw );
+
 		/* -------------------------------------------------------------------------------------------------
 		 * FixIn: 11.0.3 — Unify 'default' handling:
 		 * Treat named attribute default="VALUE" the same as legacy default:VALUE,
@@ -1085,6 +1100,38 @@ class WPBC_BFB_FormShortcodeEngine {
 	}
 
 	/* ======================= Utility / existing helpers ======================= */
+
+	/**
+	 * Resolve exact custom-parameter tokens inside parsed shortcode data.
+	 *
+	 * Resolution happens after tokenization so an untrusted parameter name cannot
+	 * select or rewrite raw HTML, attribute names, field names, or shortcode
+	 * syntax. Renderers remain responsible for context-specific output escaping.
+	 *
+	 * @param string|array<string|int,string> $tokens Parsed shortcode value or values.
+	 *
+	 * @return string|array<string|int,string> Resolved value or values.
+	 */
+	private function resolve_custom_parameter_tokens( $tokens ) {
+
+		if ( is_array( $tokens ) ) {
+			$resolved_tokens = array();
+
+			foreach ( $tokens as $token_key => $token_value ) {
+				$resolved_tokens[ $token_key ] = $this->resolve_custom_parameter_tokens( $token_value );
+			}
+
+			return $resolved_tokens;
+		}
+
+		$token = is_scalar( $tokens ) ? (string) $tokens : '';
+
+		if ( array_key_exists( $token, $this->custom_params ) && is_scalar( $this->custom_params[ $token ] ) ) {
+			return (string) $this->custom_params[ $token ];
+		}
+
+		return $token;
+	}
 
 	/**
 	 * Remove surrounding single/double quotes from a string.

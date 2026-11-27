@@ -1,32 +1,59 @@
 <?php
 /**
-Plugin Name: Code Embed
-Plugin URI: https://wordpress.org/plugins/simple-embed-code/
-Description: Code Embed provides a very easy and efficient way to embed code (JavaScript and HTML) in your posts and pages.
-Version: 2.3.4
-Author: David Artiss
-Author URI: https://artiss.blog
-Text Domain: simple-embed-code
-
-@package Code-Embed
+ * Code Embed
+ *
+ * @package           simple-embed-code
+ * @author            David Artiss
+ * @license           GPL-2.0-or-later
+ * @since             1.0
+ * @version           2.6.5
+ *
+ * Plugin Name:       Code Embed
+ * Plugin URI:        https://wordpress.org/plugins/simple-embed-code/
+ * Description:       Code Embed provides a very easy and efficient way to embed code (JavaScript, CSS and HTML) in your posts and pages.
+ * Version:           2.6.5
+ * Requires at least: 6.2
+ * Requires PHP:      7.4
+ * Author:            David Artiss
+ * Author URI:        https://artiss.blog
+ * Text Domain:       simple-embed-code
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License version 2, as published by the Free Software Foundation. You may NOT assume
+ * that you can use any other version of the GPL.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-define( 'CODE_EMBED_VERSION', '2.3.4' );
+// Exit if accessed directly.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Define globals.
+
+if ( ! defined( 'CODE_EMBED_VERSION' ) ) {
+	define( 'CODE_EMBED_VERSION', '2.6.5' );
+}
+
+if ( ! defined( 'CODE_EMBED_PLUGIN_BASE' ) ) {
+	define( 'CODE_EMBED_PLUGIN_BASE', plugin_basename( __FILE__ ) );
+}
 
 // Include all the various functions.
 
-$functions_dir = plugin_dir_path( __FILE__ ) . 'includes/';
+require_once plugin_dir_path( __FILE__ ) . 'includes/initialise.php';       // Initialization scripts.
 
-require_once $functions_dir . 'initialise.php';        // Initialisation scripts.
+require_once plugin_dir_path( __FILE__ ) . 'includes/add-css-scripts.php';  // Add scripts to the main theme.
 
-if ( is_admin() ) {
+require_once plugin_dir_path( __FILE__ ) . 'includes/add-embeds.php';       // Filter to apply code embeds.
 
-	require_once $functions_dir . 'admin-config.php';  // Various administration config. options.
+require_once plugin_dir_path( __FILE__ ) . 'includes/shared.php';           // Functions shared across all my plugins.
 
-} else {
+require_once plugin_dir_path( __FILE__ ) . 'includes/screens.php';          // Add settings and tools screens.
 
-	require_once $functions_dir . 'add-scripts.php';   // Add scripts to the main theme.
-
-	require_once $functions_dir . 'add-embeds.php';    // Filter to apply code embeds.
-
-}
+require_once plugin_dir_path( __FILE__ ) . 'includes/secure.php';           // Security functionality.

@@ -1,0 +1,212 @@
+/* eslint-disable prettier/prettier */
+class CtlPreview {
+    constructor(iframeLoaded) {
+        this.iframeWrp = jQuery('#ctl_preview')[0];
+        // Run function After Iframe Window Load
+        if (iframeLoaded) {
+            this.CtlPreviewShortcode();
+            this.CtlPreviewInit();
+        } else {
+            this.iframeWrp.contentWindow.onload = () => {
+                this.CtlPreviewShortcode();
+                this.CtlPreviewInit();
+            };
+        }
+    }
+
+    // Preivew Iframe Initialize and added script
+    CtlPreviewInit() {
+        this.iframe =
+            this.iframeWrp.contentDocument ||
+            this.iframeWrp.contentWindow.document;
+        // eslint-disable-next-line no-undef
+        const fieldWrp = this.iframeWrp.closest('.csf-field-content');
+        const ModelWrp =
+            this.iframeWrp.closest('.csf-modal-content');
+        fieldWrp.style = `height: calc(${ModelWrp.clientHeight}px - 108px); overflow: hidden`;
+
+        const jqueryScript = this.iframe.createElement('script');
+        jqueryScript.src = 'https://code.jquery.com/jquery-3.6.4.min.js';
+        this.iframe.head.appendChild(jqueryScript);
+        const preloaderUrl = jQuery(this.iframeWrp).data('preloader');
+        jQuery(this.iframe.body).append(`<img id="ctl-preview-preloader" src="${preloaderUrl}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(3)">`);
+        this.ctlPreviewAjax();
+    }
+
+    // Get Timeline Shortcode Attribute
+    CtlPreviewShortcode() {
+        // Create an object to store the shortcode values
+        const shortcodeObject = {
+            shortcodeType: 'cool-timeline',
+        };
+
+        // Select the relevant input and select elements
+        const layoutInput = jQuery(
+            '.csf-fieldset select , .csf-fieldset input:checked ,.csf-fieldset input:text , .csf-fieldset .csf-siblings .csf--active input:checked'
+        );
+
+        // Loop through the selected inputs and selects
+        layoutInput.each(function () {
+            const inputKey = jQuery(this).attr('data-depend-id');
+            const inputValue = jQuery(this).val();
+
+            // Include input and select values in the object
+            if (inputKey && inputValue) {
+                shortcodeObject[inputKey] = inputValue;
+            }
+        });
+
+        this.shortcodeObject = shortcodeObject;
+        return shortcodeObject;
+    }
+
+    // Timeline Preview Ajax Request
+    ctlPreviewAjax() {
+        jQuery.ajax({
+            type: 'POST',
+            // eslint-disable-next-line no-undef
+            url: myAjax.ajaxurl, // Set this using wp_localize_script
+            data: {
+                action: 'get_shortcode_preview',
+                shortcode: this.shortcodeObject,
+                // eslint-disable-next-line no-undef
+                nonce: myAjax.nonce,
+            },
+            success: (response) => {
+                setTimeout(() => {
+                    jQuery(this.iframe.body).html('');
+                    this.CtlPreviewAjaxSuccess(response);
+                }, 1000)
+            },
+        });
+    }
+
+    // Ajax Success Function
+    CtlPreviewAjaxSuccess(response) {
+        // Added Timeline Style Files in iframe
+        let styleFiles = '';
+        if (['yes', 'Yes', 'YES'].includes(this.shortcodeObject.icons)) {
+            const pluginUrl = (typeof myAjax !== 'undefined' && myAjax.pluginUrl) ? myAjax.pluginUrl : '';
+            if (pluginUrl) {
+                styleFiles += `<link rel="stylesheet" href="${pluginUrl}includes/shortcodes/assets/css/all.min.css" media="all">`;
+                styleFiles += `<link rel="stylesheet" href="${pluginUrl}includes/shortcodes/assets/css/v4-shims.min.css" media="all">`;
+            }
+        };
+        response.data.assets.style.map((file) => {
+            styleFiles += `<link rel="stylesheet" href="${file}" media="all">`;
+        });
+
+        // Added Timeline Script Files in iframe
+        let scriptFiles = '';
+        response.data.assets.script.map((file) => {
+            scriptFiles += `<script type="text/javascript" src="${file}"></script>`;
+        });
+        if ('compact' === this.shortcodeObject.layout) {
+            scriptFiles += this.CtlCompactReInit();
+        }
+
+        // Create a custom style element for iframe
+        const styleElement = this.iframe.createElement('style');
+        styleElement.textContent = response.data.assets.custom_style;
+
+        // Append the style files to the head of the iframe's content document
+        jQuery(this.iframe).find('head').append(styleFiles);
+        // Append the Customstyle element to the head of the iframe's content document
+        this.iframe.head.appendChild(styleElement);
+        // Append the timeline html to the body of the iframe's content document
+        jQuery(this.iframe).find('body').prepend(response.data.shortcode);
+        // Append the script files to the head of the iframe's content document
+        jQuery(this.iframe).find('body').append(scriptFiles);
+
+        jQuery(this.iframe)
+            .find('a')
+            .on('click', (e) => {
+                e.preventDefault();
+            });
+    }
+
+    CtlCompactReInit() {
+        const script = `<script type="text/javascript">
+setTimeout(function () {
+    if (window.ctlCompactInit) {
+        window.ctlCompactInit();
+    }
+}, 200);
+</script>`;
+
+        return script;
+    }
+}
+
+(function () {
+    // Set up a click event for the Preview tab (last tab: Layout / Content / Extra / Preview).
+    let shortcodePreview = false;
+    let iframeLoaded = true;
+
+    const iframeReload = () => {
+        shortcodePreview = false;
+        iframeLoaded = false;
+        const iframeWrp = jQuery('#ctl_preview')[0];
+        if (iframeWrp) {
+            const iframeWrp = jQuery('#ctl_preview')[0];
+            const iframeAttr = iframeWrp.getAttributeNames();
+            const newIframe = document.createElement('iframe');
+            Object.values(iframeAttr).map(val => {
+                const attrValue = iframeWrp.getAttribute(val);
+                if (attrValue && '' !== iframeAttr) {
+                    newIframe.setAttribute(val, attrValue);
+                }
+            });
+            iframeWrp.replaceWith(newIframe);
+
+            newIframe.contentWindow.onload = () => {
+                iframeLoaded = true;
+            };
+        }
+    };
+
+    const isPreviewTab = (el) => {
+        return jQuery(el).text().trim() === 'Preview';
+    };
+
+    jQuery(document).on('click', '.csf-tabbed-nav a', (e) => {
+        if (!isPreviewTab(e.currentTarget)) {
+            return;
+        }
+        // Update the shortcode before rendering and submit
+        if (!shortcodePreview) {
+            iframeReload();
+            new CtlPreview(iframeLoaded);
+            shortcodePreview = true;
+        }
+    });
+
+    jQuery(document).on('click', '.csf-modal-inner', (e) => {
+        e.stopPropagation();
+    });
+
+    // Reset preview when leaving the Preview tab or closing the modal
+    jQuery(document).on(
+        'click',
+        '.csf-tabbed-nav a, .csf-modal-close , .csf-modal-overlay',
+        (e) => {
+            if (e.currentTarget && e.currentTarget.matches && e.currentTarget.matches('.csf-tabbed-nav a') && isPreviewTab(e.currentTarget)) {
+                return;
+            }
+            iframeReload();
+        }
+    );
+
+    jQuery(document).on('click', '.csf-shortcode-button', () => {
+        const activeTab = jQuery('.csf-tabbed-nav .csf-tabbed-active').text();
+        if ('Preview' === activeTab) {
+            const primaryTab = jQuery('.csf-tabbed-nav a').not('.csf-tabbed-active');
+            primaryTab.trigger('click');
+        }
+        iframeReload();
+    });
+
+    jQuery(document).on('change', '.csf-modal-header select', () => {
+        iframeReload();
+    })
+})(jQuery);

@@ -137,6 +137,90 @@ if ( ! defined( 'ABSPATH' ) ) exit;                                             
 
 
 /**
+ * Parse a duration field value into numeric hours and minutes.
+ *
+ * Duration values come from serialized front-end form data. Placeholder or
+ * otherwise malformed values must not reach arithmetic because PHP 8 throws
+ * a TypeError when a non-numeric string is multiplied by an integer.
+ *
+ * @param string $duration_time_value Duration in `HH:MM` format.
+ *
+ * @return array|false Numeric hours and minutes, or false for an invalid duration.
+ */
+function wpbc_parse_duration_time_value( $duration_time_value ) {
+
+	$duration_time_value = trim( (string) $duration_time_value );
+
+	if ( ! preg_match( '/^([0-9]+):([0-9]{1,2})$/', $duration_time_value, $duration_time_matches ) ) {
+		return false;
+	}
+
+	$duration_hours   = intval( $duration_time_matches[1] );
+	$duration_minutes = intval( $duration_time_matches[2] );
+
+	if ( 59 < $duration_minutes ) {
+		return false;
+	}
+
+	return array( $duration_hours, $duration_minutes );
+}
+
+
+/**
+ * Format an exact minute duration using calendar-independent elapsed units.
+ *
+ * Timed bookings may span several dates while beginning and ending at
+ * different clock times. Presenting the complete interval as total hours
+ * makes those bookings difficult to scan (for example, 94 hours). This
+ * formatter preserves the exact minute duration while splitting intervals of
+ * at least 24 hours into days, hours, and any remaining minutes.
+ *
+ * Full-day booking labels should continue to use their canonical calendar-day
+ * count instead of this elapsed-time helper so daylight-saving transitions do
+ * not change the displayed number of selected days.
+ *
+ * @param int $duration_minutes Exact elapsed duration in minutes.
+ *
+ * @return string Localized human-readable duration.
+ */
+function wpbc_format_duration_minutes( $duration_minutes ) {
+	$duration_minutes  = max( 1, absint( $duration_minutes ) );
+	$minutes_per_day   = (int) ( DAY_IN_SECONDS / MINUTE_IN_SECONDS );
+	$duration_days     = (int) floor( $duration_minutes / $minutes_per_day );
+	$remaining_minutes = $duration_minutes % $minutes_per_day;
+	$duration_hours    = (int) floor( $remaining_minutes / 60 );
+	$duration_minutes  = $remaining_minutes % 60;
+	$duration_parts    = array();
+
+	if ( $duration_days ) {
+		$duration_parts[] = sprintf(
+			/* translators: %s: number of complete elapsed days. */
+			_n( '%s day', '%s days', $duration_days, 'booking' ),
+			number_format_i18n( $duration_days )
+		);
+	}
+
+	if ( $duration_hours ) {
+		$duration_parts[] = sprintf(
+			/* translators: %s: number of complete elapsed hours. */
+			_n( '%s hour', '%s hours', $duration_hours, 'booking' ),
+			number_format_i18n( $duration_hours )
+		);
+	}
+
+	if ( $duration_minutes || empty( $duration_parts ) ) {
+		$duration_parts[] = sprintf(
+			/* translators: %s: number of remaining elapsed minutes. */
+			_n( '%s minute', '%s minutes', $duration_minutes, 'booking' ),
+			number_format_i18n( $duration_minutes )
+		);
+	}
+
+	return implode( ' ', $duration_parts );
+}
+
+
+/**
 	 * Get Times from booking Form, if these times fields exist
  * 
  * @param type $booking_form_data
@@ -241,23 +325,25 @@ function wpbc_get_times_in_form( $booking_form_data, $booking_type ){
 		    if ( $pos2 === false ) {
 			    $pos2 = strlen( $booking_form_data );
 		    }
-		    $pos2     = $pos2 - $pos1;
-		    $end_time = substr( $booking_form_data, $pos1, $pos2 );
+		    $pos2               = $pos2 - $pos1;
+		    $duration_time_value = substr( $booking_form_data, $pos1, $pos2 );
+		    $duration_time_parts = wpbc_parse_duration_time_value( $duration_time_value );
 
-		    $is_time_exist = true;
+		    if ( false !== $duration_time_parts ) {
+			    $is_time_exist = true;
 
-		    $end_time = explode( ':', $end_time );
+			    // Get the selected start time and add the validated duration to calculate the end time.
+			    $new_end_time  = mktime( intval( $start_time[0] ), intval( $start_time[1] ) );
+			    $new_end_time += $duration_time_parts[0] * 60 * 60;
+			    $new_end_time += $duration_time_parts[1] * 60;
+			    $end_time = gmdate( 'H:i', $new_end_time );
 
-		    // Here we are get start time and add duration for end time
-		    $new_end_time = mktime( intval( $start_time[0] ), intval( $start_time[1] ) );
-		    $new_end_time = $new_end_time + $end_time[0] * 60 * 60 + $end_time[1] * 60;
-		    $end_time     = gmdate( 'H:i', $new_end_time );
-
-		    if ( $end_time == '00:00' ) {
-			    $end_time = '23:59';
+			    if ( '00:00' === $end_time ) {
+				    $end_time = '23:59';
+			    }
+			    $end_time    = explode( ':', $end_time );
+			    $end_time[2] = '02';
 		    }
-		    $end_time    = explode( ':', $end_time );
-		    $end_time[2] = '02';
 	    }
 
     }
@@ -309,29 +395,46 @@ function wpbc_get_times_in_form( $booking_form_data, $booking_type ){
 
 
 	/**
-	 * Get dates from DB of specific booking                -> '2023-10-09 12:00:01, 2023-10-09 20:00:02'
+	 * Get the stored dates for one or more bookings as a comma-separated string.
 	 *
-	 * @global type $wpdb
-	 * @param  type $booking_id_str - booking ID
-	 * @return string - comma separated dates in SQL format     -> '2023-10-09 12:00:01, 2023-10-09 20:00:02'
+	 * Booking IDs are normalized again at this database boundary because this
+	 * globally available helper may be called without its established controllers.
+	 * Every normalized ID is bound to an integer placeholder before the query runs.
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param int|string $booking_id_str Booking ID or comma/semicolon-separated booking IDs.
+	 * @return string Comma-separated dates in SQL format, or an empty string for invalid input or no dates.
 	 */
 	function wpbc_db__get_sql_dates__in_booking__as_str( $booking_id_str ) {
 
-	    global $wpdb;
+		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$dates_result = $wpdb->get_results( "SELECT DISTINCT booking_date FROM {$wpdb->prefix}bookingdates WHERE booking_id IN ({$booking_id_str}) ORDER BY booking_date" );
+		if ( ! is_scalar( $booking_id_str ) || '' === (string) $booking_id_str ) {
+			return '';
+		}
 
-	    $dates_str = array();
+		$booking_id_csd  = wpbc_clean_digit_or_csd( $booking_id_str );
+		$booking_ids     = array_map( 'intval', explode( ',', $booking_id_csd ) );
+		$id_placeholders = implode( ', ', array_fill( 0, count( $booking_ids ), '%d' ) );
+		$prepared_sql    = $wpdb->prepare(
+			"SELECT DISTINCT booking_date FROM {$wpdb->prefix}bookingdates WHERE booking_id IN ({$id_placeholders}) ORDER BY booking_date",
+			$booking_ids
+		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder count is created locally for normalized integer IDs.
 
-	    foreach ( $dates_result as $my_date ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Prepared read of canonical booking dates; this helper has no compatible cache contract.
+		$dates_result = $wpdb->get_results( $prepared_sql );
 
-	        $dates_str[] = $my_date->booking_date;
-	    }
-	    $dates_str = implode( ', ', $dates_str );
+		$dates_str = array();
+
+		foreach ( $dates_result as $my_date ) {
+
+			$dates_str[] = $my_date->booking_date;
+		}
+		$dates_str = implode( ', ', $dates_str );
 
 
-	    return $dates_str;
+		return $dates_str;
 	}
 
 
@@ -669,6 +772,46 @@ function wpbc_is_date_in_past( $some_day ) {
 
 
 /**
+ * Check whether a booking can still be changed by a visitor.
+ *
+ * Visitor edit and cancellation actions must fail closed when the booking does
+ * not exist, is in the trash, has no dates, or its final booked date has
+ * already passed. The comparison deliberately uses wpbc_is_date_in_past() so
+ * the rule remains compatible with the established date-based front-end edit
+ * restriction and does not unexpectedly expire time-slot bookings mid-day.
+ *
+ * @param int $booking_id Booking ID resolved from a verified visitor hash.
+ *
+ * @return bool True when at least one booked date is current or future.
+ */
+function wpbc_is_visitor_booking_action_allowed( $booking_id ) {
+	global $wpdb;
+
+	$booking_id = absint( $booking_id );
+	if ( empty( $booking_id ) ) {
+		return false;
+	}
+
+	$last_booking_date = $wpdb->get_var(
+		$wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT MAX(dt.booking_date)
+			 FROM {$wpdb->prefix}bookingdates AS dt
+			 INNER JOIN {$wpdb->prefix}booking AS bk ON bk.booking_id = dt.booking_id
+			 WHERE bk.booking_id = %d AND bk.trash = 0",
+			$booking_id
+		)
+	); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+	if ( empty( $last_booking_date ) || ! is_string( $last_booking_date ) ) {
+		return false;
+	}
+
+	return ! wpbc_is_date_in_past( $last_booking_date );
+}
+
+
+/**
  * Check  if the booking was made without calendar ( no booking date submited.)
  *
  * @param $is_no_date
@@ -864,7 +1007,7 @@ function wpbc__sql__get_booked_dates( $params ){
 				( ! class_exists( 'wpdev_bk_biz_l' ) )
              || ( ( class_exists( 'wpdev_bk_biz_l' ) ) && ( ! wpbc_is_this_parent_resource( $resource_id ) ) )
         ){                                                                                                      // FixIn: 9.1.2.7.
-            list( $blocked_days_range, $prior_check_out_date ) = apply_filters( 'wpbc_get_extended_block_dates_filter', array( $blocked_days_range, $prior_check_out_date ) );
+            list( $blocked_days_range, $prior_check_out_date ) = apply_filters( 'wpbc_get_extended_block_dates_filter', array( $blocked_days_range, $prior_check_out_date, absint( $resource_id ) ) );
 		}
 
 		foreach ( $blocked_days_range as $date_ymd_his ) {

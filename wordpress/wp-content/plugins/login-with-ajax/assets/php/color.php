@@ -720,8 +720,6 @@ class Color
 	 * @param string $name
 	 * @return mixed|null
 	 */
-	#[\AllowDynamicProperties]
-	#[\AllowDynamicProperties]
 	public function __get(string $name)
 	{
 		switch (strtolower($name)) {

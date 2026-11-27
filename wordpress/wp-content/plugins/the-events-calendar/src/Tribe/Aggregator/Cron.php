@@ -4,6 +4,8 @@ defined( 'WPINC' ) or die;
 
 use Tribe__Events__Aggregator__Records as Records;
 
+// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared
+
 class Tribe__Events__Aggregator__Cron {
 	/**
 	 * Action where the cron will run, on schedule
@@ -58,8 +60,11 @@ class Tribe__Events__Aggregator__Cron {
 		// Register the base cron schedule
 		add_action( 'init', [ $this, 'action_register_cron' ] );
 
-		// Register the Required Cron Schedules
-		add_filter( 'cron_schedules', [ $this, 'filter_add_cron_schedules' ] );
+		// Register the Required Cron Schedules on `init`, not here: this filter fires on any
+		// wp_schedule_event()/wp_get_schedules() call, including from unrelated plugins
+		// bootstrapping on `plugins_loaded`, which would otherwise force esc_html_x() to run
+		// too early and trigger a "translation loaded too early" notice.
+		add_action( 'init', [ $this, 'register_cron_schedules_filter' ], 0 );
 
 		// Check for imports on cron action
 		add_action( self::$action, [ $this, 'run' ] );
@@ -166,18 +171,12 @@ class Tribe__Events__Aggregator__Cron {
 		// Fetch the initial Date and Hour
 		$date = date( 'Y-m-d H' );
 
-		// Based on the Minutes construct a Cron
+		// Based on the Minutes construct a wp_cron
 		$minutes = (int) date( 'i' );
-		if ( $minutes < 15 ) {
-			$date .= ':00';
-		} elseif ( $minutes >= 15 && $minutes < 30 ) {
-			$date .= ':15';
-		}elseif ( $minutes >= 30 && $minutes < 45 ) {
-			$date .= ':30';
-		} else {
-			$date .= ':45';
-		}
-		$date .= ':00';
+		// Get minutes / 15 with no remainder.
+		$minutes = intdiv( $minutes, 15 ) * 15;
+		// Format it & insert into date string. Add 0 seconds.
+		$date .= sprintf( ':%02d', $minutes ) . ':00';
 
 		// Fetch the last half hour as a timestamp
 		$start_timestamp = strtotime( $date );
@@ -188,13 +187,25 @@ class Tribe__Events__Aggregator__Cron {
 
 		$current_time = time();
 
-		// if the start timestamp is older than RIGHT NOW, set it for 5 minutes from now
+		// if the start timestamp is older than RIGHT NOW, set it for 5 minutes from now.
 		if ( $current_time > $start_timestamp ) {
 			$start_timestamp = $current_time + absint( $random_minutes );
 		}
 
-		// Now add an action twice hourly
+		// Now add an action once every fifteen minutes.
 		wp_schedule_event( $start_timestamp, 'tribe-every15mins', self::$action );
+	}
+
+	/**
+	 * Registers the cron_schedules filter. Hooked to `init` from the constructor, instead of
+	 * registered directly, so this never fires (and never translates its label) too early.
+	 *
+	 * @since 6.17.2
+	 *
+	 * @return void
+	 */
+	public function register_cron_schedules_filter() {
+		add_filter( 'cron_schedules', [ $this, 'filter_add_cron_schedules' ] );
 	}
 
 	/**
@@ -210,7 +221,7 @@ class Tribe__Events__Aggregator__Cron {
 		// Ensure schedules is an array.
 		$schedules = is_array( $schedules ) ? $schedules : [];
 
-		// Adds the Min frequency to WordPress cron schedules
+		// Adds the Min frequency to WordPress cron schedules.
 		$schedules['tribe-every15mins'] = [
 			'interval' => MINUTE_IN_SECONDS * 15,
 			'display'  => esc_html_x( 'Every 15 minutes', 'aggregator schedule frequency', 'the-events-calendar' ),
@@ -357,9 +368,9 @@ class Tribe__Events__Aggregator__Cron {
 
 			// Creating the child records based on this Parent
 			$child = $record->create_child_record();
-			tribe( 'logger' )->log_debug( sprintf( 'Creating child record %d for %d', $child->id, $record->id ), 'EA Cron' );
 
 			if ( ! is_wp_error( $child ) ) {
+				tribe( 'logger' )->log_debug( sprintf( 'Creating child record %d for %d', $child->id, $record->id ), 'EA Cron' );
 				tribe( 'logger' )->log_debug( sprintf( 'Record %d was created as a child of %d', $child->id, $record->id ), 'EA Cron' );
 
 				// Creates on the Service a Queue to Fetch the events
@@ -593,9 +604,37 @@ class Tribe__Events__Aggregator__Cron {
 	 */
 	public function purge_expired_records() {
 		global $wpdb;
+		$records        = Records::instance();
+		$statuses       = Records::$status;
+		$deletable_statuses = [
+			$statuses->pending,
+			$statuses->success,
+			$statuses->failed,
+			$statuses->draft,
+		];
+		$date_threshold = date( 'Y-m-d H:i:s', time() - $records->get_retention() );
 
-		$records  = Records::instance();
-		$statuses = Records::$status;
+		// Check the constant to see if we should purge records using direct queries or not.
+		$direct_deletion = defined( 'TEC_EVENT_AGGREGATOR_RECORDS_PURGE_DIRECT_DELETION' )
+		                   && TEC_EVENT_AGGREGATOR_RECORDS_PURGE_DIRECT_DELETION;
+
+		/**
+		 * Filters whether to use direct deletion of Event Aggregator records during cleanup or not.
+		 *
+		 * Note the filtered value will override the value defined by the
+		 * `TEC_EVENT_AGGREGATOR_RECORDS_PURGE_DIRECT_DELETION` constant.
+		 *
+		 * @since 6.0.9
+		 *
+		 * @param bool $direct_deletion Whether to use direct deletion of Event Aggregator records during cleanup or not.
+		 */
+		$direct_deletion = apply_filters( 'tec_event_aggregator_direct_record_deletion', $direct_deletion );
+
+		if ( $direct_deletion ) {
+			$this->purge_expired_records_directly( $deletable_statuses, $date_threshold );
+
+			return;
+		}
 
 		$sql = "
 			SELECT
@@ -619,15 +658,10 @@ class Tribe__Events__Aggregator__Cron {
 		);
 
 		$args = [
-			'post_status'    => [
-				$statuses->pending,
-				$statuses->success,
-				$statuses->failed,
-				$statuses->draft,
-			],
+			'post_status'    => $deletable_statuses,
 			'date_query'     => [
 				[
-					'before' => date( 'Y-m-d H:i:s', time() - $records->get_retention() ),
+					'before' => $date_threshold,
 					'column' => 'post_date_gmt',
 				],
 			],
@@ -698,5 +732,169 @@ class Tribe__Events__Aggregator__Cron {
 
 		tribe( 'logger' )->log_debug( sprintf( 'Import %s data available: processing immediately', $record->id ), 'EA Cron' );
 		$record->process_posts( $import_data, true );
+	}
+
+	/**
+	 * Deletes expired records from the database using direct queries, bypassing the filters and actions associated
+	 * with WordPress posts functions.
+	 *
+	 * @since 6.0.9
+	 *
+	 * @param array<string> $deletable_statuses The statuses to use to fetch the records that should be purged.
+	 * @param string        $date_threshold     The date threshold to use to determine if a record should be purged or not.
+	 *
+	 * @return int The number of records purged.
+	 */
+	private function purge_expired_records_directly( array $deletable_statuses, string $date_threshold ): int {
+		global $wpdb;
+		$deletable_statuses_interval = $wpdb->prepare(
+			implode( ', ', array_fill( 0, count( $deletable_statuses ), '%s' ) ),
+			...$deletable_statuses
+		);
+
+		/*
+		 * Calculate how many of the post ID with the most digits would fit in the current database
+		 * `max_allowed_packet` value with some margin.
+		 */
+		$max_allowed_packet = (int) ( $wpdb->get_var( 'SELECT @@max_allowed_packet' ) );
+		if ( $max_allowed_packet > 1000 ) {
+			// Fetch the ID with the most digits from the wp_posts table, aka the ID of the last post.
+			$post_id            = $wpdb->get_var( "SELECT ID FROM {$wpdb->posts} ORDER BY ID DESC LIMIT 1" );
+			$strlen             = strlen( $post_id ) || 1;
+			$dynamic_batch_size = (int) floor( ( $max_allowed_packet - 1000 ) / $strlen );
+		}
+		// Set a default batch size of 100.
+		$batch_size = empty( $dynamic_batch_size ) ? 100 : $dynamic_batch_size;
+		// Set a maximum batch size of 50000.
+		$batch_size = min( $batch_size, 50000 );
+
+		/**
+		 * Filters the number of records to be deleted in a single query when purging Event Aggregator records
+		 * using the direct deletion method.
+		 *
+		 * @since 6.0.9
+		 *
+		 * @param int $batch_size The number of records to be deleted in a single query. Calculated from the current
+		 *                        `max_allowed_packet` value set in the database.
+		 */
+		$batch_size = apply_filters( 'tec_event_aggregator_direct_record_deletion_batch_size', $batch_size );
+
+		/*
+		 * Get the IDs to flush the cache for a number of IDs at a time, with a reasonable chance of not running
+		 * into the `max_allowed_packet` limit.
+		 * Do this before the records are deleted from the database.
+		 */
+		$records_post_ids = (array) $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT ID
+				FROM %1$s
+				WHERE post_type = "%2$s"
+				AND post_status IN ( ' . $deletable_statuses_interval . ' )
+				AND post_date_gmt < "%3$s"
+				ORDER BY ID DESC
+				LIMIT %4$d',
+				$wpdb->posts,
+				Records::$post_type,
+				$date_threshold,
+				$batch_size
+			)
+		);
+
+		foreach ( $records_post_ids as $post_id ) {
+			clean_post_cache( $post_id );
+		}
+
+		// ORDER BY ID DESC is important here to make sure the run will insist on the same set of records.
+
+		// Use a sub-query to avoid running into the max_allowed_packet limit.
+		if (
+			$wpdb->query(
+				$wpdb->prepare(
+					'DELETE FROM %1$s
+					WHERE comment_post_ID IN (
+						SELECT ID
+						FROM %2$s
+						WHERE post_type = "%3$s"
+						AND post_status in ( ' . $deletable_statuses_interval . ' )
+						AND post_date_gmt < "%4$s"
+						ORDER BY ID DESC
+					) LIMIT %5$d',
+					$wpdb->comments,
+					$wpdb->posts,
+					Tribe__Events__Aggregator__Records::$post_type,
+					$date_threshold,
+					$batch_size
+				)
+			) === false
+		) {
+			tribe( 'logger' )->log_error( 'Failed to delete expired records comments using direct delete: ' . $wpdb->last_error, 'EA Cron' );
+		}
+
+		/*
+		 * let's only run this when we need it.
+		codecept_debug(
+			$wpdb->prepare(
+				'DELETE FROM %1$s
+				WHERE post_id IN (
+					SELECT ID
+					FROM %2$s
+					WHERE post_type = "%3$s"
+					AND post_status in ( ' . $deletable_statuses_interval . ' )
+					AND post_date_gmt < "%4$s"
+					ORDER BY ID DESC
+				) LIMIT %5$d',
+				$wpdb->postmeta,
+				$wpdb->posts,
+				Tribe__Events__Aggregator__Records::$post_type,
+				$date_threshold,
+				$batch_size
+			)
+		);
+		*/
+
+		// Use a sub-query to avoid running into the max_allowed_packet limit.
+		if (
+			$wpdb->query(
+				$wpdb->prepare(
+					'DELETE FROM %1$s
+					WHERE post_id IN (
+						SELECT ID
+						FROM %2$s
+						WHERE post_type = "%3$s"
+						AND post_status in ( ' . $deletable_statuses_interval . ' )
+						AND post_date_gmt < "%4$s"
+						ORDER BY ID DESC
+					) LIMIT %5$d',
+					$wpdb->postmeta,
+					$wpdb->posts,
+					Tribe__Events__Aggregator__Records::$post_type,
+					$date_threshold,
+					$batch_size
+				)
+			) === false
+		) {
+			tribe( 'logger' )->log_error( 'Failed to delete expired records postmeta using direct delete: ' . $wpdb->last_error, 'EA Cron' );
+		}
+
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				'DELETE FROM %1$s
+				WHERE post_type = "%2$s"
+				AND post_status in ( ' . $deletable_statuses_interval . ' )
+				AND post_date_gmt < "%3$s"
+				ORDER BY ID DESC
+				LIMIT %4$d',
+				$wpdb->posts,
+				Tribe__Events__Aggregator__Records::$post_type,
+				$date_threshold,
+				$batch_size
+			)
+		);
+
+		if ( $deleted === false ) {
+			tribe( 'logger' )->log_error( 'Failed to delete expired records using direct delete: ' . $wpdb->last_error, 'EA Cron' );
+		}
+
+		return $deleted;
 	}
 }

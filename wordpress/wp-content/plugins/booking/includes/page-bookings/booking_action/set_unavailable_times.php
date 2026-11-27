@@ -38,9 +38,7 @@ class WPBC_Action_Set_Unavailable_Times {
 	public static function get_button() {
 
 		if (
-			( ! defined( 'WPBC_NEW_TIME_AVAILABILITY' ) )
-			|| ( ! WPBC_NEW_TIME_AVAILABILITY )
-			|| ( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
+			   ( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
 			|| ( ! self::is_action_available() )
 		) {
 			return false;
@@ -78,13 +76,36 @@ class WPBC_Action_Set_Unavailable_Times {
 		}
 
 		if (
-			( ! defined( 'WPBC_NEW_TIME_AVAILABILITY' ) )
-			|| ( ! WPBC_NEW_TIME_AVAILABILITY )
-			|| ( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
+			( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
 			|| ( ! self::is_action_available() )
 		) {
 			return false;
 		}
+
+		/**
+		 * Filter whether the Booking Listing availability toolbar button is visible.
+		 *
+		 * Presentation layers can remove the context-free toolbar shortcut without
+		 * removing the booking-row action or coupling this controller to a workflow.
+		 *
+		 * @since 11.8.0
+		 *
+		 * @param bool $show_button Whether to render the toolbar button.
+		 */
+		$show_button = (bool) apply_filters( 'wpbc_booking_listing_show_set_unavailable_times_button', true );
+		if ( ! $show_button ) {
+			return false;
+		}
+
+		/**
+		 * Filter whether the Booking Listing availability toolbar button shows text.
+		 *
+		 * Presentation layers can request the compact icon-only variant without
+		 * coupling this booking action controller to their runtime state.
+		 *
+		 * @param bool $show_button_text Whether to render the visible button text.
+		 */
+		$show_button_text = (bool) apply_filters( 'wpbc_booking_listing_show_set_unavailable_times_button_text', true );
 
 		?>
 		<div class="wpbc_ui_el__buttons_group wpbc_booking_listing__top_toolbar_group">
@@ -92,9 +113,10 @@ class WPBC_Action_Set_Unavailable_Times {
 				id="wpbc_booking_listing_set_unavailable_times_button"
 				class="button button-secondary"
 				onclick="wpbc_boo_listing__click__set_unavailable_times( '', '', '', '' );"
-				title="<?php esc_attr_e( 'Set times availability', 'booking' ); ?>">
-				<i class="menu_icon icon-1x wpbc-bi-clock-history"></i>&nbsp;
-				<?php esc_html_e( 'Set Times Availability', 'booking' ); ?>
+				title="<?php esc_attr_e( 'Block Times', 'booking' ); ?>"
+				aria-label="<?php esc_attr_e( 'Block Times', 'booking' ); ?>">
+				<i class="menu_icon icon-1x wpbc-bi-clock-history" aria-hidden="true"></i><?php if ( $show_button_text ) : ?>&nbsp;
+					<?php esc_html_e( 'Block Times', 'booking' ); ?><?php endif; ?>
 			</a>
 		</div>
 		<?php
@@ -142,13 +164,13 @@ class WPBC_Action_Set_Unavailable_Times {
 	public static function template_for_modal() {
 
 		if (
-			( ! defined( 'WPBC_NEW_TIME_AVAILABILITY' ) )
-			|| ( ! WPBC_NEW_TIME_AVAILABILITY )
-			|| ( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
+			( ! function_exists( 'wpbc_availability_timeslots__render_timeline_component' ) )
 			|| ( ! self::is_action_available() )
 		) {
 			return false;
 		}
+
+		$show_create_booking_action = ! ( function_exists( 'wpbc_timeline_is_page' ) && wpbc_timeline_is_page() );
 
 		?>
 		<span class="wpdevelop">
@@ -158,7 +180,7 @@ class WPBC_Action_Set_Unavailable_Times {
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 							<h4 class="modal-title">
-								<?php esc_html_e( 'Set unavailable times', 'booking' ); ?>
+								<?php esc_html_e( 'Block Times', 'booking' ); ?>
 								<sup class="wpbc_modal__set_unavailable_times__booking_id wpbc_modal__booking_id__in_title"></sup>
 							</h4>
 						</div>
@@ -169,7 +191,6 @@ class WPBC_Action_Set_Unavailable_Times {
 									'id_prefix'            => 'wpbc_ts_listing_popup',
 									'wrap_class'           => 'wpbc_ts_page wpbc_ts_popup',
 									'resource_id'          => wpbc_get_default_resource(),
-									'days_count'           => 7,
 									'show_hint'            => false,
 									'show_legend'          => true,
 									'auto_init'            => false,
@@ -179,10 +200,12 @@ class WPBC_Action_Set_Unavailable_Times {
 							?>
 						</div>
 						<div class="modal-footer">
-							<a href="javascript:void(0)" class="button button-primary wpbc_ts_create_booking_button" data-wpbc-ts-create-booking="1">
-								<i class="menu_icon icon-1x wpbc-bi-calendar-plus"></i>&nbsp;
-								<?php esc_html_e( 'Create Booking for Selection', 'booking' ); ?>
-							</a>
+							<?php if ( $show_create_booking_action ) : ?>
+								<a href="javascript:void(0)" class="button button-primary wpbc_ts_create_booking_button" data-wpbc-ts-create-booking="1">
+									<i class="menu_icon icon-1x wpbc-bi-calendar-plus"></i>&nbsp;
+									<?php esc_html_e( 'Create Booking for Selection', 'booking' ); ?>
+								</a>
+							<?php endif; ?>
 							<?php wpbc_availability_timeslots__render_action_buttons( 'wpbc_ts_action_buttons_inline wpbc_ts_footer_action_buttons' ); ?>
 							<a href="javascript:void(0)" class="button button-secondary" data-dismiss="modal">
 								<?php esc_html_e( 'Close', 'booking' ); ?>

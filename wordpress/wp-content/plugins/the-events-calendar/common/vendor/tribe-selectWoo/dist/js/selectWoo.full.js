@@ -799,7 +799,7 @@ S2.define('select2/results',[
 
   Results.prototype.render = function () {
     var $results = $(
-      '<ul class="select2-results__options" role="listbox" tabindex="-1"></ul>'
+      '<ul class="select2-results__options" role="listbox" tabindex="0"></ul>'
     );
 
     if (this.options.get('multiple')) {
@@ -958,7 +958,7 @@ S2.define('select2/results',[
     var attrs = {
       'role': 'option',
       'data-selected': 'false',
-      'tabindex': -1
+      'tabindex': '0'
     };
 
     if (data.disabled) {
@@ -1875,7 +1875,12 @@ S2.define('select2/selection/allowClear',[
       }
     }
 
-    this.$element.val(this.placeholder.id).trigger('change');
+    // Allow clearing when the data-placeholder attribute isn't set. 
+    if ( typeof this.placeholder !== 'undefined' ) {
+      this.$element.val( this.placeholder.id ).trigger( 'change' );
+    } else {
+      this.$element.val( '' ).trigger( 'change' );
+    }
 
     this.trigger('toggle', {});
   };

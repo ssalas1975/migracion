@@ -364,6 +364,16 @@ class WPBC_Google_Calendar {
 //debuge($range_dates, $range_time);
                                 $bktype = $this->getResource();
 
+	                            $previous_active_user = -1;
+	                            // MultiUser options and Resource policy must be read in the Resource owner's context.
+	                            if ( class_exists( 'wpdev_bk_multiuser' ) ) {
+	                                $user_bk_id = apply_bk_filter( 'get_user_of_this_bk_resource', false, $bktype );
+	                                if ( ( false !== $user_bk_id ) && ( $this->getUserID() != $user_bk_id ) ) {
+	                                    $previous_active_user = apply_bk_filter( 'get_client_side_active_params_of_user' );
+	                                    make_bk_action( 'check_multiuser_params_for_client_side_by_user_id', $user_bk_id );
+	                                }
+	                            }
+
                                 // FixIn: 8.6.1.4.
 //								if (   ( class_exists( 'wpdev_bk_biz_s' ) )
 //									&& ( get_bk_option( 'booking_range_selection_time_is_active')  == 'On' )
@@ -388,35 +398,15 @@ class WPBC_Google_Calendar {
 	                            // FixIn: 8.6.1.1.
 	                            if ( empty( $range_time ) ) {
 
-									if ( 	( class_exists( 'wpdev_bk_biz_s' ) )
-										 && ( get_bk_option( 'booking_range_selection_time_is_active')  == 'On' )
-										 && ( get_bk_option( 'booking_ics_import_add_change_over_time' )  !== 'Off' )
-									) {    // FixIn: 2.0.5.1.
-										//Add check  in/out times to full day  events
-										$wpbc_check_in  = get_bk_option( 'booking_range_selection_start_time' );// . ':01';                                    // ' 14:00:01'
-										$wpbc_check_out = get_bk_option( 'booking_range_selection_end_time' );	// . ':02';                                    // ' 10:00:02';
-										$range_time  = $wpbc_check_in . ' - ' . $wpbc_check_out;
-										$range_time = "selectbox-one^rangetime{$bktype}^{$range_time}~";
+									if ( class_exists( 'wpdev_bk_biz_s' ) && ( get_bk_option( 'booking_ics_import_add_change_over_time' ) !== 'Off' ) ) {    // FixIn: 2.0.5.1.
+										$changeover_contract = wpbc_get_changeover_time_field_contract_compat( $bktype, 'wpbc-gcal-import' );
+										if ( ! empty( $changeover_contract['is_active'] ) && ! empty( $changeover_contract['is_valid'] ) ) {
+											$range_time = $changeover_contract['start_time'] . ' - ' . $changeover_contract['end_time'];
+											$range_time = "selectbox-one^rangetime{$bktype}^{$range_time}~";
+										}
 									}
 	                            }
 //debuge($range_dates, $range_time); 		//  array(  [0] => 07.08.2017, 08.08.2017,  [1] => selectbox-one^rangetime4^03:00 - 07:00~ )
-
-                                    $previous_active_user = -1;
-                                    // MU
-                                    if ( class_exists('wpdev_bk_multiuser') )  {
-                                        // Get  the owner of this booking resource                                    
-                                        $user_bk_id = apply_bk_filter('get_user_of_this_bk_resource', false, $bktype );
-
-                                        // Check if its different user
-                                        if ( ($user_bk_id !== false) && ($this->getUserID() != $user_bk_id) ){                                             
-                                            // Get possible other active user settings
-                                            $previous_active_user = apply_bk_filter('get_client_side_active_params_of_user'); 
-
-                                            // Set active user of that specific booking resource
-                                            make_bk_action('check_multiuser_params_for_client_side_by_user_id', $user_bk_id);
-
-                                        }     
-                                    }                                
                                     
                                 $booking_gcal_events_form_fields = get_bk_option( 'booking_gcal_events_form_fields'); 
                                 if ( is_serialized( $booking_gcal_events_form_fields ) )   
@@ -640,7 +630,10 @@ class WPBC_Google_Calendar {
 					$this->events[$key]['id'] = $booking_id;
 
 					// Add notes to the booking relative source of imported booking
-					if ( class_exists( 'wpdev_bk_personal' ) ) {
+					if (
+						class_exists( 'wpdev_bk_personal' )
+						&& ( ! function_exists( 'wpbc_booking_activity_table_exists' ) || ! wpbc_booking_activity_table_exists() )
+					) {
 						/* translators: 1: ... */
 						$remark_text = '[' . wpbc_datetime_localized( gmdate( 'Y-m-d H:i:s' ), 'Y-m-d H:i:s' ) . '] ' . sprintf( __( 'Imported from %s ', 'booking' ), 'Google Calendar' );
 						$remark_text = str_replace( '%', '&#37;', $remark_text );

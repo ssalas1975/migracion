@@ -214,7 +214,7 @@ class WPBC_TinyMCE_Buttons {
     public function modal_content() {
         
         ?><span class="wpdevelop wpbc_page"><div class="visibility_container clearfix-height" style="display:block;"><?php
-        ?><div id="wpbc_tiny_modal" class="modal wpbc_popup_modal wpbc_tiny_modal" tabindex="-1" role="dialog">
+		?><div id="wpbc_tiny_modal" class="modal wpbc_popup_modal wpbc_tiny_modal wpbc_shortcode_config__scroll_mode" tabindex="-1" role="dialog">
               <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">   
@@ -243,6 +243,12 @@ class WPBC_TinyMCE_Buttons {
 
 									// [bookingcalendar ... ] ----------------------------------------------------------
 									wpbc_shortcode_config__content__bookingcalendar();
+
+									// [booking_appointment ... ] --------------------------------------------------
+									wpbc_shortcode_config__content__booking_appointment();
+
+									// [booking_resource_selector ... ] --------------------------------------------
+									wpbc_shortcode_config__content__booking_resource_selector();
 
 									// [bookingselect ... ] ------------------------------------------------------------
 									wpbc_shortcode_config__content__bookingselect();
@@ -317,7 +323,7 @@ function wpbc_get_pages_where_insert_tiny_mce_buttons() {
 
 if (
 	( in_array( basename( $_SERVER['PHP_SELF'] ), wpbc_get_pages_where_insert_tiny_mce_buttons() ) )      // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
-	|| ( ( isset( $_REQUEST['page'] ) && ( 'wpbc-resources' === $_REQUEST['page'] ) ) )                   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
+	|| wpbc_can_i_load_on__resources_page()
 	|| wpbc_is_setup_wizard_page() // || wpbc_is_bookings_page()  // FixIn: 10.6.6.2.
 	|| wpbc_is_builder_booking_form_page()
 ) {

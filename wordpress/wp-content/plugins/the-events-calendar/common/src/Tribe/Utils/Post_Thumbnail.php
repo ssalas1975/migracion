@@ -12,7 +12,7 @@
  * $large_url = $post_thumbnail->large->url;
  * ```
  *
- * @since   4.9.14
+ * @since 4.9.14
  * @package Tribe\Utils
  */
 
@@ -24,10 +24,10 @@ use Tribe__Utils__Array as Arr;
 /**
  * Class Post_Thumbnail
  *
- * @since   4.9.14
+ * @since 4.9.14
  * @package Tribe\Utils
  */
-class Post_Thumbnail implements \ArrayAccess, \Serializable {
+class Post_Thumbnail implements \ArrayAccess {
 	use Lazy_Events;
 
 	/**
@@ -230,7 +230,8 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function offsetExists( $offset ) {
+	#[\ReturnTypeWillChange]
+	public function offsetExists( $offset ): bool {
 		$this->data = $this->fetch_data();
 
 		return isset( $this->data[ $offset ] );
@@ -239,6 +240,7 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		$this->data = $this->fetch_data();
 
@@ -250,6 +252,7 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {
 		$this->data = $this->fetch_data();
 
@@ -259,6 +262,7 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {
 		$this->data = $this->fetch_data();
 
@@ -280,28 +284,32 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Legacy serialization method kept for backward compatibility.
+	 *
+	 * @deprecated 6.12.0 Use __serialize() instead.
+	 *
+	 * @return string The serialized representation of the object.
 	 */
 	public function serialize() {
-		$data            = $this->fetch_data();
-		$data['post_id'] = $this->post_id;
+		_deprecated_function( __METHOD__, '6.12.0', '__serialize()' );
 
-		return wp_json_encode( $data );
+		return wp_json_encode( $this->__serialize() );
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Legacy unserialization method kept for backward compatibility.
+	 *
+	 * @deprecated 6.12.0 Use __unserialize() instead.
+	 *
+	 * @param string $serialized The serialized data.
+	 *
+	 * @return void
 	 */
 	public function unserialize( $serialized ) {
+		_deprecated_function( __METHOD__, '6.12.0', '__unserialize()' );
+
 		$data = json_decode( $serialized, true );
-		array_walk( $data, static function ( &$data_entry ) {
-			if ( is_array( $data_entry ) ) {
-				$data_entry = (object) $data_entry;
-			}
-		} );
-		$this->post_id = $data['post_id'];
-		unset( $data['post_id'] );
-		$this->data = ! empty( $data ) ? $data : null;
+		$this->__unserialize( $data );
 	}
 
 	/**
@@ -326,5 +334,37 @@ class Post_Thumbnail implements \ArrayAccess, \Serializable {
 		}
 
 		return $this->exists;
+	}
+
+	/**
+	 * PHP 8.0+ compatible implementation of the serialization logic.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @return array The data to serialize.
+	 */
+	public function __serialize(): array {
+		$data            = $this->fetch_data();
+		$data['post_id'] = $this->post_id;
+
+		return $data;
+	}
+
+	/**
+	 * PHP 8.0+ compatible implementation of the unserialization logic.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @param array $data The data to unserialize.
+	 */
+	public function __unserialize( array $data ): void {
+		array_walk( $data, static function ( &$data_entry ) {
+			if ( is_array( $data_entry ) ) {
+				$data_entry = (object) $data_entry;
+			}
+		} );
+		$this->post_id = $data['post_id'];
+		unset( $data['post_id'] );
+		$this->data = ! empty( $data ) ? $data : null;
 	}
 }

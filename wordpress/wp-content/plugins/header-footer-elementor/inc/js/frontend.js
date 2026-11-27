@@ -1,6 +1,69 @@
 ( function( $ ) {
 
 	/**
+	 * Sanitize icon markup before injecting it into the DOM.
+	 *
+	 * The nav-menu toggle/close icons are read from data-* attributes and
+	 * rendered as HTML. Only Font Awesome <i> and inline SVG icons are
+	 * legitimate here, so every other element — and every event handler or
+	 * URL-bearing attribute — is stripped to prevent DOM-based XSS.
+	 *
+	 * Parsing happens inside a <template>, whose content is inert: images do
+	 * not load and scripts do not run, so no payload fires during sanitization.
+	 *
+	 * @since 2.9.2
+	 * @param {string} markup Raw icon markup from a data attribute.
+	 * @return {string} Sanitized markup safe to pass to jQuery .html().
+	 */
+	function hfe_sanitize_icon_html( markup ) {
+		if ( 'string' !== typeof markup || '' === markup ) {
+			return '';
+		}
+
+		// Icon-only elements: basic shapes plus the paint/structural elements
+		// (gradients, clip paths, masks, patterns, markers) that multi-colour
+		// SVG icons rely on. All of these are non-scriptable and hold no text
+		// content. Deliberately excludes elements with special parsing
+		// (RCDATA/RAWTEXT such as <title>, <desc>, <text>, <style>, <textarea>)
+		// to avoid mutation-XSS on the re-parse done by jQuery .html().
+		var allowed_tags = [
+			'I', 'SPAN', 'SVG', 'PATH', 'G', 'DEFS', 'SYMBOL',
+			'CIRCLE', 'ELLIPSE', 'LINE', 'POLYLINE', 'POLYGON', 'RECT',
+			'LINEARGRADIENT', 'RADIALGRADIENT', 'STOP', 'CLIPPATH', 'MASK', 'PATTERN', 'MARKER'
+		];
+
+		var template = document.createElement( 'template' );
+		template.innerHTML = markup;
+
+		Array.prototype.slice.call( template.content.querySelectorAll( '*' ) ).forEach( function( node ) {
+			// Drop anything that is not an allowed icon element.
+			if ( -1 === allowed_tags.indexOf( node.tagName.toUpperCase() ) ) {
+				if ( node.parentNode ) {
+					node.parentNode.removeChild( node );
+				}
+				return;
+			}
+
+			// Strip event handlers and URL/style attributes on the kept elements.
+			Array.prototype.slice.call( node.attributes ).forEach( function( attr ) {
+				var name = attr.name.toLowerCase();
+				if (
+					0 === name.indexOf( 'on' ) ||
+					'src' === name ||
+					'href' === name ||
+					'xlink:href' === name ||
+					'style' === name ||
+					'formaction' === name
+				) {
+					node.removeAttribute( attr.name );
+				}
+			} );
+		} );
+
+		return template.innerHTML;
+	}
+
+	/**
 	* Search widget JS
 	*/
 
@@ -121,7 +184,7 @@
 		});
 
 		if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-			$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'elementor-button-wrapper' );
+			$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'hfe-button-wrapper elementor-widget-button' );
 			$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).addClass( 'elementor-button' );			
 		}
 
@@ -155,6 +218,21 @@
 				}else if ( window.matchMedia( "( max-width: 1024px )" ).matches && $( '.elementor-element-' + id ).hasClass('hfe-nav-menu__breakpoint-tablet') ) {
 					
 					_toggleClick( id );
+				}else{
+					var $toggle = $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' );
+					var $nextElement = $toggle.next();
+					if( $nextElement.length ){
+						if ( $toggle.hasClass( 'hfe-active-menu-full-width' ) ) {
+							// Full-width dropdown left open while crossing the breakpoint:
+							// the nav stays position:absolute, so size it to its parent.
+							$nextElement.css( 'width', $nextElement.parent().width() + 'px' );
+							$nextElement.css( 'left', '0' );
+						} else {
+							// In-flow nav: a fixed pixel width would pin it inside flex
+							// rows and stop it shrinking on later resizes.
+							$nextElement.css( { 'width': '', 'left': '' } );
+						}
+					}
 				}
 			}
 
@@ -167,20 +245,84 @@
   		$scope.find( '.parent-has-child .hfe-has-submenu-container a').attr( 'aria-haspopup', 'true' );
   		$scope.find( '.parent-has-child .hfe-has-submenu-container a').attr( 'aria-expanded', 'false' );
 
-  		$scope.find( '.hfe-nav-menu__toggle').attr( 'aria-haspopup', 'true' );
-  		$scope.find( '.hfe-nav-menu__toggle').attr( 'aria-expanded', 'false' );
+		var hef_navmenu_toggle = $scope.find( '.hfe-nav-menu__toggle' );
+		hef_navmenu_toggle.attr( 'aria-haspopup', 'true' );
+		hef_navmenu_toggle.attr( 'aria-expanded', 'false' );
+
+		if ( window.matchMedia( "( max-width: 1024px )" ).matches && $( '.elementor-element-' + id ).hasClass('hfe-nav-menu__breakpoint-tablet') ) {
+			hef_navmenu_toggle.find('i').attr('aria-hidden', 'false');
+		}
+		if ( window.matchMedia( "( max-width: 768px )" ).matches && $( '.elementor-element-' + id ).hasClass('hfe-nav-menu__breakpoint-mobile') ) {
+			hef_navmenu_toggle.find('i').attr('aria-hidden', 'false');
+		}
 
   		// End of accessibility functions
 
 		$( document ).trigger( 'hfe_nav_menu_init', id );
 
+		// Add keyboard navigation for expandable menu
+		if ( 'expandible' === layout ) {
+			$( '.elementor-element-' + id + ' nav' ).on( 'keydown', function(e) {
+				var $currentElement = $( document.activeElement );
+				var $menuItems = $( this ).find( 'li > a:visible' );
+				var currentIndex = $menuItems.index( $currentElement );
+
+				switch( e.key ) {
+					case 'Escape': // Escape key - close menu
+						$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).trigger( 'click' );
+						$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).focus();
+						e.preventDefault();
+						break;
+					case 'ArrowDown': // Down arrow
+						if ( currentIndex < $menuItems.length - 1 ) {
+							$menuItems.eq( currentIndex + 1 ).focus();
+						}
+						e.preventDefault();
+						break;
+					case 'ArrowUp': // Up arrow
+						if ( currentIndex > 0 ) {
+							$menuItems.eq( currentIndex - 1 ).focus();
+						}
+						e.preventDefault();
+						break;
+					case 'Tab': // Tab key
+						// Let default tab behavior work but close menu when tabbing out
+						if ( e.shiftKey && currentIndex === 0 ) {
+							// Shift+Tab on first item - close menu
+							setTimeout(function() {
+								if ( !$( '.elementor-element-' + id + ' nav' ).find( ':focus' ).length ) {
+									$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).trigger( 'click' );
+								}
+							}, 10);
+						} else if ( !e.shiftKey && currentIndex === $menuItems.length - 1 ) {
+							// Tab on last item - close menu
+							setTimeout(function() {
+								if ( !$( '.elementor-element-' + id + ' nav' ).find( ':focus' ).length ) {
+									$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).trigger( 'click' );
+								}
+							}, 10);
+						}
+						break;
+				}
+			});
+		}
+
 		$( '.elementor-element-' + id + ' div.hfe-has-submenu-container' ).on( 'keyup', function(e){
 
 			var $this = $( this );
 
+			// Handle Enter and Space keys for submenu toggle
+			if ( e.key === 'Enter' || e.key === 'Space' ) {
+				e.preventDefault();
+				e.stopPropagation();
+			} else {
+				return; // Only handle Enter and Space keys
+			}
+
 		  	if( $this.parent().hasClass( 'menu-active' ) ) {
 
 		  		$this.parent().removeClass( 'menu-active' );
+		  		$this.attr( 'aria-expanded', 'false' );
 
 		  		$this.parent().next().find('ul').css( { 'visibility': 'hidden', 'opacity': '0', 'height': '0' } );
 		  		$this.parent().prev().find('ul').css( { 'visibility': 'hidden', 'opacity': '0', 'height': '0' } );
@@ -209,6 +351,7 @@
 				}
 				
 				$this.find( 'a' ).attr( 'aria-expanded', 'true' );
+				$this.attr( 'aria-expanded', 'true' );
 
 				$this.next().css( { 'visibility': 'visible', 'opacity': '1', 'height': 'auto' } );
 
@@ -521,14 +664,14 @@
 				
 				$( '.elementor-element-' + id + ' nav').addClass('hfe-dropdown');
 				if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'elementor-button-wrapper' );
+					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'hfe-button-wrapper elementor-widget-button' );
 					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).removeClass( 'elementor-button' );	
 				}	
 			}else{
 				
 				$( '.elementor-element-' + id + ' nav').removeClass('hfe-dropdown');
 				if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'elementor-button-wrapper' );
+					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'hfe-button-wrapper elementor-widget-button' );
 					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).addClass( 'elementor-button' );	
 				}
 			}
@@ -538,14 +681,14 @@
 				
 				$( '.elementor-element-' + id + ' nav').addClass('hfe-dropdown');
 				if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'elementor-button-wrapper' );
+					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'hfe-button-wrapper elementor-widget-button' );
 					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).removeClass( 'elementor-button' );	
 				}
 			}else{
 				
 				$( '.elementor-element-' + id + ' nav').removeClass('hfe-dropdown');
 				if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'elementor-button-wrapper' );
+					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'hfe-button-wrapper elementor-widget-button' );
 					$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).addClass( 'elementor-button' );
 				}
 			}
@@ -553,7 +696,7 @@
 			var $parent_element = $( '.elementor-element-' + id );
 			$parent_element.find( 'nav').removeClass( 'hfe-dropdown' );
 			if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-				$parent_element.find( 'li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'elementor-button-wrapper' );
+				$parent_element.find( 'li.menu-item:last-child a.hfe-menu-item' ).parent().addClass( 'hfe-button-wrapper elementor-widget-button' );
 				$parent_element.find( 'li.menu-item:last-child a.hfe-menu-item' ).addClass( 'elementor-button' );
 			}
 		}
@@ -561,7 +704,7 @@
 		var layout = $( '.elementor-element-' + id + ' .hfe-nav-menu' ).data( 'layout' );
 		if( 'expandible' == layout ){
 			if( ( 'cta' == last_item || 'cta' == last_item_flyout ) && 'expandible' != layout ){
-				$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'elementor-button-wrapper' );
+				$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).parent().removeClass( 'hfe-button-wrapper elementor-widget-button' );
 				$( '.elementor-element-' + id + ' li.menu-item:last-child a.hfe-menu-item' ).removeClass( 'elementor-button' );			
 			}			
 		}
@@ -571,15 +714,33 @@
 
 		if ( $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).hasClass( 'hfe-active-menu-full-width' ) ){
 
-			$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).next().css( 'left', '0' );
+			var $toggle = $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' );
+			var $nextElement= $toggle.next();
 
-			var width = $( '.elementor-element-' + id ).closest('.elementor-section').outerWidth();
-			var sec_pos = $( '.elementor-element-' + id ).closest('.elementor-section').offset().left - $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).next().offset().left;
-			$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).next().css( 'width', width + 'px' );
-			$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).next().css( 'left', sec_pos + 'px' );
+			if( $nextElement.length ){
+				$nextElement.css( 'left', '0' );
+				
+				var $section = $( '.elementor-element-' + id ).closest('.elementor-section, .e-con-boxed.e-parent, .e-con-full.e-parent');
+				if ( $section.length ) {
+					var width = $section.outerWidth();
+					var sec_pos = $section.offset().left - $toggle.next().offset().left;
+					$nextElement.css( 'width', width + 'px' );
+					$nextElement.css( 'left', sec_pos + 'px' );
+				}
+			}
 		}
 
 		$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).off( 'click keyup' ).on( 'click keyup', function( event ) {
+
+			// Handle keyboard events properly
+			if ( event.type === 'keyup' && event.key !== 'Enter' && event.key !== 'Space' ) {
+				return; // Only handle Enter and Space keys
+			}
+
+			// Prevent default for keyboard events to avoid scrolling
+			if ( event.type === 'keyup' ) {
+				event.preventDefault();
+			}
 
 			var $this = $( this );
 			var $selector = $this.next();
@@ -590,7 +751,13 @@
 				var full_width = $selector.data( 'full-width' );
 				var toggle_icon = $( '.elementor-element-' + id + ' nav' ).data( 'toggle-icon' );
 
-				$( '.elementor-element-' + id).find( '.hfe-nav-menu-icon' ).html( toggle_icon );
+				// Only swap the icon when the layout actually provides one. The
+				// flyout layout omits data-toggle-icon/data-close-icon, so the
+				// value is undefined there; passing it through would empty the
+				// hamburger icon. See hfe_sanitize_icon_html above.
+				if ( 'string' === typeof toggle_icon ) {
+					$( '.elementor-element-' + id).find( '.hfe-nav-menu-icon' ).html( hfe_sanitize_icon_html( toggle_icon ) );
+				}
 
 				$this.removeClass( 'hfe-active-menu' );
 				$this.attr( 'aria-expanded', 'false' );
@@ -609,8 +776,12 @@
 				var full_width = $selector.data( 'full-width' );
 				var close_icon = $( '.elementor-element-' + id + ' nav' ).data( 'close-icon' );
 
-				$( '.elementor-element-' + id).find( '.hfe-nav-menu-icon' ).html( close_icon );
-				
+				// See note above: skip the swap when the layout (e.g. flyout)
+				// does not define a close icon, otherwise the icon is emptied.
+				if ( 'string' === typeof close_icon ) {
+					$( '.elementor-element-' + id).find( '.hfe-nav-menu-icon' ).html( hfe_sanitize_icon_html( close_icon ) );
+				}
+
 				$this.addClass( 'hfe-active-menu' );
 				$this.attr( 'aria-expanded', 'true' );
 
@@ -618,8 +789,9 @@
 
 					$this.addClass( 'hfe-active-menu-full-width' );
 
-					var width = $( '.elementor-element-' + id ).closest('.elementor-section').outerWidth();
-					var sec_pos = $( '.elementor-element-' + id ).closest('.elementor-section').offset().left - $selector.offset().left;
+					var closestElement = $( '.elementor-element-' + id ).closest('.elementor-section, .e-con-boxed.e-parent, .e-con-full.e-parent');
+					var width = closestElement.outerWidth();
+					var sec_pos = closestElement.offset().left - $selector.offset().left;
 				
 					$selector.css( 'width', width + 'px' );
 					$selector.css( 'left', sec_pos + 'px' );
@@ -633,6 +805,13 @@
 			}else {
 
 				$( '.elementor-element-' + id + ' nav' ).addClass( 'menu-is-active' );
+				
+				// Focus on first menu item when menu opens
+				if ( event.type === 'keyup' ) {
+					setTimeout(function() {
+						$selector.find('li:first-child > a').focus();
+					}, 100);
+				}
 			}				
 		} );
 	}
@@ -640,34 +819,58 @@
 	function _handleSinglePageMenu( id, layout ) {
 		$( '.elementor-element-' + id + ' ul.hfe-nav-menu li a' ).on(
 			'click',
-			function () {
+			function ( event ) {
 				var $this = $( this );
 				var link  = $this.attr( 'href' );
 				var linkValue = '';
-				if ( link.includes( '#' ) ) {
-					var index     = link.indexOf( '#' );
-					linkValue = link.slice( index + 1 );
-				}
-				if ( linkValue.length > 0 ) {
-					if ( 'expandible' == layout ) {
-						$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).trigger( "click" );
-						if ($this.hasClass( 'hfe-sub-menu-item' )) {
-							$( '.elementor-element-' + id + ' .hfe-menu-toggle' ).trigger( "click" );
-						}
+				
+				// Check if this is an anchor link
+				if ( link && link.includes( '#' ) ) {
+					// Get the hash value
+					if ( link.charAt(0) === '#' ) {
+						event.preventDefault();
+						linkValue = link.slice( 1 );
 					} else {
-						if ( window.matchMedia( '(max-width: 1024px)' ).matches && ( 'horizontal' == layout || 'vertical' == layout ) ) {
-							$( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' ).trigger( "click" );
-							if ($this.hasClass( 'hfe-sub-menu-item' )) {
-								$( '.elementor-element-' + id + ' .hfe-menu-toggle' ).trigger( "click" );
-							}
-						} else {
-							if ($this.hasClass( 'hfe-sub-menu-item' )) {
-								_closeMenu( id );
-								$( '.elementor-element-' + id + ' .hfe-menu-toggle' ).trigger( "click" );
-							}
-							_closeMenu( id );
+						var index = link.indexOf( '#' );
+						if ( index !== -1 ) {
+							linkValue = link.slice( index + 1 );
 						}
 					}
+				}
+				
+				if ( linkValue.length > 0 ) {
+					var targetSection = $( '#' + linkValue );
+
+					if ( targetSection.length ) {	// Check if the target section exists.
+						$('html, body').animate({
+							scrollTop: targetSection.offset().top
+						}, 800); 
+					}
+
+					// Close the menu after clicking anchor link
+					setTimeout(function() {
+						if ( 'expandible' == layout ) {
+							// For expandible layout, trigger click on toggle if menu is open
+							var $toggle = $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' );
+							if ( $toggle.hasClass( 'hfe-active-menu' ) ) {
+								$toggle.trigger( 'click' );
+							}
+						} else if ( 'flyout' == layout ) {
+							// For flyout layout, use the close menu function
+							_closeMenu( id );
+						} else {
+							// For horizontal and vertical layouts on mobile/tablet
+							if ( window.matchMedia( '(max-width: 1024px)' ).matches ) {
+								if ( $( '.elementor-element-' + id ).hasClass('hfe-nav-menu__breakpoint-tablet') || 
+									 $( '.elementor-element-' + id ).hasClass('hfe-nav-menu__breakpoint-mobile') ) {
+									var $toggle = $( '.elementor-element-' + id + ' .hfe-nav-menu__toggle' );
+									if ( $toggle.hasClass( 'hfe-active-menu' ) ) {
+										$toggle.trigger( 'click' );
+									}
+								}
+							}
+						}
+					}, 100); // Small delay to ensure smooth scrolling starts first
 				}
 			}
 		);

@@ -1,5 +1,7 @@
 <?php
 
+defined( 'ABSPATH' ) || exit;
+
 if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 	/**
 	 * Array utilities
@@ -35,7 +37,7 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 					// would likely lead to unexpected problems for whatever first set it.
 					$error = sprintf(
 						'Attempted to set $array[%1$s] but %2$s is already set and is not an array.',
-						implode( $key, '][' ),
+						implode( '][', $key ),
 						$i
 					);
 
@@ -150,6 +152,10 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 		 * @return array An array of list elements.
 		 */
 		public static function list_to_array( $value, $sep = ',' ) {
+			// Let's not jump through all the hoops if the value is empty.
+			if ( empty( $value ) ) {
+				return [];
+			}
 			// since we might receive URL encoded strings for CSV lists let's URL decode them first
 			$value = is_array( $value ) ? $value : urldecode( $value );
 
@@ -199,22 +205,22 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 		/**
 		 * Sanitize a multidimensional array.
 		 *
-		 * @since   4.7.18
+		 * @since 4.7.18
+		 * @since 6.9.4 Fixed PHP 8.1+ deprecation warnings by avoiding passing null to trim().
 		 *
 		 * @param array $data The array to sanitize.
 		 *
-		 * @return array The sanitized array
+		 * @return array The sanitized array.
 		 *
 		 * @link https://gist.github.com/esthezia/5804445
 		 */
 		public static function escape_multidimensional_array( $data = [] ) {
-
 			if ( ! is_array( $data ) || ! count( $data ) ) {
 				return [];
 			}
 
 			foreach ( $data as $key => $value ) {
-				if ( ! is_array( $value ) && ! is_object( $value ) ) {
+				if ( is_string( $value ) ) {
 					$data[ $key ] = esc_attr( trim( $value ) );
 				}
 				if ( is_array( $value ) ) {
@@ -572,7 +578,7 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 		 *
 		 * @since 4.12.14
 		 *
-		 * @param         array $input The input array whose nodes should be visited.
+		 * @param        array $input The input array whose nodes should be visited.
 		 * @param callable $visitor A callback function that will be called on each array item; the callback will
 		 *                          receive the item key and value as input and should return an array that contains
 		 *                          the update key and value in the shape `[ <key>, <value> ]`. Returning a `null`
@@ -590,7 +596,7 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 					$value = static::array_visit_recursive( $value, $visitor );
 				}
 				// Ensure visitors can quickly return `null` to remove an element.
-				list( $updated_key, $update_value ) = array_replace( [ $key, $value ], (array) $visitor( $key, $value ) );
+				[ $updated_key, $update_value ] = array_replace( [ $key, $value ], (array) $visitor( $key, $value ) );
 				if ( false === $updated_key ) {
 					// Visitor will be able to remove an element by returning a `false` key for it.
 					continue;
@@ -666,6 +672,67 @@ if ( ! class_exists( 'Tribe__Utils__Array' ) ) {
 
 			// Finally destringify the keys to return something that will resemble, in shape, the original arrays.
 			return static::destringify_keys( $merged );
+		}
+
+		/**
+		 * Shapes, filtering it, an array to the specified expected set of required keys.
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param array $array The input array to shape.
+		 * @param array $shape The shape to update the array with. It should only define keys
+		 *                     or arrays of keys. Keys that have no values will be set to `null`.
+		 *                     To add the key only if set, prefix the key with `?`, e.g. `?foo`.
+		 *
+		 * @return array The input array shaped and ordered per the shape.
+		 */
+		public static function shape_filter( array $array, array $shape ): array {
+			$shaped = [];
+			foreach ( $shape as $shape_index => $shape_key ) {
+				$optional = is_array( $shape_key ) ?
+					strpos( $shape_index, '?' ) === 0
+					: strpos( $shape_key, '?' ) === 0;
+
+				if ( is_array( $shape_key ) ) {
+					$shape_index = $optional ? substr( $shape_index, 1 ) : $shape_index;
+					if ( $optional && ! isset( $array[ $shape_index ] ) ) {
+						continue;
+					}
+					$shaped[ $shape_index ] = self::shape_filter( $array[$shape_index] ?? [], $shape_key );
+				} else {
+					$shape_key = $optional ? substr( $shape_key, 1 ) : $shape_key;
+					if ( ! isset( $array[ $shape_key ] ) && $optional ) {
+						continue;
+					}
+					$shaped[ $shape_key ] = $array[ $shape_key ] ?? null;
+				}
+			}
+
+			return $shaped;
+		}
+
+		/**
+		 * Searches an array using a callback and returns the index of the first match.
+		 *
+		 * This method fills the gap left by the non-existence of an `array_usearch` function.
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param mixed    $needle   The element to search in the array.
+		 * @param array    $haystack The array to search.
+		 * @param callable $callback A callback function with signature `fn($needle, $value, $key) :bool`
+		 *                           that will be used to find the first match of needle in haystack.
+		 *
+		 * @return string|int|false Either the index of the first match or `false` if no match was found.
+		 */
+		public static function usearch( $needle, array $haystack, callable $callback ) {
+			foreach ( $haystack as $key => $value ) {
+				if ( $callback( $needle, $value, $key ) ) {
+					return $key;
+				}
+			}
+
+			return false;
 		}
 	}
 }

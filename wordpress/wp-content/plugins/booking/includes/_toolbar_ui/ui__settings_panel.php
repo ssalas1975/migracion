@@ -104,25 +104,78 @@ function wpbc_ui_settings__panel_end() {
 /**
  * Top Path Line
  *
+ * @param WPBC_Page_Structure|false $page_structure_obj Page structure object.
+ *
  * @return void
  */
-function wpbc_ui_settings__top_path() {
+function wpbc_ui_settings__top_path( $page_structure_obj = false ) {
+
+	$items           = array();
+	$is_show_version = true;
+
+	if ( is_object( $page_structure_obj ) && method_exists( $page_structure_obj, 'get_top_path_items' ) ) {
+		$items = $page_structure_obj->get_top_path_items();
+	}
+
+	if ( is_object( $page_structure_obj ) && method_exists( $page_structure_obj, 'is_top_path_show_version' ) ) {
+		$is_show_version = $page_structure_obj->is_top_path_show_version();
+	}
+
+	if ( empty( $items ) ) {
+		$items = array(
+			array(
+				'title'   => __( 'WP Booking Calendar', 'booking' ),
+				'url'     => function_exists( 'wpbc_get_bookings_url' ) ? wpbc_get_bookings_url() : admin_url( 'admin.php?page=wpbc' ),
+				'onclick' => '',
+				'active'  => false,
+			),
+			array(
+				'title'   => __( 'Settings', 'booking' ),
+				'onclick' => "wpbc_ui_settings__panel__click( '#wpbc_general_settings_dashboard_tab a' ,'#wpbc_general_settings_dashboard_metabox', '" . esc_attr__( 'Dashboard', 'booking' ) . "' );",
+				'url'     => '',
+				'active'  => false,
+			),
+			array(
+				'title'   => __( 'Dashboard', 'booking' ),
+				'onclick' => "wpbc_ui_settings__panel__click( '#wpbc_general_settings_dashboard_tab a' ,'#wpbc_general_settings_dashboard_metabox', '" . esc_attr__( 'Dashboard', 'booking' ) . "' );",
+				'url'     => '',
+				'active'  => true,
+			),
+		);
+	}
 
 	?>
 	<div class="wpbc_settings_path">
-		<?php /* ?><div class="wpbc_settings_path_el" style="border: 1px solid #d0d0d0;margin-right: 15px;border-radius: 50%;aspect-ratio: 1 / 1;text-align: center;display: none;"> <a><i class="menu_icon icon-1x wpbc_icn_navigate_before"></i></a></div><?php */ ?>
-		<div class="wpbc_settings_path_el">
-			<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_dashboard_tab a' ,'#wpbc_general_settings_dashboard_metabox', '<?php echo esc_attr__( 'Dashboard', 'booking' ); ?>' );" href="javascript:void(0);"><?php
-				esc_html_e('Settings', 'booking');
-			?></a>
-		</div>
-		<div class="wpbc_settings_path_el"><i class="menu_icon icon-1x wpbc_icn_navigate_next"></i></div>
-		<div class="wpbc_settings_path_el wpbc_settings_path_el_active">
-			<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_dashboard_tab a' ,'#wpbc_general_settings_dashboard_metabox', '<?php echo esc_attr__( 'Dashboard', 'booking' ); ?>' );" href="javascript:void(0);"><?php
-				esc_html_e('Dashboard', 'booking');
-			?></a>
-		</div>
-		<?php wpbc_ui_settings_panel__top_path__version(); ?>
+		<nav
+			class="wpbc_settings_path__breadcrumbs"
+			aria-label="<?php esc_attr_e( 'Booking Calendar breadcrumbs', 'booking' ); ?>"
+		>
+			<?php foreach ( $items as $item_index => $item ) : ?>
+				<span class="wpbc_settings_path__breadcrumb">
+					<?php if ( 0 < $item_index ) : ?>
+						<span class="wpbc_settings_path_el wpbc_settings_path__separator" aria-hidden="true"><i class="menu_icon icon-1x wpbc_icn_navigate_next"></i></span>
+					<?php endif; ?>
+					<span class="wpbc_settings_path_el<?php echo ( ! empty( $item['active'] ) ) ? ' wpbc_settings_path_el_active' : ''; ?>">
+						<a
+							<?php if ( ! empty( $item['active'] ) ) : ?>
+								aria-current="page"
+							<?php endif; ?>
+							<?php if ( ! empty( $item['onclick'] ) ) : ?>
+								onclick="javascript:<?php echo $item['onclick']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>"
+								href="javascript:void(0);"
+							<?php else : ?>
+								href="<?php echo esc_url( ! empty( $item['url'] ) ? $item['url'] : '#' ); ?>"
+							<?php endif; ?>
+						><?php echo esc_html( $item['title'] ); ?></a>
+					</span>
+				</span>
+			<?php endforeach; ?>
+		</nav>
+		<?php
+		if ( $is_show_version ) {
+			wpbc_ui_settings_panel__top_path__version();
+		}
+		?>
 	</div>
 	<?php
 }
@@ -320,11 +373,11 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 		$title   = esc_attr__( 'Calendar Settings', 'booking' );
 
 		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_calendar_tab';
+			$permalink = function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings';
 			$onclick   = "";
 		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick   = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_calendar_tab a' ,'#wpbc_general_settings_calendar_metabox', '" . $title . "' );";
+			$permalink = function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings';
+			$onclick   = "";
 		}
 
 		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__calendar">
@@ -362,12 +415,11 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 
 		$title   = esc_attr__( 'Days Selection', 'booking' );
 		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_calendar_tab';
+			$permalink = function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings';
 			$onclick   = "";
 		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_calendar_tab a' ,'#wpbc_general_settings_calendar_metabox', '" . $title . "' );";
-			$onclick .= "wpbc_blink_element('.wpbc_tr_set_gen_booking_type_of_day_selections', 4, 350); ";
+			$permalink = function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings';
+			$onclick = "";
 		}
 
 		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__days_selection">
@@ -388,7 +440,7 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo $onclick; ?>" href="<?php
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $permalink; ?>"> <?php esc_html_e( 'Choose how users can select days: single day, multiple days, or a date range with minimum and maximum limits.', 'booking' ); ?>
+					echo $permalink; ?>"> <?php esc_html_e( 'Choose how users can select a single day, separate multiple days, or an unrestricted date range with two mouse clicks.', 'booking' ); ?>
 				</a>
 			</div>
 		</div><?php
@@ -409,18 +461,11 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 		$title = esc_attr__( 'Changeover Days', 'booking' );
 
 		if (  class_exists( 'wpdev_bk_biz_s' ) ) {
-			$onclick = ' onclick="';
-		    $onclick .= "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_calendar_tab a' ,'#wpbc_general_settings_calendar_metabox', '" . $title . "' );";
-			//$onclick .= " jQuery( '#type_of_day_selections_range').prop('checked',true).trigger('change'); ";			// Enable Range Days selection
-			//$onclick .= " jQuery( '#range_selection_type_dynamic').prop('checked',true).trigger('change'); ";			// Enable Range Days selection
-			$onclick .= " wpbc_blink_element('.wpbc_tr_set_gen_booking_range_selection_time_is_active', 4, 350); ";
-			$onclick .= " wpbc_scroll_to('.wpbc_tr_set_gen_booking_range_selection_time_is_active' ); ";
-			$onclick .= '" ';
-
-			$url     = ' href="javascript:void(0);" ';
+			$onclick = '';
+			$url     = ' href="' . esc_url( function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings' ) . '" ';
 
 			if ( ! empty( $params['is_use_permalink'] ) ) {
-				$url     = ' href="'. esc_url( wpbc_get_settings_url() ) . '&scroll_to_section=wpbc_general_settings_calendar_tab" ';			// Direct link
+				$url     = ' href="'. esc_url( function_exists( 'wpbc_get_settings_calendar_url' ) ? wpbc_get_settings_calendar_url() : wpbc_get_settings_url() . '&tab=calendar_settings' ) . '" ';			// Direct link
 				$onclick = "";
 			}
 
@@ -467,14 +512,10 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 	function wpbc_ui_settings_panel__card__tooltips_in_days( $params = array() ){
 
 		$title   = esc_attr__( 'Day Tooltips', 'booking' );
-
-		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_days_tooltips_tab';
-			$onclick   = "";
-		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_days_tooltips_tab a' ,'#wpbc_general_settings_days_tooltips_metabox', '" . $title . "' );";
-		}
+		$permalink = function_exists( 'wpbc_settings_calendar__get_section_url' )
+			? wpbc_settings_calendar__get_section_url( 'tooltips' )
+			: wpbc_get_settings_url() . '&tab=calendar_settings&wpbc_calendar_section=tooltips';
+		$onclick   = "";
 
 		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__tooltips_in_days">
 			<div class="wpbc_ui_settings__text_row">
@@ -508,7 +549,7 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 	 */
 	function wpbc_ui_settings_panel__card__general_availability( $params = array() ){
 
-		$title   = esc_attr__( 'General Availability', 'booking' );
+		$title   = esc_attr__( 'Schedule & Rules', 'booking' );
 
 		$permalink = function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url() : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' );
 		$onclick   = "";
@@ -546,14 +587,8 @@ function wpbc_ui_settings__panel__calendar( $params = array() ) {
 	function wpbc_ui_settings_panel__card__capacity( $params = array() ){
 
 		$title   = esc_attr__( 'Booking Capacity', 'booking' );
-
-		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_capacity_tab';
-			$onclick   = "";
-		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_capacity_tab a' ,'#wpbc_general_settings_capacity_metabox,#wpbc_general_settings_capacity_upgrade_metabox', '" . $title . "' );";
-		}
+		$permalink = function_exists( 'wpbc_get_resource_capacity_url' ) ? wpbc_get_resource_capacity_url() : wpbc_get_resources_url() . '&tab=capacity';
+		$onclick   = "";
 
 		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__capacity">
 			<div class="wpbc_ui_settings__text_row">
@@ -593,14 +628,7 @@ function wpbc_ui_settings__panel__form( $params = array() ){
 
 		wpbc_ui_settings__panel_start();
 
-		if ( WPBC_Frontend_Settings::is_bfb_enabled( null ) ) {
-			wpbc_ui_settings_panel__card__bfb( $params );
-		} else {
-			wpbc_ui_settings_panel__card__form_fields( $params );
-			wpbc_ui_settings_panel__card__time_fields( $params );
-			wpbc_ui_settings_panel__card__time_slots_options( $params );
-			wpbc_ui_settings_panel__card__form_options( $params );
-		}
+		wpbc_ui_settings_panel__card__bfb( $params );
 
 		wpbc_ui_settings__panel_end();
 
@@ -609,43 +637,7 @@ function wpbc_ui_settings__panel__form( $params = array() ){
 }
 
 	/**
-	 * Show   == Dashboard Card  -  Booking Form Fields ==
-	 *
-	 * @return void
-	 */
-	function wpbc_ui_settings_panel__card__form_fields( $params = array() ){
-
-		$onclick = '';//  ' onclick="' . "javascript:wpbc_navigation_click_show_section(this,'#wpbc_general_settings_calendar_metabox' );" . '" ';
-		$url = ' href="' . esc_url( wpbc_get_settings_url() . '&tab=form' ) . '" ';
-
-		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__form_fields">
-			<div class="wpbc_ui_settings__text_row">
-				<i class="menu_icon icon-1x wpbc_icn_dashboard"></i>
-				<h1>
-					<a onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" <?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $url; ?>>
-						<span class="0wpbc_ui_settings__text_color__black2"><?php echo esc_html__('Booking Form Fields','booking'); ?></span>
-					</a>
-				</h1>
-			</div>
-			<div class="wpbc_ui_settings__text_row">
-				<a class="wpbc_ui_settings__text_color__black" onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" <?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $url; ?>> <?php esc_html_e( 'Add, remove, or customize fields in your booking form.', 'booking' ); ?>
-				</a>
-			</div>
-		</div><?php
-
-	}
-
-
-	/**
-	 * Show   == Dashboard Card  -  Booking Form Fields ==
+	 * Show   == Dashboard Card  -  Booking Form Builder ==
 	 *
 	 * @return void
 	 */
@@ -654,7 +646,7 @@ function wpbc_ui_settings__panel__form( $params = array() ){
 		$onclick = '';//  ' onclick="' . "javascript:wpbc_navigation_click_show_section(this,'#wpbc_general_settings_calendar_metabox' );" . '" ';
 		$url = ' href="' . esc_url( wpbc_get_settings_url() . '&tab=builder_booking_form' ) . '" ';
 
-		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__form_fields">
+		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__bfb">
 			<div class="wpbc_ui_settings__text_row">
 				<i class="menu_icon icon-1x wpbc_icn_dashboard"></i>
 				<h1>
@@ -677,129 +669,6 @@ function wpbc_ui_settings__panel__form( $params = array() ){
 			</div>
 		</div><?php
 
-	}
-
-	/**
-	 * Show   == Dashboard Card  -  Time Fields  ==
-	 *
-	 * @return void
-	 */
-	function wpbc_ui_settings_panel__card__time_fields( $params = array() ){
-
-		$onclick = '';//  ' onclick="' . "javascript:wpbc_navigation_click_show_section(this,'#wpbc_general_settings_calendar_metabox' );" . '" ';
-		$url = ' href="' . esc_url( wpbc_get_settings_url() . '&tab=form&field_type=timeslots' ) . '" ';
-
-		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__time_fields">
-			<div class="wpbc_ui_settings__text_row">
-				<i class="menu_icon icon-1x wpbc_icn_schedule"></i>
-				<h1>
-					<a onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" <?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $url; ?>>
-						<span class="0wpbc_ui_settings__text_color__black2"><?php echo esc_html__('Time Slot Configuration','booking'); ?></span>
-					</a>
-				</h1>
-			</div>
-			<div class="wpbc_ui_settings__text_row">
-				<a class="wpbc_ui_settings__text_color__black" onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" <?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $url; ?>> <?php esc_html_e( 'Enable and configure time selection fields in your booking form.', 'booking' ); ?>
-				</a>
-			</div>
-		</div><?php
-
-	}
-
-
-	/**
-	 * Show   == Dashboard Card  -  Form Options  ==
-	 *
-	 * @return void
-	 */
-	function wpbc_ui_settings_panel__card__form_options( $params = array() ){
-
-		$title   = esc_attr__( 'Booking Form Options', 'booking' );
-
-		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_form_tab';
-			$onclick   = '';
-		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_form_tab a' ,'#wpbc_general_settings_form_metabox', '" . $title . "' );";
-		}
-		$onclick   = '';
-		$permalink = wpbc_get_settings_url() . '&tab=form&subtab=form_options';
-
-		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__form_options">
-			<div class="wpbc_ui_settings__text_row">
-				<i class="menu_icon icon-1x wpbc-bi-toggle2-off"></i>
-				<h1>
-					<a onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" href="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $permalink; ?>">
-						<span class="0wpbc_ui_settings__text_color__black2"><?php echo esc_html( $title ); ?></span>
-					</a>
-				</h1>
-			</div>
-			<div class="wpbc_ui_settings__text_row">
-				<a class="wpbc_ui_settings__text_color__black" onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" href="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $permalink; ?>">
-					<?php esc_html_e( 'Enable CAPTCHA, auto-fill fields, and customize the form\'s color theme.', 'booking' ); ?>
-				</a>
-			</div>
-		</div><?php
-	}
-
-	/**
-	 * Show   == Dashboard Card  -  Time Slots Options  ==
-	 *
-	 * @return void
-	 */
-	function wpbc_ui_settings_panel__card__time_slots_options( $params = array() ){
-
-		$title   = esc_attr__( 'Time Slot Appearance', 'booking' );
-
-		if ( ! empty( $params['is_use_permalink'] ) ) {
-			$permalink = wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_time_slots_tab';
-			$onclick   = '';
-		} else {
-			$permalink = 'javascript:void(0);';
-			$onclick = "javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_time_slots_tab a' ,'#wpbc_general_settings_time_slots_metabox', '" . $title . "' );";
-		}
-		$permalink = wpbc_get_settings_url() . '&tab=color_themes';
-		$onclick   = '';
-
-		?><div class="wpbc_ui_settings__card wpbc_ui_settings__card_text_small wpbc_ui_settings__card_divider_right wpbc_ui_settings_panel__card__time_slots_options">
-			<div class="wpbc_ui_settings__text_row">
-				<i class="menu_icon icon-1x wpbc_icn_more_time"></i>
-				<h1>
-					<a onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" href="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $permalink; ?>">
-						<span class="0wpbc_ui_settings__text_color__black2"><?php echo esc_html( $title ); ?></span>
-					</a>
-				</h1>
-			</div>
-			<div class="wpbc_ui_settings__text_row">
-				<a class="wpbc_ui_settings__text_color__black" onclick="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $onclick; ?>" href="<?php
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo $permalink; ?>"> <?php esc_html_e( 'Choose how time slots are shown in the form: as a dropdown list or a time picker, and set a color theme.', 'booking' ); ?>
-				</a>
-			</div>
-		</div><?php
 	}
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -2059,18 +1928,57 @@ function wpbc_ui_settings__panel__statistic(){
 	<?php
 }
 
+	/**
+	 * Render the administration card that opens the Setup Wizard.
+	 *
+	 * @return void
+	 */
 	function wpbc_ui_settings_panel__card__setup_wizard() {
 		?>
 		<div class="wpbc_ui_settings__card wpbc_ui_settings__card_divider_right">
-			<div class="wpbc_ui_settings__center  wpbc_container wpbc_container_booking_form">
-				<a class="wpbc_button_light button-primary wpbc_button_green tooltip_top" style="padding: 12px 24px;"
+			<div class="wpbc_ui_settings__center">
+				<a class="wpbc_admin_button wpbc_admin_button--success tooltip_top"
 				   title="<?php echo esc_attr( sprintf( __('We\'ll guide you through the steps to set up WP Booking Calendar on your site.','booking'), '<strong>WP Booking Calendar</strong>' ) ); ?>"
-				   href="<?php echo esc_url( wpbc_get_settings_url() . '&wpbc_setup_wizard=reset&_wpnonce=' . wp_create_nonce( 'wpbc_settings_url_nonce' ) ); ?>"><?php
+				   href="<?php echo esc_url( wpbc_get_setup_wizard_page_url() ); ?>"><?php
 					esc_html_e( 'Start Setup Wizard', 'booking' )
 				?></a>
 			</div>
 		</div>
 		<?php
+	}
+
+
+	/**
+	 * Show the starter-page testing action.
+	 *
+	 * The manual starter-page action is intentionally available only on a site
+	 * retained as a genuine first installation with at least one currently valid
+	 * starter page. It reopens the dialog without changing its automatic prompt
+	 * state and never creates or repairs a missing page.
+	 *
+	 * @return void
+	 */
+	function wpbc_ui_settings_panel__card__open_test_pages_popup() {
+
+		$can_open_booking_pages = class_exists( 'WPBC_Setup_Wizard_Booking_Pages' ) && WPBC_Setup_Wizard_Booking_Pages::can_manually_open_booking_pages_dialog();
+
+		if ( $can_open_booking_pages ) :
+			?>
+			<div class="wpbc_ui_settings__card wpbc_ui_settings__card_divider_right">
+				<div class="wpbc_ui_settings__center">
+					<button
+						type="button"
+						class="wpbc_admin_button wpbc_admin_button--primary"
+						data-wpbc-booking-pages-open-dialog="1"
+					>
+						<?php
+						esc_html_e( 'Test your booking pages', 'booking' ); ?>
+					</button>
+				</div>
+			</div>
+			<?php
+		endif;
+
 	}
 
 	function wpbc_ui_settings_panel__card__transaltion_download() {
@@ -2107,6 +2015,8 @@ function wpbc_ui_settings__panel__statistic(){
 
 	/**
 	 * Show Version card in top  panel
+	 *
+	 * @param array $params_btn Optional version-card presentation parameters.
 	 *
 	 * @return void
 	 */
@@ -2154,10 +2064,10 @@ function wpbc_ui_settings__panel__statistic(){
 			</div>
 
 		<?php if ( $params_btn['is_show_wizard_button'] ) { ?>
-			<div class="wpbc_ui_settings__center  wpbc_container wpbc_container_booking_form" style="flex: 1 1 auto;">
-				<a class="wpbc_button_light button-primary wpbc_button_green tooltip_top" style="padding: 12px 24px;"
+			<div class="wpbc_ui_settings__center" style="flex: 1 1 auto;">
+				<a class="wpbc_admin_button wpbc_admin_button--success tooltip_top"
 				   title="<?php echo esc_attr( sprintf( __('We\'ll guide you through the steps to set up WP Booking Calendar on your site.','booking'), '<strong>WP Booking Calendar</strong>' ) ); ?>"
-				   href="<?php echo esc_url( wpbc_get_settings_url() . '&wpbc_setup_wizard=reset&_wpnonce=' . wp_create_nonce( 'wpbc_settings_url_nonce' ) ); ?>"><?php
+				   href="<?php echo esc_url( wpbc_get_setup_wizard_page_url() ); ?>"><?php
 					esc_html_e( 'Start Setup Wizard', 'booking' )
 				?></a>
 			</div>
@@ -2170,8 +2080,8 @@ function wpbc_ui_settings__panel__statistic(){
 	 *
 	 * @return void
 	 */
-	function wpbc_ui_settings_panel__top_path__version(){
-		// Version ---------------------------------------------------------------------------------------------------------
+	function wpbc_ui_settings_panel__top_path__version() {
+		// Version.
 
 		$version_title = '';
 
@@ -2180,33 +2090,27 @@ function wpbc_ui_settings__panel__statistic(){
 		}
 		if ( wpbc_is_this_demo() ) {
 			$version_title .= ' (Demo)';
-		} else {
-			if ( 'free' != wpbc_dashboard_info_get_version_type() ) {
+		} elseif ( 'free' !== wpbc_dashboard_info_get_version_type() ) {
 				$version_title .= ' (' . __( 'for', 'booking' ) . ' ' . trim( wpbc_dashboard_info_get_version_type_sites() ) . ')';
-			}
 		}
 
-		?><style type="text/css">
-			.wpbc_settings_path_el .wpbc_icn_numbers::before{
-				font-size: 12px;
-  				vertical-align: -.19em;
-			}
-		</style>
-		<div class="wpbc_settings_path_el wpbc_ui_settings__flex_container" style="margin-left:auto;flex-flow: row nowrap;">
-				<a class="" href="https://wpbookingcalendar.com/changelog/#<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo  wpbc_get_slug_format( trim( wpbc_dashboard_info_get_version_type_readable() . '_' . wpbc_dashboard_info_get_version_type_sites() .  '_' . esc_attr( WP_BK_VERSION_NUM ) ) ); ?>">
-					<span class="wpbc_ui_settings__text_color__green"><i class="menu_icon icon-1x wpbc_icn_numbers -bi-balloon-heart bi-activity"></i> <?php echo esc_attr( WP_BK_VERSION_NUM ); ?></span>
-				</a>
-				<a  class="wpbc_ui_settings__text_color__purple2" style="margin-left:1em;"
-					href="https://wpbookingcalendar.com/faq/difference-single-developer-multi-site/#<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo  wpbc_get_slug_format( trim( wpbc_dashboard_info_get_version_type_readable() . '_' . wpbc_dashboard_info_get_version_type_sites() .  '_' . esc_attr( WP_BK_VERSION_NUM ) ) ); ?>"
-				><?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $version_title
-				?></a>
-		</div><?php
+		$version_slug = wpbc_get_slug_format(
+			trim( wpbc_dashboard_info_get_version_type_readable() . '_' . wpbc_dashboard_info_get_version_type_sites() . '_' . WP_BK_VERSION_NUM )
+		);
+		?>
+		<div class="wpbc_settings_path_el wpbc_ui_settings__flex_container wpbc_settings_path__status">
+			<a
+				class="wpbc_settings_path__version-link"
+				href="<?php echo esc_url( 'https://wpbookingcalendar.com/changelog/#' . $version_slug ); ?>"
+			>
+				<span class="wpbc_ui_settings__text_color__green"><i class="menu_icon icon-1x wpbc_icn_numbers -bi-balloon-heart bi-activity"></i> <?php echo esc_html( wpbc_get_wpbc_versions_numbers() ); ?></span>
+			</a>
+			<a
+				class="wpbc_settings_path__edition-link wpbc_ui_settings__text_color__purple2"
+				href="<?php echo esc_url( 'https://wpbookingcalendar.com/faq/difference-single-developer-multi-site/#' . $version_slug ); ?>"
+			><?php echo esc_html( $version_title ); ?></a>
+		</div>
+		<?php
 	}
 
 	/**

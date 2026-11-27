@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Admin\Notices\Review as ReviewNotice;
 use AIOSEO\Plugin\Common\Models;
 
 /**
@@ -19,7 +20,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function blogVisibilityReminder() {
@@ -31,7 +31,6 @@ class Notifications {
 	 *
 	 * @since 4.0.5
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function descriptionFormatReminder() {
@@ -43,7 +42,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installMiReminder() {
@@ -53,9 +51,19 @@ class Notifications {
 	/**
 	 * Extend the start date of a notice.
 	 *
+	 * @since 4.2.1
+	 *
+	 * @return \WP_REST_Response The response.
+	 */
+	public static function installOmReminder() {
+		return self::reminder( 'install-om' );
+	}
+
+	/**
+	 * Extend the start date of a notice.
+	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installAddonsReminder() {
@@ -67,7 +75,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installImageSeoReminder() {
@@ -79,7 +86,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installLocalBusinessReminder() {
@@ -91,7 +97,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installNewsSitemapReminder() {
@@ -103,7 +108,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function installVideoSitemapReminder() {
@@ -115,7 +119,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function conflictingPluginsReminder() {
@@ -127,19 +130,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
-	 * @return \WP_REST_Response The response.
-	 */
-	public static function deprecatedFiltersReminder() {
-		return self::reminder( 'deprecated-filters-v2' );
-	}
-
-	/**
-	 * Extend the start date of a notice.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function migrationCustomFieldReminder() {
@@ -151,7 +141,6 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function migrationSchemaNumberReminder() {
@@ -163,8 +152,8 @@ class Notifications {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  string $slug The slug of the reminder.
-	 * @return @return \WP_REST_Response The response.
+	 * @param  string            $slug The slug of the reminder.
+	 * @return \WP_REST_Response       The response.
 	 */
 	protected static function reminder( $slug ) {
 		aioseo()->notices->remindMeLater( $slug );
@@ -199,11 +188,11 @@ class Notifications {
 
 		// Dismiss static notifications.
 		if ( in_array( 'notification-review', $slugs, true ) ) {
-			update_user_meta( get_current_user_id(), '_aioseo_notification_plugin_review_dismissed', true );
+			update_user_meta( get_current_user_id(), ReviewNotice::NOTIFICATION_DISMISSED_META_KEY, ReviewNotice::DISMISSED_OPTED_OUT );
 		}
 
 		if ( in_array( 'notification-review-delay', $slugs, true ) ) {
-			update_user_meta( get_current_user_id(), '_aioseo_notification_plugin_review_dismissed', strtotime( '+1 week' ) );
+			ReviewNotice::snooze( ReviewNotice::NOTIFICATION_DISMISSED_META_KEY );
 		}
 
 		return new \WP_REST_Response( [

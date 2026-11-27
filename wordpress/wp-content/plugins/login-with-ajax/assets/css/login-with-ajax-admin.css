@@ -109,6 +109,39 @@
 .lwa-settings table.features tbody th[data-title] {
   cursor: pointer;
 }
+.lwa-settings input[type=password] {
+  padding-right: 40px !important;
+  background-image: var(--icon-pwd-show);
+  background-size: 15px;
+  background-position: right center;
+}
+.lwa-settings input[type=text].pwd {
+  padding-right: 40px !important;
+  background-image: var(--icon-pwd-hide);
+  background-size: 15px;
+  background-position: right center;
+}
+
+.lwa-admin-modal {
+  --font-size: 15px;
+  --line-height: 20px;
+}
+.lwa-admin-modal .lwa-modal-content p {
+  font-size: var(--font-size) !important;
+  line-height: var(--line-height) !important;
+  text-align: justify;
+}
+.lwa-admin-modal .lwa-modal-content.has-image {
+  display: grid;
+  grid-template-columns: auto minmax(80px, 150px);
+  grid-gap: 40px;
+}
+.lwa-admin-modal .lwa-modal-content.has-image > div.image {
+  text-align: center;
+}
+.lwa-admin-modal .lwa-modal-content.has-image > div.image img {
+  width: 100%;
+}
 
 /*! Tippy.js v6.2.7 - https://unpkg.com/tippy.js@6.2.7/themes/light-border.css */
 .tippy-box[data-theme~=light-border] {

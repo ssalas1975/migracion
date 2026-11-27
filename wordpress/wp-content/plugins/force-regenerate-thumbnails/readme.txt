@@ -1,17 +1,23 @@
 === Force Regenerate Thumbnails ===
-Contributors: Pedro Elsner
-Requires at least: 2.8
-Tested up to: 4.0
-Stable tag: trunk
+Contributors: pedro-elsner, nosilver4u
+Requires at least: 6.6
+Tested up to: 6.9
+Requires PHP: 7.4
+Stable tag: 2.3.0
+License: GPLv2
 Tags: force, regenerate thumbnails, thumbnail, thumbnails
 
-Delete and REALLY force the regenerate thumbnail.
+Delete and REALLY force thumbnail regeneration.
 
 == Description ==
 
-Force Regenerate Thumbnails allows you to delete all old images size and REALLY regenerate the thumbnails for your image attachments.
+Force Regenerate Thumbnails allows you to delete all old images sizes and REALLY regenerate the thumbnails for your uploads.
 
-See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-thumbnails/screenshots/) for more details.
+Regenerate all thumbnails from the Tools admin menu. Regenerate batches of images via the Media Library list mode. Select the images to regenerate and then use the Bulk Actions drop-down menu to Force Regenerate Thumbnails. Use attachment actions to regenerate thumbnails for a single image.
+
+Several filters exist for advanced usage. See more via [this gist](https://gist.github.com/nosilver4u/eb858df10521aece2044a3a15ccdd17b).
+
+You may report security issues through our Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/force-regenerate-thumbnails)
 
 == Installation ==
 
@@ -19,6 +25,7 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-t
 2. Search for "Force Regenerate Thumbnails".
 3. Click install.
 4. Click activate.
+5. Go to Tools -> Force Regenerate Thumbnails OR select specific images from the Media Library list mode to regenerate.
 
 == Screenshots ==
 
@@ -27,55 +34,62 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-t
 
 == ChangeLog ==
 
-= 2.0.6 =
-* Add PHP7 compatibility
+= 2.3.0 =
+*Release Date - February 17, 2026*
 
-= 2.0.5 =
-* No timeout limit
+* added: WP_CLI command: force-regenerate-thumbnails props @realmranshuman
+* fixed: PHP 8.5 compatibility
 
-= 2.0.4 =
-* Fix issue when "opendir()" return FALSE (thanks Krody Robert)
+= 2.2.2 =
+*Release Date - June 3, 2025*
 
-= 2.0.3 =
-* Add debug information on regenerate
-* Fix issue with update "_wp_attachment_metadata" and "_wp_attached_file" on windows
+* fixed: PHP notice when regenerating select images
 
-= 2.0.2 =
-* New style for results (thanks @justonarnar)
-* Automatic update "_wp_attachment_metadata" and "_wp_attached_file" (thanks @norecipes)
+= 2.2.1 =
+*Release Date - November 12, 2024*
 
-= 2.0.1 =
-* Fix issue with get_option('upload_path') in Wordpress 3.5+ (thanks @DavidLingren)
+* added: list of active image sizes when regenerating thumbs for all images
 
-= 2.0.0 = 
-* Fix error handle
+= 2.2.0 =
+*Release Date - September 17, 2024*
 
-= 1.8 =
-* New function to display ajax results
+* added: regen process can be resumed
+* fixed: nonce expiration stops regen process
+* fixed: JS errors on thumb regen page
 
-= 1.7 =
-* Fix issue with getters path in Linux/Windows/Unix servers
+= 2.1.4 =
+*Release Date - April 23, 2024*
 
-= 1.6 =
-* New CORE to regenerate thumbnails
+* fixed: thumb removal via metadata not working due to undefined variable
 
-= 1.5 =
-* Reviewed some messages
+= 2.1.3 =
+*Release Date - September 13, 2023*
 
-= 1.4 =
-* Change default image editor to GB in Wordpress 3.5+ (thanks @nikcree)
+* changed: use updated coding standards
+* fixed: WP image edits lost if pre-scaled original is used for thumbnail generation
 
-= 1.3 =
-* Fix message error when WP_DEBUG in wp_config.php
+= 2.1.2 =
+*Release Date - March 21, 2023*
 
-= 1.2 =
-* Fix for JPEG images
+* changed: improved i18n for page headings and menu entries, props @alexclassroom
 
-= 1.1 =
-* Delete all custom image sizes when regenerate thumbnails
-* Notifies you when thumbnails was deleted 
+= 2.1.1 =
+*Release Date - January 18, 2023*
 
-= 1.0 =
-* First release.
+* fixed: invalid trailing comma syntax in PHP 7.2
 
-== Upgrade Notice ==
+= 2.1.0 =
+*Release Date - November 10, 2022*
+
+* added: PHP 8.0 compatibility
+* added: support generating thumbnails from original (pre-scaled), on by default
+* added: support for PDF thumbnail generation
+* added: ability to skip an image by regenerate_thumbs_skip_image filter
+* changed: escape all output, sanitize all input
+* changed: ensure all strings are i18n
+* changed: remove HTML from i18n strings
+* changed: improve path lookup function
+* fixed: call to set_time_limit() when it is not allowed
+
+= Earlier versions =
+Please refer to the separate changelog.txt file.

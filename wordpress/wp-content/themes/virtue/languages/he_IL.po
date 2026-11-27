@@ -2294,11 +2294,11 @@ msgid "Extra Sidebar"
 msgstr "סרגל צד נוסף"
 
 #: ../themeoptions/options.php:1881
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr "גלריות וורדפרס"
 
 #: ../themeoptions/options.php:1887
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr "אפשר גלריות של Virtue כדי לעקוף את וורדפרס"
 
 #: ../themeoptions/options.php:1888

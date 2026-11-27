@@ -9,9 +9,14 @@
  *
  * @link http://evnt.is/1aiy
  *
- * @version 4.9.11
+ * @since 6.2.0 Added the `tec_events_view_venue_after_address` action.
+ * @since 6.15.3 Added post password protection.
+ * @since 6.18.4.1 Hides the Venue address from users who may not see the Venue.
+ *
+ * @version 6.18.4.1
  *
  * @var WP_Post $event The event post object with properties added by the `tribe_get_event` function.
+ * @var string  $slug  The slug of the view.
  *
  * @see tribe_get_event() For the format of the event object.
  */
@@ -30,19 +35,36 @@ $address              = $venue->address . ( $venue->address && ( $append_after_a
 		<?php echo wp_kses_post( $venue->post_title ); ?>
 	</span>
 	<span class="tribe-events-calendar-list__event-venue-address">
-		<?php 
-		echo esc_html( $address ); 
+		<?php
+		if ( Tribe__Events__Linked_Posts::instance()->is_linked_post_visible( $venue->ID ) ) {
+			echo esc_html( $address );
 
-		if ( ! empty( $venue->city ) ) : 
-			echo esc_html( $venue->city );
-			if ( $append_after_address ) :
-				echo $separator;
+			if ( ! empty( $venue->city ) ) :
+				echo esc_html( $venue->city );
+				if ( $append_after_address ) :
+					echo $separator;
+				endif;
 			endif;
-		endif;
 
-		if ( $append_after_address ) : 
-			echo esc_html( reset( $append_after_address ) ); 
-		endif; 
+			if ( $append_after_address ) :
+				echo esc_html( reset( $append_after_address ) );
+			endif;
+
+			if ( ! empty( $venue->country ) ) :
+				echo $separator . esc_html( $venue->country );
+			endif;
+		}
 		?>
 	</span>
+	<?php
+	/**
+	 * Fires after the full venue has been displayed.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param WP_Post $event Event post object.
+	 * @param string  $slug  Slug of the view.
+	 */
+	do_action( 'tec_events_view_venue_after_address', $event, $slug );
+	?>
 </address>

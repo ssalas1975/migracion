@@ -13,7 +13,7 @@ if ( ! class_exists( 'FLThemeBuilderLoader' ) || ! class_exists( 'FLThemeBuilder
 /**
  * Astra Beaver Themer Compatibility
  */
-if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
+if ( ! class_exists( 'Astra_Beaver_Themer' ) ) {
 
 	/**
 	 * Astra Beaver Themer Compatibility
@@ -21,7 +21,6 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 	 * @since 1.0.0
 	 */
 	class Astra_Beaver_Themer {
-
 		/**
 		 * Member Variable
 		 *
@@ -47,8 +46,10 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 			add_action( 'wp', array( $this, 'theme_header_footer_render' ) );
 			add_filter( 'fl_theme_builder_part_hooks', array( $this, 'register_part_hooks' ) );
 			add_filter( 'post_class', array( $this, 'render_post_class' ), 99 );
+			add_action( 'astra_blog_archive_read_more_before', array( $this, 'reset_post_link_filter' ), 1 );
 			add_action( 'fl_theme_builder_before_render_content', array( $this, 'builder_before_render_content' ), 10, 1 );
 			add_action( 'fl_theme_builder_after_render_content', array( $this, 'builder_after_render_content' ), 10, 1 );
+			add_filter( 'astra_dynamic_theme_css', array( $this, 'beaver_themer_compatibility_styles' ) );
 		}
 
 		/**
@@ -63,15 +64,45 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 			$ids       = FLThemeBuilderLayoutData::get_current_page_content_ids();
 			$post_type = get_post_type();
 
-			if ( 'fl-theme-layout' == $post_type ) {
+			if ( 'fl-theme-layout' === $post_type ) {
 				remove_action( 'astra_entry_after', 'astra_single_post_navigation_markup' );
 			}
 
-			if ( empty( $ids ) && 'fl-theme-layout' != $post_type ) {
+			if ( empty( $ids ) && 'fl-theme-layout' !== $post_type ) {
 				return $layout;
 			}
 
 			return 'page-builder';
+		}
+
+		/**
+		 * Compatibility CSS for Beaver Themer Builder.
+		 *
+		 * @param string $dynamic_css Astra Dynamic CSS.
+		 * @return string $dynamic_css Generated CSS.
+		 *
+		 * @since 4.6.15
+		 */
+		public function beaver_themer_compatibility_styles( $dynamic_css ) {
+
+			if ( class_exists( 'FLBuilderModel' ) ) {
+				$beaver_themer_styles = array(
+					'.fl-row-content-wrap [CLASS*="ast-width-"] ' => array(
+						'width' => '100%',
+					),
+					'body.fl-theme-builder-header.fl-theme-builder-part.fl-theme-builder-part-part #page' => array(
+						'display' => 'block',
+					),
+				);
+
+				// Parse CSS from array.
+				$parse_css = astra_parse_css( $beaver_themer_styles );
+
+				// Appended parsed CSS.
+				$dynamic_css .= $parse_css;
+			}
+
+			return $dynamic_css;
 		}
 
 		/**
@@ -189,10 +220,22 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 					)
 				);
 
+				// Reset via reset_post_link_filter() before Astra's own archive loop renders its Read More link.
 				add_filter( 'astra_post_link_enabled', '__return_false' );
 			}
 
 			return $classes;
+		}
+
+		/**
+		 * Remove the stale `astra_post_link_enabled` filter added while rendering a Beaver Builder posts module,
+		 * so Astra's own archive loop can render its Read More link.
+		 *
+		 * @return void
+		 * @since 4.13.9
+		 */
+		public function reset_post_link_filter() {
+			remove_filter( 'astra_post_link_enabled', '__return_false' );
 		}
 
 		/**
@@ -228,6 +271,7 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 
 			// If we have a footer, remove the theme footer and hook in Theme Builder's.
 			if ( ! empty( $footer_ids ) ) {
+				remove_action( 'astra_footer', array( Astra_Builder_Footer::get_instance(), 'footer_markup' ) );
 				remove_action( 'astra_footer', 'astra_footer_markup' );
 				add_action( 'astra_footer', 'FLThemeBuilderLayoutRenderer::render_footer' );
 			}
@@ -247,7 +291,7 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 					if ( 'default' !== $sidebar ) {
 						add_filter(
 							'astra_page_layout',
-							function( $page_layout ) use ( $sidebar ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+							static function( $page_layout ) use ( $sidebar ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 
 								return $sidebar;
 							}
@@ -258,7 +302,7 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 					if ( 'default' !== $content_layout ) {
 						add_filter(
 							'astra_get_content_layout',
-							function( $layout ) use ( $content_layout ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+							static function( $layout ) use ( $content_layout ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 
 								return $content_layout;
 							}
@@ -273,7 +317,7 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 						} else {
 							add_filter(
 								'astra_main_header_display',
-								function( $display_header ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+								static function( $display_header ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 
 									return 'disabled';
 								}
@@ -286,7 +330,7 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 
 						add_filter(
 							'astra_footer_sml_layout',
-							function( $is_footer ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+							static function( $is_footer ) {// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 
 								return 'disabled';
 							}
@@ -370,11 +414,11 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 		public function builder_before_render_content( $post_id ) {
 
 			?>
-			<?php if ( 'left-sidebar' === astra_page_layout() ) : ?>
+			<?php if ( 'left-sidebar' === astra_page_layout() ) { ?>
 
 				<?php get_sidebar(); ?>
 
-			<?php endif ?>
+			<?php } ?>
 
 			<div id="primary" <?php astra_primary_class(); ?>>
 			<?php
@@ -391,18 +435,18 @@ if ( ! class_exists( 'Astra_Beaver_Themer' ) ) :
 			?>
 			</div><!-- #primary -->
 
-			<?php if ( 'right-sidebar' === astra_page_layout() ) : ?>
+			<?php if ( 'right-sidebar' === astra_page_layout() ) { ?>
 
 				<?php get_sidebar(); ?>
 
-			<?php endif ?>
+			<?php } ?>
 
 			<?php
 		}
 
 	}
 
-endif;
+}
 
 /**
  * Kicking this off by calling 'get_instance()' method

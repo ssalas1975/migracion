@@ -25,7 +25,7 @@
 	text-transform: uppercase;
 	line-height: 45px;
 	font-size: 14px;
-	background: #1a6de1;
+	background: #dc3522;
 	/*padding: 0 20px;*/
 	position: relative;
 }
@@ -38,14 +38,14 @@
 	width: 0;
 	border-top: 6px solid transparent;
 	border-bottom: 6px solid transparent;
-	border-left:6px solid #1a6de1;
+	border-left:6px solid #dc3522;
 	margin-top: -6px;
 }
 .rtl .ticker-title:before{
     left: -6px;
     right: inherit;
     border-left: inherit;
-    border-right: 6px solid #1a6de1;
+    border-right: 6px solid #dc3522;
 }
 .ticker-content {
 	margin: 0px;

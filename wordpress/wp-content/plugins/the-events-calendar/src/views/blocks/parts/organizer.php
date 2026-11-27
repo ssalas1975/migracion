@@ -9,7 +9,11 @@
  *
  * @link http://evnt.is/1aiy
  *
- * @version 4.7
+ * @version 6.18.4.1
+ *
+ * @since 4.7
+ * @since 6.15.11 Replaced definition list markup with unordered list and removed empty dt tags for improved accessibility.
+ * @since 6.18.4.1 Hides the Organizer details from users who may not see the Organizer.
  *
  */
 
@@ -34,7 +38,7 @@ $website = tribe_get_organizer_website_link();
 			<?php echo is_array( $attributes['organizerTitle'] ) ? reset( $attributes['organizerTitle'] ) : esc_html( $attributes['organizerTitle'] ) ?>
 		<?php endif; ?>
 	</h3>
-	<dl>
+	<ul class="tribe-events-meta-list tribe-events-meta-list-organizer">
 		<?php
 		do_action( 'tribe_events_single_meta_organizer_section_start' );
 
@@ -44,49 +48,56 @@ $website = tribe_get_organizer_website_link();
 			}
 
 			?>
-			<dt style="display:none;"><?php // This element is just to make sure we have a valid HTML ?></dt>
-			<dd class="tribe-organizer">
-				<?php echo tribe_get_organizer_link( $organizer ) ?>
-			</dd>
+			<li class="tribe-events-meta-item">
+				<span class="tribe-organizer tribe-events-meta-value">
+					<?php echo tribe_get_organizer_link( $organizer ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,StellarWP.XSS.EscapeOutput.OutputNotEscaped ?>
+				</span>
+			</li>
 			<?php
 		}
 
-		if ( ! $multiple ) { // only show organizer details if there is one
+		if ( ! $multiple && ! empty( $organizer_ids[0] ) && Tribe__Events__Linked_Posts::instance()->is_linked_post_visible( absint( $organizer_ids[0] ) ) ) { // Only show organizer details if there is one.
 			if ( ! empty( $phone ) ) {
 				?>
-				<dt>
-					<?php esc_html_e( 'Phone:', 'the-events-calendar' ) ?>
-				</dt>
-				<dd class="tribe-organizer-tel">
-					<?php echo esc_html( $phone ); ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<span class="tribe-organizer-tel-label tribe-events-meta-label">
+						<?php esc_html_e( 'Phone', 'the-events-calendar' ); ?>
+					</span>
+					<span class="tribe-organizer-tel tribe-events-meta-value">
+						<?php echo esc_html( $phone ); ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 
 			if ( ! empty( $email ) ) {
 				?>
-				<dt>
-					<?php esc_html_e( 'Email:', 'the-events-calendar' ) ?>
-				</dt>
-				<dd class="tribe-organizer-email">
-					<?php echo esc_html( $email ); ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<span class="tribe-organizer-email-label tribe-events-meta-label">
+						<?php esc_html_e( 'Email', 'the-events-calendar' ); ?>
+					</span>
+					<span class="tribe-organizer-email tribe-events-meta-value">
+						<?php echo esc_html( $email ); ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 
 			if ( ! empty( $website ) ) {
 				?>
-				<dt>
-					<?php esc_html_e( 'Website:', 'the-events-calendar' ) ?>
-				</dt>
-				<dd class="tribe-organizer-url">
-					<?php echo $website; ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<span class="tribe-organizer-url-label tribe-events-meta-label">
+						<?php esc_html_e( 'Website', 'the-events-calendar' ); ?>
+					</span>
+					<span class="tribe-organizer-url tribe-events-meta-value">
+						<?php echo $website; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,StellarWP.XSS.EscapeOutput.OutputNotEscaped ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 		}//end if
 
 		do_action( 'tribe_events_single_meta_organizer_section_end' );
 		?>
-	</dl>
+	</ul>
 </div>

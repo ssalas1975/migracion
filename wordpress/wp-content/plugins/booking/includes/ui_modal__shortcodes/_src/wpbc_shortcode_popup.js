@@ -1,4 +1,173 @@
 /**
+ * Normalize a user-entered list of positive IDs for a workflow shortcode.
+ *
+ * @param {string} raw_value Comma-, semicolon-, or whitespace-delimited IDs.
+ * @returns {string} Unique comma-delimited positive IDs.
+ */
+function wpbc_shortcode_config__normalize_workflow_id_list( raw_value ) {
+    var normalized_ids = [];
+    String( raw_value || '' ).split( /[;,\s]+/ ).forEach( function ( raw_id ) {
+        var normalized_id = parseInt( raw_id, 10 );
+        if ( normalized_id > 0 && -1 === normalized_ids.indexOf( normalized_id ) ) {
+            normalized_ids.push( normalized_id );
+        }
+    } );
+
+    return normalized_ids.join( ',' );
+}
+
+/**
+ * Normalize one safe public catalog CSS width.
+ *
+ * @param {string} raw_value Raw width entered in the shortcode builder.
+ * @returns {string} Normalized width or an empty string for automatic width.
+ */
+function wpbc_shortcode_config__normalize_css_width( raw_value ) {
+    var normalized_width = String( raw_value || '' ).trim().toLowerCase();
+    var width_match;
+    var numeric_width;
+    var maximum_width;
+
+    if ( '' === normalized_width || 'auto' === normalized_width ) {
+        return '';
+    }
+    if ( /^\d+(?:\.\d+)?$/.test( normalized_width ) ) {
+        normalized_width += 'px';
+    }
+
+    width_match = /^(\d+(?:\.\d+)?)(px|%|rem|em|vw)$/.exec( normalized_width );
+    if ( ! width_match ) {
+        return '';
+    }
+
+    numeric_width = parseFloat( width_match[ 1 ] );
+    maximum_width = '%' === width_match[ 2 ] || 'vw' === width_match[ 2 ] ? 100 : ( 'px' === width_match[ 2 ] ? 2000 : 100 );
+    if ( numeric_width <= 0 || numeric_width > maximum_width ) {
+        return '';
+    }
+
+    return String( Number( numeric_width.toFixed( 4 ) ) ) + width_match[ 2 ];
+}
+
+/**
+ * Normalize one workflow shortcode field according to its declared value type.
+ *
+ * @param {jQuery} $field Parameter control.
+ * @returns {string} Safe value for the generated shortcode.
+ */
+function wpbc_shortcode_config__get_workflow_field_value( $field ) {
+    var value_type = String( $field.data( 'wpbc-shortcode-value-type' ) || 'text' );
+    var raw_value = $field.is( ':checkbox' ) ? ( $field.is( ':checked' ) ? 'on' : 'off' ) : $field.val();
+    var field_value = Array.isArray( raw_value ) ? raw_value.join( ',' ) : String( raw_value || '' ).trim();
+    var is_valid = true;
+    var month_match;
+    var raw_css_width;
+
+    if ( 'positive_integer' === value_type ) {
+        field_value = '' === field_value ? '' : String( parseInt( field_value, 10 ) );
+        is_valid = '' === field_value || ( ! isNaN( parseInt( field_value, 10 ) ) && parseInt( field_value, 10 ) > 0 );
+    } else if ( 'id_list' === value_type ) {
+        field_value = wpbc_shortcode_config__normalize_workflow_id_list( field_value );
+    } else if ( 'css_width' === value_type ) {
+        raw_css_width = field_value.toLowerCase();
+        field_value = wpbc_shortcode_config__normalize_css_width( field_value );
+        is_valid = '' === raw_css_width || 'auto' === raw_css_width || '' !== field_value;
+    } else if ( 'date' === value_type ) {
+        is_valid = '' === field_value || /^\d{4}-\d{2}-\d{2}$/.test( field_value );
+    } else if ( 'month' === value_type ) {
+        month_match = /^(\d{4})(?:-?(\d{1,2})|\/(\d{1,2}))$/.exec( field_value );
+        is_valid = '' === field_value || ( month_match && parseInt( month_match[ 2 ] || month_match[ 3 ], 10 ) >= 1
+            && parseInt( month_match[ 2 ] || month_match[ 3 ], 10 ) <= 12 );
+    }
+
+    if ( ! is_valid ) {
+        if ( 'function' === typeof wpbc_field_highlight ) {
+            wpbc_field_highlight( '#' + $field.attr( 'id' ) );
+        }
+        return '';
+    }
+
+    return field_value.replace( /'/g, '' );
+}
+
+/**
+ * Build one modern workflow shortcode from declarative popup controls.
+ *
+ * @param {string} shortcode_id booking_appointment or booking_resource_selector.
+ * @returns {string} Complete shortcode text.
+ */
+function wpbc_shortcode_config__build_workflow_shortcode( shortcode_id ) {
+    var shortcode_text = '[' + shortcode_id;
+    var $container = jQuery( '#wpbc_sc_container__shortcode_' + shortcode_id );
+
+    $container.find( '[data-wpbc-shortcode-parameter]' ).each( function () {
+        var $field = jQuery( this );
+        var parameter_name = String( $field.data( 'wpbc-shortcode-parameter' ) || '' );
+        var default_value = String( $field.data( 'wpbc-shortcode-default' ) );
+        var field_value = wpbc_shortcode_config__get_workflow_field_value( $field );
+
+        if ( parameter_name && field_value !== default_value ) {
+            shortcode_text += ' ' + parameter_name + '=\'' + field_value + '\'';
+        }
+    } );
+
+    return shortcode_text + ']';
+}
+
+/**
+ * Restore one workflow shortcode section to its parser-backed UI defaults.
+ *
+ * @param {string} shortcode_id booking_appointment or booking_resource_selector.
+ * @returns {void}
+ */
+function wpbc_shortcode_config__reset_workflow( shortcode_id ) {
+    var $container = jQuery( '#wpbc_sc_container__shortcode_' + shortcode_id );
+
+    $container.find( '[data-wpbc-shortcode-parameter]' ).each( function () {
+        var $field = jQuery( this );
+        var default_value = String( $field.data( 'wpbc-shortcode-default' ) );
+
+        if ( $field.is( ':checkbox' ) ) {
+            $field.prop( 'checked', 'on' === default_value );
+        } else {
+            $field.val( default_value );
+        }
+    } );
+
+    wpbc_set_shortcode();
+}
+
+/**
+ * Apply the recommended compact presentation when a workflow List view is selected.
+ *
+ * The preset is applied only in the shortcode configuration UI when the
+ * catalog layout control changes to List. Each affected control remains
+ * independently editable after the preset is applied, and shortcode parser
+ * defaults are not changed.
+ *
+ * @param {jQuery} $changed_field Workflow field that triggered the change.
+ * @returns {void}
+ */
+function wpbc_shortcode_config__apply_resource_list_preset( $changed_field ) {
+    var parameter_name = String( $changed_field.data( 'wpbc-shortcode-parameter' ) || '' );
+    var $container;
+
+    if ( 'catalog_layout' !== parameter_name || 'list' !== String( $changed_field.val() || '' ) ) {
+        return;
+    }
+
+	$container = $changed_field.closest( '#wpbc_sc_container__shortcode_booking_resource_selector, #wpbc_sc_container__shortcode_booking_appointment' );
+    if ( ! $container.length ) {
+        return;
+    }
+
+    $container.find( '[data-wpbc-shortcode-parameter="show_resource_description"]' ).prop( 'checked', false );
+    $container.find( '[data-wpbc-shortcode-parameter="catalog_list_items_per_row"]' ).val( '2' );
+    $container.find( '[data-wpbc-shortcode-parameter="show_resource_hierarchy"]' ).prop( 'checked', false );
+    $container.find( '[data-wpbc-shortcode-parameter="show_availability"]' ).prop( 'checked', false );
+}
+
+/**
  * Shortcode Config - Main Loop
  */
 function wpbc_set_shortcode(){
@@ -10,6 +179,12 @@ function wpbc_set_shortcode(){
 
     var wpbc_shortcode = '[';
     var shortcode_id = jQuery( '#wpbc_shortcode_type' ).val().trim();
+
+    if ( 'booking_appointment' === shortcode_id || 'booking_resource_selector' === shortcode_id ) {
+        jQuery( '#wpbc_text_put_in_shortcode' ).val( wpbc_shortcode_config__build_workflow_shortcode( shortcode_id ) );
+        return;
+    }
+
 
     // -----------------------------------------------------------------------------------------------------------------
     // [booking]  | [bookingcalendar] | ...
@@ -429,6 +604,46 @@ function wpbc_set_shortcode(){
         }
 
         if (
+                ( 'booking' === shortcode_id )
+             && ( jQuery( '#booking_wpbc_popup_enabled' ).length > 0 )
+        ){
+            if ( jQuery( '#booking_wpbc_popup_enabled' ).is( ':checked' ) ){
+                jQuery( '.booking_wpbc_popup_wpbc_sc_booking_popup' ).show();
+
+                wpbc_shortcode += ' popup=1';
+
+                var popup_button_title_default = jQuery( '#booking_wpbc_popup_button_title' ).attr( 'placeholder' );
+                var popup_button_title_temp = jQuery( '#booking_wpbc_popup_button_title' ).val().trim().replace( /'/gi, '' );
+                if ( ( popup_button_title_temp != '' ) && ( popup_button_title_temp != popup_button_title_default ) ){
+                    wpbc_shortcode += ' popup_button_title=\'' + popup_button_title_temp + '\'';
+                }
+
+                var popup_title_default = jQuery( '#booking_wpbc_popup_title' ).attr( 'placeholder' );
+                var popup_title_temp = jQuery( '#booking_wpbc_popup_title' ).val().trim().replace( /'/gi, '' );
+                if ( ( popup_title_temp != '' ) && ( popup_title_temp != popup_title_default ) ){
+                    wpbc_shortcode += ' popup_title=\'' + popup_title_temp + '\'';
+                }
+
+                var popup_button_class_temp = jQuery( '#booking_wpbc_popup_button_class' ).val().trim().replace( /'/gi, '' );
+                if ( ( popup_button_class_temp != '' ) && ( popup_button_class_temp != 'wp-element-button' ) ){
+                    wpbc_shortcode += ' popup_button_class=\'' + popup_button_class_temp + '\'';
+                }
+
+                var popup_modal_class_temp = jQuery( '#booking_wpbc_popup_modal_class' ).val().trim().replace( /'/gi, '' );
+                if ( popup_modal_class_temp != '' ){
+                    wpbc_shortcode += ' popup_modal_class=\'' + popup_modal_class_temp + '\'';
+                }
+
+                var popup_size_temp = jQuery( '#booking_wpbc_popup_size' ).val().trim();
+                if ( popup_size_temp != 'lg' ){
+                    wpbc_shortcode += ' popup_size=\'' + popup_size_temp + '\'';
+                }
+            } else {
+                jQuery( '.booking_wpbc_popup_wpbc_sc_booking_popup' ).hide();
+            }
+        }
+
+        if (
                 ( jQuery('#' + shortcode_id + '_wpbc_startmonth_active').length > 0 )
              && ( jQuery('#' + shortcode_id + '_wpbc_startmonth_active').is(':checked') )
         ){
@@ -579,10 +794,10 @@ function wpbc_set_shortcode(){
 
             var ed, mce = typeof(tinymce) != 'undefined', qt = typeof(QTags) != 'undefined';
 
-            if ( !wpActiveEditor ) {
+            if ( ! window.wpActiveEditor ) {
                     if ( mce && tinymce.activeEditor ) {
                             ed = tinymce.activeEditor;
-                            wpActiveEditor = ed.id;
+                            window.wpActiveEditor = ed.id;
                     } else if ( !qt ) {
                             return false;
                     }
@@ -669,6 +884,20 @@ function wpbc_set_shortcode(){
             jQuery( '#booking_resource_shortcode_' + resource_id ).val( shortcode_val );
             jQuery( '#booking_resource_shortcode_' + resource_id ).trigger('change');
 
+		/**
+		 * Fires after the Resource shortcode customizer returns a shortcode.
+		 *
+		 * AJAX inspectors consume this event without duplicating the legacy
+		 * `booking_resource_shortcode_{ID}` DOM contract.
+		 *
+		 * @event wpbc:resource-shortcode-selected
+		 * @type {{resource_id: number|string, shortcode: string}}
+		 */
+		jQuery( document ).trigger( 'wpbc:resource-shortcode-selected', [ {
+			resource_id: resource_id,
+			shortcode: shortcode_val
+		} ] );
+
         // Scroll
         if ( 'function' === typeof (wpbc_scroll_to) ){
             wpbc_scroll_to( '#div_booking_resource_shortcode_' + jQuery( "#booking_wpbc_resource_id" ).val() );
@@ -677,6 +906,11 @@ function wpbc_set_shortcode(){
 
     /* R E S E T */
     function wpbc_shortcode_config__reset(shortcode_val){
+        if ( 'booking_appointment' === shortcode_val || 'booking_resource_selector' === shortcode_val ) {
+            wpbc_shortcode_config__reset_workflow( shortcode_val );
+            return;
+        }
+
         jQuery( '#' + shortcode_val + '_wpbc_startmonth_active' ).prop( 'checked', false ).trigger('change');
         jQuery( '#' + shortcode_val + '_wpbc_calendar_dates_start_active' ).prop( 'checked', false ).trigger('change');
         jQuery( '#' + shortcode_val + '_wpbc_calendar_dates_end_active' ).prop( 'checked', false ).trigger('change');
@@ -688,6 +922,13 @@ function wpbc_set_shortcode(){
         jQuery( '#' + shortcode_val + '_wpbc_custom_form option:eq(0)' ).prop( 'selected', true );
         jQuery( '#' + shortcode_val + '_wpbc_nummonths option:eq(0)' ).prop( 'selected', true );
         jQuery( '#' + shortcode_val + '_wpbc_size_enabled' ).prop( 'checked', false ).trigger('change');
+
+        jQuery( '#' + shortcode_val + '_wpbc_popup_enabled' ).prop( 'checked', false ).trigger('change');
+        jQuery( '#' + shortcode_val + '_wpbc_popup_button_title' ).val( jQuery( '#' + shortcode_val + '_wpbc_popup_button_title' ).attr( 'placeholder' ) ).trigger('change');
+        jQuery( '#' + shortcode_val + '_wpbc_popup_title' ).val( jQuery( '#' + shortcode_val + '_wpbc_popup_title' ).attr( 'placeholder' ) ).trigger('change');
+        jQuery( '#' + shortcode_val + '_wpbc_popup_button_class' ).val( 'wp-element-button' ).trigger('change');
+        jQuery( '#' + shortcode_val + '_wpbc_popup_modal_class' ).val( '' ).trigger('change');
+        jQuery( '#' + shortcode_val + '_wpbc_popup_size option[value="lg"]' ).prop( 'selected', true ).trigger('change');
 
         wpbc_shortcode_config__select_day_weekday__reset( shortcode_val + 'wpbc_select_day_weekday' );
         wpbc_shortcode_config__select_day_season__reset( shortcode_val + 'wpbc_select_day_season' );
@@ -751,22 +992,31 @@ function wpbc_set_shortcode(){
 /* ------------------------------------------------------------------------------------------------------------------ */
 
 /**
- * When click on menu item in "Left Vertical Navigation" panel  in shortcode config popup
+ * Show the selected shortcode configuration from the popup navigation.
+ *
+ * Every shortcode uses the same constrained content layout so its tab bar,
+ * generated shortcode, and popup actions remain fixed while only the selected
+ * configuration section scrolls.
+ *
+ * @param {HTMLElement} _this              Clicked navigation link.
+ * @param {string}      section_id_to_show Selector for the shortcode container.
+ * @param {string}      shortcode_name     Shortcode name without brackets.
+ * @return {void}
  */
 function wpbc_shortcode_config_click_show_section( _this, section_id_to_show, shortcode_name ){
+
+    var shortcode_container = jQuery( section_id_to_show );
 
     // Menu
     jQuery( _this ).parents( '.wpbc_settings_flex_container' ).find( '.wpbc_settings_navigation_item_active' ).removeClass( 'wpbc_settings_navigation_item_active' );
     jQuery( _this ).parents( '.wpbc_settings_navigation_item' ).addClass( 'wpbc_settings_navigation_item_active' );
 
     // Content
-    jQuery( _this ).parents( '.wpbc_settings_flex_container' ).find( '.wpbc_sc_container__shortcode' ).hide();
-    jQuery( section_id_to_show ).show();
+    jQuery( _this ).parents( '.wpbc_settings_flex_container' ).find( '.wpbc_sc_container__shortcode' ).removeClass( 'wpbc_sc_container__shortcode_is_active' ).hide();
+    shortcode_container.show().addClass( 'wpbc_sc_container__shortcode_is_active' );
 
-    // Scroll
-    if ( 'function' === typeof (wpbc_scroll_to) ){
-        wpbc_scroll_to( section_id_to_show );
-    }
+    // Start each selected configuration at the beginning of its visible section.
+    shortcode_container.find( '.wpbc_sc_container__shortcode_section:visible' ).scrollTop( 0 );
     // Set - Shortcode Type
     jQuery( '#wpbc_shortcode_type').val( shortcode_name );
 
@@ -1035,7 +1285,7 @@ function wpbc_shortcode_config_click_show_section( _this, section_id_to_show, sh
     }
 
 
-    
+
 function wpbc_shortcode_config__update_elements_in_timeline(){
 
     var wpbc_is_matrix = false;
@@ -1112,14 +1362,14 @@ function wpbc_shortcode_config__update_elements_in_timeline(){
 
 
     return [ wpbc_is_matrix, view_days_num_temp ];
-}    
+}
 
-    
+
 jQuery( document ).ready( function (){
     // -----------------------------------------------------------------------------------------------------
     // [booking ... ]
 
-    var shortcode_arr = ['booking', 'bookingcalendar', 'bookingselect', 'bookingtimeline', 'bookingform', 'bookingsearch', 'bookingother', 'booking_import_ics' , 'booking_listing_ics'];
+    var shortcode_arr = ['booking', 'bookingcalendar', 'bookingselect', 'bookingtimeline', 'bookingform', 'bookingsearch', 'bookingother', 'booking_import_ics' , 'booking_listing_ics', 'booking_appointment', 'booking_resource_selector'];
 
     for ( var shortcde_key in shortcode_arr ){
 
@@ -1129,6 +1379,7 @@ jQuery( document ).ready( function (){
         // Hide by Size sections
         // -------------------------------------------------------------------------------------------------------------
         jQuery( '.' + id + '_wpbc_size_wpbc_sc_calendar_size' ).hide();
+        jQuery( '.' + id + '_wpbc_popup_wpbc_sc_booking_popup' ).hide();
 
         // options :: Show / Hide SIZE calendar  section
         jQuery( '#' + id + '_wpbc_size_enabled' ).on( 'change', {'id': id}, function( event ){
@@ -1136,6 +1387,14 @@ jQuery( document ).ready( function (){
                 jQuery( '.' + event.data.id + '_wpbc_size_wpbc_sc_calendar_size' ).show();
             } else {
                 jQuery( '.' + event.data.id + '_wpbc_size_wpbc_sc_calendar_size' ).hide();
+            }
+        } );
+
+        jQuery( '#' + id + '_wpbc_popup_enabled' ).on( 'change', {'id': id}, function( event ){
+            if ( jQuery( '#' + event.data.id + '_wpbc_popup_enabled' ).is( ':checked' ) ){
+                jQuery( '.' + event.data.id + '_wpbc_popup_wpbc_sc_booking_popup' ).show();
+            } else {
+                jQuery( '.' + event.data.id + '_wpbc_popup_wpbc_sc_booking_popup' ).hide();
             }
         } );
 
@@ -1157,6 +1416,13 @@ jQuery( document ).ready( function (){
                 +',#' + id + '_wpbc_size_calendar_width'                      // - Width
                 +',#' + id + '_wpbc_size_calendar_width_px_pr'                // - Width PS | %
                 +',#' + id + '_wpbc_size_calendar_cell_height'                // - Cell Height
+
+                +',#' + id + '_wpbc_popup_enabled'                            // Booking form popup On | Off
+                +',#' + id + '_wpbc_popup_button_title'                       // Popup button title
+                +',#' + id + '_wpbc_popup_title'                              // Popup title
+                +',#' + id + '_wpbc_popup_button_class'                       // Popup button class
+                +',#' + id + '_wpbc_popup_modal_class'                        // Popup modal class
+                +',#' + id + '_wpbc_popup_size'                               // Popup size
 
                 +',#' + id + 'wpbc_select_day_weekday_textarea'               // Rule Weekday
                 +',#' + id + 'wpbc_select_day_season_textarea'                // Rule Season
@@ -1237,4 +1503,11 @@ jQuery( document ).ready( function (){
     }
     // -----------------------------------------------------------------------------------------------------
     wpbc_set_shortcode();
+
+    jQuery( '.wpbc_shortcode_config__workflow_parameter' ).on( 'change input', function ( event ) {
+        if ( 'change' === event.type ) {
+            wpbc_shortcode_config__apply_resource_list_preset( jQuery( this ) );
+        }
+        wpbc_set_shortcode();
+    } );
 });

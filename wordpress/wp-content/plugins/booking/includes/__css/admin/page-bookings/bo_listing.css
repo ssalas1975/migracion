@@ -44,6 +44,24 @@
 /* ================================================================================================================== */
 .wpbc__wrap__booking_listing {
 	margin: 15px 0;
+	min-height: 550px;
+}
+/* Keep the listing shrinkable while allowing long action menus to overlay. */
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing .wpbc_settings_page_content {
+	min-width: 0;
+	overflow: visible;
+}
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing .wpbc_admin_page__content,
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing #toolbar_booking_listing,
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing #toolbar_booking_listing > div,
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing #toolbar_booking_listing .ui_container,
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing #toolbar_booking_listing .ui_group,
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing .wpbc__wrap__booking_listing {
+	max-inline-size: 100%;
+	min-inline-size: 0;
+}
+.wpbc_admin.wpbc_admin_page__tab__vm_booking_listing #toolbar_booking_listing .ui_group__keyword {
+	flex: 1 1 24rem;
 }
 .wpbc__list__table,
 .wpbc__list__table .wpbc__list__head,
@@ -560,9 +578,13 @@
 		justify-content: flex-end;
 	}
 	/* -- Notes and Sys Information -- */
+	.wpbc_row_wrap.max_height_a .wpbc_a_row__appointment,
 	.wpbc_row_wrap.max_height_a .wpbc_a_row__notes,
 	.wpbc_row_wrap.max_height_a .wpbc_a_row__system {
 		display:none;
+	}
+	.wpbc_a_row__appointment .wpbc_col_appointment_details {
+		margin: 5px 10px;
 	}
 	.wpbc_a_row__system .wpbc_col_sys_info{
 		margin-left:10px;
@@ -645,8 +667,8 @@
 }
 /* -- Stripe - Row --------------------------------------------------------------------------------------------- */
 .wpbc_ui_el__listing_row:nth-of-type(2n+1) {
-	background-color: var(--wpbc_ui_listing__back_alt_color);
-	border-left-color: var(--wpbc_ui_listing__back_alt_color);
+	/*background-color: var(--wpbc_ui_listing__back_alt_color);*/
+	/*border-left-color: var(--wpbc_ui_listing__back_alt_color);*/
 }
 .wpbc_ui_el__listing_row.wpbc_row.row_selected_color {
 	border-left-color: var(--wpbc_ui_listing__selected_row_color);
@@ -783,7 +805,7 @@
 .wpbc_listing_col.wpbc_col_action a.ul_dropdown_menu_toggle,
 .wpbc_listing_col.wpbc_col_action a.ul_dropdown_menu_toggle:hover,
 .wpbc_listing_col.wpbc_col_action a.ul_dropdown_menu_toggle:focus{
-	background: #00000012;
+	background: rgba(0, 0, 0, 0.03);
 	border-radius: 50%;
 	width: 33px;
 	flex-flow: column;
@@ -850,9 +872,10 @@
 	}
 }
 /* -- Input Fields -------------------------------------------------------------------------------------------------- */
-.wpbc_page .wpbc_modal_in_listing input[type=text],
-.wpbc_page .wpbc_modal_in_listing select,
-.wpbc_page .wpbc_modal_in_listing textarea{
+/* Action templates are printed in admin_footer on Timeline, outside the Booking Listing .wpbc_page wrapper. */
+.wpbc_modal_in_listing input[type=text],
+.wpbc_modal_in_listing select,
+.wpbc_modal_in_listing textarea{
 	width: 100%;
 	max-width: 100%;
 	font-size: 15px;
@@ -978,4 +1001,149 @@
 /* ================================================================================================================== */
 .wpbc_ui_toolbar.wpbc_ui_toolbar__bo_listing {
 	margin: var(--wpbc_ui_horis_top_nav__margin);
+}
+
+/* Appointment snapshot details shown only for rows with Appointment data. */
+.wpbc_appointment_booking_details {
+	border: 1px dashed #777;
+	border-radius: 4px;
+	display: flex;
+	flex-flow: row wrap;
+	gap: 4px 18px;
+	line-height: 1.6;
+	padding: 8px 10px;
+	margin: 0 20px 0 15px;
+}
+.wpbc_appointment_booking_details > strong {
+	flex: 1 1 100%;
+}
+.wpbc_appointment_booking_details > span {
+	overflow-wrap: anywhere;
+}
+
+
+/* Multi-Resource allocation summary and expanded date-to-Resource map. */
+.wpbc_a_col__dates .booking_dates_resource_allocation_summary .content_text {
+	flex-flow: column nowrap;
+	gap: 2px;
+	padding: 4px 2px;
+	text-align: center;
+}
+.booking_dates_resource_allocation_summary .wpbc_label_booking_dates {
+	line-height: 1.45;
+	margin: 2px;
+	white-space: normal;
+}
+.wpbc_booking_resource_count {
+	color: #646970;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.35;
+}
+.wpbc_row_wrap.max_height_a .wpbc_a_row__resource_allocation {
+	display: none;
+}
+.wpbc_a_row__resource_allocation {
+	box-sizing: border-box;
+	padding: 0 10px 10px 15px;
+}
+.wpbc_col_resource_allocation {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+.wpbc_resource_allocation {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	overflow: hidden;
+	width: 100%;
+}
+.wpbc_resource_allocation__header {
+	align-items: center;
+	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	min-height: 30px;
+	padding: 3px 10px;
+}
+.wpbc_resource_allocation__header strong {
+	font-size: 13px;
+}
+.wpbc_resource_allocation__count {
+	background: #f0f0f1;
+	border-radius: 3px;
+	color: #50575e;
+	font-size: 11px;
+	line-height: 1.5;
+	padding: 2px 8px;
+	white-space: nowrap;
+}
+.wpbc_resource_allocation__segments {
+	display: flex;
+	flex-flow: column nowrap;
+}
+.wpbc_resource_allocation__segment {
+	align-items: center;
+	border-bottom: 1px solid #f0f0f1;
+	display: flex;
+	flex-flow: row nowrap;
+	gap: 8px;
+	min-height: 36px;
+	padding: 4px 10px;
+}
+.wpbc_resource_allocation__segment:last-child {
+	border-bottom: 0;
+}
+.wpbc_resource_allocation__period {
+	flex: 0 1 280px;
+	font-weight: 600;
+	min-width: 175px;
+	overflow-wrap: anywhere;
+}
+.wpbc_resource_allocation__arrow {
+	color: #8c8f94;
+	flex: 0 0 20px;
+	text-align: center;
+}
+.rtl .wpbc_resource_allocation__arrow {
+	transform: scaleX(-1);
+}
+.wpbc_resource_allocation__resources {
+	align-items: center;
+	display: flex;
+	flex: 1 1 0;
+	flex-wrap: wrap;
+	gap: 5px 8px;
+	min-width: 0;
+}
+.wpbc_resource_allocation__resources .wpbc_label {
+	margin: 0;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	white-space: normal;
+	line-height: 1.5;
+}
+
+@media (max-width: 782px) {
+	.wpbc_a_row__resource_allocation {
+		padding: 0 5px 10px;
+	}
+	.wpbc_resource_allocation__header {
+		align-items: flex-start;
+		flex-wrap: wrap;
+	}
+	.wpbc_resource_allocation__segment {
+		align-items: flex-start;
+		flex-flow: column nowrap;
+		gap: 4px;
+		padding: 8px 10px;
+	}
+	.wpbc_resource_allocation__period {
+		flex-basis: auto;
+		min-width: 0;
+	}
+	.wpbc_resource_allocation__arrow {
+		display: none;
+	}
 }

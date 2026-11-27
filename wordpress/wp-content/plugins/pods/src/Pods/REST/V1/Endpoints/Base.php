@@ -2,14 +2,20 @@
 
 namespace Pods\REST\V1\Endpoints;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods;
 use Exception;
+use Pods\REST\V1\Post_Repository;
 use Pods\Whatsit;
-use Tribe__REST__Messages_Interface as Messages_Interface;
-use Tribe__REST__Post_Repository as Post_Repository;
-use Tribe__Utils__Array as Utils_Array;
-use Tribe__Validator__Interface as Validator_Interface;
+use Pods\REST\Interfaces\Messages_Interface;
+use Pods\REST\Interfaces\Validator_Interface;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Server;
 
 /**
  * Class Base
@@ -23,6 +29,18 @@ abstract class Base {
 	 * @var string
 	 */
 	public $route;
+
+	/**
+	 * @since 2.8.11
+	 * @var string
+	 */
+	public $rest_route;
+
+	/**
+	 * @since 2.8.11
+	 * @var string
+	 */
+	public $rest_doc_route;
 
 	/**
 	 * @since 2.8.0
@@ -64,7 +82,9 @@ abstract class Base {
 	 * @param Validator_Interface $validator
 	 */
 	public function __construct(
-		Messages_Interface $messages, Post_Repository $post_repository = null, Validator_Interface $validator = null
+		Messages_Interface $messages,
+		?Post_Repository $post_repository = null,
+		?Validator_Interface $validator = null
 	) {
 		$this->messages        = $messages;
 		$this->post_repository = $post_repository;
@@ -172,20 +192,7 @@ abstract class Base {
 			'bool' => 'boolean',
 		];
 
-		return Utils_Array::get( $rest_to_swagger_type_map, $type, $type );
-	}
-
-	/**
-	 * Check whether a value is null or not.
-	 *
-	 * @since 2.8.0
-	 *
-	 * @param mixed $value The value to check.
-	 *
-	 * @return bool Whether a value is null or not.
-	 */
-	public function is_not_null( $value ) {
-		return null !== $value;
+		return pods_v( $type, $rest_to_swagger_type_map, $type, true );
 	}
 
 	/**
@@ -197,11 +204,97 @@ abstract class Base {
 	 */
 	public function get_route() {
 		/** @var Main $main */
-		$main = tribe( 'pods.rest-v1.main' );
+		$main = pods_container( 'pods.rest-v1.main' );
 
 		$namespace = $main->get_pods_route_namespace();
 
 		return $namespace . $this->route;
+	}
+
+	/**
+	 * Get the Pod object for a specific item by ID or slug.
+	 *
+	 * @since 2.8.11
+	 *
+	 * @param int|string $id_or_slug The item ID or slug.
+	 *
+	 * @return false|Pods
+	 */
+	public function get_pod_item_by_id_or_slug( $id_or_slug ) {
+		$pod = pods_get_instance( $this->object, $id_or_slug );
+
+		if ( ! $pod || is_wp_error( $pod ) || ! $pod->valid() || ! $pod->exists() ) {
+			return false;
+		}
+
+		return $pod;
+	}
+
+	/**
+	 * Validate the required params are set.
+	 *
+	 * @since 2.8.11
+	 *
+	 * @param object $params          The object params.
+	 * @param array  $required_params The list of required params.
+	 *
+	 * @return true|WP_Error True if all required params are present, WP_Error if not.
+	 */
+	public function validate_required_params( $params, array $required_params ) {
+		if ( ! is_object( $params ) ) {
+			return new WP_Error( 'rest_invalid_params', __( 'Invalid JSON parameters', 'pods' ), [ 'status' => 500 ] );
+		}
+
+		foreach ( $required_params as $key => $required_param ) {
+			if ( is_array( $required_param ) ) {
+				if ( ! isset( $params->$key ) || ! is_object( $params->$key ) ) {
+					// translators: %s is the parameter name.
+					return new WP_Error( 'rest_missing_param', sprintf( __( 'Missing required JSON parameter: %s', 'pods' ), $key ), [ 'status' => 500 ] );
+				}
+
+				foreach ( $required_param as $required_sub_param ) {
+					if ( ! isset( $params->$key->$required_sub_param ) ) {
+						// translators: %1$s is the parent parameter name, %2$s is the sub-parameter name.
+						return new WP_Error( 'rest_missing_sub_param', sprintf( __( 'Missing required JSON sub parameter: %1$s > %2$s', 'pods' ), $key, $required_sub_param ), [ 'status' => 500 ] );
+					}
+				}
+			} elseif ( ! isset( $params->$required_param ) ) {
+				// translators: %s is the parameter name.
+				return new WP_Error( 'rest_missing_param', sprintf( __( 'Missing required JSON parameter: %s', 'pods' ), $required_param ), [ 'status' => 500 ] );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check whether the user has access to the pod item.
+	 *
+	 * @since 2.8.11
+	 *
+	 * @param Pods     $pod          The Pods object.
+	 * @param string   $author_field The author field to check permissions against.
+	 * @param int|null $user_id      The user ID.
+	 *
+	 * @return bool Whether the user has access to the pod item.
+	 */
+	public function check_permission( Pods $pod, $author_field, $user_id = null ) {
+		// Maybe use the current user ID.
+		if ( null === $user_id ) {
+			if ( ! is_user_logged_in() ) {
+				return false;
+			}
+
+			$user_id = get_current_user_id();
+		}
+
+		// Pod item does not exist.
+		if ( ! $pod->exists() ) {
+			return false;
+		}
+
+		// Check if the user ID matches the author field.
+		return (int) $user_id === (int) $pod->field( $author_field );
 	}
 
 	/**
@@ -228,11 +321,11 @@ abstract class Base {
 		}
 
 		if ( ! empty( $request['types'] ) ) {
-			$params['type'] = Utils_Array::list_to_array( $request['types'] );
+			$params['type'] = wp_parse_list( $request['types'] );
 		}
 
 		if ( ! empty( $request['ids'] ) ) {
-			$params['id'] = Utils_Array::list_to_array( $request['ids'] );
+			$params['id'] = wp_parse_list( $request['ids'] );
 		}
 
 		if ( ! empty( $request['args'] ) ) {
@@ -304,6 +397,7 @@ abstract class Base {
 		$api->display_errors = 'wp_error';
 
 		if ( empty( $params['name'] ) && empty( $params['label'] ) ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-added-fields-required', sprintf( __( '%s not added, name or label is required.', 'pods' ), ucwords( $this->object ) ) );
 		}
 
@@ -328,6 +422,7 @@ abstract class Base {
 		$loaded_object = $api->$load_method( $load_params );
 
 		if ( $loaded_object && ! is_wp_error( $loaded_object ) ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-added-already-exists', sprintf( __( '%s not added, it already exists.', 'pods' ), ucwords( $this->object ) ) );
 		}
 
@@ -344,6 +439,7 @@ abstract class Base {
 		}
 
 		if ( empty( $id ) ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-added', sprintf( __( '%s not added.', 'pods' ), ucwords( $this->object ) ) );
 		}
 
@@ -405,7 +501,12 @@ abstract class Base {
 	 * @return array|WP_Error The response or an error.
 	 * @throws Exception
 	 */
-	public function get_by_args( $rest_param, $api_arg, WP_REST_Request $request = null, $return_id = false ) {
+	public function get_by_args(
+		$rest_param,
+		$api_arg,
+		?WP_REST_Request $request = null,
+		$return_id = false
+	) {
 		if ( is_array( $rest_param ) ) {
 			$args = $rest_param;
 		} elseif ( $request ) {
@@ -421,6 +522,7 @@ abstract class Base {
 
 			$args = array_merge( $request->get_params(), $args );
 		} else {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-found', sprintf( __( '%s not found.', 'pods' ), ucwords( $this->object ) ) );
 		}
 
@@ -437,6 +539,7 @@ abstract class Base {
 		}
 
 		if ( empty( $object ) ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-found', sprintf( __( '%s not found.', 'pods' ), ucwords( $this->object ) ), $args );
 		}
 
@@ -447,7 +550,10 @@ abstract class Base {
 
 		// Set up flags based on request.
 		if ( $request ) {
-			$include_parent = in_array( $this->object, [ 'group', 'field' ], true ) && 1 === (int) $request['include_parent'];
+			$include_parent = in_array( $this->object, [
+					'group',
+					'field',
+				], true ) && 1 === (int) $request['include_parent'];
 
 			if ( 'pod' === $this->object ) {
 				$include_groups       = 1 === (int) $request['include_groups'];
@@ -513,7 +619,8 @@ abstract class Base {
 		}
 
 		if ( ! $object instanceof Whatsit ) {
-			return new WP_Error( 'rest-object-not-found-cannot-update', sprintf( __( '%s was not found, cannot update.', 'pods' ), ucwords( $this->object ), $args ) );
+			// translators: %s is the object type.
+			return new WP_Error( 'rest-object-not-found-cannot-update', sprintf( __( '%s was not found, cannot update.', 'pods' ), ucwords( $this->object ) ), $request->get_params() );
 		}
 
 		$params = $this->setup_params( $request );
@@ -586,6 +693,7 @@ abstract class Base {
 		}
 
 		if ( ! $deleted ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-deleted', sprintf( __( '%s not deleted.', 'pods' ), ucwords( $this->object ) ) );
 		}
 
@@ -611,8 +719,98 @@ abstract class Base {
 			}
 		}
 
-		$args = wp_parse_args( array_filter( $args, [ $this, 'is_not_null' ] ), $defaults );
+		$args = wp_parse_args( array_filter( $args, [ $this->validator, 'is_not_null' ] ), $defaults );
 
 		return $args;
 	}
+
+	/**
+	 * Register route for the endpoint automatically based on the supported methods.
+	 *
+	 * @since 2.8.11
+	 *
+	 * @param string $namespace   The route namespace.
+	 * @param bool   $add_to_docs Whether to add the route to the documentation endpoint.
+	 *
+	 * @return bool Whether the endpoint was successfully registered.
+	 */
+	public function register_routes( $namespace, $add_to_docs = false ) {
+		$rest_route = $this->route;
+
+		if ( ! empty( $this->rest_route ) ) {
+			$rest_route = $this->rest_route;
+		}
+
+		if ( empty( $rest_route ) ) {
+			return false;
+		}
+
+		$methods = [];
+
+		// Check for READABLE support.
+		if ( method_exists( $this, 'READ_args' ) && method_exists( $this, 'get' ) && method_exists( $this, 'can_read' ) ) {
+			$methods[] = [
+				'methods'             => WP_REST_Server::READABLE,
+				'args'                => $this->READ_args(),
+				'callback'            => [ $this, 'get' ],
+				'permission_callback' => [ $this, 'can_read' ],
+			];
+		}
+
+		// Check for CREATABLE support.
+		if ( method_exists( $this, 'CREATE_args' ) && method_exists( $this, 'create' ) && method_exists( $this, 'can_create' ) ) {
+			$methods[] = [
+				'methods'             => WP_REST_Server::CREATABLE,
+				'args'                => $this->CREATE_args(),
+				'callback'            => [ $this, 'create' ],
+				'permission_callback' => [ $this, 'can_create' ],
+			];
+		}
+
+		// Check for EDITABLE support.
+		if ( method_exists( $this, 'EDIT_args' ) && method_exists( $this, 'update' ) && method_exists( $this, 'can_edit' ) ) {
+			$methods[] = [
+				'methods'             => WP_REST_Server::EDITABLE,
+				'args'                => $this->EDIT_args(),
+				'callback'            => [ $this, 'update' ],
+				'permission_callback' => [ $this, 'can_edit' ],
+			];
+		}
+
+		// Check for DELETABLE support.
+		if ( method_exists( $this, 'DELETE_args' ) && method_exists( $this, 'delete' ) && method_exists( $this, 'can_delete' ) ) {
+			$methods[] = [
+				'methods'             => WP_REST_Server::DELETABLE,
+				'args'                => $this->DELETE_args(),
+				'callback'            => [ $this, 'delete' ],
+				'permission_callback' => [ $this, 'can_delete' ],
+			];
+		}
+
+		if ( empty( $methods ) ) {
+			return false;
+		}
+
+		$registered = register_rest_route( $namespace, $rest_route, $methods );
+
+		// Maybe register route with the documentation handler.
+		if ( $registered && $add_to_docs ) {
+			$rest_doc_route = $this->route;
+
+			if ( ! empty( $this->rest_doc_route ) ) {
+				$rest_doc_route = $this->rest_doc_route;
+			}
+
+			try {
+				$doc_endpoint_obj = pods_container( 'pods.rest-v1.endpoints.documentation' );
+
+				$doc_endpoint_obj->register_documentation_provider( $rest_doc_route, $this );
+			} catch ( Exception $exception ) {
+				pods_debug_log( $exception );
+			}
+		}
+
+		return $registered;
+	}
+
 }

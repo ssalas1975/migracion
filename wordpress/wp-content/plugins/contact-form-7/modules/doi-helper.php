@@ -5,6 +5,7 @@
  * @link https://contactform7.com/doi-helper/
  */
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 add_action( 'wpcf7_doi', 'wpcf7_doihelper_start_session', 10, 3 );
 
@@ -28,14 +29,11 @@ function wpcf7_doihelper_start_session( $agent_name, $args, &$token ) {
 
 	$contact_form = $submission->get_contact_form();
 
-	$do_doi = ! array_filter(
-		$contact_form->additional_setting( 'doi', false ),
-		function ( $setting ) {
-			return in_array( $setting, array( 'off', 'false', '0' ), true );
-		}
+	$do_doi = apply_filters( 'wpcf7_do_doi',
+		! $contact_form->is_false( 'doi' ),
+		$agent_name,
+		$args
 	);
-
-	$do_doi = apply_filters( 'wpcf7_do_doi', $do_doi, $agent_name, $args );
 
 	if ( ! $do_doi ) {
 		return;

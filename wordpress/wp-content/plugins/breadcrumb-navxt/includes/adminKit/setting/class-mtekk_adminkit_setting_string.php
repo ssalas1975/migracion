@@ -19,7 +19,7 @@
 namespace mtekk\adminKit\setting;
 require_once( __DIR__ . '/../../block_direct_access.php');
 //Include setting base class
-if(!class_exists('mtekk_adminKit_setting_base'))
+if(!class_exists('\mtekk\adminKit\setting\setting_base'))
 {
 	require_once( __DIR__ . '/class-mtekk_adminkit_setting_base.php');
 }
@@ -47,7 +47,7 @@ class setting_string extends setting_base
 		{
 			return $this->value;
 		}
-		return esc_html($new_value);
+		return sanitize_text_field($new_value);
 	}
 	/**
 	 * 

@@ -2920,11 +2920,11 @@ msgid "Extra Sidebar"
 msgstr ""
 
 #: themeoptions/options.php:1933
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr ""
 
 #: themeoptions/options.php:1939
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
 
 #: themeoptions/options.php:1940

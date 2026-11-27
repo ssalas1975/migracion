@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: Login With Ajax
-Plugin URI: http://wordpress.org/extend/plugins/login-with-ajax/
+Plugin Name: AJAX Auth
+Plugin URI: https://ajaxauth.com
 Description: Ajax driven login widget. Customisable from within your template folder, and advanced settings from the admin area.
-Author: Marcus Sykes
-Version: 4.0.1
-Author URI: http://msyk.es/?utm_source=login-with-ajax&utm_medium=plugin-header&utm_campaign=plugins
+Author: Pixelite
+Version: 4.6.2
+Author URI: https://pixelite.com/?utm_source=login-with-ajax&utm_medium=plugin-header&utm_campaign=plugins
 Tags: Login, Ajax, Redirect, BuddyPress, MU, MultiSite, security, sidebar, admin, widget
 Text Domain: login-with-ajax
 
-Copyright (C) 2022 Marcus Sykes c/o Pixelite SL
+Copyright (C) 2025 Marcus Sykes
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,9 +24,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-define('LOGIN_WITH_AJAX_VERSION', '4.0.1');
+define('LOGIN_WITH_AJAX_VERSION', '4.6.2');
 define('LOGIN_WITH_AJAX_PATH', dirname(__FILE__));
 define('LOGIN_WITH_AJAX_URL', trailingslashit(plugin_dir_url(__FILE__)));
+
 class LoginWithAjax {
 
 	/**
@@ -42,7 +43,7 @@ class LoginWithAjax {
 	/**
 	 * Name of the default template or the currently loaded template. Best not to mess with this and only use for reference.
 	 * @var string
-	 * @deprecated This will be converted to a private variable in future versions, use LoginWithAjax::get_template() instead.
+	 * @deprecated This will be converted to a private variable in future versions, use \LoginWithAjax::get_template() instead.
 	 */
 	public static $template;
 	/**
@@ -58,26 +59,36 @@ class LoginWithAjax {
 	/**
 	 * URL for the AJAX Login procedure in templates (including callback and template parameters)
 	 * @var string
-	 * @deprecated Use LoginWithAjax::get_login_url() instead.
+	 * @deprecated Use \LoginWithAjax::get_login_url() instead.
 	 */
 	public static $url_login;
 	/**
 	 * URL for the AJAX Remember Password procedure in templates (including callback and template parameters)
 	 * @var string
-	 * @deprecated Use LoginWithAjax::get_remember_url() instead.
+	 * @deprecated Use \LoginWithAjax::get_remember_url() instead.
 	 */
 	public static $url_remember;
 	/**
 	 * URL for the AJAX Registration procedure in templates (including callback and template parameters)
 	 * @var string
-	 * @deprecated Use LoginWithAjax::get_register_url() instead.
+	 * @deprecated Use \LoginWithAjax::get_register_url() instead.
 	 */
 	public static $url_register;
+	
+	public static $localized;
+	
+	public static $compat_mode = false;
+	/**
+	 * Set while a login form is being output with its own refresh choice, null otherwise.
+	 * @var int|null
+	 */
+	public static $refresh_field = null;
 
 	// Actions to take upon initial action hook
 	public static function init(){
 		//Load LWA options
 		self::$data = get_option('lwa_data');
+		if( !is_array(self::$data) ) self::$data = array();
 		self::$template = !empty(self::$data['template']) ? self::$data['template'] : 'default';
 		//Remember the current user, in case there is a logout
 		self::$current_user = wp_get_current_user();
@@ -88,14 +99,31 @@ class LoginWithAjax {
 		self::$url_remember = static::get_remember_url();
 
 		// load dependent files
+		include_once('login-with-ajax-options.php');
 		include_once('blocks/login/login-block.php');
-		include_once('login-with-ajax-ajaxify.php');
-		
+		include_once('ajaxify/loader.php');
+		include_once('transports/transports.php');
+		include( 'passkeys/loader.php' );
+		include_once('2FA/2FA.php');
+
 		// add authentication filter for other LWA features/add-ons to hook into instead of directly to WP
-		add_filter('authenticate', 'LoginWithAjax::authenticate', 9999, 1);
+		add_filter('authenticate', '\LoginWithAjax::authenticate', 9999, 1);
+		
+		// determine compat mode
+		self::$data['compat_mode'] = isset(self::$data['compat_mode']) ? self::$data['compat_mode'] : 'auto';
+		if ( !empty( self::$data['compat_mode'] ) ) {
+			if ( self::$data['compat_mode'] === 'auto' ) {
+				if ( function_exists( 'buddypress' ) || defined( 'BP_VERSION' ) ) {
+					self::$compat_mode = true;
+				}
+			} else {
+				self::$compat_mode = true;
+			}
+		}
+		do_action('lwa_pre_loaded');
 		
 		//Make decision on what to display
-		if ( !empty($_REQUEST["lwa"]) ) { //AJAX Request
+		if ( !empty($_REQUEST["lwa"]) && (empty(self::$compat_mode) || empty($_REQUEST['action'])) ) { //AJAX Request
 			do_action('lwa_loaded'); // loaded, will exit after this function
 		    self::ajax();
 		}elseif ( isset($_REQUEST["login-with-ajax-widget"]) ) { //Widget Request via AJAX
@@ -105,15 +133,18 @@ class LoginWithAjax {
 			self::widget( $instance );
 			exit();
 		}else{
+			// add AJAX handler for compatibility with other plugins like BP that need to be fully loaded
+			add_action( 'wp_ajax_nopriv_login-with-ajax', array( static::class, 'ajax') );
 			//Add logout/in redirection
-			add_action('wp_logout', 'LoginWithAjax::logoutRedirect');
-			add_filter('logout_url', 'LoginWithAjax::logoutUrl');
-			add_filter('login_redirect', 'LoginWithAjax::loginRedirect', 1, 3);
-			add_shortcode('login-with-ajax', 'LoginWithAjax::shortcode');
-			add_shortcode('lwa', 'LoginWithAjax::shortcode');
+			add_action('wp_logout', '\LoginWithAjax::logoutRedirect');
+			add_filter('logout_url', '\LoginWithAjax::logoutUrl');
+			add_filter('login_redirect', '\LoginWithAjax::loginRedirect', 1, 3);
+			add_shortcode('ajaxauth', '\LoginWithAjax::shortcode');
+			add_shortcode('login-with-ajax', '\LoginWithAjax::shortcode');
+			add_shortcode('lwa', '\LoginWithAjax::shortcode');
 		}
-		self::register_scripts_and_styles();
 		do_action('lwa_loaded');
+		self::register_scripts_and_styles();
 	}
 	
 	public static function __callStatic($name, $arguments) {
@@ -143,17 +174,24 @@ class LoginWithAjax {
 		}
 		wp_register_script( "login-with-ajax", self::locate_template_url($js_url), array( 'jquery' ), LOGIN_WITH_AJAX_VERSION );
 		add_action('wp_enqueue_scripts', 'LoginWithAjax::enqueue_scripts_and_styles');
+		do_action('lwa_register_scripts');
 	}
 	
 	public static function enqueue_scripts_and_styles( $force_load = null ){
 		if( $force_load || !is_admin() || (!empty($_REQUEST['legacy-widget-preview']['idBase']) && $_REQUEST['legacy-widget-preview']['idBase'] == 'loginwithajaxwidget') ) {
 			wp_enqueue_script( 'login-with-ajax' );
 			wp_enqueue_style( 'login-with-ajax' );
-			$schema = is_ssl() ? 'https':'http';
-			$js_vars = array('ajaxurl' => admin_url('admin-ajax.php', $schema), 'off' => false );
 			//calendar translations
-			wp_localize_script('login-with-ajax', 'LWA', apply_filters('lwa_js_vars', $js_vars));
+			static::localize_js();
+			do_action('lwa_enqueue', $force_load);
 		}
+	}
+	
+	public static function localize_js ( $handle = 'login-with-ajax' ) {
+		if( static::$localized ) return;
+		$schema = is_ssl() ? 'https':'http';
+		$js_vars = array('ajaxurl' => admin_url('admin-ajax.php', $schema), 'off' => false );
+		static::$localized = wp_localize_script($handle, 'LWA', apply_filters('lwa_js_vars', $js_vars, $handle));
 	}
 	
 	public static 	function is_rest() {
@@ -177,7 +215,29 @@ class LoginWithAjax {
 		include_once('login-with-ajax-widget.php');
 		register_widget("LoginWithAjaxWidget");
 	}
-
+	
+	public static function check_user_and_nonce( $nonce_action_prefix, $user = null, $ajax = true ) {
+		if( empty($user) ) {
+			if( !empty($_REQUEST['log']) ) {
+				$user = get_user_by('login', $_REQUEST['log']);
+			} elseif( !empty($_REQUEST['user_id']) ) {
+				$user = get_user_by('user_id', $_REQUEST['user_id']);
+			} elseif ( is_user_logged_in() ) {
+				$user = wp_get_current_user();
+			}
+		}
+		if( !empty($user) && !empty($_REQUEST['nonce']) && wp_verify_nonce( $_REQUEST['nonce'], $nonce_action_prefix . $user->ID ) ) {
+			return $user;
+		} elseif( $ajax ) {
+			echo LoginWithAjax::json_encode( array(
+				'result' => false,
+				'error' => 'Invalid nonce or user supplied.', // not translated as this is a bug and edge (if at all)
+			) );
+			exit();
+		}
+		return false;
+	}
+	
 	/*
 	 * LOGIN OPERATIONS
 	 */
@@ -185,25 +245,35 @@ class LoginWithAjax {
 	// Decides what action to take from the ajax request
 	public static function ajax(){
 		$return = array('result'=>false, 'error'=>'Unknown command requested');
-		switch ( $_REQUEST["login-with-ajax"] ) {
-			case 'login': //A login has been requested
-				//remove known interferences
-				add_filter('ws_plugin__s2member_login_redirect', '__return_false');
-			    $return = self::login();
-				break;
-			case 'remember': //Remember the password
-				$return = self::remember();
-				break;
-			case 'register': //Register
-			case 'registration':
-				$return = self::register();
-				break;
-			default: // backwards-compatible with templates where lwa = registration
-			    do_action('lwa_ajax_action_'.$_REQUEST["login-with-ajax"], $return);
-			    break;
+		if( !empty($_REQUEST['login-with-ajax']) ) {
+			switch ( $_REQUEST["login-with-ajax"] ) {
+				case 'login': //A login has been requested
+					//remove known interferences
+					add_filter( 'ws_plugin__s2member_login_redirect', '__return_false' );
+					$return = self::login();
+					break;
+				case 'remember': //Remember the password
+					$return = self::remember();
+					break;
+				case 'register': //Register
+				case 'registration':
+					$return = self::register();
+					break;
+				default: // backwards-compatible with templates where lwa = registration
+					do_action( 'lwa_ajax_action_' . $_REQUEST["login-with-ajax"], $return );
+					break;
+			}
+			@header( 'Content-Type: application/javascript; charset=UTF-8', true ); //add this for HTTP -> HTTPS requests which assume it's a cross-site request
+			// allow filters to intervene, including returning nothing to default to LWA error
+			$response = apply_filters('lwa_ajax_'.$_REQUEST["login-with-ajax"], $return);
+			if( !empty($response) ) {
+				echo self::json_encode( $response );
+			} else {
+				echo self::json_encode( $return );
+			}
+		} else {
+			echo self::json_encode( $return ); // no action
 		}
-		@header( 'Content-Type: application/javascript; charset=UTF-8', true ); //add this for HTTP -> HTTPS requests which assume it's a cross-site request
-		echo self::json_encode(apply_filters('lwa_ajax_'.$_REQUEST["login-with-ajax"], $return));
 		exit();
 	}
 
@@ -213,38 +283,7 @@ class LoginWithAjax {
 		$loginResult = false;
 		if( !empty($_REQUEST['log']) && !empty($_REQUEST['pwd']) && trim($_REQUEST['log']) != '' && trim($_REQUEST['pwd'] != '') ){
 			$loginResult = wp_signon();
-			if ( $loginResult instanceof WP_User ) {
-				//User login successful
-				self::$current_user = $loginResult;
-				/* @var $loginResult WP_User */
-				$return['result'] = true;
-				$return['message'] = __("Login Successful, redirecting...",'login-with-ajax');
-				//Do a redirect if necessary
-				$redirect = self::getLoginRedirect(self::$current_user);
-				if( !empty($_REQUEST['redirect_to']) ) $redirect= wp_sanitize_redirect($_REQUEST['redirect_to']);
-				if( $redirect != '' ){
-					$return['redirect'] = $redirect;
-				}
-				//If the widget should just update with ajax, then supply the URL here.
-				if( isset($_REQUEST['refresh']) || !empty(self::$data['no_login_refresh']) && self::$data['no_login_refresh'] == 1 ){
-					if( isset($_REQUEST['refresh']) && empty($_REQUEST['refresh']) || !isset($_REQUEST['refresh']) ){
-						//Is this coming from a template?
-						$query_vars = ( !empty($_REQUEST['template']) ) ? "&template=".esc_attr($_REQUEST['template']) : '';
-						$query_vars .= ( !empty($_REQUEST['lwa_profile_link']) ) ? "&lwa_profile_link=1" : '';
-						$return['widget'] = get_bloginfo('wpurl')."?login-with-ajax-widget=1$query_vars";
-						$return['message'] = __("Login successful, updating...",'login-with-ajax');
-					}
-				}
-			} elseif ( is_wp_error($loginResult) ) {
-				//User login failed
-				/* @var WP_Error $loginResult */
-				$return['result'] = false;
-				$return['error'] = $loginResult->get_error_message();
-			} else {
-				//Undefined Error
-				$return['result'] = false;
-				$return['error'] = __('An undefined error has ocurred', 'login-with-ajax');
-			}
+			$return = static::login_result($loginResult);
 		}else{
 			$return['result'] = false;
 			$return['error'] = __('Please supply your username and password.', 'login-with-ajax');
@@ -252,6 +291,43 @@ class LoginWithAjax {
 		$return['action'] = 'login';
 		//Return the result array with errors etc.
 		return apply_filters('lwa_login', $return, $loginResult);
+	}
+	
+	public static function login_result( $loginResult ){
+		$return = array();
+		if ( $loginResult instanceof WP_User ) {
+			//User login successful
+			self::$current_user = $loginResult;
+			/* @var $loginResult WP_User */
+			$return['result'] = true;
+			$return['message'] = __("Login Successful, redirecting...",'login-with-ajax');
+			//Do a redirect if necessary
+			$redirect = self::getLoginRedirect(self::$current_user);
+			if( !empty($_REQUEST['redirect_to']) ) $redirect= wp_validate_redirect( wp_sanitize_redirect($_REQUEST['redirect_to']), $redirect );
+			if( $redirect != '' ){
+				$return['redirect'] = $redirect;
+			}
+			//If the widget should just update with ajax, then supply the URL here.
+			if( isset($_REQUEST['refresh']) || !empty(self::$data['no_login_refresh']) && self::$data['no_login_refresh'] == 1 ){
+				if( isset($_REQUEST['refresh']) && empty($_REQUEST['refresh']) || !isset($_REQUEST['refresh']) ){
+					//Is this coming from a template?
+					$query_vars = ( !empty($_REQUEST['template']) ) ? "&template=".esc_attr($_REQUEST['template']) : '';
+					$query_vars .= ( !empty($_REQUEST['lwa_profile_link']) ) ? "&lwa_profile_link=1" : '';
+					$return['widget'] = get_bloginfo('wpurl')."?login-with-ajax-widget=1$query_vars";
+					$return['message'] = __("Login successful, updating...",'login-with-ajax');
+				}
+			}
+		} elseif ( is_wp_error($loginResult) ) {
+			//User login failed
+			/* @var WP_Error $loginResult */
+			$return['result'] = false;
+			$return['error'] = $loginResult->get_error_message();
+		} else {
+			//Undefined Error
+			$return['result'] = false;
+			$return['error'] = __('An undefined error has ocurred', 'login-with-ajax');
+		}
+		return $return;
 	}
 
 	/**
@@ -328,7 +404,7 @@ class LoginWithAjax {
 	 * Returns registration url (escaped) with template querystring if supplied
 	 * @param string $template
 	 * @return string
-	 * @see LoginWithAjax::template_link()
+	 * @see \LoginWithAjax::template_link()
 	 */
 	public static function get_register_url( $template = null ){
 	    if ( function_exists('bp_get_signup_page') && (empty($_REQUEST['action']) || ($_REQUEST['action'] != 'deactivate' && $_REQUEST['action'] != 'deactivate-selected')) ) { //Buddypress
@@ -338,27 +414,29 @@ class LoginWithAjax {
 	    } else {
 	    	$register_link = wp_registration_url();
 	    }
-	    return static::template_link( $template, $register_link );
+	    return static::template_link( $register_link, $template );
 	}
 	
 	/**
 	 * Returns forgotten password url (escaped) with template querystring if supplied
 	 * @param string $template
 	 * @return string
-	 * @see LoginWithAjax::template_link()
+	 * @see \LoginWithAjax::template_link()
 	 */
 	public static function get_remember_url( $template = null ){
-		return static::template_link( $template, add_query_arg('action', 'lostpassword', wp_login_url()) );
+		$url = apply_filters('lwa_remember_url', wp_lostpassword_url(), $template );
+		return static::template_link( $url, $template );
 	}
 	
 	/**
 	 * Returns login url (escaped) with template querystring if supplied.
 	 * @param string $template
 	 * @return string
-	 * @see LoginWithAjax::template_link()
+	 * @see \LoginWithAjax::template_link()
 	 */
 	public static function get_login_url( $template = null ){
-		return static::template_link( $template, wp_login_url() );
+		$url = apply_filters('lwa_login_url', wp_login_url(), $template);
+		return static::template_link( $url, $template );
 	}
 
 	/*
@@ -407,7 +485,7 @@ class LoginWithAjax {
 		}
 		//final replaces
 		if( !empty($redirect) ){
-			$redirect = str_replace("%LASTURL%", $_SERVER['HTTP_REFERER'], $redirect);
+			$redirect = str_replace("%LASTURL%", wp_get_raw_referer(), $redirect);
 			if( !empty($lang) ){
 				$redirect = str_replace("%LANG%", $lang.'/', $redirect);
 			}
@@ -457,7 +535,7 @@ class LoginWithAjax {
 		if( !strstr( wp_get_referer(), wp_login_url()) ){
 			$redirect = str_replace("%LASTURL%", wp_get_referer(), $redirect);
 		}else{
-			$redirect = str_replace('%LASTURL%', wp_login_url(), $redirect);
+			$redirect = str_replace('%LASTURL%', admin_url(), $redirect);
 		}
 		if( !empty($lang) ){
 			$redirect = str_replace("%LANG%", $lang.'/', $redirect);
@@ -473,17 +551,27 @@ class LoginWithAjax {
 		//Extract widget arguments
 		//Merge instance options with global default options
 		$lwa = wp_parse_args($instance, self::$data);
-		$lwa['id'] = rand(0, 100000); // for html id fields to be unique
+		$lwa['id'] = !empty($instance['id']) ? absint($instance['id']) : rand(0, 100000); // for html id fields to be unique
 		$lwa['css_vars'] = array();
-		$lwa['css_style'] = '';
+		// css_style and css_vars can arrive from shortcode or block attributes, and theme template overrides may print css_style unescaped, so only plain CSS gets through
+		$lwa['css_style'] = !empty($instance['css_style']) ? static::sanitize_css_style($instance['css_style']) : '';
+		if( !empty($instance['css_vars']) && is_array($instance['css_vars']) ){
+			foreach( $instance['css_vars'] as $css_var => $css_value ){
+				$css_var = preg_replace('/[^a-zA-Z0-9_-]/', '', ltrim((string) $css_var, '-'));
+				$css_value = static::sanitize_css_value($css_value);
+				if( $css_var !== '' && $css_value !== '' ) $lwa['css_vars'][$css_var] = $css_value;
+			}
+		}
 		//Create HSL CSS for barebones color customization
 		if( !empty($lwa['template_color']) ){
 			if( !is_array($lwa['template_color']) ){
 				$hsl = explode(',', str_replace(' ', '', $lwa['template_color']));
 				if( count($hsl) === 3 ) {
-					$lwa['template_color']['H'] = $hsl[0];
-					$lwa['template_color']['S'] = $hsl[1];
-					$lwa['template_color']['L'] = $hsl[2];
+					$lwa['template_color'] = array(
+						'H' => $hsl[0],
+						'S' => $hsl[1],
+						'L' => $hsl[2],
+					);
 				}elseif( preg_match('/^#?[0-9A-Za-z]{3,6}$/', $lwa['template_color']) ){
 					// we assume it's hex, convert it to HSL
 					require_once('assets/php/color.php');
@@ -501,9 +589,10 @@ class LoginWithAjax {
 					$lwa['template_color'] = self::$data['template_color'];
 				}
 			}
-			$lwa['css_vars']['accent-hue'] = $lwa['template_color']['H'];
-			$lwa['css_vars']['accent-s'] = $lwa['template_color']['S'].'%';
-			$lwa['css_vars']['accent-l'] = $lwa['template_color']['L'].'%';
+			// block attributes reach here unfiltered and theme template overrides may still print css_style raw, so numbers only regardless of the escaping in our own templates
+			$lwa['css_vars']['accent-hue'] = floatval($lwa['template_color']['H']);
+			$lwa['css_vars']['accent-s'] = floatval($lwa['template_color']['S']).'%';
+			$lwa['css_vars']['accent-l'] = floatval($lwa['template_color']['L']).'%';
 		}
 		//Deal with specific variables
 		$lwa['profile_link'] = ( !empty($lwa['profile_link']) && $lwa['profile_link'] !== "false" );
@@ -524,7 +613,7 @@ class LoginWithAjax {
 		if( is_user_logged_in() && !$show_preview ){
 			// one more thing...
 			if( !empty($lwa['title_loggedin']) ) {
-				$lwa['title_loggedin'] = str_replace(array('%username%', '%USERNAME%'), LoginWithAjax::$current_user->display_name, $lwa['title_loggedin']);
+				$lwa['title_loggedin'] = str_replace(array('%username%', '%USERNAME%'), \LoginWithAjax::$current_user->display_name, $lwa['title_loggedin']);
 			}
 			//Then check for custom templates or theme template default
 			$lwa_data = $lwa; // backwards compatibility
@@ -543,6 +632,10 @@ class LoginWithAjax {
 		        }
 		        foreach( array('login_form','lwa_register_form', 'lostpassword_form') as $action ) add_action($action, 'lwa_wpml_input_var');
 		    }
+			// a refresh choice made for this form (rather than the site-wide setting) has to travel with the login request, see login_result()
+			$refresh = ( isset($instance['refresh']) && $instance['refresh'] !== '' ) ? filter_var($instance['refresh'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null;
+			static::$refresh_field = $refresh === null ? null : (int) $refresh;
+			if( static::$refresh_field !== null ) add_action('login_form', array(static::class, 'login_form_refresh_field'));
 			//First check for custom templates or theme template default
 			$lwa_data = $lwa; // backwards compatibility
 			if( !empty($lwa['legacy']) ){
@@ -552,12 +645,68 @@ class LoginWithAjax {
 				$template_loc = $templates[$template].'/login.php';
 				include ( $template_loc != '' && file_exists($template_loc) ) ? $template_loc : 'templates/default/login.php';
 			}
+			if( static::$refresh_field !== null ) remove_action('login_form', array(static::class, 'login_form_refresh_field'));
+			static::$refresh_field = null;
 			//quick/easy WPML fix, should eventually go into a seperate file
 			if(  defined('ICL_LANGUAGE_CODE') ){
 			    foreach( array('login_form','lwa_register_form', 'lostpassword_form') as $action ) remove_action($action, 'lwa_wpml_input_var');
 			}
 		}
-		static::$template = self::$data['template'];
+		if( !empty(self::$data['template']) ) static::$template = self::$data['template'];
+	}
+	
+	public static function login_form_refresh_field(){
+		if( static::$refresh_field !== null ) echo '<input type="hidden" name="refresh" value="'. absint(static::$refresh_field) .'">';
+	}
+
+	/**
+	 * Cleans an inline CSS string so it is safe inside a style attribute, even one printed without escaping. Regular declarations go through WordPress' own filter, custom properties (--name:value) are checked here since older WordPress versions strip them.
+	 * @param string $css
+	 * @return string
+	 */
+	public static function sanitize_css_style( $css ){
+		if( !is_string($css) || trim($css) === '' ) return '';
+		$clean = array();
+		foreach( explode(';', $css) as $declaration ){
+			$declaration = trim($declaration);
+			if( $declaration === '' ) continue;
+			if( preg_match('/^(--[a-zA-Z0-9_-]+)\s*:(.*)$/s', $declaration, $custom_property) ){
+				$value = static::sanitize_css_value($custom_property[2]);
+				if( $value !== '' ) $clean[] = $custom_property[1].':'.$value;
+			}else{
+				$declaration = preg_replace('/[<>"\'`\\\\{}]/', '', safecss_filter_attr($declaration));
+				$declaration = trim($declaration, " \t\n\r\0\x0B;");
+				// WordPress does not look inside url(), var() or calc(), so entities, comments and stray brackets are refused here
+				if( $declaration !== '' && !static::is_unsafe_css($declaration) ) $clean[] = $declaration;
+			}
+		}
+		return empty($clean) ? '' : implode('; ', $clean).'; ';
+	}
+
+	/**
+	 * Returns a CSS value only if it is made of plain value characters, otherwise an empty string. No quotes, escapes, urls or anything else that could end the declaration it sits in.
+	 * @param mixed $value
+	 * @return string
+	 */
+	public static function sanitize_css_value( $value ){
+		$value = is_scalar($value) ? trim((string) $value) : '';
+		if( $value === '' || preg_match('/[^a-zA-Z0-9 #%.,()\/*+_!-]/', $value) || static::is_unsafe_css($value) ) return '';
+		return $value;
+	}
+
+	/**
+	 * Whether a CSS declaration or value holds something we refuse outright: entities, comments, url(), expression() or brackets that do not pair up.
+	 * @param string $css
+	 * @return bool
+	 */
+	public static function is_unsafe_css( $css ){
+		if( strpos($css, '&') !== false || strpos($css, '/*') !== false || preg_match('/(url|expression)\s*\(/i', $css) ) return true;
+		$depth = 0;
+		foreach( str_split($css) as $char ){
+			if( $char === '(' ) $depth++;
+			if( $char === ')' && --$depth < 0 ) return true;
+		}
+		return $depth !== 0;
 	}
 	
 	public static function get_output( $instance = array() ){
@@ -570,18 +719,37 @@ class LoginWithAjax {
 		static::output( $instance );
 	}
 
-	public static function shortcode($atts){
+	public static function shortcode($atts, $content = null, $tag = ''){
 		$defaults = array(
 			'profile_link' => true,
-			'template' => 'default',
+			// a bare [ajaxauth] follows the Default Template setting, the older tags keep Default because existing pages rely on it
+			'template' => $tag === 'ajaxauth' && !empty(self::$data['template']) ? self::$data['template'] : 'default',
+			'template_color' => '',
+			'css_style' => '',
+			'vanilla' => false,
+			'title' => '',
 			'registration' => true,
 			'redirect' => false,
 			'redirect_logout' => false,
 			'remember' => true,
 			'rememberme' => 1,
-			'refresh' => true,
+			'refresh' => '',
+			'title_loggedin' => '',
+			'loggedin_vertical' => false,
+			'avatar_size' => 60,
+			'avatar_rounded' => false,
 		);
-		$atts = shortcode_atts($defaults, $atts);
+		$atts = shortcode_atts($defaults, is_array($atts) ? $atts : array());
+		// anything left blank falls back to the settings page or the output() defaults
+		foreach( array('template_color', 'css_style', 'title', 'title_loggedin', 'refresh') as $att ){
+			if( $atts[$att] === '' ) unset($atts[$att]);
+		}
+		// shortcode values are strings, so "0", "false" and "no" all need to mean off
+		foreach( array('vanilla', 'loggedin_vertical', 'avatar_rounded') as $att ){
+			$atts[$att] = filter_var($atts[$att], FILTER_VALIDATE_BOOLEAN);
+		}
+		$atts['avatar_size'] = absint($atts['avatar_size']);
+		unset($atts['modal_button_html']); // security precaution
 		unset($atts['v']);
 		unset($atts['force_login_display']);
 		return static::get_output( $atts );
@@ -620,11 +788,13 @@ class LoginWithAjax {
 	 * This would search for $template_path within:
 	 * /wp-content/themes/your-child-theme/plugins/login-with-ajax/...
 	 * /wp-content/themes/your-parent-theme/plugins/login-with-ajax/...
+	 * /wp-content/plugin-templates/login-with-ajax/...
 	 * /wp-content/plugins/login-with-ajax/templates/...
 	 * 
 	 * It is assumed that the file always exists within the core plugin folder if the others aren't found.
 	 * 
 	 * @param string $template_path
+	 *
 	 * @return string
 	 */
 	public static function locate_template_url( $template_path ){
@@ -633,11 +803,37 @@ class LoginWithAjax {
 	    }elseif( file_exists(get_template_directory().'/plugins/login-with-ajax/'.$template_path) ){ //Parent Theme (if parent exists)
 	    	return trailingslashit(get_template_directory_uri())."plugins/login-with-ajax/$template_path";
 	    }elseif( file_exists(WP_CONTENT_DIR.'/plugin-templates/login-with-ajax/'.$template_path) ){ //login-with-ajax folder in wp-contents
-		    return trailingslashit(WP_CONTENT_DIR)."plugin-templates/login-with-ajax/$template_path";
+		    return trailingslashit(content_url())."plugin-templates/login-with-ajax/$template_path";
 	     
 	    }
 	    //Default file in plugin folder
 	    return trailingslashit(plugin_dir_url(__FILE__))."templates/$template_path";
+	}
+	
+	/**
+	 * Returns the directory path for a relative filepath which would be located in either a child, parent or plugin folder in order of priority.
+	 *
+	 * This would search for $template_path within:
+	 * /wp-content/themes/your-child-theme/plugins/login-with-ajax/...
+	 * /wp-content/themes/your-parent-theme/plugins/login-with-ajax/...
+	 * /wp-content/plugin-templates/login-with-ajax/...
+	 *
+	 * It is assumed that the file always exists within the core plugin folder if the others aren't found.
+	 *
+	 * @param string $template_path
+	 *
+	 * @return string
+	 */
+	public static function locate_template( $template_path ){
+		if( file_exists(get_stylesheet_directory().'/plugins/login-with-ajax/'.$template_path) ){ //Child Theme (or just theme)
+			return get_stylesheet_directory()."/plugins/login-with-ajax/$template_path";
+		}elseif( file_exists(get_template_directory().'/plugins/login-with-ajax/'.$template_path) ){ //Parent Theme (if parent exists)
+			return get_stylesheet_directory()."/plugins/login-with-ajax/$template_path";
+		}elseif( file_exists(WP_CONTENT_DIR.'/plugin-templates/login-with-ajax/'.$template_path) ){ //login-with-ajax folder in wp-contents
+			return WP_CONTENT_DIR."plugin-templates/login-with-ajax/$template_path";
+		}
+		//Default file in plugin folder
+		return LOGIN_WITH_AJAX_PATH."/templates/$template_path";
 	}
 	
 	/**
@@ -687,7 +883,7 @@ class LoginWithAjax {
 		if( !empty(static::$templates) && !$reload ) return static::$templates;
 		static::$templates = array();
 		// we will pre-load a functions.php file to allow pre-loading
-		$wp_content_folder = path_join( WP_CONTENT_DIR , "/plugin-templates/login-with-ajax/");
+		$wp_content_folder = path_join( WP_CONTENT_DIR , "plugin-templates/login-with-ajax/");
 		if( is_dir($wp_content_folder) && file_exists($wp_content_folder.'functions.php') ){
 			include($wp_content_folder.'functions.php');
 		}
@@ -697,9 +893,10 @@ class LoginWithAjax {
 		//Get Templates from theme and default by checking for folders - we assume a template works if a folder exists!
 		//Note that duplicate template names are overwritten in this order of precedence (highest to lowest) - Child Theme > Parent Theme > wp-content folder > Plugin Defaults
 		//First are the defaults in the plugin directory, we know these so hard-code found data
-		self::find_templates( path_join( WP_PLUGIN_DIR , basename( dirname( __FILE__ ) ). "/templates/") );
-		$plugin_templates_folder = path_join( WP_PLUGIN_DIR , basename( dirname( __FILE__ ) ). "/templates/");
-		if( self::$data['legacy'] ) {
+		// PHP resolves symlinks in __FILE__, so joining its folder name onto WP_PLUGIN_DIR breaks symlinked installs
+		$plugin_templates_folder = LOGIN_WITH_AJAX_PATH . "/templates/";
+		self::find_templates( $plugin_templates_folder );
+		if( !empty(static::$data['legacy']) ) {
 			self::$templates = array('default' => $plugin_templates_folder . 'legacy-default', 'modal' => $plugin_templates_folder . 'legacy-modal', 'divs-only' => $plugin_templates_folder . 'legacy-divs-only',);
 		}else{
 			self::$templates = array('default' => $plugin_templates_folder . 'default', 'modal' => $plugin_templates_folder . 'modal', 'minimalistic' => $plugin_templates_folder . 'minimalistic', 'modal-minimalistic' => $plugin_templates_folder . 'modal-minimalistic', 'classic' => $plugin_templates_folder . 'classic', 'classic-vanilla' => $plugin_templates_folder . 'classic-vanilla');
@@ -720,8 +917,9 @@ class LoginWithAjax {
 	public static function find_templates($dir){
 		if (is_dir($dir)) {
 		    if ($dh = opendir($dir)) {
+				$ignore_files = array('.', '..', '.svn', '.git', '2FA');
 		        while (($file = readdir($dh)) !== false) {
-		            if(is_dir($dir . $file) && $file != '.' && $file != '..' && $file != '.svn' && $file != '.git'){
+		            if ( is_dir($dir . $file) && !in_array($file, $ignore_files) ) {
 		            	//Template dir found, add it to the template array
 		            	self::$templates[$file] = path_join($dir, $file);
 		            }
@@ -816,10 +1014,73 @@ class LoginWithAjax {
 	public static function authenticate( $result ){
 		return apply_filters('lwa_authenticate', $result);
 	}
+	
+	/**
+	 * Gets the usermeta table row 'lwa' and returns the specific meta key in that array, for easy retrieval.
+	 * @param $user_id
+	 * @param $meta_key
+	 *
+	 * @return array|mixed
+	 */
+	public static function get_user_meta( $user_id, $meta_key, $default = null ) {
+		$meta = get_user_meta( $user_id, 'lwa', true );
+		if( is_array($meta) && !empty($meta[$meta_key]) ){
+			return $meta[$meta_key];
+		} elseif( preg_match('/^([a-z_A-Z0-9-]+)\[([a-z_A-Z0-9-]+)\]/', $meta_key, $matches) ) {
+			// check for array key
+			if( !empty($meta[$matches[1]]) && is_array($meta[$matches[1]]) && isset($meta[$matches[1]][$matches[2]]) ){
+				return $meta[$matches[1]][$matches[2]];
+			}
+		}
+		return $default;
+	}
+	
+	/**
+	 * Updates the usermeta table row 'lwa' and sets the specific meta key in that array, for easy updating.
+	 *
+	 * @param $user_id
+	 * @param $meta_key
+	 * @param $meta_value
+	 *
+	 * @return bool|int
+	 */
+	public static function update_user_meta( $user_id, $meta_key, $meta_value ) {
+		$meta = get_user_meta( $user_id, 'lwa', true );
+		if( !is_array($meta) ) $meta = array();
+		if( preg_match('/^([a-z_A-Z0-9-]+)\[([a-z_A-Z0-9-]+)\]/', $meta_key, $matches) ) {
+			// check for array key
+			if( $meta_value !== null ) {
+				if( empty($meta[$matches[1]]) ) {
+					$meta[$matches[1]] = array();
+				}
+				$meta[$matches[1]][$matches[2]] = $meta_value;
+			} else {
+				unset( $meta[$matches[1]][$matches[2]] );
+			}
+		} elseif( $meta_value !== null ) {
+			$meta[$meta_key] = $meta_value;
+		}else {
+			unset( $meta[$meta_key] );
+		}
+		return update_user_meta( $user_id, 'lwa', $meta );
+	}
+	
+	/**
+	 * Alters the usermeta table row 'lwa' and deletes the specific meta key in that array, for easy deletion.
+	 *
+	 * @param $user_id
+	 * @param $meta_key
+	 *
+	 * @return bool|int
+	 */
+	public static function delete_user_meta( $user_id, $meta_key ) {
+		// run update with null, which deletes the key
+		return static::update_user_meta( $user_id, $meta_key, null );
+	}
 }
 //Set when to init this class
-add_action( 'init', 'LoginWithAjax::init' );
-add_action( 'widgets_init', 'LoginWithAjax::widgets_init' );
+add_action( 'init', '\LoginWithAjax::init' );
+add_action( 'widgets_init', '\LoginWithAjax::widgets_init' );
 
 //Installation and Updates
 $lwa_data = get_option('lwa_data');
@@ -837,8 +1098,11 @@ if( !empty($lwa_data['notification_override']) ){
 	include_once('pluggable.php');
 }
 
+//Keep Pro license and update requests on the current host
+include_once('lwa-license-host.php');
+
 //Template Tag
 function login_with_ajax($atts = ''){
-    if( !array($atts) ) $atts = shortcode_parse_atts($atts);
-	echo LoginWithAjax::shortcode($atts);
+    if( !is_array($atts) ) $atts = !empty($atts) ? shortcode_parse_atts($atts) : array();
+	echo \LoginWithAjax::shortcode($atts);
 }

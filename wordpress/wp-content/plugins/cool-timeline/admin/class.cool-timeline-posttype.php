@@ -1,134 +1,169 @@
 <?php
+// Exit if accessed directly.
+if (!defined('ABSPATH')) {
+	exit;
+}
 class CoolTimelinePosttypeFree
 {
-    /**
-     * Registers our plugin with WordPress.
-     */
-    public static function register()
-    {
-        $postTypeCls = new self();
-        // register hooks
-        add_action( 'init', array($postTypeCls,'cooltimeline_custom_post_type' ));
-        add_filter('manage_edit-cool_timeline_columns',array($postTypeCls,'add_new_cool_timeline_columns'));
-        add_action( 'manage_cool_timeline_posts_custom_column' , array($postTypeCls,'ctl_custom_columns'), 10, 2 );
-        add_filter('display_post_states', array($postTypeCls, 'ctl_generted_page_label'));
-        // custom message in publish metabox
-        add_action('post_submitbox_misc_actions', array($postTypeCls, 'ctl_submitbox_metabox'));
-    }
 
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        // Setup your plugin object here
-    }
+	/**
+	 * Registers our plugin with WordPress.
+	 */
+	public static function register()
+	{
+		$postTypeCls = new self();
+		// register hooks
+		add_action('init', array($postTypeCls, 'cooltimeline_custom_post_type'));
+		add_filter('manage_edit-cool_timeline_columns', array($postTypeCls, 'add_new_cool_timeline_columns'));
+		add_action('manage_cool_timeline_posts_custom_column', array($postTypeCls, 'ctl_custom_columns'), 10, 2);
+		add_filter('display_post_states', array($postTypeCls, 'ctl_generted_page_label'));
+		// custom message in publish metabox
+		add_action('post_submitbox_misc_actions', array($postTypeCls, 'ctl_submitbox_metabox'));
+	}
 
 	// Register Cool Timeline Post Type
-	public function cooltimeline_custom_post_type(){
+	public function cooltimeline_custom_post_type()
+	{
 		$labels = array(
-			'name'                => _x( 'Timeline Stories', 'Post Type General Name', 'cool-timeline2' ),
-			'singular_name'       => _x( 'Timeline Stories', 'Post Type Singular Name', 'cool-timeline2' ),
-			'menu_name'           => __( 'Timeline Stories', 'cool-timeline2' ),
-			'name_admin_bar'      => __( 'Timeline Stories', 'cool-timeline2' ),
-			'parent_item_colon'   => __( 'Parent Item:', 'cool-timeline2' ),
-			'all_items'           => __( 'Cool Timeline Stories', 'cool-timeline2' ),
-			'add_new_item'        => __( 'Add New Story', 'cool-timeline2' ),
-			'add_new'             => __( 'Add New', 'cool-timeline2' ),
-			'new_item'            => __( 'New Story', 'cool-timeline2' ),
-			'edit_item'           => __( 'Edit Story', 'cool-timeline2' ),
-			'update_item'         => __( 'Update Story', 'cool-timeline2' ),
-			'view_item'           => __( 'View Story', 'cool-timeline2' ),
-			'search_items'        => __( 'Search Story', 'cool-timeline2' ),
-			'not_found'           => __( 'Not found', 'cool-timeline2' ),
-			'not_found_in_trash'  => __( 'Not found in Trash', 'cool-timeline2' ),
+			'name' => _x('Timeline Stories', 'Post Type General Name', 'cool-timeline'),
+			'singular_name' => _x('Timeline Stories', 'Post Type Singular Name', 'cool-timeline'),
+			'menu_name' => __('Timeline Stories', 'cool-timeline'),
+			'name_admin_bar' => __('Timeline Stories', 'cool-timeline'),
+			'parent_item_colon' => __('Parent Item:', 'cool-timeline'),
+			'all_items' => __('Cool Timeline Stories', 'cool-timeline'),
+			'add_new_item' => __('Add New Story', 'cool-timeline'),
+			'add_new' => __('Add New', 'cool-timeline'),
+			'new_item' => __('New Story', 'cool-timeline'),
+			'edit_item' => __('Edit Story', 'cool-timeline'),
+			'update_item' => __('Update Story', 'cool-timeline'),
+			'view_item' => __('View Story', 'cool-timeline'),
+			'search_items' => __('Search Story', 'cool-timeline'),
+			'not_found' => __('Not found', 'cool-timeline'),
+			'not_found_in_trash' => __('Not found in Trash', 'cool-timeline'),
 		);
 		$args = array(
-			'label'               => __( 'cool_timeline', 'cool-timeline2' ),
-			'description'         => __( 'Timeline Post Type Description', 'cool-timeline2' ),
-			'labels'              => $labels,
-			'supports'            => array('title','editor','thumbnail'),
-			'taxonomies'          => array(),
-			'hierarchical'        => false,
-			'public'              => true,
-			'show_ui'             => true,
-			'show_in_menu'        => 'cool-plugins-timeline-addon',
-			'menu_position'       => 5,
-			'show_in_admin_bar'   => true,
-			'show_in_nav_menus'   => true,
-			'can_export'          => true,
-			'has_archive'         => true,
+			'label' => __('cool_timeline', 'cool-timeline'),
+			'description' => __('Timeline Post Type Description', 'cool-timeline'),
+			'labels' => $labels,
+			'supports' => array('title', 'editor', 'thumbnail'),
+			'taxonomies' => array(),
+			'hierarchical' => false,
+			'public' => true,
+			'show_ui' => true,
+			// Show as a submenu under the shared "Timeline Addons" top-level menu.
+			'show_in_menu' => 'cool-plugins-timeline-addon',
+			'menu_position' => 5,
+			'show_in_admin_bar' => true,
+			'show_in_nav_menus' => true,
+			'can_export' => true,
+			'has_archive' => true,
 			'exclude_from_search' => false,
-		    //'show_in_rest' => true, 
-			'publicly_queryable'  => true,
-			'capability_type'     => 'page',
-			'menu_icon'=>COOL_TIMELINE_PLUGIN_URL.'assets/images/timeline-icon-small.png',
+			// 'show_in_rest' => true,
+			'publicly_queryable' => true,
+			'capability_type' => 'page',
+			'menu_icon' => CTL_PLUGIN_URL . 'assets/images/timeline-icon-small.png',
 		);
-		register_post_type( 'cool_timeline', $args );
+		register_post_type('cool_timeline', $args);
 	}
 
 	// custom columns for all stories
-	public function add_new_cool_timeline_columns($gallery_columns) {
+	public function add_new_cool_timeline_columns($columns)
+	{
+		unset($columns);
+
 		$new_columns['cb'] = '<input type="checkbox" />';
-		$new_columns['title'] = _x('Story Title', 'column name');
-		$new_columns['story_year'] = __('Story Year','cool-timeline');
-		$new_columns['story_date'] = __('Story Date','cool-timeline');
-	    $new_columns['icon'] =__('Story Icon','cool-timeline');
-		$new_columns['date'] = _x('Published Date', 'column name');			
-	    return $new_columns;
-    }
+		$new_columns['title'] = _x('Story Title', 'column name', 'cool-timeline');
+		$new_columns['story_year'] = __('Story Year', 'cool-timeline');
+		$new_columns['story_date'] = __('Story Date', 'cool-timeline');
+		$new_columns['icon'] = __('Story Icon', 'cool-timeline');
+		$new_columns['date'] = _x('Published Date', 'column name', 'cool-timeline');
+		return $new_columns;
+	}
 
 	// clt column handlers
-	public function ctl_custom_columns( $column, $post_id ){
-		$ctl_story_type = get_post_meta($post_id, 'story_type', true);		
-		$ctl_story_date = isset($ctl_story_type['ctl_story_date'])?$ctl_story_type['ctl_story_date']:'';
-		switch ( $column ) {
-		    case "story_year":			    
-			    $story_timestamp=strtotime($ctl_story_date);
-			    if( $story_timestamp!==false){
-				   $story_year=date("Y", $story_timestamp);
-				   echo"<p><strong>" . esc_html($story_year) . "</strong></p>";
-			    }else{
-				   $ctl_story_date = trim( str_ireplace(array('am','pm'),'',$ctl_story_date) );
-				   $dateobj = DateTime::createFromFormat('m/d/Y H:i',$ctl_story_date ,wp_timezone());
-				    if($dateobj){
-					    echo"<p><strong>" . $dateobj->format(__("Y", 'cool-timeline1')). "</strong></p>";
-				    }
-			    }
-			break;
-		    case "story_date":			    
-			    echo"<p><strong>" . esc_html($ctl_story_date) . "</strong></p>";
-			break;
-		    case "icon":
-				$icon = get_post_meta( $post_id, 'story_icon', true );
-				$icon = isset($icon['fa_field_icon'])?$icon['fa_field_icon']:'';			    
-			    if($icon){
-			    echo '<i style="font-size:32px;" class="'.esc_attr($icon).'" aria-hidden="true"></i>';
-				}else{
-			    echo '<i  style="font-size:32px;" class="fa fa-clock-o" aria-hidden="true"></i>';
+	public function ctl_custom_columns($column, $post_id)
+	{
+		$ctl_story_type = get_post_meta($post_id, 'story_type', true);
+		$ctl_story_date = (is_array($ctl_story_type) && isset($ctl_story_type['ctl_story_date']))
+			? sanitize_text_field($ctl_story_type['ctl_story_date'])
+			: '';
+		switch ($column) {
+			case 'story_year':
+				$story_timestamp = strtotime($ctl_story_date);
+				if ($story_timestamp !== false) {
+					$story_year = gmdate('Y', $story_timestamp);
+					echo '<p><strong>' . esc_html($story_year) . '</strong></p>'; // Escape output
+				} else {
+					$ctl_story_date = trim(str_ireplace(array('am', 'pm'), '', $ctl_story_date));
+					$dateobj = DateTime::createFromFormat('m/d/Y H:i', $ctl_story_date, wp_timezone());
+					if ($dateobj) {
+						echo '<p><strong>' . wp_kses_post($dateobj->format(__('Y', 'cool-timeline'))) . '</strong></p>';
+					}
 				}
-            break;
-	        default:
-		    	echo "<p>".esc_html_e( 'Not Matched', 'cool-timeline' )."</p>";
+				break;
+			case 'story_date':
+				echo '<p><strong>' . esc_html($ctl_story_date) . '</strong></p>'; // Escape output
+				break;
+			case 'icon':
+				$icon = get_post_meta($post_id, 'story_icon', true);
+				$icon = isset($icon['fa_field_icon']) ? sanitize_text_field($icon['fa_field_icon']) : ''; // Sanitize input
+				if ($icon) {
+					echo '<i style="font-size:32px;" class="' . esc_attr($icon) . '" aria-hidden="true"></i>'; // Escape output
+				} else {
+					echo '<i style="font-size:32px;" class="fa fa-clock-o" aria-hidden="true"></i>';
+				}
+				break;
+			default:
+				echo '<p>' . esc_html__('Not Matched', 'cool-timeline') . '</p>'; // Escape output and allow translation
 		}
-    }
+	}
 
-	public function ctl_generted_page_label( $states ){
-		if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == 'cool_timeline' ){
+	public function ctl_generted_page_label($states)
+	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if (isset($_REQUEST['post_type']) && sanitize_text_field(wp_unslash($_REQUEST['post_type'])) == 'cool_timeline') {
 			unset($states['scheduled']);
 		}
 		return $states;
 	}
 
-	public function ctl_submitbox_metabox(){
-		if( isset($_REQUEST['post']) && get_post_type( $_REQUEST['post'] ) == 'cool_timeline' ||
-		isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == 'cool_timeline'){
-			$html  = '<div class="misc-pub-section ctl-notice">';
-			$html .= '<span style="color:red;font-weight:bold;">*Please select story Date / Year from settings below the story content.';
-			$html .= ' <a href="#ctl_post_meta"><br/>- Timeline Story Settings (Date/Year)</a>';
-			$html .= '</span>';
-			$html .= '</div>';
-			echo $html;		
+	public function ctl_submitbox_metabox()
+	{
+
+		$is_cool_timeline = false;
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended	 
+		if (isset($_GET['post'])) {
+			$post_id = intval(wp_unslash($_GET['post']));
+
+			if ('cool_timeline' === get_post_type($post_id)) {
+				$is_cool_timeline = true;
+			}
+		}
+
+		if (isset($_GET['post_type'])) {
+			$post_type = sanitize_text_field(wp_unslash($_GET['post_type']));
+
+			if ('cool_timeline' === $post_type) {
+				$is_cool_timeline = true;
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ($is_cool_timeline) {
+			?>
+			<div class="misc-pub-section ctl-notice"
+				style="background-color: #fff8e5; border-left: 4px solid #dba617; padding: 10px 12px; margin: 10px; border-radius: 2px;">
+				<span style="font-weight: 500; font-size: 12px; color: #1d2327; line-height: 1.4; display: block;">
+					<span class="dashicons dashicons-warning"
+						style="color: #dba617; font-size: 18px; width: 18px; height: 18px; vertical-align: text-bottom; margin-right: 4px;"></span>
+					<?php esc_html_e('Please select story Date / Year from settings below the story content.', 'cool-timeline'); ?>
+					<br />
+					<a href="#ctl_post_meta"
+						style="color: #135e96; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 6px; border-bottom: 1px dashed #135e96;"><?php esc_html_e('Configure Timeline Story Settings (Date/Year)', 'cool-timeline'); ?></a>
+				</span>
+			</div>
+			<?php
 		}
 	}
 

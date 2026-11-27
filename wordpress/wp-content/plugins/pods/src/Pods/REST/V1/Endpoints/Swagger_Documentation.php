@@ -2,10 +2,15 @@
 
 namespace Pods\REST\V1\Endpoints;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\REST\Interfaces\Endpoints\READ_Interface;
 use Pods\REST\V1\Main;
-use Tribe__Documentation__Swagger__Builder_Interface as Builder_Interface;
-use Tribe__Documentation__Swagger__Provider_Interface as Provider_Interface;
-use Tribe__REST__Endpoints__READ_Endpoint_Interface as READ_Endpoint_Interface;
+use Pods\REST\Interfaces\Swagger\Builder_Interface;
+use Pods\REST\Interfaces\Swagger\Provider_Interface;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -14,7 +19,7 @@ use WP_REST_Response;
  *
  * @since 2.8.0
  */
-class Swagger_Documentation implements Provider_Interface, READ_Endpoint_Interface, Builder_Interface {
+class Swagger_Documentation implements Provider_Interface, READ_Interface, Builder_Interface {
 
 	/**
 	 * @var string
@@ -38,7 +43,7 @@ class Swagger_Documentation implements Provider_Interface, READ_Endpoint_Interfa
 
 	public function hook() {
 		/** @var Main $main */
-		$main = tribe( 'pods.rest-v1.main' );
+		$main = pods_container( 'pods.rest-v1.main' );
 
 		$this->set_current_rest_api_version( $main->get_semantic_version() );
 	}
@@ -80,7 +85,7 @@ class Swagger_Documentation implements Provider_Interface, READ_Endpoint_Interfa
 	 */
 	public function get_documentation() {
 		/** @var Main $main */
-		$main = tribe( 'pods.rest-v1.main' );
+		$main = pods_container( 'pods.rest-v1.main' );
 
 		$documentation = [
 			'openapi'    => $this->open_api_version,
@@ -102,7 +107,7 @@ class Swagger_Documentation implements Provider_Interface, READ_Endpoint_Interfa
 		 * @since 2.8.0
 		 *
 		 * @param array                 $documentation An associative PHP array in the format supported by Swagger.
-		 * @param Swagger_Documentation $this          This documentation endpoint instance.
+		 * @param Swagger_Documentation $swagger_obj   This documentation endpoint instance.
 		 *
 		 * @link  http://swagger.io/
 		 */
@@ -170,7 +175,7 @@ class Swagger_Documentation implements Provider_Interface, READ_Endpoint_Interfa
 	 * @since 2.8.0
 	 *
 	 * @param string             $path     Documentation path.
-	 * @param Provider_Interface $endpoint Docuemntation endpoint object.
+	 * @param Provider_Interface $endpoint Documentation endpoint object.
 	 */
 	public function register_documentation_provider( $path, Provider_Interface $endpoint ) {
 		$this->documentation_providers[ $path ] = $endpoint;

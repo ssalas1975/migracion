@@ -1,6 +1,8 @@
 <?php
-if ( class_exists( 'Pods_PFAT_Frontend' ) ) {
-	return;
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
 }
 
 /**
@@ -55,7 +57,7 @@ class Pods_Templates_Auto_Template_Front_End {
 		foreach ( $possible_pods as $pod_name => $pod ) {
 			$filter = pods_v( 'archive_filter', $pod, '', true );
 			if ( $filter ) {
-				$this->filtered_content[ $filter ] = 10.5;
+				$this->filtered_content[ $filter ] = 10;
 			}
 		}
 
@@ -67,7 +69,7 @@ class Pods_Templates_Auto_Template_Front_End {
 				$pod = $obj->post_type;
 				break;
 			case $obj instanceof WP_Term:
-				$pod = $obj->name;
+				$pod = $obj->taxonomy;
 				break;
 			case $obj instanceof WP_User:
 				$pod = 'user';
@@ -78,7 +80,7 @@ class Pods_Templates_Auto_Template_Front_End {
 			// No need to check for default hooks, this is already done in auto_pods().
 			$filter = pods_v( 'single_filter', $possible_pods[ $pod ], '', true );
 			if ( $filter ) {
-				$this->filtered_content[ $filter ] = 10.5;
+				$this->filtered_content[ $filter ] = 10;
 			}
 		}
 
@@ -119,11 +121,11 @@ class Pods_Templates_Auto_Template_Front_End {
 	public function the_pods() {
 
 		// use the cached results.
-		$key      = '_pods_pfat_the_pods';
+		$key      = 'pods_pfat_the_pods';
 		$the_pods = pods_transient_get( $key );
 
 		// check if we already have the results cached & use it if we can.
-		if ( false === $the_pods ) {
+		if ( ! is_array( $the_pods ) ) {
 			// get all post type pods.
 			$the_pods = pods_api()->load_pods(
 				array(
@@ -165,9 +167,9 @@ class Pods_Templates_Auto_Template_Front_End {
 		 *
 		 * Note: If this filter does not return null, all back-end settings are ignored. To add to settings with a filter, use 'pods_pfat_auto_pods';
 		 *
-		 * @param array $auto_pods Array of parameters to use instead of those from settings.
+		 * @param null|array $auto_pods Array of parameters to use instead of those from settings.
 		 *
-		 * @return array Settings arrays for each post type.
+		 * @return null|array Settings arrays for each post type.
 		 *
 		 * @since 2.4.5
 		 */
@@ -177,11 +179,11 @@ class Pods_Templates_Auto_Template_Front_End {
 		}
 
 		// try to get cached results of this method.
-		$key       = '_pods_pfat_auto_pods';
+		$key       = 'pods_pfat_auto_pods';
 		$auto_pods = pods_transient_get( $key );
 
 		// check if we already have the results cached & use it if we can.
-		if ( $auto_pods === false ) {
+		if ( ! is_array( $auto_pods ) ) {
 			$default_hooks = array(
 				'post_type' => 'the_content',
 				'taxonomy'  => 'get_the_archive_description',
@@ -219,6 +221,14 @@ class Pods_Templates_Auto_Template_Front_End {
 					$single_filter    = pods_v( 'pfat_filter_single', $options, $default_hook, true );
 					$archive_filter   = pods_v( 'pfat_filter_archive', $options, $default_hook, true );
 					$run_outside_loop = pods_v( 'pfat_run_outside_loop', $options, false, true );
+
+					if ( 'true' === $single ) {
+						$single = '';
+					}
+
+					if ( 'true' === $archive ) {
+						$archive = '';
+					}
 
 					if ( 'custom' === $single_filter ) {
 						$single_filter = pods_v( 'pfat_filter_single_custom', $options, $default_hook, true );
@@ -357,6 +367,13 @@ class Pods_Templates_Auto_Template_Front_End {
 			$obj = get_post();
 		}
 
+		// Check if the post is password protected.
+		if ( $obj instanceof WP_Post && post_password_required( $obj ) ) {
+			$running = false;
+
+			return $content;
+		}
+
 		if ( null !== $obj ) {
 			$pod_info = $this->get_pod_info( $obj );
 
@@ -388,11 +405,11 @@ class Pods_Templates_Auto_Template_Front_End {
 			 *
 			 * @since 2.7.17
 			 *
-			 * @param string          $pod_name_and_id An array of the name of the pod to run the template against and the ID of the item in that pod to use.
+			 * @param string[]        $pod_name_and_id An array of the name of the pod to run the template against and the ID of the item in that pod to use.
 			 * @param string          $pod_name        The name of the pod from which the template was selected.
 			 * @param WP_post|WP_Term $obj             The object that is about to be displayed.
 			 */
-			$pod_name_and_id = apply_filters( 'pods_auto_template_pod_name_and_id', $pod_name_and_id, $pod_name, $obj );
+			$pod_name_and_id = (array) apply_filters( 'pods_auto_template_pod_name_and_id', $pod_name_and_id, $pod_name, $obj );
 
 			$pod_name = $pod_name_and_id[0];
 			$pod_id   = $pod_name_and_id[1];
@@ -627,7 +644,7 @@ class Pods_Templates_Auto_Template_Front_End {
 			if ( isset( $template ) ) {
 				global $frontier_styles, $frontier_scripts;
 
-				$template_post = pods()->api->load_template( array( 'name' => $template ) );
+				$template_post = pods_api()->load_template( array( 'name' => $template ) );
 
 				if ( ! empty( $template_post['id'] ) ) {
 					// Got a template - check for styles & scripts.

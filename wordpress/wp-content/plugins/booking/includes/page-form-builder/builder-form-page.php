@@ -53,16 +53,20 @@ class WPBC_Page_Builder_Booking_Form extends WPBC_Page_Structure {
 
 		$tabs = array();
 		$tabs['builder_booking_form'] = array(
+			'navigation_shell_context'                 => WPBC_Admin_Navigation_Policy::CONTEXT_FOCUSED,
+			'page_content_layout'                       => WPBC_Admin_Shell_Layout_Policy::LAYOUT_SPACIOUS,
 			'is_default_full_screen'                    => true,                             // true | false.  By default value is: false.
-			'is_show_top_path'                          => false,                             // true | false.  By default value is: false.
+			'is_force_full_screen'                      => true,                             // true | false. Force full screen independently from user preference.
+			'is_show_top_path'                          => true,                              // true | false.  By default value is: true.
 			'is_show_top_navigation'                    => false,                            // true | false.  By default value is: false.
 			'right_vertical_sidebar__is_show'           => true,                             // true | false.  By default value is: false.
 			'right_vertical_sidebar__default_view_mode' => '',                               // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'right_vertical_sidebar_compact__is_show'   => true,                             // true | false.  By default value is: false.
-			'left_navigation__default_view_mode'        => 'compact',                        // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
+			'left_navigation__default_view_mode'        => 'min',                            // Form Builder starts minimized but remains available for navigation.
+			'left_navigation__force_view_mode'          => '',                               // The page exception supplies the initial mode without structural hiding.
 
-			'title' 									=> __( 'Forms Builder', 'booking' ) .                            // Title of TAB.
-														   '<span class="wpbc_new_label" style="margin-left: auto;">' . esc_html__( 'New', 'booking' ) . '</span>',
+			'top_path_title'                            => __( 'Forms Builder', 'booking' ),
+			'title' 									=> __( 'Forms Builder', 'booking' ),                            // Title of TAB.
 			'hint'                                      => '',                            //__( 'Define available and unavailable days for your calendar(s).', 'booking' ),     // Hint.
 			'page_title'                                => __( 'Forms Builder', 'booking' ),                            // Title of Page.
 			'link'                                      => '',                            // Can be skiped,  then generated link based on Page and Tab tags. Or can  be extenral link.
@@ -537,20 +541,18 @@ class WPBC_Page_Builder_Booking_Form extends WPBC_Page_Structure {
 				),
 			),
 		);
-		if ( WPBC_BFB_DEBUG ) {
-			$tabs_config['debug_tab'] = array(
-				'title'       => __( 'Debug', 'booking' ),
-				'type'        => 'panel',
-				'css_classes' => 'align_right small_debug_tab',
-				'hint'        => array(
-					'title'    => __( 'Show debug export outputs', 'booking' ),
-					'position' => 'top',
-				),
-			);
-		}
+		$tabs_config['debug_tab'] = array(
+			'title'       => __( 'Debug', 'booking' ),
+			'type'        => 'panel',
+			'css_classes' => 'align_right small_debug_tab',
+			'hint'        => array(
+				'title'    => __( 'Show debug export outputs', 'booking' ),
+				'position' => 'top',
+			),
+		);
+
 		$tabs_config = apply_filters( 'wpbc_bfb_ui__top_tabs', $tabs_config, array() );
 
-		// $preferred_tab_id = ( 'On' === get_bk_option( 'booking_is_use_simple_booking_form' ) ) ? 'advanced_tab' : 'builder_tab';
 		$preferred_tab_id = 'builder_tab'; //TODO: make selection  based on  "bfb_options":{"advanced_mode_source":"builder"}
 		$active_tab_id    = WPBC_BFB_UI_Top_Tabs::resolve_active_tab_id( $tabs_config, $preferred_tab_id );
 
@@ -620,7 +622,6 @@ class WPBC_Page_Builder_Booking_Form extends WPBC_Page_Structure {
 
 			?>
 			</div>
-			<?php if ( WPBC_BFB_DEBUG ) { ?>
 			<!-- Debug Mode tab -->
 			<div class="wpbc_bfb__tab_section wpbc_bfb__tab_section__debug_tab wpbc_bfb__top_tab_section wpbc_bfb__top_tab_section__debug_tab"
 					<?php echo WPBC_BFB_UI_Top_Tabs::get_panel_hidden_attr( 'debug_tab', $active_tab_id );  /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */  ?>>
@@ -727,7 +728,6 @@ class WPBC_Page_Builder_Booking_Form extends WPBC_Page_Structure {
 
 				</div>
 			</div>
-			<?php } ?>
 
 			<!-- Preview Section Content tab -->
 			<div class="wpbc_bfb__tab_section wpbc_bfb__tab_section__preview_tab wpbc_bfb__top_tab_section wpbc_bfb__top_tab_section__preview_tab"
@@ -747,10 +747,10 @@ class WPBC_Page_Builder_Booking_Form extends WPBC_Page_Structure {
 add_action( 'wpbc_menu_created', array( new WPBC_Page_Builder_Booking_Form(), '__construct' ) );                        // Executed after creation of Menu.
 
 
-// == Temporary Migrate Functionality ==================================================================================
+// == One-way redirect from removed legacy form settings ===============================================================
 
 /**
- * Disable showing Legacy "WP Booking Calendar > Settings > Booking Form > Booking Form Fields page" if enabled BFB.
+ * Disable showing removed legacy "WP Booking Calendar > Settings > Booking Form" page.
  *
  * @param bool   $is_show            - 'usually' - true.
  * @param string $page_tag           - can be 'wpbc-settings'.
@@ -761,7 +761,7 @@ add_action( 'wpbc_menu_created', array( new WPBC_Page_Builder_Booking_Form(), '_
  */
 function wpbc_form_fields__check__showing_page( $is_show, $page_tag, $active_page_tab, $active_page_subtab ) {
 
-	if ( ( 'form' === $active_page_tab ) && ( 'wpbc-settings' === $page_tag ) && ( WPBC_Frontend_Settings::is_bfb_enabled( null ) ) ) {
+	if ( ( 'form' === $active_page_tab ) && ( 'wpbc-settings' === $page_tag ) ) {
 		$is_show = false;
 	}
 
@@ -772,7 +772,7 @@ add_filter( 'wpbc_before_showing_settings_page_is_show_page', 'wpbc_form_fields_
 
 
 /**
- * Unset Form Menu  in vertical left  menu widget.  - unset legacy  form builder,  if enabled BFB.
+ * Unset removed legacy Form menu in vertical left menu widget.
  *
  * @param array  $nav_tabs - array of menus.
  * @param string $this_page - current selected page.
@@ -782,9 +782,7 @@ add_filter( 'wpbc_before_showing_settings_page_is_show_page', 'wpbc_form_fields_
 function wpbc_form_fields__check__plugin_menu_structure( $nav_tabs, $this_page ) {
 
 	if ( isset( $nav_tabs['wpbc-settings'] ) && isset( $nav_tabs['wpbc-settings']['form'] ) ) {
-		if ( WPBC_Frontend_Settings::is_bfb_enabled( null ) ) {
-			unset( $nav_tabs['wpbc-settings']['form'] );
-		}
+		unset( $nav_tabs['wpbc-settings']['form'] );
 	}
 
 	return $nav_tabs;
@@ -799,21 +797,8 @@ function wpbc_form_fields__check__define_page_redirect( $page_tag ) {
     // Execute it only  for WP Booking Calendar > Settings > Booking Form > Booking Form Fields page.
 
 	if ( wpbc_is_settings_form_page() ) {
-		if ( WPBC_Frontend_Settings::is_bfb_enabled( null ) ) {
-			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			wp_redirect( admin_url( "admin.php?page=wpbc-settings&tab=builder_booking_form" ) );
-			//			$_REQUEST['tab'] = 'builder_booking_form';
-			//			unset( $_REQUEST['subtab'] );
-			//			$_SERVER[ 'REQUEST_URI' ] = str_replace( '&subtab=form_options', '', $_SERVER[ 'REQUEST_URI' ] );
-			//			$_SERVER[ 'REQUEST_URI' ] = str_replace( 'tab=form', 'tab=builder_booking_form', $_SERVER[ 'REQUEST_URI' ] );
-		}
-	} elseif ( wpbc_is_settings_bfb_page() ) {
-		if ( ! WPBC_Frontend_Settings::is_bfb_enabled( null ) ) {
-			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			wp_redirect( admin_url( "admin.php?page=wpbc-settings&tab=form&subtab=form_options" ) );
-			//			$_REQUEST['tab'] = 'form';
-			//			$_SERVER[ 'REQUEST_URI' ] = str_replace( 'tab=builder_booking_form', 'tab=form', $_SERVER[ 'REQUEST_URI' ] );
-		}
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( admin_url( "admin.php?page=wpbc-settings&tab=builder_booking_form" ) );
 	}
 }
 // We are set  9  to  execute earlier than hook in WPBC_Admin_Menus.

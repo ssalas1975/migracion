@@ -1,0 +1,679 @@
+# Copyright (C) 2021 Codestar
+# This file is distributed under the same license as the Codestar Framework package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Codestar Framework 2.2.1\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: classes/admin-options.class.php:224
+msgid "Error while saving the changes."
+msgstr "変更を保存する際にエラーが発生しました。"
+
+#: classes/admin-options.class.php:284
+msgid "Settings successfully imported."
+msgstr "設定をインポートしました。"
+
+#: classes/admin-options.class.php:296 classes/admin-options.class.php:312
+msgid "Default settings restored."
+msgstr "既定の設定が復元されました。"
+
+#: classes/admin-options.class.php:383
+msgid "Settings saved."
+msgstr "設定を保存しました。"
+
+#: classes/admin-options.class.php:561
+msgid "You have unsaved changes, save your changes!"
+msgstr "未保存の変更があります、変更を保存する!"
+
+#: classes/admin-options.class.php:563
+msgid "show all settings"
+msgstr "すべての設定を表示"
+
+#: classes/admin-options.class.php:565 fields/icon/icon.php:57
+#: fields/map/map.php:23
+msgid "Search..."
+msgstr "検索..."
+
+#: classes/admin-options.class.php:568 classes/admin-options.class.php:691
+msgid "Save"
+msgstr "保存"
+
+#: classes/admin-options.class.php:568 classes/admin-options.class.php:691
+msgid "Saving..."
+msgstr "保存中..."
+
+#: classes/admin-options.class.php:569 classes/admin-options.class.php:692
+msgid "Reset Section"
+msgstr "セクションをリセット"
+
+#: classes/admin-options.class.php:569 classes/admin-options.class.php:692
+msgid "Are you sure to reset this section options?"
+msgstr "本当に実行しますか?"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+msgid "Reset All"
+msgstr "すべてリセット"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+#: classes/comment-options.class.php:213 classes/metabox-options.class.php:282
+#: fields/backup/backup.php:31
+msgid "Reset"
+msgstr "リセット"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+msgid "Are you sure you want to reset all settings to default values?"
+msgstr "すべての設定を初期値にリセットしても良いですか?"
+
+#: classes/admin-options.class.php:668 classes/comment-options.class.php:196
+#: classes/metabox-options.class.php:265 fields/button_set/button_set.php:56
+#: fields/checkbox/checkbox.php:76 fields/radio/radio.php:75
+#: fields/select/select.php:113 functions/actions.php:41
+msgid "No data available."
+msgstr "表示できるデータがありません。"
+
+#: classes/comment-options.class.php:214 classes/metabox-options.class.php:283
+msgid "update post"
+msgstr "投稿を更新"
+
+#: classes/comment-options.class.php:214 classes/metabox-options.class.php:283
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: classes/setup.class.php:529
+msgid "Are you sure?"
+msgstr "本当に実行しますか?"
+
+#: classes/setup.class.php:530
+msgid "Please enter %s or more characters"
+msgstr "%s つ以上の文字を入力してください"
+
+#: classes/setup.class.php:531
+msgid "Searching..."
+msgstr "検索中..."
+
+#: classes/setup.class.php:532
+msgid "No results found."
+msgstr "見つかりませんでした。"
+
+#: classes/setup.class.php:615
+msgid "Oops! Not allowed."
+msgstr "おっと。許可されていません"
+
+#: classes/setup.class.php:689 classes/setup.class.php:693
+msgid "Field not found!"
+msgstr "フィールドが見つかりません!"
+
+#: classes/shortcode-options.class.php:251 fields/group/group.php:23
+msgid "Add New"
+msgstr "新規追加"
+
+#: classes/shortcode-options.class.php:288 functions/actions.php:16
+#: functions/actions.php:68 functions/actions.php:106 functions/actions.php:141
+#: functions/actions.php:170
+msgid "Error: Invalid nonce verification."
+msgstr "エラー: 無効なnonce検証."
+
+#: fields/background/background.php:35 fields/media/media.php:57
+msgid "Not selected"
+msgstr "非選択"
+
+#: fields/background/background.php:66 fields/date/date.php:31
+msgid "From"
+msgstr "開始"
+
+#: fields/background/background.php:84 fields/date/date.php:32
+msgid "To"
+msgstr "終了"
+
+#: fields/background/background.php:102
+msgid "Direction"
+msgstr "方向"
+
+#: fields/background/background.php:108
+msgid "Gradient Direction"
+msgstr "グラデーションの方向"
+
+#: fields/background/background.php:109
+msgid "&#8659; top to bottom"
+msgstr "&#8659; 上から下"
+
+#: fields/background/background.php:110
+msgid "&#8658; left to right"
+msgstr "&#8658; 左から右"
+
+#: fields/background/background.php:111
+msgid "&#8664; corner top to right"
+msgstr "&#8664; 左上から右下"
+
+#: fields/background/background.php:112
+msgid "&#8665; corner top to left"
+msgstr "&#8665; 右上から左下"
+
+#: fields/background/background.php:155
+msgid "Background Position"
+msgstr "背景の位置"
+
+#: fields/background/background.php:156
+msgid "Left Top"
+msgstr "左上"
+
+#: fields/background/background.php:157
+msgid "Left Center"
+msgstr "左中央"
+
+#: fields/background/background.php:158
+msgid "Left Bottom"
+msgstr "左下"
+
+#: fields/background/background.php:159
+msgid "Center Top"
+msgstr "中央上"
+
+#: fields/background/background.php:160
+msgid "Center Center"
+msgstr "中央"
+
+#: fields/background/background.php:161
+msgid "Center Bottom"
+msgstr "中央下"
+
+#: fields/background/background.php:162
+msgid "Right Top"
+msgstr "右上"
+
+#: fields/background/background.php:163
+msgid "Right Center"
+msgstr "右中央"
+
+#: fields/background/background.php:164
+msgid "Right Bottom"
+msgstr "右下"
+
+#: fields/background/background.php:178
+msgid "Background Repeat"
+msgstr "背景の繰り返し"
+
+#: fields/background/background.php:179
+msgid "Repeat"
+msgstr "繰り返し"
+
+#: fields/background/background.php:180
+msgid "No Repeat"
+msgstr "繰り返しなし"
+
+#: fields/background/background.php:181
+msgid "Repeat Horizontally"
+msgstr "水平に繰り返し"
+
+#: fields/background/background.php:182
+msgid "Repeat Vertically"
+msgstr "垂直に繰り返し"
+
+#: fields/background/background.php:196
+msgid "Background Attachment"
+msgstr "背景スクロール"
+
+#: fields/background/background.php:197
+msgid "Scroll"
+msgstr "スクロール"
+
+#: fields/background/background.php:198
+msgid "Fixed"
+msgstr "固定"
+
+#: fields/background/background.php:212
+msgid "Background Size"
+msgstr "背景のサイズ"
+
+#: fields/background/background.php:213
+msgid "Cover"
+msgstr "覆う"
+
+#: fields/background/background.php:214
+msgid "Contain"
+msgstr "収める"
+
+#: fields/background/background.php:215
+msgid "Auto"
+msgstr "自動"
+
+#: fields/background/background.php:229
+msgid "Background Origin"
+msgstr "背景オリジン"
+
+#: fields/background/background.php:230 fields/background/background.php:248
+msgid "Padding Box"
+msgstr "パディングボックス"
+
+#: fields/background/background.php:231 fields/background/background.php:247
+msgid "Border Box"
+msgstr "ボーダーボックス"
+
+#: fields/background/background.php:232 fields/background/background.php:249
+msgid "Content Box"
+msgstr "コンテンツボックス"
+
+#: fields/background/background.php:246
+msgid "Background Clip"
+msgstr "背景クリップ"
+
+#: fields/background/background.php:263
+msgid "Background Blend Mode"
+msgstr "背景のブレンドモード"
+
+#: fields/background/background.php:264 fields/link_color/link_color.php:36
+#: fields/typography/typography.php:175
+msgid "Normal"
+msgstr "通常"
+
+#: fields/background/background.php:265
+msgid "Multiply"
+msgstr "乗算"
+
+#: fields/background/background.php:266
+msgid "Screen"
+msgstr "スクリーン"
+
+#: fields/background/background.php:267
+msgid "Overlay"
+msgstr "オーバーレイ"
+
+#: fields/background/background.php:268
+msgid "Darken"
+msgstr "暗く"
+
+#: fields/background/background.php:269
+msgid "Lighten"
+msgstr "明るく"
+
+#: fields/background/background.php:270
+msgid "Color Dodge"
+msgstr "覆い焼きカラー"
+
+#: fields/background/background.php:271
+msgid "Saturation"
+msgstr "彩度"
+
+#: fields/background/background.php:272
+msgid "Color"
+msgstr "カラー"
+
+#: fields/background/background.php:273
+msgid "Luminosity"
+msgstr "輝度"
+
+#: fields/backup/backup.php:26
+msgid "Import"
+msgstr "インポート"
+
+#: fields/backup/backup.php:29
+msgid "Export & Download"
+msgstr "エクスポート & ダウンロード"
+
+#: fields/border/border.php:25 fields/spacing/spacing.php:25
+msgid "top"
+msgstr "上"
+
+#: fields/border/border.php:26 fields/spacing/spacing.php:26
+msgid "right"
+msgstr "右"
+
+#: fields/border/border.php:27 fields/spacing/spacing.php:27
+msgid "bottom"
+msgstr "下"
+
+#: fields/border/border.php:28 fields/spacing/spacing.php:28
+msgid "left"
+msgstr "左"
+
+#: fields/border/border.php:29 fields/spacing/spacing.php:29
+msgid "all"
+msgstr "すべて"
+
+#: fields/border/border.php:51 fields/typography/typography.php:203
+msgid "Solid"
+msgstr "実線"
+
+#: fields/border/border.php:52 fields/typography/typography.php:206
+msgid "Dashed"
+msgstr "破線"
+
+#: fields/border/border.php:53 fields/typography/typography.php:205
+msgid "Dotted"
+msgstr "点線"
+
+#: fields/border/border.php:54 fields/typography/typography.php:204
+msgid "Double"
+msgstr "二重線"
+
+#: fields/border/border.php:55
+msgid "Inset"
+msgstr "内線"
+
+#: fields/border/border.php:56
+msgid "Outset"
+msgstr "外線"
+
+#: fields/border/border.php:57
+msgid "Groove"
+msgstr "溝"
+
+#: fields/border/border.php:58
+msgid "ridge"
+msgstr "稜線"
+
+#: fields/border/border.php:59 fields/typography/typography.php:188
+#: fields/typography/typography.php:202
+msgid "None"
+msgstr "なし"
+
+#: fields/dimensions/dimensions.php:22
+msgid "width"
+msgstr "幅"
+
+#: fields/dimensions/dimensions.php:23
+msgid "height"
+msgstr "高さ"
+
+#: fields/gallery/gallery.php:20
+msgid "Add Gallery"
+msgstr "ギャラリーの追加"
+
+#: fields/gallery/gallery.php:21
+msgid "Edit Gallery"
+msgstr "ギャラリーを編集"
+
+#: fields/gallery/gallery.php:22
+msgid "Clear"
+msgstr "クリア"
+
+#: fields/group/group.php:35 fields/repeater/repeater.php:27
+msgid "Error: Field ID conflict."
+msgstr "エラー: フィールドIDが競合しています。"
+
+#: fields/group/group.php:46 fields/group/group.php:87
+#: fields/repeater/repeater.php:48 fields/repeater/repeater.php:76
+msgid "Are you sure to delete this item?"
+msgstr "本当に削除しますか?"
+
+#: fields/group/group.php:121 fields/repeater/repeater.php:89
+msgid "You cannot add more."
+msgstr "これ以上追加することはできません。"
+
+#: fields/group/group.php:122 fields/repeater/repeater.php:90
+msgid "You cannot remove more."
+msgstr "これ以上削除することはできません。"
+
+#: fields/icon/icon.php:20 fields/icon/icon.php:53
+msgid "Add Icon"
+msgstr "アイコンを追加"
+
+#: fields/icon/icon.php:21
+msgid "Remove Icon"
+msgstr "アイコンの削除"
+
+#: fields/link/link.php:20
+msgid "Add Link"
+msgstr "リンクを追加"
+
+#: fields/link/link.php:21
+msgid "Edit Link"
+msgstr "リンクの編集"
+
+#: fields/link/link.php:22
+msgid "Remove Link"
+msgstr "リンクの削除"
+
+#: fields/link_color/link_color.php:37
+msgid "Hover"
+msgstr "ホバー"
+
+#: fields/link_color/link_color.php:38
+msgid "Active"
+msgstr "アクティブ"
+
+#: fields/link_color/link_color.php:39
+msgid "Visited"
+msgstr "訪問済み"
+
+#: fields/link_color/link_color.php:40
+msgid "Focus"
+msgstr "フォーカス"
+
+#: fields/map/map.php:24
+msgid "Latitude"
+msgstr "緯度"
+
+#: fields/map/map.php:25
+msgid "Longitude"
+msgstr "経度"
+
+#: fields/media/media.php:23 fields/upload/upload.php:21
+msgid "Upload"
+msgstr "アップロード"
+
+#: fields/media/media.php:24 fields/upload/upload.php:22
+msgid "Remove"
+msgstr "削除"
+
+#: fields/sorter/sorter.php:21
+msgid "Enabled"
+msgstr "有効"
+
+#: fields/sorter/sorter.php:22
+msgid "Disabled"
+msgstr "無効化済み"
+
+#: fields/switcher/switcher.php:20
+msgid "On"
+msgstr "オン"
+
+#: fields/switcher/switcher.php:21
+msgid "Off"
+msgstr "オフ"
+
+#: fields/typography/typography.php:85
+msgid "Font Family"
+msgstr "フォントファミリー"
+
+#: fields/typography/typography.php:86
+msgid "Select a font"
+msgstr "フォントを選択"
+
+#: fields/typography/typography.php:94
+msgid "Backup Font Family"
+msgstr "代替フォント"
+
+#: fields/typography/typography.php:108 fields/typography/typography.php:121
+#: fields/typography/typography.php:134 fields/typography/typography.php:149
+#: fields/typography/typography.php:165 fields/typography/typography.php:178
+#: fields/typography/typography.php:192 fields/typography/typography.php:210
+msgid "Default"
+msgstr "デフォルト"
+
+#: fields/typography/typography.php:119
+msgid "Font Style"
+msgstr "フォントスタイル"
+
+#: fields/typography/typography.php:133 fields/typography/typography.php:134
+msgid "Load Extra Styles"
+msgstr "追加スタイルを読み込む"
+
+#: fields/typography/typography.php:147
+msgid "Subset"
+msgstr "サブセット"
+
+#: fields/typography/typography.php:157
+msgid "Text Align"
+msgstr "テキスト配置"
+
+#: fields/typography/typography.php:159
+msgid "Inherit"
+msgstr "継承"
+
+#: fields/typography/typography.php:160
+msgid "Left"
+msgstr "左"
+
+#: fields/typography/typography.php:161
+msgid "Center"
+msgstr "中央"
+
+#: fields/typography/typography.php:162
+msgid "Right"
+msgstr "右"
+
+#: fields/typography/typography.php:163
+msgid "Justify"
+msgstr "両端揃え"
+
+#: fields/typography/typography.php:164
+msgid "Initial"
+msgstr "初期値"
+
+#: fields/typography/typography.php:173
+msgid "Font Variant"
+msgstr "フォントバリアント"
+
+#: fields/typography/typography.php:176
+msgid "Small Caps"
+msgstr "スモールキャップ"
+
+#: fields/typography/typography.php:177
+msgid "All Small Caps"
+msgstr "すべてスモールキャップ"
+
+#: fields/typography/typography.php:186
+msgid "Text Transform"
+msgstr "テキスト変換"
+
+#: fields/typography/typography.php:189
+msgid "Capitalize"
+msgstr "先頭を大文字"
+
+#: fields/typography/typography.php:190
+msgid "Uppercase"
+msgstr "大文字"
+
+#: fields/typography/typography.php:191
+msgid "Lowercase"
+msgstr "小文字"
+
+#: fields/typography/typography.php:200
+msgid "Text Decoration"
+msgstr "テキスト装飾"
+
+#: fields/typography/typography.php:207
+msgid "Wavy"
+msgstr "波線"
+
+#: fields/typography/typography.php:208
+msgid "Overline"
+msgstr "上線"
+
+#: fields/typography/typography.php:209
+msgid "Line-through"
+msgstr "取り消し線"
+
+#: fields/typography/typography.php:222
+msgid "Font Size"
+msgstr "フォントサイズ"
+
+#: fields/typography/typography.php:234
+msgid "Line Height"
+msgstr "行の高さ"
+
+#: fields/typography/typography.php:246
+msgid "Letter Spacing"
+msgstr "文字間隔"
+
+#: fields/typography/typography.php:258
+msgid "Word Spacing"
+msgstr "単語間隔"
+
+#: fields/typography/typography.php:273
+msgid "Font Color"
+msgstr "フォントの色"
+
+#: fields/typography/typography.php:284
+msgid "Custom Style"
+msgstr "カスタムスタイル"
+
+#: fields/typography/typography.php:351
+msgid "Custom Web Fonts"
+msgstr "カスタム Web フォント"
+
+#: fields/typography/typography.php:357
+msgid "Safe Web Fonts"
+msgstr "安全な Web フォント"
+
+#: fields/typography/typography.php:377
+msgid "Google Web Fonts"
+msgstr "Google Web フォント"
+
+#: functions/actions.php:72 functions/actions.php:110
+msgid "Error: Invalid key."
+msgstr "エラー: 無効なキーです。"
+
+#: functions/actions.php:114
+msgid "Error: The response is not a valid JSON response."
+msgstr "エラー: 返答が正しい JSON レスポンスではありません。"
+
+#: functions/actions.php:174
+msgid "Error: Invalid term ID."
+msgstr "エラー: 無効なターム ID。"
+
+#: functions/actions.php:180
+msgid "Error: You do not have permission to do that."
+msgstr "エラー: この操作を行う権限がありません。"
+
+#: functions/validate.php:14 functions/validate.php:86
+msgid "Please enter a valid email address."
+msgstr "有効なメールアドレスを入力してください。"
+
+#: functions/validate.php:32 functions/validate.php:106
+msgid "Please enter a valid number."
+msgstr "正しい番号を入力してください。"
+
+#: functions/validate.php:50 functions/validate.php:126
+msgid "This field is required."
+msgstr "このフィールドは必須です。"
+
+#: functions/validate.php:68 functions/validate.php:146
+msgid "Please enter a valid URL."
+msgstr "正しい URL を記入してください。"
+
+#~ msgid "Add Shortcode"
+#~ msgstr "ショートコードの追加"
+
+#~ msgid "Select a shortcode"
+#~ msgstr "ショートコードを選択"
+
+#~ msgid "Insert Shortcode"
+#~ msgstr "ショートコードを挿入"
+
+#~ msgid "Write shortcode here..."
+#~ msgstr "ショートコードをここに入力..."
+
+msgid "Codestar Framework"
+msgstr "Codestar Framework"
+
+msgid "http://codestarframework.com/"
+msgstr "http://codestarframework.com/"
+
+msgid "A Simple and Lightweight WordPress Option Framework for Themes and Plugins"
+msgstr "テーマとプラグイン向けのシンプルで軽量な WordPress オプションフレームワーク"
+
+msgid "Codestar"
+msgstr "Codestar"
+
+msgid "http://codestarthemes.com/"
+msgstr "http://codestarthemes.com/"

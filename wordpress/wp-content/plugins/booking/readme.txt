@@ -1,11 +1,11 @@
 ﻿=== Booking Calendar ===
 Contributors: wpdevelop, oplugins
 Donate link: https://wpbookingcalendar.com/buy/
-Tags: booking calendar, appointment booking, booking form, reservations, contact form
+Tags: booking calendar, appointment booking, online booking, availability calendar, booking form
 Requires at least: 5.3
 Requires PHP: 5.6
-Tested up to: 7.0
-Stable tag: 11.0
+Tested up to: 7.2
+Stable tag: 12.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,87 +16,47 @@ WP Booking Calendar plugin for full-day bookings, time-slot appointments, rental
 = Booking Calendar - Booking Plugin for Appointments, Reservations, Rentals, Events =
 **WP Booking Calendar** is a flexible **WordPress booking plugin** for **appointments**, **reservations**, **rentals**, and **events**. Add a responsive **availability calendar** and **booking form** to your website, accept **online bookings**, and manage them from a modern admin panel.
 
-Use Booking Calendar for **full-day bookings**, **time-slot appointments**, service scheduling, event registration, **inquiry forms**, **request forms**, or even as a simple multi-steps **contact form** with built-in request listing and email notifications.
+Use Booking Calendar for **full-day bookings**, **time-slot appointments**, service scheduling, event registration, **inquiry forms**, **request forms**, or even as a simple multi-step **contact form** with built-in request listing and email notifications.
 
 [Features](https://wpbookingcalendar.com/features/ "Features Overview of Booking Calendar") | [See Demos](https://wpbookingcalendar.com/demo/ "Live demos of premium versions") | [FAQ](https://wpbookingcalendar.com/faq/ "Booking Calendar FAQ") | [Get Support](https://wpbookingcalendar.com/support/ "Get support for Booking Calendar plugin")
 
 Best for appointments, service scheduling, property rentals, equipment rentals, consultations, classes, events, and availability management.
 
 = Key Features =
-- Block unavailable time intervals by resource and date range
-- Create admin bookings from selected available time slots
-- Configure global availability rules with live preview
-- Accept **full-day** and **time-slot** bookings
-- Show **calendar availability** on your website
-- Create booking, contact, and inquiry forms
-- Use the new **Drag & Drop Booking Form Builder**
-- Build **multi-step forms** with rows and columns
-- Customize form fields and email notifications
-- Prevent double bookings
-- Manage bookings in a clear admin panel
-- Sync bookings with external services using **.ics feeds**
-- Import Google Calendar events
-- Works for properties, services, rentals, and events
+- Accept full-day, appointment, and time-slot bookings.
+- Display availability and prevent double bookings.
+- Create customizable booking and inquiry forms.
+- Manage, approve, decline, and edit bookings in WordPress.
+- Send email notifications to administrators and customers.
+- Build multi-step forms with the Drag & Drop Form Builder.
+- Block unavailable dates and time intervals.
+- Synchronize bookings using .ics feeds.
+- Import Google Calendar events.
+- Use responsive booking forms on desktop and mobile.
 
-= New Time Slots Availability & Fast Admin Booking =
+= Booking Calendar for Different Businesses =
 
-Manage unavailable time intervals visually from **Booking Calendar > Availability** or directly from the bookings workflow using the new **Time Slots Availability** popup.
+Use Booking Calendar for appointment scheduling, service reservations, property and equipment rentals, consultations, classes, events, and other availability-based bookings.
 
-Administrators can choose a date range and block or unblock exact time intervals in an interactive timeline. The timeline clearly shows available, booked, unavailable, and full-day unavailable states, and full-day unavailable states, making it much easier to understand real availability at a glance.
+Booking Calendar Free includes the essential tools for displaying availability, accepting booking requests, preventing double bookings, sending notifications, and managing reservations in WordPress.
 
-https://www.youtube.com/watch?v=uaLVguJbMP8
+Paid editions add multiple booking resources, online payments, seasonal pricing, advanced availability rules, availability search, and MultiUser administration.
 
-Administrators can also create a new booking directly from an available time interval. Simply select an available time slot in the popup, open the booking form with the selected resource, date, start time, and end time already prefilled, and save it as a new booking.
+= Full-Day Booking Process in Booking Calendar Free =
+Let visitors complete a full-day property booking through a clear two-step flow. Customers select a property, review available, booked, and pending dates, choose their check-in and check-out dates, enter their contact details, and submit the booking request. The confirmation displays the complete booking summary and provides an option to add the selected dates to Google Calendar.
 
-This makes Booking Calendar especially useful for appointment scheduling, service bookings, consultations, rentals, and any workflow where administrators need to quickly review availability and create bookings from the WordPress admin panel.
+https://www.youtube.com/watch?v=bp3lZ5Dnxns
 
-= New Drag & Drop Booking Form Builder =
+= Appointment Booking with Services and Providers =
+Let visitors book appointments through a simple step-by-step flow. Customers choose a Service and an available Provider, select a date and start time, enter their contact details, and submit the booking. The confirmation displays the complete appointment details and provides an option to add the appointment to Google Calendar.
 
-Create booking forms visually without manually editing complex shortcodes or form code. Simply drag fields from the sidebar, drop them into the canvas, organize them into rows and columns, edit settings in the sidebar, and preview changes instantly.
-
-https://www.youtube.com/watch?v=_LRr15mcECE
-
-The new builder also makes it easy to create **contact** and **inquiry forms** where the calendar is optional.
-
-With the new interface, you can:
-
-- drag and drop fields into the form layout,
-- organize fields into sections and columns,
-- create multi-step form pages,
-- resize columns for better layout control,
-- edit field settings in the right sidebar,
-- instantly preview the form while building.
-
-This new functionality brings a more modern, user-friendly, and flexible way to create forms in Booking Calendar, making form setup faster, clearer, and much more convenient for website owners.
-
-= Perfect solution for any booking logic =
-
-As the first booking system for WordPress, we have created a huge number of features to match your specific booking needs.
-
-Easily **define available dates** and allow your visitors to **reserve** your property or service for a **full day** or **time-slot**.
-
-For those who need more advanced functionality, our premium versions offer an extensive system with **multiple resources**, **seasonal prices**, **conditional dates** selection, **availability search**, and even a **multi-user system** where users can independently manage their own availability, much like an Airbnb portal.
-
-= Full Day Bookings - Drag and Drop Booking Form Builder =
-Easily configure Booking Calendar for full-day bookings with the new Drag and Drop Booking Form Builder. The new Booking Calendar Form Builder makes it much easier to create flexible booking forms without manually editing form code. It is a simple and visual way to build booking forms for different use cases directly inside WordPress.
-
-https://www.youtube.com/watch?v=n_svjKULkc0
-
-= Appointment Forms with Time Slots or Start Time + Service Duration Selection =
-Create a time-slot booking form in just a few minutes with the new Booking Calendar Form Builder. Visually add the calendar, time fields, and contact fields, adjust the layout, and preview changes instantly — without manually editing form code.
-
-https://www.youtube.com/watch?v=6hV11Cfc61Q
-
-= Changeover Multi-Day Bookings - Setup Wizard (Pro) =
-Configure multi-day bookings with specific check-in and check-out days, clearly marked with diagonal or vertical lines. Perfect for bookings that require split days. <br>**Available Pro versions**.
-
-https://www.youtube.com/watch?v=uCQ9JmHR8w4
+https://www.youtube.com/watch?v=0lwrMgXaHkk
 
 == Installation ==
 
 Installing the plugin is easy. Just follow one of the following methods:
 
-= Install Booking Calendar from within Wordpress =
+= Install Booking Calendar from within WordPress =
 
 1. Visit the plugins page within your dashboard and select ‘Add New’
 2. Search for "Booking Calendar by oplugins"
@@ -118,51 +78,58 @@ That's it! Just configure your settings and [insert booking form shortcode](http
 
 Please see [FAQ](https://wpbookingcalendar.com/faq/).
 
-= Booking Calendar is great for =
 
-Whether you’re renting a property or you’re a sole business owner looking to automate your service bookings, Booking Calendar can help you.
-- Resource scheduling (bed & breakfast, houses, apartments, etc.)
-- Client scheduling (photographers, lawyers, beauty salons, spas, etc.)
-- Meeting scheduling (coaching, phone advice)
-- Patient scheduling (doctor, dentists, clinic, medical)
-- Equipment rentals (yachts, boats, cars, bikes, technics, etc.)
-- Event scheduling (conference, course, fitness center, yoga class, gym)
-- Or any other service where booking for a specific time is required
+= Premium Features in paid versions =
 
-= All you need to know about booking process =
+**Booking Calendar Personal (or higher versions)**
+- [Multiple booking resources (calendars)](https://wpbookingcalendar.com/features/#booking-resources) - create an unlimited number of booking resources (calendars), which can be your services, properties, or any other items that can be booked by visitors in separate unique calendars.
+- [Advanced configuration of booking form and emails](https://wpbookingcalendar.com/features/#booking-form) - fully customize the appearance of your booking form and email templates.
+- [Manage bookings](https://wpbookingcalendar.com/features/#manage-bookings) - perform various actions such as CSV export, adding notes, editing, duplicating, changing resources, and much more...
 
-**Step 1: Select your desired date(s)**
-Customers can select the date(s) they would like to book. The **Booking Calendar** plugin provides an easy-to-use calendar system that displays the availability of your property or service for those dates.
+**Booking Calendar Business Small (or higher versions)**
+- [Online Payments](https://wpbookingcalendar.com/features/#payments) - accept online payments for your bookings, with support for various payment gateways like **Stripe, PayPal, Authorize.Net, Redsys**, and more.
+- [Changeover Days](https://wpbookingcalendar.com/features/#change-over-days) - enable **split bookings** marked by vertical or diagonal lines, allowing visitors to check out and check in on the same date.
+- [Advanced range selection rules](https://wpbookingcalendar.com/features/#range-days-selection) - enable fixed ranges with one click, configure minimum and maximum lengths or specific permitted lengths, and restrict range starts to selected weekdays.
+- [Auto Approval / Cancellation](https://wpbookingcalendar.com/features/#auto-cancellation) - set up automatic cancellation of unpaid pending bookings after a specific time, or enable auto-approval for incoming bookings.
+- [Advanced Hourly Bookings](https://wpbookingcalendar.com/features/#times) - increase the flexibility of your Booking Calendar by allowing visitors to book specific start and end times or duration of time, ensuring precise scheduling for your services.
 
-**Step 2: Select a time-slot (optional)**
-If you offer appointments or reservations at specific times, you can configure the booking form to allow customers to select an available time-slot. To learn how to set it up, please [watch this video](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version").
+**Booking Calendar Business Medium (or higher versions)**
+- [Seasonal Prices](https://wpbookingcalendar.com/features/#rates) - customize the daily cost (rates) for different seasons or week days with fixed costs per day or as a percentage from original daily cost.
+- [Multi-Day Pricing](https://wpbookingcalendar.com/features/#valuation-days) - set different cost of booking based on the number of selected days, and the ability to apply these costs only if the "Check In" day falls within a specific season.
+- [Last Minute Booking Discount](https://wpbookingcalendar.com/features/#early-late-discounts) - offer a discount for bookings, if the difference between the booking date and the check-in date is less than a specified number of days.
+- [Early Booking Discounts](https://wpbookingcalendar.com/features/#early-late-discounts) - set a discount for bookings made in advance, if the difference between the booking date and the check-in date is greater than a specified number of days.
+- [Advanced cost](https://wpbookingcalendar.com/features/#additional-cost) - configure the booking cost based on the options selected in the form, by adding extra charges such as taxes, additional services, or by adjusting the cost based on the number of visitors.
+- [Deposit payments](https://wpbookingcalendar.com/features/#deposit) - allows visitors to pay a part of the booking cost such as a fixed deposit value or percentage of the original booking cost after creating a booking.
+- [Multiple Custom Forms](https://wpbookingcalendar.com/features/#custom-forms) - create multiple form configurations, allowing you to use different forms with different form fields for each of your booking resources.
+- [Advanced days selection](https://wpbookingcalendar.com/features/#advanced-days-selection) - customize the specific number of days that can be selected on specific weekdays or during certain seasons or allow specific start week days on certain season.
+- [Different time-slots on different days](https://wpbookingcalendar.com/features/#times-week-days) - configure different time slots for different week days or seasons.
+- [Advanced Season Availability](https://wpbookingcalendar.com/features/#availability) - set unavailable days for specific seasons, such as holidays or weekends during summer, using conditional season filters.
+- [Availability from Today](https://wpbookingcalendar.com/features/#availability-from-today) - limit or define the number of available/unavailable days starting from today.
+- [Unavailable time before or after a booking](https://wpbookingcalendar.com/features/#unavailable-time-after-before-booking) - setting the number of minutes, hours, or days needed for cleaning or other services, applicable to bookings with time slots or change-over days feature.
 
-**Step 3: Fill in Booking Form Fields**
-The form will ask for information such as your name, contact information, and other details needed to approve the booking. The booking form fields are customizable, allowing you to configure fields required for the booking.
+**Booking Calendar Business Large (or higher versions)**
+- [Capacity and Availability](https://wpbookingcalendar.com/features/#capacity) - set the maximum number of bookings that can be made per full day or time slots  in calendar, and ensure that dates in the calendar are only available until the capacity is reached.
+- [Search Availability](https://wpbookingcalendar.com/features/#search) - allows your website visitors to quickly search for available booking resources such as properties or services by entering check-in/out dates and other criteria like the number of guests or specific amenities.
+- [Coupons for Discounts](https://wpbookingcalendar.com/features/#coupons) - offer discounts to your visitors by creating coupon codes that can be entered in the booking form.
+- [Auto-Cancel Pending Bookings](https://wpbookingcalendar.com/features/#pending-available) - enable automatic cancellation of pending bookings for specific dates when you approve booking for the same resource.
 
-**Step 4: Submit your booking and Receive Notification of New Booking**
-After filling out the booking form, customers can submit the booking. The **Booking Calendar** plugin will notify the administrator about the new booking and send a confirmation email to customers that their booking has been received.
+**Booking Calendar MultiUser version**
+- [MultiUser Booking Admin Panels](https://wpbookingcalendar.com/features/#multiuser) - enable each registered WordPress user to have their own individual booking admin panel, where they can see and manage only their own bookings, resources, and settings. This includes the ability to configure their own booking form, receive notifications to own separate emails, and activate payment gateways for their own payment accounts.
 
-**Step 5: Manage Bookings**
-Administrators can manage all reservations from the modern and easy-to-use admin booking panel. Easily find the required bookings, check the booking details, and modify the booking if needed, then approve or decline this reservation. Customers will receive an email confirmation about the approval or cancellation of their booking.
 
-= Simple steps to get started =
-**1. Add booking form or availability calendar to your page**
-Easily insert the booking form on any page of your website using WordPress blocks or Booking Calendar widgets for sidebars or configure shortcode block in page builders like Elementor. Read more [here](https://wpbookingcalendar.com/faq/insert-booking-calendar-into-page/ "How to insert the booking form or availability calendar into the page?").
+= Booking Calendar Free Features: =
 
-**2. Set initial unavailable days with just few clicks**
-You can **define days availability** in just a 3 mouse clicks at Booking > Availability page. Simply select a range of days on the calendar, choose 'available' or 'unavailable' status, and apply. It’s that simple!
+**Time Slots Availability & Fast Admin Booking**
 
-**3. Configure booking form, email templates and other settings**
-Easily **customize** your **booking form** fields and add **[time slots](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version")** if needed. Configure **email** notifications and other settings such as the **calendar** appearance, booking admin panel functionality, and more...
+Manage unavailable time intervals visually from **Booking Calendar > Availability** or directly from the bookings workflow using the new **Time Slots Availability** popup.
 
-**4. Receive notifications and manage bookings**
-Get notified about a **new appointments** and manage them in a modern admin panel. **Approve**, **decline**, or **edit** specific bookings. Plus, you can get a complete picture of your schedule with the **calendar overview** in **day**, **week**, or **month** view mode.
+Administrators can choose a date range and block or unblock exact time intervals in an interactive timeline. The timeline clearly shows available, booked, unavailable, and full-day unavailable states, making it much easier to understand real availability at a glance.
 
-**5. Configure syncing of bookings with other services**
-Import your **Google Calendar** events or make **2 ways sync** of your events by using **.ics feeds** with various services such as Airbnb, Booking.com, VRBO, HomeAway, TripAdvisor, FlipKey, and more... Thanks to native integration with [Booking Manager](https://wordpress.org/plugins/booking-manager/) plugin.
+https://www.youtube.com/watch?v=uaLVguJbMP8
 
-= Awesome features: =
+Administrators can also create a new booking directly from an available time interval. Simply select an available time slot in the popup, open the booking form with the selected resource, date, start time, and end time already prefilled, and save it as a new booking.
+
+This makes Booking Calendar especially useful for appointment scheduling, service bookings, consultations, rentals, and any workflow where administrators need to quickly review availability and create bookings from the WordPress admin panel.
 
 **Setup Wizard!**
 - Easy Time Appointments Configuration for your Bookings
@@ -176,10 +143,10 @@ https://www.youtube.com/watch?v=GYJWZJBFwXw
 
 **General**
 - **Modern** and **easy to use** interface.
-- The plugin is designed to be a suitable for a vast array of businesses.
+- The plugin is designed for a vast array of businesses.
 - 100% mobile-friendly and looks amazing on any device.
-- All booking data is stored in your DB. You don't need other accounts.
-- **Multi language** support. Check all available languages at [this page](https://wordpress.org/plugins/booking/#support%20languages%20%28local%29 "Translations").
+- Booking details are stored in your WordPress database. You don't need other accounts.
+- **Multilingual** support. Check all available languages at [this page](https://wordpress.org/plugins/booking/#support%20languages%20%28local%29 "Translations").
 
 **Easy to start using**
 - Booking Calendar is an easy solution to start receiving bookings.
@@ -191,8 +158,8 @@ https://www.youtube.com/watch?v=GYJWZJBFwXw
 - Alternatively, you can allow **unlimited bookings for the same date** and time within the same calendar.
 - You can enable **pending bookings as available** in the calendar, which lets you receive multiple bookings for the same date until you manually approve one of them. You can receive as many bookings as you need to and stop receiving bookings on specific dates once you have approved a booking.
 
-**Timeslots bookings**
-- [Time slot bookings](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version")** are available in the Booking Calendar Free version, which allows you to receive bookings for available time-slots during a selected day. Customers can select time slots either in a time picker or from a dropdown list, depending on your settings at Settings General page in "Time Slots" section.
+**Time-Slot Bookings**
+- [Time slot bookings](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version") are available in the Booking Calendar Free version, which allows you to receive bookings for available time-slots during a selected day. Customers can select time slots either in a time picker or from a dropdown list, depending on your settings at Settings General page in "Time Slots" section.
 
 **Calendar**
  Select a **calendar skin** that matches your website design.<br>
@@ -233,245 +200,208 @@ Configure email confirmation to be sent to the site administrator and visitors f
 
 **Other settings**
  Customizable **date format** for your bookings.<br>
+ **Two-click range selection** for choosing any continuous range of available booking dates.<br>
  **Restriction of access** to plugin menus for standard WordPress user roles.<br>
 <br>
-And **much more**... Check ton of features in [premium versions](https://wpbookingcalendar.com/features/ "Booking Calendar Features list") of plugin.
+And **much more**... Explore more features in [premium versions](https://wpbookingcalendar.com/features/ "Booking Calendar Features list") of plugin.
 
 
-= Premium Features in paid versions =
+= Booking Calendar is great for =
 
-**Booking Calendar Personal (or higher versions)**
-- [Multiple booking resources (calendars)](https://wpbookingcalendar.com/features/#booking-resources) - create an unlimited number of booking resources (calendars), which can be your services, properties, or any other items that can be booked by visitors in separate unique calendars.
-- [Advanced configuration of booking form and emails](https://wpbookingcalendar.com/features/#booking-form) - fully customize the appearance of your booking form and email templates.
-- [Manage bookings](https://wpbookingcalendar.com/features/#manage-bookings) - perform various actions such as CSV export, adding notes, editing, duplicating, changing resources, and much more...
+Whether you’re renting a property or you’re a sole business owner looking to automate your service bookings, Booking Calendar can help you.
+- Resource scheduling (bed & breakfast, houses, apartments, etc.)
+- Client scheduling (photographers, lawyers, beauty salons, spas, etc.)
+- Meeting scheduling (coaching, phone advice)
+- Patient scheduling (doctor, dentists, clinic, medical)
+- Equipment rentals (yachts, boats, cars, bikes, technics, etc.)
+- Event scheduling (conference, course, fitness center, yoga class, gym)
+- Or any other service where booking for a specific time is required
 
-**Booking Calendar Business Small (or higher versions)**
-- [Online Payments](https://wpbookingcalendar.com/features/#payments) - accept online payments for your bookings, with support for various payment gateways like **Stripe, PayPal, Authorize.Net, Redsys**, and more.
-- [Changeover Days](https://wpbookingcalendar.com/features/#change-over-days) - enable **split bookings** marked by vertical or diagonal lines, allowing visitors to check out and check in on the same date.
-- [Range days selection](https://wpbookingcalendar.com/features/#range-days-selection) - easily enable week(s) or any specific number of days selection with 1 or 2 mouse clicks, and configure minimum and maximum number of days, as well as specific start weekdays for selections.
-- [Auto Approval / Cancellation](https://wpbookingcalendar.com/features/#auto-cancellation) - set up automatic cancellation of unpaid pending bookings after a specific time, or enable auto-approval for incoming bookings.
-- [Advanced Hourly Bookings](https://wpbookingcalendar.com/features/#times) - increase the flexibility of your Booking Calendar by allowing visitors to book specific start and end times or duration of time, ensuring precise scheduling for your services.
 
-**Booking Calendar Business Medium (or higher versions)**
-- [Seasonal Prices](https://wpbookingcalendar.com/features/#rates) - customize the daily cost (rates) for different seasons or week days with fixed costs per day or as a percentage from original daily cost.
-- [Multi-Day Pricing](https://wpbookingcalendar.com/features/#valuation-days) - set different cost of booking based on the number of selected days, and the ability to apply these costs only if the "Check In" day falls within a specific season.
-- [Last Minute Booking Discount](https://wpbookingcalendar.com/features/#early-late-discounts) - offer a discount for bookings, if the difference between the booking date and the check-in date is less than a specified number of days.
-- [Early Booking Discounts](https://wpbookingcalendar.com/features/#early-late-discounts) - set a discount for bookings made in advance, if the difference between the booking date and the check-in date is greater than a specified number of days.
-- [Advanced cost](https://wpbookingcalendar.com/features/#additional-cost) - configure the booking cost based on the options selected in the form, by adding extra charges such as taxes, additional services, or by adjusting the cost based on the number of visitors.
-- [Deposit payments](https://wpbookingcalendar.com/features/#deposit) - allows visitors to pay a part of the booking cost such as a fixed deposit value or percentage of the original booking cost after creating a booking.
-- [Multiple Custom Forms](https://wpbookingcalendar.com/features/#custom-forms) - create multiple form configurations, allowing you to use different forms with different form fields for each of your booking resources.
-- [Advanced days selection](https://wpbookingcalendar.com/features/#advanced-days-selection) - customize the specific number of days that can be selected on specific weekdays or during certain seasons or allow specific start week days on certain season.
-- [Different time-slots on different days](https://wpbookingcalendar.com/features/#times-week-days) - configure different time slots for different week days or seasons.
-- [Advanced Season Availability](https://wpbookingcalendar.com/features/#availability) - set unavailable days for specific seasons, such as holidays or weekends during summer, using conditional season filters.
-- [Availability from Today](https://wpbookingcalendar.com/features/#availability-from-today) - limit or define the number of available/unavailable days starting from today.
-- [Unavailable time before or after a booking](https://wpbookingcalendar.com/features/#unavailable-time-after-before-booking) - setting the number of minutes, hours, or days needed for cleaning or other services, applicable to bookings with time slots or change-over days feature.
+= How the Booking Process Works =
 
-**Booking Calendar Business Large (or higher versions)**
-- [Capacity and Availability](https://wpbookingcalendar.com/features/#capacity) - set the  the maximum number of bookings that can be made per full day or time slots  in calendar, and ensure that dates in the calendar are only available until the capacity is reached.
-- [Search Availability](https://wpbookingcalendar.com/features/#search) - allows your website visitors to quickly search for available booking resources such as properties or services by entering check-in/out dates and other criteria like the number of guests or specific amenities.
-- [Coupons for Discounts](https://wpbookingcalendar.com/features/#coupons) - offer discounts to your visitors by creating coupon codes that can be entered in the booking form.
-- [Auto-Cancel Pending Bookings](https://wpbookingcalendar.com/features/#pending-available) - enable automatic cancellation of pending bookings for specific dates when you approve booking for the same resource.
+**Step 1: Select your desired date(s)**
+Customers can select the date(s) they would like to book. The **Booking Calendar** plugin provides an easy-to-use calendar system that displays the availability of your property or service for those dates.
 
-**Booking Calendar MultiUser version**
-- [MultiUser Booking Admin Panels](https://wpbookingcalendar.com/features/#multiuser) - enable each registered WordPress user to have their own individual booking admin panel, where they can see and manage only their own bookings, resources, and settings. This includes the ability to configure their own booking form, receive notifications to own separate emails, and activate payment gateways for their own payment accounts.
+**Step 2: Select a time-slot (optional)**
+If you offer appointments or reservations at specific times, you can configure the booking form to allow customers to select an available time-slot. To learn how to set it up, please [watch this video](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version").
+
+**Step 3: Fill in Booking Form Fields**
+The form will ask for information such as your name, contact information, and other details needed to approve the booking. The booking form fields are customizable, allowing you to configure fields required for the booking.
+
+**Step 4: Submit your booking and Receive Notification of New Booking**
+After filling out the booking form, customers can submit the booking. The **Booking Calendar** plugin will notify the administrator about the new booking and send a confirmation email to customers that their booking has been received.
+
+**Step 5: Manage Bookings**
+Administrators can manage all reservations from the modern and easy-to-use admin booking panel. Easily find the required bookings, check the booking details, and modify the booking if needed, then approve or decline this reservation. Customers will receive an email confirmation about the approval or cancellation of their booking.
+
+= Simple steps to get started =
+**1. Add booking form or availability calendar to your page**
+Easily insert the booking form on any page of your website using WordPress blocks or Booking Calendar widgets for sidebars or configure shortcode block in page builders like Elementor. Read more [here](https://wpbookingcalendar.com/faq/insert-booking-calendar-into-page/ "How to insert the booking form or availability calendar into the page?").
+
+**2. Set initial unavailable days with just few clicks**
+You can **define days availability** in just 3 mouse clicks at Booking > Availability page. Simply select a range of days on the calendar, choose 'available' or 'unavailable' status, and apply. It’s that simple!
+
+**3. Configure booking form, email templates and other settings**
+Easily **customize** your **booking form** fields and add **[time slots](https://youtu.be/-pOTMiyp6Q8?t=28s "Video guide how to configure time slots in Booking Calendar Free version")** if needed. Configure **email** notifications and other settings such as the **calendar** appearance, booking admin panel functionality, and more...
+
+**4. Receive notifications and manage bookings**
+Get notified about **new appointments** and manage them in a modern admin panel. **Approve**, **decline**, or **edit** specific bookings. Plus, you can get a complete picture of your schedule with the **calendar overview** in **day**, **week**, or **month** view mode.
+
+**5. Configure syncing of bookings with other services**
+Import your **Google Calendar** events or set up **two-way synchronization** of your events by using **.ics feeds** with various services such as Airbnb, Booking.com, VRBO, HomeAway, TripAdvisor, FlipKey, and more... Thanks to native integration with [Booking Manager](https://wordpress.org/plugins/booking-manager/) plugin.
+
+
+= Changeover Multi-Day Bookings - Setup Wizard (Pro) =
+Configure multi-day bookings with specific check-in and check-out days, clearly marked with diagonal or vertical lines. Perfect for bookings that require split days. <br>**Available in paid editions**.
+
+https://www.youtube.com/watch?v=uCQ9JmHR8w4
+
+
+= Drag & Drop Booking Form Builder =
+
+Create booking forms visually without manually editing complex shortcodes or form code. Simply drag fields from the sidebar, drop them into the canvas, organize them into rows and columns, edit settings in the sidebar, and preview changes instantly.
+
+https://www.youtube.com/watch?v=_LRr15mcECE
+
+The new builder also makes it easy to create **contact** and **inquiry forms** where the calendar is optional.
+
+With the new interface, you can:
+
+- drag and drop fields into the form layout,
+- organize fields into sections and columns,
+- create multi-step form pages,
+- resize columns for better layout control,
+- edit field settings in the right sidebar,
+- instantly preview the form while building.
+
+This new functionality brings a more modern, user-friendly, and flexible way to create forms in Booking Calendar, making form setup faster, clearer, and much more convenient for website owners.
+
+
+= Full-Day Bookings - Drag and Drop Booking Form Builder =
+Easily configure Booking Calendar for full-day bookings with the new Drag and Drop Booking Form Builder. The new Booking Calendar Form Builder makes it much easier to create flexible booking forms without manually editing form code. It is a simple and visual way to build booking forms for different use cases directly inside WordPress.
+
+https://www.youtube.com/watch?v=n_svjKULkc0
+
+= Appointment Forms with Time Slots or Start Time + Service Duration Selection =
+Create a time-slot booking form in just a few minutes with the new Booking Calendar Form Builder. Visually add the calendar, time fields, and contact fields, adjust the layout, and preview changes instantly — without manually editing form code.
+
+https://www.youtube.com/watch?v=0lwrMgXaHkk
+
 
 = Privacy Notices =
 
-* Please note, Booking Calendar plugin saving all booking details at your WordPress database at your server. Its does not transfer your booking details to our servers and does not store such info about booking details at our server(s). Please check more detail about this [here](https://wpbookingcalendar.com/faq/where-is-saving-booking-data-gdpr/)
+* Booking details are stored in your WordPress database. Booking Calendar does not send or store these booking details on our servers. Optional integrations may send data to external services that you configure. Learn more in our [privacy and booking data documentation](https://wpbookingcalendar.com/faq/where-is-saving-booking-data-gdpr/).
 * Additionally please note, you can add the "required checkbox" to your booking form at the Booking > Settings > Form page, to accept your terms and conditions.
+
 
 = Support Languages (local) =
 
-- English
-- French (France)              93.01% [ 3352 / 3604 ], fuzzy 176, not translated 76
-- Danish                       70.78% [ 2551 / 3604 ], fuzzy 470, not translated 583
-- Dutch                        63.12% [ 2275 / 3604 ], fuzzy 747, not translated 582
-- Norwegian (Bokmål)           58.52% [ 2109 / 3604 ], fuzzy 511, not translated 984
-- German                       58.49% [ 2108 / 3604 ], fuzzy 854, not translated 642
-- Hungarian                    54.02% [ 1947 / 3604 ], fuzzy 936, not translated 721
-- Korean                       54.00% [ 1946 / 3604 ], fuzzy 932, not translated 726
-- Spanish (Spain)              49.69% [ 1791 / 3604 ], fuzzy 951, not translated 862
-- Portuguese (Brazil)          46.89% [ 1690 / 3604 ], fuzzy 1057, not translated 857
-- Greek                        46.59% [ 1679 / 3604 ], fuzzy 1066, not translated 859
-- Turkish                      45.98% [ 1657 / 3604 ], fuzzy 1082, not translated 865
-- Italian                      44.81% [ 1615 / 3604 ], fuzzy 988, not translated 1001
-- Spanish (Mexico)             43.06% [ 1552 / 3604 ], fuzzy 1135, not translated 917
-- Finnish                      42.81% [ 1543 / 3604 ], fuzzy 1144, not translated 917
-- Polish                       42.76% [ 1541 / 3604 ], fuzzy 1131, not translated 932
-- Romanian                     42.40% [ 1528 / 3604 ], fuzzy 1145, not translated 931
-- Swedish                      42.18% [ 1520 / 3604 ], fuzzy 1154, not translated 930
-- Arabic                       41.76% [ 1505 / 3604 ], fuzzy 1171, not translated 928
-- Russian                      41.70% [ 1503 / 3604 ], fuzzy 1398, not translated 703
-- Bulgarian                    40.46% [ 1458 / 3604 ], fuzzy 1185, not translated 961
-- Slovenian                    40.34% [ 1454 / 3604 ], fuzzy 1190, not translated 960
-- Chinese (Taiwan)             39.26% [ 1415 / 3604 ], fuzzy 1230, not translated 959
-- Portuguese (Portugal)        38.96% [ 1404 / 3604 ], fuzzy 1214, not translated 986
-- Japanese                     38.40% [ 1384 / 3604 ], fuzzy 710, not translated 1510
-- Chinese (China)              37.68% [ 1358 / 3604 ], fuzzy 1215, not translated 1031
-- Ukrainian                    37.40% [ 1348 / 3604 ], fuzzy 1225, not translated 1031
-- Catalan                      36.79% [ 1326 / 3604 ], fuzzy 1151, not translated 1127
-- Thai                         36.71% [ 1323 / 3604 ], fuzzy 1262, not translated 1019
-- Hebrew                       36.49% [ 1315 / 3604 ], fuzzy 1250, not translated 1039
-- Galician                     35.54% [ 1281 / 3604 ], fuzzy 1302, not translated 1021
-- Slovak                       33.05% [ 1191 / 3604 ], fuzzy 1218, not translated 1195
-- Croatian                     31.99% [ 1153 / 3604 ], fuzzy 1234, not translated 1217
-- Czech                        31.88% [ 1149 / 3604 ], fuzzy 1182, not translated 1273
-- Chinese (Hong Kong)          18.87% [ 680 / 3604 ], fuzzy 500, not translated 2424
+- Find more about translation stutus on [this page](https://wpbookingcalendar.com/faq/translations-progress/)
 
 
-
-Please recheck the status of each translation, before using plugin.
-We open for your help in new translations or correcting existing ones. You can translate to new language or update exist one, using this [tutorial of translation](https://wpbookingcalendar.com/faq/make-translation-of-wp-plugin/)
 = Tech support =
 
 If you have some questions, which you haven't found at [FAQ](https://wpbookingcalendar.com/faq/) you can post them at [technical help board](https://wpbookingcalendar.com/support/)
 
-
 == Screenshots ==
-1. **Drag & Drop Booking Form Builder**: Create booking forms visually without manually editing complex shortcodes or form codes.
-2. **Full-Day Bookings**: In this screenshot, you can see the front-end booking form. It enables users to select and **book multiple days in the calendar** without time fields.
-3. **Time-Slot Appointment Bookings**: This screenshot displays the front-end booking form. It allows users to select **single day** in the calendar and **times** (time-slots or start time and duration of service) in the booking form.
-4. **Time Slots Availability**: Block or unblock unavailable time intervals by resource and date range using an interactive timeline with booked and unavailable states.
-5. **Booking Listing**: You can easily manage all your bookings in one place by searching bookings by keyword, dates, status, and other parameters.
-6. **Booking Listing** panel provides a smooth user experience by working instantly without page refresh.
-7. **Timeline View**: Get a clear overview of all your bookings.
-8. **Calendar Availability**: Super easily set available or unavailable dates in the calendar with just 3 mouse clicks.
-9. **Publish Booking Form into a page**. Alternatively you can easily publish a booking form or availability calendar from the WP Booking Calendar > Publish menu page into existing or new pages.
-10. **Contact Form**. Easy to create **contact form**, **request forms**, **inquiry forms** ... where the calendar is optional.
+1. **Direct Booking Forms**: Let visitors book full days or available time slots immediately on your website.
+2. **Guided Booking Flows**: Let visitors choose a service, provider, or booking resource before continuing to the matching booking form.
+3. **Drag-and-Drop Booking Form Builder**: Create and arrange booking forms visually without editing form code or complex shortcodes.
+4. **Full-Day Bookings in the Timeline (Pro Example)**: View full-day and multi-day bookings at a glance, distinguish approved and pending reservations, and see unavailable dates. Open a booking overview to check guest details, dates, and duration without leaving the Timeline. Shown with multiple resources in Pro; the Free version is limited to one resource.
+5. **Timeline for Full Day Bookings**: This example uses the Pro version with multiple resources; the Free version’s Timeline is limited to one resource. Watch how to navigate your schedule, drag bookings to new dates or resources, resize booking durations, and select dates to create a new booking.
+6. **Full-Day Booking Flow (Free)**: Watch visitors select check-in and check-out dates, enter their details, and submit a booking.
+7. **Timeline for Hourly Bookings and Appointment**: See timed bookings and appointments at a glance. Expand a resource’s hourly schedule, adjust visible hours and zoom, and select a time range to create a booking or block and unblock times.
+8. **Manage Time Bookings in the Timeline**: Watch how easily you can drag bookings to a new date and time, select a time range to create a booking, and block unavailable hours—all from the Timeline.
+9. **Appointment Booking Flow**: Follow the guided journey from choosing a service and provider to selecting a date and time and submitting an appointment.
+10. **Booking Management**: Search, filter, review, approve, and manage all your bookings from one clear administration screen.
+11. **Calendar Availability**: Mark dates available or unavailable in just three clicks.
+12. **Setup Wizard**: Setup Wizard starts with one practical question: how should customers book? After you choose the answer, it presents only the settings needed for that booking flow instead of asking you to configure every Booking Calendar option.
+
 
 == Changelog ==
-= 11.0 =
+= 12.0.1 =
 - Changes in **all** versions:
-	* **New**: Added Time Slots Availability page under Booking Calendar > Availability, allowing administrators to define unavailable time intervals for specific booking resources and date ranges.
-	* **New**: Added a reusable Set Times Availability popup to the Booking Listing page, so unavailable time intervals can be managed without leaving the bookings workflow.
-	* **New**: Added the ability to create a new booking directly from a selected time interval in the Time Slots Availability popup.
-	* **New**: Added interactive timeline selection for blocking or unblocking time intervals, including multi-day selection, adjustable time ranges, and visible booked/unavailable states.
-	* **New**: Added support for showing unavailable days in the Time Slots Availability timeline, including days blocked by Days Availability, Season Availability, unavailable weekdays, unavailable time from current time, and limit available days from today settings.
-	* **New**: Added quick links from unavailable full-day timeline bars to the related availability settings page, helping administrators identify and adjust the rule that made a date unavailable.
-	* **Improvement**: Added Add Booking popup integration, with selected booking resource, date, and start/end time prefilled from the selected timeline interval.
-	* **Improvement**: Improved Time Slots Availability controls with date range navigation arrows, visible time range controls, slot step selection down to 5 minutes, and sticky timeline headers for easier work with long date ranges.
-	* **Improvement**: Added progress indicators while loading, blocking, unblocking, and saving time availability changes.
-	* **New**: Added a faster Add Booking popup to the Booking Listing and Timeline pages. Users can now create bookings without leaving the current view, choose the booking resource and custom form inside the popup, edit existing bookings in the same popup, and jump directly to edit the selected booking form.
-	* **Improvement**: Improved booking navigation: the Add Booking page is now available under the Bookings section, while Booking Listing and Timeline include a clearer “New booking” quick-action button for opening the popup without leaving the current view.
-	* **New**: Added a new General Availability settings page for defining global front-end availability rules across all calendars and booking resources. The page includes a live calendar preview, unavailable weekday toggles, availability limits from the current date, booking buffer controls where supported, AJAX saving, reset-to-default preview controls, and a shared right-side palette layout consistent with the Availability and setup wizard interfaces.
-	* **Fix**: Fixed calendar booking status detection.  Fix improves how the front-end calendar reads approved and pending booking statuses for capacity-based resources, including parent/child resources and change-over dates. This should make the front-end booking form calendar reflect the real availability more clearly.
-	* **Fix**: Fixed availability calculation for Booking Form Builder forms with time-slot fields. This ensures dates are marked as fully unavailable when all booking form time slots are already booked, instead of incorrectly appearing as partially available. (10.15.8.2)
-	* **Fix**: Fixed a fatal error on some hosts by reading the local PRO meta.json file directly instead of using WordPress FTP filesystem access.
-- Changes in **Personal / Business Small / Business Medium / Business Large / MultiUser** versions:
-	* **Improvement**: Added resource-level exceptions for changeover days, so selected booking resources can use their own same-day times instead of global check-in/check-out times across front-end, admin, and edit flows.
+	* **Improvement**: Added a Form Messages setting to control how long booking-form validation errors remain visible, including an option to keep them displayed without automatic dismissal.
+	* **Improvement**: Added What's New to the native Booking Calendar menu after Settings and Setup Wizard, using the same configured Settings access role and remaining before Upgrade to Pro in Free.
+	* **Improvement**: Added a consistent divider above Setup Wizard in the native Booking Calendar menu across Free and paid editions, independent of menu length or Upgrade visibility.
+	* **Improvement**: Renamed the Advanced compatibility choice to **Use legacy pages** and now shows Timeline Legacy in administration navigation only while legacy pages are selected. The direct legacy Timeline URL remains available for compatibility.
+	* **Security**: Prevented authenticated post authors from using Booking Form shortcode options to rewrite Form Builder HTML attributes, while preserving escaped custom defaults for supported form fields.
+	* **Fix**: Made Setup Wizard Booking Form previews use a scalar WordPress AJAX request and show clear live-demo, server-blocked, or unexpected-response guidance instead of a raw JSON parsing error.
+	* **Fix**: Kept calendar date selection and previous or next month controls on the current page in WordPress Playground and other embedded environments.
+	* **Fix**: Kept Booking Calendar action controls on the current page across public multi-step forms, administration menus, dynamically updated interfaces, and other embedded WordPress environments without changing real navigation links.
+	* **Fix**: Updated the WordPress admin bar to use the effective Timeline and Seasons pages, preserve the configured default Bookings destination, respect Appointment and Rental menu choices, and keep edition-specific page access.
+- Changes in **Business Medium / Business Large / MultiUser** versions:
+	* **Fix**: Restored visitor editing for bookings created with different custom Booking Forms, so one `[bookingedit]` page now loads each booking's saved form while retaining strict form and calendar validation.
+- Changes in **Business Small / Business Medium / Business Large / MultiUser** versions:
+	* **New**: Added per-Resource changeover policies with global, custom, Booking Form, and parent-inherited check-in/check-out behavior across booking forms, calendars, capacity, Google Calendar import, and availability search.
+	* **Fix**: Moved Payment Description to the payment area of booking confirmations, after customer and booking information and immediately before the payment gateways.
 
-= 10.15.7 =
+= 12.0 =
 - Changes in **all** versions:
-	* **New**: Added Calendar Skin selection to the Calendar field inspector in the Booking Form Builder, including live Canvas preview, Preview iframe support for unsaved changes, manual saving, and automatic saving when the booking form is saved. (10.15.7.2)
-	* **New**: Added Calendar Legend configuration to the Calendar field inspector in the Booking Form Builder. The inspector now supports enabling the legend, activating individual legend items, editing item titles, showing date numbers, and switching legend layout between row and column display. These settings are saved as global calendar options. (10.15.7.2)
-	* **Improvement**: Added a flexible global option autosave workflow in the Booking Form Builder, allowing inspector-based global options to be automatically saved when the booking form is saved. (10.15.7.2)
-	* **Improvement**: Added automatic global saving support for the “Show as time picker” option in time field packs. (10.15.7.2)
-	* **Improvement**: Updated the Calendar field Canvas preview to start from the next month, improving the visual preview near the end of the current month. (10.15.7.2)
-	* **Improvement**: Added validation in the Booking Form Builder to prevent using the standard rangetime field and conditional weekday time slots field in the same booking form, because both fields use the same rangetime booking form value.
-	* **Improvement**: Refactored global option saving into an extensible option save policy system, keeping the generic save/load option handler cleaner and easier to extend. (10.15.7.2)
-	* **Compatibility**: Restricted Calendar Skin, Calendar Legend, and time-slot global option controls for regular users in the Booking Calendar MultiUser version, because these users do not have access to global options. (10.15.7.2)
-- Changes in **Personal / Business Small / Business Medium / Business Large / MultiUser** versions:
-	* **New**: Added a new Weekday Time Slots field pack in the Booking Form Builder for configuring different rangetime selections for specific weekdays, such as separate time slots for weekdays, weekends, or individual weekday groups. (10.15.7.1)
-	* **New**: Added a new Season Time Slots field pack in the Booking Form Builder for configuring different rangetime selections for selected season filters. The field pack lists available season filters and generates conditional booking form shortcodes for season-based time-slot availability. (10.15.7.1)
+	* **New**: Introduced a redesigned administration Timeline with a fixed Resource pane, compact collision-aware booking cards, responsive day-to-month views, zoom and density controls, site-local time markers, keyboard navigation, mobile and RTL support, and clear unavailable-time backgrounds. The previous Timeline remains available as Timeline Legacy.
+	* **Improvement**: Added smooth date navigation with Previous, Next, Today, and date-jump controls, plus bounded earlier and later period loading while scrolling. Timeline preserves the visible date, reports loading and retry states, and caches nearby periods for quick return navigation.
+	* **New**: Added a per-user Timeline Resource workspace with authorized search and selection, saved ordering and page size, Business Large group-safe pagination, mobile Resource selection, and per-Resource booking-title preferences.
+	* **New**: Added empty-range selection with pointer, touch, or keyboard controls. Review the exact Resource, dates, times, duration, availability, capacity, overlaps, and estimated Resource cost before creating a booking or using an authorized Block or Unblock action.
+	* **New**: Added the Timeline Add New Booking Inspector with authorized Resource and Booking Form choices, exact full-day or timed schedules, field validation, server-checked Review, cost preview in supported editions, normal booking creation, and automatic Timeline refresh. Free and Personal can create bookings without the paid cost tools.
+	* **New**: Added quick Booking Overviews and a reusable Booking Inspector shared by Timeline, Booking Listing, Calendar, and Schedule. The Inspector provides Booking Details, exact Dates, Costs where supported, Public and Private notes, Booking Actions, and paginated Activity while preserving the form and field order saved with each booking.
+	* **New**: Added reviewed booking schedule changes from Timeline: drag eligible bookings to another date or visible authorized Resource, resize supported start or end boundaries, change dates with the native calendar, or use the keyboard-friendly Reschedule dialog. Every Apply repeats current authorization, availability, capacity, hierarchy, Appointment, and conflict checks before canonical refresh.
+	* **New**: Added expandable Time Sections for authorized Resources with an All day band, vertical hour-and-minute schedule, visible-hours presets and sliders, Time zoom, overlapping timed bookings, unavailable intervals, empty-time selection, and supported booking movement or resizing. Appointment mode opens the first authorized Resource automatically; Classic and Rentals begin collapsed.
+	* **Improvement**: Added labelled unavailable-time backgrounds for blocked dates and times, unavailable weekdays, Working Time, Seasonal Availability, booking buffers, and Appointment buffers, including exact site-timezone handling around daylight-saving changes.
+	* **Improvement**: Reorganized Add Booking so Booking Resource and Booking Form choices appear together above the form, Emails sending remains easy to reach, and the Settings Inspector groups Date selection, Booking tools, and Calendar view without changing established validation or edition rules.
+	* **Improvement**: Made Booking Calendar administration navigation context-aware, with independent side-menu preferences for work pages, Settings, and fullscreen, consistent horizontal navigation and breadcrumbs, responsive page spacing, and a native WordPress submenu link to Booking Forms.
+	* **Improvement**: Added privacy-aware booking Activity for successful booking, date, Resource, note, cost, and payment changes, with WordPress privacy export and erasure support and bounded background cleanup.
+	* **Security**: Strengthened reusable Booking Inspector authorization and MultiUser or multisite isolation, removed internal Resource and capacity diagnostics from customer-facing conflict messages, and normalized Booking IDs at the shared booking-date database query boundary.
+	* **Fix**: Kept Timeline, Booking Overview, Booking Inspector, Activity, and unavailable backgrounds synchronized after booking creation, editing, dragging, resizing, rescheduling, status changes, duplication, or removal without repeating a successful mutation.
+	* **Fix**: Kept Appointment Service buffer backgrounds at their exact saved times in both Timeline layouts when the WordPress site timezone differs from the web server timezone.
+	* **Fix**: Prevented Timeline from showing a destination preview where cross-Resource movement is unavailable, and added specific guidance when an Appointment cannot be dragged to another Provider.
+	* **Translations**: Completed 100% local translations: German, Dutch, Spanish (Spain), French (France), Italian, Norwegian (Bokmål), Danish, Belgian (nl_BE), Japanese, Portuguese (Brazil), Ukrainian, Polish, Czech.
+- Changes in **Business Medium / Business Large / MultiUser** versions:
+	* **New**: Added Duplicate Season for creating an independent copy of a Conditional or Specific-date Season. An authorized MultiUser super administrator can assign the copy to another activated owner without changing the source Season.
+	* **Fix**: Restored complete multi-date selection in calendar-only administration views for conditional form and cost rules.
+	* **Fix**: Kept `[additional_cost_hint]` accurate when Early Booking or Last-minute adjustments apply, so fixed Form Option Costs are no longer reduced or displayed as zero while the final total remains correct.
+	* **Fix**: Restored Block Times timeline access for authorized administrators and Availability managers while retaining Resource and MultiUser ownership checks.
 
-= 10.15.6 =
+= 11.9.1 =
 - Changes in **all** versions:
-	* **New**: Added Free version support for live booking form hint shortcodes: [check_in_date_hint], [check_out_date_hint], [selected_dates_hint], [days_number_hint], [start_time_hint], and [end_time_hint]. These hints now update after date/time selection using the existing Booking Calendar AJAX flow. (10.15.6.2)
-	* **New**: Created 4 default pages with different forms: Full-Day bookings, 20-minute time-slot bookings, service appointment bookings, and a simple contact form.
-	* **Improvement**: Updated the Booking Calendar top menu to show direct links to all 4 default booking pages created during plugin activation, instead of only one generic booking form page.
-	* **New**: Added a new Full-Day / Advanced / 3 Steps Review with Hints booking form template. This template provides a guided three-step booking flow: date selection with live booking, availability, nights, and cost hints; customer and guest details; and a final review step with booking summary, terms acceptance, and submit action. (10.15.6.1)
-	* **New**: Added a new three-step 20-minute time-slot booking wizard with date and time selection, live date/time hints, customer details, and a final review step before sending.
-	* **New**: Added a new three-step service appointment booking wizard with service duration, date and start time selection, live date/time hints, customer details, and a final review step before sending.
-	* **New**: Added a new calendar skin, 26_4_green_1.css, for full-day bookings.
-	* **Fix**: Fixed section appearance selection in dark mode.
+	* **Fix**: Simplified Setup Wizard publishing to use the default `[booking]` and `[booking_appointment]` shortcodes without the redundant Standard form parameter.
+	* **Security**: Restricted the Block Times administration timeline to authorized, nonce-verified users and prevented its booking and availability metadata from being read through logged-out AJAX requests.
 
-= 10.15.5 =
+= 11.9 =
 - Changes in **all** versions:
-	* **New**: Added the new **Accept Terms and Conditions** field to the **Drag & Drop Booking Form Builder**. Create a required consent checkbox and define one or multiple custom links to your Terms, Conditions, Privacy Policy, or other related pages.
-	* **Fix**: Prevent showing error message,  if no email  fields,  and emails because of that  is not sending. (10.15.5.1.)
-	* **Fix**: Support PHP 8.4 - Resolved isue: TypeError: Unsupported operand types: string * int (10.15.5.3.)
-	* **Fix**: Improved compatibility with older PHP versions by fixing a PHP parse error in the Form Builder AJAX controller. (E_PARSE error on line 222 in ../page-form-builder/ajax/bfb-ajax.php.) (10.15.5.6.)
-- Changes in **Personal / Business Small / Business Medium / Business Large / MultiUser** versions:
-	* **New**: Added new hint field packs to the **Drag & Drop Booking Form Builder**, including selected dates/times, check-in/check-out dates, start/end time, number of days/nights, cancellation/pre-check-in dates, booking resource info, capacity, and cost-related hints. These fields make it easier to insert supported hint shortcodes directly from the builder palette.
-	* **Improvement**: Prevents start  day selection on check in date of existed another booking, if activated change-over days feature. (10.15.5.8.)
+	* **New**: Introduced a redesigned Setup Wizard that starts with the way customers should book and then shows only the relevant Date Selection, Booking Resources or Services, time, availability, Booking Form, appearance, publishing, and review steps. Choose from Single full day, Multiple independent full days, Flexible date range, Fixed-length date range, Check-in & check-out changeover, Fixed time slots, Start & end time, Start time + duration, Repeat one time on multiple dates, First-date start & last-date end, or Guided appointment flow. Journey-aware recommendations, live previews, progressive saving, resumable setup, and a final Setup overview make initial configuration and later changes much easier.
+	* **Fix**: Completed the Setup Wizard routes for Repeat one time on multiple dates and First-date start & last-date end, including compatible multi-day selection, Start and End Times, matching Booking Form defaults, and automatic Working Hours deactivation for the first-date/last-date journey.
+	* **Improvement**: Added direct “change these settings later” links on each configurable Setup Wizard page, opening the matching Date Selection, Services, Resources, Availability, Booking Form, Appearance, or Publishing screen.
+	* **Improvement**: A first activation from the Plugins page now opens Setup Wizard directly, while a manual plugin update opens What's New on the next administration request. Automatic, command-line, and managed live-demo maintenance remains non-disruptive.
+	* **Improvement**: Refined Setup Wizard publishing so non-guided journeys start with a direct Booking Form page, Review links to the published page, and Test your booking pages places the configured result before separate starter examples.
+	* **New**: Added a two-step Appointment Services booking flow with a live date-and-time summary, duration and start-time choices, a responsive customer-details step, and safe defaults for newly created Appointment forms. Existing forms remain unchanged.
+	* **Improvement**: Added multiple non-overlapping Working Time intervals per weekday, including default and Resource-specific schedules, so breaks such as lunch remain unavailable without splitting the working day into separate rules.
+	* **New**: Added a visual Country List field to Form Builder, with a predefined country selector, validated default country, and synchronized Advanced Mode and Booking Data output.
+	* **Improvement**: Expanded visual Form Builder controls for Section spacing and overflow, reusable Static Text links and anchors, and more stable drag-and-drop editing.
+	* **Fix**: Setup Wizard now labels Fixed-length date range and Check-in & check-out changeover as Business Small+ choices, disables them in Free and Personal, and rejects unsupported submitted values on the server.
+	* **Fix**: Unified environment detection so internal Booking Calendar test sites retain Setup Wizard page publishing while exact managed public live demos remain protected.
+	* **Fix**: Corrected confirmation-page redirects in WPML language-directory setups so the booking hash remains in the URL and the new booking details are displayed.
+	* **Fix**: Clarified duplicate Booking Resource and outdated booking-form notices so hidden duplicate forms and stale page caches provide specific recovery steps instead of a generic expired-context warning.
+	* **Fix**: Separated the translation of range-end labels from email-recipient labels so date and time controls can use the correct wording.
+	* **Improvement**: Completed missing Czech translations and improved existing wording across booking forms, administration settings, and the Setup Wizard.
+	* **Compatibility**: Hardened activation and upgrades when Booking Calendar Free is installed with an older paid edition, preventing database queries from using paid-only Booking Resource columns before they exist.
+	* **Improvement**: Calendar-loading HTTP 409 errors now suggest clearing stale page, server, CDN, and optimized-file caches, while expanded browser-console diagnostics provide a stable support code and response details.
+	* **Security**: Resolved: CVE-2026-39601. Prevented simultaneous public requests from overbooking the same exclusive date or time slot on standard single-primary MySQL and MariaDB installations, while preserving booking creation on SQLite (e.g. WP Playgrounds).
+	* **Translations**: Completed 100% local translations: Spanish (Spain), Dutch, French (France), German, Italian, Japanese, Portuguese (Brazil), Ukrainian, Czech.
+- Changes in **Business Small / Business Medium / Business Large / MultiUser** versions:
+	* **New**: Added an optional Unbookable date gaps setting under Booking Capacity that marks a bounded opening unavailable when no valid fixed or dynamic booking range can fit, while respecting changeovers, pending-date policy, conditional range rules, and capacity Resources.
+	* **Fix**: Range hover and selection now stay on the valid period containing the pointed date, clear an invalid Dynamic range so the next click can start again, and apply conditional Season, weekday, and exact-date rules consistently.
+- Changes in **Business Large / MultiUser** versions:
+	* **New**: Added a visual Discount Coupon field to Form Builder, with configurable content and appearance, one-per-form protection, and synchronized Advanced Mode and Booking Data output.
 
-= 10.15.4 =
-- Changes in **all** versions:
-	* **Fix**: Showing options for the "Booking Quantity Control" field,  regarding custom booking forms in the new Forms Builder. This fix related to  the  Booking Calendar Business Large or higher version. (10.15.4.1)
-
-= 10.15.3 =
-- Changes in **all** versions:
-	* **Fix**: Exclude the Preview page from nav menus (10.15.3.1)
-
-= 10.15.2 =
-- Changes in **all** versions:
-	* **Fix**: Force a safe template for the BFB Preview page. (10.15.2.1)
-
-= 10.15.1 =
-- Changes in **all** versions:
-	* **New**: 3 new shortcodes for email  templates on the WP Booking Calendar > Settings > Emails page:  [days_count], [nights_count], [days_count_plus1day] for showing number of booked dates/nights. (10.15.1.3.)
-	* **Fix**: Responsive columns for rows section in booking form for mobile devices. (10.15.1.1.)
-	* **Support**: Improved CSS for compatibility with  latest  WordPress 7.0 release. (10.15.1.7.)
-
-= 10.15 =
-- **NEW / BETA** Introduced the new **Drag & Drop Booking Form Builder** for visually creating booking forms without manually editing form code.
-	* Build forms by dragging fields directly into the canvas.
-	* Edit layouts visually with instant live preview.
-	* Create modern booking forms faster and more easily.
-- **NEW** Added support for **Contact Forms / Inquiry Forms / Request Forms** — the calendar is now optional.
-	* Create forms without booking dates when you only need contact, inquiry, or request submissions.
-	* Use Booking Calendar as a flexible alternative to traditional contact form plugins.
-	* Keep all submissions managed inside Booking Calendar with a powerful request listing and admin workflow.
-- **NEW** Booking Calendar now supports **multiple custom booking form configurations** in all versions, including the Free version.
-	* Create and use different forms for different pages, services, or booking scenarios.
-	* Manage multiple form layouts from one place more easily.
-- **NEW** Added **ready-to-use form templates** for faster form creation.
-	* Start with predefined templates for booking, contact, and inquiry forms.
-	* Or begin with a blank canvas for full flexibility.
-- **NEW** Added support for **importing existing legacy booking forms** into the new Form Builder.
-	* Helps you move existing form setups into the new visual editing workflow more easily.
-- **NEW** Added **preview page / live front-end preview** for testing forms before publishing.
-	* Check how the form looks and works on the front end before using it on your website.
-- **NEW** Booking Form Builder supports both **Builder mode** and **Advanced Form mode (Pro)**.
-	* Work visually in the Builder, or use manual form configuration when needed.
-	* Gives more flexibility for different workflows and advanced customizations.
-- **NEW** The **Drag & Drop Booking Form Builder** includes powerful layout and editing tools:
-	* **Drag & drop fields from the Fields palette** directly into the form canvas.
-	* **Live visual preview** while building and editing the form.
-	* **Multi-page forms** for creating **step-by-step wizard-style** booking forms.
-	* **Rows and columns layout** for clean and structured form designs.
-	* **Nested sections** (up to 5 levels) for advanced multi-row and multi-column layouts.
-	* **Ready section layouts** with 1, 2, 3, or 4 columns.
-	* **Column resizing with visual resizers** for precise control of field and layout widths.
-	* **Drag & drop sorting of sections** to quickly reorder the form layout.
-	* **Move Up / Move Down controls** for easier section management.
-	* **Field usage limits** that automatically prevent adding one-time fields, such as the Calendar field, more than once.
-	* **Right sidebar inspector** for easy editing of field and section settings.
-	* **Responsive-friendly column width control** with layout protection for better form structure.
-	* Improved **visual editing controls** for easier field, section, and layout management directly inside the canvas.
-- **NEW** Added flexible **form configuration management** tools.
-	* Save and restore complete form layouts, including pages, sections, columns, and fields.
-	* Load previously saved form structures with full layout restoration.
-	* Duplicate existing form configurations to create similar forms faster.
-	* Use **Save As** to create a new form based on an existing layout and settings.
-	* Organize and preview custom form setups more easily.
-- **NEW** Added support for **form details management**.
-	* Set a custom form title, slug, description, and image.
-	* Use **media library integration** to select a custom image for each form configuration.
-- **NEW** Added support for **blank form creation in Builder mode**.
-	* New forms can now start immediately in the visual Builder workflow.
-- **NEW** Added **section presets** for faster layout building.
-	* Quickly insert commonly used layout structures into the form.
-- **NEW** Added support for a modern **visual form editing workflow** instead of manual shortcode-based configuration.
-- **IMPROVED** Easier creation of complex booking forms with a more user-friendly and modern builder interface.
-- **IMPROVED** Faster form setup and editing thanks to visual drag & drop controls and instant preview updates.
-- **NOTE** This **beta feature** can still be disabled at any time in this update. You can return to the previous legacy booking form configuration via **Form Builder > Settings** in the right sidebar by disabling the **“Drag & Drop Form Builder”** option.
-
-- Find more at [this page](https://wpbookingcalendar.com/changelog/)
+[Full changelog](https://wpbookingcalendar.com/changelog/)
 
 == Upgrade Notice ==
-= 11.0 =
-Added Time Slots Availability and General Availability tools for more precise availability management. Administrators can block or unblock exact time intervals from the Availability page or bookings workflow, review booked and unavailable states in an interactive timeline, and create new bookings from selected available intervals with resource, date, and time prefilled. Also includes a faster Add Booking popup and availability accuracy fixes.
+= 12.0 =
+Introduces the redesigned Timeline with scrolling date navigation, saved Resource workspaces, booking creation, Booking Overview and Inspector, drag-and-drop movement, resizing, reviewed date or Resource changes, and expandable Time Sections. Also improves Add Booking and administration navigation. Timeline Legacy remains available.
 
-= 10.15 =
-New **Drag & Drop Booking Form Builder** for visually creating booking, contact, and inquiry forms. Build forms faster with live preview, templates, multi-page layouts, and flexible visual editing — without manually editing form code.
+= 11.9 =
+Set up Booking Calendar faster with the redesigned Setup Wizard, tailored to each customer journey. Also adds split Working Time, a two-step Appointment Services flow, visual Country and Coupon fields, and paid-edition protection against unbookable date gaps. Fixed Race Condition issue. Completed 100% local translations for 9 languages.
+
+= 11.8 =
+Adds a multi-month-ready full-day form for new installs, streamlined Booking Modes and Setup, plus paid Availability and Searchable Resources catalogs. Security hardens booking creation, options, Timeline, form auto-fill, and time-slot rendering. MySQL 9.6+ compatibility; clear page/CDN caches.

@@ -2210,11 +2210,11 @@ msgid "Extra Sidebar"
 msgstr "Додаткові бічні панелі"
 
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr "Галереї WordPress"
 
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr "Увімкніть галереї Virtue замість галерей WordPress"
 
 #: ../themeoptions/options.php:1565

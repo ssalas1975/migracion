@@ -23,7 +23,7 @@ class UserMeta {
 	 * @since 4.0.0
 	 */
 	public function scheduleImport() {
-		aioseo()->helpers->scheduleSingleAction( aioseo()->importExport->yoastSeo->userActionName, 30 );
+		aioseo()->actionScheduler->scheduleSingle( aioseo()->importExport->yoastSeo->userActionName, 30 );
 
 		if ( ! aioseo()->core->cache->get( 'import_user_meta_yoast_seo' ) ) {
 			aioseo()->core->cache->update( 'import_user_meta_yoast_seo', 0, WEEK_IN_SECONDS );
@@ -42,10 +42,10 @@ class UserMeta {
 		$offset         = aioseo()->core->cache->get( 'import_user_meta_yoast_seo' );
 
 		$usersMeta = aioseo()->core->db
-			->start( 'usermeta' . ' as um' )
-			->whereRaw( "um.meta_key IN ('facebook', 'twitter')" )
-			->whereRaw( "um.meta_value != ''" )
-			->limit( $offset . ',' . $usersPerAction )
+			->start( aioseo()->core->db->db->usermeta . ' as um', true )
+			->whereIn( 'um.meta_key', [ 'facebook', 'twitter', 'instagram', 'linkedin', 'myspace', 'pinterest', 'soundcloud', 'tumblr', 'wikipedia', 'youtube', 'mastodon', 'bluesky', 'threads' ] )
+			->where( 'um.meta_value !=', '' )
+			->limit( $usersPerAction, $offset )
 			->run()
 			->result();
 
@@ -55,13 +55,32 @@ class UserMeta {
 			return;
 		}
 
+		$mappedMeta = [
+			'facebook'   => 'aioseo_facebook_page_url',
+			'twitter'    => 'aioseo_twitter_url',
+			'instagram'  => 'aioseo_instagram_url',
+			'linkedin'   => 'aioseo_linkedin_url',
+			'myspace'    => 'aioseo_myspace_url',
+			'pinterest'  => 'aioseo_pinterest_url',
+			'soundcloud' => 'aioseo_sound_cloud_url',
+			'tumblr'     => 'aioseo_tumblr_url',
+			'wikipedia'  => 'aioseo_wikipedia_url',
+			'youtube'    => 'aioseo_youtube_url',
+			'bluesky'    => 'aioseo_bluesky_url',
+			'threads'    => 'aioseo_threads_url',
+			'mastodon'   => 'aioseo_profiles_additional_urls'
+		];
+
 		foreach ( $usersMeta as $meta ) {
-			update_user_meta( $meta->user_id, 'aioseo_' . $meta->meta_key, $meta->meta_value );
+			if ( isset( $mappedMeta[ $meta->meta_key ] ) ) {
+				$value = 'twitter' === $meta->meta_key ? 'https://x.com/' . $meta->meta_value : $meta->meta_value;
+				update_user_meta( $meta->user_id, $mappedMeta[ $meta->meta_key ], $value );
+			}
 		}
 
 		if ( count( $usersMeta ) === $usersPerAction ) {
 			aioseo()->core->cache->update( 'import_user_meta_yoast_seo', 100 + $offset, WEEK_IN_SECONDS );
-			aioseo()->helpers->scheduleSingleAction( aioseo()->importExport->yoastSeo->userActionName, 5, [], true );
+			aioseo()->actionScheduler->scheduleSingle( aioseo()->importExport->yoastSeo->userActionName, 5, [], true );
 		} else {
 			aioseo()->core->cache->delete( 'import_user_meta_yoast_seo' );
 		}

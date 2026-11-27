@@ -1,4 +1,10 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Name: Templates
  *
@@ -76,51 +82,149 @@ class Pods_Templates extends PodsComponent {
 	 * {@inheritdoc}
 	 */
 	public function init() {
+		if ( ! did_action( 'init' ) ) {
+			add_action( 'init', [ $this, 'register_config' ] );
+		} else {
+			$this->register_config();
+		}
 
-		$args = array(
-			'label'        => 'Pod Templates',
-			'labels'       => array( 'singular_name' => 'Pod Template' ),
-			'public'       => false,
-			'can_export'   => false,
-			'show_ui'      => true,
-			'show_in_menu' => false,
-			'query_var'    => false,
-			'rewrite'      => false,
-			'has_archive'  => false,
-			'hierarchical' => false,
-			'supports'     => array( 'title', 'author', 'revisions' ),
-			'menu_icon'    => pods_svg_icon( 'pods' ),
-		);
+		if ( is_admin() ) {
+			add_filter( 'post_updated_messages', [ $this, 'setup_updated_messages' ], 10, 1 );
 
-		if ( ! pods_is_admin() ) {
+			add_action( 'add_meta_boxes_' . $this->object_type, [ $this, 'edit_page_form' ] );
+
+			add_filter( 'get_post_metadata', [ $this, 'get_meta' ], 10, 4 );
+			add_filter( 'update_post_metadata', [ $this, 'save_meta' ], 10, 4 );
+
+			add_action( 'pods_meta_save_pre_post__pods_template', [ $this, 'fix_filters' ], 10, 5 );
+			add_action( 'post_updated', [ $this, 'clear_cache' ], 10, 3 );
+			add_action( 'delete_post', [ $this, 'clear_cache' ], 10, 1 );
+			add_filter( 'post_row_actions', [ $this, 'remove_row_actions' ], 10, 2 );
+			add_filter( 'bulk_actions-edit-' . $this->object_type, [ $this, 'remove_bulk_actions' ] );
+
+			add_filter( 'builder_layout_filter_non_layout_post_types', [ $this, 'disable_builder_layout' ] );
+		}
+
+		add_filter( 'members_get_capabilities', [ $this, 'get_capabilities' ] );
+	}
+
+	/**
+	 * Register the configuration for this object.
+	 *
+	 * @since 2.9.9
+	 */
+	public function register_config() {
+		$is_admin_user = pods_is_admin();
+
+		$args = [
+			'label'            => 'Pod Templates',
+			'labels'           => [ 'singular_name' => 'Pod Template' ],
+			'public'           => false,
+			'can_export'       => false,
+			'show_ui'          => true,
+			'show_in_menu'     => false,
+			'query_var'        => false,
+			'rewrite'          => false,
+			'has_archive'      => false,
+			'hierarchical'     => false,
+			'supports'         => [ 'title', 'author', 'revisions' ],
+			'menu_icon'        => pods_svg_icon( 'pods' ),
+			'delete_with_user' => false,
+		];
+
+		if ( ! $is_admin_user ) {
 			$args['capability_type'] = $this->capability_type;
 		}
 
-		$args = PodsInit::object_label_fix( $args, 'post_type' );
+		$args = PodsInit::object_label_fix( $args, 'post_type', $this->object_type );
 
 		register_post_type( $this->object_type, apply_filters( 'pods_internal_register_post_type_object_template', $args ) );
 
-		if ( is_admin() ) {
-			add_filter( 'post_updated_messages', array( $this, 'setup_updated_messages' ), 10, 1 );
+		$args = [
+			'internal'           => true,
+			'type'               => 'post_type',
+			'storage'            => 'meta',
+			'name'               => $this->object_type,
+			'label'              => 'Pod Templates',
+			'label_singular'     => 'Pod Template',
+			'description'        => '',
+			'public'             => 0,
+			'show_ui'            => 1,
+			'rest_enable'        => 0,
+			'supports_title'     => 1,
+			'supports_editor'    => 0,
+			'supports_author'    => 1,
+			'supports_revisions' => 1,
+		];
 
-			add_action( 'add_meta_boxes_' . $this->object_type, array( $this, 'edit_page_form' ) );
-
-			add_action( 'pods_meta_groups', array( $this, 'add_meta_boxes' ) );
-
-			add_filter( 'get_post_metadata', array( $this, 'get_meta' ), 10, 4 );
-			add_filter( 'update_post_metadata', array( $this, 'save_meta' ), 10, 4 );
-
-			add_action( 'pods_meta_save_pre_post__pods_template', array( $this, 'fix_filters' ), 10, 5 );
-			add_action( 'post_updated', array( $this, 'clear_cache' ), 10, 3 );
-			add_action( 'delete_post', array( $this, 'clear_cache' ), 10, 1 );
-			add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 2 );
-			add_filter( 'bulk_actions-edit-' . $this->object_type, array( $this, 'remove_bulk_actions' ) );
-
-			add_filter( 'builder_layout_filter_non_layout_post_types', array( $this, 'disable_builder_layout' ) );
-
+		if ( ! $is_admin_user ) {
+			$args['capability_type']        = 'custom';
+			$args['capability_type_custom'] = $this->capability_type;
 		}
 
-		add_filter( 'members_get_capabilities', array( $this, 'get_capabilities' ) );
+		pods_register_type( 'post_type', $this->object_type, $args );
+
+		$group = [
+			'name'              => 'restrict-content',
+			'label'             => __( 'Restrict Content', 'pods' ),
+			'description'       => '',
+			'weight'            => 0,
+			'meta_box_context'  => 'normal',
+			'meta_box_priority' => 'high',
+		];
+
+		$fields = [
+			[
+				'name'       => 'admin_only',
+				'label'      => __( 'Show to Admins Only', 'pods' ),
+				'default'    => 0,
+				'type'       => 'boolean',
+				'dependency' => true,
+			],
+			[
+				'name'       => 'restrict_capability',
+				'label'      => __( 'Restrict access by Capability', 'pods' ),
+				'help'       => [
+					__( '<h3>Capabilities</h3> Capabilities denote access to specific functionality in WordPress, and are assigned to specific User Roles. Please see the Roles and Capabilities component in Pods for an easy tool to add your own capabilities and roles.', 'pods' ),
+					'http://codex.wordpress.org/Roles_and_Capabilities',
+				],
+				'default'    => 0,
+				'type'       => 'boolean',
+				'dependency' => true,
+			],
+			[
+				'name'              => 'capability_allowed',
+				'label'             => __( 'Capability Allowed', 'pods' ),
+				'type'              => 'pick',
+				'pick_object'       => 'capability',
+				'pick_format_type'  => 'multi',
+				'pick_format_multi' => 'autocomplete',
+				'pick_ajax'         => false,
+				'default'           => '',
+				'depends-on'        => [
+					'pods_meta_restrict_capability' => true,
+				],
+			],
+			[
+				'name'       => 'show_restrict_message',
+				'label'      => __( 'Show no access message', 'pods' ),
+				'default'    => 0,
+				'type'       => 'boolean',
+				'dependency' => true,
+			],
+			[
+				'name'                  => 'restrict_message',
+				'label'                 => __( 'No access message', 'pods' ),
+				'type'                  => 'wysiwyg',
+				'default'               => __( 'You do not have access to view this content.', 'pods' ),
+				'wysiwyg_editor_height' => 200,
+				'depends-on'            => [
+					'pods_meta_show_restrict_message' => true,
+				],
+			],
+		];
+
+		pods_register_group( $group, $this->object_type, $fields );
 	}
 
 	/**
@@ -131,7 +235,7 @@ class Pods_Templates extends PodsComponent {
 	public function get_capabilities( $caps ) {
 
 		$caps = array_merge(
-			$caps, array(
+			$caps, [
 				'edit_' . $this->capability_type,
 				'read_' . $this->capability_type,
 				'delete_' . $this->capability_type,
@@ -140,7 +244,7 @@ class Pods_Templates extends PodsComponent {
 				'publish_' . $this->capability_type . 's',
 				'read_private_' . $this->capability_type . 's',
 				'edit_' . $this->capability_type . 's',
-			)
+			]
 		);
 
 		return $caps;
@@ -174,33 +278,45 @@ class Pods_Templates extends PodsComponent {
 
 		$labels = $post_type->labels;
 
-		$messages[ $post_type->name ] = array(
+		$messages[ $post_type->name ] = [
+			// translators: %1$s is the singular label, %2$s is the permalink, %3$s is the view item label.
 			1  => sprintf( __( '%1$s updated. <a href="%2$s">%3$s</a>', 'pods' ), $labels->singular_name, esc_url( get_permalink( $post_ID ) ), $labels->view_item ),
 			2  => __( 'Custom field updated.', 'pods' ),
 			3  => __( 'Custom field deleted.', 'pods' ),
+			// translators: %s is the singular label.
 			4  => sprintf( __( '%s updated.', 'pods' ), $labels->singular_name ),
 			/* translators: %s: date and time of the revision */
 			5  => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %2$s', 'pods' ), $labels->singular_name, wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			// translators: %1$s is the singular label, %2$s is the permalink, %3$s is the view item label.
 			6  => sprintf( __( '%1$s published. <a href="%2$s">%3$s</a>', 'pods' ), $labels->singular_name, esc_url( get_permalink( $post_ID ) ), $labels->view_item ),
+			// translators: %s is the singular label.
 			7  => sprintf( __( '%s saved.', 'pods' ), $labels->singular_name ),
+			// translators: %1$s is the singular label, %2$s is the preview link, %3$s is the singular label again.
 			8  => sprintf( __( '%1$s submitted. <a target="_blank" rel="noopener noreferrer" href="%2$s">Preview %3$s</a>', 'pods' ), $labels->singular_name, esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ), $labels->singular_name ),
 			9  => sprintf(
+				// translators: %1$s is the singular label, %2$s is the scheduled date, %3$s is the permalink, %4$s is the singular label again.
 				__( '%1$s scheduled for: <strong>%2$s</strong>. <a target="_blank" rel="noopener noreferrer" href="%3$s">Preview %4$s</a>', 'pods' ), $labels->singular_name,
 				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ), $labels->singular_name
+				date_i18n( __( 'M j, Y @ G:i', 'pods' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ), $labels->singular_name
 			),
+			// translators: %1$s is the singular label, %2$s is the preview link, %3$s is the singular label again.
 			10 => sprintf( __( '%1$s draft updated. <a target="_blank" rel="noopener noreferrer" href="%2$s">Preview %3$s</a>', 'pods' ), $labels->singular_name, esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ), $labels->singular_name ),
-		);
+		];
 
 		if ( false === (boolean) $post_type->public ) {
+			// translators: %s is the singular label.
 			$messages[ $post_type->name ][1] = sprintf( __( '%s updated.', 'pods' ), $labels->singular_name );
+			// translators: %s is the singular label.
 			$messages[ $post_type->name ][6] = sprintf( __( '%s published.', 'pods' ), $labels->singular_name );
+			// translators: %s is the singular label.
 			$messages[ $post_type->name ][8] = sprintf( __( '%s submitted.', 'pods' ), $labels->singular_name );
 			$messages[ $post_type->name ][9] = sprintf(
+				// translators: %1$s is the singular label, %2$s is the scheduled date.
 				__( '%1$s scheduled for: <strong>%2$s</strong>.', 'pods' ), $labels->singular_name,
 				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) )
+				date_i18n( __( 'M j, Y @ G:i', 'pods' ), strtotime( $post->post_date ) )
 			);
+			// translators: %s is the singular label.
 			$messages[ $post_type->name ][10] = sprintf( __( '%s draft updated.', 'pods' ), $labels->singular_name );
 		}
 
@@ -326,10 +442,9 @@ class Pods_Templates extends PodsComponent {
 	 * @param $text
 	 * @param $post
 	 *
-	 * @return string|void
+	 * @return string
 	 */
 	public function set_title_text( $text, $post ) {
-
 		return __( 'Enter template name here', 'pods' );
 	}
 
@@ -346,79 +461,8 @@ class Pods_Templates extends PodsComponent {
 			return;
 		}
 
-		add_filter( 'enter_title_here', array( $this, 'set_title_text' ), 10, 2 );
-	}
-
-	/**
-	 * Add meta boxes to the page
-	 *
-	 * @since 2.0.0
-	 */
-	public function add_meta_boxes() {
-
-		$pod = array(
-			'name' => $this->object_type,
-			'type' => 'post_type',
-		);
-
-		if ( isset( PodsMeta::$post_types[ $pod['name'] ] ) ) {
-			return;
-		}
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ), 21 );
-
-		$fields = array(
-			array(
-				'name'       => 'admin_only',
-				'label'      => __( 'Show to Admins Only', 'pods' ),
-				'default'    => 0,
-				'type'       => 'boolean',
-				'dependency' => true,
-			),
-			array(
-				'name'       => 'restrict_capability',
-				'label'      => __( 'Restrict access by Capability', 'pods' ),
-				'help'       => array(
-					__( '<h6>Capabilities</h6> Capabilities denote access to specific functionality in WordPress, and are assigned to specific User Roles. Please see the Roles and Capabilities component in Pods for an easy tool to add your own capabilities and roles.', 'pods' ),
-					'http://codex.wordpress.org/Roles_and_Capabilities',
-				),
-				'default'    => 0,
-				'type'       => 'boolean',
-				'dependency' => true,
-			),
-			array(
-				'name'              => 'capability_allowed',
-				'label'             => __( 'Capability Allowed', 'pods' ),
-				'type'              => 'pick',
-				'pick_object'       => 'capability',
-				'pick_format_type'  => 'multi',
-				'pick_format_multi' => 'autocomplete',
-				'pick_ajax'         => false,
-				'default'           => '',
-				'depends-on'        => array(
-					'pods_meta_restrict_capability' => true,
-				),
-			),
-			array(
-				'name'       => 'show_restrict_message',
-				'label'      => __( 'Show no access message', 'pods' ),
-				'default'    => 0,
-				'type'       => 'boolean',
-				'dependency' => true,
-			),
-			array(
-				'name'                  => 'restrict_message',
-				'label'                 => __( 'No access message', 'pods' ),
-				'type'                  => 'wysiwyg',
-				'default'               => __( 'You do not have access to view this content.', 'pods' ),
-				'wysiwyg_editor_height' => 200,
-				'depends-on'            => array(
-					'pods_meta_show_restrict_message' => true,
-				),
-			),
-		);
-
-		pods_group_add( $pod, __( 'Restrict Access', 'pods' ), $fields, 'normal', 'high' );
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_assets' ], 21 );
+		add_filter( 'enter_title_here', [ $this, 'set_title_text' ], 10, 2 );
 	}
 
 	/**
@@ -466,12 +510,12 @@ class Pods_Templates extends PodsComponent {
 			return $_null;
 		}
 
-		$postdata = array(
+		$postdata = [
 			'ID'           => $post_ID,
 			'post_content' => $meta_value,
-		);
+		];
 
-		remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
+		remove_filter( current_filter(), [ $this, __FUNCTION__ ] );
 
 		$revisions = false;
 
@@ -483,12 +527,26 @@ class Pods_Templates extends PodsComponent {
 
 		wp_update_post( (object) $postdata );
 
+		// Flush the find posts cache.
+		pods_cache_clear( true, 'pods_post_type_storage_' . $this->object_type );
+
 		// objects will be automatically sanitized
 		if ( $revisions ) {
-			add_action( 'pre_post_update', 'wp_save_post_revision' );
+			add_action( 'pre_post_update', [ $this, 'save_post_revision_for_post' ] );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Save post revision for a post without a return.
+	 *
+	 * @since 3.2.8
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public function save_post_revision_for_post( $post_id ) {
+		wp_save_post_revision( $post_id );
 	}
 
 	/**
@@ -498,11 +556,12 @@ class Pods_Templates extends PodsComponent {
 	 * @param string $code          Custom template code to use instead
 	 * @param object $obj           The Pods object
 	 * @param bool   $deprecated    Whether to use deprecated functionality based on old function usage
+	 * @param bool   $check_access  Whether to check access for Posts that are Password-protected.
 	 *
 	 * @return mixed|string|void
 	 * @since 2.0.0
 	 */
-	public static function template( $template_name, $code = null, $obj = null, $deprecated = false ) {
+	public static function template( $template_name, $code = null, $obj = null, $deprecated = false, $check_access = false ) {
 
 		if ( ! empty( $obj ) ) {
 			self::$obj =& $obj;
@@ -516,13 +575,17 @@ class Pods_Templates extends PodsComponent {
 			return '';
 		}
 
-		$template = array(
+		$has_code_override = ! empty( $code );
+
+		/** @var Pods $obj */
+
+		$template = [
 			'id'      => 0,
 			'name'    => $template_name,
 			'slug'    => $template_name,
 			'code'    => $code,
-			'options' => array(),
-		);
+			'options' => [],
+		];
 
 		if ( empty( $code ) && ! empty( $template_name ) ) {
 			// Check for an ID in the template name.
@@ -578,32 +641,103 @@ class Pods_Templates extends PodsComponent {
 		$code = apply_filters( 'pods_templates_pre_template', $code, $template, $obj );
 		$code = apply_filters( "pods_templates_pre_template_{$slug}", $code, $template, $obj );
 
+		$info = $check_access ? pods_info_from_args( [ 'pods' => $obj ] ) : [];
+
+		$process_magic_tags = false;
+
 		ob_start();
 
-		if ( ! empty( $code ) ) {
+		// @todo If the template exists, uses that, otherwise use the $code.
+
+		$template_file = null;
+
+		if ( $template_name && $template_name === trim( preg_replace( '/[^a-zA-Z0-9_\-\/]/', '', (string) $template_name ), ' /-' ) ) {
+			$default_templates   = self::get_templates_for_pod_template( $template, $obj );
+			$template_files_info = self::get_template_files_info( $default_templates );
+
+			$template_file = array_key_first( $template_files_info );
+		}
+
+		if ( $has_code_override || ( ! $template_file && ! empty( $code ) ) ) {
 			// Only detail templates need $this->id
 			if ( empty( $obj->id ) ) {
+				$obj->reset();
+
 				while ( $obj->fetch() ) {
-					echo self::do_template( $code, $obj );
+					$info['item_id'] = $obj->id();
+
+					// Ensure the post is not password protected.
+					if (
+						$check_access
+						&& (
+							pods_access_bypass_post_with_password( $info )
+							|| pods_access_bypass_private_post( $info )
+						)
+					) {
+						continue;
+					}
+
+					echo self::do_template( $code, $obj, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 			} else {
-				echo self::do_template( $code, $obj );
-			}
-		} elseif ( $template_name == trim( preg_replace( '/[^a-zA-Z0-9_\-\/]/', '', $template_name ), ' /-' ) ) {
-			$default_templates = array(
-				'pods/' . $template_name,
-				'pods-' . $template_name,
-				$template_name,
-			);
+				$info['item_id'] = $obj->id();
 
-			$default_templates = apply_filters( 'pods_template_default_templates', $default_templates );
+				if (
+					! $check_access
+					|| (
+						! pods_access_bypass_post_with_password( $info )
+						&& ! pods_access_bypass_private_post( $info )
+					)
+				) {
+					echo self::do_template( $code, $obj, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+			}
+		} elseif ( $template_file ) {
+			if ( $template_files_info[ $template_file ]['MagicTags'] ) {
+				$process_magic_tags = true;
+			}
 
 			if ( empty( $obj->id ) ) {
 				while ( $obj->fetch() ) {
-					pods_template_part( $default_templates, compact( array_keys( get_defined_vars() ) ) );
+					$info['item_id'] = $obj->id();
+
+					// Ensure the post is not password protected.
+					if (
+						$check_access
+						&& (
+							pods_access_bypass_post_with_password( $info )
+							|| pods_access_bypass_private_post( $info )
+						)
+					) {
+						continue;
+					}
+
+					$template_output = pods_template_part( $template_file, compact( array_keys( get_defined_vars() ) ), true );
+
+					if ( $process_magic_tags ) {
+						$template_output = self::do_template( $template_output, $obj );
+					}
+
+					echo $template_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 			} else {
-				pods_template_part( $default_templates, compact( array_keys( get_defined_vars() ) ) );
+				$info['item_id'] = $obj->id();
+
+				if (
+					! $check_access
+					|| (
+						! pods_access_bypass_post_with_password( $info )
+						&& ! pods_access_bypass_private_post( $info )
+					)
+				) {
+					$template_output = pods_template_part( $template_file, compact( array_keys( get_defined_vars() ) ), true );
+
+					if ( $process_magic_tags ) {
+						$template_output = self::do_template( $template_output, $obj );
+					}
+
+					echo $template_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
 			}
 		}//end if
 
@@ -616,40 +750,130 @@ class Pods_Templates extends PodsComponent {
 	}
 
 	/**
+	 * Get templates for pod page.
+	 *
+	 * @since 3.2.8
+	 *
+	 * @param array|Template $template The pod template data.
+	 * @param Pods|null      $obj      The Pods object.
+	 *
+	 * @return array The list of templates for the pod template.
+	 */
+	public static function get_templates_for_pod_template( $template, $obj = null ): array {
+		$template_name = $template instanceof Template ? $template->get_name() : ( $template['slug'] ?? $template['name'] );
+
+		if ( empty( $template_name ) ) {
+			return [];
+		}
+
+		$template_name = trim( preg_replace( '/[^a-zA-Z0-9_\-\/]/', '', (string) $template_name ), ' /-' );
+
+		$default_templates = [
+			'pods/templates/' . $template_name . '.php',
+			'pods/' . $template_name . '.php',
+			'pods-' . $template_name . '.php',
+			$template_name . '.php',
+		];
+
+		/**
+		 * Allow filtering the list of default theme templates to check for a template.
+		 *
+		 * @since unknown
+		 *
+		 * @param string[]       $default_templates The list of default theme templates to check for a template.
+		 * @param string         $template_name     The template name.
+		 * @param array|Template $template          The template information.
+		 * @param Pods           $obj               The Pods object.
+		 */
+		return (array) apply_filters( 'pods_template_default_templates', $default_templates, $template_name, $template, $obj );
+	}
+
+	/**
+	 * Get the list of template header information for each of the template files.
+	 *
+	 * @since 3.2.8
+	 *
+	 * @param array<int,string> $template_files The list of template files.
+	 *
+	 * @return array The list of template header information for each of the template files.
+	 */
+	public static function get_template_files_info( array $template_files ): array {
+		$template_files_info = [];
+
+		foreach ( $template_files as $template_file ) {
+			$file_path = locate_template( $template_file );
+
+			// Skip if template was not found.
+			if ( '' === $file_path ) {
+				continue;
+			}
+
+			$data = get_file_data( $file_path, [
+				'PodTemplate' => 'Pod Template',
+				'MagicTags'   => 'Magic Tags',
+			] );
+
+			$data['MagicTags'] = pods_is_truthy( $data['MagicTags'] );
+
+			$template_files_info[ $template_file ] = $data;
+		}
+
+		return $template_files_info;
+	}
+
+	/**
 	 * Parse a template string
 	 *
-	 * @param string $code The template string to parse
-	 * @param object $obj  The Pods object
+	 * @param string $code        The template string to parse
+	 * @param object $obj         The Pods object
+	 * @param bool   $process_php Whether to process PHP -- this will be removed in Pods 3.3+.
 	 *
 	 * @since 1.8.5
 	 * @return mixed|string|void
 	 */
-	public static function do_template( $code, $obj = null ) {
+	public static function do_template(
+		$code,
+		$obj = null,
+		$process_php = false
+	) {
 		if ( ! empty( $obj ) ) {
 			self::$obj =& $obj;
 		} else {
 			$obj =& self::$obj;
 		}
 
-		if ( empty( $obj ) || ! is_object( $obj ) ) {
+		if ( empty( $obj ) || ! is_object( $obj ) || ! is_string( $code ) ) {
 			return '';
 		}
 
-		if ( false !== strpos( $code, '<?' ) && ( ! defined( 'PODS_DISABLE_EVAL' ) || ! PODS_DISABLE_EVAL ) ) {
-			pods_deprecated( 'Pod Template PHP code has been deprecated, please use WP Templates instead of embedding PHP.', '2.3' );
+		$out = '';
 
+		$code = (string) $code;
+
+		if ( false !== strpos( $code, '<?' ) ) {
 			$code = str_replace( '$this->', '$obj->', $code );
 
 			ob_start();
 
-			eval( "?>$code" );
+			/**
+			 * Allow evaluating Pod Template content by custom code snippet if needed.
+			 *
+			 * @since 3.3.0
+			 *
+			 * @param string $code        The template string to parse.
+			 * @param object $obj         The Pods object.
+			 * @param bool   $process_php Whether to process PHP.
+			 */
+			do_action( 'pods_templates_eval_content', $code, $obj, $process_php );
 
-			$out = ob_get_clean();
+			$out = (string) ob_get_clean();
 		} else {
 			$out = $code;
 		}
 
-		$out = $obj->do_magic_tags( $out );
+		if ( '' !== trim( $out ) ) {
+			$out = $obj->do_magic_tags( $out );
+		}
 
 		// Prevent blank whitespace from being output if nothing came through.
 		if ( '' === trim( $out ) ) {

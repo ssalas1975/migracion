@@ -2,6 +2,11 @@
 
 namespace Pods\CLI\Commands;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\REST\V1\Endpoints\Base as Base_Endpoint;
 use WP_CLI;
 use WP_Error;
@@ -45,6 +50,9 @@ abstract class Base {
 	 * @since 2.8.0
 	 */
 	public function hook() {
+		// Permissions are relaxed for WP-CLI context.
+		add_filter( 'pods_is_admin', '__return_true' );
+
 		$this->add_commands();
 	}
 
@@ -54,10 +62,7 @@ abstract class Base {
 	 * @since 2.8.0
 	 */
 	public function add_commands() {
-		// Permissions are relaxed for WP-CLI context.
-		add_filter( 'pods_is_admin', '__return_true' );
-
-		if ( method_exists( $this->endpoint_archive, 'get' ) ) {
+		if ( $this->endpoint_archive && method_exists( $this->endpoint_archive, 'get' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'list' );
 
 			WP_CLI::add_command( $command, [
@@ -66,7 +71,7 @@ abstract class Base {
 			], $this->build_command_args( 'list', $this->endpoint_archive ) );
 		}
 
-		if ( method_exists( $this->endpoint_archive, 'create' ) ) {
+		if ( $this->endpoint_archive && method_exists( $this->endpoint_archive, 'create' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'add' );
 
 			WP_CLI::add_command( $command, [
@@ -75,7 +80,7 @@ abstract class Base {
 			], $this->build_command_args( 'add', $this->endpoint_archive ) );
 		}
 
-		if ( method_exists( $this->endpoint_single, 'get' ) ) {
+		if ( $this->endpoint_single && method_exists( $this->endpoint_single, 'get' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'get' );
 
 			WP_CLI::add_command( $command, [
@@ -84,7 +89,7 @@ abstract class Base {
 			], $this->build_command_args( 'get', $this->endpoint_single ) );
 		}
 
-		if ( method_exists( $this->endpoint_single_slug, 'get' ) ) {
+		if ( $this->endpoint_single_slug && method_exists( $this->endpoint_single_slug, 'get' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'get-by-slug' );
 
 			WP_CLI::add_command( $command, [
@@ -93,7 +98,7 @@ abstract class Base {
 			], $this->build_command_args( 'get', $this->endpoint_single_slug ) );
 		}
 
-		if ( method_exists( $this->endpoint_single, 'update' ) ) {
+		if ( $this->endpoint_single && method_exists( $this->endpoint_single, 'update' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'update' );
 
 			WP_CLI::add_command( $command, [
@@ -102,7 +107,7 @@ abstract class Base {
 			], $this->build_command_args( 'update', $this->endpoint_single ) );
 		}
 
-		if ( method_exists( $this->endpoint_single_slug, 'update' ) ) {
+		if ( $this->endpoint_single_slug && method_exists( $this->endpoint_single_slug, 'update' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'update-by-slug' );
 
 			WP_CLI::add_command( $command, [
@@ -111,7 +116,7 @@ abstract class Base {
 			], $this->build_command_args( 'update', $this->endpoint_single_slug ) );
 		}
 
-		if ( method_exists( $this->endpoint_single, 'delete' ) ) {
+		if ( $this->endpoint_single && method_exists( $this->endpoint_single, 'delete' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'delete' );
 
 			WP_CLI::add_command( $command, [
@@ -120,7 +125,7 @@ abstract class Base {
 			], $this->build_command_args( 'delete', $this->endpoint_single ) );
 		}
 
-		if ( method_exists( $this->endpoint_single_slug, 'delete' ) ) {
+		if ( $this->endpoint_single_slug && method_exists( $this->endpoint_single_slug, 'delete' ) ) {
 			$command = sprintf( '%1$s %2$s %3$s', $this->namespace, $this->command, 'delete-by-slug' );
 
 			WP_CLI::add_command( $command, [
@@ -378,6 +383,7 @@ abstract class Base {
 						continue;
 					}
 
+					// translators: %s is the parameter name.
 					return new WP_Error( 'cli-missing-positional-argument', sprintf( __( 'Missing positional argument: %s', 'pods' ), $param ) );
 				}
 
@@ -435,10 +441,11 @@ abstract class Base {
 				return $value;
 			}
 
+			// translators: %s is the parameter name.
 			return new WP_Error( 'cli-argument-required', sprintf( __( 'Argument is required: %s', 'pods' ), $param ) );
 		}
 
-		if ( 'integer' === $arg['type'] ) {
+		if ( isset( $arg['type'] ) && 'integer' === $arg['type'] ) {
 			$value = (int) $value;
 		}
 
@@ -463,9 +470,11 @@ abstract class Base {
 				}
 
 				if ( empty( $callable_name ) ) {
+					// translators: %s is the parameter name.
 					return new WP_Error( 'cli-argument-not-valid', sprintf( __( 'Argument not provided as expected: %s', 'pods' ), $param ) );
 				}
 
+				// translators: %1$s is the validation callback name, %2$s is the parameter name.
 				return new WP_Error( 'cli-argument-not-valid-with-callback', sprintf( __( 'Argument not provided as expected (%1$s): %2$s', 'pods' ), $callable_name, $param ) );
 			}
 
@@ -549,8 +558,8 @@ abstract class Base {
 
 		foreach ( $rest_args as $param => $arg ) {
 			$cli_arg = [
-				'type' => 'assoc',
-				'name' => $param,
+				'type'     => 'assoc',
+				'name'     => $param,
 				'optional' => empty( $arg['required'] ),
 			];
 

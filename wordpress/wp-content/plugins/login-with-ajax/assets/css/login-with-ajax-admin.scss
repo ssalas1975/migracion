@@ -27,6 +27,45 @@
   table.features tfoot th span { display:block; margin-bottom:5px; color:#8bc976; font-size:18px; }
   table.features tfoot th span.deal { color:#FC9840; font-size:14px; }
   table.features tbody th[data-title] { cursor: pointer; }
+
+	input[type="password"] {
+		padding-right: 40px !important;
+		background-image : var(--icon-pwd-show);
+		background-size : 15px;
+		background-position : right center;
+	}
+	input[type="text"].pwd {
+		padding-right: 40px !important;
+		background-image : var(--icon-pwd-hide);
+		background-size : 15px;
+		background-position : right center;
+	}
+}
+
+.lwa-admin-modal {
+	--font-size: 15px;
+	--line-height: 20px;
+
+	.lwa-modal-content {
+		p {
+			font-size: var(--font-size) !important;
+			line-height: var(--line-height) !important;
+			text-align: justify;
+		}
+
+		&.has-image {
+			display: grid;
+			grid-template-columns: auto minmax(80px, 150px);
+			grid-gap: 40px;
+
+			> div.image {
+				text-align: center;
+				img {
+					width: 100%;
+				}
+			}
+		}
+	}
 }
 
 /*! Tippy.js v6.2.7 - https://unpkg.com/tippy.js@6.2.7/themes/light-border.css */

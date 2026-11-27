@@ -14,11 +14,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 global $status, $page, $s;
 
-if ( is_plugin_active( 'booking-calendar-com/booking-calendar-com.php' ) ) {
-	$wpbc_deactivate_url = wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . WPBC_PRO_PLUGIN_DIRNAME . htmlentities('/', ENT_COMPAT) . WPBC_PRO_PLUGIN_FILENAME . '&amp;plugin_status=' . $status . '&amp;paged=' . $page . '&amp;s=' . $s, 'deactivate-plugin_' . WPBC_PRO_PLUGIN_DIRNAME . htmlentities('/', ENT_COMPAT) . WPBC_PRO_PLUGIN_FILENAME  );
-} else {
-	$wpbc_deactivate_url = wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . WPBC_PLUGIN_DIRNAME . htmlentities('/', ENT_COMPAT) . WPBC_PLUGIN_FILENAME . '&amp;plugin_status=' . $status . '&amp;paged=' . $page . '&amp;s=' . $s, 'deactivate-plugin_' . WPBC_PLUGIN_DIRNAME . htmlentities('/', ENT_COMPAT) . WPBC_PLUGIN_FILENAME  );
-}
+$wpbc_plugin_basename = is_plugin_active( 'booking-calendar-com/booking-calendar-com.php' )
+	? 'booking-calendar-com/booking-calendar-com.php'
+	: WPBC_PLUGIN_DIRNAME . '/' . WPBC_PLUGIN_FILENAME;
+
+$wpbc_deactivate_url = wp_nonce_url(
+	add_query_arg(
+		array(
+			'action'        => 'deactivate',
+			'plugin'        => $wpbc_plugin_basename,
+			'plugin_status' => (string) $status,
+			'paged'         => (string) $page,
+			's'             => (string) $s,
+		),
+		self_admin_url( 'plugins.php' )
+	),
+	'deactivate-plugin_' . $wpbc_plugin_basename
+);
 
 ?>
 <div id="wpbc_deactivate-feedback-popup-wrapper">
@@ -74,8 +86,11 @@ if ( is_plugin_active( 'booking-calendar-com/booking-calendar-com.php' ) ) {
 				<div class="wpbc_deactivate-feedback-popup-form-more-details">
 					<label for="wpbc_deactivate-feedback-more-details"
 						class="wpbc_deactivate-feedback-label"><?php echo wp_kses_post( __( 'Could you share more details? We\'d love to fix them!', 'booking' ) ); ?></label>
-					<textarea name="wpbc_deactivate-feedback-more-details" placeholder="<?php echo esc_attr( __( 'Please share your feedback', 'booking' ) ); ?>"
-							class="feedback-textarea" rows="4"></textarea>
+					<textarea id="wpbc_deactivate-feedback-more-details" name="wpbc_deactivate-feedback-more-details" placeholder="<?php echo esc_attr( __( 'Please share your feedback', 'booking' ) ); ?>"
+							class="feedback-textarea" rows="4" aria-describedby="wpbc_deactivate-feedback-more-details-error" aria-invalid="false"></textarea>
+					<span id="wpbc_deactivate-feedback-more-details-error" class="wpbc_deactivate-feedback-more-details-error" aria-live="polite">
+						<?php esc_html_e( 'Please share more details before submitting.', 'booking' ); ?>
+					</span>
 				</div>
 				<button class="submit" type="submit"><?php esc_html_e( 'Submit &amp; Deactivate', 'booking' ); ?></button>
 			</div>

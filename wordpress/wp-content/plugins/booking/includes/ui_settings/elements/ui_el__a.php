@@ -41,7 +41,8 @@ function wpbc_ui_el__a( $args ) {
 		'onmouseover'     => 'javascript:void(0)',
 		'onmouseout'      => 'javascript:void(0)',
 	);
-	$params   = wp_parse_args( $args, $defaults );
+	$params             = wp_parse_args( $args, $defaults );
+	$action_link_target = wpbc_get_pseudo_action_target( $params['permalink'], $params['attr'] );
 
 
 	?><div class="wpbc_ui_el_container wpbc_ui_el__a <?php echo esc_attr( $params['container_class'] ); ?>" style="<?php echo esc_attr( $params['container_style'] ); ?>"><a
@@ -49,6 +50,9 @@ function wpbc_ui_el__a( $args ) {
 		onmouseout="<?php echo $params['onmouseout']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>"
 		onclick="<?php echo $params['onclick']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>"
 		href="<?php echo $params['permalink'];  /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>"
+		<?php if ( '' !== $action_link_target ) { ?>
+			target="<?php echo esc_attr( $action_link_target ); ?>"
+		<?php } ?>
 		class="<?php echo esc_attr( ( ! empty( $params['hint'] ) ) ? 'tooltip_' . $params['hint']['position'] . ' ' : '' ); ?>"
 		style="<?php echo esc_attr( $params['style'] ); ?>"
 		<?php
@@ -124,7 +128,7 @@ function wpbc_ui_el__a( $args ) {
 				array(
 					'type'  => 'link',
 					'title' => "What's New",
-					'url'   => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'index.php' ) ) ),
+					'url'   => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'admin.php' ) ) ),
 				),
 				array(
 					'type'  => 'link',

@@ -907,7 +907,6 @@ div.wpbc_ajx_toolbar.wpbc_no_borders {
   margin: 0
 }
 .wpbc_not_toolbar_is_send_emails {
-  border-left: 1px solid #dbdbdb;
   padding-left: 10px
 }
 .wpbc_ajx_toolbar .ui_container .ui_group .ui_element {
@@ -977,9 +976,6 @@ div.wpbc_ajx_toolbar.wpbc_no_borders {
     -ms-flex-align: center;
     align-items: center
   }
-}
-.wpbc_ajx_toolbar .ui_container .ui_group.ui_group__dates_status {
-  margin-right: 2.5em
 }
 .wpbc_ajx_toolbar .ui_container .ui_group.ui_group__keyword,
 .wpbc_ajx_toolbar .ui_container .ui_group.ui_group__keyword .ui_element {

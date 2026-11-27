@@ -2,6 +2,8 @@
 namespace Tribe\Service_Providers;
 
 use \Tribe\Onboarding\Main as Onboarding_Main;
+use TEC\Common\Contracts\Service_Provider;
+use TEC\Common\Asset;
 
 /**
  * Class Onboarding
@@ -10,7 +12,8 @@ use \Tribe\Onboarding\Main as Onboarding_Main;
  *
  * Handles the registration and creation of our async process handlers.
  */
-class Onboarding extends \tad_DI52_ServiceProvider {
+class Onboarding extends Service_Provider {
+
 
 	/**
 	 * The Onboarding assets group identifier.
@@ -43,8 +46,8 @@ class Onboarding extends \tad_DI52_ServiceProvider {
 	protected function hooks() {
 		add_action( 'tribe_common_loaded', [ $this, 'register_assets' ] );
 
-		add_action( 'admin_enqueue_scripts', $this->container->make( Onboarding_Main::class, 'localize_tour' ) );
-		add_action( 'admin_enqueue_scripts', $this->container->make( Onboarding_Main::class, 'localize_hints' ) );
+		add_action( 'admin_enqueue_scripts', tribe_callback( Onboarding_Main::class, 'localize_tour' ) );
+		add_action( 'admin_enqueue_scripts', tribe_callback( Onboarding_Main::class, 'localize_hints' ) );
 	}
 
 	/**
@@ -55,31 +58,32 @@ class Onboarding extends \tad_DI52_ServiceProvider {
 	public function register_assets() {
 		$main = \Tribe__Main::instance();
 
-		tribe_asset(
-			$main,
+		Asset::add(
 			'tec-intro-js',
-			'node_modules/intro.js/intro.js',
-			[],
-			[ 'admin_enqueue_scripts' ],
-			[
-				'groups'       => self::$group_key,
-				'conditionals' => [ $this, 'should_enqueue_assets' ],
-			]
-		);
+			'vendor/intro.js',
+			\Tribe__Main::VERSION
+		)
+		->add_to_group( self::$group_key )
+		->set_condition( [ $this, 'should_enqueue_assets' ] )
+		->enqueue_on( 'admin_enqueue_scripts' )
+		->prefix_asset_directory( false )
+		->use_asset_file( false )
+		->register();
 
-		tribe_asset(
-			$main,
+		Asset::add(
 			'tec-intro-styles',
-			'node_modules/intro.js/introjs.css',
-			[],
-			[ 'admin_enqueue_scripts' ],
-			[
-				'groups'       => self::$group_key,
-				'conditionals' => [ $this, 'should_enqueue_assets' ],
-			]
-		);
+			'vendor/intro.css',
+			\Tribe__Main::VERSION
+		)
+		->add_to_group( self::$group_key )
+		->set_condition( [ $this, 'should_enqueue_assets' ] )
+		->enqueue_on( 'admin_enqueue_scripts' )
+		->prefix_asset_directory( false )
+		->use_asset_file( false )
+		->register();
 
-		tribe_asset(
+
+		tec_asset(
 			$main,
 			'tec-onboarding-styles',
 			'onboarding.css',
@@ -91,13 +95,13 @@ class Onboarding extends \tad_DI52_ServiceProvider {
 			]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$main,
 			'tec-onboarding-js',
 			'onboarding.js',
 			[
 				'tribe-common',
-				'tec-intro-js'
+				'tec-intro-js',
 			],
 			[ 'admin_enqueue_scripts' ],
 			[

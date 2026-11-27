@@ -89,19 +89,40 @@ class Tribe__Events__Validator__Base extends Tribe__Validator__Base
 			return false;
 		}
 
-		$event = get_post( $event_id );
+		$event = get_post( (int) $event_id );
 
 		$is_event_id = ! empty( $event ) && Tribe__Events__Main::POSTTYPE === $event->post_type;
 
 		/**
 		 * Validator filter to define if is a valid event_id.
 		 *
-		 * @param bool $is_event_id
+		 * @param bool              $is_event_id
 		 * @param \WP_Post|array|null $event
 		 *
 		 * @since 4.9.4
 		 */
 		return apply_filters( 'tribe_events_validator_is_event_id', $is_event_id, $event );
+	}
+
+	/**
+	 * Whether the value is a valid event ID format (numeric and non-empty).
+	 *
+	 * This method only validates the format, not existence. Use this in REST
+	 * endpoint handlers where existence checks need to return proper HTTP
+	 * status codes (e.g. 404) rather than validation errors (400).
+	 *
+	 * @since 6.17.2
+	 *
+	 * @param int|string $event_id A numeric event ID or string representation of a numeric event ID.
+	 *
+	 * @return bool True if valid format, false otherwise.
+	 */
+	public function is_event_id_format( $event_id ) {
+		if ( $event_id === null || $event_id === false || $event_id === '' ) {
+			return false;
+		}
+
+		return is_numeric( $event_id );
 	}
 
 	/**
@@ -231,5 +252,31 @@ class Tribe__Events__Validator__Base extends Tribe__Validator__Base
 		$valid = array_filter( $events, [ $this, 'is_event_id' ] );
 
 		return ! empty( $events ) && count( $valid ) === count( $events );
+	}
+
+	/**
+	 * Checks whether `ticketed` param is valid or not.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param bool $value Can be true or false.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function supports_ticketed( $value ) {
+		// Valid when value is false.
+		if ( ! tribe_is_truthy( $value ) ) {
+			return true;
+		}
+
+		// When value is true then we need to check if Event Tickets REST API is available or not.
+		try {
+			/** @var Tribe__Tickets__REST__V1__System $system */
+			$system = tribe( 'tickets.rest-v1.system' );
+		} catch ( Exception $exception ) {
+			return new WP_Error( 'event-tickets-not-active', __( 'Event Tickets plugin is not activated.', 'the-events-calendar' ), [ 'status' => 400 ] );
+		}
+
+		return $system->et_rest_api_is_enabled() ? true : new WP_Error( 'event-tickets-api-not-active', __( 'Event Tickets REST API is not available.', 'the-events-calendar' ), [ 'status' => 400 ] );
 	}
 }

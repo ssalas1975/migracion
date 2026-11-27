@@ -10,9 +10,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
+ */
+function ujic_clean( $var ) {
+	if ( is_array( $var ) ) {
+		return array_map( 'ujic_clean', $var );
+	} else {
+		return is_scalar( $var ) ? sanitize_text_field( $var ) : $var;
+	}
+}
+
+/**
+ * Escape JSON for use on HTML or attribute text nodes.
+ */
+function ujic_esc_json( $json, $html = false ) {
+	return _wp_specialchars(
+		$json,
+		$html ? ENT_NOQUOTES : ENT_QUOTES, // Escape quotes in attribute nodes only.
+		'UTF-8',                           // json_encode() outputs UTF-8 (really just ASCII), not the blog's charset.
+		true                               // Double escape entities: `&amp;` -> `&amp;amp;`.
+	);
+}
+
+/**
+ * Check whether the premium extension is loaded at runtime.
+ */
+function ujic_is_pro_active() {
+	return ( defined( 'UJIC_NAMEPRO' ) && 'Uji Countdown Pro' === UJIC_NAMEPRO )
+		|| defined( 'UJICOUNTDOWNPRO' )
+		|| class_exists( 'Uji_Countdown_Pro' );
+}
+
+/**
+ * Return the plugin display name for the active free/pro combination.
+ */
+function ujic_plugin_name() {
+	if ( ujic_is_pro_active() && defined( 'UJIC_NAMEPRO' ) ) {
+		return UJIC_NAMEPRO;
+	}
+
+	return defined( 'UJIC_NAME' ) ? UJIC_NAME : 'Uji Countdown';
+}
+
+/**
+ * Return the plugin display version for the active free/pro combination.
+ */
+function ujic_plugin_version() {
+	if ( ujic_is_pro_active() && defined( 'UJIC_VERSPRO' ) ) {
+		return UJIC_VERSPRO;
+	}
+
+	return defined( 'UJIC_VERS' ) ? UJIC_VERS : '';
+}
+
 function ujic_styles_get( $first = '') {
         global $wpdb;
-        $ujic_styles = $wpdb->get_results("SELECT style, title, link FROM " . $wpdb->prefix . "uji_counter ORDER BY `time` DESC");
+        $ujic_styles = $wpdb->get_results( "SELECT style, title, link FROM " . $wpdb->prefix . "uji_counter ORDER BY `time` DESC" );
         $ujic_sel = array();
         
         if ( !empty($ujic_styles) ) {

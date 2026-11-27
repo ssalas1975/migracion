@@ -2,8 +2,13 @@
 
 namespace Pods\Blocks\Types;
 
-use Pods\Whatsit\Store;
-use Tribe__Editor__Blocks__Abstract;
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Exception;
+use Pods\Blocks\Blocks_Abstract;
 use WP_Block;
 
 /**
@@ -11,7 +16,7 @@ use WP_Block;
  *
  * @since 2.8.0
  */
-abstract class Base extends Tribe__Editor__Blocks__Abstract {
+abstract class Base extends Blocks_Abstract {
 
 	/**
 	 * Set the default attributes of this block.
@@ -123,37 +128,57 @@ abstract class Base extends Tribe__Editor__Blocks__Abstract {
 			}
 		}
 
+		$params['_is_editor_mode'] = $this->in_editor_mode( $params );
+		$params['_is_preview']     = is_preview();
+		$params['_preview_id']     = $params['_is_preview'] ? get_queried_object_id() : null;
+
 		return parent::attributes( $params );
 	}
 
 	/**
-	 * Render content for block with placeholder template.
+	 * Get the list of all Pods for a block field.
 	 *
-	 * @since 2.8.0
+	 * @since 2.9.10
 	 *
-	 * @param string $heading The heading text.
-	 * @param string $content The content text.
-	 * @param null|string $image The image content or null if not set.
-	 *
-	 * @return string The content to render.
+	 * @return array List of all Pod names and labels.
 	 */
-	public function render_placeholder( $heading, $content, $image = null ) {
-		ob_start();
-		?>
-		<div class="pods-block-placeholder_container">
-			<div class="pods-block-placeholder_content-container">
-				<img src="<?php echo esc_url( PODS_URL . 'ui/images/pods-logo-green.svg' ); ?>" alt="<?php esc_attr_e( 'Pods logo', 'pods' ); ?>" class="pods-logo">
-				<div class="pods-block-placeholder_content">
-					<h2 class="pods-block-placeholder_title"><?php echo wp_kses_post( $heading ); ?></h2>
-					<p><?php echo wp_kses_post( $content ); ?></p>
-				</div>
-			</div>
-			<?php if ( $image ) : ?>
-				<?php echo wp_kses_post( $image ); ?>
-			<?php endif; ?>
-		</div>
-		<?php
-		return ob_get_clean();
+	public function callback_get_all_pods() {
+		$api = pods_api();
+
+		$all_pods = [];
+
+		try {
+			$all_pods = $api->load_pods( [ 'names' => true ] );
+		} catch ( Exception $exception ) {
+			pods_debug_log( $exception );
+		}
+
+		return array_merge( [
+				'' => '- ' . __( 'Use Current Pod', 'pods' ) . ' -',
+		], $all_pods );
+	}
+
+	/**
+	 * Get the list of all Pod Templates for a block field.
+	 *
+	 * @since 2.9.10
+	 *
+	 * @return array List of all Pod Template names and labels.
+	 */
+	public function callback_get_all_pod_templates() {
+		$api = pods_api();
+
+		$all_templates = [];
+
+		try {
+			$all_templates = $api->load_templates( [ 'names' => true ] );
+		} catch ( Exception $exception ) {
+			pods_debug_log( $exception );
+		}
+
+		return array_merge( [
+				'' => '- ' . __( 'Use Custom Template', 'pods' ) . ' -',
+		], $all_templates );
 	}
 
 	/**
@@ -179,7 +204,7 @@ abstract class Base extends Tribe__Editor__Blocks__Abstract {
 	 */
 	public function should_preload_block( $attributes = [], $block = null ) {
 		/**
-		 * Allow filtering whether to preload the block.
+		 * Allow filtering whether to preload the Pods block.
 		 *
 		 * @since 2.8.8
 		 *
@@ -188,6 +213,70 @@ abstract class Base extends Tribe__Editor__Blocks__Abstract {
 		 * @param WP_Block|null $block                The WP_Block object or null if not provided.
 		 * @param Base          $block_type           The block type object (not WP_Block).
 		 */
-		return (bool) apply_filters( 'pods_blocks_types_preload_block', true, $this );
+		return (bool) apply_filters( 'pods_blocks_types_preload_block', true, $attributes, $block, $this );
+	}
+
+	/**
+	 * Determine whether the block is being rendered in editor mode.
+	 *
+	 * @param array $attributes The block attributes used.
+	 *
+	 * @return bool Whether the block is being rendered in editor mode.
+	 */
+	public function in_editor_mode( $attributes = [] ) {
+		if ( ! empty( $attributes['_is_editor'] ) && ! empty( $attributes['_is_editor_mode'] ) ) {
+			return true;
+		}
+
+		if ( is_admin() ) {
+			$screen = get_current_screen();
+
+			if ( $screen && 'post' === $screen->base ) {
+				return true;
+			}
+		}
+
+		if (
+			wp_is_json_request()
+			&& did_action( 'rest_api_init' )
+		) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determine whether to apply wpautop to the block content output.
+	 *
+	 * @since 3.2.8
+	 *
+	 * @param string|mixed $content    The content to determine whether to autop.
+	 * @param array        $attributes The Pods render attributes that will be used.
+	 *
+	 * @return bool Whether to apply wpautop to the block content output.
+	 */
+	public function should_autop( $content, array $attributes = [] ): bool {
+		$should_autop = (
+			is_string( $content )
+			&& false === strpos( $content, '<div' )
+			&& false === strpos( $content, '<ul' )
+			&& false === strpos( $content, '<ol' )
+			&& false === strpos( $content, '<h' )
+			&& false === strpos( $content, '<p' )
+		);
+
+		/**
+		 * Allow filtering whether to apply wpautop to the block content output.
+		 *
+		 * This is used for things like Field block render or List block render of the no items found message.
+		 *
+		 * @since 3.2.8
+		 *
+		 * @param bool         $should_autop Whether to apply wpautop to the block content output.
+		 * @param string|mixed $content      The content to determine whether to autop.
+		 * @param array        $attributes   The Pods render attributes that will be used.
+		 */
+		return (bool) apply_filters( 'pods_blocks_should_autop', $should_autop, $content, $attributes );
 	}
 }

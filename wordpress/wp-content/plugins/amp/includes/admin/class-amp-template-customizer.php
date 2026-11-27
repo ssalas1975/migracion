@@ -76,7 +76,7 @@ class AMP_Template_Customizer {
 	 * @param ReaderThemeLoader|null $reader_theme_loader Reader theme loader.
 	 * @return AMP_Template_Customizer Instance.
 	 */
-	public static function init( WP_Customize_Manager $wp_customize, ReaderThemeLoader $reader_theme_loader = null ) {
+	public static function init( WP_Customize_Manager $wp_customize, ?ReaderThemeLoader $reader_theme_loader = null ) {
 		if ( null === $reader_theme_loader ) {
 			$reader_theme_loader = Services::get( 'reader_theme_loader' );
 		}
@@ -120,9 +120,6 @@ class AMP_Template_Customizer {
 		$self->set_refresh_setting_transport();
 		$self->remove_cover_template_section();
 		$self->remove_homepage_settings_section();
-		if ( get_template() === 'twentytwentyone' ) {
-			add_action( 'customize_controls_print_footer_scripts', [ $self, 'add_dark_mode_toggler_button_notice' ] );
-		}
 		return $self;
 	}
 
@@ -236,36 +233,11 @@ class AMP_Template_Customizer {
 	}
 
 	/**
-	 * Add notice that the dark mode toggler button is not currently available on AMP pages.
-	 */
-	public function add_dark_mode_toggler_button_notice() {
-		$message = __( 'While dark mode works on AMP pages, the toggle button is not currently available. It appears here only for preview purposes.', 'amp' );
-		?>
-		<script>
-			wp.customize.control( 'respect_user_color_preference', function ( control ) {
-				control.notifications.add( new wp.customize.Notification( 'amp_dark_mode_toggler_availability_notice', {
-					message: <?php echo wp_json_encode( $message ); ?>,
-					type: 'info'
-				} ) );
-			} );
-		</script>
-		<?php
-	}
-
-	/**
 	 * Init Customizer preview for legacy.
 	 *
 	 * @since 0.4
 	 */
 	public function init_legacy_preview() {
-		// This is only needed in WP<5.7 because in 5.7 the `wp_robots()` function runs at the `amp_post_template_head`
-		// action and in `WP_Customize_Manager::customize_preview_init()` the `wp_robots_no_robots()` function is added
-		// to the `wp_robots` filter.
-		if ( version_compare( strtok( get_bloginfo( 'version' ), '-' ), '5.7', '<' ) ) {
-			// There is code coverage for this, but code coverage is only collected for the latest WP version.
-			add_action( 'amp_post_template_head', 'wp_no_robots' ); // @codeCoverageIgnore
-		}
-
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_legacy_preview_scripts' ] );
 		add_action( 'amp_customizer_enqueue_preview_scripts', [ $this, 'enqueue_legacy_preview_scripts' ] );
 
@@ -349,9 +321,6 @@ class AMP_Template_Customizer {
 		$asset        = require $asset_file;
 		$dependencies = $asset['dependencies'];
 		$version      = $asset['version'];
-
-		/** This action is documented in includes/class-amp-theme-support.php */
-		do_action( 'amp_register_polyfills' );
 
 		wp_enqueue_script(
 			$handle,
@@ -605,9 +574,6 @@ class AMP_Template_Customizer {
 		$dependencies = $asset['dependencies'];
 		$version      = $asset['version'];
 
-		/** This action is documented in includes/class-amp-theme-support.php */
-		do_action( 'amp_register_polyfills' );
-
 		wp_enqueue_script(
 			'amp-customize-controls', // Note: This is not 'amp-customize-controls-legacy' to not break existing scripts that have this dependency.
 			amp_get_asset_url( 'js/amp-customize-controls-legacy.js' ),
@@ -664,9 +630,6 @@ class AMP_Template_Customizer {
 		if ( ! current_user_can( 'customize' ) ) {
 			return;
 		}
-
-		/** This action is documented in includes/class-amp-theme-support.php */
-		do_action( 'amp_register_polyfills' );
 
 		$asset_file   = AMP__DIR__ . '/assets/js/amp-customize-preview-legacy.asset.php';
 		$asset        = require $asset_file;

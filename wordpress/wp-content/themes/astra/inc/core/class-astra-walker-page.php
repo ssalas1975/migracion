@@ -3,8 +3,6 @@
  * Navigation Menu customizations.
  *
  * @package     Astra
- * @author      Astra
- * @copyright   Copyright (c) 2020, Astra
  * @link        https://wpastra.com/
  * @since       Astra 1.5.4
  */
@@ -26,7 +24,6 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 	 * @since 1.5.4
 	 */
 	class Astra_Walker_Page extends Walker_Page {
-
 		/**
 		 * Outputs the beginning of the current level in the tree before elements are output.
 		 *
@@ -50,7 +47,6 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 			$indent  = str_repeat( $t, $depth );
 			$output .= "{$n}{$indent}<ul class='children sub-menu'>{$n}";
 			$output  = apply_filters( 'astra_caret_wrap_filter', $output, $args['sort_column'] );
-
 		}
 
 		/**
@@ -71,9 +67,10 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 			$mobile_icon = '';
 
 			if ( isset( $args['pages_with_children'][ $page->ID ] ) ) {
-				$css_class[] = 'menu-item-has-children';
-				$icon        = Astra_Icons::get_icons( 'arrow' );
-				$icon        = '<span role="presentation" class="dropdown-menu-toggle">' . $icon . '</span>';
+				$css_class[]  = 'menu-item-has-children';
+				$icon         = Astra_Icons::get_icons( 'arrow' );
+				$toggle_label = astra_get_submenu_toggle_label( $page->post_title );
+				$icon         = '<span role="button" class="dropdown-menu-toggle ast-header-navigation-arrow" tabindex="0" aria-expanded="false" aria-haspopup="true" aria-label="' . esc_attr( $toggle_label ) . '">' . $icon . '</span>';
 				// Add toggle button if menu is from Astra.
 				if ( true === is_object( $args ) ) {
 					if ( isset( $args->theme_location ) &&
@@ -85,9 +82,11 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 							'ast-menu-toggle',
 							array(
 								'aria-expanded' => 'false',
+								'aria-haspopup' => 'true',
+								'aria-label'    => $toggle_label,
 							),
 							$page
-						) . '><span class="screen-reader-text">' . __( 'Menu Toggle', 'astra' ) . '</span>' . Astra_Icons::get_icons( 'arrow' ) . '</button>';
+						) . Astra_Icons::get_icons( 'arrow' ) . '</button>';
 					}
 				} else {
 					if ( isset( $page->post_parent ) && 0 === $page->post_parent ) {
@@ -95,9 +94,11 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 							'ast-menu-toggle',
 							array(
 								'aria-expanded' => 'false',
+								'aria-haspopup' => 'true',
+								'aria-label'    => $toggle_label,
 							),
 							$page
-						) . '><span class="screen-reader-text">' . __( 'Menu Toggle', 'astra' ) . '</span>' . Astra_Icons::get_icons( 'arrow' ) . '</button>';
+						) . Astra_Icons::get_icons( 'arrow' ) . '</button>';
 					}
 				}
 			}
@@ -121,10 +122,14 @@ if ( ! class_exists( 'Astra_Walker_Page' ) ) {
 			$args['link_before'] = empty( $args['link_before'] ) ? '' : $args['link_before'];
 			$args['link_after']  = empty( $args['link_after'] ) ? '' : $args['link_after'];
 
+			// Parent links report their submenu state like nav menu links; frontend.js keeps it in step.
+			$link_aria_expanded = isset( $args['pages_with_children'][ $page->ID ] ) ? ' aria-expanded="false"' : '';
+
 			$output .= sprintf(
-				'<li class="%s"><a href="%s" class="menu-link">%s%s%s%s</a>%s',
+				'<li class="%s"><a href="%s" class="menu-link"%s>%s%s%s%s</a>%s',
 				$css_classes,
 				get_permalink( $page->ID ),
+				$link_aria_expanded,
 				$args['link_before'],
 				apply_filters( 'the_title', $page->post_title, $page->ID ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 				$args['link_after'],

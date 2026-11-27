@@ -241,7 +241,7 @@ class WPBC_Emails_API_NewVisitor extends WPBC_Emails_API  {                     
                                                         <th scope="row">
                                                             <label class="wpbc-form-email" for="' 
                                                                              . esc_attr( 'new_visitor_from' ) 
-                                                            . '">' . wp_kses_post(  __('From' ,'booking') ) 
+                                                            . '">' . wp_kses_post(  _x( 'From', 'email sender', 'booking' ) ) 
                                                             . '</label>
                                                         </th>
                                                         <td><fieldset style="float:left;width:50%;margin-right:5%;">'
@@ -939,6 +939,9 @@ function wpbc__get_replace_shortcodes__email_new_visitor( $booking_id, $bktype, 
 	// -----------------------------------------------------------------------------------------------------------------
 	// Get additional  replace paramaters to the email shortcodes
 	$replace = apply_filters( 'wpbc_replace_params_for_booking', $replace, $booking_id, $bktype, $formdata );			// FixIn: 8.0.1.7.
+	if ( function_exists( 'wpbc_booking_notes_add_email_shortcodes' ) ) {
+		$replace = wpbc_booking_notes_add_email_shortcodes( $replace, $booking_id, 'customer' );
+	}
 
 
     return $replace;

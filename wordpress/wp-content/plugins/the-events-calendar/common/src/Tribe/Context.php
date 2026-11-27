@@ -1,5 +1,6 @@
 <?php
 
+use TEC\Common\Context\Post_Request_Type;
 use Tribe__Utils__Array as Arr;
 
 /**
@@ -143,7 +144,7 @@ class Tribe__Context {
 	 */
 	const LOCATION_FUNC = 'location_func';
 
-	/*
+	/**
 	 *
 	 * An array defining the properties the context will be able to read and (dangerously) write.
 	 *
@@ -206,6 +207,13 @@ class Tribe__Context {
 	protected static $did_populate_locations = false;
 
 	/**
+	 * A list of locations to disable reading from.
+	 *
+	 * @var array
+	 */
+	protected array $disable_read_from = [];
+
+	/**
 	 * A list of override locations to read and write from.
 	 *
 	 * This list has the same format and options as the static `$locations` property
@@ -237,80 +245,52 @@ class Tribe__Context {
 	protected $request_cache = [];
 
 	/**
-	 * Whether this context should use the default locations or not.
-	 * This flag property is set to `false` when a context is obtained using
-	 * the `set_locations` method; it will otherwise be set to `true`.
+	 * An instance of the post state handler.
 	 *
-	 * @var bool
+	 * @since 5.0.13
+	 *
+	 * @var Post_Request_Type
 	 */
-	protected $use_default_locations = true;
+	protected Post_Request_Type $post_state;
+
+	/**
+	 * Tribe__Context constructor.
+	 *
+	 * @since 5.0.13
+	 *
+	 * @param Post_Request_Type|null $post_state An instance of the post state handler.
+	 */
+	public function __construct( ?Post_Request_Type $post_state = null ) {
+		$this->post_state = $post_state ?: tribe( Post_Request_Type::class );
+	}
 
 	/**
 	 * Whether we are currently creating a new post, a post of post type(s) or not.
 	 *
 	 * @since 4.7.7
+	 * @since 5.0.13 Extracted the logic to the `TEC\Common\Context\Post_Request_Type` class.
 	 *
 	 * @param null $post_type The optional post type to check.
 	 *
 	 * @return bool Whether we are currently creating a new post, a post of post type(s) or not.
 	 */
 	public function is_new_post( $post_type = null ) {
-		global $pagenow;
-		$is_new = 'post-new.php' === $pagenow;
-
-		return $is_new && $this->is_editing_post( $post_type );
+		return $this->post_state->is_new_post( $post_type );
 	}
 
 	/**
 	 * Whether we are currently editing a post(s), post type(s) or not.
 	 *
 	 * @since 4.7.7
+	 * @since 5.0.13 Extracted the logic to the `TEC\Common\Context\Post_Request_Type` class.
 	 *
 	 * @param null|array|string|int $post_or_type A post ID, post type, an array of post types or post IDs, `null`
 	 *                                            to just make sure we are currently editing a post.
 	 *
 	 * @return bool
 	 */
-	public function is_editing_post( $post_or_type = null ) {
-		global $pagenow;
-		$is_new  = 'post-new.php' === $pagenow;
-		$is_post = 'post.php' === $pagenow;
-		$is_editing = 'edit.php' === $pagenow;
-
-		if ( ! ( $is_new || $is_post || $is_editing ) ) {
-			return false;
-		}
-
-		if ( ! empty( $post_or_type ) ) {
-			$lookup = [ $_GET, $_POST, $_REQUEST ];
-
-			$current_post = Tribe__Utils__Array::get_in_any( $lookup, 'post', get_post() );
-
-			if ( is_numeric( $post_or_type ) ) {
-
-				$post = $is_post ? get_post( $post_or_type ) : null;
-
-				return ! empty( $post ) && $post == $current_post;
-			}
-
-			$post_types = is_array( $post_or_type ) ? $post_or_type : [ $post_or_type ];
-
-			$post = $is_post ? get_post( $current_post ) : null;
-
-			if ( count( array_filter( $post_types, 'is_numeric' ) ) === count( $post_types ) ) {
-				return ! empty( $post ) && in_array( $post->ID, $post_types );
-			}
-
-			if ( $is_post && $post instanceof WP_Post ) {
-				$post_type = $post->post_type;
-			} else {
-				$post_type = Tribe__Utils__Array::get_in_any( $lookup, 'post_type', 'post' );
-			}
-
-			return (bool) count( array_intersect( $post_types, [ $post_type ] ) );
-		}
-
-		return $is_new || $is_post;
+	public function is_editing_post( $post_or_type = null ): bool {
+		return $this->post_state->is_editing_post( $post_or_type );
 	}
 
 	/**
@@ -363,11 +343,11 @@ class Tribe__Context {
 		 *
 		 * @since 4.9.5
 		 *
-		 * @param  mixed   $value    The value for the key before it's fetched from the context.
-		 * @param  string  $key      The key of the value to fetch from the context.
-		 * @param  mixed   $default  The default value that should be returned if the value is
+		 * @param mixed   $value    The value for the key before it's fetched from the context.
+		 * @param string  $key      The key of the value to fetch from the context.
+		 * @param mixed   $default  The default value that should be returned if the value is
 		 *                           not set in the context.
-		 * @param  bool    $force    Whether to force the re-fetch of the value from the context or
+		 * @param bool    $force    Whether to force the re-fetch of the value from the context or
 		 *                           not; defaults to `false`.
 		 */
 		$value = apply_filters( "tribe_context_pre_{$key}", null, $key, $default, $force );
@@ -400,7 +380,7 @@ class Tribe__Context {
 		 *
 		 * @since 4.9.5
 		 *
-		 * @param  mixed  $value  The value as fetched from the context.
+		 * @param mixed  $value  The value as fetched from the context.
 		 */
 		$value = apply_filters( "tribe_context_{$key}", $value );
 
@@ -462,24 +442,44 @@ class Tribe__Context {
 	public function get_locations() {
 		$this->populate_locations();
 
-		$locations = $this->use_default_locations
-			? array_merge( self::$locations, $this->override_locations )
-			: $this->override_locations;
-
-		if ( $this->use_default_locations ) {
+		if ( has_filter( 'tribe_context_locations' ) ) {
 			/**
 			 * Filters the locations registered in the Context.
 			 *
 			 * @since 4.10.2
 			 *
-			 * @param $locations array           An array of read and write location in the shape of the `Tribe__Context::$locations` one,
-			 *                                   `[ <location> => [ 'read' => <read_locations>, 'write' => <write_locations> ] ]`.
-			 * @param $context   Tribe__Context  Current instance of the context.
+			 * @param array<string,array<string,array<string,array<string,string>>>> $locations An array of read and write location in the shape of the `Tribe__Context::$locations` one,
+			 *                                                                                  `[ <location> => [ 'read' => <read_locations>, 'write' => <write_locations> ] ]`.
+			 * @param Tribe__Context                                                 $context   Current instance of the context.
+			 *
+			 * @return array<string,array<string,array<string,array<string,string>>>> The filtered locations.
 			 */
-			$locations = apply_filters( 'tribe_context_locations', $locations, $this );
+			static::$locations = apply_filters( 'tribe_context_locations', static::$locations, $this );
+
+			// Remove all filters everytime it runs.
+			remove_all_filters( 'tribe_context_locations' );
 		}
 
-		return $locations;
+		$new_locations = array_merge( static::$locations, $this->override_locations );
+
+		foreach ( array_keys( $new_locations ) as $key ) {
+			foreach ( $this->disable_read_from as $disable_read_from ) {
+				unset( $new_locations[ $key ]['read'][ $disable_read_from ] );
+			}
+		}
+
+		return $new_locations;
+	}
+
+	/**
+	 * Disable reading from specific locations.
+	 *
+	 * @since 6.5.5
+	 *
+	 * @param array $locations The locations to disable reading from.
+	 */
+	public function disable_read_from( array $locations ): void {
+		$this->disable_read_from = $locations;
 	}
 
 	/**
@@ -845,7 +845,7 @@ class Tribe__Context {
 	 *
 	 * @since 4.9.5
 	 */
-	public function dangerously_set_global_context( array $fields = null, $whitelist = true ) {
+	public function dangerously_set_global_context( ?array $fields = null, $whitelist = true ) {
 		$locations = $this->get_locations();
 
 		if ( null !== $fields ) {
@@ -1118,20 +1118,17 @@ class Tribe__Context {
 	/**
 	 * Sets, replacing them, the locations used by this context.
 	 *
-	 *
 	 * @since 4.9.5
+	 * @since 6.5.5 Remove the $use_default_locations parameter.
 	 *
 	 * @param array $locations An array of locations to replace the current ones.
-	 * @param bool  $use_default_locations Whether the context should use the default
-	 *                                     locations defined in the static `$locations`
-	 *                                     property or not.
 	 *
 	 * @return \Tribe__Context A clone of the current context with modified locations.
 	 */
-	public function set_locations( array $locations, $use_default_locations = true ) {
-		$clone                        = clone $this;
-		$clone->override_locations    = $locations;
-		$clone->use_default_locations = (bool) $use_default_locations;
+	public function set_locations( array $locations ) {
+		$clone                     = clone $this;
+		$clone::$locations         = [];
+		$clone->override_locations = $locations;
 
 		return $clone;
 	}
@@ -1178,7 +1175,7 @@ class Tribe__Context {
 	 *
 	 * @return array
 	 */
-	public function get_state( array $fields = null, $whitelist = true ) {
+	public function get_state( ?array $fields = null, $whitelist = true ): array {
 		$state             = $this->to_array();
 		$is_global_context = tribe_context() === $this;
 
@@ -1232,7 +1229,7 @@ class Tribe__Context {
 	 *
 	 * @return array A map of ORM fields produced from the context current values.
 	 */
-	public function get_orm_args( array $fields = null, $whitelist = true ) {
+	public function get_orm_args( ?array $fields = null, $whitelist = true ) {
 		$locations         = $this->get_locations();
 		$dump              = $this->to_array();
 		$orm_args          = [];
@@ -1302,22 +1299,13 @@ class Tribe__Context {
 	 *
 	 * @since 4.9.8
 	 */
-	protected function populate_locations() {
+	protected function populate_locations(): void {
 		if ( static::$did_populate_locations ) {
 			return;
 		}
 
 		// To improve the class readability, and as a small optimization, locations are loaded from a file.
 		static::$locations = include __DIR__ . '/Context/locations.php';
-
-		/**
-		 * Filters the locations registered in the Context.
-		 *
-		 * @since 4.9.8
-		 *
-		 * @param  array  $locations  An array of locations registered on the Context object.
-		 */
-		static::$locations = apply_filters( 'tribe_context_locations', static::$locations, $this );
 
 		static::$did_populate_locations = true;
 	}
@@ -1335,7 +1323,7 @@ class Tribe__Context {
 	 */
 	public function dangerously_repopulate_locations() {
 		static::$did_populate_locations = false;
-		$this->populate_locations();
+		$this->get_locations();
 	}
 
 	/**
@@ -1639,5 +1627,35 @@ class Tribe__Context {
 			}
 			$this->request_cache[ $key ] = $val;
 		}
+	}
+
+	/**
+	 * Whether the current request is one to edit a list of the specified post types or not.
+	 *
+	 * The admin edit screen for a post type is the one that lists all the posts of that typ,
+	 * it has the URL `/wp-admin/edit.php?post_type=<post_type>`.
+	 *
+	 * @since 5.0.13
+	 * @since 5.0.13 Extracted the logic to the `TEC\Common\Context\Post_Request_Type` class.
+	 *
+	 * @param string|array<string> $post_type The post type or post types to check.
+	 *
+	 * @return bool Whether the current request is one to edit a list of the specified post types or not.
+	 */
+	public function is_editing_posts_list( $post_type ): bool {
+		return $this->post_state->is_editing_post_list( $post_type );
+	}
+
+	/**
+	 * Whether the current request is one to quick edit a single post of the specified post type or not.
+	 *
+	 * @since 5.0.13
+	 *
+	 * @param string|array<string> $post_type The post type or post types to check.
+	 *
+	 * @return bool Whether the current request is one to quick edit a single post of the specified post type or not.
+	 */
+	public function is_inline_editing_post( $post_type ): bool {
+		return $this->post_state->is_inline_editing_post( $post_type );
 	}
 }

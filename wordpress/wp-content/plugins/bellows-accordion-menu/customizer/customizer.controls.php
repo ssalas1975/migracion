@@ -24,10 +24,12 @@ if( class_exists('WP_Customize_Control' ) ) {
 
 				foreach ( $this->choices as $value => $label ) :
 					?>
-					<label>
-						<input type="radio" value="<?php echo esc_attr( $value ); ?>" name="<?php echo esc_attr( $name ); ?>" <?php $this->link(); checked( $this->value(), $value ); ?> />
-						<?php echo $label; ?><br/>
-					</label>
+					<span class="customize-inside-control-row">
+						<label>
+							<input type="radio" value="<?php echo esc_attr( $value ); ?>" name="<?php echo esc_attr( $name ); ?>" <?php $this->link(); checked( $this->value(), $value ); ?> />
+							<?php echo $label; ?><br/>
+						</label>
+					</span>
 					<?php
 				endforeach;
         }

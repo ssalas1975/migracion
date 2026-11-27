@@ -1,4 +1,10 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Name: Advanced Content Types
  *
@@ -27,10 +33,17 @@ class Pods_Advanced_Content_Types extends PodsComponent {
 	 * {@inheritdoc}
 	 */
 	public function init() {
-
-		if ( ! pods_tableless() ) {
-			add_filter( 'pods_admin_setup_add_create_pod_type', array( $this, 'add_pod_type' ) );
+		// Bypass if Pods is in types-only mode.
+		if ( pods_is_types_only() ) {
+			return;
 		}
+
+		// Bypass if Pods is in tableless mode.
+		if ( pods_tableless() ) {
+			return;
+		}
+
+		add_filter( 'pods_admin_setup_add_create_pod_type', array( $this, 'add_pod_type' ) );
 	}
 
 	/**
@@ -41,7 +54,6 @@ class Pods_Advanced_Content_Types extends PodsComponent {
 	 * @return array
 	 */
 	public function add_pod_type( $data ) {
-
 		$data['pod'] = __( 'Advanced Content Type (separate from WP, blank slate, in its own table)', 'pods' );
 
 		return $data;

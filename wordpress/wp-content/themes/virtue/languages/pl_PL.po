@@ -180,7 +180,7 @@ msgstr "Zalecane"
 
 #: ../lib/class-tgm-plugin-activation.php:2238
 msgid "WordPress Repository"
-msgstr "Repozytorium Wordpress"
+msgstr "Repozytorium WordPress"
 
 #: ../lib/class-tgm-plugin-activation.php:2242
 msgid "External Source"
@@ -2251,11 +2251,11 @@ msgid "Extra Sidebar"
 msgstr "Dodatkowe paski boczne"
 
 #: ../themeoptions/options.php:1857
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr ""
 
 #: ../themeoptions/options.php:1863
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
 
 #: ../themeoptions/options.php:1864

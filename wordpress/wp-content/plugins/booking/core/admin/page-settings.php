@@ -29,6 +29,7 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 	private $settings_api = false;
 
 	public function __construct() {
+		$this->normalize_legacy_settings_request();
 
 		if ( ! wpbc_is_mu_user_can_be_here( 'only_super_admin' ) ) {            // If this User not "super admin",  then  do  not load this page at all
 			// If tab  was not selected or selected default,  then  redirect  it to the "form" tab.
@@ -38,6 +39,39 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 			}
 		} else {
 			parent::__construct();
+		}
+	}
+
+	/**
+	 * Route settings links for sections that were moved into the Advanced group.
+	 *
+	 * Existing bookmarks and integrations can continue using the former Admin
+	 * Panel group and the previous Manage Bookings location of the front-end
+	 * Timeline settings. Subtab identifiers remain unchanged.
+	 *
+	 * @return void
+	 */
+	private function normalize_legacy_settings_request() {
+		$request_page = isset( $_REQUEST['page'] ) && is_scalar( $_REQUEST['page'] )
+			? sanitize_key( (string) wp_unslash( $_REQUEST['page'] ) )
+			: ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request_tab = isset( $_REQUEST['tab'] ) && is_scalar( $_REQUEST['tab'] )
+			? sanitize_key( (string) wp_unslash( $_REQUEST['tab'] ) )
+			: ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request_subtab = isset( $_REQUEST['subtab'] ) && is_scalar( $_REQUEST['subtab'] )
+			? sanitize_key( (string) wp_unslash( $_REQUEST['subtab'] ) )
+			: ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$is_legacy_admin_panel = 'admin_panel' === $request_tab;
+		$is_legacy_timeline    = 'manage_bookings' === $request_tab && 'booking_timeline' === $request_subtab;
+
+		if ( 'wpbc-settings' !== $request_page || ( ! $is_legacy_admin_panel && ! $is_legacy_timeline ) ) {
+			return;
+		}
+
+		$_REQUEST['tab'] = 'advanced'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['tab'] ) ) {
+			$_GET['tab'] = 'advanced'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 	}
 
@@ -71,17 +105,16 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 		// Init vars.
 		$separator_i    = 0;
 		$tabs           = array();
-		$subtabs        = array();
 		$subtab_default = array(
 			'type'            => 'subtab',                        // Required| Possible values:  'subtab' | 'separator' | 'button' | 'goto-link' | 'html'.
-			'title'           => '',                              // Example: __( 'Dashboard'                                                                   // Title of TAB.
-			'page_title'      => '',                              // __( 'Search Availability'                                                                  // Title of Page.
-			'hint'            => '',                              // __( 'Configure the layout and functionality of both the search form and search results.'   // Hint.
-			'link'            => '',                              // wpbc_get_settings_url() . '&scroll_to_section=wpbc_general_settings_dashboard_tab',        // Link.
-			'css_classes'     => '',                              // cls CSS .
+			'title'           => '',
+			'page_title'      => '',
+			'hint'            => '',
+			'link'            => '',
+			'css_classes'     => '',
 			'font_icon'       => 'wpbc_icn_dashboard',
-			'font_icon_right' => 'wpbc-bi-question-circle',                              // 'wpbc-bi-question-circle' .
-			'default'         => false,                           // Is this sub tab activated by default or not: true || false.
+			'font_icon_right' => 'wpbc-bi-question-circle',
+			'default'         => false,
 		);
 
 		// =============================================================================================================
@@ -109,125 +142,10 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 
 
 		// =============================================================================================================
-		// ==  C A L E N D A R   +   B O O K I N G _ P R O C E S S  ==
-		// =============================================================================================================
-		$tabs['calendar_booking_process'] = array(
-			'page_title'       => __( 'Calendar and Form Settings', 'booking' ),                                        // Header - Title.  If false, than hidden.
-			// translators: 1: Booking Calendar.
-			'page_description' => sprintf( __( 'Configure various options and settings in the %s.', 'booking' ), 'Booking Calendar' ),
-			'title'            => __( 'Calendar', 'booking' ),                                                          // Left Vertical Menu - Title.   + Booking Process.
-			// translators: 1: Booking Calendar.
-			'hint'             => sprintf( __( 'Configure various options and settings in the %s.', 'booking' ), 'Booking Calendar' ),
-			'font_icon'        => 'wpbc-bi-calendar2-range',                                                            // Left Vertical Menu - Icon.
-			'link'             => '',                                                                                   // Can be skiped,  then generated link based on Page and Tab tags. Or can  be extenral link.
-			'css_classes'      => '',                                                                                   // CSS.
-			'default'          => false,                                                                                // Is this tab activated by default or not: true / false.
-			'folder_style'     => 'order:11;',
-		);
-
-		$section_id          = 'wpbc_general_settings_calendar_metabox';
-		$subtabs['calendar'] = array_merge(
-			$subtab_default,
-			array(
-				'title'           => __( 'Calendar Settings', 'booking' ),
-				'page_title'      => __( 'General Settings', 'booking' ),
-				'hint'            => __( 'Customize various calendar settings, specify how many months can be scrolled, and defining the legend.', 'booking' ),
-				'font_icon'       => 'wpbc-bi-calendar2-range',
-				'font_icon_right' => 'wpbc-bi-question-circle',
-				'css_classes'     => 'do_expand__' . $section_id . '_link', // sub_bold', .
-				'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-				'default'         => false,
-			)
-		);
-
-		$section_id = 'wpbc_general_settings_calendar_metabox' . '#do_other_actions__' . 'blink_day_selections';
-		$subtabs['days_selection'] = array_merge(
-			$subtab_default,
-			array(
-				'title'           => __( 'Days Selection', 'booking' ),
-				'page_title'      => __( 'General Settings', 'booking' ),
-				'hint'            => __( 'Choose how users can select days: single day, multiple days, or a date range with minimum and maximum limits.', 'booking' ),
-				'font_icon'       => 'wpbc-bi-calendar3-week',
-				'font_icon_right' => 'wpbc-bi-question-circle',
-				'css_classes'     => 'do_expand__' . $section_id . '_link', // sub_bold', .
-				'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-				'default'         => false,
-			)
-		);
-
-
-		if ( class_exists('wpdev_bk_biz_s') ) {
-			$section_id = 'wpbc_general_settings_calendar_metabox' . '#do_other_actions__' . 'blink_change_over_days';
-			$subtabs['change_over_days'] = array_merge(
-				$subtab_default,
-				array(
-					'title'           => __( 'Changeover Days', 'booking' ),
-					'page_title'      => __( 'General Settings', 'booking' ),
-					'hint'            => __( 'Set up check-in and check-out days for multi-day bookings, with visual indicators like diagonal or vertical lines. Ideal for bookings that require split days.', 'booking' ),
-					'font_icon'       => 'wpbc_icn_flip',
-					'font_icon_right' => 'wpbc-bi-question-circle',
-					'css_classes'     => 'do_expand__' . $section_id . '_link', // sub_bold', .
-					'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-					'default'         => false,
-				)
-			);
-		}
-
-		$section_id               = 'wpbc_general_settings_days_tooltips_metabox';
-		$subtabs['days_tooltips'] = array_merge(
-			$subtab_default,
-			array(
-				'title'           => __( 'Tooltips in days', 'booking' ),
-				'page_title'      => __( 'General Settings', 'booking' ),
-				'hint'            => __( 'Configure tooltips to display information like booked times, costs, details, and availability when hovering over calendar days.', 'booking' ),
-				'font_icon'       => 'wpbc-bi-chat-square-dots',
-				'font_icon_right' => 'wpbc-bi-question-circle',
-				'css_classes'     => 'do_expand__' . $section_id . '_link',
-				'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-				'default'         => false,
-			)
-		);
-
-		$section_id              = 'wpbc_general_settings_availability_metabox';
-		$subtabs['availability'] = array_merge(
-			$subtab_default,
-			array(
-				'title'           => __( 'General Availability', 'booking' ),
-				'page_title'      => __( 'General Settings', 'booking' ),
-				'hint'            => __( 'Define unavailable weekdays, add booking buffers, and customize unavailable day options.', 'booking' ),
-				'font_icon'       => 'wpbc-bi-calendar2-day',
-				'font_icon_right' => 'wpbc-bi-question-circle',
-				'css_classes'     => 'do_expand__' . $section_id . '_link',
-				'link'            => function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url() : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' ),
-				'onclick'         => '',
-				'default'         => false,
-			)
-		);
-
-		$section_id          = 'wpbc_general_settings_capacity_metabox#wpbc_general_settings_capacity_upgrade_metabox';
-		$subtabs['capacity'] = array_merge(
-			$subtab_default,
-			array(
-				'title'           => __( 'Booking Capacity', 'booking' ),
-				'page_title'      => __( 'General Settings', 'booking' ),
-				'hint'            => __( 'Manage the ability to accept multiple bookings for the same date or time slot.', 'booking' ),
-				'font_icon'       => 'wpbc_icn_filter_none',
-				'font_icon_right' => 'wpbc-bi-question-circle',
-				'css_classes'     => 'do_expand__' . 'wpbc_general_settings_capacity_metabox' . '_link',
-				'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-				'default'         => false,
-			)
-		);
-
-
-		$tabs['calendar_booking_process']['subtabs'] = $subtabs;
-
-
-		// =============================================================================================================
 		// ==  C O N F I R M A T I ON  ==
 		// =============================================================================================================
 		$tabs['booking_confirmation'] = array(
-			'is_show_top_path'                   => false,                                                              // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                                               // true | false.  By default value is: true.
 			'is_show_top_navigation'             => false,                                                              // true | false.  By default value is: false.
 			'left_navigation__default_view_mode' => '',                                                                 // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => __( 'General Settings', 'booking' ),                                // Header - Title.  If false, than hidden.
@@ -252,7 +170,7 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 		// == Manage Bookings ==
 		// =============================================================================================================
 		$tabs['manage_bookings'] = array(
-			'is_show_top_path'                   => false,                                                              // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                                               // true | false.  By default value is: true.
 			'is_show_top_navigation'             => false,                                                              // true | false.  By default value is: false.
 			'left_navigation__default_view_mode' => '',                                                                 // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => __( 'General Settings', 'booking' ),                                // Header - Title.  If false, than hidden.
@@ -271,8 +189,8 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 
 		$subtabs = array();
 
-		$section_id                       = 'wpbc_general_settings_booking_timeline_metabox';
-		$subtabs['booking_timeline'] = array_merge(
+		$section_id               = 'wpbc_general_settings_booking_timeline_metabox';
+		$booking_timeline_subtab = array_merge(
 			$subtab_default,
 			array(
 				'title'           => __( 'Timeline (front-end)', 'booking' ),
@@ -328,7 +246,7 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 		// == Admin Panel ==
 		// =============================================================================================================
 		$tabs['admin_panel'] = array(
-			'is_show_top_path'                   => false,                                                              // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                                               // true | false.  By default value is: true.
 			'is_show_top_navigation'             => false,                                                              // true | false.  By default value is: false.
 			'left_navigation__default_view_mode' => '',                                                                 // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => __( 'General Settings', 'booking' ),                                // Header - Title.  If false, than hidden.
@@ -376,6 +294,8 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 			)
 		);
 
+		$subtabs['booking_timeline'] = $booking_timeline_subtab;
+
 		$section_id            = 'wpbc_general_settings_datestimes_metabox';
 		$subtabs['datestimes'] = array_merge(
 			$subtab_default,
@@ -422,13 +342,15 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 		);
 
 		$tabs['admin_panel']['subtabs'] = $subtabs;
+		$admin_panel_subtabs = $subtabs;
+		unset( $tabs['admin_panel'] );
 
 
 		// =============================================================================================================
 		// == Advanced ==
 		// =============================================================================================================
 		$tabs['advanced'] = array(
-			'is_show_top_path'                   => false,                                                              // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                                               // true | false.  By default value is: true.
 			'is_show_top_navigation'             => false,                                                              // true | false.  By default value is: false.
 			'left_navigation__default_view_mode' => '',                                                                 // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => __( 'General Settings', 'booking' ),                                // Header - Title.  If false, than hidden.
@@ -506,24 +428,7 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 				'default'         => false,
 			)
 		);
- 		if ( class_exists('wpdev_bk_multiuser') ) {
-			$section_id             = 'wpbc_general_settings_multiuser_metabox';
-			$subtabs['multiuser'] = array_merge(
-				$subtab_default,
-				array(
-					'title'           => __( 'Multiuser Options', 'booking' ),
-					'page_title'      => __( 'General Settings', 'booking' ),
-					'hint'            => __( 'Multiuser Options', 'booking' ),
-					'font_icon'       => 'wpbc_icn_people_alt',
-					'font_icon_right' => 'wpbc-bi-question-circle',
-					'css_classes'     => 'do_expand__' . $section_id . '_link',
-					'onclick'         => "wpbc_admin_ui__do__open_url__expand_section( '" . wpbc_get_settings_url() . "', '" . $section_id . "' );",
-					'default'         => false,
-				)
-			);
-		}
-
-		$tabs['advanced']['subtabs'] = $subtabs;
+		$tabs['advanced']['subtabs'] = array_merge( $admin_panel_subtabs, $subtabs );
 
 		// FixIn: 10.12.4.7.  $tabs[ 'settings' . ( ++$separator_i ) ] = array_merge( $subtab_default, array( 'type' => 'separator' ,'folder_style' => 'order:900;' ) );
 		// $tabs[ 'settings' . ( ++$separator_i ) ] = array_merge( $subtab_default, array( 'type' => 'separator' ,'folder_style' => 'order:1000;' ) );
@@ -546,11 +451,25 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 			return false;
 		}  // User is not Super admin, so exit.  Basically its was already checked at the bottom of the PHP file, just in case.
 
-		// Redirect legacy Settings > Availability links to the dedicated General Availability page.
+		// Redirect legacy Settings > Calendar links to the dedicated Calendar settings page.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
-		if ( ( ! empty( $_GET['scroll_to_section'] ) ) && ( 'wpbc_general_settings_availability_tab' === sanitize_text_field( wp_unslash( $_GET['scroll_to_section'] ) ) ) ) {
-			wpbc_redirect( function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url() : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' ) );
-			return;
+		if ( ! empty( $_GET['scroll_to_section'] ) ) {
+			$scroll_to_section = sanitize_text_field( wp_unslash( $_GET['scroll_to_section'] ) );
+
+			if ( 'wpbc_general_settings_calendar_tab' === $scroll_to_section ) {
+				wpbc_redirect( function_exists( 'wpbc_settings_calendar__get_section_url' ) ? wpbc_settings_calendar__get_section_url( 'general' ) : admin_url( 'admin.php?page=wpbc-settings&tab=calendar_settings' ) );
+				return;
+			}
+
+			if ( 'wpbc_general_settings_days_tooltips_tab' === $scroll_to_section ) {
+				wpbc_redirect( function_exists( 'wpbc_settings_calendar__get_section_url' ) ? wpbc_settings_calendar__get_section_url( 'tooltips' ) : admin_url( 'admin.php?page=wpbc-settings&tab=calendar_settings&wpbc_calendar_section=tooltips' ) );
+				return;
+			}
+
+			if ( 'wpbc_general_settings_availability_tab' === $scroll_to_section ) {
+				wpbc_redirect( function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url() : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' ) );
+				return;
+			}
 		}
 
 		$is_can = apply_bk_filter( 'recheck_version', true );
@@ -592,19 +511,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 			<?php
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
-		if ( ( isset( $_GET['wpbc_setup_wizard'] ) ) && ( 'reset' === $_GET['wpbc_setup_wizard'] ) ) {
-
-			wpbc_setup_wizard_page__force_in_get();
-
-			?>
-			<div class="wpdvlp-sub-tabs wpbc_redirection_message" style="margin: 20px 0;padding: 1em;font-size: 14px;">
-			<a href="<?php echo esc_url( wpbc_get_setup_wizard_page_url() ); ?>">Redirect</a> after <span class="wpbc_countdown">1</span> second...</div>
-			<?php
-
-			wpbc_redirect( wpbc_get_setup_wizard_page_url() );
-		}
-
 		// JavaScript: Tooltips, Popover, Datepick (js & css) .
 		echo '<span class="wpdevelop">';
 		wpbc_js_for_bookings_page();
@@ -628,42 +534,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_dashboard_tab a' ,'#wpbc_general_settings_dashboard_metabox', '<?php echo esc_js( $title ); ?>' );"
 							href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
 					</div>
-					<div id="wpbc_general_settings_calendar_tab" class="wpbc_settings_navigation_item wpbc_navigation_top_border">
-						<?php
-						$title = esc_attr__( 'Calendar', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_calendar_tab a' ,'#wpbc_general_settings_calendar_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
-					<div id="wpbc_general_settings_days_tooltips_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
-						<?php
-						$title = esc_attr__( 'Tooltips in days', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_days_tooltips_tab a' ,'#wpbc_general_settings_days_tooltips_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
-					<div id="wpbc_general_settings_availability_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
-						<?php
-						$title = esc_attr__( 'Availability', 'booking' );
-						?>
-						<a href="<?php echo esc_url( function_exists( 'wpbc_get_general_availability_url' ) ? wpbc_get_general_availability_url() : admin_url( 'admin.php?page=wpbc-availability&tab=general_availability' ) ); ?>"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
-					<div id="wpbc_general_settings_capacity_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
-						<?php
-						$title = esc_attr__( 'Capacity', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_capacity_tab a' ,'#wpbc_general_settings_capacity_metabox,#wpbc_general_settings_capacity_upgrade_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
-					<div id="wpbc_general_settings_form_tab" class="wpbc_settings_navigation_item">
-						<?php
-						$title = esc_attr__( 'Form Options', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_form_tab a' ,'#wpbc_general_settings_form_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
-					<div id="wpbc_general_settings_time_slots_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
-						<?php
-						$title = esc_attr__( 'Time Slots', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_time_slots_tab a' ,'#wpbc_general_settings_time_slots_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
 					<div id="wpbc_general_settings_booking_confirmation_tab" class="wpbc_settings_navigation_item">
 						<?php
 						$title = esc_attr__( 'Booking Confirmation', 'booking' );
@@ -671,12 +541,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_booking_confirmation_tab a' ,'#wpbc_general_settings_booking_confirmation_metabox,#wpbc_general_settings_booking_confirmation_left_metabox,#wpbc_general_settings_booking_confirmation_right_metabox,#wpbc_general_settings_booking_confirmation_help_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
 					</div>
 
-					<div id="wpbc_general_settings_booking_timeline_tab" class="wpbc_settings_navigation_item wpbc_navigation_top_border">
-						<?php
-						$title = esc_attr__( 'Timeline (front-end)', 'booking' );
-						?>
-						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_booking_timeline_tab a' ,'#wpbc_general_settings_booking_timeline_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-					</div>
 					<?php if ( class_exists('wpdev_bk_personal') ) { ?>
 						<div id="wpbc_general_settings_bookings_options_tab" class="wpbc_settings_navigation_item wpbc_navigation_top_border">
 							<?php
@@ -696,15 +560,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 					<?php } ?>
 
 
-					<?php if ( class_exists('wpdev_bk_multiuser') ) { ?>
-						<div id="wpbc_general_settings_multiuser_tab" class="wpbc_settings_navigation_item">
-							<?php
-							$title = esc_attr__( 'Multiuser options', 'booking' );
-							?>
-							<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_multiuser_tab a' ,'#wpbc_general_settings_multiuser_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
-						</div>
-					<?php } ?>
-
 					<div id="wpbc_general_settings_booking_listing_tab" class="wpbc_settings_navigation_item wpbc_navigation_top_border">
 						<?php
 						$title = esc_attr__( 'Admin Panel', 'booking' );
@@ -716,6 +571,12 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 						$title = esc_attr__( 'Timeline View', 'booking' );
 						?>
 						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_booking_calendar_overview_tab a' ,'#wpbc_general_settings_booking_calendar_overview_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
+					</div>
+					<div id="wpbc_general_settings_booking_timeline_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
+						<?php
+						$title = esc_attr__( 'Timeline (front-end)', 'booking' );
+						?>
+						<a onclick="javascript:wpbc_ui_settings__panel__click( '#wpbc_general_settings_booking_timeline_tab a' ,'#wpbc_general_settings_booking_timeline_metabox', '<?php echo esc_js( $title ); ?>' );" href="javascript:void(0);"><span><?php echo esc_html( $title ); ?></span></a>
 					</div>
 					<div id="wpbc_general_settings_datestimes_tab" class="wpbc_settings_navigation_item wpbc_navigation_sub_item">
 						<?php
@@ -803,28 +664,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 
 						    ?></div><?php //wpbc_close_meta_box_section(); ?>
 
-
-							<?php wpbc_open_meta_box_section( 'wpbc_general_settings_calendar', __('Calendar', 'booking'), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
-
-							<?php $this->settings_api()->show( 'calendar' ); ?>
-
-							<?php wpbc_close_meta_box_section(); ?>
-
-
-							<?php wpbc_open_meta_box_section( 'wpbc_general_settings_days_tooltips', __('Calendar Dates Tooltips', 'booking'), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
-
-							<?php $this->settings_api()->show( 'days_tooltips' ); ?>
-
-							<?php wpbc_close_meta_box_section(); ?>
-
-
-							<?php wpbc_open_meta_box_section( 'wpbc_general_settings_availability', __('Availability', 'booking'), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
-
-							<?php $this->settings_api()->show( 'availability' ); ?>
-
-							<?php wpbc_close_meta_box_section(); ?>
-
-
 							<?php
 								wpbc_open_meta_box_section( 'wpbc_general_settings_booking_confirmation',
 																__( 'Booking Confirmation', 'booking' ),
@@ -903,49 +742,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 
 							<?php } ?>
 
-
-
-							<?php wpbc_open_meta_box_section( 'wpbc_general_settings_capacity', __('Capacity', 'booking'), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
-
-							<?php $this->settings_api()->show( 'capacity' ); ?>
-
-							<?php wpbc_close_meta_box_section(); ?>
-
-
-							<?php
-							if ( ! class_exists( 'wpdev_bk_personal' ) ) {
-
-								$wpbc_metabox_id = 'wpbc_general_settings_capacity_upgrade';
-
-								ob_start();
-								$is_panel_visible = wpbc_is_dismissed( $wpbc_metabox_id . '_metabox', array(
-																		'title' => '<i class="menu_icon icon-1x wpbc_icn_close"></i> ',
-																		'hint'  => __( 'Dismiss', 'booking' ),
-																		'class' => 'wpbc_panel_get_started_dismiss',
-																		'css'   => 'background: #fff;border-radius: 7px;'
-																	));
-								?>
-								<script type="text/javascript"> jQuery('#<?php echo esc_js( $wpbc_metabox_id ); ?>_metabox').hide(); </script>
-								<?php
-								$dismiss_button_content = ob_get_clean();
-
-								if ( $is_panel_visible ) {
-
-									wpbc_open_meta_box_section( $wpbc_metabox_id,
-																	  __('Booking Quantity Control - Set limits for the number of bookings per day or time slot.', 'booking'),
-																	  array(  'is_section_visible_after_load' => false,
-																			  'is_show_minimize'   => false,
-																			  'dismiss_button'     => $dismiss_button_content
-															  ) );
-
-									$this->settings_api()->show( 'capacity_upgrade' );
-
-									wpbc_close_meta_box_section();
-								}
-							}
-							?>
-
-
 							<?php wpbc_open_meta_box_section( 'wpbc_general_settings_advanced', __('Advanced', 'booking'), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
 
 							<?php $this->settings_api()->show( 'advanced' ); ?>
@@ -987,6 +783,21 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 
 								<?php $this->settings_api()->show( 'help' ); ?>
 
+								<?php if ( function_exists( 'wpbc_customer_access_render_rate_limit_reset_tool' ) ) { ?>
+									<?php wpbc_customer_access_render_rate_limit_reset_tool(); ?>
+								<?php } ?>
+
+								<?php
+								/**
+								 * Render optional, domain-owned controls in Advanced Settings Tools.
+								 *
+								 * Extensions must perform their own capability and environment checks.
+								 *
+								 * @since 12.0.0
+								 */
+								do_action( 'wpbc_settings_tools_after_fields' );
+								?>
+
 								<?php wpbc_close_meta_box_section(); ?>
 							<?php } ?>
 
@@ -997,16 +808,6 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 							<?php wpbc_translation_buttons_settings_section(); ?>
 
 							<?php wpbc_close_meta_box_section(); ?>
-
-							<?php if ( class_exists( 'wpdev_bk_multiuser' ) ) {    // FixIn: 9.2.3.8. ?>
-
-								<?php wpbc_open_meta_box_section( 'wpbc_general_settings_multiuser', __( 'Multiuser options', 'booking' ), array( 'is_section_visible_after_load' => false, 'is_show_minimize' => false ) ); ?>
-
-								<?php $this->settings_api()->show( 'multiuser' ); ?>
-
-								<?php wpbc_close_meta_box_section(); ?>
-
-							<?php } ?>
 
 						</div>
 						<div class="clear"></div>
@@ -1066,6 +867,12 @@ class WPBC_Page_SettingsGeneral extends WPBC_Page_Structure {
 		$validated_fields = $this->settings_api()->validate_post();             // Get Validated Settings fields in $_POST request.
 
 		$validated_fields = apply_filters( 'wpbc_settings_validate_fields_before_saving', $validated_fields );   // Hook for validated fields.
+
+		foreach ( $this->settings_api()->get_form_fields() as $field_name => $field ) {
+			if ( ! empty( $field['group'] ) && in_array( $field['group'], array( 'calendar', 'days_tooltips', 'availability' ), true ) ) {
+				unset( $validated_fields[ $field_name ] );
+			}
+		}
 
 		/**
 		 * Skip saving specific option, for example in Demo mode.

@@ -2,15 +2,17 @@
 namespace Tribe\Service_Providers;
 
 use Tribe\Widget\Manager;
+use TEC\Common\Contracts\Service_Provider;
 
 /**
  * Class Widget
  *
- * @since   4.12.12
+ * @since 4.12.12
  *
  * @package Tribe\Service_Providers
  */
-class Widgets extends \tad_DI52_ServiceProvider {
+class Widgets extends Service_Provider {
+
 
 	/**
 	 * Binds and sets up implementations.

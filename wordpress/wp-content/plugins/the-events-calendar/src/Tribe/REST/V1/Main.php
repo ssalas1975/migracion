@@ -61,6 +61,101 @@ class Tribe__Events__REST__V1__Main extends Tribe__REST__Main {
 
 		add_action( 'rest_api_init', [ $this, 'register_endpoints' ] );
 		add_filter( 'tribe_events_register_event_cat_type_args', [ $this, 'filter_taxonomy_args' ] );
+		add_filter( 'tribe_rest_events_archive_data', [ $this, 'filter_out_password_protected_events' ], 100, 2 );
+		add_filter( 'tribe_rest_organizer_data', [ $this, 'filter_out_password_protected_data' ], 100 );
+		add_filter( 'tribe_rest_venue_data', [ $this, 'filter_out_password_protected_data' ], 100 );
+		add_filter( 'tribe_rest_organizer_data', [ $this, 'filter_out_unreadable_data' ], 110 );
+		add_filter( 'tribe_rest_venue_data', [ $this, 'filter_out_unreadable_data' ], 110 );
+	}
+
+	/**
+	 * Filters out venue or organizer data the current user is not allowed to read.
+	 *
+	 * Applies the same rule as the single venue and organizer endpoints: published posts are public,
+	 * anything else requires the post type's `read_post` capability. Returning an empty array drops
+	 * the record from whatever response embeds it.
+	 *
+	 * @since 6.17.5
+	 *
+	 * @param array $entity_data The entity data.
+	 *
+	 * @return array The entity data, or an empty array if the current user cannot read the post.
+	 */
+	public function filter_out_unreadable_data( $entity_data ): array {
+		$post = get_post( $entity_data['id'] ?? 0 );
+
+		if ( ! $post instanceof WP_Post ) {
+			return [];
+		}
+
+		if ( 'publish' === $post->post_status ) {
+			return $entity_data;
+		}
+
+		$post_type_object = get_post_type_object( $post->post_type );
+
+		if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->read_post, $post->ID ) ) {
+			return [];
+		}
+
+		return $entity_data;
+	}
+
+	/**
+	 * Filters out password protected organizer data from the REST API response.
+	 *
+	 * @since 6.15.3
+	 *
+	 * @param array $entity_data The entity data.
+	 *
+	 * @return array The filtered entity data.
+	 */
+	public function filter_out_password_protected_data( $entity_data ): array {
+		if ( ! post_password_required( $entity_data['id'] ) ) {
+			return $entity_data;
+		}
+
+		$validator = tribe( 'tec.rest-v1.validator' );
+
+		return $validator->remove_password_protected_content( $entity_data );
+	}
+
+	/**
+	 * Filters out content from password protected events from the REST API response.
+	 *
+	 * @since 6.8.2.1
+	 *
+	 * @param array           $data    The events to be filtered.
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return array The filtered events.
+	 */
+	public function filter_out_password_protected_events( array $data, WP_REST_Request $request ): array {
+		foreach( $data['events'] as &$event ) {
+			if ( ! post_password_required( $event['id'] ) ) {
+				// No password required or password has been provided or requirement has been removed through filters.
+				continue;
+			}
+
+			$event_post = get_post( $event['id'] );
+
+			if ( ! ( $event_post instanceof WP_Post && $event_post->ID ) ) {
+				// No post object, weird but let's skip it.
+				continue;
+			}
+
+			$validator = tribe( 'tec.rest-v1.validator' );
+
+			if ( $validator->can_access_password_content( $event_post, $request ) ) {
+				// User has provided password and can see password protected content.
+				continue;
+			}
+
+			// User should not be able to see password protected content.
+			$event = $validator->remove_password_protected_content( $event );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -171,7 +266,7 @@ class Tribe__Events__REST__V1__Main extends Tribe__REST__Main {
 	 *
 	 * @return string
 	 */
-	protected function get_events_route_namespace() {
+	public function get_events_route_namespace() {
 		return $this->get_namespace() . '/events/' . $this->get_version();
 	}
 
@@ -516,7 +611,7 @@ class Tribe__Events__REST__V1__Main extends Tribe__REST__Main {
 	/**
 	 * Registers the endpoint that will handle requests for a single organizer.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 *
 	 * @param bool $register_routes Whether routes for the endpoint should be registered or not.
 	 *
@@ -576,7 +671,7 @@ class Tribe__Events__REST__V1__Main extends Tribe__REST__Main {
 	/**
 	 * Registers the endpoint that will handle requests for a single organizer slug.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 *
 	 * @param bool $register_routes Whether routes for the endpoint should be registered or not.
 	 *

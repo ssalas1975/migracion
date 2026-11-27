@@ -6,40 +6,47 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Traits;
+
 /**
  * Handles the Twitter meta.
  *
  * @since 4.0.0
  */
 class Twitter {
+	use Traits\SocialProfiles;
+
 	/**
 	 * Returns the Twitter URL for the site.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.6 Falls back to the saved URL when X is excluded from the shared username.
 	 *
 	 * @return string The Twitter URL.
 	 */
 	public function getTwitterUrl() {
-		if ( ! aioseo()->options->social->profiles->sameUsername->enable ) {
-			return aioseo()->options->social->profiles->urls->twitterUrl;
+		if (
+			aioseo()->options->social->profiles->sameUsername->enable &&
+			in_array( 'twitterUrl', aioseo()->options->social->profiles->sameUsername->included, true )
+		) {
+			$userName = aioseo()->options->social->profiles->sameUsername->username;
+
+			return $userName ? 'https://x.com/' . $userName : '';
 		}
 
-		$userName = aioseo()->options->social->profiles->sameUsername->username;
-
-		return ( $userName && in_array( 'twitterUrl', aioseo()->options->social->profiles->sameUsername->included, true ) )
-			? 'https://twitter.com/' . $userName
-			: '';
+		return aioseo()->options->social->profiles->urls->twitterUrl;
 	}
 
 	/**
 	 * Returns the Twitter card type.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @return string $card The card type.
 	 */
 	public function getCardType() {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			return aioseo()->options->social->twitter->homePage->cardType;
 		}
 
@@ -56,13 +63,26 @@ class Twitter {
 	 * @return string The creator.
 	 */
 	public function getCreator() {
-		$author = '';
-		$post   = aioseo()->helpers->getPost();
-		if ( $post && aioseo()->options->social->twitter->general->showAuthor ) {
-			$twitterUser = get_the_author_meta( 'aioseo_twitter', $post->post_author );
-			$author      = $twitterUser ? $twitterUser : aioseo()->social->twitter->getTwitterUrl();
-			$author      = aioseo()->social->twitter->prepareUsername( $author );
+		$post = aioseo()->helpers->getPost();
+		if (
+			! is_a( $post, 'WP_Post' ) ||
+			! post_type_supports( $post->post_type, 'author' ) ||
+			! aioseo()->options->social->twitter->general->showAuthor
+		) {
+			return '';
 		}
+
+		$author       = '';
+		$userProfiles = $this->getUserProfiles( $post->post_author );
+		if ( ! empty( $userProfiles['twitterUrl'] ) ) {
+			$author = $userProfiles['twitterUrl'];
+		}
+
+		if ( empty( $author ) ) {
+			$author = aioseo()->social->twitter->getTwitterUrl();
+		}
+
+		$author = aioseo()->social->twitter->prepareUsername( $author );
 
 		return $author;
 	}
@@ -70,14 +90,15 @@ class Twitter {
 	/**
 	 * Returns the Twitter image URL.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @param  int    $postId The post ID (optional).
 	 * @return string         The image URL.
 	 */
 	public function getImage( $postId = null ) {
 		$post = aioseo()->helpers->getPost( $postId );
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$image = aioseo()->options->social->twitter->homePage->image;
 			if ( empty( $image ) ) {
 				$image = aioseo()->options->social->facebook->homePage->image;
@@ -110,13 +131,14 @@ class Twitter {
 	/**
 	 * Returns the Twitter title for the current page.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
-	 * @param  WP_Post|integer $post The post object or ID (optional).
-	 * @return string                The Twitter title.
+	 * @param  \WP_Post|integer $post The post object or ID (optional).
+	 * @return string                 The Twitter title.
 	 */
 	public function getTitle( $post = null ) {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$title = aioseo()->meta->title->helpers->prepare( aioseo()->options->social->twitter->homePage->title );
 
 			return $title ? $title : aioseo()->social->facebook->getTitle( $post );
@@ -140,13 +162,14 @@ class Twitter {
 	/**
 	 * Returns the Twitter description for the current page.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
-	 * @param  WP_Post|integer $post The post object or ID (optional).
-	 * @return string                The Twitter description.
+	 * @param  \WP_Post|integer $post The post object or ID (optional).
+	 * @return string                 The Twitter description.
 	 */
 	public function getDescription( $post = null ) {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$description = aioseo()->meta->description->helpers->prepare( aioseo()->options->social->twitter->homePage->description );
 
 			return $description ? $description : aioseo()->social->facebook->getDescription( $post );
@@ -171,7 +194,7 @@ class Twitter {
 	 * Prepare twitter username for public display.
 	 *
 	 * We do things like strip out the URL, etc and return just (at)username.
-	 * At the moment, we'll check for 1 of 3 things... (at)username, username, and https://twitter.com/username.
+	 * At the moment, we'll check for 1 of 3 things... (at)username, username, and https://x.com/username.
 	 *
 	 * @since 4.0.0
 	 *
@@ -180,26 +203,35 @@ class Twitter {
 	 * @return string             Full Twitter username.
 	 */
 	public function prepareUsername( $profile, $includeAt = true ) {
-		if ( preg_match( '/^(\@)?[A-Za-z0-9_]+$/', $profile ) ) {
+		if ( ! $profile ) {
+			return $profile;
+		}
+
+		$profile = (string) $profile;
+		if ( preg_match( '/^(\@)?[A-Za-z0-9_]+$/', (string) $profile ) ) {
 			if ( '@' !== $profile[0] && $includeAt ) {
 				$profile = '@' . $profile;
 			} elseif ( '@' === $profile[0] && ! $includeAt ) {
 				$profile = ltrim( $profile, '@' );
 			}
-		} elseif ( strpos( $profile, 'twitter.com' ) ) {
+		}
+
+		if ( strpos( $profile, 'twitter.com' ) || strpos( $profile, 'x.com' ) ) {
 			$profile = esc_url( $profile );
 
-			// extract the twitter username from the url.
+			// Extract the twitter username from the URL.
 			$parsedTwitterProfile = wp_parse_url( $profile );
 
-			$path      = $parsedTwitterProfile['path'];
+			$path      = $parsedTwitterProfile['path'] ?? '';
 			$pathParts = explode( '/', $path );
-			$profile   = $pathParts[1];
+			$profile   = $pathParts[1] ?? '';
 
 			if ( $profile ) {
 				if ( '@' !== $profile[0] && $includeAt ) {
 					$profile = '@' . $profile;
-				} elseif ( '@' === $profile[0] && ! $includeAt ) {
+				}
+
+				if ( '@' === $profile[0] && ! $includeAt ) {
 					$profile = ltrim( $profile, '@' );
 				}
 			}
@@ -222,8 +254,11 @@ class Twitter {
 
 		$data = [];
 		$post = aioseo()->helpers->getPost();
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return $data;
+		}
 
-		if ( $post->post_author ) {
+		if ( $post->post_author && post_type_supports( $post->post_type, 'author' ) ) {
 			$data[] = [
 				'label' => __( 'Written by', 'all-in-one-seo-pack' ),
 				'value' => get_the_author_meta( 'display_name', $post->post_author )

@@ -58,12 +58,12 @@ final class CDN_Enabler_Engine {
      * start output buffering
      *
      * @since   2.0.0
-     * @change  2.0.0
+     * @change  2.0.8
      */
 
     private static function start_buffering() {
 
-        ob_start( 'self::end_buffering' );
+        ob_start( self::class . '::end_buffering' );
     }
 
 
@@ -89,6 +89,46 @@ final class CDN_Enabler_Engine {
         }
 
         return $contents;
+    }
+
+
+    /**
+     * Sanitize server input string.
+     *
+     * @since   2.0.5
+     * @change  2.0.5
+     *
+     * @param   string  $str Input string.
+     * @param   bool    $strict Strictly sanitized.
+     * @return  string  Sanitized input string.
+     */
+    public static function sanitize_server_input($str, $strict = true) {
+
+        if ( is_object( $str ) || is_array( $str ) ) {
+            return '';
+        }
+
+        $str = (string) $str;
+        if ( 0 === strlen( $str ) ) {
+            return '';
+        }
+
+        $filtered = preg_replace( '/[\r\n\t ]+/', ' ', $str );
+        $filtered = trim( $filtered );
+
+        if ( $strict ) {
+            $found = false;
+            while ( preg_match( '/%[a-f0-9]{2}/i', $filtered, $match ) ) {
+                $filtered = str_replace( $match[0], '', $filtered );
+                $found    = true;
+            }
+
+            if ( $found ) {
+                $filtered = trim( preg_replace( '/ +/', ' ', $filtered ) );
+            }
+        }
+
+        return $filtered;
     }
 
 
@@ -181,7 +221,7 @@ final class CDN_Enabler_Engine {
     private static function rewrite_url( $matches ) {
 
         $file_url       = $matches[0];
-        $site_hostname  = ( ! empty( $_SERVER['HTTP_HOST'] ) ) ? $_SERVER['HTTP_HOST'] : parse_url( home_url(), PHP_URL_HOST );
+        $site_hostname  = ( ! empty( $_SERVER['HTTP_HOST'] ) ) ? self::sanitize_server_input( $_SERVER['HTTP_HOST'] ) : parse_url( home_url(), PHP_URL_HOST );
         $site_hostnames = (array) apply_filters( 'cdn_enabler_site_hostnames', array( $site_hostname ) );
         $cdn_hostname   = self::$settings['cdn_hostname'];
 
@@ -218,7 +258,7 @@ final class CDN_Enabler_Engine {
      * rewrite contents
      *
      * @since   2.0.0
-     * @change  2.0.4
+     * @change  2.0.8
      *
      * @param   string  $contents                      contents to parse
      * @return  string  $contents|$rewritten_contents  rewritten contents if applicable, unchanged otherwise
@@ -237,7 +277,7 @@ final class CDN_Enabler_Engine {
 
         $urls_regex = '#(?:(?:[\"\'\s=>,;]|url\()\K|^)[^\"\'\s(=>,;]+(' . $included_file_extensions_regex . ')(\?[^\/?\\\"\'\s)>,]+)?(?:(?=\/?[?\\\"\'\s)>,&])|$)#i';
 
-        $rewritten_contents = apply_filters( 'cdn_enabler_contents_after_rewrite', preg_replace_callback( $urls_regex, 'self::rewrite_url', $contents ) );
+        $rewritten_contents = apply_filters( 'cdn_enabler_contents_after_rewrite', preg_replace_callback( $urls_regex, self::class . '::rewrite_url', $contents ) );
 
         return $rewritten_contents;
     }

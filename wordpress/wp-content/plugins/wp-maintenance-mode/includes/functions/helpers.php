@@ -66,7 +66,7 @@ function wpmm_get_utmized_url( $url, $utms = array() ) {
 	$utms = wp_parse_args(
 		$utms,
 		array(
-			'source'   => null,
+			'source'   => 'wpadmin',
 			'medium'   => 'wpmaintenance',
 			'campaign' => null,
 			'term'     => null,
@@ -242,11 +242,11 @@ function wpmm_get_template_path( $template_name, $overrideable = false ) {
  *
  * @since 2.4.0
  * @param string $option
- * @param mixed  $default
+ * @param mixed  $default_value
  * @return mixed
  */
-function wpmm_get_option( $option, $default = false ) {
-	return stripslashes_deep( get_option( $option, $default ) );
+function wpmm_get_option( $option, $default_value = false ) {
+	return stripslashes_deep( get_option( $option, $default_value ) );
 }
 
 /**
@@ -258,11 +258,11 @@ function wpmm_get_option( $option, $default = false ) {
  * G-..........
  *
  * @since 2.0.7
- * @param string $string
+ * @param string $tracking_code
  * @return string
  */
-function wpmm_sanitize_ga_code( $string ) {
-	preg_match( '/(UA-\d{4,10}(-\d{1,4})?|G-\w+)/', $string, $matches );
+function wpmm_sanitize_ga_code( $tracking_code ) {
+	preg_match( '/(UA-\d{4,10}(-\d{1,4})?|G-\w+)/', $tracking_code, $matches );
 
 	return isset( $matches[0] ) ? $matches[0] : '';
 }
@@ -511,4 +511,155 @@ if ( ! function_exists( 'sanitize_hex_color' ) ) {
 			return $color;
 		}
 	}
+}
+
+/**
+ * Record the current state of the selected maintenance page so it can be
+ * restored when maintenance mode is disabled or the plugin is deactivated.
+ *
+ * A previously recorded state is never overwritten: the page may already be
+ * carrying plugin-made changes, and recording those would poison the original
+ * state. The record is cleared when the page is restored.
+ *
+ * @since 2.6.23
+ * @param int $page_id page ID
+ * @return void
+ */
+function wpmm_record_page_state( $page_id ) {
+	$status = get_post_status( $page_id );
+
+	if ( ! $status ) {
+		return;
+	}
+
+	$template = get_post_meta( $page_id, '_wp_page_template', true );
+
+	// a selection carried over from an old release already wears the plugin's
+	// template; recording that would make the takeover permanent
+	if ( $template === 'templates/wpmm-page-template.php' ) {
+		$template = '';
+	}
+
+	// a single first-write-wins meta keeps the record atomic: a racing request
+	// can neither save the plugin-modified state nor observe half a record
+	add_post_meta(
+		$page_id,
+		'_wpmm_original_state',
+		array(
+			'status'   => $status,
+			'template' => $template,
+		),
+		true
+	);
+}
+
+/**
+ * Restore the selected maintenance page to its recorded original state.
+ * Pages without a recorded state are left untouched.
+ *
+ * The status is only put back while the page still carries the status the
+ * plugin applied: any other status — trash included — was the user's own
+ * doing and expresses intent the record predates.
+ *
+ * @since 2.6.23
+ * @param int $page_id page ID
+ * @return void
+ */
+function wpmm_restore_page_state( $page_id ) {
+	$state = get_post_meta( $page_id, '_wpmm_original_state', true );
+
+	if ( empty( $state ) || ! is_array( $state ) || ! get_post( $page_id ) ) {
+		return;
+	}
+
+	$original_status = isset( $state['status'] ) ? $state['status'] : '';
+	$applied_status  = get_post_meta( $page_id, '_wpmm_applied_status', true );
+	$current_status  = get_post_status( $page_id );
+
+	if ( $original_status && $applied_status && $current_status === $applied_status && $current_status !== $original_status ) {
+		wp_update_post(
+			array(
+				'ID'          => $page_id,
+				'post_status' => $original_status,
+			)
+		);
+	}
+
+	$original_template = isset( $state['template'] ) ? $state['template'] : '';
+
+	if ( empty( $original_template ) ) {
+		delete_post_meta( $page_id, '_wp_page_template' );
+	} else {
+		update_post_meta( $page_id, '_wp_page_template', $original_template );
+	}
+
+	// clear the record so the next take-over captures the page's state afresh
+	delete_post_meta( $page_id, '_wpmm_original_state' );
+	delete_post_meta( $page_id, '_wpmm_applied_status' );
+}
+
+/**
+ * Record the site's front-page setting before maintenance mode changes it.
+ * The first recorded value is kept until maintenance mode is disabled.
+ *
+ * @return void
+ */
+function wpmm_record_show_on_front() {
+	add_option( 'wpmm_original_show_on_front', get_option( 'show_on_front', 'posts' ) );
+}
+
+/**
+ * Restore the front-page setting recorded when maintenance mode was enabled.
+ *
+ * @return void
+ */
+function wpmm_restore_show_on_front() {
+	$original_value = get_option( 'wpmm_original_show_on_front', false );
+
+	if ( false === $original_value ) {
+		return;
+	}
+
+	update_option( 'show_on_front', $original_value );
+	delete_option( 'wpmm_original_show_on_front' );
+}
+
+/**
+ * Switch the selected maintenance page: hand the previous page back and take
+ * the new one over. The caller is responsible for saving the new selection.
+ *
+ * @since 2.6.23
+ * @param int $previous_page_id The currently selected page ID; 0 when none.
+ * @param int $page_id The newly selected page ID; 0 clears the selection.
+ * @return void
+ */
+function wpmm_switch_selected_page( $previous_page_id, $page_id ) {
+	if ( $previous_page_id && $previous_page_id !== $page_id ) {
+		// hand the previously selected page back before abandoning it,
+		// otherwise nothing would ever restore it
+		wpmm_restore_page_state( $previous_page_id );
+	}
+
+	if ( $page_id ) {
+		// remember the page's original state before taking it over as a maintenance page
+		wpmm_record_page_state( $page_id );
+
+		wp_update_post(
+			array(
+				'ID'            => $page_id,
+				'page_template' => 'templates/wpmm-page-template.php',
+			)
+		);
+	}
+}
+
+/**
+ * Get option page URL.
+ */
+function wpmm_option_page_url() {
+	$option_page = admin_url( 'admin.php' );
+	if ( is_multisite() && is_network_admin() ) {
+		$option_page = network_admin_url( 'settings.php' );
+	}
+	return $option_page;
 }

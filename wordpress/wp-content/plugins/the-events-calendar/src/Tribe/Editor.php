@@ -1,16 +1,64 @@
 <?php
 
+use TEC\Common\Editor\Canvas_Styles;
+use Tribe__Events__Main as TEC;
+
 /**
  * Initialize Gutenberg editor blocks and styles
  *
  * @since 4.7
  */
 class Tribe__Events__Editor extends Tribe__Editor {
+	/**
+	 * The meta each post type hides while its password is required, with the value shown instead.
+	 *
+	 * Plugins add the meta they register through the `tec_events_editor_password_protected_meta` filter.
+	 *
+	 * @since 6.18.4.1
+	 *
+	 * @var array<string,array<string,string|bool|array{}>>
+	 */
+	private const PASSWORD_PROTECTED_META = [
+		TEC::POSTTYPE            => [
+			'_EventAllDay'           => false,
+			'_EventURL'              => '',
+			'_EventCost'             => '',
+			'_EventCostDescription'  => '',
+			'_EventCurrencySymbol'   => '',
+			'_EventCurrencyCode'     => '',
+			'_EventCurrencyPosition' => '',
+			'_EventShowMap'          => false,
+			'_EventShowMapLink'      => false,
+			'_EventOrganizerID'      => [],
+			'_EventVenueID'          => [],
+		],
+		TEC::ORGANIZER_POST_TYPE => [
+			'_OrganizerEmail'   => '',
+			'_OrganizerPhone'   => '',
+			'_OrganizerWebsite' => '',
+		],
+		TEC::VENUE_POST_TYPE     => [
+			'_VenueAddress'       => '',
+			'_VenueCity'          => '',
+			'_VenueCountry'       => '',
+			'_VenueProvince'      => '',
+			'_VenueState'         => '',
+			'_VenueZip'           => '',
+			'_VenuePhone'         => '',
+			'_VenueURL'           => '',
+			'_VenueStateProvince' => '',
+			'_VenueLat'           => '',
+			'_VenueLng'           => '',
+			'_VenueShowMap'       => false,
+			'_VenueShowMapLink'   => false,
+		],
+	];
 
 	/**
 	 * Hooks actions from the editor into the correct places
 	 *
 	 * @since 4.7
+	 * @since 6.18.4.1 Hides the meta of password-protected events, venues and organizers from REST reads.
 	 *
 	 * @return bool
 	 */
@@ -21,6 +69,15 @@ class Tribe__Events__Editor extends Tribe__Editor {
 		add_filter( 'tribe_events_register_event_type_args', [ $this, 'add_rest_support' ] );
 		add_filter( 'tribe_events_register_venue_type_args', [ $this, 'add_rest_support' ] );
 		add_filter( 'tribe_events_register_organizer_type_args', [ $this, 'add_rest_support' ] );
+
+		foreach ( array_keys( self::PASSWORD_PROTECTED_META ) as $protected_post_type ) {
+			/*
+			 * Hooked with the REST support, not with the block editor meta: other plugins register
+			 * meta on these post types with the block editor off. Priority 20 runs after
+			 * Tribe__Events__Editor__Meta::meta_backwards_compatibility(), which writes `_EventAllDay` back.
+			 */
+			add_filter( "rest_prepare_{$protected_post_type}", [ $this, 'remove_password_protected_meta' ], 20, 3 );
+		}
 
 		// Maybe add flag from classic editor
 		add_action( 'load-post.php', [ $this, 'flag_post_from_classic_editor' ], 0 );
@@ -59,6 +116,69 @@ class Tribe__Events__Editor extends Tribe__Editor {
 		add_filter( 'use_block_editor_for_post_type', [ $this, 'deactivate_blocks_editor_venue' ], 10, 2 );
 		add_filter( 'use_block_editor_for_post_type', [ $this, 'deactivate_blocks_editor_organizer' ], 10, 2 );
 		add_filter( 'use_block_editor_for_post_type', [ $this, 'deactivate_blocks_editor_event' ], 10, 2 );
+	}
+
+	/**
+	 * Blanks the protected meta of a password-protected post in a REST response.
+	 *
+	 * Core REST reads registered meta without checking the post password, so a reader who has
+	 * not supplied it, and cannot edit the post, gets the same empty fields the plugin's own REST
+	 * API returns. Collection responses run through this filter once per post.
+	 *
+	 * @since 6.18.4.1
+	 *
+	 * @param WP_REST_Response $response The response for one post.
+	 * @param WP_Post          $post     The post the response describes.
+	 * @param WP_REST_Request  $request  The request being served.
+	 *
+	 * @return WP_REST_Response The response, with the protected meta blanked when the password is required.
+	 */
+	public function remove_password_protected_meta( $response, $post, $request ) {
+		if (
+			! $response instanceof WP_REST_Response
+			|| ! $post instanceof WP_Post
+			|| ! $request instanceof WP_REST_Request
+		) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		if ( ! isset( $data['meta'] ) || ! is_array( $data['meta'] ) ) {
+			return $response;
+		}
+
+		if (
+			! post_password_required( $post )
+			|| tribe( 'tec.rest-v1.validator' )->can_access_password_content( $post, $request )
+		) {
+			return $response;
+		}
+
+		$default_meta = self::PASSWORD_PROTECTED_META[ $post->post_type ] ?? [];
+
+		/**
+		 * Filters the meta hidden from a REST read of a password-protected Event, Venue or Organizer.
+		 *
+		 * @since 6.18.4.1
+		 *
+		 * @param array<string,string|bool|array{}> $protected_meta The value to show for each protected meta key.
+		 * @param WP_Post                           $post           The post the response describes.
+		 * @param WP_REST_Request                   $request        The request being served.
+		 */
+		$protected_meta = apply_filters( 'tec_events_editor_password_protected_meta', $default_meta, $post, $request );
+
+		if ( ! is_array( $protected_meta ) ) {
+			$protected_meta = $default_meta;
+		}
+
+		foreach ( array_intersect_key( $protected_meta, $data['meta'] ) as $meta_key => $blank_value ) {
+			$data['meta'][ $meta_key ] = $blank_value;
+		}
+
+		$response->set_data( $data );
+
+		return $response;
 	}
 
 	/**
@@ -122,9 +242,10 @@ class Tribe__Events__Editor extends Tribe__Editor {
 	}
 
 	/**
-	 * When Gutenberg is active do not care about custom-fields as a metabox, but as part o the Rest API
+	 * When Gutenberg is active, we do not care about custom-fields as a metabox, but as part of the Rest API
 	 *
-	 * Code is located at: https://github.com/moderntribe/the-events-calendar/blob/f8af49bc41048e8632372fc8da77202d9cb98d86/src/Tribe/Admin/Event_Meta_Box.php#L345
+	 * Code is located at:
+	 * https://github.com/the-events-calendar/the-events-calendar/blob/f8af49bc41048e8632372fc8da77202d9cb98d86/src/Tribe/Admin/Event_Meta_Box.php#L345
 	 *
 	 * @todo  Block that option once the user has Gutenberg active
 	 *
@@ -372,30 +493,36 @@ class Tribe__Events__Editor extends Tribe__Editor {
 	 * Check if current admin page is post type `tribe_events`
 	 *
 	 * @since 4.7
+	 * @since 6.2.7 Adding support to load on site editor screen.
 	 *
 	 * @return bool
 	 */
-	public function is_events_post_type() {
-		return Tribe__Admin__Helpers::instance()->is_post_type_screen( Tribe__Events__Main::POSTTYPE );
+	public function is_events_post_type(): bool {
+		$current_screen = get_current_screen();
+
+		return Tribe__Admin__Helpers::instance()->is_post_type_screen( Tribe__Events__Main::POSTTYPE )
+		       || ( $current_screen instanceof WP_Screen && 'site-editor' === $current_screen->id );
 	}
 
 	/**
 	 * Check whether the current page is an edit post type page.
 	 *
 	 * @since 5.12.0
+	 * @since 6.2.7 Adding support to load on site editor screen.
 	 *
 	 * @return bool
 	 */
-	public function is_edit_screen() {
+	public function is_edit_screen(): bool {
 		$current_screen = get_current_screen();
 
-		return 'post' === $current_screen->base;
+		return 'post' === $current_screen->base || 'site-editor' === $current_screen->id;
 	}
 
 	/**
 	 * @todo   Move this into the Block PHP files
 	 *
 	 * @since 4.7
+	 * @since 6.18.4 Added the editor content stylesheets to the editor canvas styles group.
 	 *
 	 * @return void
 	 */
@@ -406,14 +533,20 @@ class Tribe__Events__Editor extends Tribe__Editor {
 		 * Allows for filtering the embedded Google Maps API URL.
 		 *
 		 * @since 4.7
+		 * @since 6.0.13 Added the `$gmaps_api_callback` parameter.
 		 *
 		 * @param string $api_url The Google Maps API URL.
+		 * @param string $gmaps_api_callback The Google Maps API callback.
 		 */
-		$gmaps_api_key = tribe_get_option( 'google_maps_js_api_key' );
-		$gmaps_api_url = 'https://maps.googleapis.com/maps/api/js';
+		$gmaps_api_key      = tribe_get_option( 'google_maps_js_api_key' );
+		$gmaps_api_url      = 'https://maps.googleapis.com/maps/api/js';
+		$gmaps_api_callback = 'Function.prototype';
 
 		if ( ! empty( $gmaps_api_key ) && is_string( $gmaps_api_key ) ) {
-			$gmaps_api_url = add_query_arg( [ 'key' => $gmaps_api_key ], $gmaps_api_url );
+			$gmaps_api_url = add_query_arg( [
+				'key'      => $gmaps_api_key,
+				'callback' => $gmaps_api_callback,
+			], $gmaps_api_url );
 		}
 
 		/**
@@ -425,7 +558,7 @@ class Tribe__Events__Editor extends Tribe__Editor {
 		 */
 		$gmaps_api_url = apply_filters( 'tribe_events_google_maps_api', $gmaps_api_url );
 
-		tribe_asset(
+		tec_asset(
 			$plugin,
 			'tribe-events-editor-blocks-gmaps-api',
 			$gmaps_api_url,
@@ -440,87 +573,22 @@ class Tribe__Events__Editor extends Tribe__Editor {
 			]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$plugin,
-			'tribe-the-events-calendar-data',
-			'app/data.js',
-			[],
+			'tribe-the-events-calendar-editor',
+			'app/main.js',
+			[ 'tec-common-php-date-formatter' ],
 			'enqueue_block_editor_assets',
 			[
 				'in_footer'    => false,
 				'localize'     => [],
 				'conditionals' => [ $this, 'is_events_post_type' ],
 				'priority'     => 101,
-			]
-		);
-		tribe_asset(
-			$plugin,
-			'tribe-the-events-calendar-editor',
-			'app/editor.js',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'localize'     => [],
-				'conditionals' => [ $this, 'is_events_post_type' ],
-				'priority'     => 102,
-			]
-		);
-		tribe_asset(
-			$plugin,
-			'tribe-the-events-calendar-icons',
-			'app/icons.js',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'localize'     => [],
-				'conditionals' => [ $this, 'is_events_post_type' ],
-				'priority'     => 103,
-			]
-		);
-		tribe_asset(
-			$plugin,
-			'tribe-the-events-calendar-hoc',
-			'app/hoc.js',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'localize'     => [],
-				'conditionals' => [ $this, 'is_events_post_type' ],
-				'priority'     => 104,
-			]
-		);
-		tribe_asset(
-			$plugin,
-			'tribe-the-events-calendar-elements',
-			'app/elements.js',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'localize'     => [],
-				'conditionals' => [ $this, 'is_events_post_type' ],
-				'priority'     => 105,
+				'group_path'   => TEC::class . '-packages',
 			]
 		);
 
-		tribe_asset(
-			$plugin,
-			'tribe-the-events-calendar-blocks',
-			'app/blocks.js',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'localize'     => [],
-				'conditionals' => [ $this, 'is_events_post_type' ],
-				'priority'     => 106,
-			]
-		);
-
-		tribe_asset(
+		tec_asset(
 			$plugin,
 			'tec-widget-blocks',
 			'app/widgets.js',
@@ -535,13 +603,9 @@ class Tribe__Events__Editor extends Tribe__Editor {
 				'wp-i18n',
 				'wp-element',
 				'wp-editor',
-				'tribe-common-gutenberg-data',
-				'tribe-common-gutenberg-utils',
-				'tribe-common-gutenberg-store',
-				'tribe-common-gutenberg-icons',
-				'tribe-common-gutenberg-hoc',
-				'tribe-common-gutenberg-elements',
-				'tribe-common-gutenberg-components',
+				'tribe-common-gutenberg-vendor',
+				'tribe-common-gutenberg-modules',
+				'tribe-common-gutenberg-main',
 			],
 			'enqueue_block_editor_assets',
 			[
@@ -549,28 +613,14 @@ class Tribe__Events__Editor extends Tribe__Editor {
 				'localize'     => [],
 				'priority'     => 106,
 				'conditionals' => [ $this, 'is_edit_screen' ],
-			]
-		);
-
-		tribe_asset(
-			$plugin,
-			'legacy-widget',
-			'legacy-widget.js',
-			[
-				'admin-widgets',
-				'wp-widgets',
+				'group_path'   => TEC::class . '-packages',
 			],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => true,
-				'conditionals' => [ $this, 'is_edit_screen' ],
-			]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$plugin,
 			'tec-widget-blocks-styles',
-			'app/widgets.css',
+			'app/style-widgets.css',
 			[
 				'wp-widgets',
 			],
@@ -578,10 +628,12 @@ class Tribe__Events__Editor extends Tribe__Editor {
 			[
 				'in_footer'    => false,
 				'conditionals' => [ $this, 'is_edit_screen' ],
+				'group_path'   => TEC::class . '-packages',
+				'groups'       => [ Canvas_Styles::GROUP ],
 			]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$plugin,
 			'tec-blocks-category-icon-styles',
 			'tribe-admin-block-category-icons.css',
@@ -593,27 +645,17 @@ class Tribe__Events__Editor extends Tribe__Editor {
 			]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$plugin,
-			'tribe-block-editor',
-			'app/editor.css',
+			'tribe-block-editor-main',
+			'app/style-main.css',
 			[],
 			'enqueue_block_editor_assets',
 			[
 				'in_footer'    => false,
 				'conditionals' => [ $this, 'is_events_post_type' ],
-			]
-		);
-
-		tribe_asset(
-			$plugin,
-			'tribe-block-editor-blocks',
-			'app/blocks.css',
-			[],
-			'enqueue_block_editor_assets',
-			[
-				'in_footer'    => false,
-				'conditionals' => [ $this, 'is_events_post_type' ],
+				'group_path'   => TEC::class . '-packages',
+				'groups'       => [ Canvas_Styles::GROUP ],
 			]
 		);
 	}
@@ -722,7 +764,7 @@ class Tribe__Events__Editor extends Tribe__Editor {
 	 *
 	 * This is something should be addressed on TEC as is affecting any new user installing the plugin.
 	 *
-	 * Code is located at: https://github.com/moderntribe/the-events-calendar/blob/f8af49bc41048e8632372fc8da77202d9cb98d86/src/Tribe/Admin/Event_Meta_Box.php#L345
+	 * Code is located at: https://github.com/the-events-calendar/the-events-calendar/blob/f8af49bc41048e8632372fc8da77202d9cb98d86/src/Tribe/Admin/Event_Meta_Box.php#L345
 	 *
 	 * @since 4.7
 	 * @deprecated 0.3.2-alpha

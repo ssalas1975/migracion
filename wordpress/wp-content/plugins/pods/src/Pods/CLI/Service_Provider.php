@@ -2,9 +2,17 @@
 
 namespace Pods\CLI;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\CLI\Commands\Field;
 use Pods\CLI\Commands\Group;
+use Pods\CLI\Commands\Playbook;
 use Pods\CLI\Commands\Pod;
+use Pods\CLI\Commands\Tools;
+use WP_CLI;
 
 /**
  * Class Service_Provider
@@ -13,7 +21,7 @@ use Pods\CLI\Commands\Pod;
  *
  * @since 2.8.0
  */
-class Service_Provider extends \tad_DI52_ServiceProvider {
+class Service_Provider extends \Pods\Service_Provider_Base {
 
 	/**
 	 * Binds and sets up implementations.
@@ -39,8 +47,15 @@ class Service_Provider extends \tad_DI52_ServiceProvider {
 	 * @since 2.8.0
 	 */
 	protected function hooks() {
-		tribe( 'pods.cli.commands.pods.pod' );
-		tribe( 'pods.cli.commands.pods.group' );
-		tribe( 'pods.cli.commands.pods.field' );
+		// Add dynamic commands.
+		pods_container( 'pods.cli.commands.pods.pod' );
+		pods_container( 'pods.cli.commands.pods.group' );
+		pods_container( 'pods.cli.commands.pods.field' );
+
+		// Add static commands.
+		if ( defined( 'WP_CLI' ) ) {
+			WP_CLI::add_command( 'pods playbook', Playbook::class );
+			WP_CLI::add_command( 'pods tools', Tools::class );
+		}
 	}
 }

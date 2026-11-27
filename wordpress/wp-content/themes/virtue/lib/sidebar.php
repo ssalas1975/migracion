@@ -10,7 +10,6 @@ class Kadence_Sidebar {
 
 	public $display = true;
 
-	#[\AllowDynamicProperties]
 	function __construct( $conditionals = array(), $templates = array() ) {
 		$this->conditionals = $conditionals;
 		$this->templates    = $templates;

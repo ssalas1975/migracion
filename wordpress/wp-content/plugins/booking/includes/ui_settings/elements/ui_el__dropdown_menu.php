@@ -46,11 +46,15 @@ function wpbc_ui_el__dropdown_menu( $args ) {
 		'attr'            => array(),
 		'items'           => array(),
 	);
-	$params   = wp_parse_args( $args, $defaults );
+	$params                 = wp_parse_args( $args, $defaults );
+	$dropdown_toggle_target = wpbc_get_pseudo_action_target( 'javascript:void(0)', $params['attr'] );
 
 
 	?><div class="wpbc_ui_el wpbc_ui_el_container wpbc_ui_el__dropdown <?php echo esc_attr( $params['container_class'] ); ?>" style="<?php echo esc_attr( $params['container_style'] ); ?>">
 	<a href="javascript:void(0)"
+		<?php if ( '' !== $dropdown_toggle_target ) { ?>
+			target="<?php echo esc_attr( $dropdown_toggle_target ); ?>"
+		<?php } ?>
 		data-toggle="wpbc_dropdown"
 		aria-expanded="true"
 		class="ul_dropdown_menu_toggle
@@ -121,8 +125,13 @@ function wpbc_ui_el__dropdown_menu( $args ) {
 				break;
 
 			default:
+				$action_link_target = wpbc_get_pseudo_action_target( $items['url'], isset( $items['attr'] ) ? $items['attr'] : array() );
+				$target_attribute   = '';
+				if ( '' !== $action_link_target ) {
+					$target_attribute = ' target="' . esc_attr( $action_link_target ) . '"';
+				}
 				echo '<li>';
-				echo '<a href="' . esc_attr( $items['url'] ) . '" ' . wpbc_get_custom_attr( $items ) . '>';     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<a href="' . esc_attr( $items['url'] ) . '"' . $target_attribute . ' ' . wpbc_get_custom_attr( $items ) . '>';     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo wp_kses_post( $items['title'] );
 				echo '</a>';
 				echo '</li>';
@@ -188,7 +197,7 @@ function wpbc_ui_el__dropdown_menu( $args ) {
 				array(
 					'type'  => 'link',
 					'title' => "What's New",
-					'url'   => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'index.php' ) ) ),
+					'url'   => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'admin.php' ) ) ),
 				),
 				array(
 					'type'  => 'link',

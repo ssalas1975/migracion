@@ -167,7 +167,7 @@ class AMP_Validated_URL_Post_Type {
 					'not_found'          => __( 'No validated URLs found', 'amp' ),
 					'not_found_in_trash' => __( 'No forgotten validated URLs', 'amp' ),
 					'search_items'       => __( 'Search validated URLs', 'amp' ),
-					'edit_item'          => '', // Overwritten in JS, so this prevents the page header from appearing and changing.
+					'edit_item'          => ' ', // Overwritten in JS, so this prevents the page header from appearing and changing.
 				],
 				'supports'     => false,
 				'public'       => false,
@@ -994,7 +994,7 @@ class AMP_Validated_URL_Post_Type {
 				'posts_per_page' => $count,
 			]
 		);
-		foreach ( $query->get_posts() as $post_id ) {
+		foreach ( $query->posts as $post_id ) {
 			if ( delete_post_meta( $post_id, self::STYLESHEETS_POST_META_KEY ) ) {
 				$deleted++;
 			}
@@ -1037,7 +1037,7 @@ class AMP_Validated_URL_Post_Type {
 				],
 			]
 		);
-		foreach ( $query->get_posts() as $post ) {
+		foreach ( $query->posts as $post ) {
 			if ( ! self::is_post_safe_to_garbage_collect( $post ) ) {
 				continue;
 			}
@@ -1798,7 +1798,7 @@ class AMP_Validated_URL_Post_Type {
 
 		// Add notice for PHP fatal error during validation request.
 		$post = get_post();
-		if ( $post instanceof WP_Post && 'post' === get_current_screen()->base && self::POST_TYPE_SLUG === get_current_screen()->post_type ) {
+		if ( $post instanceof WP_Post && 'post' === get_current_screen()->base ) {
 			self::render_php_fatal_error_admin_notice( $post );
 		}
 
@@ -2812,6 +2812,14 @@ class AMP_Validated_URL_Post_Type {
 													$selector_html
 												);
 											}
+											$selector_html = preg_replace(
+												'/:not\((#_)+\)/',
+												sprintf(
+													'<abbr title="%s">$0</abbr>',
+													esc_attr__( 'Pseudo-class selector used to increase specificity for rule extracted from inline styles and/or properties with !important qualifiers.', 'amp' )
+												),
+												$selector_html
+											);
 
 											echo $selector_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

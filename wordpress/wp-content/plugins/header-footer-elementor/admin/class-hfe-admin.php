@@ -6,8 +6,9 @@
  */
 
 use HFE\Lib\Astra_Target_Rules_Fields;
+use HFE\WidgetsManager\Base\HFE_Helper;
 
-defined( 'ABSPATH' ) or exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * HFE_Admin setup
@@ -22,6 +23,13 @@ class HFE_Admin {
 	 * @var HFE_Admin
 	 */
 	private static $_instance = null;
+
+	/**
+	 * Instance of Elemenntor Frontend class.
+	 *
+	 * @var object \Elementor\Frontend()
+	 */
+	private static $elementor_instance;
 
 	/**
 	 * Instance of HFE_Admin
@@ -42,9 +50,13 @@ class HFE_Admin {
 	 * Load the icons style in editor.
 	 *
 	 * @since 1.3.0
+	 * @access public
+	 * @return void
 	 */
 	public static function load_admin() {
 		add_action( 'elementor/editor/after_enqueue_styles', __CLASS__ . '::hfe_admin_enqueue_scripts' );
+		add_action( 'admin_head', __CLASS__ . '::hfe_admin_enqueue_scripts' );      
+		add_action( 'elementor/editor/before_enqueue_scripts', __CLASS__ . '::hfe_enqueue_editor_bar_script' );      
 	}
 
 	/**
@@ -53,6 +65,7 @@ class HFE_Admin {
 	 * @since 1.3.0
 	 * @param string $hook Current page hook.
 	 * @access public
+	 * @return void
 	 */
 	public static function hfe_admin_enqueue_scripts( $hook ) {
 
@@ -65,16 +78,60 @@ class HFE_Admin {
 		);
 
 		wp_enqueue_style( 'hfe-style' );
+
+	}
+
+	/**
+	 * Enqueue editor bar script for Elementor editor only
+	 *
+	 * @since 2.6.1
+	 * @access public
+	 * @return void
+	 */
+	public static function hfe_enqueue_editor_bar_script() {
+		wp_register_script( 
+			'hfe-elementor', 
+			HFE_URL . 'assets/js/hfe-elementor-editor-bar-simple.js', 
+			[ 'jquery', 'wp-data', 'wp-i18n' ], 
+			HFE_VER, 
+			false 
+		);
+		
+		// Pass UAE Pro status and icon URL to JavaScript
+		$plugin_file = 'ultimate-elementor/ultimate-elementor.php';
+		$is_uae_pro_active =  ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) && ! HFE_Helper::is_pro_active() ;
+		wp_localize_script( 'hfe-elementor', 'hfeEditorConfig', array(
+			'isUAEPro' => ! $is_uae_pro_active,
+			'iconUrl'  => HFE_URL . 'assets/images/settings/logo-white.svg',
+			'adminUrl' => admin_url( 'admin.php?page=hfe#dashboard' ),
+			'strings'  => array(
+				'headerFooterBuilder' => __( 'Header Footer Builder', 'header-footer-elementor' ),
+			),
+		));
+		
+		wp_enqueue_script( 'hfe-elementor' );
 	}
 
 	/**
 	 * Constructor
+	 *
+	 * @return void
 	 */
 	private function __construct() {
 		add_action( 'init', [ $this, 'header_footer_posttype' ] );
-		add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 50 );
+		if ( is_admin() && current_user_can( 'manage_options' ) ) {
+			add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 50 );
+		}
+
+		$is_elementor_callable = ( defined( 'ELEMENTOR_VERSION' ) && is_callable( 'Elementor\Plugin::instance' ) ) ? true : false;
+		if ( $is_elementor_callable ) {
+			self::$elementor_instance = Elementor\Plugin::instance();
+		}
+
 		add_action( 'add_meta_boxes', [ $this, 'ehf_register_metabox' ] );
 		add_action( 'save_post', [ $this, 'ehf_save_meta' ] );
+		add_action( 'wp_ajax_hfe_save_template_meta', [ $this, 'ajax_save_template_meta' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_template_meta_save_script' ] );
 		add_action( 'admin_notices', [ $this, 'location_notice' ] );
 		add_action( 'template_redirect', [ $this, 'block_template_frontend' ] );
 		add_filter( 'single_template', [ $this, 'load_canvas_template' ] );
@@ -84,12 +141,265 @@ class HFE_Admin {
 			add_action( 'elementor/editor/footer', [ $this, 'register_hfe_epro_script' ], 99 );
 		}
 
+		add_action( 'admin_notices', [ $this, 'hide_admin_notices' ], 1 );
+		add_action( 'all_admin_notices', [ $this, 'hide_admin_notices' ], 1 );
+
 		if ( is_admin() ) {
 			add_action( 'manage_elementor-hf_posts_custom_column', [ $this, 'column_content' ], 10, 2 );
 			add_filter( 'manage_elementor-hf_posts_columns', [ $this, 'column_headings' ] );
 			require_once HFE_DIR . 'admin/class-hfe-addons-actions.php';
 		}
+		add_action( 'elementor/editor/footer', [ $this, 'print_permalink_clear_notice' ] );
+		add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'enqueue_permalink_clear_notice_js' ] );
+		add_action( 'elementor/editor/before_enqueue_styles', [ $this, 'enqueue_permalink_clear_notice_css' ] );
+		// Hook into Elementor's editor styles
+		add_action('elementor/editor/before_enqueue_scripts', [$this, 'enqueue_editor_scripts']);
+		if ( 'yes' === get_option( 'uae_usage_optin', false ) ) {
+			add_action( 'init', array( $this, 'hfe_schedule_usage_cron' ) );
+			add_action( 'hfe_widgets_usage_cron', array( $this, 'hfe_check_widgets_data_usage' ) );
+		}
 	}
+
+	/**
+	 * Enqueuing Promotion widget scripts.
+	 */
+	public function enqueue_editor_scripts() {
+        wp_enqueue_script(
+            'uae-pro-promotion',
+	    	HFE_URL . 'build/promotion-widget.js',
+           [ 'jquery', 'wp-element', 'wp-dom-ready' ],
+            HFE_VER,
+           true
+	   );
+    }
+	
+	/**
+	 * Schedule the daily cron event for widget usage data collection.
+	 *
+	 * @since 2.8.5
+	 * @return void
+	 */
+	public function hfe_schedule_usage_cron() {
+		if ( ! wp_next_scheduled( 'hfe_widgets_usage_cron' ) ) {
+			wp_schedule_event( time(), 'daily', 'hfe_widgets_usage_cron' );
+		}
+	}
+
+	/**
+	 * Collect widgets usage data via WP-Cron.
+	 *
+	 * Runs in a background cron context instead of on every page load,
+	 * preventing timeouts on content-heavy sites.
+	 *
+	 * @since 2.8.5
+	 */
+	public function hfe_check_widgets_data_usage() {
+		$transient_key = 'uae_widgets_usage_data';
+		$widgets_usage = get_transient( $transient_key );
+
+		$needs_widget_refresh = false === $widgets_usage || false === get_option( 'uae_widgets_usage_data_option' );
+		$needs_kpi_init       = false === get_option( 'hfe_kpi_daily_snapshots', false );
+
+		if ( $needs_widget_refresh || $needs_kpi_init ) {
+			$filtered_widgets_usage = HFE_Helper::get_used_widget();
+			set_transient( $transient_key, $filtered_widgets_usage, DAY_IN_SECONDS );
+			update_option( 'uae_widgets_usage_data_option', $filtered_widgets_usage );
+			$this->save_kpi_snapshot( $filtered_widgets_usage );
+		}
+	}
+
+	/**
+	 * Save a daily KPI snapshot alongside widget usage refresh.
+	 *
+	 * Computes aggregated metrics from widget usage and template data,
+	 * stores them keyed by today's date, and keeps only the last 3 days.
+	 *
+	 * @since 2.8.4
+	 * @param array $widgets_usage Filtered widget usage data.
+	 * @return void
+	 */
+	private function save_kpi_snapshot( $widgets_usage ) {
+		$today = current_time( 'Y-m-d' );
+
+		// Total published templates.
+		$total_templates = $this->get_total_template_count();
+
+		// Widget metrics.
+		$total_hfe_widget_instances = 0;
+
+		if ( is_array( $widgets_usage ) ) {
+			foreach ( $widgets_usage as $slug => $count ) {
+				$total_hfe_widget_instances += (int) $count;
+			}
+		}
+
+		$unique_widgets_used = is_array( $widgets_usage ) ? count( array_filter( $widgets_usage ) ) : 0;
+
+		$snapshot = [
+			'numeric_values' => [
+				'total_templates'            => $total_templates,
+				'total_hfe_widget_instances' => $total_hfe_widget_instances,
+				'unique_widgets_used'        => $unique_widgets_used,
+			],
+		];
+
+		// Read existing snapshots, add today's, keep last 3 days.
+		$snapshots = get_option( 'hfe_kpi_daily_snapshots', [] );
+		if ( ! is_array( $snapshots ) ) {
+			$snapshots = [];
+		}
+
+		$snapshots[ $today ] = $snapshot;
+		krsort( $snapshots );
+		$snapshots = array_slice( $snapshots, 0, 3, true );
+
+		update_option( 'hfe_kpi_daily_snapshots', $snapshots, false );
+	}
+
+	/**
+	 * Get count of published HFE templates.
+	 *
+	 * @since 2.8.4
+	 * @return int Total published template count.
+	 */
+	private function get_total_template_count() {
+		$posts = get_posts(
+			[
+				'post_type'   => 'elementor-hf',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'fields'      => 'ids',
+			]
+		);
+
+		return count( $posts );
+	}
+
+	/**
+	 * Enqueue notice style based on option and posttype.
+	 *
+	 * @since 2.2.1
+	 */
+	public function enqueue_permalink_clear_notice_css() {
+
+		if ( get_user_meta( get_current_user_id(), 'hfe_permalink_notice_option', true ) === 'notice-dismissed' ) {
+			return;
+		}
+	
+		if(isset(self::$elementor_instance)){
+			$current_post_type = get_post_type( self::$elementor_instance->editor->get_post_id() );
+			
+			if ( $current_post_type !== 'elementor-hf' ) {
+				return;
+			}
+		}
+	
+		wp_enqueue_style(
+			'hfe-permalink-clear-notice',
+			HFE_URL . 'inc/widgets-css/permalink-clear-notice.css',
+			[],
+			HFE_VER
+		);
+	}
+
+	/**
+	 * Enqueue and localize notice script based on option and posttype.
+	 *
+	 * @since 2.2.1
+	 */
+	public function enqueue_permalink_clear_notice_js() {
+
+		if ( get_user_meta( get_current_user_id(), 'hfe_permalink_notice_option', true ) === 'notice-dismissed' ) {
+			return;
+		}
+		
+		if(isset(self::$elementor_instance)){
+			$current_post_type = get_post_type( self::$elementor_instance->editor->get_post_id() );
+
+			if ( $current_post_type !== 'elementor-hf' ) {
+				return;
+			}
+		}
+
+		wp_enqueue_script(
+			'hfe-permalink-clear-notice',
+			HFE_URL . 'inc/js/permalink-clear-notice.js',
+			[ 'jquery' ],
+			HFE_VER
+		);
+	
+		wp_localize_script(
+			'hfe-permalink-clear-notice',
+			'hfePermalinkClearNotice',
+			[
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'hfe_permalink_clear_notice_nonce' ),
+			]
+		);
+	}
+
+	/**
+	 * Creating notice for permaliink reset in Elementor Editor.
+	 * 
+	 * @since 2.2.1
+	 */
+	public function print_permalink_clear_notice() {
+		if ( is_admin() ) {
+			if ( get_user_meta( get_current_user_id(), 'hfe_permalink_notice_option', true ) === 'notice-dismissed' ) {
+				return;
+			}
+
+			if(isset(self::$elementor_instance)){
+				$current_post_type = get_post_type( self::$elementor_instance->editor->get_post_id() );
+				
+				if ( $current_post_type !== 'elementor-hf' ) {
+					return;
+				}
+			}
+?>
+			<div class="uae-permalink-clear-notice" id="uae-permalink-clear-notice">
+				<header>
+					<i class="eicon-warning"></i>
+					<h2><?php echo esc_html__( 'Important Notice:', 'header-footer-elementor' ); ?></h2>
+					<button class="uae-permalink-notice-close"><i class="eicon-close"></i></button>
+				</header>
+				<div class="uae-permalink-notice-content">
+					<b><?php echo esc_html__( 'Can\'t edit your header or footer?', 'header-footer-elementor' ); ?></b><br/>
+					<?php echo esc_html__( 'Try clearing your cache or resetting permalinks (Settings > Permalinks > Save Changes).', 'header-footer-elementor' ); ?>
+					<a href="<?php echo esc_url( 'https://ultimateelementor.com/docs/elementor-header-footer-template-not-loading-or-stuck-on-loading/' ); ?>" target="_blank"><?php echo esc_html_e( 'Learn More', 'header-footer-elementor' ); ?></a>
+					<br>
+					<?php if(!is_multisite()){ ?>
+						<button class="uae-permalink-flush-btn" type="button">
+							<span class="uae-btn-main-text"><?php echo esc_html__( 'Flush Permalink', 'header-footer-elementor' ); ?></span>
+							<span class="uae-notice-loader"></span>
+						</button>
+					<?php } ?>
+				</div>
+			</div>
+<?php 
+		} 
+	}
+
+
+	/**
+	 * Hide admin notices on the custom settings page.
+	 *
+	 * @since 2.2.1
+	 * @return void
+	 */
+	public static function hide_admin_notices() {
+		$screen                = get_current_screen();
+		$pages_to_hide_notices = [
+			'edit-elementor-hf',     // Edit screen for elementor-hf post type.
+			'elementor-hf',          // New post screen for elementor-hf post type.
+		];
+
+		if ( in_array( $screen->id, $pages_to_hide_notices ) || 'toplevel_page_hfe' === $screen->id ) {
+			remove_all_actions( 'admin_notices' );
+			remove_all_actions( 'all_admin_notices' );
+		}
+	}
+	
 	/**
 	 * Script for Elementor Pro full site editing support.
 	 *
@@ -149,7 +459,7 @@ class HFE_Admin {
 	 */
 	public function column_content( $column, $post_id ) {
 
-		if ( 'elementor_hf_display_rules' == $column ) {
+		if ( 'elementor_hf_display_rules' === $column ) {
 
 			$locations = get_post_meta( $post_id, 'ehf_target_include_locations', true );
 			if ( ! empty( $locations ) ) {
@@ -176,7 +486,7 @@ class HFE_Admin {
 					}
 					echo '<div class="ast-advanced-headers-users-wrap">';
 					echo '<strong>Users: </strong>';
-					echo join( ', ', $user_label );
+					echo esc_html( join( ', ', $user_label ) );
 					echo '</div>';
 				}
 			}
@@ -192,9 +502,11 @@ class HFE_Admin {
 	public function column_display_location_rules( $locations ) {
 
 		$location_label = [];
-		$index          = array_search( 'specifics', $locations['rule'] );
-		if ( false !== $index && ! empty( $index ) ) {
-			unset( $locations['rule'][ $index ] );
+		if ( is_array( $locations ) && is_array( $locations['rule'] ) && isset( $locations['rule'] ) ) {
+			$index = array_search( 'specifics', $locations['rule'] );
+			if ( false !== $index && ! empty( $index ) ) {
+				unset( $locations['rule'][ $index ] );
+			}
 		}
 
 		if ( isset( $locations['rule'] ) && is_array( $locations['rule'] ) ) {
@@ -208,25 +520,30 @@ class HFE_Admin {
 			}
 		}
 
-		echo join( ', ', $location_label );
+		echo esc_html( join( ', ', $location_label ) );
 	}
 
 
 	/**
 	 * Register Post type for Elementor Header & Footer Builder templates
+	 *
+	 * @return void
 	 */
 	public function header_footer_posttype() {
+
+		$setting_location = $this->is_pro_active() ? 'uaepro' : 'hfe';
+		
 		$labels = [
 			'name'               => __( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
 			'singular_name'      => __( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
 			'menu_name'          => __( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
 			'name_admin_bar'     => __( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
 			'add_new'            => __( 'Add New', 'header-footer-elementor' ),
-			'add_new_item'       => __( 'Add New Header or Footer', 'header-footer-elementor' ),
+			'add_new_item'       => __( 'Add New', 'header-footer-elementor' ),
 			'new_item'           => __( 'New Template', 'header-footer-elementor' ),
 			'edit_item'          => __( 'Edit Template', 'header-footer-elementor' ),
 			'view_item'          => __( 'View Template', 'header-footer-elementor' ),
-			'all_items'          => __( 'All Templates', 'header-footer-elementor' ),
+			'all_items'          => __( 'View All', 'header-footer-elementor' ),
 			'search_items'       => __( 'Search Templates', 'header-footer-elementor' ),
 			'parent_item_colon'  => __( 'Parent Templates:', 'header-footer-elementor' ),
 			'not_found'          => __( 'No Templates found.', 'header-footer-elementor' ),
@@ -244,6 +561,21 @@ class HFE_Admin {
 			'hierarchical'        => false,
 			'menu_icon'           => 'dashicons-editor-kitchensink',
 			'supports'            => [ 'title', 'thumbnail', 'elementor' ],
+			'menu_position'       => 5,
+			'capabilities'        => [
+				'edit_post'              => 'manage_options',
+				'read_post'              => 'read',
+				'delete_post'            => 'manage_options',
+				'edit_posts'             => 'manage_options',
+				'edit_others_posts'      => 'manage_options',
+				'publish_posts'          => 'manage_options',
+				'read_private_posts'     => 'manage_options',
+				'delete_posts'           => 'manage_options',
+				'delete_others_posts'    => 'manage_options',
+				'delete_private_posts'   => 'manage_options',
+				'delete_published_posts' => 'manage_options',
+				'create_posts'           => 'manage_options',
+			],
 		];
 
 		register_post_type( 'elementor-hf', $args );
@@ -255,21 +587,52 @@ class HFE_Admin {
 	 * @since  1.0.0
 	 * @since  1.0.1
 	 *         Moved the menu under Appearance -> Elementor Header & Footer Builder
+	 * @return void
 	 */
 	public function register_admin_menu() {
+
+		$setting_location = $this->is_pro_active() ? 'uaepro' : 'hfe';
+
 		add_submenu_page(
-			'themes.php',
-			__( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
-			__( 'Elementor Header & Footer Builder', 'header-footer-elementor' ),
+			$setting_location,
+			__( 'Create New', 'header-footer-elementor' ),
+			__( 'Create New', 'header-footer-elementor' ),
 			'edit_pages',
-			'edit.php?post_type=elementor-hf'
+			'post-new.php?post_type=elementor-hf',
+			'',
+			1
 		);
+
+		add_submenu_page(
+			$setting_location,
+			__( 'Header/Footer Builder', 'header-footer-elementor' ),
+			__( 'Header & Footer', 'header-footer-elementor' ),
+			'edit_pages',
+			'edit.php?post_type=elementor-hf',
+			'',
+			2
+		);
+	}
+
+
+	/**
+	 * Check if UAE Pro is active.
+	 *
+	 * @return bool True if UAE Pro is active, false otherwise.
+	 */
+	public function is_pro_active() {
+		if ( is_plugin_active( 'ultimate-elementor/ultimate-elementor.php' ) && defined( 'UAEL_PRO' ) && UAEL_PRO ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
 	 * Register meta box(es).
+	 *
+	 * @return void
 	 */
-	function ehf_register_metabox() {
+	public function ehf_register_metabox() {
 		add_meta_box(
 			'ehf-meta-box',
 			__( 'Elementor Header & Footer Builder Options', 'header-footer-elementor' ),
@@ -286,11 +649,12 @@ class HFE_Admin {
 	/**
 	 * Render Meta field.
 	 *
-	 * @param  POST $post Currennt post object which is being displayed.
+	 * @param array $post Currennt post object which is being displayed.
+	 * @return void
 	 */
-	function efh_metabox_render( $post ) {
+	public function efh_metabox_render( $post ) {
 		$values            = get_post_custom( $post->ID );
-		$template_type     = isset( $values['ehf_template_type'] ) ? esc_attr( $values['ehf_template_type'][0] ) : '';
+		$template_type     = isset( $values['ehf_template_type'] ) ? esc_attr( sanitize_text_field( $values['ehf_template_type'][0] ) ) : '';
 		$display_on_canvas = isset( $values['display-on-canvas-template'] ) ? true : false;
 
 		// We'll use this nonce field later on when saving.
@@ -300,15 +664,15 @@ class HFE_Admin {
 			<tbody>
 				<tr class="hfe-options-row type-of-template">
 					<td class="hfe-options-row-heading">
-						<label for="ehf_template_type"><?php _e( 'Type of Template', 'header-footer-elementor' ); ?></label>
+						<label for="ehf_template_type"><?php esc_html_e( 'Type of Template', 'header-footer-elementor' ); ?></label>
 					</td>
 					<td class="hfe-options-row-content">
 						<select name="ehf_template_type" id="ehf_template_type">
-							<option value="" <?php selected( $template_type, '' ); ?>><?php _e( 'Select Option', 'header-footer-elementor' ); ?></option>
-							<option value="type_header" <?php selected( $template_type, 'type_header' ); ?>><?php _e( 'Header', 'header-footer-elementor' ); ?></option>
-							<option value="type_before_footer" <?php selected( $template_type, 'type_before_footer' ); ?>><?php _e( 'Before Footer', 'header-footer-elementor' ); ?></option>
-							<option value="type_footer" <?php selected( $template_type, 'type_footer' ); ?>><?php _e( 'Footer', 'header-footer-elementor' ); ?></option>
-							<option value="custom" <?php selected( $template_type, 'custom' ); ?>><?php _e( 'Custom Block', 'header-footer-elementor' ); ?></option>
+							<option value="" <?php selected( $template_type, '' ); ?>><?php esc_html_e( 'Select Option', 'header-footer-elementor' ); ?></option>
+							<option value="type_header" <?php selected( $template_type, 'type_header' ); ?>><?php esc_html_e( 'Header', 'header-footer-elementor' ); ?></option>
+							<option value="type_before_footer" <?php selected( $template_type, 'type_before_footer' ); ?>><?php esc_html_e( 'Before Footer', 'header-footer-elementor' ); ?></option>
+							<option value="type_footer" <?php selected( $template_type, 'type_footer' ); ?>><?php esc_html_e( 'Footer', 'header-footer-elementor' ); ?></option>
+							<option value="custom" <?php selected( $template_type, 'custom' ); ?>><?php esc_html_e( 'Custom Block', 'header-footer-elementor' ); ?></option>
 						</select>
 					</td>
 				</tr>
@@ -316,8 +680,8 @@ class HFE_Admin {
 				<?php $this->display_rules_tab(); ?>
 				<tr class="hfe-options-row hfe-shortcode">
 					<td class="hfe-options-row-heading">
-						<label for="ehf_template_type"><?php _e( 'Shortcode', 'header-footer-elementor' ); ?></label>
-						<i class="hfe-options-row-heading-help dashicons dashicons-editor-help" title="<?php _e( 'Copy this shortcode and paste it into your post, page, or text widget content.', 'header-footer-elementor' ); ?>">
+						<label for="ehf_template_type"><?php esc_html_e( 'Shortcode', 'header-footer-elementor' ); ?></label>
+						<i class="hfe-options-row-heading-help dashicons dashicons-editor-help" title="<?php esc_attr_e( 'Copy this shortcode and paste it into your post, page, or text widget content.', 'header-footer-elementor' ); ?>">
 						</i>
 					</td>
 					<td class="hfe-options-row-content">
@@ -329,9 +693,9 @@ class HFE_Admin {
 				<tr class="hfe-options-row enable-for-canvas">
 					<td class="hfe-options-row-heading">
 						<label for="display-on-canvas-template">
-							<?php _e( 'Enable Layout for Elementor Canvas Template?', 'header-footer-elementor' ); ?>
+							<?php esc_html_e( 'Enable Layout for Elementor Canvas Template?', 'header-footer-elementor' ); ?>
 						</label>
-						<i class="hfe-options-row-heading-help dashicons dashicons-editor-help" title="<?php _e( 'Enabling this option will display this layout on pages using Elementor Canvas Template.', 'header-footer-elementor' ); ?>"></i>
+						<i class="hfe-options-row-heading-help dashicons dashicons-editor-help" title="<?php esc_attr_e( 'Enabling this option will display this layout on pages using Elementor Canvas Template.', 'header-footer-elementor' ); ?>"></i>
 					</td>
 					<td class="hfe-options-row-content">
 						<input type="checkbox" id="display-on-canvas-template" name="display-on-canvas-template" value="1" <?php checked( $display_on_canvas, true ); ?> />
@@ -346,6 +710,7 @@ class HFE_Admin {
 	 * Markup for Display Rules Tabs.
 	 *
 	 * @since  1.0.0
+	 * @return void
 	 */
 	public function display_rules_tab() {
 		// Load Target Rule assets.
@@ -437,7 +802,7 @@ class HFE_Admin {
 		}
 
 		// if our nonce isn't there, or we can't verify it, bail.
-		if ( ! isset( $_POST['ehf_meta_nounce'] ) || ! wp_verify_nonce( $_POST['ehf_meta_nounce'], 'ehf_meta_nounce' ) ) {
+		if ( ! isset( $_POST['ehf_meta_nounce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ehf_meta_nounce'] ) ), 'ehf_meta_nounce' ) ) {
 			return;
 		}
 
@@ -446,33 +811,107 @@ class HFE_Admin {
 			return;
 		}
 
-		$target_locations = Astra_Target_Rules_Fields::get_format_rule_value( $_POST, 'bsf-target-rules-location' );
-		$target_exclusion = Astra_Target_Rules_Fields::get_format_rule_value( $_POST, 'bsf-target-rules-exclusion' );
+		$this->save_template_meta( $post_id, $_POST );
+	}
+
+	/**
+	 * Persist the template metabox values.
+	 *
+	 * Shared by the classic post form save and the AJAX save triggered
+	 * before the "Edit with Elementor" button navigates to the editor.
+	 *
+	 * @since 2.9.3
+	 * @param int   $post_id Post ID being saved.
+	 * @param array $data    Raw request data (slashed, same shape as $_POST).
+	 * @return void
+	 */
+	private function save_template_meta( $post_id, $data ) {
+		$target_locations = Astra_Target_Rules_Fields::get_format_rule_value( $data, 'bsf-target-rules-location' );
+		$target_exclusion = Astra_Target_Rules_Fields::get_format_rule_value( $data, 'bsf-target-rules-exclusion' );
 		$target_users     = [];
 
-		if ( isset( $_POST['bsf-target-rules-users'] ) ) {
-			$target_users = array_map( 'sanitize_text_field', $_POST['bsf-target-rules-users'] );
+		if ( isset( $data['bsf-target-rules-users'] ) && is_array( $data['bsf-target-rules-users'] ) ) {
+			$target_users = array_map( 'sanitize_text_field', wp_unslash( $data['bsf-target-rules-users'] ) );
 		}
 
 		update_post_meta( $post_id, 'ehf_target_include_locations', $target_locations );
 		update_post_meta( $post_id, 'ehf_target_exclude_locations', $target_exclusion );
 		update_post_meta( $post_id, 'ehf_target_user_roles', $target_users );
 
-		if ( isset( $_POST['ehf_template_type'] ) ) {
-			update_post_meta( $post_id, 'ehf_template_type', esc_attr( $_POST['ehf_template_type'] ) );
+		if ( isset( $data['ehf_template_type'] ) ) {
+			update_post_meta( $post_id, 'ehf_template_type', sanitize_text_field( wp_unslash( $data['ehf_template_type'] ) ) );
 		}
 
-		if ( isset( $_POST['display-on-canvas-template'] ) ) {
-			update_post_meta( $post_id, 'display-on-canvas-template', esc_attr( $_POST['display-on-canvas-template'] ) );
+		if ( isset( $data['display-on-canvas-template'] ) ) {
+			update_post_meta( $post_id, 'display-on-canvas-template', sanitize_text_field( wp_unslash( $data['display-on-canvas-template'] ) ) );
 		} else {
 			delete_post_meta( $post_id, 'display-on-canvas-template' );
 		}
 	}
 
 	/**
+	 * Save the template metabox settings via AJAX.
+	 *
+	 * The "Edit with Elementor" button navigates to the Elementor editor
+	 * without submitting the post form, so `save_post` never receives the
+	 * metabox nonce and unsaved Template Type / Display Rules are lost.
+	 * The admin script posts the metabox fields here before navigating.
+	 *
+	 * @since 2.9.3
+	 * @return void
+	 */
+	public function ajax_save_template_meta() {
+		check_ajax_referer( 'ehf_meta_nounce', 'ehf_meta_nounce' );
+
+		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+
+		if ( ! $post_id || 'elementor-hf' !== get_post_type( $post_id ) ) {
+			wp_send_json_error( 'invalid_post' );
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_send_json_error( 'permission_denied' );
+		}
+
+		$this->save_template_meta( $post_id, $_POST );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Enqueue the script that saves metabox settings before "Edit with Elementor" navigates away.
+	 *
+	 * Loaded only on the elementor-hf post edit screens.
+	 *
+	 * @since 2.9.3
+	 * @param string $hook Current admin page hook.
+	 * @return void
+	 */
+	public function enqueue_template_meta_save_script( $hook ) {
+		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'elementor-hf' !== $screen->post_type ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'hfe-template-meta-save',
+			HFE_URL . 'assets/js/hfe-template-meta-save.js',
+			[ 'jquery' ],
+			HFE_VER,
+			true
+		);
+	}
+
+	/**
 	 * Display notice when editing the header or footer when there is one more of similar layout is active on the site.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
 	public function location_notice() {
 		global $pagenow;
@@ -489,13 +928,13 @@ class HFE_Admin {
 
 			// Check if more than one template is selected for current template type.
 			if ( is_array( $templates ) && isset( $templates[1] ) && $post->ID != $templates[0] ) {
-				$post_title        = '<strong>' . get_the_title( $templates[0] ) . '</strong>';
-				$template_location = '<strong>' . $this->template_location( $template_type ) . '</strong>';
+				$post_title        = '<strong>' . esc_html( get_the_title( $templates[0] ) ) . '</strong>';
+				$template_location = '<strong>' . esc_html( $this->template_location( $template_type ) ) . '</strong>';
 				/* Translators: Post title, Template Location */
 				$message = sprintf( __( 'Template %1$s is already assigned to the location %2$s', 'header-footer-elementor' ), $post_title, $template_location );
 
 				echo '<div class="error"><p>';
-				echo $message;
+				echo esc_html( $message );
 				echo '</p></div>';
 			}
 		}
@@ -506,9 +945,9 @@ class HFE_Admin {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param  String $template_type Template type name.
+	 * @param  string $template_type Template type name.
 	 *
-	 * @return String $template_type Template type name.
+	 * @return string $template_type Template type name.
 	 */
 	public function template_location( $template_type ) {
 		$template_type = ucfirst( str_replace( 'type_', '', $template_type ) );
@@ -520,10 +959,11 @@ class HFE_Admin {
 	 * Don't display the elementor Elementor Header & Footer Builder templates on the frontend for non edit_posts capable users.
 	 *
 	 * @since  1.0.0
+	 * @return void
 	 */
 	public function block_template_frontend() {
 		if ( is_singular( 'elementor-hf' ) && ! current_user_can( 'edit_posts' ) ) {
-			wp_redirect( site_url(), 301 );
+			wp_safe_redirect( site_url(), 301 );
 			die;
 		}
 	}
@@ -533,9 +973,10 @@ class HFE_Admin {
 	 *
 	 * @since  1.0.1
 	 *
-	 * @param  String $single_template Single template.
+	 * @param  string $single_template Single template.
+	 * @return string
 	 */
-	function load_canvas_template( $single_template ) {
+	public function load_canvas_template( $single_template ) {
 		global $post;
 
 		if ( 'elementor-hf' == $post->post_type ) {
@@ -555,8 +996,9 @@ class HFE_Admin {
 	 * Set shortcode column for template list.
 	 *
 	 * @param array $columns template list columns.
+	 * @return array
 	 */
-	function set_shortcode_columns( $columns ) {
+	public function set_shortcode_columns( $columns ) {
 		$date_column = $columns['date'];
 
 		unset( $columns['date'] );
@@ -572,8 +1014,9 @@ class HFE_Admin {
 	 *
 	 * @param array $column template list column.
 	 * @param int   $post_id post id.
+	 * @return void
 	 */
-	function render_shortcode_column( $column, $post_id ) {
+	public function render_shortcode_column( $column, $post_id ) {
 		switch ( $column ) {
 			case 'shortcode':
 				ob_start();

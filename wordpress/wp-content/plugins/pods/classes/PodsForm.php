@@ -1,6 +1,12 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\Whatsit\Field;
+use Pods\API\Whatsit\Value_Field;
 
 /**
  * @package Pods
@@ -76,18 +82,27 @@ class PodsForm {
 	 *
 	 * @since 2.3.0
 	 */
+	#[\ReturnTypeWillChange]
 	private function __clone() {
 		// Hulk smash
 	}
 
 	/**
-	 * Output a field's label
+	 * Output a label container.
 	 *
-	 * @since 2.0.0
+	 * @since 3.3.5
+	 *
+	 * @param string $name    Field name
+	 * @param string $label   Label text
+	 * @param string $help    Help text
+	 * @param array  $options Field options
 	 */
+	public static function output_label( $name, $label, $help = '', $options = null ) {
+		echo self::label( $name, $label, $help, $options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 
 	/**
-	 * Output a field's label
+	 * Return a field's label
 	 *
 	 * @param string $name    Field name
 	 * @param string $label   Label text
@@ -99,6 +114,7 @@ class PodsForm {
 	 * @since 2.0.0
 	 */
 	public static function label( $name, $label, $help = '', $options = null ) {
+		$prefix = pods_v( 'name_prefix', $options );
 
 		if ( is_array( $label ) || is_object( $label ) ) {
 			$options = $label;
@@ -118,8 +134,8 @@ class PodsForm {
 
 		ob_start();
 
-		$name_clean      = self::clean( $name );
-		$name_more_clean = self::clean( $name, true );
+		$name_clean      = self::clean( $prefix . $name );
+		$name_more_clean = self::clean( $prefix . $name, true );
 
 		$type                = 'label';
 		$attributes          = array();
@@ -135,7 +151,20 @@ class PodsForm {
 	}
 
 	/**
-	 * Output a Field Comment Paragraph
+	 * Output a comment container.
+	 *
+	 * @since 3.3.5
+	 *
+	 * @param string $name    Field name
+	 * @param string $message Field comments
+	 * @param array  $options Field options
+	 */
+	public static function output_comment( $name, $message = null, $options = null ) {
+		echo self::comment( $name, $message, $options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Return a Field Comment Paragraph
 	 *
 	 * @param string $name    Field name
 	 * @param string $message Field comments
@@ -146,10 +175,11 @@ class PodsForm {
 	 * @since 2.0.0
 	 */
 	public static function comment( $name, $message = null, $options = null ) {
+		$prefix = pods_v( 'name_prefix', $options );
 
 		$options = self::options( null, $options );
 
-		$name_more_clean = self::clean( $name, true );
+		$name_more_clean = self::clean( $prefix . $name, true );
 
 		if ( ! empty( $options['description'] ) ) {
 			$message = $options['description'];
@@ -176,6 +206,22 @@ class PodsForm {
 	/**
 	 * Output a field
 	 *
+	 * @since 3.3.5
+	 *
+	 * @param string     $name    Field name
+	 * @param mixed      $value   Field value
+	 * @param string     $type    Field type
+	 * @param array      $options Field options
+	 * @param array|Pods $pod     Pod data or the Pods object.
+	 * @param int        $id      Item ID
+	 */
+	public static function output_field( $name, $value, $type = 'text', $options = null, $pod = null, $id = null ) {
+		echo self::field( $name, $value, $type, $options, $pod, $id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Return a field
+	 *
 	 * @param string     $name    Field name
 	 * @param mixed      $value   Field value
 	 * @param string     $type    Field type
@@ -188,7 +234,6 @@ class PodsForm {
 	 * @since 2.0.0
 	 */
 	public static function field( $name, $value, $type = 'text', $options = null, $pod = null, $id = null ) {
-
 		// Take a field array
 		if ( is_array( $name ) || is_object( $name ) ) {
 			$options = $name;
@@ -205,6 +250,10 @@ class PodsForm {
 		$options = self::options( $type, $options );
 		$options = apply_filters( "pods_form_ui_field_{$type}_options", $options, $value, $name, $pod, $id );
 
+		if ( empty( $options['type'] ) ) {
+			$options['type'] = $type;
+		}
+
 		if ( null === $value || ( '' === $value && 'boolean' === $type ) || ( ! empty( $pod ) && empty( $id ) ) ) {
 			$value = self::default_value( $value, $type, $name, $options, $pod, $id );
 		}
@@ -214,30 +263,18 @@ class PodsForm {
 			$options['help'] = '';
 		}
 
-		if ( false === self::permission( $type, $name, $options, null, $pod, $id ) ) {
+		if (
+			false === self::permission( $type, $name, $options, null, $pod, $id )
+			&& ! pods_v_bool( 'read_only_restricted', $options )
+		) {
 			return false;
 		}
 
 		$value           = apply_filters( "pods_form_ui_field_{$type}_value", $value, $name, $options, $pod, $id );
 		$form_field_type = self::$field_type;
 
-		ob_start();
-
-		$helper = false;
-
-		/**
-		 * Input helpers are deprecated and not guaranteed to work properly.
-		 *
-		 * They will be entirely removed in Pods 3.0.
-		 *
-		 * @deprecated 2.7.0
-		 */
-		if ( 0 < strlen( pods_v( 'input_helper', $options ) ) ) {
-			$helper = pods_api()->load_helper( array( 'name' => $options['input_helper'] ) );
-		}
-
 		if ( empty( $type ) ) {
-			return pods_error( __( 'Invalid field configuration', 'pods' ) );
+			return;
 		}
 
 		// @todo Move into DFV field method or Pods\Whatsit later
@@ -245,6 +282,11 @@ class PodsForm {
 			$options['data'] = self::$loaded[ $type ]->data( $name, $value, $options, $pod, $id, true );
 			$data            = $options['data'];
 		}
+
+		$repeatable_field_types = self::repeatable_field_types();
+
+		// Start field render.
+		ob_start();
 
 		/**
 		 * pods_form_ui_field_{$type}_override filter leaves too much to be done by developer.
@@ -262,19 +304,15 @@ class PodsForm {
 			 * @deprecated 2.7.0
 			 */
 			do_action( "pods_form_ui_field_{$type}", $name, $value, $options, $pod, $id );
-		} elseif ( ! empty( $helper ) && 0 < strlen( pods_v( 'code', $helper ) ) && false === strpos( $helper['code'], '$this->' ) && ( ! defined( 'PODS_DISABLE_EVAL' ) || ! PODS_DISABLE_EVAL ) ) {
-			/**
-			 * Input helpers are deprecated and not guaranteed to work properly.
-			 *
-			 * They will be entirely removed in Pods 3.0.
-			 *
-			 * @deprecated 2.7.0
-			 */
-			eval( '?>' . $helper['code'] );
-		} elseif ( method_exists( get_class(), 'field_' . $type ) ) {
+		} elseif ( method_exists( static::class, 'field_' . $type ) ) {
 			// @todo Move these custom field methods into real/faux field classes
-			echo call_user_func( array( get_class(), 'field_' . $type ), $name, $value, $options );
+			echo call_user_func( array( static::class, 'field_' . $type ), $name, $value, $options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} elseif ( is_object( self::$loaded[ $type ] ) && method_exists( self::$loaded[ $type ], 'input' ) ) {
+			// Force non-repeatable field types to be non-repeatable even if option is set to 1.
+			if ( ! empty( $options['repeatable'] ) && ! in_array( $type, $repeatable_field_types, true ) ) {
+				$options['repeatable'] = 0;
+			}
+
 			self::$loaded[ $type ]->input( $name, $value, $options, $pod, $id );
 		} else {
 			/**
@@ -346,6 +384,31 @@ class PodsForm {
 	}
 
 	/**
+	 * Output a submit button.
+	 *
+	 * @since 3.3.5
+	 *
+	 * @param string       $text              The text of the button (defaults to 'Save Changes')
+	 * @param string       $type              The type of button. One of: primary, secondary, delete
+	 * @param string       $name              The HTML name of the submit button. Defaults to "submit". If no id
+	 *                                        attribute is given in $other_attributes below, $name will be used as the
+	 *                                        button's id.
+	 * @param bool         $wrap              True if the output button should be wrapped in a paragraph tag,
+	 *                                        false otherwise. Defaults to true
+	 * @param array|string $other_attributes  Other attributes that should be output with the button,
+	 *                                        mapping attributes to their values, such as array( 'tabindex' => '1' ).
+	 *                                        These attributes will be output as attribute="value", such as
+	 *                                        tabindex="1".
+	 *                                        Defaults to no other attributes. Other attributes can also be provided as
+	 *                                        a
+	 *                                        string such as 'tabindex="1"', though the array format is typically
+	 *                                        cleaner.
+	 */
+	public static function output_submit_button( $text = null, $type = 'primary large', $name = 'submit', $wrap = true, $other_attributes = null ) {
+		echo self::submit_button( $text, $type, $name, $wrap, $other_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
 	 * Returns a submit button, with provided text and appropriate class, copied from WP Core for use on the frontend
 	 *
 	 * @see   get_submit_button
@@ -403,7 +466,7 @@ class PodsForm {
 			$class = 'button-secondary delete';
 		}
 
-		$text = $text ? $text : __( 'Save Changes' );
+		$text = $text ? $text : __( 'Save Changes', 'pods' );
 
 		// Default the id attribute to $name unless an id was specifically provided in $other_attributes
 		$id = $name;
@@ -477,11 +540,29 @@ class PodsForm {
 
 		$attributes = (array) apply_filters( "pods_form_ui_field_{$type}_attributes", $attributes, $name, $options );
 
+		$final_attributes = [];
+
 		foreach ( $attributes as $attribute => $value ) {
 			if ( null === $value ) {
 				continue;
 			}
 
+			if ( 'class' === $attribute ) {
+				$value = pods_enforce_safe_class( $value );
+			} elseif ( 'id' === $attribute ) {
+				$value = pods_enforce_safe_id( $value );
+			}
+
+			$final_attributes[ (string) $attribute ] = (string) $value;
+		}
+
+		if (pods_render_is_in_block()) {
+			echo ' ' . get_block_wrapper_attributes( $final_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+			return;
+		}
+
+		foreach ( $final_attributes as $attribute => $value ) {
 			echo ' ' . esc_attr( (string) $attribute ) . '="' . esc_attr( (string) $value ) . '"';
 		}
 	}
@@ -530,17 +611,23 @@ class PodsForm {
 	 */
 	public static function merge_attributes( $attributes, $name = null, $type = null, $options = null, $classes = '' ) {
 
+		if ( $options instanceof Field ) {
+			$options = $options->get_args();
+		}
+
 		$options = (array) $options;
 
+		$prefix = pods_v( 'name_prefix', $options );
+
 		if ( ! in_array( $type, array( 'label', 'comment' ) ) ) {
-			$name_clean                     = self::clean( $name );
-			$name_more_clean                = self::clean( $name, true );
+			$name_clean                     = self::clean( $prefix . $name );
+			$name_more_clean                = self::clean( $prefix . $name, true );
 			$_attributes                    = array();
-			$_attributes['name']            = $name;
+			$_attributes['name']            = $prefix . $name;
 			$_attributes['data-name-clean'] = $name_more_clean;
 
-			if ( 0 < strlen( pods_v( 'label', $options, '' ) ) ) {
-				$_attributes['data-label'] = strip_tags( pods_v( 'label', $options ) );
+			if ( 0 < strlen( (string) pods_v( 'label', $options, '' ) ) ) {
+				$_attributes['data-label'] = wp_strip_all_tags( pods_v( 'label', $options ) );
 			}
 
 			$_attributes['id']    = 'pods-form-ui-' . $name_clean . ( self::$form_counter > 1 ? '-' . self::$form_counter : '' );
@@ -582,7 +669,7 @@ class PodsForm {
 			}
 		}
 
-		$placeholder = trim( pods_v( 'placeholder', $options, pods_v( $type . '_placeholder', $options ) ) );
+		$placeholder = trim( (string) pods_v( 'placeholder', $options, pods_v( $type . '_placeholder', $options ) ) );
 
 		if ( ! empty( $placeholder ) ) {
 			$attributes['placeholder'] = $placeholder;
@@ -671,24 +758,25 @@ class PodsForm {
 	public static function options_setup( $type = null, $options = null ) {
 
 		$core_defaults = array(
-			'id'             => 0,
-			'name'           => '',
-			'label'          => '',
-			'description'    => '',
-			'help'           => '',
-			'default'        => null,
-			'attributes'     => array(),
-			'class'          => '',
-			'type'           => 'text',
-			'group'          => 0,
-			'grouped'        => 0,
-			'developer_mode' => false,
-			'dependency'     => false,
-			'depends-on'     => array(),
-			'depends-on-any' => array(),
-			'excludes-on'    => array(),
-			'wildcard-on'    => array(),
-			'options'        => array(),
+			'id'               => 0,
+			'name'             => '',
+			'label'            => '',
+			'description'      => '',
+			'help'             => '',
+			'default'          => null,
+			'attributes'       => array(),
+			'class'            => '',
+			'type'             => 'text',
+			'group'            => 0,
+			'grouped'          => 0,
+			'developer_mode'   => false,
+			'dependency'       => false,
+			'depends-on'       => array(),
+			'depends-on-any'   => array(),
+			'depends-on-multi' => array(),
+			'excludes-on'      => array(),
+			'wildcard-on'      => array(),
+			'options'          => array(),
 		);
 
 		if ( ! empty( $options ) && is_array( $options ) ) {
@@ -730,24 +818,25 @@ class PodsForm {
 	public static function ui_options( $type ) {
 
 		$core_defaults = array(
-			'id'             => 0,
-			'name'           => '',
-			'label'          => '',
-			'description'    => '',
-			'help'           => '',
-			'default'        => null,
-			'attributes'     => array(),
-			'class'          => '',
-			'type'           => 'text',
-			'group'          => 0,
-			'grouped'        => 0,
-			'developer_mode' => false,
-			'dependency'     => false,
-			'depends-on'     => array(),
-			'depends-on-any' => array(),
-			'excludes-on'    => array(),
-			'wildcard-on'    => array(),
-			'options'        => array(),
+			'id'               => 0,
+			'name'             => '',
+			'label'            => '',
+			'description'      => '',
+			'help'             => '',
+			'default'          => null,
+			'attributes'       => array(),
+			'class'            => '',
+			'type'             => 'text',
+			'group'            => 0,
+			'grouped'          => 0,
+			'developer_mode'   => false,
+			'dependency'       => false,
+			'depends-on'       => array(),
+			'depends-on-any'   => array(),
+			'depends-on-multi' => array(),
+			'excludes-on'      => array(),
+			'wildcard-on'      => array(),
+			'options'          => array(),
 		);
 
 		self::field_loader( $type );
@@ -783,24 +872,25 @@ class PodsForm {
 
 		if ( empty( $core_defaults ) ) {
 			$core_defaults = array(
-				'id'             => 0,
-				'name'           => '',
-				'label'          => '',
-				'description'    => '',
-				'help'           => '',
-				'default'        => null,
-				'attributes'     => array(),
-				'class'          => '',
-				'type'           => 'text',
-				'group'          => 0,
-				'grouped'        => 0,
-				'developer_mode' => false,
-				'dependency'     => false,
-				'depends-on'     => array(),
-				'depends-on-any' => array(),
-				'excludes-on'    => array(),
-				'wildcard-on'    => array(),
-				'options'        => array(),
+				'id'               => 0,
+				'name'             => '',
+				'label'            => '',
+				'description'      => '',
+				'help'             => '',
+				'default'          => null,
+				'attributes'       => array(),
+				'class'            => '',
+				'type'             => 'text',
+				'group'            => 0,
+				'grouped'          => 0,
+				'developer_mode'   => false,
+				'dependency'       => false,
+				'depends-on'       => array(),
+				'depends-on-any'   => array(),
+				'depends-on-multi' => array(),
+				'excludes-on'      => array(),
+				'wildcard-on'      => array(),
+				'options'          => array(),
 			);
 		}
 
@@ -842,24 +932,25 @@ class PodsForm {
 
 		if ( empty( $core_defaults ) ) {
 			$core_defaults = array(
-				'id'             => 0,
-				'name'           => '',
-				'label'          => '',
-				'description'    => '',
-				'help'           => '',
-				'default'        => null,
-				'attributes'     => array(),
-				'class'          => '',
-				'type'           => 'text',
-				'group'          => 0,
-				'grouped'        => 0,
-				'developer_mode' => false,
-				'dependency'     => false,
-				'depends-on'     => array(),
-				'depends-on-any' => array(),
-				'excludes-on'    => array(),
-				'wildcard-on'    => array(),
-				'options'        => array(),
+				'id'               => 0,
+				'name'             => '',
+				'label'            => '',
+				'description'      => '',
+				'help'             => '',
+				'default'          => null,
+				'attributes'       => array(),
+				'class'            => '',
+				'type'             => 'text',
+				'group'            => 0,
+				'grouped'          => 0,
+				'developer_mode'   => false,
+				'dependency'       => false,
+				'depends-on'       => array(),
+				'depends-on-any'   => array(),
+				'depends-on-multi' => array(),
+				'excludes-on'      => array(),
+				'wildcard-on'      => array(),
+				'options'          => array(),
 			);
 
 			if ( null !== $type ) {
@@ -939,6 +1030,7 @@ class PodsForm {
 		$dependency_checks = [
 			'depends-on',
 			'depends-on-any',
+			'depends-on-multi',
 			'excludes-on',
 		];
 
@@ -1008,8 +1100,27 @@ class PodsForm {
 
 		self::field_loader( $type );
 
-		if ( in_array( $type, self::repeatable_field_types() ) && 1 == pods_v( $type . '_repeatable', $options, 0 ) && ! is_array( $value ) ) {
-			if ( 0 < strlen( $value ) ) {
+		$is_repeatable_field = (
+			(
+				(
+					$options instanceof Field
+					|| $options instanceof Value_Field
+				)
+				&& $options->is_repeatable()
+			)
+			|| (
+				is_array( $options )
+				&& in_array( $type, self::repeatable_field_types(), true )
+				&& 1 === (int) pods_v( 'repeatable', $options )
+				&& (
+					'wysiwyg' !== $type
+					|| 'tinymce' !== pods_v( 'wysiwyg_editor', $options, 'tinymce', true )
+				)
+			)
+		);
+
+		if ( $is_repeatable_field && ! is_array( $value ) ) {
+			if ( is_string( $value ) && 0 < strlen( $value ) ) {
 				$simple = @json_decode( $value, true );
 
 				if ( is_array( $simple ) ) {
@@ -1018,7 +1129,7 @@ class PodsForm {
 					$value = (array) $value;
 				}
 			} else {
-				$value = array();
+				$value = [];
 			}
 		}
 
@@ -1345,7 +1456,7 @@ class PodsForm {
 			$value = $default;
 		}
 
-		if ( is_array( $value ) && 'multi' !== pods_v( $args->type . '_format_type' ) ) {
+		if ( is_array( $value ) && 'multi' !== pods_v( $type . '_format_type' ) ) {
 			$value = pods_serial_comma( $value, $name, [ $name => $options ] );
 		}
 
@@ -1428,7 +1539,7 @@ class PodsForm {
 	/**
 	 * Autoload a Field Type's class
 	 *
-	 * @param string $field_type Field Type indentifier
+	 * @param string $field_type Field Type identifier
 	 * @param string $file       The Field Type class file location
 	 *
 	 * @return string
@@ -1454,28 +1565,28 @@ class PodsForm {
 		$class_name = ucfirst( $field_type );
 		$class_name = "PodsField_{$class_name}";
 
-		$content_dir   = realpath( WP_CONTENT_DIR );
-		$plugins_dir   = realpath( WP_PLUGIN_DIR );
-		$muplugins_dir = realpath( WPMU_PLUGIN_DIR );
-		$abspath_dir   = realpath( ABSPATH );
-		$pods_dir      = realpath( PODS_DIR );
-
 		if ( ! class_exists( $class_name ) ) {
 			if ( isset( self::$field_types[ $field_type ] ) && ! empty( self::$field_types[ $field_type ]['file'] ) ) {
 				$file = realpath( self::$field_types[ $field_type ]['file'] );
 			}
 
-			if ( ! empty( $file ) && 0 === strpos( $file, $abspath_dir ) && file_exists( $file ) ) {
-				include_once $file;
-			} else {
-				$file = str_replace( '../', '', apply_filters( 'pods_form_field_include', '', $field_type ) );
+			/**
+			 * The field type include path.
+			 *
+			 * @since unknown
+			 *
+			 * @param string $file       The file path to include for the field type.
+			 * @param string $field_type The field type.
+			 */
+			$file = apply_filters( 'pods_form_field_include', $file, $field_type );
 
-				if ( ! empty( $file ) ) {
-					$file = realpath( $file );
+			$file = trim( $file );
 
-					if ( file_exists( $file ) && ( 0 === strpos( $file, $pods_dir ) || 0 === strpos( $file, $content_dir ) || 0 === strpos( $file, $plugins_dir ) || 0 === strpos( $file, $muplugins_dir ) || 0 === strpos( $file, $abspath_dir ) ) ) {
-						include_once $file;
-					}
+			if ( '' !== $file ) {
+				$located = pods_validate_safe_path( $file, 'all' );
+
+				if ( $located ) {
+					include_once $located;
 				}
 			}
 		}
@@ -1502,7 +1613,7 @@ class PodsForm {
 	 * Run a method from a Field Type's class
 	 *
 	 * @return mixed
-	 * @internal param string $field_type Field Type indentifier
+	 * @internal param string $field_type Field Type identifier
 	 * @internal param string $method Method name
 	 * @internal param mixed $arg More arguments
 	 *
@@ -1561,32 +1672,15 @@ class PodsForm {
 	}
 
 	/**
-	 * Get a list of all available Pod types.
+	 * Get a list of all available Pod types (no labels).
 	 *
 	 * @return string[] List of Pod types.
 	 *
 	 * @since 2.8.0
+	 * @deprecated 2.9.17 Use pods_api()->get_pod_types() instead.
 	 */
 	public static function pod_types_list() {
-		$pod_types = [
-			'post_type',
-			'taxonomy',
-			'user',
-			'media',
-			'comment',
-			'settings',
-			'pod',
-			'table',
-		];
-
-		/**
-		 * Allow filtering of the supported Pod types.
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param array $pod_types List of Pod types supported.
-		 */
-		return apply_filters( 'pods_api_pod_types', $pod_types );
+		return array_keys( pods_api()->get_pod_types() );
 	}
 
 	/**
@@ -1735,14 +1829,15 @@ class PodsForm {
 
 		if ( null === $field_types ) {
 			$field_types = [
-				'code',
 				'color',
 				'currency',
 				'date',
 				'datetime',
 				'email',
 				'number',
+				'oembed',
 				'paragraph',
+				'password',
 				'phone',
 				'text',
 				'time',
@@ -1750,7 +1845,7 @@ class PodsForm {
 				'wysiwyg',
 			];
 
-			$field_types = apply_filters( 'pods_repeatable_field_types', $field_types );
+			$field_types = (array) apply_filters( 'pods_repeatable_field_types', $field_types );
 		}
 
 		return $field_types;
@@ -1898,6 +1993,87 @@ class PodsForm {
 		}
 
 		return $field_types;
+	}
+
+	/**
+	 * Get the list of field types that do not use serial comma separators.
+	 *
+	 * @since 2.9.4
+	 *
+	 * @return array The list of field types that do not use serial comma separators.
+	 */
+	public static function separator_excluded_field_types() {
+		static $field_types = null;
+
+		if ( null === $field_types ) {
+			$field_types = [
+				'avatar',
+				'code',
+				'link',
+				'oembed',
+				'paragraph',
+				'website',
+				'wysiwyg',
+			];
+
+			/**
+			 * Allow filtering of the list of field types that do not use serial comma separators.
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param array $field_types The list of field types that do not use serial comma separators.
+			 */
+			$field_types = apply_filters( 'pods_separator_excluded_field_types', $field_types );
+		}
+
+		return $field_types;
+	}
+
+	/**
+	 * Get the list of revisionable field types.
+	 *
+	 * @since 3.2.0
+	 *
+	 * @return array The list of revisionable field types.
+	 */
+	public static function revisionable_field_types(): array {
+		$revisionable_field_types = pods_static_cache_get( __FUNCTION__, __CLASS__ );
+
+		if ( ! is_array( $revisionable_field_types ) ) {
+			$revisionable_field_types = [];
+		}
+
+		if ( $revisionable_field_types ) {
+			return $revisionable_field_types;
+		}
+
+		$field_types           = static::field_types_list();
+		$tableless_field_types = static::tableless_field_types();
+		$layout_field_types    = static::layout_field_types();
+
+		foreach ( $field_types as $field_type ) {
+			if (
+				in_array( $field_type, $tableless_field_types, true )
+				|| in_array( $field_type, $layout_field_types, true )
+			) {
+				continue;
+			}
+
+			$revisionable_field_types[] = $field_type;
+		}
+
+		/**
+		 * Allow filtering of the list of field types that can be revisioned.
+		 *
+		 * @since 3.2.0
+		 *
+		 * @param array $revisionable_field_types The listof field types that can be revisioned.
+		 */
+		$revisionable_field_types = apply_filters( 'pods_form_revisionable_field_types', $revisionable_field_types );
+
+		pods_static_cache_set( __FUNCTION__, $revisionable_field_types, __CLASS__ );
+
+		return $revisionable_field_types;
 	}
 
 	/**

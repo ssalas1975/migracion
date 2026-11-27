@@ -2,6 +2,11 @@
 
 namespace Pods;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use PodsForm;
 use Pods\Whatsit;
 use WP_User;
@@ -166,7 +171,7 @@ class Permissions {
 		$roles_allowed = pods_v( 'roles_allowed', $object, '' );
 
 		if ( '' !== $roles_allowed ) {
-			$roles_allowed = maybe_unserialize( $roles_allowed );
+			$roles_allowed = pods_maybe_safely_unserialize( $roles_allowed );
 
 			if ( ! is_array( $roles_allowed ) ) {
 				$roles_allowed = explode( ',', $roles_allowed );
@@ -245,7 +250,7 @@ class Permissions {
 		$capability_allowed = pods_v( 'capability_allowed', $object, '' );
 
 		if ( '' !== $capability_allowed ) {
-			$capability_allowed = maybe_unserialize( $capability_allowed );
+			$capability_allowed = pods_maybe_safely_unserialize( $capability_allowed );
 
 			if ( ! is_array( $capability_allowed ) ) {
 				$capability_allowed = explode( ',', $capability_allowed );
@@ -400,7 +405,7 @@ class Permissions {
 		 * @param string  $capability_match        The matching capability.
 		 * @param WP_User $user                    The user object.
 		 */
-		return apply_filters( 'pods_is_admin', $match, $additional_capabilities, $capability_match );
+		return apply_filters( 'pods_is_admin', $match, $additional_capabilities, $capability_match, $user );
 	}
 
 }

@@ -53,6 +53,7 @@ function wpbc_flex_button( $item ) {
 							  , 'options' => array( 'link' => 'esc_attr' ) // array( 'link' => 'decode' )
                         );
     $item_params = wp_parse_args( $item, $default_item_params );
+	$action_link_target = wpbc_get_pseudo_action_target( $item_params['link'], $item_params['attr'] );
 
 	$css_button_class = esc_attr( $item_params['class'] );
 
@@ -76,6 +77,9 @@ function wpbc_flex_button( $item ) {
 						  echo str_replace( '"', '',  $item_params['link'] );
 					  }
 		  		?>"
+		  <?php if ( '' !== $action_link_target ) { ?>
+			target="<?php echo esc_attr( $action_link_target ); ?>"
+		  <?php } ?>
           <?php if ( ! empty( $item_params['id'] ) ) { ?>
 			id="<?php echo wp_kses_post( $item_params['id'] ); ?>"
           <?php } ?>

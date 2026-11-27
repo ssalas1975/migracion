@@ -6,23 +6,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Traits;
+
 /**
  * Handles the Open Graph meta.
  *
  * @since 4.0.0
  */
 class Facebook {
+	use Traits\SocialProfiles;
+
 	/**
 	 * Returns the Open Graph image URL.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @param  int    $postId The post ID (optional).
 	 * @return string         The image URL.
 	 */
 	public function getImage( $postId = null ) {
 		$post = aioseo()->helpers->getPost( $postId );
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$image = aioseo()->options->social->facebook->homePage->image;
 			if ( empty( $image ) ) {
 				$image = aioseo()->social->image->getImage( 'facebook', aioseo()->options->social->facebook->general->defaultImageSourcePosts, $post );
@@ -44,7 +49,7 @@ class Facebook {
 
 		// Since we could be on an archive page, let's check again for that default image.
 		if ( ! $image ) {
-			$image = aioseo()->social->image->getImage( 'facebook', 'default', null );
+			$image = aioseo()->social->image->getImage( 'facebook', 'default' );
 		}
 
 		if ( ! $image ) {
@@ -65,23 +70,26 @@ class Facebook {
 	/**
 	 * Returns the width of the Open Graph image.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @version 5.0.4 Added the $postId parameter.
 	 *
-	 * @return string The image width.
+	 * @param  int    $postId The post ID (optional).
+	 * @return string         The image width.
 	 */
-	public function getImageWidth() {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+	public function getImageWidth( $postId = null ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$width = aioseo()->options->social->facebook->homePage->imageWidth;
 
 			return $width ? $width : aioseo()->options->social->facebook->general->defaultImagePostsWidth;
 		}
 
-		$metaData = aioseo()->meta->metaData->getMetaData();
+		$metaData = aioseo()->meta->metaData->getMetaData( $postId );
 		if ( ! empty( $metaData->og_custom_image_width ) ) {
 			return $metaData->og_custom_image_width;
 		}
 
-		$image = $this->getImage();
+		$image = $this->getImage( $postId );
 		if ( is_array( $image ) ) {
 			return $image[1];
 		}
@@ -92,23 +100,26 @@ class Facebook {
 	/**
 	 * Returns the height of the Open Graph image.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
+	 * @version 5.0.4 Added the $postId parameter.
 	 *
-	 * @return string The image height.
+	 * @param  int    $postId The post ID (optional).
+	 * @return string         The image height.
 	 */
-	public function getImageHeight() {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+	public function getImageHeight( $postId = null ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$height = aioseo()->options->social->facebook->homePage->imageHeight;
 
 			return $height ? $height : aioseo()->options->social->facebook->general->defaultImagePostsHeight;
 		}
 
-		$metaData = aioseo()->meta->metaData->getMetaData();
+		$metaData = aioseo()->meta->metaData->getMetaData( $postId );
 		if ( ! empty( $metaData->og_custom_image_height ) ) {
 			return $metaData->og_custom_image_height;
 		}
 
-		$image = $this->getImage();
+		$image = $this->getImage( $postId );
 		if ( is_array( $image ) ) {
 			return $image[2];
 		}
@@ -174,12 +185,13 @@ class Facebook {
 	/**
 	 * Returns the Open Graph object type.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
 	 * @return string The object type.
 	 */
 	public function getObjectType() {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$type = aioseo()->options->social->facebook->homePage->objectType;
 
 			return $type ? $type : 'website';
@@ -207,13 +219,14 @@ class Facebook {
 	/**
 	 * Returns the Open Graph title for the current page.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
-	 * @param  WP_Post|integer $post The post object or ID (optional).
-	 * @return string                The Open Graph title.
+	 * @param  \WP_Post|integer $post The post object or ID (optional).
+	 * @return string                 The Open Graph title.
 	 */
 	public function getTitle( $post = null ) {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$title = aioseo()->meta->title->helpers->prepare( aioseo()->options->social->facebook->homePage->title );
 
 			return $title ? $title : aioseo()->meta->title->getTitle();
@@ -228,10 +241,12 @@ class Facebook {
 		}
 
 		if ( is_post_type_archive() ) {
-			$postType       = get_queried_object();
-			$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-			if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
-				$title = aioseo()->meta->title->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->title );
+			$postType = get_queried_object();
+			if ( is_a( $postType, 'WP_Post_Type' ) ) {
+				$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+				if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+					$title = aioseo()->meta->title->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->title );
+				}
 			}
 		}
 
@@ -247,13 +262,14 @@ class Facebook {
 	/**
 	 * Returns the Open Graph description.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage branch now runs whenever show_on_front is not 'page'.
 	 *
-	 * @param  WP_Post|integer $post The post object or ID (optional).
-	 * @return string                The Open Graph description.
+	 * @param  \WP_Post|integer $post The post object or ID (optional).
+	 * @return string                 The Open Graph description.
 	 */
 	public function getDescription( $post = null ) {
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( aioseo()->helpers->isBlogIndexHomePage() ) {
 			$description = aioseo()->meta->description->helpers->prepare( aioseo()->options->social->facebook->homePage->description );
 
 			return $description ? $description : aioseo()->meta->description->getDescription();
@@ -268,10 +284,12 @@ class Facebook {
 		}
 
 		if ( is_post_type_archive() ) {
-			$postType       = get_queried_object();
-			$dynamicOptions = aioseo()->dynamicOptions->noConflict();
-			if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
-				$description = aioseo()->meta->description->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->metaDescription );
+			$postType = get_queried_object();
+			if ( is_a( $postType, 'WP_Post_Type' ) ) {
+				$dynamicOptions = aioseo()->dynamicOptions->noConflict();
+				if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+					$description = aioseo()->meta->description->helpers->prepare( aioseo()->dynamicOptions->searchAppearance->archives->{ $postType->name }->metaDescription );
+				}
 			}
 		}
 
@@ -300,20 +318,22 @@ class Facebook {
 	/**
 	 * Returns the Open Graph publisher URL.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.6 Falls back to the saved URL when Facebook is excluded from the shared username.
 	 *
 	 * @return string The Open Graph publisher URL.
 	 */
 	public function getPublisher() {
-		if ( ! aioseo()->options->social->profiles->sameUsername->enable ) {
-			return aioseo()->options->social->profiles->urls->facebookPageUrl;
+		if (
+			aioseo()->options->social->profiles->sameUsername->enable &&
+			in_array( 'facebookPageUrl', aioseo()->options->social->profiles->sameUsername->included, true )
+		) {
+			$username = aioseo()->options->social->profiles->sameUsername->username;
+
+			return $username ? 'https://facebook.com/' . $username : '';
 		}
 
-		$username = aioseo()->options->social->profiles->sameUsername->username;
-
-		return ( $username && in_array( 'facebookPageUrl', aioseo()->options->social->profiles->sameUsername->included, true ) )
-			? 'https://facebook.com/' . $username
-			: '';
+		return aioseo()->options->social->profiles->urls->facebookPageUrl;
 	}
 
 	/**
@@ -352,13 +372,21 @@ class Facebook {
 	 */
 	public function getAuthor() {
 		$post = aioseo()->helpers->getPost();
-		if ( ! $post || ! aioseo()->options->social->facebook->general->showAuthor ) {
+		if ( ! is_a( $post, 'WP_Post' ) || ! aioseo()->options->social->facebook->general->showAuthor ) {
 			return '';
 		}
 
-		$postAuthor = get_the_author_meta( 'aioseo_facebook', $post->post_author );
+		$author       = '';
+		$userProfiles = $this->getUserProfiles( $post->post_author );
+		if ( ! empty( $userProfiles['facebookPageUrl'] ) ) {
+			$author = $userProfiles['facebookPageUrl'];
+		}
 
-		return ! empty( $postAuthor ) ? $postAuthor : aioseo()->options->social->facebook->advanced->authorUrl;
+		if ( empty( $author ) ) {
+			$author = aioseo()->options->social->facebook->advanced->authorUrl;
+		}
+
+		return $author;
 	}
 
 	/**
@@ -366,7 +394,7 @@ class Facebook {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return void
+	 * @return array An array of unique keywords.
 	 */
 	public function getArticleTags() {
 		$post     = aioseo()->helpers->getPost();

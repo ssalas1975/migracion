@@ -1,8 +1,16 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
- * Name: Migrate: Packages
+ * ID: migrate-packages
  *
- * Menu Name: Migrate Packages
+ * Name: Import/Export Packages
+ *
+ * Menu Name: Import/Export Packages
  *
  * Description: Import/Export your Pods, Fields, and other settings from any Pods site; Includes an API to Import/Export Packages via PHP
  *
@@ -45,7 +53,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 	 * @since 2.0.0
 	 */
 	public function admin_assets() {
-		wp_enqueue_script( 'pods-file-saver', PODS_URL . '/components/Migrate-Packages/js/FileSaver.min.js', '', [], '2.0.4', true );
+		wp_enqueue_script( 'pods-file-saver', PODS_URL . '/components/Migrate-Packages/js/FileSaver.min.js', [], '2.0.4', true );
 		wp_enqueue_style( 'pods-wizard' );
 	}
 
@@ -90,15 +98,23 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 				if ( 0 !== (int) $file['error'] ) {
 					$content .= '<p>' . esc_html__( 'Import Error: Package upload failed', 'pods' ) . '</p>';
-				} elseif (
-					! in_array( $file['type'], [ 'application/json', 'text/json' ], true )
-					|| '.json' !== substr( $file['name'], -5, 5 )
-				) {
-					$content .= '<p>' . esc_html__( 'Import Error: Package upload is not a valid JSON file', 'pods' ) . '</p>';
-				} elseif ( ! is_file( $file['tmp_name'] ) ) {
+				} elseif ( ! is_uploaded_file( $file['tmp_name'] ) ) {
 					$content .= '<p>' . esc_html__( 'Import Error: Package upload not completed', 'pods' ) . '</p>';
 				} else {
 					$data = file_get_contents( $file['tmp_name'] );
+
+					// Validate on the actual content rather than the client-provided MIME type / filename: the payload must decode as a JSON array (matching how import() reads it).
+					if (
+						! in_array( $file['type'], [ 'application/json', 'text/json' ], true )
+						|| '.json' !== substr( $file['name'], -5, 5 )
+						|| (
+							! is_array( @json_decode( $data, true ) )
+							&& ! is_array( @json_decode( pods_unslash( $data ), true ) )
+						)
+					) {
+						$data     = null;
+						$content .= '<p>' . esc_html__( 'Import Error: Package upload is not a valid JSON file', 'pods' ) . '</p>';
+					}
 				}
 			}
 
@@ -113,12 +129,14 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 						$content .= '<ul class="normal">';
 
-						foreach ( $import as $k => $what ) {
-							$content .= '<li>' . esc_html( $what ) . '</li>';
+						foreach ( $import as $name => $what ) {
+							$content .= '<li>' . esc_html( $what ) . ( 'pods' === $type ? ' (' . esc_html( $name ) . ')' : '' ) . '</li>';
 						}
 
 						$content .= '</ul>';
 					}
+				} else {
+					$content .= '<p>' . esc_html__( 'Import Error: Nothing found in package to import', 'pods' ) . '</p>';
 				}
 			} elseif ( null === $file ) {
 				$content .= '<p>' . esc_html__( 'Import Error: Invalid Package', 'pods' ) . '</p>';
@@ -126,7 +144,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 			$content .= '</div>';
 
-			echo $content;
+			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} elseif ( 'export' === $params->import_export ) {
 			$params = get_object_vars( $params );
 			foreach ( $params as $k => $v ) {
@@ -139,7 +157,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 			echo '<div class="pods-field-option">';
 
-			echo PodsForm::field( 'export_package', $package, 'paragraph', [
+			PodsForm::output_field( 'export_package', $package, 'paragraph', [
 				'attributes'  => [
 					'style' => 'width: 94%; max-width: 94%; height: 300px;',
 				],
@@ -183,21 +201,21 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 		self::$api = pods_api();
 
-		if ( ! isset( $data['meta'] ) || ! isset( $data['meta']['version'] ) || empty( $data['meta']['version'] ) ) {
+		$meta = self::get_meta_from_package( $data );
+
+		if ( ! $meta ) {
 			return false;
 		}
 
-		if ( false === strpos( $data['meta']['version'], '.' ) && (int) $data['meta']['version'] < 1000 ) {
-			// Pods 1.x < 1.10
-			$data['meta']['version'] = implode( '.', str_split( $data['meta']['version'] ) );
-		} elseif ( false === strpos( $data['meta']['version'], '.' ) ) {
-			// Pods 1.10 <= 2.0
-			$data['meta']['version'] = pods_version_to_point( $data['meta']['version'] );
-		}
+		self::$package_meta_version = $meta['version'];
 
-		self::$package_meta_version = $data['meta']['version'];
+		$found = [];
 
-		$found = array();
+		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
+			self::import_settings( $data['settings'] );
+
+			$found['settings']['all'] = __( 'All Settings', 'pods' );
+		}//end if
 
 		if ( isset( $data['pods'] ) && is_array( $data['pods'] ) ) {
 			foreach ( $data['pods'] as $pod_data ) {
@@ -254,22 +272,6 @@ class Pods_Migrate_Packages extends PodsComponent {
 			}//end foreach
 		}//end if
 
-		if ( isset( $data['helpers'] ) && is_array( $data['helpers'] ) ) {
-			foreach ( $data['helpers'] as $helper_data ) {
-				$helper = self::import_pod_helper( $helper_data, $replace );
-
-				if ( ! $helper ) {
-					continue;
-				}
-
-				if ( ! isset( $found['helpers'] ) ) {
-					$found['helpers'] = array();
-				}
-
-				$found['helpers'][ $helper['name'] ] = $helper['name'];
-			}//end foreach
-		}//end if
-
 		$found = apply_filters( 'pods_packages_import', $found, $data, $replace );
 
 		if ( ! empty( $found ) ) {
@@ -279,6 +281,70 @@ class Pods_Migrate_Packages extends PodsComponent {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the metadata from the package data.
+	 *
+	 * @since 2.9.0
+	 *
+	 * @param array $data The package data.
+	 *
+	 * @return false|array The metadata or false if no metadata is found.
+	 */
+	public static function get_meta_from_package( array $data ) {
+		// Get the meta property if set.
+		if ( isset( $data['@meta'] ) ) {
+			$meta = $data['@meta'];
+		} elseif ( isset( $data['meta'] ) ) {
+			$meta = $data['meta'];
+		} else {
+			return false;
+		}
+
+		if ( empty( $meta['version'] ) ) {
+			return false;
+		}
+
+		// Attempt to adjust the version if needed for compatibility.
+		$has_dot_versioning = false !== strpos( (string) $meta['version'], '.' );
+
+		if ( ! $has_dot_versioning ) {
+			if ( (int) $meta['version'] < 1000 ) {
+				// Pods 1.x < 1.10
+				$meta['version'] = implode( '.', str_split( $meta['version'] ) );
+			} elseif ( function_exists( 'pods_version_to_point' ) ) {
+				// Pods 1.10 <= 2.0
+				$meta['version'] = pods_version_to_point( $meta['version'] );
+			} else {
+				// Default to 1.10 if we can't convert it.
+				$meta['version'] = '1.10';
+			}
+		}
+
+		return $meta;
+	}
+
+	/**
+	 * Handle importing of the settings.
+	 *
+	 * @since 2.9.0
+	 *
+	 * @param array $data The import data.
+	 */
+	public static function import_settings( $data ) {
+		if ( isset( $data['active_components'] ) ) {
+			$components = $data['active_components'];
+
+			if ( is_array( $components ) ) {
+				foreach ( $components as $component ) {
+					PodsInit::$components->activate_component( $component );
+				}
+			}
+
+			unset( $data['active_components'] );
+		}
+		pods_update_settings( $data );
 	}
 
 	/**
@@ -436,9 +502,10 @@ class Pods_Migrate_Packages extends PodsComponent {
 				'type'        => 'pick',
 				'pick_object' => 'user',
 				'options'     => [
-					'pick_format_type'   => 'single',
-					'pick_format_single' => 'autocomplete',
-					'default_value'      => '{@user.ID}',
+					'pick_format_type'      => 'single',
+					'pick_format_single'    => 'autocomplete',
+					'default_value'         => '{@user.ID}',
+					'default_evaluate_tags' => 1,
 				],
 				'weight'      => 3,
 			],
@@ -452,7 +519,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 					return false;
 				}
 
-				$field = self::import_pod_field( $field );
+				$field = self::import_pod_field_prepare( $field );
 
 				if ( ! $field ) {
 					continue;
@@ -558,9 +625,9 @@ class Pods_Migrate_Packages extends PodsComponent {
 		}
 
 		$new_field = [
-			'name'         => trim( pods_v( 'name', $data, '' ) ),
-			'label'        => trim( pods_v( 'label', $data, '' ) ),
-			'description'  => trim( pods_v( 'description', $data, pods_v( 'comment', $data, '' ) ) ),
+			'name'         => trim( (string) pods_v( 'name', $data, '' ) ),
+			'label'        => trim( (string) pods_v( 'label', $data, '' ) ),
+			'description'  => trim( (string) pods_v( 'description', $data, pods_v( 'comment', $data, '' ) ) ),
 			'type'         => $field_type,
 			'weight'       => (int) $data['weight'],
 			'required'     => 1 === (int) $data['required'] ? 1 : 0,
@@ -750,8 +817,8 @@ class Pods_Migrate_Packages extends PodsComponent {
 			];
 
 			foreach ( $excluded_args as $excluded_arg ) {
-				if ( isset( $template[ $excluded_arg ] ) ) {
-					unset( $template[ $excluded_arg ] );
+				if ( isset( $page[ $excluded_arg ] ) ) {
+					unset( $page[ $excluded_arg ] );
 				}
 			}
 		} elseif ( ! empty( $page['options'] ) ) {
@@ -774,6 +841,8 @@ class Pods_Migrate_Packages extends PodsComponent {
 	/**
 	 * Handle importing of the pod helper.
 	 *
+	 * @deprecated 3.3.2
+	 *
 	 * @since 2.8.0
 	 *
 	 * @param array $data    The import data.
@@ -782,74 +851,31 @@ class Pods_Migrate_Packages extends PodsComponent {
 	 * @return array|\Pods\Whatsit|false The imported object or false if failed.
 	 */
 	public static function import_pod_helper( $data, $replace = false ) {
-		if ( isset( $data['id'] ) ) {
-			unset( $data['id'] );
-		}
-
-		$helper = self::$api->load_helper( [ 'name' => $data['name'] ] );
-
-		if ( ! empty( $helper ) ) {
-			// Delete Helper if it exists
-			if ( $replace ) {
-				self::$api->delete_helper( [ 'id' => $helper['id'] ] );
-
-				$helper = [];
-			}
-		} else {
-			$helper = [];
-		}
-
-		// Backwards compatibility
-		if ( isset( $data['phpcode'] ) ) {
-			$data['code'] = $data['phpcode'];
-
-			unset( $data['phpcode'] );
-		}
-
-		if ( isset( $data['type'] ) ) {
-			if ( 'before' === $data['type'] ) {
-				$data['type'] = 'pre_save';
-			} elseif ( 'after' === $data['type'] ) {
-				$data['type'] = 'post_save';
-			}
-		}
-
-		$helper = pods_config_merge_data( $helper, $data );
-
-		if ( isset( $helper['type'] ) ) {
-			$helper['helper_type'] = $helper['type'];
-
-			unset( $helper['helper_type'] );
-		}
-
-		self::$api->save_helper( $helper );
-
-		return $helper;
+		return false;
 	}
 
 	/**
-	 * Export a Package
+	 * Export a Package.
 	 *
 	 * $params['pods'] string|array|bool Pod IDs to export, or set to true to export all
 	 * $params['templates'] string|array|bool Template IDs to export, or set to true to export all
 	 * $params['pages'] string|array|bool Page IDs to export, or set to true to export all
 	 * $params['helpers'] string|array|bool Helper IDs to export, or set to true to export all
 	 *
-	 * @param array $params Array of things to export
-	 *
-	 * @return array|bool
-	 *
-	 * @static
 	 * @since 2.0.5
+	 *
+	 * @param array $params The list of things to export.
+	 *
+	 * @return array|false The package export or false if there was a failure.
+	 *
 	 */
 	public static function export( $params ) {
-
-		$export = array(
-			'meta' => array(
+		$export = [
+			'@meta' => [
 				'version' => PODS_VERSION,
 				'build'   => time(),
-			),
-		);
+			],
+		];
 
 		if ( is_object( $params ) ) {
 			$params = get_object_vars( $params );
@@ -857,10 +883,54 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 		self::$api = pods_api();
 
+		$setting_keys = pods_v( 'settings', $params );
 		$pod_ids      = pods_v( 'pods', $params );
 		$template_ids = pods_v( 'templates', $params );
 		$page_ids     = pods_v( 'pages', $params );
 		$helper_ids   = pods_v( 'helpers', $params );
+
+		if ( ! empty( $setting_keys ) ) {
+			$export['settings'] = [];
+
+			if ( in_array( 'all', $setting_keys, true ) ) {
+				$export['settings'] = pods_get_settings();
+
+				if ( isset( $export['settings']['wisdom_registered_setting'] ) ) {
+					unset( $export['settings']['wisdom_registered_setting'] );
+				}
+
+				$components = PodsInit::$components->get_components();
+
+				$active_components = [];
+
+				foreach ( $components as $component => $component_data ) {
+					if ( PodsInit::$components->is_component_active( $component ) ) {
+						$active_components[] = $component;
+					}
+				}
+
+				$export['settings']['active_components'] = $active_components;
+
+				PodsInit::$components->is_component_active( $component );
+			} else {
+				foreach ( $setting_keys as $setting_key ) {
+					$setting = pods_get_setting( $setting_key );
+
+					if ( null !== $setting ) {
+						$export['settings'][ $setting_key ] = $setting;
+					}
+				}
+			}
+
+			/**
+			 * Allow filtering the list of settings being exported to prevent potentially sensitive third-party settings from being exposed.
+			 *
+			 * @since 2.9.0
+			 *
+			 * @param array $settings The list of settings being exported.
+			 */
+			$export['settings'] = apply_filters( 'pods_migrate_packages_export_settings', $export['settings'] );
+		}
 
 		if ( ! empty( $pod_ids ) ) {
 			$api_params = [];
@@ -918,6 +988,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 				'depends-on',
 				'excludes-on',
 				'_locale',
+				'required_help_boolean',
 			);
 
 			$field_types = PodsForm::field_types();
@@ -930,7 +1001,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 
 			foreach ( $export['pods'] as $pod_key => $pod ) {
 				foreach ( $pod as $option => $option_value ) {
-					if ( in_array( $option, $options_ignore, true ) || null === $option_value ) {
+					if ( null === $option_value || in_array( $option, $options_ignore, true ) ) {
 						unset( $pod[ $option ] );
 					}
 				}
@@ -938,7 +1009,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 				if ( ! empty( $pod['groups'] ) ) {
 					foreach ( $pod['groups'] as $group_key => $group ) {
 						foreach ( $group as $option => $option_value ) {
-							if ( in_array( $option, $options_ignore, true ) || null === $option_value ) {
+							if ( null === $option_value || in_array( $option, $options_ignore, true ) ) {
 								unset( $group[ $option ] );
 							}
 						}
@@ -946,7 +1017,7 @@ class Pods_Migrate_Packages extends PodsComponent {
 						if ( ! empty( $group['fields'] ) ) {
 							foreach ( $group['fields'] as $field_key => $field ) {
 								foreach ( $field as $option => $option_value ) {
-									if ( in_array( $option, $options_ignore, true ) || null === $option_value ) {
+									if ( null === $option_value || in_array( $option, $options_ignore, true ) ) {
 										unset( $field[ $option ] );
 									}
 								}
@@ -957,7 +1028,11 @@ class Pods_Migrate_Packages extends PodsComponent {
 									}
 
 									foreach ( $options as $option_data ) {
-										if ( isset( $option_data['group'] ) && is_array( $option_data['group'] ) && ! empty( $option_data['group'] ) ) {
+										if (
+											isset( $option_data['group'] )
+											&& is_array( $option_data['group'] )
+											&& ! empty( $option_data['group'] )
+										) {
 											if ( isset( $field[ $option_data['name'] ] ) ) {
 												unset( $field[ $option_data['name'] ] );
 											}
@@ -1042,31 +1117,17 @@ class Pods_Migrate_Packages extends PodsComponent {
 			}
 		}
 
-		if ( ! empty( $helper_ids ) ) {
-			$api_params = array();
-
-			if ( true !== $helper_ids ) {
-				$api_params['ids'] = (array) $helper_ids;
-			}
-
-			$export['helpers'] = array_values( self::$api->load_helpers( $api_params ) );
-
-			foreach ( $export['helpers'] as $k => $helper ) {
-				$helper = $helper->get_clean_args();
-
-				foreach ( $excluded_args as $excluded_arg ) {
-					if ( isset( $helper[ $excluded_arg ] ) ) {
-						unset( $helper[ $excluded_arg ] );
-					}
-				}
-
-				$export['helpers'][ $k ] = $helper;
-			}
-		}
-
+		/**
+		 * Allow filtering the package being exported.
+		 *
+		 * @since 2.0.5
+		 *
+		 * @param array $export The export package.
+		 * @param array $params The list of things to export.
+		 */
 		$export = apply_filters( 'pods_packages_export', $export, $params );
 
-		if ( 1 == count( $export ) ) {
+		if ( 1 === count( $export ) ) {
 			return false;
 		}
 

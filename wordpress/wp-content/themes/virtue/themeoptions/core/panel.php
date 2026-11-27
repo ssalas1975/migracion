@@ -47,16 +47,12 @@
              */
             private function panel_template() {
 
-                if ( $this->parent->args['dev_mode'] ) {
-                    $this->template_file_check_notice();
-                }
-
                 /**
                  * action 'redux/{opt_name}/panel/before'
                  */
                 do_action( "redux/{$this->parent->args['opt_name']}/panel/before" );
 
-                echo '<div class="wrap"><h2></h2></div>'; // Stupid hack for Wordpress alerts and warnings
+                echo '<div class="wrap"><h2></h2></div>'; // Stupid hack for WordPress alerts and warnings
 
                 echo '<div class="clear"></div>';
                 echo '<div class="wrap">';
@@ -98,6 +94,18 @@
                 do_action( "redux/page/{$this->parent->args['opt_name']}/form/after", $this );
                 echo '<div class="clear"></div>';
                 echo '</div>';
+
+                // KT NOTE Remove
+                // if ( $this->parent->args['dev_mode'] == true ) {
+//                    if ( current_user_can( 'administrator' ) ) {
+//                        global $wpdb;
+//                        echo "<br /><pre>";
+//                        print_r( $wpdb->queries );
+//                        echo "</pre>";
+//                    }
+
+                //     echo '<br /><div class="redux-timer">' . get_num_queries() . ' queries in ' . timer_stop( 0 ) . ' seconds<br/>Redux is currently set to developer mode.</div>';
+                // }
 
                 /**
                  * action 'redux/{opt_name}/panel/after'

@@ -177,7 +177,7 @@ msgstr "Aanbevolen"
 
 #: ../lib/class-tgm-plugin-activation.php:2238
 msgid "WordPress Repository"
-msgstr "Wordpress opslagplaats"
+msgstr "WordPress opslagplaats"
 
 #: ../lib/class-tgm-plugin-activation.php:2242
 msgid "External Source"
@@ -2283,12 +2283,12 @@ msgid "Extra Sidebar"
 msgstr "Extra Sidebar"
 
 #: ../themeoptions/options.php:1610
-msgid "Wordpress Galleries"
-msgstr "Wordpress Gallerijen"
+msgid "WordPress Galleries"
+msgstr "WordPress Gallerijen"
 
 #: ../themeoptions/options.php:1615
-msgid "Enable Virtue Galleries to override Wordpress"
-msgstr "Schakel Vitrue Gallerijen in om die van Wordpress te overschrijven"
+msgid "Enable Virtue Galleries to override WordPress"
+msgstr "Schakel Vitrue Gallerijen in om die van WordPress te overschrijven"
 
 #: ../themeoptions/options.php:1616
 msgid ""

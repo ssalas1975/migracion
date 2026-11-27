@@ -40,6 +40,7 @@ class Full_Site_Editor {
 			'tribe_events_page_tribe-app-shop', // App shop.
 			'events_page_tribe-app-shop', // App shop.
 			'tribe_events_page_tribe-common', // Settings & Welcome.
+			'tribe_events_page_tec-events-settings', // New Settings & Welcome.
 			'events_page_tribe-common', // Settings & Welcome.
 			'toplevel_page_tribe-common', // Settings & Welcome.
 		];
@@ -62,7 +63,7 @@ class Full_Site_Editor {
 	 * @return string
 	 */
 	public function incompatibility_display() {
-		$html     = esc_html__( 'The Events Calendar is not yet supported for themes using the Full Site Editor.', 'the-events-calendar' );
+		$html     = esc_html__( 'The Events Calendar offers basic support for themes using Site Editor.', 'the-events-calendar' );
 		$html .= ' <a target="_blank" href="https://evnt.is/fse-compatibility">' . esc_html__( 'Read more.', 'the-events-calendar' ) . '</a>';
 
 		/**

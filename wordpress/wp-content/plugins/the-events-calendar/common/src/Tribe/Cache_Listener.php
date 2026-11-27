@@ -62,16 +62,29 @@ class Tribe__Cache_Listener {
 		add_action( 'updated_option', [ $this, 'update_last_updated_option' ], 10, 3 );
 		add_action( 'updated_option', [ $this, 'update_last_save_post' ], 10, 3 );
 		add_action( 'generate_rewrite_rules', [ $this, 'generate_rewrite_rules' ] );
+		add_action( 'clean_post_cache', [ $this, 'save_post' ], 0, 2 );
 	}
 
 	/**
 	 * Run the caching functionality that is executed on save post.
 	 *
-	 * @param int     $post_id The post_id.
-	 * @param WP_Post $post    The current post object being saved.w
+	 * @since 6.14.1 The post is optional and loaded from the ID when it is not a post: some plugins fire `save_post` with the ID alone.
+	 *
+	 * @param int|mixed          $post_id The post_id.
+	 * @param WP_Post|mixed|null $post    The current post object being saved.
 	 */
-	public function save_post( $post_id, $post ) {
-		if ( in_array( $post->post_type, Tribe__Main::get_post_types() ) ) {
+	public function save_post( $post_id, $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			// get_post() answers an empty ID with the global post, which is not the post being saved.
+			$post_id = filter_var( $post_id, FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 1 ] ] );
+			$post    = $post_id ? get_post( $post_id ) : null;
+		}
+
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
+		if ( in_array( $post->post_type, $this->get_cache_invalidation_post_types() ) ) {
 			$this->cache->set_last_occurrence( self::TRIGGER_SAVE_POST );
 		}
 	}
@@ -171,8 +184,8 @@ class Tribe__Cache_Listener {
 	/**
 	 * For any hook that doesn't need any additional filtering
 	 *
-	 * @param $method
-	 * @param $args
+	 * @param callable $method The method to call.
+	 * @param array    $args   The arguments to pass to the method.
 	 */
 	public function __call( $method, $args ) {
 		$this->cache->set_last_occurrence( $method );
@@ -210,5 +223,28 @@ class Tribe__Cache_Listener {
 	 */
 	public function generate_rewrite_rules() {
 		$this->cache->set_last_occurrence( self::TRIGGER_GENERATE_REWRITE_RULES );
+	}
+
+	/**
+	 * Returns the list of post types that should trigger a cache invalidation on `save_post.
+	 *
+	 * @since 5.1.10
+	 *
+	 * @return array<string> The list of post types that should trigger a cache invalidation on `save_post`.
+	 */
+	protected function get_cache_invalidation_post_types(): array {
+		$post_types = Tribe__Main::get_post_types();
+
+		/**
+		 * Filters the list of post types that should trigger a cache invalidation on `save_post`.
+		 *
+		 * @since 5.1.10
+		 *
+		 * @param array<string> $post_types The list of post types that should trigger a cache invalidation on
+		 *                                  `save_post`.
+		 */
+		$post_types = apply_filters( 'tec_cache_listener_save_post_types', $post_types );
+
+		return array_values( array_unique( $post_types ) );
 	}
 }

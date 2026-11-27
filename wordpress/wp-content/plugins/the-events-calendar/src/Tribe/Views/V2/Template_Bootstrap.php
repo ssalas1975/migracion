@@ -14,7 +14,6 @@ use Tribe\Utils\Body_Classes;
 use Tribe__Events__Main as TEC;
 use Tribe__Events__Templates as V1_Event_Templates;
 use Tribe__Notices;
-use Tribe__Templates as V1_Templates;
 use Tribe__Utils__Array as Arr;
 use WP_Query;
 
@@ -57,8 +56,6 @@ class Template_Bootstrap {
 	/**
 	 * Disables the Views V1 implementation of a Template Hijack
 	 *
-	 * @todo   use a better method to remove Views V1 from been initialized
-	 *
 	 * @since  4.9.2
 	 *
 	 * @return void
@@ -66,7 +63,6 @@ class Template_Bootstrap {
 	public function disable_v1() {
 		remove_filter( 'tribe_events_before_html', [ TEC::instance(), 'before_html_data_wrapper' ] );
 		remove_filter( 'tribe_events_after_html', [ TEC::instance(), 'after_html_data_wrapper' ] );
-		remove_action( 'plugins_loaded', [ V1_Event_Templates::class, 'init' ] );
 	}
 
 	/**
@@ -130,9 +126,59 @@ class Template_Bootstrap {
 	}
 
 	/**
+	 * Determines whether we are in a Single organizer page or not, based only on global context.
+	 *
+	 * @since  6.11.0
+	 *
+	 * @return bool Whether the current request is for the single organizer template or not.
+	 */
+	public function is_single_organizer() {
+		if ( ! did_action( 'parse_query' ) ) {
+			return false;
+		}
+
+		$conditions = [
+			is_singular( TEC::ORGANIZER_POST_TYPE ),
+		];
+
+		return in_array( true, $conditions, true );
+	}
+
+	/**
+	 * Determines whether we are in a Single Venue page or not, based only on global context.
+	 *
+	 * @since  6.11.0
+	 *
+	 * @return bool Whether the current request is for the single venue template or not.
+	 */
+	public function is_single_venue() {
+		if ( ! did_action( 'parse_query' ) ) {
+			return false;
+		}
+
+		$conditions = [
+			is_singular( TEC::VENUE_POST_TYPE ),
+		];
+
+		return in_array( true, $conditions, true );
+	}
+
+	/**
+	 * Sets the current view context to `single-event` for the legacy view system.
+	 *
+	 * @since 6.4.1
+	 *
+	 * @return string
+	 */
+	public function context_view_as_single_event() {
+		return 'single-event';
+	}
+
+	/**
 	 * Fetches the HTML for the Single Event page using the legacy view system
 	 *
 	 * @since  4.9.4
+	 * @since 6.17.4.1 Block parsing is left to the content filters, so it no longer runs over the full page buffer.
 	 *
 	 * @return string
 	 */
@@ -140,6 +186,12 @@ class Template_Bootstrap {
 		if ( ! tribe_is_showing_all() && tribe_is_past_event() ) {
 			Tribe__Notices::set_notice( 'event-past', sprintf( esc_html__( 'This %s has passed.', 'the-events-calendar' ), tribe_get_event_label_singular_lowercase() ) );
 		}
+
+		// Set our context to read as a single-event view.
+		if ( ! has_filter( "tribe_context_view", [ $this, 'context_view_as_single_event' ] ) ) {
+			add_filter( "tribe_context_view", [ $this, 'context_view_as_single_event' ] );
+		}
+
 		$setting = $this->get_template_setting();
 
 		// A number of TEC, and third-party, functions, depend on this. Let's fire it.
@@ -148,22 +200,49 @@ class Template_Bootstrap {
 
 		ob_start();
 		if ( 'page' === $setting ) {
-			echo '<main id="tribe-events">';
+			echo '<section id="tribe-events">';
 		} else {
-			echo '<main id="tribe-events-pg-template" class="tribe-events-pg-template">';
+			echo '<section id="tribe-events-pg-template" class="tribe-events-pg-template">';
 		}
 		tribe_events_before_html();
 		tribe_get_view( 'single-event' );
 		tribe_events_after_html();
-		echo '</main>';
+		echo '</section>';
 
 		$html = ob_get_clean();
 
-		if ( function_exists( 'do_blocks' ) ) {
-			$html = do_blocks( $html );
-		}
-
 		return $html;
+	}
+
+	/**
+	 * Whether the current view will render the single-event template.
+	 *
+	 * @since 6.17.5
+	 *
+	 * @return bool Whether to render a single event instead of an archive.
+	 */
+	public function should_display_single() {
+		$query     = tribe_get_global_query_object();
+		$context   = tribe_context();
+		$view_slug = $context->get( 'event_display' );
+
+		$should_display_single = (
+			$this->is_single_event()
+			&& ! tribe_is_showing_all()
+			&& ! is_embed()
+		);
+
+		/**
+		 * Filters when we display the single for events.
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param boolean         $should_display_single  If we are currently going to display single.
+		 * @param string          $view_slug              The slug of the View that will be built, based on the context.
+		 * @param \WP_Query       $query                  The current WP Query object.
+		 * @param \Tribe__Context $context                Tribe context used to setup the view.
+		 */
+		return (bool) apply_filters( 'tribe_events_views_v2_bootstrap_should_display_single', $should_display_single, $view_slug, $query, $context );
 	}
 
 	/**
@@ -174,9 +253,6 @@ class Template_Bootstrap {
 	 * @return string
 	 */
 	protected function get_v1_embed_template_path() {
-		global $post;
-		$query = tribe_get_global_query_object();
-
 		if ( ! tribe_is_showing_all() && tribe_is_past_event() ) {
 			Tribe__Notices::set_notice( 'event-past', sprintf( esc_html__( 'This %s has passed.', 'the-events-calendar' ), tribe_get_event_label_singular_lowercase() ) );
 		}
@@ -197,7 +273,7 @@ class Template_Bootstrap {
 	public function get_view_html() {
 		$query     = tribe_get_global_query_object();
 		$context   = tribe_context();
-		$view_slug = $context->get( 'view' );
+		$view_slug = $context->get( 'event_display' );
 
 		/**
 		 * Filters the HTML for the view before we do any other logic around that.
@@ -215,23 +291,7 @@ class Template_Bootstrap {
 			return $pre_html;
 		}
 
-		$should_display_single = (
-			$this->is_single_event()
-			&& ! tribe_is_showing_all()
-			&& ! V1_Templates::is_embed()
-		);
-
-		/**
-		 * Filters when we display the single for events.
-		 *
-		 * @since 5.0.0
-		 *
-		 * @param boolean         $should_display_single  If we are currently going to display single.
-		 * @param string          $view_slug              The slug of the View that will be built, based on the context.
-		 * @param \Tribe__Context $context                Tribe context used to setup the view.
-		 * @param \WP_Query       $query                  The current WP Query object.
-		 */
-		$should_display_single = apply_filters( 'tribe_events_views_v2_bootstrap_should_display_single', $should_display_single, $view_slug, $query, $context );
+		$should_display_single = $this->should_display_single();
 
 		if ( $should_display_single ) {
 			$html = $this->get_v1_single_event_html();
@@ -264,7 +324,6 @@ class Template_Bootstrap {
 
 			$html = View::make( $view_slug, $context )->get_html();
 		}
-
 
 		/**
 		 * Filters the HTML for the view before we do any other logic around that.
@@ -355,6 +414,10 @@ class Template_Bootstrap {
 	 * @return string Path to the File that initializes the template
 	 */
 	public function filter_template_include( $template ) {
+		if ( tec_is_full_site_editor() ) {
+			return $template;
+		}
+
 		$query   = tribe_get_global_query_object();
 		$context = tribe_context();
 
@@ -385,8 +448,7 @@ class Template_Bootstrap {
 			return $template;
 		}
 
-		$view_slug = $context->get( 'view' );
-		$is_embed  = V1_Templates::is_embed() || 'embed' === $view_slug;
+		$is_embed  = is_embed() || 'embed' === $context->get( 'view' );
 
 		if ( $is_embed ) {
 			return $this->get_v1_embed_template_path();
@@ -399,18 +461,19 @@ class Template_Bootstrap {
 	 * Set the correct body classes for our plugin.
 	 *
 	 * @since  4.9.11
+	 * @since 6.7.2 Cast  object to string to avoid deprecation notices.
 	 *
 	 * @return array The array containing the body classes
 	 */
 	public function filter_add_body_classes( $classes ) {
 		$setting  = $this->get_template_setting();
-		$template = $this->get_template_object()->get_path();
+		$active_theme = wp_get_theme();
 
 		if ( 'page' !== $setting ) {
 			return $classes;
 		}
 
-		$classes[] = 'page-template-' . sanitize_title( $template );
+		$classes[] = 'page-template-' . sanitize_title( (string) $active_theme->display( 'Name' ) );
 
 		if ( ! get_queried_object() instanceof \WP_Term ) {
 			$key = array_search( 'archive', $classes, true );
@@ -505,4 +568,38 @@ class Template_Bootstrap {
 		return $theme_file;
 	}
 
+	/**
+	 * Wraps the view HTML in a main landmark for accessibility if not already wrapped.
+	 *
+	 * This ensures that even when themes override the default-template.php,
+	 * the content is still wrapped in a proper main landmark element.
+	 *
+	 * @since 6.15.12
+	 * @since 6.15.12.2 Changed the approach to inject the `role` attribute to the first element in the HTML instead of wrapping the entire HTML in a main element.
+	 *
+	 * @param string $html The HTML output from the view.
+	 *
+	 * @return string The HTML, wrapped in a main landmark if needed.
+	 */
+	public function maybe_add_main_landmark( $html ) {
+		// Don't add a landmark if we're doing an AJAX request or if this is embed content.
+		if ( is_embed() || tribe_context()->doing_ajax() ) {
+			return $html;
+		}
+
+		$cache = tribe_cache();
+
+		if ( ! empty( $cache['tec_events_views_v2_main_landmark_added'] ) ) {
+			return $html;
+		}
+
+		$cache['tec_events_views_v2_main_landmark_added'] = true;
+
+		if ( strstr( $html, 'role="main"' ) ) {
+			// A main role is already present.
+			return $html;
+		}
+
+		return preg_replace( '/<(\w+)([^>]*)>/', '<$1$2 role="main">', $html, 1 );
+	}
 }

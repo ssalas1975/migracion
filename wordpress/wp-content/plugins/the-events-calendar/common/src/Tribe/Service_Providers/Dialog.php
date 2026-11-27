@@ -2,6 +2,8 @@
 
 namespace Tribe\Service_Providers;
 
+use TEC\Common\Contracts\Service_Provider;
+
 /**
  * Class Dialog
  *
@@ -9,7 +11,8 @@ namespace Tribe\Service_Providers;
  *
  * Handles the registration and creation of our async process handlers.
  */
-class Dialog extends \tad_DI52_ServiceProvider {
+class Dialog extends Service_Provider {
+
 
 	/**
 	 * Binds and sets up implementations.
@@ -53,7 +56,7 @@ class Dialog extends \tad_DI52_ServiceProvider {
 	/**
 	  * {@inheritdoc}
 	 *
-	 * @since  4.10.0
+	 * @since 4.10.0
 	 */
 	public function template_public_namespace( $namespace, $obj ) {
 		if ( ! empty( $obj->template_namespace ) && 'dialog' === $obj->template_namespace ) {
@@ -71,7 +74,7 @@ class Dialog extends \tad_DI52_ServiceProvider {
 	public function register_dialog_assets() {
 		$main = \Tribe__Main::instance();
 
-		tribe_asset(
+		tec_asset(
 			$main,
 			'tribe-dialog',
 			'dialog.css',
@@ -80,20 +83,20 @@ class Dialog extends \tad_DI52_ServiceProvider {
 			[ 'groups' => 'tribe-dialog' ]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$main,
-			'mt-a11y-dialog',
-			'node_modules/mt-a11y-dialog/a11y-dialog.js',
+			'tec-a11y-dialog',
+			'tec-a11y-dialog.js',
 			[ 'underscore', 'tribe-common' ],
 			[],
 			[ 'groups' => 'tribe-dialog' ]
 		);
 
-		tribe_asset(
+		tec_asset(
 			$main,
 			'tribe-dialog-js',
 			'dialog.js',
-			[ 'mt-a11y-dialog' ],
+			[ 'tec-a11y-dialog' ],
 			[],
 			[ 'groups' => 'tribe-dialog' ]
 		);

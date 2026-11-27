@@ -9,8 +9,12 @@
 (function () {
 
 	var cart_flyout = document.getElementById('astra-mobile-cart-drawer'),
-		main_header_masthead = document.getElementById('masthead');
-
+		main_header_masthead = document.getElementById('masthead'),
+		responsive_cart_click = astra_cart.responsive_cart_click;
+	
+	// Variable to store the element that opened the cart
+	var lastFocusedElement = null;
+	
 	// Return if masthead not exixts.
 	if (!main_header_masthead) {
 		return;
@@ -26,9 +30,103 @@
 	}
 
 	/**
+	 * Manages focus for accessibility
+	 */
+	const focusManager = {
+		/**
+		 * Moves focus to the close button
+		 */
+		moveToCloseButton: function() {
+			var closeButton = document.querySelector('.astra-cart-drawer-close');
+			if (closeButton) {
+				closeButton.focus();
+			}
+		},
+		
+		/**
+		 * Returns focus to the triggering element
+		 */
+		returnToTrigger: function( preventScroll ) {
+			var focusOptions = preventScroll ? { preventScroll: true } : undefined;
+			if (lastFocusedElement) {
+				lastFocusedElement.focus( focusOptions );
+			} else {
+				// Fallback if we don't have the original element - try multiple selectors
+				var cartIcon = document.querySelector('.ast-header-woo-cart .ast-site-header-cart .ast-site-header-cart-li a.cart-container');
+				if (!cartIcon) {
+					cartIcon = document.querySelector('.ast-site-header-cart-li a');
+				}
+				if (!cartIcon) {
+					cartIcon = document.querySelector('.ast-header-woo-cart a');
+				}
+				if (cartIcon) {
+					cartIcon.focus( focusOptions );
+				}
+			}
+		},
+		
+		/**
+		 * Sets up a focus trap within the cart flyout
+		 */
+		setupFocusTrap: function() {
+			if (!cart_flyout) return;
+			
+			// Remove any existing event listeners first
+			document.removeEventListener('keydown', this.trapTabKey);
+			
+			// Add the event listener for tab key
+			document.addEventListener('keydown', this.trapTabKey);
+		},
+		
+		/**
+		 * Traps the tab key within the cart flyout
+		 */
+		trapTabKey: function(e) {
+			// Only run if cart flyout is active and tab key is pressed
+			if (!cart_flyout.classList.contains('active') || e.key !== 'Tab') {
+				return;
+			}
+			
+			// Get all focusable elements inside the flyout
+			var focusableElements = cart_flyout.querySelectorAll(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			);
+			
+			// Filter out hidden elements
+			focusableElements = Array.prototype.filter.call(focusableElements, function(element) {
+				return element.offsetWidth > 0 && element.offsetHeight > 0 && window.getComputedStyle(element).visibility !== 'hidden';
+			});
+			
+			if (focusableElements.length === 0) return;
+			
+			var firstElement = focusableElements[0];
+			var lastElement = focusableElements[focusableElements.length - 1];
+			
+			// If shift+tab on first element, go to last element
+			if (e.shiftKey && document.activeElement === firstElement) {
+				e.preventDefault();
+				lastElement.focus();
+			} 
+			// If tab on last element, go to first element
+			else if (!e.shiftKey && document.activeElement === lastElement) {
+				e.preventDefault();
+				firstElement.focus();
+			}
+		}
+	};
+
+	/**
 	 * Opens the Cart Flyout.
 	 */
 	cartFlyoutOpen = function (event) {
+		// Store the element that opened the cart for returning focus later
+		lastFocusedElement = event.currentTarget.querySelector('a.cart-container') || event.currentTarget;
+
+		// Check if responsive_cart_click is "redirect" and body has class "ast-header-break-point"
+		if ((responsive_cart_click === 'redirect' && document.body.classList.contains('ast-header-break-point')) ) {
+			return;
+		}
+
 		event.preventDefault();
 		var current_cart = event.currentTarget.cart_type;
 
@@ -56,6 +154,14 @@
 				}
 			}
 		}
+
+		document.dispatchEvent( new CustomEvent( "astra_on_slide_In_cart_open",  { "detail": {} }) );
+		
+		// Accessibility improvement: Move focus to close button after cart is opened
+		setTimeout(function() {
+			focusManager.moveToCloseButton();
+			focusManager.setupFocusTrap();
+		}, 100);
 	}
 
 	/**
@@ -67,6 +173,11 @@
 			cart_flyout.classList.remove('active');
 			document.documentElement.classList.remove('ast-mobile-cart-active');
 		}
+		
+		// Return focus to the element that opened the cart
+		setTimeout(function() {
+			focusManager.returnToTrigger( true );
+		}, 100);
 	}
 
 	/**
@@ -75,12 +186,16 @@
 	function cartInit() {
 		// Close Popup if esc is pressed.
 		document.addEventListener('keyup', function (event) {
-			// 27 is keymap for esc key.
-			if (event.keyCode === 27) {
+			// Run only while the cart is open.
+			if ('Escape' === event.key && cart_flyout && cart_flyout.classList.contains('active')) {
 				event.preventDefault();
 				cart_flyout.classList.remove('active');
 				document.documentElement.classList.remove('ast-mobile-cart-active');
-				updateTrigger();
+				
+				// Return focus to the element that opened the cart
+				setTimeout(function() {
+					focusManager.returnToTrigger( true );
+				}, 100);
 			}
 		});
 
@@ -92,13 +207,22 @@
 			if (target === cart_modal) {
 				cart_flyout.classList.remove('active');
 				document.documentElement.classList.remove('ast-mobile-cart-active');
+				
+				// Return focus to the element that opened the cart
+				setTimeout(function() {
+					focusManager.returnToTrigger( true );
+				}, 100);
 			}
 		});
 
 		if (undefined !== mobileHeader && '' !== mobileHeader && null !== mobileHeader) {
 
 			// Mobile Header Cart Flyout.
-			var woo_carts = document.querySelectorAll('.ast-mobile-header-wrap .ast-header-woo-cart');
+			if( 'flyout' == astra_cart.desktop_layout ) {
+				var woo_carts = document.querySelectorAll('.ast-mobile-header-wrap .ast-header-woo-cart, #ast-desktop-header .ast-desktop-cart-flyout');
+			} else {
+				var woo_carts = document.querySelectorAll('.ast-mobile-header-wrap .ast-header-woo-cart');
+			}
 			var edd_cart = document.querySelector('.ast-mobile-header-wrap .ast-header-edd-cart');
 			var cart_close = document.querySelector('.astra-cart-drawer-close');
 
@@ -119,13 +243,53 @@
 			}
 		}
 
+		// Add keyboard event listeners to cart icons for accessibility
+		var cartIcons = document.querySelectorAll('.ast-site-header-cart .ast-site-header-cart-li a');
+		if (cartIcons.length > 0) {
+			cartIcons.forEach(function(cartIcon) {
+				cartIcon.addEventListener('keydown', function(e) {
+					if (e.key === 'Enter' || e.keyCode === 13) {
+						e.preventDefault();
+						// Store this element as the last focused element
+						lastFocusedElement = cartIcon;
+						cartIcon.click();
+					}
+				});
+			});
+		}
 	}
+
+	// Slide in cart 'astra_woo_slide_in_cart' PRO shortcode compatibility.
+	if(document.querySelector('.ast-slidein-cart')){
+		document.querySelector('.ast-slidein-cart').addEventListener('click', (e)=> {
+			// Store this element as the last focused element
+			lastFocusedElement = e.currentTarget;
+			
+			document.querySelector('#astra-mobile-cart-drawer').classList.add('active');
+			document.querySelector('html').classList.add('ast-mobile-cart-active');
+			e.preventDefault();
+			
+			// Accessibility improvement: Move focus to close button
+			setTimeout(function() {
+				focusManager.moveToCloseButton();
+				focusManager.setupFocusTrap();
+			}, 100);
+		});		
+	}
+	
+	// Get the screen inner width.
+	var screenInnerWidth = window.innerWidth;
 
 	window.addEventListener('resize', function () {
 		// Close Cart
 		var cart_close = document.querySelector('.astra-cart-drawer-close');
 		if ( undefined !== cart_close && '' !== cart_close && null !== cart_close && 'INPUT' !== document.activeElement.tagName && cart_flyout.classList.contains( 'active' ) ) {
-			cart_close.click();
+			// Get the modified screen inner width.
+			var modifiedInnerWidth = window.innerWidth;
+			if ( modifiedInnerWidth !== screenInnerWidth ) {
+				screenInnerWidth = modifiedInnerWidth;
+				cart_close.click();
+			}
 		}
 	});
 
@@ -140,13 +304,61 @@
 		cartInit();
 	});
 
+	let initialWidth = window.innerWidth; // Store the initial device width.
+
 	var layoutChangeDelay;
 	window.addEventListener('resize', function () {
+		let newWidth = window.innerWidth; // Get the device width after resize.
+
 		clearTimeout(layoutChangeDelay);
 		layoutChangeDelay = setTimeout(function () {
 			cartInit();
-			document.dispatchEvent(new CustomEvent("astLayoutWidthChanged", {"detail": {'response': ''}}));
+			// Dispatch 'astLayoutWidthChanged' event only if the width has changed.
+			// This prevents input elements from losing focus unnecessarily.
+			if ( initialWidth !== newWidth ) {
+				document.dispatchEvent(new CustomEvent("astLayoutWidthChanged", {"detail": {'response': ''}}));
+			}
+
+			// Update the initial width to the new width after resizing completes.
+			initialWidth = newWidth;
 		}, 50);
+	});
+
+	// Using jQuery here because WooCommerce and the variation swatches plugin rely on jQuery for AJAX handling and DOM updates.
+	jQuery(document).ready(function ($) {
+		// Check if WooCommerce parameters are available before proceeding.
+		if (typeof wc_add_to_cart_params === 'undefined') {
+			return;
+		}
+
+		$(document.body).on('astra_refresh_cart_fragments', function () {
+			// Refreshing WooCommerce cart fragments.
+			$.get(wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'), function (data) {
+				if (data && data.fragments) {
+					$.each(data.fragments, function (key, value) {
+						$(key).replaceWith(value);
+					});
+				}
+			});
+		});
+
+		// WooCommerce core applies fragments passed with 'added_to_cart'; refresh only when the trigger carries no usable fragments (some plugins fire it bare, expecting the theme to refetch).
+		$(document.body).on('added_to_cart', function (event, fragments) {
+			if (!fragments || !fragments['div.widget_shopping_cart_content']) {
+				$(document.body).trigger('astra_refresh_cart_fragments');
+			}
+		});
+
+		// Listen for WooCommerce block-based add-to-cart (used by "Hand-picked Products" and "Products by Category" blocks).
+		// These blocks use the Store API (/wc/store/v1) and fire wc-blocks_added_to_cart instead of the classic added_to_cart event.
+		$(document.body).on('wc-blocks_added_to_cart', function () {
+			$(document.body).trigger('astra_refresh_cart_fragments');
+		});
+
+		// On page load, refresh fragments only when WooCommerce's cart-fragments script is not present to handle it itself.
+		if (typeof wc_cart_fragments_params === 'undefined') {
+			$(document.body).trigger('astra_refresh_cart_fragments');
+		}
 	});
 
 })();

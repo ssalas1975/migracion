@@ -20,6 +20,7 @@ class Admin{
 		static::register_scripts_and_styles();
 		include_once('notices/admin-notices.php');
 		include_once('notices/notices.php');
+		include_once('admin-modals.php');
 		Admin_Notices::$option_name = 'lwa_data';
 		Admin_Notices::$option_notices_name = 'lwa_admin_notices';
 		
@@ -29,6 +30,7 @@ class Admin{
 				Admin_Notices::remove('v4-legacy');
 			}
 		}
+		do_action('lwa_admin_init');
 	}
 	
 	public static function register_scripts_and_styles(){
@@ -43,14 +45,14 @@ class Admin{
 	}
 	
 	public static function enqueue_scripts_and_styles(){
+		LoginWithAjax::enqueue_scripts_and_styles( true );
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_style( 'login-with-ajax' );
 		wp_enqueue_script('login-with-ajax-admin');
 		wp_enqueue_style('login-with-ajax-admin');
 	}
 	
 	public static function menus(){
-		$page = add_options_page('Login With Ajax', 'Login With Ajax', 'manage_options', 'login-with-ajax', array('\Login_With_AJAX\Admin','options'));
+		$page = add_options_page('AJAX Auth', 'AJAX Auth', 'manage_options', 'login-with-ajax', array('\Login_With_AJAX\Admin','options'));
 		add_action('admin_head-'.$page, array('\Login_With_AJAX\Admin','options_head'));
 	}
 
@@ -93,7 +95,7 @@ class Admin{
 	
 	public static function sanitize_deeply( $data ){
 		if( !is_array($data) ){
-			$clean = sanitize_text_field($data);
+			$clean = sanitize_textarea_field($data);
 		} else {
 			$clean = array();
 			foreach( $data as $k => $v ){
@@ -105,11 +107,11 @@ class Admin{
 	
 	public static function options() {
 		global $lwa_data;
-		add_option('lwa_data');
 		$lwa_data = array( 'legacy' => false ); //legacy is set by default until v5.
 		
 		if( !empty($_POST['lwasubmitted']) && current_user_can('list_users') && wp_verify_nonce($_POST['_nonce'], 'login-with-ajax-admin'.get_current_user_id()) ){
 			//Build the array of options here
+			$textareas = array();
 			foreach ($_POST as $postKey => $postValue){
 				if( $postValue != '' && preg_match('/lwa_role_log(in|out)_/', $postKey) ){
 					//Custom role-based redirects
@@ -143,8 +145,8 @@ class Admin{
  				}
 			}
 			update_option('lwa_data', $lwa_data);
-			LoginWithAjax::$data = $lwa_data;
-			LoginWithAjax::$template = $lwa_data['template'];
+			\LoginWithAjax::$data = $lwa_data;
+			\LoginWithAjax::$template = $lwa_data['template'];
 			if( !empty($_POST['lwa_notification_override']) ){
 				$override_notification = $_POST['lwa_notification_override'] ? true:false;
 				update_option('lwa_notification_override', $override_notification);
@@ -152,29 +154,33 @@ class Admin{
 			?>
 			<div class="updated"><p><strong><?php esc_html_e('Changes saved.'); ?></strong></p></div>
 			<?php
+			do_action('lwa_settings_updated');
 		}else{
-			$lwa_data = get_option('lwa_data');	
+			$lwa_data = \LoginWithAjax::$data;
 		}
 		
+		$pro_nags = !defined( 'LWA_PRO_VERSION' ) && ( !defined( 'LWA_REMOVE_PRO_NAGS' ) || !LWA_REMOVE_PRO_NAGS );
 		// get tabs settings, in case we want to split them page by page rather than one page
 		$tabs_enabled = defined('LWA_SETTINGS_TABS') && LWA_SETTINGS_TABS;
 		// button for submission (reused)
 		global $lwa_submit_button;
 		$lwa_submit_button = '<p class="lwa-actions"><button type="submit" class="button-primary">'. esc_html__('Save Changes','login-with-ajax') .'</button></p>';
 		?>
-		<div class="wrap tabs-active">
-			<h1><?php esc_html_e('Login With Ajax', 'login-with-ajax'); ?></h1>
+		<div class="wrap tabs-active lwa">
+			<h1><img src="<?php echo esc_url( LOGIN_WITH_AJAX_URL . 'assets/images/ajax-auth-logo.svg' ); ?>" alt="AJAX Auth" width="211" height="60" style="display:block;max-width:100%;height:auto;"></h1>
 			<h2 class="nav-tab-wrapper">
 				<?php
 				$tabs = $fixed_tabs = array(
 					'general' => esc_html__('General Options','login-with-ajax'),
 					'redirection' => esc_html__('Redirection','login-with-ajax'),
 					'notifications' => esc_html__('Notifications','login-with-ajax'),
+					'security' => esc_html__('Security','login-with-ajax'),
+					'integrations' => esc_html__('Integrations','login-with-ajax'),
 				);
-				if( !defined('LWA_PRO_VERSION') && (!defined('LWA_REMOVE_PRO_NAGS') || !LWA_REMOVE_PRO_NAGS) ){
-					$tabs['security'] = $fixed_tabs['security'] = esc_html__('Security','login-with-ajax');
+				if( $pro_nags ){
 					$tabs['go-pro'] = $fixed_tabs['go-pro'] = '<span style="color:green;">'. esc_html__('Pro Features!','login-with-ajax') . '</span>';
 				}
+				
 				$tabs = apply_filters('lwa_settings_page_tabs', $tabs);
 				foreach( $tabs as $tab_key => $tab_name ){
 					$tab_link = $tabs_enabled ? esc_url(add_query_arg( array('lwa_tab'=>$tab_key))) : '';
@@ -184,7 +190,7 @@ class Admin{
 				?>
 			</h2>
 			<div id="poststuff">
-				<div id="post-body" class="metabox-holder columns-2 lwa-settings">
+				<div id="post-body" class="metabox-holder <?php if( $pro_nags ) echo 'columns-2'; ?> lwa-settings">
 					<div id="postbox-container-2" class="postbox-container">
 						<form action="" method="post">
 							<?php
@@ -219,10 +225,12 @@ class Admin{
 							}
 							?>
 							<input type="hidden" name="lwasubmitted" value="1" />
-							<input type="hidden" name="_nonce" value="<?php echo wp_create_nonce('login-with-ajax-admin'.get_current_user_id()); ?>" />
+							<input type="hidden" name="_nonce" value="<?php echo wp_create_nonce('login-with-ajax-admin'.get_current_user_id()); ?>" >
 						</form>
 					</div>
+					<?php if( $pro_nags  ): ?>
 					<?php include('settings/sidebar.php'); ?>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>

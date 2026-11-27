@@ -226,6 +226,7 @@ class Notices implements \Iterator, \JsonSerializable {
     }
     
     // Encoiding in JsonSerializable
+	#[\ReturnTypeWillChange]
     function jsonSerialize(){
         $notices = array();
         foreach( $notices as $k => $v ){
@@ -237,21 +238,26 @@ class Notices implements \Iterator, \JsonSerializable {
     }
 
 	//Iterator Implementation
+	#[\ReturnTypeWillChange]
     function rewind(){
         reset($this->notices);
-    }  
+    }
+	#[\ReturnTypeWillChange]
     function current(){
         $var = current($this->notices);
         return $var;
-    }  
+    }
+	#[\ReturnTypeWillChange]
     function key(){
         $var = key($this->notices);
         return $var;
-    }  
+    }
+	#[\ReturnTypeWillChange]
     function next(){
         $var = next($this->notices);
         return $var;
-    }  
+    }
+	#[\ReturnTypeWillChange]
     function valid(){
         $key = key($this->notices);
         $var = ($key !== NULL && $key !== FALSE);

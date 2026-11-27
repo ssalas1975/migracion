@@ -2,8 +2,13 @@
 
 namespace Pods\Admin\Config;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\WP\Meta;
 use PodsForm;
-use Tribe__Main;
 
 /**
  * Field configuration class.
@@ -22,8 +27,10 @@ class Field extends Base {
 	 * @return array List of tabs for the Field object.
 	 */
 	public function get_tabs( \Pods\Whatsit\Pod $pod ) {
+		$repeatable_field_types = PodsForm::repeatable_field_types();
+
 		$core_tabs = [
-			'basic' => __( 'Field Details', 'pods' ),
+			'basic'      => __( 'Field Details', 'pods' ),
 		];
 
 		$field_types = PodsForm::field_types();
@@ -39,7 +46,16 @@ class Field extends Base {
 			];
 		}
 
-		$core_tabs['advanced'] = __( 'Advanced', 'pods' );
+		$core_tabs['repeatable'] = [
+			'name'       => 'repeatable',
+			'label'      => __( 'Repeatable', 'pods' ),
+			'depends-on' => [
+				'type' => $repeatable_field_types,
+			],
+		];
+
+		$core_tabs['advanced']          = __( 'Advanced', 'pods' );
+		$core_tabs['conditional-logic'] = __( 'Conditional Logic', 'pods' );
 
 		// Only include kitchen sink if dev mode on and not running Codecept tests.
 		if ( pods_developer() && ! function_exists( 'codecept_debug' ) ) {
@@ -100,12 +116,18 @@ class Field extends Base {
 	 * @return array List of fields for the Field object.
 	 */
 	public function get_fields( \Pods\Whatsit\Pod $pod, array $tabs ) {
-		$field_types           = PodsForm::field_types();
-		$tableless_field_types = PodsForm::tableless_field_types();
+		$field_types                    = PodsForm::field_types();
+		$tableless_field_types          = PodsForm::tableless_field_types();
+		$repeatable_field_types         = PodsForm::repeatable_field_types();
+		$separator_excluded_field_types = PodsForm::separator_excluded_field_types();
+		$layout_non_input_field_types   = PodsForm::layout_field_types() + PodsForm::non_input_field_types();
+
+		// Remove repeatable fields custom separator options.
+		$serial_repeatable_field_types = array_values( array_diff( $repeatable_field_types, $separator_excluded_field_types ) );
 
 		$options = [];
 
-		$options['basic']    = [
+		$options['basic'] = [
 			'label'       => [
 				'name'     => 'label',
 				'label'    => __( 'Label', 'pods' ),
@@ -139,22 +161,24 @@ class Field extends Base {
 				'default'    => 'text',
 				'required'   => true,
 				'data'       => [],
+				'pick_format_single' => 'dropdown',
 				'dependency' => true,
 				'help'       => 'help',
 			],
 			'pick_object' => [
-				'name'       => 'pick_object',
-				'label'      => __( 'Related Type', 'pods' ),
-				'type'       => 'pick',
-				'default'    => '',
-				'required'   => true,
-				'data'       => [],
-				'pick_show_select_text'   => 0,
-				'dependency' => true,
-				'depends-on' => [
+				'name'                  => 'pick_object',
+				'label'                 => __( 'Related Type', 'pods' ),
+				'type'                  => 'pick',
+				'default'               => 'custom-simple',
+				'required'              => true,
+				'data'                  => [],
+				'pick_format_single' => 'dropdown',
+				'pick_show_select_text' => 0,
+				'dependency'            => true,
+				'depends-on'            => [
 					'type' => 'pick',
 				],
-				'help'       => 'help',
+				'help'                  => 'help',
 			],
 			'pick_custom' => [
 				'name'       => 'pick_custom',
@@ -169,17 +193,18 @@ class Field extends Base {
 				'help'       => __( 'One option per line, use <em>value|Label</em> for separate values and labels', 'pods' ),
 			],
 			'pick_table'  => [
-				'name'       => 'pick_table',
-				'label'      => __( 'Related Table', 'pods' ),
-				'type'       => 'pick',
-				'default'    => '',
-				'data'       => [],
-				'pick_show_select_text'   => 0,
-				'depends-on' => [
+				'name'                  => 'pick_table',
+				'label'                 => __( 'Related Table', 'pods' ),
+				'type'                  => 'pick',
+				'default'               => '',
+				'data'                  => [],
+				'pick_format_single' => 'dropdown',
+				'pick_show_select_text' => 0,
+				'depends-on'            => [
 					'type'        => 'pick',
 					'pick_object' => 'table',
 				],
-				'help'       => 'help',
+				'help'                  => 'help',
 			],
 			'sister_id'   => [
 				'name'       => 'sister_id',
@@ -187,6 +212,7 @@ class Field extends Base {
 				'type'       => 'pick',
 				'default'    => '',
 				'data'       => [],
+				'pick_format_single' => 'dropdown',
 				'depends-on' => [
 					'type'        => 'pick',
 					'pick_object' => PodsForm::field_method( 'pick', 'bidirectional_objects' ),
@@ -199,9 +225,98 @@ class Field extends Base {
 				'type'              => 'boolean',
 				'default'           => 0,
 				'boolean_yes_label' => '',
+				'excludes-on'       => [
+					'type' => $layout_non_input_field_types,
+				],
 				'help'              => __( 'This will require a non-empty value to be entered.', 'pods' ),
 			],
+			'required_help_boolean'    => [
+				'name'              => 'required_help_boolean',
+				'label'             => '',
+				'type'              => 'html',
+				'default'           => 0,
+				'html_content'      => '<p><em>' . esc_html__( 'Please note: When Yes/No fields are required, the field must be set to Yes (checked) to be able to submit the form.', 'pods' ) . '</em></p>',
+				'dependency'        => true,
+				'depends-on'        => [
+					'required' => true,
+					'type' => 'boolean',
+				],
+			],
 		];
+
+
+		// Only non table-based Pods can have repeatable fields.
+		if ( $pod->is_table_based() ) {
+			$options['repeatable'] = [
+				'repeatable_message' => [
+					'name'         => 'repeatable_message',
+					'label'        => '',
+					'type'         => 'html',
+					'html_content' => '<div class="notice"><p>' . esc_html__( 'Repeatable fields are currently not available for Pods that use table-based storage.', 'pods' ) . '</p></div>',
+				],
+			];
+		} else {
+			$options['repeatable'] = [
+				'repeatable'                  => [
+					'name'              => 'repeatable',
+					'label'             => __( 'Repeatable', 'pods' ),
+					'default'           => 0,
+					'type'              => 'boolean',
+					'help'              => __( 'Making a field repeatable will add controls next to the field which allows users to Add / Remove / Reorder additional values.', 'pods' ),
+					'boolean_yes_label' => __( 'Allow multiple values', 'pods' ),
+					'dependency'        => true,
+					'depends-on'        => [
+						'type' => $repeatable_field_types,
+					],
+				],
+				'repeatable_add_new_label'    => [
+					'name'        => 'repeatable_add_new_label',
+					'label'       => __( 'Repeatable - Add New Label', 'pods' ),
+					'placeholder' => __( 'Add New', 'pods' ),
+					'default'     => '',
+					'type'        => 'text',
+					'depends-on'  => [
+						'type'       => $repeatable_field_types,
+						'repeatable' => true,
+					],
+				],
+				'repeatable_format'           => [
+					'label'                 => __( 'Repeatable - Display Format', 'pods' ),
+					'help'                  => __( 'Used as format for front-end display', 'pods' ),
+					'depends-on'            => [
+						'type'       => $serial_repeatable_field_types,
+						'repeatable' => true,
+					],
+					'default'               => 'default',
+					'required'              => true,
+					'type'                  => 'pick',
+					'data'                  => [
+						'default'    => __( 'Item 1, Item 2, and Item 3', 'pods' ),
+						'non_serial' => __( 'Item 1, Item 2 and Item 3', 'pods' ),
+						'br'         => __( 'Line breaks', 'pods' ),
+						'ul'         => __( 'Unordered list', 'pods' ),
+						'ol'         => __( 'Ordered list', 'pods' ),
+						'custom'     => __( 'Custom separator (without "and")', 'pods' ),
+					],
+					'pick_format_single' => 'dropdown',
+					'pick_show_select_text' => 0,
+					'dependency'            => true,
+				],
+				'repeatable_format_separator' => [
+					'label'       => __( 'Repeatable - Display Format Separator', 'pods' ),
+					'help'        => __( 'Used as separator for front-end display. Be sure to include exactly the spaces that you need since the separator is used literally between values. For example, you would use ", " to have values like "One, Two, Three". You would also use " | " to have values like "One | Two | Three".', 'pods' ),
+					'description' => __( 'This option will default to ", "', 'pods' ),
+					'depends-on'  => [
+						'type'              => $serial_repeatable_field_types,
+						'repeatable'        => true,
+						'repeatable_format' => 'custom',
+					],
+					'placeholder' => '',
+					'type'        => 'text',
+				],
+			];
+		}
+
 		$options['advanced'] = [
 			'visual'                  => [
 				'name'  => 'visual',
@@ -211,31 +326,61 @@ class Field extends Base {
 			'class'                   => [
 				'name'    => 'class',
 				'label'   => __( 'Additional CSS Classes', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
+				'help'    => __( 'You can provide additional CSS classes separated by spaces to be output for the field markup.', 'pods' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 			'values'                  => [
-				'name'  => 'values',
-				'label' => __( 'Values', 'pods' ),
-				'type'  => 'heading',
+				'name'        => 'values',
+				'label'       => __( 'Values', 'pods' ),
+				'type'        => 'heading',
+				'excludes-on' => [
+					'type' => $layout_non_input_field_types,
+				],
 			],
 			'default_value'           => [
-				'name'    => 'default_value',
-				'label'   => __( 'Default Value', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
-				'type'    => 'text',
-				'default' => '',
-				'options' => [
-					'text_max_length' => - 1,
+				'name'            => 'default_value',
+				'label'           => __( 'Default Value', 'pods' ),
+				'help'            => __( 'This is the default value used when the Add New form is used. For multiple-value fields, you can separate multiple default values with commas.', 'pods' ),
+				'description'     => __( 'This value is only used on Add New forms', 'pods' ),
+				'type'            => 'text',
+				'default'         => '',
+				'text_max_length' => - 1,
+				'excludes-on'     => [
+					'type' => $layout_non_input_field_types,
 				],
 			],
 			'default_value_parameter' => [
-				'name'    => 'default_value_parameter',
-				'label'   => __( 'Set Default Value via Parameter', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
-				'type'    => 'text',
-				'default' => '',
+				'name'        => 'default_value_parameter',
+				'label'       => __( 'Set Default Value via Parameter', 'pods' ),
+				'help'        => __( 'You can automatically populate the value of this field from the URL parameter "your_field" such as ?your_field=1234', 'pods' ),
+				'type'        => 'text',
+				'default'     => '',
+				'excludes-on' => [
+					'type' => $layout_non_input_field_types,
+				],
+			],
+			'default_evaluate_tags'    => [
+				'name'              => 'default_evaluate_tags',
+				'label'             => __( 'Evaluate tags in default values', 'pods' ),
+				'help'              => __( 'Whether to evaluate tags like {@user.ID} in your default value. This does NOT evaluate tags passed dynamically via Parameter.', 'pods' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'boolean_yes_label' => __( 'Evaluate tags like {@user.ID} in the default value', 'pods' ),
+				'excludes-on'       => [
+					'type' => $layout_non_input_field_types,
+				],
+			],
+			'default_empty_fields'    => [
+				'name'              => 'default_empty_fields',
+				'label'             => __( 'Default Empty Fields in Forms', 'pods' ),
+				'help'              => __( 'On forms where the field value is empty you can enable Default Empty Fields to override the value with your chosen default value.', 'pods' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'boolean_yes_label' => __( 'Use the default value when this field is empty', 'pods' ),
+				'excludes-on'       => [
+					'type' => $layout_non_input_field_types,
+				],
 			],
 			'visibility'              => [
 				'name'  => 'visibility',
@@ -277,19 +422,48 @@ class Field extends Base {
 						'type'       => 'boolean',
 						'dependency' => true,
 					],
+				],
+			],
+			'roles_allowed'           => [
+				'name'             => 'roles_allowed',
+				'label'            => __( 'Role(s) Allowed', 'pods' ),
+				'help'             => __( 'If none are selected, this option will be ignored.', 'pods' ),
+				'type'             => 'pick',
+				'pick_object'      => 'role',
+				'pick_format_type' => 'multi',
+				'default'          => 'administrator',
+				'depends-on'       => [
+					'restrict_role' => true,
+				],
+			],
+			'capability_allowed'      => [
+				'name'       => 'capability_allowed',
+				'label'      => __( 'Capability Allowed', 'pods' ),
+				'help'       => __( 'Comma-separated list of capabilities, for example add_podname_item, please see the Roles and Capabilities component for the complete list and a way to add your own.', 'pods' ),
+				'type'       => 'text',
+				'default'    => '',
+				'depends-on' => [
+					'restrict_capability' => true,
+				],
+			],
+			'ui_access'         => [
+				'type'          => 'boolean_group',
+				'name'          => 'ui_access',
+				'label'         => __( 'UI Access', 'pods' ),
+				'boolean_group' => [
 					'hidden'              => [
 						'name'    => 'hidden',
-						'label'   => __( 'Hide field from UI', 'pods' ),
+						'label'   => __( 'Hide field in forms', 'pods' ),
 						'default' => 0,
 						'type'    => 'boolean',
 						'help'    => __( 'This option is overridden by access restrictions. If the user does not have access to edit this field, it will be hidden. If no access restrictions are set, this field will always be hidden.', 'pods' ),
 					],
 					'read_only'           => [
 						'name'       => 'read_only',
-						'label'      => __( 'Make field "Read Only" in UI', 'pods' ),
+						'label'      => __( 'Make field "Read Only" in forms always', 'pods' ),
 						'default'    => 0,
 						'type'       => 'boolean',
-						'help'       => __( 'This option is overridden by access restrictions. If the user does not have access to edit this field, it will be read only. If no access restrictions are set, this field will always be read only.', 'pods' ),
+						'help'       => __( 'This option is NOT overridden by access restrictions. The field will always show as "Read Only". This does not prevent the field from being changed manually through HTML DOM manipulation, this just shows the field as a read-only text field that cannot be normally changed without developer intervention.', 'pods' ),
 						'depends-on' => [
 							'type' => [
 								'boolean',
@@ -308,32 +482,103 @@ class Field extends Base {
 								'website',
 							],
 						],
+						'dependency' => true,
+					],
+					'read_only_restricted'           => [
+						'name'           => 'read_only_restricted',
+						'label'          => __( 'Make field "Read Only" in forms only when restricted', 'pods' ),
+						'default'        => 0,
+						'type'           => 'boolean',
+						'help'           => __( 'Normally restricted fields are not shown when restricted but this option will cause the field to show as "Read Only" in those cases. This can be used without making the whole field "Read Only" so that people with access can continue editing the value.', 'pods' ),
+						'depends-on-any' => [
+							'logged_in_only'      => true,
+							'admin_only'          => true,
+							'restrict_role'       => true,
+							'restrict_capability' => true,
+						],
+						'depends-on' => [
+							'read_only' => false,
+						],
 					],
 				],
 			],
-			'roles_allowed'           => [
-				'name'             => 'roles_allowed',
-				'label'            => __( 'Role(s) Allowed', 'pods' ),
-				'help'             => __( 'help', 'pods' ),
-				'type'             => 'pick',
-				'pick_object'      => 'role',
-				'pick_format_type' => 'multi',
-				'default'          => 'administrator',
-				'depends-on'       => [
-					'restrict_role' => true,
-				],
-				'help'             => __( 'If none are selected, this option will be ignored.', 'pods' ),
-			],
-			'capability_allowed'      => [
-				'name'       => 'capability_allowed',
-				'label'      => __( 'Capability Allowed', 'pods' ),
-				'help'       => __( 'Comma-separated list of capabilities, for example add_podname_item, please see the Roles and Capabilities component for the complete list and a way to add your own.', 'pods' ),
-				'type'       => 'text',
-				'default'    => '',
+		];
+
+		if ( 'post_type' === $pod->get_type() && 'meta' === $pod->get_storage() ) {
+			$options['advanced']['other_options'] = [
+				'name'       => 'other_options',
+				'label'      => __( 'Other Options', 'pods' ),
+				'type'       => 'heading',
 				'depends-on' => [
-					'restrict_capability' => true,
+					'type' => PodsForm::revisionable_field_types(),
 				],
-				'help'       => __( 'If none are selected, this option will be ignored.', 'pods' ),
+			];
+
+			$options['advanced']['revisions_revision_field'] = [
+				'name'              => 'revisions_revision_field',
+				'label'             => __( 'Track field value changes in revisions', 'pods' ),
+				'help'              => __( 'Revisions allow comparing and restoring previous saved changes. This setting requires revisions to be enabled on the pod. Revisions for meta as of WordPress 6.5 does not have additional UI to show the custom field value differences in the Revisions UI but upon restoring a revision those covered meta field values will be restored too while leaving non-covered meta field values in place.', 'pods' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'boolean_yes_label' => __( 'Track field value changes for this field.', 'pods' ),
+				'depends-on'        => [
+					'type' => PodsForm::revisionable_field_types(),
+				],
+			];
+		}
+
+		$options['conditional-logic'] = [
+			'enable_conditional_logic' => [
+				'name'    => 'enable_conditional_logic',
+				'label'   => __( 'Enable Conditional Logic', 'pods' ),
+				'help'    => __( 'Conditional logic can automatically show or hide this field depending on the value of other fields.', 'pods' ),
+				'type'    => 'boolean',
+				'default' => 0,
+			],
+			'conditional_logic'            => [
+				'name'       => 'conditional_logic',
+				'label'      => __( 'Conditions', 'pods' ),
+				'type'       => 'conditional-logic',
+				'depends-on' => [
+					'enable_conditional_logic' => true,
+				],
+			],
+			'conditional_logic_save_value' => [
+				'name'              => 'conditional_logic_save_value',
+				'label'             => __( 'Save Value When Hidden', 'pods' ),
+				'help'              => __( 'When enabled, the field value will be saved even when the field is hidden by conditional logic.', 'pods' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'boolean_yes_label' => __( 'Preserve field value when conditionally hidden', 'pods' ),
+				'depends-on'        => [
+					'enable_conditional_logic' => true,
+				],
+			],
+			'conditional_logic_help'        => [
+				'name'         => 'conditional_logic_help',
+				'label'        => '',
+				'type'         => 'html',
+				'html_content' => wpautop(
+					sprintf(
+						'
+							%1$s
+
+							<ul>
+								<li>%2$s</li>
+								<li>%3$s</li>
+							</ul>
+
+							<a href="https://docs.pods.io/fields/conditional-logic-for-fields/">%4$s &raquo;</a>
+						',
+						__( 'Each field type has their own conditional options available to them.', 'pods' ),
+						__( 'For pattern matching on text-based fields: Use Regular Expressions and do not use the wrapping character "/" like "/[a-z]/", you will need to use "[a-z]"', 'pods' ),
+						__( 'For relationships: Use the ID for any relationship object or the text value for any custom defined / simple relationship', 'pods' ),
+						__( 'Learn more about conditional logic for fields', 'pods' )
+					)
+				),
+				'depends-on'   => [
+					'enable_conditional_logic' => true,
+				],
 			],
 		];
 
@@ -421,16 +666,27 @@ class Field extends Base {
 			}
 
 			/**
-			 * Modify Additional Field Options tab
+			 * Modify Additional Field Options tab for a specific field type.
 			 *
 			 * @since 2.7.0
 			 *
-			 * @param array                  $type_options Additional field type options,
-			 * @param string                 $type         Field type,
-			 * @param array                  $options      Tabs, indexed by label,
+			 * @param array                  $type_options Additional field type options.
+			 * @param string                 $type         Field type.
+			 * @param array                  $options      Tabs, indexed by label.
 			 * @param null|\Pods\Whatsit\Pod $pod          Pods object for the Pod this UI is for.
 			 */
 			$type_options = apply_filters( "pods_admin_setup_edit_{$type}_additional_field_options", $type_options, $type, $options, $pod );
+
+			/**
+			 * Modify Additional Field Options tab.
+			 *
+			 * @since 2.7.0
+			 *
+			 * @param array                  $type_options Additional field type options.
+			 * @param string                 $type         Field type.
+			 * @param array                  $options      Tabs, indexed by label.
+			 * @param null|\Pods\Whatsit\Pod $pod          Pods object for the Pod this UI is for.
+			 */
 			$type_options = apply_filters( 'pods_admin_setup_edit_additional_field_options', $type_options, $type, $options, $pod );
 
 			$options[ 'additional-field-' . $type ] = $type_options;
@@ -443,7 +699,7 @@ class Field extends Base {
 		 * @param null|\Pods\Whatsit\Pod $pod            Pods object for the Pod this UI is for.
 		 * @param array                  $tabs           List of registered tabs
 		 */
-		$field_settings = apply_filters( "pods_field_settings_{$pod_name}", $field_settings, $pod );
+		$field_settings = apply_filters( "pods_field_settings_{$pod_name}", $field_settings, $pod, $tabs );
 
 		/**
 		 * Allow filtering the field settings by pod name.
@@ -459,45 +715,39 @@ class Field extends Base {
 		$options['basic']['pick_table']['data']  = $field_settings['pick_table'];
 
 		// @todo Look into supporting these in the future.
-		/*Tribe__Main::array_insert_after_key( 'visibility', $options['advanced'], [
+		/*
 			'search' => [
 				'label'   => __( 'Include in searches', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
 				'default' => 1,
 				'type'    => 'boolean',
 			],
-		] );
-
-		Tribe__Main::array_insert_after_key( 'validation', $options['advanced'], [
 			'regex_validation' => [
 				'label'   => __( 'RegEx Validation', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 			'message_regex'    => [
 				'label'   => __( 'Message if field does not pass RegEx', 'pods' ),
-				'help'    => __( 'help', 'pods' ),
 				'type'    => 'text',
 				'default' => '',
 			],
 			'message_required' => [
 				'label'      => __( 'Message if field is blank', 'pods' ),
-				'help'       => __( 'help', 'pods' ),
 				'type'       => 'text',
 				'default'    => '',
 				'depends-on' => [ 'required' => true ],
 			],
 			'message_unique'   => [
 				'label'      => __( 'Message if field is not unique', 'pods' ),
-				'help'       => __( 'help', 'pods' ),
 				'type'       => 'text',
 				'default'    => '',
 				'depends-on' => [ 'unique' => true ],
 			],
-		] );*/
+		*/
 
 		if ( 'table' === $pod['storage'] || 'pod' === $pod['type'] ) {
+			unset( $options['basic']['repeatable'] );
+
 			$options['basic']['unique'] = [
 				'name'              => 'unique',
 				'label'             => __( 'Unique', 'pods' ),

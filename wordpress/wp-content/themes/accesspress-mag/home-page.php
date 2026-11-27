@@ -43,13 +43,15 @@ get_header();
             <section class="first-block wow fadeInUp clearfix" data-wow-delay="0.5s">
                 <?php 
                     $block1_cat = of_get_option( 'featured_block_1' );
+
                     if( !empty( $block1_cat ) ) {
-                        $posts_for_block1 = of_get_option( 'posts_for_block1' );                                
-                        $category_info = get_category_by_slug( $block1_cat );
+
+                        $posts_for_block1 = of_get_option( 'posts_for_block1' );    ;
+                        $category_info = get_category_by_slug( $block1_cat ); 
                 ?>
                 <div class="first-block-wrapper">
                     <h3 class="block-cat-name"> 
-                        <span><?php echo esc_attr( $category_info->name ) ; ?></span>
+                        <span><?php echo esc_html( $category_info->name ) ; ?></span>
                     </h3>
                     <div class="block-post-wrapper clearfix">
                     <?php                                
@@ -82,7 +84,7 @@ get_header();
                                     <h3 class="post-title"><a href="<?php the_permalink();?>"><?php the_title();?></a></h3>
                                     <div class="block-poston"><?php do_action('accesspress_mag_home_posted_on');?></div>
                                 </div><!-- .post-desc-wrapper -->
-                                <?php if( $b_counter <= 2 ) { ?><div class="post-content"><?php echo '<p>'. accesspress_mag_word_count( get_the_content(), 25 ) .'</p>' ;?></div><?php } ?>
+                                <?php if( $b_counter <= 2 ) { ?><div class="post-content"><?php echo '<p>'. esc_html(accesspress_mag_word_count( get_the_content(), 25 )) .'</p>' ;?></div><?php } ?>
                         </div><!-- .single_post -->
                         <?php 
                             if( $b_counter %2 == 0 ){ echo '<div class="clearfix"></div>'; }
@@ -104,13 +106,14 @@ get_header();
             <section class="second-block clearfix wow fadeInLeft" data-wow-delay="0.5s">
                 <?php 
                     $block2_cat = of_get_option( 'featured_block_2' );
+                    
                     if(!empty( $block2_cat ) ) {
                         $posts_for_block2 = of_get_option( 'posts_for_block2' );
                         $category_info_2 = get_category_by_slug( $block2_cat );
                 ?>
                 <div class="second-block-wrapper">
                     <h3 class="block-cat-name"> 
-                        <span><?php echo esc_attr( $category_info_2->name ); ?></span>
+                        <span><?php echo esc_html( $category_info_2->name ); ?></span>
                     </h3>
                     <div class="block-post-wrapper clearfix">
                     <?php                          
@@ -143,7 +146,7 @@ get_header();
                                     <h3 class="post-title"><a href="<?php the_permalink();?>"><?php the_title();?></a></h3>
                                     <div class="block-poston"><?php do_action( 'accesspress_mag_home_posted_on' );?></div>
                                 </div><!-- .post-desc-wrapper -->
-                                <?php if( $b_counter == 1 ) { ?><div class="post-content"><?php echo '<p>'. accesspress_mag_word_count( get_the_content(), 25 ) .'</p>' ;?></div><?php } ?>
+                                <?php if( $b_counter == 1 ) { ?><div class="post-content"><?php echo '<p>'. esc_html(accesspress_mag_word_count( get_the_content(), 25 )) .'</p>' ;?></div><?php } ?>
                         </div><!-- .single_post -->
                         <?php if( $b_counter == 1 ){ echo '</div>'; } if( $b_counter > 1 && $b_counter == $total_posts_block2 ){ echo '</div>'; }?>                    
                     <?php                    
@@ -174,7 +177,7 @@ get_header();
                 ?>
                 <div class="first-block-wrapper">
                     <h3 class="block-cat-name">
-                        <span><?php echo esc_attr( $category_info_3->name ); ?></span>
+                        <span><?php echo esc_html( $category_info_3->name ); ?></span>
                     </h3>
                     <div class="block-post-wrapper clearfix">
                     <?php
@@ -207,7 +210,7 @@ get_header();
                                     <h3 class="post-title"><a href="<?php the_permalink();?>"><?php the_title();?></a></h3>
                                     <div class="block-poston"><?php do_action( 'accesspress_mag_home_posted_on' );?></div>
                                 </div><!-- .post-desc-wrapper -->
-                                <?php if( $b_counter <=2 ) { ?><div class="post-content"><?php echo '<p>'. accesspress_mag_word_count( get_the_content(), 25 ) .'</p>' ;?></div><?php } ?>
+                                <?php if( $b_counter <=2 ) { ?><div class="post-content"><?php echo '<p>'. esc_html(accesspress_mag_word_count( get_the_content(), 25 )) .'</p>' ;?></div><?php } ?>
                         </div><!-- .single_post -->
                         <?php 
                             if( $b_counter %2 == 0 ){ echo '<div class="clearfix"></div>'; }
@@ -235,7 +238,8 @@ get_header();
                 ?>
                 <div class="second-block-wrapper">
                     <h3 class="block-cat-name">
-                        <span><?php echo esc_attr( $category_info_4->name ); ?></span>
+                        <span><?php echo esc_html( $category_info_4->name ); ?></span>
+                        
                     </h3>
                     <div class="block-post-wrapper clearfix">
                     <?php

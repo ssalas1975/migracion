@@ -23,7 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;                                             
 class WPBC_Page_Settings__bresource extends WPBC_Page_Structure {
 
     public function in_page() {
-		if ( class_exists( 'wpdev_bk_personal' ) ) {
+		if (
+			class_exists( 'wpdev_bk_personal' )
+			|| ( function_exists( 'wpbc_booking_resources_catalog_should_use_new_renderer' ) && wpbc_booking_resources_catalog_should_use_new_renderer() )
+		) {
 			return (string) wp_rand( 100000, 1000000 );
 		}
         return 'wpbc-resources';
@@ -53,6 +56,9 @@ class WPBC_Page_Settings__bresource extends WPBC_Page_Structure {
 
     /** Show Content of Settings page */
     public function content() {
+		if ( function_exists( 'wpbc_booking_resources_catalog_get_request_renderer' ) && 'legacy' !== wpbc_booking_resources_catalog_get_request_renderer() ) {
+			return false;
+		}
 
         $this->css();
 
@@ -130,9 +136,7 @@ class WPBC_Page_Settings__bresource extends WPBC_Page_Structure {
         </span>
         <?php
 
-        do_action( 'wpbc_hook_settings_page_footer', 'resources' );
-
-        $this->enqueue_js();
+		do_action( 'wpbc_hook_settings_page_footer', 'resources' );
     }
 
 
@@ -173,37 +177,7 @@ class WPBC_Page_Settings__bresource extends WPBC_Page_Structure {
 	        </style>
 	        <?php
 	    }
-	
-	
-	
-	    /**
-		 * Add Custom JavaScript - for some specific settings options
-	     * Executed After post content, after initial definition of settings,  and possible definition after POST request.
-	     *
-	     * @param type $menu_slug
-	     */
-	    private function enqueue_js(){
-	
-	        // JavaScript //////////////////////////////////////////////////////////////
-	
-	        $js_script = '';
-	
-	        /*
-		        // Hide|Show  on Click      Checkbox
-		        $js_script .= " jQuery('#bresources_booking_gcal_auto_import_is_active').on( 'change', function(){
-		                                if ( this.checked ) {
-		                                    jQuery('.wpbc_tr_auto_import').removeClass('hidden_items');
-		                                } else {
-		                                    jQuery('.wpbc_tr_auto_import').addClass('hidden_items');
-		                                }
-		                            } ); ";
-	        */
-		    
-	        // Enqueue JS to  the footer of the page
-	        wpbc_enqueue_js( $js_script );
-	    }
-
-    // </editor-fold>
+	// </editor-fold>
 
 
 	// -----------------------------------------------------------------------------------------------------------------
@@ -438,4 +412,6 @@ class WPBC_Page_Settings__bresource extends WPBC_Page_Structure {
 
 }
 
-add_action('wpbc_menu_created', array( new WPBC_Page_Settings__bresource() , '__construct') );    // Executed after creation of Menu
+if ( ! function_exists( 'wpbc_booking_resources_catalog_should_use_new_renderer' ) || ! wpbc_booking_resources_catalog_should_use_new_renderer() ) {
+	add_action( 'wpbc_menu_created', array( new WPBC_Page_Settings__bresource(), '__construct' ) ); // Executed after creation of Menu.
+}

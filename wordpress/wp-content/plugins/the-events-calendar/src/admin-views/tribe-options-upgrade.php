@@ -17,7 +17,7 @@
 
 				<p><?php esc_html_e( 'Go check out your new calendar designs! Each calendar view has been updated, so feel free to enable views you may not have been using. If necessary, you can revert back to the legacy calendar views in the Display tab of your Event Settings.', 'the-events-calendar' ); ?></p>
 
-				<a class="button" href="<?php echo esc_url( Tribe__Events__Main::instance()->getLink() ); ?>"><?php esc_html_e( 'View Calendar', 'the-events-calendar' ); ?></a>
+				<a class="button tec-settings-button-secondary" href="<?php echo esc_url( Tribe__Events__Main::instance()->getLink() ); ?>"><?php esc_html_e( 'View Calendar', 'the-events-calendar' ); ?></a>
 			</div>
 
 			<div class="image-container">
@@ -106,7 +106,7 @@
 				</ul>
 
 				<button type="submit"><?php esc_html_e( 'Let\'s go!', 'the-events-calendar' ); ?></button>
-				<a href="<?php echo esc_url( Tribe__Settings::instance()->get_url() ); ?>" rel="noopener"><?php esc_html_e( 'I\'m not ready', 'the-events-calendar' ); ?></a>
+				<a href="<?php echo esc_url( tribe( 'tec.main' )->settings()->get_url() ); ?>" rel="noopener"><?php esc_html_e( 'I\'m not ready', 'the-events-calendar' ); ?></a>
 
 				<div class="step"><?php esc_html_e( 'Step 2 of 2', 'the-events-calendar' ); ?></div>
 			</div>

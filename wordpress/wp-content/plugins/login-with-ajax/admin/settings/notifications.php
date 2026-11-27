@@ -1,6 +1,6 @@
 <?php
 global $lwa_submit_button, $lwa_data, $wp_version;
-$templates = LoginWithAjax::get_templates_data();
+$templates = \LoginWithAjax::get_templates_data();
 ?>
 <p>
 	<em><?php esc_html_e("If you'd like to override the default Wordpress email users receive once registered, make sure you check the box below and enter a new email subject and message.", 'login-with-ajax'); ?></em><br>
@@ -21,7 +21,7 @@ $templates = LoginWithAjax::get_templates_data();
 		</th>
 		<td>
 			<?php
-			if(empty($lwa_data['notification_subject'])){
+			if( empty($lwa_data['notification_subject']) ){
 				$lwa_data['notification_subject'] = esc_html__('Your registration at %BLOGNAME%', 'login-with-ajax');
 			}
 			?>

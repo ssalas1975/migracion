@@ -12,7 +12,7 @@
     
 	<?php
         $accesspress_mag_show_footer_switch = of_get_option( 'footer_switch', '1' );
-        $accesspress_mag_footer_layout = of_get_option( 'footer_layout' );
+        $accesspress_mag_footer_layout = of_get_option( 'footer_layout','column4' );
         $accesspress_mag_sub_footer_switch = of_get_option( 'sub_footer_switch', '1' );
         $accesspress_mag_copyright_text = of_get_option( 'mag_footer_copyright' );
         $accesspress_mag_copyright_symbol = of_get_option( 'copyright_symbol', '1' );
@@ -65,7 +65,7 @@
             <?php if( $accesspress_mag_sub_footer_switch == 1 ){ ?>
         		<div class="site-info">
                     <?php if( $accesspress_mag_copyright_symbol == 1 ){ ?>
-                        <span class="copyright-symbol"> &copy; <?php echo date( 'Y' ) ?></span>
+                        <span class="copyright-symbol"> &copy; <?php echo esc_html(date( 'Y' )); ?></span>
                     <?php } ?> 
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
                     <?php
@@ -77,14 +77,14 @@
         		</div><!-- .site-info -->
             <?php } ?>
                 <div class="ak-info">
-                    <?php _e( 'Powered by ', 'accesspress-mag' );  ?><a href="<?php echo esc_url( __( 'http://wordpress.org/', 'accesspress-mag' ) ); ?>"><?php _e( 'WordPress', 'accesspress-mag' ); ?> </a>
-                    <?php _e( '| Theme: ', 'accesspress-mag' );?>
-                    <a title="AccessPress Themes" href="<?php echo esc_url( 'http://accesspressthemes.com', 'accesspress-mag' ); ?>"><?php _e( 'AccessPress Mag', 'accesspress-mag' ); ?></a>
+                    <?php esc_html_e( 'Powered by ', 'accesspress-mag' );  ?><a href="<?php echo esc_url( __( 'http://wordpress.org/', 'accesspress-mag' ) ); ?>"><?php esc_html_e( 'WordPress', 'accesspress-mag' ); ?> </a>
+                    <?php esc_html_e( '| Theme: ', 'accesspress-mag' );?>
+                    <a title="AccessPress Themes" href="<?php echo esc_url( 'http://accesspressthemes.com', 'accesspress-mag' ); ?>"><?php esc_html_e( 'AccessPress Mag', 'accesspress-mag' ); ?></a>
                 </div><!-- .ak-info -->
              <?php if ( ( has_nav_menu( 'footer_menu' ) ) && ( $accesspress_mag_sub_footer_switch == 1 ) ) { ?>      
                 <div class="subfooter-menu">
                     <nav id="footer-navigation" class="footer-main-navigation" role="navigation">
-                        <button class="menu-toggle hide" aria-controls="menu" aria-expanded="false"><?php _e( 'Footer Menu', 'accesspress-mag' ); ?></button>
+                        <button class="menu-toggle hide" aria-controls="menu" aria-expanded="false"><?php esc_html_e( 'Footer Menu', 'accesspress-mag' ); ?></button>
                         <?php wp_nav_menu( array( 'theme_location' => 'footer_menu', 'container_class' => 'footer_menu' ) ); ?>
                     </nav><!-- #site-navigation -->
                 </div><!-- .subfooter-menu -->
@@ -97,17 +97,5 @@
     </div>   
 </div><!-- #page -->
 <?php wp_footer(); ?>
-
-<script>
-	Voonto.ready.then(function(app) {
-		window.googletag.pubads().setRequestNonPersonalizedAds(1);
-		app.when('consent:advertising').then(function(result) {
-			window.googletag.pubads().setRequestNonPersonalizedAds(result ? 0 : 1);
-		});
-		app.on('consent:updated:advertising', function(event, result) {
-			window.googletag.pubads().setRequestNonPersonalizedAds(result ? 0 : 1);
-		});
-	});
-</script>
 </body>
 </html>

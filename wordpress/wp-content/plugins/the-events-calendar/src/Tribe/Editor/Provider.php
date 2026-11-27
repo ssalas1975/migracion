@@ -1,11 +1,15 @@
 <?php
+use TEC\Common\Contracts\Service_Provider;
 
-class Tribe__Events__Editor__Provider extends tad_DI52_ServiceProvider {
+
+class Tribe__Events__Editor__Provider extends Service_Provider {
+
 
 	/**
 	 * Binds and sets up implementations.
 	 *
 	 * @since 4.7
+	 * @since 6.17.5 Registers the rendering template independently of the editor setting.
 	 *
 	 */
 	public function register() {
@@ -16,7 +20,10 @@ class Tribe__Events__Editor__Provider extends tad_DI52_ServiceProvider {
 
 		tribe( 'events.editor' )->hook();
 
-		if ( ! tribe( 'editor' )->should_load_blocks() ) {
+		// Registered blocks still need to render when the event editor is disabled.
+		$this->container->singleton( 'events.editor.template', 'Tribe__Events__Editor__Template' );
+
+		if ( ! tribe( 'editor' )->should_load_blocks() && ! tec_is_full_site_editor() ) {
 			return;
 		}
 
@@ -29,7 +36,6 @@ class Tribe__Events__Editor__Provider extends tad_DI52_ServiceProvider {
 		$this->container->singleton( 'events.editor.meta', 'Tribe__Events__Editor__Meta' );
 		$this->container->singleton( 'events.editor.settings', 'Tribe__Events__Editor__Settings' );
 		$this->container->singleton( 'events.editor.i18n', 'Tribe__Events__Editor__I18n', [ 'hook' ] );
-		$this->container->singleton( 'events.editor.template', 'Tribe__Events__Editor__Template' );
 		$this->container->singleton( 'events.editor.template.overwrite', 'Tribe__Events__Editor__Template__Overwrite', [ 'hook' ] );
 		$this->container->singleton( 'events.editor.configuration', 'Tribe__Events__Editor__Configuration', [ 'hook' ] );
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Event_Cleaner
  *
@@ -30,7 +29,14 @@ class Tribe__Events__Event_Cleaner {
 	 */
 	public $key_delete_events = 'delete-past-events';
 
-	public function __construct( Tribe__Events__Event_Cleaner_Scheduler $scheduler = null ) {
+	/**
+	 * Tribe__Events__Event_Cleaner constructor.
+	 *
+	 * @since 6.17.0 Made $scheduler explicitly nullable.
+	 *
+	 * @param Tribe__Events__Event_Cleaner_Scheduler|null $scheduler The scheduler instance to use, or `null` to build a default one.
+	 */
+	public function __construct( ?Tribe__Events__Event_Cleaner_Scheduler $scheduler = null ) {
 		$this->scheduler = $scheduler ? $scheduler : new Tribe__Events__Event_Cleaner_Scheduler();
 	}
 
@@ -45,22 +51,22 @@ class Tribe__Events__Event_Cleaner {
 	 * @since 5.3.0 Loosen the type-checking to avoid errors during option updates.
 	 */
 	public function move_old_events_to_trash( $old_value = [], $new_value = [] ) {
-		$old_value = (array) $old_value;
-		$new_value = (array) $new_value;
-		$old_value = empty( $old_value[ $this->key_trash_events ] ) ? null : $old_value[ $this->key_trash_events ];
-		$new_value = empty( $new_value[ $this->key_trash_events ] ) ? null : $new_value[ $this->key_trash_events ];
+		$old_value         = (array) $old_value;
+		$new_value         = (array) $new_value;
+		$old_trash_setting = empty( $old_value[ $this->key_trash_events ] ) ? null : $old_value[ $this->key_trash_events ];
+		$new_trash_setting = empty( $new_value[ $this->key_trash_events ] ) ? null : $new_value[ $this->key_trash_events ];
 
-		if ( $new_value == $old_value ) {
+		if ( $new_trash_setting == $old_trash_setting ) {
 			return;
 		}
 
-		if ( null === $new_value ) {
+		if ( null === $new_trash_setting ) {
 			$this->scheduler->trash_clear_scheduled_task();
 
 			return;
 		}
 
-		$this->scheduler->set_trash_new_date( $new_value );
+		$this->scheduler->set_trash_new_date( $new_trash_setting );
 		$this->scheduler->move_old_events_to_trash();
 	}
 

@@ -1,0 +1,833 @@
+<?php
+
+namespace Imagely\NGG\Util;
+
+/**
+ * Security utility class.
+ */
+class Security {
+
+	/**
+	 * Matches a single filename segment that a web server may route to a script
+	 * handler. Compared against dot-delimited segments, so it is anchored.
+	 *
+	 * @var string
+	 */
+	const EXECUTABLE_EXTENSION_PATTERN = '/^(?:php[0-9]*|phtml|phtm|phps|pht|phar|phpt|hphp|shtml|shtm|cgi|fcgi|pl|py|rb|sh|bash|asp|aspx|ashx|asmx|jsp|jspx|htaccess|htpasswd|ini)$/i';
+
+	/**
+	 * Matches a single filename segment that PHP itself would execute if the file
+	 * were include()d or require()d.
+	 *
+	 * Deliberately narrower than self::EXECUTABLE_EXTENSION_PATTERN. That pattern
+	 * answers "could a web server route this file to some script handler", which is
+	 * the right question when deciding how to store an uploaded file. It is the wrong
+	 * question when deciding whether a filename is a valid PHP template: segments
+	 * like `pl`, `py`, `sh` and `ini` are inert to include() but are plausible in a
+	 * legitimate template name (a locale suffix, for instance), so testing against
+	 * the wider pattern would reject real templates for no security benefit.
+	 *
+	 * @var string
+	 */
+	const PHP_EXTENSION_PATTERN = '/^(?:php[0-9]*|phtml|phtm|phps|pht|phar|phpt|hphp)$/i';
+
+	/*
+	 * MERGE NOTE (#932 + #933): the property allow-lists, the never-editable set, the
+	 * value casts and filter_assignable_properties() used to live here. They were the
+	 * #932 engine; #933 landed a second one in Util\MassAssignment over the same
+	 * property bag. Two engines over one bag drift until one of them is the way in, so
+	 * MassAssignment is now the single engine and this copy is gone.
+	 *
+	 * MassAssignment was kept because it is the strict superset: it reports refused keys
+	 * back to the caller instead of dropping them silently, it denies dangerous *nested*
+	 * keys inside `display_type_settings` - `template` among them, which is the key in
+	 * #932's own proof of concept - and it keeps the presentation and commerce columns
+	 * assignable so existing XML-RPC and Lightroom clients do not break. Everything this
+	 * copy denied is denied there: `path`, `author`, `gid`, `slug`, `meta_data`,
+	 * `filename`, `galleryid` and `extras_post_id`. The value casts moved with it.
+	 *
+	 * The `ngg_lightroom_editable_properties` filter is superseded by
+	 * `ngg_assignable_properties`, which is applied for every entity type and every
+	 * endpoint rather than the Lightroom route alone.
+	 */
+
+	/**
+	 * Returns the dot-delimited segments of a filename that could be interpreted as
+	 * an executable extension.
+	 *
+	 * WordPress's sanitize_file_name() defuses double extensions by appending
+	 * underscores rather than removing them ("image.php.jpg" becomes
+	 * "image.php_.jpg"), so segments are compared with trailing underscores trimmed.
+	 *
+	 * @param string $filename Filename (not a path) to inspect.
+	 * @param string $pattern  Optional. Segment pattern to test against. Defaults to
+	 *                         self::EXECUTABLE_EXTENSION_PATTERN; pass
+	 *                         self::PHP_EXTENSION_PATTERN for the include()-only question.
+	 * @return array List of offending segments, empty when the filename is inert.
+	 */
+	public static function get_executable_extension_segments( $filename, $pattern = self::EXECUTABLE_EXTENSION_PATTERN ) {
+		if ( ! is_string( $filename ) || '' === $filename ) {
+			return [];
+		}
+
+		$segments = explode( '.', \wp_basename( $filename ) );
+		$found    = [];
+
+		// Index 0 is the base name, never an extension, so start at 1.
+		$count = count( $segments );
+		for ( $index = 1; $index < $count; $index++ ) {
+			/*
+			 * Trim every trailing character that cannot be part of an extension, not
+			 * only the underscore sanitize_file_name() appends. The pattern is anchored,
+			 * so any surviving trailing byte breaks the match: "pwn.php;.jpg" and
+			 * "pwn.php .jpg" both read as inert if only "_" is trimmed.
+			 */
+			$segment = preg_replace( '/[^a-z0-9]+$/i', '', $segments[ $index ] );
+
+			if ( '' !== $segment && preg_match( $pattern, $segment ) ) {
+				$found[] = $segment;
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * Whether a filename contains any segment that could be executed as a script.
+	 *
+	 * @param string $filename Filename (not a path) to inspect.
+	 * @return bool
+	 */
+	public static function has_executable_extension( $filename ) {
+		return ! empty( self::get_executable_extension_segments( $filename ) );
+	}
+
+	/**
+	 * Whether a filename contains any segment PHP would execute on include().
+	 *
+	 * Use this, not self::has_executable_extension(), when the question is "is this a
+	 * legitimate PHP template name" — see self::PHP_EXTENSION_PATTERN for why the
+	 * wider pattern produces false rejections there.
+	 *
+	 * @param string $filename Filename (not a path) to inspect.
+	 * @return bool
+	 */
+	public static function has_php_executable_extension( $filename ) {
+		return ! empty( self::get_executable_extension_segments( $filename, self::PHP_EXTENSION_PATTERN ) );
+	}
+
+	/**
+	 * Demotes every executable-looking extension segment of a filename to part of
+	 * the base name, so no web server can route the file to a script handler.
+	 *
+	 * "payload.php_.jpg" becomes "payload-php.jpg"; "image.jpg" is returned as-is.
+	 *
+	 * Takes a filename, not a path. Directory components are rejected rather than
+	 * silently mangled: splitting a path on "." would treat "./" or a dotted
+	 * directory name as an extension segment. Callers that hold a path should pass
+	 * wp_basename( $path ) and rejoin themselves.
+	 *
+	 * @param string $filename Filename (not a path) to neutralize.
+	 * @return string
+	 */
+	public static function neutralize_executable_extensions( $filename ) {
+		if ( ! is_string( $filename ) || '' === $filename ) {
+			return $filename;
+		}
+
+		// Guard the documented precondition instead of trusting it: a path handed in
+		// here would have its directory components rewritten.
+		if ( \wp_basename( $filename ) !== $filename ) {
+			return $filename;
+		}
+
+		$segments = explode( '.', $filename );
+		$count    = count( $segments );
+
+		if ( $count < 2 ) {
+			return $filename;
+		}
+
+		$result = $segments[0];
+
+		for ( $index = 1; $index < $count; $index++ ) {
+			$segment = $segments[ $index ];
+
+			/*
+			 * Same normalization as get_executable_extension_segments(): trim every trailing
+			 * byte that cannot be part of an extension, not only the underscore
+			 * sanitize_file_name() appends. Trimming just "_" left "pwn.php-.jpg" and
+			 * "pwn.php;.jpg" untouched here while the anchored detector still flagged them,
+			 * so the two functions disagreed and the sizing guard refused the file forever.
+			 */
+			$trimmed = (string) preg_replace( '/[^a-z0-9]+$/i', '', $segment );
+			$glue    = '.';
+
+			if ( '' !== $trimmed && preg_match( self::EXECUTABLE_EXTENSION_PATTERN, $trimmed ) ) {
+				// Join with a dash instead of a dot: the segment is no longer an extension.
+				$glue    = '-';
+				$segment = $trimmed;
+			}
+
+			$result .= $glue . $segment;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Resolves a filesystem path lexically, collapsing "." and ".." segments.
+	 *
+	 * Deliberately does not touch the filesystem: realpath() returns false for a path
+	 * that does not exist yet, which is the normal case for a thumbnail that is about
+	 * to be generated, so it cannot be the only way a traversal is caught.
+	 *
+	 * @param string $path Path to canonicalize.
+	 * @return string Canonical path, or an empty string when $path is not usable.
+	 */
+	public static function canonicalize_path( $path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return '';
+		}
+
+		$path = \wp_normalize_path( $path );
+
+		/*
+		 * Hold the root aside so it survives the rebuild. The UNC form must be matched
+		 * before the single-slash form: wp_normalize_path() deliberately preserves a
+		 * leading "//" for network shares (its slash-collapsing lookbehind spares index
+		 * 0), and a regex that captures only one of them turns "//server/share/x.jpg"
+		 * into "/server/share/x.jpg" — a path that no longer exists on such a host.
+		 * DataStorage\Manager::collapse_path_traversal() keeps the same prefix for the
+		 * same reason; keep the two in step.
+		 */
+		$prefix = '';
+		if ( preg_match( '#^(?://[^/]+/|[a-zA-Z]:/|/)#', $path, $match ) ) {
+			$prefix = $match[0];
+			$path   = substr( $path, strlen( $match[0] ) );
+		}
+
+		$resolved = [];
+		foreach ( explode( '/', $path ) as $segment ) {
+			if ( '' === $segment || '.' === $segment ) {
+				continue;
+			}
+
+			if ( '..' === $segment ) {
+				// Popping an empty list is a no-op, so ".." can never climb above the
+				// root of an absolute path. A relative path that starts with ".." keeps
+				// no prefix and therefore fails containment against an absolute base.
+				array_pop( $resolved );
+				continue;
+			}
+
+			$resolved[] = $segment;
+		}
+
+		return $prefix . implode( '/', $resolved );
+	}
+
+	/**
+	 * Whether one canonical path is the given base or sits underneath it.
+	 *
+	 * @param string $path Canonical path to test.
+	 * @param string $base Canonical base directory.
+	 * @return bool
+	 */
+	public static function path_is_within( $path, $base ) {
+		if ( ! is_string( $path ) || ! is_string( $base ) || '' === $path || '' === $base ) {
+			return false;
+		}
+
+		/*
+		 * A base that reduces to the filesystem root is too wide to be a boundary:
+		 * trailingslashit( "/" ) is "/", which prefixes every absolute path, so a gallery
+		 * folder setting of "wp-content/gallery/../../../.." would make containment accept
+		 * anything on the server. The prefix pattern is the same one canonicalize_path()
+		 * uses, so "C:/" and "//server/share/" are covered too. Mirrors the guard in
+		 * DataStorage\Manager::path_contains() (96fe6832) - the sibling suite this one is
+		 * asked to stay in step with.
+		 */
+		$base_body = preg_replace( '#^(?://[^/]+/|[a-zA-Z]:/|/)#', '', $base );
+		if ( '' === rtrim( (string) $base_body, '/' ) ) {
+			return false;
+		}
+
+		if ( $path === $base ) {
+			return true;
+		}
+
+		return 0 === strpos( $path, \trailingslashit( $base ) );
+	}
+
+	/**
+	 * Returns $path only when it is contained by $base, and null when it escapes.
+	 *
+	 * The containment check is what stops a stored filename from being read as a
+	 * traversal: several paths in the storage manager are built by path_join()'ing a
+	 * filename that came from the database, and path_join() is happy to join
+	 * "../../../../wp-config.php".
+	 *
+	 * Note for whoever changes this next: DataStorage\Manager carries a second,
+	 * older containment suite for the image-deletion path — collapse_path_traversal(),
+	 * path_contains(), is_within_gallery_locations(), is_deletion_path_allowed() —
+	 * added for the arbitrary-file-deletion report (#886). It is deliberately
+	 * separate because it requires the path to already exist, which this one cannot:
+	 * a thumbnail is contained before it is generated. Tighten or loosen containment
+	 * in one of them and check the other, or unify them behind a single
+	 * implementation with the #886 reproduction re-run.
+	 *
+	 * @param string $path Path to contain, existing or not.
+	 * @param string $base Directory the path must stay inside.
+	 * @return string|null Canonical contained path, or null when it escapes $base.
+	 */
+	public static function contain_path( $path, $base ) {
+		$canonical_path = self::canonicalize_path( $path );
+		$canonical_base = self::canonicalize_path( $base );
+
+		if ( ! self::path_is_within( $canonical_path, $canonical_base ) ) {
+			return null;
+		}
+
+		/*
+		 * Second pass through realpath() so a symlink planted inside the base cannot
+		 * point back out of it. Only the part of the path that already exists can be
+		 * resolved; the rest is re-attached lexically, so a not-yet-generated
+		 * thumbnail is still checked against the real location of its directory.
+		 */
+		$real_base = @realpath( $canonical_base ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $real_base ) {
+			// The gallery directory does not exist yet, so there is nothing further to
+			// verify: the lexical check above is the whole answer and it passed.
+			return $canonical_path;
+		}
+
+		$resolved = self::resolve_existing_prefix( $canonical_path );
+		if ( null !== $resolved && ! self::path_is_within( $resolved, \wp_normalize_path( $real_base ) ) ) {
+			return null;
+		}
+
+		return $canonical_path;
+	}
+
+	/**
+	 * Contains a local watermark image path to the install.
+	 *
+	 * Accepted roots: ABSPATH, WP_CONTENT_DIR (relocated wp-content) and the uploads
+	 * directory (which may live outside both, e.g. Bedrock or a mounted volume). Shared
+	 * by the thumbnail renderers and the REST preview so preview and real thumbnails
+	 * accept the same paths.
+	 *
+	 * Callers must open the returned path, not the one they passed in: contain_path()
+	 * collapses "../" lexically, but the OS follows a symlink before applying "..", so
+	 * "uploads/../../x.png" with a symlinked uploads directory would otherwise pass the
+	 * check and read a file outside the install.
+	 *
+	 * @param string $path Absolute path to contain.
+	 * @return string|null Canonical contained path, or null when it is outside every root.
+	 */
+	public static function contain_watermark_path( $path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return null;
+		}
+
+		$roots = [ ABSPATH ];
+		if ( defined( 'WP_CONTENT_DIR' ) ) {
+			$roots[] = WP_CONTENT_DIR;
+		}
+		$upload_dir = \wp_upload_dir( null, false );
+		if ( ! empty( $upload_dir['basedir'] ) ) {
+			$roots[] = $upload_dir['basedir'];
+		}
+
+		foreach ( $roots as $root ) {
+			$contained = self::contain_path( $path, $root );
+			if ( null !== $contained ) {
+				return $contained;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sanitizes a watermark setting ("wmPath" or "wmFont") for storage or rendering.
+	 *
+	 * Shared by every route that accepts these values (REST settings, the legacy
+	 * settings form and the legacy preview AJAX) so they cannot drift apart.
+	 *
+	 * - wmFont is a file name inside the bundled fonts directory: any wrapper is
+	 *   refused and only the basename is kept.
+	 * - wmPath may be an http(s) URL (the documented "HTTP url" option, #1104; the
+	 *   sinks fetch it with wp_safe_remote_get()). Every other wrapper (phar://,
+	 *   file://, php://, data://, ...) is refused (#1084, object injection / LFI).
+	 *   A local path is kept only when it can resolve inside the install, by the same
+	 *   candidates and roots the render sinks use, so an in-root "../" (Bedrock's
+	 *   "../app/uploads/x.png") survives and an escaping one does not.
+	 *
+	 * @param string $key   "wmPath" or "wmFont".
+	 * @param mixed  $value Submitted value.
+	 * @return string Sanitized value, or '' when refused.
+	 */
+	public static function sanitize_watermark_option( $key, $value ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		// Not sanitize_text_field(): it strips "%XX" octets, which breaks a URL such as
+		// "My%20Logo.png". Tags, line breaks, tabs and NULs are still removed.
+		$sanitized  = trim( (string) preg_replace( '/[\r\n\t\0]+/', '', \wp_strip_all_tags( \wp_check_invalid_utf8( $value ) ) ) );
+		$normalized = str_replace( '\\', '/', $sanitized );
+
+		if ( 'wmFont' === $key ) {
+			// A font is a bare file name from the bundled list; refuse anything else
+			// rather than cut it down to a different name the admin did not choose.
+			if ( false !== strpos( $normalized, '/' ) || in_array( $normalized, [ '.', '..' ], true ) ) {
+				return '';
+			}
+			return $normalized;
+		}
+
+		if ( '' === $sanitized ) {
+			return '';
+		}
+
+		if ( false !== strpos( $normalized, '://' ) ) {
+			return preg_match( '#^https?://#i', $normalized ) ? \esc_url_raw( $sanitized, [ 'http', 'https' ] ) : '';
+		}
+
+		// A scheme with no "//" ("data:", "javascript:", ...). A Windows drive letter
+		// ("C:/...") is a single character and stays a local path.
+		if ( preg_match( '#^[a-z][a-z0-9+.\-]+:#i', $normalized ) ) {
+			return '';
+		}
+
+		$fs = Filesystem::get_instance();
+		if ( ! self::is_allowed_watermark_path( $sanitized, $fs->join_paths( $fs->get_document_root( 'content' ), $sanitized ) ) ) {
+			return '';
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Resolves a saved local watermark path to a contained file that exists.
+	 *
+	 * A relative path is relative to the site root (the form's documented meaning);
+	 * the content-root form is tried next. Each candidate is contained before it is
+	 * probed, and the absolute test is a string test, not path_is_absolute(), which
+	 * runs realpath() on its argument. Probing a raw value first would touch any path
+	 * it names: on Windows a UNC path ("\\host\share\x.png") opens an SMB connection
+	 * to that host and sends the server's NTLM hash (#1084).
+	 *
+	 * @param string $path         Local watermark path, no scheme.
+	 * @param string $content_path The same path joined onto the content root by the
+	 *                             caller's filesystem helper (a string operation).
+	 * @return string|null Canonical contained path to open, or null when no candidate
+	 *                     is inside the install or none exists.
+	 */
+	public static function resolve_watermark_path( $path, $content_path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return null;
+		}
+
+		foreach ( self::watermark_path_candidates( $path, $content_path ) as $candidate ) {
+			$contained = self::contain_watermark_path( $candidate );
+			if ( null !== $contained && is_file( $contained ) ) {
+				return $contained;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Maps an http(s) watermark URL that points at this site to the file it serves.
+	 *
+	 * A watermark URL on the site's own domain (a media-library URL, or any file under
+	 * the uploads, plugins, content or site root) is read from disk instead of being
+	 * downloaded. Downloading it means a request from the server back to itself, which
+	 * many shared hosts and WAFs refuse, so the preview and Set Watermark could fail
+	 * on a file that sits on the same disk (#1104). It also saves one HTTP request per
+	 * image in a bulk job.
+	 *
+	 * The scheme is ignored (http and https serve the same file); host and port must
+	 * match. The decoded path is contained with contain_watermark_path(), so "%2e%2e/"
+	 * or a symlink cannot reach outside the install. Only image extensions are mapped,
+	 * so a URL that is really a script is never read as a file.
+	 *
+	 * @param string $url Watermark URL.
+	 * @return string|null Canonical local path of an existing file, or null when the URL
+	 *                     is not on this site (callers then download it).
+	 */
+	public static function watermark_url_to_local_path( $url ) {
+		if ( ! is_string( $url ) || ! preg_match( '#^https?://#i', $url ) ) {
+			return null;
+		}
+
+		$parts = \wp_parse_url( $url );
+		if ( empty( $parts['host'] ) || empty( $parts['path'] ) || isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return null;
+		}
+
+		$extension = strtolower( (string) pathinfo( $parts['path'], PATHINFO_EXTENSION ) );
+		if ( ! in_array( $extension, [ 'png', 'jpg', 'jpeg', 'gif', 'webp' ], true ) ) {
+			return null;
+		}
+
+		$host = strtolower( $parts['host'] );
+		$port = isset( $parts['port'] ) ? (int) $parts['port'] : null;
+
+		foreach ( self::own_site_url_bases() as $base ) {
+			list( $base_url, $base_dir ) = $base;
+
+			$base_parts = \wp_parse_url( $base_url );
+			if ( empty( $base_parts['host'] ) || strtolower( $base_parts['host'] ) !== $host ) {
+				continue;
+			}
+			if ( ( isset( $base_parts['port'] ) ? (int) $base_parts['port'] : null ) !== $port ) {
+				continue;
+			}
+
+			$base_path = isset( $base_parts['path'] ) ? rtrim( $base_parts['path'], '/' ) : '';
+			if ( 0 !== strpos( $parts['path'], $base_path . '/' ) ) {
+				continue;
+			}
+
+			$relative = rawurldecode( substr( $parts['path'], strlen( $base_path ) + 1 ) );
+			if ( '' === $relative || false !== strpos( $relative, "\0" ) ) {
+				continue;
+			}
+
+			$contained = self::contain_watermark_path( \trailingslashit( \wp_normalize_path( $base_dir ) ) . $relative );
+			if ( null !== $contained && is_file( $contained ) ) {
+				return $contained;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * URL prefixes of this site and the directories they serve, most specific first.
+	 *
+	 * @return array<int, array{0: string, 1: string}>
+	 */
+	private static function own_site_url_bases() {
+		$bases = [];
+
+		$upload_dir = \wp_upload_dir( null, false );
+		if ( ! empty( $upload_dir['baseurl'] ) && ! empty( $upload_dir['basedir'] ) ) {
+			$bases[] = [ $upload_dir['baseurl'], $upload_dir['basedir'] ];
+		}
+		if ( defined( 'WP_PLUGIN_DIR' ) ) {
+			$bases[] = [ \plugins_url(), WP_PLUGIN_DIR ];
+		}
+		if ( defined( 'WP_CONTENT_DIR' ) ) {
+			$bases[] = [ \content_url(), WP_CONTENT_DIR ];
+		}
+		$bases[] = [ \site_url(), ABSPATH ];
+
+		// home_url() serves ABSPATH too when WordPress is not in a subdirectory (it may
+		// differ from site_url() only by host, e.g. a mapped domain).
+		$home_path = (string) \wp_parse_url( \home_url(), PHP_URL_PATH );
+		$site_path = (string) \wp_parse_url( \site_url(), PHP_URL_PATH );
+		if ( rtrim( $home_path, '/' ) === rtrim( $site_path, '/' ) ) {
+			$bases[] = [ \home_url(), ABSPATH ];
+		}
+
+		return $bases;
+	}
+
+	/**
+	 * Opens a watermark image for compositing: the one loader every thumbnail renderer
+	 * uses, so Set Watermark, upload auto-watermarking, dynamic thumbnails and the
+	 * settings preview read the same file the same way (#1104).
+	 *
+	 * - An http(s) URL on this site is read from disk (watermark_url_to_local_path()).
+	 * - Any other http(s) URL is fetched with wp_safe_remote_get(), which refuses
+	 *   internal and loopback hosts, closing the SSRF that imagecreatefrompng()'s own
+	 *   fopen wrapper would allow.
+	 * - Every other wrapper (phar://, file://, php://, data://, ...) is refused: opening
+	 *   one reads or deserialises attacker-chosen data (#1084).
+	 * - A local path is contained to the install with resolve_watermark_path().
+	 *
+	 * The bytes go through imagecreatefromstring(), so PNG, JPEG, GIF and WebP all work
+	 * wherever they come from (a remote URL always accepted any of them).
+	 *
+	 * @param string $path Saved watermark path or URL.
+	 * @return \GdImage|resource|false The image, or false when it cannot be loaded.
+	 */
+	public static function load_watermark_image( $path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$normalized = str_replace( '\\', '/', $path );
+		$body       = false;
+
+		if ( false !== strpos( $normalized, '://' ) ) {
+			if ( ! preg_match( '#^https?://#i', $normalized ) ) {
+				return false;
+			}
+
+			$local = self::watermark_url_to_local_path( $path );
+			if ( null !== $local ) {
+				$body = @file_get_contents( $local ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			} else {
+				$response = \wp_safe_remote_get( $path, [ 'timeout' => 10 ] );
+				if ( \is_wp_error( $response ) || 200 !== (int) \wp_remote_retrieve_response_code( $response ) ) {
+					return false;
+				}
+				$body = \wp_remote_retrieve_body( $response );
+			}
+		} else {
+			$fs        = Filesystem::get_instance();
+			$contained = self::resolve_watermark_path( $path, $fs->join_paths( $fs->get_document_root( 'content' ), $path ) );
+			if ( null === $contained ) {
+				return false;
+			}
+			$body = @file_get_contents( $contained ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		}
+
+		if ( ! is_string( $body ) || '' === $body ) {
+			return false;
+		}
+
+		$image = @imagecreatefromstring( $body ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+		return $image ? $image : false;
+	}
+
+	/**
+	 * Whether a local watermark path can resolve inside the install.
+	 *
+	 * The save-time twin of resolve_watermark_path(): the same candidates and roots,
+	 * without the existence check (a file may be uploaded after the path is saved), so
+	 * settings validation keeps exactly the paths the sinks would accept (including a
+	 * "../" that stays inside, e.g. Bedrock's "../app/uploads/x.png") and refuses the
+	 * rest. The one exception is an absolute path read against the content root, which
+	 * must exist (see below).
+	 *
+	 * @param string $path         Local watermark path, no scheme.
+	 * @param string $content_path The same path joined onto the content root.
+	 * @return bool
+	 */
+	public static function is_allowed_watermark_path( $path, $content_path ) {
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+
+		$is_absolute = self::is_absolute_watermark_path( $path );
+
+		foreach ( self::watermark_path_candidates( $path, $content_path ) as $index => $candidate ) {
+			$contained = self::contain_watermark_path( $candidate );
+			if ( null === $contained ) {
+				continue;
+			}
+			// An absolute path joined onto the content root is always inside it, so on
+			// its own that would accept "/tmp/x.png" or "//host/x.png". Accept that form
+			// only when the file is really there ("/uploads/x.png", which the sinks have
+			// always resolved against the content root). Checked after containment, so
+			// nothing outside the install is probed.
+			if ( 1 === $index && $is_absolute && ! is_file( $contained ) ) {
+				continue;
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a local watermark path is absolute (leading slash or backslash, or a
+	 * Windows drive). A string test, not path_is_absolute(), which runs realpath().
+	 *
+	 * @param string $path Local watermark path.
+	 * @return bool
+	 */
+	private static function is_absolute_watermark_path( $path ) {
+		return 1 === preg_match( '#^(?:[/\\\\]|[A-Za-z]:[/\\\\])#', $path );
+	}
+
+	/**
+	 * Candidate absolute paths for a local watermark path: the path itself when it is
+	 * absolute (else joined onto ABSPATH), then the content-root form.
+	 *
+	 * @param string $path         Local watermark path.
+	 * @param string $content_path The same path joined onto the content root.
+	 * @return string[]
+	 */
+	private static function watermark_path_candidates( $path, $content_path ) {
+		return [
+			self::is_absolute_watermark_path( $path ) ? $path : ABSPATH . ltrim( $path, '/\\' ),
+			$content_path,
+		];
+	}
+
+	/**
+	 * Resolves the deepest existing ancestor of a path through realpath() and
+	 * re-attaches the segments that do not exist yet.
+	 *
+	 * @param string $path Canonical path.
+	 * @return string|null Resolved path, or null when no ancestor exists.
+	 */
+	private static function resolve_existing_prefix( $path ) {
+		$remainder = [];
+		$current   = $path;
+
+		while ( '' !== $current ) {
+			$real = @realpath( $current ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+			if ( false !== $real ) {
+				$real = \wp_normalize_path( $real );
+
+				return empty( $remainder )
+					? $real
+					: \trailingslashit( $real ) . implode( '/', array_reverse( $remainder ) );
+			}
+
+			$parent = \dirname( $current );
+			if ( $parent === $current ) {
+				break;
+			}
+
+			$remainder[] = \wp_basename( $current );
+			$current     = $parent;
+		}
+
+		return null;
+	}
+
+	public static function get_mapped_cap( $capability_name ) {
+		switch ( $capability_name ) {
+			case 'nextgen_edit_display_settings':
+			case 'nextgen_edit_settings':
+				$capability_name = 'NextGEN Change options';
+				break;
+			case 'nextgen_edit_style':
+				$capability_name = 'NextGEN Change style';
+				break;
+			case 'nextgen_edit_displayed_gallery':
+				$capability_name = 'NextGEN Attach Interface';
+				break;
+			case 'nextgen_edit_gallery':
+				$capability_name = 'NextGEN Manage gallery';
+				break;
+			case 'nextgen_edit_gallery_unowned':
+				$capability_name = 'NextGEN Manage others gallery';
+				break;
+			case 'nextgen_upload_image':
+			case 'nextgen_upload_images':
+				$capability_name = 'NextGEN Upload images';
+				break;
+			case 'nextgen_edit_album_settings':
+				$capability_name = 'NextGEN Edit album settings';
+				break;
+			case 'nextgen_edit_album':
+				$capability_name = 'NextGEN Edit album';
+				break;
+		}
+
+		return $capability_name;
+	}
+
+	public static function create_nonce( $cap = -1 ) {
+		return \wp_create_nonce( self::get_mapped_cap( $cap ) );
+	}
+
+	public static function verify_nonce( $nonce, $cap = -1 ) {
+		return \wp_verify_nonce( $nonce, self::get_mapped_cap( $cap ) );
+	}
+
+	public static function is_allowed( $capability_name, $user = false ) {
+		$capability_name = self::get_mapped_cap( $capability_name );
+
+		if ( ! $user && function_exists( 'wp_get_current_user' ) ) {
+			$user = \wp_get_current_user();
+		} elseif ( is_numeric( $user ) ) {
+			$user = new \WP_User( $user );
+		}
+
+		return $user && $user->has_cap( $capability_name );
+	}
+
+	/**
+	 * Whether the current user may manage a row owned by the given author.
+	 *
+	 * Ownership is never authorization on its own: the stored author id outlives the capability
+	 * that let the user create the row, so the required capability is checked first and ownership
+	 * only decides whether the cross-author capability is also needed. Every gallery and album
+	 * gate calls this so the rule cannot drift between them.
+	 *
+	 * @param int|string|null $author_id           Owning user id, as stored on the row.
+	 * @param string          $required_capability Capability this surface requires of every caller.
+	 * @param string          $unowned_capability  Capability that permits acting on someone else's row.
+	 * @return bool
+	 */
+	public static function can_manage_owned( $author_id, $required_capability = 'nextgen_edit_gallery', $unowned_capability = 'nextgen_edit_gallery_unowned' ) {
+		if ( ! self::is_allowed( $required_capability ) ) {
+			return false;
+		}
+
+		if ( self::is_allowed( $unowned_capability ) ) {
+			return true;
+		}
+
+		// Cast because the storage layer returns the author as a numeric string on some paths.
+		$author_id       = (int) $author_id;
+		$current_user_id = (int) \get_current_user_id();
+
+		// An unattributed row and a logged-out caller must not match on id 0.
+		if ( $author_id <= 0 || $current_user_id <= 0 ) {
+			return false;
+		}
+
+		return $current_user_id === $author_id;
+	}
+
+	/**
+	 * Whether the current user may read a given media-library attachment.
+	 *
+	 * The import and conversion paths take attachment ids from the request - directly, or out of
+	 * a post whose id the request names - and hand each one to get_attached_file() before reading
+	 * the bytes off disk. The capability that opens those routes authorizes the *destination*
+	 * gallery; nothing on them asks whose file is being read, so the object-level question has to
+	 * be asked here.
+	 *
+	 * Two tests, because each answers a different question:
+	 *
+	 * - `edit_post`, not `read_post`. `read_post` is useless as a gate here: core's
+	 *   get_post_status() reports `publish` for an attachment with no `post_parent` ("unattached
+	 *   attachments are considered publicly accessible"), and map_meta_cap() resolves read_post on
+	 *   a public-status post down to plain `read`, which every logged-in role holds - so a
+	 *   Subscriber passes for any unattached upload, and most of a real media library is
+	 *   unattached. `edit_post` resolves through the attachment's own author and
+	 *   `edit_others_posts`, so an author keeps their own media and nobody reaches anyone else's.
+	 *   This is also what the same bug settled on in the sibling plugin
+	 *   (envira-gallery-plugin#5639), and importing is a write-shaped act anyway: the bytes are
+	 *   copied out and republished at a new public URL.
+	 * - the post-type test narrows the id space to real attachment rows, which is what stops an
+	 *   arbitrary post id being used as a file reference: get_attached_file() reads
+	 *   `_wp_attached_file` from **any** post id. It bounds the *object*, not the path - an
+	 *   absolute stored value is returned verbatim and the `get_attached_file` filter may rewrite
+	 *   it, so offloaded-media and migrated rows can still resolve outside the uploads tree.
+	 *   Callers needing path containment have to assert it separately.
+	 *
+	 * @param int|string $attachment_id Attachment id, as supplied by the request.
+	 * @return bool
+	 */
+	public static function can_read_attachment( $attachment_id ) {
+		$attachment_id = (int) $attachment_id;
+
+		if ( $attachment_id <= 0 ) {
+			return false;
+		}
+
+		if ( 'attachment' !== \get_post_type( $attachment_id ) ) {
+			return false;
+		}
+
+		return \current_user_can( 'edit_post', $attachment_id );
+	}
+}

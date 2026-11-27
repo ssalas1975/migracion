@@ -555,6 +555,7 @@ function wpbc_get_availability_per_days_arr( $params ) {
 		'max_days_count'               => wpbc_get_max_visible_days_in_calendar(),            // 365.
 		'timeslots_to_check_intersect' => array(),                                            // arr:  '12:20 - 12:55', '13:00 - 14:00' )         // TODO: ? do we really need it, because below we get it from function.
 		'request_uri'                  => ( ( ( defined( 'DOING_AJAX' ) ) && ( DOING_AJAX ) ) ? $server_http_referer_uri : $server_request_uri ),  // front-end: $server_request_uri | ajax: $server_http_referer_uri                      // It different in Ajax requests. It's used for change-over days to detect for exception at specific pages.
+		'allow_past'                   => false,
 		'custom_form'                  => '',                                                 // Required for checking all available time-slots and compare with  booked time slots.
 		'force_check_from_today_unavailable' => false,                                        // Optional admin tools can force relative availability checks inside explicit date ranges.
 	);
@@ -563,6 +564,7 @@ function wpbc_get_availability_per_days_arr( $params ) {
 
 	// FixIn: 10.7.1.2. //FixIn: 10.10.3.2.
 	if (
+		( ! empty( $params['allow_past'] ) ) ||
 		( false !== strpos( $params['request_uri'], 'allow_past' ) ) ||
 		(
 			wpbc_is_new_booking_page_url( $params['request_uri'] ) &&
@@ -692,7 +694,7 @@ function wpbc_get_availability_per_days_arr( $params ) {
 
 	// FixIn: 10.7.1.2.
 	if ( ! $is_this_hash_page ) {
-		$is_this_hash_page = ( false !== strpos( $params['request_uri'], 'allow_past' ) ) ? true : false;
+		$is_this_hash_page = ( ( ! empty( $params['allow_past'] ) ) || ( false !== strpos( $params['request_uri'], 'allow_past' ) ) ) ? true : false;
 	}
 
 	if ( ( $is_this_bap_page ) && ( $is_this_hash_page ) ) {        // Start  days in calendar  from        = PAST
@@ -723,10 +725,10 @@ function wpbc_get_availability_per_days_arr( $params ) {
 
 		$start_day_number = 1;
 
-		$today_inix_timestamp = strtotime( $params['dates_to_check'][0] . ' 00:00:00' );                                // '2023-09-03 00:00:00'
+		$today_inix_timestamp = strtotime( $params['dates_to_check'][0] . ' 00:00:00 UTC' );                            // '2023-09-03 00:00:00'
 
-		$dif_in_days =   strtotime( $params['dates_to_check'][ ( count( $params['dates_to_check'] ) - 1 ) ] . ' 00:00:00' )
-		               - strtotime( $params['dates_to_check'][0] . ' 00:00:00' );
+		$dif_in_days =   strtotime( $params['dates_to_check'][ ( count( $params['dates_to_check'] ) - 1 ) ] . ' 00:00:00 UTC' )
+		               - strtotime( $params['dates_to_check'][0] . ' 00:00:00 UTC' );
 
 		$dif_in_days = $dif_in_days / ( 24 * 60 * 60 );
 		$params['max_days_count'] = ceil( $dif_in_days ) + 1;
@@ -958,9 +960,18 @@ function wpbc_get_availability_per_days_arr( $params ) {
 				// =====================================================================================================
 				// Change over days  =
 				// =====================================================================================================
+				$is_booking_used_check_in_out_time = null;
+				if ( function_exists( 'wpbc_settings_calendar__preview_is_changeover_enabled' ) ) {
+					$is_booking_used_check_in_out_time = wpbc_settings_calendar__preview_is_changeover_enabled( $resource_id, $params['request_uri'] );
+				}
+				if ( null === $is_booking_used_check_in_out_time ) {
+					$is_booking_used_check_in_out_time = (
+						   ( function_exists( 'wpbc_is_booking_used_check_in_out_time' ) )
+						&& ( wpbc_is_booking_used_check_in_out_time( $params['request_uri'], $resource_id ) )
+					);
+				}
 				if (
-					   ( function_exists( 'wpbc_is_booking_used_check_in_out_time' ) )
-					&& ( wpbc_is_booking_used_check_in_out_time( $params[ 'request_uri' ], $resource_id ) )
+					   $is_booking_used_check_in_out_time
 					&& ( ! $availability_per_day[ $my_day_tag ][ $resource_id ]->is_day_unavailable )   // And this date still free                                 false
 				) {
 
@@ -1047,6 +1058,34 @@ function wpbc_get_availability_per_days_arr( $params ) {
 			// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 			// B O O K I N G S   -   E n d
 			// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+			// Working Time applies only to time-based booking forms: rangetime, start/end, or start/duration.
+			$working_time__timeslots_to_check_intersect = $as_seconds_timeslots_arr__to_check_intersect;
+			if ( empty( $working_time__timeslots_to_check_intersect ) && ! empty( $params['timeslots_to_check_intersect'] ) ) {
+				if ( ! is_array( $params['timeslots_to_check_intersect'] ) ) {
+					$params['timeslots_to_check_intersect'] = array( $params['timeslots_to_check_intersect'] );
+				}
+				$working_time__timeslots_to_check_intersect = array();
+				foreach ( $params['timeslots_to_check_intersect'] as $time_slot_readable ) {
+					$working_time__timeslots_to_check_intersect[] = wpbc_convert__readable_time_slot__to__time_range_in_seconds( $time_slot_readable );
+				}
+			}
+
+			if (
+				! empty( $working_time__timeslots_to_check_intersect )
+				&& function_exists( 'wpbc_working_time__get_non_working_intervals_for_date' )
+				&& function_exists( 'wpbc_availability_timeslots__apply_blocks_to_availability_obj' )
+			) {
+				$working_time__blocked_intervals = wpbc_working_time__get_non_working_intervals_for_date( $resource_id, $my_day_tag );
+
+				if ( ! empty( $working_time__blocked_intervals ) ) {
+					$availability_per_day[ $my_day_tag ][ $resource_id ] = wpbc_availability_timeslots__apply_blocks_to_availability_obj(
+						$availability_per_day[ $my_day_tag ][ $resource_id ],
+						$working_time__blocked_intervals,
+						$working_time__timeslots_to_check_intersect
+					);
+				}
+			}
+
 			// FixIn: 10.16.1.
 			if (
 				function_exists( 'wpbc_availability_timeslots__apply_blocks_to_availability_obj' )
@@ -1219,6 +1258,7 @@ function wpbc_get_availability_per_days_arr( $params ) {
 			}
 		}
 		$temp_status = array_filter( $temp_status );                                                                    // All entries of array equal to FALSE (0, '', '0' ) will be removed.
+		$temp_status_counts = array_count_values( $temp_status );
 		$temp_status = array_unique( $temp_status );                                                                    // Erase duplicates
 		$availability_per_this_day['summary']['status_for_day'] = $temp_status;
 
@@ -1245,8 +1285,32 @@ function wpbc_get_availability_per_days_arr( $params ) {
 		//                        > season_filter > resource_availability
 		//                        > weekday_unavailable > from_today_unavailable > limit_available_from_today
 
-		// if at least one booking "available" then day has this status
+		// Capacity resources can be available even when every child has a check-in/out or full-day status.
+		$max_capacity = isset( $availability_per_this_day['max_capacity'] ) ? intval( $availability_per_this_day['max_capacity'] ) : 1;
+		$blocking_statuses = array(
+			'full_day_booking',
+			'season_filter',
+			'resource_availability',
+			'weekday_unavailable',
+			'from_today_unavailable',
+			'limit_available_from_today',
+			'change_over',
+		);
+		$blocked_capacity = 0;
+		foreach ( $blocking_statuses as $blocking_status ) {
+			$blocked_capacity += isset( $temp_status_counts[ $blocking_status ] ) ? intval( $temp_status_counts[ $blocking_status ] ) : 0;
+		}
+		$booked_capacity__before_check_in = $blocked_capacity + ( isset( $temp_status_counts['check_out'] ) ? intval( $temp_status_counts['check_out'] ) : 0 );
+		$booked_capacity__after_check_in  = $blocked_capacity + ( isset( $temp_status_counts['check_in'] ) ? intval( $temp_status_counts['check_in'] ) : 0 );
+		$is_capacity_available_during_change_over = (
+			   ( $max_capacity > 1 )
+			&& ( $max_capacity > max( $booked_capacity__before_check_in, $booked_capacity__after_check_in ) )
+			&& ( ! in_array( 'time_slots_booking', $availability_per_this_day['summary']['status_for_day'] ) )
+		);
+
+		// if at least one resource is available then day has this status
 		if ( in_array( 'available', $availability_per_this_day['summary']['status_for_day'] ) ) {                      $availability_per_this_day['summary']['status_for_day'] = 'available';
+		} else if ( $is_capacity_available_during_change_over ) {                                                     $availability_per_this_day['summary']['status_for_day'] = 'available';
 		} else if ( in_array( 'time_slots_booking', $availability_per_this_day['summary']['status_for_day'] ) ) {      $availability_per_this_day['summary']['status_for_day'] = 'time_slots_booking';
 		} else if ( ( ! in_array( 'check_out',  $availability_per_this_day['summary']['status_for_day'] ) )
 	               && ( in_array( 'check_in', $availability_per_this_day['summary']['status_for_day'] ) ) ) {          $availability_per_this_day['summary']['status_for_day'] = 'check_in';

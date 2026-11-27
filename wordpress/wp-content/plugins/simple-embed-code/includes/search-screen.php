@@ -1,15 +1,20 @@
 <?php
 /**
-* Code Embed Search
-*
-* Allow the user to change the default options
-*
-* @package  simple-embed-code
-* @since    1.6
-*/
+ * Code Embed Search
+ *
+ * Search for specific code embeds across site content.
+ *
+ * @package  simple-embed-code
+ */
+
+// Exit if accessed directly.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 <div class="wrap">
-<h1><?php echo esc_html( ucwords( __( 'Code Embed search', 'simple-embed-code' ) ) ); ?></h1>
+<h1><?php echo esc_html( __( 'Code Embed search', 'simple-embed-code' ) ); ?></h1>
 
 <?php
 echo '<p>' . esc_html__( 'Enter the suffix to search for below and press the \'Search\' button to view the results. Further help can be found by clicking on the Help tab at the top right-hand of the screen.', 'simple-embed-code' ) . '</p>';
@@ -17,30 +22,30 @@ echo '<p>' . esc_html__( 'Enter the suffix to search for below and press the \'S
 
 <?php
 
-// Get the suffix from the submitted field
+// Get the suffix from the submitted field.
 
-if ( ! empty( $_POST['ce_suffix'] ) && check_admin_referer( 'code-embed-search', 'code_embed_search_nonce' ) ) { // Input var okay.
-	$suffix = htmlspecialchars( sanitize_title( wp_unslash( $_POST['ce_suffix'] ) ) );  // Input var okay.
+if ( isset( $_POST['ce_suffix'] ) && check_admin_referer( 'code-embed-search', 'code_embed_search_nonce' ) ) {
+	$suffix = sanitize_text_field( wp_unslash( $_POST['ce_suffix'] ) );
 } else {
 	$suffix = '';
 }
 
-// Fetch options into an array
+// Fetch options into an array.
 
 $options = get_option( 'artiss_code_embed' );
 ?>
 
-<form method="post" action="<?php echo esc_html( get_bloginfo( 'wpurl' ) ) . '/wp-admin/tools.php?page=ce-search'; ?>">
+<form method="post" action="<?php echo esc_url( admin_url( 'tools.php?page=ce-search' ) ); ?>">
 
 	<?php echo esc_html( $options['opening_ident'] ) . esc_html( $options['keyword_ident'] ); ?>
 
-	<input type="text" size="6" name="ce_suffix" value="<?php echo esc_html( $suffix ); ?>"/>
+	<input type="text" size="6" name="ce_suffix" aria-label="<?php esc_attr_e( 'Code suffix', 'simple-embed-code' ); ?>" value="<?php echo esc_attr( $suffix ); ?>"/>
 
 	<?php echo esc_html( $options['closing_ident'] ); ?>
 
 	<?php wp_nonce_field( 'code-embed-search', 'code_embed_search_nonce', true, true ); ?>
 
-	<input type="submit" name="Submit" class="button-primary" value="<?php esc_html_e( 'Search', 'simple-embed-code' ); ?>"/>
+	<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e( 'Search', 'simple-embed-code' ); ?>"/>
 
 </form>
 
@@ -48,45 +53,38 @@ $options = get_option( 'artiss_code_embed' );
 if ( '' !== $suffix ) {
 
 	global $wpdb;
-	$meta    = $wpdb->get_results( $wpdb->prepare( "SELECT meta_value, post_title, ID FROM $wpdb->postmeta, $wpdb->posts WHERE meta_key = %s AND post_id = ID ORDER BY meta_value", esc_html( $options['keyword_ident'] ) . esc_html( $suffix ) ) ); // @codingStandardsIgnoreLine -- being used for a simple, ad-hoc search feature in admin. Unlikely to be used much and caching on this is overkill
-	$records = $wpdb->num_rows;
+	$meta = $wpdb->get_results( $wpdb->prepare( "SELECT meta_value, post_title, ID FROM $wpdb->postmeta, $wpdb->posts WHERE BINARY meta_key = %s AND post_id = ID AND post_status NOT IN ('trash', 'auto-draft', 'inherit') AND post_type IN ('post', 'page') ORDER BY meta_value", $options['keyword_ident'] . $suffix ) ); // @codingStandardsIgnoreLine -- being used for a simple, ad-hoc search feature in admin. Unlikely to be used much and caching on this is overkill
 
-	if ( 0 < $records ) {
+	$shown = 0;
 
-		echo '<table class="form-table">';
-		$color1    = 'dfdfdf';
-		$color2    = 'ececec';
-		$color     = $color1;
-		$prev_html = '';
+	foreach ( $meta as $meta_data ) {
+		$post_ident = $meta_data->ID;
 
-		foreach ( $meta as $meta_data ) {
-			$html       = $meta_data->meta_value;
-			$post_title = $meta_data->post_title;
-			$post_id    = $meta_data->ID;
-
-			// Switch background colours as the code changes
-
-			if ( $html !== $prev_html ) {
-				if ( $color === $color1 ) {
-					$color = $color2;
-				} else {
-					$color = $color1; }
-			}
-
-			echo '<tr style="background-color: #' . esc_html( $color ) . "\">\n";
-			echo '<td><a href="' . esc_html( home_url() ) . '/wp-admin/post.php?post=' . esc_html( $post_id ) . '&action=edit" style="color: #f00;">' . esc_html( $post_title ) . "</td>\n";
-			echo '<td><textarea readonly="readonly" rows="3" cols="80">' . esc_html( $html ) . "</textarea></td>\n";
-			echo "</tr>\n";
-
-			$prev_html = $html;
+		// Only reveal an embed for posts the current user can edit, so this tool cannot
+		// disclose the title or embed content of posts the user has no access to.
+		if ( ! current_user_can( 'edit_post', $post_ident ) ) {
+			continue;
 		}
 
+		$html       = $meta_data->meta_value;
+		$post_title = $meta_data->post_title;
+
+		if ( 0 === $shown ) {
+			echo '<table class="widefat striped">';
+		}
+		++$shown;
+
+		echo '<tr style="border-bottom-style: dotted; border-top-style: dotted;">' . "\n";
+		echo '<td><a href="' . esc_url( get_edit_post_link( esc_attr( $post_ident ) ) ) . '" >' . esc_html( $post_title ) . "</a></td>\n";
+
+		echo '<td><textarea aria-label="' . esc_attr__( 'Embed code', 'simple-embed-code' ) . '" readonly="readonly" rows="3" cols="80">' . esc_html( $html ) . "</textarea></td>\n";
+		echo "</tr>\n";
+	}
+
+	if ( 0 < $shown ) {
 		echo "</table>\n";
-
 	} else {
-
-		echo '<p style="color: #f00">' . esc_html__( 'No posts were found containing that embed code.', 'simple-embed-code' ) . "</p>\n";
-
+		ce_report_error( esc_html__( 'No posts were found containing that embed code.', 'simple-embed-code' ), 'Code Embed', true );
 	}
 }
 ?>

@@ -14,6 +14,41 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 4.0.0
  */
 class Social {
+	/**
+	 * Image class instance.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var Image
+	 */
+	public $image = null;
+
+	/**
+	 * Facebook class instance.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var Facebook
+	 */
+	public $facebook = null;
+
+	/**
+	 * Twitter class instance.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var Twitter
+	 */
+	public $twitter = null;
+
+	/**
+	 * Output class instance.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var Output
+	 */
+	public $output = null;
 
 	/**
 	 * Class constructor.
@@ -37,51 +72,28 @@ class Social {
 	/**
 	 * Registers our hooks.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.9.4.2 Fire OG cache bust directly instead of via Action Scheduler.
 	 */
 	protected function hooks() {
-		if ( ! is_admin() || wp_doing_ajax() ) {
-			add_filter( 'language_attributes', [ $this, 'addAttributes' ] );
-		}
-
 		// To avoid duplicate sets of meta tags.
 		add_filter( 'jetpack_enable_open_graph', '__return_false' );
-		// Adds special filters.
-		add_filter( 'user_contactmethods', [ $this, 'addContactMethods' ] );
 
-		// @TODO: [V4+] Needs access token for authentication.
+		if ( ! is_admin() ) {
+			add_filter( 'language_attributes', [ $this, 'addAttributes' ] );
+
+			return;
+		}
+
 		// Forces a refresh of the Facebook cache.
-		//add_action( 'post_updated', [ $this, 'forceFbRefreshCache' ], 10, 2 );
-	}
-
-	/**
-	 * Returns the social media contact methods.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  array $contactMethods The contact methods.
-	 * @return array $contactMethods The filtered contact methods.
-	 */
-	public function addContactMethods( $contactMethods ) {
-		if ( aioseo()->options->social->twitter->general->enable && aioseo()->options->social->twitter->general->showAuthor ) {
-			$contactMethods['aioseo_contact_methods_header'] = AIOSEO_PLUGIN_NAME;
-			$contactMethods['aioseo_twitter']                = 'Twitter'; // @TODO: Will need to migrate these from old installs. `twitter` becomes `aioseo_twitter`
-		}
-
-		if ( aioseo()->options->social->facebook->general->enable && aioseo()->options->social->facebook->general->showAuthor ) {
-			if ( ! isset( $contactMethods['aioseo_contact_methods_header'] ) ) {
-				$contactMethods['aioseo_contact_methods_header'] = AIOSEO_PLUGIN_NAME;
-			}
-			$contactMethods['aioseo_facebook'] = 'Facebook'; // @TODO: Will need to migrate these from old installs. `facebook` becomes `aioseo_facebook`
-		}
-
-		return $contactMethods;
+		add_action( 'post_updated', [ $this, 'bustOgCachePost' ], 10, 2 );
 	}
 
 	/**
 	 * Adds our attributes to the registered language attributes.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.4.5 Adds trim function the html tag removing empty spaces.
 	 *
 	 * @param  string $htmlTag The 'html' tag as a string.
 	 * @return string          The filtered 'html' tag as a string.
@@ -91,80 +103,72 @@ class Social {
 			return $htmlTag;
 		}
 
-		// Avoid having duplicate meta tags.
-		$type = aioseo()->social->facebook->getObjectType();
-		if ( empty( $type ) ) {
-			$type = 'website';
-		}
-
-		$schemaTypes = [
-			'album'      => 'MusicAlbum',
-			'article'    => 'Article',
-			'bar'        => 'BarOrPub',
-			'blog'       => 'Blog',
-			'book'       => 'Book',
-			'cafe'       => 'CafeOrCoffeeShop',
-			'city'       => 'City',
-			'country'    => 'Country',
-			'episode'    => 'Episode',
-			'food'       => 'FoodEvent',
-			'game'       => 'Game',
-			'hotel'      => 'Hotel',
-			'landmark'   => 'LandmarksOrHistoricalBuildings',
-			'movie'      => 'Movie',
-			'product'    => 'Product',
-			'profile'    => 'ProfilePage',
-			'restaurant' => 'Restaurant',
-			'school'     => 'School',
-			'sport'      => 'SportsEvent',
-			'website'    => 'WebSite',
-		];
-
-		if ( ! empty( $schemaTypes[ $type ] ) ) {
-			$type = $schemaTypes[ $type ];
-		} else {
-			$type = 'WebSite';
-		}
-
 		$attributes = apply_filters( 'aioseo_opengraph_attributes', [ 'prefix="og: https://ogp.me/ns#"' ] );
-
 		foreach ( $attributes as $attr ) {
 			if ( strpos( $htmlTag, $attr ) === false ) {
-				$htmlTag .= "\n\t$attr ";
+				$htmlTag .= " $attr ";
 			}
 		}
 
-		return $htmlTag;
+		return trim( $htmlTag );
 	}
 
 	/**
-	 * Forces FaceBook Open Graph to refresh on update.
+	 * Pings Facebook and asks them to bust the OG cache for a particular post.
+	 * Uses a non-blocking request so it doesn't delay the current page load.
 	 *
-	 * @since 4.0.0
+	 * @since   4.2.0
+	 * @version 4.9.4.2 Fire directly instead of via Action Scheduler.
 	 *
 	 * @see https://developers.facebook.com/docs/sharing/opengraph/using-objects#update
 	 *
-	 * @param  int     $postId The post ID.
-	 * @param  WP_Post $post   The post object.
+	 * @param  int      $postId The post ID.
+	 * @param  \WP_Post $post   The post object.
 	 * @return void
 	 */
-	public function forceFbRefreshCache( $postId, $post ) {
-		if ( 'publish' !== $post->post_status ) {
+	public function bustOgCachePost( $postId, $post = null ) {
+		$customAccessToken = apply_filters( 'aioseo_facebook_access_token', '' );
+
+		if (
+			! aioseo()->helpers->isValidPost( $post ) ||
+			( ! aioseo()->helpers->isSbCustomFacebookFeedActive() && ! $customAccessToken )
+		) {
 			return;
 		}
 
-		$postUrl = urldecode( get_permalink( $postId ) );
+		$permalink = get_permalink( $postId );
+		$this->bustOgCacheHelper( $permalink );
+	}
 
-		// @TODO: [V4+] Needs access token for authentication.
-		$endpoint = sprintf(
+	/**
+	 * Helper function for bustOgCache().
+	 *
+	 * @since 4.2.0
+	 *
+	 * @param  string $permalink The permalink.
+	 * @return void
+	 */
+	protected function bustOgCacheHelper( $permalink ) {
+		$accessToken = aioseo()->helpers->getSbAccessToken();
+		$accessToken = apply_filters( 'aioseo_facebook_access_token', $accessToken );
+		if ( ! $accessToken ) {
+			return;
+		}
+
+		$url = sprintf(
 			'https://graph.facebook.com/?%s',
 			http_build_query(
 				[
-					'id'     => $postUrl,
-					'scrape' => true,
+					'id'           => $permalink,
+					'scrape'       => true,
+					'access_token' => $accessToken
 				]
 			)
 		);
-		wp_remote_post( $endpoint, [ 'blocking' => false ] );
+
+		aioseo()->helpers->wpRemotePostExternal( $url, [
+			'blocking'         => false,
+			'aioseo_skip_lock' => true
+		] );
 	}
 }

@@ -26,9 +26,67 @@ Yes, go here: https://www.kadencewp.com/kadence-themes-demo-content/
 
 Yes, go here: https://wordpress.org/support/theme/virtue
 
+= Where do I report security bugs found in this theme? =
+
+Please report security bugs found in the source code of the
+Virtue Theme through the Patchstack
+Vulnerability Disclosure Program https://patchstack.com/database/vdp/virtue. The
+Patchstack team will assist you with verification, CVE assignment, and
+notify the developers of this theme.
+
+== Security Policy ==
+
+= Reporting Security Bugs =
+Please report security bugs found in the
+Virtue theme's source code through the
+Patchstack Vulnerability Disclosure
+Program https://patchstack.com/database/vdp/virtue. The Patchstack team will
+assist you with verification, CVE assignment, and notify the
+developers of this theme.
+
 == Changelog ==
 
 = Theme Name: Virtue =
+
+= Version 3.4.16 | 24th November 2026 =
+* Fix: Prevented a fatal error in the topbar cart when the WooCommerce cart is unavailable.
+
+= Version 3.4.15 | 4th May 2026 =
+* Update: WC Templates
+* Fix: Strengthen author box in social link title attributes
+
+= Version 3.4.14 | 18th November 2025 =
+* Update: WC Templates
+
+= Version 3.4.13 | 19th May 2025 =
+* Update: WC Templates
+* Fix: Issue with text domain loading.
+
+= Version 3.4.12 | 3rd April 2025 =
+* Update: WC Templates
+* Fix: Issue with text domain loading.
+
+= Version 3.4.11 | 18th December 2024 =
+* Update: WC Templates
+* Fix: Issue with text domain loading.
+
+= Version 3.4.10 | 23rd July 2024 =
+* Update: WC Templates
+* Update: PHP 8.2 deprecations
+
+= Version 3.4.9 | 24th April 2024 =
+* Update: WC Templates
+* Update: esc author name.
+* Update: X formerly twitter logo.
+
+= Version 3.4.8 | 15th June 2023 =
+* Update: WC Templates
+
+= Version 3.4.7 | 11th November 2022 =
+* Update: WC Templates
+* Update: PHP 8.1 deprecations
+* Fix: Lightbox conflict with block gallery.
+* Fix: Issue wth missing alt text on topbar icon images.
 
 = Version 3.4.6 | 17th January 2022 =
 * Update: WC Templates
@@ -161,7 +219,7 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Update: Issue with rating in FF.
 
 = Version 3.1.8 | 20th Febuary 2018 = 
-* Wordpress svn not working forced to update version.
+* WordPress svn not working forced to update version.
 
 = Version 3.1.7 | 20th Febuary 2018 = 
 * Schema: portfolio post as creative work.
@@ -644,8 +702,8 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Update languages
 
 = Version: 2.1.3 =
-* Use Masonry from wordpress core.
-* Use wordpress paginate_links
+* Use Masonry from WordPress core.
+* Use WordPress paginate_links
 * Add KV to virtue widget
 * Added option for single post navigation.
 * Fix Firefox Caroufedsel Issue.
@@ -662,7 +720,7 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Enable Category Descriptions.
 * Fix issue with sku.
 * hfeed issue
-* Fixed bug with Metaboxes and wordpress 3.9
+* Fixed bug with Metaboxes and WordPress 3.9
 
 = Version: 2.1.0 =
 * Add target option for topbar icons and home page icons.
@@ -778,8 +836,8 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Fix Portfolio Carousel with Sidebar
 
 = Version: 1.8.4 =
-* Updated Screenshot for wordpress 3.8
-* Updated tag for wordpress 3.8
+* Updated Screenshot for WordPress 3.8
+* Updated tag for WordPress 3.8
 
 = Version: 1.8.3 =
 * Add options to order portfolio items on the home page.
@@ -900,7 +958,7 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Add third Layout for Portfolio
 * Added fullwidth blog posts
 * Added fullwidth blog pages
-* Added Wordpress Gallery sizes 5, 6 and 7
+* Added WordPress Gallery sizes 5, 6 and 7
 
 = Version: 1.4.2 =
 
@@ -1029,7 +1087,7 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Google Fonts (available through Google web Fonts: http://www.google.com/fonts/), licensed under Apache License Version 2
 * Aqua Resizer (https://github.com/syamilmj/Aqua-Resizer), licensed under WTFPL http://www.wtfpl.net/
 * Twitter Bootstrap (https://github.com/twbs/bootstrap), licensed under Apache License Version 2
-* Custom Metaboxes and Fields for Wordpress (https://github.com/jaredatch/Custom-Metaboxes-and-Fields-for-WordPress), licensed under GNU General Public License v2.0 or later
+* Custom Metaboxes and Fields for WordPress (https://github.com/jaredatch/Custom-Metaboxes-and-Fields-for-WordPress), licensed under GNU General Public License v2.0 or later
 * Magnific Popup (http://dimsemenov.com/plugins/magnific-popup/) licensed under MIT license, http://www.opensource.org/licenses/mit-license.php
 * Select2 (http://ivaynberg.github.io/select2/), licensed under GNU General Public License v2.0 or later
 * hoverIntent (https://github.com/briancherne/jquery-hoverIntent), licensed under MIT license, http://www.opensource.org/licenses/mit-license.php
@@ -1040,3 +1098,13 @@ Yes, go here: https://wordpress.org/support/theme/virtue
 * Masonry (http://masonry.desandro.com/) licensed under MIT license, http://www.opensource.org/licenses/mit-license.php
 * TGM Plugin Activation library (https://github.com/thomasgriffin/TGM-Plugin-Activation) licensed under GNU General Public License v2.0 or later
 * jQuery Validation ( http://bassistance.de/jquery-plugins/jquery-plugin-validation/), Dual licensed under the MIT or GPL Version 2 licenses
+
+== Copyright ==
+
+Virtue WordPress Theme, Copyright 2015-2026 Kadence WP
+Virtue is distributed under the terms of the GNU General Public License, in the
+version declared by the License and License URI headers in style.css.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.

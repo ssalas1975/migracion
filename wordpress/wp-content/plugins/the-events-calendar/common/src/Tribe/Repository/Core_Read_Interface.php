@@ -4,7 +4,7 @@
  *
  * This interface is the minimal one a repository should implement to be called such.
  *
- * @since   4.10.2
+ * @since 4.10.2
  *
  * @package Tribe\Repository
  */
@@ -13,11 +13,12 @@ namespace Tribe\Repository;
 
 use Tribe__Repository__Read_Interface;
 use WP_Post;
+use Generator;
 
 /**
  * Class Core_Read_Interface
  *
- * @since   4.10.2
+ * @since 4.10.2
  *
  * @package Tribe\Repository
  */
@@ -38,14 +39,14 @@ interface Core_Read_Interface {
 	 * Applies a filter to the query.
 	 *
 	 * While the signature only shows 2 arguments additional arguments will be passed
-	 * to the schema filters.
+	 * to the schema filters. These additional arguments can be passed as individual, comma-separated
+	 * parameters, which will be passed to the schema.
 	 *
 	 * @since 4.7.19
+	 * @since 6.5.1 Moved optional `$args` param to an explanation in the description.
 	 *
 	 * @param string $key
 	 * @param mixed  $value
-	 * @param mixed  ...$args Additional, optional, call arguments that will be passed to
-	 *                        the schema.
 	 *
 	 * @return Tribe__Repository__Read_Interface
 	 */
@@ -54,10 +55,14 @@ interface Core_Read_Interface {
 	/**
 	 * Just an alias of the `by` method to allow for easier reading.
 	 *
-	 * @since 4.7.19
+	 * This method can accept additional arguments as individual, comma-separated
+	 * parameters, which will be passed to the schema.
 	 *
-	 * @param string $key
-	 * @param mixed  $value
+	 * @since 4.7.19
+	 * @since 6.5.1 Added clarification about format for optional additional arguments.
+	 *
+	 * @param string $key   The key to query by.
+	 * @param mixed  $value The value associated with the key.
 	 *
 	 * @return Tribe__Repository__Read_Interface
 	 */
@@ -107,9 +112,18 @@ interface Core_Read_Interface {
 	 *
 	 * Mind that "all" means "all the posts matching all the filters" so pagination applies.
 	 *
-	 * @return array
+	 * @since 4.1.3
+	 * @since 5.2.0 Added the `$return_generator` and `$batch_size` parameters.
+	 * @since 6.5.1   Updated `return` to more accurately reflect what can be returned.
+	 *
+	 * @param bool $return_generator Whether to return a generator of post IDs instead of an array of post IDs.
+	 * @param int  $batch_size       The number of post IDs to fetch at a time when using a generator; ignored
+	 *                               if `$return_generator` is false.
+	 *
+	 * @return array<int|WP_Post|object>|Generator<int|WP_Post|object> An array of all the matching post IDs, or a generator of them
+	 *                                                                 if `$return_generator` is true.
 	 */
-	public function all();
+	public function all( $return_generator = false, int $batch_size = 50 );
 
 	/**
 	 * Sets the offset on the query.
@@ -240,10 +254,10 @@ interface Core_Read_Interface {
 	 * Sugar method to set the `s` argument.
 	 *
 	 * Successive calls will replace the search string.
-	 * This is the default WordPress searh, to search by title,
+	 * This is the default WordPress search, to search by title,
 	 * content or excerpt only use the `title`, `content`, `excerpt` filters.
 	 *
-	 * @param $search
+	 * @param string $search The search string.
 	 *
 	 * @return Tribe__Repository__Read_Interface
 	 */
@@ -396,7 +410,15 @@ interface Core_Read_Interface {
 	/**
 	 * Gets the ids of the posts matching the query.
 	 *
-	 * @return array An array containing the post IDs to update.
+	 * @since 4.1.3
+	 * @since 5.2.0 Added the `$return_generator` and `$batch_size` parameters.
+	 *
+	 * @param bool $return_generator Whether to return a generator of post IDs instead of an array of post IDs.
+	 * @param int  $batch_size       The number of post IDs to fetch at a time when using a generator; ignored
+	 *                               if `$return_generator` is false.
+	 *
+	 * @return array<int>|Generator<int> An array of all the matching post IDs, or a generator of them
+	 *                                   if `$return_generator` is true.
 	 */
-	public function get_ids();
+	public function get_ids( $return_generator = false, int $batch_size = 50 );
 }

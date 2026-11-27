@@ -22,6 +22,8 @@ $files_to_load          = [
 	$themeisle_library_path . '/src/Common/Abstract_module.php',
 	$themeisle_library_path . '/src/Common/Module_factory.php',
 
+	$themeisle_library_path . '/src/Modules/Crash_reporter.php',
+	$themeisle_library_path . '/src/Modules/Script_loader.php',
 	$themeisle_library_path . '/src/Modules/Dashboard_widget.php',
 	$themeisle_library_path . '/src/Modules/Rollback.php',
 	$themeisle_library_path . '/src/Modules/Uninstall_feedback.php',
@@ -30,8 +32,20 @@ $files_to_load          = [
 	$themeisle_library_path . '/src/Modules/Notification.php',
 	$themeisle_library_path . '/src/Modules/Logger.php',
 	$themeisle_library_path . '/src/Modules/Translate.php',
+	$themeisle_library_path . '/src/Modules/Translations.php',
 	$themeisle_library_path . '/src/Modules/Review.php',
 	$themeisle_library_path . '/src/Modules/Recommendation.php',
+	$themeisle_library_path . '/src/Modules/Promotions.php',
+	$themeisle_library_path . '/src/Modules/Welcome.php',
+	$themeisle_library_path . '/src/Modules/Compatibilities.php',
+	$themeisle_library_path . '/src/Modules/About_us.php',
+	$themeisle_library_path . '/src/Modules/Announcements.php',
+	$themeisle_library_path . '/src/Modules/Featured_plugins.php',
+	$themeisle_library_path . '/src/Modules/Float_widget.php',
+	$themeisle_library_path . '/src/Modules/Ai_connect.php',
+	$themeisle_library_path . '/src/Modules/Support_hub.php',
+	$themeisle_library_path . '/src/Modules/Abstract_Migration.php',
+	$themeisle_library_path . '/src/Modules/Migrator.php',
 ];
 
 $files_to_load = array_merge( $files_to_load, apply_filters( 'themeisle_sdk_required_files', [] ) );
@@ -41,7 +55,6 @@ foreach ( $files_to_load as $file ) {
 		require_once $file;
 	}
 }
-
 Loader::init();
 
 foreach ( $products as $product ) {

@@ -7,7 +7,7 @@
 ?>
 <div class="lwa lwa-divs-only">
 	<span class="lwa-status"></span>
-	<form class="lwa-form" action="<?php echo LoginWithAjax::get_login_url(); ?>" method="post">
+	<form class="lwa-form" action="<?php echo \LoginWithAjax::get_login_url(); ?>" method="post">
 		<div class="lwa-username">
 			<label><?php esc_html_e( 'Username','login-with-ajax' ) ?></label>
 			<input type="text" name="log" id="lwa_user_login" class="input" />
@@ -35,16 +35,16 @@
 			<input name="rememberme" type="checkbox" class="lwa-rememberme" value="forever" /> <label><?php esc_html_e( 'Remember Me','login-with-ajax' ) ?></label>
 			<br />
         	<?php if( !empty($lwa['remember']) ): ?>
-			<a class="lwa-links-remember" href="<?php echo LoginWithAjax::get_remember_url(); ?>" title="<?php esc_attr_e('Password Lost and Found','login-with-ajax') ?>"><?php esc_attr_e('Lost your password?','login-with-ajax') ?></a>
+			<a class="lwa-links-remember" href="<?php echo \LoginWithAjax::get_remember_url(); ?>" title="<?php esc_attr_e('Password Lost and Found','login-with-ajax') ?>"><?php esc_attr_e('Lost your password?','login-with-ajax') ?></a>
 			<?php endif; ?>
 			<?php if ( get_option('users_can_register') && !empty($lwa['registration']) ) : ?>
 			<br />  
-			<a href="<?php echo LoginWithAjax::get_register_url(); ?>" class="lwa-links-register-inline"><?php esc_html_e('Register','login-with-ajax'); ?></a>
+			<a href="<?php echo \LoginWithAjax::get_register_url(); ?>" class="lwa-links-register-inline"><?php esc_html_e('Register','login-with-ajax'); ?></a>
 			<?php endif; ?>
 		</div>
 	</form>
 	<?php if( !empty($lwa['remember']) && $lwa['remember'] == 1 ): ?>
-	<form class="lwa-remember" action="<?php echo LoginWithAjax::get_remember_url(); ?>" method="post" style="display:none;">
+	<form class="lwa-remember" action="<?php echo \LoginWithAjax::get_remember_url(); ?>" method="post" style="display:none;">
 		<p><strong><?php esc_html_e("Forgotten Password",'login-with-ajax'); ?></strong></p>
 		<div class="lwa-remember-email">  
 			<?php $msg = __("Enter username or email",'login-with-ajax'); ?>
@@ -60,7 +60,7 @@
 	<?php endif; ?>
 	<?php if ( get_option('users_can_register') && !empty($lwa['registration']) && $lwa['registration'] == 1 ) : ?>
 	<div class="lwa-register" style="display:none;" >
-		<form class="registerform" action="<?php echo LoginWithAjax::get_register_url($lwa['template']); ?>" method="post">
+		<form class="registerform" action="<?php echo \LoginWithAjax::get_register_url($lwa['template']); ?>" method="post">
 			<p><strong><?php esc_html_e('Register For This Site','login-with-ajax'); ?></strong></p>         
 			<div class="lwa-username">
 				<?php $msg = __('Username','login-with-ajax'); ?>

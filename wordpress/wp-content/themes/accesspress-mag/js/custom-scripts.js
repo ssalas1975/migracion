@@ -5,27 +5,28 @@
 
 jQuery(document).ready(function($){
         
-$('.main-navigation .search-icon i.fa-search').click(function() {
-    $(this).next('.ak-search').toggleClass('active');
+$('.search-btn-wrap').click(function(){
+    $('.search_form_wrap').addClass('form-active');
 });
 
-$('.ak-search .close').click(function() {
-    $('.search-icon .ak-search').removeClass('active');
+$('body').on('click keypress','.search_close',function(){
+    $('.search_form_wrap').removeClass('form-active');
 });
 
-$('.overlay-search').click(function() {
-    $('.search-icon .ak-search').removeClass('active');
-});
 
 $('.nav-toggle').click(function() {
     $('.nav-wrapper .menu').slideToggle('slow');
     $(this).parent('.nav-wrapper').toggleClass('active');
 });
 
-$('.nav-wrapper .menu-item-has-children').append('<span class="sub-toggle"> <i class="fa fa-angle-right"></i> </span>');
+jQuery('#site-navigation .nav-wrapper .menu-item-has-children > a').wrap('<div class="sub-wrap"></div>');
+
+
+$('.nav-wrapper .menu-item-has-children .sub-wrap').append('<button type="button" class="sub-toggle"> <i class="fa fa-angle-right"></i> </button>');
+
 
 $('.nav-wrapper .sub-toggle').click(function() {
-    $(this).parent('.menu-item-has-children').children('ul.sub-menu').first().slideToggle('1000');
+    $(this).parents('.menu-item-has-children').children('ul.sub-menu').first().slideToggle('1000');
     $(this).children('.fa-angle-right').first().toggleClass('fa-angle-down');
 });
 

@@ -21,11 +21,13 @@
 
 use Tribe__Utils__Array as Arr;
 
+defined( 'ABSPATH' ) || exit;
+
 $section_classes = array_merge( [ 'tribe-widget-form-control', 'tribe-widget-form-control--section' ], Arr::list_to_array( $classes, ' ' ) );
 
 ?>
 <div
-	<?php tribe_classes( $section_classes ); ?>
+	<?php tec_classes( $section_classes ); ?>
 	<?php
 	// Not escaped - contains html (data-attr="value").
 	echo $dependency; // phpcs:ignore
@@ -36,5 +38,5 @@ $section_classes = array_merge( [ 'tribe-widget-form-control', 'tribe-widget-for
 		<h4 class="tribe-widget-form-control__section-title"><?php echo esc_html( $label ); ?></h4>
 	<?php endif; ?>
 
-	<?php $this->template( "widgets/components/fields", [ 'fields' => $children ] );  ?>
+	<?php $this->template( 'widgets/components/fields', [ 'fields' => $children ] ); ?>
 </div>

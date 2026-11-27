@@ -47,9 +47,11 @@ function wpbc__calendar__set_js_params__before_show( $params ) {
 	// Set Start / End Date in Calendar (JSON encode => safe quotes).
 	$params['calendar_dates_start'] = ( empty( $params['calendar_dates_start'] ) ) ? '' : (string) $params['calendar_dates_start'];
 	$params['calendar_dates_end']   = ( empty( $params['calendar_dates_end'] ) ) ? '' : (string) $params['calendar_dates_end'];
+	$params['classic_booking_context_token'] = empty( $params['classic_booking_context_token'] ) ? '' : (string) $params['classic_booking_context_token'];
 
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . " , 'calendar_dates_start' , " . wp_json_encode( $params['calendar_dates_start'] ) . " ); ";
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . " , 'calendar_dates_end'   , " . wp_json_encode( $params['calendar_dates_end'] ) . " ); ";
+	$start_script_code .= " _wpbc.booking__set_param_value( " . $resource_id . " , 'classic_booking_context_token' , " . wp_json_encode( $params['classic_booking_context_token'] ) . " ); ";
 
 	if ( ( '' !== $params['calendar_dates_start'] ) || ( '' !== $params['calendar_dates_end'] ) ) {
 		$start_script_code .= wpbc_get_localized_js__time_local( $params['calendar_dates_start'] );
@@ -78,6 +80,26 @@ function wpbc__calendar__set_js_params__before_show( $params ) {
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . ", 'dynamic__days_max', " . intval( $days_selection_arr['dynamic__days_max'] ) . " ); ";
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . ", 'dynamic__days_specific',    [" . $days_selection_arr['dynamic__days_specific'] . "] ); ";
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . ", 'dynamic__week_days__start', [" . $days_selection_arr['dynamic__week_days__start'] . "] ); ";
+
+	// Informational help shown between the first and second clicks in range mode.
+	// Integrations can disable it per calendar/resource without changing the selection engine.
+	/**
+	 * Filters whether the two-click range-selection guidance is shown for a calendar.
+	 *
+	 * @param bool  $is_enabled Whether guidance is enabled.
+	 * @param int   $resource_id Booking resource ID.
+	 * @param array $params Calendar shortcode/render parameters.
+	 */
+	$range_selection_guidance_default = function_exists( 'wpbc_frontend_messages__is_enabled' )
+		? wpbc_frontend_messages__is_enabled( 'message_range_selection_click_last_date' )
+		: true;
+	$range_selection_guidance_is_enabled = (bool) apply_filters(
+		'wpbc_calendar_range_selection_guidance_is_enabled',
+		$range_selection_guidance_default,
+		$resource_id,
+		$params
+	);
+	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . ", 'range_selection_guidance_is_enabled', " . ( $range_selection_guidance_is_enabled ? 'true' : 'false' ) . " ); ";
 
 	// Date / Time formats.
 	$start_script_code .= " _wpbc.calendar__set_param_value( " . $resource_id . ", 'booking_date_format', " . wp_json_encode( (string) get_bk_option( 'booking_date_format' ) ) . " ); ";
@@ -123,20 +145,32 @@ function wpbc__calendar__set_js_params__before_show( $params ) {
 										? wpbc_get_specific_range_dates__as_comma_list( get_bk_option( 'booking_range_selection_days_specific_num_dynamic' ) )
 										: '';
 			$data_arr = array();
-			// Modes :: Selection of Days
-			$data_arr['days_select_mode'] = ( 'range' === get_bk_option('booking_type_of_day_selections') )
-														? get_bk_option('booking_range_selection_type')
-														: get_bk_option( 'booking_type_of_day_selections');
-			$data_arr['fixed__days_num']            = intval( get_bk_option( 'booking_range_selection_days_count' ) );                 /* Number of days selection with 1 mouse click */
+			// Modes :: Selection of Days.
+			$day_selection_type = get_bk_option( 'booking_type_of_day_selections' );
+			if ( 'range' === $day_selection_type ) {
+				// Free/Personal use the unrestricted two-click range. Business Small+ can apply its saved range subtype/rules.
+				$data_arr['days_select_mode'] = class_exists( 'wpdev_bk_biz_s' )
+					? get_bk_option( 'booking_range_selection_type' )
+					: 'dynamic';
+			} else {
+				$data_arr['days_select_mode'] = $day_selection_type;
+			}
+			$fixed_days_num                         = absint( get_bk_option( 'booking_range_selection_days_count' ) );
+			$data_arr['fixed__days_num']            = ( 0 < $fixed_days_num ) ? min( 180, $fixed_days_num ) : 3;                    /* Number of days selection with 1 mouse click */
 			$data_arr['fixed__week_days__start']    = get_bk_option( 'booking_range_start_day' );                                      /* { -1 - Any | 0 - Su,  1 - Mo,  2 - Tu, 3 - We, 4 - Th, 5 - Fr, 6 - Sat } */
 			$data_arr['dynamic__days_min']          = intval( get_bk_option( 'booking_range_selection_days_count_dynamic' ) );         /* Min. Number of days selection with 2 mouse clicks */
 			$data_arr['dynamic__days_max']          = intval( get_bk_option( 'booking_range_selection_days_max_count_dynamic' ) );     /* Max. Number of days selection with 2 mouse clicks */
 			$data_arr['dynamic__days_specific']     = $specific_days_selection;                                                        /* Example: '5,7' */
 			$data_arr['dynamic__week_days__start']  = get_bk_option( 'booking_range_start_day_dynamic' );                              /* { -1 - Any | 0 - Su,  1 - Mo,  2 - Tu, 3 - We, 4 - Th, 5 - Fr, 6 - Sat } */
 
-			// Fix about possible issue of downgrade from  Paid to  free version  and try  to  use 'Range days' selection,  which  is not supports in that  version.      // FixIn: 10.4.0.4.
-			if ( ( ! class_exists( 'wpdev_bk_biz_s' ) ) && ( in_array( $data_arr['days_select_mode'], array( 'dynamic', 'fixed' ) ) ) ) {
-				$data_arr['days_select_mode'] = 'multiple';
+			// A fixed one-click range remains Business Small+. On downgrade, preserve the Range choice but use Free's unrestricted two-click mode.
+			if ( ( ! class_exists( 'wpdev_bk_biz_s' ) ) && ( in_array( $data_arr['days_select_mode'], array( 'dynamic', 'fixed' ), true ) ) ) {
+				$data_arr['days_select_mode']             = 'dynamic';
+				$data_arr['dynamic__days_min']         = 1;
+				// Zero is the canonical sentinel for an unrestricted two-click range.
+				$data_arr['dynamic__days_max']         = 0;
+				$data_arr['dynamic__days_specific']    = '';
+				$data_arr['dynamic__week_days__start'] = '-1';
 			}
 
 			return $data_arr;
@@ -165,7 +199,9 @@ function wpbc__calendar__load( $params = array() ) {
 		'custom_form'                     => 'standard',
 		'calendar_dates_start'            => '',
 		'calendar_dates_end'              => '',
+		'classic_booking_context_token'   => '',
 		'skip_general_availability'       => 0,
+		'calendar_request_overrides'      => array(),
 	);
 	$params = wp_parse_args( $params, $defaults );
 
@@ -224,7 +260,28 @@ function wpbc__calendar__load( $params = array() ) {
 		'aggregate_resource_id_str' => implode( ',', (array) $params['aggregate_resource_id_arr'] ),
 		'aggregate_type'            => (string) $aggregate_type,
 		'skip_general_availability' => (int) $params['skip_general_availability'],
+		'classic_booking_context_token' => (string) $params['classic_booking_context_token'],
 	);
+
+	if ( ! empty( $params['calendar_request_overrides'] ) && is_array( $params['calendar_request_overrides'] ) ) {
+		foreach ( $params['calendar_request_overrides'] as $override_key => $override_value ) {
+			if ( 'allow_past' === $override_key ) {
+				$params_for_request['allow_past'] = ! empty( $override_value ) ? 1 : 0;
+			} elseif (
+				0 === strpos( (string) $override_key, 'wpbc_settings_calendar_preview' )
+				|| in_array(
+					(string) $override_key,
+					array(
+						'wpbc_setup_wizard_date_selection_preview',
+						'wpbc_setup_wizard_date_selection_preview_nonce',
+					),
+					true
+				)
+			) {
+				$params_for_request[ $override_key ] = $override_value;
+			}
+		}
+	}
 
 	// Send Ajax request to load bookings.
 	$js_body .= " wpbc_calendar__load_data__ajx(" . wp_json_encode( $params_for_request ) . "); ";
@@ -319,15 +376,74 @@ function ajax_WPBC_AJX_CALENDAR_LOAD() {   // phpcs:ignore WordPress.NamingConve
 	                                'booking_hash'   => array( 'validate' => 's', 'default' => '' ),
 	                                'request_uri'    => array( 'validate' => 's', 'default' => '' ),
 									'custom_form'    => array( 'validate' => 's', 'default' => 'standard' ),
+									'allow_past'     => array( 'validate' => 'd', 'default' => 0 ),
+									'classic_booking_context_token' => array( 'validate' => 'strong', 'default' => '' ),
 									'aggregate_resource_id_str' => array( 'validate' => 'digit_or_csd', 'default' => '' ),        // Comma separated string of resource ID,  which was used in 'aggregate' parameter.
 									'aggregate_type'            => array( 'validate' => 's', 'default' => 'all' ),                 //  'all' | 'bookings_only'   // FixIn: 9.8.15.10.
 									'dates_to_check'            => array( 'validate' => 'array', 'default' => '' ),                 //  'all' | 'bookings_only'   // FixIn: 9.8.15.10.
 									'skip_general_availability' => array( 'validate' => 'd', 'default' => 0 ),
-																				 )
+									'wpbc_settings_calendar_preview'                => array( 'validate' => 'd', 'default' => 0 ),
+									'wpbc_settings_calendar_preview_changeover'      => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_triangles'       => array( 'validate' => array( 'On', 'Off' ), 'default' => 'On' ),
+									'wpbc_settings_calendar_preview_recurrent_time'  => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_last_checkout'   => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_excerpt_on_pages' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_excerpt_pages'   => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_excerpt_resources' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_legend'     => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_show_numbers' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_vertical' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_show_available' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_text_available' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_legend_show_pending' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_text_pending' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_legend_show_approved' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_text_approved' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_legend_show_partially' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_text_partially' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_legend_show_unavailable' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_legend_text_unavailable' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_disable_timeslots_tooltip' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_timeslot_word'    => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_availability_tooltip' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_availability_word' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_availability_cell' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_availability_cell_word' => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_cost_tooltip' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_cost_word'        => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_cost_cell'   => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_cost_currency'    => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_settings_calendar_preview_show_booked_details' => array( 'validate' => array( 'On', 'Off' ), 'default' => 'Off' ),
+									'wpbc_settings_calendar_preview_booked_details'   => array( 'validate' => 's', 'default' => '' ),
+									'wpbc_setup_wizard_date_selection_preview'       => array( 'validate' => 'd', 'default' => 0 ),
+									'wpbc_setup_wizard_date_selection_preview_nonce' => array( 'validate' => 'strong', 'default' => '' ),
+																	 )
 											)
 					);
 	$request_prefix = 'calendar_request_params';
 	$request_params = $user_request->get_sanitized__in_request__value_or_default( $request_prefix  );		 		    // NOT Direct: 	$_REQUEST['search_params']['resource_id']
+	if ( ! empty( $request_params['classic_booking_context_token'] ) && function_exists( 'wpbc_classic_booking_context_validate_submission' ) ) {
+		$classic_context = wpbc_classic_booking_context_validate_submission(
+			$request_params['classic_booking_context_token'],
+			$request_params['resource_id'],
+			$request_params['dates_to_check'],
+			$request_params['custom_form'],
+			$request_params['aggregate_resource_id_str']
+		);
+		if ( ! is_wp_error( $classic_context ) ) {
+			$request_params['allow_past'] = ! empty( $classic_context['allow_past'] ) ? 1 : 0;
+			// Use the signed canonical set so equivalent wire shapes cannot change availability input.
+			$request_params['aggregate_resource_id_str'] = implode( ',', $classic_context['aggregate_resource_ids'] );
+			$request_params['dates_to_check'] = array(
+				$classic_context['calendar_dates_start'],
+				$classic_context['calendar_dates_end'],
+			);
+		} else {
+			$request_params['allow_past'] = 0;
+		}
+	}
+	$can_allow_past = ! empty( $request_params['allow_past'] );
+	$request_params['allow_past'] = $can_allow_past ? 1 : 0;
 
 	if ( ! empty( $request_params['skip_general_availability'] ) ) {
 		$can_skip_general_availability = (
@@ -363,7 +479,8 @@ function ajax_WPBC_AJX_CALENDAR_LOAD() {   // phpcs:ignore WordPress.NamingConve
 											'max_days_count'  => $max_days_count,
 											'skip_booking_id' => $skip_booking_id,
 											'request_uri'     => $request_params['request_uri'],                        // It different in Ajax requests than $server_request_uri . It's used for change-over days to detect for exception at specific pages
-											'custom_form'     => $request_params['custom_form']
+											'custom_form'     => $request_params['custom_form'],
+											'allow_past'      => ! empty( $request_params['allow_past'] )
 											, 'additional_bk_types' => $aggregate_resource_id_arr                       // It is array  of booking resources from aggregate parameter()                                 // arrays | CSD | int       // OPTIONAL
 											, 'aggregate_type' => $request_params['aggregate_type']                     // It is string: 'all' | 'bookings_only'                     // OPTIONAL
 											, 'skip_general_availability' => $request_params['skip_general_availability']
@@ -396,7 +513,12 @@ function ajax_WPBC_AJX_CALENDAR_LOAD() {   // phpcs:ignore WordPress.NamingConve
 	// $availability_per_days__params['dates_to_check'] = array( '2025-01-01', '2025-12-31' );  // FixIn: 10.13.1.4.
 	global $wpbc__skip_get_bk_options;
 
-	$previous_skip_get_bk_options = $wpbc__skip_get_bk_options;
+	$previous_skip_get_bk_options                = $wpbc__skip_get_bk_options;
+	$previous_settings_calendar_preview_options  = null;
+	$is_settings_calendar_preview                = (
+		function_exists( 'wpbc_settings_calendar__is_calendar_load_preview_request_allowed' )
+		&& wpbc_settings_calendar__is_calendar_load_preview_request_allowed( $request_params )
+	);
 	if ( ! empty( $availability_per_days__params['skip_general_availability'] ) ) {
 		$wpbc__skip_get_bk_options = array_unique(
 			array_merge(
@@ -405,9 +527,17 @@ function ajax_WPBC_AJX_CALENDAR_LOAD() {   // phpcs:ignore WordPress.NamingConve
 			)
 		);
 	}
+	if ( $is_settings_calendar_preview ) {
+		$previous_settings_calendar_preview_options = wpbc_settings_calendar__preview_options_push(
+			wpbc_settings_calendar__get_calendar_load_preview_options( $request_params )
+		);
+	}
 
 	$availability_per_days_arr = wpbc_get_availability_per_days_arr( $availability_per_days__params );
 	$wpbc__skip_get_bk_options = $previous_skip_get_bk_options;
+	if ( $is_settings_calendar_preview ) {
+		wpbc_settings_calendar__preview_options_pop( $previous_settings_calendar_preview_options );
+	}
 
 
 	$ajx_data_arr = array( /**

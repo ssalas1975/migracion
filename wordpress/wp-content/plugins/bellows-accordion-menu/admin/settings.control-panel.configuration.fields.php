@@ -111,6 +111,7 @@ function bellows_get_configuration_fields( $config_id ){
 			'desc' => __( 'Below the mobile breakpoint, display a toggle to reveal the menu' , 'bellows' ),
 			'type' => 'checkbox',
 			'default' => 'off',
+			'group' => 'mobile',
 		),
 		165 => array(
 			'name' => 'toggle_text',
@@ -118,6 +119,7 @@ function bellows_get_configuration_fields( $config_id ){
 			'desc' => __( 'Text to include in the toggle.  Use a single space for none.  Use {menu_name} for the menu name.  Defaults to translatable Menu string' , 'bellows' ),
 			'type' => 'text',
 			'default' => '',
+			'group' => 'mobile',
 		),
 
 

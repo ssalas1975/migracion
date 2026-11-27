@@ -33,6 +33,31 @@ class WPBC_Add_Booking_Component {
 		return current_user_can( $cap );
 	}
 
+
+	/**
+	 * Create the administrator booking nonce for an authorized page context.
+	 *
+	 * The public booking endpoint accepts signed-out requests, so administrator
+	 * behavior must be enabled by a user-bound nonce and the same capability and
+	 * MultiUser checks that the server repeats during booking creation.
+	 *
+	 * @return string Administrator booking nonce, or an empty string when the
+	 *                current user cannot use the administrator booking workflow.
+	 */
+	public static function get_admin_booking_nonce() {
+
+		if (
+			! is_user_logged_in()
+			|| ! self::current_user_can_add_booking()
+			|| ! function_exists( 'wpbc_is_mu_user_can_be_here' )
+			|| ! wpbc_is_mu_user_can_be_here( 'activated_user' )
+		) {
+			return '';
+		}
+
+		return wp_create_nonce( 'wpbc_admin_booking_create' );
+	}
+
 	/**
 	 * Render the component and echo by default.
 	 *
@@ -130,12 +155,20 @@ class WPBC_Add_Booking_Component {
 			'calendar_months_count'           => null,
 			'shortcode_param__options'        => null,
 			'selected_dates_without_calendar' => null,
+			'preselect_calendar_dates'        => 0,
+			'initial_calendar_dates'          => array(),
 			'start_month_calendar'            => false,
 			'calendar_dates_start'            => '',
 			'calendar_dates_end'              => '',
 			'booking_hash'                    => '',
+			'allow_past'                      => null,
+			'selected_dates'                  => '',
 			'selected_date'                   => '',
 			'selected_time'                   => '',
+			'time_override_enabled'           => 0,
+			'time_override_source'            => '',
+			'time_override_start'             => '',
+			'time_override_end'               => '',
 			'is_toolbar_visible'              => true,
 			'is_booking_page_js'              => true,
 			'is_booking_page_popover'         => true,
@@ -153,7 +186,7 @@ class WPBC_Add_Booking_Component {
 											|| ( ( null !== $args['booking_form'] ) && ( '' !== (string) $args['booking_form'] ) );
 
 		$resource_id = self::get_explicit_or_get_resource_id( $args );
-		$form_name   = self::get_explicit_or_get_booking_form( $args );
+		$form_name   = self::get_explicit_or_get_booking_form( $args, $resource_id );
 
 		$calendar_params = self::get_calendar_params( $args );
 
@@ -163,13 +196,56 @@ class WPBC_Add_Booking_Component {
 		$args['shortcode_param__options'] = $calendar_params['shortcode_param__options'];
 
 		$args['selected_dates_without_calendar'] = ( null !== $args['selected_dates_without_calendar'] ) ? (string) $args['selected_dates_without_calendar'] : '';
+		$args['initial_calendar_dates']          = self::normalize_initial_calendar_dates( $args['initial_calendar_dates'] );
+		$args['preselect_calendar_dates']        = ! empty( $args['preselect_calendar_dates'] ) && ! empty( $args['initial_calendar_dates'] ) ? 1 : 0;
 		$args['calendar_dates_start']            = (string) $args['calendar_dates_start'];
 		$args['calendar_dates_end']              = (string) $args['calendar_dates_end'];
-		$args['booking_hash']                    = sanitize_text_field( wp_unslash( (string) $args['booking_hash'] ) );
+		$args['booking_hash']                    = ( '' !== (string) $args['booking_hash'] ) ? sanitize_text_field( wp_unslash( (string) $args['booking_hash'] ) ) : ( isset( $_GET['booking_hash'] ) ? sanitize_text_field( wp_unslash( $_GET['booking_hash'] ) ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$args['allow_past']                      = ( null !== $args['allow_past'] ) ? ( ! empty( $args['allow_past'] ) ? 1 : 0 ) : ( isset( $_GET['allow_past'] ) ? 1 : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$args['selected_dates']                  = sanitize_text_field( wp_unslash( (string) $args['selected_dates'] ) );
 		$args['selected_date']                   = sanitize_text_field( wp_unslash( (string) $args['selected_date'] ) );
 		$args['selected_time']                   = sanitize_text_field( wp_unslash( (string) $args['selected_time'] ) );
+		$args['time_override_enabled']           = ! empty( $args['time_override_enabled'] ) ? 1 : 0;
+		$args['time_override_source']            = sanitize_key( wp_unslash( (string) $args['time_override_source'] ) );
+		$args['time_override_start']             = sanitize_text_field( wp_unslash( (string) $args['time_override_start'] ) );
+		$args['time_override_end']               = sanitize_text_field( wp_unslash( (string) $args['time_override_end'] ) );
 
 		return $args;
+	}
+
+
+	/**
+	 * Normalize dates that should seed one rendered administrator calendar.
+	 *
+	 * These values are presentation context only. The canonical booking endpoint
+	 * still validates the submitted selection, availability, and permissions.
+	 *
+	 * @param mixed $calendar_dates Candidate ISO date list.
+	 *
+	 * @return array<int,string> Unique, valid dates in `Y-m-d` format.
+	 */
+	private static function normalize_initial_calendar_dates( $calendar_dates ) {
+
+		$normalized_dates = array();
+		$seen_dates       = array();
+
+		foreach ( is_array( $calendar_dates ) ? $calendar_dates : array() as $calendar_date ) {
+			$calendar_date = sanitize_text_field( wp_unslash( (string) $calendar_date ) );
+			if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $calendar_date, $date_parts ) ) {
+				continue;
+			}
+			if ( ! checkdate( (int) $date_parts[2], (int) $date_parts[3], (int) $date_parts[1] ) ) {
+				continue;
+			}
+			if ( isset( $seen_dates[ $calendar_date ] ) ) {
+				continue;
+			}
+
+			$seen_dates[ $calendar_date ] = true;
+			$normalized_dates[]           = $calendar_date;
+		}
+
+		return $normalized_dates;
 	}
 
 
@@ -182,21 +258,86 @@ class WPBC_Add_Booking_Component {
 	 */
 	private static function print_context_js( $args ) {
 
-		$booking_hash = isset( $args['booking_hash'] ) ? (string) $args['booking_hash'] : '';
-		$context      = array(
+		$booking_hash        = isset( $args['booking_hash'] ) ? (string) $args['booking_hash'] : '';
+		$admin_booking_nonce = self::get_admin_booking_nonce();
+		$allow_past_date_arr = self::get_allow_past_min_date_arr( $args );
+		$context              = array(
 			'resource_id'                     => absint( $args['resource_id'] ),
 			'selected_dates_without_calendar' => (string) $args['selected_dates_without_calendar'],
+			'preselect_calendar_dates'        => absint( $args['preselect_calendar_dates'] ),
+			'initial_calendar_dates'          => $args['initial_calendar_dates'],
+			'selected_dates'                  => (string) $args['selected_dates'],
 			'selected_date'                   => (string) $args['selected_date'],
 			'selected_time'                   => (string) $args['selected_time'],
+			'time_override_enabled'           => absint( $args['time_override_enabled'] ),
+			'time_override_source'            => (string) $args['time_override_source'],
+			'time_override_start'             => (string) $args['time_override_start'],
+			'time_override_end'               => (string) $args['time_override_end'],
+			'allow_past'                      => ! empty( $args['allow_past'] ) ? 1 : 0,
 		);
+		$booking_context_js = "_wpbc.set_other_param( 'this_page_booking_hash', " . wp_json_encode( $booking_hash ) . ' );';
+		$booking_context_js .= "_wpbc.set_other_param( 'this_page_allow_past', " . wp_json_encode( ! empty( $args['allow_past'] ) ? 1 : 0 ) . ' );';
+		$booking_context_js .= "_wpbc.set_other_param( 'this_page_allow_past_arr', " . wp_json_encode( $allow_past_date_arr ) . ' );';
+		$booking_context_js .= "_wpbc.set_other_param( 'this_page_admin_booking_nonce', " . wp_json_encode( $admin_booking_nonce ) . ' );';
+
+		$is_context_queued = false;
+		if ( ! wp_doing_ajax() && class_exists( 'WPBC_FE_Assets' ) ) {
+			$is_context_queued = WPBC_FE_Assets::add_jq_ready_js_to_wp_script(
+				'wpbc_all',
+				$booking_context_js,
+				'wpbc:add-booking-admin-context:' . md5( $booking_context_js )
+			);
+		}
 		?>
 		<script type="text/javascript">
 			window.wpbc_add_booking_component_context = <?php echo wp_json_encode( $context ); ?>;
-			if ( 'undefined' !== typeof _wpbc ) {
-				_wpbc.set_other_param( 'this_page_booking_hash', <?php echo wp_json_encode( $booking_hash ); ?> );
-			}
+			<?php if ( ! $is_context_queued ) : ?>
+			( function () {
+				function apply_booking_context() {
+					if ( 'undefined' === typeof _wpbc ) {
+						return;
+					}
+
+					<?php echo $booking_context_js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Values are JSON encoded above. ?>
+				}
+
+				if ( 'undefined' !== typeof _wpbc ) {
+					apply_booking_context();
+				} else {
+					document.addEventListener( 'DOMContentLoaded', apply_booking_context );
+				}
+			}() );
+			<?php endif; ?>
 		</script>
 		<?php
+	}
+
+
+	/**
+	 * Get minimum date array for modal/admin contexts that allow selecting past days.
+	 *
+	 * @param array $args Component options.
+	 *
+	 * @return array
+	 */
+	public static function get_allow_past_min_date_arr( $args ) {
+
+		if ( empty( $args['allow_past'] ) && empty( $args['booking_hash'] ) ) {
+			return array();
+		}
+
+		if (
+			! function_exists( 'wpbc_get_max_visible_days_in_calendar' )
+			|| ! function_exists( 'wpbc_datetime_localized__use_wp_timezone' )
+			|| ! function_exists( 'wpbc_csv_numbers_to_int_array' )
+		) {
+			return array();
+		}
+
+		$gmt_time  = gmdate( 'Y-m-d H:i:s', strtotime( '-' . intval( wpbc_get_max_visible_days_in_calendar() ) . ' days' ) );
+		$local_csv = wpbc_datetime_localized__use_wp_timezone( $gmt_time, 'Y,m,d,H,i' );
+
+		return wpbc_csv_numbers_to_int_array( $local_csv );
 	}
 
 
@@ -226,13 +367,50 @@ class WPBC_Add_Booking_Component {
 
 
 	/**
-	 * Resolve booking form: explicit component args first, then legacy $_GET.
+	 * Resolve default booking form for specific booking resource.
 	 *
-	 * @param array $args Component options.
+	 * @param int    $resource_id  Booking resource ID.
+	 * @param string $default_form Fallback form name.
 	 *
 	 * @return string
 	 */
-	private static function get_explicit_or_get_booking_form( $args ) {
+	public static function get_default_booking_form_for_resource( $resource_id, $default_form = 'standard' ) {
+
+		$resource_id  = absint( $resource_id );
+		$default_form = ( '' !== (string) $default_form ) ? (string) $default_form : 'standard';
+
+		if ( $resource_id <= 0 ) {
+			return sanitize_text_field( wp_unslash( $default_form ) );
+		}
+
+		$default_custom_form_name = '';
+		if ( function_exists( 'apply_bk_filter' ) ) {
+			$default_custom_form_name = apply_bk_filter( 'wpbc_get_default_custom_form', '', $resource_id );
+		}
+
+		if (
+			( '' === (string) $default_custom_form_name )
+			&& class_exists( 'WPBC_FE_Custom_Form_Helper' )
+			&& method_exists( 'WPBC_FE_Custom_Form_Helper', 'get_default_custom_form__for__booking_resource' )
+		) {
+			$default_custom_form_name = WPBC_FE_Custom_Form_Helper::get_default_custom_form__for__booking_resource( $resource_id );
+		}
+
+		$default_custom_form_name = sanitize_text_field( wp_unslash( (string) $default_custom_form_name ) );
+
+		return ( '' !== $default_custom_form_name ) ? $default_custom_form_name : sanitize_text_field( wp_unslash( $default_form ) );
+	}
+
+
+	/**
+	 * Resolve booking form: explicit component args first, then legacy $_GET, then resource default.
+	 *
+	 * @param array $args        Component options.
+	 * @param int   $resource_id Booking resource ID.
+	 *
+	 * @return string
+	 */
+	private static function get_explicit_or_get_booking_form( $args, $resource_id = 0 ) {
 
 		if ( ( null !== $args['custom_booking_form'] ) && ( '' !== (string) $args['custom_booking_form'] ) ) {
 			return sanitize_text_field( wp_unslash( (string) $args['custom_booking_form'] ) );
@@ -242,7 +420,11 @@ class WPBC_Add_Booking_Component {
 			return sanitize_text_field( wp_unslash( (string) $args['booking_form'] ) );
 		}
 
-		return WPBC_GET_Request::has_non_empty_get( 'booking_form' ) ? WPBC_GET_Request::get_sanitized( 'booking_form' ) : 'standard';
+		if ( WPBC_GET_Request::has_non_empty_get( 'booking_form' ) ) {
+			return WPBC_GET_Request::get_sanitized( 'booking_form' );
+		}
+
+		return self::get_default_booking_form_for_resource( $resource_id, 'standard' );
 	}
 
 
@@ -293,6 +475,21 @@ class WPBC_Add_Booking_Component {
 	 */
 	public static function get_saved_user_calendar_options() {
 
+		return self::format_calendar_options( self::get_saved_user_calendar_settings() );
+	}
+
+
+	/**
+	 * Get the raw per-user Add Booking calendar settings.
+	 *
+	 * The inspector needs the individual saved fields, while
+	 * get_saved_user_calendar_options() preserves the renderer-formatted public
+	 * result used by the Booking Form component.
+	 *
+	 * @return array<string,mixed> Raw saved calendar settings.
+	 */
+	public static function get_saved_user_calendar_settings() {
+
 		$user_calendar_options = get_user_option( 'booking_custom_' . 'add_booking_calendar_options', wpbc_get_current_user_id() );
 
 		if ( false === $user_calendar_options ) {
@@ -301,7 +498,7 @@ class WPBC_Add_Booking_Component {
 			$user_calendar_options = maybe_unserialize( $user_calendar_options );
 		}
 
-		return self::format_calendar_options( $user_calendar_options );
+		return is_array( $user_calendar_options ) ? $user_calendar_options : array();
 	}
 
 

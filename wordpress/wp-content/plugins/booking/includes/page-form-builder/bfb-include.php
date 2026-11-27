@@ -24,10 +24,7 @@ if ( ! defined( 'WPBC_BFB_BUILDER_PAGE_SLUG' ) ) {
 	define( 'WPBC_BFB_BUILDER_PAGE_SLUG', 'wpbc-ajx_booking_builder_booking_form' );
 }
 
-// Slug of the Builder page passed by footer hook / bootstrap.
-if ( ! defined( 'WPBC_BFB_DEBUG' ) ) {
-	define( 'WPBC_BFB_DEBUG', !false );
-}
+require_once WPBC_PLUGIN_DIR . '/includes/_front_end/form-style-presets.php';                                          // Shared global form style presets.
 
 // =====================================================================================================================
 // == Ajax ==
@@ -37,11 +34,14 @@ require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/ajax/bfb-ajax.php'; 
 // =====================================================================================================================
 // == Save / Load ==
 // =====================================================================================================================
-require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-form-manager.php';                            // Bridge between legacy booking form options and the new booking_form_structures table. Provides wpbc_form_config_load() / wpbc_form_config_save().
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-form-storage.php';                            // Low-level storage for BFB form structures. Handles DB.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-form-manager.php';                            // Booking Form Builder storage manager.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/legacy-import/form_templates.php';                          // Import-only legacy form templates.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/legacy-import/form_simple__default.php';                    // Import-only Simple form defaults.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/legacy-import/form_simple__get_data.php';                   // Import-only Simple form shortcode conversion helpers.
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-activate.php';                                // Activate / Deactivate.
-require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-import-simple-form.php';                      // Import - Simple form - migration loader.
-require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-import-legacy-forms.php';                     // Import - all legacy forms - migration loader.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/legacy-import/bfb-import-simple-form.php';                  // Import - Simple form - migration loader.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/legacy-import/bfb-import-legacy-forms.php';                 // Import - all legacy forms - migration loader.
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/save-load/bfb-form-loader.php';                             // Loader.
 
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/assets/template-records/bfb-activate-templates.php';        // Update Templaets on Activation.
@@ -117,10 +117,13 @@ require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/radio/fi
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/checkbox/field-checkbox-wptpl.php';             // -- Checkbox --
 
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/accept-terms/field-accept-terms-wptpl.php';     // -- Terms --
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/country/field-country.php';                   // -- Country List --.
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/coupon/field-coupon.php';                       // -- Discount Coupon --.
 
 // =====================================================================================================================
 // == Times Packs ==
 // =====================================================================================================================
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-picker-appearance.php';                   // -- Shared Time Picker Appearance --.
 // require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-range/time-range.php';                  // -- Time Range --
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-range/field-rangetime-wptpl.php';          // -- Time Range 2 --
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-start/field-starttime-wptpl.php';
@@ -128,6 +131,7 @@ require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-end
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-duration/field-durationtime-wptpl.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-duration-service/field-durationtime-service-preset.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/weekday-rangetime/field-weekday-rangetime-wptpl.php';
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/weekday-starttime/field-weekday-starttime-wptpl.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/season-rangetime/field-season-rangetime-wptpl.php';
 // require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/time-grid/time-grid.php';                    // -- TODO: Time Grid  --.
 
@@ -135,6 +139,7 @@ require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/season-r
 // =====================================================================================================================
 // == Hints Packs ==
 // =====================================================================================================================
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/custom-shortcode/field-custom-shortcode.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-cost_hint/field-cost-hint-wptpl.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-selected_short_timedates_hint/field-selected-short-timedates-hint-wptpl.php';
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-capacity_hint/field-capacity-hint-wptpl.php';
@@ -163,12 +168,14 @@ require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-bal
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-coupon_discount_hint/field-coupon-discount-hint-wptpl.php';
 
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-resource_title_hint/field-resource-title-hint-wptpl.php';
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/hint-service_title_hint/field-service-title-hint-wptpl.php';
 
 
 // =====================================================================================================================
 // == Structure Packs ==
 // =====================================================================================================================
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/wizard-nav/wizard-nav.php';                     // -- Wizard Nav. --
+require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/appointment-start-over/appointment-start-over.php'; // -- Appointment Start Over. --
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/divider/divider.php';                           // -- Divider --
 require_once WPBC_PLUGIN_DIR . '/includes/page-form-builder/field-packs/steps-timeline/field-steps-timeline.php';       // -- Steps Timeline in Wizards --
 

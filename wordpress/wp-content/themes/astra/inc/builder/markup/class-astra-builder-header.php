@@ -16,25 +16,24 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 	 * Class Astra_Builder_Header.
 	 */
 	final class Astra_Builder_Header {
-
 		/**
 		 * Member Variable
 		 *
-		 * @var instance
+		 * @var mixed instance
 		 */
 		private static $instance = null;
-
 
 		/**
 		 * Dynamic Methods.
 		 *
-		 * @var dynamic methods
+		 * @var array dynamic methods
 		 */
 		private static $methods = array();
 
-
 		/**
 		 *  Initiator
+		 *
+		 * @return object initialized Astra_Builder_Header class
 		 */
 		public static function get_instance() {
 
@@ -49,6 +48,8 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 * Constructor
 		 */
 		public function __construct() {
+
+			add_action( 'astra_header', array( $this, 'global_astra_header' ), 0 );
 
 			if ( true === Astra_Builder_Helper::$is_header_footer_builder_active ) {
 
@@ -87,9 +88,9 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 					self::$methods[] = 'menu_' . $index;
 				}
 
-				add_action( 'astra_mobile_site_identity', __CLASS__ . '::site_identity' );
+				add_action( 'astra_mobile_site_identity', self::class . '::site_identity' );
 				add_action( 'astra_header_search', array( $this, 'header_search' ), 10, 1 );
-				add_action( 'astra_header_woo_cart', array( $this, 'header_woo_cart' ) );
+				add_action( 'astra_header_woo_cart', array( $this, 'header_woo_cart' ), 10, 1 );
 				add_action( 'astra_header_edd_cart', array( $this, 'header_edd_cart' ) );
 				add_action( 'astra_header_account', array( $this, 'header_account' ) );
 				add_action( 'astra_header_mobile_trigger', array( $this, 'header_mobile_trigger' ) );
@@ -99,7 +100,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 				add_action( 'astra_header_menu_mobile', array( $this, 'header_mobile_menu_markup' ) );
 			}
 
-			add_action( 'astra_site_identity', __CLASS__ . '::site_identity' );
+			add_action( 'astra_site_identity', self::class . '::site_identity' );
 		}
 
 		/**
@@ -121,13 +122,31 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 				} elseif ( 0 === strpos( $func, 'menu_' ) ) {
 					$index = (int) substr( $func, strrpos( $func, '_' ) + 1 );
 					if ( $index ) {
-						Astra_Header_Menu_Component::menu_markup( $index );
+						Astra_Header_Menu_Component::menu_markup( $index, $params['0'] );
 					}
 				} elseif ( 0 === strpos( $func, 'header_social_' ) ) {
 					$index = (int) substr( $func, strrpos( $func, '_' ) + 1 );
 					if ( $index ) {
 						Astra_Builder_UI_Controller::render_social_icon( $index, 'header' );
 					}
+				}
+			}
+		}
+
+		/**
+		 * Remove complete header Support on basis of meta option.
+		 *
+		 * @since 3.8.0
+		 * @return void
+		 */
+		public function global_astra_header() {
+			$display = get_post_meta( absint( astra_get_post_id() ), 'ast-global-header-display', true );
+			$display = apply_filters( 'astra_header_display', $display );
+			if ( 'disabled' === $display ) {
+				remove_action( 'astra_header', 'astra_header_markup' );
+				/** @psalm-suppress DocblockTypeContradiction */ // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+				if ( true === Astra_Builder_Helper::$is_header_footer_builder_active ) { // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_namespaceFound, PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
+					remove_action( 'astra_header', array( $this, 'header_builder_markup' ) ); // phpcs:ignore PHPCompatibility.Keywords.NewKeywords.t_namespaceFound, PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
 				}
 			}
 		}
@@ -150,7 +169,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 			remove_action( 'astra_masthead', 'astra_masthead_primary_template' );
 			remove_action( 'astra_masthead_content', 'astra_primary_navigation_markup', 10 );
 
-			remove_filter( 'wp_page_menu_args', 'astra_masthead_custom_page_menu_items', 10, 2 );
+			remove_filter( 'wp_page_menu_args', 'astra_masthead_custom_page_menu_items', 10 );
 			remove_filter( 'wp_nav_menu_items', 'astra_masthead_custom_nav_menu_items' );
 		}
 
@@ -163,10 +182,12 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 
 		/**
 		 * Render WooCommerce Cart.
+		 *
+		 * @param string $device Either 'mobile' or 'desktop' option.
 		 */
-		public function header_woo_cart() {
+		public function header_woo_cart( $device = 'desktop' ) {
 			if ( class_exists( 'Astra_Woocommerce' ) ) {
-				echo Astra_Woocommerce::get_instance()->woo_mini_cart_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo Astra_Woocommerce::get_instance()->woo_mini_cart_markup( $device ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
 
@@ -226,7 +247,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function above_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-hfb-above-header-display', true );
+			$display = is_singular() ? get_post_meta( get_the_ID(), 'ast-hfb-above-header-display', true ) : true;
 			$display = apply_filters( 'astra_above_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -250,7 +271,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function primary_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-main-header-display', true );
+			$display = is_singular() ? get_post_meta( get_the_ID(), 'ast-main-header-display', true ) : true;
 			$display = apply_filters( 'astra_main_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -274,7 +295,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function below_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-hfb-below-header-display', true );
+			$display = is_singular() ? get_post_meta( get_the_ID(), 'ast-hfb-below-header-display', true ) : true;
 			$display = apply_filters( 'astra_below_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -315,7 +336,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function mobile_above_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-hfb-mobile-header-display', true );
+			$display = is_singular() ? get_post_meta( get_the_ID(), 'ast-hfb-mobile-header-display', true ) : true;
 			$display = apply_filters( 'astra_above_mobile_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -339,7 +360,7 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function mobile_primary_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-hfb-mobile-header-display', true );
+			$display = is_singular() ? get_post_meta( get_the_ID(), 'ast-hfb-mobile-header-display', true ) : true;
 			$display = apply_filters( 'astra_primary_mobile_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -358,13 +379,12 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 			}
 		}
 
-
 		/**
 		 *  Call Mobile below header UI.
 		 */
 		public function mobile_below_header() {
 
-			$display = get_post_meta( get_the_ID(), 'ast-hfb-mobile-header-display', true );
+			$display = is_singular() ? get_post_meta( absint( astra_get_post_id() ), 'ast-hfb-mobile-header-display', true ) : true;
 			$display = apply_filters( 'astra_below_mobile_header_display', $display );
 
 			if ( 'disabled' !== $display ) {
@@ -387,6 +407,10 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 */
 		public function mobile_popup() {
 
+			if ( apply_filters( 'astra_disable_mobile_popup_markup', false ) ) {
+				return;
+			}
+
 			$mobile_header_type = astra_get_option( 'mobile-header-type' );
 
 			if ( 'off-canvas' === $mobile_header_type || 'full-width' === $mobile_header_type || is_customize_preview() ) {
@@ -407,10 +431,30 @@ if ( ! class_exists( 'Astra_Builder_Header' ) ) {
 		 *  Call Mobile Cart Flyout UI.
 		 */
 		public function mobile_cart_flyout() {
+			// Get the responsive cart click action setting.
+			$responsive_cart_action = astra_get_option( 'responsive-cart-click-action' );
+			$desktop_cart_action    = astra_get_option( 'woo-header-cart-click-action' );
 
-			// Hide cart flyout only if current page is checkout/cart.
-			if ( ( Astra_Builder_Helper::is_component_loaded( 'woo-cart', 'header' ) && class_exists( 'WooCommerce' ) && ! is_cart() && ! is_checkout() ) || Astra_Builder_Helper::is_component_loaded( 'edd-cart', 'header' ) ) {
+			/**
+			 * Filters whether the page requires the cart flyout, which then renders even when the header cart click actions redirect.
+			 *
+			 * @since 4.14.1
+			 * @param bool $flyout_required True when the shop Add To Cart action is "Slide In Cart".
+			 */
+			$flyout_required = apply_filters( 'astra_cart_flyout_required', class_exists( 'WooCommerce' ) && ! is_product() && 'slide_in_cart' === astra_get_option( 'shop-add-to-cart-action' ) );
 
+			// Hide cart flyout only if current page is checkout/cart or if redirect option is selected.
+			if (
+				(
+					Astra_Builder_Helper::is_component_loaded( 'woo-cart', 'header' ) &&
+					class_exists( 'WooCommerce' ) &&
+					! is_cart() &&
+					! is_checkout() &&
+					( 'redirect' !== $responsive_cart_action || // Prevent flyout markup when 'redirect' option is selected.
+					'redirect' !== $desktop_cart_action ||
+					$flyout_required )
+				) || ( Astra_Builder_Helper::is_component_loaded( 'edd-cart', 'header' ) && class_exists( 'Easy_Digital_Downloads' ) )
+			) {
 				Astra_Builder_UI_Controller::render_mobile_cart_flyout_markup();
 			}
 		}

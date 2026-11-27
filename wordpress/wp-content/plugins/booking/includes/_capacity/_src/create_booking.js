@@ -67,6 +67,34 @@ function wpbc_ajx_booking__create( params ){
 				 * @param jqXHR				-	Object
 				 */
 				function ( response_data, textStatus, jqXHR ) {
+					var is_valid_response = (
+							(typeof response_data === 'object')
+						 && (response_data !== null)
+						 && (! Array.isArray( response_data ))
+						 && Object.prototype.hasOwnProperty.call( response_data, 'resource_id' )
+						 && (typeof response_data[ 'ajx_data' ] === 'object')
+						 && (response_data[ 'ajx_data' ] !== null)
+						 && (! Array.isArray( response_data[ 'ajx_data' ] ))
+						 && (typeof response_data[ 'ajx_data' ][ 'status' ] === 'string')
+					);
+
+					if ( ! is_valid_response ) {
+						var calendar_id = wpbc_get_resource_id__from_ajx_post_data_url( this.data );
+						var jq_node = '#booking_form' + calendar_id;
+						var response_error_message = _wpbc.get_message( 'message_unexpected_server_response' ) || 'The server returned an unexpected response. Please reload the page and try again.';
+
+						wpbc_front_end__log_unexpected_ajax_response( 'WPBC_AJX_BOOKING__CREATE', response_data, jqXHR, textStatus, 'Invalid response structure' );
+						wpbc_front_end__show_message( response_error_message, { 'type'        : 'error',
+																			'show_here'   : {'jq_node': jq_node, 'where': 'after'},
+																			'is_append'   : true,
+																			'style'       : 'text-align:left;',
+																			'content_mode': 'text',
+																			'delay'       : 0
+																		} );
+						wpbc_booking_form__on_response__ui_elements_enable( calendar_id );
+						return;
+					}
+
 console.log( ' == Response WPBC_AJX_BOOKING__CREATE == ' );
 for ( var obj_key in response_data ){
 	console.groupCollapsed( '==' + obj_key + '==' );
@@ -74,32 +102,6 @@ for ( var obj_key in response_data ){
 	console.groupEnd();
 }
 console.groupEnd();
-
-
-					// <editor-fold     defaultstate="collapsed"     desc=" = Error Message! Server response with String.  ->  E_X_I_T  "  >
-					// -------------------------------------------------------------------------------------------------
-					// This section execute,  when server response with  String instead of Object -- Usually  it's because of mistake in code !
-					// -------------------------------------------------------------------------------------------------
-					if ( (typeof response_data !== 'object') || (response_data === null) ){
-
-						var calendar_id = wpbc_get_resource_id__from_ajx_post_data_url( this.data );
-						var jq_node = '#booking_form' + calendar_id;
-
-						if ( '' == response_data ){
-							response_data = '<strong>' + 'Error! Server respond with empty string!' + '</strong> ' ;
-						}
-						// Show Message
-						wpbc_front_end__show_message( response_data , { 'type'     : 'error',
-																		'show_here': {'jq_node': jq_node, 'where': 'after'},
-																		'is_append': true,
-																		'style'    : 'text-align:left;',
-																		'delay'    : 0
-																	} );
-						// Enable Submit | Hide spin loader
-						wpbc_booking_form__on_response__ui_elements_enable( calendar_id );
-						return;
-					}
-					// </editor-fold>
 
 
 					// <editor-fold     defaultstate="collapsed"     desc="  ==  This section execute,  when we have KNOWN errors from Booking Calendar.  ->  E_X_I_T  "  >
@@ -116,7 +118,7 @@ console.groupEnd();
 																'resource_id': response_data[ 'resource_id' ],
 																'url'        : response_data[ 'ajx_data' ][ 'captcha__simple' ][ 'url' ],
 																'challenge'  : response_data[ 'ajx_data' ][ 'captcha__simple' ][ 'challenge' ],
-																'message'    : response_data[ 'ajx_data' ][ 'ajx_after_action_message' ].replace( /\n/g, "<br />" )
+																		'message'    : response_data[ 'ajx_data' ][ 'ajx_after_action_message' ]
 															}
 														);
 								break;
@@ -161,20 +163,16 @@ console.groupEnd();
 									var ajx_after_booking_message = response_data[ 'ajx_data' ][ 'ajx_after_action_message' ].replace( /\n/g, "<br />" );
 
 									console.log( ajx_after_booking_message );
-
-									/**
-									 * // Show Message
-										var ajx_after_action_message_id = wpbc_front_end__show_message( ajx_after_booking_message,
+									wpbc_front_end__show_message( ajx_after_booking_message,
 																	{
 																		'type' : ('undefined' !== typeof (response_data[ 'ajx_data' ][ 'ajx_after_action_message_status' ]))
-																				? response_data[ 'ajx_data' ][ 'ajx_after_action_message_status' ] : 'info',
-																		'delay'    : 10000,
+																				? response_data[ 'ajx_data' ][ 'ajx_after_action_message_status' ] : 'warning',
+																		'delay'    : 0,
 																		'show_here': {
-																						'jq_node': jq_node,
-																						'where'  : 'after'
-																					 }
+																					'jq_node': jq_node,
+																					'where'  : 'after'
+																				 }
 																	} );
-									 */
 								}
 								// </editor-fold>
 						}
@@ -249,42 +247,27 @@ console.groupEnd();
 				}
 			  ).fail(
 				  // <editor-fold     defaultstate="collapsed"                        desc=" = This section execute,  when  NONCE field was not passed or some error happened at  server! = "  >
-				  function ( jqXHR, textStatus, errorThrown ) {    if ( window.console && window.console.log ){ console.log( 'Ajax_Error', jqXHR, textStatus, errorThrown ); }
+				  function ( jqXHR, textStatus, errorThrown ) {
+					wpbc_front_end__log_unexpected_ajax_response( 'WPBC_AJX_BOOKING__CREATE', jqXHR.responseText || '', jqXHR, textStatus, errorThrown );
 
 					// -------------------------------------------------------------------------------------------------
 					// This section execute,  when  NONCE field was not passed or some error happened at  server!
 					// -------------------------------------------------------------------------------------------------
 
-					// Get Content of Error Message
-					var error_message = '<strong>' + 'Error!' + '</strong> ' + errorThrown ;
-					if ( jqXHR.status ){
-						error_message += ' (<b>' + jqXHR.status + '</b>)';
-						if (403 == jqXHR.status ){
-							error_message += '<br> Probably nonce for this page has been expired. Please <a href="javascript:void(0)" onclick="javascript:location.reload();">reload the page</a>.';
-							error_message += '<br> Otherwise, please check this <a style="font-weight: 600;" href="https://wpbookingcalendar.com/faq/request-do-not-pass-security-check/?after_update=10.1.1">troubleshooting instruction</a>.<br>'
-						}
-					}
-					if ( jqXHR.responseText ){
-						// Escape tags in Error message
-						error_message += '<br><strong>Response</strong><div style="padding: 0 10px;margin: 0 0 10px;border-radius:3px; box-shadow:0px 0px 1px #a3a3a3;">' + jqXHR.responseText.replace(/&/g, "&amp;")
-																 .replace(/</g, "&lt;")
-																 .replace(/>/g, "&gt;")
-																 .replace(/"/g, "&quot;")
-																 .replace(/'/g, "&#39;")
-										+'</div>';
-					}
-					error_message = error_message.replace( /\n/g, "<br />" );
+					var fallback_error_message = _wpbc.get_message( 'message_unexpected_server_response' ) || 'The server returned an unexpected response. Please reload the page and try again.';
+					var error_message          = wpbc_front_end__get_ajax_error_message( jqXHR, fallback_error_message, '' );
 
 					var calendar_id = wpbc_get_resource_id__from_ajx_post_data_url( this.data );
 					var jq_node = '#booking_form' + calendar_id;
 
 					// Show Message
-					wpbc_front_end__show_message( error_message , { 'type'     : 'error',
-																	'show_here': {'jq_node': jq_node, 'where': 'after'},
-																	'is_append': true,
-																	'style'    : 'text-align:left;',
-																	'delay'    : 0
-																} );
+					wpbc_front_end__show_message( error_message , { 'type'        : 'error',
+																			'show_here'   : {'jq_node': jq_node, 'where': 'after'},
+																			'is_append'   : true,
+																			'style'       : 'text-align:left;',
+																			'content_mode': 'text',
+																			'delay'       : 0
+																		} );
 					// Enable Submit | Hide spin loader
 					wpbc_booking_form__on_response__ui_elements_enable( calendar_id );
 			  	 }
@@ -319,7 +302,7 @@ console.groupEnd();
 		document.getElementById( 'wpdev_captcha_challenge_' + params[ 'resource_id' ] ).value = params[ 'challenge' ];
 
 		// Show warning 		After CAPTCHA Img
-		var message_id = wpbc_front_end__show_message__warning( '#captcha_input' + params[ 'resource_id' ] + ' + img', params[ 'message' ] );
+	var message_id = wpbc_front_end__show_message__warning( '#captcha_input' + params[ 'resource_id' ] + ' + img', params[ 'message' ], 'text' );
 
 		// Animate
 		jQuery( '#' + message_id + ', ' + '#captcha_input' + params[ 'resource_id' ] ).fadeOut( 350 ).fadeIn( 300 ).fadeOut( 350 ).fadeIn( 400 ).animate( {opacity: 1}, 4000 );
@@ -436,7 +419,7 @@ console.groupEnd();
 			var $form_container = jQuery( '#booking_form_div' + resource_id );
 			var loader_text     = 'Saving';
 			if ( 'undefined' !== typeof _wpbc && _wpbc.get_message ) {
-				loader_text = _wpbc.get_message( 'message_saving' ) || loader_text;
+				loader_text = _wpbc.get_message( 'message_booking_saving' ) || loader_text;
 			}
 			var loader_html     = '<div id="wpbc_booking_form_spin_loader' + resource_id + '" class="wpbc_booking_form_spin_loader wpbc_booking_form_submit_overlay" aria-live="polite" aria-hidden="false">'
 								+ '<div class="wpbc_spins_loading_container">'
@@ -620,7 +603,6 @@ function wpbc_show_thank_you_message_after_booking( response_data ){
 		confirm_content += `      <div class="wpbc_ty__header">${response_data[ 'ajx_confirmation' ][ 'ty_message_booking_id' ]}</div>`;
 	}
     confirm_content += `      <div class="wpbc_ty__content">`;
-	confirm_content += `        <div class="wpbc_ty__content_text wpbc_ty__payment_description ${ty_payment_payment_description_hide}">${response_data[ 'ajx_confirmation' ][ 'ty_payment_payment_description' ].replace( /\\n/g, '' )}</div>`;
 	if ( '' !== response_data[ 'ajx_confirmation' ][ 'ty_customer_details' ] ){
 		confirm_content += `      	<div class="wpbc_ty__content_text wpbc_cols_2">${response_data['ajx_confirmation']['ty_customer_details']}</div>`;
 	}
@@ -628,6 +610,7 @@ function wpbc_show_thank_you_message_after_booking( response_data ){
 		confirm_content += `      	<div class="wpbc_ty__content_text wpbc_cols_2">${response_data['ajx_confirmation']['ty_booking_details']}</div>`;
 	}
 	confirm_content += `        <div class="wpbc_ty__content_text wpbc_ty__content_costs ${ty_booking_costs_hide}">${response_data[ 'ajx_confirmation' ][ 'ty_booking_costs' ]}</div>`;
+	confirm_content += `        <div class="wpbc_ty__content_text wpbc_ty__payment_description ${ty_payment_payment_description_hide}">${response_data[ 'ajx_confirmation' ][ 'ty_payment_payment_description' ].replace( /\\n/g, '' )}</div>`;
 	confirm_content += `        <div class="wpbc_ty__content_text wpbc_ty__content_gateways ${ty_payment_gateways_hide}">${response_data[ 'ajx_confirmation' ][ 'ty_payment_gateways' ].replace( /\\n/g, '' ).replace( /ajax_script/gi, 'script' )}</div>`;
     confirm_content += `      </div>`;
     confirm_content += `    </div>`;

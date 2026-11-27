@@ -13,6 +13,7 @@ namespace ThemeisleSDK\Modules;
 
 // Exit if accessed directly.
 use ThemeisleSDK\Common\Abstract_Module;
+use ThemeisleSDK\Loader;
 use ThemeisleSDK\Product;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -98,7 +99,7 @@ class Rollback extends Abstract_Module {
 	 */
 	private function get_api_versions() {
 
-		$cache_key      = $this->product->get_key() . '_' . preg_replace( '/[^0-9a-zA-Z ]/m', '', $this->product->get_version() ) . 'versions';
+		$cache_key      = $this->product->get_cache_key();
 		$cache_versions = get_transient( $cache_key );
 		if ( false === $cache_versions ) {
 			$versions = $this->get_remote_versions();
@@ -120,8 +121,8 @@ class Rollback extends Abstract_Module {
 		if ( empty( $url ) ) {
 			return [];
 		}
-		$response = function_exists( 'wp_remote_get_wp_remote_get' )
-			? wp_remote_get_wp_remote_get( $url )
+		$response = function_exists( 'vip_safe_wp_remote_get' )
+			? vip_safe_wp_remote_get( $url )
 			: wp_remote_get( $url ); //phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		if ( is_wp_error( $response ) ) {
 			return array();
@@ -184,7 +185,7 @@ class Rollback extends Abstract_Module {
 		if ( empty( $version ) ) {
 			return $links;
 		}
-		$links[] = '<a href="' . wp_nonce_url( admin_url( 'admin-post.php?action=' . $this->product->get_key() . '_rollback' ), $this->product->get_key() . '_rollback' ) . '">' . sprintf( apply_filters( $this->product->get_key() . '_rollback_label', 'Rollback to v%s' ), $version['version'] ) . '</a>';
+		$links[] = '<a href="' . wp_nonce_url( admin_url( 'admin-post.php?action=' . $this->product->get_key() . '_rollback' ), $this->product->get_key() . '_rollback' ) . '">' . sprintf( apply_filters( $this->product->get_key() . '_rollback_label', Loader::$labels['rollback']['cta'] ), $version['version'] ) . '</a>';
 
 		return $links;
 	}
@@ -284,6 +285,22 @@ class Rollback extends Abstract_Module {
 			$nonce = 'upgrade-theme_' . $theme;
 			$url   = 'update.php?action=upgrade-theme&theme=' . urlencode( $theme );
 
+			/**
+			 * The rollback will attach a temporary theme for the rollback to the transient.
+			 * However, when executing the upgrade for the attached theme we need to change the slug to the original theme slug.
+			 * This is because it will use the slug to create a temp folder for the theme used during the upgrade.
+			 */
+			add_filter(
+				'upgrader_package_options',
+				function ( $options ) use ( $folder, $theme ) {
+					if ( isset( $options['hook_extra']['theme'] ) && $options['hook_extra']['theme'] === $theme && isset( $options['hook_extra']['temp_backup']['slug'] ) ) {
+						$options['hook_extra']['temp_backup']['slug'] = $folder;
+					}
+
+					return $options;
+				}
+			);
+
 			$upgrader = new \Theme_Upgrader( new \Theme_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
 			$upgrader->upgrade( $theme );
 			delete_transient( $this->product->get_key() . '_warning_rollback' );
@@ -375,10 +392,26 @@ class Rollback extends Abstract_Module {
 	}
 
 	/**
+	 * Fires after the option has been updated.
+	 *
+	 * @param mixed  $old_value The old option value.
+	 * @param mixed  $value The new option value.
+	 * @param string $option Option name.
+	 */
+	public function update_active_plugins_action( $old_value, $value, $option ) {
+		delete_site_transient( 'update_plugins' );
+		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	/**
 	 * Set the rollback hook. Strangely, this does not work if placed in the ThemeIsle_SDK_Rollback class, so it is being called from there instead.
 	 */
 	public function add_hooks() {
 		add_action( 'admin_post_' . $this->product->get_key() . '_rollback', array( $this, 'start_rollback' ) );
 		add_action( 'admin_footer', array( $this, 'add_footer' ) );
+
+		// This hook will be invoked after the plugin activation.
+		// We use this to force an update of the cache so that Update is present immediate after a rollback.
+		add_action( 'update_option_active_plugins', array( $this, 'update_active_plugins_action' ), 10, 3 );
 	}
 }

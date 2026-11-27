@@ -16,7 +16,11 @@ require_once WPBC_PLUGIN_DIR . '/core/class/welcome_current.php';
 class WPBC_Welcome {
 
 	/**
-	 * Minimum capability, such  as 'read' or 'manage_options'
+	 * Minimum capability required to open the What's New page.
+	 *
+	 * The value is resolved from the configured Settings role so the two pages
+	 * retain the same WordPress access boundary.
+	 *
 	 * @var string
 	 */
 	public $minimum_capability = 'read';
@@ -31,18 +35,46 @@ class WPBC_Welcome {
 	 * Constructor
 	 */
 	public function __construct() {
+		$this->minimum_capability = $this->get_settings_capability();
 
-		add_action( 'admin_menu', array( $this, 'admin_menus' ) );
+		add_action( 'admin_menu', array( $this, 'admin_menus' ), 20 );
 
 		add_action( 'admin_init', array( $this, 'welcome' ) );
-
-		add_action( 'load-dashboard_page_wpbc-about', array( $this, 'wpbc_define_page_title_about' ) );
 	}
 
+	/**
+	 * Resolve the capability used by the native Settings menu.
+	 *
+	 * Settings converts the configured minimum role through the canonical
+	 * WPBC_Admin_Menus role map. Reusing that map prevents the What's New page
+	 * from drifting to a broader or narrower role after an administrator changes
+	 * the Booking Calendar permissions setting.
+	 *
+	 * @return string WordPress capability required to access Settings and What's New.
+	 */
+	private function get_settings_capability() {
+		$minimum_role = get_bk_option( 'booking_user_role_settings' );
+
+		if (
+			is_string( $minimum_role )
+			&& class_exists( 'WPBC_Admin_Menus' )
+			&& isset( WPBC_Admin_Menus::$capability[ $minimum_role ] )
+		) {
+			return WPBC_Admin_Menus::$capability[ $minimum_role ];
+		}
+
+		return 'read';
+	}
+
+	/**
+	 * Supply the browser title before WordPress renders the relocated page.
+	 *
+	 * @return void
+	 */
 	public function wpbc_define_page_title_about() {    // FixIn: 9.6.2.12.
 		global $title;
 		if ( ! isset( $title ) ) {
-			$title = 'Welcome to Booking Calendar';
+			$title = __( 'Welcome to Booking Calendar', 'booking' );
 		}
 	}
 
@@ -162,15 +194,28 @@ class WPBC_Welcome {
 
 	// -----------------------------------------------------------------------------------------------------------------
 	// Menu
+	/**
+	 * Register What's New below the native Booking Calendar parent menu.
+	 *
+	 * Booking Modes performs final authorized ordering later in the admin-menu
+	 * lifecycle. Registering the real controller here keeps direct access,
+	 * screen hooks, and WordPress capability enforcement native.
+	 *
+	 * @return void
+	 */
 	public function admin_menus() {
-		// What's New.
-		add_dashboard_page( sprintf( 'Welcome to Booking Calendar' ), sprintf( 'What\'s New' ), $this->minimum_capability, 'wpbc-about', array( $this, 'content_whats_new' ) );
-		remove_submenu_page( 'index.php', 'wpbc-about' );
-	}
+		$page_hook = add_submenu_page(
+			'wpbc',
+			__( 'Welcome to Booking Calendar', 'booking' ),
+			__( 'What\'s New', 'booking' ),
+			$this->minimum_capability,
+			'wpbc-about',
+			array( $this, 'content_whats_new' )
+		);
 
-	// Head.
-	public function admin_head() {
-		remove_submenu_page( 'index.php', 'wpbc-about' );
+		if ( false !== $page_hook ) {
+			add_action( 'load-' . $page_hook, array( $this, 'wpbc_define_page_title_about' ) );
+		}
 	}
 
 	// Title
@@ -184,7 +229,7 @@ class WPBC_Welcome {
 			echo ( 'Booking Calendar is ready to receive and manage bookings from your visitors!' );
 			?></div>
 
-
+		<?php return; ?>
         <h2 class="nav-tab-wrapper">
         <?php
         $is_about_tab_active = $is_about_premium_tab_active = $is_getting_started_tab_active = '';
@@ -199,7 +244,7 @@ class WPBC_Welcome {
             $is_getting_started_tab_active = ' nav-tab-active ';
         ?>
             <a class="nav-tab<?php echo esc_attr( $is_about_tab_active ); ?>" href="<?php echo esc_url( admin_url( add_query_arg( array(
-            'page' => 'wpbc-about' ), 'index.php' ) ) ); ?>">
+            'page' => 'wpbc-about' ), 'admin.php' ) ) ); ?>">
                     <?php echo( "What's New" ); ?>
                 <a class="nav-tab<?php echo esc_attr( $is_getting_started_tab_active ); ?>" href="https://wpbookingcalendar.com/faq/#using">
         <?php echo( "Get Started" ); ?>
@@ -220,6 +265,21 @@ class WPBC_Welcome {
 		}
 
 		list( $display_version ) = explode( '-', WPDEV_BK_VERSION );
+		?>
+		<div class="notice-info notice" style="margin: 50px 0;">
+			<p>
+				<strong><?php echo( "Maintenance Release" ); ?></strong>
+			</p>
+			<p><strong><?php
+					echo wp_kses_post( sprintf( 'Version %s', $display_version ) ); ?></strong> <?php
+				echo 'addressed some minor issues and improvement in functionality'; ?>.
+				<?php
+				echo wp_kses_post( sprintf( 'For more information, see %sthe release notes%s', '<a href="https://wpbookingcalendar.com/changelog/" target="_blank">', '</a>' ) ); ?>
+				.
+			</p>
+		</div><?php
+
+		return;
 		?>
 		<div class="changelog point-releases" style="margin: 40px 0 50px;">
 			<h3><?php
@@ -242,19 +302,59 @@ class WPBC_Welcome {
         if ( $booking_activation_process == 'On' )
             return;
 
-        // Bail if no activation redirect transient is set
-		if ( ! get_transient( '_booking_activation_redirect' ) ) { // $.
+		if ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) {
+			return;
+		}
+		if ( ! current_user_can( $this->minimum_capability ) ) {
+			return;
+		}
+
+		$legacy_redirect = get_transient( '_booking_activation_redirect' );
+		$redirect_intent = class_exists( 'WPBC_Setup_Wizard_First_Install_State' )
+			? get_transient( WPBC_Setup_Wizard_First_Install_State::ACTIVATION_INTENT_TRANSIENT )
+			: false;
+		$is_whats_new_intent = class_exists( 'WPBC_Setup_Wizard_First_Install_State' )
+			&& WPBC_Setup_Wizard_First_Install_State::is_whats_new_redirect_intent( $redirect_intent );
+
+		// A genuine first-install intent belongs exclusively to the earlier Setup Wizard redirect handler.
+		if (
+			class_exists( 'WPBC_Setup_Wizard_First_Install_State' )
+			&& WPBC_Setup_Wizard_First_Install_State::is_first_install_redirect_intent( $redirect_intent )
+		) {
+			return;
+		}
+
+		// Bail if neither the released boolean nor a current structured intent is set.
+		if ( ! $legacy_redirect && ! $is_whats_new_intent ) { // $.
+			return;
+		}
+		if (
+			$is_whats_new_intent
+			&& ! WPBC_Setup_Wizard_First_Install_State::is_redirect_intent_for_current_user( $redirect_intent )
+		) {
 			return;
 		}
 
         // Delete the redirect transient
         delete_transient( '_booking_activation_redirect' );
+		if ( class_exists( 'WPBC_Setup_Wizard_First_Install_State' ) ) {
+			delete_transient( WPBC_Setup_Wizard_First_Install_State::ACTIVATION_INTENT_TRANSIENT );
+		}
 
-        // Bail if DEMO or activating from network, or bulk, or within an iFrame.
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
-        if ( wpbc_is_this_demo() || is_network_admin() || isset( $_GET[ 'activate-multi' ] ) || defined( 'IFRAME_REQUEST' ) )
-            return;
+		// Bail for environments where automatic activation navigation is disabled.
+		$is_redirect_restricted = class_exists( 'WPBC_Setup_Wizard_First_Install_State' )
+			? WPBC_Setup_Wizard_First_Install_State::is_automatic_onboarding_restricted()
+			: (
+				wpbc_is_this_demo()
+				|| ( defined( 'WPBC_IS_PLAYGROUND' ) && true === WPBC_IS_PLAYGROUND )
+				|| is_network_admin()
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only activation context detection.
+				|| isset( $_GET['activate-multi'] )
+				|| defined( 'IFRAME_REQUEST' )
+			);
+		if ( $is_redirect_restricted ) {
+			return;
+		}
 
         // Set mark,  that  we already redirected to About screen               //FixIn: 5.4.5
         $redirect_for_version = get_bk_option( 'booking_activation_redirect_for_version' );
@@ -263,7 +363,7 @@ class WPBC_Welcome {
         else
             update_bk_option( 'booking_activation_redirect_for_version', WP_BK_VERSION_NUM );
         
-        wp_safe_redirect( admin_url( 'index.php?page=wpbc-about' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=wpbc-about' ) );
         exit;
     }
 
@@ -292,7 +392,7 @@ class WPBC_Welcome {
 					<?php
 				}
 			} else {
-				$wp_post_booking_absolute = wpbc_stp_wiz__is_exist_published_page_with_booking_form();
+				$wp_post_booking_absolute = false;
 				if ( ! empty( $wp_post_booking_absolute ) ) {
 				?>
 				<a class="button button-secondary"
@@ -310,16 +410,28 @@ class WPBC_Welcome {
 
 	public function content_whats_new() {
 
-		echo '<div class="wrap about-wrap wpbc-welcome-page">';
+		echo '<div class="wpbc-welcome-page">';
 
-		$this->title_section();
+		 $this->title_section();
 
-		$this->show_go_links();
+		// $this->show_go_links();
 
 		$this->maintence_section();
 
 		$this->section_9_8_css();
 
+		// wpbc_welcome_section_12_0_1( $this );
+		wpbc_welcome_section_12_0( $this );
+		wpbc_welcome_section_11_9( $this );
+		wpbc_welcome_section_11_8_1( $this );
+		wpbc_welcome_section_11_8( $this );
+		wpbc_welcome_section_11_7( $this );
+		wpbc_welcome_section_11_6( $this );
+		wpbc_welcome_section_11_5( $this );
+		wpbc_welcome_section_11_4( $this );
+		wpbc_welcome_section_11_3( $this );
+		wpbc_welcome_section_11_2( $this );
+		wpbc_welcome_section_11_1( $this );
 		wpbc_welcome_section_11_0( $this );
 		wpbc_welcome_section_10_15( $this );
 		wpbc_welcome_section_10_14( $this );
@@ -346,7 +458,7 @@ class WPBC_Welcome {
 						'.', ' ',
 					), '_', $section_param_arr['version_num'] ) ); ?>' ).toggle();"
 			>+ Show changes in version update <span
-				style="font-size: 1.35em;font-weight: 600;color: #079;font-family: Consolas,Monaco,monospace;padding-left:12px;"><?php
+				style="font-size: 1.5em;font-weight: 550;font-family: Consolas,Monaco,monospace;padding-left:12px;text-decoration:none;"><?php
 				echo esc_html( $section_param_arr['version_num'] ); ?></span>
 			</a>
 			<div class="version_update_<?php
@@ -357,8 +469,8 @@ class WPBC_Welcome {
 
 		}
 
-		?><h2 style='font-size: 1.9em;text-align:left;'>What's New in Booking Calendar <span
-			style="font-size: 1.1em;font-weight: 600;font-family: Consolas,Monaco,monospace;padding-left: 10px;color: #5F5F5F;"
+		?><h2 style='font-size: 1.45em;text-align:left;'>What's New in Booking Calendar <span
+			style="font-size: 1.2em;font-weight: 600;font-family: Consolas,Monaco,monospace;padding-left: 10px;"
 		><?php
 			echo esc_html( $section_param_arr['version_num'] ); ?></span></h2><?php
 
@@ -381,12 +493,20 @@ class WPBC_Welcome {
 		function section_9_8_css(){
 
 			?><style type="text/css">
-				.about-wrap.wpbc-welcome-page {
+				.wpbc-welcome-page {
 					position: relative;
 					margin: 25px 40px 0 20px;
 					max-width: 1050px;
 					font-size: 15px;
 					clear: both;
+				}
+				.wpbc_expand_section_link {
+					text-underline-offset: 4px;
+					text-decoration-style: dashed;
+					padding: 5px;
+				}
+				.wpbc-welcome-page p {
+					font-size: 16px;
 				}
 				.wpbc_wn_container{
 					margin: 24px auto;

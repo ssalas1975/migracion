@@ -41,7 +41,7 @@ switch ( $astra_header_component_slug ) {
 	case 'menu-1':
 		?>
 		<div class="ast-builder-menu-1 ast-builder-menu ast-flex ast-builder-menu-1-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-hb-menu-1">
-			<?php do_action( 'astra_header_menu_1' ); ?>
+			<?php do_action( 'astra_header_menu_1', $astra_active_device ); ?>
 		</div>
 		<?php
 		break;
@@ -49,7 +49,7 @@ switch ( $astra_header_component_slug ) {
 	case 'menu-2':
 		?>
 		<div class="ast-builder-menu-2 ast-builder-menu ast-flex ast-builder-menu-2-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-hb-menu-2">
-			<?php do_action( 'astra_header_menu_2' ); ?>
+			<?php do_action( 'astra_header_menu_2', $astra_active_device ); ?>
 		</div>
 		<?php
 		break;
@@ -117,7 +117,7 @@ switch ( $astra_header_component_slug ) {
 		if ( class_exists( 'Astra_Woocommerce' ) ) {
 			?>
 			<div class="ast-builder-layout-element site-header-focus-item ast-header-woo-cart" data-section="section-header-woo-cart">
-				<?php do_action( 'astra_header_woo_cart' ); ?>
+				<?php do_action( 'astra_header_woo_cart', $astra_active_device ); ?>
 			</div>
 			<?php
 		}
@@ -136,12 +136,15 @@ switch ( $astra_header_component_slug ) {
 		?>
 		<aside
 		<?php
-		echo astra_attr(
-			'header-widget-area-inner',
-			array(
-				'class'        => 'header-widget-area widget-area site-header-focus-item',
-				'data-section' => 'sidebar-widgets-header-widget-1',
-				'aria-label'   => 'Header Widget 1',
+		echo wp_kses_post(
+			astra_attr(
+				'header-widget-area-inner',
+				array(
+					'class'        => 'header-widget-area widget-area site-header-focus-item',
+					'data-section' => 'sidebar-widgets-header-widget-1',
+					'aria-label'   => 'Header Widget 1',
+					'role'         => 'region',
+				)
 			)
 		);
 		?>
@@ -163,12 +166,15 @@ switch ( $astra_header_component_slug ) {
 		?>
 		<aside
 		<?php
-		echo astra_attr(
-			'header-widget-area-inner',
-			array(
-				'class'        => 'header-widget-area widget-area site-header-focus-item',
-				'data-section' => 'sidebar-widgets-header-widget-2',
-				'aria-label'   => 'Header Widget 2',
+		echo wp_kses_post(
+			astra_attr(
+				'header-widget-area-inner',
+				array(
+					'class'        => 'header-widget-area widget-area site-header-focus-item',
+					'data-section' => 'sidebar-widgets-header-widget-2',
+					'aria-label'   => 'Header Widget 2',
+					'role'         => 'region',
+				)
 			)
 		);
 		?>
@@ -188,7 +194,7 @@ switch ( $astra_header_component_slug ) {
 		break;
 
 	default:
-		do_action( 'astra_render_header_components', $astra_header_component_slug );
+		do_action( 'astra_render_header_components', $astra_header_component_slug, $astra_active_device );
 		break;
 
 }

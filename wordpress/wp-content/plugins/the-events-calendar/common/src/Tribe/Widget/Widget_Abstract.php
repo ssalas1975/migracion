@@ -8,7 +8,7 @@ use Tribe__Template;
 /**
  * The abstract base without Views that all widgets should implement.
  *
- * @since   4.12.12
+ * @since 4.12.12
  *
  * @package Tribe\Widget
  */
@@ -265,7 +265,7 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 	/**
 	 * Setup the widget.
 	 *
-	 * @since  5.2.1
+	 * @since 5.2.1
 	 * @since 4.13.0 include $args and $instance params.
 	 *
 	 * @param array $args     Display arguments including 'before_title', 'after_title',
@@ -285,11 +285,11 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 		// Specifically on the admin we force the admin fields into the arguments.
 		$this->arguments['admin_fields'] = $this->get_admin_fields();
 
-		$this->toggle_hooks( true );
+		$this->toggle_hooks( true, 'form' );
 
 		$html = $this->get_admin_html( $this->get_arguments() );
 
-		$this->toggle_hooks( false );
+		$this->toggle_hooks( false, 'form' );
 		return $html;
 	}
 
@@ -302,11 +302,11 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 
 		$this->setup( $args, $instance );
 
-		$this->toggle_hooks( true );
+		$this->toggle_hooks( true, 'display' );
 
 		$html = $this->get_html();
 
-		$this->toggle_hooks( false );
+		$this->toggle_hooks( false, 'display' );
 
 		echo $html;
 
@@ -519,14 +519,15 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 	 */
 	public function get_admin_data( $arguments, $field_name, $field ) {
 		$data = [
-			'classes'     => Arr::get( $field, 'classes', '' ),
-			'dependency'  => $this->format_dependency( $field ),
-			'id'          => $this->get_field_id( $field_name ),
-			'label'       => Arr::get( $field, 'label', '' ),
-			'name'        => $this->get_field_name( $field_name ),
-			'options'     => Arr::get( $field, 'options', [] ),
-			'placeholder' => Arr::get( $field, 'placeholder', '' ),
-			'value'       => Arr::get( $arguments, $field_name ),
+			'parent_classes' => Arr::get( $field, 'parent_classes', '' ),
+			'classes'        => Arr::get( $field, 'classes', '' ),
+			'dependency'     => $this->format_dependency( $field ),
+			'id'             => $this->get_field_id( $field_name ),
+			'label'          => Arr::get( $field, 'label', '' ),
+			'name'           => $this->get_field_name( $field_name ),
+			'options'        => Arr::get( $field, 'options', [] ),
+			'placeholder'    => Arr::get( $field, 'placeholder', '' ),
+			'value'          => Arr::get( $arguments, $field_name ),
 		];
 
 		$children = Arr::get( $field, 'children', [] );
@@ -792,15 +793,20 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 	 *
 	 * @since 4.13.0
 	 *
-	 * @param bool $toggle Whether to turn the hooks on or off.
+	 * @param bool   $toggle Whether to turn the hooks on or off.
+	 * @param string $location If we are doing the form (admin) or the display (front end)
 	 *
 	 * @return void
 	 */
-	public function toggle_hooks( $toggle ) {
+	public function toggle_hooks( $toggle, $location = 'display' ) {
+		$slug = static::get_widget_slug();
+
 		if ( $toggle ) {
+			do_action( 'tec_start_widget_' . $location, $slug );
 			$this->add_hooks();
 		} else {
 			$this->remove_hooks();
+			do_action( 'tec_end_widget_' . $location, $slug );
 		}
 
 		/**
@@ -810,7 +816,7 @@ abstract class Widget_Abstract extends \WP_Widget implements Widget_Interface {
 		 *
 		 * @param bool   $toggle Whether the hooks should be turned on or off. This value is `true` before a widget
 		 *                       HTML is rendered and `false` after the widget HTML rendered.
-		 * @param static $this   The widget object that is toggling the hooks.
+		 * @param static $widget The widget object that is toggling the hooks.
 		 */
 		do_action( 'tribe_shortcode_toggle_hooks', $toggle, $this );
 	}

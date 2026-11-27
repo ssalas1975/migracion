@@ -2120,11 +2120,11 @@ msgid "Extra Sidebar"
 msgstr ""
 
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr ""
 
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
 
 #: ../themeoptions/options.php:1565

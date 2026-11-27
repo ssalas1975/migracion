@@ -90,14 +90,7 @@ function wpbc_add_new_booking_toolbar( $args = array() ) {
 				wpbc_toolbar_btn__resource_selection();
 			}
 
-			$is_bfb_enabled = (bool) WPBC_Frontend_Settings::is_bfb_enabled( null );
-			if ( $is_bfb_enabled ) {
-				WPBC_FE_Custom_Form_Helper::wpbc_bfb__custom_booking_forms_list__selectbox_html();
-			} else {
-				if ( function_exists( 'wpbc_toolbar_btn__form_selection' ) ) {
-					wpbc_toolbar_btn__form_selection();
-				}
-			}
+			WPBC_FE_Custom_Form_Helper::wpbc_bfb__custom_booking_forms_list__selectbox_html();
 
             ////////////////////////////////////////////////////////////////////
             ?><div class="clear-for-mobile"></div><?php
@@ -253,7 +246,7 @@ function wpbc_bs_dropdown_menu_help() {
                                              , array( 'type' => 'link', 'title' => __('Contact Support', 'booking'), 'url'  => 'mailto:support@wpbookingcalendar.com'
 																												   , 'attr' => array( 'style' => 'font-weight: 600;' ) )
                                              , array( 'type' => 'divider' )
-                                             , array( 'type' => 'link', 'title' => "What's New"/*__('Get Started')*/, 'url' => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'index.php' ) ) ) )
+                                             , array( 'type' => 'link', 'title' => "What's New"/*__('Get Started')*/, 'url' => esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about' ), 'admin.php' ) ) ) )
                                              , array( 'type' => 'link', 'title' => __('About', 'booking')
 																		// , 'url' => wpbc_up_link()
 																		, 'url' =>  'https://wpbookingcalendar.com/' //esc_url( admin_url( add_query_arg( array( 'page' => 'wpbc-about-premium' ), 'index.php' ) ) )

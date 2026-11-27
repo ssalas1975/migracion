@@ -5,8 +5,15 @@
  * Override this template in your own theme by creating a file at:
  * [your-theme]/tribe-events/modules/meta/organizer.php
  *
+ * @version 6.18.4.1
+ *
+ * @since 4.6.19
+ * @since 6.15.3 Added post password protection.
+ * @since 6.15.11 Replaced definition list markup with unordered list and removed empty dt tags for improved accessibility.
+ * @since 6.15.16 Fixed issue with multiple organizers and post password protection.
+ * @since 6.18.4.1 Hides the Organizer details from users who may not see the Organizer.
+ *
  * @package TribeEventsCalendar
- * @version 4.6.19
  */
 
 $organizer_ids = tribe_get_organizer_ids();
@@ -20,7 +27,7 @@ $website_title = tribe_events_get_organizer_website_title();
 
 <div class="tribe-events-meta-group tribe-events-meta-group-organizer">
 	<h2 class="tribe-events-single-section-title"><?php echo tribe_get_organizer_label( ! $multiple ); ?></h2>
-	<dl>
+	<ul class="tribe-events-meta-list">
 		<?php
 		do_action( 'tribe_events_single_meta_organizer_section_start' );
 
@@ -30,51 +37,56 @@ $website_title = tribe_events_get_organizer_website_title();
 			}
 
 			?>
-			<dt style="display:none;"><?php // This element is just to make sure we have a valid HTML ?></dt>
-			<dd class="tribe-organizer">
-				<?php echo tribe_get_organizer_link( $organizer ) ?>
-			</dd>
+			<li class="tribe-events-meta-item tribe-organizer">
+				<?php echo tribe_get_organizer_link( $organizer ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,StellarWP.XSS.EscapeOutput.OutputNotEscaped ?>
+			</li>
 			<?php
 		}
 
-		if ( ! $multiple ) { // only show organizer details if there is one
+		if ( ! $multiple && ! empty( $organizer_ids[0] ) && Tribe__Events__Linked_Posts::instance()->is_linked_post_visible( absint( $organizer_ids[0] ) ) ) {
 			if ( ! empty( $phone ) ) {
 				?>
-				<dt class="tribe-organizer-tel-label">
-					<?php esc_html_e( 'Phone:', 'the-events-calendar' ) ?>
-				</dt>
-				<dd class="tribe-organizer-tel">
-					<?php echo esc_html( $phone ); ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<span class="tribe-organizer-tel-label tribe-events-meta-label">
+						<?php esc_html_e( 'Phone', 'the-events-calendar' ); ?>
+					</span>
+					<span class="tribe-organizer-tel tribe-events-meta-value">
+						<?php echo esc_html( $phone ); ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 
 			if ( ! empty( $email ) ) {
 				?>
-				<dt class="tribe-organizer-email-label">
-					<?php esc_html_e( 'Email:', 'the-events-calendar' ) ?>
-				</dt>
-				<dd class="tribe-organizer-email">
-					<?php echo esc_html( $email ); ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<span class="tribe-organizer-email-label tribe-events-meta-label">
+						<?php esc_html_e( 'Email', 'the-events-calendar' ); ?>
+					</span>
+					<span class="tribe-organizer-email tribe-events-meta-value">
+						<?php echo esc_html( $email ); ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 
 			if ( ! empty( $website ) ) {
 				?>
-				<?php if ( ! empty( $website_title ) ): ?>
-					<dt class="tribe-organizer-url-label">
-						<?php echo esc_html( $website_title ) ?>
-					</dt>
-				<?php endif; ?>
-				<dd class="tribe-organizer-url">
-					<?php echo $website; ?>
-				</dd>
+				<li class="tribe-events-meta-item">
+					<?php if ( ! empty( $website_title ) ) : ?>
+						<span class="tribe-organizer-url-label tribe-events-meta-label">
+							<?php echo esc_html( $website_title ); ?>
+						</span>
+					<?php endif; ?>
+					<span class="tribe-organizer-url tribe-events-meta-value">
+						<?php echo $website; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,StellarWP.XSS.EscapeOutput.OutputNotEscaped ?>
+					</span>
+				</li>
 				<?php
 			}//end if
 		}//end if
 
 		do_action( 'tribe_events_single_meta_organizer_section_end' );
 		?>
-	</dl>
+	</ul>
 </div>

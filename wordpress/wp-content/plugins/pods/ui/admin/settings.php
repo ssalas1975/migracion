@@ -1,4 +1,27 @@
-<div class="wrap pods-admin pods-admin--flex">
+<?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
+// Prevent non-admins.
+if ( ! pods_is_admin( 'pods_settings' ) ) {
+	die( '-1' );
+}
+?>
+<div class="wrap pods-admin<?php echo PodsAdmin::$instance->has_horizontal_callout() ? '' : ' pods-admin--flex'; ?>">
+	<?php
+	/**
+	 * Allow additional output before the container area of the Pods settings screen.
+	 *
+	 * @since 3.1.0
+	 */
+	do_action( 'pods_admin_before_settings' );
+	?>
+
 	<div class="pods-admin__content-container">
 		<form action="" method="post" class="pods-submittable pods-form pods-form-settings">
 
@@ -9,7 +32,8 @@
 
 			$tabs = [
 				'settings' => __( 'Settings', 'pods' ),
-				'reset'    => __( 'Cleanup &amp; Reset', 'pods' ),
+				'tools'    => __( 'Tools', 'pods' ),
+				'reset'    => __( 'Cleanup & Reset', 'pods' ),
 			];
 
 			/**
@@ -42,7 +66,7 @@
 					$url = pods_query_arg( [ 'tab' => $tab ], [ 'page' ] );
 					?>
 					<a href="<?php echo esc_url( $url ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>">
-						<?php echo $label; ?>
+						<?php echo esc_html( $label ); ?>
 					</a>
 					<?php
 				}

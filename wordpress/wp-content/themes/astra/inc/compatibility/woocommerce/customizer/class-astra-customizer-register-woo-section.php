@@ -3,8 +3,6 @@
  * Register customizer panels & sections fro Woocommerce.
  *
  * @package     Astra
- * @author      Astra
- * @copyright   Copyright (c) 2020, Astra
  * @link        https://wpastra.com/
  * @since       Astra 1.1.0
  * @since       1.4.6 Chnaged to using Astra_Customizer API
@@ -14,13 +12,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+// Bail if Customizer config base class does not exist.
+if ( ! class_exists( 'Astra_Customizer_Config_Base' ) ) {
+	return;
+}
+
 if ( ! class_exists( 'Astra_Customizer_Register_Woo_Section' ) ) {
 
 	/**
 	 * Customizer Sanitizes Initial setup
 	 */
 	class Astra_Customizer_Register_Woo_Section extends Astra_Customizer_Config_Base {
-
 		/**
 		 * Register Panels and Sections for Customizer.
 		 *
@@ -33,13 +35,6 @@ if ( ! class_exists( 'Astra_Customizer_Register_Woo_Section' ) ) {
 
 			$configs = array(
 
-				array(
-					'name'     => 'section-woo-general',
-					'title'    => __( 'General', 'astra' ),
-					'type'     => 'section',
-					'priority' => 10,
-					'panel'    => 'woocommerce',
-				),
 				array(
 					'name'     => 'section-woo-shop',
 					'title'    => __( 'Shop', 'astra' ),
@@ -63,12 +58,27 @@ if ( ! class_exists( 'Astra_Customizer_Register_Woo_Section' ) ) {
 					'priority' => 20,
 					'panel'    => 'woocommerce',
 				),
+
+				array(
+					'name'     => 'section-woo-general',
+					'title'    => __( 'General', 'astra' ),
+					'type'     => 'section',
+					'priority' => 10,
+					'panel'    => 'woocommerce',
+				),
+
+				array(
+					'name'     => 'section-woo-misc',
+					'title'    => __( 'Misc', 'astra' ),
+					'type'     => 'section',
+					'priority' => 24.5,
+					'panel'    => 'woocommerce',
+				),
 			);
 
 			return array_merge( $configurations, $configs );
 		}
 	}
 }
-
 
 new Astra_Customizer_Register_Woo_Section();

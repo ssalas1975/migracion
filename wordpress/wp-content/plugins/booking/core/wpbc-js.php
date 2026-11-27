@@ -46,7 +46,7 @@ class WPBC_JS extends WPBC_JS_CSS {
         wpbc_js_load_libs(  $where_to_load );
         wpbc_js_load_files( $where_to_load );
 
-	    if ( wpbc_is_new_booking_page() || wpbc_is_settings_form_page() || wpbc_is_settings_color_themes_page() || wpbc_is_setup_wizard_page() || ( function_exists( 'wpbc_is_add_booking_modal_on_booking_listing_page' ) && wpbc_is_add_booking_modal_on_booking_listing_page() ) ) {
+	    if ( wpbc_is_admin_page_with_frontend_booking_preview() ) {
 		    $where_to_load = 'both';
 	    }
 
@@ -65,54 +65,38 @@ class WPBC_JS extends WPBC_JS_CSS {
 
 
 	/**
-	 * Remove `async` and `defer`  ( check more here https://javascript.info/script-async-defer )
-	 * for scripts registered or enqueued, that required for correct  working of plugin,  like
-	 * jquery and all Booking Calendar scripts
+	 * Preserve the required execution order for Booking Calendar scripts.
+	 *
+	 * Removes asynchronous loading attributes and excludes the scripts from
+	 * Cloudflare Rocket Loader. The filter runs at a very late priority so these
+	 * protections remain present after other script-tag optimization filters.
 	 *
 	 * @param string $tag    The script tag.
-	 * @param string $handle The script handle.
+	 * @param string $handle The registered script handle.
+	 * @param string $src    The script source URL.
 	 *
-	 * @return string Script HTML string.
-	 *
+	 * @return string Filtered script HTML string.
 	 */
 	public function filter_script_loader_tag( $tag, $handle, $src ) {
-
-		$script_handles_prevent_defer = array(
-			  'jquery-core'         // exact value
-			, 'jquery-migrate'
-			//, 'wpbc-'             //starting from  'wpbc-'  it's not the exact value
-			//, 'wpdevelop-'
-		);
-
-
-		// Remove defer and async attribute from  the src.
-		if (
+		$is_required_script = (
 			   ( 'jquery-core' === $handle )
 			|| ( 'jquery-migrate' === $handle )
 			|| ( false !== strpos( $handle, 'wpbc_' ) )                 // Booking Calendar script wpbc_all.js          // FixIn: 10.1.2.3.
 			|| ( false !== strpos( $handle, 'wpbc-' ) )                 // Booking Calendar scripts
 			|| ( false !== strpos( $handle, 'wpdevelop-' ) )
 			|| ( false !== strpos( $handle, 'wpbm-' ) )
-		) {
+		);
 
+		if ( $is_required_script ) {
 			foreach ( array( 'async', 'defer' ) as $attr ) {
+				// Match only a standalone attribute, not the "async" part of data-cfasync.
+				$pattern = '/\s+' . $attr . '(?:\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+))?/i';
+				$tag     = preg_replace( $pattern, '', $tag );
+			}
 
-				if ( preg_match( ":\s$attr(=|>|\s):", $tag ) ) {
-					$tag = str_replace($attr, '', $tag);
-					$tag = str_replace('=""', '', $tag);
-					$tag = str_replace("=''", '', $tag);
-
-					/*
-					 * Test  here https://regex101.com/
-					 *
-					 * Expression:   \s+defer(\s*=\s*["']defer["'])?\s?
-					 * Test  string: <script type='text/javascript' defer = 'defer'  defer="defer" src='http://beta/wp-content/plugins/booking-manager/js/wpbm_vars.js?ver=1.1' id='wpbm-global-vars-js'></script>
-					 *
-					 */
-					$pattern = ":\s+{$attr}(\s*=\s*[\"']{$attr}[\"'])?\s?:mi";
-					$replacement = ' ';
-					$tag = preg_replace($pattern, $replacement, $tag);
-				}
+			// Rocket Loader can otherwise execute dependent scripts before wpbc_all.js defines _wpbc.
+			if ( false === strpos( $tag, 'data-cfasync=' ) ) {
+				$tag = preg_replace( '/<script\b/i', '<script data-cfasync="false"', $tag, 1 );
 			}
 		}
 
@@ -204,7 +188,7 @@ function wpbc_js_load_files( $where_to_load ) {
 		wp_enqueue_script( 'wpbc-datepick-localize', $calendar_localization_url,                            array( 'wpbc-datepick'  ), WP_BK_VERSION_NUM, array( 'in_footer' => WPBC_JS_IN_FOOTER ) );                 //FixIn: 9.8.1
 	}
 
-    if (  ( $where_to_load == 'client' ) || ( wpbc_is_new_booking_page()  ) || ( function_exists( 'wpbc_is_add_booking_modal_on_booking_listing_page' ) && wpbc_is_add_booking_modal_on_booking_listing_page() ) || ( wpbc_is_settings_form_page() || wpbc_is_settings_color_themes_page() || wpbc_is_setup_wizard_page() || wpbc_is_builder_booking_form_page()  )   ) {
+    if (  ( $where_to_load == 'client' ) || wpbc_is_admin_page_with_frontend_booking_preview() ) {
 
 	    wp_enqueue_script( 'wpbc-main-client',  wpbc_plugin_url( '/js/client.js' ),                                  array( 'wpbc-datepick'  ), WP_BK_VERSION_NUM, array( 'in_footer' => WPBC_JS_IN_FOOTER ) );             // Client
 	    wp_enqueue_script( 'wpbc_capacity',     wpbc_plugin_url( '/includes/_capacity/_out/create_booking.js' ),     array( 'wpbc-main-client'  ), WP_BK_VERSION_NUM, array( 'in_footer' => WPBC_JS_IN_FOOTER ) );          // Add new bookings   // FixIn: 9.8.0.3.
@@ -353,6 +337,31 @@ function wpbc_load_js__required_for_modals() {
 	wp_enqueue_style( 'wpbc-admin-modal-popups', wpbc_plugin_url( '/css/modal.css' ), array(), WP_BK_VERSION_NUM );
 	wp_enqueue_style( 'wpbc-admin-pages', wpbc_plugin_url( '/css/admin.css' ), array(), WP_BK_VERSION_NUM );
 	wp_enqueue_style( 'wpbc-admin-skin', wpbc_plugin_url( '/css/admin-skin.css' ), array( 'wpbc-admin-pages' ), WP_BK_VERSION_NUM );                        // FixIn: 8.0.2.4.
+}
+
+/**
+ * Load only the modal assets required by front-end popup shortcodes.
+ *
+ * This intentionally avoids the broader admin helper above, because front-end
+ * pages should not receive admin page/menu styles when only a modal booking
+ * form is needed.
+ *
+ * @return void
+ */
+function wpbc_load_js__required_for_front_end_modals() {
+
+	// JS for opening modals.
+	wp_enqueue_script( 'wpbc-modal', wpbc_plugin_url( '/vendors/_custom/dropdown_modal/_out/dropdown_modal.js' ), array( 'jquery' ), WP_BK_VERSION_NUM, array( 'in_footer' => WPBC_JS_IN_FOOTER ) );                        // FixIn: 9.8.1.
+
+	// Base Bootstrap CSS is already loaded by Booking Calendar in normal front-end rendering.
+	if ( ! wp_style_is( 'wpdevelop-bts', 'enqueued' ) && ! wp_style_is( 'wpdevelop-bts', 'done' ) ) {
+		wp_enqueue_style( 'wpdevelop-bts', wpbc_plugin_url( '/vendors/_custom/bootstrap-css/css/bootstrap.css' ), array(), WP_BK_VERSION_NUM );                                                                     // FixIn: 9.8.1.
+	}
+	if ( ! wp_style_is( 'wpdevelop-bts-theme', 'enqueued' ) && ! wp_style_is( 'wpdevelop-bts-theme', 'done' ) ) {
+		wp_enqueue_style( 'wpdevelop-bts-theme', wpbc_plugin_url( '/vendors/_custom/bootstrap-css/css/bootstrap-theme.css' ), array(), WP_BK_VERSION_NUM );                                                         // FixIn: 9.8.1.
+	}
+
+	wp_enqueue_style( 'wpbc-admin-modal-popups', wpbc_plugin_url( '/css/modal.css' ), array(), WP_BK_VERSION_NUM );
 }
 
 

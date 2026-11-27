@@ -3,7 +3,7 @@
 /**
  * Class Tribe__Events__REST__V1__Endpoints__Single_Organizer
  *
- * @since bucket/full-rest-api
+ * @since 4.9.4
  */
 class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	extends Tribe__Events__REST__V1__Endpoints__Linked_Post_Base
@@ -17,19 +17,34 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return WP_Error|WP_REST_Response An array containing the data on success or a WP_Error instance on failure.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
+	 * @since 6.15.3 Added password protection check.
 	 */
 	public function get( WP_REST_Request $request ) {
 		$organizer = get_post( $request['id'] );
 
 		$cap = get_post_type_object( Tribe__Events__Main::VENUE_POST_TYPE )->cap->read_post;
+
 		if ( ! ( 'publish' === $organizer->post_status || current_user_can( $cap, $request['id'] ) ) ) {
 			$message = $this->messages->get_message( 'organizer-not-accessible' );
 
 			return new WP_Error( 'organizer-not-accessible', $message, [ 'status' => 403 ] );
 		}
 
+		$rest_controller = new WP_REST_Posts_Controller( Tribe__Events__Main::ORGANIZER_POST_TYPE );
+
+		$filter_added = false;
+
+		if ( post_password_required( $organizer ) && $rest_controller->can_access_password_content( $organizer, $request ) ) {
+			add_filter( 'post_password_required', '__return_false' );
+			$filter_added = true;
+		}
+
 		$data = $this->post_repository->get_organizer_data( $request['id'], 'single' );
+
+		if ( $filter_added ) {
+			remove_filter( 'post_password_required', '__return_false' );
+		}
 
 		return is_wp_error( $data ) ? $data : new WP_REST_Response( $data );
 	}
@@ -42,7 +57,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return WP_Error|WP_REST_Response|int An array containing the data on success or a WP_Error instance on failure.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	public function create( WP_REST_Request $request, $return_id = false ) {
 		$postarr = $this->prepare_postarr( $request );
@@ -85,7 +100,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 * @return false|array|WP_Error `false` if the linked post data is empty, the linked post ID (in an array as requested by the
 	 *                              linked posts engine) or a `WP_Error` if the linked post insertion failed.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	public function insert( $data ) {
 		$data = (array) $data;
@@ -109,14 +124,14 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * While the structure must conform to that used by v2.0 of Swagger the structure can be that of a full document
 	 * or that of a document part.
-	 * The intelligence lies in the "gatherer" of informations rather than in the single "providers" implementing this
+	 * The intelligence lies in the "gatherer" of information rather than in the single "providers" implementing this
 	 * interface.
 	 *
 	 * @link  http://swagger.io/
 	 *
 	 * @return array An array description of a Swagger supported component.
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	public function get_documentation() {
 		$get_defaults  = $delete_defaults = [ 'in' => 'query', 'default' => '', 'type' => 'string' ];
@@ -183,16 +198,16 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 						],
 					],
 					'400' => [
-						'description' => __( 'The organizer post ID is missing or does not exist.', 'the-venues-calendar' ),
+						'description' => __( 'The organizer post ID is missing or does not exist.', 'the-events-calendar' ),
 					],
 					'403' => [
-						'description' => __( 'The current user cannot delete the organizer with the specified ID.', 'the-venues-calendar' ),
+						'description' => __( 'The current user cannot delete the organizer with the specified ID.', 'the-events-calendar' ),
 					],
 					'410' => [
-						'description' => __( 'The organizer with the specified ID has been deleted already.', 'the-venues-calendar' ),
+						'description' => __( 'The organizer with the specified ID has been deleted already.', 'the-events-calendar' ),
 					],
 					'500' => [
-						'description' => __( 'The organizer with the specified ID could not be deleted.', 'the-venues-calendar' ),
+						'description' => __( 'The organizer with the specified ID could not be deleted.', 'the-events-calendar' ),
 					],
 				],
 			],
@@ -205,7 +220,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return array
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	public function READ_args() {
 		return [
@@ -225,7 +240,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return array
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	public function CREATE_args() {
 		return [
@@ -318,9 +333,12 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	/**
 	 * Prepares an array with the or data from the specified request.
 	 *
-	 * @param WP_REST_Request $request
+	 * @since 4.6
+	 * @since 6.18.4.1 Checked the requested status against the organizer post type's capabilities.
 	 *
-	 * @return array
+	 * @param WP_REST_Request $request The create or update request.
+	 *
+	 * @return array The organizer data to save.
 	 */
 	public function prepare_postarr( WP_REST_Request $request ) {
 		$post_date = isset( $request['date'] )
@@ -330,10 +348,15 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 			? Tribe__Timezones::localize_date( 'Y-m-d H:i:s', $request['date_utc'], 'UTC' )
 			: false;
 
-		$post_status = $this->scale_back_post_status( $request['status'], Tribe__Events__Main::POSTTYPE );
+		/*
+		 * Only an update route carries the ID in its URL. On create, `id` can still arrive in the body,
+		 * and must not be used to pick up another post's status.
+		 */
+		$post_id     = isset( $request->get_url_params()['id'] ) ? $request['id'] : null;
+		$post_status = $this->scale_back_post_status_for( $request['status'], Tribe__Events__Main::ORGANIZER_POST_TYPE, $post_id );
 		$postarr = [
 			$this->get_id_index() => $request['id'],
-			'post_author'         => $request['author'],
+			'post_author'         => $this->scale_back_author( $request['author'], Tribe__Events__Main::ORGANIZER_POST_TYPE ),
 			'post_date'           => $post_date,
 			'post_date_gmt'       => $post_date_gmt,
 			'post_status'         => $post_status,
@@ -365,7 +388,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return string
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	protected function get_post_type() {
 		return Tribe__Events__Main::ORGANIZER_POST_TYPE;
@@ -378,7 +401,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 *
 	 * @return bool
 	 *
-	 * @since bucket/full-rest-api
+	 * @since 4.9.4
 	 */
 	protected function is_post_type( $data ) {
 		return tribe_is_organizer( $data );
@@ -443,13 +466,20 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 * Whether the current user can delete posts of the type managed by the endpoint or not.
 	 *
 	 * @since 4.6
+	 * @since 6.15.16.1 Added more logic to check if the user can delete the organizer.
+	 *
+	 * @param WP_REST_Request $request The request object.
 	 *
 	 * @return bool
 	 */
-	public function can_delete() {
-		$cap = get_post_type_object( Tribe__Events__Main::ORGANIZER_POST_TYPE )->cap->delete_posts;
+	public function can_delete( ?WP_REST_Request $request = null ) {
+		$id = $request['id'] ?? null;
 
-		return current_user_can( $cap );
+		if ( ! $id ) {
+			return current_user_can( get_post_type_object( Tribe__Events__Main::ORGANIZER_POST_TYPE )->cap->delete_posts );
+		}
+
+		return current_user_can( get_post_type_object( Tribe__Events__Main::ORGANIZER_POST_TYPE )->cap->delete_post, $id );
 	}
 
 	/**
@@ -497,10 +527,19 @@ class Tribe__Events__REST__V1__Endpoints__Single_Organizer
 	 * Whether the current user can update content of this type or not.
 	 *
 	 * @since 4.6
+	 * @since 6.15.16.1 Added more logic to check if the user can edit the organizer.
+	 *
+	 * @param WP_REST_Request $request The request object.
 	 *
 	 * @return bool Whether the current user can update or not.
 	 */
-	public function can_edit() {
-		return $this->can_create();
+	public function can_edit( ?WP_REST_Request $request = null ) {
+		$id = $request['id'] ?? null;
+
+		if ( ! $id ) {
+			return current_user_can( get_post_type_object( Tribe__Events__Main::ORGANIZER_POST_TYPE )->cap->edit_posts );
+		}
+
+		return current_user_can( get_post_type_object( Tribe__Events__Main::ORGANIZER_POST_TYPE )->cap->edit_post, $id );
 	}
 }

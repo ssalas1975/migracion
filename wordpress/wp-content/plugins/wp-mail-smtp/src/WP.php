@@ -2,12 +2,18 @@
 
 namespace WPMailSMTP;
 
+use WPMailSMTP\Admin\DebugEvents\DebugEvents;
+use WPMailSMTP\Deprecated\WP as DeprecatedMethods;
+use WPMailSMTP\Helpers\Helpers;
+
 /**
  * Class WP provides WordPress shortcuts.
  *
  * @since 1.0.0
  */
 class WP {
+
+	use DeprecatedMethods;
 
 	/**
 	 * The "queue" of notices.
@@ -16,7 +22,8 @@ class WP {
 	 *
 	 * @var array
 	 */
-	protected static $admin_notices = array();
+	protected static $admin_notices = [];
+
 	/**
 	 * CSS class for a success notice.
 	 *
@@ -25,6 +32,7 @@ class WP {
 	 * @var string
 	 */
 	const ADMIN_NOTICE_SUCCESS = 'notice-success';
+
 	/**
 	 * CSS class for an error notice.
 	 *
@@ -33,6 +41,7 @@ class WP {
 	 * @var string
 	 */
 	const ADMIN_NOTICE_ERROR = 'notice-error';
+
 	/**
 	 * CSS class for an info notice.
 	 *
@@ -41,6 +50,7 @@ class WP {
 	 * @var string
 	 */
 	const ADMIN_NOTICE_INFO = 'notice-info';
+
 	/**
 	 * CSS class for a warning notice.
 	 *
@@ -49,6 +59,15 @@ class WP {
 	 * @var string
 	 */
 	const ADMIN_NOTICE_WARNING = 'notice-warning';
+
+	/**
+	 * Cross-platform line break.
+	 *
+	 * @since 3.4.0
+	 *
+	 * @var string
+	 */
+	const EOL = "\r\n";
 
 	/**
 	 * True if WP is processing an AJAX call.
@@ -64,6 +83,22 @@ class WP {
 		}
 
 		return ( defined( 'DOING_AJAX' ) && DOING_AJAX );
+	}
+
+	/**
+	 * True if WP is serving a REST API request.
+	 *
+	 * @since 4.10.0
+	 *
+	 * @return bool
+	 */
+	public static function is_doing_rest_request() {
+
+		if ( function_exists( 'wp_is_serving_rest_request' ) ) {
+			return wp_is_serving_rest_request();
+		}
+
+		return ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 	}
 
 	/**
@@ -87,14 +122,86 @@ class WP {
 	 * @param string $message        Message text (HTML is OK).
 	 * @param string $class          Display class (severity).
 	 * @param bool   $is_dismissible Whether the message should be dismissible.
+	 * @param string $key            Unique key for the notice. If defined, dismissible notice will be dismissed permanently.
 	 */
-	public static function add_admin_notice( $message, $class = self::ADMIN_NOTICE_INFO, $is_dismissible = true ) {
+	public static function add_admin_notice( $message, $class = self::ADMIN_NOTICE_INFO, $is_dismissible = true, $key = '', $error_code = '' ) {
 
-		self::$admin_notices[] = array(
+		self::$admin_notices[] = [
 			'message'        => $message,
 			'class'          => $class,
 			'is_dismissible' => (bool) $is_dismissible,
+			'key'            => sanitize_key( $key ),
+			'error_code'     => $error_code,
+		];
+	}
+
+	/**
+	 * Add an admin notice and append the DebugEvent referenced by `?debug_event_id=` in
+	 * the current request URL (if any) on a new line below the notice copy.
+	 *
+	 * Use this from redirect-based flows where the upstream request constructed a URL
+	 * like `?error=foo&debug_event_id=42` to carry the underlying technical detail to
+	 * the landing page. The opt-in form (rather than auto-detection in add_admin_notice)
+	 * prevents the detail from attaching to unrelated notices that happen to render on
+	 * the same page.
+	 *
+	 * Signature mirrors add_admin_notice.
+	 *
+	 * @since 4.9.0
+	 *
+	 * @param string $message        Message text (HTML is OK).
+	 * @param string $class          Display class (severity).
+	 * @param bool   $is_dismissible Whether the message should be dismissible.
+	 * @param string $key            Unique key for the notice.
+	 * @param string $error_code     Optional error code displayed next to the notice.
+	 */
+	public static function add_admin_notice_with_debug( $message, $class = self::ADMIN_NOTICE_INFO, $is_dismissible = true, $key = '', $error_code = '' ) {
+
+		self::add_admin_notice(
+			$message . self::get_debug_event_detail_html(),
+			$class,
+			$is_dismissible,
+			$key,
+			$error_code
 		);
+	}
+
+	/**
+	 * Render the inline HTML for a debug event referenced by the current request URL.
+	 *
+	 * Cached per request — the DebugEvents lookup runs at most once. Returns an empty
+	 * string when no `debug_event_id` is present in the URL or the event cannot be
+	 * resolved.
+	 *
+	 * @since 4.9.0
+	 *
+	 * @return string
+	 */
+	private static function get_debug_event_detail_html() {
+
+		static $cache = [];
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$event_id = isset( $_GET['debug_event_id'] ) ? absint( wp_unslash( $_GET['debug_event_id'] ) ) : 0;
+
+		if ( isset( $cache[ $event_id ] ) ) {
+			return $cache[ $event_id ];
+		}
+
+		$cache[ $event_id ] = '';
+
+		if ( $event_id <= 0 ) {
+			return $cache[ $event_id ];
+		}
+
+		$details = DebugEvents::get_debug_messages( $event_id );
+		$detail  = is_array( $details ) ? reset( $details ) : '';
+
+		if ( ! empty( $detail ) ) {
+			$cache[ $event_id ] = '<code class="wp-mail-smtp-notice__debug-detail">' . esc_html( $detail ) . '</code>';
+		}
+
+		return $cache[ $event_id ];
 	}
 
 	/**
@@ -105,18 +212,58 @@ class WP {
 	 */
 	public static function display_admin_notices() {
 
+		$has_notices = false;
+
 		foreach ( (array) self::$admin_notices as $notice ) :
-			$dismissible = $notice['is_dismissible'] ? 'is-dismissible' : '';
+			$is_dismissible = $notice['is_dismissible'];
+			$dismissible    = $is_dismissible ? 'is-dismissible' : '';
+
+			if (
+				$is_dismissible &&
+				! empty( $notice['key'] ) &&
+				(bool) get_user_meta( get_current_user_id(), "wp_mail_smtp_notice_{$notice['key']}_dismissed", true )
+			) {
+				continue;
+			}
+
+			$has_notices = true;
 			?>
 
-			<div class="notice wp-mail-smtp-notice <?php echo esc_attr( $notice['class'] ); ?> notice <?php echo esc_attr( $dismissible ); ?>">
+			<div class="notice wp-mail-smtp-notice <?php echo esc_attr( $notice['class'] ); ?> <?php echo esc_attr( $dismissible ); ?>" <?php echo ! empty( $notice['key'] ) ? 'data-notice="' . esc_attr( $notice['key'] ) . '"' : ''; ?>>
 				<p>
 					<?php echo wp_kses_post( $notice['message'] ); ?>
 				</p>
+				<?php if ( ! empty( $notice['error_code'] ) ) : ?>
+					<div class="wp-mail-smtp-notice__error-code">
+						<code><?php echo esc_html( $notice['error_code'] ); ?></code>
+						<button type="button" class="wp-mail-smtp-notice__copy-btn" title="<?php esc_attr_e( 'Copy error code', 'wp-mail-smtp' ); ?>">
+							<svg class="wp-mail-smtp-notice__icon-copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM266 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h74v224c0 26.51 21.49 48 48 48h96v42a6 6 0 0 1-6 6zm128-96H182a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h106v88c0 13.255 10.745 24 24 24h88v202a6 6 0 0 1-6 6zm6-256h-64V48h9.632c1.591 0 3.117.632 4.243 1.757l48.368 48.368a6 6 0 0 1 1.757 4.243V112z"/></svg>
+							<svg class="wp-mail-smtp-notice__icon-check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="display:none;"><path fill="#00A32A" d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+						</button>
+					</div>
+				<?php endif; ?>
 			</div>
 
 			<?php
 		endforeach;
+
+		if ( $has_notices ) {
+			wp_enqueue_script(
+				'wp-mail-smtp-admin-notices',
+				wp_mail_smtp()->assets_url . '/js/smtp-admin-notices' . self::asset_min() . '.js',
+				[ 'jquery' ],
+				WPMS_PLUGIN_VER,
+				true
+			);
+
+			wp_localize_script(
+				'wp-mail-smtp-admin-notices',
+				'wp_mail_smtp_admin_notices',
+				[
+					'nonce' => wp_create_nonce( 'wp-mail-smtp-admin' ),
+				]
+			);
+		}
 	}
 
 	/**
@@ -145,8 +292,8 @@ class WP {
 	}
 
 	/**
-	 * Get the postfix for assets files - ".min" or empty.
-	 * ".min" if in production mode.
+	 * Get the postfix for JS asset files - ".min" or empty, ".min" in production mode.
+	 * Unminified CSS is not shipped, so stylesheet URLs point at ".min.css" directly.
 	 *
 	 * @since 1.0.0
 	 *
@@ -287,22 +434,74 @@ class WP {
 	}
 
 	/**
-	 * Check if the global plugin option in a multisite should be used.
-	 * If the global plugin option "multisite" is set and true.
+	 * Whether this request is being served for the network admin.
 	 *
-	 * @since 2.2.0
+	 * @since 4.10.0
 	 *
 	 * @return bool
 	 */
-	public static function use_global_plugin_settings() {
+	public static function is_network_admin_scope() {
 
 		if ( ! is_multisite() ) {
 			return false;
 		}
 
-		$main_site_options = get_blog_option( get_main_site_id(), Options::META_KEY, [] );
+		if ( is_network_admin() ) {
+			return true;
+		}
 
-		return ! empty( $main_site_options['general']['network_wide'] );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Names the admin the request came from; every caller verifies its own nonce.
+		return self::is_doing_self_ajax() && ! empty( $_REQUEST['network_admin'] );
+	}
+
+	/**
+	 * Whether the site is a local installation.
+	 *
+	 * @since 4.10.0
+	 *
+	 * @return bool
+	 */
+	public static function is_local_environment() {
+
+		$is_local_environment = false;
+
+		if ( function_exists( 'wp_get_environment_type' ) ) {
+			$is_local_environment = in_array(
+				wp_get_environment_type(),
+				[
+					'local',
+					'development',
+				],
+				true
+			);
+		}
+
+		// Matched on the host's trailing label rather than anywhere in the URL, so a
+		// public name that merely contains one of these does not read as local.
+		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+
+		foreach ( [ '.local', '.localhost', '.test' ] as $suffix ) {
+			if ( substr( $host, - strlen( $suffix ) ) === $suffix ) {
+				$is_local_environment = true;
+			}
+		}
+
+		$server_address = isset( $_SERVER['SERVER_ADDR'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['SERVER_ADDR'] ) )
+			: '';
+
+		if ( in_array( $server_address, [ '127.0.0.1', '::1', '0.0.0.0' ], true ) ) {
+			$is_local_environment = true;
+		}
+
+		/**
+		 * Whether the site is a local installation.
+		 *
+		 * @since 4.10.0
+		 *
+		 * @param bool $is_local_environment Whether the environment is local.
+		 */
+		return (bool) apply_filters( 'wp_mail_smtp_wp_is_local_environment', $is_local_environment );
 	}
 
 	/**
@@ -330,8 +529,8 @@ class WP {
 			$locale['']['plural_forms'] = $translations->headers['Plural-Forms'];
 		}
 
-		foreach ( $translations->entries as $msgid => $entry ) {
-			$locale[ $msgid ] = $entry->translations;
+		foreach ( $translations->entries as $entry ) {
+			$locale[ $entry->singular ] = $entry->translations;
 		}
 
 		return $locale;
@@ -502,7 +701,21 @@ class WP {
 	 */
 	public static function get_initiator_name( $file_path ) {
 
-		$cache_key = 'wp_mail_smtp_initiators';
+		return self::get_initiator( $file_path )['name'];
+	}
+
+	/**
+	 * Get the info of the plugin/theme/wp-core function.
+	 *
+	 * @since 3.5.0
+	 *
+	 * @param string $file_path The absolute path of the function location.
+	 *
+	 * @return array
+	 */
+	public static function get_initiator( $file_path ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
+
+		$cache_key = 'wp_mail_smtp_initiators_data';
 
 		// Mainly we have several initiators and we can cache them for better performance.
 		$initiators_cache = get_transient( $cache_key );
@@ -512,41 +725,56 @@ class WP {
 			return $initiators_cache[ $file_path ];
 		}
 
-		$name = self::get_initiator_plugin( $file_path );
+		$initiator = self::get_initiator_plugin( $file_path );
 
-		if ( empty( $name ) ) {
-			$name = self::get_initiator_plugin( $file_path, true );
+		// Change the initiator name if the email was sent from the reloaded method in the email controls.
+		if (
+			! empty( $initiator ) &&
+			strpos( str_replace( '\\', '/', $file_path ), 'src/Pro/Emails/Control/Reload.php' )
+		) {
+			$initiator['name'] = sprintf( /* translators: %s - plugin name. */
+				esc_html__( 'WP Core (%s)', 'wp-mail-smtp' ),
+				$initiator['name']
+			);
 		}
 
-		if ( empty( $name ) ) {
-			$name = self::get_initiator_theme( $file_path );
+		if ( empty( $initiator ) ) {
+			$initiator = self::get_initiator_plugin( $file_path, true );
 		}
 
-		if ( empty( $name ) ) {
-			$name = self::get_initiator_wp_core( $file_path );
+		if ( empty( $initiator ) ) {
+			$initiator = self::get_initiator_theme( $file_path );
 		}
 
-		if ( empty( $name ) ) {
-			$name = esc_html__( 'N/A', 'wp-mail-smtp' );
+		if ( empty( $initiator ) ) {
+			$initiator = self::get_initiator_wp_core( $file_path );
 		}
 
-		$initiators_cache[ $file_path ] = $name;
+		if ( empty( $initiator ) ) {
+			$initiator         = [];
+			$initiator['name'] = esc_html__( 'N/A', 'wp-mail-smtp' );
+			$initiator['slug'] = '';
+			$initiator['type'] = 'unknown';
+		}
+
+		$initiators_cache[ $file_path ] = $initiator;
+
 		set_transient( $cache_key, $initiators_cache, HOUR_IN_SECONDS );
 
-		return $name;
+		return $initiator;
 	}
 
 	/**
-	 * Get the initiator's name, if it's a plugin (or mu plugin).
+	 * Get the initiator's data, if it's a plugin (or mu plugin).
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param string $file_path       The absolute path of a file.
 	 * @param bool   $check_mu_plugin Whether to check for mu plugins or not.
 	 *
-	 * @return false|string
+	 * @return false|array
 	 */
-	private static function get_initiator_plugin( $file_path, $check_mu_plugin = false ) {
+	private static function get_initiator_plugin( $file_path, $check_mu_plugin = false ) { // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh, Generic.Metrics.CyclomaticComplexity.MaxExceeded
 
 		$constant = empty( $check_mu_plugin ) ? 'WP_PLUGIN_DIR' : 'WPMU_PLUGIN_DIR';
 
@@ -561,7 +789,7 @@ class WP {
 
 		if ( ! empty( $result[1] ) ) {
 			if ( ! function_exists( 'get_plugins' ) ) {
-				include ABSPATH . '/wp-admin/includes/plugin.php';
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
 			$all_plugins = empty( $check_mu_plugin ) ? get_plugins() : get_mu_plugins();
@@ -572,24 +800,32 @@ class WP {
 					1 === preg_match( "/^$plugin_slug(\/|\.php)/", $plugin ) &&
 					isset( $plugin_data['Name'] )
 				) {
-					return $plugin_data['Name'];
+					return [
+						'name' => $plugin_data['Name'],
+						'slug' => $plugin,
+						'type' => $check_mu_plugin ? 'mu-plugin' : 'plugin',
+					];
 				}
 			}
 
-			return $result[1];
+			return [
+				'name' => $result[1],
+				'slug' => '',
+				'type' => $check_mu_plugin ? 'mu-plugin' : 'plugin',
+			];
 		}
 
 		return false;
 	}
 
 	/**
-	 * Get the initiator's name, if it's a theme.
+	 * Get the initiator's data, if it's a theme.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param string $file_path The absolute path of a file.
 	 *
-	 * @return false|string
+	 * @return false|array
 	 */
 	private static function get_initiator_theme( $file_path ) {
 
@@ -605,11 +841,11 @@ class WP {
 		if ( ! empty( $result[1] ) ) {
 			$theme = wp_get_theme( $result[1] );
 
-			if ( method_exists( $theme, 'get' ) ) {
-				return $theme->get( 'Name' );
-			}
-
-			return $result[1];
+			return [
+				'name' => method_exists( $theme, 'get' ) ? $theme->get( 'Name' ) : $result[1],
+				'slug' => $result[1],
+				'type' => 'theme',
+			];
 		}
 
 		return false;
@@ -622,7 +858,7 @@ class WP {
 	 *
 	 * @param string $file_path The absolute path of a file.
 	 *
-	 * @return false|string
+	 * @return false|array
 	 */
 	private static function get_initiator_wp_core( $file_path ) {
 
@@ -637,7 +873,11 @@ class WP {
 			strpos( $file_path, $wp_includes ) === 0 ||
 			strpos( $file_path, $wp_admin ) === 0
 		) {
-			return esc_html__( 'WP Core', 'wp-mail-smtp' );
+			return [
+				'name' => esc_html__( 'WP Core', 'wp-mail-smtp' ),
+				'slug' => 'wp-core',
+				'type' => 'wp-core',
+			];
 		}
 
 		return false;
@@ -699,5 +939,121 @@ class WP {
 		$tz_offset = sprintf( '%s%02d:%02d', $sign, $abs_hour, $abs_mins );
 
 		return $tz_offset;
+	}
+
+	/**
+	 * Get wp remote response error message.
+	 *
+	 * @since 3.4.0
+	 *
+	 * @param array $response Response array.
+	 */
+	public static function wp_remote_get_response_error_message( $response ) {
+
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$body        = wp_remote_retrieve_body( $response );
+		$message     = wp_remote_retrieve_response_message( $response );
+		$code        = wp_remote_retrieve_response_code( $response );
+		$description = '';
+
+		if ( ! empty( $body ) ) {
+			$description = is_string( $body ) ? $body : wp_json_encode( $body );
+		}
+
+		return Helpers::format_error_message( $message, $code, $description );
+	}
+
+	/**
+	 * Clean variables using sanitize_text_field. Arrays are cleaned recursively.
+	 * Non-string values are ignored.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param string|array $var Data to sanitize.
+	 *
+	 * @return string|array
+	 */
+	public static function sanitize_text( $var ) {
+
+		if ( is_array( $var ) ) {
+			return array_map( [ __CLASS__, 'sanitize_text' ], $var );
+		} else {
+			return is_string( $var ) ? sanitize_text_field( $var ) : $var;
+		}
+	}
+
+	/**
+	 * The site whose URL identifies this install, null for the current site.
+	 *
+	 * @since 4.10.5
+	 *
+	 * @return int|null
+	 */
+	public static function get_site_url_blog_id() {
+
+		/**
+		 * Filters the site whose URL identifies this install.
+		 *
+		 * @since 4.10.5
+		 *
+		 * @param int|null $blog_id Site ID, null for the current site.
+		 */
+		return apply_filters( 'wp_mail_smtp_wp_get_site_url_blog_id', null );
+	}
+
+	/**
+	 * Get the URL of the site that identifies this install: the current site, unless filtered.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string
+	 */
+	public static function get_site_url() {
+
+		$site_id = self::get_site_url_blog_id();
+
+		/**
+		 * Whether to return the unfiltered site URL.
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param bool $unfiltered Whether to return the unfiltered site URL.
+		 *
+		 * @return bool
+		 */
+		if ( apply_filters( 'wp_mail_smtp_wp_get_site_url_unfiltered', false ) ) {
+			return self::get_raw_site_url( $site_id );
+		}
+
+		return get_site_url( $site_id );
+	}
+
+	/**
+	 * Get the raw/unfiltered site URL.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param int $site_id The site ID.
+	 *
+	 * @return string
+	 */
+	private static function get_raw_site_url( $site_id ) {
+
+		if ( empty( $site_id ) || ! is_multisite() ) {
+			$url = get_option( 'siteurl' );
+		} else {
+			switch_to_blog( $site_id );
+
+			$url = get_option( 'siteurl' );
+
+			restore_current_blog();
+		}
+
+		$url = set_url_scheme( $url );
+
+		return $url;
 	}
 }

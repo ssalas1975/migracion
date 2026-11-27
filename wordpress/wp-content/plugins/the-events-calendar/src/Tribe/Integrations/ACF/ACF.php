@@ -26,30 +26,33 @@ class Tribe__Events__Integrations__ACF__ACF {
 	}
 
 	/**
-	 * Hooks the filters and actions neede for this integration to work.
+	 * Hooks the filters and actions needed for this integration to work.
 	 *
 	 * @since 4.6.3
 	 */
 	public function hook() {
-		add_action( 'admin_enqueue_scripts', [ $this, 'load_compat_js' ] );
+		// Register the ACF compatibility script with conditional loading.
+		tec_asset(
+			Tribe__Events__Main::instance(),
+			'tribe-admin-acf-compat',
+			'tribe-admin-acf-compat.js',
+			[ 'jquery' ],
+			'admin_enqueue_scripts',
+			[
+				'conditionals' => [ $this, 'should_enqueue_acf_compat' ],
+			]
+		);
 	}
 
 	/**
-	 * Load our compatability JS script to supplement the events-admin.js script.
+	 * Determines if the ACF compatibility script should be enqueued.
 	 *
 	 * @since 4.6.3
+	 *
+	 * @return bool Whether the script should be enqueued.
 	 */
-	public function load_compat_js() {
+	public function should_enqueue_acf_compat() {
 		$admin_helpers = Tribe__Admin__Helpers::instance();
-
-		if ( $admin_helpers->is_post_type_screen() ) {
-			wp_enqueue_script(
-				'tribe-admin-acf-compat',
-				plugin_dir_url( __FILE__ ) . 'resources/tribe-admin-acf-compat.js',
-				[ 'jquery' ],
-				'1.0.0',
-				true
-			);
-		}
+		return $admin_helpers->is_post_type_screen();
 	}
 }

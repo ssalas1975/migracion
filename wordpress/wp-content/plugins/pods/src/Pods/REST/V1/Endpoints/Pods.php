@@ -2,14 +2,18 @@
 
 namespace Pods\REST\V1\Endpoints;
 
-use PodsForm;
-use Tribe__Documentation__Swagger__Provider_Interface as Swagger_Interface;
-use Tribe__REST__Endpoints__CREATE_Endpoint_Interface as CREATE_Interface;
-use Tribe__REST__Endpoints__READ_Endpoint_Interface as READ_Interface;
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\REST\Interfaces\Endpoints\CREATE_Interface;
+use Pods\REST\Interfaces\Endpoints\READ_Interface;
+use Pods\REST\Interfaces\Swagger\Provider_Interface;
 use WP_Error;
 use WP_REST_Request;
 
-class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Interface {
+class Pods extends Base implements READ_Interface, CREATE_Interface, Provider_Interface {
 
 	/**
 	 * {@inheritdoc}
@@ -34,16 +38,22 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 		$GET_defaults = [
 			'in'      => 'query',
 			'default' => '',
+			'type'    => 'string',
 		];
 
-		// @todo Handle get/post
+		$POST_defaults = [
+			'in'      => 'body',
+			'default' => '',
+			'type'    => 'string',
+		];
 
 		return [
-			'get' => [
+			'get'  => [
+				'summary'    => 'Retrieve a collection of Pods',
 				'parameters' => $this->swaggerize_args( $this->READ_args(), $GET_defaults ),
 				'responses'  => [
 					'200' => [
-						'description' => __( 'Returns all the tickets matching the search criteria.', 'pods' ),
+						'description' => 'Returns a collection of Pods matching the request',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
@@ -54,6 +64,72 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 											'items' => [ '$ref' => '#/components/schemas/Pod' ],
 										],
 									],
+								],
+							],
+						],
+					],
+					'400' => [
+						'description' => 'The request was invalid or cannot be otherwise served',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to access Pods',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+				],
+			],
+			'post' => [
+				'summary'    => 'Create a new Pod',
+				'parameters' => $this->swaggerize_args( $this->CREATE_args(), $POST_defaults ),
+				'responses'  => [
+					'201' => [
+						'description' => 'Returns the newly created Pod',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'$ref' => '#/components/schemas/Pod',
+								],
+							],
+						],
+					],
+					'400' => [
+						'description' => 'The request was invalid or cannot be otherwise served',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to create Pods',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'403' => [
+						'description' => 'Forbidden - creation of this Pod is not allowed',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
 								],
 							],
 						],
@@ -155,7 +231,7 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 			'type'           => [
 				'type'        => 'string',
 				'description' => __( 'The type of the Pod.', 'pods' ),
-				'enum'        => PodsForm::pod_types_list(),
+				'enum'        => array_keys( pods_api()->get_pod_types() ),
 				'required'    => true,
 			],
 			'storage'        => [
@@ -165,6 +241,7 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 				'enum'        => [
 					'meta',
 					'table',
+					'option',
 					'none',
 				],
 			],
@@ -238,7 +315,7 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 
 			if ( 'settings' === $params['create_pod_type'] ) {
 				$params['create_setting_name'] = $name;
-				$params['create_storage']      = 'none';
+				$params['create_storage']      = 'option';
 			} else {
 				$params['create_name'] = $name;
 			}
@@ -255,6 +332,7 @@ class Pods extends Base implements READ_Interface, CREATE_Interface, Swagger_Int
 		}
 
 		if ( empty( $id ) ) {
+			// translators: %s is the object type.
 			return new WP_Error( 'rest-object-not-added', sprintf( __( '%s not added.', 'pods' ), ucwords( $this->object ) ) );
 		}
 

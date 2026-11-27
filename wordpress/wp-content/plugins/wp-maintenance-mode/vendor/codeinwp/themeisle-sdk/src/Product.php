@@ -71,6 +71,12 @@ class Product {
 	 */
 	private $key;
 	/**
+	 * Author URL
+	 *
+	 * @var string $author_url The author url.
+	 */
+	private $author_url;
+	/**
 	 * Product store url.
 	 *
 	 * @var string $store_url The store url.
@@ -107,9 +113,16 @@ class Product {
 	 */
 	private $version;
 	/**
+	 * Holds a map of loaded products objects.
+	 *
+	 * @var array Array of loaded products.
+	 */
+	private static $cached_products = [];
+	/**
 	 * Root api endpoint.
 	 */
 	const API_URL = 'https://api.themeisle.com/';
+
 	/**
 	 * ThemeIsle_SDK_Product constructor.
 	 *
@@ -126,10 +139,50 @@ class Product {
 		$install = get_option( $this->get_key() . '_install', 0 );
 		if ( 0 === $install ) {
 			$install = time();
+			/**
+			 * Action to be triggered when the product is first activated.
+			 *
+			 * @param string $basefile The basefile of the product.
+			 */
+			do_action( 'themeisle_sdk_first_activation', $basefile );
+
 			update_option( $this->get_key() . '_install', time() );
 		}
-		$this->install = $install;
+		$this->install                               = (int) $install;
+		self::$cached_products[ crc32( $basefile ) ] = $this;
+		$current_version                             = get_option( $this->slug . '_version', '' );
 
+		if ( $current_version !== $this->version && wp_cache_add( "{$this->slug}_version_upgrade", true, '', HOUR_IN_SECONDS ) ) {
+			/**
+			 * Action to be triggered when the product is updated.
+			 *
+			 * @param string $current_version The current version of the product.
+			 * @param string $new_version The new version of the product.
+			 * @param string $basefile The basefile of the product.
+			 */
+			do_action( "themeisle_sdk_update_{$this->slug}", $current_version, $this->version, $basefile );
+
+			// Update the version of the product.
+			update_option( "{$this->slug}_version", $this->version );
+			wp_cache_delete( "{$this->slug}_version_upgrade" );
+		}
+	}
+
+	/**
+	 * Return a product.
+	 *
+	 * @param string $basefile Product basefile.
+	 *
+	 * @return Product Product Object.
+	 */
+	public static function get( $basefile ) {
+		$key = crc32( $basefile );
+		if ( isset( self::$cached_products[ $key ] ) ) {
+			return self::$cached_products[ $key ];
+		}
+		self::$cached_products[ $key ] = new Product( $basefile );
+
+		return self::$cached_products[ $key ];
 	}
 
 	/**
@@ -316,10 +369,29 @@ class Product {
 	 * @return string Friendly name.
 	 */
 	public function get_friendly_name() {
-		$name = apply_filters( $this->get_key() . '_friendly_name', trim( str_replace( 'Lite', '', $this->get_name() ) ) );
+		$name = trim( str_replace( 'Lite', '', $this->get_name() ) );
+		if ( defined( 'OTTER_BLOCKS_BASEFILE' ) && OTTER_BLOCKS_BASEFILE === $this->basefile ) {
+			$name = 'Otter Blocks';
+		}
+		if ( defined( 'OPTML_BASEFILE' ) && OPTML_BASEFILE === $this->basefile ) {
+			$name = 'Optimole';
+		}
+		if ( defined( 'WPMM_FILE' ) && WPMM_FILE === $this->basefile ) {
+			$name = 'LightStart';
+		}
+		$name = apply_filters( $this->get_key() . '_friendly_name', $name );
 		$name = rtrim( $name, '- ()' );
 
 		return $name;
+	}
+
+	/**
+	 * Return the product version cache key.
+	 *
+	 * @return string The product version cache key.
+	 */
+	public function get_cache_key() {
+		return $this->get_key() . '_' . preg_replace( '/[^0-9a-zA-Z ]/m', '', $this->get_version() ) . 'versions';
 	}
 
 	/**
@@ -373,6 +445,7 @@ class Product {
 			[
 				'name'       => rawurlencode( $this->get_name() ),
 				'edd_action' => 'view_changelog',
+				'locale'     => get_user_locale(),
 			],
 			$this->get_store_url()
 		);

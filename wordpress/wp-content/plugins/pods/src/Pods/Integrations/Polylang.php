@@ -2,6 +2,11 @@
 
 namespace Pods\Integrations;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\Integration;
 
 /**
@@ -11,12 +16,10 @@ use Pods\Integration;
  */
 class Polylang extends Integration {
 
-	/**
-	 * @inheritdoc
-	 */
 	protected $hooks = [
 		'action' => [
 			'pods_meta_init' => [ 'pods_meta_init' ],
+			'pods_form_ui_field_pick_related_objects_other' => [ 'pods_pick_field_add_related_objects' ],
 		],
 		'filter' => [
 			'pods_get_current_language' => [ 'pods_get_current_language', 10, 2 ],
@@ -30,9 +33,6 @@ class Polylang extends Integration {
 		],
 	];
 
-	/**
-	 * @inheritDoc
-	 */
 	public static function is_active() {
 		return function_exists( 'PLL' ) || ! empty( $GLOBALS['polylang'] );
 	}
@@ -100,6 +100,21 @@ class Polylang extends Integration {
 		$ignored_types['taxonomy']['term_translations'] = true;
 
 		return $ignored_types;
+	}
+
+	/**
+	 * Add the Polylang language taxonomy to be used in relationships.
+	 *
+	 * @since 2.8.21
+	 */
+	public function pods_pick_field_add_related_objects() {
+		$taxonomy = get_taxonomy( 'language' );
+
+		\PodsField_Pick::$related_objects[ 'taxonomy-language' ] = array(
+			'label'         => $taxonomy->label . ' (' . $taxonomy->name . ')',
+			'group'         => __( 'Polylang', 'pods' ),
+			'bidirectional' => false,
+		);
 	}
 
 	/**
@@ -384,11 +399,21 @@ class Polylang extends Integration {
 
 		// If the language object exists, add it!
 		if ( $language && ! empty( $language->term_id ) ) {
-			$lang_data['t_id']     = (int) $language->term_id;
-			$lang_data['tt_id']    = (int) $language->term_taxonomy_id;
-			$lang_data['tl_t_id']  = (int) $language->tl_term_id;
-			$lang_data['tl_tt_id'] = (int) $language->tl_term_taxonomy_id;
-			$lang_data['term']     = $language;
+
+			$lang_data['term'] = $language;
+			$lang_data['t_id'] = (int) $language->term_id;
+
+			if ( method_exists( $language, 'get_tax_prop' ) ) {
+				// Since Polylang 3.4
+				$lang_data['tt_id']    = (int) $language->get_tax_prop( 'language', 'term_taxonomy_id' );
+				$lang_data['tl_t_id']  = (int) $language->get_tax_prop( 'term_language', 'term_id' );
+				$lang_data['tl_tt_id'] = (int) $language->get_tax_prop( 'term_language', 'term_taxonomy_id' );
+			} else {
+				// Pre Polylang 3.4
+				$lang_data['tt_id']    = (int) $language->term_taxonomy_id;
+				$lang_data['tl_t_id']  = (int) $language->tl_term_id;
+				$lang_data['tl_tt_id'] = (int) $language->tl_term_taxonomy_id;
+			}
 		}
 
 		$lang_data[ $locale ] = $lang_data;

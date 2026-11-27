@@ -2,14 +2,20 @@
 /**
  * Plugin Name: The Events Calendar
  * Description: The Events Calendar is a carefully crafted, extensible plugin that lets you easily share your events. Beautiful. Solid. Awesome.
- * Version: 5.14.1
+ * Version: 6.18.5
+ * Requires at least: 6.9
+ * Requires PHP: 7.4
  * Author: The Events Calendar
  * Author URI: https://evnt.is/1x
  * Text Domain: the-events-calendar
+ * Domain Path: /lang
  * License: GPLv2 or later
+ * Elementor tested up to: 3.23.1
+ * Elementor Pro tested up to: 3.23.0
  *
  * @package TEC
  */
+
 
 /**
  * Copyright 2009-2021 by The Events Calendar and the contributors
@@ -30,6 +36,7 @@
  */
 define( 'TRIBE_EVENTS_FILE', __FILE__ );
 
+
 // Load the required php min version functions.
 require_once dirname( TRIBE_EVENTS_FILE ) . '/src/functions/php-min-version.php';
 
@@ -37,7 +44,7 @@ require_once dirname( TRIBE_EVENTS_FILE ) . '/src/functions/php-min-version.php'
 require_once dirname( TRIBE_EVENTS_FILE ) . '/vendor/autoload.php';
 
 /**
- * Verifies if we need to warn the user about min PHP version and bail to avoid fatals
+ * Verifies if we need to warn the user about min PHP version and bail to avoid fatals.
  */
 if ( tribe_is_not_min_php_version() ) {
 	tribe_not_php_version_textdomain( 'the-events-calendar', TRIBE_EVENTS_FILE );
@@ -53,14 +60,15 @@ if ( tribe_is_not_min_php_version() ) {
 	 */
 	function tribe_events_not_php_version_plugin_name( $names ) {
 		$names['the-events-calendar'] = esc_html__( 'The Events Calendar', 'the-events-calendar' );
+
 		return $names;
 	}
 
 	add_filter( 'tribe_not_php_version_names', 'tribe_events_not_php_version_plugin_name' );
-
 	if ( ! has_filter( 'admin_notices', 'tribe_not_php_version_notice' ) ) {
 		add_action( 'admin_notices', 'tribe_not_php_version_notice' );
 	}
+
 	return false;
 }
 
@@ -71,5 +79,6 @@ require_once dirname( TRIBE_EVENTS_FILE ) . '/src/Tribe/Main.php';
 
 Tribe__Events__Main::instance();
 
-register_activation_hook( TRIBE_EVENTS_FILE, array( 'Tribe__Events__Main', 'activate' ) );
-register_deactivation_hook( TRIBE_EVENTS_FILE, array( 'Tribe__Events__Main', 'deactivate' ) );
+register_activation_hook( TRIBE_EVENTS_FILE, [ 'Tribe__Events__Main', 'activate' ] );
+
+register_deactivation_hook( TRIBE_EVENTS_FILE, [ 'Tribe__Events__Main', 'deactivate' ] );

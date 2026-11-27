@@ -60,7 +60,6 @@
 				'dynamic' === _wpbc.calendar__get_param_value( resourceId, 'days_select_mode' )
 			) {
 				inst = ( typeof w.wpbc_calendar__get_inst === 'function' ) ? w.wpbc_calendar__get_inst( resourceId ) : null;
-				$( '.wpbc_select_check_out_date_message' ).remove();
 				if ( null !== inst && inst.stayOpen === true ) {
 					$( '.wpbc_free_date_hint' ).html( '...' );
 					return false;
@@ -144,9 +143,14 @@
 			w.wpbc_show_cost_hints_after_few_seconds( loadedResourceId );
 		} );
 
-		$( '.booking_form_div' ).on( 'date_selected', function ( event, resourceId ) {
-			w.wpbc_show_cost_hints_after_few_seconds( resourceId );
-		} );
+		// Resource Selector and other workflows can insert native forms after document readiness.
+		$( document ).on(
+			'date_selected.wpbc_free_date_hints',
+			'.booking_form_div',
+			function ( event, resourceId ) {
+				w.wpbc_show_cost_hints_after_few_seconds( resourceId );
+			}
+		);
 
 		$( document ).on( 'change', '.booking_form_div input, .booking_form_div select, .booking_form_div textarea', function () {
 			var form = $( this ).closest( 'form.booking_form' ),

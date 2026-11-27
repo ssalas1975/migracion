@@ -53,6 +53,7 @@ function wpbc_bs_button( $item ) {
                               , 'attr' => array()
                         ); 
     $item_params = wp_parse_args( $item, $default_item_params );
+	$action_link_target = wpbc_get_pseudo_action_target( $item_params['link'], $item_params['attr'] );
 
     ?><a  class="button <?php 
                               echo ( ! empty( $item_params['hint'] ) ) ? ' tooltip_' . esc_attr( $item_params['hint']['position'] ) . ' ' : '' ;
@@ -62,6 +63,9 @@ function wpbc_bs_button( $item ) {
                   title="<?php  echo esc_attr( $item_params['hint']['title'] ); ?>"
               <?php } ?>                 
               href="<?php echo esc_attr( $item_params['link'] ); ?>"
+		  <?php if ( '' !== $action_link_target ) { ?>
+			  target="<?php echo esc_attr( $action_link_target ); ?>"
+		  <?php } ?>
           <?php if ( ! empty( $item_params['action'] ) ) { ?>
               onclick="javascript:<?php
               // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -487,7 +491,7 @@ function wpbc_bs_dropdown( $item ) {
         }    
     }    
     
-    ?><a href="javascript:void(0)" 
+	?><a href="javascript:void(0)" target="_self"
          <?php if (! $is_this_simple_list ) { ?>
          onclick="javascript:jQuery('#<?php echo esc_js( $params['id'] ); ?>_container').show();"
          <?php } ?>
@@ -688,9 +692,9 @@ function wpbc_bs_list_of_options_for_dropdown( $params, $dropdown_type = 'simple
 
             } else {                             
                     ?><li role="presentation" <?php if ( in_array( $value,  $params['disabled'] ) === true ) { echo ' class="disabled"';  } ?> >
-                          <a  role="menuitem"
+						  <a  role="menuitem"
                               tabindex="-1"
-                              href="javascript:void(0)" 
+							  href="javascript:void(0)" target="_self"
                               <?php 
                                 if ( in_array( $value,  $params['disabled'] ) !== true ) { 
                                   
@@ -2019,12 +2023,20 @@ function wpbc_clear_div() {
 ////////////////////////////////////////////////////////////////////////////////
 /** Tooltips JavaScript functions */
 function wpbc_bs_javascript_tooltips() {
+	static $is_rendered = false;
+
+	if ( $is_rendered ) {
+		return;
+	}
+	$is_rendered = true;
     
     ?><span id="wpbc_tooltips_container"></span><?php
     // FixIn: 7.0.1.10.
     ?><script type="text/javascript">
 
 		function wpbc_define_tippy_tooltips( parent_class ){
+			// Keep tooltips above fixed navigation, inspectors, drawers, tours, and their backdrops.
+			var wpbc_admin_tooltip_z_index = 1000011;
 
 			if ( 'function' !== typeof( wpbc_tippy ) ){
 				console.log( 'WPBC Error. JavaScript library "wpbc_tippy" was not defined.' );
@@ -2055,42 +2067,56 @@ function wpbc_bs_javascript_tooltips() {
 			}
 
 			wpbc_tippy( parent_class + '.tooltip_top', {
+				appendTo( reference ){
+					return reference.ownerDocument.body;
+				},
 				content( reference ){
 					return wpbc_get_tippy_tooltip_title_text( reference );
 				},
 				placement: 'top-start',
+				zIndex: wpbc_admin_tooltip_z_index,
 			} );
 			wpbc_tippy( parent_class + '.tooltip_bottom', {
+				appendTo( reference ){
+					return reference.ownerDocument.body;
+				},
 				content( reference ){
 					return wpbc_get_tippy_tooltip_title_text( reference );
 				},
 				placement: 'bottom-start',
-			} );
-			wpbc_tippy( parent_class + '.tooltip_bottom', {
-				content( reference ){
-					return wpbc_get_tippy_tooltip_title_text( reference );
-				},
-				placement: 'bottom-start',
+				zIndex: wpbc_admin_tooltip_z_index,
 			} );
 			wpbc_tippy( parent_class + '.tooltip_right', {
+				appendTo( reference ){
+					return reference.ownerDocument.body;
+				},
 				content( reference ){
 					return wpbc_get_tippy_tooltip_title_text( reference );
 				},
 				placement: 'right',
+				zIndex: wpbc_admin_tooltip_z_index,
 			} );
 			// FixIn: 10.11.5.8.
 			wpbc_tippy( parent_class + '.tooltip_right_offset', {
+				appendTo( reference ){
+					return reference.ownerDocument.body;
+				},
 				content( reference ){
 					return wpbc_get_tippy_tooltip_title_text( reference );
 				},
 				offset: [0, 25],
 				placement: 'right',
+				zIndex: wpbc_admin_tooltip_z_index,
 			} );
 			wpbc_tippy( parent_class + '.tooltip_left', {
+				appendTo( reference ){
+					return reference.ownerDocument.body;
+				},
 				content( reference ){
 					return wpbc_get_tippy_tooltip_title_text( reference );
 				},
 				placement: 'left-start',
+				zIndex: wpbc_admin_tooltip_z_index,
 			} );
 
 			return true;

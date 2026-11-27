@@ -25,7 +25,7 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	 * {@inheritdoc}
 	 */
 	public function set_default_args( array $default_args ) {
-		return $this->decorated->set_default_args( $default_args );
+		$this->decorated->set_default_args( $default_args );
 	}
 
 	/**
@@ -94,8 +94,8 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	/**
 	 * {@inheritdoc}
 	 */
-	public function all() {
-		return $this->decorated->all();
+	public function all( $return_generator = false, int $batch_size = 50 ) {
+		return $this->decorated->all( $return_generator, $batch_size );
 	}
 
 	/**
@@ -212,6 +212,13 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function first_id(): ?int {
+		return $this->decorated->first_id();
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function last() {
@@ -268,35 +275,35 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	 * {@inheritdoc}
 	 */
 	public function save( $return_promise = true ) {
-		$this->decorated->save( $return_promise );
+		return $this->decorated->save( $return_promise );
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function set_formatter( Tribe__Repository__Formatter_Interface $formatter ) {
-		$this->decorated->set_formatter( $formatter );
+		return $this->decorated->set_formatter( $formatter );
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function join_clause( $join ) {
-		$this->decorated->join_clause( $join );
+		return $this->decorated->join_clause( $join );
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function where_clause( $where ) {
-		$this->decorated->where_clause( $where );
+		return $this->decorated->where_clause( $where );
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function set_query_builder( $query_builder ) {
-		$this->decorated->set_query_builder( $query_builder );
+		return $this->decorated->set_query_builder( $query_builder );
 	}
 
 	/**
@@ -357,6 +364,15 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	/**
 	 * {@inheritdoc}
 	 */
+	public function by_not_related_to( $by_meta_keys, $keys = null, $values = null ) {
+		$this->decorated->by_not_related_to( $by_meta_keys, $keys, $values );
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function has_filter( $key, $value = null ) {
 		return $this->decorated->has_filter( $key, $value );
 	}
@@ -371,8 +387,8 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_ids() {
-		return $this->decorated->get_ids();
+	public function get_ids( $return_generator = false, int $batch_size = 50 ) {
+		return $this->decorated->get_ids( $return_generator, $batch_size );
 	}
 
 	/**
@@ -463,7 +479,7 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	 * {@inheritdoc}
 	 */
 	public function filter_postarr_for_create( array $postarr ) {
-		return $this->decorated->filter_postarr_for_create( $postarr, $post_id );
+		return $this->decorated->filter_postarr_for_create( $postarr );
 	}
 
 	/**
@@ -565,15 +581,19 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @since 6.12.0 Made $query explicitly nullable.
 	 */
-	public function hash( array $settings = [], WP_Query $query = null ) {
+	public function hash( array $settings = [], ?WP_Query $query = null ) {
 		return $this->decorated->hash( $settings );
 	}
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @since 6.12.0 Made $query explicitly nullable.
 	 */
-	public function get_hash_data( array $settings, WP_Query $query = null ) {
+	public function get_hash_data( array $settings, ?WP_Query $query = null ) {
 		return $this->decorated->get_hash_data( $settings, $query );
 	}
 
@@ -682,6 +702,31 @@ abstract class Tribe__Repository__Decorator implements Tribe__Repository__Interf
 	 */
 	public function void_query( $void_query = true ) {
 		$this->decorated->void_query( $void_query );
+
+		return $this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_last_sql(): ?string {
+		return $this->decorated->get_last_sql();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_request_context(): ?string {
+		return $this->decorated->get_request_context();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @since 6.12.0 Made $context explicitly nullable.
+	 */
+	public function set_request_context( ?string $context = null ): self {
+		$this->decorated->set_request_context( $context );
 
 		return $this;
 	}

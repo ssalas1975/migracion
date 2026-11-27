@@ -1,32 +1,99 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * @package  Pods
  * @category Utilities
  */
 
 use Pods\Whatsit\Pod;
+use Pods\Pod_Manager;
 
 /**
  * Include and Init the Pods class
  *
+ * @since 2.0.0
+ *
  * @see   Pods
  *
- * @param string $type   The pod name
- * @param mixed  $id     (optional) The ID or slug, to load a single record; Provide array of $params to run 'find'
- * @param bool   $strict (optional) If set to true, return false instead of an object if the Pod doesn't exist
+ * @param string $type   The pod name, leave null to auto-detect from The Loop.
+ * @param mixed  $id     (optional) The ID or slug, to load a single record; Provide array of $params to run 'find';
+ *                       Or leave null to auto-detect from The Loop.
+ * @param bool   $strict (optional) If set to true, returns false instead of a Pods object, if the Pod itself doesn't
+ *                       exist. Note: If you want to check if the Pods Item itself doesn't exist, use exists().
  *
  * @return bool|\Pods returns false if $strict, WP_DEBUG, PODS_STRICT or (PODS_DEPRECATED && PODS_STRICT_MODE) are true
- * @since 2.0.0
+ *
  * @link  https://docs.pods.io/code/pods/
  */
 function pods( $type = null, $id = null, $strict = null ) {
-	$pod = new Pods( $type, $id );
+	$pod = new Pods( $type, $id, $strict );
 
 	if ( null === $strict ) {
 		$strict = pods_strict();
 	}
 
 	if ( true === $strict && null !== $type && ! $pod->valid() ) {
+		return false;
+	}
+
+	return $pod;
+}
+
+/**
+ * Include and Init the Pods class with support for reuse.
+ *
+ * @since 2.9.10
+ *
+ * @see   Pods
+ *
+ * @param string $type   The pod name, leave null to auto-detect from The Loop.
+ * @param mixed  $id     (optional) The ID or slug, to load a single record; Provide array of $params to run 'find';
+ *                       Or leave null to auto-detect from The Loop.
+ * @param bool   $strict (optional) If set to true, returns false instead of a Pods object, if the Pod itself doesn't
+ *                       exist. Note: If you want to check if the Pods Item itself doesn't exist, use exists().
+ *
+ * @return bool|\Pods|WP_Error returns false if $strict, WP_DEBUG, PODS_STRICT or (PODS_DEPRECATED && PODS_STRICT_MODE) are true
+ *
+ * @link  https://docs.pods.io/code/pods/
+ */
+function pods_get_instance( $type = null, $id = null, $strict = null ) {
+	if ( null === $strict ) {
+		$strict = pods_strict( false );
+	}
+
+	$manager = pods_container( Pod_Manager::class );
+
+	$args = [
+		'name' => $type,
+	];
+
+	if ( $strict ) {
+		$args['strict'] = $strict;
+	}
+
+	if ( null !== $id ) {
+		if ( is_array( $id ) ) {
+			$args['find'] = $id;
+		} else {
+			$args['id'] = $id;
+		}
+	}
+
+	$pod = $manager->get_pod( $args );
+
+	if (
+		true === $strict
+		&& null !== $type
+		&& (
+			! $pod
+			|| ! $pod->valid()
+		)
+	) {
 		return false;
 	}
 
@@ -162,7 +229,7 @@ function pods_admin() {
  * @since 2.0.0
  */
 function pods_meta() {
-	return PodsMeta::init();
+	return pods_container( PodsMeta::class );
 }
 
 /**
@@ -198,20 +265,23 @@ function pods_i18n() {
  * @param string     $cache_mode (optional) Specify the caching method to use for the view, available options include
  *                               cache, transient, or site-transient
  * @param bool       $return     (optional) Whether to return the view or not, defaults to false and will echo it
+ * @param bool       $limited    (optional) Whether to limit the view to only the theme directory, defaults to false
  *
- * @return string|bool The view output
+ * @return string|bool|null The view output
  *
  * @since 2.0.0
  * @link  https://docs.pods.io/code/pods-view/
  */
-function pods_view( $view, $data = null, $expires = false, $cache_mode = 'cache', $return = false ) {
-	$view = PodsView::view( $view, $data, $expires, $cache_mode );
+function pods_view( $view, $data = null, $expires = false, $cache_mode = 'cache', $return = false, $limited = false ) {
+	$view = PodsView::view( $view, $data, $expires, $cache_mode, $limited );
 
 	if ( $return ) {
 		return $view;
 	}
 
-	echo $view;
+	echo $view; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+	return null;
 }
 
 /**

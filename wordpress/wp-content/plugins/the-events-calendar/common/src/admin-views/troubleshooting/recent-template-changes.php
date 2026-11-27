@@ -3,8 +3,9 @@
  * View: Troubleshooting - Recent Template Changes
  *
  * @since 4.14.2
- *
  */
+
+defined( 'ABSPATH' ) || exit;
 
 $template_changes = Tribe__Support__Template_Checker_Report::generate();
 ?>
@@ -12,5 +13,5 @@ $template_changes = Tribe__Support__Template_Checker_Report::generate();
 	<?php esc_html_e( 'Recent template changes', 'tribe-common' ); ?>
 </h3>
 <div class="tribe-events-admin__recent-template-changes">
-	<?php echo $template_changes; ?>
+	<?php echo $template_changes; // phpcs:ignore WordPress.Security.EscapeOutput,StellarWP.XSS.EscapeOutput ?>
 </div>

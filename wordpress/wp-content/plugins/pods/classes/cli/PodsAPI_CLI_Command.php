@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Implements PodsAPI command for WP-CLI
  */
@@ -18,10 +23,10 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api add-pod --name=book
-	 * wp pods-api add-pod --name=book --type=post_type
-	 * wp pods-api add-pod --name=book --type=post_type --label=Books --singular_label=Book
-	 * wp pods-api add-pod --name=genre --type=taxonomy --label=Genres --singular_label=Genre
+	 * wp pods-legacy-api add-pod --name=book
+	 * wp pods-legacy-api add-pod --name=book --type=post_type
+	 * wp pods-legacy-api add-pod --name=book --type=post_type --label=Books --singular_label=Book
+	 * wp pods-legacy-api add-pod --name=genre --type=taxonomy --label=Genres --singular_label=Genre
 	 *
 	 * @subcommand add-pod
 	 *
@@ -41,12 +46,14 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 
 		try {
 			$id = $api->save_pod( $assoc_args );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error saving pod: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error saving pod: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( 0 < $id ) {
 			WP_CLI::success( __( 'Pod added.', 'pods' ) );
+			// translators: %s is the new pod ID.
 			WP_CLI::line( sprintf( __( 'New ID: %s', 'pods' ), $id ) );
 		} else {
 			WP_CLI::error( __( 'Pod not added.', 'pods' ) );
@@ -67,9 +74,9 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api save-pod --name=book --type=post_type
-	 * wp pods-api save-pod --name=book --type=post_type --label=Books --singular_label=Book
-	 * wp pods-api save-pod --name=genre --type=taxonomy --label=Genres --singular_label=Genre
+	 * wp pods-legacy-api save-pod --name=book --type=post_type
+	 * wp pods-legacy-api save-pod --name=book --type=post_type --label=Books --singular_label=Book
+	 * wp pods-legacy-api save-pod --name=genre --type=taxonomy --label=Genres --singular_label=Genre
 	 *
 	 * @subcommand save-pod
 	 *
@@ -91,16 +98,19 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$pod = $api->load_pod( $assoc_args['name'] );
 
 			if ( ! $pod ) {
+				// translators: %s is the pod name.
 				WP_CLI::error( sprintf( __( 'Pod "%s" does not exist.', 'pods' ), $assoc_args['name'] ) );
 			}
 
 			$id = $api->save_pod( $assoc_args );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error saving pod: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error saving pod: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( 0 < $id ) {
 			WP_CLI::success( __( 'Pod saved.', 'pods' ) );
+			// translators: %s is the pod ID.
 			WP_CLI::line( sprintf( __( 'ID: %s', 'pods' ), $id ) );
 		} else {
 			WP_CLI::error( __( 'Pod not saved.', 'pods' ) );
@@ -124,9 +134,9 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api duplicate-pod --name=book
-	 * wp pods-api duplicate-pod --name=book --new_name=book2
-	 * wp pods-api duplicate-pod --name=book --new_name=book2 --label="Books Two" --singular_label="Book Two"
+	 * wp pods-legacy-api duplicate-pod --name=book
+	 * wp pods-legacy-api duplicate-pod --name=book --new_name=book2
+	 * wp pods-legacy-api duplicate-pod --name=book --new_name=book2 --label="Books Two" --singular_label="Book Two"
 	 *
 	 * @subcommand duplicate-pod
 	 *
@@ -148,16 +158,19 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$pod = $api->load_pod( $assoc_args['name'] );
 
 			if ( ! $pod ) {
+				// translators: %s is the pod name.
 				WP_CLI::error( sprintf( __( 'Pod "%s" does not exist.', 'pods' ), $assoc_args['name'] ) );
 			}
 
 			$id = $api->duplicate_pod( $assoc_args );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error duplicating pod: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error duplicating pod: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( 0 < $id ) {
 			WP_CLI::success( __( 'Pod duplicated.', 'pods' ) );
+			// translators: %s is the new pod ID.
 			WP_CLI::line( sprintf( __( 'New ID: %s', 'pods' ), $id ) );
 		} else {
 			WP_CLI::error( __( 'Pod not duplicated.', 'pods' ) );
@@ -175,7 +188,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api reset-pod --name=book
+	 * wp pods-legacy-api reset-pod --name=book
 	 *
 	 * @subcommand reset-pod
 	 *
@@ -192,12 +205,14 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$pod = $api->load_pod( $assoc_args['name'] );
 
 			if ( ! $pod ) {
+				// translators: %s is the pod name.
 				WP_CLI::error( sprintf( __( 'Pod "%s" does not exist.', 'pods' ), $assoc_args['name'] ) );
 			}
 
 			$reset = $api->reset_pod( $assoc_args );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error resetting pod: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error resetting pod: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( $reset ) {
@@ -221,8 +236,8 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api delete-pod --name=book
-	 * wp pods-api delete-pod --name=book --delete_all
+	 * wp pods-legacy-api delete-pod --name=book
+	 * wp pods-legacy-api delete-pod --name=book --delete_all
 	 *
 	 * @subcommand delete-pod
 	 *
@@ -246,12 +261,14 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$pod = $api->load_pod( $assoc_args['name'] );
 
 			if ( ! $pod ) {
+				// translators: %s is the pod name.
 				WP_CLI::error( sprintf( __( 'Pod "%s" does not exist.', 'pods' ), $assoc_args['name'] ) );
 			}
 
 			$deleted = $api->delete_pod( $assoc_args );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error deleting pod: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error deleting pod: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( $deleted ) {
@@ -272,7 +289,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api activate-component --component=templates
+	 * wp pods-legacy-api activate-component --component=templates
 	 *
 	 * @subcommand activate-component
 	 *
@@ -292,6 +309,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 		$active = PodsInit::$components->is_component_active( $component );
 
 		if ( $active ) {
+			// translators: %s is the component name.
 			WP_CLI::error( sprintf( __( 'Component %s is already active.', 'pods' ), $component ) );
 		} else {
 			PodsInit::$components->activate_component( $component );
@@ -311,7 +329,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api deactivate-component --component=templates
+	 * wp pods-legacy-api deactivate-component --component=templates
 	 *
 	 * @subcommand deactivate-component
 	 *
@@ -331,6 +349,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 		$active = PodsInit::$components->is_component_active( $component );
 
 		if ( ! $active ) {
+			// translators: %s is the component name.
 			WP_CLI::error( sprintf( __( 'Component %s is not active.', 'pods' ), $component ) );
 		} else {
 			PodsInit::$components->deactivate_component( $component );
@@ -345,7 +364,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api clear-cache
+	 * wp pods-legacy-api clear-cache
 	 *
 	 * @subcommand clear-cache
 	 */
@@ -376,24 +395,25 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api export-pod --file="pods-package.json"
-	 * wp pods-api export-pod --file="pods-package.json" --pods="book,genre"
-	 * wp pods-api export-pod --file="/path/to/pods-package.json" --pods="book,genre"
-	 * wp pods-api export-pod --templates="book-single,book-list" --file="pods-package.json"
-	 * wp pods-api export-pod --pod-pages="books,books/*" --file="pods-package.json"
-	 * wp pods-api export-pod --pods="book,genre" --templates="book-single,book-list" --pod-pages="books,books/*" --file="pods-package.json"
+	 * wp pods-legacy-api export-pod --file="pods-package.json"
+	 * wp pods-legacy-api export-pod --file="pods-package.json" --pods="book,genre"
+	 * wp pods-legacy-api export-pod --file="/path/to/pods-package.json" --pods="book,genre"
+	 * wp pods-legacy-api export-pod --templates="book-single,book-list" --file="pods-package.json"
+	 * wp pods-legacy-api export-pod --pod-pages="books,books/*" --file="pods-package.json"
+	 * wp pods-legacy-api export-pod --pods="book,genre" --templates="book-single,book-list" --pod-pages="books,books/*" --file="pods-package.json"
 	 *
 	 * @subcommand export-pod
 	 */
 	public function export_pod( $args, $assoc_args ) {
 
 		if ( ! PodsInit::$components->is_component_active( 'migrate-packages' ) ) {
-			WP_CLI::error( sprintf( __( 'Migrate Package is not activated. Try activating it: %s', 'pods' ), 'wp pods-api activate-component --component=migrate-packages' ) );
+			// translators: %s is the WP-CLI command to activate the component.
+			WP_CLI::error( sprintf( __( 'Migrate Package is not activated. Try activating it: %s', 'pods' ), 'wp pods-legacy-api activate-component --component=migrate-packages' ) );
 		}
 
-		$params = array(
+		$params = [
 			'pods' => true,
-		);
+		];
 
 		if ( PodsInit::$components->is_component_active( 'templates' ) ) {
 			$params['templates'] = true;
@@ -403,7 +423,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$params['pages'] = true;
 		}
 
-		$file = $assoc_args['file'];
+		$file = (string) $assoc_args['file'];
 
 		unset( $assoc_args['file'] );
 
@@ -413,8 +433,9 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 
 		try {
 			$data = Pods_Migrate_Packages::export( $params );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error exporting Pods Package: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error exporting Pods Package: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( ! empty( $data ) ) {
@@ -429,6 +450,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$export_file = PodsMigrate::export_data_to_file( $file, $data, true );
 
 			if ( $export_file ) {
+				// translators: %s is the file path.
 				WP_CLI::success( sprintf( __( 'Pods Package exported: %s', 'pods' ), $export_file ) );
 			} else {
 				WP_CLI::error( __( 'Pods Package not exported.', 'pods' ) );
@@ -452,16 +474,17 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp pods-api import-pod --file="pods-package.json"
-	 * wp pods-api import-pod --file="/path/to/pods-package.json"
-	 * wp pods-api import-pod --file="pods-package.json" --replace
+	 * wp pods-legacy-api import-pod --file="pods-package.json"
+	 * wp pods-legacy-api import-pod --file="/path/to/pods-package.json"
+	 * wp pods-legacy-api import-pod --file="pods-package.json" --replace
 	 *
 	 * @subcommand import-pod
 	 */
 	public function import_pod( $args, $assoc_args ) {
 
 		if ( ! PodsInit::$components->is_component_active( 'migrate-packages' ) ) {
-			WP_CLI::error( sprintf( __( 'Migrate Package is not activated. Try activating it: %s', 'pods' ), 'wp pods-api activate-component --component=migrate-packages' ) );
+			// translators: %s is the WP-CLI command to activate the component.
+			WP_CLI::error( sprintf( __( 'Migrate Package is not activated. Try activating it: %s', 'pods' ), 'wp pods-legacy-api activate-component --component=migrate-packages' ) );
 		}
 
 		$replace = false;
@@ -470,7 +493,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			$replace = true;
 		}
 
-		$file = $assoc_args['file'];
+		$file = (string) $assoc_args['file'];
 
 		$imported = false;
 
@@ -480,6 +503,7 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 
 			// Only JSON format is supported for import.
 			if ( false === strpos( $file, '.json' ) ) {
+				// translators: %s is the file name.
 				WP_CLI::error( sprintf( __( 'Invalid file format, the file must use the .json extension: %s', 'pods' ), $file ) );
 			}
 
@@ -490,8 +514,9 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 			}
 
 			$imported = Pods_Migrate_Packages::import( $data, $replace );
-		} catch ( Exception $e ) {
-			WP_CLI::error( sprintf( __( 'Error exporting Pods Package: %s', 'pods' ), $e->getMessage() ) );
+		} catch ( Exception $exception ) {
+			// translators: %s is the error message.
+			WP_CLI::error( sprintf( __( 'Error exporting Pods Package: %s', 'pods' ), $exception->getMessage() ) );
 		}
 
 		if ( ! empty( $imported ) ) {
@@ -504,4 +529,4 @@ class PodsAPI_CLI_Command extends WP_CLI_Command {
 
 }
 
-WP_CLI::add_command( 'pods-api', 'PodsAPI_CLI_Command' );
+WP_CLI::add_command( 'pods-legacy-api', 'PodsAPI_CLI_Command' );

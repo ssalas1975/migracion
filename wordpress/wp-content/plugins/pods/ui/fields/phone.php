@@ -1,9 +1,17 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $attributes = array();
 
 $type = 'text';
 
-if ( 1 == pods_var( 'phone_html5', $options ) ) {
+if ( 1 === (int) pods_v( 'phone_html5', $options ) ) {
 	$type = 'tel';
 }
 

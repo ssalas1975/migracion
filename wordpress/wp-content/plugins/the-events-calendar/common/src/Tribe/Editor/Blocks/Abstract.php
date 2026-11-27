@@ -10,7 +10,18 @@ implements Tribe__Editor__Blocks__Interface {
 	 *
 	 * @var string
 	 */
-	private $namespace = 'tribe';
+	protected $namespace = 'tribe';
+
+	/**
+	 * Whether the block should register assets
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return bool
+	 */
+	public function should_register_assets(): bool {
+		return true;
+	}
 
 	/**
 	 * Builds the name of the Block
@@ -34,7 +45,7 @@ implements Tribe__Editor__Blocks__Interface {
 	 *
 	 * @return string
 	 */
-	public function get_namespace() {
+	public function get_namespace(): string {
 		return $this->namespace;
 	}
 
@@ -43,26 +54,26 @@ implements Tribe__Editor__Blocks__Interface {
 	 *
 	 * @since 4.8
 	 *
-	 * @param  array $attributes
+	 * @param array $params The parameters to parse into the block attributes.
 	 *
-	 * @return array
+	 * @return array The parsed attributes.
 	*/
 	public function attributes( $params = [] ) {
 
-		// get the default attributes
+		// Get the default attributes.
 		$default_attributes = $this->default_attributes();
 
-		// parse the attributes with the default ones
+		// Parse the attributes with the default ones.
 		$attributes = wp_parse_args(
 			$params,
 			$default_attributes
 		);
 
 		/**
-		 * Filters the default attributes for the block
+		 * Filters the default attributes for the block.
 		 *
-		 * @param array  $attributes    The attributes
-		 * @param object $this      The current object
+		 * @param array  $attributes The attributes.
+		 * @param object $instance   The current object.
 		 */
 		$attributes = apply_filters( 'tribe_block_attributes_defaults_' . $this->slug(), $attributes, $this );
 
@@ -74,19 +85,17 @@ implements Tribe__Editor__Blocks__Interface {
 	 *
 	 * @since 4.8
 	 *
-	 * @param  array $attributes
-	 *
-	 * @return array
+	 * @return array The default attributes.
 	*/
 	public function default_attributes() {
 
 		$attributes = [];
 
 		/**
-		 * Filters the default attributes
+		 * Filters the default attributes.
 		 *
-		 * @param array  $params    The attributes
-		 * @param object $this      The current object
+		 * @param array  $attributes The attributes.
+		 * @param object $instance   The current object.
 		 */
 		$attributes = apply_filters( 'tribe_block_attributes_defaults', $attributes, $this );
 
@@ -94,13 +103,13 @@ implements Tribe__Editor__Blocks__Interface {
 	}
 
 	/**
-	 * Since we are dealing with a Dynamic type of Block we need a PHP method to render it
+	 * Since we are dealing with a Dynamic type of Block we need a PHP method to render it.
 	 *
 	 * @since 4.8
 	 *
-	 * @param  array $attributes
+	 * @param array $attributes The attributes to render.
 	 *
-	 * @return string
+	 * @return string The rendered block. The default implementation returns a placeholder text.
 	 */
 	public function render( $attributes = [] ) {
 		$json_string = json_encode( $attributes, JSON_PRETTY_PRINT );
@@ -113,7 +122,7 @@ implements Tribe__Editor__Blocks__Interface {
 	}
 
 	/**
-	 * Sends a valid JSON response to the AJAX request for the block contents
+	 * Sends a valid JSON response to the AJAX request for the block contents.
 	 *
 	 * @since 4.8
 	 *
@@ -124,19 +133,23 @@ implements Tribe__Editor__Blocks__Interface {
 	}
 
 	/**
-	 * Does the registration for PHP rendering for the Block,
-	 * important due to being a dynamic Block
+	 * Does the registration for PHP rendering for the Block, important due to being a dynamic Block.
 	 *
 	 * @since 4.8
 	 *
 	 * @return void
 	 */
 	public function register() {
-		$block_args = [
+		$block_args = $this->get_registration_args( [
 			'render_callback' => [ $this, 'render' ],
-		];
+		] );
 
-		register_block_type( $this->name(), $block_args );
+		// Prevents a block from being registered twice.
+		if ( ! class_exists( 'WP_Block_Type_Registry' ) || WP_Block_Type_Registry::get_instance()->is_registered( $this->name() ) ) {
+			return;
+		}
+
+		register_block_type( $this->get_registration_block_type(), $block_args );
 	}
 
 	/**
@@ -159,6 +172,7 @@ implements Tribe__Editor__Blocks__Interface {
 	 * you should use the block parser on post content.
 	 *
 	 * @since 4.8
+	 * @since 5.1.5 Added a has_block filter.
 	 *
 	 * @see gutenberg_parse_blocks()
 	 *
@@ -167,19 +181,52 @@ implements Tribe__Editor__Blocks__Interface {
 	 * @return bool Whether the post has this block.
 	 */
 	public function has_block( $post = null ) {
-		if ( ! is_numeric( $post ) ) {
+		$wp_post = null;
+		$post_id = null;
+
+		if ( is_numeric( $post ) || $post === null ) {
 			$wp_post = get_post( $post );
-			if ( $wp_post instanceof WP_Post ) {
-				$post = $wp_post->post_content;
-			}
+		} elseif ( $post instanceof WP_Post ) {
+			$wp_post = $post;
 		}
 
-		return false !== strpos( (string) $post, '<!-- wp:' . $this->name() );
+		if ( $wp_post instanceof WP_Post ) {
+			$post    = $wp_post->post_content;
+			$post_id = $wp_post->ID;
+		}
+
+		$has_block = false !== strpos( (string) $post, '<!-- wp:' . $this->name() );
+
+		/**
+		 * Filters whether the post has this block.
+		 *
+		 * @since 5.1.5
+		 *
+		 * @param bool                            $has_block  Whether the post has this block.
+		 * @param WP_Post|null                    $wp_post    The post object.
+		 * @param int|null                        $post_id    The post ID.
+		 * @param string                          $block_name The block name.
+		 * @param Tribe__Editor__Blocks__Abstract $instance   The block object.
+		 */
+		$has_block = (bool) apply_filters( 'tec_block_has_block', $has_block, $wp_post, $post_id, $this->name(), $this );
+		$block_name = $this->name();
+
+		/**
+		 * Filters whether the post has this block.
+		 *
+		 * @since 5.1.5
+		 *
+		 * @param bool                            $has_block  Whether the post has this block.
+		 * @param WP_Post|null                    $wp_post    The post object.
+		 * @param int|null                        $post_id    The post ID.
+		 * @param Tribe__Editor__Blocks__Abstract $instance The block object.
+		 */
+		return (bool) apply_filters( "tec_block_{$block_name}_has_block", $has_block, $wp_post, $post_id, $this );
 	}
 
 	/**
 	 * Fetches the name for the block we are working with and converts it to the
-	 * correct `wp_ajax_{$action}` string for us to Hook
+	 * correct `wp_ajax_{$action}` string for us to Hook.
 	 *
 	 * @since 4.8
 	 *
@@ -190,7 +237,7 @@ implements Tribe__Editor__Blocks__Interface {
 	}
 
 	/**
-	 * Used to include any Assets for the Block we are registering
+	 * Used to include any Assets for the Block we are registering.
 	 *
 	 * @since 4.8
 	 *
@@ -200,7 +247,7 @@ implements Tribe__Editor__Blocks__Interface {
 	}
 
 	/**
-	 * Attach any particular hook for the specif block.
+	 * Attach any particular hook for the specific block.
 	 *
 	 * @since 4.8
 	 */
@@ -225,7 +272,7 @@ implements Tribe__Editor__Blocks__Interface {
 		 * @since 4.12.0
 		 *
 		 * @param array  $block_data The block data.
-		 * @param object $this       The current object.
+		 * @param object $instance   The current object.
 		 */
 		$block_data = apply_filters( 'tribe_block_block_data', $block_data, $this );
 
@@ -235,10 +282,39 @@ implements Tribe__Editor__Blocks__Interface {
 		 * @since 4.12.0
 		 *
 		 * @param array  $block_data The block data.
-		 * @param object $this       The current object.
+		 * @param object $instance   The current object.
 		 */
 		$block_data = apply_filters( 'tribe_block_block_data_' . $this->slug(), $block_data, $this );
 
 		return $block_data;
+	}
+
+	/**
+	 * Returns the block type argument that should be used to register the block in the `register_block_type`
+	 * function.
+	 *
+	 * @see register_block_type() for the values that can be used in the `block_type` argument.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return string|WP_Block_Type The block type argument that will be used to register the block.
+	 */
+	public function get_registration_block_type() {
+		return $this->name();
+	}
+
+	/**
+	 * Allows extending blocks to modify and update the arguments used to register the block
+	 * in the `register_block_type` function.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @param array<string,mixed> $args The default arguments the block would be registered with if this method is not
+	 *                                  overridden.
+	 *
+	 * @return array<string,mixed> The arguments to use when registering the block.
+	 */
+	public function get_registration_args( array $args ): array {
+		return $args;
 	}
 }

@@ -1,7 +1,6 @@
 <?php
 define( 'LAYOUT_PATH', get_template_directory() . '/assets/css/skins/' );
 define( 'OPTIONS_PATH', get_template_directory_uri() . '/themeoptions/options/' );
-load_theme_textdomain('virtue', get_template_directory() . '/languages');
 $alt_stylesheet_path = apply_filters('kt_skin_style_path', LAYOUT_PATH);
 $alt_stylesheets = array(); 
 if ( is_dir($alt_stylesheet_path) ) {
@@ -97,7 +96,7 @@ if ( ! class_exists( 'Redux' ) ) {
 	    );
 	    $args['share_icons'][] = array(
 	        'url' => 'https://www.twitter.com/KadenceWP',
-	        'title' => 'Follow Kadence WP on Twitter',
+	        'title' => 'Follow Kadence WP on X formerly Twitter',
 	        'icon' => 'dashicons dashicons-twitter',
 	    );
 		$args['share_icons'][] = array(
@@ -1935,13 +1934,13 @@ Redux::setSection( $opt_name, array(
             'id'=>'info_wpgallerys',
             'type' => 'info',
             'customizer' => true,
-            'desc' => __('Wordpress Galleries', 'virtue'),
+            'desc' => __('WordPress Galleries', 'virtue'),
             ),
         array(
             'id'=>'virtue_gallery',
             'type' => 'switch', 
             'customizer' => true,
-            'title' => __('Enable Virtue Galleries to override Wordpress', 'virtue'),
+            'title' => __('Enable Virtue Galleries to override WordPress', 'virtue'),
             'subtitle' => __('Disable this if using a plugin to customize galleries, for example jetpack tiled gallery.', 'virtue'),
             "default" => 1,
             ),

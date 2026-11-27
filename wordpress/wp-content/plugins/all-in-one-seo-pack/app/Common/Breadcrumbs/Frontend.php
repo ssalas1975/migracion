@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
+
 /**
  * Class Frontend.
  *
@@ -22,70 +24,108 @@ class Frontend {
 	public $breadcrumbs = [];
 
 	/**
+	 * Whether we are already rendering breadcrumbs.
+	 *
+	 * @since 5.0.2.1
+	 *
+	 * @var bool
+	 */
+	private $isRendering = false;
+
+	/**
 	 * Gets the current page's breadcrumbs.
 	 *
-	 * @since 4.1.1
+	 * @since   4.1.1
+	 * @version 4.9.10 Strip non-array entries from the filtered trail so downstream loops cannot fatal on PHP 8.
+	 * @version 5.0.2 Normalize non-scalar crumb links so downstream consumers cannot fatal.
 	 *
 	 * @return array
 	 */
 	public function getBreadcrumbs() {
 		if ( ! empty( $this->breadcrumbs ) ) {
-			return apply_filters( 'aioseo_breadcrumbs_trail', $this->breadcrumbs );
+			$trail = apply_filters( 'aioseo_breadcrumbs_trail', $this->breadcrumbs );
+
+			return $this->normalizeTrail( $trail );
 		}
 
-		$type      = '';
 		$reference = get_queried_object();
-		// These types need the queried object for reference.
-		if ( is_object( $reference ) ) {
-			if ( is_single() ) {
-				$type = 'single';
+		$type      = '';
+		if ( BuddyPressIntegration::isComponentPage() ) {
+			$type = 'buddypress';
+		}
+
+		if ( ! $type ) {
+			// These types need the queried object for reference.
+			if ( is_object( $reference ) ) {
+				if ( is_single() ) {
+					$type = 'single';
+				}
+
+				if ( is_singular( 'post' ) ) {
+					$type = 'post';
+				}
+
+				if ( is_page() && ! is_front_page() ) {
+					$type = 'page';
+				}
+
+				if ( is_category() || is_tag() ) {
+					$type = 'category';
+				}
+
+				if ( is_tax() ) {
+					$type = 'taxonomy';
+				}
+
+				if ( is_post_type_archive() ) {
+					$type = 'postTypeArchive';
+				}
+
+				if ( is_author() ) {
+					$type = 'author';
+				}
+
+				if ( is_home() ) {
+					$type = 'blog';
+				}
+
+				// Support WC shop page.
+				if ( aioseo()->helpers->isWooCommerceShopPage() ) {
+					$type = 'wcShop';
+				}
+
+				// Support WC products.
+				if ( aioseo()->helpers->isWooCommerceProductPage() ) {
+					$type = 'wcProduct';
+				}
 			}
 
-			if ( is_singular( 'post' ) ) {
-				$type = 'post';
+			if ( is_date() ) {
+				$type      = 'date';
+				$reference = [
+					'year'  => get_query_var( 'year' ),
+					'month' => get_query_var( 'monthnum' ),
+					'day'   => get_query_var( 'day' )
+				];
 			}
 
-			if ( is_page() && ! is_front_page() ) {
-				$type = 'page';
+			if ( is_search() ) {
+				$type = 'search';
+				// The search query ends up in the crumb that breadcrumbToDisplay() runs do_shortcode() on.
+				$reference = esc_html( aioseo()->helpers->removeShortcodeBrackets( sanitize_text_field( get_search_query() ) ) );
 			}
 
-			if ( is_category() || is_tag() ) {
-				$type = 'category';
-			}
-
-			if ( is_tax() ) {
-				$type = 'taxonomy';
-			}
-
-			if ( is_post_type_archive() ) {
-				$type = 'postTypeArchive';
-			}
-
-			if ( is_author() ) {
-				$type = 'author';
-			}
-
-			if ( is_home() ) {
-				$type = 'blog';
+			if ( is_404() ) {
+				$type = 'notFound';
 			}
 		}
 
-		if ( is_date() ) {
-			$type      = 'date';
-			$reference = [
-				'year'  => get_query_var( 'year' ),
-				'month' => get_query_var( 'monthnum' ),
-				'day'   => get_query_var( 'day' )
-			];
-		}
-
-		if ( is_search() ) {
-			$type      = 'search';
-			$reference = get_search_query();
-		}
-
-		if ( is_404() ) {
-			$type = 'notFound';
+		if ( ! $type ) {
+			$type = aioseo()->helpers->getBreadcrumbTypeFromPost();
+			if ( $type ) {
+				global $post;
+				$reference = $post;
+			}
 		}
 
 		$paged = false;
@@ -93,11 +133,37 @@ class Frontend {
 			global $wp;
 			$paged = [
 				'paged' => get_query_var( 'paged' ) ? get_query_var( 'paged' ) : get_query_var( 'page' ),
-				'link'  => home_url( $wp->request )
+				'link'  => home_url( str_replace( '#', '%23', (string) $wp->request ) )
 			];
 		}
 
-		return apply_filters( 'aioseo_breadcrumbs_trail', aioseo()->breadcrumbs->buildBreadcrumbs( $type, $reference, $paged ) );
+		$trail = apply_filters( 'aioseo_breadcrumbs_trail', aioseo()->breadcrumbs->buildBreadcrumbs( $type, $reference, $paged ) );
+
+		return $this->normalizeTrail( $trail );
+	}
+
+	/**
+	 * Normalizes the breadcrumb trail after it has been filtered.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  mixed $trail The filtered trail.
+	 * @return array        The normalized trail.
+	 */
+	private function normalizeTrail( $trail ) {
+		if ( ! is_array( $trail ) ) {
+			return [];
+		}
+
+		return array_map( function ( $crumb ) {
+			// A link must always be a string. get_term_link() and friends can hand back a
+			// WP_Error, which fatals as soon as a consumer casts the link to a string.
+			if ( isset( $crumb['link'] ) && ! is_scalar( $crumb['link'] ) ) {
+				$crumb['link'] = '';
+			}
+
+			return $crumb;
+		}, array_values( array_filter( $trail, 'is_array' ) ) );
 	}
 
 	/**
@@ -143,54 +209,91 @@ class Frontend {
 	/**
 	 * Display the breadcrumb in the frontend.
 	 *
-	 * @since 4.1.1
+	 * @since   4.1.1
+	 * @version 4.9.9 Return early when the Tags class isn't initialized yet.
+	 * @version 5.0.2.1 Return early when already rendering; encode leftover square brackets.
 	 *
 	 * @param  bool        $echo Print out the breadcrumb.
 	 * @return string|void       A html breadcrumb.
 	 */
 	public function display( $echo = true ) {
-		if ( ! aioseo()->options->breadcrumbs->enable || ! apply_filters( 'aioseo_breadcrumbs_output', true ) ) {
+		// breadcrumbToDisplay() runs do_shortcode() on the finished crumb, so [aioseo_breadcrumbs] in a
+		// template or label would land back here and exhaust the stack.
+		if ( $this->isRendering ) {
 			return;
 		}
 
-		$breadcrumbs = $this->getBreadcrumbs();
-		if ( empty( $breadcrumbs ) ) {
+		if (
+			in_array( 'breadcrumbsEnable', aioseo()->internalOptions->deprecatedOptions, true ) &&
+			! aioseo()->options->deprecated->breadcrumbs->enable
+		) {
 			return;
 		}
 
-		$breadcrumbsCount = count( $breadcrumbs );
-
-		$display = '<div class="aioseo-breadcrumbs">';
-		foreach ( $breadcrumbs as $breadcrumb ) {
-			-- $breadcrumbsCount;
-
-			$breadcrumbDisplay = $this->breadcrumbToDisplay( $breadcrumb );
-
-			// Strip link from Last crumb.
-			if (
-				0 === $breadcrumbsCount &&
-				aioseo()->breadcrumbs->showCurrentItem() &&
-				! $this->linkCurrentItem() &&
-				'default' === $breadcrumbDisplay['templateType']
-			) {
-				$breadcrumbDisplay['template'] = $this->stripLink( $breadcrumbDisplay['template'] );
-			}
-
-			$display .= $breadcrumbDisplay['template'];
-
-			if ( 0 < $breadcrumbsCount ) {
-				$display .= $this->getSeparator();
-			}
-		}
-		$display .= '</div>';
-
-		$display = wp_kses_post( $display );
-
-		if ( $echo ) {
-			echo $display; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( ! apply_filters( 'aioseo_breadcrumbs_output', true ) ) {
+			return;
 		}
 
-		return $display;
+		// We can only run after this action because we need all post types loaded.
+		if ( ! did_action( 'init' ) ) {
+			return;
+		}
+
+		// `tags` is initialized on `init`:50; bail if breadcrumbs render earlier (e.g. during
+		// another plugin's content scan) so breadcrumbToDisplay() can't call replaceTags() on null.
+		if ( ! aioseo()->breadcrumbs->tags ) {
+			return;
+		}
+
+		$this->isRendering = true;
+
+		try {
+			$breadcrumbs = $this->getBreadcrumbs();
+			if ( empty( $breadcrumbs ) ) {
+				return;
+			}
+
+			$breadcrumbsCount = count( $breadcrumbs );
+
+			$display = '<div class="aioseo-breadcrumbs">';
+			foreach ( $breadcrumbs as $breadcrumb ) {
+				--$breadcrumbsCount;
+
+				$breadcrumbDisplay = $this->breadcrumbToDisplay( $breadcrumb );
+
+				// Strip link from Last crumb.
+				if (
+					0 === $breadcrumbsCount &&
+					aioseo()->breadcrumbs->showCurrentItem() &&
+					! $this->linkCurrentItem() &&
+					'default' === $breadcrumbDisplay['templateType']
+				) {
+					$breadcrumbDisplay['template'] = $this->stripLink( $breadcrumbDisplay['template'] );
+				}
+
+				$display .= $breadcrumbDisplay['template'];
+
+				if ( 0 < $breadcrumbsCount ) {
+					$display .= $this->getSeparator();
+				}
+			}
+			$display .= '</div>';
+
+			// Final security cleaning.
+			$display = wp_kses_post( $display );
+
+			// Our shortcodes have run. Encode what is left so a later pass (e.g. the_content or a block
+			// widget running do_shortcode() on our output) cannot expand it.
+			$display = str_replace( [ '[', ']' ], [ '&#91;', '&#93;' ], $display );
+
+			if ( $echo ) {
+				echo $display; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+
+			return $display;
+		} finally {
+			$this->isRendering = false;
+		}
 	}
 
 	/**
@@ -203,13 +306,19 @@ class Frontend {
 	 */
 	protected function breadcrumbToDisplay( $item ) {
 		$templateItem = $this->getCrumbTemplate( $item );
-
 		if ( empty( $templateItem['template'] ) ) {
 			return;
 		}
 
 		// Do tags.
 		$templateItem['template'] = aioseo()->breadcrumbs->tags->replaceTags( $templateItem['template'], $item );
+		$templateItem['template'] = preg_replace_callback(
+			'/>(?![^<]*>)(?![^>]*")([^<]*?)>/',
+			function ( $matches ) {
+				return '>' . $matches[1] . '>';
+			},
+			htmlentities( $templateItem['template'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 )
+		);
 
 		// Restore html.
 		$templateItem['template'] = aioseo()->helpers->decodeHtmlEntities( $templateItem['template'] );
@@ -221,9 +330,6 @@ class Frontend {
 
 		// Allow shortcodes to run in the final html.
 		$templateItem['template'] = do_shortcode( $templateItem['template'] );
-
-		// Final security cleaning.
-		$templateItem['template'] = wp_kses_post( $templateItem['template'] );
 
 		return $templateItem;
 	}
@@ -265,23 +371,22 @@ class Frontend {
 	 * @return string            The default crumb template.
 	 */
 	public function getDefaultTemplate( $type = '', $reference = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return <<<TEMPLATE
-<span class="aioseo-breadcrumb">
-	<a href="#breadcrumb_link" title="#breadcrumb_label">#breadcrumb_label</a>
-</span>
-TEMPLATE;
+		return '<span class="aioseo-breadcrumb">
+			<a href="#breadcrumb_link" title="#breadcrumb_label">#breadcrumb_label</a>
+		</span>';
 	}
 
 	/**
 	 * Helper function to strip a html link from the crumb.
 	 *
-	 * @since 4.1.1
+	 * @since   4.1.1
+	 * @version 5.0.5.1 Match every anchor start tag, not only ones followed by whitespace.
 	 *
 	 * @param  string $html The crumb's html.
 	 * @return string       A crumb html without links.
 	 */
 	public function stripLink( $html ) {
-		return preg_replace( '/<a\s.*?>|<\/a>/is', '', $html );
+		return preg_replace( '/<a(?![a-z0-9-])[^>]*>|<\/a>/i', '', (string) $html );
 	}
 
 	/**
@@ -292,7 +397,14 @@ TEMPLATE;
 	 * @return string The separator html.
 	 */
 	public function getSeparator() {
-		$separator = apply_filters( 'aioseo_breadcrumbs_separator_symbol', aioseo()->options->breadcrumbs->separator );
+		$separator = aioseo()->options->breadcrumbs->separator;
+
+		$separatorToOverride = aioseo()->breadcrumbs->getOverride( 'separator' );
+		if ( ! empty( $separatorToOverride ) ) {
+			$separator = $separatorToOverride;
+		}
+
+		$separator = apply_filters( 'aioseo_breadcrumbs_separator_symbol', $separator );
 
 		return apply_filters( 'aioseo_breadcrumbs_separator', '<span class="aioseo-breadcrumb-separator">' . esc_html( $separator ) . '</span>' );
 	}

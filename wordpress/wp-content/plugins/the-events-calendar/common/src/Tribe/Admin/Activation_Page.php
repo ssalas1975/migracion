@@ -27,6 +27,8 @@ class Tribe__Admin__Activation_Page {
 	public function __construct( array $args = [] ) {
 		$this->args = wp_parse_args( $args, [
 			'slug'                  => '',
+			'admin_page'            => '',
+			'admin_url'             => '',
 			'activation_transient'  => '',
 			'version'               => '',
 			'plugin_path'           => '',
@@ -69,6 +71,11 @@ class Tribe__Admin__Activation_Page {
 	 * Listen for opportunities to show update and welcome splash pages.
 	 */
 	public function hooks() {
+		// Never show this on the front-end.
+		if ( ! is_admin() ) {
+			return;
+		}
+
 		if (
 			tribe_is_truthy( get_option( 'tribe_skip_welcome', false ) )
 			|| tribe_is_truthy( tribe_get_option( 'skip_welcome', false ) )
@@ -77,7 +84,7 @@ class Tribe__Admin__Activation_Page {
 		}
 
 		add_action( 'admin_init', [ $this, 'maybe_redirect' ], 10, 0 );
-		add_action( 'admin_menu', [ $this, 'register_page' ], 100, 0 ); // come in after the default page is registered
+		add_action( 'admin_menu', [ $this, 'register_page' ], 100, 0 ); // Come in after the default page is registered.
 
 		add_action( 'update_plugin_complete_actions', [ $this, 'update_complete_actions' ], 15, 2 );
 		add_action( 'update_bulk_plugins_complete_actions', [ $this, 'update_complete_actions' ], 15, 2 );
@@ -87,9 +94,10 @@ class Tribe__Admin__Activation_Page {
 	 * Filter the Default WordPress actions when updating the plugin to prevent users to be redirected if they have an
 	 * specific intention of going back to the plugins page.
 	 *
-	 * @param  array $actions The Array of links (html)
-	 * @param  string $plugin Which plugins are been updated
-	 * @return array          The filtered Links
+	 * @param array  $actions The Array of links (html).
+	 * @param string $plugin  Which plugins are been updated.
+	 *
+	 * @return array The filtered Links.
 	 */
 	public function update_complete_actions( $actions, $plugin ) {
 		$plugins = [];
@@ -123,7 +131,7 @@ class Tribe__Admin__Activation_Page {
 	 */
 	public function maybe_redirect() {
 		if ( ! empty( $_POST ) ) {
-			return; // don't interrupt anything the user's trying to do
+			return; // Don't interrupt anything the user's trying to do.
 		}
 
 		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
@@ -131,29 +139,56 @@ class Tribe__Admin__Activation_Page {
 		}
 
 		if ( defined( 'IFRAME_REQUEST' ) && IFRAME_REQUEST ) {
-			return; // probably the plugin update/install iframe
+			return; // Probably the plugin update/install iframe.
 		}
 
 		if ( isset( $_GET[ $this->welcome_slug ] ) || isset( $_GET[ $this->update_slug ] ) ) {
-			return; // no infinite redirects
+			return; // No infinite redirects.
 		}
 
 		if ( isset( $_GET['tribe-skip-welcome'] ) ) {
-			return; // a way to skip these checks and
+			return; // A way to skip these checks and.
 		}
 
-		// bail if we aren't activating a plugin
+		if (
+			! $this->showed_update_message_for_current_version()
+			&& ! $this->is_new_install()
+		) {
+			$page = tribe_get_request_var( 'page' );
+			if ( empty( $page ) ) {
+				return;
+			}
+
+			$match_page = str_replace( 'tribe_events_page_', '', $this->args['admin_page'] );
+
+			if ( $page !== $match_page ) {
+				return;
+			}
+
+			/**
+			 * Filters whether we should disable the update page redirect.
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param bool $bypass Whether to bypass the update page redirect.
+			 */
+			$bypass_update_page = apply_filters( 'tec_admin_update_page_bypass', false, $this );
+
+			if ( $bypass_update_page ) {
+				return;
+			}
+
+			$this->redirect_to_update_page();
+		}
+
+		// Bail if we aren't activating a plugin.
 		if ( ! get_transient( $this->args['activation_transient'] ) ) {
 			return;
 		}
 
 		delete_transient( $this->args['activation_transient'] );
 
-		if ( ! current_user_can( Tribe__Settings::instance()->requiredCap ) ) {
-			return;
-		}
-
-		if ( $this->showed_update_message_for_current_version() ) {
+		if ( ! current_user_can( tribe( 'settings' )->required_cap ) ) {
 			return;
 		}
 
@@ -171,15 +206,28 @@ class Tribe__Admin__Activation_Page {
 	/**
 	 * Have we shown the welcome/update message for the current version?
 	 *
+	 * @since 5.0.0 Turned this method public.
+	 *
 	 * @return bool
 	 */
-	protected function showed_update_message_for_current_version() {
+	public function showed_update_message_for_current_version() {
 		$message_version_displayed = Tribe__Settings_Manager::get_option( 'last-update-message-' . $this->args['slug'] );
 
 		if ( empty( $message_version_displayed ) ) {
 			return false;
 		}
-		if ( version_compare( $message_version_displayed, $this->args['version'], '<' ) ) {
+
+		$current_version = explode( '.', $this->args['version'] );
+		$current_version = array_splice( $current_version, 0, 2 );
+		$current_version = array_pad( $current_version, 3, 0 );
+		$current_version = implode( '.', $current_version );
+
+		$message_version_displayed = explode( '.', $message_version_displayed );
+		$message_version_displayed = array_splice( $message_version_displayed, 0, 2 );
+		$message_version_displayed = array_pad( $message_version_displayed, 3, 0 );
+		$message_version_displayed = implode( '.', $message_version_displayed );
+
+		if ( version_compare( $message_version_displayed, $current_version, '<' ) ) {
 			return false;
 		}
 		return true;
@@ -239,13 +287,12 @@ class Tribe__Admin__Activation_Page {
 	 * @return string
 	 */
 	protected function get_message_page_url( $slug ) {
-		$settings = Tribe__Settings::instance();
-		// get the base settings page url
-		$url  = apply_filters(
-			'tribe_settings_url',
-			add_query_arg( 'page', $settings->adminSlug, admin_url( 'edit.php' ) )
-		);
+		$settings = tribe( 'settings' );
+
+		$url = ! empty( $this->args['admin_url'] ) ? $this->args['admin_url'] : $settings->get_url();
+
 		$url = esc_url_raw( add_query_arg( $slug, 1, $url ) );
+
 		return $url;
 	}
 
@@ -263,7 +310,7 @@ class Tribe__Admin__Activation_Page {
 
 		$this->disable_default_settings_page();
 		add_filter( 'admin_body_class', [ $this, 'admin_body_class' ] );
-		add_action( Tribe__Settings::instance()->admin_page, [ $this, 'display_page' ] );
+		add_action( $this->args['admin_page'], [ $this, 'display_page' ] );
 	}
 
 	/**
@@ -283,7 +330,8 @@ class Tribe__Admin__Activation_Page {
 	 * in the Events > Settings slot instead, for this request only).
 	 */
 	protected function disable_default_settings_page() {
-		remove_action( Tribe__Settings::instance()->admin_page, [ Tribe__Settings::instance(), 'generatePage' ] );
+		remove_action( $this->args['admin_page'], [ tribe( 'settings' ), 'generate_page' ] );
+		remove_action( $this->args['admin_page'], [ tribe( 'settings' ), 'generatePage' ] );
 	}
 
 	/**

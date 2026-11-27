@@ -1,4 +1,19 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
+// Prevent non-admins.
+if ( ! pods_is_admin( 'pods_settings' ) ) {
+	die( '-1' );
+}
+
+use Pods\Whatsit\Field;
+
 wp_enqueue_script( 'pods' );
 pods_form_enqueue_style( 'pods-form' );
 
@@ -9,7 +24,21 @@ pods_form_enqueue_style( 'pods-form' );
  *
  * @param array $fields List of fields for the settings page.
  */
-$fields = apply_filters( 'pods_admin_settings_fields', array() );
+$fields = apply_filters( 'pods_admin_settings_fields', [] );
+
+// Convert into Field objects.
+foreach ( $fields as $key => $field ) {
+	if ( ! $field instanceof Field ) {
+		$field['name'] = ! empty( $field['name'] ) ? $field['name'] : $key;
+
+		$field = new Field( $field );
+
+		// Replace dependency logic with conditional logic.
+		$field->maybe_migrate_dependency();
+
+		$fields[ $key ] = $field;
+	}
+}
 
 if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'pods-settings' ) ) {
 	if ( isset( $_POST['pods_cache_flush'] ) ) {
@@ -19,10 +48,10 @@ if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'pods-s
 		$api->cache_flush_pods();
 
 		if ( defined( 'PODS_PRELOAD_CONFIG_AFTER_FLUSH' ) && PODS_PRELOAD_CONFIG_AFTER_FLUSH ) {
-			$api->load_pods( array( 'bypass_cache' => true ) );
+			$api->load_pods( [ 'bypass_cache' => true ] );
 		}
 
-		pods_redirect( pods_query_arg( array( 'pods_cache_flushed' => 1 ), array( 'page', 'tab' ) ) );
+		pods_redirect( pods_query_arg( [ 'pods_cache_flushed' => 1 ], [ 'page', 'tab' ] ) );
 	} else {
 		// Handle saving settings.
 		$action = __( 'saved', 'pods' );
@@ -56,7 +85,11 @@ if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'pods-s
 
 			// Sanitize value if needed.
 			if ( is_callable( $sanitize_callback ) ) {
-				$value = $sanitize_callback( $value );
+				if ( is_array( $value ) ) {
+					$value = array_map( $sanitize_callback, $value );
+				} else {
+					$value = $sanitize_callback( $value );
+				}
 			}
 
 			$settings_to_save[ $field['name'] ] = $value;
@@ -65,10 +98,15 @@ if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'pods-s
 		if ( $settings_to_save ) {
 			pods_update_settings( $settings_to_save );
 
+			// Flush cache after changing settings.
+			pods_api()->cache_flush_pods();
+
+			// translators: %1$s is the settings label, %2$s is the action performed.
 			$message = sprintf( __( '<strong>Success!</strong> %1$s %2$s successfully.', 'pods' ), __( 'Settings', 'pods' ), $action );
 
 			pods_message( $message );
 		} else {
+			// translators: %1$s is the settings label, %2$s is the action performed.
 			$error = sprintf( __( '<strong>Error:</strong> %1$s %2$s successfully.', 'pods' ), __( 'Settings', 'pods' ), $action );
 
 			pods_message( $error, 'error' );
@@ -81,18 +119,19 @@ if ( isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'pods-s
 $do = 'save';
 ?>
 
-<h3><?php _e( 'Clear Pods Cache', 'pods' ); ?></h3>
+<h3><?php esc_html_e( 'Pods Cache Reset', 'pods' ); ?></h3>
 
-<p><?php esc_html_e( 'This tool will clear all of the transients/cache that are used by Pods.', 'pods' ); ?></p>
+<p><?php esc_html_e( 'You can clear all of the transients and object caches that are used by Pods and your site.', 'pods' ); ?></p>
 
 <p class="submit">
-	<input type="submit" class="button button-primary" name="pods_cache_flush" value="<?php esc_attr_e( 'Clear Pods Cache', 'pods' ); ?>" />
+	<input type="submit" class="button button-secondary" name="pods_cache_flush"
+		value="<?php esc_attr_e( 'Clear Pods Cache', 'pods' ); ?>" />
 </p>
 
 <hr />
 
 <div class="pods-submittable-fields pods-dependency">
-	<?php echo PodsForm::field( 'do', $do, 'hidden' ); ?>
+	<?php PodsForm::output_field( 'do', $do, 'hidden' ); ?>
 
 	<?php
 	foreach ( $fields as $key => $field ) {
@@ -106,8 +145,10 @@ $do = 'save';
 			continue;
 		}
 
+		$field['name_prefix'] = 'pods_field_';
+
 		// Output hidden field at top.
-		echo PodsForm::field( 'pods_field_' . $field['name'], pods_get_setting( $field['name'], pods_v( 'default', $field ) ), 'hidden' );
+		PodsForm::output_field( $field['name'], pods_get_setting( $field['name'], pods_v( 'default', $field ) ), 'hidden' );
 
 		// Remove from list of fields to render below.
 		unset( $fields[ $key ] );
@@ -118,22 +159,23 @@ $do = 'save';
 		$field_prefix      = 'pods_field_';
 		$field_row_classes = '';
 		$id                = '';
-		$value_callback    = static function( $field_name, $id, $field, $pod ) {
+		$value_callback    = static function ( $field_name, $id, $field, $pod ) {
 			return pods_get_setting( $field_name, pods_v( 'default', $field ) );
 		};
 
 		pods_view( PODS_DIR . 'ui/forms/table-rows.php', compact( array_keys( get_defined_vars() ) ) );
-	?>
+		?>
 	</table>
 
 	<p class="submit">
-		<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Settings', 'pods' ); ?>">
+		<input type="submit" name="submit" id="submit" class="button button-primary"
+			value="<?php esc_attr_e( 'Save Settings', 'pods' ); ?>">
 		<img class="waiting" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 	</p>
 </div>
 
 <script type="text/javascript">
-	jQuery( function ( $ ) {
+	jQuery( function( $ ) {
 		$( document ).Pods( 'validate' );
 		$( document ).Pods( 'dependency', true );
 		$( document ).Pods( 'qtip', '.pods-submittable' );

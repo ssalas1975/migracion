@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use AIOSEO\Plugin\Common\Integrations\BuddyPress as BuddyPressIntegration;
+
 /**
  * Determines which content should be included in the sitemap.
  *
@@ -13,13 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Content {
 	/**
-	 * This is cached so we don't do the lookup each query.
+	 * Methods that can be called dynamically based on sitemap index name.
+	 * This prevents collisions with user-defined post type slugs that match internal method names.
 	 *
-	 * @since 4.0.0
+	 * @since 4.9.3
 	 *
-	 * @var boolean
+	 * @var array
 	 */
-	private static $wpml = null;
+	private $dynamicIndexMethods = [
+		'addl',
+		'author',
+		'date',
+		'postArchive',
+		'bpActivity',
+		'bpGroup',
+		'bpMember'
+	];
 
 	/**
 	 * Returns the entries for the requested sitemap.
@@ -33,36 +44,92 @@ class Content {
 			return [];
 		}
 
-		switch ( aioseo()->sitemap->indexName ) {
-			case 'rss':
-				return $this->rss();
-			case 'root':
-				if ( 'root' === aioseo()->sitemap->indexName && aioseo()->options->sitemap->general->indexes ) {
-					return aioseo()->sitemap->root->indexes();
-				}
+		if ( 'rss' === aioseo()->sitemap->type ) {
+			return $this->rss();
+		}
+
+		if ( 'general' !== aioseo()->sitemap->type ) {
+			return [];
+		}
+
+		$indexesEnabled = aioseo()->options->sitemap->general->indexes;
+		if ( ! $indexesEnabled ) {
+			if ( 'root' === aioseo()->sitemap->indexName ) {
 				// If indexes are disabled, throw all entries together into one big file.
 				return $this->nonIndexed();
-			default:
-				// Check if requested index has a dedicated method.
-				$methodName = aioseo()->helpers->dashesToCamelCase( aioseo()->sitemap->indexName );
-				if ( method_exists( $this, $methodName ) ) {
-					return $this->$methodName();
-				}
+			}
 
-				// Check if requested index is a registered post type.
-				if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
-					return $this->posts( aioseo()->sitemap->indexName );
-				}
+			return [];
+		}
 
-				// Check if requested index is a registered taxonomy.
-				if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedTaxonomies(), true ) ) {
-					return $this->terms( aioseo()->sitemap->indexName );
-				}
+		if ( 'root' === aioseo()->sitemap->indexName ) {
+			return aioseo()->sitemap->root->indexes();
+		}
 
-				return [];
+		// Check if requested index has a dedicated method.
+		$methodName = aioseo()->helpers->dashesToCamelCase( aioseo()->sitemap->indexName );
+		if (
+			in_array( $methodName, $this->dynamicIndexMethods, true ) &&
+			method_exists( $this, $methodName ) &&
+			! in_array( aioseo()->sitemap->indexName, [ 'posts', 'terms' ], true ) // Skip posts and terms indexes because they are handled differently.
+		) {
+			return $this->$methodName();
+		}
+
+		// Check if requested index is a registered post type.
+		if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
+			return $this->posts( aioseo()->sitemap->indexName );
+		}
+
+		// Check if requested index is a registered taxonomy.
+		if (
+			in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedTaxonomies(), true ) &&
+			'product_attributes' !== aioseo()->sitemap->indexName
+		) {
+			return $this->terms( aioseo()->sitemap->indexName );
+		}
+
+		if (
+			aioseo()->helpers->isWooCommerceActive() &&
+			in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedTaxonomies(), true ) &&
+			'product_attributes' === aioseo()->sitemap->indexName
+		) {
+			return $this->productAttributes();
 		}
 
 		return [];
+	}
+
+	/**
+	 * Checks whether the requested sitemap is one that exists, even when it has no entries right now.
+	 *
+	 * NOTE: Only the first page of the root index or of a public post type or taxonomy (even an excluded one)
+	 * exists while empty. Dedicated indexes (author, date, …) are only listed when they have entries.
+	 *
+	 * @since 5.0.3
+	 *
+	 * @return bool Whether the requested sitemap exists.
+	 */
+	public function isKnownIndex() {
+		$indexName = aioseo()->sitemap->indexName;
+		if ( 0 < aioseo()->sitemap->pageNumber ) {
+			return false;
+		}
+
+		if ( 'root' === $indexName ) {
+			return true;
+		}
+
+		if ( ! aioseo()->sitemap->indexes ) {
+			return false;
+		}
+
+		if ( 'product_attributes' === $indexName ) {
+			return 'general' === aioseo()->sitemap->type && aioseo()->helpers->isWooCommerceActive();
+		}
+
+		return in_array( $indexName, aioseo()->helpers->getPublicPostTypes( true ), true ) ||
+			in_array( $indexName, aioseo()->helpers->getPublicTaxonomies( true ), true );
 	}
 
 	/**
@@ -77,31 +144,48 @@ class Content {
 			return 0;
 		}
 
-		switch ( aioseo()->sitemap->indexName ) {
-			case 'rss':
-				return count( $this->rss() );
-			case 'root':
-				if ( 'root' === aioseo()->sitemap->indexName && aioseo()->options->sitemap->general->indexes ) {
-					return count( aioseo()->sitemap->root->indexes() );
-				}
+		if ( 'rss' === aioseo()->sitemap->type ) {
+			return count( $this->rss() );
+		}
 
+		if ( 'general' !== aioseo()->sitemap->type ) {
+			return 0;
+		}
+
+		$indexesEnabled = aioseo()->options->sitemap->general->indexes;
+		if ( ! $indexesEnabled ) {
+			if ( 'root' === aioseo()->sitemap->indexName ) {
+				// If indexes are disabled, throw all entries together into one big file.
 				return count( $this->nonIndexed() );
-			default:
-				// Check if requested index has a dedicated method.
-				$methodName = aioseo()->helpers->dashesToCamelCase( aioseo()->sitemap->indexName );
-				if ( method_exists( $this, $methodName ) ) {
-					return count( $this->$methodName() );
-				}
+			}
 
-				// Check if requested index is a registered post type.
-				if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
-					return aioseo()->sitemap->query->posts( aioseo()->sitemap->indexName, [ 'count' => true ] );
-				}
+			return 0;
+		}
 
-				// Check if requested index is a registered taxonomy.
-				if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedTaxonomies(), true ) ) {
-					return aioseo()->sitemap->query->terms( aioseo()->sitemap->indexName, [ 'count' => true ] );
-				}
+		if ( 'root' === aioseo()->sitemap->indexName ) {
+			return count( aioseo()->sitemap->root->indexes() );
+		}
+
+		// Check if requested index has a dedicated method.
+		$methodName = aioseo()->helpers->dashesToCamelCase( aioseo()->sitemap->indexName );
+		if (
+			in_array( $methodName, $this->dynamicIndexMethods, true ) &&
+			method_exists( $this, $methodName ) &&
+			! in_array( aioseo()->sitemap->indexName, [ 'posts', 'terms' ], true ) // Skip posts and terms indexes because they are handled differently.
+		) {
+			$res = $this->$methodName();
+
+			return ! empty( $res ) ? count( $res ) : 0;
+		}
+
+		// Check if requested index is a registered post type.
+		if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
+			return aioseo()->sitemap->query->posts( aioseo()->sitemap->indexName, [ 'count' => true ] );
+		}
+
+		// Check if requested index is a registered taxonomy.
+		if ( in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedTaxonomies(), true ) ) {
+			return aioseo()->sitemap->query->terms( aioseo()->sitemap->indexName, [ 'count' => true ] );
 		}
 
 		return 0;
@@ -120,18 +204,6 @@ class Content {
 			return false;
 		}
 
-		if ( 'general' === aioseo()->sitemap->type ) {
-			return true;
-		}
-
-		if (
-			$options->sitemap->{aioseo()->sitemap->type}->has( 'indexes' ) &&
-			! $options->sitemap->{aioseo()->sitemap->type}->indexes &&
-			'root' !== aioseo()->sitemap->indexName
-		) {
-			return false;
-		}
-
 		if ( $options->sitemap->{aioseo()->sitemap->type}->postTypes->all ) {
 			return true;
 		}
@@ -144,17 +216,41 @@ class Content {
 	/**
 	 * Returns all sitemap entries if indexing is disabled.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage entry now follows {@see Helpers::shouldIncludeHomepage()}.
 	 *
 	 * @return array $entries The sitemap entries.
 	 */
 	private function nonIndexed() {
-		$entries = array_merge( $this->addl(), $this->author(), $this->date(), $this->postArchive() );
+		$additional       = $this->addl();
+		$postTypes        = aioseo()->sitemap->helpers->includedPostTypes();
+		$isStaticHomepage = 'page' === get_option( 'show_on_front' );
+		$blogPageEntry    = [];
+		$homePageEntry    = $additional && aioseo()->sitemap->helpers->shouldIncludeHomepage() ? [ array_shift( $additional ) ] : [];
+		$entries          = array_merge( $additional, $this->author(), $this->date(), $this->postArchive() );
 
-		$postTypes = aioseo()->sitemap->helpers->includedPostTypes();
 		if ( $postTypes ) {
 			foreach ( $postTypes as $postType ) {
-				$entries = array_merge( $entries, $this->posts( $postType ) );
+				$postTypeEntries = $this->posts( $postType );
+
+				// If we don't have a static homepage, it's business as usual.
+				if ( ! $isStaticHomepage ) {
+					$entries = array_merge( $entries, $postTypeEntries );
+					continue;
+				}
+
+				$homePageId = (int) get_option( 'page_on_front' );
+				$blogPageId = (int) get_option( 'page_for_posts' );
+
+				if ( 'post' === $postType && $blogPageId ) {
+					$blogPageEntry[] = array_shift( $postTypeEntries );
+				}
+
+				if ( 'page' === $postType && $homePageId ) {
+					$homePageEntry[] = array_shift( $postTypeEntries );
+				}
+
+				$entries = array_merge( $entries, $postTypeEntries );
 			}
 		}
 
@@ -165,7 +261,18 @@ class Content {
 			}
 		}
 
-		return $entries;
+		// Sort first by priority, then by last modified date.
+		usort( $entries, function ( $a, $b ) {
+			// If the priorities are equal, sort by last modified date.
+			if ( $a['priority'] === $b['priority'] ) {
+				return $a['lastmod'] > $b['lastmod'] ? -1 : 1;
+			}
+
+			return $a['priority'] > $b['priority'] ? -1 : 1;
+		} );
+
+		// Merge the arrays with the home page always first.
+		return array_merge( $homePageEntry, $blogPageEntry, $entries );
 	}
 
 	/**
@@ -191,114 +298,31 @@ class Content {
 		$entries          = [];
 		$isStaticHomepage = 'page' === get_option( 'show_on_front' );
 		$homePageId       = (int) get_option( 'page_on_front' );
-		$excludeImages    = aioseo()->options->sitemap->general->advancedSettings->enable && aioseo()->options->sitemap->general->advancedSettings->excludeImages;
+		$excludeImages    = aioseo()->sitemap->helpers->excludeImages();
 		foreach ( $posts as $post ) {
 			$entry = [
 				'loc'        => get_permalink( $post->ID ),
-				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $post->post_modified_gmt ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $this->getLastModified( $post ) ),
 				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', $post, $postType ),
 				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', $post, $postType ),
 			];
 
 			if ( ! $excludeImages ) {
-				$metaData        = aioseo()->meta->metaData->getMetaData( $post->ID );
-				$entry['images'] = ! empty( $metaData->images ) ? $metaData->images : [];
+				$entry['images'] = ! empty( $post->images ) ? json_decode( $post->images ) : [];
 			}
 
 			// Override priority/frequency for static homepage.
-			if ( $isStaticHomepage && $homePageId === $post->ID ) {
-				$entry['loc']        = aioseo()->helpers->maybeRemoveTrailingSlash( $entry['loc'] );
+			if ( $isStaticHomepage && ( $homePageId === $post->ID || aioseo()->helpers->wpmlIsHomePage( $post->ID ) ) ) {
+				$entry['loc']        = aioseo()->helpers->maybeRemoveTrailingSlash( aioseo()->helpers->wpmlHomeUrl( $post->ID ) ?: $entry['loc'] );
 				$entry['changefreq'] = aioseo()->sitemap->priority->frequency( 'homePage' );
 				$entry['priority']   = aioseo()->sitemap->priority->priority( 'homePage' );
 			}
 
-			$entry = $this->localizeEntries( $entry, $post, $postType );
-			if ( $entry ) {
-				$entries[] = $entry;
-			}
+			$entries[] = apply_filters( 'aioseo_sitemap_post', $entry, $post->ID, $postType, 'post' );
 		}
 
+		// We can't remove the post type here because other plugins rely on it.
 		return apply_filters( 'aioseo_sitemap_posts', $entries, $postType );
-	}
-
-	/**
-	 * Localize the entries if WPML (or others in the future) are active.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  array   $entry    The entry.
-	 * @param  WP_Post $post     The post object.
-	 * @param  string  $postType The post type.
-	 * @param  boolean $rss      Whether or not we are localizing for the RSS sitemap.
-	 * @return array             The entry.
-	 */
-	private function localizeEntries( $entry, $post, $postType, $rss = false ) {
-		if ( null === self::$wpml ) {
-			self::$wpml = false;
-			if ( aioseo()->helpers->isWpmlActive() ) {
-				self::$wpml = apply_filters( 'wpml_default_language', null );
-			}
-		}
-
-		if ( ! self::$wpml ) {
-			return $entry;
-		}
-
-		static $activeLanguages = null;
-		if ( null === $activeLanguages ) {
-			$activeLanguages = apply_filters( 'wpml_active_languages', null );
-		}
-
-		$parentId = apply_filters( 'wpml_object_id', $post->ID, $postType, false, self::$wpml );
-		if ( ! empty( $parentId ) && $parentId !== $post->ID && ! $rss ) {
-			// Skip adding a translation to the entries.
-			return null;
-		}
-
-		$translationGroupId = apply_filters( 'wpml_element_trid', null, $post->ID );
-		$translations       = apply_filters( 'wpml_get_element_translations', null, $translationGroupId, $postType );
-		if ( empty( $translations ) ) {
-			return $entry;
-		}
-
-		$entry['languages'] = [];
-		foreach ( $translations as $translation ) {
-			if ( empty( $translation->element_id ) ) {
-				continue;
-			}
-
-			$permalink = ! empty( $entry['loc'] ) ? $entry['loc'] : (
-				! empty( $entry['guid'] ) ? $entry['guid'] : ''
-			);
-
-			$location = is_home()
-				? apply_filters( 'wpml_home_url', get_option( 'home' ) )
-				: apply_filters( 'wpml_permalink', $entry['loc'], $translation->language_code, true );
-
-			if ( $rss ) {
-				$entry['guid'] = $location;
-				continue;
-			}
-
-			$currentLanguage = ! empty( $activeLanguages[ $translation->language_code ] ) ? $activeLanguages[ $translation->language_code ] : null;
-			$languageCode    = ! empty( $currentLanguage['tag'] ) ? $currentLanguage['tag'] : $translation->language_code;
-
-			if ( $location === $permalink ) {
-				$entry['language'] = $languageCode;
-				continue;
-			}
-
-			$entry['languages'][] = [
-				'language' => $languageCode,
-				'location' => $location
-			];
-		}
-
-		if ( empty( $entry['languages'] ) ) {
-			unset( $entry['languages'] );
-		}
-
-		return $entry;
 	}
 
 	/**
@@ -334,12 +358,15 @@ class Content {
 
 			$url = get_post_type_archive_link( $postType );
 			if ( $url ) {
-				$entries[] = [
+				$entry = [
 					'loc'        => $url,
 					'lastmod'    => aioseo()->sitemap->helpers->lastModifiedPostTime( $postType ),
 					'changefreq' => aioseo()->sitemap->priority->frequency( 'archive' ),
 					'priority'   => aioseo()->sitemap->priority->priority( 'archive' ),
 				];
+
+				// To be consistent with our other entry filters, we need to pass the entry ID as well, but as null in this case.
+				$entries[] = apply_filters( 'aioseo_sitemap_archive_entry', $entry, null, $postType, 'archive' );
 			}
 		}
 
@@ -379,16 +406,18 @@ class Content {
 
 		$entries = [];
 		foreach ( $terms as $term ) {
-			$entries[] = [
+			$entry = [
 				'loc'        => get_term_link( $term->term_id ),
-				'lastmod'    => $this->getTermLastModified( $term->term_id ),
+				'lastmod'    => $this->getTermLastModified( $term ),
 				'changefreq' => aioseo()->sitemap->priority->frequency( 'taxonomies', $term, $taxonomy ),
 				'priority'   => aioseo()->sitemap->priority->priority( 'taxonomies', $term, $taxonomy ),
 				'images'     => aioseo()->sitemap->image->term( $term )
 			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_term', $entry, $term->term_id, $term->taxonomy, 'term' );
 		}
 
-		return apply_filters( 'aioseo_sitemap_terms', $entries, $taxonomy );
+		return apply_filters( 'aioseo_sitemap_terms', $entries );
 	}
 
 	/**
@@ -396,81 +425,133 @@ class Content {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  int    $termId The term ID.
-	 * @return string         The lastmod timestamp.
+	 * @param  int|object $term The term data object.
+	 * @return string           The lastmod timestamp.
 	 */
-	public function getTermLastModified( $termId ) {
+	public function getTermLastModified( $term ) {
 		$termRelationshipsTable = aioseo()->core->db->db->prefix . 'term_relationships';
-		$lastModified = aioseo()->core->db
-			->start( aioseo()->core->db->db->posts . ' as p', true )
-			->select( 'MAX(`p`.`post_modified_gmt`) as last_modified' )
-			->whereRaw( "
-			( `p`.`ID` IN
-				(
-					SELECT `tr`.`object_id`
-					FROM `$termRelationshipsTable` as tr
-					WHERE `tr`.`term_taxonomy_id` = '$termId'
-				)
-			)" )
-			->run()
-			->result();
+		$termTaxonomyTable      = aioseo()->core->db->db->prefix . 'term_taxonomy';
 
-		if ( empty( $lastModified[0]->last_modified ) ) {
-			return '';
+		// If the term is an ID, get the term object.
+		if ( is_numeric( $term ) ) {
+			$term = aioseo()->helpers->getTerm( $term );
 		}
 
-		return aioseo()->helpers->dateTimeToIso8601( $lastModified[0]->last_modified );
+		// First, check the count of the term. If it's 0, then we're dealing with a parent term that does not have
+		// posts assigned to it. In this case, we need to get the last modified date of all its children.
+		if ( empty( $term->count ) ) {
+			$lastModified = aioseo()->core->db
+				->start( aioseo()->core->db->db->posts . ' as p', true )
+				->select( 'MAX(`p`.`post_modified_gmt`) as last_modified' )
+				->where( 'p.post_status', 'publish' )
+				->whereRaw( "
+				( `p`.`ID` IN
+					(
+						SELECT CONVERT(`tr`.`object_id`, unsigned)
+						FROM `$termRelationshipsTable` as tr
+						JOIN `$termTaxonomyTable` as tt ON `tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`
+						WHERE `tt`.`term_id` IN
+							(
+								SELECT `tt`.`term_id`
+								FROM `$termTaxonomyTable` as tt
+								WHERE `tt`.`parent` = '{$term->term_id}'
+							)
+					)
+				)" )
+				->run()
+				->result();
+		} else {
+			$lastModified = aioseo()->core->db
+				->start( aioseo()->core->db->db->posts . ' as p', true )
+				->select( 'MAX(`p`.`post_modified_gmt`) as last_modified' )
+				->where( 'p.post_status', 'publish' )
+				->whereRaw( "
+				( `p`.`ID` IN
+					(
+						SELECT CONVERT(`tr`.`object_id`, unsigned)
+						FROM `$termRelationshipsTable` as tr
+						JOIN `$termTaxonomyTable` as tt ON `tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`
+						WHERE `tt`.`term_id` = '{$term->term_id}'
+					)
+				)" )
+				->run()
+				->result();
+		}
+
+		$lastModified = $lastModified[0]->last_modified ?? '';
+
+		return aioseo()->helpers->dateTimeToIso8601( $lastModified );
 	}
 
 	/**
 	 * Returns all additional pages.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.3 Homepage entry now follows {@see Helpers::shouldIncludeHomepage()}.
 	 *
-	 * @return array The sitemap entries.
+	 * @param  bool  $shouldChunk Whether the entries should be chuncked. Is set to false when the static sitemap is generated.
+	 * @return array              The sitemap entries.
 	 */
-	public function addl() {
+	public function addl( $shouldChunk = true ) {
+		$additionalPages = [];
+		if ( aioseo()->options->sitemap->general->additionalPages->enable ) {
+			$additionalPages = array_map( 'json_decode', aioseo()->options->sitemap->general->additionalPages->pages );
+			$additionalPages = array_filter( $additionalPages, function( $additionalPage ) {
+				return ! empty( $additionalPage->url );
+			} );
+		}
+
 		$entries = [];
-		if ( 'posts' === get_option( 'show_on_front' ) || ! in_array( 'page', aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
-			$frontPageId  = (int) get_option( 'page_on_front' );
-			$frontPageUrl = aioseo()->helpers->localizedUrl( '/' );
-			$post         = aioseo()->helpers->getPost( $frontPageId );
+		foreach ( $additionalPages as $additionalPage ) {
 			$entries[] = [
-				'loc'        => aioseo()->helpers->maybeRemoveTrailingSlash( $frontPageUrl ),
-				'lastmod'    => $post ? aioseo()->helpers->dateTimeToIso8601( $post->post_modified_gmt ) : aioseo()->sitemap->helpers->lastModifiedPostTime(),
-				'changefreq' => aioseo()->sitemap->priority->frequency( 'homePage' ),
-				'priority'   => aioseo()->sitemap->priority->priority( 'homePage' ),
+				'loc'        => $additionalPage->url,
+				'lastmod'    => aioseo()->sitemap->helpers->lastModifiedAdditionalPage( $additionalPage ),
+				'changefreq' => $additionalPage->frequency->value,
+				'priority'   => $additionalPage->priority->value,
+				'isTimezone' => true
 			];
 		}
 
-		if ( aioseo()->options->sitemap->general->additionalPages->enable ) {
-			$additionalPages = aioseo()->options->sitemap->general->additionalPages->pages;
-			$pages           = [];
-			foreach ( $additionalPages as $page ) {
-				$additionalPage = json_decode( $page );
-				if ( empty( $additionalPage->url ) ) {
-					continue;
+		if ( aioseo()->sitemap->helpers->shouldIncludeHomepage() ) {
+			$frontPageId  = (int) get_option( 'page_on_front' );
+			$frontPageUrl = aioseo()->helpers->localizedUrl( '/' );
+			$post         = aioseo()->helpers->getPost( $frontPageId );
+
+			$homepageEntry = [
+				'loc'        => aioseo()->helpers->maybeRemoveTrailingSlash( $frontPageUrl ),
+				'lastmod'    => $post ? aioseo()->helpers->dateTimeToIso8601( $this->getLastModified( $post ) ) : aioseo()->sitemap->helpers->lastModifiedPostTime(),
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'homePage' ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'homePage' )
+			];
+
+			$translatedHomepages = aioseo()->helpers->wpmlHomePages();
+			foreach ( $translatedHomepages as $languageCode => $translatedHomepage ) {
+				if ( untrailingslashit( $translatedHomepage['url'] ) !== untrailingslashit( $homepageEntry['loc'] ) ) {
+					$homepageEntry['languages'][] = [
+						'language' => $languageCode,
+						'location' => $translatedHomepage['url']
+					];
 				}
-
-				$pages[] = $additionalPage;
 			}
 
-			if ( ! count( $pages ) ) {
-				return apply_filters( 'aioseo_sitemap_additional_pages', $entries );
-			}
-
-			foreach ( $pages as $page ) {
-				$entries[] = [
-					'loc'        => $page->url,
-					'lastmod'    => aioseo()->sitemap->helpers->lastModifiedAdditionalPage( $page ),
-					'isTimezone' => true,
-					'changefreq' => $page->frequency->value,
-					'priority'   => $page->priority->value
-				];
-			}
+			// Add homepage to the first position.
+			array_unshift( $entries, $homepageEntry );
 		}
 
-		return apply_filters( 'aioseo_sitemap_additional_pages', $entries );
+		if ( aioseo()->options->sitemap->general->additionalPages->enable ) {
+			$entries = apply_filters( 'aioseo_sitemap_additional_pages', $entries );
+		}
+
+		if ( empty( $entries ) ) {
+			return [];
+		}
+
+		if ( aioseo()->options->sitemap->general->indexes && $shouldChunk ) {
+			$entries = aioseo()->sitemap->helpers->chunkEntries( $entries );
+			$entries = $entries[ aioseo()->sitemap->pageNumber ] ?? [];
+		}
+
+		return $entries;
 	}
 
 	/**
@@ -500,23 +581,39 @@ class Content {
 			return [];
 		}
 
-		$args = [
-			'has_published_posts' => [ 'post' ]
-		];
+		// Allow users to filter the authors in case their sites use a membership plugin or have custom code that affect the authors on their site.
+		// e.g. there might be additional roles/conditions that need to be checked here.
+		$authors = apply_filters( 'aioseo_sitemap_authors', [] );
+		if ( empty( $authors ) ) {
+			$usersTableName = aioseo()->core->db->db->users; // We get the table name from WPDB since multisites share the same table.
+			$authors        = aioseo()->core->db->start( "$usersTableName as u", true )
+				->select( 'u.ID as ID, u.user_nicename as nicename, MAX(p.post_modified_gmt) as lastModified' )
+				->join( 'posts as p', 'u.ID = p.post_author' )
+				->where( 'p.post_status', 'publish' )
+				->whereIn( 'p.post_type', aioseo()->sitemap->helpers->getAuthorPostTypes() )
+				->groupBy( 'u.ID' )
+				->orderBy( 'lastModified DESC' )
+				->limit( aioseo()->sitemap->linksPerIndex, aioseo()->sitemap->pageNumber * aioseo()->sitemap->linksPerIndex )
+				->run()
+				->result();
+		}
 
-		$authors = get_users( $args );
-		if ( ! $authors ) {
+		if ( empty( $authors ) ) {
 			return [];
 		}
 
 		$entries = [];
-		foreach ( $authors as $author ) {
-			$entries[] = [
-				'loc'        => get_author_posts_url( $author->ID ),
-				'lastmod'    => aioseo()->sitemap->helpers->lastModifiedPostTime( 'post', [ 'author' => $author->ID ] ),
+		foreach ( $authors as $authorData ) {
+			$entry = [
+				'loc'        => ! empty( $authorData->authorUrl )
+					? $authorData->authorUrl
+					: get_author_posts_url( $authorData->ID, $authorData->nicename ?: '' ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $authorData->lastModified ),
 				'changefreq' => aioseo()->sitemap->priority->frequency( 'author' ),
-				'priority'   => aioseo()->sitemap->priority->priority( 'author' ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'author' )
 			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_author_entry', $entry, $authorData->ID, $authorData->nicename, 'author' );
 		}
 
 		return apply_filters( 'aioseo_sitemap_author_archives', $entries );
@@ -549,43 +646,59 @@ class Content {
 			return [];
 		}
 
-		global $wpdb;
-		$dates = $wpdb->get_results( $wpdb->prepare(
+		$postsTable = aioseo()->core->db->db->posts;
+		$dates      = aioseo()->core->db->execute(
 			"SELECT
 				YEAR(post_date) AS `year`,
 				MONTH(post_date) AS `month`,
-				post_modified_gmt
-			FROM {$wpdb->posts}
-			WHERE post_type = %s AND post_status = 'publish'
+				MAX(post_date_gmt) AS post_date_gmt,
+				MAX(post_modified_gmt) AS post_modified_gmt
+			FROM {$postsTable}
+			WHERE post_type = 'post' AND post_status = 'publish'
 			GROUP BY
 				YEAR(post_date),
 				MONTH(post_date)
-			ORDER BY post_date ASC LIMIT %d",
-			'post',
-			50000
-		) );
+			ORDER BY post_date ASC
+			LIMIT 50000",
+			true
+		)->result();
 
-		if ( ! $dates ) {
+		if ( empty( $dates ) ) {
 			return [];
 		}
 
-		$entries = [];
-		$year    = '';
+		$yearMaxLastmod = [];
 		foreach ( $dates as $date ) {
-			$entry = [
-				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $date->post_modified_gmt ),
-				'changefreq' => aioseo()->sitemap->priority->frequency( 'date' ),
-				'priority'   => aioseo()->sitemap->priority->priority( 'date' ),
-			];
-
-			// Include each year only once.
-			if ( $year !== $date->year ) {
-				$year         = $date->year;
-				$entry['loc'] = get_year_link( $date->year );
-				$entries[]    = $entry;
+			$lastmod = $this->getLastModified( $date );
+			if ( ! isset( $yearMaxLastmod[ $date->year ] ) || $lastmod > $yearMaxLastmod[ $date->year ] ) {
+				$yearMaxLastmod[ $date->year ] = $lastmod;
 			}
-			$entry['loc'] = get_month_link( $date->year, $date->month );
-			$entries[]    = $entry;
+		}
+
+		$entries   = [];
+		$year      = '';
+		$changefreq = aioseo()->sitemap->priority->frequency( 'date' );
+		$priority   = aioseo()->sitemap->priority->priority( 'date' );
+		foreach ( $dates as $date ) {
+			// Include each year only once, using the max lastmod across all months in that year.
+			if ( $year !== $date->year ) {
+				$year      = $date->year;
+				$yearEntry = [
+					'loc'        => get_year_link( $date->year ),
+					'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $yearMaxLastmod[ $date->year ] ),
+					'changefreq' => $changefreq,
+					'priority'   => $priority,
+				];
+				$entries[] = apply_filters( 'aioseo_sitemap_date_entry', $yearEntry, $date, 'year', 'date' );
+			}
+
+			$monthEntry = [
+				'loc'        => get_month_link( $date->year, $date->month ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $this->getLastModified( $date ) ),
+				'changefreq' => $changefreq,
+				'priority'   => $priority,
+			];
+			$entries[] = apply_filters( 'aioseo_sitemap_date_entry', $monthEntry, $date, 'month', 'date' );
 		}
 
 		return apply_filters( 'aioseo_sitemap_date_archives', $entries );
@@ -614,16 +727,279 @@ class Content {
 				'guid'        => get_permalink( $post->ID ),
 				'title'       => get_the_title( $post ),
 				'description' => get_post_field( 'post_excerpt', $post->ID ),
-				'pubDate'     => aioseo()->helpers->dateTimeToIso8601( $post->post_modified_gmt )
+				'pubDate'     => aioseo()->helpers->dateTimeToRfc822( $this->getLastModified( $post ) )
 			];
 
-			$entries[] = $this->localizeEntries( $entry, $post, $post->post_type, true );
+			// If the entry is the homepage, we need to check if the permalink structure
+			// does not have a trailing slash. If so, we need to strip it because WordPress adds it
+			// regardless for the home_url() in get_page_link() which is used in the get_permalink() function.
+			static $homeId = null;
+			if ( null === $homeId ) {
+				$homeId = get_option( 'page_for_posts' );
+			}
+
+			if ( aioseo()->helpers->getHomePageId() === $post->ID ) {
+				$entry['guid'] = aioseo()->helpers->maybeRemoveTrailingSlash( $entry['guid'] );
+			}
+
+			$entries[] = apply_filters( 'aioseo_sitemap_post_rss', $entry, $post->ID, $post->post_type, 'post' );
 		}
 
 		usort( $entries, function( $a, $b ) {
-			return $a['pubDate'] < $b['pubDate'] ? 1 : 0;
+			return strtotime( $b['pubDate'] ) <=> strtotime( $a['pubDate'] );
 		});
 
 		return apply_filters( 'aioseo_sitemap_rss', $entries );
+	}
+
+	/**
+	 * Returns the last modified date for a given post.
+	 *
+	 * @since 4.6.3
+	 *
+	 * @param  object $post The post object.
+	 *
+	 * @return string The last modified date.
+	 */
+	public function getLastModified( $post ) {
+		$publishDate      = $post->post_date_gmt;
+		$lastModifiedDate = $post->post_modified_gmt;
+
+		// Get the date which is the latest.
+		return $lastModifiedDate > $publishDate ? $lastModifiedDate : $publishDate;
+	}
+
+	/**
+	 * Returns all entries for the BuddyPress Activity Sitemap.
+	 * This method is automagically called from {@see get()} if the current index name equals to 'bp-activity'
+	 *
+	 * @since 4.7.6
+	 *
+	 * @return array The sitemap entries.
+	 */
+	public function bpActivity() {
+		$entries = [];
+		if ( ! in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
+			return $entries;
+		}
+
+		$postType = 'bp-activity';
+		$query    = aioseo()->core->db
+			->start( 'bp_activity as a' )
+			->select( '`a`.`id`, `a`.`date_recorded`' )
+			->where( 'a.is_spam', 0 )
+			->where( 'a.hide_sitewide', 0 )
+			->whereNotIn( 'a.type', [ 'activity_comment', 'last_activity' ] )
+			->limit( aioseo()->sitemap->linksPerIndex, aioseo()->sitemap->offset )
+			->orderBy( 'a.date_recorded DESC' );
+
+		$items = $query->run()
+						->result();
+
+		foreach ( $items as $item ) {
+			$entry = [
+				'loc'        => BuddyPressIntegration::getComponentSingleUrl( 'activity', $item->id ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $item->date_recorded ),
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_post', $entry, $item->id, $postType );
+		}
+
+		$archiveUrl = BuddyPressIntegration::getComponentArchiveUrl( 'activity' );
+		if (
+			aioseo()->helpers->isUrl( $archiveUrl ) &&
+			! in_array( $postType, aioseo()->helpers->getNoindexedObjects( 'archives' ), true )
+		) {
+			$lastMod = ! empty( $items[0] ) ? $items[0]->date_recorded : current_time( 'mysql' );
+			$entry   = [
+				'loc'        => $archiveUrl,
+				'lastmod'    => $lastMod,
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			array_unshift( $entries, $entry );
+		}
+
+		return apply_filters( 'aioseo_sitemap_posts', $entries, $postType );
+	}
+
+	/**
+	 * Returns all entries for the BuddyPress Group Sitemap.
+	 * This method is automagically called from {@see get()} if the current index name equals to 'bp-group'
+	 *
+	 * @since 4.7.6
+	 *
+	 * @return array The sitemap entries.
+	 */
+	public function bpGroup() {
+		$entries = [];
+		if ( ! in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
+			return $entries;
+		}
+
+		$postType = 'bp-group';
+		$query    = aioseo()->core->db
+			->start( 'bp_groups as g' )
+			->select( '`g`.`id`, `g`.`date_created`, `gm`.`meta_value` as date_modified' )
+			->leftJoin( 'bp_groups_groupmeta as gm', 'g.id = gm.group_id' )
+			->where( 'g.status', 'public' )
+			->where( 'gm.meta_key', 'last_activity' )
+			->limit( aioseo()->sitemap->linksPerIndex, aioseo()->sitemap->offset )
+			->orderBy( 'gm.meta_value DESC' )
+			->orderBy( 'g.date_created DESC' );
+
+		$items = $query->run()
+						->result();
+
+		foreach ( $items as $item ) {
+			$lastMod = $item->date_modified ?: $item->date_created;
+			$entry   = [
+				'loc'        => BuddyPressIntegration::getComponentSingleUrl( 'group', BuddyPressIntegration::callFunc( 'bp_get_group_by', 'id', $item->id ) ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $lastMod ),
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_post', $entry, $item->id, $postType );
+		}
+
+		$archiveUrl = BuddyPressIntegration::getComponentArchiveUrl( 'group' );
+		if (
+			aioseo()->helpers->isUrl( $archiveUrl ) &&
+			! in_array( $postType, aioseo()->helpers->getNoindexedObjects( 'archives' ), true )
+		) {
+			$lastMod = ! empty( $items[0] ) ? $items[0]->date_modified : current_time( 'mysql' );
+			$entry   = [
+				'loc'        => $archiveUrl,
+				'lastmod'    => $lastMod,
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			array_unshift( $entries, $entry );
+		}
+
+		return apply_filters( 'aioseo_sitemap_posts', $entries, $postType );
+	}
+
+	/**
+	 * Returns all entries for the BuddyPress Member Sitemap.
+	 * This method is automagically called from {@see get()} if the current index name equals to 'bp-member'
+	 *
+	 * @since 4.7.6
+	 *
+	 * @return array The sitemap entries.
+	 */
+	public function bpMember() {
+		$entries = [];
+		if ( ! in_array( aioseo()->sitemap->indexName, aioseo()->sitemap->helpers->includedPostTypes(), true ) ) {
+			return $entries;
+		}
+
+		$postType = 'bp-member';
+		$query    = aioseo()->core->db
+			->start( 'bp_activity as a' )
+			->select( '`a`.`user_id` as id, `a`.`date_recorded`' )
+			->where( 'a.component', 'members' )
+			->where( 'a.type', 'last_activity' )
+			->limit( aioseo()->sitemap->linksPerIndex, aioseo()->sitemap->offset )
+			->orderBy( 'a.date_recorded DESC' );
+
+		$items = $query->run()
+			->result();
+
+		foreach ( $items as $item ) {
+			$entry = [
+				'loc'        => BuddyPressIntegration::getComponentSingleUrl( 'member', $item->id ),
+				'lastmod'    => aioseo()->helpers->dateTimeToIso8601( $item->date_recorded ),
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_post', $entry, $item->id, $postType );
+		}
+
+		$archiveUrl = BuddyPressIntegration::getComponentArchiveUrl( 'member' );
+		if (
+			aioseo()->helpers->isUrl( $archiveUrl ) &&
+			! in_array( $postType, aioseo()->helpers->getNoindexedObjects( 'archives' ), true )
+		) {
+			$lastMod = ! empty( $items[0] ) ? $items[0]->date_recorded : current_time( 'mysql' );
+			$entry   = [
+				'loc'        => $archiveUrl,
+				'lastmod'    => $lastMod,
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'postTypes', false, $postType ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'postTypes', false, $postType ),
+			];
+
+			array_unshift( $entries, $entry );
+		}
+
+		return apply_filters( 'aioseo_sitemap_posts', $entries, $postType );
+	}
+
+	/**
+	 * Returns all entries for the WooCommerce Product Attributes sitemap.
+	 * Note: This sitemap does not support pagination.
+	 *
+	 * @since 4.7.8
+	 *
+	 * @param  bool  $count Whether to return the count of the entries. This is used to determine the indexes.
+	 * @return array        The sitemap entries.
+	 */
+	public function productAttributes( $count = false ) {
+		$aioseoTermsTable           = aioseo()->core->db->prefix . 'aioseo_terms';
+		$wcAttributeTaxonomiesTable = aioseo()->core->db->prefix . 'woocommerce_attribute_taxonomies';
+		$termTaxonomyTable          = aioseo()->core->db->prefix . 'term_taxonomy';
+
+		$selectClause = 'COUNT(*) as childProductAttributes';
+		if ( ! $count ) {
+			$selectClause = aioseo()->pro ? 'tt.term_id, tt.taxonomy, at.frequency, at.priority' : 'tt.term_id, tt.taxonomy';
+		}
+
+		$joinClause   = aioseo()->pro ? "LEFT JOIN {$aioseoTermsTable} AS at ON tt.term_id = at.term_id" : '';
+		$whereClause  = aioseo()->pro ? 'AND (at.robots_noindex IS NULL OR at.robots_noindex = 0)' : '';
+		$limitClause  = $count ? '' : 'LIMIT 50000';
+
+		$result = aioseo()->core->db->execute(
+			"SELECT {$selectClause}
+			FROM {$termTaxonomyTable} AS tt
+			JOIN {$wcAttributeTaxonomiesTable} AS wat ON tt.taxonomy = CONCAT('pa_', wat.attribute_name)
+			{$joinClause}
+			WHERE wat.attribute_public = 1
+				{$whereClause}
+				AND tt.count > 0
+			{$limitClause};",
+			true
+		)->result();
+
+		if ( $count ) {
+			return ! empty( $result[0]->childProductAttributes ) ? (int) $result[0]->childProductAttributes : 0;
+		}
+
+		if ( empty( $result ) ) {
+			return [];
+		}
+
+		$entries = [];
+		foreach ( $result as $term ) {
+			$term   = (object) $term;
+			$termId = (int) $term->term_id;
+
+			$entry = [
+				'loc'        => get_term_link( $termId ),
+				'lastmod'    => $this->getTermLastModified( $termId ),
+				'changefreq' => aioseo()->sitemap->priority->frequency( 'taxonomies', $term, 'product_attributes' ),
+				'priority'   => aioseo()->sitemap->priority->priority( 'taxonomies', $term, 'product_attributes' ),
+				'images'     => aioseo()->sitemap->image->term( $term )
+			];
+
+			$entries[] = apply_filters( 'aioseo_sitemap_product_attributes', $entry, $termId, $term->taxonomy, 'term' );
+		}
+
+		return $entries;
 	}
 }

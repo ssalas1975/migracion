@@ -1,5 +1,6 @@
 <?php
 
+use Tribe__Events__Venue as Venue;
 
 /**
  * Class Tribe__Events__Meta__Save
@@ -26,24 +27,26 @@ class Tribe__Events__Meta__Save {
 	/**
 	 * Tribe__Events__Meta__Save constructor.
 	 *
+	 * @since 6.17.0 Made $context explicitly nullable.
+	 *
 	 * @param                                   $post_id
 	 * @param WP_Post                           $post
 	 * @param Tribe__Events__Meta__Context|null $context
 	 */
-	public function __construct( $post_id, WP_Post $post, Tribe__Events__Meta__Context $context = null ) {
+	public function __construct( $post_id, WP_Post $post, ?Tribe__Events__Meta__Context $context = null ) {
 		$this->post_id = $post_id;
 		$this->post    = $post;
 		$this->context = $context ? $context : new Tribe__Events__Meta__Context();
 	}
 
 	/**
-	 * ensure only one venue or organizer is created during post preview
-	 * subsequent previews will reuse that same post
+	 * Ensure only one venue or organizer is created during post preview.
+	 * Subsequent previews will reuse that same post.
 	 *
-	 * ensure that preview post is the one that's used when the event is published,
-	 * unless we're publishing with a saved venue
+	 * Ensure that preview post is the one that's used when the event is published,
+	 * unless we're publishing with a saved venue.
 	 *
-	 * @param string $post_type Can be 'venue' or 'organizer'
+	 * @param string $post_type Can be 'venue' or 'organizer'.
 	 */
 	protected function manage_preview_metapost( $post_type, $event_id ) {
 
@@ -146,7 +149,7 @@ class Tribe__Events__Meta__Save {
 			return false;
 		}
 
-		// don't do anything on autosave or auto-draft either or massupdates
+		// Don't do anything on autosave or auto-draft either or massupdates.
 		if ( $this->is_autosave() || $this->is_auto_draft() || $this->context->is_bulk_editing() || $this->context->is_inline_save() ) {
 			return false;
 		}
@@ -197,6 +200,13 @@ class Tribe__Events__Meta__Save {
 	 * @return bool
 	 */
 	public function save_block_editor_metadata( $event_id, $data, $event = null ) {
+		if ( ! isset( $_GET['meta-box-loader-nonce'] ) ) {
+			return false;
+		}
+
+		if ( ! wp_verify_nonce( $_GET['meta-box-loader-nonce'], 'meta-box-loader' ) ) {
+			return false;
+		}
 
 		if ( ! $this->context->current_user_can_edit_events() ) {
 			return false;
@@ -235,6 +245,15 @@ class Tribe__Events__Meta__Save {
 				wp_update_post( $update_event );
 			}
 		}
+
+		// When we save a block event, we need to make sure that the venue order is updated based on the venues in the post.
+		$linked_posts_object = tribe( 'tec.linked-posts' );
+		$venue_meta_key      = $linked_posts_object->get_meta_key( Venue::POSTTYPE );
+		$current_venue_order = get_post_meta( $event_id, $venue_meta_key, false );
+		$current_venue_order = array_map( 'absint', $current_venue_order );
+		$new_venue_order     = $linked_posts_object->maybe_get_new_order_from_blocks( $event_id, Venue::POSTTYPE, $current_venue_order );
+
+		$linked_posts_object->maybe_reorder_linked_posts_ids( $event_id, Venue::POSTTYPE, $new_venue_order, $current_venue_order );
 
 		// Set featured status
 		empty( $data['feature_event'] )

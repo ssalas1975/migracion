@@ -87,7 +87,7 @@
 	padding: 10px 12px;
 	word-break: break-all;
 	max-width: 50%;
-	z-index: 90001;
+	z-index: var(--wpbc_ui__floating-notice-z-index, 100170);
 }
 /* Shift down meessages in full  screen  on WP Booking Calendar > Settings > Booking Form > Booking Form Fields page */
 .wpbc_admin_full_screen .wpbc_admin .wpbc_page div.wpbc_inner_message {
@@ -102,18 +102,6 @@
 	width: 24px;
 	height: 24px;
 }
-/* -- Timeline ------------------------------------------------------------------------------------------------------ */
-/* "Emails Sending" toggle at  top  horisontal  bar located at  right side. */
-.wpbc_ui_el__horis_top_bar__content .wpbc_ui__is_send_emails_toggle {
-	font-size: 13px;
-	line-height: 1.4;
-	border-left: 1px solid var(--wpbc_ui_horis_top_nav__normal_color);
-	padding-left: 15px;
-	margin-left: auto;
-	min-height: 30px;
-	align-items: center;
-}
-
 /* -- TODO: Temp fix for "Form Options Costs page"   ---------------------------------------------------------------- */
 #wpbc_settings_advancedcost_metabox tr {
 	display: flex;
@@ -166,11 +154,14 @@
 .wp-core-ui .wpbc_page select:focus,
 .wp-core-ui .wpbc_page textarea:focus,
 .wp-core-ui .wpbc_page input[type=checkbox]:focus,
-.wp-core-ui .wpbc_page input[type=radio]:focus{
-  border-width: var(--wpbc_form-field-border-size);
-  border-style: solid;
-  border-color: var(--wpbc_form-button-background-color);
-  box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color),0 1px 2px rgba(0,0,0,.15);
-  outline: 0
+.wp-core-ui .wpbc_page input[type=radio]:focus {
+	outline: 0;
+	border-width: var(--wpbc_form-field-border-size);
+	border-style: solid;
+	border-color: var(--wpbc_form-button-background-color);
+	box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color), 0 1px 2px rgba(0, 0, 0, .15);
 }
-
+/* Exception  for range slider,  to  have smaller highlight color */
+.wp-core-ui .wpbc_page input[type=range]:focus {
+	box-shadow: 0 0 0 1px var(--wpbc_form-button-background-color), 0 1px 2px rgba(0, 0, 0, .15);
+}

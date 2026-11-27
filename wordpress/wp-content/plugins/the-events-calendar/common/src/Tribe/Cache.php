@@ -79,10 +79,10 @@ class Tribe__Cache implements ArrayAccess {
 	}
 
 	/**
-	 * @param              $id
-	 * @param              $value
-	 * @param int          $expiration
-	 * @param string|array $expiration_trigger
+	 * @param string       $id                 The key for the cached value.
+	 * @param mixed        $value              The value to cache.
+	 * @param int          $expiration         The expiration time.
+	 * @param string|array $expiration_trigger Optional. Hook to trigger cache invalidation.
 	 *
 	 * @return bool
 	 */
@@ -118,7 +118,7 @@ class Tribe__Cache implements ArrayAccess {
 
 		if ( is_callable( $default ) ) {
 			// A callback has been specified.
-			$value = call_user_func_array( $default, $args );
+			$value = $default( ...$args );
 		} else {
 			// Default is a value.
 			$value = $default;
@@ -133,8 +133,8 @@ class Tribe__Cache implements ArrayAccess {
 	}
 
 	/**
-	 * @param string       $id
-	 * @param string|array $expiration_trigger
+	 * @param string       $id                 The key for the cached value.
+	 * @param string|array $expiration_trigger Optional. Hook to trigger cache invalidation.
 	 *
 	 * @return mixed
 	 */
@@ -143,8 +143,8 @@ class Tribe__Cache implements ArrayAccess {
 	}
 
 	/**
-	 * @param string       $id
-	 * @param string|array $expiration_trigger
+	 * @param string       $id                 The key for the cached value.
+	 * @param string|array $expiration_trigger Optional. Hook to trigger cache invalidation.
 	 *
 	 * @return bool
 	 */
@@ -160,8 +160,8 @@ class Tribe__Cache implements ArrayAccess {
 	}
 
 	/**
-	 * @param string       $id
-	 * @param string|array $expiration_trigger
+	 * @param string       $id                 The key for the cached value.
+	 * @param string|array $expiration_trigger Optional. Hook to trigger cache invalidation.
 	 *
 	 * @return bool
 	 */
@@ -250,15 +250,15 @@ class Tribe__Cache implements ArrayAccess {
 	}
 
 	/**
-	 * @param string       $key
-	 * @param string|array $expiration_trigger
+	 * @param string       $key                The key for the cached value.
+	 * @param string|array $expiration_trigger Optional. Hook to trigger cache invalidation.
 	 *
 	 * @return string
 	 */
 	public function get_id( $key, $expiration_trigger = '' ) {
 		if ( is_array( $expiration_trigger ) ) {
 			$triggers = $expiration_trigger;
-		} else {
+		} elseif ( 'tribe-events-non-persistent' !== $expiration_trigger && 'tribe-events' !== $expiration_trigger ) {
 			$triggers = array_filter( explode( '|', $expiration_trigger ) );
 		}
 
@@ -289,20 +289,13 @@ class Tribe__Cache implements ArrayAccess {
 	 * Returns the time of an action last occurrence.
 	 *
 	 * @since 4.9.14 Changed the return value type from `int` to `float`.
+	 * @since 5.0.17 No longer memoizes the first triggered timestamp.
 	 *
 	 * @param string $action The action to return the time for.
 	 *
 	 * @return float The time (microtime) an action last occurred, or the current microtime if it never occurred.
 	 */
 	public function get_last_occurrence( $action ) {
-		static $cache_var_name = __METHOD__;
-
-		$cache_last_actions = tribe_get_var( $cache_var_name, [] );
-
-		if ( isset( $cache_last_actions[ $action ] ) ) {
-			return $cache_last_actions[ $action ];
-		}
-
 		$last_action = (float) get_option( 'tribe_last_' . $action, null );
 
 		if ( ! $last_action ) {
@@ -310,11 +303,7 @@ class Tribe__Cache implements ArrayAccess {
 			$this->set_last_occurrence( $action, $last_action );
 		}
 
-		$cache_last_actions[ $action ] = (float) $last_action;
-
-		tribe_set_var( $cache_var_name, $cache_last_actions );
-
-		return $cache_last_actions[ $action ];
+		return $last_action;
 	}
 
 	/**
@@ -345,7 +334,7 @@ class Tribe__Cache implements ArrayAccess {
 	 * Builds a key from an array of components and an optional prefix.
 	 *
 	 * @param mixed  $components Either a single component of the key or an array of key components.
-	 * @param string $prefix
+	 * @param string $prefix     Optional. The prefix for the key.
 	 * @param bool   $sort       Whether component arrays should be sorted or not to generate the key; defaults to
 	 *                           `true`.
 	 *
@@ -373,16 +362,20 @@ class Tribe__Cache implements ArrayAccess {
 	 * Whether a offset exists.
 	 *
 	 * @since 4.11.0
-	 *
-	 * @link  http://php.net/manual/en/arrayaccess.offsetexists.php
+	 * @since 5.0.13 Will check against cache expiration. Previously would give false positive
+	 *            if expiration had passed but was cached recently. Will now consider null not set.
 	 *
 	 * @param mixed $offset An offset to check for.
 	 *
 	 * @return boolean Whether the offset exists in the cache.
+	 *@link  http://php.net/manual/en/arrayaccess.offsetexists.php
+	 *
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetExists( $offset ) {
-		return isset( $this->non_persistent_keys[ $offset ] );
+	public function offsetExists( $offset ): bool {
+		$value = $this->get( $offset );
+
+		return $value !== false && $value !== null;
 	}
 
 	/**
@@ -414,7 +407,7 @@ class Tribe__Cache implements ArrayAccess {
 	 * @return void
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetSet( $offset, $value ) {
+	public function offsetSet( $offset, $value ): void {
 		$this->set( $offset, $value, self::NON_PERSISTENT );
 	}
 
@@ -430,7 +423,7 @@ class Tribe__Cache implements ArrayAccess {
 	 * @return void
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetUnset( $offset ) {
+	public function offsetUnset( $offset ): void {
 		$this->delete( $offset );
 	}
 
@@ -630,7 +623,7 @@ class Tribe__Cache implements ArrayAccess {
 
 		$inserted         = [];
 		$serialized_value = maybe_serialize( $value );
-		$chunk_size       = tribe( 'feature-detection' )->get_mysql_max_packet_size() * 0.9;
+		$chunk_size       = (int) ( tribe( 'feature-detection' )->get_mysql_max_packet_size() * 0.9 );
 		$chunks           = str_split( $serialized_value, $chunk_size );
 		foreach ( $chunks as $i => $chunk ) {
 			$chunk_transient = $transient . '_' . $i;

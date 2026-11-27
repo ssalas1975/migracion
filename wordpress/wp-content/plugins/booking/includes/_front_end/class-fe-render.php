@@ -55,6 +55,8 @@ class WPBC_FE_Render {
 			'calendar_dates_end'              => '',
 			'booking_hash'                    => '',
 			'form_status'                     => 'published',
+			'booking_workflow'                => 'classic',
+			'calendar_request_overrides'      => array(),
 		);
 		$params_arr     = wp_parse_args( $params_arr, $default_params );
 		$is_echo        = ( ! empty( $params_arr['is_echo'] ) );
@@ -89,10 +91,76 @@ class WPBC_FE_Render {
 		// ---------------------------------------------------------------------
 		make_bk_action( 'check_multiuser_params_for_client_side', $params_arr['resource_id'] );
 
+		// Render a focused cancellation confirmation instead of loading the complete booking form and calendar.
+		if ( WPBC_GET_Request::has_get( 'booking_cancel' ) && function_exists( 'wpbc_customer_access_render_cancellation_confirmation' ) ) {
+			$booking_hash = sanitize_text_field( wp_unslash( (string) $params_arr['booking_hash'] ) );
+			if ( '' === $booking_hash ) {
+				$booking_hash = WPBC_GET_Request::get_sanitized( 'booking_hash' );
+			}
+
+			$cancellation_html = wpbc_customer_access_render_cancellation_confirmation( $booking_hash, $params_arr['resource_id'] );
+
+			/**
+			 * Filters the complete visitor cancellation confirmation markup.
+			 *
+			 * @param string $cancellation_html Rendered confirmation markup.
+			 * @param int    $resource_id       Resource ID used by the front-end form container.
+			 * @param string $booking_hash      Sanitized booking credential from the cancellation URL.
+			 */
+			$cancellation_html = apply_filters(
+				'wpbc_customer_booking_cancellation_confirmation_html',
+				$cancellation_html,
+				absint( $params_arr['resource_id'] ),
+				$booking_hash
+			);
+
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			$my_result = apply_filters( 'wpdev_booking_form', ' ' . $cancellation_html . ' ', $params_arr['resource_id'] );
+
+			make_bk_action( 'finish_check_multiuser_params_for_client_side', $params_arr['resource_id'] );
+
+			return self::echo_or_return( $my_result, $is_echo );
+		}
+
+		// Resolve visitor-edit Booking Form identity before signing the calendar
+		// context. The form body must not be the first layer to discover the form
+		// saved with the authorized booking, because calendar and submission AJAX
+		// requests use this signed value before the body is rendered.
+		$edit_form_identity = array();
+		if ( '' !== (string) $params_arr['booking_hash'] && method_exists( 'WPBC_FE_Form_Source', 'resolve_booking_form_identity' ) ) {
+			$custom_params        = WPBC_FE_Options_Parser::parse_for_parameter__in_shortcode_options( $params_arr['shortcode_param__options'] );
+			$edit_legacy_instance = wpbc_get_legacy_booking_instance();
+			$edit_form_identity   = WPBC_FE_Form_Source::resolve_booking_form_identity(
+				$params_arr['resource_id'],
+				$params_arr['custom_booking_form'],
+				$params_arr['form_status'],
+				$custom_params,
+				$params_arr['booking_hash'],
+				$edit_legacy_instance
+			);
+
+			if ( ! empty( $edit_form_identity['form_slug'] ) ) {
+				$params_arr['custom_booking_form'] = $edit_form_identity['form_slug'];
+			}
+		}
+
 		// ---------------------------------------------------------------------
 		// Normalize calendar_dates_start/end.
 		// ---------------------------------------------------------------------
 		$calendar_dates_range = WPBC_FE_Attr_Postprocessor::normalize_calendar_dates_range( $params_arr['calendar_dates_start'], $params_arr['calendar_dates_end'] );
+		$classic_booking_context_token = '';
+		if ( function_exists( 'wpbc_classic_booking_context_encode' ) ) {
+			$classic_booking_context_token = wpbc_classic_booking_context_encode(
+				array(
+					'booking_workflow'       => $params_arr['booking_workflow'],
+					'resource_id'            => $params_arr['resource_id'],
+					'calendar_dates_start'   => $calendar_dates_range['start'],
+					'calendar_dates_end'     => $calendar_dates_range['end'],
+					'custom_form'            => $params_arr['custom_booking_form'],
+					'aggregate_resource_ids' => $aggregate_resource_id_arr,
+				)
+			);
+		}
 
 		// ---------------------------------------------------------------------
 		// Calendar load params (keep identical keys).
@@ -107,6 +175,8 @@ class WPBC_FE_Render {
 			'custom_form'                     => $params_arr['custom_booking_form'],
 			'calendar_dates_start'            => $calendar_dates_range['start'],
 			'calendar_dates_end'              => $calendar_dates_range['end'],
+			'classic_booking_context_token'   => $classic_booking_context_token,
+			'calendar_request_overrides'      => $params_arr['calendar_request_overrides'],
 		);
 
 		$start_script_code = wpbc__calendar__load( $calendar_load_params );
@@ -146,6 +216,7 @@ class WPBC_FE_Render {
 				'cal_count'                       => $params_arr['cal_count'],
 				'shortcode_param__options'                       => $params_arr['shortcode_param__options'],
 				'booking_hash'                    => $params_arr['booking_hash'],
+				'edit_form_identity'               => $edit_form_identity,
 				'legacy_instance'                 => $legacy,
 			)
 		);
@@ -181,6 +252,7 @@ class WPBC_FE_Render {
 			'calendar_dates_start' => '',
 			'calendar_dates_end'   => '',
 			'booking_hash'         => '',
+			'calendar_request_overrides' => array(),
 		);
 		$params_arr     = wp_parse_args( $params_arr, $default_params );
 		$is_echo        = ( ! empty( $params_arr['is_echo'] ) );
@@ -231,6 +303,7 @@ class WPBC_FE_Render {
 			'custom_form'                     => 'standard',                             // Because we show only  'AVAILABILITY CALENDAR' without the form,  at all.
 			'calendar_dates_start'            => $calendar_dates_range['start'],
 			'calendar_dates_end'              => $calendar_dates_range['end'],
+			'calendar_request_overrides'      => $params_arr['calendar_request_overrides'],
 		);
 		$start_script_code    = wpbc__calendar__load( $calendar_load_params );
 

@@ -7,7 +7,7 @@ Author: wpdevelop, oplugins
 Author URI: https://wpbookingcalendar.com/
 Text Domain: booking
 Domain Path: /languages/
-Version: 11.0
+Version: 12.0.1
 License: GPLv2 or later
 */
 
@@ -34,12 +34,68 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 if ( ! defined( 'WP_BK_VERSION_NUM' ) ) {
-	define( 'WP_BK_VERSION_NUM', '11.0' );
+	define( 'WP_BK_VERSION_NUM', '12.0.1' );
+}
+if ( ! defined( 'WP_BK_PRO_BFB_ONLY_VERSION' ) ) {
+	define( 'WP_BK_PRO_BFB_ONLY_VERSION', '11.4' );                                                                     // First Pro version that no longer loads legacy Booking Form settings pages.
 }
 if ( ! defined( 'WP_BK_MINOR_UPDATE' ) ) {
-	define( 'WP_BK_MINOR_UPDATE',  ! true );
+	define( 'WP_BK_MINOR_UPDATE', true );
 }
 
+/**
+ * Default Form Style accent color for new Booking Calendar installations.
+ *
+ * Existing saved settings are intentionally preserved when this value changes.
+ *
+ * @since 11.5.0
+ * @var string
+ */
+if ( ! defined( 'WPBC_DEFAULT_FORM_ACCENT_COLOR' ) ) {
+	define( 'WPBC_DEFAULT_FORM_ACCENT_COLOR', '#4765d5' );  //  '#4765d5' -> default blue  '#465160'; -> black	 // '#3858e9'; -> light blue   // '#3849e8' -> light Woo.
+}
+
+/**
+ * Master release gate for unfinished Booking Calendar 11.6 functionality.
+ *
+ * This gate keeps the new Booking Resources manager disabled independently
+ * from the released Services and Appointment functionality.
+ *
+ * @since 11.6.0
+ */
+if ( ! defined( 'WPBC_ENABLE_11_6_FEATURES' ) ) {
+	define( 'WPBC_ENABLE_11_6_FEATURES', true );
+}
+
+/**
+ * Control the Booking Calendar 12.0 administration Timeline.
+ *
+ * Define this constant as false before Booking Calendar loads to remove the
+ * new Timeline route, navigation entry, assets, templates, and module hooks.
+ * The released legacy Timeline View remains available.
+ *
+ * @since 12.0.0
+ * @var bool
+ */
+if ( ! defined( 'WPBC_ENABLE_12_0_TIMELINE' ) ) {
+	define( 'WPBC_ENABLE_12_0_TIMELINE', true );
+	define( 'WPBC_ENABLE_TIMELINE_TIME_ROWS_DEV', true );
+	define( 'WPBC_ENABLE_12_0_BOOKING_NEW_INSPECTOR', true );
+}
+
+/**
+ * Select the source used for bundled starter images.
+ *
+ * Set this constant to `remote` before Booking Calendar loads to resolve
+ * starter images from the Booking Calendar website. Every other value keeps
+ * the default, update-safe local plugin asset source.
+ *
+ * @since 11.6.0
+ * @var string Supported values are `local` and `remote`.
+ */
+if ( ! defined( 'WPBC_STARTER_ASSETS_SOURCE' ) ) {
+	define( 'WPBC_STARTER_ASSETS_SOURCE', 'remote' );
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // PRIMARY URL CONSTANTS
@@ -95,22 +151,28 @@ if ( true ) {
 	// :: LIVE
 	if ( ! defined( 'WP_BK_BETA_DATA_FILL' ) ) {
 		define( 'WP_BK_BETA_DATA_FILL', 0 );
-	}                                                                                                                   // Set 0 for no filling or 2 for 241 bookings or more for more.
+	}                                                                                                                   // A positive value enables the internal activation fixture; dedicated constants control booking counts.
 } else {
 	// :: DEBUG
 	define( 'WP_BK_BETA_DATA_FILL', 1 );                                                                                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
-	define( 'WP_BK_BETA_DATA_FILL_AS', 'BL' );                                                                          // BL - Dates   ,   MU - Times.
+	define( 'WP_BK_BETA_DATA_FILL_AS', 'BL' );                                                                          // Legacy BL value maps to changeover property bookings.
+	if ( ! defined( 'WPBC_BETA_DATA_PROPERTY_BOOKINGS_PER_RESOURCE' ) ) {
+		define( 'WPBC_BETA_DATA_PROPERTY_BOOKINGS_PER_RESOURCE', 10 );
+	}
+	if ( ! defined( 'WPBC_BETA_DATA_STANDARD_ROOM_BOOKINGS' ) ) {
+		define( 'WPBC_BETA_DATA_STANDARD_ROOM_BOOKINGS', 24 );
+	}
+	if ( ! defined( 'WPBC_BETA_DATA_APPOINTMENT_BOOKINGS_PER_PROVIDER' ) ) {
+		define( 'WPBC_BETA_DATA_APPOINTMENT_BOOKINGS_PER_PROVIDER', 14 );
+	}
+	if ( ! defined( 'WPBC_BETA_DATA_PROPERTY_BOOKING_MODE' ) ) {
+		define( 'WPBC_BETA_DATA_PROPERTY_BOOKING_MODE', 'changeover' );
+	}
 }
 
 
-if ( ! defined( 'WPBC_NEW_TIME_AVAILABILITY' ) ) {
-	define( 'WPBC_NEW_TIME_AVAILABILITY',  true );
-}
 
-if ( ! defined( 'WPBC_NEW_FORM_BUILDER' ) ) {
-	define( 'WPBC_NEW_FORM_BUILDER', true );
-}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // ==  Go  ==

@@ -1,0 +1,75 @@
+# Translation of Plugins - Content Update Scheduler - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Content Update Scheduler - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-05-26 15:47:17+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Content Update Scheduler - Stable (latest release)\n"
+
+#: options.php:49
+msgid "Post Visibility"
+msgstr "Visibilidad de la entrada"
+
+#: includes/class-content-update-scheduler.php:660
+#: includes/class-content-update-scheduler.php:1002
+msgid "Republication Date"
+msgstr "Fecha de republicación"
+
+#: includes/class-content-update-scheduler.php:1041
+msgid "The release date is in the past."
+msgstr "La fecha de programación está en el pasado."
+
+#: includes/Admin/ScheduledRepublicationsTable.php:231
+#: includes/class-content-update-scheduler.php:634
+msgid "Publish Now"
+msgstr "Publicar ahora"
+
+#: includes/class-content-update-scheduler.php:596
+msgid "Original"
+msgstr "Original"
+
+#. Author URI of the plugin
+#: content-update-scheduler.php
+msgid "https://infinitnet.io/"
+msgstr "https://infinitnet.io/"
+
+#. Author of the plugin
+#: content-update-scheduler.php
+msgid "Infinitnet"
+msgstr "Infinitnet"
+
+#. Plugin Name of the plugin
+#: content-update-scheduler.php includes/class-content-update-scheduler.php:428
+#: includes/class-content-update-scheduler.php:429
+msgid "Content Update Scheduler"
+msgstr "Programador de actualización de contenido"
+
+#: includes/class-content-update-scheduler.php:638
+msgid "Schedule recursive"
+msgstr "Programación recurrente"
+
+#: options.php:189
+msgid "Allow recursive scheduling"
+msgstr "Permitir la programación recurrente"
+
+#. Description of the plugin
+#: content-update-scheduler.php
+msgid "Schedule content updates for any page or post type."
+msgstr "Programa actualizaciones de contenido para cualquier página o tipo de contenido."
+
+#: options.php:61
+msgid "Recursive Scheduling"
+msgstr "Programación recurrente"
+
+#: options.php:177
+msgid "Scheduled posts are visible for anonymous users in the frontend"
+msgstr "Las entradas programadas son visibles para los usuarios anónimos en la vista pública"
+
+#: includes/class-content-update-scheduler.php:1042
+msgid " This post will be published 5 minutes from now."
+msgstr " Esta entrada se publicará dentro de 5 minutos."

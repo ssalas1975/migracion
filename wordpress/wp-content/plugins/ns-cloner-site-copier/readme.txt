@@ -1,97 +1,133 @@
-=== NS Cloner - Site Copier ===
-Contributors: neversettle
+=== NS Cloner - Site Cloner and Multisite Duplicator ===
+Contributors: neversettle, pkns, sdkns
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=53JXD4ENC8MM2&rm=2
-Tags: automate, duplicate, copy, copier, clone
+Tags: site migration, clone site, duplicate site, backup and staging site
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 4.4.7.5
+Stable tag: 4.4.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The NS Cloner saves TONS of time by cloning existing sites in a multisite network to a completely new site in a few seconds.
+Clone, copy, and duplicate WordPress sites, single sites, and multisite subsites with NS Cloner, a fast WordPress site cloner and site duplicator.
 
 == Description ==
+NS Cloner is a WordPress site cloner and site duplicator built for WordPress Multisite networks. It lets you clone an existing multisite subsite into a new site with the same content, media, theme settings, plugin settings, menus, widgets, posts, pages, custom post types, taxonomies, and site configuration.
+Instead of rebuilding the same WordPress site setup manually, NS Cloner copies a fully configured source site and creates a new duplicate site inside your multisite network. It automatically updates the new site name, title, URLs, and other background references so the cloned site works like a clean, properly configured WordPress site.
+NS Cloner is ideal for developers, agencies, designers, schools, franchises, membership organizations, SaaS-style WordPress platforms, and teams that need to duplicate WordPress multisite subsites quickly and reliably.
+Important: the free version of NS Cloner is for WordPress Multisite only. It works from the WordPress Network Admin dashboard. If you need to clone a single WordPress site, clone between single-site and multisite installs, or copy a site to a remote WordPress install, [WP Site Cloner Pro](https://wpsitecloner.com/pricing/?utm_campaign=in+plugin+referral&utm_source=ns-cloner&utm_medium=plugin&utm_content=pro+pricing) adds those capabilities.
 
-This is by far the easiest, fastest, and most user-friendly way you will ever create fully configured sites on your multisite networks. The NS Cloner will take any existing site on your WordPress multisite network and clone it into a new site that is completely identical in theme & theme settings, plugins & plugin configurations, content, pictures, videos, and site settings.
 
-Everything is preserved and intelligent replacements are made so that the new site settings reflect your choices for the name and title, and have automatic URL replacements and other background updates to make sure the new site works exactly the same way as if you had taken the time to set it all up manually.
+= What NS Cloner Does =
 
-**Important:** this plugin *only* works with WordPress Multisite (although the pro version works for single sites as well). You will find its menu in your network administration dashboard (wp-admin/network).
+NS Cloner helps you:
 
-= Typical Workflow for using the NS Cloner =
-1. Set up 1 or more sites exactly the way you want your clones to start out.
-2. Go to your Network Dashboard > NS Cloner.
-3. Select the site you that want to clone, and enter the desired URL and title of the new site.
-4. Clone away with one click!
+* Clone a WordPress Multisite subsite
+* Duplicate a WordPress site inside a multisite network
+* Copy an existing site setup into a new site
+* Create staging, testing, template, regional, client, or member sites
+* Save time when building multiple similar WordPress sites
+* Preserve theme settings, plugin settings, content, media, menus, widgets, and site options
+* Avoid repetitive manual setup across a multisite network
 
-Yes, it really is that easy.
+
+= Typical Workflow =
+
+1. Set up a source site exactly the way you want future sites to start.
+2. Go to Network Admin > NS Cloner.
+3. Choose the existing multisite subsite you want to clone.
+4. Enter the new site URL and title.
+5. Click clone.
+
+NS Cloner handles the site duplication process in the background and creates a fully copied site inside your WordPress Multisite network.
+
 
 = Primary Use Cases =
-* Developers who host and manage multiple client sites in their own multisite environment - this will allow you to rapidly roll out new baseline sites with all your favorite standard plugins and configurations in place. No more tedious manual repetitive entry!
-* Designers who want to be able to create several versions of sites to test and play with different theme designs in parallel, without wasting time with unnecessary duplication.
-* Teams who want to have a quick way to set up staging sites for collaboration, or effortlessly duplicate content for regional versions of sites, etc.
-* Organizations which provide "member" sites and want to be able to reduce the site spin up time to almost nothing.
-* Affiliates that host numerous sites through multisite and are looking for a way to increase reach and decrease deployment times.
 
-== Features ==
+* Agencies and developers cloning baseline client sites
+* Multisite networks that need repeatable site templates
+* Designers testing multiple layout or theme variations
+* Teams creating staging or QA copies of existing sites
+* Organizations creating regional, chapter, location, school, member, or affiliate sites
+* WordPress platform owners spinning up new subsites from a preconfigured template
+* Multisite administrators replacing slow manual setup with one-click site duplication
 
 = Core Features =
-* Copies an entire site in seconds
-* Works in subdomain or subdirectory mode
-* Copies all widgets, menus, and theme and plugin settings
-* Copies all pages, posts, custom post types and taxonomies
-* Copies all uploaded media files and associated data
-* Works in the background to avoid timeouts or memory shortages on large sites
-* You can close your tab without interrupting cloning, or stay and watch the progress live
+
+* Clone an entire WordPress Multisite subsite in seconds
+* Copy posts, pages, custom post types, taxonomies, and comments
+* Copy uploaded media files and associated data
+* Copy widgets, menus, theme settings, plugin settings, and WordPress options
+* Works with subdomain and subdirectory multisite networks
+* Background cloning process helps avoid timeouts on large sites
+* Close your browser tab without interrupting the clone
+* Live progress view while cloning
+* Automatic URL replacement and background updates
 * Advanced validation and preemptive issue detection
-* Robust process logging to help with troubleshooting
-* Hook-rich cloning pipeline for developers to extend
+* Robust process logging for troubleshooting
+* Developer-friendly cloning pipeline with hooks
 * Translation ready
 
-= Pro Features =
 
-For even more powerful functionality, [check out NS Cloner Pro](https://wpsitecloner.com/pricing/?utm_campaign=in+plugin+referral&utm_source=ns-cloner&utm_medium=plugin&utm_content=pro+pricing). In addition to all the free core features, Pro includes:
+= WP Site Cloner Pro =
 
-* **Teleport** *(new)* - remote cloning power: clone a subsite to a remote network, or even teleport an entire multisite network to a remote location.
-* **Single Site** *(new)* - gain the ability to clone standard single sites, not just multisite, and even clone between single and multisite or vice versa.
-* **WP CLI Addon** *(new)* - easily copy sites directly from the command line.
-* **Search & Replace** - perform unlimited, effortless custom search and replace on cloned content.
-* **Table Manager** - easily manage exactly which database tables are cloned.
-* **Users Cloning** - ability to clone all WordPress users and their permissions, or instantly create new users for cloned sites.
-* **Presets** - save commonly used cloning settings as shortcuts for even ore time savings.
+For more advanced WordPress cloning, [WP Site Cloner Pro](https://wpsitecloner.com/pricing/?utm_campaign=in+plugin+referral&utm_source=ns-cloner&utm_medium=plugin&utm_content=pro+pricing) adds support for single-site cloning, remote site cloning, WP-CLI cloning, custom search and replace, database table control, user cloning, and saved cloning presets.
+
+Pro features include:
+
+* Teleport: clone a subsite to a remote network or move an entire multisite network
+* Single Site: clone standard WordPress sites, not just multisite subsites
+* WP-CLI Addon: copy sites from the command line
+* Search & Replace: run custom search and replace on cloned content
+* Table Manager: control exactly which database tables are cloned
+* Users Cloning: clone users and permissions or create new users for cloned sites
+* Presets: save common cloning settings for repeatable site duplication workflows
+
 
 == Installation ==
 
-1. Log in to your WordPress network as a multisite super admin and go to /wp-admin/network
-2. Use the Dashboard > Plugins > Add New tools to install NS Cloner from the WordPress.org repository or install by uploading the zip file
-3. Network Activate the NS Cloner through the 'Plugins' menu in WordPress
-4. Access the NS Cloner from its main menu on the Network Dashboard (/wp-admin/network)
+1. Log in as a WordPress Multisite super admin.
+2. Go to Network Admin > Plugins > Add New.
+3. Install NS Cloner from the WordPress.org plugin directory or upload the plugin ZIP file.
+4. Network Activate NS Cloner.
+5. Go to Network Admin > NS Cloner to start cloning sites.
 
-= Standard Precautions and Notes =
-* Unlike some other tools, NS Cloner supports cloning the root site (ID=1). When cloning the root site, the Cloner will automatically exclude all global network WordPress tables (like wp_blogs) as well as global tables for some common network plugins like BuddyPress. It's impossible, though, for the Cloner to recognize every network-level table for every plugin out there, so it's possible that some network-level plugin tables could be copied by the Cloner incorrectly, which could result in issues, depending on the plugin. The table manager add-on included in pro is perfect for unique scenarios where you need total table-level cloning control.
-* We always try to help (and you can see the proof of that in the plugin support forum here), but we cannot promise support to users for this free version, especially with issues resulting from non-standard environments.
-* We have used the NS Cloner on production systems for years without issues. That doesn't mean your scenario won't find some new condition that could cause you some headaches. Unlikely, but always possible. We recommend getting familiar with it on a test system before you deploy it to a critical network.
-* And for the love - backup your data. This plugin operates at the database level to work its magic. We've run it hundreds of times on our own sites and client sites, and tested it thoroughly. It's safe. But don't take our word for it.
+
+= Standard Precautions =
+
+NS Cloner works at the database level to duplicate WordPress sites inside a multisite network. It has been used on production systems for years, but you should still test it in your own environment before using it on a critical network.
+Always back up your data before cloning, duplicating, or making large database-level changes to any WordPress site.
+
 
 == Frequently Asked Questions ==
 
-= How do I contact support, provide feedback, or make a feature request? =
-You can browse our Knowledge Base, add or vote on Feature Requests, or contact us with an issue at [wpsitecloner.com/support](https://wpsitecloner.com/support/)
+= Can I clone a WordPress site with NS Cloner? =
+Yes, but the free version is specifically for cloning sites inside a WordPress Multisite network. It lets you clone one multisite subsite into another subsite on the same network.
 
-= Where can I find more documentation? =
-[See these articles](https://wpsitecloner.com/support/) for additional information on using NS Cloner.
+= Does NS Cloner work as a WordPress site duplicator? =
+Yes. NS Cloner duplicates WordPress Multisite subsites, including content, media, settings, menus, widgets, plugin settings, theme settings, and WordPress options.
 
-= What exactly does the NS Cloner copy? =
-The Cloner copies everything you need to have a totally identical twin site: all media uploads, posts, pages, custom post types, taxonomies, comments, menus, WordPress options, theme and plugin settings (including which ones are active).
+= Can I duplicate a WordPress Multisite subsite? =
+Yes. This is the core purpose of NS Cloner. You can choose an existing subsite in your multisite network and clone it into a new subsite.
 
-Users and roles are not copied (that's a pro feature), and theme/plugin files are not copied because the same files are shared by the whole multisite network, so there's no need to copy them when cloning inside a network.
+= Can I clone a single WordPress site that is not part of a multisite network? =
+Single-site cloning is available in WP Site Cloner Pro. The free version is for WordPress Multisite only.
 
-= Can I clone an individual site that's not part of a network (non-multisite)? =
-That is a pro feature - so, yes! With Pro you can easily clone a single WordPress site to another single site. You can even clone a site out of a network to its own individual install or vice versa.
+= What does NS Cloner copy? =
+NS Cloner copies the content and configuration needed to create an identical multisite subsite, including media uploads, posts, pages, custom post types, taxonomies, comments, menus, widgets, WordPress options, theme settings, plugin settings, and active plugin configuration.
+Users and roles are not copied in the free version. User cloning is available in WP Site Cloner Pro.
 
-= What happens if my site is really large? =
-You're in luck! NS Cloner V4 has new background cloning capability, so you should be able to clone a site of almost any size without running into a "white screen of death" from timeouts or memory limits. You can even close your browser and come back to check on it later without interrupting the clone!
+= Does NS Cloner copy theme and plugin files? =
+No. In a WordPress Multisite network, theme and plugin files are shared across the network, so there is no need to copy those files when cloning a subsite.
+
+= Can I use NS Cloner to create staging sites? =
+Yes. NS Cloner is commonly used to create staging, testing, QA, development, and template-based sites inside WordPress Multisite networks.
+
+= What happens if my site is large? =
+NS Cloner includes background cloning, which helps avoid timeout and memory issues on larger sites. You can close your browser and return later without interrupting the cloning process.
+
+= Where do I access NS Cloner? =
+Because NS Cloner is a multisite plugin, you access it from the WordPress Network Admin dashboard at Network Admin > NS Cloner.
 
 
 == Screenshots ==
@@ -100,6 +136,23 @@ You're in luck! NS Cloner V4 has new background cloning capability, so you shoul
 2. Cloning in progress.
 
 == Changelog ==
+
+= 4.4.9.2 - 2026.05.04 =
+* Fix: Handle hooks when a site is being created to avoid errors with site activated plugins
+* Code improvements
+
+= 4.4.9.1 - 2025.11.26 =
+* Fix translation notices
+* Other code fixes
+
+= 4.4.9 - 2025.06.10 =
+* Fix: Custom code for cloning from external plugins.
+* Code improvements
+
+= 4.4.8 - 2025.04.24 =
+* Fix: Cron scheduling - do not schedule cloner cron on sub-sites
+* Fix: PHP notice on number precision
+* Code improvements
 
 = 4.4.7.5 - 2024.11.25 =
 * Fix: Text domain loading

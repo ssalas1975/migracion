@@ -43,8 +43,8 @@ class Tribe__Feature_Detection {
 	/**
 	 * Checks whether async, AJAX-based, background processing is supported or not.
 	 *
-	 * To avoid making this costly check on each load the result of this check is cached
-	 * in the `tribe_feature_detection` transient, under the `supports_async_process` key.
+	 * The result of this check is cached in a timed option and memoized for the
+	 * request lifetime, so the costly loopback check is not repeated on every load.
 	 *
 	 * @since 4.7.23
 	 *
@@ -54,6 +54,8 @@ class Tribe__Feature_Detection {
 	 * @return bool Whether async, AJAX-based, background processing is supported or not.
 	 */
 	public function supports_async_process( $force = false ) {
+		$cache_var_name = __METHOD__;
+
 		/**
 		 * Filters whether async, AJAX-based, processing is supported or not.
 		 *
@@ -68,16 +70,27 @@ class Tribe__Feature_Detection {
 		 */
 		$supports_async_process = apply_filters( 'tribe_supports_async_process', null, $force );
 		if ( null !== $supports_async_process ) {
-			return (bool) $supports_async_process;
+			return tribe_is_truthy( $supports_async_process );
 		}
 
-		$cached = get_transient( self::$transient );
+		/*
+		 * The loopback check is costly; memoize its result so repeated calls within
+		 * the same request do not re-run it. A `$force` request re-runs the check.
+		 */
+		$cached_supports_async_process = tribe_get_var( $cache_var_name, null );
+		if ( ! $force && null !== $cached_supports_async_process ) {
+			return $cached_supports_async_process;
+		}
 
 		$this->lock_option_name = 'tribe_feature_support_check_lock';
+		$transient_name         = Tribe__Process__Tester::TRANSIENT_NAME;
+		$timed_option_exists    = tec_timed_option()->exists( $transient_name );
+		$supports_async_process = tec_timed_option()->get( $transient_name, null, $force );
+
 		if (
 			$force
-			|| false === $cached
-			|| ( is_array( $cached ) && ! isset( $cached['supports_async_process'] ) )
+			|| null === $supports_async_process
+			|| ! $timed_option_exists
 		) {
 			if ( $this->is_locked() ) {
 				// We're already running this check, bail and return the safe option for the time being.
@@ -100,12 +113,9 @@ class Tribe__Feature_Detection {
 			$wait_up_to             = 10;
 			$start                  = time();
 			$supports_async_process = false;
-			$transient_name         = Tribe__Process__Tester::TRANSIENT_NAME;
 
 			while ( time() <= $start + $wait_up_to ) {
-				// We want to force a refetch from the database on each check.
-				wp_cache_delete( $transient_name, 'transient' );
-				$supports_async_process = (bool) get_transient( $transient_name );
+				$supports_async_process = tribe_is_truthy( tec_timed_option()->get( $transient_name ) );
 
 				if ( $supports_async_process ) {
 					break;
@@ -113,23 +123,24 @@ class Tribe__Feature_Detection {
 				sleep( $wait_up_to / 5 );
 			}
 
-			// Remove it not to spoof future checks.
-			delete_transient( $transient_name );
-
 			$this->unlock();
-
-			$cached['supports_async_process'] = $supports_async_process;
 
 			if ( $supports_async_process ) {
 				tribe( 'logger' )->log( 'AJAX-based async processing is supported.', Tribe__Log::DEBUG );
 			} else {
+				/*
+				 * Persist the negative result with a bounded TTL so the costly
+				 * loopback check is not re-run on every request.
+				 */
+				tec_timed_option()->set( $transient_name, 0, HOUR_IN_SECONDS );
 				tribe( 'logger' )->log( 'AJAX-based async processing is not supported; background processing will rely on WP Cron.', Tribe__Log::DEBUG );
 			}
-
-			set_transient( self::$transient, $cached, WEEK_IN_SECONDS );
 		}
 
-		return $cached['supports_async_process'];
+		$cached_supports_async_process = tribe_is_truthy( $supports_async_process );
+		tribe_set_var( $cache_var_name, $cached_supports_async_process );
+
+		return $cached_supports_async_process;
 	}
 
 	/**

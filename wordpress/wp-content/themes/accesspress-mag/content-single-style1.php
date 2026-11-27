@@ -11,7 +11,16 @@
 		<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 		<div class="entry-meta clearfix">
             <?php 
-                echo get_the_category_list();
+                echo wp_kses( get_the_category_list(), array(
+                    'ul' => array(
+                        'class' => array()
+                    ),
+                    'li' => array(),
+                    'a' => array(
+                        'href' => array(),
+                        'rel' => array()
+                    )
+                ) );
                 accesspress_mag_posted_on();
 			    do_action( 'accesspress_mag_post_meta' );
             ?>
@@ -21,7 +30,7 @@
 
 	<div class="entry-content">
         <?php
-            $show_featured_image = of_get_option('featured_image'); 
+            $show_featured_image = of_get_option('featured_image',1); 
             $image_id = get_post_thumbnail_id();
             $image_path = wp_get_attachment_image_src( $image_id, 'accesspress-mag-singlepost-style1', true );
             $image_alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );

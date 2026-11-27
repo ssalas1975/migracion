@@ -19,6 +19,10 @@
 		return ( value < 10 ? '0' : '' ) + value;
 	}
 
+	function trim_text( value ) {
+		return String( value || '' ).replace( /^\s+|\s+$/g, '' );
+	}
+
 	function minutes_to_time( minutes ) {
 		var hours = Math.floor( minutes / 60 );
 		var mins = minutes % 60;
@@ -95,9 +99,9 @@
 		var axisFontWeight = visibleHours <= 10 ? 550 : 400;
 		var firstHour = Math.ceil( config.start / 60 ) * 60;
 
-		$grid.css( '--wpbc-ts-slot-count', slotCount );
+		$grid.css( '--wpbc-ts-slot-count', String( slotCount ) );
 		$grid.css( '--wpbc-ts-axis-label-size', axisFontSize + 'px' );
-		$grid.css( '--wpbc-ts-axis-label-weight', axisFontWeight );
+		$grid.css( '--wpbc-ts-axis-label-weight', String( axisFontWeight ) );
 
 		for ( minute = firstHour; minute <= config.end; minute += 60 ) {
 			html += '<span class="wpbc_ts_axis_label" style="left:' + percent_for_minute( minute, config ) + '%;">' + minutes_to_time( minute ) + '</span>';
@@ -156,8 +160,8 @@
 
 			$.each( resources, function ( resourceId, resourceBars ) {
 				$.each( resourceBars || [], function ( index, interval ) {
-					var type = 'blocked' === interval.type ? 'blocked' : ( 'unavailable_day' === interval.type ? 'unavailable_day' : 'booked' );
-					var icon = 'booked' === type ? 'wpbc_icn_lock' : ( 'unavailable_day' === type ? 'wpbc_icn_event_busy' : 'wpbc_icn_do_not_disturb_on' );
+					var type = 'blocked' === interval.type ? 'blocked' : ( 'unavailable_day' === interval.type ? 'unavailable_day' : ( 'working_time' === interval.type ? 'working_time' : 'booked' ) );
+					var icon = 'booked' === type ? 'wpbc_icn_lock' : ( 'unavailable_day' === type ? 'wpbc_icn_event_busy' : ( 'working_time' === type ? 'wpbc-bi-clock-history' : 'wpbc_icn_do_not_disturb_on' ) );
 					var tooltip = interval.tooltip || '';
 					var $bar = $( '<div class="wpbc_ts_bar" data-wpbc-ts-source="server"></div>' );
 					var $iconWrap;
@@ -169,7 +173,7 @@
 							.attr( 'data-wpbc-ts-booking-id', interval.booking_id || '' )
 							.attr( 'aria-label', ( labels.open_booking || 'Open booking in Booking Listing' ) + ( interval.booking_id ? ': ' + interval.booking_id : '' ) )
 							.attr( 'data-original-title', tooltip || '' );
-					} else if ( 'unavailable_day' === type && interval.rule_url ) {
+					} else if ( ( 'unavailable_day' === type || 'working_time' === type ) && interval.rule_url ) {
 						$iconWrap = $( '<a class="wpbc_ts_rule_link tooltip_top"><span></span></a>' );
 						$iconWrap
 							.attr( 'href', interval.rule_url )
@@ -225,6 +229,7 @@
 
 		activeLoadRequest = $.post( settings.ajax_url, {
 			action: 'WPBC_AJX_AVAILABILITY_TIMESLOTS_READ',
+			nonce: settings.nonce,
 			resource_id: get_control( $page, 'resource' ).val(),
 			date_start: $dateRange.attr( 'data-wpbc-ts-start' ),
 			date_end: $dateRange.attr( 'data-wpbc-ts-end' )
@@ -264,7 +269,7 @@
 	}
 
 	function row_label( $page, rowId ) {
-		return $.trim( $page.find( '.wpbc_ts_row[data-wpbc-ts-row="' + rowId + '"] .wpbc_ts_row_label_text' ).text() );
+		return trim_text( $page.find( '.wpbc_ts_row[data-wpbc-ts-row="' + rowId + '"] .wpbc_ts_row_label_text' ).text() );
 	}
 
 	function escape_html( value ) {
@@ -516,11 +521,33 @@
 		);
 	}
 
-	function close_time_slots_popup( $page ) {
+	function close_time_slots_popup( $page, afterClose ) {
 		var $modal = $page.closest( '.wpbc_modal__availability_timeslots__section, .modal' );
+		var isCallbackDone = false;
+		var run_callback = function () {
+			if ( isCallbackDone ) {
+				return;
+			}
+			isCallbackDone = true;
+
+			if ( 'function' === typeof afterClose ) {
+				afterClose();
+			}
+		};
 
 		if ( ! $modal.length ) {
+			run_callback();
 			return;
+		}
+
+		if ( ! $modal.is( ':visible' ) ) {
+			run_callback();
+			return;
+		}
+
+		if ( 'function' === typeof afterClose ) {
+			$modal.one( 'hidden.wpbc.modal hidden.bs.modal', run_callback );
+			window.setTimeout( run_callback, 500 );
 		}
 
 		if ( 'function' === typeof $modal.wpbc_my_modal ) {
@@ -616,29 +643,45 @@
 		return payload;
 	}
 
+	function get_selection_dates( $page, rows ) {
+		var dates = [];
+		var seen = {};
+
+		$.each( rows || [], function ( rowIndex, rowId ) {
+			var $row = $page.find( '.wpbc_ts_row[data-wpbc-ts-row="' + rowId + '"]' );
+			var date = $row.attr( 'data-wpbc-ts-date' );
+
+			if ( date && ! seen[ date ] ) {
+				seen[ date ] = true;
+				dates.push( date );
+			}
+		} );
+
+		dates.sort();
+		return dates;
+	}
+
 	function get_active_booking_selection_context( $page ) {
 		var item = activeSelectionId ? get_selection_by_id( activeSelectionId ) : null;
-		var $row;
-		var date;
+		var dates;
 
 		if ( ! item && 1 === selectionRanges.length ) {
 			item = selectionRanges[0];
 		}
 
-		if ( ! item || ! item.rows || 1 !== item.rows.length ) {
+		if ( ! item || ! item.rows || ! item.rows.length ) {
 			return null;
 		}
 
-		$row = $page.find( '.wpbc_ts_row[data-wpbc-ts-row="' + item.rows[0] + '"]' );
-		date = $row.attr( 'data-wpbc-ts-date' );
-
-		if ( ! date ) {
+		dates = get_selection_dates( $page, item.rows );
+		if ( ! dates.length ) {
 			return null;
 		}
 
 		return {
 			resource_id: get_control( $page, 'resource' ).val() || '',
-			selected_date: date,
+			selected_date: dates[0],
+			selected_dates: dates.join( ',' ),
 			selected_time: minutes_to_time( item.start ) + ' - ' + minutes_to_time( item.end ),
 			start_second: item.start * 60,
 			end_second: item.end * 60
@@ -649,7 +692,7 @@
 		var settings = window.wpbc_availability_timeslots_page || {};
 		var labels = settings.i18n || {};
 		var context = get_active_booking_selection_context( $page );
-		var bookingForm;
+		var $addBookingModal = $( '#wpbc_modal__add_booking__section' );
 
 		if ( ! context ) {
 			if ( window.wpbc_admin_show_message ) {
@@ -658,25 +701,31 @@
 			return false;
 		}
 
-		if ( 'function' !== typeof window.wpbc_boo_listing__click__add_booking_modal ) {
+		if (
+			   'function' !== typeof window.wpbc_boo_listing__click__add_booking_modal
+			|| ! $addBookingModal.length
+			|| 'function' !== typeof $addBookingModal.wpbc_my_modal
+		) {
 			if ( window.wpbc_admin_show_message ) {
 				wpbc_admin_show_message( labels.add_booking_modal_missing || 'Add Booking popup is not available on this page.', 'warning', 5000 );
 			}
 			return false;
 		}
 
-		bookingForm = $( '#wpbc_modal__add_booking__booking_form' ).val() || '';
-
-		close_time_slots_popup( $page );
-		window.setTimeout( function () {
+		close_time_slots_popup( $page, function () {
 			window.wpbc_boo_listing__click__add_booking_modal( {
 				mode: 'add',
 				resource_id: context.resource_id,
-				booking_form: bookingForm,
+				booking_form: '',
+				selected_dates: context.selected_dates,
 				selected_date: context.selected_date,
-				selected_time: context.selected_time
+				selected_time: context.selected_time,
+				time_override_enabled: 1,
+				time_override_source: 'times_availability',
+				time_override_start: minutes_to_time( context.start_second / 60 ),
+				time_override_end: minutes_to_time( context.end_second / 60 )
 			} );
-		}, 150 );
+		} );
 
 		return true;
 	}
@@ -774,11 +823,11 @@
 		var start;
 		var end;
 
-		if ( jsDatesArr && $.isArray( jsDatesArr.range ) ) {
+		if ( jsDatesArr && Array.isArray( jsDatesArr.range ) ) {
 			dates = jsDatesArr.range;
-		} else if ( jsDatesArr && $.isArray( jsDatesArr.multiple ) ) {
+		} else if ( jsDatesArr && Array.isArray( jsDatesArr.multiple ) ) {
 			dates = jsDatesArr.multiple;
-		} else if ( $.isArray( jsDatesArr ) ) {
+		} else if ( Array.isArray( jsDatesArr ) ) {
 			dates = jsDatesArr;
 		}
 
@@ -936,7 +985,7 @@
 		var parsed;
 		var sqlMatch;
 
-		text = $.trim( text || '' );
+		text = trim_text( text );
 		if ( ! text ) {
 			return null;
 		}
@@ -1179,9 +1228,14 @@
 					return;
 				}
 
-				$selection = $template.clone( false )
+				$selection = $template.clone( false );
+				if ( $selection[0] ) {
+					$selection[0].hidden = false;
+					$selection[0].removeAttribute( 'hidden' );
+				}
+
+				$selection
 					.removeClass( 'wpbc_ts_selection_template' )
-					.removeAttr( 'hidden' )
 					.addClass( 'is-visible' )
 					.toggleClass( 'is-active', item.id === activeSelectionId )
 					.attr( 'data-wpbc-ts-selection-id', item.id )
@@ -1368,6 +1422,62 @@
 		);
 	}
 
+	/**
+	 * Notify active administration hosts after an authoritative time-slot save.
+	 *
+	 * The notification is data-only and intentionally grants no mutation or
+	 * authorization authority. Hosts such as Timeline may use it to invalidate
+	 * their own read caches and request canonical data again.
+	 *
+	 * @param {Object} response_data Successful server response data.
+	 * @return {void}
+	 */
+	function dispatch_availability_timeslots_changed( response_data ) {
+		var resource_id;
+		var mode;
+		var dates;
+		var changed_event;
+
+		if ( ! response_data || 'function' !== typeof document.dispatchEvent ) {
+			return;
+		}
+
+		resource_id = parseInt( response_data.resource_id, 10 ) || 0;
+		mode = String( response_data.mode || '' );
+		if ( 1 > resource_id || [ 'block', 'unblock' ].indexOf( mode ) === -1 ) {
+			return;
+		}
+
+		dates = Array.isArray( response_data.dates ) ? response_data.dates.filter( function ( date_value ) {
+			return /^\d{4}-\d{2}-\d{2}$/.test( String( date_value || '' ) );
+		} ).map( function ( date_value ) {
+			return String( date_value );
+		} ) : [];
+
+		if ( 'function' === typeof window.CustomEvent ) {
+			changed_event = new window.CustomEvent( 'wpbc:availability-timeslots:changed', {
+				detail: {
+					schema_version: 1,
+					resource_id: resource_id,
+					mode: mode,
+					dates: dates
+				}
+			} );
+		} else if ( document.createEvent ) {
+			changed_event = document.createEvent( 'CustomEvent' );
+			changed_event.initCustomEvent( 'wpbc:availability-timeslots:changed', false, false, {
+				schema_version: 1,
+				resource_id: resource_id,
+				mode: mode,
+				dates: dates
+			} );
+		}
+
+		if ( changed_event ) {
+			document.dispatchEvent( changed_event );
+		}
+	}
+
 	function run_command( $page, mode ) {
 		var settings = window.wpbc_availability_timeslots_page || {};
 		var labels = settings.i18n || {};
@@ -1390,6 +1500,9 @@
 			return;
 		}
 
+		if ( window.wpbc_admin_show_message_processing ) {
+			wpbc_admin_show_message_processing( '' );
+		}
 		set_timeline_loading( $page, true, labels.saving || 'Saving' );
 		set_action_buttons_busy( $page, true );
 
@@ -1401,6 +1514,7 @@
 			intervals: JSON.stringify( payload )
 		} ).done( function ( response ) {
 			if ( response && response.success ) {
+				dispatch_availability_timeslots_changed( response.data || {} );
 				if ( window.wpbc_admin_show_message ) {
 					wpbc_admin_show_message( 'block' === mode ? ( labels.block_success || 'Selected time ranges have been blocked.' ) : ( labels.unblock_success || 'Selected time ranges have been unblocked.' ), 'success', 5000 );
 				}
@@ -1545,7 +1659,10 @@
 			$tablist.find( '[role="tab"]' ).attr( 'aria-selected', 'false' );
 			$tab.attr( 'aria-selected', 'true' );
 			$( '.wpbc_ts_rightbar_panels .wpbc_bfb__palette_panel' ).attr( 'hidden', 'hidden' ).attr( 'aria-hidden', 'true' );
-			$panel.removeAttr( 'hidden' ).attr( 'aria-hidden', 'false' );
+			$panel.each( function () {
+				this.hidden = false;
+				this.removeAttribute( 'hidden' );
+			} ).attr( 'aria-hidden', 'false' );
 		} );
 	}
 

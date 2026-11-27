@@ -175,6 +175,7 @@ class Admin_Notices {
 	 */
 	public static function dismiss_admin_notice(){
 		if( empty($_REQUEST['notice']) ) return;
+		if( empty($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], $_REQUEST['action'].$_REQUEST['notice'].get_current_user_id() ) ) die('Invalid Nonce');
 		$key = $_REQUEST['notice'];
 		$network = $_REQUEST['action'] == 'lwa_dismiss_network_admin_notice';
 		//get the notice
@@ -191,25 +192,46 @@ class Admin_Notices {
 		}else{
 			$result = self::remove($_REQUEST['notice'], $network);
 		}
+		if( !empty($_REQUEST['redirect']) ){
+			wp_safe_redirect( wp_get_referer() );
+			exit();
+		}
 		echo !empty($result) ? 'Thou art dismissed!' : 'Thou shall not pass!';
 		exit();
 	}
 	
 	/**
-	 * Outputs JS for dismissing notices. 
+	 * Outputs JS for dismissing notices.
 	 */
 	public static function admin_footer(){
 		?>
 		<script type="text/javascript">
-		jQuery(document).ready( function($){
-			$('.lwa-admin-notice').on('click', 'button.notice-dismiss', function(e){
-				var the_notice = $(this).closest('.lwa-admin-notice');
-				$.get('<?php echo admin_url('admin-ajax.php'); ?>', {'action' : the_notice.data('dismiss-action'), 'notice' : the_notice.data('dismiss-key') });
+			document.addEventListener('DOMContentLoaded', function(){
+				document.querySelectorAll('.lwa-admin-notice').forEach( function( notice ){
+					notice.addEventListener('click', function( e ){
+						if( e.target.matches('button.notice-dismiss') ) {
+							e.preventDefault();
+							fetch( notice.dataset.url ).then( (response) => {
+								if ( response.ok ) {
+									return response.text();
+								} else {
+									console.log( 'Could not dismiss admin notice die to not OK repsonse: %o', response );
+									response.reject();
+								}
+							}, {mode : 'no-cors'} ).then( (response) => {
+								console.log( 'Admin notice dismissed OK with response: %s', response );
+							}).catch( (error) => {
+								console.log( 'Could not dismiss admin notice, error is %o', error );
+							});
+							return false;
+						} else if ( e.target.matches('.dismiss-notice') ) {
+							e.preventDefault();
+							notice.querySelectorAll('button.notice-dismiss').forEach( el => el.click() );
+							return false;
+						}
+					});
+				});
 			});
-			$('.lwa-admin-notice').on('click', '.lwa-notice-dismiss', function(){
-				$(this).closest('.lwa-admin-notice').find('button.notice-dismiss').trigger('click');
-			});
-		});
 		</script>
 		<?php
 	}

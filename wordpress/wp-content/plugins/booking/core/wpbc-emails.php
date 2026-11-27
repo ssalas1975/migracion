@@ -157,7 +157,7 @@ function wpbc_get_email_parts( $email ) {
             $pure_email = $matches[2];                 
         }
     } else {                                                                    // Check about correct  format  of email
-        if( preg_match( '/([\w\.\-_]+)?\w+@[\w-_]+(\.\w+){1,}/im', $email_to_parse, $matches ) ) {
+        if( preg_match( '/([\w\.\-_]+)?\w+@[\w\-_]+(\.\w+){1,}/im', $email_to_parse, $matches ) ) {
             $pure_email = $matches[0];
         }             
     }
@@ -270,6 +270,12 @@ function wpbc_get_email_help_shortcodes( $skip_shortcodes = array() , $email_exa
 			$fields[] = sprintf( $icn, '<code>[cost]</code>', wpbc_tooltip_help__fix_quote( sprintf( __( '%s - inserting the cost of  booking ', 'booking' ), '[cost]' ) ) );
 		}
 	}
+
+	// Booking Notes email integrations.
+	/* translators: 1: email shortcode. */
+	$fields[] = sprintf( $icn, '<code>[public_note]</code>', wpbc_tooltip_help__fix_quote( sprintf( __( '%s - inserting the Public note when it has been explicitly added to this email template', 'booking' ), '[public_note]' ) ) );
+	/* translators: 1: email shortcode. */
+	$fields[] = sprintf( $icn, '<code>[private_note]</code>', wpbc_tooltip_help__fix_quote( sprintf( __( '%s - inserting the Private administrator note in administrator emails and enabled administrator copies only; customer and visitor messages receive an empty value', 'booking' ), '[private_note]' ) ) );
     
     $fields[] = '<hr/>';   
 
@@ -412,7 +418,7 @@ function wpbc_get_email_help_shortcodes( $skip_shortcodes = array() , $email_exa
     $fields[] = sprintf(__( 'Example #2: "%s" - English and French translation of some message' ,'booking'),'<code>Thank you for your booking.[lang=fr_FR]Je vous remercie de votre reservation.</code>');
 
 
-    return $fields;
+    return (array) apply_filters( 'wpbc_email_help_shortcodes', $fields, $skip_shortcodes, $email_example );
 }
 
 

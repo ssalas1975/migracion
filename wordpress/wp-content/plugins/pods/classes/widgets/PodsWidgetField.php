@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * @package Pods\Widgets
  */
@@ -29,10 +34,10 @@ class PodsWidgetField extends WP_Widget {
 		$after_content  = pods_v( 'after_content', $instance );
 
 		$args = [
-			'name'        => trim( pods_v( 'pod_type', $instance, '' ) ),
-			'slug'        => trim( pods_v( 'slug', $instance, '' ) ),
-			'use_current' => trim( pods_v( 'use_current', $instance, '' ) ),
-			'field'       => trim( pods_v( 'field', $instance, '' ) ),
+			'name'        => trim( (string) pods_v( 'pod_type', $instance, '' ) ),
+			'slug'        => trim( (string) pods_v( 'slug', $instance, '' ) ),
+			'use_current' => trim( (string) pods_v( 'use_current', $instance, '' ) ),
+			'field'       => trim( (string) pods_v( 'field', $instance, '' ) ),
 		];
 
 		if (

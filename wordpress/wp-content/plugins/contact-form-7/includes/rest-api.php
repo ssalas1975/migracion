@@ -1,9 +1,11 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 add_action(
 	'rest_api_init',
-	function () {
-		$controller = new WPCF7_REST_Controller;
+	static function () {
+		$controller = new WPCF7_REST_Controller();
 		$controller->register_routes();
 	},
 	10, 0
@@ -27,8 +29,8 @@ class WPCF7_REST_Controller {
 							return true;
 						} else {
 							return new WP_Error( 'wpcf7_forbidden',
-								__( "You are not allowed to access contact forms.", 'contact-form-7' ),
-								array( 'status' => 403 )
+								__( 'You are not allowed to access contact forms.', 'contact-form-7' ),
+								array( 'status' => $this->authreq_code() )
 							);
 						}
 					},
@@ -41,8 +43,8 @@ class WPCF7_REST_Controller {
 							return true;
 						} else {
 							return new WP_Error( 'wpcf7_forbidden',
-								__( "You are not allowed to create a contact form.", 'contact-form-7' ),
-								array( 'status' => 403 )
+								__( 'You are not allowed to create a contact form.', 'contact-form-7' ),
+								array( 'status' => $this->authreq_code() )
 							);
 						}
 					},
@@ -63,8 +65,8 @@ class WPCF7_REST_Controller {
 							return true;
 						} else {
 							return new WP_Error( 'wpcf7_forbidden',
-								__( "You are not allowed to access the requested contact form.", 'contact-form-7' ),
-								array( 'status' => 403 )
+								__( 'You are not allowed to access the requested contact form.', 'contact-form-7' ),
+								array( 'status' => $this->authreq_code() )
 							);
 						}
 					},
@@ -79,8 +81,8 @@ class WPCF7_REST_Controller {
 							return true;
 						} else {
 							return new WP_Error( 'wpcf7_forbidden',
-								__( "You are not allowed to access the requested contact form.", 'contact-form-7' ),
-								array( 'status' => 403 )
+								__( 'You are not allowed to access the requested contact form.', 'contact-form-7' ),
+								array( 'status' => $this->authreq_code() )
 							);
 						}
 					},
@@ -95,8 +97,8 @@ class WPCF7_REST_Controller {
 							return true;
 						} else {
 							return new WP_Error( 'wpcf7_forbidden',
-								__( "You are not allowed to access the requested contact form.", 'contact-form-7' ),
-								array( 'status' => 403 )
+								__( 'You are not allowed to access the requested contact form.', 'contact-form-7' ),
+								array( 'status' => $this->authreq_code() )
 							);
 						}
 					},
@@ -112,6 +114,18 @@ class WPCF7_REST_Controller {
 					'callback' => array( $this, 'create_feedback' ),
 					'permission_callback' => '__return_true',
 				),
+			)
+		);
+
+		register_rest_route( self::route_namespace,
+			'/contact-forms/(?P<id>\d+)/feedback/schema',
+			array(
+				array(
+					'methods' => WP_REST_Server::READABLE,
+					'callback' => array( $this, 'get_schema' ),
+					'permission_callback' => '__return_true',
+				),
+				'schema' => 'wpcf7_swv_get_meta_schema',
 			)
 		);
 
@@ -167,6 +181,7 @@ class WPCF7_REST_Controller {
 		foreach ( $items as $item ) {
 			$response[] = array(
 				'id' => $item->id(),
+				'hash' => $item->hash(),
 				'slug' => $item->name(),
 				'title' => $item->title(),
 				'locale' => $item->locale(),
@@ -181,7 +196,7 @@ class WPCF7_REST_Controller {
 
 		if ( $id ) {
 			return new WP_Error( 'wpcf7_post_exists',
-				__( "Cannot create existing contact form.", 'contact-form-7' ),
+				__( 'Cannot create existing contact form.', 'contact-form-7' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -193,7 +208,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_cannot_save',
-				__( "There was an error saving the contact form.", 'contact-form-7' ),
+				__( 'There was an error saving the contact form.', 'contact-form-7' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -211,9 +226,11 @@ class WPCF7_REST_Controller {
 			$config_validator = new WPCF7_ConfigValidator( $item );
 			$config_validator->validate();
 
-			$response['config_errors'] = $config_validator->collect_error_messages();
+			$response['config_errors'] = $config_validator->collect_error_messages(
+				array( 'decodes_html_entities' => true )
+			);
 
-			if ( 'save' == $context ) {
+			if ( 'save' === $context ) {
 				$config_validator->save();
 			}
 		}
@@ -227,7 +244,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_not_found',
-				__( "The requested contact form was not found.", 'contact-form-7' ),
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -249,7 +266,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_not_found',
-				__( "The requested contact form was not found.", 'contact-form-7' ),
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -260,7 +277,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_cannot_save',
-				__( "There was an error saving the contact form.", 'contact-form-7' ),
+				__( 'There was an error saving the contact form.', 'contact-form-7' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -278,9 +295,11 @@ class WPCF7_REST_Controller {
 			$config_validator = new WPCF7_ConfigValidator( $item );
 			$config_validator->validate();
 
-			$response['config_errors'] = $config_validator->collect_error_messages();
+			$response['config_errors'] = $config_validator->collect_error_messages(
+				array( 'decodes_html_entities' => true )
+			);
 
-			if ( 'save' == $context ) {
+			if ( 'save' === $context ) {
 				$config_validator->save();
 			}
 		}
@@ -294,7 +313,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_not_found',
-				__( "The requested contact form was not found.", 'contact-form-7' ),
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -303,7 +322,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $result ) {
 			return new WP_Error( 'wpcf7_cannot_delete',
-				__( "There was an error deleting the contact form.", 'contact-form-7' ),
+				__( 'There was an error deleting the contact form.', 'contact-form-7' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -314,6 +333,15 @@ class WPCF7_REST_Controller {
 	}
 
 	public function create_feedback( WP_REST_Request $request ) {
+		$content_type = $request->get_header( 'Content-Type' ) ?? '';
+
+		if ( ! str_starts_with( $content_type, 'multipart/form-data' ) ) {
+			return new WP_Error( 'wpcf7_unsupported_media_type',
+				__( 'The request payload format is not supported.', 'contact-form-7' ),
+				array( 'status' => 415 )
+			);
+		}
+
 		$url_params = $request->get_url_params();
 
 		$item = null;
@@ -324,7 +352,7 @@ class WPCF7_REST_Controller {
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_not_found',
-				__( "The requested contact form was not found.", 'contact-form-7' ),
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -332,6 +360,13 @@ class WPCF7_REST_Controller {
 		$unit_tag = wpcf7_sanitize_unit_tag(
 			$request->get_param( '_wpcf7_unit_tag' )
 		);
+
+		if ( empty( $unit_tag ) ) {
+			return new WP_Error( 'wpcf7_unit_tag_not_found',
+				__( 'There is no valid unit tag.', 'contact-form-7' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		$result = $item->submit();
 
@@ -344,13 +379,14 @@ class WPCF7_REST_Controller {
 			$invalid_fields = array();
 
 			foreach ( (array) $result['invalid_fields'] as $name => $field ) {
-				$name = sanitize_html_class( $name );
+				if ( ! wpcf7_is_name( $name ) ) {
+					continue;
+				}
+
+				$name = strtr( $name, '.', '_' );
 
 				$invalid_fields[] = array(
-					'into' => sprintf(
-						'span.wpcf7-form-control-wrap.%s',
-						$name
-					),
+					'field' => $name,
 					'message' => $field['reason'],
 					'idref' => $field['idref'],
 					'error_id' => sprintf(
@@ -376,13 +412,38 @@ class WPCF7_REST_Controller {
 		return rest_ensure_response( $response );
 	}
 
+
+	public function get_schema( WP_REST_Request $request ) {
+		$url_params = $request->get_url_params();
+
+		$item = null;
+
+		if ( ! empty( $url_params['id'] ) ) {
+			$item = wpcf7_contact_form( $url_params['id'] );
+		}
+
+		if ( ! $item ) {
+			return new WP_Error( 'wpcf7_not_found',
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$schema = $item->get_schema();
+
+		$response = isset( $schema ) ? $schema->toArray() : array();
+
+		return rest_ensure_response( $response );
+	}
+
+
 	public function get_refill( WP_REST_Request $request ) {
 		$id = (int) $request->get_param( 'id' );
 		$item = wpcf7_contact_form( $id );
 
 		if ( ! $item ) {
 			return new WP_Error( 'wpcf7_not_found',
-				__( "The requested contact form was not found.", 'contact-form-7' ),
+				__( 'The requested contact form was not found.', 'contact-form-7' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -405,7 +466,7 @@ class WPCF7_REST_Controller {
 		$properties['form'] = array(
 			'content' => (string) $properties['form'],
 			'fields' => array_map(
-				function ( WPCF7_FormTag $form_tag ) {
+				static function ( WPCF7_FormTag $form_tag ) {
 					return array(
 						'type' => $form_tag->type,
 						'basetype' => $form_tag->basetype,
@@ -427,7 +488,7 @@ class WPCF7_REST_Controller {
 		$properties['additional_settings'] = array(
 			'content' => (string) $properties['additional_settings'],
 			'settings' => array_filter( array_map(
-				function ( $setting ) {
+				static function ( $setting ) {
 					$pattern = '/^([a-zA-Z0-9_]+)[\t ]*:(.*)$/';
 
 					if ( preg_match( $pattern, $setting, $matches ) ) {
@@ -455,11 +516,15 @@ class WPCF7_REST_Controller {
 	private function get_argument_schema() {
 		return array(
 			'id' => array(
-				'description' => __( "Unique identifier for the contact form.", 'contact-form-7' ),
+				'description' => __( 'Unique identifier for the contact form.', 'contact-form-7' ),
 				'type' => 'integer',
 				'required' => true,
 			),
 		);
+	}
+
+	private function authreq_code() {
+		return rest_authorization_required_code();
 	}
 
 }

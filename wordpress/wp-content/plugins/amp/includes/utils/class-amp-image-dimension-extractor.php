@@ -230,7 +230,7 @@ class AMP_Image_Dimension_Extractor {
 				$image_size = ( ! empty( $image_size ) && is_array( $image_size ) ) ? $image_size : [];
 			}
 
-			if ( ( empty( $image_size ) || ! is_array( $image_size ) ) && file_exists( $image_file ) ) {
+			if ( empty( $image_size ) && file_exists( $image_file ) ) {
 				if ( function_exists( 'wp_getimagesize' ) ) {
 					$image_size = wp_getimagesize( $image_file );
 				} elseif ( function_exists( 'getimagesize' ) ) {
@@ -274,7 +274,7 @@ class AMP_Image_Dimension_Extractor {
 	 * Extract dimensions from downloaded images (or transient/cached dimensions from downloaded images)
 	 *
 	 * @param array $dimensions Image urls mapped to dimensions.
-	 * @param false $mode       Deprecated.
+	 * @param bool  $mode       Deprecated.
 	 * @return array Dimensions mapped to image urls, or false if they could not be retrieved
 	 */
 	public static function extract_by_downloading_images( $dimensions, $mode = false ) {

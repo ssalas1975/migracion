@@ -4,9 +4,255 @@
 // =====================================================================================================================
 
 /**
- * Expand Vertical Left Bar.
+ * Return the normal-screen preference scope declared by the shell.
+ *
+ * @return {string} Workspace or settings.
  */
-function wpbc_admin_ui__sidebar_left__do_max() {
+function wpbc_admin_ui__sidebar_left__get_normal_preference_scope() {
+	var shell_context = jQuery( '.wpbc_settings_page_wrapper' ).first().attr( 'data-wpbc-navigation-context' ) || '';
+
+	return 'settings' === shell_context ? 'settings' : 'workspace';
+}
+
+/**
+ * Return the preference scope represented by the live shell state.
+ *
+ * Fullscreen can change without a page reload, so the rendered server scope
+ * is not sufficient after the user enters or exits fullscreen.
+ *
+ * @return {string} Workspace, settings, or fullscreen.
+ */
+function wpbc_admin_ui__sidebar_left__get_live_preference_scope() {
+	if ( jQuery( 'body' ).hasClass( 'wpbc_admin_full_screen' ) ) {
+		return 'fullscreen';
+	}
+
+	return wpbc_admin_ui__sidebar_left__get_normal_preference_scope();
+}
+
+/**
+ * Return the rendered saver contract for one allow-listed sidebar scope.
+ *
+ * @param {string} preference_scope Workspace, settings, or fullscreen.
+ * @return {Object} Matching jQuery collection, which may be empty.
+ */
+function wpbc_admin_ui__sidebar_left__get_scope_saver( preference_scope ) {
+	var allowed_scopes   = [ 'workspace', 'settings', 'fullscreen' ];
+	var $saver_container = jQuery( '#wpbc_left_sidebar_view_mode_saver' );
+
+	if ( allowed_scopes.indexOf( preference_scope ) === -1 || ! $saver_container.length ) {
+		return jQuery();
+	}
+
+	return $saver_container.find(
+		'.wpbc_left_sidebar_view_mode_saver__scope[data-wpbc-navigation-preference-scope="' + preference_scope + '"]'
+	).first();
+}
+
+/**
+ * Resolve and apply the mode belonging to one sidebar preference scope.
+ *
+ * A rendered saver carries the scoped saved/default mode. Focused pages do
+ * not render savers, so their centrally resolved structural or page-exception
+ * mode is read from the wrapper instead. This presentation-only operation
+ * deliberately does not save a preference or write the navigation cookie.
+ *
+ * @param {string} preference_scope Workspace, settings, or fullscreen.
+ * @return {string} Applied mode, or an empty string when no mode was available.
+ */
+function wpbc_admin_ui__sidebar_left__apply_scope_mode( preference_scope ) {
+	var $saver            = wpbc_admin_ui__sidebar_left__get_scope_saver( preference_scope );
+	var mode              = $saver.length
+		? ( $saver.attr( 'data-wpbc-u-save-value' ) || '' )
+		: ( jQuery( '.wpbc_settings_page_wrapper' ).first().attr( 'data-wpbc-left-sidebar-resolved-mode' ) || '' );
+
+	if ( 'max' === mode ) {
+		wpbc_admin_ui__sidebar_left__do_max();
+	} else if ( 'compact' === mode ) {
+		wpbc_admin_ui__sidebar_left__do_compact();
+	} else if ( 'min' === mode ) {
+		wpbc_admin_ui__sidebar_left__do_min();
+	} else if ( 'none' === mode ) {
+		wpbc_admin_ui__sidebar_left__do_hide();
+	} else {
+		return '';
+	}
+
+	return mode;
+}
+
+/**
+ * Apply the saved/default or structural mode for a fullscreen transition.
+ *
+ * @param {boolean} is_full_screen Whether the destination is fullscreen.
+ * @return {string} Applied mode, or an empty string.
+ */
+function wpbc_admin_ui__sidebar_left__apply_full_screen_transition( is_full_screen ) {
+	var preference_scope = is_full_screen
+		? 'fullscreen'
+		: wpbc_admin_ui__sidebar_left__get_normal_preference_scope();
+
+	return wpbc_admin_ui__sidebar_left__apply_scope_mode( preference_scope );
+}
+
+/**
+ * Apply the resolved mode belonging to the current live shell context.
+ *
+ * @return {string} Applied mode, or an empty string.
+ */
+function wpbc_admin_ui__sidebar_left__apply_live_scope_mode() {
+	return wpbc_admin_ui__sidebar_left__apply_scope_mode(
+		wpbc_admin_ui__sidebar_left__get_live_preference_scope()
+	);
+}
+
+/**
+ * Save user's preferred left sidebar mode.
+ *
+ * @param {string} mode User-selected sidebar mode.
+ * @return {void}
+ */
+function wpbc_admin_ui__sidebar_left__save_mode( mode ) {
+	var allowed_modes      = [ 'min', 'compact', 'max' ];
+	var allowed_preferences = {
+		workspace: 'left_sidebar_view_mode__workspace',
+		settings: 'left_sidebar_view_mode__settings',
+		fullscreen: 'left_sidebar_view_mode__fullscreen'
+	};
+
+	if ( allowed_modes.indexOf( mode ) === -1 ) {
+		return;
+	}
+
+	if ( 'function' !== typeof wpbc_save_custom_user_data_from_element ) {
+		return;
+	}
+
+	var preference_scope = wpbc_admin_ui__sidebar_left__get_live_preference_scope();
+	var $saver            = wpbc_admin_ui__sidebar_left__get_scope_saver( preference_scope );
+
+	if ( ! $saver.length ) {
+		return;
+	}
+
+	var preference_name  = $saver.attr( 'data-wpbc-u-save-name' ) || '';
+
+	if (
+		! Object.prototype.hasOwnProperty.call( allowed_preferences, preference_scope )
+		|| allowed_preferences[ preference_scope ] !== preference_name
+	) {
+		return;
+	}
+
+	$saver.data( 'wpbc-u-save-value', mode );
+	$saver.attr( 'data-wpbc-u-save-value', mode );
+	wpbc_admin_ui__sidebar_left__set_navigation_cookie( preference_scope, mode );
+
+	wpbc_save_custom_user_data_from_element( $saver.get( 0 ) );
+}
+
+/**
+ * Write a short-lived, presentation-only sidebar navigation cookie.
+ *
+ * The cookie bridges an explicit click to the next administration request
+ * while the user-option AJAX save is pending. PHP independently allow-lists
+ * and expires the value; it must never be used for authorization.
+ *
+ * @param {string} preference_scope Workspace, settings, or fullscreen.
+ * @param {string} mode             Min, compact, or max.
+ * @return {void}
+ */
+function wpbc_admin_ui__sidebar_left__set_navigation_cookie( preference_scope, mode ) {
+	var allowed_scopes = [ 'workspace', 'settings', 'fullscreen' ];
+	var allowed_modes  = [ 'min', 'compact', 'max' ];
+
+	if ( allowed_scopes.indexOf( preference_scope ) === -1 || allowed_modes.indexOf( mode ) === -1 ) {
+		return;
+	}
+
+	if ( 'function' !== typeof wpbc_admin_ui__get_preference_cookie_paths ) {
+		return;
+	}
+
+	var max_age      = 5 * 60;
+	var issued_at    = Math.floor( Date.now() / 1000 );
+	var cookie_value = encodeURIComponent( preference_scope + '|' + mode + '|' + issued_at );
+
+	wpbc_admin_ui__get_preference_cookie_paths().forEach( function ( cookie_path ) {
+		document.cookie = 'wpbc_admin_left_sidebar=' + cookie_value + '; path=' + cookie_path + '; max-age=' + max_age + '; SameSite=Lax';
+	} );
+}
+
+/**
+ * Reveal the active item inside the scrollable left navigation.
+ *
+ * The active item itself is aligned with a small leading offset, regardless of
+ * its position inside a root section. Scrolling is applied only to SimpleBar's
+ * internal scroll element so the WordPress administration document does not
+ * move.
+ *
+ * @param {Object|null|undefined} simplebar_instance Optional initialized SimpleBar instance.
+ * @return {void}
+ */
+function wpbc_admin_ui__sidebar_left__scroll_to_active_item( simplebar_instance ) {
+	var left_navigation_element = document.querySelector( '.wpbc_ui_el__vert_left_bar__content' );
+
+	if (
+		! simplebar_instance
+		&& 'undefined' !== typeof SimpleBar
+		&& SimpleBar.instances
+		&& left_navigation_element
+	) {
+		simplebar_instance = SimpleBar.instances.get( left_navigation_element );
+	}
+
+	if (
+		! simplebar_instance
+		|| 'function' !== typeof simplebar_instance.getScrollElement
+		|| 'function' !== typeof simplebar_instance.getContentElement
+	) {
+		return;
+	}
+
+	window.requestAnimationFrame( function () {
+		var scroll_element  = simplebar_instance.getScrollElement();
+		var content_element = simplebar_instance.getContentElement();
+
+		if (
+			! scroll_element
+			|| ! content_element
+			|| ! content_element.closest( '.wpbc_ui_el__vert_left_bar__content' )
+		) {
+			return;
+		}
+
+		simplebar_instance.recalculate();
+
+		var active_item = content_element.querySelector( '.wpbc_ui_el__vert_nav_item.active' );
+
+		if ( ! active_item || null === active_item.offsetParent || 0 >= scroll_element.clientHeight ) {
+			return;
+		}
+
+		var scroll_rect    = scroll_element.getBoundingClientRect();
+		var active_rect    = active_item.getBoundingClientRect();
+		var current_top    = scroll_element.scrollTop;
+		var leading_offset = 85;
+		var active_top     = current_top + active_rect.top - scroll_rect.top;
+		var target_top     = active_top - leading_offset;
+
+		var maximum_top = Math.max( 0, scroll_element.scrollHeight - scroll_element.clientHeight );
+
+		scroll_element.scrollTop = Math.max( 0, Math.min( Math.round( target_top ), maximum_top ) );
+	} );
+}
+
+/**
+ * Expand Vertical Left Bar.
+ *
+ * @param bool is_save_user_state Save this mode as user's preference.
+ */
+function wpbc_admin_ui__sidebar_left__do_max( is_save_user_state ) {
 	jQuery( '.wpbc_settings_page_wrapper' ).removeClass( 'min max compact none' );
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'max' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_left_vertical_nav' ).addClass( 'wpbc_ui__hide' );
@@ -14,12 +260,19 @@ function wpbc_admin_ui__sidebar_left__do_max() {
 
 	jQuery( '.wp-admin' ).removeClass( 'wpbc_page_wrapper_left_min wpbc_page_wrapper_left_max wpbc_page_wrapper_left_compact wpbc_page_wrapper_left_none' );
 	jQuery( '.wp-admin' ).addClass( 'wpbc_page_wrapper_left_max' );
+	wpbc_admin_ui__sidebar_left__scroll_to_active_item();
+
+	if ( is_save_user_state ) {
+		wpbc_admin_ui__sidebar_left__save_mode( 'max' );
+	}
 }
 
 /**
  * Hide Vertical Left Bar.
+ *
+ * @param bool is_save_user_state Save this mode as user's preference.
  */
-function wpbc_admin_ui__sidebar_left__do_min() {
+function wpbc_admin_ui__sidebar_left__do_min( is_save_user_state ) {
 	jQuery( '.wpbc_settings_page_wrapper' ).removeClass( 'min max compact none' );
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'min' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_left_vertical_nav' ).removeClass( 'wpbc_ui__hide' );
@@ -27,12 +280,18 @@ function wpbc_admin_ui__sidebar_left__do_min() {
 
 	jQuery( '.wp-admin' ).removeClass( 'wpbc_page_wrapper_left_min wpbc_page_wrapper_left_max wpbc_page_wrapper_left_compact wpbc_page_wrapper_left_none' );
 	jQuery( '.wp-admin' ).addClass( 'wpbc_page_wrapper_left_min' );
+
+	if ( is_save_user_state ) {
+		wpbc_admin_ui__sidebar_left__save_mode( 'min' );
+	}
 }
 
 /**
  * Colapse Vertical Left Bar.
+ *
+ * @param bool is_save_user_state Save this mode as user's preference.
  */
-function wpbc_admin_ui__sidebar_left__do_compact() {
+function wpbc_admin_ui__sidebar_left__do_compact( is_save_user_state ) {
 	jQuery( '.wpbc_settings_page_wrapper' ).removeClass( 'min max compact none' );
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'compact' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_left_vertical_nav' ).removeClass( 'wpbc_ui__hide' );
@@ -40,6 +299,11 @@ function wpbc_admin_ui__sidebar_left__do_compact() {
 
 	jQuery( '.wp-admin' ).removeClass( 'wpbc_page_wrapper_left_min wpbc_page_wrapper_left_max wpbc_page_wrapper_left_compact wpbc_page_wrapper_left_none' );
 	jQuery( '.wp-admin' ).addClass( 'wpbc_page_wrapper_left_compact' );
+	wpbc_admin_ui__sidebar_left__scroll_to_active_item();
+
+	if ( is_save_user_state ) {
+		wpbc_admin_ui__sidebar_left__save_mode( 'compact' );
+	}
 }
 
 /**
@@ -73,6 +337,19 @@ function wpbc_admin_ui__sidebar_left__show_section( menu_to_show ) {
 // =====================================================================================================================
 
 /**
+ * Synchronize the document body marker for the expanded right sidebar.
+ *
+ * The marker is domain-neutral so individual administration pages can adjust
+ * their presentation without duplicating right-sidebar state handling.
+ *
+ * @param {boolean} is_open Whether the right sidebar is fully expanded.
+ * @return {void}
+ */
+function wpbc_admin_ui__sidebar_right__set_body_open_state( is_open ) {
+	jQuery( 'body' ).toggleClass( 'wpbc_ui_el__vert_right_bar__wrapper_opened', !! is_open );
+}
+
+/**
  * Expand Vertical Right Bar.
  */
 function wpbc_admin_ui__sidebar_right__do_max() {
@@ -80,6 +357,7 @@ function wpbc_admin_ui__sidebar_right__do_max() {
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'max_right' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_right_vertical_nav' ).addClass( 'wpbc_ui__hide' );
 	jQuery( '.wpbc_ui__top_nav__btn_hide_right_vertical_nav' ).removeClass( 'wpbc_ui__hide' );
+	wpbc_admin_ui__sidebar_right__set_body_open_state( true );
 }
 
 /**
@@ -90,6 +368,7 @@ function wpbc_admin_ui__sidebar_right__do_min() {
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'min_right' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_right_vertical_nav' ).removeClass( 'wpbc_ui__hide' );
 	jQuery( '.wpbc_ui__top_nav__btn_hide_right_vertical_nav' ).addClass( 'wpbc_ui__hide' );
+	wpbc_admin_ui__sidebar_right__set_body_open_state( false );
 }
 
 /**
@@ -100,6 +379,7 @@ function wpbc_admin_ui__sidebar_right__do_compact() {
 	jQuery( '.wpbc_settings_page_wrapper' ).addClass( 'compact_right' );
 	jQuery( '.wpbc_ui__top_nav__btn_open_right_vertical_nav' ).removeClass( 'wpbc_ui__hide' );
 	jQuery( '.wpbc_ui__top_nav__btn_hide_right_vertical_nav' ).addClass( 'wpbc_ui__hide' );
+	wpbc_admin_ui__sidebar_right__set_body_open_state( false );
 }
 
 /**
@@ -112,7 +392,79 @@ function wpbc_admin_ui__sidebar_right__do_hide() {
 	jQuery( '.wpbc_ui__top_nav__btn_hide_right_vertical_nav' ).addClass( 'wpbc_ui__hide' );
 	// Hide top "Menu" button with divider.
 	jQuery( '.wpbc_ui__top_nav__btn_show_right_vertical_nav,.wpbc_ui__top_nav__btn_show_right_vertical_nav_divider' ).addClass( 'wpbc_ui__hide' );
+	wpbc_admin_ui__sidebar_right__set_body_open_state( false );
 }
+
+/**
+ * Restore the body marker when a page renders with the right sidebar open.
+ */
+jQuery( document ).ready( function () {
+	wpbc_admin_ui__sidebar_right__set_body_open_state( 0 < jQuery( '.wpbc_settings_page_wrapper.max_right' ).length );
+} );
+
+/**
+ * Collapse an expanded right sidebar after an opted-in page-content click.
+ *
+ * Pages enable this behavior through the page-structure
+ * right_vertical_sidebar__content_click_collapse_mode option. Interactive
+ * controls that open or retain sidebar content can opt out by placing the
+ * data-wpbc-right-sidebar-keep-open attribute on themselves or an ancestor.
+ *
+ * @param {MouseEvent} event Content click event captured before catalog rows.
+ * @return {void}
+ */
+function wpbc_admin_ui__sidebar_right__collapse_from_content_click( event ) {
+	var event_target = event.target && 1 === event.target.nodeType ? event.target : null;
+	var content_element = event_target && 'function' === typeof event_target.closest
+		? event_target.closest( '[data-wpbc-admin-page-content]' )
+		: null;
+	var $content;
+	var $wrapper;
+	var collapse_mode;
+	var before_collapse_event;
+
+	if ( ! content_element ) {
+		return;
+	}
+
+	$content = jQuery( content_element );
+	$wrapper = $content.closest( '.wpbc_settings_page_wrapper' );
+	collapse_mode = String( $wrapper.attr( 'data-wpbc-right-sidebar-content-click-collapse-mode' ) || '' );
+
+	if ( ! $wrapper.hasClass( 'max_right' ) || [ 'min', 'compact', 'none' ].indexOf( collapse_mode ) === -1 ) {
+		return;
+	}
+	if ( jQuery( event.target ).closest( '[data-wpbc-right-sidebar-keep-open]' ).length ) {
+		return;
+	}
+
+	/*
+	 * This click belongs to the open-sidebar dismissal layer. Consume it before
+	 * domain row handlers run so the same pointer action cannot close one
+	 * inspector and immediately open another one underneath it.
+	 */
+	event.preventDefault();
+	event.stopImmediatePropagation();
+
+	before_collapse_event = jQuery.Event( 'wpbc:right-sidebar-before-content-collapse' );
+	$wrapper.trigger( before_collapse_event, [ event ] );
+	if ( before_collapse_event.isDefaultPrevented() ) {
+		return;
+	}
+
+	if ( 'compact' === collapse_mode ) {
+		wpbc_admin_ui__sidebar_right__do_compact();
+	} else if ( 'none' === collapse_mode ) {
+		wpbc_admin_ui__sidebar_right__do_hide();
+	} else {
+		wpbc_admin_ui__sidebar_right__do_min();
+	}
+
+	jQuery( document ).trigger( 'wpbc_setup_wizard_layout_changed' );
+}
+
+document.addEventListener( 'click', wpbc_admin_ui__sidebar_right__collapse_from_content_click, true );
+
 
 /**
  * Action on click "Go Back" - show root menu
@@ -210,7 +562,7 @@ function wpbc_admin_ui__do_expand_section() {
 			jQuery( section_id_to_show ).show();
 
 			// Show all other sections,  if provided in URL: ..?page=wpbc-settings#do_expand__wpbc_general_settings_capacity_metabox#wpbc_general_settings_capacity_upgrade_metabox .
-			for ( let i = 1; i < anchors_arr_length; i++ ) {
+			for ( var i = 1; i < anchors_arr_length; i++ ) {
 				jQuery( '#' + anchors_arr[i] ).show();
 			}
 

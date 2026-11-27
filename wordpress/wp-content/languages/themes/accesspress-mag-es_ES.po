@@ -1,0 +1,2529 @@
+# Translation of Themes - AccessPress Mag in Spanish (Spain)
+# This file is distributed under the same license as the Themes - AccessPress Mag package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2022-02-01 13:25:47+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: es\n"
+"Project-Id-Version: Themes - AccessPress Mag\n"
+
+#. Description of the theme
+msgid "AccessPress Mag is clean & modern WordPress magazine theme. It is ideal for newspaper, editorial, online magazine, blog or personal website. It is a cutting-edge, feature-rich FREE WordPress theme and is fully-responsive. Its feature includes: 2 post layout, news ticker, sticky menu, author block, large featured images for page/post, social media integration for wider social reach. Demo: http://demo.accesspressthemes.com/accesspress-mag/ Support forum: https://accesspressthemes.com/support/"
+msgstr "AccessPress Mag es un tema de revistas para WordPress limpio y moderno. Es ideal para periódicos, editoriales, revistas en línea, blogs o sitios web personales. Es un tema de WordPress GRATUITO y rico en características y es totalmente adaptable. Sus características incluyen: 2 diseños de plantillas para entradas, teletipo de noticias, menú fijo, bloque de autor, grandes imágenes destacadas para páginas / entradas, integración de redes sociales para un alcance social más amplio. Demostración: https://demo.accesspressthemes.com/accesspress-mag/ Foro de soporte: https://accesspressthemes.com/support/"
+
+#. Theme Name of the theme
+#: footer.php:82
+msgid "AccessPress Mag"
+msgstr "AccessPress Mag"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:723
+msgid "Enable or Disable the Post Categories."
+msgstr "Activa o desactiva la categoría de las entradas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:722
+msgid "Show Post Category"
+msgstr "Mostrar la categoría de las entradas"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1006
+msgid "Show or hide category in archive page."
+msgstr "Mostrar u ocultar la categoría en la página de archivo."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1005
+msgid "Show/Hide Category"
+msgstr "Mostrar u ocultar la categoría"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:706
+msgid "Enable or Disable the Post date."
+msgstr "Activar o desactivar la fecha de la entrada."
+
+#: inc/customizer.php:123
+msgctxt "font style"
+msgid "Monospace"
+msgstr "Monospace"
+
+#: inc/customizer.php:122
+msgctxt "font style"
+msgid "Sans Serif"
+msgstr "Sans Serif"
+
+#: inc/customizer.php:121
+msgctxt "font style"
+msgid "Serif"
+msgstr "Serif"
+
+#: inc/customizer.php:120
+msgid "Vietnamese"
+msgstr "Vietnamita"
+
+#: inc/customizer.php:119
+msgid "Latin Extended"
+msgstr "Latín extendido"
+
+#: inc/customizer.php:118
+msgid "Latin"
+msgstr "Latin"
+
+#: inc/customizer.php:117
+msgid "Khmer"
+msgstr "Khmer"
+
+#: inc/customizer.php:116
+msgid "Greek Extended"
+msgstr "Griego extendido"
+
+#: inc/customizer.php:115
+msgid "Greek"
+msgstr "Griego"
+
+#: inc/customizer.php:114
+msgid "Devanagari"
+msgstr "Devanagari"
+
+#: inc/customizer.php:113
+msgid "Cyrillic Extended"
+msgstr "Cirílico extendido"
+
+#: inc/customizer.php:112
+msgid "Cyrillic"
+msgstr "Cirílico"
+
+#: inc/customizer.php:111
+msgid "All"
+msgstr "Todo"
+
+#: inc/customizer.php:110
+msgid "OFF"
+msgstr "DESACTIVADO"
+
+#: inc/customizer.php:109
+msgid "ON"
+msgstr "ACTIVADO"
+
+#: inc/customizer.php:108
+msgid "Background Opacity"
+msgstr "Opacidad del fondo"
+
+#: inc/customizer.php:107
+msgid "Background Position"
+msgstr "Posición del fondo"
+
+#: inc/customizer.php:106
+msgid "Center Bottom"
+msgstr "Centro abajo"
+
+#: inc/customizer.php:105
+msgid "Center Center"
+msgstr "Centro centrado"
+
+#: inc/customizer.php:104
+msgid "Center Top"
+msgstr "Centro arriba"
+
+#: inc/customizer.php:103
+msgid "Right Bottom"
+msgstr "Derecha abajo"
+
+#: inc/customizer.php:102
+msgid "Right Center"
+msgstr "Derecha centrado"
+
+#: inc/customizer.php:101
+msgid "Right Top"
+msgstr "Derecha arriba"
+
+#: inc/customizer.php:100
+msgid "Left Bottom"
+msgstr "Izquierda abajo"
+
+#: inc/customizer.php:99
+msgid "Left Center"
+msgstr "Izquierda centrado"
+
+#: inc/customizer.php:98
+msgid "Left Top"
+msgstr "Izquierda arriba"
+
+#: inc/customizer.php:97
+msgid "Background Attachment"
+msgstr "Adjunto del fondo"
+
+#: inc/customizer.php:96
+msgid "Scroll"
+msgstr "Scroll"
+
+#: inc/customizer.php:95
+msgid "Fixed"
+msgstr "Fijo"
+
+#: inc/customizer.php:94
+msgid "Background Size"
+msgstr "Tamaño del fondo"
+
+#: inc/customizer.php:93
+msgid "Contain"
+msgstr "Contenido"
+
+#: inc/customizer.php:92
+msgid "Cover"
+msgstr "Cubrir"
+
+#: inc/customizer.php:91
+msgid "Background Repeat"
+msgstr "Repetición del fondo"
+
+#: inc/customizer.php:90
+msgid "Inherit"
+msgstr "Heredado"
+
+#: inc/customizer.php:85
+msgid "Background Image"
+msgstr "Imagen de fondo"
+
+#: inc/customizer.php:84
+msgid "Background Color"
+msgstr "Color del fondo"
+
+#: inc/customizer.php:63
+msgid "Select Post"
+msgstr "Seleccionar una entrada"
+
+#: inc/customizer.php:23
+msgid "Setup default WordPress Customizer options."
+msgstr "Configura las opciones por defecto del personalizador de WordPress."
+
+#: inc/customizer.php:22
+msgid "Default Settings"
+msgstr "Ajustes por defecto"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1154
+msgid "Previous  article"
+msgstr "Artículo anterior"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1074
+msgid "Translate your frontend easily without any external plugins. While you leave the box empty and the theme will load the default string."
+msgstr "Traduce fácilmente tu portada sin plugins externos. Si dejas la caja vacía, el tema cargará la cadena por defecto."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1065
+msgid "Translate Your Theme."
+msgstr "Traduce tu tema."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1064
+msgid "Translation Settings"
+msgstr "Ajustes de traducción"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1055
+msgid "Define - Excerpt length of words/letters for archive pages."
+msgstr "Definir - longitud de palabras/letras del extracto para las páginas de archivo."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1036
+msgid "Excerpt Types"
+msgstr "Tipos de extracto"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1028
+msgid "Notice:Adding a text as excerpt on post edit page (Excerpt box), will overwrite the theme excerpts."
+msgstr "Aviso: añadir un texto como extracto en la página de edición de las entradas (caja del extracto), se sobrescribirán los extractos del tema."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:1019
+msgid "Excerpt Setting"
+msgstr "Ajustes del extracto"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:988
+#: inc/admin-panel/accesspress-mag-customizer.php:1037
+msgid "Define - Choose sidebar for all archive pages."
+msgstr "Definir - elegir la barra lateral para todas las páginas de archivo."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:987
+msgid "Archive Page Sidebar"
+msgstr "Barra lateral de las páginas de archivo"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:971
+msgid "Define - Choose template for all archive pages."
+msgstr "Definir - elegir la plantilla para todas las páginas de archivo."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:740
+msgid "Show or hide featured image in post`s single post."
+msgstr "Mostrar u ocultar la imagen destacada en la página de entrada individual."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:739
+msgid "Show/Hide Featured Images"
+msgstr "Mostrar/ocultar las imágenes destacadas"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:946
+msgid "Show or hide article title on single post."
+msgstr "Mostrar u ocultar el título del artículo en las entradas individuales."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:929
+msgid "Enable or disable homepage link at home in breadcrumbs."
+msgstr "Activar o desactivar el enlace a la página de inicio en las migas de pan del inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:912
+msgid "Show or hide breadcrumbs on site."
+msgstr "Mostrar u ocultar las migas de pan en el sitio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:901
+msgid "Setup post breadcrumb Settings."
+msgstr "Configuración de los ajustes de las migas de pan en las entradas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:900
+msgid "BREADCRUMBS"
+msgstr "MIGAS DE PAN"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:886
+msgid "Setting this option will make all post pages, that don't have a post sidebar associated to them,to be displayed using this template. This option is OVERWRITTEN by the Post sidebar option from the backend - post add / edit page."
+msgstr "Configurar esta opción hará que todas las páginas de entradas, que no tengan asociada una barra lateral de entradas, se muestren usando esta plantilla. Esta opción es SOBRESCRITA por la opción de la barra lateral de la entrada de «Administración > Añadir/editar página»."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:869
+msgid "Setting this option will make all post pages, that don't have a post template associated to them,to be displayed using this template. This option is OVERWRITTEN by the Post template option from the backend - post add / edit page."
+msgstr "Configurar esta opción hará que todas las páginas de entradas, que no tengan asociada una plantilla de entrada, se muestren usando esta plantilla. Esta opción es SOBRESCRITA por la opción «Plantilla de entradas» de «Administración > Añadir/editar página de entradas»."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:856
+msgid "Setup post layout Settings."
+msgstr "Configuración de los ajustes del diseño de las entradas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:855
+msgid "POST LAYOUT"
+msgstr "DISEÑO DE LAS ENTRADAS"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:825
+msgid "Enable or disable `next` and `previous` posts."
+msgstr "Activar o desactivar las entradas «siguiente» y «anterior»"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:808
+msgid "Enable or disable the author box."
+msgstr "Activar o desactivar la caja del autor."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:774
+msgid "Enable or Disable the author under the post title."
+msgstr "Mostrar u ocultar al autor debajo del título de la entrada."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:757
+msgid "Enable or Disable comment number."
+msgstr "Activar o desactivar el número de comentarios."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:696
+msgid "Setup additional Settings."
+msgstr "Configura los ajustes adicionales."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:695
+msgid "ADDITIONAL SETTINGS"
+msgstr "AJUSTES ADICIONALES"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:690
+msgid "Setup Post Settings."
+msgstr "Configura los ajustes de las entradas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:667
+msgid "Choose number of posts for editor pick section."
+msgstr "Elige el número de entradas para la sección de la selección del editor."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:653
+msgid "Select a category for editor pick in homepage sidebar."
+msgstr "Selecciona una categoría para la selección del editor en la barra lateral de la página de inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:642
+msgid "Setup Editor Block Settings."
+msgstr "Configura los ajustes del editor de bloques."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:641
+msgid "Editor Settings"
+msgstr "Ajustes del editor"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:619
+msgid "Choose number of posts for block (Fourth)."
+msgstr "Elige el número de entradas para el bloque (cuarto)."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:578
+msgid "Choose number of posts for block (Third)."
+msgstr "Elige el número de entradas para el bloque (tercero)."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:537
+msgid "Choose number of posts for block (Second)."
+msgstr "Elige el número de entradas para el bloque (segundo)."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:496
+msgid "Choose number of posts for block (First)."
+msgstr "Elige el número de entradas para el bloque (primero)."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:481
+#: inc/admin-panel/accesspress-mag-customizer.php:523
+#: inc/admin-panel/accesspress-mag-customizer.php:564
+#: inc/admin-panel/accesspress-mag-customizer.php:605
+msgid "Select a category for first block in homepage."
+msgstr "Selecciona una categoría para el primer bloque en la página de inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:470
+msgid "Setup block Settings."
+msgstr "Configura los ajustes de los bloques."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:469
+msgid "Block Settings"
+msgstr "Ajustes de los bloques"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:453
+msgid "Choose number of slides."
+msgstr "Elige el número de diapositivas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:437
+msgid "Show or hide slider`s Title/info."
+msgstr "Mostrar u ocultar el título/información del carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:404
+#: inc/admin-panel/accesspress-mag-customizer.php:420
+msgid "On or off the slider auto transition."
+msgstr "Activar o desactivar la transición automática del carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:388
+msgid "Show or hide the slider controls."
+msgstr "Mostrar u ocultar los controles del carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:372
+msgid "Show or hide the slider pager."
+msgstr "Mostrar u ocultar el paginador del carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:358
+msgid "Select a category for highlight section beside slider."
+msgstr "Selecciona una categoría para la sección destacada junto al carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:337
+msgid "Select a category for homepage slider."
+msgstr "Seleccionar una categoría para el carrusel de la página de inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:319
+msgid "Choose option to slide posts in slider."
+msgstr "Elige la opción para deslizar las entradas en el carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:302
+msgid "Choose your slider layout as you like."
+msgstr "Elige el diseño que quieres para tu carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:284
+msgid "Enable or disable slider section at homepage."
+msgstr "Activar o desactivar la sección del carrusel en la página de inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:282
+msgid "Slider Section Option"
+msgstr "Opción de la sección del carrusel"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:273
+msgid "Setup slider Settings."
+msgstr "Configura los ajustes del carrusel."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:267
+msgid "Setup Homepage Settings."
+msgstr "Configura los ajustes de la página de inicio."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:255
+msgid "Show or hide the footer copyright example( Copyright © current year )."
+msgstr "Mostrar u ocultar el ejemplo de copyright del pie de página (Copyright &copy; año actual)."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:243
+msgid "Set footer copyright text."
+msgstr "Establece el texto del copyright en el pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:227
+msgid "Show or hide copy right and footer menu section."
+msgstr "Mostrar u ocultar el copyright y la sección del menú del pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:217
+msgid "Setup Sub Footer Settings."
+msgstr "Configura los ajustes del pie de página inferior."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:216
+msgid "Sub Footer"
+msgstr "Pie de página inferior"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:202
+msgid "Choose footer widget layout."
+msgstr "Elige el diseño de los widgets del pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:201
+msgid "Footer Widget Layout"
+msgstr "Diseño de los widgets del pie de página"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:184
+msgid "Show or hide the footer widget area."
+msgstr "Mostrar u ocultar el área de widgets del pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:173
+msgid "Setup Footer Widget Settings."
+msgstr "Configura los ajustes de los widgets del pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:168
+msgid "Setup footer Settings."
+msgstr "Configura los ajustes del pie de página."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:167
+msgid "Footer Settings"
+msgstr "Ajustes del pie de página"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:138
+msgid "Logo Settings Options."
+msgstr "Opciones de los ajustes del logotipo."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:122
+msgid "Select Yes to disable current date at top menu."
+msgstr "Selecciona «Sí» para desactivar la fecha actual en el menú superior."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:78
+msgid "Enter text to change text of New Ticker Caption."
+msgstr "Introduce el texto para cambiar el texto de la leyenda del teletipo de noticias."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:77
+msgid "News Ticker Caption"
+msgstr "Leyenda del teletipo de noticias"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:63
+msgid "Show or hide the news ticker section, which display latest 5 posts."
+msgstr "Mostrar u ocultar la sección del teletipo de noticias, que muestra las 5 últimas entradas."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:54
+msgid "Setup header options."
+msgstr "Configura las opciones de la cabecera."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:53
+msgid "Header Options"
+msgstr "Opciones de la cabecera"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:45
+#: inc/admin-panel/accesspress-mag-sanitize.php:170
+msgid "Full Width"
+msgstr "Ancho completo"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:39
+msgid "Web Layout"
+msgstr "Diseño de la web"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:28
+msgid "Choose template color of the theme."
+msgstr "Elige el color de la plantilla del tema."
+
+#: inc/admin-panel/accesspress-mag-customizer.php:20
+msgid "Setup Basic Settings."
+msgstr "Configura los ajustes básicos."
+
+#: inc/admin-panel/accesspress-mag-sanitize.php:144
+msgid "Slide"
+msgstr "Diapositiva"
+
+#: inc/admin-panel/accesspress-mag-sanitize.php:143
+msgid "Fade"
+msgstr "Fundido"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:512
+#: inc/admin-panel/accesspress-mag-customizer.php:553
+#: inc/admin-panel/accesspress-mag-customizer.php:594
+#: inc/admin-panel/accesspress-mag-customizer.php:635
+#: inc/admin-panel/accesspress-mag-customizer.php:683
+#: inc/admin-panel/accesspress-mag-sanitize.php:130
+msgid "15"
+msgstr "15"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:511
+#: inc/admin-panel/accesspress-mag-customizer.php:552
+#: inc/admin-panel/accesspress-mag-customizer.php:593
+#: inc/admin-panel/accesspress-mag-customizer.php:634
+#: inc/admin-panel/accesspress-mag-customizer.php:682
+#: inc/admin-panel/accesspress-mag-sanitize.php:129
+msgid "14"
+msgstr "14"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:509
+#: inc/admin-panel/accesspress-mag-customizer.php:550
+#: inc/admin-panel/accesspress-mag-customizer.php:591
+#: inc/admin-panel/accesspress-mag-customizer.php:632
+#: inc/admin-panel/accesspress-mag-customizer.php:680
+#: inc/admin-panel/accesspress-mag-sanitize.php:127
+msgid "12"
+msgstr "12"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:508
+#: inc/admin-panel/accesspress-mag-customizer.php:549
+#: inc/admin-panel/accesspress-mag-customizer.php:590
+#: inc/admin-panel/accesspress-mag-customizer.php:631
+#: inc/admin-panel/accesspress-mag-customizer.php:679
+#: inc/admin-panel/accesspress-mag-sanitize.php:126
+msgid "11"
+msgstr "11"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:506
+#: inc/admin-panel/accesspress-mag-customizer.php:547
+#: inc/admin-panel/accesspress-mag-customizer.php:588
+#: inc/admin-panel/accesspress-mag-customizer.php:629
+#: inc/admin-panel/accesspress-mag-customizer.php:677
+#: inc/admin-panel/accesspress-mag-sanitize.php:124
+msgid "9"
+msgstr "9"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:505
+#: inc/admin-panel/accesspress-mag-customizer.php:546
+#: inc/admin-panel/accesspress-mag-customizer.php:587
+#: inc/admin-panel/accesspress-mag-customizer.php:628
+#: inc/admin-panel/accesspress-mag-customizer.php:676
+#: inc/admin-panel/accesspress-mag-sanitize.php:123
+msgid "8"
+msgstr "8"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:504
+#: inc/admin-panel/accesspress-mag-customizer.php:545
+#: inc/admin-panel/accesspress-mag-customizer.php:586
+#: inc/admin-panel/accesspress-mag-customizer.php:627
+#: inc/admin-panel/accesspress-mag-customizer.php:675
+#: inc/admin-panel/accesspress-mag-sanitize.php:122
+msgid "7"
+msgstr "7"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:500
+#: inc/admin-panel/accesspress-mag-customizer.php:541
+#: inc/admin-panel/accesspress-mag-customizer.php:582
+#: inc/admin-panel/accesspress-mag-customizer.php:623
+#: inc/admin-panel/accesspress-mag-customizer.php:671
+#: inc/admin-panel/accesspress-mag-sanitize.php:118
+msgid "All Post"
+msgstr "Todas las entradas"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:463
+#: inc/admin-panel/accesspress-mag-customizer.php:503
+#: inc/admin-panel/accesspress-mag-customizer.php:544
+#: inc/admin-panel/accesspress-mag-customizer.php:585
+#: inc/admin-panel/accesspress-mag-customizer.php:626
+#: inc/admin-panel/accesspress-mag-customizer.php:674
+#: inc/admin-panel/accesspress-mag-sanitize.php:105
+#: inc/admin-panel/accesspress-mag-sanitize.php:121
+msgid "6"
+msgstr "6"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:462
+#: inc/admin-panel/accesspress-mag-customizer.php:502
+#: inc/admin-panel/accesspress-mag-customizer.php:543
+#: inc/admin-panel/accesspress-mag-customizer.php:584
+#: inc/admin-panel/accesspress-mag-customizer.php:625
+#: inc/admin-panel/accesspress-mag-customizer.php:673
+#: inc/admin-panel/accesspress-mag-sanitize.php:104
+#: inc/admin-panel/accesspress-mag-sanitize.php:120
+msgid "5"
+msgstr "5"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:460
+#: inc/admin-panel/accesspress-mag-sanitize.php:102
+msgid "3"
+msgstr "3"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:459
+#: inc/admin-panel/accesspress-mag-sanitize.php:101
+msgid "2"
+msgstr "2"
+
+#: inc/admin-panel/accesspress-mag-sanitize.php:45
+msgid "Center"
+msgstr "Centro"
+
+#: inc/admin-panel/accesspress-mag-sanitize.php:44
+msgid "Left"
+msgstr "Izquierda"
+
+#: inc/welcome/welcome.php:481 inc/welcome/welcome.php:509
+msgid "Plugin Does not Exists"
+msgstr "El plugin no existe"
+
+#. translators: %s : Theme Name
+#: inc/welcome/welcome.php:223
+msgid "Are you enjoying %1$s? We would love to hear your feedback!"
+msgstr "¿Estás disfrutando de %1$s? ¡Nos encantaría saber tu opinión!"
+
+#: inc/welcome/welcome.php:219
+msgid " -to stay updated. "
+msgstr " -para estar al día. "
+
+#: inc/welcome/welcome.php:217
+msgid " -for tutorials, videos and more."
+msgstr " -para tutoriales, vídeos y más."
+
+#: inc/welcome/welcome.php:215
+msgid " -to receive updates, offers and more."
+msgstr " -para recibir actualizaciones, ofertas y más."
+
+#: inc/welcome/welcome.php:213
+msgid "Get connected, share your opinions and more via our social community: "
+msgstr "Conéctate, comparte tus opiniones y más a través de nuestra comunidad social: "
+
+#: inc/welcome/welcome.php:148
+msgid "Full Documentation"
+msgstr "Documentación completa"
+
+#: inc/welcome/welcome.php:149
+msgid "Contact Support"
+msgstr "Contactar con el soporte"
+
+#: inc/welcome/welcome.php:130
+msgid "ready to use starter sites."
+msgstr "sitios iniciales listos para usar."
+
+#: inc/welcome/welcome.php:124
+msgid "Starter site demos!"
+msgstr "¡Sitios iniciales de demostración!"
+
+#. translators: %s : Theme Name
+#: inc/welcome/welcome.php:116
+msgid "Thank you for installing %1$s. It is now installed and ready to use. Here are some useful links to get started: "
+msgstr "Gracias por instalar %1$s. Ahora, está instalado y listo para usar. Aquí tienes algunos enlaces útiles para empezar: "
+
+#: inc/welcome/welcome.php:39
+msgid "ChangeLog"
+msgstr "Registro de cambios"
+
+#: inc/welcome/welcome.php:37
+msgid "Import Demo"
+msgstr "Importar la demostración"
+
+#: inc/welcome/sections/demo_import.php:117
+msgid "Install : "
+msgstr "Instalar: "
+
+#: inc/welcome/sections/support.php:33
+msgid "View Documentation"
+msgstr "Ver la documentación"
+
+#: inc/welcome/sections/support.php:32
+msgid "Checkout our documentation and get more details on how to setup / configure theme step by step."
+msgstr "Revisa nuestra documentación y consigue más datos sobre cómo configurar el tema paso a paso."
+
+#: inc/welcome/sections/support.php:24
+msgid "You can also email to our support team directly at : support@accesspressthemes.com."
+msgstr "También puedes enviar un correo electrónico directamente a nuestro equipo de soporte a: support@accesspressthemes.com."
+
+#: inc/welcome/sections/support.php:23
+msgid "Email to support team"
+msgstr "Enviar un correo electrónico al equipo de soporte"
+
+#: inc/welcome/sections/support.php:17
+msgid "Start Online Chat"
+msgstr "Iniciar un chat online"
+
+#: inc/welcome/sections/support.php:16
+msgid "Kathmandu Time (GMT + 5:45)"
+msgstr "Hora de Katmandú (GMT +5:45)"
+
+#: inc/welcome/sections/support.php:15
+msgid "10AM - 5PM "
+msgstr "10:00 - 17:00"
+
+#: inc/welcome/sections/support.php:14
+msgid "Mon - Fri"
+msgstr "Lun - Vie"
+
+#: inc/welcome/sections/support.php:13
+msgid "If you need an immediate solution, you can try our online chat support too. However our online time is limited and as below"
+msgstr "Si necesitas una solución inmediata, también puedes probar nuestro chat de soporte online. Sin embargo, nuestro horario online está limitado al siguiente"
+
+#: inc/welcome/sections/support.php:12
+msgid "Online Chat"
+msgstr "Chat online"
+
+#: inc/welcome/sections/support.php:6
+msgid "Create Ticket"
+msgstr "Crear un tique"
+
+#: inc/welcome/sections/support.php:5
+msgid "If you're having any issues with the theme, feel free to create a ticket in our support forum. We reply your ticket very soon!"
+msgstr "Si estás teniendo cualquier problema con el tema, no dudes en crear un tique en nuestro foro de soporte. ¡Responderemos a tu tique muy pronto!"
+
+#: inc/welcome/sections/getting_started.php:79
+msgid "Go live with the website and get some rest"
+msgstr "Pon en vivo la web y descansa un poco"
+
+#: inc/welcome/sections/getting_started.php:78
+msgid "Step 4 - You 're done! "
+msgstr "Paso 4 - ¡Has terminado!"
+
+#: inc/welcome/sections/getting_started.php:75
+msgid "Once you install the demo, you can start editing the content, replacing images etc."
+msgstr "Una vez que instales la demostración, puedes empezar a editar el contenido, reemplazar las imágenes, etc."
+
+#: inc/welcome/sections/getting_started.php:74
+msgid "Step 3 - Start editing the demo content and making your site! "
+msgstr "Paso 3 - Empezar a editar el contenido de la demostración y ¡crear tu sitio!"
+
+#: inc/welcome/sections/getting_started.php:70
+msgid "Once you chose one of the available starter sites (demos) - you can install it. Please be noted that once you install the demo, it will install all the required plugins too. It is not recommended to install demo on your existing content. A fresh WordPress installation would be required to install demo to replicate demo content exactly. "
+msgstr "Una vez que hayas elegido uno de los sitios de inicio disponibles (demostraciones), podrás instalarlo. Por favor, ten en cuenta que, una vez que instales la demostración, también se instalarán todos los plugins necesarios. No se recomienda instalar una demostración sobre tu contenido existente. Sería necesaria una nueva instalación de WordPress para instalar la demostración y replicar exactamente el contenido de la misma."
+
+#: inc/welcome/sections/getting_started.php:69
+msgid "Step 2 - Import demo of your choice "
+msgstr "Paso 2 - Importar la demostración elegida"
+
+#. translators: %s : Theme Name
+#: inc/welcome/sections/getting_started.php:63
+msgid "See Demos"
+msgstr "Ver las demostraciones"
+
+#. translators: %s : Theme Name
+#: inc/welcome/sections/getting_started.php:62
+msgid "%1$s now comes with a sites library with 6 starter sites to pick from. You can check theme out and decide which one to start with. However you can decide not to use any one of them and start building your site from scratch."
+msgstr "%1$s viene ahora con una biblioteca de sitios con 6 sitios de inicio para elegir. Puedes comprobar el tema y decidir con cuál empezar. Sin embargo, puedes decidir no usar ninguno de ellos y comenzar a crear tu sitio desde cero."
+
+#: inc/welcome/sections/getting_started.php:61
+msgid "Step 1 - Checkout starter sites (Demos) "
+msgstr "Paso 1 - Revisar los sitios iniciales (demostraciones)"
+
+#: inc/welcome/sections/getting_started.php:47
+msgid "Layout Options"
+msgstr "Opciones de diseño"
+
+#: inc/welcome/sections/getting_started.php:41
+msgid "Footer Options"
+msgstr "Opciones del pie de página"
+
+#: inc/welcome/sections/getting_started.php:31
+msgid "Preloader Options"
+msgstr "Opciones de precargador"
+
+#: inc/welcome/sections/getting_started.php:26
+msgid "Menu Options"
+msgstr "Opciones del menú"
+
+#: inc/welcome/sections/getting_started.php:21
+msgid "Section Reorder"
+msgstr "Reordenación de secciones"
+
+#: inc/welcome/sections/getting_started.php:16
+msgid "HomePage Settings"
+msgstr "Ajustes de la página de inicio"
+
+#: inc/welcome/sections/getting_started.php:11
+msgid "Upload Logo"
+msgstr "Subir un logotipo"
+
+#: inc/welcome/sections/getting_started.php:5
+msgid "Links to Customizer Settings"
+msgstr "Enlaces a los ajustes del personalizador"
+
+#: inc/welcome/welcome-config.php:123
+msgid "Customize Theme"
+msgstr "Personalizar el tema"
+
+#: inc/welcome/welcome-config.php:122
+msgid "All Recommended action has been successfully completed."
+msgstr "Todas las acciones recomendadas han sido completadas correctamente."
+
+#: inc/welcome/welcome-config.php:121
+msgid "All these required plugins will be installed and activated while importing demo. Or you can choose to install and activate them manually. If you're not importing any of the demos, you must install and activate these plugins manually."
+msgstr "Todos estos plugins necesarios serán instalados y activados al importar la demostración. O puedes elegir instalarlos y activarlos manualmente. Si no estás importando ninguna de las demostraciones, debes instalar y activar estos plugins manualmente."
+
+#: inc/welcome/welcome-config.php:108 inc/welcome/welcome-config.php:124
+msgid "Premium Plugins"
+msgstr "Plugins premium"
+
+#: inc/welcome/welcome-config.php:105
+msgid "Go to Customizer Panels"
+msgstr "Ir a los paneles del personalizador"
+
+#: inc/welcome/welcome-config.php:104
+msgid "Step 2 - Customizer Panel"
+msgstr "Paso 2 - Panel del personalizador"
+
+#: inc/welcome/welcome-config.php:103
+msgid "Read Now"
+msgstr "Leer ahora"
+
+#: inc/welcome/welcome-config.php:101
+msgid "Read the Documentation and follow the instructions to manage the site , it helps you to set up the theme more easily and quickly. The Documentation is very easy with its pictorial  and well managed listed instructions. "
+msgstr "Lee la documentación y sigue las instrucciones para gestionar el sitio, te ayuda a configurar el tema más fácil y rápidamente. La documentación es muy sencilla con instrucciones ilustradas y bien organizadas."
+
+#: inc/welcome/welcome-config.php:92
+msgid "AccessPress Mag - is clean & modern WordPress magazine theme. It is ideal for newspaper, editorial, online magazine, blog or personal website. It is a cutting-edge, feature-rich FREE WordPress theme and is fully-responsive. Its feature includes: 2 post layout, news ticker, sticky menu, author block, large featured images for page/post, social media integration for wider social reach. Demo: http://demo.accesspressthemes.com/accesspress-mag/ Support forum: https://accesspressthemes.com/support/"
+msgstr "AccessPress Mag es un tema limpio y moderno de tipo revista para WordPress. Es ideal para periódicos, editoriales, revistas online, blogs o webs personales. Es un tema de última generación para WordPress, rico en funciones y GRATUITO y es totalmente adaptable. Sus características incluyen: 2 diseños de entradas, teletipo de noticias, menú fijo, bloque de autor, grandes imágenes destacadas para páginas/entradas, integración con medios sociales para un mayor alcance social. Demostración: https://demo.accesspressthemes.com/accesspress-mag/. Foro de soporte: https://accesspressthemes.com/support/"
+
+#: inc/welcome/welcome-config.php:91
+msgid "Accesspress Mag"
+msgstr "Accesspress Mag"
+
+#: inc/welcome/welcome-config.php:66
+msgid "Access Demo Importer"
+msgstr "Access Demo Importer"
+
+#: inc/accesspress-functions.php:663
+msgid "Error 404"
+msgstr "Error 404"
+
+#: inc/accesspress-functions.php:660
+msgid "Author"
+msgstr "Autor"
+
+#: inc/accesspress-functions.php:655
+msgid "Posts tagged"
+msgstr "Entradas etiquetadas"
+
+#. translators: %s : post date
+#: inc/accesspress-functions.php:480
+msgctxt "post date"
+msgid "Posted on %s"
+msgstr "Publicado el %s"
+
+#. translators: %s : customizer page link
+#: inc/accesspress-options.php:108
+msgid "Set the Template Color for the site."
+msgstr "Establece el color de la plantilla para el sitio."
+
+#: inc/accesspress-options.php:106
+#: inc/admin-panel/accesspress-mag-customizer.php:27
+#: inc/welcome/sections/getting_started.php:36
+msgid "Template Color"
+msgstr "Color de plantilla"
+
+#: inc/accesspress-options.php:101
+msgid "General Settings"
+msgstr "Ajustes generales"
+
+#. translators: 1: title.
+#: comments.php:32
+msgid "One thought on &ldquo;%1$s&rdquo;"
+msgstr "Un pensamiento en &ldquo;%1$s&rdquo;"
+
+#: inc/welcome/welcome.php:491
+msgid "Sorry, you are not allowed to deactivate plugins on this site."
+msgstr "Lo siento, no tienes permisos para activar plugins para este sitio."
+
+#: inc/welcome/welcome.php:373 inc/welcome/welcome.php:422
+#: inc/welcome/welcome.php:468 inc/welcome/welcome.php:496
+msgid "Error - unable to verify nonce, please try again."
+msgstr "Error: no se puede verificar el nonce, inténtalo de nuevo."
+
+#: inc/welcome/welcome.php:363 inc/welcome/welcome.php:417
+msgid "Sorry, you are not allowed to install plugins on this site."
+msgstr "Lo siento, no tienes permisos para instalar plugins en este sitio."
+
+#: inc/welcome/welcome-config.php:118
+msgid "Are you sure to import demo content ?"
+msgstr "¿Estás seguro de importar contenido de demostración?"
+
+#: inc/welcome/welcome-config.php:117
+msgid "Demo Installed"
+msgstr "Demostración instalada"
+
+#: inc/welcome/welcome-config.php:116
+msgid "Installing Demo"
+msgstr "Instalando la demo"
+
+#: inc/welcome/welcome-config.php:115
+msgid "Activated"
+msgstr "Activado"
+
+#: inc/welcome/welcome.php:115
+msgid "Welcome!"
+msgstr "¡Bienvenido!"
+
+#: inc/welcome/welcome.php:38
+msgid "Free Vs Pro"
+msgstr "Gratis frente a Pro"
+
+#: inc/welcome/welcome.php:40
+msgid "Support"
+msgstr "Ayuda"
+
+#: inc/welcome/welcome.php:36
+msgid "Recommended Plugins"
+msgstr "Plugins recomendados"
+
+#: inc/welcome/welcome.php:35
+msgid "Getting Started"
+msgstr "Cómo comenzar"
+
+#: inc/welcome/welcome-config.php:70
+msgid "Access Demo Importer adds the feature to Import the Demo Conent with a single click."
+msgstr "El plugin Access Demo Importer añade la característica para importar el contenido de demostración con solo un clic."
+
+#: inc/welcome/sections/support.php:4
+msgid "Create Support Tickets"
+msgstr "Crear tickets de soporte"
+
+#: inc/welcome/welcome-config.php:109 inc/welcome/welcome-config.php:125
+msgid "Free Plugins"
+msgstr "Plugins gratuitos"
+
+#: inc/welcome/welcome-config.php:96
+msgid "Deactivate"
+msgstr "Desactivar"
+
+#: inc/welcome/welcome-config.php:95
+msgid "Install and Activate"
+msgstr "Instalar y activar"
+
+#: inc/welcome/welcome-config.php:100
+msgid "Step 1 - Documentation"
+msgstr "Paso 1 - Documentación"
+
+#: inc/welcome/sections/free_vs_pro.php:233
+msgid "Buy Now"
+msgstr "Comprar ahora"
+
+#: inc/welcome/sections/free_vs_pro.php:230
+msgid "Upgrade to pro version for additional features and better supports."
+msgstr "Mejora a la versión Pro para obtener funciones adicionales y mejor soporte."
+
+#: inc/welcome/sections/free_vs_pro.php:229
+msgid "Upgrade to Pro"
+msgstr "Mejora a PRO"
+
+#: inc/welcome/sections/free_vs_pro.php:218
+msgid "Google will love it."
+msgstr "A Google le encantará."
+
+#: inc/welcome/sections/free_vs_pro.php:217
+msgid "SEO Optimized"
+msgstr "Optimizado para SEO"
+
+#: inc/welcome/sections/free_vs_pro.php:206
+msgid "Yes - Stop your WooCommerce theme search here."
+msgstr "Sí - Detén tu búsqueda de temas de WooCommerce aquí."
+
+#: inc/welcome/sections/free_vs_pro.php:205
+msgid "Fully WooCommerce Compatible"
+msgstr "Totalmente compatible con WooCommerce"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:510
+#: inc/admin-panel/accesspress-mag-customizer.php:551
+#: inc/admin-panel/accesspress-mag-customizer.php:592
+#: inc/admin-panel/accesspress-mag-customizer.php:633
+#: inc/admin-panel/accesspress-mag-customizer.php:681
+#: inc/admin-panel/accesspress-mag-sanitize.php:128
+#: inc/welcome/sections/free_vs_pro.php:200
+msgid "13"
+msgstr "13"
+
+#: inc/welcome/sections/free_vs_pro.php:194
+msgid "Create a feature rich pages and posts using inbuilt shortcodes."
+msgstr "Crea páginas y entradas llenas de características usando los shorcodes incorporados."
+
+#: inc/welcome/sections/free_vs_pro.php:193
+msgid "Inbuilt Shortcodes"
+msgstr "Shortcodes incorporados"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:507
+#: inc/admin-panel/accesspress-mag-customizer.php:548
+#: inc/admin-panel/accesspress-mag-customizer.php:589
+#: inc/admin-panel/accesspress-mag-customizer.php:630
+#: inc/admin-panel/accesspress-mag-customizer.php:678
+#: inc/admin-panel/accesspress-mag-sanitize.php:125
+#: inc/welcome/sections/free_vs_pro.php:188
+msgid "10"
+msgstr "10"
+
+#: inc/welcome/sections/free_vs_pro.php:182
+msgid "Create a feature rich page in an instant using the inbuilt widgets."
+msgstr "Crea una página rica en funciones en un instante utilizando los widgets incorporados."
+
+#: inc/welcome/sections/free_vs_pro.php:181
+msgid "Inbuilt Widgets"
+msgstr "Widgets incorporados"
+
+#: inc/welcome/sections/free_vs_pro.php:170
+msgid "Have solid background color, image or pattern in your site."
+msgstr "Ten un color sólido de fondo, una imagen o un estampado en tu sitio."
+
+#: inc/welcome/sections/free_vs_pro.php:169
+msgid "Background Options"
+msgstr "Opciones del fondo"
+
+#: inc/welcome/sections/free_vs_pro.php:158
+msgid "Have a track of the path within the site with the use of advanced breadcrumb settings."
+msgstr "Ten un rastro de la ruta dentro del sitio con el uso de los ajustes avanzados de las migas de pan."
+
+#: inc/welcome/sections/free_vs_pro.php:157
+msgid "Advanced breadcrumb settings"
+msgstr "Ajustes avanzados de las migas de pan"
+
+#: inc/welcome/sections/free_vs_pro.php:146
+msgid "Have various variations among the blog post archive templates."
+msgstr "Ten distintas variaciones entre las plantillas de archivo de las entradas del blog."
+
+#: inc/welcome/sections/free_vs_pro.php:145
+msgid "Advanced Post / Archive Template"
+msgstr "Entrada avanzada / plantilla del archivo"
+
+#: inc/welcome/sections/free_vs_pro.php:134
+msgid "While Scroll down the website let the menu appear on the top of the websites."
+msgstr "Mientras se hace scroll en la web, deja que el menú aparezca en la parte superior de la web."
+
+#: inc/welcome/sections/free_vs_pro.php:122
+msgid "Supports Post Formats like Audio, Video, Gallery etc.."
+msgstr "Compatible con formatos de entradas como audio, vídeo, galería, etc."
+
+#: inc/welcome/sections/free_vs_pro.php:121
+msgid "Supports Multiple Post Formats"
+msgstr "Compatible con múltiples formatos de entradas"
+
+#: inc/welcome/sections/free_vs_pro.php:110
+msgid "Put in your banner ads or Google Adsense."
+msgstr "Pon tus banners de anuncios o de Google Adsense."
+
+#: inc/welcome/sections/free_vs_pro.php:109
+msgid "Responsive Ads and Google Adsense"
+msgstr "Anuncios adaptables y Google Adsense"
+
+#: inc/welcome/sections/free_vs_pro.php:98
+msgid "Advanced Slider where you can enable/disable slider or display slides from category or featured post"
+msgstr "Carrusel avanzado, donde puedes activar/desactivar el carrusel o mostrar diapositivas desde categorías o entradas destacadas"
+
+#: inc/welcome/sections/free_vs_pro.php:97
+msgid "Advanced Slider"
+msgstr "Carrusel avanzado"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:461
+#: inc/admin-panel/accesspress-mag-customizer.php:501
+#: inc/admin-panel/accesspress-mag-customizer.php:542
+#: inc/admin-panel/accesspress-mag-customizer.php:583
+#: inc/admin-panel/accesspress-mag-customizer.php:624
+#: inc/admin-panel/accesspress-mag-customizer.php:672
+#: inc/admin-panel/accesspress-mag-sanitize.php:103
+#: inc/admin-panel/accesspress-mag-sanitize.php:119
+#: inc/welcome/sections/free_vs_pro.php:92
+msgid "4"
+msgstr "4"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:458
+#: inc/admin-panel/accesspress-mag-sanitize.php:100
+#: inc/welcome/sections/free_vs_pro.php:89
+#: inc/welcome/sections/free_vs_pro.php:185
+#: inc/welcome/sections/free_vs_pro.php:197
+msgid "1"
+msgstr "1"
+
+#: inc/welcome/sections/free_vs_pro.php:86
+msgid "Choose any header layout for the site from the available multiple header layouts."
+msgstr "Elige cualquier estructura de cabecera para el sitio de entre los múltiples diseños disponibles."
+
+#: inc/welcome/sections/free_vs_pro.php:85
+msgid "Header Layouts"
+msgstr "Diseños de cabecera"
+
+#: inc/welcome/sections/free_vs_pro.php:74
+msgid "Easily configure the theme using easy to configure theme options."
+msgstr "Configura fácilmente el tema mediante opciones de tema fáciles de configurar."
+
+#: inc/welcome/sections/free_vs_pro.php:73
+msgid "Based on Theme Options Panel"
+msgstr "Basado en Theme Options Panel"
+
+#: inc/welcome/sections/free_vs_pro.php:62
+msgid "Choose any theme skin color you like for your site."
+msgstr "Elige el color de piel que más te guste para tu sitio."
+
+#: inc/welcome/sections/free_vs_pro.php:61
+msgid "Multiple Color Scheme"
+msgstr "Múltiples esquema de colores"
+
+#: inc/welcome/sections/free_vs_pro.php:50
+msgid "Create the site in your own custom language."
+msgstr "Crea el sitio en tu propio idioma personalizado."
+
+#: inc/welcome/sections/free_vs_pro.php:49
+msgid "Translation Ready"
+msgstr "Listo para traducir"
+
+#: inc/welcome/sections/free_vs_pro.php:38
+msgid "Displays fine in device with different screen sizes."
+msgstr "Se muestra bien en dispositivos con diferentes tamaños de pantalla."
+
+#: inc/welcome/sections/free_vs_pro.php:37
+msgid "Responsive Design"
+msgstr "Diseño adaptable"
+
+#: inc/welcome/sections/free_vs_pro.php:26
+msgid "Tired of configuring site from scratch. Installation of demo is just one click away."
+msgstr "Cansado de configurar el sitio desde cero. La instalación de la demo está a sólo un clic de distancia."
+
+#: inc/welcome/sections/free_vs_pro.php:25
+msgid "Demo Import."
+msgstr "Importación de demostraciones."
+
+#: inc/welcome/sections/free_vs_pro.php:21
+msgid "Pro"
+msgstr "Pro"
+
+#: inc/welcome/sections/free_vs_pro.php:20
+msgid "Free"
+msgstr "Gratis"
+
+#: inc/welcome/sections/free_vs_pro.php:19
+msgid "Features"
+msgstr "Características"
+
+#: inc/welcome/sections/free_vs_pro.php:14
+msgid "Keep upto date"
+msgstr "Mantente al día"
+
+#: inc/welcome/sections/free_vs_pro.php:13
+msgid "FREE UPDATES FOR LIFE TIME"
+msgstr "ACTUALIZACIONES GRATUITAS DE POR VIDA"
+
+#: inc/welcome/sections/free_vs_pro.php:9
+msgid "Use in as many website as you need"
+msgstr "Utilízalo en tantos sitios web como necesites"
+
+#: inc/welcome/sections/free_vs_pro.php:8
+msgid "UNLIMITED DOMAIN LICENCE"
+msgstr "LICENCIA PARA DOMINIOS ILIMITADOS"
+
+#: inc/welcome/sections/free_vs_pro.php:4
+msgid "No renewal needed"
+msgstr "No necesita renovación"
+
+#: inc/welcome/sections/free_vs_pro.php:3
+msgid "ONE TIME PAYMENT"
+msgstr "PAGO ÚNICO"
+
+#: inc/accesspress-options.php:77 inc/accesspress-options.php:82
+#: inc/admin-panel/accesspress-mag-customizer.php:1094 sidebar-home.php:15
+msgid "Editor's Pick"
+msgstr "Selección del editor"
+
+#: inc/accesspress-options.php:467
+msgid "Select a category for highlight section beside slider"
+msgstr "Selecciona una categoría para la sección destacada junto al carrusel"
+
+#: inc/accesspress-options.php:466
+#: inc/admin-panel/accesspress-mag-customizer.php:357
+msgid "Category for Highlight Section"
+msgstr "Categoría para la sección destacada"
+
+#: inc/accesspress-options.php:459
+#: inc/admin-panel/accesspress-mag-customizer.php:336
+msgid "Category for Slider"
+msgstr "Categoría para el carrusel"
+
+#: inc/accesspress-options.php:452
+#: inc/admin-panel/accesspress-mag-customizer.php:324
+#: inc/admin-panel/accesspress-mag-sanitize.php:263
+msgid "Category Posts"
+msgstr "Entradas de la categoría"
+
+#: inc/accesspress-options.php:451
+#: inc/admin-panel/accesspress-mag-customizer.php:323
+#: inc/admin-panel/accesspress-mag-sanitize.php:262
+msgid "Latest Posts"
+msgstr "Últimas entradas"
+
+#: inc/accesspress-options.php:447
+#: inc/admin-panel/accesspress-mag-customizer.php:318
+msgid "Slider Posts from"
+msgstr "Entradas para el carrusel desde"
+
+#: inc/accesspress-options.php:439
+msgid "Choose your slider layout as you like"
+msgstr "Elige el diseño que quieras para tu carrusel"
+
+#: inc/accesspress-options.php:438
+#: inc/admin-panel/accesspress-mag-customizer.php:301
+msgid "Slider Layouts"
+msgstr "Diseños del carrusel"
+
+#: inc/custom-header.php:121
+msgid "Site Logo"
+msgstr "Logotipo del sitio"
+
+#: inc/accesspress-options.php:430
+msgid "Enable or disable slider section at homepage"
+msgstr "Activar o desactivar la sección del carrusel en la página de inicio"
+
+#: inc/accesspress-options.php:429
+msgid "Slider section Option"
+msgstr "Opción de la sección del carrusel"
+
+#: inc/widgets/widget-latest-posts.php:43
+#: inc/widgets/widget-random-posts.php:43
+msgid "Number of Posts"
+msgstr "Número de entradas"
+
+#: inc/accesspress-options.php:161
+msgid "Add your required css"
+msgstr "Añade el CSS que necesites"
+
+#: inc/accesspress-options.php:155 inc/accesspress-options.php:160
+msgid "Custom Css"
+msgstr "CSS personalizado"
+
+#: inc/accesspress-options.php:500
+#: inc/admin-panel/accesspress-mag-customizer.php:418
+msgid "Slider Pause Duration"
+msgstr "Duración de la pausa del carrusel"
+
+#: inc/accesspress-functions.php:283
+msgid "Latest"
+msgstr "Más reciente"
+
+#: inc/accesspress-options.php:689
+#: inc/admin-panel/accesspress-mag-customizer.php:842
+msgid "Enable or disable lightbox effect for galleries images."
+msgstr "Activar o desactivar el efecto de caja de luz para las galerías de imágenes."
+
+#: inc/accesspress-options.php:688
+#: inc/admin-panel/accesspress-mag-customizer.php:841
+msgid "Lightbox Effect"
+msgstr "Efecto de caja de luz"
+
+#: inc/welcome/sections/actions_required.php:52
+#: inc/welcome/sections/actions_required.php:111
+msgid "Version "
+msgstr "Versión"
+
+#: inc/accesspress-options.php:33
+msgid "All posts"
+msgstr "Todas las entradas"
+
+#: inc/accesspress-options.php:25
+#: inc/admin-panel/accesspress-mag-customizer.php:457
+#: inc/admin-panel/accesspress-mag-sanitize.php:99
+#: inc/admin-panel/accesspress-mag-sanitize.php:156
+msgid "Default"
+msgstr "Por defecto"
+
+#. translators: %s : search keyword
+#: search.php:29
+msgid ": %s"
+msgstr ": %s"
+
+#. translators: %s : customizer page link
+#: inc/accesspress-options.php:243
+msgid "Go to <a href=\"%s\" target=\"_blank\">customize page</a> to add Site Icon"
+msgstr "Ve a <a href=\"%s\" target=\"_blank\">personalizar la página</a> para añadir el icono del sitio"
+
+#: inc/accesspress-options.php:219
+msgid "Checked to disable current date at top menu."
+msgstr "Márcalo para desactivar la fecha actual en el menú superior."
+
+#: inc/accesspress-options.php:218
+#: inc/admin-panel/accesspress-mag-customizer.php:121
+msgid "Disable Current Date"
+msgstr "Desactivar la fecha actual"
+
+#: inc/accesspress-options.php:82
+msgid "Search Results for"
+msgstr "Resultados de la búsqueda de "
+
+#: inc/accesspress-options.php:79
+#: inc/admin-panel/accesspress-mag-customizer.php:1214
+msgid "Search Placeholder"
+msgstr "Marcador de posición del buscador"
+
+#: inc/accesspress-options.php:78 inc/accesspress-options.php:83
+#: inc/admin-panel/accesspress-mag-customizer.php:1178
+msgid "Newer Posts"
+msgstr "Entradas siguientes"
+
+#: inc/accesspress-options.php:78 inc/accesspress-options.php:83
+#: inc/admin-panel/accesspress-mag-customizer.php:1166
+msgid "Older Posts"
+msgstr "Entradas anteriores"
+
+#: inc/accesspress-options.php:210
+#: inc/admin-panel/accesspress-mag-customizer.php:106
+msgid "Enable or Disable Random Post icon in menu section."
+msgstr "Activar o desactivar el icono de entrada aleatoria en la sección del menú."
+
+#: inc/accesspress-options.php:209
+#: inc/admin-panel/accesspress-mag-customizer.php:105
+msgid "Random Post in Menu"
+msgstr "Entrada aleatoria en el menú"
+
+#: inc/accesspress-options.php:204 inc/accesspress-options.php:213
+#: inc/accesspress-options.php:433
+#: inc/admin-panel/accesspress-mag-customizer.php:96
+#: inc/admin-panel/accesspress-mag-customizer.php:112
+#: inc/admin-panel/accesspress-mag-customizer.php:128
+#: inc/admin-panel/accesspress-mag-customizer.php:289
+#: inc/admin-panel/accesspress-mag-customizer.php:712
+#: inc/admin-panel/accesspress-mag-customizer.php:729
+#: inc/admin-panel/accesspress-mag-customizer.php:746
+#: inc/admin-panel/accesspress-mag-customizer.php:763
+#: inc/admin-panel/accesspress-mag-customizer.php:780
+#: inc/admin-panel/accesspress-mag-customizer.php:797
+#: inc/admin-panel/accesspress-mag-customizer.php:814
+#: inc/admin-panel/accesspress-mag-customizer.php:831
+#: inc/admin-panel/accesspress-mag-customizer.php:848
+#: inc/admin-panel/accesspress-mag-customizer.php:918
+#: inc/admin-panel/accesspress-mag-customizer.php:935
+#: inc/admin-panel/accesspress-mag-customizer.php:952
+#: inc/admin-panel/accesspress-mag-customizer.php:1012
+msgid "Disable"
+msgstr "Desactivar"
+
+#: inc/accesspress-options.php:203 inc/accesspress-options.php:212
+#: inc/accesspress-options.php:432
+#: inc/admin-panel/accesspress-mag-customizer.php:95
+#: inc/admin-panel/accesspress-mag-customizer.php:111
+#: inc/admin-panel/accesspress-mag-customizer.php:127
+#: inc/admin-panel/accesspress-mag-customizer.php:288
+#: inc/admin-panel/accesspress-mag-customizer.php:711
+#: inc/admin-panel/accesspress-mag-customizer.php:728
+#: inc/admin-panel/accesspress-mag-customizer.php:745
+#: inc/admin-panel/accesspress-mag-customizer.php:762
+#: inc/admin-panel/accesspress-mag-customizer.php:779
+#: inc/admin-panel/accesspress-mag-customizer.php:796
+#: inc/admin-panel/accesspress-mag-customizer.php:813
+#: inc/admin-panel/accesspress-mag-customizer.php:830
+#: inc/admin-panel/accesspress-mag-customizer.php:847
+#: inc/admin-panel/accesspress-mag-customizer.php:917
+#: inc/admin-panel/accesspress-mag-customizer.php:934
+#: inc/admin-panel/accesspress-mag-customizer.php:951
+#: inc/admin-panel/accesspress-mag-customizer.php:1011
+msgid "Enable"
+msgstr "Activar"
+
+#: inc/accesspress-options.php:201
+#: inc/admin-panel/accesspress-mag-customizer.php:90
+msgid "Enable or Disable sticky menu behaviour."
+msgstr "Activar o desactivar el comportamiento de menú fijo."
+
+#: inc/accesspress-options.php:200
+#: inc/admin-panel/accesspress-mag-customizer.php:89
+#: inc/welcome/sections/free_vs_pro.php:133
+msgid "Sticky Menu"
+msgstr "Menú fijo"
+
+#: inc/accesspress-functions.php:742
+msgid "View a random post"
+msgstr "Ver una entrada aleatoria"
+
+#: inc/accesspress-options.php:448
+msgid "Choose option to slide posts in slider"
+msgstr "Elige la opción para deslizar entradas en el carrusel"
+
+#: inc/accesspress-options.php:194
+msgid "Write your ticker caption"
+msgstr "Escribe la leyenda de tu teletipo"
+
+#: inc/accesspress-options.php:193
+msgid "News Ticker Caption "
+msgstr "Leyenda del teletipo de noticias"
+
+#: inc/accesspress-options.php:185
+msgid "Show or hide the news ticker section, which display latest 5 posts"
+msgstr "Mostrar u ocultar la sección del teletipo de noticias, que muestra las 5 últimas entradas"
+
+#: inc/accesspress-options.php:184
+#: inc/admin-panel/accesspress-mag-customizer.php:61
+msgid "News Ticker"
+msgstr "Teletipo de noticias"
+
+#: inc/accesspress-options.php:179
+msgid "Header Settings"
+msgstr "Ajustes de la cabecera"
+
+#. Template Name of the theme
+msgid "Home Page"
+msgstr "Página de inicio"
+
+#: inc/accesspress-options.php:79 inc/accesspress-options.php:84
+#: inc/admin-panel/accesspress-mag-customizer.php:1202
+msgid "Search"
+msgstr "Buscar"
+
+#: inc/accesspress-options.php:84
+msgid "Search Content..."
+msgstr "Buscar contenido..."
+
+#: searchform.php:16 searchform.php:17
+msgid "Search for:"
+msgstr "Buscar:"
+
+#: inc/accesspress-functions.php:562 search.php:20
+msgid "Search Results for "
+msgstr "Resultados de la búsqueda de"
+
+#: inc/widgets/widget-random-posts.php:25
+msgid "A widget that shows Random posts"
+msgstr "Un widget que muestra entradas aleatorias"
+
+#: inc/widgets/widget-latest-posts.php:85
+#: inc/widgets/widget-random-posts.php:85
+msgid "No image"
+msgstr "Sin imagen"
+
+#: inc/widgets/widget-latest-posts.php:25
+msgid "A widget that shows latest posts"
+msgstr "Un widget que muestra las últimas entradas"
+
+#: inc/widgets/widget-contributors.php:38
+#: inc/widgets/widget-latest-posts.php:38
+#: inc/widgets/widget-random-posts.php:38
+msgid "Title"
+msgstr "Título"
+
+#: inc/widgets/widget-contributors.php:25
+msgid "A widget that shows article contributors"
+msgstr "Un widget que muestra los colaboradores de artículos"
+
+#: inc/template-tags.php:238
+msgid "Archives"
+msgstr "Archivos"
+
+#. translators: 1: Taxonomy singular name, 2: Current taxonomy term
+#: inc/template-tags.php:236
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+#. translators: %s : post archive title
+#: inc/template-tags.php:232
+msgid "Archives: %s"
+msgstr "Archivos: %s"
+
+#: inc/template-tags.php:228
+msgctxt "post format archive title"
+msgid "Chats"
+msgstr "Chats"
+
+#: inc/template-tags.php:226
+msgctxt "post format archive title"
+msgid "Audio"
+msgstr "Audio"
+
+#: inc/template-tags.php:224
+msgctxt "post format archive title"
+msgid "Statuses"
+msgstr "Estados"
+
+#: inc/template-tags.php:222
+msgctxt "post format archive title"
+msgid "Links"
+msgstr "Enlaces"
+
+#: inc/template-tags.php:220
+msgctxt "post format archive title"
+msgid "Quotes"
+msgstr "Citas"
+
+#: inc/template-tags.php:218
+msgctxt "post format archive title"
+msgid "Videos"
+msgstr "Vídeos"
+
+#: inc/template-tags.php:216
+msgctxt "post format archive title"
+msgid "Images"
+msgstr "Imágenes"
+
+#: inc/template-tags.php:214
+msgctxt "post format archive title"
+msgid "Galleries"
+msgstr "Galerías"
+
+#: inc/template-tags.php:212
+msgctxt "post format archive title"
+msgid "Asides"
+msgstr "Minientradas"
+
+#. translators: %s : day
+#: inc/template-tags.php:209
+msgctxt "daily archives date format"
+msgid "F j, Y"
+msgstr "j F, Y"
+
+#. translators: %s : day
+#: inc/template-tags.php:209
+msgid "Day: %s"
+msgstr "Día: %s"
+
+#. translators: %s : Month
+#: inc/template-tags.php:206
+msgctxt "monthly archives date format"
+msgid "F Y"
+msgstr "F Y"
+
+#. translators: %s : Month
+#: inc/template-tags.php:206
+msgid "Month: %s"
+msgstr "Mes: %s"
+
+#. translators: %s : Year
+#: inc/template-tags.php:203
+msgctxt "yearly archives date format"
+msgid "Y"
+msgstr "Y"
+
+#. translators: %s : Year
+#: inc/template-tags.php:203
+msgid "Year: %s"
+msgstr "Año: %s"
+
+#. translators: %s : Author
+#: inc/template-tags.php:200
+msgid "Author: %s"
+msgstr "Autor: %s"
+
+#. translators: %s : tag title
+#: inc/template-tags.php:197
+msgid "Tag: %s"
+msgstr "Etiqueta: %s"
+
+#. translators: %s : tag list
+#: inc/template-tags.php:167
+msgid "Tagged %1$s"
+msgstr "Etiquetado con %1$s"
+
+#. translators: %s : author
+#: inc/template-tags.php:141
+msgctxt "post author"
+msgid "by %s"
+msgstr "por %s"
+
+#: inc/template-tags.php:94
+msgid "Post navigation"
+msgstr "Navegación de entradas"
+
+#: inc/template-tags.php:31
+msgid "Newer posts"
+msgstr "Entradas siguientes"
+
+#: inc/template-tags.php:27
+msgid "Older posts"
+msgstr "Entradas anteriores"
+
+#: inc/template-tags.php:23 inc/template-tags.php:53
+msgid "Posts navigation"
+msgstr "Navegación de entradas"
+
+#: inc/customizer.php:87
+msgid "Repeat All"
+msgstr "Repetir todo"
+
+#: inc/customizer.php:89
+msgid "Repeat Vertically"
+msgstr "Repetir verticalmente"
+
+#: inc/customizer.php:88
+msgid "Repeat Horizontally"
+msgstr "Repetir horizontalmente"
+
+#: inc/customizer.php:86
+msgid "No Repeat"
+msgstr "Sin repetición"
+
+#: inc/welcome/sections/getting_started.php:71
+msgid "Install Demo"
+msgstr "Instalar la demostración"
+
+#: inc/welcome/sections/support.php:31 inc/welcome/welcome.php:144
+msgid "Documentation"
+msgstr "Documentación"
+
+#. translators: %s: Page Number
+#: inc/extras.php:52
+msgid "Page %s"
+msgstr "Página %s"
+
+#: inc/custom-metabox.php:176
+msgid "You can set up the sidebar content"
+msgstr "Puedes establecer el contenido de la barra lateral"
+
+#: inc/custom-metabox.php:159
+msgid "Page Sidebar"
+msgstr "Barra lateral de página"
+
+#: inc/custom-metabox.php:143 inc/custom-metabox.php:176
+msgid "here"
+msgstr "aquí"
+
+#: inc/custom-metabox.php:143
+msgid "You can set up the sidebar content "
+msgstr "Puedes establecer el contenido de la barra lateral"
+
+#: inc/custom-metabox.php:126
+msgid "Post Sidebar"
+msgstr "Barra lateral de entradas"
+
+#: inc/custom-metabox.php:120
+msgid "Template available in pro version"
+msgstr "Plantilla disponible en la versión pro"
+
+#: inc/custom-metabox.php:106
+msgid "Post template:"
+msgstr "Plantilla de entradas:"
+
+#: inc/admin-panel/accesspress-mag-sanitize.php:157 inc/custom-metabox.php:90
+msgid "Style 1"
+msgstr "Estilo 1"
+
+#: inc/custom-metabox.php:84
+msgid "Default Template"
+msgstr "Plantilla por defecto"
+
+#: inc/custom-metabox.php:78
+msgid "Theme option Template"
+msgstr "Opción de plantilla del tema"
+
+#: inc/custom-metabox.php:49 inc/custom-metabox.php:69
+msgid "No sidebar"
+msgstr "Sin barra lateral"
+
+#: inc/custom-metabox.php:43 inc/custom-metabox.php:63
+msgid "Right sidebar<br/>(default)"
+msgstr "Barra lateral derecha<br/>(por defecto)"
+
+#: inc/custom-metabox.php:38 inc/custom-metabox.php:58
+msgid "Left sidebar"
+msgstr "Barra lateral izquierda"
+
+#: inc/custom-metabox.php:33
+msgid "Theme option sidebar"
+msgstr "Opción de barra lateral del tema"
+
+#: inc/custom-metabox.php:22
+msgid "Sidebar Layout"
+msgstr "Disposición de la barra lateral"
+
+#: inc/custom-metabox.php:14
+msgid "Post settings"
+msgstr "Ajustes de las entradas"
+
+#: inc/welcome/sections/demo_import.php:117
+msgid " Plugin"
+msgstr "Plugin"
+
+#: inc/welcome/welcome-config.php:97 inc/welcome/welcome-config.php:114
+msgid "Activate"
+msgstr "Activar"
+
+#: inc/accesspress-options.php:874
+msgid "Translate your frontend easily without any external plugins. While you leave the box empty and the theme will load the default string"
+msgstr "Traduce fácilmente tu portada sin plugins externos. Si dejas la caja vacía, el tema cargará la cadena por defecto."
+
+#: inc/accesspress-options.php:873
+msgid "Translate Your Theme"
+msgstr "Traduce tu tema"
+
+#: inc/accesspress-options.php:864 inc/accesspress-options.php:868
+msgid "Translations"
+msgstr "Traducciones"
+
+#: inc/accesspress-options.php:853
+msgid "Define - Excerpt length of words/letters for archive pages"
+msgstr "Definir - longitud de palabras/letras del extracto para las páginas de archivo"
+
+#: inc/accesspress-options.php:852
+#: inc/admin-panel/accesspress-mag-customizer.php:1054
+msgid "Excerpt Length"
+msgstr "Longitud del extracto"
+
+#: inc/accesspress-options.php:845
+#: inc/admin-panel/accesspress-mag-customizer.php:1044
+#: inc/admin-panel/accesspress-mag-sanitize.php:251
+msgid "On Letters"
+msgstr "En letras"
+
+#: inc/accesspress-options.php:844
+#: inc/admin-panel/accesspress-mag-customizer.php:1043
+#: inc/admin-panel/accesspress-mag-sanitize.php:250
+msgid "On Words"
+msgstr "En palabras"
+
+#: inc/accesspress-options.php:841
+msgid "Define - type of excerpt for archives pages"
+msgstr "Definir - tipo de extracto para las páginas de archivos"
+
+#: inc/accesspress-options.php:840
+msgid "Excerpts Type"
+msgstr "Tipo de extractos"
+
+#: inc/accesspress-options.php:835
+msgid "Adding a text as excerpt on post edit page (Excerpt box), will overwrite the theme excerpts"
+msgstr "Al añadir un texto como extracto en la página de edición de la entrada (caja de extracto), se sobrescribirán los extractos del tema"
+
+#: inc/accesspress-options.php:834
+msgid "Notice:"
+msgstr "Aviso:"
+
+#: inc/accesspress-options.php:825 inc/accesspress-options.php:829
+msgid "Excerpts"
+msgstr "Extractos"
+
+#: inc/accesspress-options.php:817
+msgid "MISC"
+msgstr "VARIOS"
+
+#: inc/accesspress-options.php:803
+msgid "Define - Choose sidebar for all archive pages"
+msgstr "Definir - elegir la barra lateral para las páginas de archivo"
+
+#: inc/accesspress-options.php:802
+msgid "Archive page sidebar"
+msgstr "Barra lateral de la página de archivo"
+
+#: inc/accesspress-options.php:794
+msgid "Define - Choose template for all archive pages"
+msgstr "Definir - elegir la plantilla para las páginas de archivo"
+
+#: inc/accesspress-options.php:793
+#: inc/admin-panel/accesspress-mag-customizer.php:970
+msgid "Archive page template"
+msgstr "Plantilla de la página de archivo"
+
+#: inc/accesspress-options.php:788
+#: inc/admin-panel/accesspress-mag-customizer.php:959
+msgid "Archive Style"
+msgstr "Estilo del archivo"
+
+#: inc/accesspress-options.php:783
+msgid "Archive Settings"
+msgstr "Ajustes del archivo"
+
+#: inc/accesspress-options.php:770
+msgid "Show or hide featured image in post`s single page"
+msgstr "Mostrar u ocultar la imagen destacada en la página de entrada individual"
+
+#: inc/accesspress-options.php:769
+msgid "Show Featured Image"
+msgstr "Mostrar la imagen destacada"
+
+#: inc/accesspress-options.php:764
+msgid "Featured images"
+msgstr "Imágenes destacadas"
+
+#: inc/accesspress-options.php:752
+msgid "Show or hide article title on single post"
+msgstr "Mostrar u ocultar el título del artículo en la entrada individual"
+
+#: inc/accesspress-options.php:751
+#: inc/admin-panel/accesspress-mag-customizer.php:945
+msgid "Enable Title on Single post"
+msgstr "Activar el título en la entrada individual"
+
+#: inc/accesspress-options.php:743
+msgid "Enable or disable homepage link at home in breadcrumbs"
+msgstr "Activar o desactivar en las migas de pan en el inicio el enlace a la página de inicio"
+
+#: inc/accesspress-options.php:742
+#: inc/admin-panel/accesspress-mag-customizer.php:928
+msgid "Enable link on Home"
+msgstr "Activar el enlace en la página de inicio"
+
+#: inc/accesspress-options.php:734
+msgid "Show or hide breadcrumbs on site"
+msgstr "Mostrar u ocultar las migas de pan en el sitio"
+
+#: inc/accesspress-options.php:733
+#: inc/admin-panel/accesspress-mag-customizer.php:911
+msgid "Show/Hide Breadcrumb"
+msgstr "Mostrar/ocultar las migas de pan"
+
+#: inc/accesspress-options.php:728
+msgid "Breadcrumbs"
+msgstr "Migas de pan"
+
+#: inc/accesspress-options.php:716
+msgid "Setting this option will make all post pages, that don't have a post sidebar associated to them, to be displayed using this sidebar. This option is OVERWRITTEN by the `Post sidebar` option from the backend - post add / edit page."
+msgstr "Configurar esta opción hará que todas las páginas de entradas que no tengan asociada una barra lateral de entradas, se muestren usando esta barra lateral. Esta opción es SOBRESCRITA por la opción «Barra lateral de entradas» desde el escritorio - página de añadir / editar la entrada."
+
+#: inc/accesspress-options.php:715
+#: inc/admin-panel/accesspress-mag-customizer.php:885
+msgid "Default Post Sidebar"
+msgstr "Barra lateral de entradas por defecto"
+
+#: inc/accesspress-options.php:707
+msgid "Setting this option will make all post pages, that don't have a post template associated to them, to be displayed using this template. This option is OVERWRITTEN by the `Post template` option from the backend - post add / edit page."
+msgstr "Configurar esta opción hará que todas las páginas de entradas que no tengan asociada una plantilla de entrada, se muestren usando esta plantilla. Esta opción es SOBRESCRITA por la opción «Plantilla de entradas» desde el escritorio - página de añadir / editar la entrada."
+
+#: inc/accesspress-options.php:706
+#: inc/admin-panel/accesspress-mag-customizer.php:868
+msgid "Default Post Template"
+msgstr "Plantilla de entradas por defecto"
+
+#: inc/accesspress-options.php:701
+msgid "Post Layout"
+msgstr "Diseño de las entradas"
+
+#: inc/accesspress-options.php:680
+msgid "Show or hide `next` and `previous` posts"
+msgstr "Mostrar u ocultar las entradas «siguiente» y «anterior»"
+
+#: inc/accesspress-options.php:679
+#: inc/admin-panel/accesspress-mag-customizer.php:824
+msgid "Show Navigation in Posts"
+msgstr "Mostrar la navegación de entradas"
+
+#: inc/accesspress-options.php:671
+msgid "Enable or disable the author box"
+msgstr "Activar o desactivar la caja del autor"
+
+#: inc/accesspress-options.php:670
+#: inc/admin-panel/accesspress-mag-customizer.php:807
+msgid "Show Author Box"
+msgstr "Mostrar la caja del autor"
+
+#: inc/accesspress-options.php:662
+msgid "Enable or disable the post tags"
+msgstr "Activar o desactivar las etiquetas de las entradas"
+
+#: inc/accesspress-options.php:661
+#: inc/admin-panel/accesspress-mag-customizer.php:790
+msgid "Show Tags on Site"
+msgstr "Mostrar las etiquetas en el sitio"
+
+#: inc/accesspress-options.php:653
+msgid "Shows or hide the author under the post title"
+msgstr "Mostrar u ocultar al autor debajo del título de la entrada"
+
+#: inc/accesspress-options.php:652
+#: inc/admin-panel/accesspress-mag-customizer.php:773
+msgid "Show Author Under Title"
+msgstr "Mostrar al autor debajo del título"
+
+#: inc/accesspress-options.php:644
+msgid "Enable or disable comment number"
+msgstr "Activar o desactivar el número de comentarios"
+
+#: inc/accesspress-options.php:643
+#: inc/admin-panel/accesspress-mag-customizer.php:756
+msgid "Show Comment Count"
+msgstr "Mostrar el contador de comentarios"
+
+#: inc/admin-panel/accesspress-mag-customizer.php:791
+msgid "Enable or disable the post tags."
+msgstr "Activar o desactivar las etiquetas de las entradas."
+
+#: inc/accesspress-options.php:635
+msgid "Enable or disable the post date"
+msgstr "Activar o desactivar la fecha de la entrada"
+
+#: inc/accesspress-options.php:634
+#: inc/admin-panel/accesspress-mag-customizer.php:705
+msgid "Show Date"
+msgstr "Mostrar la fecha"
+
+#: inc/accesspress-options.php:629
+msgid "Additional Settings"
+msgstr "Ajustes adicionales"
+
+#: inc/accesspress-options.php:624
+#: inc/admin-panel/accesspress-mag-customizer.php:689
+msgid "Post Settings"
+msgstr "Ajustes de las entradas"
+
+#: inc/accesspress-options.php:612
+msgid "Choose number of posts for editor pick section"
+msgstr "Elegir el número de entradas para la sección de la selección del editor"
+
+#: inc/accesspress-options.php:605
+msgid "Select a category for editor pick in homepage sidebar"
+msgstr "Seleccionar una categoría para la selección del editor en la barra lateral de la página de inicio"
+
+#: inc/accesspress-options.php:599
+msgid "Editor pick settings"
+msgstr "Ajustes de la selección del editor"
+
+#: inc/accesspress-options.php:588
+msgid "Choose number of posts for block (fourth)"
+msgstr "Elegir el número de entradas para el bloque (cuarto)"
+
+#: inc/accesspress-options.php:581
+msgid "Select a category for fourth block in homepage"
+msgstr "Seleccionar una categoría para el cuarto bloque en la página de inicio"
+
+#: inc/accesspress-options.php:580
+#: inc/admin-panel/accesspress-mag-customizer.php:604
+msgid "Featured Block (Fourth)"
+msgstr "Bloque destacado (cuarto)"
+
+#: inc/accesspress-options.php:573
+msgid "Choose number of posts for block (third)"
+msgstr "Elegir el número de entradas para el bloque (tercero)"
+
+#: inc/accesspress-options.php:566
+msgid "Select a category for third block in homepage"
+msgstr "Seleccionar una categoría para el tercer bloque en la página de inicio"
+
+#: inc/accesspress-options.php:565
+#: inc/admin-panel/accesspress-mag-customizer.php:563
+msgid "Featured Block (Third)"
+msgstr "Bloque destacado (tercero)"
+
+#: inc/accesspress-options.php:558
+msgid "Choose number of posts for block (second)"
+msgstr "Elegir el número de entradas para el bloque (segundo)"
+
+#: inc/accesspress-options.php:551
+msgid "Select a category for second block in homepage"
+msgstr "Seleccionar una categoría para el segundo bloque en la página de inicio"
+
+#: inc/accesspress-options.php:550
+#: inc/admin-panel/accesspress-mag-customizer.php:522
+msgid "Featured Block (Second)"
+msgstr "Bloque destacado (segundo)"
+
+#: inc/accesspress-options.php:543
+msgid "Choose number of posts for block (first)"
+msgstr "Elegir el número de entradas para el bloque (primero)"
+
+#: inc/accesspress-options.php:542 inc/accesspress-options.php:557
+#: inc/accesspress-options.php:572 inc/accesspress-options.php:587
+#: inc/accesspress-options.php:611
+#: inc/admin-panel/accesspress-mag-customizer.php:494
+#: inc/admin-panel/accesspress-mag-customizer.php:535
+#: inc/admin-panel/accesspress-mag-customizer.php:576
+#: inc/admin-panel/accesspress-mag-customizer.php:617
+#: inc/admin-panel/accesspress-mag-customizer.php:665
+msgid "Number of posts"
+msgstr "Número de entradas"
+
+#: inc/accesspress-options.php:536
+msgid "Select a category for first block in homepage"
+msgstr "Seleccionar una categoría para el primer bloque en la página de inicio"
+
+#: inc/accesspress-options.php:535
+#: inc/admin-panel/accesspress-mag-customizer.php:480
+msgid "Featured Block (First)"
+msgstr "Bloque destacado (primero)"
+
+#: inc/accesspress-options.php:530
+msgid "Blocks settings"
+msgstr "Ajustes de bloques"
+
+#: inc/accesspress-options.php:519
+msgid "Choose number of slides"
+msgstr "Elegir el número de diapositivas"
+
+#: inc/accesspress-options.php:518
+#: inc/admin-panel/accesspress-mag-customizer.php:451
+msgid "Number of slides"
+msgstr "Número de diapositivas"
+
+#: inc/accesspress-options.php:510
+msgid "Show or hide slider`s Title/info"
+msgstr "Mostrar u ocultar el título/información del carrusel"
+
+#: inc/accesspress-options.php:509
+#: inc/admin-panel/accesspress-mag-customizer.php:435
+msgid "Show Title"
+msgstr "Mostrar el título"
+
+#: inc/accesspress-options.php:492
+msgid "On or off the slider auto transition"
+msgstr "Activar o desactivar la transición automática del carrusel"
+
+#: inc/accesspress-options.php:491
+#: inc/admin-panel/accesspress-mag-customizer.php:402
+msgid "Auto Transition"
+msgstr "Transición automática"
+
+#: inc/accesspress-options.php:483
+msgid "Show or hide the slider controls"
+msgstr "Mostrar u ocultar los controles del carrusel"
+
+#: inc/accesspress-options.php:482
+#: inc/admin-panel/accesspress-mag-customizer.php:386
+msgid "Show Controls"
+msgstr "Mostrar los controles"
+
+#: inc/accesspress-options.php:474
+msgid "Show or hide the slider pager"
+msgstr "Mostrar u ocultar el paginador del carrusel"
+
+#: inc/accesspress-options.php:473
+#: inc/admin-panel/accesspress-mag-customizer.php:370
+msgid "Show Pager"
+msgstr "Mostrar el paginador"
+
+#: inc/accesspress-options.php:460
+msgid "Select a category for homepage slider"
+msgstr "Seleccionar una categoría para el carrusel de la página de inicio"
+
+#: inc/accesspress-options.php:604
+#: inc/admin-panel/accesspress-mag-customizer.php:652 inc/customizer.php:52
+msgid "Select Category"
+msgstr "Seleccionar una categoría"
+
+#: inc/accesspress-options.php:424
+#: inc/admin-panel/accesspress-mag-customizer.php:272
+msgid "Slider Settings"
+msgstr "Ajustes del carrusel"
+
+#: inc/accesspress-options.php:419
+#: inc/admin-panel/accesspress-mag-customizer.php:266
+msgid "Homepage Settings"
+msgstr "Ajustes de la página de inicio"
+
+#: inc/accesspress-options.php:411
+msgid "Layout Settings"
+msgstr "Ajustes de diseño"
+
+#. translators: %s : widget page link
+#: inc/accesspress-options.php:400
+msgid "Go to <a href=\"%s\" target=\"_blank\">Widget Page</a> to add Homepage Sidebar Middle Ad <br> Ads Size : 300x250px <br> Sidebar Name: Homepage Sidebar Middle Ad "
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de widgets</a> para añadir un anuncio central en la barra lateral de la página de inicio <br> Tamaño del anuncio: 300x250px <br> Nombre en la barra lateral: Anuncio central en la barra lateral de la página de inicio"
+
+#: inc/accesspress-options.php:398
+msgid "Your Homepage Sidebar Middle Ad"
+msgstr "Tu anuncio central en la barra lateral de la página de inicio"
+
+#. translators: %s : widget page link
+#: inc/accesspress-options.php:393
+msgid "Go to <a href=\"%s\" target=\"_blank\">Widget Page</a> to add Homepage Sidebar Top Ad <br> Ads Size : 300x250px <br> Sidebar Name: Homepage Sidebar Top Ad "
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de widgets</a> para añadir un anuncio superior en la barra lateral de la página de inicio <br> Tamaño del anuncio 300x250px <br> Nombre en la barra lateral: Anuncio superior en la barra lateral de la página de inicio"
+
+#: inc/accesspress-options.php:391
+msgid "Your Homepage Sidebar Top Ad"
+msgstr "Tu anuncio superior en la barra lateral de la página de inicio"
+
+#. translators: %s : widget page link
+#: inc/accesspress-options.php:386
+msgid "Go to <a href=\"%s\" target=\"_blank\">Widget Page</a> to add Homepage Inline Ad <br> Ads Size : 728x90px <br> Sidebar Name: Homepage Inline Ad "
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de widgets</a> para añadir un anuncio integrado en la página de inicio <br> Tamaño del anuncio: 728x90px <br> Nombre en la barra lateral: Anuncio integrado en la página de inicio"
+
+#: inc/accesspress-options.php:384
+msgid "Your Homepage Inline Ad"
+msgstr "Tu anuncio integrado en la página de inicio"
+
+#: inc/accesspress-options.php:379
+msgid "Homepage ad"
+msgstr "Anuncios de la página de inicio"
+
+#. translators: %s : widget page link
+#: inc/accesspress-options.php:371
+msgid "Go to <a href=\"%s\" target=\"_blank\">Widget Page</a> to add Article Ad <br> Ads Size : 728x90px <br> Sidebar Name: Article Ad "
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de widgets</a> para añadir un anuncio de artículo <br> Tamaño del anuncio: 728x90px <br> Nombre en la barra lateral: Anuncio de artículo"
+
+#: inc/accesspress-options.php:369
+msgid "Your Article Ad"
+msgstr "Tu anuncio de artículo"
+
+#: inc/accesspress-options.php:364
+msgid "Article ad"
+msgstr "Anuncio de artículo"
+
+#. translators: %s : widget page link
+#: inc/accesspress-options.php:354
+msgid "Go to <a href=\"%s\" target=\"_blank\">Widget Page</a> to add Header Ads <br> Ads Size : 728x90px <br> Sidebar Name: Header Ad "
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de widgets</a> para añadir los anuncios de la cabecera <br> Tamaño del anuncio: 728x90px <br> Nombre en la barra lateral: Anuncio de cabecera"
+
+#: inc/accesspress-options.php:352
+msgid "Your Header Ad"
+msgstr "Tu anuncio de la cabecera"
+
+#: inc/accesspress-options.php:346
+msgid "Header ad"
+msgstr "Anuncio de la cabecera"
+
+#: inc/accesspress-options.php:341
+msgid "ADS"
+msgstr "ANUNCIOS"
+
+#: inc/accesspress-options.php:327
+msgid "Show or hide the footer copyright example( Copyright &copy; current year )"
+msgstr "Mostrar u ocultar el ejemplo de copyright del pie de página  (Copyright &copy; año actual)"
+
+#: inc/accesspress-options.php:326
+#: inc/admin-panel/accesspress-mag-customizer.php:253
+msgid "Copyright Option"
+msgstr "Opción del copyright"
+
+#: inc/accesspress-options.php:319
+msgid "Set footer copyright text"
+msgstr "Establecer el texto del copyright en el pie de página"
+
+#: inc/accesspress-options.php:318
+#: inc/admin-panel/accesspress-mag-customizer.php:241
+msgid "Copyright text"
+msgstr "Copyright Text"
+
+#: inc/accesspress-options.php:309
+msgid "Show or hide copy right and footer menu section"
+msgstr "Mostrar u ocultar el copyright y la sección del menú del pie de página"
+
+#: inc/accesspress-options.php:308
+#: inc/admin-panel/accesspress-mag-customizer.php:225
+msgid "Sub Footer Option"
+msgstr "Opción del sub pie de página"
+
+#: inc/accesspress-options.php:302
+msgid "Sub-footer Setting"
+msgstr "Ajustes del sub pie de página"
+
+#: inc/accesspress-options.php:290
+msgid "Choose footer widget layout"
+msgstr "Elegir el diseño de los widgets del pie de página"
+
+#: inc/accesspress-options.php:289
+msgid "Footer Layout"
+msgstr "Disposición del pie de página"
+
+#: inc/accesspress-options.php:188 inc/accesspress-options.php:283
+#: inc/accesspress-options.php:312 inc/accesspress-options.php:330
+#: inc/accesspress-options.php:477 inc/accesspress-options.php:486
+#: inc/accesspress-options.php:495 inc/accesspress-options.php:513
+#: inc/accesspress-options.php:638 inc/accesspress-options.php:647
+#: inc/accesspress-options.php:656 inc/accesspress-options.php:665
+#: inc/accesspress-options.php:674 inc/accesspress-options.php:683
+#: inc/accesspress-options.php:692 inc/accesspress-options.php:737
+#: inc/accesspress-options.php:746 inc/accesspress-options.php:755
+#: inc/accesspress-options.php:773
+#: inc/admin-panel/accesspress-mag-customizer.php:68
+#: inc/admin-panel/accesspress-mag-customizer.php:189
+#: inc/admin-panel/accesspress-mag-customizer.php:232
+#: inc/admin-panel/accesspress-mag-customizer.php:260
+#: inc/admin-panel/accesspress-mag-customizer.php:377
+#: inc/admin-panel/accesspress-mag-customizer.php:393
+#: inc/admin-panel/accesspress-mag-customizer.php:409
+#: inc/admin-panel/accesspress-mag-customizer.php:442
+#: inc/admin-panel/accesspress-mag-sanitize.php:72
+msgid "No"
+msgstr "No"
+
+#: inc/accesspress-options.php:187 inc/accesspress-options.php:282
+#: inc/accesspress-options.php:311 inc/accesspress-options.php:329
+#: inc/accesspress-options.php:476 inc/accesspress-options.php:485
+#: inc/accesspress-options.php:494 inc/accesspress-options.php:512
+#: inc/accesspress-options.php:637 inc/accesspress-options.php:646
+#: inc/accesspress-options.php:655 inc/accesspress-options.php:664
+#: inc/accesspress-options.php:673 inc/accesspress-options.php:682
+#: inc/accesspress-options.php:691 inc/accesspress-options.php:736
+#: inc/accesspress-options.php:745 inc/accesspress-options.php:754
+#: inc/accesspress-options.php:772
+#: inc/admin-panel/accesspress-mag-customizer.php:67
+#: inc/admin-panel/accesspress-mag-customizer.php:188
+#: inc/admin-panel/accesspress-mag-customizer.php:231
+#: inc/admin-panel/accesspress-mag-customizer.php:259
+#: inc/admin-panel/accesspress-mag-customizer.php:376
+#: inc/admin-panel/accesspress-mag-customizer.php:392
+#: inc/admin-panel/accesspress-mag-customizer.php:408
+#: inc/admin-panel/accesspress-mag-customizer.php:441
+#: inc/admin-panel/accesspress-mag-sanitize.php:71
+msgid "Yes"
+msgstr "Sí"
+
+#: inc/accesspress-options.php:280
+msgid "Show or hide the footer widter area"
+msgstr "Mostrar u ocultar el área de widgets del pie de página"
+
+#: inc/accesspress-options.php:279
+#: inc/admin-panel/accesspress-mag-customizer.php:182
+msgid "Footer Widget Option"
+msgstr "Opciones de widgets del pie de página "
+
+#: inc/accesspress-options.php:273
+#: inc/admin-panel/accesspress-mag-customizer.php:172
+msgid "Footer Setting"
+msgstr "Ajustes del pie de página"
+
+#: inc/accesspress-options.php:268
+msgid "Footer"
+msgstr "Pie de página"
+
+#: inc/accesspress-options.php:257
+msgid "Write TITLE attribute for the logo"
+msgstr "Escribe el atributo «TITLE» para el logotipo"
+
+#: inc/accesspress-options.php:256
+#: inc/admin-panel/accesspress-mag-customizer.php:158
+msgid "Logo Title Attribute"
+msgstr "Atributo «title» del logotipo"
+
+#: inc/accesspress-options.php:250
+msgid "Write ALT attribute for the logo"
+msgstr "Escribe el atributo «ALT» para el logotipo"
+
+#: inc/accesspress-options.php:249
+#: inc/admin-panel/accesspress-mag-customizer.php:146
+msgid "Logo Alt Attribute"
+msgstr "Atributo «alt» del logotipo"
+
+#: inc/accesspress-options.php:241
+msgid "Favicon"
+msgstr "Icono de favoritos"
+
+#. translators: %s : customizer page link
+#: inc/accesspress-options.php:235
+msgid "Go to <a href=\"%s\" target=\"_blank\">customize page</a> to add Header Image"
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de personalización</a> para añadir la imagen de la cabecera"
+
+#: inc/accesspress-options.php:233
+msgid "Header Image"
+msgstr "Imagen de cabecera"
+
+#: inc/accesspress-options.php:228
+msgid "Logo Settings"
+msgstr "Configuración del logo"
+
+#: inc/accesspress-options.php:174
+msgid "Header"
+msgstr "Cabecera"
+
+#: inc/accesspress-options.php:145
+#: inc/admin-panel/accesspress-mag-customizer.php:46
+#: inc/admin-panel/accesspress-mag-sanitize.php:171
+msgid "Boxed"
+msgstr "Ancho fijo"
+
+#: inc/accesspress-options.php:144
+msgid "Fullwidth"
+msgstr "Ancho completo"
+
+#: inc/accesspress-options.php:141
+msgid "Website layout"
+msgstr "Diseño del sitio"
+
+#: inc/accesspress-options.php:136
+msgid "Website Layout"
+msgstr "Diseño de la web"
+
+#. translators: %s : customizer page link
+#: inc/accesspress-options.php:126
+msgid "Go to <a href=\"%s\" target=\"_blank\">customize page</a> to change the background settings"
+msgstr "Ve a la <a href=\"%s\" target=\"_blank\">página de personalización</a> para cambiar los ajustes del fondo"
+
+#: inc/accesspress-options.php:119 inc/accesspress-options.php:124
+msgid "Background Settings"
+msgstr "Ajustes de fondo"
+
+#: inc/accesspress-options.php:95
+#: inc/admin-panel/accesspress-mag-customizer.php:19
+msgid "Basic Settings"
+msgstr "Ajustes básicos"
+
+#: inc/accesspress-options.php:79
+#: inc/admin-panel/accesspress-mag-customizer.php:1226
+msgid "Top arrow"
+msgstr "Flecha superior"
+
+#: inc/accesspress-options.php:79 inc/accesspress-options.php:84
+#: inc/admin-panel/accesspress-mag-customizer.php:1190 sidebar-home.php:12
+msgid "Advertisement"
+msgstr "Publicidad"
+
+#: inc/accesspress-options.php:78 inc/accesspress-options.php:83
+#: inc/template-tags.php:84
+msgid "Previous article"
+msgstr "Artículo anterior"
+
+#: inc/accesspress-options.php:78 inc/accesspress-options.php:83
+#: inc/admin-panel/accesspress-mag-customizer.php:1142 inc/template-tags.php:82
+msgid "Next article"
+msgstr "Siguiente artículo"
+
+#: inc/accesspress-options.php:78 inc/accesspress-options.php:83
+#: inc/admin-panel/accesspress-mag-customizer.php:1130
+msgid "Tagged"
+msgstr "Etiquetado"
+
+#: inc/accesspress-options.php:18
+#: inc/admin-panel/accesspress-mag-customizer.php:7
+#: inc/admin-panel/accesspress-mag-sanitize.php:186
+msgid "Select category"
+msgstr "Elegir categoría"
+
+#: inc/accesspress-functions.php:669
+msgid "Page"
+msgstr "Página"
+
+#: inc/accesspress-options.php:77
+#: inc/admin-panel/accesspress-mag-customizer.php:1118
+msgid "Search results for"
+msgstr "Resultados de la búsqueda de"
+
+#: inc/accesspress-functions.php:559 inc/accesspress-functions.php:687
+#: inc/accesspress-options.php:77 inc/accesspress-options.php:82
+#: inc/admin-panel/accesspress-mag-customizer.php:1106
+msgid "Home"
+msgstr "Inicio"
+
+#: inc/accesspress-functions.php:556 inc/accesspress-functions.php:691
+#: inc/accesspress-options.php:77 inc/accesspress-options.php:82
+#: inc/admin-panel/accesspress-mag-customizer.php:1082
+msgid "You are here"
+msgstr "Estás aquí"
+
+#: header.php:61
+msgid "Top Menu Right"
+msgstr "Menú superior derecho"
+
+#: header.php:27
+msgid "Skip to content"
+msgstr "Saltar al contenido"
+
+#: inc/widgets/widgets.php:157
+msgid "Homepage Sidebar Middle Ad"
+msgstr "Anuncio central en la barra lateral de la página de inicio"
+
+#: inc/widgets/widgets.php:147
+msgid "Homepage Sidebar Top Ad"
+msgstr "Anuncio superior en la barra lateral de la página de inicio"
+
+#: inc/widgets/widgets.php:137
+msgid "Homepage Inline Ad"
+msgstr "Anuncio integrado de la página de inicio"
+
+#: inc/widgets/widgets.php:127
+msgid "Article Ad"
+msgstr "Anuncio de artículo"
+
+#: inc/widgets/widgets.php:117
+msgid "Header Ad "
+msgstr "Anuncio de encabezado"
+
+#: inc/widgets/widgets.php:107
+msgid "Shop"
+msgstr "Tienda"
+
+#: inc/widgets/widgets.php:17
+msgid "Right Sidebar"
+msgstr "Barra lateral derecha"
+
+#: inc/widgets/widgets.php:27
+msgid "Left Sidebar"
+msgstr "Barra lateral izquierda"
+
+#: inc/widgets/widgets.php:97
+msgid "Footer 4"
+msgstr "Pie de página 4"
+
+#: inc/widgets/widgets.php:87
+msgid "Footer 3"
+msgstr "Pie de página 3"
+
+#: inc/widgets/widgets.php:77
+msgid "Footer 2"
+msgstr "Pie de página 2"
+
+#: inc/widgets/widgets.php:67
+msgid "Footer 1"
+msgstr "Pie de página 1"
+
+#: inc/widgets/widgets.php:57
+msgid "Home bottom sidebar"
+msgstr "Barra lateral inferior de la página de inicio"
+
+#: inc/widgets/widgets.php:47
+msgid "Home middle sidebar"
+msgstr "Barra lateral central de la página de inicio"
+
+#: inc/widgets/widgets.php:37
+msgid "Home top sidebar"
+msgstr "Barra lateral superior de la página de inicio"
+
+#: functions.php:62
+msgid "Top Menu (Right)"
+msgstr "Menú superior (derecha)"
+
+#: functions.php:61 header.php:55
+msgid "Top Menu"
+msgstr "Menú Superior"
+
+#: functions.php:60
+msgid "Primary Menu"
+msgstr "Menú principal"
+
+#: footer.php:87 functions.php:63
+msgid "Footer Menu"
+msgstr "Menú del pie de página"
+
+#: footer.php:81
+msgid "| Theme: "
+msgstr "| Tema: "
+
+#: footer.php:80
+msgid "WordPress"
+msgstr "WordPress"
+
+#: footer.php:80
+msgid "http://wordpress.org/"
+msgstr "https://es.wordpress.org/"
+
+#: footer.php:80
+msgid "Powered by "
+msgstr "Funciona con"
+
+#: footer.php:20 inc/accesspress-options.php:84
+msgid "Top"
+msgstr "Arriba"
+
+#: content-page.php:25 inc/template-tags.php:176
+msgid "Edit"
+msgstr "Editar"
+
+#: content-none.php:28
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "Parece que no encontramos lo que estás intentando localizar. Es posible que te ayude buscarlo."
+
+#: content-none.php:23
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "Lo siento pero no hay nada que se ajuste a tus criterios de búsqueda. Por favor, inténtalo de nuevo con palabras claves distintas."
+
+#. translators: %1$s : new post link
+#: content-none.php:19
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "¿Preparado para publicar tu primera entrada? <a href=\"%1$s\">Empieza aquí</a>."
+
+#: content-none.php:13
+msgid "Nothing Found"
+msgstr "No se ha encontrado nada"
+
+#: content-archive.php:59 content-page.php:18 content-search.php:72
+#: content-single-style1.php:59 content-single.php:62 content.php:68
+msgid "Pages:"
+msgstr "Páginas:"
+
+#: comments.php:107
+msgid "Comment *"
+msgstr "Comentario *"
+
+#: comments.php:101
+msgid "Website"
+msgstr "Web"
+
+#: comments.php:96
+msgid "Email Address *"
+msgstr "Dirección de correo electrónico *"
+
+#: comments.php:92
+msgid "Name *"
+msgstr "Nombre *"
+
+#: comments.php:85
+msgid "Comments are closed."
+msgstr "Los comentarios están cerrados."
+
+#: comments.php:52 comments.php:73
+msgid "Newer Comments"
+msgstr "Comentarios siguientes"
+
+#: comments.php:51 comments.php:72
+msgid "Older Comments"
+msgstr "Comentarios anteriores"
+
+#: comments.php:48 comments.php:69
+msgid "Comment navigation"
+msgstr "Navegación de comentarios"
+
+#. translators: 1: comment count number, 2: title.
+#: comments.php:38
+msgctxt "comments title"
+msgid "%1$s thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] "%1$s comentario en &ldquo;%2$s&rdquo;"
+msgstr[1] "%1$s comentarios en &ldquo;%2$s&rdquo;"
+
+#: 404.php:20
+msgid "Page Not Found"
+msgstr "No se encontró la página"
+
+#: 404.php:19
+msgid "404"
+msgstr "404"
+
+#: 404.php:17
+msgid "Oops!!"
+msgstr "¡¡Vaya!!"
+
+#. Theme URI of the theme
+msgid "https://accesspressthemes.com/wordpress-themes/accesspress-mag/"
+msgstr "https://accesspressthemes.com/wordpress-themes/accesspress-mag/"
+
+#. Author URI of the theme
+msgid "http://accesspressthemes.com/"
+msgstr "https://accesspressthemes.com/"
+
+#. Author of the theme
+msgid "AccessPress Theme"
+msgstr "Tema AccessPress"

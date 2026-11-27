@@ -165,7 +165,7 @@ class WPBC_Tour_01 {
 					'text'   => sprintf( __('We\'ll guide you through the steps to set up WP Booking Calendar on your site.','booking'), '<strong>WP Booking Calendar</strong>' ),
 					'button' => array(
 						'text' => __( 'Let\'s go', 'booking' ),
-						'url'  => wpbc_get_setup_wizard_page_url()      //  URL to  start  new Guide: wpbc_get_settings_url() . '&wpbc_setup_wizard=reset&_wpnonce=' . wp_create_nonce( 'wpbc_settings_url_nonce' )
+						'url'  => wpbc_get_setup_wizard_page_url(),
 					)
 				),
 				'setup_page'      => array(
@@ -192,13 +192,29 @@ class WPBC_Tour_01 {
 
 
 /**
- * Just for loading CSS and  JavaScript files   and  define Ajax hook
+ * Initialize Setup Wizard tour assets after WordPress bootstrap is ready.
+ *
+ * The tour eligibility check reads Setup Wizard route state and, in MultiUser,
+ * the current WordPress user. Running it while this file is included is too
+ * early because pluggable current-user functions and just-in-time translation
+ * loading are not guaranteed until `init`.
+ *
+ * @return void
  */
-if (
-	( ! wpbc_is_this_demo() ) &&
-	( wpbc_setup_wizard_page__is_need_start() ) &&
-	( wpbc_is_user_can_access_wizard_page() )
-) {
-	$wpbc_js_css_loading = new WPBC_Tour_01;
+function wpbc_tour_maybe_initialize_setup_wizard_tour() {
+
+	if (
+		! is_admin()
+		|| wpbc_is_this_demo()
+		|| ! class_exists( 'WPBC_Setup_Wizard_First_Run_Launcher' )
+		|| ! class_exists( 'WPBC_Setup_Wizard_Access' )
+		|| ! WPBC_Setup_Wizard_First_Run_Launcher::is_prompt_pending()
+		|| ! WPBC_Setup_Wizard_Access::current_user_can_access()
+	) {
+		return;
+	}
+
+	$wpbc_js_css_loading = new WPBC_Tour_01();
 	$wpbc_js_css_loading->init_load_css_js();
 }
+add_action( 'init', 'wpbc_tour_maybe_initialize_setup_wizard_tour', 20 );

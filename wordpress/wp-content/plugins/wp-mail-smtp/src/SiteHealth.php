@@ -123,7 +123,7 @@ class SiteHealth {
 	 */
 	public function register_debug_information( $debug_info ) {
 
-		$debug_notices = Debug::get();
+		$debug_notices = EmailSendingDebug::get_messages();
 		$db_tables     = $this->get_db_tables( 'existing' );
 
 		$debug_info[ self::DEBUG_INFO_SLUG ] = [
@@ -139,7 +139,7 @@ class SiteHealth {
 				],
 				'debug'            => [
 					'label' => esc_html__( 'Debug', 'wp-mail-smtp' ),
-					'value' => ! empty( $debug_notices ) ? implode( '; ', $debug_notices ) : esc_html__( 'No debug notices found.', 'wp-mail-smtp' ),
+					'value' => ! empty( $debug_notices ) ? implode( WP::EOL . WP::EOL, $debug_notices ) : esc_html__( 'No debug notices found.', 'wp-mail-smtp' ),
 				],
 				'db_tables'        => [
 					'label'   => esc_html__( 'DB tables', 'wp-mail-smtp' ),
@@ -157,7 +157,7 @@ class SiteHealth {
 
 			$debug_info[ self::DEBUG_INFO_SLUG ]['fields']['lite_install_date'] = [
 				'label' => esc_html__( 'Lite install date', 'wp-mail-smtp' ),
-				'value' => date_i18n( esc_html__( 'M j, Y @ g:ia' ), $date ),
+				'value' => date_i18n( /* translators: Date and time format, see https://www.php.net/manual/datetime.format.php. */ esc_html__( 'M j, Y @ g:ia', 'wp-mail-smtp' ), $date ),
 			];
 		}
 
@@ -269,6 +269,16 @@ class SiteHealth {
 		$missing_tables = $this->get_db_tables( 'missing' );
 
 		if ( ! empty( $missing_tables ) ) {
+			$missing_tables_create_link = wp_nonce_url(
+				add_query_arg(
+					[
+						'create-missing-db-tables' => 1,
+					],
+					wp_mail_smtp()->get_admin()->get_admin_page_url( Area::SLUG )
+				),
+				Area::SLUG . '-create-missing-db-tables'
+			);
+
 			$result['label']          = esc_html__( 'WP Mail SMTP DB tables check has failed', 'wp-mail-smtp' );
 			$result['status']         = 'critical';
 			$result['badge']['color'] = 'red';
@@ -278,7 +288,22 @@ class SiteHealth {
 					esc_html( _n( 'Missing table: %s', 'Missing tables: %s', count( $missing_tables ), 'wp-mail-smtp' ) ),
 					esc_html( implode( ', ', $missing_tables ) )
 				),
-				esc_html__( 'WP Mail SMTP is using custom database tables for some of its features. In order to work properly, the custom tables should be created, and it seems they are missing. Please try to re-install the WP Mail SMTP plugin. If this issue persists, please contact our support.', 'wp-mail-smtp' )
+				wp_kses(
+					sprintf( /* translators: %1$s - Settings Page URL; %2$s - The aria label; %3$s - The text that will appear on the link. */
+						__( 'WP Mail SMTP is using custom database tables for some of its features. In order to work properly, the custom tables should be created, and it seems they are missing. Please try to <a href="%1$s" target="_self" aria-label="%2$s" rel="noopener noreferrer">%3$s</a>. If this issue persists, please contact our support.', 'wp-mail-smtp' ),
+						esc_url( $missing_tables_create_link ),
+						esc_attr__( 'Go to WP Mail SMTP settings page.', 'wp-mail-smtp' ),
+						esc_attr__( 'create the missing DB tables by clicking on this link', 'wp-mail-smtp' )
+					),
+					[
+						'a' => [
+							'href'       => [],
+							'rel'        => [],
+							'target'     => [],
+							'aria-label' => [],
+						],
+					]
+				)
 			);
 		}
 
@@ -309,40 +334,65 @@ class SiteHealth {
 			esc_html( WP::get_email_domain( $email ) )
 		);
 
-		$result = array(
-			'label'       => esc_html__( 'Email domain is configured correctly', 'wp-mail-smtp' ),
-			'status'      => 'good',
-			'badge'       => array(
+		$result = [
+			'label'   => esc_html__( 'Email domain is configured correctly', 'wp-mail-smtp' ),
+			'status'  => 'good',
+			'badge'   => [
 				'label' => $this->get_label(),
 				'color' => self::BADGE_COLOR,
-			),
-			'description' => sprintf(
-				'<p>%1$s</p><p>%2$s</p>',
-				$email_domain_text,
-				esc_html__( 'All checks for your email domain were successful. It looks like everything is configured correctly.', 'wp-mail-smtp' )
-			),
-			'actions'     => sprintf(
+			],
+			'actions' => sprintf(
 				'<p><a href="%1$s">%2$s</a></p>',
 				esc_url( add_query_arg( 'tab', 'test', wp_mail_smtp()->get_admin()->get_admin_page_url( Area::SLUG . '-tools' ) ) ),
 				esc_html__( 'Send a Test Email', 'wp-mail-smtp' )
 			),
-			'test'        => 'wp_mail_smtp_email_domain_check',
-		);
+			'test'    => 'wp_mail_smtp_email_domain_check',
+		];
 
 		// Add the optional sending domain parameter.
 		if ( in_array( $mailer, [ 'mailgun', 'sendinblue', 'sendgrid' ], true ) ) {
 			$domain = $options->get( $mailer, 'domain' );
 		}
 
-		$domain_checker = new DomainChecker( $mailer, $email, $domain );
+		// The check contacts an external service, so Site Health shows the last one the user ran instead of running it.
+		$check = DomainCheckState::get( 'primary' );
 
-		if ( ! $domain_checker->no_issues() ) {
+		if (
+			empty( $check['results'] ) ||
+			$check['mailer'] !== $mailer ||
+			strtolower( (string) $check['from_email'] ) !== strtolower( (string) $email ) ||
+			(string) $check['sending_domain'] !== (string) $domain
+		) {
+			$result['label']       = esc_html__( 'Send a test email to check your email domain', 'wp-mail-smtp' );
+			$result['status']      = 'recommended';
+			$result['description'] = sprintf(
+				'<p>%1$s</p><p>%2$s</p>',
+				$email_domain_text,
+				esc_html__( 'Your email domain is checked when you send a test email. No check has run yet for the current mailer and From email.', 'wp-mail-smtp' )
+			);
+
+			wp_send_json_success( $result );
+		}
+
+		$email_domain_text .= '<br>' . sprintf(
+			/* translators: %s - date and time of the last domain check. */
+			esc_html__( 'Last checked: %s', 'wp-mail-smtp' ),
+			esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $check['checked_at'] ) )
+		);
+
+		$result['description'] = sprintf(
+			'<p>%1$s</p><p>%2$s</p>',
+			$email_domain_text,
+			esc_html__( 'All checks for your email domain were successful. It looks like everything is configured correctly.', 'wp-mail-smtp' )
+		);
+
+		if ( $check['state'] === DomainCheckState::ISSUES ) {
 			$result['label']       = esc_html__( 'Email domain issues detected', 'wp-mail-smtp' );
 			$result['status']      = 'recommended';
 			$result['description'] = sprintf(
 				'<p>%1$s</p> %2$s',
 				$email_domain_text,
-				$domain_checker->get_results_html()
+				DomainChecker::render_results( $check['results'], $mailer )
 			);
 			$result['actions']     = sprintf(
 				'<p><a href="%1$s">%2$s</a></p>',
@@ -352,6 +402,18 @@ class SiteHealth {
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Get the missing tables from the database.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @return array
+	 */
+	public function get_missing_db_tables() {
+
+		return $this->get_db_tables( 'missing' );
 	}
 
 	/**

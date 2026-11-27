@@ -2,6 +2,12 @@
 
 namespace WPMailSMTP\Tasks;
 
+use ActionScheduler_Action;
+use ActionScheduler_DataController;
+use ActionScheduler_DBStore;
+use WPMailSMTP\Tasks\Queue\CleanupQueueTask;
+use WPMailSMTP\Tasks\Queue\ProcessQueueTask;
+use WPMailSMTP\Tasks\Queue\SendEnqueuedEmailTask;
 use WPMailSMTP\Tasks\Reports\SummaryEmailTask;
 
 /**
@@ -28,21 +34,27 @@ class Tasks {
 	private static $active_actions = null;
 
 	/**
+	 * Page title of the Tools > Scheduled Actions menu item removed by admin_hide_as_menu().
+	 *
+	 * @since 4.10.0
+	 *
+	 * @var string
+	 */
+	private $scheduled_actions_page_title = '';
+
+	/**
 	 * Perform certain things on class init.
 	 *
 	 * @since 2.1.0
 	 */
-	public function init() {
+	public function init() { // phpcs:ignore WPForms.PHP.HooksMethod.InvalidPlaceForAddingHooks
 
 		// Hide the Action Scheduler admin menu item.
-		add_action( 'admin_menu', array( $this, 'admin_hide_as_menu' ), PHP_INT_MAX );
+		add_action( 'admin_menu', [ $this, 'admin_hide_as_menu' ], PHP_INT_MAX );
+		add_action( 'load-tools_page_action-scheduler', [ $this, 'restore_scheduled_actions_page_title' ] );
 
-		// Skip tasks registration if Action Scheduler is not usable yet.
-		if ( ! self::is_usable() ) {
-			return;
-		}
+		$is_usable = self::is_usable();
 
-		// Register tasks.
 		foreach ( $this->get_tasks() as $task ) {
 			if ( ! is_subclass_of( $task, '\WPMailSMTP\Tasks\Task' ) ) {
 				continue;
@@ -50,11 +62,20 @@ class Tasks {
 
 			$new_task = new $task();
 
-			// Run the init method, if a task has one defined.
-			if ( method_exists( $new_task, 'init' ) ) {
+			// Action Scheduler fails a due action that has no callback, and it can run one
+			// while reporting its migration as incomplete, so this is not gated below.
+			$new_task->hooks();
+
+			if ( $is_usable ) {
 				$new_task->init();
 			}
 		}
+
+		// Remove scheduled action meta after action execution.
+		add_action( 'action_scheduler_after_execute', [ $this, 'clear_action_meta' ], PHP_INT_MAX, 2 );
+
+		// Cancel tasks on plugin deactivation.
+		register_deactivation_hook( WPMS_PLUGIN_FILE, [ $this, 'cancel_all' ] );
 	}
 
 	/**
@@ -70,6 +91,11 @@ class Tasks {
 
 		$tasks = [
 			SummaryEmailTask::class,
+			DebugEventsCleanupTask::class,
+			ProcessQueueTask::class,
+			CleanupQueueTask::class,
+			SendEnqueuedEmailTask::class,
+			NotificationsUpdateTask::class,
 		];
 
 		/**
@@ -89,9 +115,54 @@ class Tasks {
 	 */
 	public function admin_hide_as_menu() {
 
-		// Filter to redefine that WP Mail SMTP hides Tools > Action Scheduler menu item.
-		if ( apply_filters( 'wp_mail_smtp_tasks_admin_hide_as_menu', true ) ) {
-			remove_submenu_page( 'tools.php', 'action-scheduler' );
+		$plugin_exceptions = [
+			'woocommerce/woocommerce.php',
+			'action-scheduler/action-scheduler.php',
+		];
+
+		/**
+		 * Filters the list of plugins for which
+		 * the Action Scheduler Tools ->Scheduled Actions menu item
+		 * should remain visible.
+		 *
+		 * @since 4.3.0
+		 *
+		 * @param array $plugin_exceptions List of plugins exceptions.
+		 */
+		$plugin_exceptions = apply_filters( 'wp_mail_smtp_tasks_tasks_action_scheduler_tools_plugin_exceptions', $plugin_exceptions );
+		$hide_as_menu      = empty( array_filter( $plugin_exceptions, 'is_plugin_active' ) );
+
+		/**
+		 * Filters whether WP Mail SMTP hides the Tools > Scheduled Actions menu item.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param bool $hide_as_menu Whether to hide the menu item.
+		 */
+		if ( ! apply_filters( 'wp_mail_smtp_tasks_admin_hide_as_menu', $hide_as_menu ) ) {
+			return;
+		}
+
+		$removed_item = remove_submenu_page( 'tools.php', 'action-scheduler' );
+
+		// Core reads the page title from the submenu, so a direct visit to the hidden page
+		// would otherwise render with a null title.
+		if ( is_array( $removed_item ) ) {
+			$this->scheduled_actions_page_title = $removed_item[3] ?? $removed_item[0];
+		}
+	}
+
+	/**
+	 * Restore the page title that removing the Tools > Scheduled Actions menu item drops.
+	 *
+	 * @since 4.10.0
+	 */
+	public function restore_scheduled_actions_page_title() {
+
+		global $title;
+
+		if ( empty( $title ) && ! empty( $this->scheduled_actions_page_title ) ) {
+			$title = $this->scheduled_actions_page_title; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 	}
 
@@ -114,7 +185,7 @@ class Tasks {
 	 *
 	 * @param string $action Action that will be used as a hook.
 	 *
-	 * @return \WPMailSMTP\Tasks\Task
+	 * @return Task
 	 */
 	public function create( $action ) {
 
@@ -137,8 +208,79 @@ class Tasks {
 		}
 
 		if ( class_exists( 'ActionScheduler_DBStore' ) ) {
-			\ActionScheduler_DBStore::instance()->cancel_actions_by_group( $group );
+			ActionScheduler_DBStore::instance()->cancel_actions_by_group( $group );
 		}
+	}
+
+	/**
+	 * Remove all the AS actions for a group and remove group.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param string $group Group to remove all actions for.
+	 */
+	public function remove_all( $group = '' ) {
+
+		global $wpdb;
+
+		if ( empty( $group ) ) {
+			$group = self::GROUP;
+		} else {
+			$group = sanitize_key( $group );
+		}
+
+		if (
+			class_exists( 'ActionScheduler_DBStore' ) &&
+			isset( $wpdb->actionscheduler_actions ) &&
+			isset( $wpdb->actionscheduler_groups )
+		) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+			$group_id = $wpdb->get_var(
+				$wpdb->prepare( "SELECT group_id FROM {$wpdb->actionscheduler_groups} WHERE slug=%s", $group )
+			);
+
+			if ( ! empty( $group_id ) ) {
+				// Delete actions.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->delete( $wpdb->actionscheduler_actions, [ 'group_id' => (int) $group_id ], [ '%d' ] );
+
+				// Delete group.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->delete( $wpdb->actionscheduler_groups, [ 'slug' => $group ], [ '%s' ] );
+			}
+		}
+	}
+
+	/**
+	 * Clear the meta after action complete.
+	 * Fired before an action is marked as completed.
+	 *
+	 * @since 3.5.0
+	 *
+	 * @param integer                $action_id Action ID.
+	 * @param ActionScheduler_Action $action    Action name.
+	 */
+	public function clear_action_meta( $action_id, $action ) {
+
+		$action_schedule = $action->get_schedule();
+
+		if (
+			$action_schedule === null ||
+			$action_schedule->is_recurring() ||
+			$action->get_group() !== self::GROUP
+		) {
+			return;
+		}
+
+		$hook_args = $action->get_args();
+
+		if ( ! is_numeric( $hook_args[0] ) ) {
+			return;
+		}
+
+		$meta = new Meta();
+
+		$meta->delete( $hook_args[0] );
 	}
 
 	/**
@@ -155,7 +297,7 @@ class Tasks {
 			return false;
 		}
 
-		return \ActionScheduler_DataController::is_migration_complete();
+		return ActionScheduler_DataController::is_migration_complete();
 	}
 
 	/**
@@ -169,7 +311,8 @@ class Tasks {
 	 */
 	public static function is_scheduled( $hook ) {
 
-		if ( ! function_exists( 'as_has_scheduled_action' ) ) {
+		// If ActionScheduler wasn't loaded, then no tasks are scheduled.
+		if ( ! function_exists( 'as_next_scheduled_action' ) ) {
 			return null;
 		}
 
@@ -182,7 +325,12 @@ class Tasks {
 		}
 
 		// Action is not in the array, so it is not scheduled or belongs to another group.
-		return as_has_scheduled_action( $hook );
+		if ( function_exists( 'as_has_scheduled_action' ) ) {
+			// This function more performant than `as_next_scheduled_action`, but it is available only since AS 3.3.0.
+			return as_has_scheduled_action( $hook );
+		} else {
+			return as_next_scheduled_action( $hook ) !== false;
+		}
 	}
 
 	/**

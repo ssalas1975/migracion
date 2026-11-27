@@ -16,63 +16,99 @@ use AIOSEO\Plugin\Common\Tools as CommonTools;
  */
 class Tools {
 	/**
-	 * Import and delete the static robots.txt.
+	 * Import contents from a robots.txt url, static file or pasted text.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.4.2
+	 * @version 5.0.5 Return a 403 when a non-super admin targets another site or the network.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
-	 * @return \WP_REST_Response The response.
+	 * @return \WP_REST_Response          The response.
 	 */
 	public static function importRobotsTxt( $request ) {
-		$body    = $request->get_json_params();
-		$network = ! empty( $body['network'] ) ? (bool) $body['network'] : false;
+		$body   = $request->get_json_params();
+		$blogId = ! empty( $body['blogId'] ) ? $body['blogId'] : 0;
+		$source = ! empty( $body['source'] ) ? $body['source'] : '';
+		// Sanitizing the whole text would strip the %XX octets that extractRules() decodes.
+		$text   = ! empty( $body['text'] ) && is_string( $body['text'] ) ? $body['text'] : '';
+		$url    = ! empty( $body['url'] ) ? sanitize_url( $body['url'], [ 'http', 'https' ] ) : '';
 
-		if ( ! aioseo()->robotsTxt->importPhysicalRobotsTxt( $network ) ) {
+		// The route's capability is checked on the current site only, so writing elsewhere needs a super admin.
+		if (
+			is_multisite() &&
+			! is_super_admin() &&
+			$blogId &&
+			( 'network' === $blogId || get_current_blog_id() !== (int) $blogId )
+		) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( 'There was an error importing the physical robots.txt file.', 'all-in-one-seo-pack' )
-			], 400 );
+				'message' => 'You do not have permission to access this site.'
+			], 403 );
 		}
 
-		aioseo()->options->tools->robots->enable = true;
+		try {
+			if ( is_multisite() && 'network' !== $blogId ) {
+				aioseo()->helpers->switchToBlog( $blogId );
+			}
 
-		if ( ! aioseo()->robotsTxt->deletePhysicalRobotsTxt() ) {
+			switch ( $source ) {
+				case 'url':
+					aioseo()->robotsTxt->importRobotsTxtFromUrl( $url, $blogId );
+
+					break;
+				case 'text':
+					aioseo()->robotsTxt->importRobotsTxtFromText( $text, $blogId );
+
+					break;
+				case 'static':
+				default:
+					aioseo()->robotsTxt->importPhysicalRobotsTxt( $blogId );
+					aioseo()->robotsTxt->deletePhysicalRobotsTxt();
+
+					$options = aioseo()->options;
+					if ( 'network' === $blogId ) {
+						$options = aioseo()->networkOptions;
+					}
+
+					$options->tools->robots->enable = true;
+
+					break;
+			}
+
+			return new \WP_REST_Response( [
+				'success'       => true,
+				'notifications' => Models\Notification::getNotifications()
+			], 200 );
+		} catch ( \Exception $e ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( 'There was an error deleting the physical robots.txt file.', 'all-in-one-seo-pack' )
+				'message' => $e->getMessage()
 			], 400 );
 		}
-
-		Models\Notification::deleteNotificationByName( 'robots-physical-file' );
-
-		return new \WP_REST_Response( [
-			'success'       => true,
-			'notifications' => Models\Notification::getNotifications()
-		], 200 );
 	}
 
 	/**
-	 * Delete the static robots.txt.
+	 * Delete the static robots.txt file.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.4.5
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function deleteRobotsTxt() {
-		if ( ! aioseo()->robotsTxt->deletePhysicalRobotsTxt() ) {
+		try {
+			aioseo()->robotsTxt->deletePhysicalRobotsTxt();
+
+			return new \WP_REST_Response( [
+				'success'       => true,
+				'notifications' => Models\Notification::getNotifications()
+			], 200 );
+		} catch ( \Exception $e ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( 'There was an error deleting the physical robots.txt file.', 'all-in-one-seo-pack' )
+				'message' => $e->getMessage()
 			], 400 );
 		}
-
-		Models\Notification::deleteNotificationByName( 'robots-physical-file' );
-
-		return new \WP_REST_Response( [
-			'success'       => true,
-			'notifications' => Models\Notification::getNotifications()
-		], 200 );
 	}
 
 	/**
@@ -118,7 +154,7 @@ class Tools {
 		) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( 'Unable to send debug email, please check your email send settings and try again.', 'all-in-one-seo-pack' )
+				'message' => 'Unable to send debug email, please check your email send settings and try again.'
 			], 400 );
 		}
 
@@ -135,7 +171,7 @@ class Tools {
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
 	 */
-	public static function createBackup() {
+	public static function createBackup( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		aioseo()->backup->create();
 
 		return new \WP_REST_Response( [
@@ -147,7 +183,8 @@ class Tools {
 	/**
 	 * Restore a settings backup.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.6 Returns a 404 when the backup can't be restored.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
@@ -162,7 +199,12 @@ class Tools {
 			], 400 );
 		}
 
-		aioseo()->backup->restore( $backup );
+		if ( ! aioseo()->backup->restore( $backup ) ) {
+			return new \WP_REST_Response( [
+				'success' => false,
+				'backups' => array_reverse( aioseo()->backup->all() )
+			], 404 );
+		}
 
 		return new \WP_REST_Response( [
 			'success'         => true,
@@ -175,7 +217,8 @@ class Tools {
 	/**
 	 * Delete a settings backup.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 5.0.6 Returns a 404 when the backup doesn't exist.
 	 *
 	 * @param  \WP_REST_Request  $request The REST Request
 	 * @return \WP_REST_Response          The response.
@@ -188,6 +231,13 @@ class Tools {
 				'success' => false,
 				'backups' => array_reverse( aioseo()->backup->all() )
 			], 400 );
+		}
+
+		if ( ! aioseo()->backup->exists( $backup ) ) {
+			return new \WP_REST_Response( [
+				'success' => false,
+				'backups' => array_reverse( aioseo()->backup->all() )
+			], 404 );
 		}
 
 		aioseo()->backup->delete( $backup );
@@ -213,46 +263,22 @@ class Tools {
 		if ( empty( $htaccess ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( '.htaccess file is empty.', 'all-in-one-seo-pack' )
+				'message' => __( 'The .htaccess editor is empty. Saving an empty file would remove all of your rewrite rules and can break your site. Add your content before saving.', 'all-in-one-seo-pack' ) // phpcs:ignore Generic.Files.LineLength.MaxExceeded
 			], 400 );
 		}
 
-		$htaccess = aioseo()->helpers->decodeHtmlEntities( $htaccess );
-		if ( ! aioseo()->htaccess->saveContents( $htaccess ) ) {
+		$htaccess     = aioseo()->helpers->decodeHtmlEntities( $htaccess );
+		$saveHtaccess = (object) aioseo()->htaccess->saveContents( $htaccess );
+		if ( ! $saveHtaccess->success ) {
 			return new \WP_REST_Response( [
 				'success' => false,
-				'message' => __( 'An error occurred while trying to write to the .htaccess file. Please try again later.', 'all-in-one-seo-pack' )
+				'message' => $saveHtaccess->message ? $saveHtaccess->message : __( 'We couldn\'t write to the .htaccess file. This is usually a file permission or server-side restriction — check your server logs or contact your host, then try again.', 'all-in-one-seo-pack' ), // phpcs:ignore Generic.Files.LineLength.MaxExceeded
+				'reason'  => $saveHtaccess->reason
 			], 400 );
 		}
 
 		return new \WP_REST_Response( [
 			'success' => true
-		], 200 );
-	}
-
-	/**
-	 * Clear the passed in log.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param  \WP_REST_Request  $request The REST Request
-	 * @return \WP_REST_Response The response.
-	 */
-	public static function clearLog( $request ) {
-		$body = $request->get_json_params();
-		$log  = ! empty( $body['log'] ) ? $body['log'] : null;
-
-		$logSize = 0;
-		switch ( $log ) {
-			case 'badBotBlockerLog':
-				aioseo()->badBotBlocker->clearLog();
-				$logSize = aioseo()->badBotBlocker->getLogSize();
-				break;
-		}
-
-		return new \WP_REST_Response( [
-			'success' => true,
-			'logSize' => aioseo()->helpers->convertFileSize( $logSize )
 		], 200 );
 	}
 }

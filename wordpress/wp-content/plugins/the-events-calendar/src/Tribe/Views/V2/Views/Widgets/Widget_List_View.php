@@ -24,21 +24,32 @@ class Widget_List_View extends Widget_View {
 	 * The slug for this view.
 	 *
 	 * @since 5.2.1
+	 * @deprecated 6.0.7
 	 *
 	 * @var string
 	 */
 	protected $slug = 'widget-events-list';
 
 	/**
+	 * The slug for this view.
+	 *
+	 * @since 6.0.7
+	 *
+	 * @var string
+	 */
+	protected static $view_slug = 'widget-events-list';
+
+	/**
 	 * Sets up the View repository arguments from the View context or a provided Context object.
 	 *
 	 * @since 5.3.0
+	 * @since 6.17.0 Made $context argument explicity nullable.
 	 *
 	 * @param  Context|null $context A context to use to setup the args, or `null` to use the View Context.
 	 *
 	 * @return array<string,mixed> The arguments, ready to be set on the View repository instance.
 	 */
-	protected function setup_repository_args( Context $context = null ) {
+	protected function setup_repository_args( ?Context $context = null ) {
 		$context            = null !== $context ? $context : $this->context;
 		$args               = parent::setup_repository_args( $context );
 		$args['ends_after'] = 'now';

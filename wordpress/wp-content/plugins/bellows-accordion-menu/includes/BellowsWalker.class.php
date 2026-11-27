@@ -36,8 +36,8 @@ class BellowsWalker extends Walker_Nav_Menu {
 		$this->config_id = _BELLOWS()->get_current_config_id();
 
 		if( BELLOWS_PRO ){
-			$this->submenu_toggle_icon_expand = bellows_op( 'submenu_toggle_icon_expand' , $this->config_id );
-			$this->submenu_toggle_icon_collapse = bellows_op( 'submenu_toggle_icon_collapse' , $this->config_id );
+			$this->submenu_toggle_icon_expand = apply_filters( 'bellows_submenu_toggle_icon_expand', bellows_op( 'submenu_toggle_icon_expand' , $this->config_id ), $this->config_id );
+			$this->submenu_toggle_icon_collapse = apply_filters( 'bellows_submenu_toggle_icon_collapse' , bellows_op( 'submenu_toggle_icon_collapse' , $this->config_id ), $this->config_id );
 		}
 
 	}
@@ -122,15 +122,17 @@ class BellowsWalker extends Walker_Nav_Menu {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
-	 * @param object $item   Menu item data object.
-	 * @param int    $depth  Depth of menu item. Used for padding.
-	 * @param array  $args   An array of arguments. @see wp_nav_menu()
-	 * @param int    $id     Current item ID.
+	 * @param string   $output            Used to append additional content (passed by reference).
+	 * @param WP_Post  $item       		  Menu item data object.
+	 * @param int      $depth             Depth of menu item. Used for padding.
+	 * @param stdClass $args              An object of wp_nav_menu() arguments.
+	 * @param int      $id				  Optional. ID of the current menu item. Default 0.
 	 */
-	public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
+	public function start_el( &$output, $item, $depth = 0, $args = null, $id = 0 ) {
 
-		$target_classes = array( 'bellows-target' );
+		$item_output = '';
+
+		$target_classes = [ 'bellows-target' ];
 
 		$config_id = isset( $args->bellows_config ) ? $args->bellows_config : '';
 
@@ -331,7 +333,7 @@ class BellowsWalker extends Walker_Nav_Menu {
 		 * @param int    $depth   Depth of menu item. Used for padding.
 		 */
 
-		$id_prefix = $args->bellows_source == 'menu' ? '' : trim( $args->bellows_source , 's' ).'-';
+		$id_prefix = in_array( $args->bellows_source, array( 'menu', 'section' ) ) ? '' : trim( $args->bellows_source , 's' ).'-';
 		$id = apply_filters( 'nav_menu_item_id', 'menu-item-'. $id_prefix . $item->ID, $item, $args, $depth );
 		$id = $id ? ' id="' . esc_attr( $id ) . '"' : '';
 
@@ -410,7 +412,6 @@ class BellowsWalker extends Walker_Nav_Menu {
 				$title = do_shortcode( $title );
 			}
 
-			$item_output = '';
 
 			//Only print target if there's something inside it
 			if( $title || $icon || $img || $description ){
@@ -439,8 +440,13 @@ class BellowsWalker extends Walker_Nav_Menu {
 					$item_output .= $description;
 				}
 
+				if( $item->has_sub ) {
+					$submenu_toggle_aria_label = apply_filters( 'bellows_submenu_toggle_aria_label', __( 'Toggle Submenu', 'bellows' ), $this->config_id, $item );
+					$submenu_toggle_content = apply_filters( 'bellows_submenu_toggle_content', '<i class="bellows-subtoggle-icon-expand fa fa-'.$this->submenu_toggle_icon_expand.'"></i><i class="bellows-subtoggle-icon-collapse fa fa-'.$this->submenu_toggle_icon_collapse.'"></i>', $this->config_id, $item );
+					$submenu_toggle = '<button class="bellows-subtoggle" aria-label="'.$submenu_toggle_aria_label.'">'.$submenu_toggle_content.'</button>';
 
-				if( $item->has_sub ) $item_output.= '<button class="bellows-subtoggle"><i class="bellows-subtoggle-icon-expand fa fa-'.$this->submenu_toggle_icon_expand.'"></i><i class="bellows-subtoggle-icon-collapse fa fa-'.$this->submenu_toggle_icon_collapse.'"></i></button>';
+					$item_output.= $submenu_toggle;
+				}
 
 				if( $img_position == 'after' ) $item_output .= $img;
 

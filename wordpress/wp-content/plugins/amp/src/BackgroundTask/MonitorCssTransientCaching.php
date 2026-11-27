@@ -55,12 +55,22 @@ final class MonitorCssTransientCaching extends RecurringBackgroundTask {
 	const DEFAULT_SAMPLING_RANGE = 14;
 
 	/**
+	 * @string
+	 */
+	const WP_VERSION = 'wp_version';
+
+	/**
+	 * @string
+	 */
+	const GUTENBERG_VERSION = 'gutenberg_version';
+
+	/**
 	 * Register the service with the system.
 	 *
 	 * @return void
 	 */
 	public function register() {
-		add_action( 'amp_plugin_update', [ $this, 'handle_plugin_update' ] );
+		add_filter( 'amp_options_updating', [ $this, 'sanitize_disabled_option' ], 10, 2 );
 		parent::register();
 	}
 
@@ -133,15 +143,60 @@ final class MonitorCssTransientCaching extends RecurringBackgroundTask {
 	 *
 	 * @return bool Whether transient caching of stylesheets is disabled.
 	 */
-	private function is_css_transient_caching_disabled() {
-		return AMP_Options_Manager::get_option( Option::DISABLE_CSS_TRANSIENT_CACHING, false );
+	public function is_css_transient_caching_disabled() {
+		return (bool) AMP_Options_Manager::get_option( Option::DISABLE_CSS_TRANSIENT_CACHING, false );
+	}
+
+	/**
+	 * Enable transient caching of stylesheets.
+	 */
+	public function enable_css_transient_caching() {
+		AMP_Options_Manager::update_option( Option::DISABLE_CSS_TRANSIENT_CACHING, false );
 	}
 
 	/**
 	 * Disable transient caching of stylesheets.
 	 */
-	private function disable_css_transient_caching() {
-		AMP_Options_Manager::update_option( Option::DISABLE_CSS_TRANSIENT_CACHING, true );
+	public function disable_css_transient_caching() {
+		AMP_Options_Manager::update_option(
+			Option::DISABLE_CSS_TRANSIENT_CACHING,
+			[
+				self::WP_VERSION        => get_bloginfo( 'version' ),
+				self::GUTENBERG_VERSION => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
+			]
+		);
+	}
+
+	/**
+	 * Sanitize the option.
+	 *
+	 * @param array $options     Existing options.
+	 * @param array $new_options New options.
+	 * @return array Sanitized options.
+	 */
+	public function sanitize_disabled_option( $options, $new_options ) {
+		$value = null;
+
+		if ( array_key_exists( Option::DISABLE_CSS_TRANSIENT_CACHING, $new_options ) ) {
+			$unsanitized_value = $new_options[ Option::DISABLE_CSS_TRANSIENT_CACHING ];
+
+			if ( is_bool( $unsanitized_value ) ) {
+				$value = (bool) $unsanitized_value;
+			} elseif ( is_array( $unsanitized_value ) ) {
+				$value = [];
+				foreach ( wp_array_slice_assoc( $unsanitized_value, [ self::WP_VERSION, self::GUTENBERG_VERSION ] ) as $key => $version ) {
+					$value[ $key ] = preg_replace( '/[^a-z0-9_\-.]/', '', $version );
+				}
+			}
+		}
+
+		if ( empty( $value ) ) {
+			unset( $options[ Option::DISABLE_CSS_TRANSIENT_CACHING ] );
+		} else {
+			$options[ Option::DISABLE_CSS_TRANSIENT_CACHING ] = $value;
+		}
+
+		return $options;
 	}
 
 	/**
@@ -156,18 +211,6 @@ final class MonitorCssTransientCaching extends RecurringBackgroundTask {
 		return (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '_transient_amp-parsed-stylesheet%'"
 		);
-	}
-
-	/**
-	 * Handle update to plugin.
-	 *
-	 * @param string $old_version Old version.
-	 */
-	public function handle_plugin_update( $old_version ) {
-		// Reset the disabling of the CSS caching subsystem when updating from versions 1.5.0 or 1.5.1.
-		if ( version_compare( $old_version, '1.5.0', '>=' ) && version_compare( $old_version, '1.5.2', '<' ) ) {
-			AMP_Options_Manager::update_option( Option::DISABLE_CSS_TRANSIENT_CACHING, false );
-		}
 	}
 
 	/**

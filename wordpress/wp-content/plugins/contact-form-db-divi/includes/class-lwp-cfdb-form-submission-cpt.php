@@ -1,15 +1,20 @@
 <?php
 
 /**
+ * Registers and manages the form submission custom post type.
+ *
+ * @package Contact_Form_DB_Divi
+ */
+/**
  * Represents a custom post type for storing form submissions.
  */
 class Lwp_Cfdb_Form_Submission_CPT {
-    //===========================================================================================
+    // ===========================================================================================
     /**
      * Constructor function that registers the custom post type and filters the post row actions.
      */
     public function __construct() {
-        global $is_free_version;
+        global $lwp_cfdb_is_free_version;
         // Register the custom post type on WordPress 'init' hook.
         add_action( 'init', array($this, 'register_post_type') );
         // Filter the post row actions to disable quick edit for form submissions.
@@ -19,28 +24,27 @@ class Lwp_Cfdb_Form_Submission_CPT {
             10,
             1
         );
-        // Filter the post columns to add and remove columns on the post type page
+        // Filter the post columns to add and remove columns on the post type page.
         add_filter( 'manage_lwp_form_submission_posts_columns', array($this, 'updated_columns') );
-        // Show the relevant data in the custom columns for the post type
+        // Show the relevant data in the custom columns for the post type.
         add_action(
             'manage_lwp_form_submission_posts_custom_column',
             array($this, 'updated_columns_data'),
             10,
             2
         );
-        //
-        if ( $is_free_version ) {
+        if ( $lwp_cfdb_is_free_version ) {
             add_action( 'admin_notices', array($this, 'free_version_notice') );
         }
     }
 
-    //===========================================================================================
+    // ===========================================================================================
     /**
      * Registers the custom post type for form submissions.
      */
     public function register_post_type() {
-        global $is_free_version;
-        // Query form submissions where read status is false
+        global $lwp_cfdb_is_free_version;
+        // Query form submissions where read status is false.
         $args = array(
             'post_type'      => 'lwp_form_submission',
             'posts_per_page' => -1,
@@ -51,7 +55,7 @@ class Lwp_Cfdb_Form_Submission_CPT {
             )),
         );
         $query = new WP_Query($args);
-        // Get the count of unread form submissions
+        // Get the count of unread form submissions.
         $count = $query->found_posts;
         $labels = array(
             'name'               => _x( 'Divi Form DB', 'post type general name', 'contact-form-db-divi' ),
@@ -62,7 +66,7 @@ class Lwp_Cfdb_Form_Submission_CPT {
             'new_item'           => __( 'New Divi Form Submission', 'contact-form-db-divi' ),
             'view_item'          => __( 'View Divi Form Submission', 'contact-form-db-divi' ),
             'search_items'       => __( 'Search Divi Form Submissions', 'contact-form-db-divi' ),
-            'all_items'          => ( $count && !$is_free_version ? sprintf( __( 'Divi Form DB <span class="menu-counter">%d</span>', 'contact-form-db-divi' ), $count ) : __( 'Divi Form DB', 'contact-form-db-divi' ) ),
+            'all_items'          => ( $count && !$lwp_cfdb_is_free_version ? sprintf( __( 'Divi Form DB <span class="menu-counter">%d</span>', 'contact-form-db-divi' ), $count ) : __( 'Divi Form DB', 'contact-form-db-divi' ) ),
             'not_found'          => __( 'No Divi form submissions found', 'contact-form-db-divi' ),
             'not_found_in_trash' => __( 'No Divi form submissions found in Trash', 'contact-form-db-divi' ),
             'parent_item_colon'  => '',
@@ -91,14 +95,14 @@ class Lwp_Cfdb_Form_Submission_CPT {
         register_post_type( 'lwp_form_submission', $args );
     }
 
-    //===========================================================================================
+    // ===========================================================================================
     /**
      * Disables the quick edit action for form submission posts.
      *
      * @param array $actions An array of post row actions.
      * @return array The updated array of post row actions.
      */
-    function disable_quick_edit_form_submission( $actions ) {
+    public function disable_quick_edit_form_submission( $actions ) {
         global $post;
         if ( $post->post_type == 'lwp_form_submission' ) {
             unset($actions['inline hide-if-no-js']);
@@ -106,27 +110,32 @@ class Lwp_Cfdb_Form_Submission_CPT {
         return $actions;
     }
 
-    //===========================================================================================
+    // ===========================================================================================
     /**
-     * Add new columns to the form submission CPT
+     * Adds custom columns to the form submission post list table.
+     *
+     * @param array $columns Existing list table columns.
+     * @return array Updated list table columns.
      */
-    function updated_columns( $columns ) {
-        // Remove the default 'date' column
+    public function updated_columns( $columns ) {
+        // Remove the default 'date' column.
         unset($columns['date']);
-        //Add custom columns
+        // Add custom columns.
         $columns['read_status'] = __( 'Read', 'contact-form-db-divi' );
         $columns['email'] = __( 'Email', 'contact-form-db-divi' );
         $columns['date_submitted'] = __( 'Date Submitted', 'contact-form-db-divi' );
-        //
         return $columns;
     }
 
-    //===========================================================================================
+    // ===========================================================================================
     /**
-     * Show relevant data in the updated columns on the form submission CPT
+     * Outputs data for custom form submission columns.
+     *
+     * @param string $column Current column name.
+     * @param int    $post_id Current post ID.
+     * @return void
      */
-    function updated_columns_data( $column, $post_id ) {
-        //
+    public function updated_columns_data( $column, $post_id ) {
         $additional_details = get_post_meta( $post_id, 'additional_details', true );
         $submission_details = get_post_meta( $post_id, 'processed_fields_values', true );
         $read_status = get_post_meta( $post_id, 'lwp_cfdb_read_status', true );
@@ -152,16 +161,18 @@ class Lwp_Cfdb_Form_Submission_CPT {
                 }
                 break;
             default:
-                // Break out of switch statement for unknown column names
+                // Break out of switch statement for unknown column names.
                 break;
         }
     }
 
-    //===========================================================================================
+    // ===========================================================================================
     /**
      * Adds a notice to the free version of plugin on the single post page
+     *
+     * @return void
      */
-    function free_version_notice() {
+    public function free_version_notice() {
         global $pagenow, $typenow;
         if ( $pagenow == 'post.php' && $typenow == 'lwp_form_submission' ) {
             echo '<div class="notice notice-info">
@@ -170,5 +181,5 @@ class Lwp_Cfdb_Form_Submission_CPT {
         }
     }
 
-    //===========================================================================================
+    // ===========================================================================================
 }

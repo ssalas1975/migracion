@@ -5,6 +5,7 @@
  *
  * @since 4.7.7
  */
+
 class Tribe__Assets_Pipeline {
 
 	/**
@@ -34,10 +35,10 @@ class Tribe__Assets_Pipeline {
 		}
 
 		if ( 'underscore' === $handle ) {
-			$dir = Tribe__Main::instance()->plugin_url . 'src/resources/js';
-			$tag = "<script src='{$dir}/underscore-before.js'></script>\n"
-			       . $tag
-			       . "<script src='{$dir}/underscore-after.js'></script>\n";
+			$path = Tribe__Main::instance()->plugin_url;
+			$tag  = "<script src='{$path}build/js/underscore-before.js'></script>\n"
+				. $tag
+				. "<script src='{$path}build/js/underscore-after.js'></script>\n";
 		}
 
 		return $tag;
@@ -47,6 +48,7 @@ class Tribe__Assets_Pipeline {
 	 * After select2 is loaded to the FE we add one scripts after to prevent select2 from breaking.
 	 *
 	 * @since 4.13.2
+	 * @since 4.14.18 Ensure we don't run this in the admin.
 	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
@@ -54,12 +56,16 @@ class Tribe__Assets_Pipeline {
 	 * @return string The <script> tag.
 	 */
 	public function prevent_select2_conflict( $tag, $handle ) {
+		if ( is_admin() ) {
+			return $tag;
+		}
+
 		if ( 'tribe-select2' !== $handle ) {
 			return $tag;
 		}
 
-		$dir = Tribe__Main::instance()->plugin_url . 'src/resources/js';
-		$tag .= "<script src='{$dir}/select2-after.js'></script>\n";
+		$path = Tribe__Main::instance()->plugin_url;
+		$tag .= "<script src='{$path}build/js/select2-after.js'></script>\n";
 
 		return $tag;
 	}

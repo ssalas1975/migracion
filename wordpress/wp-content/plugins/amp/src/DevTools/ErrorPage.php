@@ -123,8 +123,8 @@ final class ErrorPage implements Service {
 	/**
 	 * Set the throwable of the error page.
 	 *
-	 * @param Throwable $throwable Exception or Error to use. The Throwable type does not exist in PHP 5,
-	 *                             which is why type is absent from the function parameter.
+	 * @param Throwable|Exception $throwable Exception or Error to use. The Throwable type does not exist in PHP 5,
+	 *                                       which is why type is absent from the function parameter.
 	 * @throws InvalidArgumentException If $throwable is not an Exception or an Error.
 	 * @return self
 	 */

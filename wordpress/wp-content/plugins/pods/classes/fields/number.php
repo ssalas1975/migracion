@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * @package Pods\Fields
  */
@@ -39,32 +44,24 @@ class PodsField_Number extends PodsField {
 	 */
 	public function options() {
 
-		$options = array(
-			static::$type . '_repeatable'  => array(
-				'label'             => __( 'Repeatable Field', 'pods' ),
-				'default'           => 0,
-				'type'              => 'boolean',
-				'help'              => __( 'Making a field repeatable will add controls next to the field which allows users to Add/Remove/Reorder additional values. These values are saved in the database as an array, so searching and filtering by them may require further adjustments".', 'pods' ),
-				'boolean_yes_label' => '',
-				'dependency'        => true,
-				'developer_mode'    => true,
-			),
-			static::$type . '_format_type' => array(
-				'label'      => __( 'Input Type', 'pods' ),
-				'default'    => 'number',
-				'type'       => 'pick',
-				'data'       => array(
+		$options = [
+			static::$type . '_format_type'      => [
+				'label'                 => __( 'Input Type', 'pods' ),
+				'default'               => 'number',
+				'type'                  => 'pick',
+				'data'                  => [
 					'number' => __( 'Freeform Number', 'pods' ),
 					'slider' => __( 'Slider', 'pods' ),
-				),
+				],
+				'pick_format_single'    => 'dropdown',
 				'pick_show_select_text' => 0,
-				'dependency' => true,
-			),
-			static::$type . '_format'      => array(
-				'label'   => __( 'Number Format', 'pods' ),
-				'default' => apply_filters( 'pods_form_ui_field_number_format_default', 'i18n' ),
-				'type'    => 'pick',
-				'data'    => array(
+				'dependency'            => true,
+			],
+			static::$type . '_format'           => [
+				'label'                 => __( 'Number Format', 'pods' ),
+				'default'               => apply_filters( 'pods_form_ui_field_number_format_default', 'i18n' ),
+				'type'                  => 'pick',
+				'data'                  => [
 					'i18n'      => __( 'Localized Default', 'pods' ),
 					'9,999.99'  => '1,234.00',
 					'9999.99'   => '1234.00',
@@ -72,69 +69,85 @@ class PodsField_Number extends PodsField {
 					'9999,99'   => '1234,00',
 					'9 999,99'  => '1 234,00',
 					'9\'999.99' => '1\'234.00',
-				),
+				],
+				'pick_format_single'    => 'dropdown',
 				'pick_show_select_text' => 0,
-			),
-			static::$type . '_decimals'    => array(
+			],
+			static::$type . '_decimals'         => [
 				'label'      => __( 'Decimals', 'pods' ),
 				'default'    => 0,
 				'type'       => 'number',
 				'dependency' => true,
-				'help'    => __( 'Set to a positive number to enable decimals. The upper limit in the database for this field is 30 decimals.', 'pods' ),
-			),
-			static::$type . '_format_soft' => array(
-				'label'       => __( 'Soft Formatting', 'pods' ),
+				'help'       => __( 'Set to a positive number to enable decimals. The upper limit in the database for this field is 30 decimals.', 'pods' ),
+			],
+			static::$type . '_format_soft'      => [
+				'label'       => __( 'Soft Formatting (deprecated, use Decimal handling instead)', 'pods' ),
 				'help'        => __( 'Remove trailing decimals (0)', 'pods' ),
 				'default'     => 0,
 				'type'        => 'boolean',
-				'excludes-on' => array( static::$type . '_decimals' => 0 ),
-			),
-			static::$type . '_step'        => array(
+				'excludes-on' => [ static::$type . '_decimals' => 0 ],
+			],
+			static::$type . '_decimal_handling' => [
+				'label'                 => __( 'Decimal handling for trailing zero decimals', 'pods' ),
+				'default'               => 'none',
+				'type'                  => 'pick',
+				'data'                  => [
+					'none'             => __( 'Default (Examples: "1.00", "0.00")', 'pods' ),
+					'remove'           => __( 'Remove decimals (Examples: "1", "0")', 'pods' ),
+					'remove_only_zero' => __( 'Remove decimals only when number is zero (Examples: "1.00", "0")', 'pods' ),
+					'dash'             => __( 'Convert to dash (Examples: "1.-", "0.-")', 'pods' ),
+					'dash_only_zero'   => __( 'Convert to dash only when number is zero (Examples: "1.00", "0.-")', 'pods' ),
+					'dash_whole_zero'  => __( 'Convert to the whole value to dash when number is zero (Examples: "1.00", "-")', 'pods' ),
+				],
+				'pick_format_single'    => 'dropdown',
+				'pick_show_select_text' => 0,
+			],
+			static::$type . '_step'             => [
 				'label'      => __( 'Slider Increment (Step)', 'pods' ),
-				'depends-on' => array( static::$type . '_format_type' => 'slider' ),
+				'depends-on' => [ static::$type . '_format_type' => 'slider' ],
 				'default'    => 1,
 				'type'       => 'text',
-			),
-			static::$type . '_min'         => array(
-				'label'      => __( 'Minimum Number', 'pods' ),
-				'depends-on-any' => array(
+			],
+			static::$type . '_min'              => [
+				'label'          => __( 'Minimum Number', 'pods' ),
+				'depends-on-any' => [
 					static::$type . '_format_type' => 'slider',
-					static::$type . '_html5' => true,
-				),
-				'default'    => '',
-				'type'       => 'text',
-			),
-			static::$type . '_max'         => array(
-				'label'      => __( 'Maximum Number', 'pods' ),
-				'depends-on-any' => array(
+					static::$type . '_html5'       => true,
+				],
+				'default'        => '',
+				'type'           => 'text',
+			],
+			static::$type . '_max'              => [
+				'label'          => __( 'Maximum Number', 'pods' ),
+				'depends-on-any' => [
 					static::$type . '_format_type' => 'slider',
-					static::$type . '_html5' => true,
-				),
-				'default'    => '',
-				'type'       => 'text',
-			),
-			static::$type . '_max_length'  => array(
+					static::$type . '_html5'       => true,
+				],
+				'default'        => '',
+				'type'           => 'text',
+			],
+			static::$type . '_max_length'       => [
 				'label'   => __( 'Maximum Digits', 'pods' ),
 				'default' => 12,
 				'type'    => 'number',
 				'help'    => __( 'Set to -1 for no limit. The upper limit in the database for this field is 64 digits.', 'pods' ),
-			),
-			static::$type . '_html5'       => array(
-				'label'   => __( 'Enable HTML5 Input Field', 'pods' ),
-				'default' => apply_filters( 'pods_form_ui_field_html5', 0, static::$type ),
-				'depends-on' => array( static::$type . '_format_type' => 'number' ),
-				'type'    => 'boolean',
-			),
-			static::$type . '_placeholder' => array(
+			],
+			static::$type . '_html5'            => [
+				'label'      => __( 'Enable HTML5 Input Field', 'pods' ),
+				'default'    => apply_filters( 'pods_form_ui_field_html5', 0, static::$type ),
+				'depends-on' => [ static::$type . '_format_type' => 'number' ],
+				'type'       => 'boolean',
+			],
+			static::$type . '_placeholder'      => [
 				'label'   => __( 'HTML Placeholder', 'pods' ),
 				'default' => '',
 				'type'    => 'text',
-				'help'    => array(
+				'help'    => [
 					__( 'Placeholders can provide instructions or an example of the required data format for a field. Please note: It is not a replacement for labels or description text, and it is less accessible for people using screen readers.', 'pods' ),
 					'https://www.w3.org/WAI/tutorials/forms/instructions/#placeholder-text',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		return $options;
 	}
@@ -167,10 +180,10 @@ class PodsField_Number extends PodsField {
 
 		$decimals = $this->get_max_decimals( $options );
 
-		if( 6 < $decimals ) {
+		if ( 6 < $decimals ) {
 			// %F only allows 6 decimals by default
 			$format = '%.' . $decimals . 'F';
-		} else if ( 0 < $decimals ) {
+		} elseif ( 0 < $decimals ) {
 			$format = '%F';
 		}
 
@@ -200,10 +213,7 @@ class PodsField_Number extends PodsField {
 	 * {@inheritdoc}
 	 */
 	public function display( $value = null, $name = null, $options = null, $pod = null, $id = null ) {
-
-		$value = $this->format( $value, $name, $options, $pod, $id );
-
-		return $value;
+		return $this->format( $value, $name, $options, $pod, $id );
 	}
 
 	/**
@@ -215,9 +225,7 @@ class PodsField_Number extends PodsField {
 		$form_field_type = PodsForm::$field_type;
 		$is_read_only    = false;
 
-		if ( is_array( $value ) ) {
-			$value = implode( '', $value );
-		}
+		$value = $this->normalize_value_for_input( $value, $options, '' );
 
 		if ( 'slider' === pods_v( static::$type . '_format_type', $options, 'number' ) ) {
 			$field_type = 'slider';
@@ -226,13 +234,15 @@ class PodsField_Number extends PodsField {
 		}
 
 		if ( isset( $options['name'] ) && ! pods_permission( $options ) ) {
-			if ( pods_v( 'read_only', $options, false ) ) {
+			if ( pods_v_bool( 'read_only_restricted', $options ) ) {
 				$is_read_only = true;
 			} else {
 				return;
 			}
-		} elseif ( ! pods_has_permissions( $options ) && pods_v( 'read_only', $options, false ) ) {
-			$is_read_only = true;
+		} elseif ( ! pods_has_permissions( $options ) ) {
+			if ( pods_v_bool( 'read_only', $options ) ) {
+				$options['readonly'] = true;
+			}
 		}
 
 		if ( $is_read_only ) {
@@ -247,7 +257,14 @@ class PodsField_Number extends PodsField {
 
 		// Only format the value for non-HTML5 inputs.
 		if ( ! $options[ static::$type . '_html5' ] ) {
-			$value = $this->format( $value, $name, $options, $pod, $id );
+			// Ensure proper format
+			if ( is_array( $value ) ) {
+				foreach ( $value as $k => $repeatable_value ) {
+					$value[ $k ] = $this->format( $repeatable_value, $name, $options, $pod, $id );
+				}
+			} else {
+				$value = $this->format( $value, $name, $options, $pod, $id );
+			}
 		}
 
 		if ( ! empty( $options['disable_dfv'] ) ) {
@@ -271,7 +288,7 @@ class PodsField_Number extends PodsField {
 		$thousands   = $format_args['thousands'];
 		$dot         = $format_args['dot'];
 
-		return '\-*[0-9\\' . implode( '\\', array_filter( array( $dot, $thousands ) ) ) . ']+';
+		return '\-*[0-9\\' . implode( '\\', array_filter( [ $dot, $thousands ] ) ) . ']+';
 	}
 
 	/**
@@ -280,7 +297,7 @@ class PodsField_Number extends PodsField {
 	public function validate( $value, $name = null, $options = null, $fields = null, $pod = null, $id = null, $params = null ) {
 		$validate = parent::validate( $value, $name, $options, $fields, $pod, $id, $params );
 
-		$errors = array();
+		$errors = [];
 
 		if ( is_array( $validate ) ) {
 			$errors = $validate;
@@ -291,8 +308,8 @@ class PodsField_Number extends PodsField {
 		$dot         = $format_args['dot'];
 
 		$check = str_replace(
-			array( $thousands, $dot, html_entity_decode( $thousands ) ),
-			array( '', '.', '' ),
+			[ $thousands, $dot, html_entity_decode( $thousands, ENT_COMPAT ) ],
+			[ '', '.', '' ],
 			$value
 		);
 
@@ -302,7 +319,7 @@ class PodsField_Number extends PodsField {
 
 		$label = pods_v( 'label', $options, ucwords( str_replace( '_', ' ', $name ) ) );
 
-		if ( 0 < strlen( $check ) ) {
+		if ( 0 < strlen( (string) $check ) ) {
 			// Translators: %s stands for the input value.
 			$errors[] = sprintf( esc_html__( '%s is not numeric', 'pods' ), $label );
 		}
@@ -324,13 +341,19 @@ class PodsField_Number extends PodsField {
 		$dot         = $format_args['dot'];
 		$decimals    = $format_args['decimals'];
 
+		// Slider only supports `1234.00` format so no need for replacing characters.
 		if ( 'slider' !== pods_v( static::$type . '_format_type', $options ) ) {
-			// Slider only supports `1234.00` format so no need for replacing characters.
+			// Not a slider so we need to replace format characters.
 			$value = str_replace(
-				array( $thousands, html_entity_decode( $thousands ), $dot, html_entity_decode( $dot ) ),
-				array( '', '', '.', '.' ),
+				[ $thousands, html_entity_decode( $thousands, ENT_COMPAT ), $dot, html_entity_decode( $dot, ENT_COMPAT ) ],
+				[ '', '', '.', '.' ],
 				$value
 			);
+
+			// HTML5 supports both `1234.00` and `1234,00` formats so let's replace commas as decimals (thousands replaced above).
+			if ( 1 === (int) pods_v( static::$type . '_html5', $options, false ) ) {
+				$value = str_replace( ',', '.', $value );
+			}
 		}
 
 		$value = trim( $value );
@@ -373,9 +396,63 @@ class PodsField_Number extends PodsField {
 			$value = number_format( (float) $value, $decimals, $dot, $thousands );
 		}
 
-		// Optionally remove trailing decimal zero's.
-		if ( pods_v( static::$type . '_format_soft', $options, false ) ) {
-			$value = $this->trim_decimals( $value, $dot );
+		// Additional output handling for decimals
+		$decimals = (int) pods_v( static::$type . '_decimals', $options, 2 );
+
+		if ( $decimals < 1 ) {
+			return $value;
+		}
+
+		$decimal_handling = pods_v( static::$type . '_decimal_handling', $options, 'none' );
+
+		if ( 'none' === $decimal_handling && (bool) pods_v( static::$type . '_format_soft', $options, false ) ) {
+			$decimal_handling = 'remove';
+		}
+
+		if ( 'none' !== $decimal_handling ) {
+			$format_args = $this->get_number_format_args( $options );
+			$dot         = $format_args['dot'];
+			$thousands   = $format_args['thousands'];
+
+			$value_parts = explode( $dot, $value );
+
+			$value_number_int = isset( $value_parts[0] ) ? (int) str_replace( $thousands, '', $value_parts[0] ) : 0;
+			$is_zero          = 0 === $value_number_int;
+
+			if ( isset( $value_parts[1] ) && 0 === (int) $value_parts[1] ) {
+				switch ( $decimal_handling ) {
+					case 'remove':
+						// Remove decimals.
+						$value = $value_parts[0];
+						break;
+
+					case 'remove_only_zero':
+						// Remove decimals only when number is zero.
+						if ( $is_zero ) {
+							$value = $value_parts[0];
+						}
+						break;
+
+					case 'dash':
+						// Convert to dash.
+						$value = $value_parts[0] . $dot . '-';
+						break;
+
+					case 'dash_only_zero':
+						// Convert to dash only when number is zero.
+						if ( $is_zero ) {
+							$value = $value_parts[0] . $dot . '-';
+						}
+						break;
+
+					case 'dash_whole_zero':
+						// Convert to the whole value to dash when number is zero.
+						if ( $is_zero ) {
+							$value = '-';
+						}
+						break;
+				}
+			}
 		}
 
 		return $value;
@@ -416,7 +493,7 @@ class PodsField_Number extends PodsField {
 	 * @type string $thousands
 	 * @type string $dot
 	 * @type int    $decimals
-	 * }
+	 *                       }
 	 */
 	public function get_number_format_args( $options ) {
 
@@ -457,11 +534,11 @@ class PodsField_Number extends PodsField {
 
 		$decimals = $this->get_max_decimals( $options );
 
-		return array(
+		return [
 			'thousands' => $thousands,
 			'dot'       => $dot,
 			'decimals'  => $decimals,
-		);
+		];
 	}
 
 	/**

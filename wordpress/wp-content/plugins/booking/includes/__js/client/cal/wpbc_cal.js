@@ -77,6 +77,8 @@ function wpbc_calendar_show( resource_id ){
 		jQuery( '#calendar_booking' + resource_id ).removeClass( 'hasDatepick' );
 	}
 
+	wpbc_range_selection__prepare_guidance( resource_id );
+
 
 
 	// -----------------------------------------------------------------------------------------------------------------
@@ -118,17 +120,22 @@ function wpbc_calendar_show( resource_id ){
 	// In case we edit booking in past or have specific parameter in URL.
 	var wpbc_edit_booking_hash = _wpbc.get_other_param( 'this_page_booking_hash' );
 	var wpbc_is_edit_booking_context = ( 'undefined' !== typeof wpbc_edit_booking_hash ) && ( '' !== wpbc_edit_booking_hash );
+	var wpbc_allow_past_context = _wpbc.get_other_param( 'this_page_allow_past' );
+	var wpbc_is_allow_past_context = ( '1' === String( wpbc_allow_past_context ) ) || ( 1 === wpbc_allow_past_context ) || ( true === wpbc_allow_past_context );
+	var wpbc_allow_past_date_arr = _wpbc.get_other_param( 'this_page_allow_past_arr' );
 	var wpbc_is_add_booking_admin_page = ( location.href.indexOf( 'page=wpbc' ) != -1 ) && ( location.href.indexOf( 'tab=add-booking' ) != -1 );
-	if (   ( wpbc_is_add_booking_admin_page || wpbc_is_edit_booking_context )
+	if (   ( wpbc_is_add_booking_admin_page || wpbc_is_edit_booking_context || wpbc_is_allow_past_context )
 		&& (
 			  wpbc_is_edit_booking_context
+		   || wpbc_is_allow_past_context
 		   || ( location.href.indexOf('booking_hash') != -1 )                  // Comment this line for ability to add  booking in past days at  Booking > Add booking page.
 		   || ( location.href.indexOf('allow_past') != -1 )                // FixIn: 10.7.1.2.
 		)
 	){
 		// local__min_date = null;
 		// FixIn: 10.14.1.4.
-		local__min_date  = new Date( _wpbc.get_other_param( 'time_local_arr' )[0], ( parseInt( _wpbc.get_other_param( 'time_local_arr' )[1] ) - 1), _wpbc.get_other_param( 'time_local_arr' )[2], _wpbc.get_other_param( 'time_local_arr' )[3], _wpbc.get_other_param( 'time_local_arr' )[4], 0 );
+		var wpbc_min_date_arr = ( wpbc_is_allow_past_context && wpbc_allow_past_date_arr && ( 5 <= wpbc_allow_past_date_arr.length ) ) ? wpbc_allow_past_date_arr : _wpbc.get_other_param( 'time_local_arr' );
+		local__min_date  = new Date( wpbc_min_date_arr[0], ( parseInt( wpbc_min_date_arr[1] ) - 1), wpbc_min_date_arr[2], wpbc_min_date_arr[3], wpbc_min_date_arr[4], 0 );
 		local__max_date = null;
 	}
 
@@ -141,6 +148,10 @@ function wpbc_calendar_show( resource_id ){
 	// -----------------------------------------------------------------------------------------------------------------
 	jQuery('#calendar_booking'+ resource_id).datepick(
 			{
+				beforeSelectDay: function ( js_date, inst ) {
+					return 'function' === typeof wpbc__calendar__before_select_days__bs
+						? wpbc__calendar__before_select_days__bs( js_date, resource_id, inst ) : true;
+				},
 				beforeShowDay: function ( js_date ){
 									return wpbc__calendar__apply_css_to_days( js_date, {'resource_id': resource_id}, this );
 							  },
@@ -265,6 +276,89 @@ function wpbc_calendar_show( resource_id ){
 
 
 	/**
+	 * Apply optional, one-way date constraints to a native availability result.
+	 *
+	 * Listeners receive only a new constraint object. No booking, availability,
+	 * season, or calendar parameter objects are exposed. Core availability stays
+	 * authoritative because the returned state can only change from selectable to
+	 * blocked; a listener cannot reopen a natively unavailable date.
+	 *
+	 * Event: wpbc_calendar__apply_date_constraints
+	 *
+	 * Constraint object:
+	 * {
+	 *     resource_id: resource_id,
+	 *     sql_date: sql_date,
+	 *     is_blocked: false,
+	 *     css_classes: []
+	 * }
+	 *
+	 * Listeners may set is_blocked to the boolean true and append individual,
+	 * valid CSS class names to css_classes. Core-owned availability classes are
+	 * ignored when supplied by listeners.
+	 *
+	 * @param {number|string} resource_id           Booking resource ID.
+	 * @param {string}        sql_date              Calendar date in YYYY-MM-DD format.
+	 * @param {boolean}       is_natively_selectable Whether core marked the date selectable.
+	 * @param {string[]}      native_css_classes    Core-generated CSS classes.
+	 * @returns {{is_selectable: boolean, css_classes: string[]}} Constrained result.
+	 */
+	function wpbc_calendar__evaluate_date_constraints( resource_id, sql_date, is_natively_selectable, native_css_classes ) {
+
+		var date_constraint = {
+			'resource_id': resource_id,
+			'sql_date': sql_date,
+			'is_blocked': false,
+			'css_classes': []
+		};
+		var result_css_classes = Array.isArray( native_css_classes ) ? native_css_classes.slice( 0 ) : [];
+		var constraint_class_index;
+		var constraint_css_class;
+
+		jQuery( 'body' ).trigger( 'wpbc_calendar__apply_date_constraints', [ date_constraint ] );
+
+		if ( true === date_constraint.is_blocked ) {
+			for ( constraint_class_index = result_css_classes.length - 1; constraint_class_index >= 0; constraint_class_index-- ) {
+				if ( 'date_available' === result_css_classes[ constraint_class_index ] ) {
+					result_css_classes.splice( constraint_class_index, 1 );
+				}
+			}
+
+			if ( -1 === result_css_classes.indexOf( 'date_user_unavailable' ) ) {
+				result_css_classes.push( 'date_user_unavailable' );
+			}
+		}
+
+		if ( Array.isArray( date_constraint.css_classes ) ) {
+			for ( constraint_class_index = 0; constraint_class_index < date_constraint.css_classes.length; constraint_class_index++ ) {
+				if ( 'string' !== typeof date_constraint.css_classes[ constraint_class_index ] ) {
+					continue;
+				}
+
+				constraint_css_class = date_constraint.css_classes[ constraint_class_index ].trim();
+				if (
+					   '' === constraint_css_class
+					|| 'date_available' === constraint_css_class
+					|| 'date_user_unavailable' === constraint_css_class
+					|| ! /^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test( constraint_css_class )
+				) {
+					continue;
+				}
+
+				if ( -1 === result_css_classes.indexOf( constraint_css_class ) ) {
+					result_css_classes.push( constraint_css_class );
+				}
+			}
+		}
+
+		return {
+			'is_selectable': Boolean( is_natively_selectable ) && true !== date_constraint.is_blocked,
+			'css_classes': result_css_classes
+		};
+	}
+
+
+	/**
 	 * Apply CSS to calendar date cells
 	 *
 	 * @param date										-  JavaScript Date Obj:  		Mon Dec 11 2023 00:00:00
@@ -312,14 +406,16 @@ function wpbc_calendar_show( resource_id ){
 		}
 
 
-		var is_day_selectable = false;
+		var is_day_selectable     = false;
+		var date_constraint_result;
 
 		// If something not defined,  then  this date closed --------------------------------------------------------------- // FixIn: 10.12.4.6.
 		if ( (false === date_bookings_obj) || ('undefined' === typeof (date_bookings_obj[resource_id])) ) {
 
 			css_classes__for_date.push( 'date_user_unavailable' );
+			date_constraint_result = wpbc_calendar__evaluate_date_constraints( resource_id, sql_class_day, is_day_selectable, css_classes__for_date );
 
-			return [ is_day_selectable, css_classes__for_date.join(' ')  ];
+			return [ date_constraint_result.is_selectable, date_constraint_result.css_classes.join( ' ' ) ];
 		}
 
 
@@ -477,7 +573,9 @@ function wpbc_calendar_show( resource_id ){
 			}
 		}
 
-		return [ is_day_selectable, css_classes__for_date.join( ' ' ) ];
+		date_constraint_result = wpbc_calendar__evaluate_date_constraints( resource_id, sql_class_day, is_day_selectable, css_classes__for_date );
+
+		return [ date_constraint_result.is_selectable, date_constraint_result.css_classes.join( ' ' ) ];
 	}
 
 
@@ -532,6 +630,8 @@ function wpbc_calendar_show( resource_id ){
 		var is_unselectable_calendar = ( jQuery( '#calendar_booking_unselectable' + resource_id ).length > 0);				// FixIn: 8.0.1.2.
 		var is_booking_form_exist    = ( jQuery( '#booking_form_div' + resource_id ).length > 0 );
 		var is_add_booking_modal_calendar = ( jQuery( '#calendar_booking' + resource_id ).closest( '#wpbc_modal__add_booking__section' ).length > 0 );
+		var is_admin_calendar_preview = ( jQuery( '#calendar_booking' + resource_id ).closest( '[data-wpbc-admin-calendar-preview="1"]' ).length > 0 );
+		var is_interactive_calendar = ( jQuery( '#calendar_booking' + resource_id ).closest( '[data-wpbc-calendar-interactive="1"]' ).length > 0 );
 
 		if ( ( is_unselectable_calendar ) && ( ! is_booking_form_exist ) ){
 
@@ -555,19 +655,288 @@ function wpbc_calendar_show( resource_id ){
 			   ( location.href.indexOf( 'page=wpbc' ) == -1 )
 			|| ( ( location.href.indexOf( 'page=wpbc' ) > 0 ) && ( location.href.indexOf( 'tab=add-booking' ) > 0 ) )
 			|| ( is_add_booking_modal_calendar )
+			|| ( is_admin_calendar_preview )
+			|| ( is_interactive_calendar )
 			|| ( location.href.indexOf( 'page=wpbc-setup' ) > 0 )
 			|| ( location.href.indexOf( 'page=wpbc-availability' ) > 0 )
 			|| (  ( location.href.indexOf( 'page=wpbc-settings' ) > 0 )  &&
-				  ( location.href.indexOf( '&tab=form' ) > 0 )
+				  ( location.href.indexOf( 'tab=builder_booking_form' ) > 0 )
 			   )
 		){
 			// The same as dates selection,  but for days hovering
 
 			if ( 'function' == typeof( wpbc__calendar__do_days_highlight__bs ) ){
 				wpbc__calendar__do_days_highlight__bs( sql_class_day, date, resource_id );
+			} else if ( 'dynamic' === _wpbc.calendar__get_param_value( resource_id, 'days_select_mode' ) ) {
+				wpbc__calendar__do_days_highlight__unrestricted_range( sql_class_day, date, resource_id );
 			}
 		}
 
+	}
+
+
+	/**
+	 * Highlight an unrestricted proposed range after the first click when Business Small is not loaded.
+	 *
+	 * @param {string} sql_class_day Hovered date in SQL format.
+	 * @param {Date} date Hovered date.
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @returns {boolean} True when the complete proposed range is available and highlighted.
+	 */
+	function wpbc__calendar__do_days_highlight__unrestricted_range( sql_class_day, date, resource_id ){
+
+		var inst = wpbc_calendar__get_inst( resource_id );
+		var range_start;
+		var range_end;
+		var working_date;
+		var td_overs = [];
+
+		wpbc_calendars__clear_days_highlighting( resource_id );
+
+		if (
+			   null === inst
+			|| 'dynamic' !== _wpbc.calendar__get_param_value( resource_id, 'days_select_mode' )
+		) {
+			return false;
+		}
+
+		// Before a range starts, or after it is complete, preview the hovered date as the possible first day.
+		if ( 1 !== inst.dates.length || ! inst.dates[ 0 ] ) {
+			if ( ! wpbc_is_this_day_selectable( resource_id, sql_class_day ) ) {
+				return false;
+			}
+
+			jQuery( '#calendar_booking' + resource_id + ' .cal4date-' + wpbc__get__td_class_date( date ) )
+				.addClass( 'datepick-days-cell-over' );
+			return true;
+		}
+
+		range_start = new Date( inst.dates[ 0 ].getFullYear(), inst.dates[ 0 ].getMonth(), inst.dates[ 0 ].getDate(), 0, 0, 0 );
+		range_end   = new Date( date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0 );
+
+		// Datepick only permits a check-out date on/after the first click. Do not preview a backward range.
+		if ( range_end.getTime() < range_start.getTime() ) {
+			return false;
+		}
+
+		working_date = new Date( range_start.getTime() );
+		while ( working_date.getTime() <= range_end.getTime() ) {
+			sql_class_day = wpbc__get__sql_class_date( working_date );
+			if ( ! wpbc_is_this_day_selectable( resource_id, sql_class_day ) ) {
+				return false;
+			}
+
+			td_overs.push( '#calendar_booking' + resource_id + ' .cal4date-' + wpbc__get__td_class_date( working_date ) );
+			working_date.setDate( working_date.getDate() + 1 );
+		}
+
+		if ( td_overs.length ) {
+			jQuery( td_overs.join( ',' ) ).addClass( 'datepick-days-cell-over' );
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * Complete an unrestricted two-click range when the Business Small range engine is not loaded.
+	 * The hidden booking field must contain every date because Free time/hint handlers consume a comma-separated list.
+	 *
+	 * @param {string} selected_dates Datepick's endpoint string.
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @returns {boolean} True after a complete valid range, false while incomplete or invalid.
+	 */
+	function wpbc__calendar__do_days_select__unrestricted_range( selected_dates, resource_id ){
+
+		var inst = wpbc_calendar__get_inst( resource_id );
+		var range_start;
+		var range_end;
+		var current_date;
+		var selected_range = [];
+
+		if ( null === inst ) {
+			return false;
+		}
+
+		// Datepick writes "start - start" after click one. Keep its internal endpoint, but do not expose a submittable range yet.
+		if ( true === inst.stayOpen || inst.dates.length < 2 || ! inst.dates[ 0 ] || ! inst.dates[ 1 ] ) {
+			jQuery( '#date_booking' + resource_id ).val( '' );
+			return false;
+		}
+
+		range_start = new Date( inst.dates[ 0 ].getFullYear(), inst.dates[ 0 ].getMonth(), inst.dates[ 0 ].getDate(), 0, 0, 0 );
+		range_end   = new Date( inst.dates[ 1 ].getFullYear(), inst.dates[ 1 ].getMonth(), inst.dates[ 1 ].getDate(), 0, 0, 0 );
+
+		// Defensive normalization. Datepick normally prevents an end date before the first endpoint.
+		if ( range_end.getTime() < range_start.getTime() ) {
+			current_date = range_start;
+			range_start = range_end;
+			range_end = current_date;
+		}
+
+		current_date = new Date( range_start.getTime() );
+		while ( current_date.getTime() <= range_end.getTime() ) {
+			if ( ! wpbc_is_this_day_selectable( resource_id, wpbc__get__sql_class_date( current_date ) ) ) {
+				wpbc_calendar__unselect_all_dates( resource_id );
+				if ( 'function' === typeof ( wpbc_front_end__show_message__warning ) ) {
+					wpbc_front_end__show_message__warning(
+						'#booking_form_div' + resource_id + ' .bk_calendar_frame',
+						_wpbc.get_message( 'message_range_selection_has_unavailable_dates' ),
+						'text'
+					);
+				}
+				return false;
+			}
+
+			selected_range.push( jQuery.datepick._formatDate( inst, current_date ) );
+			current_date.setDate( current_date.getDate() + 1 );
+		}
+
+		jQuery( '#date_booking' + resource_id ).val( selected_range.join( ', ' ) );
+		return true;
+	}
+
+
+	/**
+	 * Prepare a collapsed range-selection guidance note for one calendar.
+	 * Keeping one reusable node avoids repeated insertion while inactive guidance occupies no layout space.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @returns {jQuery} The prepared note, or an empty collection when guidance is unavailable.
+	 */
+	function wpbc_range_selection__prepare_guidance( resource_id ){
+
+		var is_enabled = _wpbc.calendar__get_param_value( resource_id, 'range_selection_guidance_is_enabled' );
+		var $booking_form = jQuery( '#booking_form_div' + resource_id );
+		var $calendar_frame;
+		var $note = jQuery( '#wpbc_range_selection_guidance' + resource_id );
+
+		if (
+			   false === is_enabled
+			|| 0 === is_enabled
+			|| '0' === is_enabled
+			|| 'off' === String( is_enabled ).toLowerCase()
+			|| 'false' === String( is_enabled ).toLowerCase()
+			|| 'dynamic' !== _wpbc.calendar__get_param_value( resource_id, 'days_select_mode' )
+			|| 0 === $booking_form.length
+		) {
+			$note.remove();
+			return jQuery();
+		}
+
+		if ( 0 < $note.length ) {
+			$note.stop( true, true ).hide().attr( 'aria-hidden', 'true' );
+			return $note;
+		}
+
+		$calendar_frame = $booking_form.find( '.block_hints.datepick' ).first();
+		if ( 0 === $calendar_frame.length ) {
+			$calendar_frame = $booking_form.find( '.wpbc_cal_powered_by' ).first();
+			if ( 0 === $calendar_frame.length ) {
+				$calendar_frame = $booking_form.find( '.bk_calendar_frame' ).first();
+				if ( 0 === $calendar_frame.length ) {
+					return jQuery();
+				}
+			}
+		}
+
+		$note = jQuery( '<div>', {
+			'id': 'wpbc_range_selection_guidance' + resource_id,
+			'class': 'wpbc_range_selection_guidance wpbc_front_end__message wpbc_fe_message_info',
+			'role': 'status',
+			'aria-live': 'polite',
+			'aria-hidden': 'true',
+			'style': 'display: none;'
+		} );
+		$note.append( jQuery( '<i>', {
+			'class': 'menu_icon icon-1x wpbc_icn_info_outline',
+			'aria-hidden': 'true'
+		} ) );
+		$note.append( jQuery( '<span>' ).text( _wpbc.get_message( 'message_range_selection_click_last_date' ) ) );
+		$calendar_frame.after( $note );
+
+		return $note;
+	}
+
+
+	/**
+	 * Get the range-guidance animation duration for the current motion preference.
+	 *
+	 * @returns {number} Animation duration in milliseconds, or zero when reduced motion is preferred.
+	 */
+	function wpbc_range_selection__get_guidance_animation_duration(){
+
+		if (
+			'function' === typeof window.matchMedia
+			&& window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
+		) {
+			return 0;
+		}
+
+		return 160;
+	}
+
+
+	/**
+	 * Collapse the range-selection guidance so it does not reserve empty layout space.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 */
+	function wpbc_range_selection__hide_guidance( resource_id ){
+
+		jQuery( '#wpbc_range_selection_guidance' + resource_id )
+			.attr( 'aria-hidden', 'true' )
+			.stop( true, true )
+			.slideUp( wpbc_range_selection__get_guidance_animation_duration() );
+	}
+
+
+	/**
+	 * Show the prepared informational note after the first range click.
+	 * The calendar parameter can be set to false by PHP or JavaScript to suppress this UI per resource.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @returns {boolean} True when the note was shown.
+	 */
+	function wpbc_range_selection__show_guidance( resource_id ){
+
+		var $note = wpbc_range_selection__prepare_guidance( resource_id );
+
+		if ( 0 === $note.length ) {
+			return false;
+		}
+
+		$note
+			.stop( true, true )
+			.slideDown( wpbc_range_selection__get_guidance_animation_duration() )
+			.removeAttr( 'aria-hidden' );
+		$note.find( 'span' ).text( _wpbc.get_message( 'message_range_selection_click_last_date' ) );
+
+		return true;
+	}
+
+
+	/**
+	 * Synchronize the guidance with Datepick's two-click range state.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 */
+	function wpbc_range_selection__sync_guidance( resource_id ){
+
+		var inst = wpbc_calendar__get_inst( resource_id );
+
+		if (
+			   null !== inst
+			&& 'dynamic' === _wpbc.calendar__get_param_value( resource_id, 'days_select_mode' )
+			&& true === inst.stayOpen
+			&& 1 === inst.dates.length
+			&& inst.dates[ 0 ]
+		) {
+			wpbc_range_selection__show_guidance( resource_id );
+			return;
+		}
+
+		wpbc_range_selection__hide_guidance( resource_id );
 	}
 
 
@@ -598,7 +967,13 @@ function wpbc_calendar_show( resource_id ){
 		jQuery( '#date_booking' + resource_id ).val( date );																// Add selected dates to  hidden textarea
 
 
-		if ( 'function' === typeof (wpbc__calendar__do_days_select__bs) ){ wpbc__calendar__do_days_select__bs( date, resource_id ); }
+		if ( 'function' === typeof (wpbc__calendar__do_days_select__bs) ) {
+			wpbc__calendar__do_days_select__bs( date, resource_id );
+		} else if ( 'dynamic' === _wpbc.calendar__get_param_value( resource_id, 'days_select_mode' ) ) {
+			wpbc__calendar__do_days_select__unrestricted_range( date, resource_id );
+		}
+
+		wpbc_range_selection__sync_guidance( resource_id );
 
 		wpbc_disable_time_fields_in_booking_form( resource_id );
 
@@ -668,6 +1043,15 @@ function wpbc_calendar_show( resource_id ){
 
 		var today_time__real  = new Date( _wpbc.get_other_param( 'time_local_arr' )[0], ( parseInt( _wpbc.get_other_param( 'time_local_arr' )[1] ) - 1), _wpbc.get_other_param( 'time_local_arr' )[2], _wpbc.get_other_param( 'time_local_arr' )[3], _wpbc.get_other_param( 'time_local_arr' )[4], 0 );
 		var today_time__shift = new Date( _wpbc.get_other_param( 'today_arr'      )[0], ( parseInt( _wpbc.get_other_param(      'today_arr' )[1] ) - 1), _wpbc.get_other_param( 'today_arr'      )[2], _wpbc.get_other_param( 'today_arr'      )[3], _wpbc.get_other_param( 'today_arr'      )[4], 0 );
+		var allow_past_context = _wpbc.get_other_param( 'this_page_allow_past' );
+		var edit_booking_hash_context = _wpbc.get_other_param( 'this_page_booking_hash' );
+		var is_allow_past_context =
+			   ( '1' === String( allow_past_context ) )
+			|| ( 1 === allow_past_context )
+			|| ( true === allow_past_context )
+			|| ( '' !== String( edit_booking_hash_context || '' ) )
+			|| ( location.href.indexOf( 'booking_hash' ) > -1 )
+			|| ( location.href.indexOf( 'allow_past' ) > -1 );
 
 		// 4. Loop  all  time Fields options		// FixIn: 10.3.0.2.
 		for ( let field_key = 0; field_key < time_fields_obj_arr.length; field_key++ ){
@@ -682,9 +1066,10 @@ function wpbc_calendar_show( resource_id ){
 				// Get Date: '2023-08-18'.
 				sql_date = selected_dates_arr[i];
 
-				var is_time_in_past = wpbc_check_is_time_in_past( today_time__shift, sql_date, time_fields_obj );
+				var is_time_in_past = is_allow_past_context ? false : wpbc_check_is_time_in_past( today_time__shift, sql_date, time_fields_obj );
 				// Exception  for 'End Time' field,  when  selected several dates. // FixIn: 10.14.1.5.
-				if ( ('On' !== _wpbc.calendar__get_param_value( resource_id, 'booking_recurrent_time' )) &&
+				if ( ( ! is_allow_past_context ) &&
+					('On' !== _wpbc.calendar__get_param_value( resource_id, 'booking_recurrent_time' )) &&
 					(-1 !== time_fields_obj.name.indexOf( 'endtime' )) &&
 					(selected_dates_arr.length > 1)
 				) {
@@ -1208,6 +1593,8 @@ function wpbc_calendar_show( resource_id ){
 			resource_id = '1';
 		}
 
+		wpbc_range_selection__hide_guidance( resource_id );
+
 		var inst = wpbc_calendar__get_inst( resource_id )
 
 		if ( null !== inst ){
@@ -1278,39 +1665,65 @@ function wpbc_calendar_show( resource_id ){
 	}
 
 	/**
-	 * Is this date selectable in calendar (mainly it's means AVAILABLE date)
+	 * Determine native date selectability without optional date constraints.
 	 *
-	 * @param {int|string} resource_id		1
-	 * @param {string} sql_class_day		'2023-08-11'
-	 * @returns {boolean}					true | false
+	 * This helper exposes the canonical calendar result for algorithms, such as
+	 * gap discovery, that must not consume their own derived constraints. It does
+	 * not trigger wpbc_calendar__apply_date_constraints and must remain free of
+	 * optional-module state.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @param {string}        sql_date    Calendar date in YYYY-MM-DD format.
+	 * @returns {boolean} True when core calendar data marks the date selectable.
 	 */
-	function wpbc_is_this_day_selectable( resource_id, sql_class_day ){
+	function wpbc_is_this_day_selectable__raw( resource_id, sql_date ){
 
 		// Get Data --------------------------------------------------------------------------------------------------------
-		var date_bookings_obj = _wpbc.bookings_in_calendar__get_for_date( resource_id, sql_class_day );
+		var date_bookings_obj = _wpbc.bookings_in_calendar__get_for_date( resource_id, sql_date );
+		var is_day_selectable = false;
 
-		var is_day_selectable = ( parseInt( date_bookings_obj[ 'day_availability' ] ) > 0 );
+		if ( date_bookings_obj && 'undefined' !== typeof ( date_bookings_obj[ 'day_availability' ] ) ) {
+			is_day_selectable = ( parseInt( date_bookings_obj[ 'day_availability' ] ) > 0 );
 
-		if ( typeof (date_bookings_obj[ 'summary' ]) === 'undefined' ){
-			return is_day_selectable;
-		}
+			if ( 'undefined' !== typeof ( date_bookings_obj[ 'summary' ] ) && 'available' != date_bookings_obj[ 'summary']['status_for_day' ] ){
 
-		if ( 'available' != date_bookings_obj[ 'summary']['status_for_day' ] ){
+				var is_set_pending_days_selectable = _wpbc.calendar__get_param_value( resource_id, 'pending_days_selectable' );		// set pending days selectable          // FixIn: 8.6.1.18.
+				var booking_statuses_arr = wpbc_get_booking_statuses__as_arr( date_bookings_obj );
 
-			var is_set_pending_days_selectable = _wpbc.calendar__get_param_value( resource_id, 'pending_days_selectable' );		// set pending days selectable          // FixIn: 8.6.1.18.
-			var booking_statuses_arr = wpbc_get_booking_statuses__as_arr( date_bookings_obj );
-
-			if (
-				   ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending' ) )
-				|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending_pending' ) )
-				|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending_approved' ) )
-				|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'approved_pending' ) )
-			){
-				is_day_selectable = (is_day_selectable) ? true : is_set_pending_days_selectable;
+				if (
+					   ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending' ) )
+					|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending_pending' ) )
+					|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'pending_approved' ) )
+					|| ( wpbc_booking_statuses__has( booking_statuses_arr, 'approved_pending' ) )
+				){
+					is_day_selectable = (is_day_selectable) ? true : is_set_pending_days_selectable;
+				}
 			}
 		}
 
-		return is_day_selectable;
+		return Boolean( is_day_selectable );
+	}
+
+	/**
+	 * Determine final date selectability after native and optional constraints.
+	 *
+	 * Native unavailability returns immediately. Optional modules may therefore
+	 * only block a natively selectable date and can never reopen a core-unavailable
+	 * date.
+	 *
+	 * @param {number|string} resource_id Booking resource ID.
+	 * @param {string}        sql_date    Calendar date in YYYY-MM-DD format.
+	 * @returns {boolean} True when the date remains selectable after constraints.
+	 */
+	function wpbc_is_this_day_selectable( resource_id, sql_date ){
+
+		var is_natively_selectable = wpbc_is_this_day_selectable__raw( resource_id, sql_date );
+
+		if ( ! is_natively_selectable ) {
+			return false;
+		}
+
+		return wpbc_calendar__evaluate_date_constraints( resource_id, sql_date, is_natively_selectable, [] ).is_selectable;
 	}
 
 	/**
@@ -1972,7 +2385,7 @@ function wpbc_auto_select_dates_in_calendar( resource_id, check_in_ymd, check_ou
 			wpbc_calendar__scroll_to( resource_id, inst.dates[ 0 ].getFullYear(), inst.dates[ 0 ].getMonth()+1 );
 		}
 
-		return inst.dates.length;
+		return wpbc_get__selected_dates_sql__as_arr( resource_id ).length;
 	}
 
 	return 0;
@@ -2097,7 +2510,10 @@ jQuery( document ).ready( function (){
 		}
 	}
 
-	if ( url_params.has( 'wpbc_auto_fill' ) ){
+	if (
+		url_params.has( 'wpbc_auto_fill' )
+		&& ! jQuery( 'body' ).hasClass( 'wp-admin' )
+	){
 
 		var wpbc_auto_fill_value = url_params.get( 'wpbc_auto_fill' );
 
@@ -2112,7 +2528,11 @@ jQuery( document ).ready( function (){
 /**
  * Autofill / select booking form  fields by  values from  the GET request  parameter: ?wpbc_auto_fill=
  *
- * @param auto_fill_str
+ * URL-provided field names are resolved through the exact-name DOM API so
+ * they can never be interpreted as CSS selector syntax.
+ *
+ * @param {string} auto_fill_str Serialized field-name and value pairs.
+ * @return {void}
  */
 function wpbc_auto_fill_booking_fields( auto_fill_str ){																// FixIn: 10.0.0.48.
 
@@ -2125,7 +2545,15 @@ function wpbc_auto_fill_booking_fields( auto_fill_str ){																// FixIn
 	var fields_arr = wpbc_auto_fill_booking_fields__parse( auto_fill_str );
 
 	for ( let i = 0; i < fields_arr.length; i++ ){
-		jQuery( '[name="' + fields_arr[ i ][ 'name' ] + '"]' ).val( fields_arr[ i ][ 'value' ] );
+		var field_name = String( fields_arr[ i ][ 'name' ] || '' );
+		if ( '' === field_name ) {
+			continue;
+		}
+
+		var field_elements = document.getElementsByName( field_name );
+		if ( 0 < field_elements.length ) {
+			jQuery( field_elements ).val( fields_arr[ i ][ 'value' ] );
+		}
 	}
 }
 

@@ -1,17 +1,39 @@
 <?php
+/**
+ * The Events Calendar Venue class
+ *
+ * @package Tribe\Events
+ * @since 4.2
+ *
+ */
 
-class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
+use TEC\Events\Linked_Posts\Existing_Match;
+
+ /**
+	* Class Tribe__Events__Venue
+  */
+class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base { // phpcs:ignore
+
+	/**
+	 * The post type for venues
+	 *
+	 * @var string
+	 */
 	const POSTTYPE = 'tribe_venue';
 
 	/**
 	 * Args for venue post type
+	 *
 	 * @var array
 	 */
 	public $post_type_args = [
 		'public'              => false,
-		'rewrite'             => [ 'slug' => 'venue', 'with_front' => false ],
+		'rewrite'             => [
+			'slug' => 'venue',
+			'with_front' => false,
+		],
 		'show_ui'             => true,
-		'show_in_menu'        => 0,
+		'show_in_menu'        => false,
 		'supports'            => [ 'title', 'editor' ],
 		'capability_type'     => [ 'tribe_venue', 'tribe_venues' ],
 		'map_meta_cap'        => true,
@@ -44,6 +66,7 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	];
 
 	/**
+	 *
 	 * @var array A list of the valid meta keys for this linked post.
 	 */
 	public static $meta_keys = [
@@ -58,7 +81,10 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	];
 
 
-
+	/**
+	 *
+	 * @var array A list of all the valid Venue tags.
+	 */
 	public $venueTags = [
 		'_VenueCountry',
 		'_VenueAddress',
@@ -82,6 +108,16 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	 * @var string
 	 */
 	public $plural_venue_label;
+
+	/**
+	 * @var string The lowercase singular venue label.
+	 */
+	public $singular_venue_label_lowercase;
+
+	/**
+	 * @var string The lowercase plural venue label.
+	 */
+	public $plural_venue_label_lowercase;
 
 	/**
 	 * @var Tribe__Events__Venue
@@ -119,33 +155,38 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		 *
 		 * @param array $args Array of arguments for register_post_type labels
 		 */
-		$this->post_type_args['labels'] = apply_filters( 'tribe_events_register_venue_post_type_labels', [
-			'name'                     => $this->plural_venue_label,
-			'singular_name'            => $this->singular_venue_label,
-			'singular_name_lowercase'  => $this->singular_venue_label_lowercase,
-			'plural_name_lowercase'    => $this->plural_venue_label_lowercase,
-			'add_new'                  => esc_html__( 'Add New', 'the-events-calendar' ),
-			'add_new_item'             => sprintf( esc_html__( 'Add New %s', 'the-events-calendar' ), $this->singular_venue_label ),
-			'edit_item'                => sprintf( esc_html__( 'Edit %s', 'the-events-calendar' ), $this->singular_venue_label ),
-			'new_item'                 => sprintf( esc_html__( 'New %s', 'the-events-calendar' ), $this->singular_venue_label ),
-			'view_item'                => sprintf( esc_html__( 'View %s', 'the-events-calendar' ), $this->singular_venue_label ),
-			'search_items'             => sprintf( esc_html__( 'Search %s', 'the-events-calendar' ), $this->plural_venue_label ),
-			'not_found'                => sprintf( esc_html__( 'No %s found', 'the-events-calendar' ), strtolower( $this->plural_venue_label ) ),
-			'not_found_in_trash'       => sprintf( esc_html__( 'No %s found in Trash', 'the-events-calendar' ), strtolower( $this->plural_venue_label ) ),
-			'item_published'           => sprintf( esc_html__( '%s published.', 'the-events-calendar' ), $this->singular_venue_label ),
-			'item_published_privately' => sprintf( esc_html__( '%s published privately.', 'the-events-calendar' ), $this->singular_venue_label ),
-			'item_reverted_to_draft'   => sprintf( esc_html__( '%s reverted to draft.', 'the-events-calendar' ), $this->singular_venue_label ),
-			'item_scheduled'           => sprintf( esc_html__( '%s scheduled.', 'the-events-calendar' ), $this->singular_venue_label ),
-			'item_updated'             => sprintf( esc_html__( '%s updated.', 'the-events-calendar' ), $this->singular_venue_label ),
-			'item_link'                => sprintf(
+		$this->post_type_args['labels'] = apply_filters(
+			'tribe_events_register_venue_post_type_labels',
+			[
+				'name'                     => $this->plural_venue_label,
+				'singular_name'            => $this->singular_venue_label,
+				'singular_name_lowercase'  => $this->singular_venue_label_lowercase,
+				'plural_name_lowercase'    => $this->plural_venue_label_lowercase,
+				'add_new'                  => esc_html__( 'Add New', 'the-events-calendar' ),
+				'add_new_item'             => sprintf( esc_html__( 'Add New %s', 'the-events-calendar' ), $this->singular_venue_label ),
+				'edit_item'                => sprintf( esc_html__( 'Edit %s', 'the-events-calendar' ), $this->singular_venue_label ),
+				'new_item'                 => sprintf( esc_html__( 'New %s', 'the-events-calendar' ), $this->singular_venue_label ),
+				'view_item'                => sprintf( esc_html__( 'View %s', 'the-events-calendar' ), $this->singular_venue_label ),
+				'search_items'             => sprintf( esc_html__( 'Search %s', 'the-events-calendar' ), $this->plural_venue_label ),
+				'not_found'                => sprintf( esc_html__( 'No %s found', 'the-events-calendar' ), strtolower( $this->plural_venue_label ) ),
+				'not_found_in_trash'       => sprintf( esc_html__( 'No %s found in Trash', 'the-events-calendar' ), strtolower( $this->plural_venue_label ) ),
+				'item_published'           => sprintf( esc_html__( '%s published.', 'the-events-calendar' ), $this->singular_venue_label ),
+				'item_published_privately' => sprintf( esc_html__( '%s published privately.', 'the-events-calendar' ), $this->singular_venue_label ),
+				'item_reverted_to_draft'   => sprintf( esc_html__( '%s reverted to draft.', 'the-events-calendar' ), $this->singular_venue_label ),
+				'item_scheduled'           => sprintf( esc_html__( '%s scheduled.', 'the-events-calendar' ), $this->singular_venue_label ),
+				'item_updated'             => sprintf( esc_html__( '%s updated.', 'the-events-calendar' ), $this->singular_venue_label ),
+				'item_link'                => sprintf(
 				// Translators: %s: Venue singular.
-				esc_html__( '%s Link', 'the-events-calendar' ), $this->singular_venue_label
-			),
-			'item_link_description'    => sprintf(
+					esc_html__( '%s Link', 'the-events-calendar' ),
+					$this->singular_venue_label
+				),
+				'item_link_description'    => sprintf(
 				// Translators: %s: Venue singular.
-				esc_html__( 'A link to a particular %s.', 'the-events-calendar' ), $this->singular_venue_label
-			),
-		] );
+					esc_html__( 'A link to a particular %s.', 'the-events-calendar' ),
+					$this->singular_venue_label
+				),
+			]
+		);
 
 		$this->register_post_type();
 
@@ -156,7 +197,9 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		add_filter( 'tribe_events_linked_post_create_' . self::POSTTYPE, [ $this, 'save' ], 10, 4 );
 		add_filter( 'tribe_events_linked_post_meta_box_title', [ $this, 'meta_box_title' ], 5, 2 );
 		add_filter( 'tribe_events_linked_post_default', [ $this, 'linked_post_default' ], 10, 2 );
+		add_filter( 'tribe_events_title_tag', [ $this, 'update_venue_title' ], 10, 3 );
 		add_action( 'tribe_events_linked_post_new_form', [ $this, 'linked_post_new_form' ] );
+		add_action( 'admin_bar_menu', [ $this, 'edit_venue_admin_bar_menu_link' ], 80 );
 	}
 
 	/**
@@ -192,6 +235,7 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 
 	/**
 	 * Allow users to specify their own singular label for Venues
+	 *
 	 * @return string
 	 */
 	public function get_venue_label_singular() {
@@ -209,6 +253,7 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 
 	/**
 	 * Allow users to specify their own lowercase singular label for Venues
+	 *
 	 * @return string
 	 */
 	public function get_venue_label_singular_lowercase() {
@@ -281,12 +326,58 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		add_meta_box(
 			'tribe_events_venue_details',
 			sprintf( esc_html__( '%s Information', 'the-events-calendar' ), tribe( 'tec.linked-posts.venue' )->get_venue_label_singular() ),
-			[ Tribe__Events__Main::instance(), 'VenueMetaBox' ],
-			self::POSTTYPE,
+			[ static::class, 'render_meta_box' ],
+			static::POSTTYPE,
 			'normal',
 			'high'
 		);
+	}
 
+	/**
+	 * Adds a venue chooser to the write post page
+	 *
+	 * @since 6.0.0
+	 */
+	public static function render_meta_box() {
+		global $post;
+		$options = '';
+		$style   = '';
+		$event   = $post;
+
+		if ( $post->post_type == static::POSTTYPE ) {
+
+			if ( ( is_admin() && isset( $_GET['post'] ) && $_GET['post'] ) || ( ! is_admin() && isset( $event->ID ) ) ) {
+				$saved = true;
+			}
+
+			$is_saved = $event->ID && isset( $saved ) && $saved;
+
+			if ( $is_saved ) {
+				$venue_title = apply_filters( 'the_title', $post->post_title, $post->ID );
+			}
+
+			foreach ( Tribe__Events__Main::instance()->venueTags as $tag ) {
+				if ( metadata_exists( 'post', $event->ID, $tag ) ) {
+					$$tag = esc_html( get_post_meta( $event->ID, $tag, true ) );
+				} else {
+					$cleaned_tag = str_replace( '_Venue', '', $tag );
+					$$tag = call_user_func( [ Tribe__Events__Main::instance()->defaults(), $cleaned_tag ] );
+				}
+			}
+		}
+
+		?>
+		<div id='venue-details' class="inside eventForm venue-form">
+			<table cellspacing="0" cellpadding="0" id="venue-info" class="venue-info">
+				<?php
+				$venue_meta_box_template = apply_filters( 'tribe_events_venue_meta_box_template', Tribe__Events__Main::instance()->plugin_path . 'src/admin-views/venue-meta-box.php' );
+				if ( ! empty( $venue_meta_box_template ) ) {
+					include $venue_meta_box_template;
+				}
+				?>
+			</table>
+		</div>
+		<?php
 	}
 
 	/**
@@ -310,6 +401,10 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	/**
 	 * Saves the event venue information passed via an event
 	 *
+	 * @since 4.2
+	 * @since 6.18.4.1 An existing venue is only updated when the current user can edit it.
+	 * @since 6.18.5 A typed name links to an existing venue only when its address does not conflict, and never changes that venue.
+	 *
 	 * @param int|null $id          ID of event venue
 	 * @param array    $data        The venue data.
 	 * @param string   $post_type   Venue Post Type
@@ -321,6 +416,10 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		if ( isset( $data['VenueID'] ) && $data['VenueID'] > 0 ) {
 			if ( count( $data ) == 1 ) {
 				// Only an ID was passed and we should do nothing.
+				return $data['VenueID'];
+			}
+
+			if ( ! current_user_can( 'edit_post', $data['VenueID'] ) ) {
 				return $data['VenueID'];
 			}
 
@@ -338,7 +437,16 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 			unset( $data['VenueID'] );
 		}
 
-		return $this->create( $data, $post_status, true );
+		// Check the option for whether duplicate venues are allowed.
+		if ( is_array( $data ) && ! tribe_get_option( 'allow_duplicate_venues', false ) ) {
+			$existing_id = tribe( Existing_Match::class )->find_venue( $data );
+
+			if ( $existing_id ) {
+				return $existing_id;
+			}
+		}
+
+		return $this->create( $data, $post_status );
 	}
 
 	/**
@@ -346,7 +454,6 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	 *
 	 * @param int   $venue_id The venue ID.
 	 * @param array $data     The venue data.
-	 *
 	 */
 	public function save_meta( $venue_id, $data ) {
 		$venue = get_post( $venue_id );
@@ -373,19 +480,17 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 				)
 			) {
 				$data['StateProvince'] = $data['State'];
-			} else {
-				if ( isset( $data['Province'] ) && $data['Province'] != '' ) {
+			} elseif ( isset( $data['Province'] ) && $data['Province'] != '' ) {
 					$data['StateProvince'] = $data['Province'];
-				} else {
-					$data['StateProvince'] = '';
-				}
+			} else {
+				$data['StateProvince'] = '';
 			}
 		}
 
-		update_post_meta( $venue_id, '_EventShowMapLink', isset( $data['ShowMapLink'] ) ? $data['ShowMapLink'] : 'false' );
-		update_post_meta( $venue_id, '_EventShowMap', isset( $data['ShowMap'] ) ? $data['ShowMap'] : 'false' );
-		update_post_meta( $venue_id, '_VenueShowMapLink', isset( $data['ShowMapLink'] ) ? $data['ShowMapLink'] : 'false' );
-		update_post_meta( $venue_id, '_VenueShowMap', isset( $data['ShowMap'] ) ? $data['ShowMap'] : 'false' );
+		update_post_meta( $venue_id, '_EventShowMapLink', $data['ShowMapLink'] ?? 'false' );
+		update_post_meta( $venue_id, '_EventShowMap', $data['ShowMap'] ?? 'false' );
+		update_post_meta( $venue_id, '_VenueShowMapLink', $data['ShowMapLink'] ?? 'false' );
+		update_post_meta( $venue_id, '_VenueShowMap', $data['ShowMap'] ?? 'false' );
 		unset( $data['ShowMapLink'] );
 		unset( $data['ShowMap'] );
 
@@ -413,6 +518,9 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	/**
 	 * Creates a new venue
 	 *
+	 * @since 4.2
+	 * @since 6.18.4.1 A duplicate is only reused when the current user can edit it; otherwise a new venue is created.
+	 *
 	 * @param array  $data             The venue data.
 	 * @param string $post_status      the intended post status.
 	 * @param bool   $avoid_duplicates Whether a check to avoid the insertion of a duplicate venue
@@ -439,8 +547,8 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		}
 
 		if ( ( isset( $data['Venue'] ) && $data['Venue'] ) || $this->has_venue_data( $data ) ) {
-			$title   = isset( $data['Venue'] ) ? $data['Venue'] : esc_html__( 'Unnamed Venue', 'the-events-calendar' );
-			$content = isset( $data['Description'] ) ? $data['Description'] : '';
+			$title   = $data['Venue'] ?? esc_html__( 'Unnamed Venue', 'the-events-calendar' );
+			$content = $data['Description'] ?? '';
 			$slug    = sanitize_title( $title );
 
 			$data = new Tribe__Data( $data, false );
@@ -478,6 +586,11 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 				);
 
 				$found = $duplicates->find_for( $candidate_data );
+
+				// Reusing a match writes the submitted data onto it, so only reuse one the user may edit.
+				if ( false !== $found && ! current_user_can( 'edit_post', $found ) ) {
+					$found = false;
+				}
 			}
 
 			$venue_id = false === $found
@@ -576,16 +689,18 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 
 		unset( $data['VenueID'] );
 
-		$args = array_filter( [
-			'ID'            => $venue_id,
-			'post_title'    => Tribe__Utils__Array::get( $data, 'post_title', $data['Venue'] ),
-			'post_content'  => Tribe__Utils__Array::get( $data, 'post_content', $data['Description'] ),
-			'post_excerpt'  => Tribe__Utils__Array::get( $data, 'post_excerpt', $data['Excerpt'] ),
-			'post_author'   => $data['post_author'],
-			'post_date'     => $data['post_date'],
-			'post_date_gmt' => $data['post_date_gmt'],
-			'post_status'   => $data['post_status'],
-		] );
+		$args = array_filter(
+			[
+				'ID'            => $venue_id,
+				'post_title'    => Tribe__Utils__Array::get( $data, 'post_title', $data['Venue'] ),
+				'post_content'  => Tribe__Utils__Array::get( $data, 'post_content', $data['Description'] ),
+				'post_excerpt'  => Tribe__Utils__Array::get( $data, 'post_excerpt', $data['Excerpt'] ),
+				'post_author'   => $data['post_author'],
+				'post_date'     => $data['post_date'],
+				'post_date_gmt' => $data['post_date_gmt'],
+				'post_status'   => $data['post_status'],
+			]
+		);
 
 		if ( count( $args ) > 1 ) {
 			$post_type = Tribe__Events__Main::VENUE_POST_TYPE;
@@ -606,11 +721,14 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 			$data['ShowMapLink'] = true;
 		}
 
-		$post_fields = array_merge( Tribe__Duplicate__Post::$post_table_columns, [
-			'Venue',
-			'Description',
-			'Excerpt',
-		] );
+		$post_fields = array_merge(
+			Tribe__Duplicate__Post::$post_table_columns,
+			[
+				'Venue',
+				'Description',
+				'Excerpt',
+			]
+		);
 		$meta        = array_diff_key( $data->to_array(), array_combine( $post_fields, $post_fields ) );
 
 		$this->save_meta( $venue_id, $meta );
@@ -632,7 +750,6 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 	 * @param int  $venue_id     The venue ID to delete.
 	 * @param bool $force_delete Whether or not to bypass the trash when deleting the venue (see wp_delete_post's
 	 *                           $force_delete param)
-	 *
 	 */
 	public function delete( $venue_id, $force_delete = false ) {
 		wp_delete_post( $venue_id, $force_delete );
@@ -742,7 +859,6 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 		 *
 		 * @param callable|null The fetch callback.
 		 * @param int $event The event post ID.
-		 *
 		 */
 		$callback = apply_filters( 'tribe_events_venues_fetch_callback', null, $event );
 
@@ -764,5 +880,143 @@ class Tribe__Events__Venue extends Tribe__Events__Linked_Posts__Base {
 
 			return array_filter( $venues );
 		};
+	}
+
+	/**
+	 *  Returns a string version of the full address of an event
+	 *
+	 * @since 6.0.0
+	 * @since 6.18.3 Returns an empty string when the current user may not see the venue.
+	 *
+	 * @param int|WP_Post|null $post_id The event or venue post object or ID. Defaults to the current post.
+	 *
+	 * @return string The event's address.
+	 */
+	public static function get_address_full_string( $post_id = null ) {
+		$venue_id = absint( tribe_get_venue_id( $post_id ) );
+
+		/*
+		 * This feeds the iCal/Outlook export and the add-to-calendar links, which unlike the
+		 * templates and the REST API have no check of their own on the venue.
+		 */
+		if ( $venue_id && ! Tribe__Events__Linked_Posts::instance()->is_linked_post_visible( $venue_id ) ) {
+			return '';
+		}
+
+		$address = '';
+		if ( tribe_get_venue( $post_id ) ) {
+			$address .= tribe_get_venue( $post_id );
+		}
+
+		if ( tribe_get_address( $post_id ) ) {
+			if ( $address != '' ) {
+				$address .= ', ';
+			}
+			$address .= tribe_get_address( $post_id );
+		}
+
+		if ( tribe_get_city( $post_id ) ) {
+			if ( $address != '' ) {
+				$address .= ', ';
+			}
+			$address .= tribe_get_city( $post_id );
+		}
+
+		if ( tribe_get_region( $post_id ) ) {
+			if ( $address != '' ) {
+				$address .= ', ';
+			}
+			$address .= tribe_get_region( $post_id );
+		}
+
+		if ( tribe_get_zip( $post_id ) ) {
+			if ( $address != '' ) {
+				$address .= ', ';
+			}
+			$address .= tribe_get_zip( $post_id );
+		}
+
+		if ( tribe_get_country( $post_id ) ) {
+			if ( $address != '' ) {
+				$address .= ', ';
+			}
+			$address .= tribe_get_country( $post_id );
+		}
+
+		return $address;
+	}
+
+	/**
+	 * Returns a string version of the full address of an event.
+	 *
+	 * @since 5.16.0
+	 *
+	 * @see Tribe__Events__Main->fullAddressString()
+	 *
+	 * @param int|WP_Post|null $event The post object or post id.
+	 *
+	 * @return string The event venue's address. Empty string if the event or venue isn't found.
+	 */
+	public static function generate_string_address( $event = null ) {
+		if ( empty( $event ) ) {
+			$event = get_the_ID();
+		}
+
+		if ( is_integer( $event ) ) {
+			$event = tribe_get_event( $event );
+		}
+
+		// Not an event? Bail.
+		if ( ! tribe_is_event( $event ) ) {
+			return '';
+		}
+
+		if ( ! tribe_has_venue( $event ) ) {
+			return '';
+		}
+
+		return self::get_address_full_string( $event );
+	}
+
+	/**
+	 * Add edit link to admin bar when viewing the tribe_venue post type archive.
+	 *
+	 * @since 5.16.3
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar The admin bar object.
+	 */
+	public function edit_venue_admin_bar_menu_link( $wp_admin_bar ) {
+		global $wp_query;
+
+		if ( ! is_admin() && $wp_query->tribe_is_event_venue ) {
+
+			$title = sprintf( esc_html__( 'Edit %s', 'the-events-calendar' ), $this->singular_venue_label );
+
+			$wp_admin_bar->add_menu(
+				[
+					'id'    => 'edit',
+					'title' => $title,
+					'href'  => admin_url( 'post.php?post=' . $wp_query->queried_object->ID . '&action=edit' ),
+				]
+			);
+		}
+	}
+
+	/**
+	 * Updates the page title on the venue single page to include the venue title.
+	 *
+	 * @param string      $new_title The modified page title.
+	 * @param string      $title     The original page title.
+	 * @param string|null $sep       The separator character.
+	 *
+	 * @return string The modified page title.
+	 */
+	public function update_venue_title( $new_title, $title, $sep = null ) {
+		if ( is_singular( self::POSTTYPE ) ) {
+			$venue     = tribe_get_venue();
+			$new_title = $venue;
+		}
+
+		return $new_title;
 	}
 }

@@ -219,9 +219,8 @@ function wpbc_bfb__top_toolbar__dropdown_menu__main_forms__maybe_add_import_opti
 	if ( class_exists( 'wpdev_bk_personal' ) ) {
 
 		$custom_forms_count = 0;
-		if ( class_exists( 'wpdev_bk_biz_m' ) && ( ! empty( maybe_unserialize( get_bk_option( 'booking_forms_extended' ) ) ) ) ) {
-			$custom_forms_count = maybe_unserialize( get_bk_option( 'booking_forms_extended' ) );
-			$custom_forms_count = count( $custom_forms_count );
+		if ( function_exists( 'wpbc_bfb_get_legacy_custom_forms_for_owner' ) ) {
+			$custom_forms_count = count( wpbc_bfb_get_legacy_custom_forms_for_owner( 0 ) );
 		}
 		++$custom_forms_count;
 

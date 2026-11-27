@@ -2,8 +2,13 @@
 
 namespace Pods\Whatsit;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Exception;
 use Pods\Whatsit;
-use Tribe__Utils__Array;
 use WP_Block;
 
 /**
@@ -43,7 +48,7 @@ class Block extends Pod {
 			'renderType'       => $this->get_arg( 'renderType', $this->get_arg( 'render_type', 'js' ) ),
 			'category'         => $category,
 			'icon'             => $this->get_arg( 'icon', 'align-right' ),
-			'keywords'         => Tribe__Utils__Array::list_to_array( $this->get_arg( 'keywords', 'pods' ) ),
+			'keywords'         => wp_parse_list( $this->get_arg( 'keywords', 'pods' ) ),
 			'supports'         => $this->get_arg( 'supports', [] ),
 			'editor_script'    => $this->get_arg( 'editor_script', 'pods-blocks-api' ),
 			'editor_style'     => $this->get_arg( 'editor_style' ),
@@ -177,12 +182,12 @@ class Block extends Pod {
 
 		// Maybe enqueue the style.
 		if ( $enqueue_style ) {
-			wp_enqueue_style( $handle, $enqueue_style );
+			wp_enqueue_style( $handle, $enqueue_style, [], PODS_VERSION );
 		}
 
 		// Maybe enqueue the script.
 		if ( $enqueue_script ) {
-			wp_enqueue_script( $handle, $enqueue_script, [], false, true );
+			wp_enqueue_script( $handle, $enqueue_script, [], PODS_VERSION, [ 'in_footer' => true ] );
 		}
 
 		// Maybe run the enqueue assets callback.
@@ -192,8 +197,7 @@ class Block extends Pod {
 
 		// Handle custom context overrides from editor.
 		if (
-			! empty( $_GET['post_id'] )
-			&& ! empty( $_GET['podsContext'] )
+			! empty( $_GET['podsContext'] )
 			&& wp_is_json_request()
 			&& did_action( 'rest_api_init' )
 		) {
@@ -202,7 +206,58 @@ class Block extends Pod {
 
 		// Render block from callback.
 		if ( $render_callback && is_callable( $render_callback ) ) {
-			return $render_callback( $attributes, $content, $block_obj );
+			$return_exception = static function() {
+				return 'exception';
+			};
+
+			add_filter( 'pods_error_mode', $return_exception, 50 );
+			add_filter( 'pods_error_exception_fallback_enabled', '__return_false', 50 );
+
+			try {
+				$rendered_block = $render_callback( $attributes, $content, $block_obj );
+			} catch ( Exception $exception ) {
+				pods_debug_log( $exception );
+
+				$rendered_block = '';
+
+				if ( pods_is_debug_display() ) {
+					$rendered_block = pods_message(
+						sprintf(
+							'<strong>%1$s:</strong> %2$s',
+							esc_html__( 'Pods Block Error', 'pods' ),
+							esc_html( $exception->getMessage() )
+						),
+						'error',
+						true
+					);
+
+					$rendered_block .= '<pre style="overflow:scroll">' . esc_html( $exception->getTraceAsString() ) . '</pre>';
+				} elseif (
+					is_user_logged_in()
+					&& (
+						is_admin()
+						|| (
+							wp_is_json_request()
+							&& did_action( 'rest_api_init' )
+						)
+					)
+				) {
+					$rendered_block = pods_message(
+						sprintf(
+							'<strong>%1$s:</strong> %2$s',
+							esc_html__( 'Pods Block Error', 'pods' ),
+						esc_html__( 'There was a problem displaying this content, enable WP_DEBUG in wp-config.php to show more details.', 'pods' )
+						),
+						'error',
+						true
+					);
+				}
+			}
+
+			remove_filter( 'pods_error_mode', $return_exception, 50 );
+			remove_filter( 'pods_error_exception_fallback_enabled', '__return_false', 50 );
+
+			return $rendered_block;
 		}
 
 		// Render block from template.
@@ -256,12 +311,12 @@ class Block extends Pod {
 		 * @since 2.8.0
 		 *
 		 * @param string        $render        The HTML render for the block.
-		 * @param string        $template_path The block render template path.
 		 * @param array         $attributes    The block instance argument values.
 		 * @param string        $content       The block inner content.
 		 * @param WP_Block|null $block_obj     The block object.
+		 * @param string        $template_path The block render template path.
 		 */
-		return apply_filters( 'pods_block_render_html', $render, $attributes, $content, $block_obj );
+		return apply_filters( 'pods_block_render_html', $render, $attributes, $content, $block_obj, $template_path );
 	}
 
 	/**
@@ -324,10 +379,7 @@ class Block extends Pod {
 		}
 
 		$objects = array_map( [ $object_collection, 'get_object' ], $this->_fields );
-		$objects = array_filter( $objects );
 
-		$names = wp_list_pluck( $objects, 'name' );
-
-		return array_combine( $names, $objects );
+		return pods_objects_keyed_by_name( $objects );
 	}
 }

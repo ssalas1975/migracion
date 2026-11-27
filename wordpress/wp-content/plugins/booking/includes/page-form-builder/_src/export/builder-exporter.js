@@ -49,13 +49,61 @@
 	}
 
 	// == Helpers – column styles parsing & CSS vars builder ===========================================================
+	var wpbc_column_overflow_values = [ 'visible', 'auto', 'hidden' ];
+
+	/**
+	 * Constrain a column spacing length to units supported by the Inspector.
+	 *
+	 * @param {*} candidate_value Saved column-style value.
+	 * @returns {string} Valid non-negative CSS length or `0px`.
+	 */
+	function normalize_column_length( candidate_value ) {
+		var normalized_value = String( candidate_value == null ? '' : candidate_value ).trim();
+		if ( /^\d+(\.\d+)?$/.test( normalized_value ) ) {
+			return normalized_value + 'px';
+		}
+		return /^\d+(\.\d+)?(px|rem|em|%)$/.test( normalized_value ) ? normalized_value : '0px';
+	}
+
+	/**
+	 * Constrain an optional column maximum dimension.
+	 *
+	 * @param {*} candidate_value Saved column-style value.
+	 * @returns {string} Valid maximum dimension or `none`.
+	 */
+	function normalize_column_maximum( candidate_value ) {
+		var normalized_value = String( candidate_value == null ? '' : candidate_value ).trim();
+		if ( ! normalized_value || 'none' === normalized_value ) {
+			return 'none';
+		}
+		if ( /^\d+(\.\d+)?$/.test( normalized_value ) ) {
+			return normalized_value + 'px';
+		}
+		return /^\d+(\.\d+)?(px|rem|em|%|vh|vw)$/.test( normalized_value ) ? normalized_value : 'none';
+	}
+
+	/**
+	 * Constrain column overflow to the Inspector allowlist.
+	 *
+	 * @param {*} candidate_value Saved column-style value.
+	 * @returns {string} Allowlisted overflow value.
+	 */
+	function normalize_column_overflow( candidate_value ) {
+		var normalized_value = String( candidate_value || '' );
+		return wpbc_column_overflow_values.indexOf( normalized_value ) !== -1 ? normalized_value : wpbc_column_overflow_values[0];
+	}
 
 	// Known keys we treat as real per-column style overrides.
 	function has_non_default_col_styles(obj) {
 		if ( !obj || typeof obj !== 'object' ) {
 			return false;
 		}
-		var keys = [ 'dir', 'wrap', 'jc', 'ai', 'gap', 'aself', 'ac' ];
+		var keys = [
+			'dir', 'wrap', 'jc', 'ai', 'gap', 'padding', 'margin',
+			'padding_top', 'padding_right', 'padding_bottom', 'padding_left',
+			'margin_top', 'margin_right', 'margin_bottom', 'margin_left',
+			'max_width', 'max_height', 'overflow', 'overflow_x', 'overflow_y', 'aself', 'ac'
+		];
 		for ( var i = 0; i < keys.length; i++ ) {
 			var k = keys[i];
 			if ( obj[k] != null && String( obj[k] ).trim() !== '' ) {
@@ -99,6 +147,15 @@
 	 *  - jc   -> --wpbc-bfb-col-jc
 	 *  - ai   -> --wpbc-bfb-col-ai
 	 *  - gap  -> --wpbc-bfb-col-gap
+	 *  - padding -> --wpbc-bfb-col-padding
+	 *  - margin  -> --wpbc-bfb-col-margin
+	 *  - padding_top/right/bottom/left -> --wpbc-bfb-col-padding-*
+	 *  - margin_top/right/bottom/left  -> --wpbc-bfb-col-margin-*
+	 *  - max_width  -> --wpbc-bfb-col-max-width
+	 *  - max_height -> --wpbc-bfb-col-max-height
+	 *  - overflow   -> --wpbc-bfb-col-overflow
+	 *  - overflow_x -> --wpbc-bfb-col-overflow-x
+	 *  - overflow_y -> --wpbc-bfb-col-overflow-y
 	 *  - ac   -> --wpbc-bfb-col-ac
 	 *  - aself-> --wpbc-bfb-col-aself
 	 *
@@ -116,6 +173,21 @@
 			jc   : '--wpbc-bfb-col-jc',
 			ai   : '--wpbc-bfb-col-ai',
 			gap  : '--wpbc-bfb-col-gap',
+			padding: '--wpbc-bfb-col-padding',
+			margin : '--wpbc-bfb-col-margin',
+			padding_top   : '--wpbc-bfb-col-padding-top',
+			padding_right : '--wpbc-bfb-col-padding-right',
+			padding_bottom: '--wpbc-bfb-col-padding-bottom',
+			padding_left  : '--wpbc-bfb-col-padding-left',
+			margin_top    : '--wpbc-bfb-col-margin-top',
+			margin_right  : '--wpbc-bfb-col-margin-right',
+			margin_bottom : '--wpbc-bfb-col-margin-bottom',
+			margin_left   : '--wpbc-bfb-col-margin-left',
+			max_width     : '--wpbc-bfb-col-max-width',
+			max_height    : '--wpbc-bfb-col-max-height',
+			overflow      : '--wpbc-bfb-col-overflow',
+			overflow_x    : '--wpbc-bfb-col-overflow-x',
+			overflow_y    : '--wpbc-bfb-col-overflow-y',
 			ac   : '--wpbc-bfb-col-ac',
 			aself: '--wpbc-bfb-col-aself'
 		};
@@ -124,8 +196,17 @@
 
 		for ( var k in obj ) {
 			if ( !Object.prototype.hasOwnProperty.call( obj, k ) ) continue;
+			// Ignore the removed experimental child-flex setting in previously saved Builder JSON.
+			if ( 'item_flex' === k ) continue;
 			var v = obj[k];
 			if ( v == null || v === '' ) continue;
+			if ( [ 'padding_top', 'padding_right', 'padding_bottom', 'padding_left', 'margin_top', 'margin_right', 'margin_bottom', 'margin_left' ].indexOf( k ) !== -1 ) {
+				v = normalize_column_length( v );
+			} else if ( 'max_width' === k || 'max_height' === k ) {
+				v = normalize_column_maximum( v );
+			} else if ( [ 'overflow', 'overflow_x', 'overflow_y' ].indexOf( k ) !== -1 ) {
+				v = normalize_column_overflow( v );
+			}
 
 			var var_name = map[k] || ('--wpbc-bfb-col-' + String( k ).replace( /[^a-z0-9_-]/gi, '' ).toLowerCase());
 			parts.push( var_name + ': ' + String( v ) );
@@ -218,8 +299,10 @@
 			const section_col_styles = parse_col_styles_json( sec && sec.col_styles );
 
 			return {
-				id     : sec?.id,
-				columns: (sec?.columns || []).map( (col, col_index) => {
+				id       : sec?.id,
+				html_id  : sec?.html_id || '',
+				cssclass : sec?.cssclass || '',
+				columns  : (sec?.columns || []).map( (col, col_index) => {
 					const items = Array.isArray( col?.items )
 						? col.items
 						: [
@@ -463,8 +546,9 @@
 			// Row is active if ANY column carries styles.
 			var row_is_active = cols.some( function (col) { return has_non_default_col_styles( col && col.col_styles ); } );
 			var row_attr_active = row_is_active ? ' data-colstyles-active="1"' : '';
+			var row_custom_attrs = WPBC_BFB_Exporter.item_wrapper_attrs( section, ctx );
 
-			open( `<r${row_attr_active}>` );
+			open( `<r${row_custom_attrs}${row_attr_active}>` );
 
 			const bases    = compute_effective_bases( cols, cfg.gapPercent );
 			const esc_attr = core.WPBC_BFB_Sanitize.escape_html;
@@ -512,16 +596,16 @@
 
 
 		/**
-		 * Build attribute string for the <item> wrapper.
-		 * Currently only used for CAPTCHA: pushes css classes and html_id to the wrapper.
+		 * Build a sanitized custom CSS class and HTML ID attribute string for an exported wrapper.
+		 * Used by section row wrappers and fields whose attributes belong on the <item> wrapper.
 		 * Also ensures uniqueness of the html_id across the export (uses ctx.usedIds).
 		 *
-		 * @param {Object} field
+		 * @param {Object} wrapper_data Object containing optional cssclass and html_id properties.
 		 * @param {{usedIds:Set<string>}} ctx
 		 * @returns {string} e.g. ' class="x y" id="myId"'
 		 */
-		static item_wrapper_attrs(field, ctx) {
-			if ( ! field ) {
+		static item_wrapper_attrs(wrapper_data, ctx) {
+			if ( ! wrapper_data ) {
 				return '';
 			}
 			const esc_html  = core.WPBC_BFB_Sanitize.escape_html;
@@ -530,9 +614,9 @@
 
 			let out = '';
 
-			const cls_raw = String( field.cssclass_extra || field.cssclass || field.class || '' );
+			const cls_raw = String( wrapper_data.cssclass_extra || wrapper_data.cssclass || wrapper_data.class || '' );
 			const cls     = cls_sanit( cls_raw );
-			let html_id   = field.html_id ? sid( String( field.html_id ) ) : '';
+			let html_id   = wrapper_data.html_id ? sid( String( wrapper_data.html_id ) ) : '';
 			if ( html_id && ctx?.usedIds ) {
 				let unique = html_id, i = 2;
 				while ( ctx.usedIds.has( unique ) ) {

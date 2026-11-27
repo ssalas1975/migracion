@@ -5,17 +5,19 @@
  * Plugin URI: https://amp-wp.org
  * Author: AMP Project Contributors
  * Author URI: https://github.com/ampproject/amp-wp/graphs/contributors
- * Version: 2.2.1
+ * Version: 2.5.5
  * License: GPLv2 or later
- * Requires at least: 4.9
- * Requires PHP: 5.6
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * Requires at least: 6.5
+ * Requires PHP: 7.4
+ * Text Domain: amp
  *
  * @package AMP
  */
 
 define( 'AMP__FILE__', __FILE__ );
 define( 'AMP__DIR__', dirname( __FILE__ ) );
-define( 'AMP__VERSION', '2.2.1' );
+define( 'AMP__VERSION', '2.5.5' );
 
 /**
  * Errors encountered while loading the plugin.
@@ -28,13 +30,13 @@ global $_amp_load_errors;
 
 $_amp_load_errors = new WP_Error();
 
-if ( version_compare( phpversion(), '5.6', '<' ) ) {
+if ( version_compare( phpversion(), '7.4', '<' ) ) {
 	$_amp_load_errors->add(
 		'insufficient_php_version',
 		sprintf(
 			/* translators: %s: required PHP version */
 			__( 'The AMP plugin requires PHP %s. Please contact your host to update your PHP version.', 'amp' ),
-			'5.6+'
+			'7.4+'
 		)
 	);
 }

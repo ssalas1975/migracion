@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Options trait.
+ * Assets trait.
  *
  * @since 4.1.9
  */
@@ -31,15 +31,6 @@ trait Assets {
 	private $manifestFile;
 
 	/**
-	 * Holds the location of the asset manifest file.
-	 *
-	 * @since 4.1.9
-	 *
-	 * @var string
-	 */
-	private $assetManifestFile;
-
-	/**
 	 * True if we are in a dev environment. This mirrors the global isDev.
 	 *
 	 * @since 4.1.9
@@ -56,6 +47,42 @@ trait Assets {
 	 * @var array An array of handles.
 	 */
 	private $noModuleTag = [];
+
+	/**
+	 * Core class instance.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var \AIOSEO\Plugin\Common\Core\Core
+	 */
+	protected $core = null;
+
+	/**
+	 * The LocalBusiness addon version.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var string
+	 */
+	protected $version = '';
+
+	/**
+	 * The development site domain.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var string
+	 */
+	protected $domain = '';
+
+	/**
+	 * The development server port.
+	 *
+	 * @since 4.2.7
+	 *
+	 * @var int
+	 */
+	protected $port = 0;
 
 	/**
 	 * The asset to load.
@@ -83,14 +110,16 @@ trait Assets {
 	 * @param  string $handle The handle for the script.
 	 * @return string         The modified tag.
 	 */
-	public function scriptLoaderTag( $tag, $handle ) {
+	public function scriptLoaderTag( $tag, $handle = '', $src = '' ) {
 		if ( $this->skipModuleTag( $handle ) ) {
 			return $tag;
 		}
 
+		$tag = str_replace( $src, $this->normalizeAssetsHost( $src ), $tag );
+
 		// Remove the type and re-add it as module.
-		$tag = preg_replace( '/type=[\'"].*?[\'"]/', '', $tag );
-		$tag = preg_replace( '/<script/', '<script type="module"', $tag );
+		$tag = preg_replace( '/type=[\'"].*?[\'"]/', '', (string) $tag );
+		$tag = preg_replace( '/<script/', '<script type="module"', (string) $tag );
 
 		return $tag;
 	}
@@ -104,18 +133,39 @@ trait Assets {
 	 * @return void
 	 */
 	private function jsPreloadImports( $asset ) {
+		static $urls = []; // Prevent script from being loaded multiple times.
+
 		$res = '';
 		foreach ( $this->importsUrls( $asset ) as $url ) {
-			$res .= '<link rel="modulepreload" href="' . $url . "\">\n";
+			if ( isset( $urls[ $url ] ) ) {
+				continue;
+			}
+
+			$urls[ $url ] = true;
+
+			$res .= '<link rel="modulepreload" href="' . esc_attr( $url ) . "\">\n";
 		}
 
+		$allowedHtml = [
+			'link' => [
+				'rel'  => [],
+				'href' => []
+			]
+		];
+
 		if ( ! empty( $res ) ) {
-			add_action( 'admin_head', function () use ( &$res ) {
-				echo $res; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			} );
-			add_action( 'wp_head', function () use ( &$res ) {
-				echo $res; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			} );
+			if ( ! function_exists( 'wp_enqueue_script_module' ) ) {
+				add_action( 'admin_head', function () use ( &$res, $allowedHtml ) {
+					echo wp_kses( $res, $allowedHtml );
+				} );
+				add_action( 'wp_head', function () use ( &$res, $allowedHtml ) {
+					echo wp_kses( $res, $allowedHtml );
+				} );
+			} else {
+				add_action( 'admin_print_footer_scripts', function () use ( &$res, $allowedHtml ) {
+					echo wp_kses( $res, $allowedHtml );
+				}, 1000 );
+			}
 		}
 	}
 
@@ -127,7 +177,7 @@ trait Assets {
 	 * @param  string $asset The script to load CSS for.
 	 * @return void
 	 */
-	private function loadCss( $asset ) {
+	public function loadCss( $asset ) {
 		if ( $this->shouldLoadDev() ) {
 			return;
 		}
@@ -144,19 +194,16 @@ trait Assets {
 	 *
 	 * @param  string $asset        The script to load CSS for.
 	 * @param  array  $dependencies An array of dependencies.
-	 * @param  string $devPath      The file's dev path.
 	 * @return void
 	 */
-	public function registerCss( $asset, $dependencies = [], $devPath = '' ) {
+	public function registerCss( $asset, $dependencies = [] ) {
 		$handle = $this->cssHandle( $asset );
 		if ( wp_style_is( $handle, 'registered' ) ) {
 			return;
 		}
 
-		$devPath = $devPath ?: $asset;
-
 		$url = $this->shouldLoadDev()
-			? $this->getDevUrl() . ltrim( $devPath, '/' )
+			? $this->getDevUrl() . ltrim( $asset, '/' )
 			: $this->assetUrl( $asset );
 
 		if ( ! $url ) {
@@ -172,12 +219,11 @@ trait Assets {
 	 * @since 4.1.9
 	 *
 	 * @param  string $asset        The css to load.
-	 * @param  string $devPath      The file's dev path.
 	 * @param  array  $dependencies An array of dependencies.
 	 * @return void
 	 */
-	public function enqueueCss( $asset, $dependencies = [], $devPath = '' ) {
-		$this->registerCss( $asset, $dependencies, $devPath );
+	public function enqueueCss( $asset, $dependencies = [] ) {
+		$this->registerCss( $asset, $dependencies );
 
 		$handle = $this->cssHandle( $asset );
 		if ( wp_style_is( $handle, 'enqueued' ) ) {
@@ -201,6 +247,15 @@ trait Assets {
 	public function registerJs( $asset, $dependencies = [], $data = null, $objectName = 'aioseo' ) {
 		$handle = $this->jsHandle( $asset );
 		if ( wp_script_is( $handle, 'registered' ) ) {
+			// If it's already registered let's add the data.
+			if ( ! empty( $data ) ) {
+				wp_localize_script(
+					$handle,
+					$objectName,
+					$data
+				);
+			}
+
 			return;
 		}
 
@@ -255,7 +310,9 @@ trait Assets {
 	 * @return string The dev URL.
 	 */
 	private function getDevUrl() {
-		return 'https://' . $this->domain . ':' . $this->port . '/';
+		$protocol = is_ssl() ? 'https://' : 'http://';
+
+		return $protocol . $this->domain . ':' . $this->port . '/';
 	}
 
 	/**
@@ -269,8 +326,8 @@ trait Assets {
 	private function assetUrl( $asset ) {
 		$assetManifest = $this->getAssetManifestItem( $asset );
 
-		return ! empty( $assetManifest )
-			? $this->basePath() . $assetManifest
+		return ! empty( $assetManifest['file'] )
+			? $this->basePath() . $assetManifest['file']
 			: $this->basePath() . ltrim( $asset, '/' );
 	}
 
@@ -343,27 +400,13 @@ trait Assets {
 			return $file;
 		}
 
-		$content = $this->core->fs->getContents( $this->manifestFile );
-		$file    = json_decode( $content, true );
+		$manifestJson = ''; // This is set in the view.
 
-		return $file;
-	}
-
-	/**
-	 * Get the manifest to load entry assets from.
-	 *
-	 * @since 4.1.9
-	 *
-	 * @return array An array of files.
-	 */
-	private function getAssetManifest() {
-		static $file = null;
-		if ( $file ) {
-			return $file;
+		if ( file_exists( $this->manifestFile ) ) {
+			require_once $this->manifestFile;
 		}
 
-		$content = $this->core->fs->getContents( $this->assetManifestFile );
-		$file    = json_decode( $content, true );
+		$file = json_decode( $manifestJson, true );
 
 		return $file;
 	}
@@ -376,8 +419,8 @@ trait Assets {
 	 * @param  string      $item An item to retrieve.
 	 * @return string|null       The asset item.
 	 */
-	private function getAssetManifestItem( $item ) {
-		$assetManifest = $this->getAssetManifest();
+	public function getAssetManifestItem( $item ) {
+		$assetManifest = $this->getManifest();
 
 		return ! empty( $assetManifest[ $item ] ) ? $assetManifest[ $item ] : null;
 	}
@@ -441,7 +484,13 @@ trait Assets {
 			return $this->shouldLoadDevScripts;
 		}
 
-		if ( ! $this->isDev ) {
+		if (
+			! $this->isDev ||
+			(
+				defined( 'AIOSEO_LOAD_DEV_SCRIPTS' ) &&
+				false === AIOSEO_LOAD_DEV_SCRIPTS
+			)
+		) {
 			$this->shouldLoadDevScripts = false;
 
 			return $this->shouldLoadDevScripts;
@@ -453,8 +502,8 @@ trait Assets {
 			return $this->shouldLoadDevScripts;
 		}
 
-		set_error_handler( function() {} );
-		$connection = fsockopen( $this->domain, $this->port ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fsockopen
+		set_error_handler( function() {} ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+		$connection = fsockopen( $this->domain, $this->port ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		restore_error_handler();
 
 		if ( ! $connection ) {
@@ -502,5 +551,113 @@ trait Assets {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Normalize the assets host. Some sites manually set the WP_PLUGINS_URL
+	 * and if that domain has www. and the site_url does not, then it will fail to load
+	 * our assets. This doesn't fix the issue 100% because it will still fail on
+	 * sub-domains that don't have the proper CORS headers. Those sites will need
+	 * manual fixes.
+	 *
+	 * @since 4.1.10
+	 *
+	 * @param  string $path The path to normalize.
+	 * @return string       The normalized path.
+	 */
+	public function normalizeAssetsHost( $path ) {
+		static $paths = [];
+		if ( isset( $paths[ $path ] ) ) {
+			return apply_filters( 'aioseo_normalize_assets_host', $paths[ $path ] );
+		}
+
+		// We need to verify the domain on the $path attribute matches
+		// what's in site_url() for our assets or they won't load.
+		$siteUrl        = site_url();
+		$siteUrlEscaped = aioseo()->helpers->escapeRegex( $siteUrl );
+		if ( preg_match( "/^$siteUrlEscaped/i", (string) $path ) ) {
+			$paths[ $path ] = $path;
+
+			return apply_filters( 'aioseo_normalize_assets_host', $paths[ $path ] );
+		}
+
+		// We now know that the path doesn't contain the site_url().
+		$newPath        = $path;
+		$siteUrlParsed  = wp_parse_url( $siteUrl );
+		$host           = aioseo()->helpers->escapeRegex( str_replace( 'www.', '', $siteUrlParsed['host'] ) );
+		$scheme         = aioseo()->helpers->escapeRegex( $siteUrlParsed['scheme'] );
+
+		$siteUrlHasWww = preg_match( "/^{$scheme}:\/\/www\.$host/", (string) $siteUrl );
+		$pathHasWww    = preg_match( "/^{$scheme}:\/\/www\.$host/", (string) $path );
+
+		// Check if the path contains www.
+		if ( $pathHasWww && ! $siteUrlHasWww ) {
+			// If the path contains www., we want to strip it out.
+			$newPath = preg_replace( "/^({$scheme}:\/\/)(www\.)($host)/", '$1$3', (string) $path );
+		}
+
+		// Check if the site_url contains www.
+		if ( $siteUrlHasWww && ! $pathHasWww ) {
+			// If the site_url contains www., we want to add it in to the path.
+			$newPath = preg_replace( "/^({$scheme}:\/\/)($host)/", '$1www.$2', (string) $path );
+		}
+
+		$paths[ $path ] = $newPath;
+
+		return apply_filters( 'aioseo_normalize_assets_host', $paths[ $path ] );
+	}
+
+	/**
+	 * Get all the CSS files which a JS asset depends on.
+	 * This won't work properly unless you've run `npm run build` first.
+	 *
+	 * @since 4.3.1
+	 *
+	 * @param  string $asset The asset to find the CSS dependencies for.
+	 * @return array         All the asset's CSS dependencies if any.
+	 */
+	public function getJsAssetCssQueue( $asset ) {
+		$queue = [];
+
+		foreach ( $this->getCssUrls( $asset ) as $file => $url ) {
+			$queue[] = [
+				'handle' => $this->cssHandle( $file ),
+				'url'    => $url
+			];
+		}
+
+		$manifestAsset = $this->getManifestItem( $asset );
+		if ( ! empty( $manifestAsset['imports'] ) ) {
+			foreach ( $manifestAsset['imports'] as $subAsset ) {
+				foreach ( $this->getCssUrls( $subAsset ) as $file => $url ) {
+					$queue[] = [
+						'handle' => $this->cssHandle( $file ),
+						'url'    => $url
+					];
+				}
+			}
+		}
+
+		return $queue;
+	}
+
+	/**
+	 * Check if an asset exists (works in both dev and production mode).
+	 *
+	 * @since 4.9.0
+	 *
+	 * @param  string $asset The asset path to check.
+	 * @return bool          Whether the asset exists.
+	 */
+	public function assetExists( $asset ) {
+		// In dev mode, check if the source file exists instead of checking the manifest.
+		if ( $this->shouldLoadDev() ) {
+			$sourcePath = AIOSEO_DIR . '/' . ltrim( $asset, '/' );
+
+			return file_exists( $sourcePath );
+		}
+
+		// In production mode, check the manifest.
+		return ! empty( aioseo()->core->assets->getAssetManifestItem( $asset ) );
 	}
 }

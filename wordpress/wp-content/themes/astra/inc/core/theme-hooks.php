@@ -5,8 +5,6 @@
  * @see  https://github.com/zamoose/themehookalliance
  *
  * @package     Astra
- * @author      Astra
- * @copyright   Copyright (c) 2020, Astra
  * @link        https://wpastra.com/
  * @since       Astra 1.0.0
  */
@@ -441,6 +439,15 @@ function astra_pagination() {
  */
 function astra_entry_content_single() {
 	do_action( 'astra_entry_content_single' );
+}
+
+/**
+ * Entry content single-page.
+ *
+ * @since 4.0.0
+ */
+function astra_entry_content_single_page() {
+	do_action( 'astra_entry_content_single_page' );
 }
 
 /**

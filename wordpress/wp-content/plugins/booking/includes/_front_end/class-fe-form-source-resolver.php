@@ -2,13 +2,7 @@
 /**
  * Front-End Booking Form Source Resolver
  *
- * Decides which engine to use to build the booking form body:
- *  - bfb_db   : load exported shortcodes from booking_form_structures (only when BFB enabled)
- *  - legacy   : use legacy wpdev_bk_personal->get_booking_form()
- *  - simple   : fallback wpbc_simple_form__get_booking_form__as_html()
- *
- * Keeps legacy behavior by default:
- * - If BFB is disabled => never touches DB and returns legacy/simple only.
+ * Decides which BFB source to use to build the booking form body.
  *
  * @package Booking Calendar
  * @since   11.0.x
@@ -18,6 +12,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+
 
 /**
  * MultiUser ownership helper (core-safe; MU add-on hooks via filters).
@@ -61,49 +57,7 @@ class WPBC_FE_MU {
 
 
 /**
- * Check if we enabled BFB in Settings, e.g.: 		WPBC_Frontend_Settings::is_bfb_enabled()
- */
-class WPBC_Frontend_Settings {
-
-	/**
-	 * Is the BFB feature compiled/available in this build.
-	 *
-	 * @return bool
-	 */
-	public static function is_bfb_feature_available() {
-		return ( defined( 'WPBC_NEW_FORM_BUILDER' ) && WPBC_NEW_FORM_BUILDER );
-	}
-
-	/**
-	 * Is BFB enabled in settings.
-	 *
-	 * @param WPBC_Frontend_Context|null $ctx Optional, for future use (preview context etc).
-	 *
-	 * @return bool
-	 */
-	public static function is_bfb_enabled( $ctx = null ) {
-
-		if ( ! self::is_bfb_feature_available() ) {
-			return false;
-		}
-
-		$is_enabled = ( 'On' === get_bk_option( 'booking_use_bfb_form' ) );
-
-		/**
-		 * Allow forcing enable/disable externally if needed.
-		 *
-		 * @param bool                 $is_enabled
-		 * @param WPBC_Frontend_Context|null $ctx
-		 */
-		$is_enabled = (bool) apply_filters( 'wpbc_frontend_is_bfb_enabled', $is_enabled, $ctx );
-
-		return $is_enabled;
-	}
-}
-
-
-/**
- * Resolver: decides BFB vs legacy vs simple and returns normalized loader args.
+ * Resolver: decides which BFB row to use and returns normalized loader args.
  *
  * @since 11.0.x
  */
@@ -117,10 +71,9 @@ class WPBC_FE_Form_Source_Resolver {
 	 *  - form_slug (string)  // from shortcode form_type
 	 *  - form_status (string) // published|preview
 	 *  - custom_params (array) // parsed from options parser
-	 *  - legacy_instance (wpdev_booking|null) // optional
 	 *
 	 * Output:
-	 *  - engine: 'bfb_db'|'legacy'|'simple'
+	 *  - engine: 'bfb_db'|'bfb_missing'
 	 *  - apply_after_load_filter: bool
 	 *  - bfb_loader_args: array
 	 *  - fallback_chain: array
@@ -137,8 +90,6 @@ class WPBC_FE_Form_Source_Resolver {
 		$form_slug_raw   = isset( $req['form_slug'] ) ? (string) $req['form_slug'] : '';
 		$form_status_raw = isset( $req['form_status'] ) ? (string) $req['form_status'] : '';
 		$custom_params   = ( isset( $req['custom_params'] ) && is_array( $req['custom_params'] ) ) ? $req['custom_params'] : array();
-
-		$legacy_instance = isset( $req['legacy_instance'] ) ? $req['legacy_instance'] : null;
 
 		// ---------------------------------------------------------------------
 		// Step A: determine slug + status (contract).
@@ -158,26 +109,19 @@ class WPBC_FE_Form_Source_Resolver {
 			$status = 'published';
 		}
 
-		// ---------------------------------------------------------------------
-		// If BFB is NOT enabled => legacy only (no DB touches).
-		// ---------------------------------------------------------------------
-		if ( ! class_exists( 'WPBC_Frontend_Settings' ) || ! WPBC_Frontend_Settings::is_bfb_enabled( null ) ) {
-			return self::fallback_to_legacy_or_simple( $legacy_instance );
-		}
-
-		// If BFB runtime is not present => legacy only.
+		// If BFB runtime is not present.
 		if ( ! class_exists( 'WPBC_BFB_Form_Loader' ) ) {
-			return self::fallback_to_legacy_or_simple( $legacy_instance );
+			return self::filter_resolution( self::missing_bfb_result( 'bfb_loader_missing' ), $req );
 		}
 
-		// If storage is not available => legacy only.
+		// If storage is not available.
 		if ( ! class_exists( 'WPBC_BFB_Form_Storage' ) || ! method_exists( 'WPBC_BFB_Form_Storage', 'get_form_row_by_key' ) ) {
-			return self::fallback_to_legacy_or_simple( $legacy_instance );
+			return self::filter_resolution( self::missing_bfb_result( 'bfb_storage_missing' ), $req );
 		}
 
-		// Optional: if table does not exist, skip DB.
+		// Optional: if table does not exist, return missing.
 		if ( function_exists( 'wpbc_is_table_exists' ) && ! wpbc_is_table_exists( 'booking_form_structures' ) ) {
-			return self::fallback_to_legacy_or_simple( $legacy_instance );
+			return self::filter_resolution( self::missing_bfb_result( 'bfb_table_missing' ), $req );
 		}
 
 		// ---------------------------------------------------------------------
@@ -222,7 +166,7 @@ class WPBC_FE_Form_Source_Resolver {
 
 
 		// If not found,  and user  is not super booking admin,  then find row for "SUPER BOOKING ADMIN".
-// INFO: block  this falback. 2026-03-05 20:25. Do not fallback  to  supr booking admin  user. Fallback  to  legacy  mode,  instead.
+// INFO: block this fallback. 2026-03-05 20:25. Do not fallback to super booking admin user.
 //		 if ( ! $found && ( $owner_user_id > 0 ) ) {
 //		 	$found = self::try_find_row( $form_slug, $status, 0, $fallback_chain );
 //		 }
@@ -260,17 +204,41 @@ class WPBC_FE_Form_Source_Resolver {
 				'fallback_chain'         => $fallback_chain,
 			);
 
-			/**
-			 * // Info: Hook for addons. Final override point (future scopes, preview rules, etc).
-			 *
-			 * @param array $result
-			 * @param array $req
-			 */
-			return (array) apply_filters( 'wpbc_fe_form_source_resolution', $result, $req );
+			return self::filter_resolution( $result, $req );
 		}
 
-		// Not found in DB => legacy fallback (existing behavior).
-		return self::fallback_to_legacy_or_simple( $legacy_instance );
+		return self::filter_resolution( self::missing_bfb_result( 'bfb_form_not_found', $fallback_chain ), $req );
+	}
+
+	/**
+	 * Apply the final source-resolution extension point to every outcome.
+	 *
+	 * Preview and other non-persistent sources may be authoritative even when a
+	 * matching database row does not exist. Applying the filter to both resolved
+	 * and missing results lets those sources participate without creating a
+	 * temporary Form Builder record.
+	 *
+	 * @param array $result Normalized resolver result.
+	 * @param array $req    Original normalized request context.
+	 *
+	 * @return array Filtered resolver result.
+	 */
+	private static function filter_resolution( $result, $req ) {
+
+		$result = is_array( $result ) ? $result : array();
+		$req    = is_array( $req ) ? $req : array();
+
+		/**
+		 * Filter the final booking-form source resolution.
+		 *
+		 * This hook runs for successful database resolutions and controlled missing
+		 * results so authenticated, non-persistent sources can provide a complete
+		 * replacement contract.
+		 *
+		 * @param array $result Normalized resolver result.
+		 * @param array $req    Source request context.
+		 */
+		return (array) apply_filters( 'wpbc_fe_form_source_resolution', $result, $req );
 	}
 
 	// ---------------------------------------------------------------------
@@ -314,28 +282,20 @@ class WPBC_FE_Form_Source_Resolver {
 	}
 
 	/**
-	 * Legacy/simple fallback result.
+	 * Controlled missing BFB result.
 	 *
-	 * @param mixed $legacy_instance
+	 * @param string $reason Missing reason.
+	 * @param array  $fallback_chain Resolution attempts.
 	 *
 	 * @return array
 	 */
-	private static function fallback_to_legacy_or_simple( $legacy_instance ) {
-
-		if ( ( ! empty( $legacy_instance ) ) && ( false !== $legacy_instance->wpdev_bk_personal ) && ( 'On' != get_bk_option( 'booking_is_use_simple_booking_form' ) ) ) {
-			return array(
-				'engine'                  => 'legacy',
-				'apply_after_load_filter' => false,
-				'bfb_loader_args'         => array(),
-				'fallback_chain'          => array(),
-			);
-		}
-
+	private static function missing_bfb_result( $reason, $fallback_chain = array() ) {
 		return array(
-			'engine'                  => 'simple',
-			'apply_after_load_filter' => true,
+			'engine'                  => 'bfb_missing',
+			'reason'                  => (string) $reason,
+			'apply_after_load_filter' => false,
 			'bfb_loader_args'         => array(),
-			'fallback_chain'          => array(),
+			'fallback_chain'          => is_array( $fallback_chain ) ? $fallback_chain : array(),
 		);
 	}
 }
@@ -439,8 +399,6 @@ class WPBC_BFB_Booking_Data_Content_Resolver {
 			'form_slug'       => $form_slug,
 			'form_status'     => $form_status, // <-- critical: use preview/published
 			'custom_params'   => $custom_params,
-			'legacy_instance' => null,
-
 			// Future-proof: let filters access the full preview context if they need it.
 			'ctx'             => $ctx,
 		);

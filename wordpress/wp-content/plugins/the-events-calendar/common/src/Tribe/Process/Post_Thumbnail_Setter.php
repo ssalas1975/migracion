@@ -84,6 +84,7 @@ class Tribe__Process__Post_Thumbnail_Setter extends Tribe__Process__Handler {
 	 * This method is an alias of the publicly accessible `sync_handle` one.
 	 *
 	 * @since 4.7.12
+	 * @since 6.12.0 Made $data_source explicitly nullable.
 	 *
 	 * @param array|null $data_source An optional source of data.
 	 *
@@ -91,14 +92,16 @@ class Tribe__Process__Post_Thumbnail_Setter extends Tribe__Process__Handler {
 	 *
 	 * @see   tribe_upload_image()
 	 */
-	protected function handle( array $data_source = null ) {
+	protected function handle( ?array $data_source = null ) {
 		$this->sync_handle( $data_source );
 	}
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @since 6.12.0 Made $data_source explicitly nullable.
 	 */
-	public function sync_handle( array $data_source = null ) {
+	public function sync_handle( ?array $data_source = null ) {
 		do_action( 'tribe_log', 'debug', $this->identifier, [ 'status' => 'handling request' ] );
 
 		$data_source = isset( $data_source ) ? $data_source : $_POST;
@@ -110,7 +113,7 @@ class Tribe__Process__Post_Thumbnail_Setter extends Tribe__Process__Handler {
 		}
 
 		$id             = filter_var( $data_source['post_id'], FILTER_SANITIZE_NUMBER_INT );
-		$post_thumbnail = filter_var( $data_source['post_thumbnail'], FILTER_SANITIZE_STRING );
+		$post_thumbnail = tec_sanitize_string( $data_source['post_thumbnail'] );
 
 		do_action( 'tribe_log', 'debug', $this->identifier, [
 			'status'         => 'fetching thumbnail',

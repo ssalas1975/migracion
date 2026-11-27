@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  *     @type int|string $booking_type         Booking resource ID.
  *     @type array      $current_edit_booking Parsed booking data for "edit booking" mode.
+	 *     @type array      $custom_params        Validated shortcode custom parameters.
  * }
  * @return string Parsed HTML of the booking form.
  */
@@ -39,6 +40,7 @@ function wpbc_render_booking_form_shortcodes( $form, $args = array(), $req = arr
 	$defaults = array(
 		'booking_type'         => 1,
 		'current_edit_booking' => array(),
+		'custom_params'        => array(),
 	);
 
 	$args = wp_parse_args( $args, $defaults );
@@ -67,6 +69,7 @@ function wpbc_render_booking_form_shortcodes( $form, $args = array(), $req = arr
 	// === Pass runtime context regarding,  booking editing ===
 	$engine->current_resource_id  = (string) $req['current_resource_id'];
 	$engine->current_edit_booking = isset( $req['current_edit_booking'] ) ? (array) $req['current_edit_booking'] : array();
+	$engine->custom_params        = isset( $args['custom_params'] ) && is_array( $args['custom_params'] ) ? $args['custom_params'] : array();
 
 	// Info: Hook for addons. Filter raw form content just before shortcode parsing.
 	$form = apply_filters( 'wpbc_booking_form_content__before_shortcodes', $form, $args );
@@ -111,17 +114,14 @@ function wpbc_render_booking_form_shortcodes( $form, $args = array(), $req = arr
 	$admin_uri = ltrim( str_replace( get_site_url( null, '', 'admin' ), '', admin_url( 'admin.php?' ) ), '/' );        // FixIn: 8.8.1.2.
 
 	$server_request_uri = ( ( isset( $_SERVER['REQUEST_URI'] ) ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+	$is_add_booking_admin_context = ( function_exists( 'wpbc_is_new_booking_page_url' ) && wpbc_is_new_booking_page_url( $server_request_uri ) );
 
-	if ( strpos( $server_request_uri, $admin_uri ) === false ) {            // Only in front-end side.
-		if ( false !== $req['current_edit_booking_id'] ) {
-			foreach ( $engine->current_edit_booking['dates'] as $b_date ) {
-				if ( wpbc_is_date_in_past( $b_date ) ) {
-					$html = '<div class="wpdevelop"><div class="alert alert-warning alert-danger">' .
-							__( 'The booked dates already in the past', 'booking' ) .
-							'</div></div>' .
-							'<script type="text/javascript">setTimeout( function(){ jQuery( ".hasDatepick" ).hide(); }, 500 );</script>';
-				}
-			}
+	if ( ( strpos( $server_request_uri, $admin_uri ) === false ) && ! $is_add_booking_admin_context ) {            // Only in front-end side.
+		if ( ( false !== $req['current_edit_booking_id'] ) && ! wpbc_is_visitor_booking_action_allowed( $req['current_edit_booking_id'] ) ) {
+			$html = '<div class="wpdevelop"><div class="alert alert-warning alert-danger">' .
+					__( 'The booked dates already in the past', 'booking' ) .
+					'</div></div>' .
+					'<script type="text/javascript">setTimeout( function(){ jQuery( ".hasDatepick" ).hide(); }, 500 );</script>';
 		}
 	}
 

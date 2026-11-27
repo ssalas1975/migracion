@@ -26,8 +26,9 @@ class Kadence_Page_Templater_Pinnacle {
 
                 add_filter('theme_page_templates', array( $this, 'register_project_templates_update') );
 
+                // Initialize template keys without translation (translation happens lazily)
                 $this->templates = array(
-                        'template-contact.php' => __('Contact', 'virtue-toolkit'),
+                        'template-contact.php' => 'Contact',
                 );
 				
         }
@@ -58,8 +59,12 @@ class Kadence_Page_Templater_Pinnacle {
         } 
         public function register_project_templates_update($templates ) {
                 if ( ! version_compare( $GLOBALS['wp_version'], '4.7', '<' ) ) {
-
-                    $templates = array_merge( $templates, $this->templates );
+                    // Translate template names when they're actually needed (after init)
+                    $translated_templates = array();
+                    foreach ( $this->templates as $key => $label ) {
+                        $translated_templates[ $key ] = __( $label, 'virtue-toolkit' );
+                    }
+                    $templates = array_merge( $templates, $translated_templates );
 
                 }
                 return $templates;
@@ -124,8 +129,9 @@ class Kadence_Page_Templater_Virtue {
 
                 add_filter('theme_page_templates', array( $this, 'register_project_templates_update') );
 
+                // Initialize template keys without translation (translation happens lazily)
                 $this->templates = array(
-                        'page-contact.php' => __('Contact', 'virtue-toolkit'),
+                        'page-contact.php' => 'Contact',
                 );
                                 
         }
@@ -156,8 +162,12 @@ class Kadence_Page_Templater_Virtue {
         } 
         public function register_project_templates_update($templates ) {
                 if ( ! version_compare( $GLOBALS['wp_version'], '4.7', '<' ) ) {
-
-                    $templates = array_merge( $templates, $this->templates );
+                    // Translate template names when they're actually needed (after init)
+                    $translated_templates = array();
+                    foreach ( $this->templates as $key => $label ) {
+                        $translated_templates[ $key ] = __( $label, 'virtue-toolkit' );
+                    }
+                    $templates = array_merge( $templates, $translated_templates );
 
                 }
                 return $templates;

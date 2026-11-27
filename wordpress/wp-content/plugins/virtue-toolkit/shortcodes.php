@@ -188,9 +188,10 @@ function virtue_toolkit_youtube_shortcode_function( $atts, $content) {
 		// Prepare player parameters
 		if(!empty($atts['vq']) ) {$params['vq'] = $atts['vq']; }
 		$params = http_build_query( $params );
-		if($atts['maxwidth']) {$maxwidth = 'style="max-width:'.esc_attr($atts['maxwidth']).'px;"';} else{ $maxwidth = '';}
+		$maxwidth = absint( $atts['maxwidth'] );
+		$style    = $maxwidth ? ' style="max-width:' . $maxwidth . 'px;"' : '';
 		// Create player
-		$return[] = '<div class="kad-youtube-shortcode videofit" '.$maxwidth.' >';
+		$return[] = '<div class="kad-youtube-shortcode videofit"' . $style . '>';
 		$return[] = '<iframe width="' . esc_attr($atts['width']) . '" height="' . esc_attr($atts['height']) . '" src="//www.youtube.com/embed/' . esc_attr($id) . '?' . esc_attr($params) . '" frameborder="0" allowfullscreen="true"></iframe>';
 		$return[] = '</div>';
 		// Return result
@@ -214,14 +215,11 @@ function virtue_toolkit_vimeo_shortcode_function( $atts, $content) {
 				return '<p class="error">Vimeo: ' . __( 'please specify correct url', 'virtue-toolkit' ) . '</p>';
 			}
 			$return = array();
-			if($atts['maxwidth']) {
-				$maxwidth = 'style="max-width:'.esc_attr($atts['maxwidth']).'px;"';
-			} else{ 
-				$maxwidth = '';
-			}
+			$maxwidth = absint( $atts['maxwidth'] );
+			$style    = $maxwidth ? ' style="max-width:' . $maxwidth . 'px;"' : '';
 			$autoplay = ( $atts['autoplay'] === 'yes' ) ? '&amp;autoplay=1' : '';
 			// Create player
-			$return[] = '<div class="kad-vimeo-shortcode  videofit '.$maxwidth.'">';
+			$return[] = '<div class="kad-vimeo-shortcode  videofit"' . $style . '>';
 			$return[] = '<iframe width="' . esc_attr($atts['width']) . '" height="' . esc_attr($atts['height']) .'" src="//player.vimeo.com/video/' . esc_attr($id) . '?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff' .esc_attr($autoplay) . '" frameborder="0" allowfullscreen="true"></iframe>';
 			$return[] = '</div>';
 
@@ -240,6 +238,11 @@ function virtue_toolkit_button_shortcode_function( $atts) {
 		'target' => '_self',
 		'tcolor' => '',
 ), $atts));
+	// Colors come from the button UI as hex values; keep only valid hex.
+	$bcolor      = (string) sanitize_hex_color( $bcolor );
+	$bhovercolor = (string) sanitize_hex_color( $bhovercolor );
+	$tcolor      = (string) sanitize_hex_color( $tcolor );
+	$thovercolor = (string) sanitize_hex_color( $thovercolor );
 	$output = '<a href="'.esc_url($link).'" class="btn button btn-shortcode kad-btn kad-btn-primary" id="kadbtn'.esc_attr($id).'" target="'.esc_attr($target).'" style="';
 	if(!empty($bcolor)) {
 		$output .= 'background-color:'.esc_attr($bcolor).';';

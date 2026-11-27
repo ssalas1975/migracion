@@ -9,6 +9,7 @@ namespace AmpProject\AmpWP\Admin;
 
 use AMP_Options_Manager;
 use AMP_Validated_URL_Post_Type;
+use AMP_Validation_Error_Taxonomy;
 use AMP_Validation_Manager;
 use AmpProject\AmpWP\DependencySupport;
 use AmpProject\AmpWP\DevTools\UserAccess;
@@ -65,9 +66,6 @@ class OptionsMenu implements Conditional, Service, Registerable {
 	/** @var LoadingError */
 	private $loading_error;
 
-	/** @var SiteHealth */
-	private $site_health;
-
 	/** @var DependencySupport */
 	private $dependency_support;
 
@@ -98,15 +96,13 @@ class OptionsMenu implements Conditional, Service, Registerable {
 	 * @param RESTPreloader     $rest_preloader An instance of the RESTPreloader class.
 	 * @param DependencySupport $dependency_support An instance of the DependencySupport class.
 	 * @param LoadingError      $loading_error An instance of the LoadingError class.
-	 * @param SiteHealth        $site_health An instance of the SiteHealth class.
 	 */
-	public function __construct( GoogleFonts $google_fonts, ReaderThemes $reader_themes, RESTPreloader $rest_preloader, DependencySupport $dependency_support, LoadingError $loading_error, SiteHealth $site_health ) {
+	public function __construct( GoogleFonts $google_fonts, ReaderThemes $reader_themes, RESTPreloader $rest_preloader, DependencySupport $dependency_support, LoadingError $loading_error ) {
 		$this->google_fonts       = $google_fonts;
 		$this->reader_themes      = $reader_themes;
 		$this->rest_preloader     = $rest_preloader;
 		$this->dependency_support = $dependency_support;
 		$this->loading_error      = $loading_error;
-		$this->site_health        = $site_health;
 	}
 
 	/**
@@ -186,6 +182,21 @@ class OptionsMenu implements Conditional, Service, Registerable {
 	}
 
 	/**
+	 * Gets analytics vendors list from data directory.
+	 */
+	public function get_analytics_vendors() {
+		$vendors_list_file = AMP__DIR__ . '/includes/ecosystem-data/analytics-vendors.php';
+
+		if ( ! file_exists( $vendors_list_file ) ) {
+			return []; // @codeCoverageIgnore
+		}
+
+		$vendors_list = require $vendors_list_file;
+
+		return $vendors_list;
+	}
+
+	/**
 	 * Enqueues settings page assets.
 	 *
 	 * @since 2.0
@@ -197,7 +208,11 @@ class OptionsMenu implements Conditional, Service, Registerable {
 			return;
 		}
 
-		/** This action is documented in includes/class-amp-theme-support.php */
+		/**
+		 * Fires before registering plugin assets that may require core asset polyfills.
+		 *
+		 * @internal
+		 */
 		do_action( 'amp_register_polyfills' );
 
 		$asset_file   = AMP__DIR__ . '/assets/js/' . self::ASSET_HANDLE . '.asset.php';
@@ -225,14 +240,23 @@ class OptionsMenu implements Conditional, Service, Registerable {
 
 		wp_styles()->add_data( self::ASSET_HANDLE, 'rtl', 'replace' );
 
-		$theme             = wp_get_theme();
-		$is_reader_theme   = $this->reader_themes->theme_data_exists( get_stylesheet() );
-		$page_cache_detail = $this->site_health->get_page_cache_detail( true );
+		$theme           = wp_get_theme();
+		$is_reader_theme = $this->reader_themes->theme_data_exists( get_stylesheet() );
 
 		$amp_validated_urls_link = admin_url(
 			add_query_arg(
 				[ 'post_type' => AMP_Validated_URL_Post_Type::POST_TYPE_SLUG ],
 				'edit.php'
+			)
+		);
+
+		$amp_error_index_link = admin_url(
+			add_query_arg(
+				[
+					'taxonomy'  => AMP_Validation_Error_Taxonomy::TAXONOMY_SLUG,
+					'post_type' => AMP_Validated_URL_Post_Type::POST_TYPE_SLUG,
+				],
+				'edit-tags.php'
 			)
 		);
 
@@ -260,7 +284,8 @@ class OptionsMenu implements Conditional, Service, Registerable {
 			'USERS_RESOURCE_REST_PATH'           => '/wp/v2/users',
 			'VALIDATE_NONCE'                     => AMP_Validation_Manager::has_cap() ? AMP_Validation_Manager::get_amp_validate_nonce() : '',
 			'VALIDATED_URLS_LINK'                => $amp_validated_urls_link,
-			'HAS_PAGE_CACHING'                   => ( is_array( $page_cache_detail ) && 'good' === $page_cache_detail['status'] ),
+			'ERROR_INDEX_LINK'                   => $amp_error_index_link,
+			'ANALYTICS_VENDORS_LIST'             => $this->get_analytics_vendors(),
 		];
 
 		wp_add_inline_script(
@@ -329,7 +354,7 @@ class OptionsMenu implements Conditional, Service, Registerable {
 			'/wp/v2/settings',
 			add_query_arg(
 				'_fields',
-				[ 'author', 'name', 'status', 'stylesheet', 'version' ],
+				[ 'author', 'name', 'status', 'stylesheet', 'template', 'version' ],
 				'/wp/v2/themes'
 			),
 			'/wp/v2/users/me',

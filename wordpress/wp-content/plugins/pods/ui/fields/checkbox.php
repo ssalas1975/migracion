@@ -1,11 +1,19 @@
 <?php
-$options['data'] = (array) pods_var_raw( 'data', $options, array(), null, true );
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
+$options['data'] = (array) pods_v( 'data', $options, [] );
 
 $data_count = count( $options['data'] );
 
 if ( 0 < $data_count ) {
 
-	if ( 1 == pods_var( 'grouped', $options, 0, null, true ) ) {
+	if ( 1 === (int) pods_v( 'grouped', $options ) ) {
 		?>
 		<div class="pods-pick-values pods-pick-checkbox">
 		<ul>
@@ -36,23 +44,23 @@ if ( 0 < $data_count ) {
 
 		$attributes['value'] = $val;
 
-		if ( 1 < $data_count && false === strpos( $primary_name, '[]' ) ) {
-			$name = $primary_name . '[' . ( $counter - 1 ) . ']';
+		if ( 1 < $data_count && false === strpos( (string) $primary_name, '[]' ) ) {
+			$name = (string) $primary_name . '[' . ( $counter - 1 ) . ']';
 		}
 
 		$attributes = PodsForm::merge_attributes( $attributes, $name, $form_field_type, $options );
 
-		$indent = '';
+		$indent_escaped = '';
 
 		$indent_count = substr_count( $label, '&nbsp;&nbsp;&nbsp;' );
 
 		if ( 0 < $indent_count ) {
 			$label = str_replace( '&nbsp;&nbsp;&nbsp;', '', $label );
 
-			$indent = ' style="margin-left:' . ( 18 * $indent_count ) . 'px;"';
+			$indent_escaped = ' style="margin-left:' . ( 18 * $indent_count ) . 'px;"';
 		}
 
-		if ( 1 < $data_count && false === strpos( $primary_name, '[]' ) ) {
+		if ( 1 < $data_count && false === strpos( (string) $primary_name, '[]' ) ) {
 			$attributes['class'] .= ' pods-dependent-multi';
 		}
 
@@ -60,7 +68,7 @@ if ( 0 < $data_count ) {
 			$attributes['class'] .= ' pods-form-ui-no-label';
 		}
 
-		if ( pods_var( 'readonly', $options, false ) ) {
+		if ( (bool) pods_v( 'readonly', $options, false ) ) {
 			$attributes['readonly'] = 'READONLY';
 			$attributes['disabled'] = 'DISABLED';
 
@@ -71,35 +79,35 @@ if ( 0 < $data_count ) {
 			$attributes['id'] = $primary_id . $counter;
 		}
 
-		if ( 1 == pods_var( 'grouped', $options, 0, null, true ) ) {
+		if ( 1 === (int) pods_v( 'grouped', $options ) ) {
 			?>
 			<li>
 			<?php
 		}
 		?>
-		<div class="pods-field pods-boolean"<?php echo $indent; ?>>
+		<div class="pods-field pods-boolean"<?php echo $indent_escaped; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<input<?php PodsForm::attributes( $attributes, $name, $form_field_type, $options ); ?> />
 			<?php
 			if ( isset( $attributes['readonly'] ) && isset( $attributes['checked'] ) && 'CHECKED' === $attributes['checked'] ) {
 				?>
-				<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $attributes['value'] ); ?>" />
+				<input type="hidden" name="<?php echo esc_attr( pods_js_name( $name ) ); ?>" value="<?php echo esc_attr( $attributes['value'] ); ?>" />
 				<?php
 			}
 
 			if ( 0 < strlen( $label ) ) {
-				$help = pods_var_raw( 'help', $options );
+				$help = pods_v( 'help', $options );
 
-				if ( 1 == pods_var( 'grouped', $options, 0, null, true ) || empty( $help ) ) {
+				if ( 1 === (int) pods_v( 'grouped', $options ) || empty( $help ) ) {
 					$help = '';
 				}
 
-				echo PodsForm::label( $attributes['id'], $label, $help );
+				PodsForm::output_label( $attributes['id'], $label, $help );
 			}
 			?>
 		</div>
 		<?php
 
-		if ( 1 == pods_var( 'grouped', $options, 0, null, true ) ) {
+		if ( 1 === (int) pods_v( 'grouped', $options ) ) {
 			?>
 			</li>
 			<?php
@@ -108,7 +116,7 @@ if ( 0 < $data_count ) {
 		$counter ++;
 	}//end foreach
 
-	if ( 1 == pods_var( 'grouped', $options, 0, null, true ) ) {
+	if ( 1 === (int) pods_v( 'grouped', $options ) ) {
 		?>
 		</ul>
 		</div>

@@ -1,3 +1,12 @@
+<?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+?>
 <style type="text/css">
 	ol.pods_form_widget_form {
 		list-style:   none;
@@ -12,7 +21,7 @@
 
 <ol class="pods_form_widget_form">
 	<li>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"> <?php _e( 'Title', 'pods' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title', 'pods' ); ?></label>
 
 		<input type="text" class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $title ); ?>" />
 	</li>
@@ -23,7 +32,7 @@
 		$all_pods = $api->load_pods( array( 'names' => true ) );
 		?>
 		<label for="<?php echo esc_attr( $this->get_field_id( 'pod_type' ) ); ?>">
-			<?php _e( 'Pod', 'pods' ); ?>
+			<?php esc_html_e( 'Pod', 'pods' ); ?>
 		</label>
 
 		<?php if ( 0 < count( $all_pods ) ) : ?>
@@ -35,30 +44,30 @@
 				<?php endforeach; ?>
 			</select>
 		<?php else : ?>
-			<strong class="red"><?php _e( 'None Found', 'pods' ); ?></strong>
+			<strong class="red"><?php esc_html_e( 'None Found', 'pods' ); ?></strong>
 		<?php endif; ?>
 	</li>
 
 	<li>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'slug' ) ); ?>"><?php _e( 'ID or Slug', 'pods' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'slug' ) ); ?>"><?php esc_html_e( 'ID or Slug', 'pods' ); ?></label>
 
-		<input class="widefat" type="text" name="<?php echo $this->get_field_name( 'slug' ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'slug' ) ); ?>" value="<?php echo esc_attr( $slug ); ?>" />
+		<input class="widefat" type="text" name="<?php echo esc_attr( $this->get_field_name( 'slug' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'slug' ) ); ?>" value="<?php echo esc_attr( $slug ); ?>" />
 	</li>
 
 	<li>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'fields' ) ); ?>"><?php _e( 'Fields (comma-separated)', 'pods' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'fields' ) ); ?>"><?php esc_html_e( 'Fields (comma-separated)', 'pods' ); ?></label>
 
 		<input class="widefat" type="text" name="<?php echo esc_attr( $this->get_field_name( 'fields' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'fields' ) ); ?>" value="<?php echo esc_attr( $fields ); ?>" />
 	</li>
 
 	<li>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'label' ) ); ?>"><?php _e( 'Submit Label', 'pods' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'label' ) ); ?>"><?php esc_html_e( 'Submit Label', 'pods' ); ?></label>
 
 		<input class="widefat" type="text" name="<?php echo esc_attr( $this->get_field_name( 'label' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'label' ) ); ?>" value="<?php echo esc_attr( $label ); ?>" />
 	</li>
 
 	<li>
-		<label for="<?php echo esc_attr( $this->get_field_id( 'thank_you' ) ); ?>"><?php _e( 'Thank You URL upon submission', 'pods' ); ?></label>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'thank_you' ) ); ?>"><?php esc_html_e( 'Thank You URL upon submission', 'pods' ); ?></label>
 
 		<input class="widefat" type="text" name="<?php echo esc_attr( $this->get_field_name( 'thank_you' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'thank_you' ) ); ?>" value="<?php echo esc_attr( $thank_you ); ?>" />
 	</li>

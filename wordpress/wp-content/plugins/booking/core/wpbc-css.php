@@ -73,18 +73,19 @@ class WPBC_CSS extends WPBC_JS_CSS {
             wp_enqueue_style( 'wpbc-br-table',              wpbc_plugin_url( '/core/any/css/admin-br-table.css' ),      array(), WP_BK_VERSION_NUM);
 			wp_enqueue_style( 'wpbc-flex-table',            wpbc_plugin_url( '/core/any/css/wpbc_flextable.css' ),      array(), WP_BK_VERSION_NUM);                   // Flex: Booking resources Table    // FixIn: 9.9.0.7.
             wp_enqueue_style( 'wpbc-admin-modal-popups',    wpbc_plugin_url( '/css/modal.css' ),                        array(), WP_BK_VERSION_NUM);
-            wp_enqueue_style( 'wpbc-admin-pages',           wpbc_plugin_url( '/css/admin.css' ),                        array(), WP_BK_VERSION_NUM);
+			wp_enqueue_style( 'wpbc-admin-pages',           wpbc_plugin_url( '/css/admin.css' ),                        array(), WP_BK_VERSION_NUM);
 			wp_enqueue_style( 'wpbc-admin-skin',            wpbc_plugin_url( '/css/admin-skin.css' ),                   array( 'wpbc-admin-pages' ), WP_BK_VERSION_NUM );  // FixIn: 8.0.2.4.
+			wp_enqueue_style( 'wpbc-admin-components',      wpbc_plugin_url( '/includes/_toolbar_ui/_out/wpbc_admin_components.css' ), array( 'wpbc-admin-skin' ), WP_BK_VERSION_NUM ); // Reusable components that must override legacy administration compatibility styles.
 
 			$wpbc_inline_css = '';
 			if ( wpbc_mu__is_simulated_login_as_user() ) {
 				// Mark last item in menu as a button.
-				$wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) a { font-weight: 600;background-color: #075c00;color: #fff;margin: 10px 10px 0;display: block;text-align: center;border-radius: 3px;transition: all .3s;box-shadow: none; } ';
-				$wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) { margin-top: 10px;border-top: 1px solid #535454; } ';
+				 $wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) a { background-color: #42464f; color: #fff; margin: 15px 5px 5px; display: block; text-align: center; border-radius: 3px; transition: all .3s; box-shadow: none; font-size: 0.9em; } ';
+				// $wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) { margin-top: 10px;border-top: 1px solid rgba(255, 255, 255, 0.18); } ';
 			} else {
 				// Horizontal Lines in Menu. // FixIn: 10.1.3.1.
-				$wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-child(4) a { border-top: 1px solid #535454;padding-top: 10px;margin-top: 6px; } ';
-				$wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) a { border-top: 1px solid #535454;padding-top: 10px;margin-top: 6px; } ';
+				// $wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-child(4) a { border-top: 1px solid rgba(255, 255, 255, 0.18);padding-top: 10px;margin-top: 6px; } ';
+				// $wpbc_inline_css .= ' #adminmenu #toplevel_page_wpbc .wp-submenu li:nth-last-child(1) a { border-top: 1px solid #535454;padding-top: 10px;margin-top: 6px; } ';
 			}
 			wp_add_inline_style( 'wpbc-admin-pages', $wpbc_inline_css );
 		}
@@ -92,11 +93,7 @@ class WPBC_CSS extends WPBC_JS_CSS {
 		$server_request_uri = ( ( isset( $_SERVER['REQUEST_URI'] ) ) ? sanitize_text_field( $_SERVER['REQUEST_URI'] ) : '' );  /* phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash */ /* FixIn: sanitize_unslash */
 		if (
 			( 'admin' !== $where_to_load ) ||
-			( wpbc_is_new_booking_page() ) ||
-			( function_exists( 'wpbc_is_add_booking_modal_on_booking_listing_page' ) && wpbc_is_add_booking_modal_on_booking_listing_page() ) ||
-			( wpbc_is_setup_wizard_page() ) ||
-			( wpbc_is_settings_form_page() ) ||
-			( wpbc_is_settings_color_themes_page() ) ||
+			( wpbc_is_admin_page_with_frontend_booking_preview() ) ||
 			( ( wpbc_is_settings_page() ) && ( strpos( $server_request_uri, 'tab=payment' ) !== false ) )
 		) {
 			wpbc_enqueue_styles__front_end();
@@ -116,7 +113,6 @@ class WPBC_CSS extends WPBC_JS_CSS {
 			wpbc_is_new_booking_page() ||
 			wpbc_is_setup_wizard_page() ||
 			wpbc_is_settings_form_page() ||
-			wpbc_is_settings_color_themes_page() ||
 			wpbc_is_resources_page() ||
 			wpbc_is_settings_page()
 		) {
@@ -153,7 +149,7 @@ class WPBC_CSS extends WPBC_JS_CSS {
 function wpbc_enqueue_styles__front_end() {
 
 	// Client or Add New Booking page.
-	if ( ( 'On' === get_bk_option( 'booking_timeslot_picker' ) ) || ( wpbc_is_setup_wizard_page() || wpbc_is_builder_booking_form_page() ) ) {                                                // FixIn: 8.7.11.10.
+	if ( ( 'On' === get_bk_option( 'booking_timeslot_picker' ) ) || wpbc_is_setup_wizard_page() || wpbc_is_builder_booking_form_page() || wpbc_is_settings_themes_page() ) {                                                // FixIn: 8.7.11.10.
 		wp_enqueue_style( 'wpbc-time_picker', wpbc_plugin_url( '/css/wpbc_time-selector.css' ), array(), WP_BK_VERSION_NUM );
 
 		$time_picker_skin_path = wpbc_get_time_picker_skin_url();
@@ -242,7 +238,7 @@ function wpbc_get_time_picker_skin_url() {
 
 	// Just  default value,  if previously  was not saved any options.
 	if ( empty( get_bk_option( 'booking_timeslot_picker_skin' ) ) ) {
-		update_bk_option( 'booking_timeslot_picker_skin', '/css/time_picker_skins/light__24_8.css' );                   // FixIn: 10.4.0.1.
+		update_bk_option( 'booking_timeslot_picker_skin', '/css/time_picker_skins/form_style.css' );                  // FixIn: 11.4.4.
 	}
 
 	// Check if this skin exist in the plugin  folder.

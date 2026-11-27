@@ -1,4 +1,10 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * @package Pods\Fields
  */
@@ -38,21 +44,12 @@ class PodsField_Website extends PodsField {
 	 * {@inheritdoc}
 	 */
 	public function options() {
-		$options = array(
-			static::$type . '_repeatable'  => array(
-				'label'             => __( 'Repeatable Field', 'pods' ),
-				'default'           => 0,
-				'type'              => 'boolean',
-				'help'              => __( 'Making a field repeatable will add controls next to the field which allows users to Add/Remove/Reorder additional values. These values are saved in the database as an array, so searching and filtering by them may require further adjustments".', 'pods' ),
-				'boolean_yes_label' => '',
-				'dependency'        => true,
-				'developer_mode'    => true,
-			),
-			static::$type . '_format'      => array(
-				'label'      => __( 'Format', 'pods' ),
-				'default'    => 'normal',
-				'type'       => 'pick',
-				'data'       => array(
+		$options = [
+			static::$type . '_format'      => [
+				'label'                 => __( 'Format', 'pods' ),
+				'default'               => 'normal',
+				'type'                  => 'pick',
+				'data'                  => [
 					'normal'            => __( 'https://example.com/', 'pods' ),
 					'no-www'            => __( 'https://example.com/ (remove www)', 'pods' ),
 					'force-www'         => __( 'https://www.example.com/ (force www if no sub-domain provided)', 'pods' ),
@@ -60,50 +57,58 @@ class PodsField_Website extends PodsField {
 					'no-http-no-www'    => __( 'example.com (force removal of www)', 'pods' ),
 					'no-http-force-www' => __( 'www.example.com (force www if no sub-domain provided)', 'pods' ),
 					'none'              => __( 'No format', 'pods' ),
-				),
+				],
+				'pick_format_single'    => 'dropdown',
 				'pick_show_select_text' => 0,
-				'dependency' => true,
-			),
-			static::$type . '_allow_port'  => array(
+				'dependency'            => true,
+			],
+			static::$type . '_allow_port'  => [
 				'label'      => __( 'Allow port in URL', 'pods' ),
 				'default'    => apply_filters( 'pods_form_ui_field_website_port', 0, static::$type ),
 				'type'       => 'boolean',
 				'dependency' => true,
-			),
-			static::$type . '_clickable'   => array(
+			],
+			static::$type . '_clickable'   => [
 				'label'      => __( 'Output as a link', 'pods' ),
 				'default'    => apply_filters( 'pods_form_ui_field_website_clickable', 0, static::$type ),
 				'type'       => 'boolean',
 				'dependency' => true,
-			),
-			static::$type . '_new_window'  => array(
+			],
+			static::$type . '_new_window'  => [
 				'label'      => __( 'Open link in new window', 'pods' ),
 				'default'    => apply_filters( 'pods_form_ui_field_website_new_window', 0, static::$type ),
 				'type'       => 'boolean',
-				'depends-on' => array( static::$type . '_clickable' => true ),
-			),
-			static::$type . '_max_length'  => array(
+				'depends-on' => [ static::$type . '_clickable' => true ],
+			],
+			static::$type . '_nofollow'    => [
+				'label'      => __( 'Make link "nofollow" to exclude from search engines', 'pods' ),
+				'default'    => apply_filters( 'pods_form_ui_field_website_nofollow', 0, static::$type ),
+				'type'       => 'boolean',
+				'depends-on' => [ static::$type . '_clickable' => true ],
+			],
+			static::$type . '_max_length'  => [
 				'label'   => __( 'Maximum Length', 'pods' ),
 				'default' => 255,
 				'type'    => 'number',
 				'help'    => __( 'Set to -1 for no limit', 'pods' ),
-			),
-			static::$type . '_html5'       => array(
+			],
+			static::$type . '_html5'       => [
 				'label'       => __( 'Enable HTML5 Input Field', 'pods' ),
 				'default'     => apply_filters( 'pods_form_ui_field_html5', 0, static::$type ),
 				'type'        => 'boolean',
-				'excludes-on' => array( static::$type . '_format' => array( 'no-http', 'no-http-no-www', 'no-http-force-www' ) ),
-			),
-			static::$type . '_placeholder' => array(
+				'excludes-on' => [ static::$type . '_format' => [ 'no-http', 'no-http-no-www', 'no-http-force-www' ] ],
+			],
+			static::$type . '_placeholder' => [
 				'label'   => __( 'HTML Placeholder', 'pods' ),
 				'default' => '',
 				'type'    => 'text',
-				'help'    => array(
+				'help'    => [
 					__( 'Placeholders can provide instructions or an example of the required data format for a field. Please note: It is not a replacement for labels or description text, and it is less accessible for people using screen readers.', 'pods' ),
 					'https://www.w3.org/WAI/tutorials/forms/instructions/#placeholder-text',
-				),
-			),
-		);
+				],
+			],
+		];
+
 		return $options;
 	}
 
@@ -129,13 +134,25 @@ class PodsField_Website extends PodsField {
 		// Ensure proper format
 		$value = $this->pre_save( $value, $id, $name, $options, null, $pod );
 
-		if ( 1 === (int) pods_v( static::$type . '_clickable', $options ) && 0 < strlen( $value ) ) {
+		if ( 1 === (int) pods_v( static::$type . '_clickable', $options ) && 0 < strlen( (string) $value ) ) {
 			$link = '<a href="%s"%s>%s</a>';
 
 			$atts = '';
+			$rel  = [];
+
+			if ( 1 === (int) pods_v( static::$type . '_nofollow', $options ) ) {
+				$rel[] = 'nofollow';
+			}
 
 			if ( 1 === (int) pods_v( static::$type . '_new_window', $options ) ) {
-				$atts .= ' target="_blank" rel="noopener noreferrer"';
+				$rel[] = 'noopener';
+				$rel[] = 'noreferrer';
+
+				$atts .= ' target="_blank"';
+			}
+
+			if ( ! empty( $rel ) ) {
+				$atts .= ' rel="' . esc_attr( implode( ' ', $rel ) ) . '"';
 			}
 
 			$value = sprintf( $link, esc_url( $value ), $atts, esc_html( $value ) );
@@ -151,23 +168,33 @@ class PodsField_Website extends PodsField {
 		$options         = ( is_array( $options ) || is_object( $options ) ) ? $options : (array) $options;
 		$form_field_type = PodsForm::$field_type;
 
+		$value = $this->normalize_value_for_input( $value, $options );
+
 		// Ensure proper format
-		$value = $this->pre_save( $value, $id, $name, $options, null, $pod );
+		if ( is_array( $value ) ) {
+			foreach ( $value as $k => $repeatable_value ) {
+				$value[ $k ] = $this->pre_save( $repeatable_value, $id, $name, $options, null, $pod );
+			}
+		} else {
+			$value = $this->pre_save( $value, $id, $name, $options, null, $pod );
+		}
 
 		$field_type = 'website';
 
 		if ( isset( $options['name'] ) && ! pods_permission( $options ) ) {
-			if ( pods_v( 'read_only', $options, false ) ) {
+			if ( pods_v_bool( 'read_only_restricted', $options ) ) {
 				$options['readonly'] = true;
 
 				$field_type = 'text';
 			} else {
 				return;
 			}
-		} elseif ( ! pods_has_permissions( $options ) && pods_v( 'read_only', $options, false ) ) {
-			$options['readonly'] = true;
+		} elseif ( ! pods_has_permissions( $options ) ) {
+			if ( pods_v_bool( 'read_only', $options ) ) {
+				$options['readonly'] = true;
 
-			$field_type = 'text';
+				$field_type = 'text';
+			}
 		}
 
 		if ( ! empty( $options['disable_dfv'] ) ) {
@@ -188,23 +215,25 @@ class PodsField_Website extends PodsField {
 	public function validate( $value, $name = null, $options = null, $fields = null, $pod = null, $id = null, $params = null ) {
 		$validate = parent::validate( $value, $name, $options, $fields, $pod, $id, $params );
 
-		$errors = array();
+		$errors = [];
 
 		if ( is_array( $validate ) ) {
 			$errors = $validate;
 		}
 
-		$label = strip_tags( pods_v( 'label', $options, ucwords( str_replace( '_', ' ', $name ) ) ) );
+		$label = wp_strip_all_tags( pods_v( 'label', $options, ucwords( str_replace( '_', ' ', $name ) ) ) );
 
 		$check = $this->pre_save( $value, $id, $name, $options, $fields, $pod, $params );
 
 		if ( is_array( $check ) ) {
 			$errors = $check;
 		} else {
-			if ( 0 < strlen( $value ) && '' === $check ) {
+			if ( 0 < strlen( (string) $value ) && '' === $check ) {
 				if ( $this->is_required( $options ) ) {
+					// translators: %s is the field label.
 					$errors[] = sprintf( __( 'The %s field is required.', 'pods' ), $label );
 				} else {
+					// translators: %s is the field label.
 					$errors[] = sprintf( __( 'Invalid website provided for the field %s.', 'pods' ), $label );
 				}
 			}
@@ -223,12 +252,14 @@ class PodsField_Website extends PodsField {
 	public function pre_save( $value, $id = null, $name = null, $options = null, $fields = null, $pod = null, $params = null ) {
 		$options = ( is_array( $options ) || is_object( $options ) ) ? $options : (array) $options;
 
-		// Update from a array input field (like link) if the field updates
+		// Update from an array input field (like link) if the field updates
 		if ( is_array( $value ) ) {
 			if ( isset( $value['url'] ) ) {
 				$value = $value['url'];
 			} else {
-				$value = implode( ' ', $value );
+				$value = $this->normalize_value_for_input( $value, $options );
+
+				// @todo Eventually rework this further.
 			}
 		}
 
@@ -274,7 +305,7 @@ class PodsField_Website extends PodsField {
 			}
 		}
 
-		if ( false === strpos( $value, '://' ) && 0 !== strpos( $value, '//' ) ) {
+		if ( false === strpos( (string) $value, '://' ) && 0 !== strpos( (string) $value, '//' ) ) {
 			$value = 'http://' . $value;
 		}
 
@@ -283,27 +314,27 @@ class PodsField_Website extends PodsField {
 		if ( empty( $url ) || count( $url ) < 2 ) {
 			$value = '';
 		} else {
-			$defaults = array(
+			$defaults = [
 				'scheme'   => 'http',
 				'host'     => '',
 				'port'     => '',
 				'path'     => '/',
 				'query'    => '',
 				'fragment' => '',
-			);
+			];
 
 			$url = array_merge( $defaults, $url );
 
 			if ( 'normal' === pods_v( static::$type . '_format', $options ) ) {
 				$value = $this->build_url( $url, $options );
 			} elseif ( 'no-www' === pods_v( static::$type . '_format', $options ) ) {
-				if ( 0 === strpos( $url['host'], 'www.' ) ) {
-					$url['host'] = substr( $url['host'], 4 );
+				if ( 0 === strpos( (string) $url['host'], 'www.' ) ) {
+					$url['host'] = substr( (string) $url['host'], 4 );
 				}
 
 				$value = $this->build_url( $url, $options );
 			} elseif ( 'force-www' === pods_v( static::$type . '_format', $options ) ) {
-				if ( false !== strpos( $url['host'], '.' ) && false === strpos( $url['host'], 'www', 0 ) ) {
+				if ( false !== strpos( (string) $url['host'], '.' ) && false === strpos( (string) $url['host'], 'www', 0 ) ) {
 					$url['host'] = 'www.' . $url['host'];
 				}
 
@@ -316,8 +347,8 @@ class PodsField_Website extends PodsField {
 					$value = trim( $value, '/' );
 				}
 			} elseif ( 'no-http-no-www' === pods_v( static::$type . '_format', $options ) ) {
-				if ( 0 === strpos( $url['host'], 'www.' ) ) {
-					$url['host'] = substr( $url['host'], 4 );
+				if ( 0 === strpos( (string) $url['host'], 'www.' ) ) {
+					$url['host'] = substr( (string) $url['host'], 4 );
 				}
 
 				$value = $this->build_url( $url, $options );
@@ -327,7 +358,7 @@ class PodsField_Website extends PodsField {
 					$value = trim( $value, '/' );
 				}
 			} elseif ( 'no-http-force-www' === pods_v( static::$type . '_format', $options ) ) {
-				if ( false !== strpos( $url['host'], '.' ) && false === strpos( $url['host'], 'www', 0 ) ) {
+				if ( false !== strpos( (string) $url['host'], '.' ) && false === strpos( (string) $url['host'], 'www', 0 ) ) {
 					$url['host'] = 'www.' . $url['host'];
 				}
 
@@ -358,6 +389,7 @@ class PodsField_Website extends PodsField {
 		} else {
 			$value = '';
 		}
+
 		return $value;
 	}
 
@@ -369,7 +401,7 @@ class PodsField_Website extends PodsField {
 	 *
 	 * @return string
 	 */
-	public function build_url( $url, $options = array() ) {
+	public function build_url( $url, $options = [] ) {
 
 		$url = (array) $url;
 
@@ -384,18 +416,18 @@ class PodsField_Website extends PodsField {
 			return http_build_url( $url );
 		}
 
-		$defaults = array(
+		$defaults = [
 			'scheme'   => 'http',
 			'host'     => '',
 			'port'     => '',
 			'path'     => '/',
 			'query'    => '',
 			'fragment' => '',
-		);
+		];
 
 		$url = array_merge( $defaults, $url );
 
-		$new_url = array();
+		$new_url = [];
 
 		$new_url[] = trim( $url['scheme'] . '://', ':' );
 		$new_url[] = $url['host'];
@@ -406,12 +438,20 @@ class PodsField_Website extends PodsField {
 
 		$new_url[] = '/' . ltrim( $url['path'], '/' );
 
-		if ( ! empty( $url['query'] ) ) {
-			$new_url[] = '?' . ltrim( $url['query'], '?' );
+		if ( isset( $url['query'] ) ) {
+			$query = ltrim( $url['query'], '?' );
+
+			if ( ! empty( $query ) ) {
+				$new_url[] = '?' . $query;
+			}
 		}
 
-		if ( ! empty( $url['fragment'] ) ) {
-			$new_url[] = '#' . ltrim( $url['fragment'], '#' );
+		if ( isset( $url['fragment'] ) ) {
+			$fragment = ltrim( $url['fragment'], '#' );
+
+			if ( ! empty( $fragment ) ) {
+				$new_url[] = '#' . $fragment;
+			}
 		}
 
 		// Pull all of the parts back together

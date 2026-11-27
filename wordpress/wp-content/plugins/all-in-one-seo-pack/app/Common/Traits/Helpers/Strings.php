@@ -53,9 +53,9 @@ trait Strings {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  string $string     The string to convert.
-	 * @param  bool   $capitalize Whether or not to capitalize the first letter.
-	 * @return string             The converted string.
+	 * @param  string $string                   The string to convert.
+	 * @param  bool   $capitalizeFirstCharacter Whether to capitalize the first letter.
+	 * @return string                           The converted string.
 	 */
 	public function dashesToCamelCase( $string, $capitalizeFirstCharacter = false ) {
 		$string = str_replace( ' ', '', ucwords( str_replace( '-', ' ', $string ) ) );
@@ -74,7 +74,7 @@ trait Strings {
 	 * @param  string  $string             The string.
 	 * @param  int     $maxCharacters      The max. amount of characters.
 	 * @param  boolean $shouldHaveEllipsis Whether the string should have a trailing ellipsis (defaults to true).
-	 * @return string  $string             The string.
+	 * @return string                      The string.
 	 */
 	public function truncate( $string, $maxCharacters, $shouldHaveEllipsis = true ) {
 		$length       = strlen( $string );
@@ -84,7 +84,7 @@ trait Strings {
 			if ( 65535 < $length ) {
 				$string = substr( $string, 0, 65534 );
 			}
-			$string = preg_replace( "#[^\pZ\pP]*.{{$excessLength}}$#", '', $string );
+			$string = preg_replace( "#[^\pZ\pP]*.{{$excessLength}}$#", '', (string) $string );
 			if ( $shouldHaveEllipsis ) {
 				$string = $string . ' ...';
 			}
@@ -107,7 +107,7 @@ trait Strings {
 		if ( isset( $escapeRegex[ $string ] ) ) {
 			return $escapeRegex[ $string ];
 		}
-		$escapeRegex[ $string ] = preg_quote( $string, $delimiter );
+		$escapeRegex[ $string ] = preg_quote( (string) $string, $delimiter );
 
 		return $escapeRegex[ $string ];
 	}
@@ -142,6 +142,10 @@ trait Strings {
 	 * @return string              The subject with matches replaced.
 	 */
 	public function pregReplace( $pattern, $replacement, $subject ) {
+		if ( ! $subject ) {
+			return $subject;
+		}
+
 		$key = $pattern . $replacement . $subject;
 
 		static $pregReplace = [];
@@ -155,7 +159,7 @@ trait Strings {
 		// The caveat is that we'd need to first trim off slash delimiters and add them back later - otherwise they'd be escaped as well.
 
 		$replacement         = $this->escapeRegexReplacement( $replacement );
-		$pregReplace[ $key ] = preg_replace( $pattern, $replacement, $subject );
+		$pregReplace[ $key ] = preg_replace( $pattern, $replacement, (string) $subject );
 
 		return $pregReplace[ $key ];
 	}
@@ -173,7 +177,7 @@ trait Strings {
 		if ( isset( $lowerCased[ $string ] ) ) {
 			return $lowerCased[ $string ];
 		}
-		$lowerCased[ $string ] = function_exists( 'mb_strtolower' ) ? mb_strtolower( $string, get_option( 'blog_charset' ) ) : strtolower( $string );
+		$lowerCased[ $string ] = function_exists( 'mb_strtolower' ) ? mb_strtolower( $string, $this->getCharset() ) : strtolower( $string );
 
 		return $lowerCased[ $string ];
 	}
@@ -196,7 +200,7 @@ trait Strings {
 			return $stringIndex[ $key ];
 		}
 
-		$stringIndex[ $key ] = function_exists( 'mb_strpos' ) ? mb_strpos( $stack, $needle, $offset, get_option( 'blog_charset' ) ) : strpos( $stack, $needle, $offset );
+		$stringIndex[ $key ] = function_exists( 'mb_strpos' ) ? mb_strpos( $stack, $needle, $offset, $this->getCharset() ) : strpos( $stack, $needle, $offset );
 
 		return $stringIndex[ $key ];
 	}
@@ -229,8 +233,8 @@ trait Strings {
 	 *
 	 * @since 4.1.2
 	 *
-	 * @param  string $string The string to check.
-	 * @return bool           True if it is JSON or false if not.
+	 * @param  mixed $string The string to check.
+	 * @return bool          True if it is JSON or false if not.
 	 */
 	public function isJsonString( $string ) {
 		if ( ! is_string( $string ) ) {
@@ -247,14 +251,26 @@ trait Strings {
 	 * Strips punctuation from a given string.
 	 *
 	 * @since 4.0.0
+	 * @version 4.7.9 Added the $keepSpaces parameter.
 	 *
-	 * @param  string $string The string.
-	 * @return string         The string without punctuation.
+	 * @param  string $string           The string.
+	 * @param  array  $charactersToKeep The characters that can't be stripped (optional).
+	 * @param  bool   $keepSpaces       Whether to keep spaces.
+	 * @return string                   The string without punctuation.
 	 */
-	public function stripPunctuation( $string ) {
-		$string = preg_replace( '#\p{P}#u', '', $string );
+	public function stripPunctuation( $string, $charactersToKeep = [], $keepSpaces = false ) {
+		$characterRegexPattern = '';
+		if ( ! empty( $charactersToKeep ) ) {
+			$characterString       = implode( '', $charactersToKeep );
+			$characterRegexPattern = "(?![$characterString])";
+		}
+
+		$string = aioseo()->helpers->decodeHtmlEntities( (string) $string );
+		$string = preg_replace( "/{$characterRegexPattern}[\p{P}\d+]/u", '', $string );
+		$string = aioseo()->helpers->encodeOutputHtml( $string );
+
 		// Trim both internal and external whitespace.
-		return preg_replace( '/\s\s+/u', ' ', trim( $string ) );
+		return $keepSpaces ? $string : preg_replace( '/\s\s+/u', ' ', trim( $string ) );
 	}
 
 	/**
@@ -266,18 +282,52 @@ trait Strings {
 	 * @return string         The encoded string.
 	 */
 	public function encodeOutputHtml( $string ) {
-		return htmlspecialchars( $string, ENT_COMPAT | ENT_HTML401, get_option( 'blog_charset' ), false );
+		if ( ! is_string( $string ) ) {
+			return '';
+		}
+
+		return htmlspecialchars( $string, ENT_COMPAT | ENT_HTML401, $this->getCharset(), false );
+	}
+
+	/**
+	 * Lowercases a registered post type/taxonomy label so it reads naturally inside a sentence.
+	 *
+	 * Labels are registered in title case ("Category", "Product categories"), which reads wrong
+	 * mid-sentence: "Your Category is 49 words long".
+	 *
+	 * NOTE: Applied in every locale. Languages that capitalize all nouns (German, for one) get a
+	 * lowercased noun here; the surrounding strings are translatable, so a translator can phrase
+	 * around it.
+	 *
+	 * @since 5.0.1
+	 *
+	 * @param  string $label The registered label.
+	 * @return string        The label, lowercased.
+	 */
+	public function lowercaseLabel( $label ) {
+		if ( ! is_string( $label ) || '' === $label ) {
+			return '';
+		}
+
+		return function_exists( 'mb_strtolower' )
+			? mb_strtolower( $label, $this->getCharset() )
+			: strtolower( $label );
 	}
 
 	/**
 	 * Returns the string after all HTML entities have been decoded.
 	 *
-	 * @since 4.0.0
+	 * @since   4.0.0
+	 * @version 4.9.10 Coerce non-string input to an empty string before using it as the static cache key (PHP 8.5 deprecates null offsets).
 	 *
 	 * @param  string $string The string to decode.
 	 * @return string         The decoded string.
 	 */
 	public function decodeHtmlEntities( $string ) {
+		if ( ! is_string( $string ) ) {
+			return '';
+		}
+
 		static $decodeHtmlEntities = [];
 		if ( isset( $decodeHtmlEntities[ $string ] ) ) {
 			return $decodeHtmlEntities[ $string ];
@@ -285,9 +335,35 @@ trait Strings {
 
 		// We must manually decode non-breaking spaces since html_entity_decode doesn't do this.
 		$string                        = $this->pregReplace( '/&nbsp;/', ' ', $string );
-		$decodeHtmlEntities[ $string ] = html_entity_decode( (string) $string, ENT_QUOTES );
+		$decodeHtmlEntities[ $string ] = html_entity_decode( $string, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 
 		return $decodeHtmlEntities[ $string ];
+	}
+
+	/**
+	 * Recursively decode HTML entities until no more decoding is possible.
+	 *
+	 * @since 4.8.7
+	 *
+	 * @param  string $string        The string to decode.
+	 * @param  int    $maxIterations The maximum number of iterations.
+	 * @return string                The decoded string.
+	 */
+	public function decodeHtmlEntitiesRecursive( $string, $maxIterations = 10 ) {
+		if ( ! is_string( $string ) ) {
+			return '';
+		}
+
+		$decodedValue = $string;
+		$iterations   = 0;
+		do {
+			$previousValue = $decodedValue;
+			$decodedValue  = $this->decodeHtmlEntities( $decodedValue );
+
+			$iterations++;
+		} while ( $previousValue !== $decodedValue && $iterations < $maxIterations );
+
+		return $decodedValue;
 	}
 
 	/**
@@ -335,20 +411,147 @@ trait Strings {
 	/**
 	 * Returns the given JSON formatted data tags as a comma separated list with their values instead.
 	 *
-	 * @since 4.1.0
+	 * @since   4.1.0
+	 * @version 4.9.8 Tolerate scalar tags and invalid JSON instead of throwing a TypeError.
+	 * @version 5.0.2 Delegates the tag walk to {@see jsonTagsToList()}.
 	 *
-	 * @param  string $tags The JSON formatted data tags.
-	 * @return string       The comma separated values.
+	 * @param  string|array $tags The Array or JSON formatted data tags.
+	 * @return string             The comma separated values.
 	 */
 	public function jsonTagsToCommaSeparatedList( $tags ) {
-		$tags = json_decode( $tags );
+		if ( is_string( $tags ) ) {
+			$decoded = json_decode( $tags );
 
-		$values = [];
-		foreach ( $tags as $k => $tag ) {
-			$values[ $k ] = $tag->value;
+			// If the string isn't valid JSON, it's likely already a plain (comma separated) list.
+			if ( null === $decoded && 'null' !== strtolower( trim( $tags ) ) ) {
+				return $tags;
+			}
+
+			$tags = $decoded;
 		}
 
-		return implode( ',', $values );
+		return implode( ',', $this->jsonTagsToList( $tags ) );
+	}
+
+	/**
+	 * Returns the values of the given JSON formatted data tags as a list.
+	 *
+	 * NOTE: Tolerates scalar tags and tags without a value, which imports and direct writes produce.
+	 *
+	 * @since 5.0.2
+	 *
+	 * @param  string|array $tags The Array or JSON formatted data tags.
+	 * @return string[]           The tag values.
+	 */
+	public function jsonTagsToList( $tags ) {
+		if ( is_string( $tags ) ) {
+			$tags = json_decode( $tags );
+		}
+
+		$values = [];
+		foreach ( (array) $tags as $k => $tag ) {
+			if ( is_object( $tag ) ) {
+				$values[ $k ] = $tag->value ?? '';
+			} elseif ( is_array( $tag ) ) {
+				$values[ $k ] = $tag['value'] ?? '';
+			} else {
+				// Plain scalar tags (e.g. a JSON array of strings) are used as-is.
+				$values[ $k ] = (string) $tag;
+			}
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Returns the given comma separated list as JSON formatted data tags.
+	 *
+	 * NOTE: Blank entries are dropped so a trailing separator doesn't yield an empty tag.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @param  string $list The comma separated values.
+	 * @return string       The JSON formatted data tags.
+	 */
+	public function commaSeparatedListToJsonTags( $list ) {
+		$tags = [];
+		foreach ( explode( ',', (string) $list ) as $value ) {
+			// Sanitized before the check, so a value that sanitizes away doesn't become a blank tag.
+			$value = trim( sanitize_text_field( $value ) );
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$tags[] = [
+				'label' => $value,
+				'value' => $value
+			];
+		}
+
+		return (string) wp_json_encode( $tags );
+	}
+
+	/**
+	 * Returns the given keyword objects as a list of their words, one per line.
+	 *
+	 * NOTE: The additional keywords column holds `{ word, score }` entries, not `{ label, value }`.
+	 * A keyphrase can contain a comma but never a line break, so a line is the only safe separator.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @param  string|array $keywords The Array or JSON formatted keywords.
+	 * @return string                 The words, one per line.
+	 */
+	public function jsonKeywordsToLineSeparatedList( $keywords ) {
+		if ( is_string( $keywords ) ) {
+			$keywords = json_decode( $keywords );
+		}
+
+		$words = [];
+		foreach ( (array) $keywords as $keyword ) {
+			$word = '';
+			if ( is_object( $keyword ) ) {
+				$word = $keyword->word ?? '';
+			} elseif ( is_array( $keyword ) ) {
+				$word = $keyword['word'] ?? '';
+			} elseif ( is_scalar( $keyword ) ) {
+				$word = (string) $keyword;
+			}
+
+			$word = trim( (string) $word );
+			if ( '' !== $word ) {
+				$words[] = $word;
+			}
+		}
+
+		return implode( "\n", $words );
+	}
+
+	/**
+	 * Returns the given list of words, one per line, as JSON formatted keyword objects.
+	 *
+	 * NOTE: Scores start at 0 - the words are new, so nothing has analyzed them yet.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @param  string $list The words, one per line.
+	 * @return string       The JSON formatted keywords.
+	 */
+	public function lineSeparatedListToJsonKeywords( $list ) {
+		$keywords = [];
+		foreach ( (array) preg_split( '/\R/', (string) $list ) as $word ) {
+			$word = trim( sanitize_text_field( $word ) );
+			if ( '' === $word ) {
+				continue;
+			}
+
+			$keywords[] = [
+				'word'  => $word,
+				'score' => 0
+			];
+		}
+
+		return (string) wp_json_encode( $keywords );
 	}
 
 	/**
@@ -365,7 +568,7 @@ trait Strings {
 			return $stringLength[ $string ];
 		}
 
-		$stringLength[ $string ] = function_exists( 'mb_strlen' ) ? mb_strlen( $string, get_option( 'blog_charset' ) ) : strlen( $string );
+		$stringLength[ $string ] = function_exists( 'mb_strlen' ) ? mb_strlen( $string, $this->getCharset() ) : strlen( $string );
 
 		return $stringLength[ $string ];
 	}
@@ -446,5 +649,238 @@ trait Strings {
 	 */
 	public function implodePlaceholders( $array, $placeholder = '%s' ) {
 		return implode( ', ', array_fill( 0, count( $array ), $placeholder ) );
+	}
+
+	/**
+	 * Verifies that a string is indeed a valid regular expression.
+	 *
+	 * @since 4.2.1
+	 *
+	 * @return boolean True if the string is a valid regular expression.
+	 */
+	public function isValidRegex( $pattern ) {
+		// Set a custom error handler to prevent throwing errors on a bad Regular Expression.
+		set_error_handler( function() {}, E_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+
+		$isValid = true;
+
+		if ( false === preg_match( $pattern, '' ) ) {
+			$isValid = false;
+		}
+
+		// Restore the error handler.
+		restore_error_handler();
+
+		return $isValid;
+	}
+
+	/**
+	 * Removes the leading slash(es) from a string.
+	 *
+	 * @since 4.2.3
+	 *
+	 * @param  string $string The string.
+	 * @return string         The modified string.
+	 */
+	public function unleadingSlashIt( $string ) {
+		return ltrim( $string, '/' );
+	}
+
+	/**
+	 * Convert the case of the given string.
+	 *
+	 * @since 4.2.4
+	 *
+	 * @param  string $string The string.
+	 * @param  string $type   The casing ("lower", "title", "sentence").
+	 * @return string         The converted string.
+	 */
+	public function convertCase( $string, $type ) {
+		switch ( $type ) {
+			case 'lower':
+				return strtolower( $string );
+			case 'title':
+				return $this->toTitleCase( $string );
+			case 'sentence':
+				return $this->toSentenceCase( $string );
+			default:
+				return $string;
+		}
+	}
+
+	/**
+	 * Converts the given string to title case.
+	 *
+	 * @since 4.2.4
+	 *
+	 * @param  string $string The string.
+	 * @return string         The converted string.
+	 */
+	public function toTitleCase( $string ) {
+		// List of common English words that aren't typically modified.
+		$exceptions = apply_filters( 'aioseo_title_case_exceptions', [
+			'of',
+			'a',
+			'the',
+			'and',
+			'an',
+			'or',
+			'nor',
+			'but',
+			'is',
+			'if',
+			'then',
+			'else',
+			'when',
+			'at',
+			'from',
+			'by',
+			'on',
+			'off',
+			'for',
+			'in',
+			'out',
+			'over',
+			'to',
+			'into',
+			'with'
+		] );
+
+		$words = explode( ' ', strtolower( $string ) );
+
+		foreach ( $words as $k => $word ) {
+			if ( ! in_array( $word, $exceptions, true ) ) {
+				$words[ $k ] = ucfirst( $word );
+			}
+		}
+
+		$string = implode( ' ', $words );
+
+		return $string;
+	}
+
+	/**
+	 * Converts the given string to sentence case.
+	 *
+	 * @since 4.2.4
+	 *
+	 * @param  string $string The string.
+	 * @return string         The converted string.
+	 */
+	public function toSentenceCase( $string ) {
+		$phrases = preg_split( '/([.?!]+)/', (string) $string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
+
+		$convertedString = '';
+		foreach ( $phrases as $index => $sentence ) {
+			$convertedString .= ( $index & 1 ) === 0 ? ucfirst( strtolower( trim( $sentence ) ) ) : $sentence . ' ';
+		}
+
+		return trim( $convertedString );
+	}
+
+	/**
+	 * Returns the substring with a given start index and length.
+	 *
+	 * @since 4.2.5
+	 *
+	 * @param  string $string     The string.
+	 * @param  int    $startIndex The start index.
+	 * @param  int    $length     The length.
+	 * @return string             The substring.
+	 */
+	public function substring( $string, $startIndex, $length ) {
+		return function_exists( 'mb_substr' ) ? mb_substr( $string, $startIndex, $length, $this->getCharset() ) : substr( $string, $startIndex, $length );
+	}
+
+	/**
+	 * Strips emoji characters from a given string.
+	 *
+	 * @since 4.7.3
+	 *
+	 * @param  string $string The string.
+	 * @return string         The string without emoji characters.
+	 */
+	public function stripEmoji( $string ) {
+		// First, decode HTML entities to convert them to actual Unicode characters.
+		$string = $this->decodeHtmlEntities( $string );
+
+		// Pattern to match emoji characters.
+		$emojiPattern = '/[\x{1F600}-\x{1F64F}' . // Emoticons
+						'\x{1F300}-\x{1F5FF}' . // Misc Symbols and Pictographs
+						'\x{1F680}-\x{1F6FF}' . // Transport and Map Symbols
+						'\x{1F1E0}-\x{1F1FF}' . // Flags (iOS)
+						'\x{2600}-\x{26FF}' . // Misc symbols
+						'\x{2700}-\x{27BF}' . // Dingbats
+						'\x{FE00}-\x{FE0F}' . // Variation Selectors
+						'\x{1F900}-\x{1F9FF}' . // Supplemental Symbols and Pictographs
+						']/u';
+
+		$filteredString = preg_replace( $emojiPattern, '', (string) $string );
+
+		// Re-encode special characters to HTML entities.
+		return $this->encodeOutputHtml( $filteredString );
+	}
+
+	/**
+	 * Creates a sha1 hash from the given arguments.
+	 *
+	 * @since 4.7.8
+	 *
+	 * @param  mixed  ...$args The arguments to create a sha1 hash from.
+	 * @return string          The sha1 hash.
+	 */
+	public function createHash( ...$args ) {
+		return sha1( wp_json_encode( $args ) );
+	}
+
+	/**
+	 * Extracts URLs from a given string.
+	 *
+	 * @since 4.8.1
+	 *
+	 * @param  string $string The string.
+	 * @return array          The extracted URLs.
+	 */
+	public function extractUrls( $string ) {
+		$urls = wp_extract_urls( $string );
+
+		if ( empty( $urls ) ) {
+			return [];
+		}
+
+		$allUrls = [];
+
+		// Attempt to split multiple URLs. Elementor does not always separate them properly.
+		foreach ( $urls as $url ) {
+			$splitUrls = preg_split( '/(?=https?:\/\/)/', $url, - 1, PREG_SPLIT_NO_EMPTY );
+			$allUrls   = array_merge( $allUrls, $splitUrls );
+		}
+
+		return $allUrls;
+	}
+
+	/**
+	 * Determines if a text string contains an emoji or not.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @param  string $string The text string to detect emoji in.
+	 * @return bool
+	 */
+	public function hasEmojis( $string ) {
+		$emojisRegexPattern = '/[\x{1F600}-\x{1F64F}' . // Emoticons
+							'\x{1F300}-\x{1F5FF}' . // Misc Symbols and Pictographs
+							'\x{1F680}-\x{1F6FF}' . // Transport and Map Symbols
+							'\x{1F1E0}-\x{1F1FF}' . // Flags (iOS)
+							'\x{2600}-\x{26FF}' . // Misc symbols
+							'\x{2700}-\x{27BF}' . // Dingbats
+							'\x{FE00}-\x{FE0F}' . // Variation Selectors
+							'\x{1F900}-\x{1F9FF}' . // Supplemental Symbols and Pictographs
+							'\x{1F018}-\x{1F270}' . // Various Asian characters
+							'\x{238C}-\x{2454}' . // Misc items
+							'\x{20D0}-\x{20FF}' . // Combining Diacritical Marks for Symbols
+							']/u';
+
+		return preg_match( $emojisRegexPattern, $string );
 	}
 }

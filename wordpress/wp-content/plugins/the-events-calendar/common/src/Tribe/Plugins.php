@@ -39,7 +39,7 @@ if ( ! class_exists( 'Tribe__Plugins' ) ) {
 				'thickbox_url' => 'https://theeventscalendar.com/product/wordpress-events-calendar-pro/?TB_iframe=true',
 			],
 			[
-				'short_name'   => 'Community Events',
+				'short_name'   => 'Community',
 				'class'        => 'Tribe__Events__Community__Main',
 				'thickbox_url' => 'https://theeventscalendar.com/product/wordpress-community-events/?TB_iframe=true',
 			],
@@ -52,16 +52,6 @@ if ( ! class_exists( 'Tribe__Plugins' ) ) {
 				'short_name'   => 'Filter Bar',
 				'class'        => 'Tribe__Events__Filterbar__View',
 				'thickbox_url' => 'https://theeventscalendar.com/product/wordpress-events-filterbar/?TB_iframe=true',
-			],
-			[
-				'short_name'   => 'Facebook Events',
-				'class'        => 'Tribe__Events__Facebook__Importer',
-				'thickbox_url' => 'https://theeventscalendar.com/product/facebook-events/?TB_iframe=true',
-			],
-			[
-				'short_name'   => 'iCal Importer',
-				'class'        => 'Tribe__Events__Ical_Importer__Main',
-				'thickbox_url' => 'https://theeventscalendar.com/product/ical-importer/?TB_iframe=true',
 			],
 			[
 				'short_name'   => 'Eventbrite Tickets',
@@ -155,13 +145,30 @@ if ( ! class_exists( 'Tribe__Plugins' ) ) {
 			 *
 			 * @example [ 'the-events-calendar' => true, 'event-tickets' => true ]
 			 *
-			 * @since   4.12.1
+			 * @since 4.12.1
 			 *
 			 * @return array Plugin slugs as keys and bool as value for whether it's active or not.
 			 */
 			$plugins = apply_filters( 'tribe_active_plugins', [] );
 
 			return isset( $plugins[ $plugin_name ] ) && tribe_is_truthy( $plugins[ $plugin_name ] );
+		}
+
+		/**
+		 * Retrieves a list of active plugins.
+		 *
+		 * @since 5.1.3
+		 *
+		 * @return array List of active plugins.
+		 */
+		public function get_active_plugins() {
+			$plugins = $this->get_list();
+
+			$plugins = array_filter( $plugins, function ( $plugin ) {
+				return self::is_active( $plugin['short_name'] );
+			} );
+
+			return $plugins;
 		}
 	}
 }

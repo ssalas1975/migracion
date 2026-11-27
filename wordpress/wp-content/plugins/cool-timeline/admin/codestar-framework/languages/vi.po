@@ -1,0 +1,679 @@
+# Copyright (C) 2021 Codestar
+# This file is distributed under the same license as the Codestar Framework package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Codestar Framework 2.2.1\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: classes/admin-options.class.php:224
+msgid "Error while saving the changes."
+msgstr "Lỗi khi lưu các thay đổi."
+
+#: classes/admin-options.class.php:284
+msgid "Settings successfully imported."
+msgstr "Các thiết lập được nhập thành công."
+
+#: classes/admin-options.class.php:296 classes/admin-options.class.php:312
+msgid "Default settings restored."
+msgstr "Các tùy chọn mặc định được khôi phục."
+
+#: classes/admin-options.class.php:383
+msgid "Settings saved."
+msgstr "các cài đặt đã được lưu lại"
+
+#: classes/admin-options.class.php:561
+msgid "You have unsaved changes, save your changes!"
+msgstr "Bạn có thay đổi chưa được lưu, lưu các thay đổi của bạn!"
+
+#: classes/admin-options.class.php:563
+msgid "show all settings"
+msgstr "xem tất cả thiết lập"
+
+#: classes/admin-options.class.php:565 fields/icon/icon.php:57
+#: fields/map/map.php:23
+msgid "Search..."
+msgstr "Tìm kiếm..."
+
+#: classes/admin-options.class.php:568 classes/admin-options.class.php:691
+msgid "Save"
+msgstr "Lưu thay đổi"
+
+#: classes/admin-options.class.php:568 classes/admin-options.class.php:691
+msgid "Saving..."
+msgstr "Đang lưu..."
+
+#: classes/admin-options.class.php:569 classes/admin-options.class.php:692
+msgid "Reset Section"
+msgstr "Đặt lại Phần này"
+
+#: classes/admin-options.class.php:569 classes/admin-options.class.php:692
+msgid "Are you sure to reset this section options?"
+msgstr "Bạn có chắc không?"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+msgid "Reset All"
+msgstr "Đặt lại tất cả"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+#: classes/comment-options.class.php:213 classes/metabox-options.class.php:282
+#: fields/backup/backup.php:31
+msgid "Reset"
+msgstr "Đặt lại"
+
+#: classes/admin-options.class.php:570 classes/admin-options.class.php:693
+msgid "Are you sure you want to reset all settings to default values?"
+msgstr "Bạn có chắc không?"
+
+#: classes/admin-options.class.php:668 classes/comment-options.class.php:196
+#: classes/metabox-options.class.php:265 fields/button_set/button_set.php:56
+#: fields/checkbox/checkbox.php:76 fields/radio/radio.php:75
+#: fields/select/select.php:113 functions/actions.php:41
+msgid "No data available."
+msgstr "Không có dữ liệu."
+
+#: classes/comment-options.class.php:214 classes/metabox-options.class.php:283
+msgid "update post"
+msgstr "cập nhật Bài viết"
+
+#: classes/comment-options.class.php:214 classes/metabox-options.class.php:283
+msgid "Cancel"
+msgstr "Hủy"
+
+#: classes/setup.class.php:529
+msgid "Are you sure?"
+msgstr "Bạn có chắc không?"
+
+#: classes/setup.class.php:530
+msgid "Please enter %s or more characters"
+msgstr "Vui lòng nhập %s hoặc nhiều ký tự"
+
+#: classes/setup.class.php:531
+msgid "Searching..."
+msgstr "Tìm kiếm..."
+
+#: classes/setup.class.php:532
+msgid "No results found."
+msgstr "Không tìm thấy kết quả."
+
+#: classes/setup.class.php:615
+msgid "Oops! Not allowed."
+msgstr "Ôi! Không cho phép."
+
+#: classes/setup.class.php:689 classes/setup.class.php:693
+msgid "Field not found!"
+msgstr "Không tìm thấy trường!"
+
+#: classes/shortcode-options.class.php:251 fields/group/group.php:23
+msgid "Add New"
+msgstr "Thêm mới"
+
+#: classes/shortcode-options.class.php:288 functions/actions.php:16
+#: functions/actions.php:68 functions/actions.php:106 functions/actions.php:141
+#: functions/actions.php:170
+msgid "Error: Invalid nonce verification."
+msgstr "Lỗi: Xác minh không hợp lệ."
+
+#: fields/background/background.php:35 fields/media/media.php:57
+msgid "Not selected"
+msgstr "Không được chọn"
+
+#: fields/background/background.php:66 fields/date/date.php:31
+msgid "From"
+msgstr "Từ"
+
+#: fields/background/background.php:84 fields/date/date.php:32
+msgid "To"
+msgstr "Đến"
+
+#: fields/background/background.php:102
+msgid "Direction"
+msgstr "Hướng"
+
+#: fields/background/background.php:108
+msgid "Gradient Direction"
+msgstr "Hướng chuyển sắc"
+
+#: fields/background/background.php:109
+msgid "&#8659; top to bottom"
+msgstr "&#8659; từ trên xuống dưới"
+
+#: fields/background/background.php:110
+msgid "&#8658; left to right"
+msgstr "&#8658; từ trái sang phải"
+
+#: fields/background/background.php:111
+msgid "&#8664; corner top to right"
+msgstr "&#8664; góc trên sang phải"
+
+#: fields/background/background.php:112
+msgid "&#8665; corner top to left"
+msgstr "&#8665; góc trên sang trái"
+
+#: fields/background/background.php:155
+msgid "Background Position"
+msgstr "Vị trí ảnh nền"
+
+#: fields/background/background.php:156
+msgid "Left Top"
+msgstr "Trên bên trái"
+
+#: fields/background/background.php:157
+msgid "Left Center"
+msgstr "Giữa bên trái"
+
+#: fields/background/background.php:158
+msgid "Left Bottom"
+msgstr "Dưới bên trái"
+
+#: fields/background/background.php:159
+msgid "Center Top"
+msgstr "Trên giữa"
+
+#: fields/background/background.php:160
+msgid "Center Center"
+msgstr "Chính giữa"
+
+#: fields/background/background.php:161
+msgid "Center Bottom"
+msgstr "Dưới giữa"
+
+#: fields/background/background.php:162
+msgid "Right Top"
+msgstr "Trên bên phải"
+
+#: fields/background/background.php:163
+msgid "Right Center"
+msgstr "Giữa bên phải"
+
+#: fields/background/background.php:164
+msgid "Right Bottom"
+msgstr "Dưới bên phải"
+
+#: fields/background/background.php:178
+msgid "Background Repeat"
+msgstr "Cách lặp lại ảnh nền"
+
+#: fields/background/background.php:179
+msgid "Repeat"
+msgstr "Lặp lại"
+
+#: fields/background/background.php:180
+msgid "No Repeat"
+msgstr "Không lặp"
+
+#: fields/background/background.php:181
+msgid "Repeat Horizontally"
+msgstr "Lặp theo chiều ngang"
+
+#: fields/background/background.php:182
+msgid "Repeat Vertically"
+msgstr "Lặp theo chiều dọc"
+
+#: fields/background/background.php:196
+msgid "Background Attachment"
+msgstr "Ảnh dán nền"
+
+#: fields/background/background.php:197
+msgid "Scroll"
+msgstr "Cuộn"
+
+#: fields/background/background.php:198
+msgid "Fixed"
+msgstr "Cố định"
+
+#: fields/background/background.php:212
+msgid "Background Size"
+msgstr "Kích thước ảnh nền"
+
+#: fields/background/background.php:213
+msgid "Cover"
+msgstr "Phủ kín"
+
+#: fields/background/background.php:214
+msgid "Contain"
+msgstr "Vừa khít"
+
+#: fields/background/background.php:215
+msgid "Auto"
+msgstr "Tự động"
+
+#: fields/background/background.php:229
+msgid "Background Origin"
+msgstr "Nguồn gốc xuất xứ"
+
+#: fields/background/background.php:230 fields/background/background.php:248
+msgid "Padding Box"
+msgstr "Hộp đệm"
+
+#: fields/background/background.php:231 fields/background/background.php:247
+msgid "Border Box"
+msgstr "Hộp viền"
+
+#: fields/background/background.php:232 fields/background/background.php:249
+msgid "Content Box"
+msgstr "Hộp nội dung"
+
+#: fields/background/background.php:246
+msgid "Background Clip"
+msgstr "Clip nền"
+
+#: fields/background/background.php:263
+msgid "Background Blend Mode"
+msgstr "Chế độ trộn nền"
+
+#: fields/background/background.php:264 fields/link_color/link_color.php:36
+#: fields/typography/typography.php:175
+msgid "Normal"
+msgstr "Bình thường"
+
+#: fields/background/background.php:265
+msgid "Multiply"
+msgstr "Nhân"
+
+#: fields/background/background.php:266
+msgid "Screen"
+msgstr "Màn hình"
+
+#: fields/background/background.php:267
+msgid "Overlay"
+msgstr "Phủ"
+
+#: fields/background/background.php:268
+msgid "Darken"
+msgstr "Làm tối"
+
+#: fields/background/background.php:269
+msgid "Lighten"
+msgstr "Làm sáng"
+
+#: fields/background/background.php:270
+msgid "Color Dodge"
+msgstr "Tránh màu"
+
+#: fields/background/background.php:271
+msgid "Saturation"
+msgstr "Độ bão hòa"
+
+#: fields/background/background.php:272
+msgid "Color"
+msgstr "Màu"
+
+#: fields/background/background.php:273
+msgid "Luminosity"
+msgstr "Độ chói"
+
+#: fields/backup/backup.php:26
+msgid "Import"
+msgstr "Nhập vào"
+
+#: fields/backup/backup.php:29
+msgid "Export & Download"
+msgstr "Xuất ra & Tải xuống"
+
+#: fields/border/border.php:25 fields/spacing/spacing.php:25
+msgid "top"
+msgstr "trên"
+
+#: fields/border/border.php:26 fields/spacing/spacing.php:26
+msgid "right"
+msgstr "phải"
+
+#: fields/border/border.php:27 fields/spacing/spacing.php:27
+msgid "bottom"
+msgstr "dưới"
+
+#: fields/border/border.php:28 fields/spacing/spacing.php:28
+msgid "left"
+msgstr "trái"
+
+#: fields/border/border.php:29 fields/spacing/spacing.php:29
+msgid "all"
+msgstr "tất cả"
+
+#: fields/border/border.php:51 fields/typography/typography.php:203
+msgid "Solid"
+msgstr "Nét liền"
+
+#: fields/border/border.php:52 fields/typography/typography.php:206
+msgid "Dashed"
+msgstr "Nét đứt"
+
+#: fields/border/border.php:53 fields/typography/typography.php:205
+msgid "Dotted"
+msgstr "Nét chấm"
+
+#: fields/border/border.php:54 fields/typography/typography.php:204
+msgid "Double"
+msgstr "Nét đôi"
+
+#: fields/border/border.php:55
+msgid "Inset"
+msgstr "Chìm"
+
+#: fields/border/border.php:56
+msgid "Outset"
+msgstr "Nổi"
+
+#: fields/border/border.php:57
+msgid "Groove"
+msgstr "Rãnh"
+
+#: fields/border/border.php:58
+msgid "ridge"
+msgstr "gờ"
+
+#: fields/border/border.php:59 fields/typography/typography.php:188
+#: fields/typography/typography.php:202
+msgid "None"
+msgstr "Không"
+
+#: fields/dimensions/dimensions.php:22
+msgid "width"
+msgstr "chiều rộng"
+
+#: fields/dimensions/dimensions.php:23
+msgid "height"
+msgstr "chiều cao"
+
+#: fields/gallery/gallery.php:20
+msgid "Add Gallery"
+msgstr "Thêm thư Viện"
+
+#: fields/gallery/gallery.php:21
+msgid "Edit Gallery"
+msgstr "Sửa thư Viện"
+
+#: fields/gallery/gallery.php:22
+msgid "Clear"
+msgstr "Xóa"
+
+#: fields/group/group.php:35 fields/repeater/repeater.php:27
+msgid "Error: Field ID conflict."
+msgstr "Lỗi: Xung đột ID trường."
+
+#: fields/group/group.php:46 fields/group/group.php:87
+#: fields/repeater/repeater.php:48 fields/repeater/repeater.php:76
+msgid "Are you sure to delete this item?"
+msgstr "Bạn có chắc chắn muốn xóa?"
+
+#: fields/group/group.php:121 fields/repeater/repeater.php:89
+msgid "You cannot add more."
+msgstr "Bạn không thể thêm nhiều hơn."
+
+#: fields/group/group.php:122 fields/repeater/repeater.php:90
+msgid "You cannot remove more."
+msgstr "Bạn không thể loại bỏ nhiều hơn."
+
+#: fields/icon/icon.php:20 fields/icon/icon.php:53
+msgid "Add Icon"
+msgstr "Thêm Biểu tượng"
+
+#: fields/icon/icon.php:21
+msgid "Remove Icon"
+msgstr "Bỏ Biểu tượng"
+
+#: fields/link/link.php:20
+msgid "Add Link"
+msgstr "Thêm liên kết"
+
+#: fields/link/link.php:21
+msgid "Edit Link"
+msgstr "Chỉnh sửa Liên kết"
+
+#: fields/link/link.php:22
+msgid "Remove Link"
+msgstr "Xóa đường dẫn"
+
+#: fields/link_color/link_color.php:37
+msgid "Hover"
+msgstr "Di chuột"
+
+#: fields/link_color/link_color.php:38
+msgid "Active"
+msgstr "Đang chọn"
+
+#: fields/link_color/link_color.php:39
+msgid "Visited"
+msgstr "Đã truy cập"
+
+#: fields/link_color/link_color.php:40
+msgid "Focus"
+msgstr "Tiêu điểm"
+
+#: fields/map/map.php:24
+msgid "Latitude"
+msgstr "Vĩ độ"
+
+#: fields/map/map.php:25
+msgid "Longitude"
+msgstr "Kinh độ"
+
+#: fields/media/media.php:23 fields/upload/upload.php:21
+msgid "Upload"
+msgstr "Tải lên"
+
+#: fields/media/media.php:24 fields/upload/upload.php:22
+msgid "Remove"
+msgstr "Xóa bỏ"
+
+#: fields/sorter/sorter.php:21
+msgid "Enabled"
+msgstr "Được bật"
+
+#: fields/sorter/sorter.php:22
+msgid "Disabled"
+msgstr "Vô hiệu hóa"
+
+#: fields/switcher/switcher.php:20
+msgid "On"
+msgstr "Bật"
+
+#: fields/switcher/switcher.php:21
+msgid "Off"
+msgstr "Tắt"
+
+#: fields/typography/typography.php:85
+msgid "Font Family"
+msgstr "Họ phông chữ"
+
+#: fields/typography/typography.php:86
+msgid "Select a font"
+msgstr "Chọn phông chữ"
+
+#: fields/typography/typography.php:94
+msgid "Backup Font Family"
+msgstr "Họ phông chữ dự phòng"
+
+#: fields/typography/typography.php:108 fields/typography/typography.php:121
+#: fields/typography/typography.php:134 fields/typography/typography.php:149
+#: fields/typography/typography.php:165 fields/typography/typography.php:178
+#: fields/typography/typography.php:192 fields/typography/typography.php:210
+msgid "Default"
+msgstr "Mặc định"
+
+#: fields/typography/typography.php:119
+msgid "Font Style"
+msgstr "Kiểu phông"
+
+#: fields/typography/typography.php:133 fields/typography/typography.php:134
+msgid "Load Extra Styles"
+msgstr "Tải kiểu bổ sung"
+
+#: fields/typography/typography.php:147
+msgid "Subset"
+msgstr "Tập con"
+
+#: fields/typography/typography.php:157
+msgid "Text Align"
+msgstr "Căn chữ"
+
+#: fields/typography/typography.php:159
+msgid "Inherit"
+msgstr "Kế thừa"
+
+#: fields/typography/typography.php:160
+msgid "Left"
+msgstr "Trái"
+
+#: fields/typography/typography.php:161
+msgid "Center"
+msgstr "Giữa"
+
+#: fields/typography/typography.php:162
+msgid "Right"
+msgstr "Phải"
+
+#: fields/typography/typography.php:163
+msgid "Justify"
+msgstr "Căn đều"
+
+#: fields/typography/typography.php:164
+msgid "Initial"
+msgstr "Ban đầu"
+
+#: fields/typography/typography.php:173
+msgid "Font Variant"
+msgstr "Biến thể phông"
+
+#: fields/typography/typography.php:176
+msgid "Small Caps"
+msgstr "Chữ hoa nhỏ"
+
+#: fields/typography/typography.php:177
+msgid "All Small Caps"
+msgstr "Tất cả chữ hoa nhỏ"
+
+#: fields/typography/typography.php:186
+msgid "Text Transform"
+msgstr "Biến đổi chữ"
+
+#: fields/typography/typography.php:189
+msgid "Capitalize"
+msgstr "Viết hoa mỗi từ"
+
+#: fields/typography/typography.php:190
+msgid "Uppercase"
+msgstr "Chữ hoa"
+
+#: fields/typography/typography.php:191
+msgid "Lowercase"
+msgstr "Chữ thường"
+
+#: fields/typography/typography.php:200
+msgid "Text Decoration"
+msgstr "Trang trí chữ"
+
+#: fields/typography/typography.php:207
+msgid "Wavy"
+msgstr "Lượn sóng"
+
+#: fields/typography/typography.php:208
+msgid "Overline"
+msgstr "Gạch trên"
+
+#: fields/typography/typography.php:209
+msgid "Line-through"
+msgstr "Gạch ngang"
+
+#: fields/typography/typography.php:222
+msgid "Font Size"
+msgstr "Cỡ chữ"
+
+#: fields/typography/typography.php:234
+msgid "Line Height"
+msgstr "Chiều cao dòng"
+
+#: fields/typography/typography.php:246
+msgid "Letter Spacing"
+msgstr "Giãn chữ"
+
+#: fields/typography/typography.php:258
+msgid "Word Spacing"
+msgstr "Giãn từ"
+
+#: fields/typography/typography.php:273
+msgid "Font Color"
+msgstr "Màu chữ"
+
+#: fields/typography/typography.php:284
+msgid "Custom Style"
+msgstr "Kiểu tùy chỉnh"
+
+#: fields/typography/typography.php:351
+msgid "Custom Web Fonts"
+msgstr "Phông web tùy chỉnh"
+
+#: fields/typography/typography.php:357
+msgid "Safe Web Fonts"
+msgstr "Phông web an toàn"
+
+#: fields/typography/typography.php:377
+msgid "Google Web Fonts"
+msgstr "Phông web Google"
+
+#: functions/actions.php:72 functions/actions.php:110
+msgid "Error: Invalid key."
+msgstr "Lỗi: Key không hợp lệ."
+
+#: functions/actions.php:114
+msgid "Error: The response is not a valid JSON response."
+msgstr "Lỗi: Phản hồi không phải là một JSON hợp lệ."
+
+#: functions/actions.php:174
+msgid "Error: Invalid term ID."
+msgstr "Lỗi: ID term không hợp lệ."
+
+#: functions/actions.php:180
+msgid "Error: You do not have permission to do that."
+msgstr "Lỗi: Bạn không có quyền làm điều đó."
+
+#: functions/validate.php:14 functions/validate.php:86
+msgid "Please enter a valid email address."
+msgstr "Vui lòng nhập địa chỉ email hợp lệ."
+
+#: functions/validate.php:32 functions/validate.php:106
+msgid "Please enter a valid number."
+msgstr "Vui lòng nhập một số hợp lệ."
+
+#: functions/validate.php:50 functions/validate.php:126
+msgid "This field is required."
+msgstr "Mục này là bắt buộc."
+
+#: functions/validate.php:68 functions/validate.php:146
+msgid "Please enter a valid URL."
+msgstr "Hãy nhập lại đường dẫn hợp lệ."
+
+#~ msgid "Add Shortcode"
+#~ msgstr "Thêm Shortcode"
+
+#~ msgid "Select a shortcode"
+#~ msgstr "Lựa chọn shortcode"
+
+#~ msgid "Insert Shortcode"
+#~ msgstr "Chèn Shortcode"
+
+#~ msgid "Write shortcode here..."
+#~ msgstr "Nhập shortcode ở đây..."
+
+msgid "Codestar Framework"
+msgstr "Codestar Framework"
+
+msgid "http://codestarframework.com/"
+msgstr "http://codestarframework.com/"
+
+msgid "A Simple and Lightweight WordPress Option Framework for Themes and Plugins"
+msgstr "Khung tùy chọn WordPress đơn giản và nhẹ cho giao diện và plugin"
+
+msgid "Codestar"
+msgstr "Codestar"
+
+msgid "http://codestarthemes.com/"
+msgstr "http://codestarthemes.com/"

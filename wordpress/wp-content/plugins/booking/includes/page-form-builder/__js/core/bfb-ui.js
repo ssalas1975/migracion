@@ -283,6 +283,42 @@
 	UI.WPBC_BFB_Overlay = class {
 
 		/**
+		 * Synchronize every overlay settings button with the real Inspector state.
+		 *
+		 * A selected canvas item can remain selected while another right-bar panel is
+		 * visible. Combining both states prevents a stale pressed button after the
+		 * administrator switches away from the Inspector.
+		 *
+		 * @param {WPBC_Form_Builder} builder - Active Form Builder instance.
+		 * @param {HTMLButtonElement[]|NodeListOf<HTMLButtonElement>|null} [settings_buttons=null]
+		 *     Optional bounded controls to reconcile during incremental rendering.
+		 * @returns {void}
+		 */
+		static sync_settings_button_states(builder, settings_buttons = null) {
+
+			const pages_container = builder?.pages_container;
+			if ( !pages_container?.querySelectorAll ) {
+				return;
+			}
+
+			const inspector         = document.getElementById( 'wpbc_bfb__inspector' );
+			const inspector_is_open = !!inspector
+				&& !inspector.hasAttribute( 'hidden' )
+				&& inspector.getAttribute( 'aria-hidden' ) !== 'true';
+			const selectable_query  = `${Core.WPBC_BFB_DOM.SELECTORS.field}, ${Core.WPBC_BFB_DOM.SELECTORS.section}`;
+
+			const buttons = settings_buttons || pages_container.querySelectorAll( '.wpbc_bfb__settings-btn' );
+
+			Array.from( buttons ).forEach( (settings_button) => {
+				const owner      = settings_button.closest( selectable_query );
+				const is_pressed = inspector_is_open
+					&& !!owner?.classList?.contains( Core.WPBC_BFB_DOM.CLASSES.selected );
+
+				settings_button.setAttribute( 'aria-pressed', is_pressed ? 'true' : 'false' );
+			} );
+		}
+
+		/**
 		 * Ensure an overlay exists and is wired up on the element.
 		 * @param {WPBC_Form_Builder} builder
 		 * @param {HTMLElement} el - field or section element
@@ -310,10 +346,14 @@
 			}
 
 			// SETTINGS button (shown for both fields & sections).
-			if ( !overlay.querySelector( '.wpbc_bfb__settings-btn' ) ) {
-				const settings_btn   = Core.WPBC_Form_Builder_Helper.create_element( 'button', 'wpbc_bfb__settings-btn', '<i class="menu_icon icon-1x wpbc_icn_settings"></i>' );
+			let settings_btn = overlay.querySelector( '.wpbc_bfb__settings-btn' );
+			if ( !settings_btn ) {
+				settings_btn         = Core.WPBC_Form_Builder_Helper.create_element( 'button', 'wpbc_bfb__settings-btn', '<i class="menu_icon icon-1x wpbc_icn_near_me wpbc_icn_rotate_270"></i>' );
 				settings_btn.type    = 'button';
 				settings_btn.title   = 'Open settings';
+				settings_btn.setAttribute( 'aria-label', settings_btn.title );
+				settings_btn.setAttribute( 'aria-controls', 'wpbc_bfb__inspector' );
+				settings_btn.setAttribute( 'aria-pressed', 'false' );
 				settings_btn.onclick = (e) => {
 					e.preventDefault();
 					// Select THIS element and scroll it into view.
@@ -345,6 +385,7 @@
 
 			overlay.setAttribute( 'role', 'toolbar' );
 			overlay.setAttribute( 'aria-label', el.classList.contains( 'wpbc_bfb__section' ) ? 'Section tools' : 'Field tools' );
+			UI.WPBC_BFB_Overlay.sync_settings_button_states( builder, [ settings_btn ] );
 
 			return overlay;
 		}
@@ -596,6 +637,7 @@
 			this.builder.select_field       = this.select_field.bind( this );
 			this.builder.get_selected_field = this.get_selected_field.bind( this );
 			this._on_clear                  = this.on_clear.bind( this );
+			this._on_panel_shown            = this._sync_settings_button_states.bind( this );
 
 			// Centralized delete command used by keyboard + inspector + overlay.
 			this.builder.delete_item = (el) => {
@@ -622,6 +664,8 @@
 			// delegated click selection (capture ensures we win before bubbling to containers).
 			this._on_canvas_click = this._handle_canvas_click.bind( this );
 			this.builder.pages_container.addEventListener( 'click', this._on_canvas_click, true );
+			document.addEventListener( 'wpbc_bfb:panel_shown', this._on_panel_shown );
+			this._sync_settings_button_states();
 		}
 
 		destroy() {
@@ -631,6 +675,20 @@
 				this.builder.pages_container.removeEventListener( 'click', this._on_canvas_click, true );
 				this._on_canvas_click = null;
 			}
+
+			if ( this._on_panel_shown ) {
+				document.removeEventListener( 'wpbc_bfb:panel_shown', this._on_panel_shown );
+				this._on_panel_shown = null;
+			}
+		}
+
+		/**
+		 * Refresh overlay button state after selection or right-bar panel changes.
+		 *
+		 * @returns {void}
+		 */
+		_sync_settings_button_states() {
+			UI.WPBC_BFB_Overlay.sync_settings_button_states( this.builder );
 		}
 
 		/**
@@ -764,6 +822,7 @@
 						tab_id  : 'wpbc_tab_library'
 					}
 				);
+				this._sync_settings_button_states();
 
 				return;
 			}
@@ -814,6 +873,7 @@
 					tab_id  : 'wpbc_tab_inspector'
 				}
 			);
+			this._sync_settings_button_states();
 
 			root.classList.add( 'has-selection' );
 			this.builder.bus.emit( Core.WPBC_BFB_Events.SELECT, { uid: this._selected_uid, el: field_el } );
@@ -1016,7 +1076,8 @@
 					if ( !hasRaw ) {
 						ctrl.checked = !!defValue;
 					} else {
-						ctrl.checked = Core.WPBC_BFB_Sanitize.coerce_boolean( raw, !!defValue );
+						// An explicit empty value is the legacy persisted representation of false.
+						ctrl.checked = Core.WPBC_BFB_Sanitize.coerce_boolean( raw, false );
 					}
 				} else if ( 'value' in ctrl ) {
 					if ( hasRaw ) {
@@ -1295,7 +1356,8 @@
 					}
 					let nextVal = '';
 					if ( t instanceof HTMLInputElement && (t.type === 'checkbox' || t.type === 'radio') ) {
-						nextVal = t.checked ? '1' : '';
+						// Persist both boolean states explicitly so schema defaults cannot replace false.
+						nextVal = t.checked ? 'true' : 'false';
 					} else if ( 'value' in t ) {
 						nextVal = String( t.value ?? '' );
 					}
@@ -1926,6 +1988,42 @@
 			this.builder.load_saved_structure = (s, opts) => this.deserialize( s, opts );
 		}
 
+		/**
+		 * Normalize option values when a field explicitly disables separate values.
+		 *
+		 * Older Builder versions persisted an unchecked value_differs toggle as an
+		 * empty string. Treat that explicit legacy value as false, while retaining
+		 * the schema default when the property is genuinely absent.
+		 *
+		 * @param {Object} field_data Serialized field data.
+		 * @returns {Object} Normalized serialized field data.
+		 */
+		_normalize_field_option_values(field_data) {
+			const has_value_differs = Object.prototype.hasOwnProperty.call( field_data, 'value_differs' );
+			if ( !has_value_differs ) {
+				return field_data;
+			}
+
+			const value_differs   = Core.WPBC_BFB_Sanitize.coerce_boolean( field_data.value_differs, false );
+			field_data.value_differs = value_differs;
+
+			if ( !value_differs && Array.isArray( field_data.options ) ) {
+				field_data.options = field_data.options.map( ( option_record ) => {
+					if ( !option_record || typeof option_record !== 'object' ) {
+						return option_record;
+					}
+
+					return Object.assign(
+						{},
+						option_record,
+						{ value: String( option_record.label == null ? '' : option_record.label ) }
+					);
+				} );
+			}
+
+			return field_data;
+		}
+
 		/** @returns {Array} */
 		serialize() {
 			const b = this.builder;
@@ -1948,7 +2046,9 @@
 						if ( child.classList.contains( 'is-invalid' ) ) {
 							return;
 						}
-						const f_data = Core.WPBC_Form_Builder_Helper.get_all_data_attributes( child );
+						const f_data = this._normalize_field_option_values(
+							Core.WPBC_Form_Builder_Helper.get_all_data_attributes( child )
+						);
 						// Drop ephemeral/editor-only flags
 						[ 'uid', 'fresh', 'autoname', 'was_loaded', 'name_user_touched' ]
 							.forEach( k => {
@@ -2000,7 +2100,9 @@
 						if ( child.classList.contains( 'is-invalid' ) ) {
 							return;
 						}
-						const f_data = Core.WPBC_Form_Builder_Helper.get_all_data_attributes( child );
+						const f_data = this._normalize_field_option_values(
+							Core.WPBC_Form_Builder_Helper.get_all_data_attributes( child )
+						);
 						[ 'uid', 'fresh', 'autoname', 'was_loaded', 'name_user_touched' ].forEach( function (k) {
 							if ( k in f_data ) {
 								delete f_data[k];
@@ -2642,6 +2744,13 @@
 
 
 				function sync_range_from_number() {
+					if ( g.hasAttribute( 'data-len-allow-empty' ) && '' === number.value ) {
+						var empty_range_value = range.min || '0';
+						if ( range.value !== empty_range_value ) {
+							range.value = empty_range_value;
+						}
+						return;
+					}
 					if ( range.value !== number.value ) {
 						range.value = number.value;
 					}

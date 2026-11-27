@@ -112,7 +112,7 @@ class Main {
 	public function localize_tour( $hook ) {
 		$data = $this->tour_data();
 
-		wp_localize_script( 'tribe-onboarding-js', 'TribeOnboardingTour', $data );
+		wp_localize_script( 'tec-onboarding-js', 'TribeOnboardingTour', $data );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Main {
 	public function localize_hints( $hook ) {
 		$data = $this->hints_data();
 
-		wp_localize_script( 'tribe-onboarding-js', 'TribeOnboardingHints', $data );
+		wp_localize_script( 'tec-onboarding-js', 'TribeOnboardingHints', $data );
 	}
 
 	/**
@@ -180,7 +180,7 @@ class Main {
 	/**
 	 * Get the list of tours available for handling.
 	 *
-	 * @since  4.14.9
+	 * @since 4.14.9
 	 *
 	 * @return array An associative array of shortcodes in the shape `[ <slug> => <class> ]`
 	 */
@@ -190,7 +190,7 @@ class Main {
 		/**
 		 * Allow the registering of tours into our plugins.
 		 *
-		 * @since  4.14.9
+		 * @since 4.14.9
 		 *
 		 * @var array An associative array of tours in the shape `[ <id> => <class> ]`.
 		 */
@@ -202,7 +202,7 @@ class Main {
 	/**
 	 * Get the list of hints available for handling.
 	 *
-	 * @since  4.14.9
+	 * @since 4.14.9
 	 *
 	 * @return array An associative array of hints in the shape `[ <id> => <class> ]`
 	 */
@@ -212,7 +212,7 @@ class Main {
 		/**
 		 * Allow the registering of tours into our plugins.
 		 *
-		 * @since  4.14.9
+		 * @since 4.14.9
 		 *
 		 * @var array An associative array of hints in the shape `[ <id> => <class> ]`.
 		 */

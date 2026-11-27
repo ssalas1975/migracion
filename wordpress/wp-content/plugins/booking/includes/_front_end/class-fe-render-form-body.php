@@ -3,9 +3,9 @@
  * Front-End Form Body Rendering
  *
  *  - Calendar markup (or hidden selected-dates field)
- *  - Form body source resolution (BFB / legacy / simple)
+ *  - Form body source resolution (BFB)
  *  - Legacy post-processing hooks (additional calendars, captcha, change-over times)
- *  - Legacy wrapper (<form> container + nonce + hidden fields)
+ *  - Shared wrapper (<form> container + nonce + hidden fields)
  *  - Legacy inline scripts (duplicate-calendar warning, cost hints, autofill)
  *
  * @package Booking Calendar
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Booking Form Body Renderer.
  *
- * Orchestrates building of the booking form HTML while preserving legacy output and
+	 * Orchestrates building of the booking form HTML while preserving output and
  * filter/action execution order.
  *
  * @since 11.0.x
@@ -35,9 +35,7 @@ class WPBC_FE_Form_Body_Renderer {
 	 *  1) Parse shortcode "options" into custom parameters (for BFB/simple form context).
 	 *  2) Build calendar markup OR hidden textarea with preselected dates.
 	 *  3) Resolve form body source:
-	 *      - BFB source (if available) with filter override and shortcode-engine fallback.
-	 *      - Legacy booking form (personal.php).
-	 *      - Simple form fallback.
+	 *      - BFB source with filter override and shortcode-engine fallback.
 	 *  4) Post-process composed markup:
 	 *      - Insert calendar ([calendar] placeholder or prepend).
 	 *      - Replace additional calendars via legacy filter.
@@ -56,6 +54,7 @@ class WPBC_FE_Form_Body_Renderer {
 	 *     @type string        $selected_dates_without_calendar Preselected dates string (legacy format).
 	 *     @type int           $cal_count                       Number of months to show in calendar.
 	 *     @type mixed         $shortcode_param__options                       Shortcode options string (legacy: options="...") or array.
+	 *     @type array         $edit_form_identity              Pre-resolved authorized visitor-edit form context.
 	 *     @type wpdev_booking $legacy_instance                 Legacy plugin booking object (Phase #1/compat).
 	 * }
 	 *
@@ -71,6 +70,7 @@ class WPBC_FE_Form_Body_Renderer {
 			'cal_count'                       => 1,
 			'shortcode_param__options'                       => '',
 			'booking_hash'                    => '',
+			'edit_form_identity'               => array(),
 			'legacy_instance'                 => null,
 		);
 
@@ -82,6 +82,7 @@ class WPBC_FE_Form_Body_Renderer {
 		$cal_count                       = (int) $args['cal_count'];
 		$shortcode_param__options        = $args['shortcode_param__options'];
 		$booking_hash                    = sanitize_text_field( wp_unslash( (string) $args['booking_hash'] ) );
+		$edit_form_identity               = is_array( $args['edit_form_identity'] ) ? $args['edit_form_identity'] : array();
 		$legacy_instance                 = $args['legacy_instance'];
 		$form_status                     = isset( $args['form_status'] ) ? (string) $args['form_status'] : 'published';
 
@@ -91,7 +92,7 @@ class WPBC_FE_Form_Body_Renderer {
 
 		$calendar_html = WPBC_FE_Calendar_Markup::build( $resource_id, $cal_count, $shortcode_param__options, $selected_dates_without_calendar );
 
-		$source_res = WPBC_FE_Form_Source::get_form_body_html( $resource_id, $custom_booking_form, $form_status, $custom_params, $legacy_instance, $booking_hash );
+		$source_res = WPBC_FE_Form_Source::get_form_body_html( $resource_id, $custom_booking_form, $form_status, $custom_params, $legacy_instance, $booking_hash, $edit_form_identity );
 
 		$form_html = $source_res['body_html'];
 
@@ -124,7 +125,33 @@ class WPBC_FE_Form_Body_Renderer {
 		// 3. Postprocess Form Conent - regarding settings - e.g.:  $source_res['bfb_settings'] = [   options = [  booking_form_theme = "wpbc_theme_dark_1", .... ], ...
 		$wrapped = apply_filters( 'wpbc_booking_form__wrapped_html__before_inline_scripts', $wrapped, $source_res['bfb_settings'], $resource_id, $custom_booking_form );
 
-		$wrapped .= WPBC_FE_Inline_Scripts::collect( $resource_id );
+		/**
+		 * Filters whether the current booking form render should collect legacy
+		 * page-level inline scripts.
+		 *
+		 * Request-local administration previews initialize their returned markup
+		 * through an explicit bootstrap payload. They must not queue callbacks on
+		 * the parent administration page because the preview form can be replaced
+		 * before those callbacks run.
+		 *
+		 * @since 11.9.0
+		 *
+		 * @param bool   $should_collect      Whether legacy inline scripts should be collected.
+		 * @param int    $resource_id         Booking resource ID used by the rendered form.
+		 * @param string $custom_booking_form Booking form slug requested by the renderer.
+		 * @param string $form_status         Normalized renderer status such as published or preview.
+		 */
+		$should_collect_inline_scripts = (bool) apply_filters(
+			'wpbc_booking_form__should_collect_inline_scripts',
+			true,
+			$resource_id,
+			$custom_booking_form,
+			$form_status
+		);
+
+		if ( $should_collect_inline_scripts ) {
+			$wrapped .= WPBC_FE_Inline_Scripts::collect( $resource_id );
+		}
 
 		// Info: Hook for addons. Postprocess Form Conent - regarding settings - e.g.:  $source_res['bfb_settings'] = [   options = [  booking_form_theme = "wpbc_theme_dark_1", .... ], ...
 		$wrapped = apply_filters( 'wpbc_booking_form__wrapped_html__after_inline_scripts', $wrapped, $source_res['bfb_settings'], $resource_id, $custom_booking_form );
@@ -197,6 +224,96 @@ class WPBC_FE_Calendar_Markup {
  * }
  */
 class WPBC_FE_Form_Source {
+
+	/**
+	 * Resolve the authoritative Booking Form identity for visitor editing.
+	 *
+	 * The booking hash authorizes one booking and Resource. The booking's stored
+	 * form marker takes precedence over the shortcode default, while an existing
+	 * legacy `booking_form` override remains supported only when the canonical
+	 * form-source resolver can load it for the effective Resource owner. Missing,
+	 * deleted, foreign-owner, or otherwise unavailable forms follow that
+	 * resolver's established Standard-form fallback.
+	 *
+	 * This method is read-only. It loads booking details and form metadata but
+	 * does not update booking data, settings, hashes, or Form Builder records.
+	 *
+	 * @param int    $render_resource_id  Resource ID used by the rendered calendar, which may be a parent Resource.
+	 * @param string $requested_form_slug Form selected by the shortcode or calling component.
+	 * @param string $form_status         Requested Form Builder status, normally `published`.
+	 * @param array  $custom_params       Parsed shortcode parameters used by form-source filters.
+	 * @param string $booking_hash        Authorized visitor-edit booking credential.
+	 * @param mixed  $legacy_instance     Legacy booking instance supplied to source-resolution filters.
+	 *
+	 * @return array<string,mixed> Resolved identity containing the effective form, booking, and source resolution.
+	 */
+	public static function resolve_booking_form_identity( $render_resource_id, $requested_form_slug, $form_status, $custom_params, $booking_hash, $legacy_instance = null ) {
+
+		$render_resource_id  = absint( $render_resource_id );
+		$requested_form_slug = sanitize_text_field( wp_unslash( (string) $requested_form_slug ) );
+		$form_status         = sanitize_key( (string) $form_status );
+		$custom_params       = is_array( $custom_params ) ? $custom_params : array();
+		$booking_hash        = sanitize_text_field( wp_unslash( (string) $booking_hash ) );
+
+		if ( '' === $requested_form_slug ) {
+			$requested_form_slug = 'standard';
+		}
+
+		$identity = array(
+			'booking_id'          => 0,
+			'booking_resource_id' => 0,
+			'render_resource_id'  => $render_resource_id,
+			'form_slug'           => $requested_form_slug,
+			'current_edit_booking' => false,
+			'source_resolution'   => array(),
+		);
+
+		$booking_scope = self::maybe_check_if_booking_edit( $booking_hash );
+		if ( false === $booking_scope ) {
+			return $identity;
+		}
+
+		$current_edit_booking = self::get_booking_data( $booking_scope['booking_id'] );
+		if ( false === $current_edit_booking ) {
+			return $identity;
+		}
+
+		$booking_resource_id = absint( $booking_scope['resource_id'] );
+		$form_slug           = $requested_form_slug;
+		$override_form_slug  = WPBC_GET_Request::has_non_empty_get( 'booking_form' )
+			? WPBC_GET_Request::get_sanitized( 'booking_form' )
+			: '';
+		$stored_form_key     = 'wpbc_custom_booking_form' . $booking_resource_id;
+
+		if ( '' !== $override_form_slug ) {
+			$form_slug = $override_form_slug;
+		} elseif ( ! empty( $current_edit_booking['parsed_form'][ $stored_form_key ]['value'] ) ) {
+			$form_slug = sanitize_text_field( (string) $current_edit_booking['parsed_form'][ $stored_form_key ]['value'] );
+		}
+
+		$source_request = array(
+			'resource_id'     => $render_resource_id,
+			'form_slug'       => $form_slug,
+			'form_status'     => $form_status,
+			'custom_params'   => $custom_params,
+			'legacy_instance' => $legacy_instance,
+		);
+		$source_resolution = WPBC_FE_Form_Source_Resolver::resolve( $source_request );
+		if (
+			'bfb_db' === ( isset( $source_resolution['engine'] ) ? $source_resolution['engine'] : '' )
+			&& ! empty( $source_resolution['bfb_loader_args']['form_slug'] )
+		) {
+			$form_slug = sanitize_text_field( (string) $source_resolution['bfb_loader_args']['form_slug'] );
+		}
+
+		$identity['booking_id']           = absint( $booking_scope['booking_id'] );
+		$identity['booking_resource_id']  = $booking_resource_id;
+		$identity['form_slug']            = '' === $form_slug ? 'standard' : $form_slug;
+		$identity['current_edit_booking'] = $current_edit_booking;
+		$identity['source_resolution']    = $source_resolution;
+
+		return $identity;
+	}
 
 	/**
 	 * Check if the booking editing,  and return -> [ 'booking_id': booking_id, 'resource_id': resource_id]  otherwise -> false
@@ -340,7 +457,7 @@ class WPBC_FE_Form_Source {
 
 
 	/**
-	 * Return the booking form body HTML, choosing BFB source if available, else legacy.
+	 * Return the booking form body HTML from BFB storage.
 	 *
 	 * @param int           $resource_id
 	 * @param string        $custom_booking_form
@@ -348,16 +465,18 @@ class WPBC_FE_Form_Source {
 	 * @param array         $custom_params
 	 * @param wpdev_booking $legacy_instance
 	 * @param string        $booking_hash
+	 * @param array         $edit_form_identity Pre-resolved visitor-edit form context.
 	 *
 	 * @return array
 	 */
-	public static function get_form_body_html( $resource_id, $custom_booking_form, $form_status, $custom_params, $legacy_instance, $booking_hash = '' ) {
+	public static function get_form_body_html( $resource_id, $custom_booking_form, $form_status, $custom_params, $legacy_instance, $booking_hash = '', $edit_form_identity = array() ) {
 
 		$resource_id         = (int) $resource_id;
 		$custom_booking_form = (string) $custom_booking_form;
 		$form_status         = (string) $form_status;
 		$custom_params       = ( is_array( $custom_params ) ) ? $custom_params : array();
 		$booking_hash        = sanitize_text_field( wp_unslash( (string) $booking_hash ) );
+		$edit_form_identity  = is_array( $edit_form_identity ) ? $edit_form_identity : array();
 
 		$req = array(
 			'resource_id'     => $resource_id,
@@ -375,7 +494,16 @@ class WPBC_FE_Form_Source {
 		// == If Booking Edit ? ==
 		// =============================================================================================================
 		// Maybe get the "custom booking form"  and child "booking resource ID", if the booking edited. And this booking was created in custom  booking form.
-		$maybe_edited__booking_id__resource_id = self::maybe_check_if_booking_edit( $booking_hash );
+		if ( empty( $edit_form_identity ) && '' !== $booking_hash ) {
+			$edit_form_identity = self::resolve_booking_form_identity( $resource_id, $custom_booking_form, $form_status, $custom_params, $booking_hash );
+		}
+
+		$maybe_edited__booking_id__resource_id = ! empty( $edit_form_identity['booking_id'] ) && ! empty( $edit_form_identity['booking_resource_id'] )
+			? array(
+				'booking_id'  => absint( $edit_form_identity['booking_id'] ),
+				'resource_id' => absint( $edit_form_identity['booking_resource_id'] ),
+			)
+			: self::maybe_check_if_booking_edit( $booking_hash );
 
 		if ( ! empty( $maybe_edited__booking_id__resource_id ) ) {
 
@@ -385,22 +513,12 @@ class WPBC_FE_Form_Source {
 			$req['current_edit_booking_id'] = $maybe_edited__booking_id__resource_id['booking_id'];
 
 			// Parsed booking form values.
-			$req['current_edit_booking'] = self::get_booking_data( $maybe_edited__booking_id__resource_id['booking_id'] );
+			$req['current_edit_booking'] = ! empty( $edit_form_identity['current_edit_booking'] )
+				? $edit_form_identity['current_edit_booking']
+				: self::get_booking_data( $maybe_edited__booking_id__resource_id['booking_id'] );
 
-			// -- Is use custom form ? ---------------------------------------------------------------------------------
-
-			// Get 'custom booking form name' from  URL.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$my_booking_form = ( ( isset( $_GET['booking_form'] ) ) ? sanitize_text_field( wp_unslash( $_GET['booking_form'] ) ) : '' );
-
-			// Otherwise get 'custom booking form name' from  EDIT booking details.
-			if ( ( empty( $my_booking_form ) ) && ( ! empty( $req['current_edit_booking']['parsed_form'][ 'wpbc_custom_booking_form' . $req['resource_id'] ] ) ) ) {
-				$my_booking_form = $req['current_edit_booking']['parsed_form'][ 'wpbc_custom_booking_form' . $req['resource_id'] ]['value'];
-			}
-
-			// If not '' then OVVERIDE.
-			if ( ! empty( $my_booking_form ) ) {
-				$req['form_slug'] = $my_booking_form;
+			if ( ! empty( $edit_form_identity['form_slug'] ) ) {
+				$req['form_slug'] = $edit_form_identity['form_slug'];
 			}
 
 
@@ -448,12 +566,14 @@ class WPBC_FE_Form_Source {
 		$custom_booking_form = (string) $req['form_slug'];
 
 		/**
-		 * $resolved = array(   'engine'                  : 'bfb_db'|'legacy'|'simple'
+		 * $resolved = array(   'engine'                  : 'bfb_db'|'bfb_missing'
 		 *                      'apply_after_load_filter' : bool
 		 *                      'bfb_loader_args'         : array()
 		 *                      'fallback_chain'          : array()
 		 */
-		$resolved = WPBC_FE_Form_Source_Resolver::resolve( $req );
+		$resolved = ! empty( $edit_form_identity['source_resolution'] )
+			? $edit_form_identity['source_resolution']
+			: WPBC_FE_Form_Source_Resolver::resolve( $req );
 
 		// -----------------------------------------------------------------
 		// BFB DB engine (only if resolver decided it).
@@ -467,28 +587,29 @@ class WPBC_FE_Form_Source {
 			}
 		}
 
-		// -----------------------------------------------------------------
-		// Legacy engine (unchanged output).
-		// -----------------------------------------------------------------
-		if ( ( ! empty( $legacy_instance ) )
-			 && ( false !== $legacy_instance->wpdev_bk_personal )
-			 // && ( 'On' != get_bk_option( 'booking_is_use_simple_booking_form' ) )  // Important! in paid versions, if edited in "Simple mode" the compiled form, still saved as "Advanced form" content, so we need to get it from there!
-		) {
-			return array(
-				'body_html'               => $legacy_instance->wpdev_bk_personal->get_booking_form( $resource_id, $custom_booking_form, $custom_params ),
-				'apply_after_load_filter' => false,
-				'bfb_settings'            => array(),
-			);
-		}
-
-		// -----------------------------------------------------------------
-		// Simple fallback. - ONLY  for the Booking Calendar Free version !
-		// -----------------------------------------------------------------
 		return array(
-			'body_html'               => wpbc_simple_form__get_booking_form__as_html( $resource_id, $custom_booking_form, $custom_params ),
-			'apply_after_load_filter' => true,
+			'body_html'               => self::get_missing_bfb_form_html( $resolved ),
+			'apply_after_load_filter' => false,
 			'bfb_settings'            => array(),
 		);
+	}
+
+	/**
+	 * Render a controlled empty state when no BFB form row exists.
+	 *
+	 * @param array $resolved Resolver result.
+	 *
+	 * @return string
+	 */
+	private static function get_missing_bfb_form_html( $resolved ) {
+
+		$reason = ( is_array( $resolved ) && ! empty( $resolved['reason'] ) ) ? (string) $resolved['reason'] : 'bfb_form_not_found';
+
+		if ( is_admin() || current_user_can( 'manage_options' ) ) {
+			return '<div class="wpbc_bfb_missing_form wpbc_alert_warning">' . esc_html__( 'Booking form configuration was not found. Please open the Booking Form Builder and save the form once.', 'booking' ) . ' <span class="wpbc_bfb_missing_reason">' . esc_html( $reason ) . '</span></div>';
+		}
+
+		return '<div class="wpbc_bfb_missing_form" style="display:none;"></div>';
 	}
 
 
@@ -570,16 +691,23 @@ class WPBC_FE_Form_Source {
 
 			if ( '' === $bfb_form_html ) {
 
-				$render_args = array_merge( $custom_params, array( 'booking_type' => (int) $resource_id ) );
+				$render_args = array_merge(
+					$custom_params,
+					array(
+						'booking_type' => (int) $resource_id,
+						'custom_params' => $custom_params,
+					)
+				);
 
-				$bfb_source = wpbc_lang( $bfb_source );
-
-				// Replace custom params in the source (legacy behavior).
-				if ( ! empty( $custom_params ) ) {
-					foreach ( $custom_params as $custom_params_key => $custom_params_value ) {
-						$bfb_source = str_replace( $custom_params_key, $custom_params_value, $bfb_source );
-					}
-				}
+				/*
+				 * Do not pass the complete Builder form through wpbc_lang(). Builder
+				 * labels and option values may contain legacy [lang=LOCALE] markers.
+				 * Parsing one of those inline markers as a whole-form language block
+				 * truncates everything before/after the matching field and can leave an
+				 * incomplete form on the front end. BFB multilingual forms are separate
+				 * custom forms and are selected by their form slug.
+				 */
+				$bfb_source = (string) $bfb_source;
 
 				$bfb_source = wpbc_bf__replace_custom_html_shortcodes( $bfb_source );
 
@@ -711,7 +839,10 @@ class WPBC_FE_Form_Wrapper {
 
 		$booking_form_is_using_bs_css = get_bk_option( 'booking_form_is_using_bs_css' );
 		$booking_form_format_type     = get_bk_option( 'booking_form_format_type' );
-		$booking_form_theme           = get_bk_option( 'booking_form_theme' );
+		$form_style_preset            = function_exists( 'wpbc_bfb_settings__get_form_style_preset' )
+			? wpbc_bfb_settings__get_form_style_preset( wpbc_bfb_settings__get_current_form_style() )
+			: array();
+		$booking_form_theme           = isset( $form_style_preset['theme_class'] ) ? sanitize_html_class( $form_style_preset['theme_class'] ) : '';
 
 		$form_container_random_id = 'form_id' . ( time() * wp_rand( 0, 1000 ) );
 		$form_container_css       = 'wpbc_container wpbc_form wpbc_container_booking_form ' . ( ( 'On' === wpbc_is_this_demo() ) ? ' wpbc_demo_site ' : '' ) .
@@ -801,28 +932,11 @@ class WPBC_FE_Inline_Scripts {
 			return '';
 		}
 
-		$is_use_auto_fill_for_logged = get_bk_option( 'booking_is_use_autofill_4_logged_user' );
-		if ( 'On' !== $is_use_auto_fill_for_logged ) {
+		$autofill_resolver = new WPBC_Booking_Logged_User_Autofill();
+		$fill_values       = $autofill_resolver->get_fill_values();
+		if ( empty( $fill_values ) ) {
 			return '';
 		}
-
-		$curr_user = wpbc_get_current_user();
-		if ( empty( $curr_user ) || ( (int) $curr_user->ID <= 0 ) ) {
-			return '';
-		}
-
-		$user_nick_name = get_user_meta( $curr_user->ID, 'nickname' );
-		$user_nick_name = ( empty( $user_nick_name ) ) ? '' : $user_nick_name[0];
-
-		$fill_values = array(
-			'nickname'   => (string) $user_nick_name,
-			'last_name'  => (string) $curr_user->last_name,
-			'first_name' => (string) $curr_user->first_name,
-			'email'      => (string) $curr_user->user_email,
-			'phone'      => (string) $curr_user->phone_number,
-			'nb_enfant'  => (string) $curr_user->nb_enfant,
-			'url'        => (string) $curr_user->user_url,
-		);
 
 		// IMPORTANT: return body only (no <script>, no ready wrapper).
 		$js_body = 'if ( window.WPBC_FE && ( typeof window.WPBC_FE.autofill_booking_form_fields === "function" ) ) {';
@@ -845,65 +959,75 @@ class WPBC_FE_Form_Style_Injector {
 	 */
 	public static function inject_css_vars_into_bfb_root( $html, $css_vars ) {
 
-		$html     = (string) $html;
-		$css_vars = is_array( $css_vars ) ? $css_vars : array();
+		return self::inject_css_vars_into_first_tag_with_classes( $html, $css_vars, array( 'wpbc_bfb_form' ) );
+	}
 
-		if ( empty( $css_vars ) ) {
+	/**
+	 * Inject CSS variables into the FIRST outer booking form wrapper.
+	 *
+	 * @param string $html
+	 * @param array  $css_vars
+	 *
+	 * @return string
+	 */
+	public static function inject_css_vars_into_form_wrapper( $html, $css_vars ) {
+
+		return self::inject_css_vars_into_first_tag_with_classes( $html, $css_vars, array( 'wpbc_container', 'wpbc_form' ) );
+	}
+
+	/**
+	 * Add a class to the FIRST <div> with all required class tokens.
+	 *
+	 * @param string $html
+	 * @param array  $required_classes
+	 * @param string $class_name
+	 *
+	 * @return string
+	 */
+	public static function add_class_to_first_tag_with_classes( $html, $required_classes, $class_name ) {
+
+		$html             = (string) $html;
+		$required_classes = is_array( $required_classes ) ? $required_classes : array();
+		$class_name       = sanitize_html_class( (string) $class_name );
+
+		if ( '' === $class_name || empty( $required_classes ) ) {
 			return $html;
 		}
-		if ( false === strpos( $html, 'wpbc_bfb_form' ) ) {
+
+		$pattern = self::get_first_div_with_classes_pattern( $required_classes );
+		if ( '' === $pattern ) {
 			return $html;
 		}
 
-		$style_append = self::build_css_vars_style_fragment( $css_vars );
-		if ( '' === $style_append ) {
-			return $html;
-		}
-
-		// Match FIRST <div ... class="... wpbc_bfb_form ..."> tag.
-		$pattern = '/<div\b[^>]*\bclass\s*=\s*(["\'])(?:(?!\1).)*\bwpbc_bfb_form\b(?:(?!\1).)*\1[^>]*>/i';
-
+		$done = false;
 		$result = preg_replace_callback(
 			$pattern,
-			function( $m ) use ( $style_append ) {
+			function( $m ) use ( $required_classes, $class_name, &$done ) {
 
 				$tag = $m[0];
 
-				// If style already exists: append.
-				if ( preg_match( '/\bstyle\s*=\s*(["\'])(.*?)\1/i', $tag, $sm ) ) {
-
-					$quote    = $sm[1];
-					$existing = (string) $sm[2];
-
-					// Avoid double-escaping if the tag already contains entities.
-					$existing = html_entity_decode( $existing, ENT_QUOTES, 'UTF-8' );
-
-					$merged = trim( $existing );
-					if ( ( '' !== $merged ) && ( ';' !== substr( $merged, -1 ) ) ) {
-						$merged .= ';';
-					}
-					$merged .= $style_append;
-
-					$tag = preg_replace(
-						'/\bstyle\s*=\s*(["\'])(.*?)\1/i',
-						'style=' . $quote . esc_attr( $merged ) . $quote,
-						$tag,
-						1
-					);
-
+				if ( ! empty( $done ) || ! self::tag_has_required_classes( $tag, $required_classes ) ) {
 					return $tag;
 				}
 
-				// No style attr: add it.
-				$tag = rtrim( $tag, '>' ) . ' style="' . esc_attr( $style_append ) . '">';
+				if ( ! preg_match( '/\bclass\s*=\s*(["\'])(.*?)\1/i', $tag, $cm ) ) {
+					return $tag;
+				}
 
-				return $tag;
+				$quote   = $cm[1];
+				$classes = trim( preg_replace( '/\s+/', ' ', (string) $cm[2] ) );
+
+				if ( false === strpos( ' ' . $classes . ' ', ' ' . $class_name . ' ' ) ) {
+					$classes = trim( $classes . ' ' . $class_name );
+				}
+
+				$done = true;
+
+				return preg_replace( '/\bclass\s*=\s*(["\'])(.*?)\1/i', 'class=' . $quote . esc_attr( $classes ) . $quote, $tag, 1 );
 			},
-			$html,
-			1
+			$html
 		);
 
-		// preg_replace_callback can return null on regex error.
 		return ( null === $result ) ? $html : $result;
 	}
 
@@ -948,7 +1072,7 @@ class WPBC_FE_Form_Style_Injector {
 
 		// Optional: enforce prefix to avoid abusing other vars (case-insensitive).
 		$lower = strtolower( $name );
-		if ( 0 !== strpos( $lower, '--wpbc-' ) && 0 !== strpos( $lower, '--wpbc_bfb-' ) ) {
+		if ( 0 !== strpos( $lower, '--wpbc-' ) && 0 !== strpos( $lower, '--wpbc_bfb-' ) && 0 !== strpos( $lower, '--wpbc_form-' ) ) {
 			return '';
 		}
 
@@ -976,5 +1100,111 @@ class WPBC_FE_Form_Style_Injector {
 		);
 
 		return trim( $value );
+	}
+
+	private static function inject_css_vars_into_first_tag_with_classes( $html, $css_vars, $required_classes ) {
+
+		$html     = (string) $html;
+		$css_vars = is_array( $css_vars ) ? $css_vars : array();
+
+		if ( empty( $css_vars ) ) {
+			return $html;
+		}
+
+		$style_append = self::build_css_vars_style_fragment( $css_vars );
+		if ( '' === $style_append ) {
+			return $html;
+		}
+
+		$pattern = self::get_first_div_with_classes_pattern( $required_classes );
+		if ( '' === $pattern ) {
+			return $html;
+		}
+
+		$done = false;
+		$result = preg_replace_callback(
+			$pattern,
+			function( $m ) use ( $required_classes, $style_append, &$done ) {
+
+				$tag = $m[0];
+
+				if ( ! empty( $done ) || ! self::tag_has_required_classes( $tag, $required_classes ) ) {
+					return $tag;
+				}
+
+				// If style already exists: append.
+				if ( preg_match( '/\bstyle\s*=\s*(["\'])(.*?)\1/i', $tag, $sm ) ) {
+
+					$quote    = $sm[1];
+					$existing = (string) $sm[2];
+
+					// Avoid double-escaping if the tag already contains entities.
+					$existing = html_entity_decode( $existing, ENT_QUOTES, 'UTF-8' );
+
+					$merged = trim( $existing );
+					if ( ( '' !== $merged ) && ( ';' !== substr( $merged, -1 ) ) ) {
+						$merged .= ';';
+					}
+					$merged .= $style_append;
+
+					$done = true;
+
+					return preg_replace(
+						'/\bstyle\s*=\s*(["\'])(.*?)\1/i',
+						'style=' . $quote . esc_attr( $merged ) . $quote,
+						$tag,
+						1
+					);
+				}
+
+				// No style attr: add it.
+				$done = true;
+				return rtrim( $tag, '>' ) . ' style="' . esc_attr( $style_append ) . '">';
+			},
+			$html
+		);
+
+		return ( null === $result ) ? $html : $result;
+	}
+
+	private static function get_first_div_with_classes_pattern( $required_classes ) {
+
+		$required_classes = is_array( $required_classes ) ? $required_classes : array();
+		$has_class        = false;
+
+		foreach ( $required_classes as $class_name ) {
+			$class_name = sanitize_html_class( (string) $class_name );
+			if ( '' === $class_name ) {
+				continue;
+			}
+			$has_class = true;
+		}
+
+		if ( ! $has_class ) {
+			return '';
+		}
+
+		return '/<div\b[^>]*\bclass\s*=\s*(["\'])(.*?)\1[^>]*>/i';
+	}
+
+	private static function tag_has_required_classes( $tag, $required_classes ) {
+
+		if ( ! preg_match( '/\bclass\s*=\s*(["\'])(.*?)\1/i', (string) $tag, $cm ) ) {
+			return false;
+		}
+
+		$classes = ' ' . preg_replace( '/\s+/', ' ', (string) $cm[2] ) . ' ';
+
+		foreach ( (array) $required_classes as $class_name ) {
+			$class_name = sanitize_html_class( (string) $class_name );
+			if ( '' === $class_name ) {
+				continue;
+			}
+			if ( false === strpos( $classes, ' ' . $class_name . ' ' ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

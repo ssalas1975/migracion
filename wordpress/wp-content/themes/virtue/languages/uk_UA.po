@@ -2190,12 +2190,12 @@ msgid "Extra Sidebar"
 msgstr "Додаткові бокові колонки"
 
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
-msgstr "Галерея Wordpress"
+msgid "WordPress Galleries"
+msgstr "Галерея WordPress"
 
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
-msgstr "Ввімкнути перезапис галереї Wordpress галереєю теми Virtue"
+msgid "Enable Virtue Galleries to override WordPress"
+msgstr "Ввімкнути перезапис галереї WordPress галереєю теми Virtue"
 
 #: ../themeoptions/options.php:1565
 msgid ""

@@ -156,7 +156,7 @@ msgstr "Προσυσκευασμένα"
 
 #: ../lib/class-tgm-plugin-activation.php:1096
 msgid "WordPress Repository"
-msgstr "Αποθετήριο δεδομένων του Wordpress"
+msgstr "Αποθετήριο δεδομένων του WordPress"
 
 #: ../lib/class-tgm-plugin-activation.php:1099
 msgid "Required"
@@ -2220,14 +2220,14 @@ msgid "Extra Sidebar"
 msgstr "Πρόσθετο πλαϊνό  μενού"
 
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
-msgstr "Galleries του Wordpress"
+msgid "WordPress Galleries"
+msgstr "Galleries του WordPress"
 
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
 "Ενεργοποίηση της επιλογής να αντικαθιστούν οι Galleries του Virtue τις "
-"Galleries του Wordpress"
+"Galleries του WordPress"
 
 #: ../themeoptions/options.php:1565
 msgid ""

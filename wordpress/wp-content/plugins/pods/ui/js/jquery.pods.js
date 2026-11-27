@@ -155,6 +155,10 @@
                 $( 'form.pods-submittable' ).on( 'submit', function ( e ) {
                     var $submittable = $( this );
 
+					const podName = $submittable.data( 'pods-pod-name' );
+					const itemId = $submittable.data( 'pods-item-id' );
+					const formCounter = $submittable.data( 'pods-form-counter' );
+
                     pods_changed = false;
 
                     e.preventDefault();
@@ -216,11 +220,45 @@
                             	value = null;
 							}
 
+							// Fix for FormData converting arrays into comma-separated strings.
                             if ( null !== value ) {
-                                postdata.append( field_name, value );
+								if ( field_name.endsWith( '[]' ) && Array.isArray( value ) ) {
+									value.forEach( ( subvalue ) => {
+										postdata.append( field_name, subvalue );
+									} );
+								} else {
+									postdata.append( field_name, value );
+								}
+
                             }
                         }
                     } );
+
+					// Check for valid fields from DFV next.
+					if (
+						valid_form
+						&& '' !== podName
+						&& 'undefined' !== typeof podName
+						&& '' !== itemId
+						&& 'undefined' !== typeof itemId
+					) {
+						const dfvFields = window.PodsDFV.getFieldValuesWithConfigs( podName, itemId, formCounter );
+
+						// @todo Replace this with a future method like window.PodsDFV.getValidationMessagesForFields( podName, itemId, formCounter )
+						if ( dfvFields && Object.entries( dfvFields ) ) {
+							Object.entries( dfvFields ).forEach( ( [ fieldName, field ] ) => {
+								// Check for required fields.
+								let fieldRequired = field?.fieldConfig?.required ?? false;
+								let fieldValue = field?.value ?? '';
+
+								if ( Boolean( fieldRequired ) && '0' !== fieldRequired ) {
+									if ( '' === fieldValue || null === fieldValue || undefined === fieldValue ) {
+										valid_form = false;
+									}
+								}
+							} );
+						}
+					}
 
                     if ( 'undefined' != typeof pods_admin_submit_validation )
                         valid_form = pods_admin_submit_validation( valid_form, $submittable );
@@ -257,7 +295,6 @@
 						contentType: false,
 						processData: false,
                         success : function ( d ) {
-
                             // Attempt to parse what was returned as data
                             try {
                                 data = $.parseJSON( d );
@@ -270,9 +307,11 @@
 
                                 // Added for modal add/edit support.  If we get a valid JSON object, we assume we're modal
                                 if ( 'object' === typeof data && null !== data ) {
-
                                     // Phone home with the data
-                                    window.parent.jQuery( window.parent ).trigger('dfv:modal:update', data );
+									window.parent.postMessage( {
+										type: 'PODS_MESSAGE',
+										data: data,
+									}, window.location.origin );
                                 }
                                 else {
                                     id = d.match( /\d*$/, '' );
@@ -527,14 +566,22 @@
                 if ( $slug.length ) {
 	                $slug.on( 'change', function () {
 	                    // Strip HTML/code.
-	                    var slug = $( this ).val().replace( /<( ?:. )*?>/g, '' ),
-		                    name = $( this ).prop( 'name' ).replace( '[', '\\[' ).replace( ']', '\\]' );
+	                    var slug = $( this ).val().replace( /([^0-9a-zA-Z\_\- ])/g, '' ),
+							nameRaw = $( this ).prop( 'name' ),
+		                    name = nameRaw.replace( /\[/g, '\\[' ).replace( /\]/g, '\\]' );
 
                         if ( slug.length ) {
+							slug = slug.replace(/_+/g, '_')
+								.replace(/\-+/g, '-');
 
-                            var slug_lower           = slug.toLowerCase(),
-	                            slug_sanitized       = slug.replace( /([^0-9a-zA-Z\_\- ])/g, '' ),
-	                            slug_sanitized_lower = slug_sanitized.toLowerCase();
+							var slug_lower = slug.toLowerCase(),
+								slug_sanitized = slug.replace(/([^0-9a-zA-Z\_\- ])/g, '')
+									.replace(/([_\- ]+)$/g, '')
+									.replace(/\s+/g, '_')
+									.replace(/-+/g, '-')
+									.replace(/_+/g, '_');
+
+							var slug_sanitized_lower = slug_sanitized.toLowerCase();
 
                             slug = slug.charAt( 0 ).toUpperCase() + slug.slice( 1 );
 
@@ -559,7 +606,11 @@
 		                            case 'textarea':
 			                            // Update fields.
 			                            if ( '' === $this.val() ) {
-				                            $this.val( val );
+											$this.val(val);
+
+											if ( 'undefined' !== typeof window.PodsDFVAPI ) {
+												window.PodsDFVAPI.setFieldValue($this.prop('name'), val);
+											}
 			                            }
 		                            	break;
 		                            default:

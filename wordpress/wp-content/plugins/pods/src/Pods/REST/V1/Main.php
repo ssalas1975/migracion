@@ -2,7 +2,12 @@
 
 namespace Pods\REST\V1;
 
-use Tribe__REST__Main as REST__Main;
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\REST\Abstracts\Main_Abstract;
 
 /**
  * Class Main
@@ -13,7 +18,7 @@ use Tribe__REST__Main as REST__Main;
  *
  * @since 2.8.0
  */
-class Main extends REST__Main {
+class Main extends Main_Abstract {
 
 	/**
 	 * REST API URL prefix.
@@ -61,7 +66,7 @@ class Main extends REST__Main {
 	}
 
 	/**
-	 * Returns the Pods REST API namespace string that hsould be used to register a route.
+	 * Returns the Pods REST API namespace string that should be used to register a route.
 	 *
 	 * @since 2.8.0
 	 *

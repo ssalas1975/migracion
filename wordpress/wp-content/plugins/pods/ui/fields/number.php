@@ -1,4 +1,12 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $field_number = PodsForm::field_loader( 'number' );
 
 $attributes             = array();
@@ -9,13 +17,13 @@ $attributes             = PodsForm::merge_attributes( $attributes, $name, $form_
 
 global $wp_locale;
 
-if ( '9999.99' == pods_var( 'number_format', $options ) ) {
+if ( '9999.99' === pods_v( 'number_format', $options ) ) {
 	$thousands = ',';
 	$dot       = '.';
-} elseif ( '9999,99' == pods_var( 'number_format', $options ) ) {
+} elseif ( '9999,99' === pods_v( 'number_format', $options ) ) {
 	$thousands = '.';
 	$dot       = ',';
-} elseif ( '9.999,99' == pods_var( 'number_format', $options ) ) {
+} elseif ( '9.999,99' === pods_v( 'number_format', $options ) ) {
 	$thousands = '.';
 	$dot       = ',';
 } else {
@@ -29,10 +37,10 @@ $regex_replace = '[^0-9\\' . implode( '\\', array_filter( array( $dot, $thousand
 <script>
 	jQuery( function ( $ ) {
 		$( 'input#<?php echo esc_js( $attributes['id'] ); ?>' ).on( 'blur', function () {
-            if ( !/<?php echo $regex_test; ?>/.test( $( this ).val() ) ) {
+            if ( !/<?php echo esc_js( $regex_test ); ?>/.test( $( this ).val() ) ) {
 				var newval = $( this )
 					.val()
-                    .replace( /<?php echo $regex_replace; ?>/g, '' );
+                    .replace( /<?php echo esc_js( $regex_replace ); ?>/g, '' );
 				$( this ).val( newval );
 			}
 		} );

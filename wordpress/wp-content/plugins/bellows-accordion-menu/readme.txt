@@ -3,8 +3,9 @@ Contributors: sevenspark
 Donate link: https://wpaccordionmenu.com
 Tags: menu, navigation, accordion, images, widgets, icons, shortcodes, responsive, expand, toggle, reveal, accordian
 Requires at least: 5.0
-Tested up to: 5.8.1
-Stable tag: 1.3
+Tested up to: 6.8.1
+Requires PHP: 7.4
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +56,39 @@ Please see the [Feature Comparison Table](https://wpaccordionmenu.com/features/)
 
 
 == Changelog ==
+
+= 1.4.4 =
+* Security: Fix XSS vulnerability - Authenticated (Contributor+) XSS via shortcode
+* Fix: Autopopulation Edge case with term autopopulation queries that return result sets that include children but not parents.
+
+= 1.4.3 =
+
+* Security: Fix XSS vulnerability - Authenticated (Contributor+) Stored cross-site scripting via shortcode
+
+= 1.4.2 =
+
+* Requirement Update: Minimum PHP version to 7.4 (current support through 8.1)
+* Feature: [Pro] New Orderby option for Autopopulated Terms Menu: Meta Term Order (supports WooCommerce custom Product Category ordering)
+* Enhancement: Current submenus expanded by default rather than animating open on page load
+* Fix: Walker start_el arguments default type to stdClass instead of array
+* Fix: [Pro] Duplicate Autopopulation corner case
+* Fix: Undefined variable corner case
+
+= 1.4.1 =
+
+* Fix: Resolve undefined $default variable notice in Customizer
+
+= 1.4 =
+
+* Feature: [Pro] Menu Section functionality (display just a section of a menu, based on a root, which can be dynamically determined)
+* Feature: Add aria-label to submenu toggle buttons
+* Feature: Add filters for submenu toggle icons and content
+* Fix: Radio toggle alignment in Customizer settings
+* Fix: Checkbox settings in Customizer
+* Fix: [Pro] Responsive & Mobile tab contents not displaying in pro
+* Fix: [Pro] Pass 'counts' attribute to bellows_terms shortcode
+* Fix: Properly echo toggle when menu is also echoed rather than returned
+
 
 = 1.3 =
 

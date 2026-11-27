@@ -12,6 +12,28 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;                                             // Exit if accessed directly
 
+if ( defined( 'WPBC_ENABLE_12_0_TIMELINE' ) && true === WPBC_ENABLE_12_0_TIMELINE ) {
+	require_once WPBC_PLUGIN_DIR . '/includes/booking-inspector/booking-inspector.php';
+}
+
+/**
+ * Resolve the Inspector host represented by the legacy Calendar route.
+ *
+ * The one-day, time-slotted presentation is the Schedule host; broader
+ * Calendar ranges retain the Calendar source. The value is presentation
+ * context only and never grants access to a booking.
+ *
+ * @return string Allow-listed Booking Inspector source identifier.
+ */
+function wpbc_calendar_overview_get_inspector_source() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view selection; authorization remains server-side in the Inspector endpoint.
+	$view_days_number = isset( $_REQUEST['view_days_num'] ) ? absint( $_REQUEST['view_days_num'] ) : 0;
+
+	return 1 === $view_days_number
+		? WPBC_Booking_Inspector_Config::SOURCE_SCHEDULE
+		: WPBC_Booking_Inspector_Config::SOURCE_CALENDAR;
+}
+
 
 
 /**
@@ -31,13 +53,16 @@ class WPBC_Page_CalendarOverview extends WPBC_Page_Structure {
     public function tabs() {
         
 		$is_full_screen = WPBC_User_Custom_Data_Saver::get_user_data_value( wpbc_get_current_user_id(), 'is_full_screen' );
+		$is_full_screen = function_exists( 'wpbc_ui__get_full_screen_mode_from_cookie' )
+			? wpbc_ui__get_full_screen_mode_from_cookie( $is_full_screen )
+			: $is_full_screen;
 		$is_full_screen = ( 'On' === $is_full_screen );
 
         $tabs = array();
         $tabs[ 'vm_calendar' ] = array(
-			'is_show_top_path'                   => false,                               // true | false.  By default value is: false.
+			'is_show_top_path'                   => true,                                // true | false.  By default value is: true.
 			'is_show_top_navigation'             => true,                                // true | false.  By default value is: false.
-			'left_navigation__default_view_mode' => ( $is_full_screen ) ? 'compact' : 'min',   // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
+			'left_navigation__default_view_mode' => '',  // FixIn:11.7.1.1: ( $is_full_screen ) ? 'compact' : 'min',   // '' | 'min' | 'compact' | 'max' | 'none'.  By default value is: ''.
 			'page_title'                         => false,                               // Header - Title.  If false, than hidden.
 			'page_description'                   => false,                               // Header - Title Description.  If false, than hidden.
                               'title' => __('Timeline View','booking')            // Title of TAB
@@ -120,7 +145,20 @@ class WPBC_Page_CalendarOverview extends WPBC_Page_Structure {
 
 			$this->timeline->admin_init();                                      // Define all REQUEST parameters and get bookings
 
-			$this->timeline->show_timeline();
+			$inspector_enabled = defined( 'WPBC_ENABLE_12_0_TIMELINE' )
+				&& true === WPBC_ENABLE_12_0_TIMELINE
+				&& class_exists( 'WPBC_Booking_Inspector_Config' );
+			if ( $inspector_enabled ) {
+				$inspector_source = wpbc_calendar_overview_get_inspector_source();
+				?>
+				<div data-wpbc-booking-inspector-host-root="<?php echo esc_attr( $inspector_source ); ?>">
+					<?php $this->timeline->show_timeline(); ?>
+					<div data-wpbc-booking-inspector-host-shell></div>
+				</div>
+				<?php
+			} else {
+				$this->timeline->show_timeline();
+			}
 
 			// FixIn: 9.9.0.18.
 			if ( 'UTC' !== $server_zone ) {                                                                                     // Back  to  previos state,  if it was changed.
@@ -138,6 +176,20 @@ class WPBC_Page_CalendarOverview extends WPBC_Page_Structure {
 
 		if ( class_exists( 'WPBC_Add_Booking_Modal' ) ) {
 			WPBC_Add_Booking_Modal::template_for_modal();
+		}
+
+		if (
+			defined( 'WPBC_ENABLE_12_0_TIMELINE' )
+			&& true === WPBC_ENABLE_12_0_TIMELINE
+			&& class_exists( 'WPBC_Shared_UI_Inspector' )
+			&& class_exists( 'WPBC_Booking_Inspector_Config' )
+		) {
+			WPBC_Shared_UI_Inspector::print_template();
+			WPBC_Booking_Inspector_Config::print_template();
+		}
+		do_action( 'wpbc_hook_booking_template__hidden_templates' );
+		if ( class_exists( 'WPBC_Print' ) ) {
+			WPBC_Print::print_modal();
 		}
     }
 

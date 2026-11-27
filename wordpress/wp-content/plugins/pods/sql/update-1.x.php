@@ -1,4 +1,12 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 /**
  * @package Pods\Upgrade
  */
@@ -241,7 +249,7 @@ if ( version_compare( $old_version, '1.7.3', '<' ) ) {
 
 if ( version_compare( $old_version, '1.7.5', '<' ) ) {
 	if ( empty( $pods_roles ) && ! is_array( $pods_roles ) ) {
-		$pods_roles = @unserialize( get_option( 'pods_roles' ) );
+		$pods_roles = pods_maybe_safely_unserialize( get_option( 'pods_roles' ) );
 
 		if ( ! is_array( $pods_roles ) ) {
 			$pods_roles = array();
@@ -276,7 +284,7 @@ if ( version_compare( $old_version, '1.7.6', '<' ) ) {
 		$rels    = array();
 
 		foreach ( (array) $items as $item ) {
-			$filename = $item->file;
+			$filename = (string) $item->file;
 
 			if ( strpos( $filename, get_site_url() ) !== false && 0 === strpos( $filename, get_site_url() ) ) {
 				$filename = ltrim( $filename, get_site_url() );

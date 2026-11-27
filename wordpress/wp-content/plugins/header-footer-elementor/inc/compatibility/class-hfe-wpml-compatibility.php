@@ -9,7 +9,7 @@
  * @since       HFE 1.0.9
  */
 
-defined( 'ABSPATH' ) or exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Set up WPML Compatibiblity Class.
@@ -58,7 +58,8 @@ class HFE_WPML_Compatibility {
 	 * @return Int $id  Post ID of the template being rendered, Passed through the `wpml_object_id` id.
 	 */
 	public function get_wpml_object( $id ) {
-		$translated_id = apply_filters( 'wpml_object_id', $id );
+		// Fall back to the original template when the current language has no translation yet.
+		$translated_id = apply_filters( 'wpml_object_id', $id, 'elementor-hf', true );
 
 		if ( defined( 'POLYLANG_BASENAME' ) ) {
 

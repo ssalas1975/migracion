@@ -300,12 +300,12 @@ function kadence_get_adjacent_post_plus($r, $previous = true ) {
             $taxonomies[] = 'post_format';
           $ex_cats_posts = get_objects_in_term( $excluded_categories, $taxonomies );
           if ( !empty($ex_cats_posts) )
-            $ex_cats_sql = "AND p.ID NOT IN (" . implode($ex_cats_posts, ',') . ")";
+            $ex_cats_sql = "AND p.ID NOT IN (" . implode(',', $ex_cats_posts) . ")";
         } else {
           if ( !empty($term_array) && !in_array($ex_cats_method, array('diff', 'differential')) )
             $excluded_categories = array_diff($excluded_categories, $term_array);
           if ( !empty($excluded_categories) )
-            $ex_cats_sql = "AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
+            $ex_cats_sql = "AND tt.term_id NOT IN (" . implode(',', $excluded_categories) . ')';
         }
       }
 
@@ -482,6 +482,7 @@ function kadence_adjacent_post_link_plus($args = '', $format = '%link &raquo;', 
     $title = apply_filters('the_title', $title, $post->ID);
     $date = mysql2date($r['date_format'], $post->post_date);
     $author = get_the_author_meta('display_name', $post->post_author);
+    $author_escaped = esc_html( $author );
   
 //    Set anchor title attribute to long post title or custom tooltip text. Supports variable replacement in custom tooltip.
     if ( $r['tooltip'] ) {
@@ -507,7 +508,7 @@ function kadence_adjacent_post_link_plus($args = '', $format = '%link &raquo;', 
     $format = str_replace('%link', $link, $r['format']);
     $format = str_replace('%title', $title, $format);
     $format = str_replace('%date', $date, $format);
-    $format = str_replace('%author', $author, $format);
+    $format = str_replace('%author', $author_escaped, $format);
     if ( ($r['order_by'] == 'custom' || $r['order_by'] == 'numeric') && !empty($r['meta_key']) ) {
       $meta = get_post_meta($post->ID, $r['meta_key'], true);
       $format = str_replace('%meta', $meta, $format);

@@ -15,6 +15,56 @@
 if ( ! defined( 'ABSPATH' ) ) exit;                                             // Exit if accessed directly
 
 	/**
+	 * Determine whether a link value represents an in-page user-interface action.
+	 *
+	 * Pseudo-action links must remain in the current browsing context when a host
+	 * document defines a different default target, as WordPress Playground may do.
+	 * Real HTTP, email, telephone, and other protocol links are not action links.
+	 *
+	 * @param mixed $href Link value to classify.
+	 *
+	 * @return bool True for an empty, fragment, or JavaScript action link.
+	 */
+	function wpbc_is_pseudo_action_href( $href ) {
+
+		if ( ! is_scalar( $href ) ) {
+			return false;
+		}
+
+		$normalized_href = strtolower( trim( (string) $href ) );
+
+		return '' === $normalized_href
+			|| 0 === strpos( $normalized_href, '#' )
+			|| 0 === strpos( $normalized_href, 'javascript:' );
+	}
+
+	/**
+	 * Return the safe browsing-context target for a generated action link.
+	 *
+	 * Existing explicit targets remain authoritative for backward compatibility.
+	 * Otherwise, pseudo-action links receive `_self` before browser event dispatch,
+	 * preventing an embedding document's default target from opening another page.
+	 *
+	 * @param mixed $href       Link value to classify.
+	 * @param array $attributes Optional attributes already supplied by the caller.
+	 *
+	 * @return string `_self` for an un-targeted pseudo-action link, otherwise empty.
+	 */
+	function wpbc_get_pseudo_action_target( $href, $attributes = array() ) {
+
+		if (
+			is_array( $attributes )
+			&& isset( $attributes['target'] )
+			&& is_scalar( $attributes['target'] )
+			&& '' !== trim( (string) $attributes['target'] )
+		) {
+			return '';
+		}
+
+		return wpbc_is_pseudo_action_href( $href ) ? '_self' : '';
+	}
+
+	/**
 	 * Get Logo for conversation.
 	 *
 	 * @param string $svg_color - main color.
@@ -545,7 +595,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;                                             
 		function wpbc_can_i_load_on__resources_page() {
 
 			if (
-				   ( isset( $_REQUEST['page'] ) ) && ( $_REQUEST['page'] === 'wpbc-resources' )        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				   ( isset( $_REQUEST['page'] ) )
+				&& (
+					   ( $_REQUEST['page'] === 'wpbc-resources' )                                      // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					|| (
+						   ( $_REQUEST['page'] === 'wpbc-booking-resources' )                           // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						&& function_exists( 'wpbc_is_11_6_features_enabled' )
+						&& wpbc_is_11_6_features_enabled()
+					)
+					|| (
+						   ( $_REQUEST['page'] === 'wpbc-catalog-booking-resources' )                   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						&& function_exists( 'wpbc_is_11_6_features_enabled' )
+						&& wpbc_is_11_6_features_enabled()
+					)
+				)
 			) {
 				return true;
 			}
@@ -584,7 +647,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;                                             
 		 */
 		function wpbc_can_i_load_on_this_page__modal_search_options() {
 
-			if ( wpbc_can_i_load_on__searchable_resources_page() ){
+			if (
+				wpbc_can_i_load_on__searchable_resources_page()
+				|| (
+					function_exists( 'wpbc_catalog_searchable_resources_is_page' )
+					&& wpbc_catalog_searchable_resources_is_page()
+				)
+			) {
 				return true;
 			} else {
 				return false;
@@ -1561,13 +1630,25 @@ function wpbc_auto_cancel_booking( $booking_id, $email_reason = '' ) {
 	// <editor-fold     defaultstate="collapsed"                        desc="  ==  Logs for Notes / remarks  ==  "  >
 
 		/**
-		 * Add Log info  to  Notes of bookings
+		 * Record released log calls through the current activity boundary.
 		 *
-		 * @param array | int $booking_id_arr
-		 * @param string $message
+		 * Structured activity receives only a safe inferred event type. Before the
+		 * activity schema is available, the released option-controlled Private-note
+		 * append remains as the upgrade compatibility fallback.
+		 *
+		 * @param array<int,int>|int $booking_id_arr Booking IDs.
+		 * @param string             $message        Legacy free-form message used only for safe type inference after cutover.
+		 *
+		 * @return void
 		 */
 		function wpbc_db__add_log_info( $booking_id_arr, $message ) {
 
+			if ( function_exists( 'wpbc_booking_activity_table_exists' ) && wpbc_booking_activity_table_exists() ) {
+				if ( function_exists( 'wpbc_booking_activity_queue_legacy_log' ) ) {
+					wpbc_booking_activity_queue_legacy_log( $booking_id_arr, $message );
+				}
+				return;
+			}
 			if ( get_bk_option( 'booking_log_booking_actions' ) !== 'On' ) {
 				return;
 			}

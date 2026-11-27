@@ -2613,12 +2613,12 @@ msgstr ""
 
 # @ virtue
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
+msgid "WordPress Galleries"
 msgstr ""
 
 # @ virtue
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
 
 # @ virtue

@@ -2,6 +2,11 @@
 
 namespace Pods\REST\V1\Endpoints;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use WP_REST_Request;
 
 class Pod_Slug extends Pod {
@@ -12,6 +17,20 @@ class Pod_Slug extends Pod {
 	 * @since 2.8.0
 	 */
 	public $route = '/pods/%1$s';
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @since 2.8.11
+	 */
+	public $rest_route = '/pods/(?P<slug>[\w\_\-]+)';
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @since 2.8.11
+	 */
+	public $rest_doc_route = '/pods/{slug}';
 
 	/**
 	 * {@inheritdoc}

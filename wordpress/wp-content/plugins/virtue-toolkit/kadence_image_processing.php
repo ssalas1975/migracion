@@ -73,23 +73,25 @@ if ( ! class_exists( 'Kadence_Image_Processing' ) ) {
 
 			return $check;
 		}
-		public function process( $id = null, $width, $height) {
-			$sizes = array(array($width, $height));
+		public function process( $id = null, $width = '', $height = '' ) {
+			$width = absint( $width );
+			$height = absint( $height );
+			$sizes = array( array( $width, $height ) );
 			$retina = array();
 			if ( apply_filters( 'kadence_retina_support', true ) ) {
-                    $retina_w = $width*2;
-                    $retina_h = $height*2;
-                    $retina = array(array($retina_w,  $retina_h));
-            }
-            $sizes = array_reverse(array_merge($sizes,$retina));
+					$retina_w = $width*2;
+					$retina_h = $height*2;
+					$retina = array(array($retina_w,  $retina_h));
+			}
+			$sizes = array_reverse(array_merge($sizes,$retina));
 			// If we haven't created the image yet, lets do that now.
 			$created = false;
 			foreach ( $sizes as $size ) {
-				if ( self::kt_does_size_already_exist_for_image( $id,  $size[0], $size[1] ) ) {
+				if ( self::kt_does_size_already_exist_for_image( $id, $size[0], $size[1] ) ) {
 					continue;
 				}
 
-				if ( self::kt_is_size_larger_than_original( $id,  $size[0], $size[1] ) ) {
+				if ( self::kt_is_size_larger_than_original( $id, $size[0], $size[1] ) ) {
 					continue;
 				}
 				$item = array(

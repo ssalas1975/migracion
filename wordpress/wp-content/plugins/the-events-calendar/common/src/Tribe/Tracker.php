@@ -282,8 +282,12 @@ class Tribe__Tracker {
 		// If we got here we will update the Modified Meta
 		$modified[ $meta_key ] = $now;
 
+		// Avoid loops!
+		remove_filter( 'update_post_metadata', [ $this, 'filter_watch_updated_meta' ], PHP_INT_MAX - 1 );
 		// Actually do the Update
 		update_post_meta( $post->ID, self::$field_key, $modified );
+		// Safe to filter again.
+		add_filter( 'update_post_metadata', [ $this, 'filter_watch_updated_meta' ], PHP_INT_MAX - 1, 5 );
 
 		// We need to return this, because we are still on a filter
 		return $check;
@@ -352,12 +356,12 @@ class Tribe__Tracker {
 	 *
 	 * @see wp_set_object_terms()
 	 *
-	 * @param $object_id
-	 * @param $terms
-	 * @param $tt_ids
-	 * @param $taxonomy
-	 * @param $append
-	 * @param $old_tt_ids
+	 * @param int|WP_Post $object_id  The object ID.
+	 * @param array       $terms      The terms.
+	 * @param array       $tt_ids     The term taxonomy IDs.
+	 * @param string      $taxonomy   The taxonomy.
+	 * @param bool        $append     Whether to append the terms.
+	 * @param array       $old_tt_ids The old term taxonomy IDs.
 	 *
 	 * @return bool `true` if the post type and taxonomy are tracked, `false` otherwise.
 	 */

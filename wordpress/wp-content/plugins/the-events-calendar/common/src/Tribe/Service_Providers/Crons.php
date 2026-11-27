@@ -2,7 +2,7 @@
 /**
  * Handles common cron functions.
  *
- * @since   4.12.6
+ * @since 4.12.6
  *
  * @package Tribe\Service_Providers
  */
@@ -10,15 +10,17 @@
 namespace Tribe\Service_Providers;
 
 use Tribe\DB_Lock;
+use TEC\Common\Contracts\Service_Provider;
 
 /**
  * Class Crons
  *
- * @since   4.12.6
+ * @since 4.12.6
  *
  * @package Tribe\Service_Providers
  */
-class Crons extends \tad_DI52_ServiceProvider {
+class Crons extends Service_Provider {
+
 
 	/**
 	 * Registers the filters required by the provider to manage cron processes.

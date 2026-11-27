@@ -22,15 +22,25 @@ function wpbc_availability_general_ajax_save() {
 	}
 
 	if ( ! wpbc_is_mu_user_can_be_here( 'only_super_admin' ) || ! current_user_can( wpbc_availability_general__get_manage_cap() ) ) {
-		wp_send_json_error( array( 'message' => __( 'You do not have permission to change general availability.', 'booking' ) ), 403 );
+		wp_send_json_error( array( 'message' => __( 'You do not have permission to change Schedule & Rules.', 'booking' ) ), 403 );
 	}
 
 	$cleaned_data = wpbc_availability_general__validate_data( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing
+	if ( is_wp_error( $cleaned_data ) ) {
+		wp_send_json_error(
+			array(
+				'code'    => $cleaned_data->get_error_code(),
+				'message' => $cleaned_data->get_error_message(),
+			),
+			422
+		);
+	}
+
 	wpbc_availability_general__update_settings( $cleaned_data );
 
 	wp_send_json_success(
 		array(
-			'message'  => __( 'General availability settings updated.', 'booking' ),
+			'message'  => __( 'Schedule & Rules settings updated.', 'booking' ),
 			'settings' => wpbc_availability_general__get_settings_response(),
 		)
 	);

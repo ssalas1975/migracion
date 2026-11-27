@@ -2,13 +2,18 @@
 
 namespace Pods\REST\V1\Endpoints;
 
-use Tribe__Documentation__Swagger__Provider_Interface as Swagger_Interface;
-use Tribe__REST__Endpoints__DELETE_Endpoint_Interface as DELETE_Interface;
-use Tribe__REST__Endpoints__READ_Endpoint_Interface as READ_Interface;
-use Tribe__REST__Endpoints__UPDATE_Endpoint_Interface as UPDATE_Interface;
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+use Pods\REST\Interfaces\Endpoints\DELETE_Interface;
+use Pods\REST\Interfaces\Endpoints\READ_Interface;
+use Pods\REST\Interfaces\Endpoints\UPDATE_Interface;
+use Pods\REST\Interfaces\Swagger\Provider_Interface;
 use WP_REST_Request;
 
-class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Interface, Swagger_Interface {
+class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Interface, Provider_Interface {
 
 	/**
 	 * {@inheritdoc}
@@ -16,6 +21,20 @@ class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Inter
 	 * @since 2.8.0
 	 */
 	public $route = '/pods/%1$d';
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @since 2.8.11
+	 */
+	public $rest_route = '/pods/(?P<id>\\d+)';
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @since 2.8.11
+	 */
+	public $rest_doc_route = '/pods/{id}';
 
 	/**
 	 * {@inheritdoc}
@@ -36,25 +55,29 @@ class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Inter
 			'type'    => 'string',
 		];
 
-		// @todo Handle get/post/delete
+		$POST_defaults = [
+			'in'      => 'body',
+			'default' => '',
+			'type'    => 'string',
+		];
 
 		return [
 			'get' => [
-				'summary'    => __( 'Returns a single ticket data.', 'pods' ),
+				'summary'    => 'Retrieve a specific Pod',
 				'parameters' => $this->swaggerize_args( $this->READ_args(), $GET_defaults ),
 				'responses'  => [
 					'200' => [
-						'description' => __( 'Returns the data of the ticket with the specified post ID.', 'pods' ),
+						'description' => 'Returns the requested Pod with its details',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
-									'$ref' => '#/components/schemas/Ticket',
+									'$ref' => '#/components/schemas/Pod',
 								],
 							],
 						],
 					],
 					'400' => [
-						'description' => __( 'The ticket post ID is invalid.', 'pods' ),
+						'description' => 'The request was invalid or cannot be otherwise served',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
@@ -64,7 +87,7 @@ class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Inter
 						],
 					],
 					'401' => [
-						'description' => __( 'The ticket with the specified ID is not accessible.', 'pods' ),
+						'description' => 'Unauthorized access - user does not have permission to access this Pod',
 						'content'     => [
 							'application/json' => [
 								'schema' => [
@@ -74,7 +97,99 @@ class Pod extends Base implements READ_Interface, UPDATE_Interface, DELETE_Inter
 						],
 					],
 					'404' => [
-						'description' => __( 'A ticket with the specified ID does not exist.', 'pods' ),
+						'description' => 'The requested Pod was not found',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+				],
+			],
+			'put' => [
+				'summary'    => 'Update a specific Pod',
+				'parameters' => $this->swaggerize_args( $this->EDIT_args(), $POST_defaults ),
+				'responses'  => [
+					'200' => [
+						'description' => 'Returns the updated Pod',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'$ref' => '#/components/schemas/Pod',
+								],
+							],
+						],
+					],
+					'400' => [
+						'description' => 'The request was invalid or cannot be otherwise served',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to update this Pod',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'404' => [
+						'description' => 'The Pod to update was not found',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+				],
+			],
+			'delete' => [
+				'summary'    => 'Delete a specific Pod',
+				'parameters' => $this->swaggerize_args( $this->DELETE_args(), $POST_defaults ),
+				'responses'  => [
+					'200' => [
+						'description' => 'Returns the deleted Pod details',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'$ref' => '#/components/schemas/Pod',
+								],
+							],
+						],
+					],
+					'400' => [
+						'description' => 'The request was invalid or cannot be otherwise served',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'401' => [
+						'description' => 'Unauthorized access - user does not have permission to delete this Pod',
+						'content'     => [
+							'application/json' => [
+								'schema' => [
+									'type' => 'object',
+								],
+							],
+						],
+					],
+					'404' => [
+						'description' => 'The Pod to delete was not found',
 						'content'     => [
 							'application/json' => [
 								'schema' => [

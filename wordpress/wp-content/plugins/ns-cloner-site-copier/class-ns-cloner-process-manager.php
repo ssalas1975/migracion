@@ -311,7 +311,7 @@ class NS_Cloner_Process_Manager {
 		$end_time   = ns_cloner()->report->get_end_time();
 		$total_time = ns_cloner()->report->get_elapsed_time();
 		$minutes    = floor( $total_time / 60 );
-		$seconds    = ceil( round( $total_time % 60 ) );
+		$seconds    = (int) round( $total_time % 60 );
 		ns_cloner()->report->add_report( __( 'Start Time', 'ns-cloner-site-copier' ), $start_time );
 		ns_cloner()->report->add_report( __( 'End Time', 'ns-cloner-site-copier' ), $end_time );
 		ns_cloner()->report->add_report( __( 'Total Time', 'ns-cloner-site-copier' ), "{$minutes} min. {$seconds} sec." );
@@ -419,6 +419,8 @@ class NS_Cloner_Process_Manager {
 	 * Create a new site/blog on the network (step 1 for core mode)
 	 */
 	public function create_site() {
+		global $wp_filter;
+
 		$source_id    = ns_cloner_request()->get( 'source_id' );
 		$target_name  = ns_cloner_request()->get( 'target_name', '' );
 		$target_title = ns_cloner_request()->get( 'target_title', '' );
@@ -446,6 +448,29 @@ class NS_Cloner_Process_Manager {
 			);
 		}
 		ns_cloner()->log->log( array( 'Attempting to create site with data:', $site_data ) );
+
+		$deferred_hooks = array();
+		$hooks_to_defer = apply_filters( 'ns_cloner_hooks_to_defer', array( 'add_user_role', 'set_user_role' ) );
+		foreach ( $hooks_to_defer as $hook_name ) {
+			if ( ! isset( $wp_filter[ $hook_name ] ) ) {
+				continue;
+			}
+
+			foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {
+				foreach ( $callbacks as $key => $callback ) {
+					if ( is_array( $callback['function'] ) && is_object( $callback['function'][0] ) && strpos( get_class( $callback['function'][0] ), 'FluentCampaign' ) !== false ) {
+						$deferred_hooks[] = array(
+							'hook'          => $hook_name,
+							'callback'      => $callback['function'],
+							'priority'      => $priority,
+							'accepted_args' => $callback['accepted_args'],
+						);
+						remove_action( $hook_name, $callback['function'], $priority );
+					}
+				}
+			}
+		}
+
 		if ( function_exists( 'wp_insert_site' ) ) {
 			$target_id = wp_insert_site( $site_data );
 		} else {
@@ -456,6 +481,10 @@ class NS_Cloner_Process_Manager {
 				$site_data['title'],
 				$site_data['user_id']
 			);
+		}
+
+		foreach ( $deferred_hooks as $deferred ) {
+			add_action( $deferred['hook'], $deferred['callback'], $deferred['priority'], $deferred['accepted_args'] );
 		}
 
 		// Handle results.
@@ -478,6 +507,17 @@ class NS_Cloner_Process_Manager {
 		$target_prefix  = ns_cloner_request()->get( 'target_prefix' );
 		$source_id      = ns_cloner_request()->get( 'source_id' );
 		$target_id      = ns_cloner_request()->get( 'target_id' );
+
+		// Save the remote upload directory URL when selecting the 'do not copy media' option.
+		if ( ! ns_cloner_request()->get( 'do_copy_files' ) ) {
+			$source_dir = ns_cloner_request()->get( 'source_url' ) . '/' . ns_cloner_request()->get( 'source_upload_dir_relative' );
+			$source_dir = str_replace( array( '.', '/' ), array( '-!dot!-', '-!slash!-' ), $source_dir );
+			if ( is_multisite() ) {
+				update_blog_option( $source_id, 'ns-media-source-site-url', $source_dir );
+			} else {
+				update_option( 'ns-media-source-site-url', $source_dir );
+			}
+		}
 
 		// Makes sure that the target prefix is not somehow the same as the source.
 		// Shouldn't be possible, but is irreversibly destructive if it does, so make sure.
@@ -558,7 +598,7 @@ class NS_Cloner_Process_Manager {
 		if ( empty( $processes ) && empty( ns_cloner()->report->get_all_reports() ) ) {
 			// Try to get error message.
 			$default_error = __( 'An unknown error occurred. Check the logs for info.', 'ns-cloner-site-copier' );
-			$this->add_error( ns_cloner()->report->get_report( '_error' ) ?: $default_error );
+			$this->add_error( ns_cloner()->report->get_report( '_error' ) ? ns_cloner()->report->get_report( '_error' ) : $default_error );
 			return false;
 		}
 
@@ -637,5 +677,4 @@ class NS_Cloner_Process_Manager {
 	public function is_in_progress( $suppress_filters = false ) {
 		return count( $this->get_current_processes( $suppress_filters ) ) > 0;
 	}
-
 }

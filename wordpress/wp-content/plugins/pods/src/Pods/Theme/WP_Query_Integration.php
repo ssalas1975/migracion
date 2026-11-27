@@ -2,6 +2,11 @@
 
 namespace Pods\Theme;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Exception;
 use WP_Query;
 
@@ -75,6 +80,8 @@ class WP_Query_Integration {
 				'names' => true,
 			] );
 		} catch ( Exception $exception ) {
+			pods_debug_log( $exception );
+
 			return;
 		}
 

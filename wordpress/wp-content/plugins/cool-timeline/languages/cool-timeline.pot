@@ -1,11 +1,11 @@
-#, fuzzy
+# Copyright (C) 2026 Cool Plugins
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Cool Timeline\n"
-"POT-Creation-Date: 2020-08-10 11:44+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"Project-Id-Version: Cool Timeline 5.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cool-timeline\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,178 +20,1921 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 "Language: \n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;"
+"POT-Creation-Date: 2026-11-17T12:03:09+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: cool-timeline\n"
 
-#: cooltimeline.php:235
-msgid "Please Give Us Your Feedback"
+#. Plugin Name of the plugin
+#: cooltimeline.php
+msgid "Cool Timeline"
 msgstr ""
 
-#: cooltimeline.php:246
-msgid ""
-"If you find our plugin and support helpful.<br>Please rate and review us,It "
-"helps us grow <br>and improve our services"
-msgstr ""
-
-#: cooltimeline.php:248
-msgid "Submit Review ★★★★★"
-msgstr ""
-
-#: cooltimeline.php:250
-msgid "Upgrade to Pro version"
-msgstr ""
-
-#: admin/class.cool-timeline-posttype.php:71
-msgid "Story Year"
-msgstr ""
-
-#: admin/class.cool-timeline-posttype.php:72
-msgid "Story Date"
-msgstr ""
-
-#: admin/class.cool-timeline-posttype.php:73
-msgid "Story Icon"
-msgstr ""
-
-#: admin/class.cool-timeline-posttype.php:104
-msgid "Not Matched"
-msgstr ""
-
-#: admin/class.review-notice.php:70
-msgid "I already rated it"
-msgstr ""
-
-#: admin/class.review-notice.php:71
-msgid "Not Interested"
-msgstr ""
-
-#: admin/class.review-notice.php:72
-msgid "No, not good enough, i do not like to rate it!"
-msgstr ""
-
-#: admin/cool-timeline-settings.php:67
-msgid "Stories Description?"
-msgstr ""
-
-#: admin/cool-timeline-settings.php:67
-msgid ""
-"This option is overridden by shortcode in version 1.7. Please check "
-"shortcode generator."
-msgstr ""
-
-#: admin/cool-timeline-settings.php:70
-msgid "Stories Order ?"
-msgstr ""
-
-#: admin/cool-timeline-settings.php:70
-msgid ""
-"This option is overridden by shortcode in version 1.7. Please check your "
-"shortcode generator."
-msgstr ""
-
-#: admin/ctl-meta-fields.php:12
-msgid "Timeline Story Settings"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:24
-msgid "Story Date / Year <span class=\"ctl_required\">*</span>"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:24
-msgid ""
-"<p class=\"ctl_required\">Please select story Story Date / Year / Time using "
-"datepicker only. <strong>Date Format( mm/dd/yy hh:mm )</strong></p>"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:26
-msgid "d MM yy"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:28
-msgid "Full"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:28
-msgid "Small"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:28
-msgid "Story image size"
-msgstr ""
-
-#: admin/ctl-meta-fields.php:29
-msgid ""
-"<div class=\"desc-field\"><strong style=\"width: 100%;display: inline-block;"
-"margin-top: 40px;\">Premium Settings | <a target=\"_blank\" href=\"https://1."
-"envato.market/7QLxy\">Buy Pro</a></strong><img src=\"https://res.cloudinary."
-"com/pinkborder/image/upload/v1556354078/cool-timeline-pro-wp-plugin/timeline-"
-"premium-features.png\" style=\"max-width: 100%;border: 2px solid #ef2e2e;\">"
-"</div>"
-msgstr ""
-
-#: fa-icons/fa-icons-class.php:88
-msgid "Select Story Icon"
-msgstr ""
-
-#: fa-icons/fa-icons-class.php:119
-msgid "Add Icon"
-msgstr ""
-
-#: fa-icons/fa-icons-class.php:123
-msgid "Select Font Awesome Icon"
-msgstr ""
-
-#: includes/ctl-helper-functions.php:440
-msgid " of "
-msgstr ""
-
-#: includes/ctl-helper-functions.php:441
-msgid " Page "
-msgstr ""
-
-#: admin/meta-box-class/my-meta-box-class.php:820
-msgid "Select a color"
-msgstr ""
-
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:32
-msgid "Read More"
-msgstr ""
-
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:133
-msgid "d/M/Y"
-msgstr ""
-
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:314
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:319
-msgid "Y"
-msgstr ""
-
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:350
-msgid "Sorry,You have not added any story yet"
-msgstr ""
-
-#: includes/shortcodes/story-timeline/cool-timeline-shortcode.php:436
-msgid "F j"
-msgstr ""
-
-#. Name of the plugin
-msgid "Cool  Timeline"
-msgstr ""
-
-#. Description of the plugin
-msgid ""
-"Cool Timeline is a responsive WordPress timeline plugin that allows you to "
-"create beautiful vertical storyline. You simply create posts, set images and "
-"date then Cool Timeline will automatically populate these posts in "
-"chronological order, based on the year and date"
-msgstr ""
-
-#. URI of the plugin
+#. Plugin URI of the plugin
+#: cooltimeline.php
 msgid "https://cooltimeline.com"
 msgstr ""
 
+#. Description of the plugin
+#: cooltimeline.php
+msgid "Showcase your story, company history, events, or roadmap using stunning vertical or horizontal layouts."
+msgstr ""
+
 #. Author of the plugin
+#: cooltimeline.php
 msgid "Cool Plugins"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "https://coolplugins.net/our-cool-plugins-list/"
+#: cooltimeline.php
+msgid "https://coolplugins.net/?utm_source=ctl_plugin&utm_medium=inside&utm_campaign=author_page&utm_content=plugins_list"
+msgstr ""
+
+#: admin/class-ctl-plugin-installer.php:28
+#: admin/class-ctl-plugin-installer.php:114
+msgid "Permission denied"
+msgstr ""
+
+#: admin/class-ctl-plugin-installer.php:91
+msgid "Unable to connect to the filesystem. Please confirm your credentials."
+msgstr ""
+
+#: admin/class-ctl-plugin-installer.php:124
+msgid "Plugin activated successfully"
+msgstr ""
+
+#: admin/class-migration.php:472
+#: includes/shortcodes/class-ctl-ajax-handler.php:68
+msgid "Unauthorized"
+msgstr ""
+
+#: admin/class-migration.php:483
+msgid "No Attachment Found To Migrate."
+msgstr ""
+
+#: admin/class-migration.php:489
+msgid "Migration Completed"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:28
+msgctxt "Post Type General Name"
+msgid "Timeline Stories"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:29
+msgctxt "Post Type Singular Name"
+msgid "Timeline Stories"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:30
+#: admin/class.cool-timeline-posttype.php:31
+#: bricks/elements/element-timeline-story.php:338
+msgid "Timeline Stories"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:32
+msgid "Parent Item:"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:33
+msgid "Cool Timeline Stories"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:34
+msgid "Add New Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:35
+msgid "Add New"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:36
+msgid "New Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:37
+msgid "Edit Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:38
+msgid "Update Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:39
+msgid "View Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:40
+msgid "Search Story"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:41
+msgid "Not found"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:42
+msgid "Not found in Trash"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:45
+msgid "cool_timeline"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:46
+msgid "Timeline Post Type Description"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:75
+msgctxt "column name"
+msgid "Story Title"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:76
+msgid "Story Year"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:77
+msgid "Story Date"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:78
+msgid "Story Icon"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:79
+msgctxt "column name"
+msgid "Published Date"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:100
+msgid "Y"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:117
+msgid "Not Matched"
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:160
+msgid "Please select story Date / Year from settings below the story content."
+msgstr ""
+
+#: admin/class.cool-timeline-posttype.php:163
+msgid "Configure Timeline Story Settings (Date/Year)"
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:52
+msgid "Company Founded"
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:54
+msgid "Our journey began with a small team and a big vision to build something meaningful."
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:58
+msgid "First Product Launch"
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:60
+msgid "We launched our first product and received an overwhelming response from early users."
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:207
+msgid "Demo data is missing or invalid."
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:293
+msgid "Demo Timeline"
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:326
+#: admin/cp-onboarding/onboarding-config.php:1381
+msgid "Could not open the Bricks builder."
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:427
+#: admin/cp-onboarding/onboarding-config.php:1208
+msgid "Sample Timeline"
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:440
+#: admin/cp-onboarding/onboarding-config.php:1216
+#: admin/cp-onboarding/onboarding-config.php:1275
+#: admin/cp-onboarding/onboarding-config.php:1332
+msgid "Could not create the timeline page."
+msgstr ""
+
+#: admin/cp-onboarding/class-ctl-demo-generator.php:479
+#: bricks/elements/element-timeline-story.php:16
+msgid "Story Timeline"
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1185
+msgid "Creating Timeline…"
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1186
+msgid "Redirecting…"
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1187
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1198
+msgid "Unauthorized."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1246
+msgid "Please install and activate Timeline Widget for Elementor first."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1255
+msgid "Timeline Widget demo creator is unavailable. Please update Timeline Widget for Elementor."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1296
+msgid "Please install and activate Timeline Module for Divi first."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1305
+msgid "Timeline Module demo creator is unavailable. Please update Timeline Module for Divi."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1316
+#: admin/cp-onboarding/onboarding-config.php:1339
+msgid "Could not open the Divi builder."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1355
+msgid "Please activate the Bricks theme first."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1365
+msgid "Bricks demo creator is unavailable."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1406
+msgid "No destination configured."
+msgstr ""
+
+#: admin/cp-onboarding/onboarding-config.php:1414
+msgid "Demo generator is unavailable."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:48
+#: admin/ctl-admin-settings.php:321
+msgid "See terms"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:49
+msgid "Hide terms"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:107
+msgid "Timeline settings live preview"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:109
+msgid "Live Preview with dummy stories"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:111
+msgid "Updates instantly"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:124
+msgid "A New Chapter Begins"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:128
+msgid "A creative team celebrating a project milestone"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:131
+msgid "Team celebrates launch day"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:134
+msgid "Preview your story text, colors, and typography before saving."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:136
+msgid "Read more"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:145
+msgid "The Story Takes Shape"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:149
+msgid "A team planning its next project milestone"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:152
+msgid "Planning the next milestone"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:155
+msgid "See how alternating story colors work together."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:160
+msgid "Preview only — changes are saved when you click Save."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:178
+msgid "Included"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:182
+msgid "Basic"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:185
+msgid "Not included"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:197
+msgid "Vertical Timeline"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:202
+msgid "Vertical One-Sided Layout"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:207
+msgid "Compact Timeline Layout"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:212
+msgid "Horizontal Timeline Layout"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:217
+msgid "Gutenberg Timeline Block"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:222
+msgid "Shortcode Generator"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:227
+msgid "Premium Designs & Skins"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:232
+msgid "Category Filters"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:237
+msgid "Images, Videos & Slideshows"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:242
+msgid "Ajax Load More & Pagination"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:247
+msgid "Per-Story Custom Colors"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:252
+msgid "Animation Effects"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:257
+msgid "Priority Support"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:282
+#: admin/ctl-admin-settings.php:472
+#: admin/ctl-meta-fields.php:76
+#: bricks/elements/element-timeline-story.php:321
+#: bricks/elements/element-timeline-story.php:521
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:287
+msgid "View Pro Demo"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:293
+msgid "Feature"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:294
+msgid "Free"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:297
+msgid "Pro"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:320
+msgid "Share non-sensitive site data to help us improve compatibility (WordPress version, plugins, theme, and server details)."
+msgstr ""
+
+#. translators: %s: usage tracking terms URL.
+#: admin/ctl-admin-settings.php:325
+#, php-format
+msgid "Details: %s"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:326
+msgid "Usage tracking policy"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:329
+msgid "Your site URL and admin email."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:330
+msgid "Active plugins, theme, PHP/MySQL versions, memory limit, and site language."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:336
+msgid "Usage Data Sharing"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:362
+msgid "Timeline Express plugin is installed on your site. To move your announcements into Cool Timeline, you can now start the migration process."
+msgstr ""
+
+#: admin/ctl-admin-settings.php:364
+msgid "Start Migration"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:448
+msgid "Timeline Title"
+msgstr ""
+
+#: admin/ctl-admin-settings.php:756
+msgid "Advanced options are available in Cool Timeline Pro."
+msgstr ""
+
+#: admin/ctl-meta-fields.php:58
+msgid "Premium Story Options"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:61
+msgid "Unlock Advanced Story Options in Cool Timeline Pro"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:64
+msgid "Custom order labels, slideshow galleries, video embeds, custom icons, links, and per-story colors."
+msgstr ""
+
+#: admin/ctl-meta-fields.php:91
+msgid "Pro Feature Preview — Click to Unlock All Options"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:99
+msgid "Story Type"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:105
+msgid "Story Based On"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:108
+msgid "Date Based"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:110
+msgid "Custom Order Based"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:116
+msgid "Add Custom Label"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:120
+msgid "Use custom labels like \"Phase 1\", \"Step 1\", \"Q1 Release\""
+msgstr ""
+
+#: admin/ctl-meta-fields.php:126
+msgid "Mid Line Label"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:131
+msgid "Display mid line label above story"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:140
+msgid "Story Media"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:146
+msgid "Media Type"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:149
+msgid "Default (Image)"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:151
+msgid "Video"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:153
+msgid "Slideshow Gallery"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:159
+msgid "Slideshow Gallery Images"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:168
+msgid "Add Images"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:177
+msgid "Custom Styles & Link"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:183
+msgid "Story Custom Link"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:188
+msgid "Story Accent Color"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:214
+msgid "25+ Beautiful Timeline Designs"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:215
+msgid "Multiple Layouts (Vertical & Horizontal)"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:216
+msgid "Timeline Filters & Search"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:217
+msgid "AJAX Load More & Pagination"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:218
+msgid "Shortcode Builder & Gutenberg Block"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:219
+msgid "Customize Colors & Typography"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:220
+msgid "Advanced Animations"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:221
+msgid "Flexible Date Formats & Sorting"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:222
+msgid "Premium Support & Regular Updates"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:242
+msgid "Upgrade to Pro version"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:248
+msgid "View Demos"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:253
+msgid "Buy Now"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:276
+msgid "If you find our plugin and support helpful, please rate and review us. It helps us grow and improve our services."
+msgstr ""
+
+#: admin/ctl-meta-fields.php:281
+msgid "Five star rating"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:290
+msgid "Submit Review"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:336
+msgid "Story Date / Year <span class=\"ctl_required\">*</span>"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:401
+msgid "Cool Timeline Pro"
+msgstr ""
+
+#: admin/ctl-meta-fields.php:428
+msgid "Share Your Feedback"
+msgstr ""
+
+#: admin/ctl-timeline-header.php:84
+#: cooltimeline.php:187
+#: cooltimeline.php:188
+msgid "Timeline Addons"
+msgstr ""
+
+#: admin/ctl-timeline-header.php:93
+msgid "Check Docs"
+msgstr ""
+
+#: admin/ctl-timeline-header.php:94
+msgid "Get Support"
+msgstr ""
+
+#: admin/marketing/ctl-marketing.php:78
+msgid "Install Timeline Module for Divi"
+msgstr ""
+
+#. translators: 1: opening strong tag, 2: closing strong tag, 3: opening link tag, 4: closing link tag
+#: admin/marketing/ctl-marketing.php:82
+#, php-format
+msgid "We noticed you’re using %1$sDivi Page Builder%2$s. Try our latest %3$sTimeline Module For Divi%4$s plugin to showcase your life story or %1$scompany history%2$s."
+msgstr ""
+
+#: admin/marketing/ctl-marketing.php:122
+msgid ""
+"<div class=\"ctl-new-mkt-notice\" style=\" display:flex !important;\">\r\n"
+"                                        <div style=\"width:fit-content;\">\r\n"
+"                                            <a style=\"padding:2px 10px; margin-right:5px;\" class=\"button button-primary\" href=\"https://cooltimeline.com/plugin/elementor-timeline-widget-pro/?utm_source=ctl_plugin&utm_medium=inside&utm_campaign=get_pro&utm_content=twea_inside_notice\" target=\"_blank\">Try it now!</a>\r\n"
+"                                        </div>\r\n"
+"                                        <div style=\"width:87%;\">We noticed you&rsquo;re using <strong>Elementor Page Builder</strong>. Try our latest <strong><a href=\"https://cooltimeline.com/plugin/elementor-timeline-widget-pro/?utm_source=ctl_plugin&utm_medium=inside&utm_campaign=get_pro&utm_content=twea_inside_notice\" target=\"_blank\">Timeline Widget Pro for Elementor</a></strong> plugin to showcase your life story or <strong>company history</strong>.</div>\r\n"
+"                                    </div>"
+msgstr ""
+
+#: admin/marketing/ctl-marketing.php:210
+msgid "Sorry, you are not allowed to install plugins on this site."
+msgstr ""
+
+#: admin/marketing/ctl-marketing.php:222
+msgid "No plugin specified."
+msgstr ""
+
+#: bricks/class-ctl-bricks-loader.php:235
+msgid "Timeline"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:228
+msgid "Get Pro"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:344
+msgid "Layout Settings"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:350
+#: bricks/elements/element-timeline-story.php:963
+#: bricks/elements/element-timeline-story.php:1053
+msgid "Line"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:356
+msgid "Icon Box / Dot"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:362
+msgid "Labels / Date / Year Box"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:368
+msgid "Content Background / Border"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:374
+msgid "Title / Description"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:384
+msgid "Stories"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:385
+msgid "Story"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:396
+msgid "CONTENT"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:397
+msgid "STYLE"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:402
+msgid "Year / Label (Top)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:408
+msgid "Year / Label Text"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:416
+msgid "Label / Date"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:418
+#: bricks/elements/frontend-layouts/ctl-story-loop.php:275
+msgid "Add Label"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:422
+#: bricks/elements/element-timeline-story.php:672
+msgid "Sub Label"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:424
+#: bricks/elements/frontend-layouts/ctl-story-loop.php:276
+msgid "Add Sub Label"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:428
+#: bricks/elements/element-timeline-story.php:829
+msgid "Title"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:430
+#: bricks/elements/frontend-layouts/ctl-story-loop.php:197
+msgid "Add title here"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:434
+msgid "Choose Media"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:437
+#: bricks/elements/element-timeline-story.php:443
+msgid "Image"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:438
+msgid "Video (PRO only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:439
+msgid "Slideshow (PRO only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:444
+msgid "to unlock more media types."
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:448
+msgid "Choose Image"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:450
+msgid "Add image here"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:457
+#: bricks/elements/element-timeline-story.php:868
+msgid "Description"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:459
+#: bricks/elements/frontend-layouts/ctl-story-loop.php:212
+msgid "Add description here"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:463
+msgid "Icon Type"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:466
+#: bricks/elements/element-timeline-story.php:476
+msgid "Icon"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:467
+msgid "Dot"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:468
+msgid "Text (PRO only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:469
+msgid "Image (PRO only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:485
+msgid "Icon Text"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:492
+msgid "Icon Image"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:499
+msgid "Read More Button"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:505
+msgid "Button Text"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:508
+#: includes/shortcodes/class-ctl-helpers.php:175
+#: includes/shortcodes/class-ctl-loop-helpers.php:195
+msgid "Read More"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:513
+msgid "Button Link"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:521
+msgid "Styles are available in the PRO version only."
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:531
+msgid "Layout"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:534
+msgid "Vertical (Right / Left)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:535
+msgid "Vertical (Right Only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:536
+msgid "Vertical (Left Only) (PRO only)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:546
+msgid "Content Alignment (Right)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:558
+msgid "Content Alignment"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:570
+msgid "Content Alignment (Left)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:582
+msgid "Icon / Labels Position"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:584
+msgid "Each step moves the icon and labels down by 0.5rem."
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:597
+msgid "Line Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:612
+msgid "Icon / Dot Background"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:623
+msgid "Icon Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:635
+msgid "Date Label"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:641
+msgid "Label Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:652
+msgid "Label Typography"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:661
+msgid "Label Size"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:678
+msgid "Sub Label Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:689
+msgid "Sub Label Typography"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:698
+msgid "Sub Label Size"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:709
+msgid "Year / Label (On Line)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:715
+msgid "Year Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:726
+msgid "Year Background"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:737
+msgid "Year Typography"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:746
+msgid "Year Box Size"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:756
+msgid "Padding"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:765
+msgid "Bottom Spacing"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:778
+msgid "Background"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:784
+msgid "Background Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:796
+msgid "Border"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:802
+#: bricks/elements/element-timeline-story.php:1022
+#: bricks/elements/element-timeline-story.php:1041
+msgid "Border Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:814
+#: bricks/elements/element-timeline-story.php:1021
+#: bricks/elements/element-timeline-story.php:1040
+msgid "Border Width"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:835
+msgid "Title Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:846
+msgid "Title Typography"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:855
+msgid "Title Bottom Spacing"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:874
+msgid "Description Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:885
+msgid "Description Typography"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:894
+msgid "Description Bottom Spacing"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:921
+msgid "Preset Style"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:923
+msgid "Default"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:924
+msgid "Classic"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:925
+msgid "Elegant"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:926
+msgid "Clean"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:927
+msgid "Minimal"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:928
+msgid "Bold"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:929
+msgid "Flat"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:937
+msgid "Initial Alignment"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:939
+msgid "Right"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:940
+msgid "Left"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:948
+msgid "Display Icons"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:950
+msgid "Icons"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:951
+msgid "Dots"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:952
+#: bricks/elements/element-timeline-story.php:964
+#: bricks/elements/element-timeline-story.php:987
+#: bricks/elements/element-timeline-story.php:1014
+#: bricks/elements/element-timeline-story.php:1033
+#: bricks/elements/element-timeline-story.php:1054
+#: bricks/elements/element-timeline-story.php:1069
+#: bricks/elements/element-timeline-story.php:1092
+msgid "None"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:960
+#: bricks/elements/element-timeline-story.php:1050
+msgid "Connector Style"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:962
+#: bricks/elements/element-timeline-story.php:1052
+msgid "Arrow"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:972
+msgid "Media Position"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:974
+msgid "Below Title"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:975
+msgid "Below Description"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:979
+msgid "Image Outside Box"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:980
+msgid "Content In Popup"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:985
+msgid "Animation"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:988
+msgid "Fade"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:989
+msgid "Fade Up"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:990
+msgid "Fade Down"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:991
+msgid "Fade Left"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:992
+msgid "Fade Right"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:993
+msgid "Zoom In"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:994
+msgid "Zoom Out"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:995
+msgid "Flip Up"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:996
+msgid "Flip Down"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:997
+msgid "Slide Up"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:998
+msgid "Slide Down"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1002
+msgid "Image Popup"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1004
+msgid "Line Width"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1005
+msgid "Line Filling"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1006
+msgid "Line Filling Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1007
+msgid "Line Border"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1012
+#: bricks/elements/element-timeline-story.php:1031
+#: bricks/elements/element-timeline-story.php:1090
+msgid "Border Style"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1015
+#: bricks/elements/element-timeline-story.php:1034
+#: bricks/elements/element-timeline-story.php:1065
+#: bricks/elements/element-timeline-story.php:1093
+msgid "Solid"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1016
+#: bricks/elements/element-timeline-story.php:1035
+#: bricks/elements/element-timeline-story.php:1066
+#: bricks/elements/element-timeline-story.php:1094
+msgid "Dashed"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1017
+#: bricks/elements/element-timeline-story.php:1036
+#: bricks/elements/element-timeline-story.php:1067
+#: bricks/elements/element-timeline-story.php:1095
+msgid "Dotted"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1024
+msgid "Icon Box Size"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1025
+msgid "Icon Size"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1026
+msgid "Icon Radius (%)"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1043
+msgid "Labels Gap"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1044
+msgid "Label Top Of The Content"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1045
+msgid "Label Inside The Content"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1058
+msgid "Label Background Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1063
+msgid "Label Border Style"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1068
+msgid "Double"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1078
+msgid "Background Type"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1080
+msgid "Simple"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1081
+msgid "Gradient"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1082
+msgid "Multi Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1099
+msgid "Border Radius"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1100
+msgid "Box Shadow"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1101
+msgid "Connector Color"
+msgstr ""
+
+#: bricks/elements/element-timeline-story.php:1102
+msgid "Connector Border Color"
+msgstr ""
+
+#: cooltimeline.php:713
+msgid "Cool Timeline 5.0.0 – Major Design Enhancement!"
+msgstr ""
+
+#: cooltimeline.php:714
+msgid " Would you like to upgrade your existing timelines to the new design?"
+msgstr ""
+
+#: cooltimeline.php:715
+msgid "Yes, Upgrade Design"
+msgstr ""
+
+#: cooltimeline.php:716
+msgid "No, Keep Current Design"
+msgstr ""
+
+#: cooltimeline.php:717
+#: cooltimeline.php:773
+#: cooltimeline.php:912
+msgid "Close"
+msgstr ""
+
+#: cooltimeline.php:744
+msgid "The plugin isn't working"
+msgstr ""
+
+#: cooltimeline.php:745
+msgid "Which problem did you run into? We read every reply."
+msgstr ""
+
+#: cooltimeline.php:748
+msgid "It didn't do what I expected"
+msgstr ""
+
+#: cooltimeline.php:749
+msgid "What were you hoping it would do?"
+msgstr ""
+
+#: cooltimeline.php:752
+msgid "I found a better plugin"
+msgstr ""
+
+#: cooltimeline.php:753
+msgid "Mind sharing which one?"
+msgstr ""
+
+#: cooltimeline.php:756
+msgid "It's a temporary deactivation"
+msgstr ""
+
+#: cooltimeline.php:760
+msgid "Another reason"
+msgstr ""
+
+#: cooltimeline.php:761
+msgid "Please tell us more"
+msgstr ""
+
+#: cooltimeline.php:766
+msgid "Before you go…"
+msgstr ""
+
+#. translators: %s: plugin name (bold).
+#: cooltimeline.php:768
+#, php-format
+msgid "What made you deactivate %s? Your answer helps us fix it."
+msgstr ""
+
+#: cooltimeline.php:769
+msgid "Submit & Deactivate"
+msgstr ""
+
+#: cooltimeline.php:770
+msgid "Skip & Deactivate"
+msgstr ""
+
+#: cooltimeline.php:771
+msgid "Deactivating…"
+msgstr ""
+
+#: cooltimeline.php:772
+msgid "Please choose a reason."
+msgstr ""
+
+#. translators: %s: company name.
+#: cooltimeline.php:775
+#, php-format
+msgid "A plugin by %s"
+msgstr ""
+
+#: cooltimeline.php:778
+msgid "Submitting shares your reason plus your site URL, admin email and basic environment details (PHP, WordPress, active plugins). Skip & Deactivate sends nothing."
+msgstr ""
+
+#. translators: %s: plugin name.
+#: cooltimeline.php:896
+#, php-format
+msgid "Do you like the %s plugin?"
+msgstr ""
+
+#: cooltimeline.php:899
+msgid "Yes, I like it"
+msgstr ""
+
+#: cooltimeline.php:900
+msgid "Not good, dismiss"
+msgstr ""
+
+#: cooltimeline.php:901
+msgid "Ask me later"
+msgstr ""
+
+#: cooltimeline.php:902
+msgid "That is great to hear! A quick review on WordPress.org would really help us."
+msgstr ""
+
+#: cooltimeline.php:903
+msgid "Submit review"
+msgstr ""
+
+#: cooltimeline.php:904
+msgid "I do not like it, dismiss"
+msgstr ""
+
+#: cooltimeline.php:905
+msgid "Do you like this plugin?"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: cooltimeline.php:908
+#, php-format
+msgid "Enjoying %s?"
+msgstr ""
+
+#: cooltimeline.php:911
+msgid "A short review helps other event organisers find it."
+msgstr ""
+
+#: cooltimeline.php:1040
+#: cooltimeline.php:1048
+msgid "Getting Started"
+msgstr ""
+
+#: includes/shortcodes/class-ctl-ajax-handler.php:62
+msgid "Invalid security token sent."
+msgstr ""
+
+#: includes/shortcodes/class-ctl-ajax-handler.php:75
+msgid "Try Again."
+msgstr ""
+
+#: includes/shortcodes/class-ctl-helpers.php:234
+msgid " of "
+msgstr ""
+
+#: includes/shortcodes/class-ctl-helpers.php:235
+msgid " Page "
+msgstr ""
+
+#: includes/shortcodes/class-ctl-layout-manager.php:149
+msgid "Sorry,You have not added any story yet"
+msgstr ""
+
+#: includes/cool-timeline-block/dist/block.json
+msgctxt "block title"
+msgid "Timeline block"
+msgstr ""
+
+#: includes/cool-timeline-block/dist/block.json
+msgctxt "block description"
+msgid "Responsive timeline block for Gutenberg editor."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "1900 → 2017"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "2017 → 1900"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "3 navigation styles"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "4.7 · 300+ reviews"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "A quick review helps others discover Cool Timeline."
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Adds a link to open the full story."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Ajax Load More (Pro)"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Animated line fill"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Available in Pro"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+#: includes/shortcode-blocks/src/multiselect/index.js
+msgid "Categories"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Category filter bar"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Choose how stories are arranged on the page."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Choose which categories appear"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Circle"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Clickable year navigation menu"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Compact"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Connector & Spacing"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Connector style and arrow size"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Content"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Content Length"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Content Type"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "cool timeline"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Cool timeline"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "cool timeline block"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Cool Timeline Shortcode"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Cool Timeline Shortcode Generator."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Corner radius"
+msgstr ""
+
+#: includes/shortcode-blocks/src/ssr-preview.js
+msgid "Create New Story"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Current"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Custom"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Custom Date Format"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Custom label for the Read More."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Custom Order"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Custom Width"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "d/m/Y · Custom…"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Dark"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Date Format"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Date-based or custom story order (drag & drop)."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Default (Date Based)"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Design"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Disable"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Enable"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Enjoying Cool Timeline?"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Entrance Animation"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Extra"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Fade In Up"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Filter stories by category"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Fine-tune every spacing control"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Frontend category filters"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Full"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Full-width"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Full-width spans the content area; Custom sets a max width."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Hide"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Highlight progress as users scroll"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Horizontal"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "How stories appear as visitors scroll."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "How the story date appears."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Icon shown on the timeline line."
+msgstr ""
+
+#: includes/shortcode-blocks/src/ssr-preview.js
+msgid "Insert Cool Timeline Block"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Joined"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Jump between years instantly"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Leave a review"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Left, right, or bottom position"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Let visitors filter the timeline"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Light"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Make the story title clickable."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Marker position on the line"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "More control over timeline appearance"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "More entrance effects in Pro"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Multi-category selection"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "New Tab"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Newest"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Number of stories loaded at a time. The editor preview shows up to 3 stories, even if this value is set higher."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Number of words shown in the excerpt."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Off (Pro)"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Off shows all stories at once."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Oldest"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "One Side"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Only for Vertical and One sided layout."
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Open Read More in"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Order"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Pagination"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Pagination Design"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Pagination Type"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Post timeline (any post type)"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Preset look for the numeric pagination."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Pro adds Flat, Classic, Elegant, Clean, Modern, and Minimal presets."
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Read More Text"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Reset"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Same Tab"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Scroll Fill"
+msgstr ""
+
+#: includes/shortcode-blocks/src/multiselect/input.js
+msgid "Select "
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Short"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Short shows an excerpt. Full shows the complete story. Hide removes the description."
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Shortcode generator"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Show"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Show or hide the story title."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Skin"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Slides To Show"
+msgstr ""
+
+#: includes/shortcode-blocks/src/ssr-preview.js
+msgid "Sorry, you have not added any story yet"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Spacing & Size"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Stories Per Page"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Stories visible at once. Autoplay & starting story are in Pro."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Story Content"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Story Marker"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Story Order"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Story padding & spacing"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Story padding, spacing & corner radius"
+msgstr ""
+
+#: includes/shortcode-blocks/src/multiselect/index.js
+msgid "Tags"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Timeline Based On"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Timeline max width. (px)"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "timeline shortcode"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Timeline Width"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Title Link"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Try the Cool Timeline Block to build your timeline directly here — no separate story required."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Unlock designs"
+msgstr ""
+
+#: includes/shortcode-blocks/src/settings-ui.js
+msgid "Unlock with Pro"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Use any PHP date format string."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Vertical"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Works on vertical & horizontal layouts"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Year Label"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Year labels (show/hide) are already available in Timeline Settings."
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Year Navigation Menu"
+msgstr ""
+
+#: includes/shortcode-blocks/src/block.js
+msgid "Zoom, flip, slide & more variants"
+msgstr ""
+
+#: admin/ctl-admin-settings.php
+msgid "Timeline Settings"
 msgstr ""

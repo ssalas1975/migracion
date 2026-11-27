@@ -74,6 +74,91 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 	const KEY_GRADIENT = 'gradient';
 
 	/**
+	 * Key gradients.
+	 *
+	 * @var string
+	 */
+	const KEY_GRADIENTS = 'gradients';
+
+	/**
+	 * Key palette.
+	 *
+	 * @var string
+	 */
+	const KEY_PALETTE = 'palette';
+
+	/**
+	 * Key fontSizes.
+	 *
+	 * @var string
+	 */
+	const KEY_FONT_SIZES = 'fontSizes';
+
+	/**
+	 * Key typography.
+	 *
+	 * @var string
+	 */
+	const KEY_TYPOGRAPHY = 'typography';
+
+	/**
+	 * Key for `theme` presets in block editor.
+	 * Key for `theme` context in `wp_get_global_settings()`.
+	 *
+	 * @var string
+	 */
+	const KEY_THEME = 'theme';
+
+	/**
+	 * Key for `default` presets in block editor.
+	 *
+	 * @var string
+	 */
+	const KEY_DEFAULT = 'default';
+
+	/**
+	 * Key for `spacing` presets in theme.json.
+	 *
+	 * @var string
+	 */
+	const KEY_SPACING = 'spacing';
+
+	/**
+	 * Key for `steps` presets in theme.json.
+	 *
+	 * @var string
+	 */
+	const KEY_STEPS = 'steps';
+
+	/**
+	 * Key for `spacingSizes` presets in theme.json.
+	 *
+	 * @var string
+	 */
+	const KEY_SPACING_SIZES = 'spacingSizes';
+
+	/**
+	 * Key for `spacingScale` presets in theme.json.
+	 *
+	 * @var string
+	 */
+	const KEY_SPACING_SCALE = 'spacingScale';
+
+	/**
+	 * Key for `customSpacingSize` presets in theme.json.
+	 *
+	 * @var string
+	 */
+	const KEY_CUSTOM_SPACING_SIZE = 'customSpacingSize';
+
+	/**
+	 * Key for `defaultSpacingSizes` boolean in theme.json (v3).
+	 *
+	 * @var string
+	 */
+	const KEY_DEFAULT_SPACING_SIZES = 'defaultSpacingSizes';
+
+	/**
 	 * Action fired when the cached primary_theme_support should be updated.
 	 *
 	 * @var string
@@ -89,6 +174,17 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 		self::FEATURE_EDITOR_COLOR_PALETTE    => [ self::KEY_SLUG, self::KEY_COLOR ],
 		self::FEATURE_EDITOR_GRADIENT_PRESETS => [ self::KEY_SLUG, self::KEY_GRADIENT ],
 		self::FEATURE_EDITOR_FONT_SIZES       => [ self::KEY_SLUG, self::KEY_SIZE ],
+	];
+
+	/**
+	 * The theme.json paths mapping to be fetched using `wp_get_global_settings()`.
+	 *
+	 * @var array[]
+	 */
+	const SUPPORTED_THEME_JSON_FEATURES = [
+		self::FEATURE_EDITOR_COLOR_PALETTE    => [ self::KEY_COLOR, self::KEY_PALETTE ],
+		self::FEATURE_EDITOR_GRADIENT_PRESETS => [ self::KEY_COLOR, self::KEY_GRADIENTS ],
+		self::FEATURE_EDITOR_FONT_SIZES       => [ self::KEY_TYPOGRAPHY, self::KEY_FONT_SIZES ],
 	];
 
 	/**
@@ -203,13 +299,35 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 	 */
 	public function get_theme_support_features( $reduced = false ) {
 		$features = [];
+
 		foreach ( array_keys( self::SUPPORTED_FEATURES ) as $feature_key ) {
-			$feature_value = current( (array) get_theme_support( $feature_key ) );
+			if ( wp_theme_has_theme_json() ) {
+				$feature_value   = [];
+				$global_settings = wp_get_global_settings( self::SUPPORTED_THEME_JSON_FEATURES[ $feature_key ], self::KEY_THEME );
+
+				if ( isset( $global_settings[ self::KEY_THEME ] ) ) {
+					$feature_value = array_merge( $feature_value, $global_settings[ self::KEY_THEME ] );
+				}
+
+				if ( isset( $global_settings[ self::KEY_DEFAULT ] ) ) {
+					$feature_value = array_merge( $feature_value, $global_settings[ self::KEY_DEFAULT ] );
+				}
+			} else {
+				$feature_value = current( (array) get_theme_support( $feature_key ) );
+			}
+
 			if ( ! is_array( $feature_value ) || empty( $feature_value ) ) {
 				continue;
 			}
+
+			// Avoid reducing font sizes if theme.json is used for the sake of fluid typography.
+			if ( wp_theme_has_theme_json() && self::FEATURE_EDITOR_FONT_SIZES === $feature_key ) {
+				$reduced = false;
+			}
+
 			if ( $reduced ) {
 				$features[ $feature_key ] = [];
+
 				foreach ( $feature_value as $item ) {
 					if ( $this->has_required_feature_props( $feature_key, $item ) ) {
 						$features[ $feature_key ][] = wp_array_slice_assoc( $item, self::SUPPORTED_FEATURES[ $feature_key ] );
@@ -219,6 +337,7 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 				$features[ $feature_key ] = $feature_value;
 			}
 		}
+
 		return $features;
 	}
 
@@ -271,6 +390,11 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 					break;
 			}
 		}
+
+		// Print the custom properties for the spacing sizes.
+		if ( wp_theme_has_theme_json() ) {
+			$this->print_spacing_sizes_custom_properties();
+		}
 	}
 
 	/**
@@ -282,6 +406,11 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 		echo '<style id="amp-wp-theme-support-editor-color-palette">';
 		foreach ( $color_palette as $color_option ) {
 			if ( ! $this->has_required_feature_props( self::FEATURE_EDITOR_COLOR_PALETTE, $color_option ) ) {
+				continue;
+			}
+
+			// If not a valid hex color, skip it.
+			if ( ! preg_match( '/^[0-9a-f]{3}[0-9a-f]{3}?$/i', ltrim( $color_option[ self::KEY_COLOR ], '#' ) ) ) {
 				continue;
 			}
 
@@ -322,10 +451,25 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 			if ( ! $this->has_required_feature_props( self::FEATURE_EDITOR_FONT_SIZES, $font_size ) ) {
 				continue;
 			}
+
+			// Just in case the font size is not in the expected format.
+			$font_size[ self::KEY_SIZE ] = wp_get_typography_value_and_unit( $font_size[ self::KEY_SIZE ] );
+
+			if ( ! is_array( $font_size[ self::KEY_SIZE ] ) || empty( $font_size[ self::KEY_SIZE ] ) ) {
+				continue;
+			}
+
+			// Normalize the font size value to a string.
+			$font_size[ self::KEY_SIZE ] = $font_size[ self::KEY_SIZE ]['value'] . $font_size[ self::KEY_SIZE ]['unit'];
+
+			if ( ! is_string( $font_size[ self::KEY_SIZE ] ) ) {
+				continue;
+			}
+
 			printf(
-				':root .is-%1$s-text, :root .has-%1$s-font-size { font-size: %2$spx; }',
+				':root .is-%1$s-text, :root .has-%1$s-font-size { font-size: %2$s; }',
 				sanitize_key( $font_size[ self::KEY_SLUG ] ),
-				(float) $font_size[ self::KEY_SIZE ]
+				esc_html( wp_strip_all_tags( wp_get_typography_font_size_value( $font_size ) ) )
 			);
 		}
 		echo '</style>';
@@ -348,6 +492,61 @@ final class ReaderThemeSupportFeatures implements Service, Registerable {
 				$gradient_preset[ self::KEY_GRADIENT ] // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			);
 		}
+		echo '</style>';
+	}
+
+	/**
+	 * Print spacing sizes custom properties.
+	 */
+	private function print_spacing_sizes_custom_properties() {
+		$custom_properties   = [];
+		$spacing             = wp_get_global_settings( [ self::KEY_SPACING ], self::KEY_THEME );
+		$spacing_sizes       = $spacing[ self::KEY_SPACING_SIZES ] ?? [];
+		$custom_spacing_size = $spacing[ self::KEY_CUSTOM_SPACING_SIZE ] ?? false;
+		$spacing_scale       = $spacing[ self::KEY_SPACING_SCALE ] ?? [];
+
+		/**
+		 * By default check for `defaultSpacingSizes` boolean introduced in theme.json (v3)
+		 * and if it's false, then check for `steps` in `spacingScale` which is v2 default.
+		 *
+		 * @see <https://github.com/WordPress/gutenberg/pull/58409#issuecomment-2078077477>.
+		 */
+		$is_wp_generating_spacing_sizes = $spacing[ self::KEY_DEFAULT_SPACING_SIZES ] ?? false;
+
+		if ( array_key_exists( self::KEY_STEPS, $spacing_scale ) ) {
+			$is_wp_generating_spacing_sizes = 0 !== $spacing_scale[ self::KEY_STEPS ];
+		}
+
+		if ( ! $is_wp_generating_spacing_sizes && $custom_spacing_size ) {
+			if ( isset( $spacing_sizes[ self::KEY_THEME ] ) ) {
+				$custom_properties = array_merge( $custom_properties, $spacing_sizes[ self::KEY_THEME ] );
+			}
+		} else {
+			if ( isset( $spacing_sizes[ self::KEY_DEFAULT ] ) ) {
+				$custom_properties = array_merge( $custom_properties, $spacing_sizes[ self::KEY_DEFAULT ] );
+			}
+		}
+
+		if ( empty( $custom_properties ) ) {
+			return;
+		}
+
+		echo '<style id="amp-wp-theme-support-spacing-sizes-custom-properties">';
+		echo ':root {';
+		foreach ( $custom_properties as $custom_property ) {
+			if ( ! isset( $custom_property[ self::KEY_SIZE ], $custom_property[ self::KEY_SLUG ] ) ) {
+				continue;
+			}
+
+			printf(
+				'--wp--preset--spacing--%1$s: %2$s;',
+				sanitize_key( $custom_property[ self::KEY_SLUG ] ),
+				// phpcs:disable WordPressVIPMinimum.Functions.StripTags.StripTagsOneParameter
+				strip_tags( $custom_property[ self::KEY_SIZE ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				// phpcs:enable WordPressVIPMinimum.Functions.StripTags.StripTagsOneParameter
+			);
+		}
+		echo '}';
 		echo '</style>';
 	}
 

@@ -1,10 +1,10 @@
 ﻿=== Breadcrumb NavXT ===
 Contributors: mtekk, hakre
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=FD5XEU783BR8U&lc=US&item_name=Breadcrumb%20NavXT%20Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
-Tags: breadcrumb, breadcrumbs, trail, navigation, menu, widget
-Requires at least: 4.9
-Tested up to: 5.8
-Stable tag: 7.0.2
+Tags: breadcrumb, breadcrumbs, trail, navigation, block
+Requires at least: 5.8
+Tested up to: 7.1
+Stable tag: 7.5.2
 Requires PHP: 7.0
 License: GPLv2 or later
 Adds breadcrumb navigation showing the visitor's path to their current location.
@@ -49,6 +49,89 @@ Please visit [Breadcrumb NavXT's Documentation](http://mtekk.us/code/breadcrumb-
 6. A screenshot of the Settings Import/Export/Reset form under the Help menu
 
 == Changelog ==
+= 7.5.2 =
+Release date: August, 29th 2026
+
+* Behavior change: Completely empty breadcrumbs no longer added to the trail at assembly time.
+* Bug fix: Fixed issue where the `bcn-aria-current` template tag could result in the browser executing scripts on search result pages.
+* Bug fix: Fixed issue with the block renderer using postId without checking it causing PHP warnings.
+* Bug fix: Fixed issue adminKit used esc_attr instead of esc_url in the settings import form.
+
+= 7.5.1 =
+Release date: December, 21st 2025
+
+* Behavior change: Removed deprecated `bcn_li_attributes` filter.
+* Bug fix: Fixed issue where the block could be used to generate breadcrumb trails that were not for the current resource.
+* Bug fix: Removed deprecated title length setting from settings page.
+* Bug fix: Fixed issue where XML settings import did not properly validate imported settings.
+
+= 7.5.0 =
+Release date: December, 4th 2025
+
+* Behavior change: Refactored `bcn_breadcrumb_trail::post_hierarchy` to use `WP_Post` instance instead of id/type/parent parameters.
+* Behavior change: Removed deprecated function `breadcrumb_trail::title_trim` per deprecation schedule.
+* Bug fix: Fixed issue where the uninstaller would result in PHP errors and fail.
+* Bug fix: Fixed issue where "Hide on Home" option in the block did not function as intended.
+* Bug fix: Fixed typo in the block that resulted in web browser console warning.
+* Bug fix: Fixed issue where the block selector in block.json did not match the selector the block generated with.
+* Bug fix: Fixed issue where settings exporter failed to export settings.
+* Bug fix: Fixed issue where boolean options with false values could not be imported.
+
+= 7.4.1 =
+Release date: January, 9th 2025
+
+* Bug fix: Fixed issue where the legacy widget was not available due to changes introduced in 7.4.0.
+
+= 7.4.0 =
+Release date: December, 30th 2024
+
+* New feature: Added `bcn_admin_post_root_args` filter.
+* Bug fix: Fixed issue where the ignore the breadcrumb cache option within the Breadcrumb Trail block resulted in the breadcrumb trail not getting generated on the home page.
+* Bug fix: Fixed issue where breadcrumb trails generated within the loop were improperly missing the home breadcrumb when on the home page.
+* Bug fix: Fixed issue breadcrumb-navxt textdomain is loaded too early (improved WordPress 6.7 support).
+* Bug fix: Improved `bcn_breadcrumb_trail::post_hierarchy()` resiliency to unexpected returns from `get_post()`.
+* Bug fix: Fixed translation text typos in Breadcrumb Trail block.
+
+= 7.3.1 =
+Release date: June, 27th 2024
+
+* Bug fix: Fixed issue where $force parameter wasn’t passed into `bcn_breadcrumb_trail::fill()` within `bcn_display*()` functions.
+* Bug fix: Fixed improper textdomain existing within `adminKit`.
+* Bug fix: Fixed issue with `$force` parameter where when it is not set the homepage breadcrumb would use the wrong template when calling the breadcrumb trail within the loop.
+
+= 7.3.0 =
+Release date: February, 9th 2024
+
+* Behavior change: `bcn_display_json_ld()` now returns unescaped Unicode characters.
+* Behavior change: `$force` parameter in `bcn_display*()` functions is now passed to `bcn_breadcrumb_trail::fill()` allowing generation of trails within the loop for the current loop item instead of the parent page/resource.
+* New feature: Breadcrumb Trail block rewritten to have feature parity with Breadcrumb NavXT Widget.
+* New feature: Breadcrumb Trail block supports basic styling within block editor.
+* Bug fix: Fixed error where $outer_template argument was dropped within `breadcrumb_navxt::display()`.
+* Bug fix: Fixed issue where boolean settings were not exported/imported properly.
+* Bug fix: Fixed cause of PHP error in `bcn_breadcrumb_trail::maybe_add_post_type_arg()` when 3rd party code breaks the WP API.
+* Bug fix: Added check for proper queried object type for author archives.
+
+= 7.2.0 =
+Release date: February, 9th 2023
+
+* Behavior change: Settings reset sets option entry to blank array, consistent with the change to only storing non-default values in the database.
+* New feature: Added `bcn_display_separator` filter.
+* New feature: Add per setting indication if Network wide settings are overriding the local setting.
+* Bug fix: Improved compatibility with PHP8.1.
+* Bug fix: Fixed PHP errors caused by unexpected entries in WP Post Types array.
+* Bug fix: Settings help menu now shows up in the network settings page.
+* Bug fix: Fixed cause of "file not found" error on the import/export/reset form in the network settings page.
+
+= 7.1.0 =
+Release date: July, 17th 2022
+
+* Behavior change: BCN_SETTINGS_FAVOR_* constant behavior changed to take advantage of settings changes in 7.0.
+* Behavior change: Settings page now warns if it detected CPTs that were added too late.
+* New feature: Added bcn_before_loop filter which runs at the top of bcn_breadcrumb_trail::display_loop().
+* New feature: Added JSON formatted settings import and export (successor to the old XML settings import/export format).
+* Bug fix: Fixed PHP error caused by term archives that don’t know the active term.
+* Bug fix: Fixed PHP error caused by introduction of namespacing in the legacy XML settings importer and exporter.
+* Bug fix: Explicitly set option autoload values, avoiding inappropriate default autoload values being used.
 
 = 7.0.2 =
 Release date: January, 4th 2022
@@ -79,120 +162,6 @@ Release date: December, 17th 2021
 * Bug fix: Fixed compatibility issue with Widget settings not saving properly in WordPress 5.8.
 * Bug fix: Fixed issue with the position count parameter within bcn_display when outputting a trail in reverse order.
 
-= 6.6.0 =
-Release date: October, 31st 2020
-
-* Behavior change: Moved to using the post type of the parent post for the type archive rather than that of the current item.
-* Bug fix: Fixed error thrown when a site does not have an `administrator` role.
-
-= 6.5.0 =
-Release date: June, 12th 2020
-
-* Behavior change: Moved to using the taxonomy of the term rather than passed in taxonomy in various functions. As a consequence, this allows `bcn_pick_post_term` to override the taxonomy selection.
-* Behavior change: Default template for unlinked breadcrumbs now includes breadcrumbList markup.
-* New feature: Added new filter `bcn_breadcrumb_linked`.
-* New feature: Introduced new WordPress capability: `bnc_manage_options`.
-* Bug fix: Fixed XML settings exporter so that it no longer creates malformed files that cannot be imported when settings contain special HTML entities.
-
-= 6.4.0 =
-Release date: December, 31st 2019
-
-* Behavior change: Attachment post type settings moved to Media, additional post type options made available.
-* Behavior change: Privately published parent posts are now, by default, skipped over in breadcrumb trails.
-* Behavior change: On single post breadcrumb trails, the hierarchical term code path is now used in cases where only a single term from a non-hierarchical taxonomy is present for the current post.
-* New feature: Allow `%link%` tag in unlinked breadcrumb templates.
-* New feature: Added `bcn_show_post_private` filter.
-* New feature: Added `bcn_show_type_term_archive` filter.
-
-
-= 6.3.0 =
-Release date: May, 3rd 2019
-
-* New feature: Added Gutenberg block for displaying breadcrumb trails.
-* New feature: Added `bcn_display_attribute_array` filter.
-* New feature: Added `bcn-aria-current` template tag to facilitate WAI-ARIA Breadcrumb support.
-* Bug Fix: Updated settings page to follow WP core standards for header structure.
-* Bug Fix: Updated checkbox in adminKit to eliminate multiple labels to follow WCAG 2.0.
-* Bug Fix: Fixed PHP error in circumstances of `bcn_breadcrumb_trail::fill()` falling back on treating an unknown item as a taxonomy.
-
-= 6.2.1 =
-Release date: October, 26th 2018
-
-* Behavior change: Added `span` element wrapping the breadcrumb title in the default unlinked breadcrumb template.
-* Bug fix: Fixed issue that caused PHP warnings and “the following settings were not saved” messages for hierarchical CPTs.
-
-= 6.2.0 =
-Release date: September, 24th 2018
-
-* Behavior change: Cleaned up translations for default templates, simplifying and clarifying the translatable content.
-* Behavior change: Default unlinked breadcrumb templates no longer contain Schema.org BreadcrumbList markup.
-* Behavior change: Breadcrumb NavXT REST API endpoints are no longer enabled by default.
-* New feature: Added `bcn_register_rest_endpoint` filter.
-* New feature: Added `bcn_breadcrumb_assembled_json_ld_array` filter.
-* New feature: Added support for following the post parent hierarchy first then falling back to a secondary hierarchy.
-* Bug fix: Fixed issue where on loading the settings page immediately after migrating settings causes PHP warnings on CPT and custom taxonomy settings.
-* Bug fix: Fixed issue that caused the settings reset option under the help drop down to not work.
-
-= 6.1.0 =
-Release date: June, 1st 2018
-
-* Behavior change: Links to generate support requests migrated to the WordPress.org forums.
-* New feature: Added support for Schema.org BreadcrumbList (microdata format) in the included widget.
-* New feature: Added new Root Page support for author archives.
-* New feature: Added REST API endpoint for posts, terms, and author archives.
-* Bug fix: Corrected label for the Schema.org BreadcrumbList (RDFa format) option in the included widget.
-* Bug fix: Fixed issue where a PHP warning would be thrown due to `get_term()` returning something other than an instance of `WP_Term`.
-
-= 6.0.4 =
-Release date: January, 26th 2018
-
-* Behavior change: Added auto migration of post type hierarchy settings to `bcn_display*()` functions.
-* Bug fix: Fixed issue where a PHP notice would be generated on the page for posts when the blog breadcrumb display option is set to false.
-* Bug fix: Fixed issue where a PHP notice would be generated on archive pages where attachments were included in the `wp_query` results.
-
-= 6.0.3 =
-Release date: January, 1st 2018
-
-* Bug fix: Fixed issue where an improper breadcrumb would be generated in the trail for pages under some circumstances.
-* Bug fix: Fixed issue where the post and page roots were not updating to track user changes in Settings > Reading.
-
-= 6.0.2 =
-Release date: December, 30th 2017
-
-* Behavior change: Added warning alerting that `bcn_breadcrumb::type` must be an array.
-* Bug fix: Changed Breadcrumb Separator and Paged Template from an input field to a textbox to reduce confusion caused by HTML entities.
-* Bug fix: Fixed issue where the parents of a page may not show up in the breadcrumb trail.
-* Bug fix: Fixed issue where the `$reverse` parameter for `bcn_display` and `bcn_display_list` did not work properly.
-* Bug fix: Fixed issue where the `bcn_display_list` function did not include the `li` elements.
-
-= 6.0.1 =
-Release date: December, 28th 2017
-
-* Behavior change: Removed unused Blog Template and Blog Template (Unlinked) from settings page.
-* Bug fix: Fixed issue where changes to the hierarchy type for any post type would not save.
-* Bug fix: Fixed issue where the blog display setting was ignored.
-
-= 6.0.0 =
-Release date: December, 26th 2017
-
-* Behavior change: `bcn_breadcrumb_trail::display_list()` deprecated in favor of using the `$template` parameter in `bcn_breadcrumb_trail::display()`.
-* Behavior change: `bcn_breadcrumb_trail::do_attachment()` deprecated in favor of calling `bcn_breadcrumb_trail::do_post()`.
-* Behavior change: `bcn_breadcrumb_trail::do_front_page()` deprecated in favor of calling `bcn_breadcrumb_trail::do_home()`.
-* Behavior change: `bcn_li_attributes` filter was deprecated in favor of `bcn_display_attributes`.
-* Behavior change: `bcn_breadcrumb_trail::do_archive_by_date()` deprecated in favor of calling bcn_breadcrumb_trail::do_day()`, `bcn_breadcrumb_trail::do_month()`, and/or `bcn_breadcrumb_trail::do_year()`.
-* Behavior change: `bcn_breadcrumb_trail::find_type()` deprecated and removed from bcn_breadcrumb_trail.
-* Behavior change: Breadcrumb for 404 error pages changed to be a child of the front page.
-* New feature: Added support for various HTML tags in the widget's pretext field.
-* New feature: Added `bcn_default_hierarchy_display` filter.
-* New feature: Added `bcn_default_hierarchy_type` filter.
-* New feature: Added `$posttype_name` as the third parameter to `bcn_show_tax_private`.
-* Bug fix: Fixed UI/UX issue in the settings screen where enabling/disabling settings groups for the Home, Blog, and Mainsite breadcrumb settings did not work.
-* Bug fix: Fixed UI/UX issue in the settings screen where not including the paged breadcrumb still allowed the paged breadcrumb template to be edited.
-* Bug fix: Removed use of `create_function` in registering the widget as it was deprecated in PHP 7.2.
-
 == Upgrade Notice ==
-= 6.3.0 =
-This version requires PHP5.5 or newer. This version introduces a Gutenberg Breadcrumb Trail block.
-
-= 6.0.0 =
-This version requires PHP5.3 or newer. This version introduces three new filters and deprecates a filter.
+= 7.4.1 =
+This version fixes the legacy widget not appearing issue that was introduced in 7.4.1.

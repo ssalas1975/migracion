@@ -1,6 +1,6 @@
 <?php
 global $lwa_submit_button, $lwa_data, $wp_version;
-$templates = LoginWithAjax::get_templates_data();
+$templates = \LoginWithAjax::get_templates_data();
 ?>
 <table class="form-table">
 	<?php if( count($templates) > 1 ) : ?>
@@ -24,21 +24,21 @@ $templates = LoginWithAjax::get_templates_data();
 					<label><?php esc_html_e("Template Color", 'login-with-ajax'); ?></label>
 				</th>
 				<td>
-					<div style="grid-template-columns: 300px 1fr; width:auto; position: relative; margin: 0 auto; padding: 0px; display: grid; grid-gap: 20px; gap: 20px;">
+					<div style="">
 						<div>
 							<input type="hidden" name="lwa_template_color[H]" value="<?php echo !empty($lwa_data['template_color']['H']) ? absint($lwa_data['template_color']['H']) : 220; ?>" id="lwa-template-hsl-h">
 							<input type="hidden" name="lwa_template_color[S]" value="<?php echo !empty($lwa_data['template_color']['S']) ? absint($lwa_data['template_color']['S']) : 86; ?>" id="lwa-template-hsl-s">
 							<input type="hidden" name="lwa_template_color[L]" value="<?php echo !empty($lwa_data['template_color']['L']) ? absint($lwa_data['template_color']['L']) : 57; ?>" id="lwa-template-hsl-l">
-							<input type="text" value="<?php echo LoginWithAjax::get_color_hsl(true); ?>" id="lwa-template-colorpicker" data-default-color="hsl(220,86,57)">
+							<input type="text" value="<?php echo \LoginWithAjax::get_color_hsl(true); ?>" id="lwa-template-colorpicker" data-default-color="hsl(220,86,57)">
 							<p><em><?php esc_html_e("Choose the color to base buttons and links off.", 'login-with-ajax'); ?></em></p>
 						</div>
-						<div id="lwa-hue-preview" style="border: 2px dotted #dedede; padding:10px 20px 20px;">
+						<div id="lwa-hue-preview" style="border: 2px dotted #dedede; padding:10px 20px 20px; margin-top:20px;">
 							<p style="padding-bottom:10px;">Preview :</p>
 							<div class="lwa-wrapper lwa-bones">
 								<div class="lwa pixelbones">
 									<span class="lwa-status"></span>
 									<input type="text" placeholder="<?php esc_html_e( 'Sample input field','login-with-ajax' ) ?>" style="margin-bottom:10px; display:inline-block !important; width:auto !important;">
-									<button class="button-primary" onclick="return false;"><?php esc_attr_e('Preview Button','login-with-ajax'); ?></button>
+									<button type="button" class="button-primary" onclick="return false;"><?php esc_attr_e('Preview Button','login-with-ajax'); ?></button>
 									<a class="lwa-links-remember" href="#" title="<?php esc_attr_e('Sample link text','login-with-ajax') ?>" onclick="return false;"><?php esc_html_e('Sample link text','login-with-ajax') ?></a>
 								</div>
 							</div>
@@ -64,8 +64,8 @@ $templates = LoginWithAjax::get_templates_data();
 			</th>
 			<td>
 				<input style="margin:0px; padding:0px; width:auto;" type="checkbox" name="lwa_legacy" value='1' class='wide' <?php echo ( !empty($lwa_data['legacy']) ) ? 'checked':''; ?>>
-				<p><em><?php esc_html_e("Login with AJAX 4.0 introduces new templates, replacing the previous templates. Leave this enabled if you still use any of these old templates in shortcodes or widgets and don't want to change them automatically. This may also apply to any templates you've overriden or created in your own themes.", 'login-with-ajax'); ?></em></p>
-				<p><em><?php echo sprintf(esc_html("Please see our %s on our documentation site for more information about what has changed and how it may affect you.", 'login-with-ajax'), '<a href="https://docs.loginwithajax.com/migrate-v3/">'. esc_html('Migration Guide') .'</a>'); ?></em></p>
+				<p><em><?php esc_html_e("AJAX Auth 4.0 introduces new templates, replacing the previous templates. Leave this enabled if you still use any of these old templates in shortcodes or widgets and don't want to change them automatically. This may also apply to any templates you've overriden or created in your own themes.", 'login-with-ajax'); ?></em></p>
+				<p><em><?php echo sprintf(esc_html("Please see our %s on our documentation site for more information about what has changed and how it may affect you.", 'login-with-ajax'), '<a href="https://docs.ajaxauth.com/migrate-v3/">'. esc_html('Migration Guide') .'</a>'); ?></em></p>
 			</td>
 		</tr>
 	<?php endif; ?>

@@ -10,18 +10,17 @@
  * Plugin Name:       Polylang
  * Plugin URI:        https://polylang.pro
  * Description:       Adds multilingual capability to WordPress
- * Version:           3.1.4
- * Requires at least: 5.4
- * Requires PHP:      5.6
+ * Version:           3.9.2
+ * Requires at least: 6.8
+ * Requires PHP:      7.4
  * Author:            WP SYNTEX
  * Author URI:        https://polylang.pro
  * Text Domain:       polylang
- * Domain Path:       /languages
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.txt
  *
  * Copyright 2011-2019 Frédéric Demarle
- * Copyright 2019-2022 WP SYNTEX
+ * Copyright 2019-2026 WP SYNTEX
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,42 +36,72 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Don't access directly.
-};
+defined( 'ABSPATH' ) || exit;
 
 if ( defined( 'POLYLANG_VERSION' ) ) {
 	// The user is attempting to activate a second plugin instance, typically Polylang and Polylang Pro.
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
-	require_once ABSPATH . 'wp-includes/pluggable.php';
+
 	if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
 		deactivate_plugins( plugin_basename( __FILE__ ) ); // Deactivate this plugin.
-		// WP does not allow us to send a custom meaningful message, so just tell the plugin has been deactivated.
-		wp_safe_redirect( add_query_arg( 'deactivate', 'true', remove_query_arg( 'activate' ) ) );
-		exit;
+
+		add_action(
+			'load-plugins.php',
+			static function () {
+				unset( $_GET['activate'] ); // Prevent WP to display its 'Plugin activated.' message.
+				$updated_notice_args = array(
+					'type'        => 'error',
+					'dismissible' => true,
+				);
+				wp_admin_notice( __( 'Polylang hasn\'t been activated: Polylang and Polylang Pro cannot be activated at the same time.', 'polylang' ), $updated_notice_args );
+			}
+		);
 	}
-} else {
-	// Go on loading the plugin
-	define( 'POLYLANG_VERSION', '3.1.4' );
-	define( 'PLL_MIN_WP_VERSION', '5.4' );
-	define( 'PLL_MIN_PHP_VERSION', '5.6' );
-
-	define( 'POLYLANG_FILE', __FILE__ );
-	define( 'POLYLANG_DIR', __DIR__ );
-
-	// Whether we are using Polylang or Polylang Pro, get the filename of the plugin in use.
-	if ( ! defined( 'POLYLANG_ROOT_FILE' ) ) {
-		define( 'POLYLANG_ROOT_FILE', __FILE__ );
-	}
-
-	if ( ! defined( 'POLYLANG_BASENAME' ) ) {
-		define( 'POLYLANG_BASENAME', plugin_basename( __FILE__ ) ); // Plugin name as known by WP.
-		require __DIR__ . '/vendor/autoload.php';
-	}
-
-	define( 'POLYLANG', ucwords( str_replace( '-', ' ', dirname( POLYLANG_BASENAME ) ) ) );
-
-	if ( empty( $_GET['deactivate-polylang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		new Polylang();
-	}
+	return;
 }
+
+// Go on loading the plugin.
+define( 'POLYLANG_VERSION', '3.9.2' );
+define( 'PLL_MIN_WP_VERSION', '6.8' );
+define( 'PLL_MIN_PHP_VERSION', '7.4' );
+
+define( 'POLYLANG_FILE', __FILE__ );
+define( 'POLYLANG_DIR', __DIR__ );
+
+// The filename of the plugin in use, whether it is Polylang or Polylang Pro.
+if ( ! defined( 'POLYLANG_ROOT_FILE' ) ) {
+	define( 'POLYLANG_ROOT_FILE', __FILE__ );
+}
+
+// The root directory of the plugin in use, whether it is Polylang or Polylang Pro.
+if ( ! defined( 'POLYLANG_ROOT_DIR' ) ) {
+	define( 'POLYLANG_ROOT_DIR', __DIR__ );
+}
+
+if ( ! defined( 'POLYLANG_BASENAME' ) ) {
+	define( 'POLYLANG_BASENAME', plugin_basename( __FILE__ ) ); // Plugin name as known by WP.
+	require __DIR__ . '/vendor/autoload.php';
+}
+
+define( 'POLYLANG', ucwords( str_replace( '-', ' ', dirname( POLYLANG_BASENAME ) ) ) );
+
+if ( ! empty( $_GET['deactivate-polylang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+	return;
+}
+
+require POLYLANG_DIR . '/src/constant-functions.php';
+if ( ! PLL_Usable::can_activate() ) {
+	// WP version or php version is too old.
+	return;
+}
+
+define( 'POLYLANG_ACTIVE', true );
+
+if ( PLL_Deactivate::is_deactivation() ) {
+	// Stopping here if we are going to deactivate the plugin (avoids breaking rewrite rules).
+	PLL_Deactivate::add_hooks();
+	return;
+}
+
+PLL_Activate::add_hooks();
+new Polylang();

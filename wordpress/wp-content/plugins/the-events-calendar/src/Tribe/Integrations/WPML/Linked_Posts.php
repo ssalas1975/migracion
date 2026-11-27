@@ -31,9 +31,11 @@ class Tribe__Events__Integrations__WPML__Linked_Posts {
 	/**
 	 * Tribe__Events__Integrations__WPML__Linked_Posts constructor.
 	 *
+	 * @since 6.17.0 Made $cache explicitly nullable.
+	 *
 	 * @param Tribe__Cache|null $cache
 	 */
-	public function __construct( Tribe__Cache $cache = null ) {
+	public function __construct( ?Tribe__Cache $cache = null ) {
 		$this->cache = null !== $cache ? $cache : tribe( 'cache' );
 	}
 
@@ -73,6 +75,10 @@ class Tribe__Events__Integrations__WPML__Linked_Posts {
 
 		$language_code = ! empty( $event_language_info['language_code'] ) ? $event_language_info['language_code'] :
 			ICL_LANGUAGE_CODE;
+
+		if ( empty( $language_code ) ) {
+			return $id;
+		}
 
 		$added = wpml_add_translatable_content( 'post_' . $linked_post_type, $id, $language_code );
 

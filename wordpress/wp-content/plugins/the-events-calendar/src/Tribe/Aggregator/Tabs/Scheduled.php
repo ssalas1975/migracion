@@ -2,6 +2,8 @@
 // Don't load directly
 defined( 'WPINC' ) or die;
 
+use Tribe\Events\Admin\Settings as Plugin_Settings;
+
 class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregator__Tabs__Abstract {
 	/**
 	 * Static Singleton Holder
@@ -107,6 +109,15 @@ class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregat
 		}
 	}
 
+	/**
+	 * Handles a bulk action submitted on the Scheduled Imports tab.
+	 *
+	 * @since 6.18.4 Returns early when the action is not one the tab supports, such as an empty bulk action.
+	 *
+	 * @param array{action?: string, nonce?: string, records?: array<int|string>, ids?: string}|object|null $data The submitted request data; defaults to `$_POST['aggregator']`.
+	 *
+	 * @return false|void False when nothing is done; otherwise it redirects back to the tab and exits.
+	 */
 	private function handle_post( $data = null ) {
 		if ( is_null( $data ) ) {
 			if ( ! isset( $_POST['aggregator'] ) ) {
@@ -124,6 +135,11 @@ class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregat
 		}
 
 		if ( ! isset( $data->nonce ) || ! wp_verify_nonce( $data->nonce, 'aggregator_' . $this->get_slug() . '_request' ) ) {
+			return false;
+		}
+
+		$post_type = get_post_type_object( Tribe__Events__Main::POSTTYPE );
+		if ( empty( $post_type->cap->edit_posts ) || ! current_user_can( $post_type->cap->edit_posts ) ) {
 			return false;
 		}
 
@@ -146,6 +162,9 @@ class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregat
 			case 'run-import':
 				list( $success, $errors ) = $this->action_run_import( $data->records );
 				break;
+
+			default:
+				return false;
 		}
 
 		$args = array(
@@ -327,8 +346,21 @@ class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregat
 			}
 
 			$child = $record->create_child_record();
+
+			if ( is_wp_error( $child ) ) {
+				$errors[ $record->id ] = $child;
+				$record->log_error( $child );
+				$record->update_meta( 'last_import_status', 'error:import-failed' );
+				continue;
+			}
+
 			$child->update_meta( 'interactive', true );
 			$status = $child->queue_import();
+
+			if ( is_numeric( $status ) ) {
+				$record->update_meta( 'last_import_status', 'queued' );
+				continue;
+			}
 
 			if ( is_wp_error( $status ) ) {
 				$errors[ $record->id ] = $status;
@@ -372,14 +404,17 @@ class Tribe__Events__Aggregator__Tabs__Scheduled extends Tribe__Events__Aggregat
 				</strong>
 			</p>
 			<p>
-				<?php printf(
-						esc_html__( 'To continue using scheduled imports, please enter a valid Event Aggregator license key under %1$sEvents > Settings > Licenses%2$s.', 'the-events-calendar' ),
-						'<a href="' . esc_url( admin_url( Tribe__Settings::$parent_page . '&page=tribe-common&tab=licenses' ) ) . '">',
-						'</a>'
-					); ?>
+				<?php
+				printf(
+					// Translators: %1$s: opening link tag, %2$s: closing link tag.
+					esc_html__( 'To continue using scheduled imports, please enter a valid Event Aggregator license key under %1$sEvents > Settings > Licenses%2$s.', 'the-events-calendar' ),
+					'<a href="' . esc_url( tribe( Plugin_Settings::class )->get_url( [ 'tab' => 'licenses' ] ) ) . '">',
+					'</a>'
+				);
+				?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( admin_url( Tribe__Settings::$parent_page . '&page=tribe-common&tab=licenses' ) ); ?>" class="tribe-license-link tribe-button tribe-button-primary"><?php esc_html_e( 'Enter Event Aggregator License', 'the-events-calendar' ); ?></a>
+				<a href="<?php echo esc_url( tribe( Plugin_Settings::class )->get_url( [ 'tab' => 'licenses' ] ) ); ?>" class="tribe-license-link tribe-button tribe-button-primary"><?php esc_html_e( 'Enter Event Aggregator License', 'the-events-calendar' ); ?></a>
 			</p>
 		</div>
 		<?php

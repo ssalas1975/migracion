@@ -87,8 +87,20 @@ class View extends \Tribe__Template {
 
 		// Generate an ID if we weren't passed one.
 		if ( is_null( $id ) ) {
-			$id = \uniqid();
+			$id = \uniqid( );
 		}
+
+		/**
+		 * Filters the dialog ID.
+		 *
+		 * @since 5.2.0
+		 *
+		 * @param string              $id      The dialog ID; either the one passed or a generated one.
+		 * @param string              $content The dialog content.
+		 * @param array<string,mixed> $args    The dialog arguments.
+		 * @param bool                $echo    Whether to echo the script or to return it (default: true).
+		 */
+		$id = apply_filters( 'tec_dialog_id', $id, $content, $args, $echo );
 
 		/** @var \Tribe__Assets $assets */
 		$assets = tribe( 'assets' );
@@ -476,7 +488,7 @@ class View extends \Tribe__Template {
 		/**
 		 * Allow us to filter the dialog arguments.
 		 *
-		 * @since  4.10.0
+		 * @since 4.10.0
 		 *
 		 * @param array $args The dialog arguments.
 		 * @param string $content HTML content string.
@@ -487,7 +499,7 @@ class View extends \Tribe__Template {
 		/**
 		 * Allow us to filter the dialog template name.
 		 *
-		 * @since  4.10.0
+		 * @since 4.10.0
 		 *
 		 * @param string $template The dialog template name.
 		 * @param array $args The dialog arguments.
@@ -505,7 +517,7 @@ class View extends \Tribe__Template {
 		/**
 		 * Allow us to filter the dialog output (HTML string).
 		 *
-		 * @since  4.10.0
+		 * @since 4.10.0
 		 *
 		 * @param string $html The dialog HTML string.
 		 * @param array $args The dialog arguments.
@@ -560,11 +572,11 @@ class View extends \Tribe__Template {
 		ob_start();
 		?>
 		<script>
-			var tribe = tribe || {};
-			tribe.dialogs = tribe.dialogs || [];
-			tribe.dialogs.dialogs = tribe.dialogs.dialogs || [];
+			window.tribe = window.tribe || {};
+			window.tribe.dialogs = window.tribe.dialogs || [];
+			window.tribe.dialogs.dialogs = window.tribe.dialogs.dialogs || [];
 
-			tribe.dialogs.dialogs.push( <?php echo json_encode( $args ); ?> );
+			window.tribe.dialogs.dialogs.push( <?php echo wp_json_encode( $args ); ?> );
 
 			<?php
 			/**

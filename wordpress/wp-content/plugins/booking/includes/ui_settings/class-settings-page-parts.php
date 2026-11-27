@@ -67,24 +67,28 @@ class WPBC_Settings_Page_Parts {
 
 		$tabs_arr                = $this->page_structure_obj->get_nav_tabs();
 		$current_page_params_arr = $this->page_structure_obj->get_current_page_params();
+		$navigation_policy       = $this->page_structure_obj->get_admin_navigation_policy();
+		$shell_layout_policy     = $this->page_structure_obj->get_admin_shell_layout_policy();
 
 		// -------------------------------------------------------------------------------------------------------------
 		// 'Left Sidebar'  - By default it shoud be ''. Other options: '', 'min', 'compact', 'max'.
 		// -------------------------------------------------------------------------------------------------------------
-		$left_navigation__default_view_mode = strval( $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'left_navigation__default_view_mode' ) );
+		$left_navigation__default_view_mode    = strval( $this->page_structure_obj->get_left_navigation_default_view_mode() );
+		$left_navigation__is_user_mode_enabled = $this->page_structure_obj->is_left_navigation_user_mode_enabled();
+		$left_navigation__preference_name      = $this->page_structure_obj->get_left_navigation_preference_name();
 
 		if ( ! empty( $left_navigation__default_view_mode ) ) {
 			if ( 'none' === $left_navigation__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_left__do_hide(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_left__do_hide ) { wpbc_admin_ui__sidebar_left__do_hide(); } } ); </script>';
 			}
 			if ( 'min' === $left_navigation__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_left__do_min(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_left__do_min ) { wpbc_admin_ui__sidebar_left__do_min(); } } ); </script>';
 			}
 			if ( 'compact' === $left_navigation__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_left__do_compact(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_left__do_compact ) { wpbc_admin_ui__sidebar_left__do_compact(); } } ); </script>';
 			}
 			if ( 'max' === $left_navigation__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_left__do_max(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_left__do_max ) { wpbc_admin_ui__sidebar_left__do_max(); } } ); </script>';
 			}
 		}
 
@@ -94,19 +98,26 @@ class WPBC_Settings_Page_Parts {
 		$right_vertical_sidebar__is_show           = $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'right_vertical_sidebar__is_show' );
 		$right_vertical_sidebar__default_view_mode = strval( $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'right_vertical_sidebar__default_view_mode' ) );
 		$right_vertical_sidebar__default_view_mode = ( ! empty( $right_vertical_sidebar__default_view_mode ) ) ? $right_vertical_sidebar__default_view_mode . '_right' : $right_vertical_sidebar__default_view_mode;
+		$right_sidebar_content_click_collapse_mode = $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'right_vertical_sidebar__content_click_collapse_mode' );
+		$right_sidebar_content_click_collapse_mode = is_scalar( $right_sidebar_content_click_collapse_mode )
+			? sanitize_key( (string) $right_sidebar_content_click_collapse_mode )
+			: '';
+		$right_sidebar_content_click_collapse_mode = in_array( $right_sidebar_content_click_collapse_mode, array( 'min', 'compact', 'none' ), true )
+			? $right_sidebar_content_click_collapse_mode
+			: '';
 
 		if ( ! empty( $right_vertical_sidebar__default_view_mode ) ) {
 			if ( 'none_right' === $right_vertical_sidebar__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_right__do_hide(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_right__do_hide ) { wpbc_admin_ui__sidebar_right__do_hide(); } } ); </script>';
 			}
 			if ( 'min_right' === $right_vertical_sidebar__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_right__do_min(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_right__do_min ) { wpbc_admin_ui__sidebar_right__do_min(); } } ); </script>';
 			}
 			if ( 'compact_right' === $right_vertical_sidebar__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_right__do_compact(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_right__do_compact ) { wpbc_admin_ui__sidebar_right__do_compact(); } } ); </script>';
 			}
 			if ( 'max_right' === $right_vertical_sidebar__default_view_mode ) {
-				echo '<script type="text/javascript"> jQuery( document ).ready( function () { wpbc_admin_ui__sidebar_right__do_max(); } ); </script>';
+				echo '<script type="text/javascript"> jQuery( document ).ready( function () { if ( "function" === typeof wpbc_admin_ui__sidebar_right__do_max ) { wpbc_admin_ui__sidebar_right__do_max(); } } ); </script>';
 			}
 		}
 		// -------------------------------------------------------------------------------------------------------------
@@ -117,13 +128,15 @@ class WPBC_Settings_Page_Parts {
 						( ( $right_vertical_sidebar__is_show ) ? ' right_vertical_sidebar_displayed ' : '' ) .
 			           	' wpbc_admin_page__tab__' . esc_attr( $this->active_tab ) .
 			 			' wpbc_admin_page__subtab__' . esc_attr( $this->active_subtab ) .
-					'">';
+					' wpbc_admin_page_layout__' . esc_attr( $shell_layout_policy['page_content_layout'] ) .
+					'" data-wpbc-page-content-layout="' . esc_attr( $shell_layout_policy['page_content_layout'] ) . '">';
 
 		wpbc_ui__top_nav(
 			array(
-				'page_tag'           => $this->active_page,
-				'active_page_tab'    => $this->active_tab,
-				'active_page_subtab' => $this->active_subtab,
+				'page_tag'                         => $this->active_page,
+				'active_page_tab'                  => $this->active_tab,
+				'active_page_subtab'               => $this->active_subtab,
+				'is_full_screen_user_mode_enabled' => $this->page_structure_obj->is_full_screen_user_mode_enabled(),
 			)
 		);
 
@@ -133,7 +146,52 @@ class WPBC_Settings_Page_Parts {
 		echo '<div class="wpbc_settings_page_wrapper ' .
 							esc_attr( $left_navigation__default_view_mode ) . ' ' .
 							esc_attr( $right_vertical_sidebar__default_view_mode ) .
-						'">';
+						'" data-wpbc-left-sidebar-user-mode="' . esc_attr( $left_navigation__is_user_mode_enabled ? '1' : '0' ) . '"' .
+						' data-wpbc-navigation-context="' . esc_attr( $navigation_policy['shell_context'] ) . '"' .
+						' data-wpbc-navigation-preference-scope="' . esc_attr( $navigation_policy['left_sidebar_preference_scope'] ) . '"' .
+						' data-wpbc-left-sidebar-resolved-mode="' . esc_attr( $left_navigation__default_view_mode ) . '"' .
+						( $right_sidebar_content_click_collapse_mode
+							? ' data-wpbc-right-sidebar-content-click-collapse-mode="' . esc_attr( $right_sidebar_content_click_collapse_mode ) . '"'
+							: '' ) .
+						'>';
+
+		if ( $left_navigation__is_user_mode_enabled && '' !== $left_navigation__preference_name ) {
+			$normal_preference_scope = WPBC_Admin_Navigation_Policy::CONTEXT_SETTINGS === $navigation_policy['shell_context']
+				? WPBC_Admin_Navigation_Policy::PREFERENCE_SCOPE_SETTINGS
+				: WPBC_Admin_Navigation_Policy::PREFERENCE_SCOPE_WORKSPACE;
+			$preference_scopes       = array_unique(
+				array(
+					$normal_preference_scope,
+					WPBC_Admin_Navigation_Policy::PREFERENCE_SCOPE_FULLSCREEN,
+				)
+			);
+
+			echo '<span id="wpbc_left_sidebar_view_mode_saver" style="display:none;">';
+			foreach ( $preference_scopes as $preference_scope ) {
+				$user_cust_option = WPBC_Admin_Navigation_Policy::get_preference_name( $preference_scope );
+				$nonce_action     = $user_cust_option . '_nonce_act';
+				$scope_mode       = class_exists( 'WPBC_Admin_Navigation_Preferences' )
+					? WPBC_Admin_Navigation_Preferences::get_effective_mode( wpbc_get_current_user_id(), $preference_scope )
+					: '';
+				$scope_mode       = WPBC_Admin_Navigation_Policy::normalize_preference_mode( $scope_mode );
+				if ( '' === $scope_mode ) {
+					$scope_mode = WPBC_Admin_Navigation_Policy::get_context_default_sidebar_mode(
+						$navigation_policy['shell_context'],
+						WPBC_Admin_Navigation_Policy::PREFERENCE_SCOPE_FULLSCREEN === $preference_scope
+					);
+				}
+
+				echo '<span class="wpbc_left_sidebar_view_mode_saver__scope"' .
+					' data-wpbc-u-save-name="' . esc_attr( $user_cust_option ) . '"' .
+					' data-wpbc-navigation-preference-scope="' . esc_attr( $preference_scope ) . '"' .
+					' data-wpbc-u-save-value="' . esc_attr( $scope_mode ) . '"' .
+					' data-wpbc-u-save-nonce="' . esc_attr( wp_create_nonce( $nonce_action ) ) . '"' .
+					' data-wpbc-u-save-user-id="' . esc_attr( wpbc_get_current_user_id() ) . '"' .
+					' data-wpbc-u-save-action="' . esc_attr( $nonce_action ) . '"' .
+					'></span>';
+			}
+			echo '</span>';
+		}
 
 		// Left  vertical  menu.
 		wpbc_ui__left_vertical_nav(
@@ -146,35 +204,120 @@ class WPBC_Settings_Page_Parts {
 		);
 
 		?>
-		<div class="wpbc_settings_page_content">
+		<div class="wpbc_admin_workspace">
+			<?php
+			// Initialize shared sidebar and page-control tooltips once per request.
+			if ( function_exists( 'wpbc_bs_javascript_tooltips' ) ) {
+				wpbc_bs_javascript_tooltips();
+			}
+			?>
 			<div id="<?php echo esc_attr( $this->active_page ); ?>-admin-page" class="wrap wpbc_page wpbc_page_tab__<?php echo esc_attr( $this->active_tab ); ?> wpbc_page_subtab__<?php echo esc_attr( $this->active_subtab ); ?>">
 				<div class="wpbc_admin_message"></div>
 				<div class="wpbc_admin_page">
-					<div id="ajax_working"></div>
+					<div id="ajax_working">
+						<?php
+						/**
+						 * Fires inside the Booking Calendar floating admin-message container.
+						 *
+						 * Persistent or actionable messages rendered here use the same fixed
+						 * top-right presentation as transient Booking Calendar AJAX notices.
+						 *
+						 * @param string $active_page   Current Booking Calendar page slug.
+						 * @param string $active_tab    Current active tab slug.
+						 * @param string $active_subtab Current active subtab slug.
+						 */
+						do_action( 'wpbc_inside_ui__admin_messages', $this->active_page, $this->active_tab, $this->active_subtab );
+						?>
+					</div>
 					<div class="clear wpbc_header_margin" style="height:0px;"></div>
 					<div id="ajax_respond" class="ajax_respond" style="display:none;"></div>
 					<div class="clear"></div>
 					<?php
 
-					$is_show_top_path = $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'is_show_top_path' );
-					if ( $is_show_top_path ) {
-						wpbc_ui_settings__top_path();
-					}
+					$this->render_shell_header( $navigation_policy );
+					$this->open_page_content( $shell_layout_policy );
+	}
 
-					$is_show_top_navigation = $this->page_structure_obj->is_use_option__in_subtabs_or_tabs( 'is_show_top_navigation' );
-					if ( $is_show_top_navigation ) {
-						// Top horisonal menu.
-						wpbc_ui__top_horisontal_nav(
-							array(
-								'active_page'   => $this->active_page,         // wpbc-settings.
-								'active_tab'    => $this->active_tab,          // calendar_appearance.
-								'active_subtab' => $this->active_subtab,       // calendar_appearance_skin.
-								'page_nav_tabs' => $this->page_structure_obj->get_nav_tabs(),
-							)
-						);
-					}
 
-					$this->show_title_and_description();
+	/**
+	 * Render the policy-controlled administration shell header.
+	 *
+	 * The shared order is horizontal peer navigation, path/version status, and
+	 * the optional page heading with description. Existing component renderers
+	 * remain responsible for their established hooks and compatibility classes.
+	 * The policy normally hides the heading when horizontal navigation is
+	 * enabled. If the renderer finds fewer than two meaningful peers and omits
+	 * that row, this boundary restores the derived heading so the page keeps its
+	 * visible identity. The documented `is_show_page_heading` page option remains
+	 * authoritative when a page explicitly supplies it.
+	 *
+	 * The header is outside the workspace body so its real rendered height,
+	 * including wrapped breadcrumbs or an exceptional heading, defines where
+	 * both the page content and an optional right sidebar begin. This avoids
+	 * calculated sidebar offsets and keeps the horizontal row continuous above
+	 * every supported right-sidebar width.
+	 *
+	 * @param array<string,mixed> $navigation_policy Resolved administration navigation policy.
+	 *
+	 * @return void
+	 */
+	private function render_shell_header( $navigation_policy ) {
+
+		echo '<div class="wpbc_admin_workspace__header">';
+
+		$is_horizontal_navigation_rendered = false;
+		if ( ! empty( $navigation_policy['is_horizontal_navigation_visible'] ) ) {
+			$is_horizontal_navigation_rendered = wpbc_ui__top_horisontal_nav(
+				array(
+					'active_page'   => $this->active_page,         // wpbc-settings.
+					'active_tab'    => $this->active_tab,          // calendar_appearance.
+					'active_subtab' => $this->active_subtab,       // calendar_appearance_skin.
+					'page_nav_tabs' => $this->page_structure_obj->get_nav_tabs(),
+				)
+			);
+		}
+
+		if ( ! empty( $navigation_policy['is_top_path_visible'] ) ) {
+			wpbc_ui_settings__top_path( $this->page_structure_obj );
+		}
+
+		$is_page_heading_visible = ! empty( $navigation_policy['is_page_heading_visible'] );
+		if (
+			! $is_horizontal_navigation_rendered
+			&& ! empty( $navigation_policy['is_horizontal_navigation_visible'] )
+			&& empty( $navigation_policy['is_page_heading_explicit'] )
+		) {
+			$is_page_heading_visible = true;
+		}
+
+		if ( $is_page_heading_visible ) {
+			echo '<div class="wpbc_admin_workspace__heading">';
+			$this->show_title_and_description();
+			echo '</div><!-- .wpbc_admin_workspace__heading -->';
+		}
+
+		echo '</div><!-- .wpbc_admin_workspace__header -->';
+	}
+
+
+	/**
+	 * Open the shared workspace body and page-owned content column.
+	 *
+	 * The body is the only horizontal split between page content and optional
+	 * right-side panels. The stable data attribute is used by domain-neutral
+	 * sidebar behavior without coupling JavaScript to a particular DOM depth.
+	 * The corresponding elements are closed by template_footer() after the page
+	 * callback has rendered.
+	 *
+	 * @param array<string,string> $shell_layout_policy Resolved administration content layout policy.
+	 *
+	 * @return void
+	 */
+	private function open_page_content( $shell_layout_policy ) {
+
+		echo '<div class="wpbc_admin_workspace__body">';
+		echo '<div class="wpbc_settings_page_content" data-wpbc-admin-page-content>';
+		echo '<div class="wpbc_admin_page__content ' . esc_attr( $shell_layout_policy['page_content_layout_class'] ) . '">';
 	}
 
 
@@ -185,8 +328,7 @@ class WPBC_Settings_Page_Parts {
 	 */
 	public function template_footer() {
 
-		echo '</div><!-- wpbc_admin_page -->';
-		echo '</div><!-- wpbc_page -->';
+		echo '</div><!-- .wpbc_admin_page__content -->';
 		echo '</div><!-- .wpbc_settings_page_content -->';
 
 		// Right vertical sidebar.
@@ -215,6 +357,10 @@ class WPBC_Settings_Page_Parts {
 			}
 		}
 
+		echo '</div><!-- .wpbc_admin_workspace__body -->';
+		echo '</div><!-- .wpbc_admin_page -->';
+		echo '</div><!-- .wpbc_page -->';
+		echo '</div><!-- .wpbc_admin_workspace -->';
 		echo '</div><!-- .wpbc_settings_page_wrapper -->';
 		echo '</div><!-- .wpbc_admin -->';
 
@@ -227,7 +373,7 @@ class WPBC_Settings_Page_Parts {
 		 * and set  correct 'full screen'  or 'normal'  buttons in the rop  right side!
 		 */
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<script type="text/javascript">' . wpbc_jq_ready_start() . 'wpbc_check_full_screen_mode();' . wpbc_jq_ready_end() . '</script>';
+		echo '<script type="text/javascript">' . wpbc_jq_ready_start() . 'if ( "function" === typeof wpbc_check_full_screen_mode ) { wpbc_check_full_screen_mode(); }' . wpbc_jq_ready_end() . '</script>';
 	}
 
 

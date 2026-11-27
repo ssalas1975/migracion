@@ -54,7 +54,7 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 
 		/**
 		 * Deprecated piece of code, but we need it in place to make sure
-		 * we dont break with older version of Event Tickets.
+		 * we don't break with older version of Event Tickets.
 		 *
 		 * @todo  remove once we have common version compare back working
 		 */
@@ -137,7 +137,7 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 			->archive( [ 'ical' ], [ 'ical' => 1 ] )
 			->archive( [ '{{ featured }}', 'ical' ], [ 'ical' => 1, 'featured' => true ] )
 			->archive( [ '(\d{4}-\d{2}-\d{2})', 'ical' ], [ 'ical' => 1, 'eventDisplay' => 'day', 'eventDate' => '%1' ] )
-			->archive( [ '(\d{4}-\d{2}-\d{2})', 'ical', 'featured' ], [ 'ical' => 1, 'eventDisplay' => 'day', 'eventDate' => '%1', 'featured' => true ] )
+			->archive( [ '(\d{4}-\d{2}-\d{2})', 'ical', '{{ featured }}' ], [ 'ical' => 1, 'eventDisplay' => 'day', 'eventDate' => '%1', 'featured' => true ] )
 
 			// Taxonomy
 			->tax( [ '{{ page }}', '(\d+)' ], [ 'eventDisplay' => 'list', 'paged' => '%2' ] )
@@ -226,15 +226,6 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 	}
 
 	/**
-	 * Checking if WPML is active on this WP
-	 *
-	 * @return boolean
-	 */
-	public function is_wpml_active() {
-		return ! empty( $GLOBALS['sitepress'] ) && $GLOBALS['sitepress'] instanceof SitePress;
-	}
-
-	/**
 	 * Get the base slugs for the Plugin Rewrite rules
 	 *
 	 * WARNING: Don't mess with the filters below if you don't know what you are doing
@@ -248,19 +239,57 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		}
 
 		$tec = Tribe__Events__Main::instance();
+		$user_locale = get_user_locale();
+		$locale = get_locale();
 
-		$default_bases = [
-			'month'    => [ 'month', $tec->monthSlug ],
-			'list'     => [ 'list', $tec->listSlug ],
-			'today'    => [ 'today', $tec->todaySlug ],
-			'day'      => [ 'day', $tec->daySlug ],
-			'tag'      => [ 'tag', $tec->tag_slug ],
-			'tax'      => [ 'category', $tec->category_slug ],
-			'page'     => [ 'page', esc_html_x( 'page', 'The "/page/" URL string component.', 'the-events-calendar' ) ],
-			'single'   => [ tribe_get_option( 'singleEventSlug', 'event' ), $tec->rewriteSlugSingular ],
-			'archive'  => [ tribe_get_option( 'eventsSlug', 'events' ), $tec->rewriteSlug ],
-			'featured' => [ 'featured', $tec->featured_slug ],
-		];
+		/**
+		 * Filters the text domains that should be loaded to get the correctly localized base slugs.
+		 *
+		 * @since 3.11.2
+		 *
+		 * @param array<string,string> $text_domains A map from text domain to the path to the file containing the
+		 *                                           translations.
+		 */
+		$domains = apply_filters( 'tribe_events_rewrite_i18n_domains', array(
+			'default'             => true, // Default doesn't need file path
+			'the-events-calendar' => $tec->plugin_dir . 'lang/',
+		) );
+
+		if ( $user_locale !== $locale ) {
+			/*
+			 * The bases should be generated using the site locale, not the user locale.
+			 * Switch to the site locale and force the plugins to load the correct translations.
+			 */
+			$this->translations_loader->load( $locale, $domains );
+		}
+
+		$cache         = tribe_cache();
+		$cache_key     = 'tec_rewrite_default_bases_' . $locale;
+		$default_bases = $cache[ $cache_key ];
+
+		if ( empty( $default_bases ) ) {
+			$default_bases = [
+				'month'    => [ 'month', sanitize_title( __( 'month', 'the-events-calendar' ) ) ],
+				'list'     => [ 'list', sanitize_title( __( 'list', 'the-events-calendar' ) ) ],
+				'today'    => [ 'today', sanitize_title( __( 'today', 'the-events-calendar' ) ) ],
+				'day'      => [ 'day', sanitize_title( __( 'day', 'the-events-calendar' ) ) ],
+				'tag'      => [ 'tag', $tec->get_tag_slug() ],
+				'tax'      => [ 'category', $tec->get_category_slug() ],
+				'page'     => [
+					'page',
+					esc_html_x( 'page', 'The "/page/" URL string component.', 'the-events-calendar' )
+				],
+				'single'   => [ tribe_get_option( 'singleEventSlug', 'event' ), $tec->getRewriteSlugSingular() ],
+				'archive'  => [ tribe_get_option( 'eventsSlug', 'events' ), $tec->getRewriteSlug() ],
+				'featured' => [
+					'featured',
+					sanitize_title( _x( 'featured', 'featured events slug', 'the-events-calendar' ) )
+				],
+			];
+
+			// Memoize the default bases per-locale.
+			$cache[ $cache_key ] = $default_bases;
+		}
 
 		/**
 		 * If you want to modify the base slugs before the i18n happens filter this use this filter
@@ -282,9 +311,8 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		 */
 		$bases = apply_filters( 'tribe_events_rewrite_base_slugs', $default_bases );
 
-		// Remove duplicates (no need to have 'month' twice if no translations are in effect, etc)
-		$bases            = array_map( 'array_unique', $bases );
-		$unfiltered_bases = $bases;
+		// Remove duplicates (no need to have 'month' twice if no translations are in effect, for example).
+		$bases = array_map( 'array_unique', $bases );
 
 		apply_filters_deprecated(
 			'tribe_events_rewrite_i18n_languages',
@@ -292,18 +320,6 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 			'5.1.5',
 			'Deprecated in version 5.1.1, not used since version 4.2.'
 		);
-
-		// By default we load the Default and our plugin domains
-		$domains = apply_filters( 'tribe_events_rewrite_i18n_domains', array(
-			'default'             => true, // Default doesn't need file path
-			'the-events-calendar' => $tec->plugin_dir . 'lang/',
-		) );
-
-		// In this moment set up the object locale bases too.
-		$this->localized_bases = $this->get_localized_bases( $unfiltered_bases, $domains );
-
-		// Merge the localized bases into the non-localized bases to ensure any following filter will apply to all.
-		$bases = $this->merge_localized_bases( $bases );
 
 		/**
 		 * Use `tribe_events_rewrite_i18n_slugs_raw` to modify the raw version of the l10n slugs bases.
@@ -419,9 +435,108 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		return $this->add( $regex, $args );
 	}
 
+	/**
+	 * Will adjust the `pagination_base` property in cases where the locale for the site is updated,
+	 * and the page field needs to be interpreted with the translated value.
+	 *
+	 * @since 6.3.1
+	 */
+	public function filter_pagination_base(): void {
+		global $wp_query, $wp_rewrite;
+		if ( ! $wp_query ) {
+			return;
+		}
+
+		$queried_object = $wp_query->get_queried_object();
+		if ( ! is_object( $queried_object ) ) {
+			return;
+		}
+
+		if ( $wp_query->is_main_query() && isset( $queried_object->taxonomy ) && $queried_object->taxonomy === 'tribe_events_cat' ) {
+			// Will always ensure it is localized properly.
+			$wp_rewrite->pagination_base = urlencode( strtolower( esc_html_x( 'page', 'The "/page/" URL string component.', 'the-events-calendar' ) ) );
+		}
+	}
+
 	protected function remove_hooks() {
 		parent::remove_hooks();
 		remove_filter( 'post_type_link', array( $this, 'filter_post_type_link' ), 15 );
+		remove_filter( 'request', [ $this, 'filter_request_decode_taxonomy_slugs' ], 5 );
+		remove_action( 'init', [ $this, 'normalize_request_uri_for_non_ascii' ], 1 );
+		remove_action( 'template_redirect', [ $this, 'filter_pagination_base' ], 1 );
+	}
+
+	/**
+	 * Normalizes non-ASCII percent-encoding in REQUEST_URI to lowercase before WordPress's
+	 * WP::parse_request() runs its rewrite rule matching.
+	 *
+	 * The Events Calendar generates URLs via sanitize_title() which produces lowercase
+	 * hex-encoded sequences (e.g. %d0%bc for Cyrillic м). Rewrite rules are therefore stored
+	 * with lowercase patterns. Browsers, however, re-encode non-ASCII characters with uppercase
+	 * hex (e.g. %D0%BC) per RFC 3986 when the user clicks the address bar and presses Enter.
+	 * Since preg_match() is case-sensitive, uppercase-encoded requests never match the stored
+	 * lowercase patterns, causing a 404.
+	 *
+	 * This method also handles the case where a browser sends raw UTF-8 bytes instead of
+	 * percent-encoding (e.g. /events/месяц/ rather than /events/%d0%bc%d0%b5%d1%81%d1%8f%d1%86/).
+	 *
+	 * Running at init priority 1 ensures this fires well before WP::main() calls
+	 * WP::parse_request(), regardless of when the Rewrite instance was created.
+	 *
+	 * @since 6.15.18
+	 *
+	 * @return void
+	 */
+	public function normalize_request_uri_for_non_ascii() {
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return;
+		}
+
+		// Normalize in a single pass:
+		// - Raw non-ASCII UTF-8 bytes  → encode with rawurlencode() then lowercase the hex
+		// - Already-encoded UPPERCASE sequences (e.g. %D0%BC) → lowercase hex (%d0%bc)
+		// Both outcomes match the lowercase patterns stored in the rewrite rules.
+		$_SERVER['REQUEST_URI'] = preg_replace_callback( // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			'/([^\x00-\x7F]+)|%([89A-Fa-f][0-9A-Fa-f])/',
+			static function ( $matches ) {
+				if ( ! empty( $matches[1] ) ) {
+					// Raw non-ASCII bytes: encode to percent-encoding then lowercase.
+					return strtolower( rawurlencode( $matches[1] ) );
+				}
+				// Uppercase-encoded non-ASCII byte sequence: normalize hex to lowercase.
+				return '%' . strtolower( $matches[2] );
+			},
+			$_SERVER['REQUEST_URI'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		);
+	}
+
+	/**
+	 * Decodes percent-encoded taxonomy slugs in the request so that URLs with non-ASCII
+	 * characters (e.g. Cyrillic) resolve correctly for category and tag archives.
+	 *
+	 * When the request path is percent-encoded (e.g. /%D0%BA%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F/...),
+	 * the rewrite capture passes the encoded value to the query var. Term lookups and canonical
+	 * URL generation then fail because the term slug in the database is stored in UTF-8.
+	 *
+	 * @since 6.15.18
+	 *
+	 * @param array $query_vars The array of parsed query variables.
+	 * @return array The query variables with taxonomy slugs decoded when needed.
+	 */
+	public function filter_request_decode_taxonomy_slugs( $query_vars ) {
+		if ( ! is_array( $query_vars ) ) {
+			return $query_vars;
+		}
+		$tax_slugs = [
+			TEC::TAXONOMY => true,
+			'tag'         => true,
+		];
+		foreach ( array_keys( $tax_slugs ) as $var ) {
+			if ( isset( $query_vars[ $var ] ) && is_string( $query_vars[ $var ] ) && strpos( $query_vars[ $var ], '%' ) !== false ) {
+				$query_vars[ $var ] = rawurldecode( $query_vars[ $var ] );
+			}
+		}
+		return $query_vars;
 	}
 
 	protected function add_hooks() {
@@ -429,7 +544,10 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		add_action( 'tribe_events_pre_rewrite', array( $this, 'generate_core_rules' ) );
 		add_filter( 'post_type_link', array( $this, 'filter_post_type_link' ), 15, 2 );
 		add_filter( 'url_to_postid', array( $this, 'filter_url_to_postid' ) );
+		add_filter( 'request', [ $this, 'filter_request_decode_taxonomy_slugs' ], 5 );
+		add_action( 'init', [ $this, 'normalize_request_uri_for_non_ascii' ], 1 );
 		add_action( 'wp_loaded', [ $this, 'maybe_delayed_flush_rewrite_rules' ] );
+		add_action( 'template_redirect', [ $this, 'filter_pagination_base' ], 1 );
 	}
 
 	/**
@@ -534,10 +652,14 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		// If possible add a `localized_slug` entry to each localized matcher to support multi-language.
 		array_walk(
 			$localized_matchers,
-			function ( array &$localized_matcher ) {
-				if ( isset( $localized_matcher['base'], $this->localized_bases[ $localized_matcher['base'] ] ) ) {
-					$localized_matcher['localized_slug'] = $this->localized_bases[ $localized_matcher['base'] ];
+			static function ( array &$localized_matcher ) {
+				if ( isset( $localized_matcher['localized_slug'] ) ) {
+					// Already set? Bail.
+					return;
 				}
+
+				// The localized version of the slug will be the last one.
+				$localized_matcher['localized_slug'] = end( $localized_matcher['localized_slugs'] ) ?? $localized_matcher['en_slug'];
 			}
 		);
 
@@ -587,14 +709,24 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 					// Remove leading/trailing slashes to get something like `grand-parent/parent/child`.
 					$category_slug = trim( $category_slug, '/' );
 
-					$dynamic_matchers[ "{$cat_regex}/(?:[^/]+/)*([^/]+)" ] = "{$localized_slug}/{$category_slug}";
+					// Create a capturing and non-capturing version of the taxonomy match.
+					$dynamic_matchers["(?:{$cat_regex})/(?:[^/]+/)*([^/]+)"] = "{$localized_slug}/{$category_slug}";
+					$dynamic_matchers["{$cat_regex}/(?:[^/]+/)*([^/]+)"] = "{$localized_slug}/{$category_slug}";
 				}
 			}
 		}
-
 		// Where is iCal? It's handled by WordPress.
 
-		return $dynamic_matchers;
+		/**
+		 * Allow extending classes to add their own dynamic matchers.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param array<string, string>   $dynamic_matchers An array of dynamic matchers in the shape `[ <regex> => <value> ]`.
+		 * @param array<string, mixed>    $query_vars       A map of query vars and their values.
+		 * @param Tribe__Events__Rewrite  $rewrite          The rewrite instance.
+		 */
+		return apply_filters( 'tec_events_rewrite_dynamic_matchers', $dynamic_matchers, $query_vars, $this );
 	}
 
 	/**
@@ -637,7 +769,11 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 			return $query_vars;
 		}
 
-		parse_str( parse_url( $url, PHP_URL_QUERY ), $url_query_vars );
+		$query_string   = parse_url( $url, PHP_URL_QUERY );
+		$url_query_vars = [];
+		if ( ! empty( $query_string ) ) {
+			parse_str( $query_string, $url_query_vars );
+		}
 
 		if (
 			! isset( $query_vars['eventDisplay'], $url_query_vars['eventDisplay'] )
@@ -710,82 +846,5 @@ class Tribe__Events__Rewrite extends Tribe__Rewrite {
 		];
 
 		return $entry;
-	}
-
-	/**
-	 * Returns the map of localized bases for the specified text domains.
-	 *
-	 * The bases are the ones used to build the permalinks, the domains are those of the currently activated plugins
-	 * that include a localized rewrite component.
-	 *
-	 * @since 5.1.1
-	 *
-	 * @param array<string> $bases   The bases to set up the locale translation for.
-	 * @param array<string> $domains A list of text domains belonging to the plugins currently active that handle and
-	 *                               provide support for a localized rewrite component.
-	 *
-	 * @return array<string,string> A map relating the bases in their English, lowercase form to their current locale
-	 *                              translated form.
-	 */
-	public function get_localized_bases( array $bases, array $domains ) {
-		$locale             = get_locale();
-		$cache_key          = __METHOD__ . md5( serialize( array_merge( $bases, $domains, [ $locale ] ) ) );
-		$expiration_trigger = Cache_Listener::TRIGGER_GENERATE_REWRITE_RULES;
-
-		$cached = tribe_cache()->get( $cache_key, $expiration_trigger, false );
-
-		if ( false !== $cached ) {
-			return $cached;
-		}
-
-		$flags           = I18n::COMPILE_STRTOLOWER;
-		$localized_bases = tribe( 'tec.i18n' )
-			->get_i18n_strings_for_domains( $bases, [ $locale ], $domains, $flags );
-
-		$return = array_filter(
-			array_map(
-				static function ( $locale_base ) {
-					return is_array( $locale_base ) ? end( $locale_base ) : false;
-				},
-				$localized_bases
-			)
-		);
-
-		tribe_cache()->set( $cache_key, $return, DAY_IN_SECONDS, $expiration_trigger );
-
-		return $return;
-	}
-
-	/**
-	 * Enrich the bases adding the localized ones.
-	 *
-	 * Note: the method is not conditioned by the current locale (e.g. do not do this if current locale is en_US) to
-	 * avoid issues with translation plugins that might filter the locale dynamically.
-	 *
-	 * @since 5.1.5
-	 *
-	 * @param array<array<string>> $bases The input bases, in the format `[<base> => [<version_1>, <version_2>, ...]]`.
-	 *
-	 * @return array<array<string>> The input bases modified to include the localized version of the bases.
-	 *                              The format is the same as the input: `[<base> => [<version_1>, <version_2>, ...]]`.
-	 */
-	protected function merge_localized_bases( array $bases = [] ) {
-		foreach ( $bases as $base_slug => $bases_list ) {
-			if ( isset( $this->localized_bases[ $base_slug ] ) ) {
-				// Deal with 1 or more bases in string or array form.
-				$localized_bases = (array) $this->localized_bases[ $base_slug ];
-				$localized_base  = reset( $localized_bases );
-				$transliterated  = preg_replace( '/[^A-Za-z0-9]/', '', convert_chars( urldecode( $localized_base ) ) );
-				$match           = array_search( $transliterated, $bases[ $base_slug ], true );
-				if ( false === $match ) {
-					$bases[ $base_slug ][] = $localized_base;
-				} else {
-					$bases[ $base_slug ][ $match ] = $localized_base;
-				}
-				$bases[ $base_slug ]   = array_unique( $bases[ $base_slug ] );
-			}
-		}
-
-		return $bases;
 	}
 }

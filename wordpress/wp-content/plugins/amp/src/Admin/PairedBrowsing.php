@@ -182,13 +182,6 @@ final class PairedBrowsing implements Service, Registerable, Conditional, Delaye
 	public function init_client() {
 		add_action( 'admin_bar_menu', [ $this, 'add_admin_bar_menu_item' ], 102 );
 
-		/**
-		 * Fires before registering plugin assets that may require core asset polyfills.
-		 *
-		 * @internal
-		 */
-		do_action( 'amp_register_polyfills' );
-
 		$handle       = 'amp-paired-browsing-client';
 		$asset        = require AMP__DIR__ . '/assets/js/amp-paired-browsing-client.asset.php';
 		$dependencies = $asset['dependencies'];
@@ -225,7 +218,7 @@ final class PairedBrowsing implements Service, Registerable, Conditional, Delaye
 		// Mark enqueued script for AMP dev mode so that it is not removed.
 		// @todo Revisit with <https://github.com/google/site-kit-wp/pull/505#discussion_r348683617>.
 		$dev_mode_handles = array_merge(
-			[ $handle, 'wp-i18n', 'wp-hooks', 'regenerator-runtime', 'wp-polyfill' ],
+			[ $handle, 'regenerator-runtime', 'wp-polyfill', 'wp-polyfill-inert' ],
 			$dependencies
 		);
 		add_filter(
@@ -308,10 +301,6 @@ final class PairedBrowsing implements Service, Registerable, Conditional, Delaye
 	 * @return string Custom template if in paired browsing mode, else the supplied template.
 	 */
 	public function filter_template_include_for_app() {
-
-		/** This action is documented in includes/class-amp-theme-support.php */
-		do_action( 'amp_register_polyfills' );
-
 		$handle = 'amp-paired-browsing-app';
 		wp_enqueue_style(
 			$handle,

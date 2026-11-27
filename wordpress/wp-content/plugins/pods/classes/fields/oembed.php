@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * @package Pods\Fields
  */
@@ -31,7 +36,7 @@ class PodsField_OEmbed extends PodsField {
 	 * @var array
 	 * @since 2.7.0
 	 */
-	private $providers = array();
+	private $providers = [];
 
 	/**
 	 * Current embed width
@@ -64,7 +69,7 @@ class PodsField_OEmbed extends PodsField {
 	public function admin_init() {
 
 		// AJAX for Uploads
-		add_action( 'wp_ajax_oembed_update_preview', array( $this, 'admin_ajax_oembed_update_preview' ) );
+		add_action( 'wp_ajax_oembed_update_preview', [ $this, 'admin_ajax_oembed_update_preview' ] );
 	}
 
 	/**
@@ -72,37 +77,28 @@ class PodsField_OEmbed extends PodsField {
 	 */
 	public function options() {
 
-		$options = array(
-			static::$type . '_repeatable'   => array(
-				'label'             => __( 'Repeatable Field', 'pods' ),
-				'default'           => 0,
-				'type'              => 'boolean',
-				'help'              => __( 'Making a field repeatable will add controls next to the field which allows users to Add/Remove/Reorder additional values. These values are saved in the database as an array, so searching and filtering by them may require further adjustments".', 'pods' ),
-				'boolean_yes_label' => '',
-				'dependency'        => true,
-				'developer_mode'    => true,
-			),
-			static::$type . '_width'        => array(
+		$options = [
+			static::$type . '_width'        => [
 				'label'   => __( 'Embed Width', 'pods' ),
 				'default' => 0,
 				'type'    => 'number',
 				'help'    => __( 'Optional width to use for this oEmbed. Leave as 0 (zero) to default to none.', 'pods' ),
-			),
-			static::$type . '_height'       => array(
+			],
+			static::$type . '_height'       => [
 				'label'   => __( 'Embed Height', 'pods' ),
 				'default' => 0,
 				'type'    => 'number',
 				'help'    => __( 'Optional height to use for this oEmbed. Leave as 0 (zero) to default to none.', 'pods' ),
-			),
-			static::$type . '_show_preview' => array(
+			],
+			static::$type . '_show_preview' => [
 				'label'   => __( 'Show preview', 'pods' ),
 				'default' => 0,
 				'type'    => 'boolean',
-			),
-		);
+			],
+		];
 
 		// Get all unique provider host names
-		$unique_providers = array();
+		$unique_providers = [];
 		foreach ( $this->get_providers() as $provider ) {
 			if ( ! in_array( $provider['host'], $unique_providers, true ) ) {
 				$unique_providers[] = $provider['host'];
@@ -112,26 +108,26 @@ class PodsField_OEmbed extends PodsField {
 
 		// Only add the options if we have data
 		if ( ! empty( $unique_providers ) ) {
-			$options[ static::$type . '_restrict_providers' ] = array(
+			$options[ static::$type . '_restrict_providers' ] = [
 				'label'      => __( 'Restrict to providers', 'pods' ),
 				'help'       => __( 'Restrict input to specific WordPress oEmbed compatible providers.', 'pods' ),
 				'type'       => 'boolean',
 				'default'    => 0,
 				'dependency' => true,
-			);
-			$options[ static::$type . '_enable_providers' ]   = array(
-				'label'      => __( 'Select enabled providers', 'pods' ),
-				'type'  => 'boolean_group',
-				'depends-on' => array( static::$type . '_restrict_providers' => true ),
-				'boolean_group'      => array(),
-			);
+			];
+			$options[ static::$type . '_enable_providers' ]   = [
+				'label'         => __( 'Select enabled providers', 'pods' ),
+				'type'          => 'boolean_group',
+				'depends-on'    => [ static::$type . '_restrict_providers' => true ],
+				'boolean_group' => [],
+			];
 			// Add all the oEmbed providers
 			foreach ( $unique_providers as $provider ) {
-				$options[ static::$type . '_enable_providers' ]['boolean_group'][ static::$type . '_enabled_providers_' . tag_escape( $provider ) ] = array(
+				$options[ static::$type . '_enable_providers' ]['boolean_group'][ static::$type . '_enabled_providers_' . tag_escape( $provider ) ] = [
 					'label'   => $provider,
 					'type'    => 'boolean',
 					'default' => 0,
-				);
+				];
 			}
 		}//end if
 
@@ -152,12 +148,11 @@ class PodsField_OEmbed extends PodsField {
 	 * {@inheritdoc}
 	 */
 	public function display( $value = null, $name = null, $options = null, $pod = null, $id = null ) {
-
 		$value = $this->pre_save( $value, $id, $name, $options, null, $pod );
 
 		$width  = (int) pods_v( static::$type . '_width', $options );
 		$height = (int) pods_v( static::$type . '_height', $options );
-		$args   = array();
+		$args   = [];
 		if ( $width > 0 ) {
 			$args['width'] = $width;
 		}
@@ -165,9 +160,7 @@ class PodsField_OEmbed extends PodsField {
 			$args['height'] = $height;
 		}
 
-		$value = wp_oembed_get( $value, $args );
-
-		return $value;
+		return wp_oembed_get( $value, $args );
 	}
 
 	/**
@@ -178,18 +171,18 @@ class PodsField_OEmbed extends PodsField {
 		$options         = ( is_array( $options ) || is_object( $options ) ) ? $options : (array) $options;
 		$form_field_type = PodsForm::$field_type;
 
-		if ( is_array( $value ) ) {
-			$value = implode( ' ', $value );
-		}
+		$value = $this->normalize_value_for_input( $value, $options );
 
 		if ( isset( $options['name'] ) && ! pods_permission( $options ) ) {
-			if ( pods_v( 'read_only', $options, false ) ) {
+			if ( pods_v_bool( 'read_only_restricted', $options ) ) {
 				$options['readonly'] = true;
 			} else {
 				return;
 			}
-		} elseif ( ! pods_has_permissions( $options ) && pods_v( 'read_only', $options, false ) ) {
-			$options['readonly'] = true;
+		} elseif ( ! pods_has_permissions( $options ) ) {
+			if ( pods_v_bool( 'read_only', $options ) ) {
+				$options['readonly'] = true;
+			}
 		}
 
 		if ( ! empty( $options['disable_dfv'] ) ) {
@@ -210,7 +203,7 @@ class PodsField_OEmbed extends PodsField {
 	public function validate( $value, $name = null, $options = null, $fields = null, $pod = null, $id = null, $params = null ) {
 		$validate = parent::validate( $value, $name, $options, $fields, $pod, $id, $params );
 
-		$errors = array();
+		$errors = [];
 
 		if ( is_array( $validate ) ) {
 			$errors = $validate;
@@ -221,7 +214,7 @@ class PodsField_OEmbed extends PodsField {
 		if ( is_array( $check ) ) {
 			$errors = $check;
 		} else {
-			if ( 0 < strlen( $value ) && '' === $check ) {
+			if ( 0 < strlen( (string) $value ) && '' === $check ) {
 				if ( $this->is_required( $options ) ) {
 					$errors[] = __( 'This field is required.', 'pods' );
 				}
@@ -284,7 +277,7 @@ class PodsField_OEmbed extends PodsField {
 		}
 
 		// Strip HTML
-		$value = strip_tags( $value );
+		$value = wp_strip_all_tags( $value );
 
 		// Strip shortcodes
 		$value = strip_shortcodes( $value );
@@ -309,14 +302,14 @@ class PodsField_OEmbed extends PodsField {
 	public function autoembed( $content ) {
 
 		// Replace line breaks from all HTML elements with placeholders.
-		$content = wp_replace_in_html_tags( $content, array( "\n" => '<!-- wp-line-break -->' ) );
+		$content = wp_replace_in_html_tags( $content, [ "\n" => '<!-- wp-line-break -->' ] );
 
 		// Find URLs that are on their own line.
 		$content = preg_replace_callback(
-			'|^(\s*)(https?://[^\s"]+)(\s*)$|im', array(
-				$this,
-				'autoembed_callback',
-			), $content
+			'|^(\s*)(https?://[^\s"]+)(\s*)$|im', [
+			$this,
+			'autoembed_callback',
+		], $content
 		);
 
 		// Put the line breaks back.
@@ -367,7 +360,7 @@ class PodsField_OEmbed extends PodsField {
 		}
 
 		// Return an empty array if no providers could be found
-		$providers = array();
+		$providers = [];
 
 		if ( function_exists( '_wp_oembed_get_object' ) ) {
 			$wp_oembed = _wp_oembed_get_object();
@@ -403,7 +396,7 @@ class PodsField_OEmbed extends PodsField {
 	/**
 	 * Takes a URL and returns the corresponding oEmbed provider's URL, if there is one.
 	 *
-	 * @since 2.7.0
+	 * @since  2.7.0
 	 * @access public
 	 *
 	 * @see    WP_oEmbed::get_provider()
@@ -413,7 +406,7 @@ class PodsField_OEmbed extends PodsField {
 	 *
 	 * @return false|string False on failure, otherwise the oEmbed provider URL.
 	 */
-	public function get_provider( $url, $args = array() ) {
+	public function get_provider( $url, $args = [] ) {
 
 		if ( ! class_exists( 'WP_oEmbed' ) && file_exists( ABSPATH . WPINC . '/class-oembed.php' ) ) {
 			require_once ABSPATH . WPINC . '/class-oembed.php';
@@ -422,7 +415,7 @@ class PodsField_OEmbed extends PodsField {
 		if ( function_exists( '_wp_oembed_get_object' ) ) {
 			$wp_oembed = _wp_oembed_get_object();
 
-			if ( is_callable( array( $wp_oembed, 'get_provider' ) ) ) {
+			if ( is_callable( [ $wp_oembed, 'get_provider' ] ) ) {
 				return $wp_oembed->get_provider( $url, $args );
 			}
 		}
@@ -489,14 +482,31 @@ class PodsField_OEmbed extends PodsField {
 		$params = pods_unslash( (array) $_POST );
 
 		if ( ! empty( $params['_nonce_pods_oembed'] ) && ! empty( $params['pods_field_oembed_value'] ) && wp_verify_nonce( $params['_nonce_pods_oembed'], 'pods_field_oembed_preview' ) ) {
+			/**
+			 * Filter the capability required to generate an oEmbed preview. Generating a preview triggers a server-side fetch, so it can be gated behind a capability by default. Set to a different capability, or an empty/false value, to only require the nonce (e.g. for front-end forms).
+			 *
+			 * @since 3.3.9.1
+			 * @param string|null $capability The capability required. Default off.
+			 */
+			$preview_capability = apply_filters( 'pods_field_oembed_preview_capability', null );
+
+			if ( $preview_capability && ! current_user_can( $preview_capability ) ) {
+				wp_send_json_error( __( 'Unauthorized request', 'pods' ) );
+			}
+
 			$name    = '';
-			$options = array();
+			$value   = '';
+			$options = [];
 
 			if ( ! empty( $params['pods_field_oembed_name'] ) ) {
-				$name = $params['pods_field_oembed_value'];
-				$name = $this->strip_html( $name );
-				$name = $this->strip_shortcodes( $name );
-				$name = $this->trim_whitespace( $name );
+				$name = $params['pods_field_oembed_name'];
+			}
+
+			if ( ! empty( $params['pods_field_oembed_value'] ) ) {
+				$value = $params['pods_field_oembed_value'];
+				$value = $this->strip_html( $value );
+				$value = $this->strip_shortcodes( $value );
+				$value = $this->trim_whitespace( $value );
 			}
 
 			if ( ! empty( $params['pods_field_oembed_options'] ) ) {

@@ -1,9 +1,13 @@
 @charset "UTF-8";
 .lwa-wrapper {
+  --icon-pwd-show: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g stroke="%23222"><circle cx="12" cy="12" r="3.5"/><path d="M20.188 10.9343c.3882.4713.5823.7069.5823 1.0657 0 .3588-.1941.5944-.5823 1.0657C18.7679 14.7899 15.6357 18 12 18c-3.63573 0-6.76794-3.2101-8.18803-4.9343-.38816-.4713-.58224-.7069-.58224-1.0657 0-.3588.19408-.5944.58224-1.0657C5.23206 9.21014 8.36427 6 12 6c3.6357 0 6.7679 3.21014 8.188 4.9343Z"/></g></svg>');
+  --icon-pwd-hide: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="%23222" fill-rule="evenodd" d="M15.9202 12.7988C15.9725 12.5407 16 12.2736 16 12c0-2.20914-1.7909-4-4-4-.2736 0-.5407.02746-.7988.07977l.9227.92274c1.5583.06332 2.8103 1.31529 2.8736 2.87359l.9227.9227Zm-6.52709-2.2845C9.14295 10.9523 9 11.4595 9 12c0 1.6569 1.3431 3 3 3 .5405 0 1.0477-.143 1.4857-.3931l.7263.7263C13.5784 15.7545 12.8179 16 12 16c-2.20914 0-4-1.7909-4-4 0-.8179.24547-1.5784.66676-2.21201l.72635.72631Z" clip-rule="evenodd"/><path fill="%23222" fill-rule="evenodd" d="m16.1537 17.2751-.7344-.7345c-1.064.579-2.2206.9594-3.4193.9594-1.6718 0-3.26184-.7401-4.63286-1.7265-1.36708-.9835-2.47408-2.1817-3.16922-3.0257-.42436-.5152-.46818-.6043-.46818-.7478 0-.1435.04382-.2326.46818-.7478.66929-.8126 1.72038-1.95357 3.0178-2.91516l-.71433-.71433C5.16991 8.63072 4.10383 9.79349 3.42604 10.6164l-.05881.0712c-.33052.3994-.63749.7703-.63749 1.3124s.30696.913.63749 1.3124l.05881.0712c.72495.8802 1.8941 2.1491 3.35708 3.2017C8.24216 17.635 10.0361 18.5 12 18.5c1.5101 0 2.9196-.5114 4.1537-1.2249ZM9.18993 6.06861C10.0698 5.71828 11.0135 5.5 12 5.5c1.9639 0 3.7579.865 5.2169 1.91472 1.463 1.05255 2.6321 2.32151 3.3571 3.20168l.0588.0712c.3305.3994.6375.7703.6375 1.3124s-.307.913-.6375 1.3124l-.0588.0712c-.4805.5833-1.156 1.3374-1.9829 2.0861l-.7081-.708c.7957-.7161 1.4508-1.4453 1.9191-2.0139.4244-.5152.4682-.6043.4682-.7478 0-.1435-.0438-.2326-.4682-.7478-.6951-.844-1.8021-2.04219-3.1692-3.02574C15.2619 7.24007 13.6718 6.5 12 6.5c-.6944 0-1.3747.12768-2.03103.34765l-.77904-.77904Z" clip-rule="evenodd"/><path stroke="%23222" d="m5 2 16 16"/></svg>');
   position: relative !important;
 }
 .lwa-wrapper .lwa-is-working {
   opacity: 0.2 !important;
+  pointer-events: none;
+  cursor: progress;
 }
 .lwa-wrapper .lwa-loading {
   position: absolute !important;
@@ -13,34 +17,80 @@
   left: 0 !important;
   top: 0 !important;
   background-size: 150px 150px !important;
+  pointer-events: none;
 }
-.lwa-wrapper .lwa {
+
+.lwa {
+  /* for regular admin login form */
   /* Titles */
 }
-.lwa-wrapper .lwa span.lwa-status {
+.lwa span.lwa-status {
   padding: 15px !important;
   margin-bottom: 20px !important;
   border: 1px solid transparent !important;
   border-radius: 2.5px !important;
   display: none !important;
 }
-.lwa-wrapper .lwa span.lwa-status.lwa-status-invalid, .lwa-wrapper .lwa span.lwa-status.lwa-status-confirm {
+.lwa span.lwa-status.lwa-status-invalid, .lwa span.lwa-status.lwa-status-confirm {
   display: block !important;
 }
-.lwa-wrapper .lwa span.lwa-status.lwa-status-invalid {
+.lwa span.lwa-status.lwa-status-invalid {
   color: #842029 !important;
   background-color: #f8d7da !important;
   border-color: #f5c2c7 !important;
 }
-.lwa-wrapper .lwa span.lwa-status.lwa-status-confirm {
+.lwa span.lwa-status.lwa-status-confirm {
   color: #0f5132 !important;
   background-color: #d1e7dd !important;
   border-color: #badbcc !important;
 }
-.lwa-wrapper .lwa .lwa-title {
+.lwa span.lwa-status > :first-child {
+  margin-bottom: 0 !important;
+}
+.lwa span.lwa-status > :first-child {
+  margin-bottom: 0 !important;
+}
+.lwa .login.lwa-status {
+  border-left: 4px solid #72aee6;
+  padding: 12px;
+  margin-left: 0;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  word-wrap: break-word;
+}
+.lwa .login.lwa-status.lwa-status-invalid, .lwa .login.lwa-status.error {
+  border-left-color: #d63638;
+}
+.lwa .login.lwa-status.lwa-status-success, .lwa .login.lwa-status.success {
+  border-left-color: #28a745;
+}
+.lwa .lwa-title {
   font-weight: bold !important;
   font-size: 18px !important;
   margin-bottom: 15px !important;
+}
+.lwa .hidden {
+  visibility: hidden !important;
+  display: none !important;
+}
+.lwa .lwa-hr {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 5px;
+  color: #777;
+}
+.lwa .lwa-hr::before, .lwa .lwa-hr::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #777;
+}
+.lwa .lwa-hr:not(:empty)::before {
+  margin-right: 15px;
+}
+.lwa .lwa-hr:not(:empty)::after {
+  margin-left: 15px;
 }
 
 .lwa-bones {
@@ -227,18 +277,14 @@
   --base-line-height: 18px;
   /* Grid Defaults - default to match orig skeleton settings */
   --grid-max-width: 960px;
-  /*  Dark Theme
-      Note: prefers-color-scheme selector support is still limited, but
-      included for future and an example of defining a different base 'theme'
-  */
   /* Base Styles
   –––––––––––––––––––––––––––––––––––––––––––––––––– */
   scroll-behavior: smooth !important;
   font-size: var(--base-font-size) !important;
   /* changed from 15px in orig skeleton */
-  line-height: 16px !important;
+  line-height: 20px !important;
   font-weight: 400 !important;
-  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   color: var(--text-color-normal) !important;
   background-color: var(--background-color) !important;
   /* Grid
@@ -460,49 +506,6 @@
 .lwa-bones .pixelbones [hidden] {
   display: none;
 }
-@media (prefers-color-scheme: dark) {
-  .lwa-bones .pixelbones {
-    /* dark theme: light background, dark text, blue accent */
-    --theme-hue: 0;
-    /* black */
-    --accent-hue: 194;
-    /* blue */
-    --accent-s: 76%;
-    --accent-l: 49%;
-    --text-color-richer: hsl(var(--theme-hue), 0%, 95%);
-    /* 		*/
-    --text-color-normal: hsl(var(--theme-hue), 0%, 80%);
-    /* text color; button:hover:focus color */
-    --text-color-softer: hsl(var(--theme-hue), 0%, 67%);
-    /* button color; button:hover border */
-    --accent-color: hsl(var(--accent-hue), var(--accent-s), var(--accent-l));
-    /* link; button-primary bg+border; textarea,select:focus border */
-    --accent-color-hover: hsl(var(--accent-hue), calc(var(--accent-s) + 10%), calc(var(--accent-l) + 8%));
-    /* link hover; button-primary:hover:focus bg+border */
-    --border-color: hsl(var(--theme-hue), 0%, 27%);
-    /* button border */
-    --border-color-softer: hsl(var(--theme-hue), 0%, 20%);
-    /* textarea,select,code,td,hr border	 */
-    --background-color: hsl(var(--theme-hue), 0%, 12%);
-    /* body background; textarea,select background */
-    --background-color-softer: hsl(var(--theme-hue), 0%, 18%);
-    --code-background: hsl(var(--theme-hue), 0%, 5%);
-    /* code background*/
-    --button-primary-color: white;
-    /* TODO - test dialing back image intensity on dark background
-    img {
-        opacity: .80;
-        transition: opacity .5s ease-in-out;
-    }
-    img:hover {
-        opacity: 1;
-    }
-    */
-  }
-  .lwa-bones .pixelbones img.value-img {
-    filter: invert(0.8) !important;
-  }
-}
 .lwa-bones .pixelbones .grid-container {
   position: relative !important;
   max-width: var(--grid-max-width) !important;
@@ -547,32 +550,26 @@
 .lwa-bones .pixelbones h1 {
   font-size: 40px !important;
   line-height: 1.2 !important;
-  letter-spacing: -1px !important;
 }
 .lwa-bones .pixelbones h2 {
   font-size: 36px !important;
   line-height: 1.25 !important;
-  letter-spacing: -1px !important;
 }
 .lwa-bones .pixelbones h3 {
   font-size: 30px !important;
   line-height: 1.3 !important;
-  letter-spacing: -1px !important;
 }
 .lwa-bones .pixelbones h4 {
   font-size: 24px !important;
   line-height: 1.35 !important;
-  letter-spacing: -0.8px !important;
 }
 .lwa-bones .pixelbones h5 {
   font-size: 18px !important;
   line-height: 1.5 !important;
-  letter-spacing: -0.5px !important;
 }
 .lwa-bones .pixelbones h6 {
   font-size: 15px !important;
   line-height: 1.6 !important;
-  letter-spacing: 0 !important;
 }
 @media (min-width: 600px) {
   .lwa-bones .pixelbones h1 {
@@ -639,8 +636,12 @@
   background-color: var(--accent-color) !important;
   border-color: var(--accent-color) !important;
 }
-.lwa-bones .pixelbones .button.button-primary:hover, .lwa-bones .pixelbones button.button-primary:hover, .lwa-bones .pixelbones input[type=submit].button-primary:hover, .lwa-bones .pixelbones input[type=reset].button-primary:hover, .lwa-bones .pixelbones input[type=button].button-primary:hover,
-.lwa-bones .pixelbones .button.button-primary:focus, .lwa-bones .pixelbones button.button-primary:focus, .lwa-bones .pixelbones input[type=submit].button-primary:focus, .lwa-bones .pixelbones input[type=reset].button-primary:focus, .lwa-bones .pixelbones input[type=button].button-primary:focus {
+.lwa-bones .pixelbones .button.button-primary[disabled], .lwa-bones .pixelbones button.button-primary[disabled], .lwa-bones .pixelbones input[type=submit].button-primary[disabled], .lwa-bones .pixelbones input[type=reset].button-primary[disabled], .lwa-bones .pixelbones input[type=button].button-primary[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+.lwa-bones .pixelbones .button.button-primary:hover:not([disabled]), .lwa-bones .pixelbones button.button-primary:hover:not([disabled]), .lwa-bones .pixelbones input[type=submit].button-primary:hover:not([disabled]), .lwa-bones .pixelbones input[type=reset].button-primary:hover:not([disabled]), .lwa-bones .pixelbones input[type=button].button-primary:hover:not([disabled]),
+.lwa-bones .pixelbones .button.button-primary:focus:not([disabled]), .lwa-bones .pixelbones button.button-primary:focus:not([disabled]), .lwa-bones .pixelbones input[type=submit].button-primary:focus:not([disabled]), .lwa-bones .pixelbones input[type=reset].button-primary:focus:not([disabled]), .lwa-bones .pixelbones input[type=button].button-primary:focus:not([disabled]) {
   color: var(--button-primary-color) !important;
   background-color: var(--accent-color-hover) !important;
   border-color: var(--accent-color-hover) !important;
@@ -884,6 +885,7 @@
 .lwa-bones .lwa.lwa-login .grid-container.submit {
   text-align: left !important;
   grid-template-columns: 50% 1fr !important;
+  max-width: 100% !important;
   padding: 0 !important;
 }
 .lwa-bones .lwa.lwa-login .grid-container.submit .lwa-links {
@@ -963,9 +965,14 @@
   opacity: 0.7 !important;
 }
 
+.lwa-modal-overlay {
+  display: none;
+}
+.lwa-modal-overlay.active {
+  display: block !important;
+}
 @media only screen and (min-width: 40rem) {
   .lwa-modal-overlay {
-    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     position: fixed !important;
@@ -973,7 +980,7 @@
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    z-index: 99998 !important;
+    z-index: 999999 !important;
     background-color: rgba(0, 0, 0, 0.6) !important;
     opacity: 0 !important;
     visibility: hidden !important;
@@ -983,20 +990,22 @@
     transition-delay: 0.3s !important;
   }
   .lwa-modal-overlay.active {
+    display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
   }
 }
 .lwa-modal-overlay .lwa-modal-popup {
   display: flex !important;
-  align-items: center !important;
+  align-items: start !important;
   justify-content: center !important;
   position: relative !important;
-  margin: 0 auto !important;
+  margin: 0 !important;
   background-color: #fff !important;
-  width: 600px !important;
+  width: 100% !important;
   max-width: 750px !important;
   min-height: 200px !important;
+  max-height: 98% !important;
   padding: 10px !important;
   border-radius: 3px !important;
   opacity: 0 !important;
@@ -1010,6 +1019,25 @@
   /**
    * Mobile styling for popups
    */
+}
+.lwa-modal-overlay .lwa-modal-popup > header {
+  box-sizing: border-box;
+  width: 100%;
+  border-bottom: 1px solid #dedede;
+  margin: 0;
+  padding: 10px 0 7px 15px;
+}
+.lwa-modal-overlay .lwa-modal-popup > header .lwa-modal-title {
+  font-size: 24px !important;
+  line-height: 1.3 !important;
+  padding: 0 32px 0 0 !important;
+  margin: 0 !important;
+}
+.lwa-modal-overlay .lwa-modal-popup > header .lwa-modal-title a {
+  color: var(--text-color-normal) !important;
+}
+.lwa-modal-overlay .lwa-modal-popup > header .lwa-modal-title a:hover {
+  text-decoration: underline;
 }
 .lwa-modal-overlay .lwa-modal-popup .lwa-close-modal {
   position: absolute !important;
@@ -1048,6 +1076,16 @@
 .lwa-modal-overlay .lwa-modal-popup.active .lwa-modal-content, .lwa-modal-overlay .lwa-modal-popup.active .lwa-close-modal {
   opacity: 1 !important;
 }
+.lwa-modal-overlay .lwa-modal-popup > footer {
+  width: 100% !important;
+  border-top: 1px solid #dedede !important;
+}
+.lwa-modal-overlay .lwa-modal-popup > footer > div {
+  padding: 10px 25px !important;
+}
+.lwa-modal-overlay .lwa-modal-popup > footer > div button, .lwa-modal-overlay .lwa-modal-popup > footer > div .button {
+  margin: 0 !important;
+}
 @media only screen and (max-width: 39.99rem) {
   .lwa-modal-overlay .lwa-modal-popup {
     position: fixed !important;
@@ -1055,13 +1093,14 @@
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
     -webkit-overflow-scrolling: touch !important;
     border-radius: 0 !important;
     transform: scale(1.1) !important;
-    padding: 5px !important;
+    padding: 10px !important;
   }
   .lwa-modal-overlay .lwa-modal-popup .lwa-close-modal {
-    top: 0 !important;
+    top: 10px !important;
     right: 10px !important;
   }
   .lwa-modal-overlay .lwa-modal-popup .lwa-close-modal svg {

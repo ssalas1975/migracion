@@ -4,6 +4,10 @@ namespace WPMailSMTP\Admin\DebugEvents;
 
 use WPMailSMTP\Helpers\Helpers;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! class_exists( 'WP_List_Table', false ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
@@ -397,7 +401,7 @@ class Table extends \WP_List_Table {
 		$total_items = ( new EventsCollection( $params ) )->get_count();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_REQUEST['orderby'] ) && in_array( $_REQUEST['orderby'], [ 'event', 'type', 'content', 'initiator', 'created_at' ], true ) ) {
+		if ( ! empty( $_REQUEST['orderby'] ) && in_array( sanitize_key( wp_unslash( $_REQUEST['orderby'] ) ), [ 'event', 'type', 'content', 'initiator', 'created_at' ], true ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$params['orderby'] = sanitize_key( $_REQUEST['orderby'] );
 		}
@@ -443,7 +447,7 @@ class Table extends \WP_List_Table {
 		$search = ! empty( $_REQUEST['search'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['search'] ) ) : '';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_REQUEST['orderby'] ) && in_array( $_REQUEST['orderby'], [ 'event', 'type', 'content', 'initiator', 'created_at' ], true ) ) {
+		if ( ! empty( $_REQUEST['orderby'] ) && in_array( sanitize_key( wp_unslash( $_REQUEST['orderby'] ) ), [ 'event', 'type', 'content', 'initiator', 'created_at' ], true ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$order_by = sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) );
 			echo '<input type="hidden" name="orderby" value="' . esc_attr( $order_by ) . '" />';
@@ -548,17 +552,17 @@ class Table extends \WP_List_Table {
 		?>
 		<div class="alignleft actions wp-mail-smtp-filter-date">
 
-			<input type="text" name="date" class="regular-text wp-mail-smtp-filter-date-selector"
+			<input type="text" name="date" class="regular-text wp-mail-smtp-filter-date-selector wp-mail-smtp-filter-date__control"
 						 placeholder="<?php esc_attr_e( 'Select a date range', 'wp-mail-smtp' ); ?>"
 						 value="<?php echo esc_attr( $date ); ?>">
 
-			<button type="submit" name="action" value="filter_date" class="button">
+			<button type="submit" name="action" value="filter_date" class="button wp-mail-smtp-filter-date__btn">
 				<?php esc_html_e( 'Filter', 'wp-mail-smtp' ); ?>
 			</button>
 
 		</div>
 		<?php
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( wp_mail_smtp()->get_capability_manage_options() ) ) {
 			wp_nonce_field( 'wp_mail_smtp_debug_events', 'wp-mail-smtp-debug-events-nonce', false );
 			printf(
 				'<button id="wp-mail-smtp-delete-all-debug-events-button" type="button" class="button">%s</button>',

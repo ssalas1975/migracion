@@ -3671,13 +3671,13 @@ msgstr "Extra Sidebar"
 
 # @ virtue
 #: themeoptions/options.php:1933
-msgid "Wordpress Galleries"
-msgstr "Wordpress Galerien"
+msgid "WordPress Galleries"
+msgstr "WordPress Galerien"
 
 # @ virtue
 #: themeoptions/options.php:1939
-msgid "Enable Virtue Galleries to override Wordpress"
-msgstr "Ermöglicht, dass Virtue die Wordpressgalerien ersetzt"
+msgid "Enable Virtue Galleries to override WordPress"
+msgstr "Ermöglicht, dass Virtue die WordPressgalerien ersetzt"
 
 # @ virtue
 #: themeoptions/options.php:1940

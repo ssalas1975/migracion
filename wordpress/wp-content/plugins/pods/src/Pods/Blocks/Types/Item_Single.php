@@ -2,10 +2,15 @@
 
 namespace Pods\Blocks\Types;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use WP_Block;
 
 /**
- * Item_Single block functionality class.
+ * Item Single block functionality class.
  *
  * @since 2.8.0
  */
@@ -38,7 +43,7 @@ class Item_Single extends Base {
 			'category'        => 'pods',
 			'icon'            => 'pods',
 			'renderType'      => 'php',
-			'render_callback' => [ $this, 'render' ],
+			'render_callback' => [ $this, 'safe_render' ],
 			'keywords'        => [
 				'pods',
 				'single',
@@ -161,26 +166,25 @@ class Item_Single extends Base {
 	 * @return array List of Field configurations.
 	 */
 	public function fields() {
-		$api = pods_api();
-
-		$all_pods = $api->load_pods( [ 'names' => true ] );
-		$all_pods = array_merge( [
-			'' => '- ' . __( 'Use Current Pod', 'pods' ) . ' -',
-		], $all_pods );
-
-		$all_templates = $api->load_templates( [ 'names' => true ] );
-		$all_templates = array_merge( [
-			'' => '- ' . __( 'Use Custom Template', 'pods' ) . ' -',
-		], $all_templates );
-
 		return [
 			[
 				'name'    => 'name',
 				'label'   => __( 'Pod Name', 'pods' ),
 				'type'    => 'pick',
-				'data'    => $all_pods,
+				'data'    => [ $this, 'callback_get_all_pods' ],
 				'default' => '',
 				'description' => __( 'Choose the pod to reference, or reference the Pod in the current context of this block.', 'pods' ),
+			],
+			[
+				'name'    => 'access_rights_help',
+				'label'   => __( 'Access Rights', 'pods' ),
+				'type'    => 'html',
+				'default' => '',
+				'html_content' => sprintf(
+					// translators: %s is the Read Documentation link.
+					esc_html__( 'Read about how access rights control what can be displayed to other users: %s', 'pods' ),
+					'<a href="https://docs.pods.io/displaying-pods/access-rights-in-pods/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Documentation', 'pods' ) . '</a>'
+				),
 			],
 			[
 				'name'        => 'slug',
@@ -192,7 +196,7 @@ class Item_Single extends Base {
 				'name'    => 'template',
 				'label'   => __( 'Template', 'pods' ),
 				'type'    => 'pick',
-				'data'    => $all_templates,
+				'data'    => [ $this, 'callback_get_all_pod_templates' ],
 				'default' => '',
 				'description' => __( 'You can choose a previously saved Pods Template here. We recommend saving your Pods Templates with our Templates component so you can enjoy the full editing experience.', 'pods' ),
 			],
@@ -217,14 +221,22 @@ class Item_Single extends Base {
 	 * @return string The block content to render.
 	 */
 	public function render( $attributes = [], $content = '', $block = null ) {
+		// If the feature is disabled then return early.
+		if ( ! pods_can_use_dynamic_feature( 'display' ) ) {
+			return '';
+		}
+
 		$attributes = $this->attributes( $attributes );
 		$attributes = array_map( 'pods_trim', $attributes );
+
+		$attributes['source']  = __METHOD__;
+		$attributes['context'] = 'item-single';
 
 		if (
 			empty( $attributes['template'] )
 			&& empty( $attributes['template_custom'] )
 		) {
-			if ( wp_is_json_request() && did_action( 'rest_api_init' ) ) {
+			if ( $this->in_editor_mode( $attributes ) ) {
 				return $this->render_placeholder(
 					'<i class="pods-block-placeholder_error"></i>' . esc_html__( 'Pods Single Item', 'pods' ),
 					esc_html__( 'Please specify a "Template" or "Custom Template" under "More Settings" to configure this block.', 'pods' )
@@ -246,6 +258,9 @@ class Item_Single extends Base {
 			$attributes['use_current'] = false;
 		}
 
+		$provided_post_id = $this->in_editor_mode( $attributes ) ? pods_v( 'post_id', 'get', 0, true ) : get_the_ID();
+		$provided_post_id = absint( pods_v( '_post_id', $attributes, $provided_post_id, true ) );
+
 		if ( $attributes['use_current'] && $block instanceof WP_Block && ! empty( $block->context['postType'] ) ) {
 			// Detect post type / ID from context.
 			$attributes['name'] = $block->context['postType'];
@@ -257,11 +272,10 @@ class Item_Single extends Base {
 			}
 		} elseif (
 			! empty( $attributes['use_current'] )
-			&& ! empty( $_GET['post_id'] )
-			&& wp_is_json_request()
-			&& did_action( 'rest_api_init' )
+			&& 0 !== $provided_post_id
+			&& $this->in_editor_mode( $attributes )
 		) {
-			$attributes['slug'] = absint( $_GET['post_id'] );
+			$attributes['slug'] = $provided_post_id;
 
 			if ( empty( $attributes['name'] ) ) {
 				$attributes['name'] = get_post_type( $attributes['slug'] );
@@ -270,6 +284,12 @@ class Item_Single extends Base {
 			unset( $attributes['use_current'] );
 		}
 
-		return pods_shortcode( $attributes, $attributes['template_custom'] );
+		pods_set_render_is_in_block( true );
+
+		$content = pods_shortcode( $attributes, $attributes['template_custom'] );
+
+		pods_set_render_is_in_block( false );
+
+		return $content;
 	}
 }

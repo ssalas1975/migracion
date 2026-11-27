@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Handles code field data and operations
  *
@@ -40,44 +45,53 @@ class PodsField_Code extends PodsField {
 	 * {@inheritdoc}
 	 */
 	public function options() {
-
-		$options = array(
-			static::$type . '_repeatable' => array(
-				'label'             => __( 'Repeatable Field', 'pods' ),
-				'default'           => 0,
-				'type'              => 'boolean',
-				'help'              => __( 'Making a field repeatable will add controls next to the field which allows users to Add/Remove/Reorder additional values. These values are saved in the database as an array, so searching and filtering by them may require further adjustments".', 'pods' ),
-				'boolean_yes_label' => '',
-				'dependency'        => true,
-				'developer_mode'    => true,
-			),
-			'output_options'              => array(
-				'label' => __( 'Output Options', 'pods' ),
-				'type'  => 'boolean_group',
-				'boolean_group' => array(
-					static::$type . '_trim'      => array(
-						'label'      => __( 'Trim extra whitespace before/after contents', 'pods' ),
+		return [
+			'output_options'              => [
+				'label'         => __( 'Output Options', 'pods' ),
+				'type'          => 'boolean_group',
+				'boolean_group' => [
+					static::$type . '_trim'             => [
+						'label'   => __( 'Trim extra whitespace before/after contents', 'pods' ),
+						'default' => 1,
+						'type'    => 'boolean',
+					],
+					static::$type . '_trim_lines'       => [
+						'label'   => __( 'Trim whitespace at the end of lines', 'pods' ),
+						'default' => 0,
+						'type'    => 'boolean',
+					],
+					static::$type . '_trim_p_brs'       => [
+						'label'   => __( 'Remove blank lines including empty "p" tags and "br" tags', 'pods' ),
+						'default' => 0,
+						'type'    => 'boolean',
+					],
+					static::$type . '_trim_extra_lines' => [
+						'label'   => __( 'Remove extra blank lines (when there are 3+ blank lines, replace with a maximum of 2)', 'pods' ),
+						'default' => 0,
+						'type'    => 'boolean',
+					],
+					static::$type . '_sanitize_html'    => [
+						'label'      => __( 'Sanitize HTML', 'pods' ),
 						'default'    => 1,
+						'help'       => __( 'This sanitizes things like script tags and other content not normally allowed in WordPress content. Disable this only if you trust users who will have access to enter content into this field.', 'pods' ),
 						'type'       => 'boolean',
 						'dependency' => true,
-					),
-					static::$type . '_allow_shortcode' => array(
+					],
+					static::$type . '_allow_shortcode'  => [
 						'label'      => __( 'Allow Shortcodes', 'pods' ),
 						'default'    => 0,
 						'type'       => 'boolean',
 						'dependency' => true,
-					),
-				),
-			),
-			static::$type . '_max_length' => array(
+					],
+				],
+			],
+			static::$type . '_max_length' => [
 				'label'   => __( 'Maximum Length', 'pods' ),
-				'default' => -1,
+				'default' => - 1,
 				'type'    => 'number',
 				'help'    => __( 'Set to -1 for no limit', 'pods' ),
-			),
-		);
-
-		return $options;
+			],
+		];
 	}
 
 	/**
@@ -100,12 +114,11 @@ class PodsField_Code extends PodsField {
 	 * {@inheritdoc}
 	 */
 	public function display( $value = null, $name = null, $options = null, $pod = null, $id = null ) {
-
 		if ( 1 === (int) pods_v( static::$type . '_allow_shortcode', $options, 0 ) ) {
 			$value = do_shortcode( $value );
 		}
 
-		return $value;
+		return $this->maybe_sanitize_output( $value, $options );
 	}
 
 	/**
@@ -116,9 +129,8 @@ class PodsField_Code extends PodsField {
 		$options         = ( is_array( $options ) || is_object( $options ) ) ? $options : (array) $options;
 		$form_field_type = PodsForm::$field_type;
 
-		if ( is_array( $value ) ) {
-			$value = implode( "\n", $value );
-		}
+		$value = $this->maybe_sanitize_output( $value, $options );
+		$value = $this->normalize_value_for_input( $value, $options, "\n" );
 
 		$field_type = 'codemirror';
 

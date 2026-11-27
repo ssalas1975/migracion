@@ -1,10 +1,12 @@
 <?php
 namespace Tribe\Utils;
 
+use Closure;
+
 /**
  * Class Element_Classes to handle HTML class attribute for elements.
  *
- * @since  4.9.13
+ * @since 4.9.13
  *
  * @package Tribe\Utils
  */
@@ -12,7 +14,7 @@ class Element_Classes {
 	/**
 	 * Store the results of parsing the classes.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @var array
 	 */
@@ -21,7 +23,7 @@ class Element_Classes {
 	/**
 	 * Stores the arguments passed.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @var array
 	 */
@@ -30,7 +32,7 @@ class Element_Classes {
 	/**
 	 * Setups an instance of Element Classes.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return void
 	 */
@@ -41,7 +43,7 @@ class Element_Classes {
 	/**
 	 * When invoked this class will return the full HTML class attribute.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return string In the format ` class="class1 class2" `
 	 */
@@ -54,7 +56,7 @@ class Element_Classes {
 	/**
 	 * When cast to string an instance will return the full HTML class attribute.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return string In the format ` class="class1 class2" `
 	 */
@@ -66,7 +68,7 @@ class Element_Classes {
 	 * Gets the full HTML class attribute for this instance of Element Classes.
 	 * It will contain a space on each end of the attribute.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return string In the format ` class="class1 class2" `
 	 */
@@ -84,7 +86,7 @@ class Element_Classes {
 	/**
 	 * Gets a space separated string of all classes to be printed.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return string
 	 */
@@ -95,7 +97,7 @@ class Element_Classes {
 	/**
 	 * Get the array of classes to be printed.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return array
 	 */
@@ -123,7 +125,7 @@ class Element_Classes {
 	/**
 	 * Get the array of the classes, using [ class_name => bool ] as the format.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
 	 * @return array [ class_name => bool ]
 	 */
@@ -137,10 +139,11 @@ class Element_Classes {
 	/**
 	 * Parse arguments or argument for this instance, and store values on results.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
+	 * @since 6.12.2.1 Only closures are invoked; other values are treated as data.
 	 *
-	 * @param  mixed  $arguments      Any possible set of arguments that this class supports.
-	 * @param  boolean $default_value What is the default value for a given class.
+	 * @param mixed  $arguments      Any possible set of arguments that this class supports.
+	 * @param boolean $default_value What is the default value for a given class.
 	 *
 	 * @return void
 	 */
@@ -154,11 +157,19 @@ class Element_Classes {
 		} elseif ( is_string( $arguments ) ) {
 			// 'foo bar'
 			$this->parse_string( $arguments );
-		} elseif ( $arguments instanceof \Closure || is_callable( $arguments ) ) {
+		} elseif ( $arguments instanceof Closure ) {
 			// function() {}
 			$this->parse_callable( $arguments );
 		} elseif ( is_array( $arguments ) ) {
 			// ['foo', 'bar', ...] || ['foo' => TRUE, 'bar' => FALSE, ...]
+			if ( is_callable( $arguments ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					'Only Closure instances are invoked; this array callable will be treated as data instead of being called.',
+					'6.12.2.1'
+				);
+			}
+
 			$this->parse_array( $arguments );
 		} elseif ( is_object( $arguments ) ) {
 			// stdClass
@@ -169,10 +180,10 @@ class Element_Classes {
 	/**
 	 * Parse a string into an array of acceptable values for the instance.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
-	 * @param  string  $arguments     Space separated string of classes to be parsed.
-	 * @param  boolean $default_value What is the default value for a given class.
+	 * @param string  $arguments     Space separated string of classes to be parsed.
+	 * @param boolean $default_value What is the default value for a given class.
 	 *
 	 * @return void
 	 */
@@ -192,9 +203,10 @@ class Element_Classes {
 	/**
 	 * Parse an array into an array of acceptable values for the instance.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
+	 * @since 6.12.2.1 Only closures are invoked; other values are treated as data.
 	 *
-	 * @param  array  $values  Array of values to be parsed.
+	 * @param array  $values  Array of values to be parsed.
 	 *
 	 * @return void
 	 */
@@ -207,11 +219,17 @@ class Element_Classes {
 					$this->parse( $value );
 				}
 			} elseif ( is_string( $key ) ) {
-				if ( ! is_bool( $value ) ) {
-					throw new \UnexpectedValueException( 'Value for key ' . $key . ' must be of type boolean' );
+				if ( $value instanceof Closure ) {
+					$value = $value( $this->results );
+				} elseif ( is_callable( $value ) ) {
+					_doing_it_wrong(
+						__METHOD__,
+						'Only Closure instances are invoked; this callable value will be treated as data instead of being called.',
+						'6.12.2.1'
+					);
 				}
 
-				$this->parse_string( $key, $value );
+				$this->parse_string( $key, tribe_is_truthy( $value ) );
 			}
 		}
 	}
@@ -219,9 +237,9 @@ class Element_Classes {
 	/**
 	 * Parses an object, only if it contains __toString it will be considered.
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
-	 * @param  mixed  $object  Object to be checked for the __toString method
+	 * @param mixed  $object  Object to be checked for the __toString method
 	 *
 	 * @return void
 	 */
@@ -234,9 +252,9 @@ class Element_Classes {
 	/**
 	 * Parses a callable method or function into the array of considered classes.s
 	 *
-	 * @since  4.9.13
+	 * @since 4.9.13
 	 *
-	 * @param  callable  $method_or_function  Method or Function to be called.
+	 * @param callable  $method_or_function  Method or Function to be called.
 	 *
 	 * @return void
 	 */

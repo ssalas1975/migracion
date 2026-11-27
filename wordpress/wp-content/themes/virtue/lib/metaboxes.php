@@ -9,6 +9,7 @@
  * Virtue Sidebar Options
  */
 function virtue_cmb_sidebar_options() {
+	$sidebars = array();
 	$nonsidebars = array(
 		'topbarright',
 		'footer_1',

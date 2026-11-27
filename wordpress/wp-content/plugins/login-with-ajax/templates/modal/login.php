@@ -2,17 +2,32 @@
 /*
  * This is the page users will see logged out.
  * You can edit this, but for upgrade safety you should copy and modify this file into a folder.
- * See https://docs.loginwithajax.com/advanced/templates/ for more information.
+ * See https://docs.ajaxauth.com/advanced/templates/ for more information.
 */
 /* @var array $lwa  Array of data supplied to widget */
 
 // set default template to be loaded within the modal window, allows for other templates to call the modal template with their own templates within the modal box.
 if( $lwa['template'] == 'modal' ) $lwa['template'] = 'default';
 if( empty($lwa['template-parent']) ) $lwa['template-parent'] = 'modal';
+
+// we can set a button text/html here, if not specifically defined the classes we wrap with also get set here
+$wrapper_classes = array();
+$lwa_classes = array();
+if( empty($lwa['modal_button_html']) ) {
+	$wrapper_classes = array('lwa-bones');
+	$lwa_classes = array('pixelbones');
+}
+$lwa['wrapper_classes'] = empty($lwa['wrapper_classes']) ? $wrapper_classes : $lwa['wrapper_classes'];
+$lwa['lwa_classes'] = empty($lwa['lwa_classes']) ? $lwa_classes : $lwa['lwa_classes'];
+
 ?>
-<div class="lwa-wrapper lwa-bones lwa-modal-trigger" data-modal-id="lwa-modal-<?php echo esc_attr($lwa['id']); ?>">
-	<div class="lwa lwa-modal lwa-<?php echo esc_attr($lwa['template-parent']); ?> pixelbones">
-		<button class="lwa-modal-trigger-el"><?php esc_html_e('Log In', 'login-with-ajax'); ?></button>
+<div class="lwa-wrapper lwa-modal-trigger <?php echo esc_attr(implode(' ', $lwa['wrapper_classes'])); ?>" data-modal-id="lwa-modal-<?php echo esc_attr($lwa['id']); ?>">
+	<div class="lwa lwa-modal lwa-<?php echo esc_attr($lwa['template-parent']); ?> <?php echo esc_attr(implode(' ', $lwa['wrapper_classes'])); ?>">
+		<?php if( empty($lwa['modal_button_html']) ) : ?>
+			<button type="button" class="lwa-modal-trigger-el"><?php esc_html_e('Log In', 'login-with-ajax'); ?></button>
+		<?php else : ?>
+			<?php echo $lwa['modal_button_html']; // this should have only come via PHP not shortcodes or widget ?>
+		<?php endif; ?>
 	</div>
 </div>
 <div class="lwa-modal-overlay" id="lwa-modal-<?php echo esc_attr($lwa['id']); ?>">
@@ -25,7 +40,7 @@ if( empty($lwa['template-parent']) ) $lwa['template-parent'] = 'modal';
 
 		<div class="lwa-modal-content">
 			<?php
-				$template_path = LoginWithAjax::get_template_path('default');
+				$template_path = \LoginWithAjax::get_template_path('default');
 				if( file_exists($template_path) ){
 					include($template_path.'/login.php');
 				}else{

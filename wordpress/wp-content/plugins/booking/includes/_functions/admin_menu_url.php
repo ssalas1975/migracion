@@ -61,11 +61,15 @@ function wpbc_make_link_relative( $maybe_absolute_link ) {
 }
 
 /**
- * Get  Absolute URL  (check for languages)
+ * Convert a relative front-end path to an absolute language-aware URL.
  *
- * @param $maybe_relative_link
+ * The path is passed through WordPress so multilingual URL filters can apply
+ * the current language directory or domain without introducing duplicate
+ * path separators.
  *
- * @return string
+ * @param string $maybe_relative_link Relative or absolute front-end URL.
+ *
+ * @return string JavaScript-safe absolute URL.
  */
 function wpbc_make_link_absolute( $maybe_relative_link ){
 
@@ -73,7 +77,8 @@ function wpbc_make_link_absolute( $maybe_relative_link ){
 
 		$maybe_relative_link = wpbc_lang( $maybe_relative_link );           // FixIn: 8.4.5.1.
 
-		$maybe_relative_link = home_url() . '/' . trim( wp_make_link_relative( $maybe_relative_link ), '/' );        // FixIn: 7.0.1.20.
+		$relative_path       = trim( wp_make_link_relative( $maybe_relative_link ), '/' );
+		$maybe_relative_link = home_url( '/' . $relative_path );
 	}
 
 	return esc_js( $maybe_relative_link );
@@ -275,6 +280,75 @@ function wpbc_get_new_booking_url( $is_absolute_url = true, $is_old = true ) {
 }
 
 /**
+ * Get the normalized administrator edit-booking destination.
+ *
+ * Existing installations and malformed stored values retain the popup workflow.
+ * The optional argument keeps normalization independently testable without
+ * changing a saved WordPress option.
+ *
+ * @param null|string $stored_mode Optional stored mode. Null loads the site option.
+ *
+ * @return string Either `popup` or `add_booking_page`.
+ */
+function wpbc_get_booking_admin_edit_mode( $stored_mode = null ) {
+
+	if ( null === $stored_mode ) {
+		$stored_mode = get_bk_option( 'booking_admin_edit_booking_mode' );
+	}
+
+	$stored_mode = sanitize_key( (string) $stored_mode );
+
+	return in_array( $stored_mode, array( 'popup', 'add_booking_page' ), true ) ? $stored_mode : 'popup';
+}
+
+/**
+ * Check whether administrator edit links should open the dedicated Add Booking page.
+ *
+ * @param null|string $stored_mode Optional stored mode used for independent testing.
+ *
+ * @return bool True for the dedicated page; false for the default popup.
+ */
+function wpbc_is_booking_admin_edit_page_enabled( $stored_mode = null ) {
+	return 'add_booking_page' === wpbc_get_booking_admin_edit_mode( $stored_mode );
+}
+
+/**
+ * Build the authorized administrator URL for editing one Booking on Add Booking.
+ *
+ * The destination page retains its existing capability, MultiUser ownership,
+ * Booking hash, Resource, and Booking Form checks. This helper only centralizes
+ * the released URL contract used by Booking Listing and Timeline links.
+ *
+ * @param int    $resource_id Booking Resource ID.
+ * @param string $booking_hash Booking edit hash.
+ * @param string $booking_form Optional custom Booking Form name.
+ *
+ * @return string Sanitized Add Booking edit URL, or an empty string when required values are missing.
+ */
+function wpbc_get_booking_admin_edit_url( $resource_id, $booking_hash, $booking_form = '' ) {
+
+	$resource_id  = absint( $resource_id );
+	$booking_hash = sanitize_text_field( (string) $booking_hash );
+	$booking_form = sanitize_text_field( (string) $booking_form );
+
+	if ( $resource_id < 1 || '' === $booking_hash ) {
+		return '';
+	}
+
+	$query_args = array(
+		'booking_type' => $resource_id,
+		'booking_hash' => $booking_hash,
+		'parent_res'   => 1,
+	);
+
+	if ( '' !== $booking_form ) {
+		$query_args['booking_form'] = $booking_form;
+	}
+
+	return esc_url_raw( add_query_arg( $query_args, wpbc_get_new_booking_url( true, false ) ) );
+}
+
+/**
  * Get URL of Booking > Resources page
  *
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
@@ -283,6 +357,17 @@ function wpbc_get_new_booking_url( $is_absolute_url = true, $is_old = true ) {
  */
 function wpbc_get_resources_url( $is_absolute_url = true, $is_old = true ) {
 	return wpbc_get_menu_url( 'resources', $is_absolute_url, $is_old );
+}
+
+/**
+ * Get URL of Booking > Resources > Capacity page
+ *
+ * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
+ * @param boolean $is_old           - { default: true }
+ * @return string                   - URL  to  menu
+ */
+function wpbc_get_resource_capacity_url( $is_absolute_url = true, $is_old = true ) {
+	return wpbc_get_resources_url( $is_absolute_url, $is_old ) . '&tab=capacity';
 }
 
 /**
@@ -297,11 +382,50 @@ function wpbc_get_settings_url( $is_absolute_url = true, $is_old = true ) {
 }
 
 /**
- * Get URL of Booking > Setup page
+ * Get URL of Booking > Settings > Calendar page
  *
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
  * @param boolean $is_old           - { default: true }
  * @return string                   - URL  to  menu
+ */
+function wpbc_get_settings_calendar_url( $is_absolute_url = true, $is_old = true ) {
+	return wpbc_get_settings_url( $is_absolute_url, $is_old ) . '&tab=calendar_settings';
+}
+
+/**
+ * Get URL of Booking > Settings > Appearance / Theme page
+ *
+ * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
+ * @param boolean $is_old           - { default: true }
+ * @return string                   - URL  to  menu
+ */
+function wpbc_get_settings_themes_url( $is_absolute_url = true, $is_old = true ) {
+	return wpbc_get_settings_url( $is_absolute_url, $is_old ) . '&tab=themes';
+}
+
+/**
+ * Get URL of Booking > Settings > Form Messages page.
+ *
+ * @param boolean $is_absolute_url Absolute or relative URL.
+ * @param boolean $is_old Legacy menu URL style.
+ * @return string
+ */
+function wpbc_get_settings_messages_url( $is_absolute_url = true, $is_old = true ) {
+	return wpbc_get_settings_url( $is_absolute_url, $is_old ) . '&tab=form_messages';
+}
+
+/**
+ * Get the canonical production Setup Wizard URL.
+ *
+ * Opening this URL never restarts or completes a checkpoint. The page resumes
+ * an active checkpoint, starts Welcome when no checkpoint exists, or renders
+ * Setup overview when the checkpoint is complete. A new setup is an explicit,
+ * nonce-protected action from Setup overview.
+ *
+ * @param bool $is_absolute_url Whether to return an absolute administration URL.
+ * @param bool $is_old          Retained compatibility argument; ignored by the native menu URL builder.
+ *
+ * @return string Canonical Setup Wizard URL.
  */
 function wpbc_get_setup_wizard_page_url( $is_absolute_url = true, $is_old = true ) {
 	return wpbc_get_menu_url( 'setup', $is_absolute_url, $is_old );
@@ -400,8 +524,16 @@ function wpbc_is_new_booking_page_url( $request_uri ) {
 function wpbc_is_settings_form_page( $server_param = 'REQUEST_URI' ) {
 	// Regular  user overwrite settings.
 
+	// Match the legacy `form` tab exactly. A substring check also matched newer
+	// tabs whose names start with `form`, such as `form_messages`.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$request_uri = ! empty( $_SERVER[ $server_param ] ) ? (string) $_SERVER[ $server_param ] : '';
+	$is_form_tab = (bool) preg_match( '/(?:[?&])tab=form(?:&|$)/', $request_uri );
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	if ( ( is_admin() ) && ( strpos( $_SERVER[ $server_param ], 'page=wpbc-settings' ) !== false ) && ( ( strpos( $_SERVER[ $server_param ], '&tab=form' ) !== false ) || ( ( class_exists( 'wpdev_bk_multiuser' ) ) && ( ! empty( $_REQUEST['tab'] ) ) && ( 'form' === $_REQUEST['tab'] ) ) ) ) {
+	$is_multiuser_form_tab = class_exists( 'wpdev_bk_multiuser' ) && ! empty( $_REQUEST['tab'] ) && 'form' === $_REQUEST['tab'];
+
+	if ( is_admin() && false !== strpos( $request_uri, 'page=wpbc-settings' ) && ( $is_form_tab || $is_multiuser_form_tab ) ) {
 		return true;
 	}
 
@@ -429,21 +561,70 @@ function wpbc_is_settings_bfb_page( $server_param = 'REQUEST_URI' ) {
 
 
 /**
- * Check if this WP Booking Calendar > Settings > Booking Form page
+ * Check if this WP Booking Calendar > Settings > Appearance / Theme page
  *
  * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
  *
  * @return boolean true | false
  */
-function wpbc_is_settings_color_themes_page( $server_param = 'REQUEST_URI' ) {
+function wpbc_is_settings_themes_page( $server_param = 'REQUEST_URI' ) {
 	// Regular  user overwrite settings.
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	if ( ( is_admin() ) && ( false !== strpos( $_SERVER[ $server_param ], 'page=wpbc-settings' ) ) && ( false !== strpos( $_SERVER[ $server_param ], '&tab=color_themes' ) ) ) {
+	if ( ( is_admin() ) && ( false !== strpos( $_SERVER[ $server_param ], 'page=wpbc-settings' ) ) && ( false !== strpos( $_SERVER[ $server_param ], '&tab=themes' ) ) ) {
 		return true;
 	}
 
 	return false;
+}
+
+/**
+ * Check if this WP Booking Calendar > Settings > Calendar page
+ *
+ * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
+ *
+ * @return boolean true | false
+ */
+function wpbc_is_settings_calendar_page( $server_param = 'REQUEST_URI' ) {
+	// Regular  user overwrite settings.
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	if ( ( is_admin() ) && ( false !== strpos( $_SERVER[ $server_param ], 'page=wpbc-settings' ) ) && ( false !== strpos( $_SERVER[ $server_param ], '&tab=calendar_settings' ) ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Check if this is WP Booking Calendar > Settings > Form Messages.
+ *
+ * @param string $server_param Server URL parameter.
+ * @return boolean
+ */
+function wpbc_is_settings_messages_page( $server_param = 'REQUEST_URI' ) {
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	return is_admin() && ! empty( $_SERVER[ $server_param ] ) && false !== strpos( $_SERVER[ $server_param ], 'page=wpbc-settings' ) && false !== strpos( $_SERVER[ $server_param ], '&tab=form_messages' );
+}
+
+/**
+ * Check if this admin page renders a real front-end booking form or calendar preview.
+ *
+ * @return boolean true | false
+ */
+function wpbc_is_admin_page_with_frontend_booking_preview() {
+
+	return (
+		wpbc_is_new_booking_page()
+		|| wpbc_is_settings_form_page()
+		|| wpbc_is_settings_themes_page()
+		|| wpbc_is_settings_calendar_page()
+		|| wpbc_is_settings_messages_page()
+		|| wpbc_is_setup_wizard_page()
+		|| wpbc_is_builder_booking_form_page()
+		|| ( function_exists( 'wpbc_add_appointment_page_is_active' ) && wpbc_add_appointment_page_is_active() )
+		|| ( function_exists( 'wpbc_is_add_booking_modal_on_booking_listing_page' ) && wpbc_is_add_booking_modal_on_booking_listing_page() )
+	);
 }
 
 /**
@@ -483,11 +664,15 @@ function wpbc_is_builder_booking_form_page( $server_param = 'REQUEST_URI' ) {
 
 
 /**
- * Check if this Booking > Setup page
+ * Check whether the current administration URL belongs to a Booking Calendar setup route.
  *
- * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
+ * The prefix match is intentional because the canonical route and its hidden
+ * compatibility alias share the same stable setup prefix.
  *
- * @return boolean true | false
+ * @param string $server_param Server field to inspect. Expected values are
+ *                             `REQUEST_URI` or `HTTP_REFERER`.
+ *
+ * @return bool True for any Booking Calendar setup route; otherwise false.
  */
 function wpbc_is_setup_wizard_page( $server_param = 'REQUEST_URI' ) {                                            // FixIn: 9.8.0.1.
 

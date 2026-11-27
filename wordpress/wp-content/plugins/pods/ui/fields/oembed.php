@@ -1,11 +1,19 @@
 <?php
+
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
+// phpcs:ignoreFile WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 $attributes             = array();
 $attributes['type']     = 'text';
 $attributes['value']    = $value;
 $attributes['tabindex'] = 2;
 $attributes             = PodsForm::merge_attributes( $attributes, $name, $form_field_type, $options );
 
-if ( pods_var( 'readonly', $options, false ) ) {
+if ( (bool) pods_v( 'readonly', $options, false ) ) {
 	$attributes['readonly'] = 'READONLY';
 
 	$attributes['class'] .= ' pods-form-ui-read-only';
@@ -21,11 +29,11 @@ if ( 1 === $show_preview ) {
 	$oembed_height = ( isset( $options['oembed_height'] ) ) ? (int) $options['oembed_height'] : 0;
 	?>
 	<p class="howto">
-		<?php _e( 'Preview', 'pods' ); ?>
+		<?php esc_html_e( 'Preview', 'pods' ); ?>
 	</p>
-	<input type="hidden" id="<?php echo esc_js( pods_js_name( $attributes['id'] ) ); ?>_preview_nonce" name="_nonce_pods_oembed" value="<?php echo wp_create_nonce( 'pods_field_oembed_preview' ); ?>" />
+	<input type="hidden" id="<?php echo esc_js( pods_js_name( $attributes['id'] ) ); ?>_preview_nonce" name="_nonce_pods_oembed" value="<?php echo esc_attr( wp_create_nonce( 'pods_field_oembed_preview' ) ); ?>" />
 	<div id="<?php echo esc_js( pods_js_name( $attributes['id'] ) ); ?>_preview" class="pods-oembed-preview">
-		<?php echo PodsForm::field_method( $form_field_type, 'display', $value, $name, $options ); ?>
+		<?php echo PodsForm::field_method( $form_field_type, 'display', $value, $name, $options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	</div>
 	<script type="text/javascript">
 		jQuery( function ( $ ) {
@@ -33,11 +41,11 @@ if ( 1 === $show_preview ) {
 
 			$( document ).on( 'keyup', '#<?php echo esc_js( $attributes['id'] ); ?>', function () {
 				var value = $( this ).val();
-				var name = '<?php echo $name; ?>';
+				var name = '<?php echo esc_js( $name ); ?>';
 				var options = {
-					id            : <?php echo $options['id']; ?>,
-					oembed_width  : '<?php echo $oembed_width; ?>',
-					oembed_height : '<?php echo $oembed_height; ?>'
+					id            : <?php echo esc_js( $options['id'] ); ?>,
+					oembed_width  : '<?php echo esc_js( $oembed_width ); ?>',
+					oembed_height : '<?php echo esc_js( $oembed_height ); ?>'
 				};
 				var nonce = $( this ).parent().find( '#<?php echo esc_js( pods_js_name( $attributes['id'] ) ); ?>_preview_nonce' ).val();
 				delay( function () {

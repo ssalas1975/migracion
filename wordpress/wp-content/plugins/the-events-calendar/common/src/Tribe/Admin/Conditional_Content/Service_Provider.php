@@ -1,47 +1,42 @@
 <?php
 /**
- * Handles admin conditional content.
- *
- * @since   4.14.7
- * @package Tribe\Admin\Conditional_Content;
+ * @deprecated 6.3.0
  */
 
 namespace Tribe\Admin\Conditional_Content;
 
+defined( 'ABSPATH' ) || exit;
+
+_deprecated_file( __FILE__, '6.3.0', 'No Replacement' );
+
 /**
- * Conditional Content Provider.
+ * Class Service_Provider
  *
  * @since 4.14.7
+ * @deprecated 6.3.0
+ *
+ * @package Tribe\Admin\Conditional_Content
  */
-class Service_Provider extends \tad_DI52_ServiceProvider {
-
+class Service_Provider {
 	/**
-	 * Registers the required objects and filters.
+	 * @inheritdoc
 	 *
-	 * @since 4.14.7
+	 * @param string $name      The name of the method.
+	 * @param array  $arguments The arguments passed to the method.
+	 * @return void
 	 */
-	public function register() {
-		$this->container->singleton(  Black_Friday::class, Black_Friday::class, [ 'hook' ] );
-		$this->container->singleton(  End_Of_Year_Sale::class, End_Of_Year_Sale::class, [ 'hook' ] );
-		$this->hooks();
+	public function __call( $name, $arguments ) {
+		_deprecated_function( __METHOD__, '6.3.0', 'No replacement.' );
 	}
 
 	/**
-	 * Set up hooks for classes.
+	 * @inheritdoc
 	 *
-	 * @since 4.14.7
+	 * @param string $name      The name of the method.
+	 * @param array  $arguments The arguments passed to the method.
+	 * @return void
 	 */
-	protected function hooks() {
-		add_action( 'tribe_plugins_loaded', [ $this, 'plugins_loaded' ] );
-	}
-
-	/**
-	 * Setup for things that require plugins loaded first.
-	 *
-	 * @since 4.14.7
-	 */
-	public function plugins_loaded() {
-		$this->container->make( Black_Friday::class );
-		$this->container->make( End_Of_Year_Sale::class );
+	public static function __callStatic( $name, $arguments ) {
+		_deprecated_function( __METHOD__, '6.3.0', 'No replacement.' );
 	}
 }

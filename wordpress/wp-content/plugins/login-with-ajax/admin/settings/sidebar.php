@@ -9,7 +9,7 @@
 			<span><?php esc_html_e('Support this plugin!','login-with-ajax'); ?></span>
 		</h2>
 		<div class="inside">
-			<p>This plugin was developed by <a href="http://msyk.es/" target="_blank">Marcus Sykes</a>, sponsored by proceeds from <a href="http://eventsmanagerpro.com" target="_blank">Events Manager Pro</a></p>
+			<p>This plugin is laregly  sponsored by proceeds from <a href="http://eventsmanagerpro.com" target="_blank">Events Manager Pro</a></p>
 			<p>We're not asking for donations, but we'd appreciate a 5* rating and/or a link to our plugin page!</p>
 			<ul>
 				<li><a href="http://wordpress.org/support/view/plugin-reviews/login-with-ajax" target="_blank" >Give us 5 Stars on WordPress.org</a></li>

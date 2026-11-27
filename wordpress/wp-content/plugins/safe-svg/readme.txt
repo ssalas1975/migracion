@@ -1,38 +1,37 @@
 === Safe SVG ===
-Contributors: enshrined
-Donate link: https://wpsvg.com/
-Tags: svg, sanitize, upload, sanitise, security, svg upload, image, vector, file, graphic, media, mime
-Requires at least: 4.0
-Tested up to: 5.4.1
-Requires PHP: 5.6
-Stable tag: 1.9.9
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Contributors:      10up, enshrined, jeffpaul
+Tags:              svg, security, media, vector, mime
+Requires at least: 6.9
+Requires PHP:      7.4
+Tested up to:      7.1
+Stable tag:        2.5.2
+License:           GPL-2.0-or-later
+License URI:       https://spdx.org/licenses/GPL-2.0-or-later.html
 
-Enable SVG uploads and sanitize them to stop XML/SVG vulnerabilities in your WordPress website
+Enable SVG uploads and sanitize them to stop XML/SVG vulnerabilities in your WordPress website.
 
 == Description ==
 
 Safe SVG is the best way to Allow SVG Uploads in WordPress!
 
-It gives you the ability to allow SVG uploads whilst making sure that they're sanitized to stop SVG/XML vulnerabilities affecting your site.
-It also gives you the ability to preview your uploaded SVGs in the media library in all views.
+It gives you the ability to allow SVG uploads whilst making sure that they're sanitized to stop SVG/XML vulnerabilities affecting your site.  It also gives you the ability to preview your uploaded SVGs in the media library in all views.
 
->**[Loving Safe SVG? Try the Pro version for extra features.](https://wpsvg.com/)**
+= Current Features =
 
-#### Free Features
 * **Sanitised SVGs** - Don't open up security holes in your WordPress site by allowing uploads of unsanitised files.
+* **SVGO Optimisation** - Runs your SVGs through the SVGO tool on upload to save you space. This feature is disabled by default but can be enabled by adding the following code: `add_filter( 'safe_svg_optimizer_enabled', '__return_true' );`
 * **View SVGs in the Media Library** - Gone are the days of guessing which SVG is the correct one, we'll enable SVG previews in the WordPress media library.
-
-#### Pro Features
-* **SVGO Optimisation** - You'll have the option to run your SVGs through our SVGO server on upload to save you space.
 * **Choose Who Can Upload** - Restrict SVG uploads to certain users on your WordPress site or allow anyone to upload.
-* **Premium Support** - Pro users get premium support whilst free support is offered in the WordPress forums in our spare time
 
+Initially a proof of concept for [#24251](https://core.trac.wordpress.org/ticket/24251).
 
-Initially a proof of concept for [#24251](https://core.trac.wordpress.org/ticket/24251)
+SVG Sanitization is done through the following library: [https://github.com/darylldoyle/svg-sanitizer](https://github.com/darylldoyle/svg-sanitizer).
 
-SVG Sanitization is done through the following library: [https://github.com/darylldoyle/svg-sanitizer](https://github.com/darylldoyle/svg-sanitizer)
+SVG Optimization is done through the following library: [https://github.com/svg/svgo](https://github.com/svg/svgo).
+
+= Technical: Upload Path Security =
+
+WordPress’s `_wp_handle_upload( $file, $action )` function allows any `$action` value, which determines the filter hook name: `{$action}_prefilter`. Safe SVG hooks common actions like `wp_handle_upload` and `wp_handle_sideload`, but cannot hook arbitrary custom actions defined by third-party code. Since upload actions are unbounded and MIME allowances are global, we cannot guarantee sanitization coverage across all possible upload paths.
 
 == Installation ==
 
@@ -70,117 +69,80 @@ They take one argument that must be returned. See below for examples:
         return $tags;
     } );
 
+= Can my theme style an inline SVG? =
+
+Mostly, yes. The Inline SVG block renders an SVG that carries its own `<style>` element inside a shadow root, because CSS inside an inline SVG is otherwise applied to the whole page rather than just the SVG. Stylesheets cannot reach into a shadow root, so theme CSS such as `.entry-content svg { fill: red; }` will not apply to those SVGs.
+
+Inherited properties still cross the boundary, so setting `color` on an ancestor and using `currentColor` inside the SVG works, as do CSS custom properties. SVGs that do not contain a `<style>` element are rendered without the shadow root and can be styled by theme stylesheets.
+
+To turn isolation off, at the cost of allowing an SVG's CSS to affect the rest of the page:
+
+    add_filter( 'safe_svg_inline_use_shadow_dom', '__return_false' );
+
+= Why doesn't Safe SVG globally enable SVG uploads? =
+
+Safe SVG only allows SVGs through upload paths it can actively sanitize. While most WordPress uploads use standard functions like `wp_handle_upload()` (which Safe SVG hooks), plugins and themes can create custom upload paths by calling WordPress's underlying `_wp_handle_upload()` function with arbitrary action parameters.
+
+Globally enabling the `image/svg+xml` MIME type would allow SVGs through all upload paths—including custom ones Safe SVG cannot intercept and sanitize. This would create security vulnerabilities where unsanitized SVGs containing malicious scripts could be uploaded.
+
+This is a deliberate design decision: Safe SVG prioritizes guaranteed sanitization over broad compatibility. SVGs are only allowed when we can ensure they're safe.
+
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the Safe SVG plugin through the [Patchstack Vulnerability Disclosure  Program](https://patchstack.com/database/vdp/9e5fb4ed-587a-4ada-8dc3-a5b7362c0501).  The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 == Changelog ==
 
-= 1.9.9 =
-* Fixed issue where 100% width is accidentally converted to 100px width. Props @joehoyle
+= 2.5.2 - 2026-10-26 =
+* **Added:** New filter, `safe_svg_max_inflated_size`, allowing you to increase or decrease the max size an SVG can inflate to ([GHSA-xjvq-4jwj-3mwq](https://github.com/10up/safe-svg/security/advisories/GHSA-xjvq-4jwj-3mwq)).
+* **Security:** Updates the underlying `enshrined/svg-sanitize` package to v1.1.0 ([#355](https://github.com/10up/safe-svg/pull/355)).
+* **Security:** Resolve GHSA-xjvq-4jwj-3mwq ([GHSA-xjvq-4jwj-3mwq](https://github.com/10up/safe-svg/security/advisories/GHSA-xjvq-4jwj-3mwq)).
+* **Security:** Resolve GHSA-xpv8-cx9q-v65f ([GHSA-xpv8-cx9q-v65f](https://github.com/10up/safe-svg/security/advisories/GHSA-xpv8-cx9q-v65f)).
+* **Security:** Resolve GHSA-h56m-22q9-r6xc ([GHSA-h56m-22q9-r6xc](https://github.com/10up/safe-svg/security/advisories/GHSA-h56m-22q9-r6xc)).
+* **Security:** Resolve GHSA-vm75-mq6x-x57m ([GHSA-vm75-mq6x-x57m](https://github.com/10up/safe-svg/security/advisories/GHSA-vm75-mq6x-x57m)).
 
-= 1.9.8 =
-* Underlying library update
+= 2.5.1 - 2026-09-22 =
+* **Added:** New REST endpoint, `/safe-svg/v1/svg/ATTACHMENT-ID`, that can be passed an attachment ID for an SVG and will return sanitized markup (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-3hhm-5qc9-q4xf](https://github.com/10up/safe-svg/security/advisories/GHSA-3hhm-5qc9-q4xf)).
+* **Removed:** Remove the `$sanitizer` property from the `safe_svg` class. If you directly use the `safe_svg` class in order to access the `$sanitizer` property, you'll need to update your code to instead use the new `Svg_Sanitizer` class (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-3hhm-5qc9-q4xf](https://github.com/10up/safe-svg/security/advisories/GHSA-3hhm-5qc9-q4xf)).
+* **Security:** Resolve GHSA-qq4c-2xh7-x2wf (props [@dhakalananda](https://github.com/dhakalananda), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@darylldoyle](https://github.com/darylldoyle), [@jeffpaul](https://github.com/jeffpaul) via [GHSA-qq4c-2xh7-x2wf](https://github.com/10up/safe-svg/security/advisories/GHSA-qq4c-2xh7-x2wf)).
+* **Security:** Resolve GHSA-vcfp-vw5v-gc9c (props [@spectreDeveloper](https://github.com/spectreDeveloper), [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc), [@darylldoyle](https://github.com/darylldoyle), [@jeffpaul](https://github.com/jeffpaul) via [GHSA-vcfp-vw5v-gc9c](https://github.com/10up/safe-svg/security/advisories/GHSA-vcfp-vw5v-gc9c)).
+* **Security:** Resolve GHSA-3hhm-5qc9-q4xf (props [@dkotter](https://github.com/dkotter), [@peterwilsoncc](https://github.com/peterwilsoncc) via [GHSA-3hhm-5qc9-q4xf](https://github.com/10up/safe-svg/security/advisories/GHSA-3hhm-5qc9-q4xf)).
 
-= 1.9.7 =
-* Underlying library update
+= 2.5.0 - 2026-09-07 =
+* **Security:** Prevented direct access of PHP files (props [@mehrazmorshed](https://github.com/mehrazmorshed), [@dkotter](https://github.com/dkotter) via [#300](https://github.com/10up/safe-svg/pull/300)).
+* **Security:** The Inline SVG block now renders SVGs that carry their own `<style>` element inside a shadow root, so their CSS is scoped to the block instead of applying to the whole page (props [@0xb1lal](https://github.com/0xb1lal), [@darylldoyle](https://github.com/darylldoyle), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#328](https://github.com/10up/safe-svg/pull/328), [GHSA-6w27-923c-c64m](https://github.com/10up/safe-svg/security/advisories/GHSA-6w27-923c-c64m)).
+* **Security:** Bump `enshrined/svg-sanitize` from `^0.22.0` to `^1.0.0` to pull in security fixes (props [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#327](https://github.com/10up/safe-svg/pull/327)).
+* **Added:** Link support for the SVG Inline block, including URL input, new tab toggle, and nofollow/sponsored rel options (props [@vegetable-bits](https://github.com/vegetable-bits), [@mgiannopoulos24](https://github.com/mgiannopoulos24), [@jeffpaul](https://github.com/jeffpaul), [@thrijith](https://github.com/thrijith), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter), [@pbiron](https://github.com/pbiron) via [#315](https://github.com/10up/safe-svg/pull/315)).
+* **Added:** New `safe_svg_inline_use_shadow_dom` filter to control which inline SVGs are isolated in a shadow root, and new `safe_svg_inline_shadow_styles` filter to adjust the CSS injected alongside them (props [@darylldoyle](https://github.com/darylldoyle), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#328](https://github.com/10up/safe-svg/pull/328)).
+* **Added:** New `safe_svg_remove_remote_references` filter to strip remote `url()`, `@import` and `image-set()` references, along with remote `href` targets, from uploaded SVGs. Off by default, because legitimate SVGs reference remote fonts and images but use this filter to turn it on (props [@darylldoyle](https://github.com/darylldoyle), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#328](https://github.com/10up/safe-svg/pull/328)).
+* **Added:** Added support for Enable Media Replace plugin (props [@gthayer](https://github.com/gthayer), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#285](https://github.com/10up/safe-svg/pull/285)).
+* **Changed:** Bump WordPress minimum supported version to 6.9 (props [@zamanq](https://github.com/zamanq), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#320](https://github.com/10up/safe-svg/pull/320)).
+* **Changed:** Bump "tested up to header" to indicate WordPress 7.1 support (props [@navi151](https://github.com/navi151), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@zamanq](https://github.com/zamanq) via [#290](https://github.com/10up/safe-svg/pull/290), [#311](https://github.com/10up/safe-svg/pull/311), [#320](https://github.com/10up/safe-svg/pull/320)).
+* **Changed:** Theme CSS can no longer target an inline SVG that carries its own `<style>` element, because stylesheets cannot reach into a shadow root. Style those SVGs from within the SVG itself, or opt out with the `safe_svg_inline_use_shadow_dom` filter. Inherited properties, including `color`/`currentColor` and custom properties, still apply as before, and SVGs without a `<style>` element are unaffected (props [@darylldoyle](https://github.com/darylldoyle), [@dkotter](https://github.com/dkotter), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#328](https://github.com/10up/safe-svg/pull/328)).
+* **Changed:** Updated blueprint file for WordPress.org live previews (props [@fellyph](https://github.com/fellyph), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc) via [#287](https://github.com/10up/safe-svg/pull/287)).
+* **Changed:** Bump `svgo` from 3.2.0 to 3.3.5 (props [@dependabot[bot]](https://github.com/apps/dependabot), [@jeffpaul](https://github.com/jeffpaul), [@peterwilsoncc](https://github.com/peterwilsoncc), [@dependabot](https://github.com/dependabot) via [#309](https://github.com/10up/safe-svg/pull/309)).
 
-= 1.9.6 =
-* Underlying library update that fixes a security issue
+[View historical changelog details here](https://github.com/10up/safe-svg/blob/develop/CHANGELOG.md).
 
-= 1.9.5 =
-* Underlying library update that fixes some security issues
+== Upgrade Notice ==
 
-= 1.9.4 =
-* Fixed a bug causing lots of error log output to do with `safe_svg::fix_direct_image_output()`
+= 2.5.2 =
+This is a security release, it is recommended to upgrade immediately.
 
-= 1.9.3 =
-* Fixed a bug causing 0 height and width SVGs
+= 2.5.1 =
+This is a security release, it is recommended to upgrade immediately.
 
-= 1.9.2 =
-* Fixed a warning about an Illegal string offset
-* Fixed an issue if something other than a WP_Post object is passed in via the `wp_get_attachment_image_attributes` filter.
+= 2.5.0 =
+This is a security release, it is recommended to upgrade immediately.
 
-= 1.9.1 =
-* Fixed a warning that was being generated by a change made in 1.9.0.
+= 2.3.2 =
+Note that this release bumps the WordPress minimum version from 6.5 to 6.6.
 
-= 1.9.0 =
-* If an image is the correct ratio, allow skipping of the crop popup when setting header/logo images with SVGs.
+= 2.3.0 =
+Note that this release bumps the WordPress minimum version from 6.4 to 6.5.
 
-= 1.8.1 =
-* Don't let errors break upload if uploading an empty file
-* Fix featured image display in Gutenberg. Props @hendridm :)
+= 2.2.6 =
+Note that this release bumps the WordPress minimum version from 5.7 to 6.4.
 
-= 1.8.0 =
-* Pull SVG dimensions from the width/height or viewbox attributes of the SVG.
-* Add the role="img" attribute to SVGs
-
-= 1.7.1 =
-* Updated underlying lib and added new filters for filtering allowed tags and attributes
-
-= 1.6.1 =
-* Images will now use the size chosen when inserted into the page rather than default to 2000px everytime.
-
-= 1.6.0 =
-* Fairly big new feature - The library now allows `<use>` elements as long as they don't reference external files!
-* You can now also embed safe image types within the SVG and not have them stripped (PNG, GIF, JPG)
-
-= 1.5.3 =
-* 1.5.2 introduced an issue that can freeze the media library. This fixes that issue. Sorry!
-
-= 1.5.2 =
-* Tested with 4.9.0
-* Fixed an issue with SVGs when regenerating media
-
-= 1.5.1 =
-* Fix PHP strict standards warning
-
-= 1.5.0 =
-* Library update
-* role, aria- and data- attributes are now whitelisted to improve accessibility
-
-= 1.4.5 =
-* Fixes some issues with defining the size of an SVG.
-* Library update
-
-= 1.4.4 =
-* SVGs now display as featured images in the admin area
-
-= 1.4.3 =
-* WordPress 4.7.3 Compatibility
-* Expanded SVG previews in media library
-
-= 1.4.2 =
-* Added a check / fix for when mb_* functions are not available
-
-= 1.4.1 =
-* Updated underlying library to allow attributes/tags in all case variations
-
-= 1.4.0 =
-* Added ability to preview SVG on both grid and list view in the wp-admin media area
-* Updated underlying library version
-
-= 1.3.4 =
-* A fix for SVGZ uploads failing and not sanitising correctly
-
-= 1.3.3 =
-* Allow SVGZ uploads
-
-= 1.3.2 =
-* Fix for the mime type issue in 4.7.1. Mad props to @lewiscowles
-
-= 1.3.1 =
-* Updated underlying library version
-
-= 1.3.0 =
-* Minify SVGs after cleaning so they can be loaded correctly through file_get_contents
-
-= 1.2.0 =
-* Added support for camel case attributes such as viewBox
-
-= 1.1.1 =
-* Fixed an issue with empty svg elements self-closing
-
-= 1.1.0 =
-* Added i18n
-* Added da, de ,en, es, fr, nl and ru translations
-* Fixed an issue with filename not being pulled over on failed uploads
-
-= 1.0.0 =
-* Initial Release
+= 1.9.10 =
+Important: bumped the WordPress minimum version from 4.0 to 4.7 and the PHP minimum version from 5.6 to 7.0.

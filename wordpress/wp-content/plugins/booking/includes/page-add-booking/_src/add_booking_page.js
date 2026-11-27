@@ -1,0 +1,652 @@
+/** Add Booking administrator inspector interactions. */
+( function ( $ ) {
+	'use strict';
+
+	var active_days_selection_override = '';
+	var days_selection_enforcement_timers = [];
+	var initial_calendar_dates_applied = false;
+	var initial_calendar_dates_cancelled = false;
+	var is_applying_initial_calendar_dates = false;
+	var initial_calendar_dates_attempts = 0;
+	var initial_calendar_dates_max_attempts = 12;
+	var initial_calendar_dates_event = 'wpbc_calendar_ajx__loaded_data.wpbc_add_booking_initial_dates';
+
+	/**
+	 * Normalize a JSON-safe list of ISO calendar dates.
+	 *
+	 * @param {*} calendar_dates Candidate date list.
+	 * @return {Array<string>} Unique valid dates in their original order.
+	 */
+	function normalize_initial_calendar_dates( calendar_dates ) {
+		var normalized_dates = [];
+		var seen_dates = {};
+
+		if ( ! Array.isArray( calendar_dates ) ) {
+			return normalized_dates;
+		}
+
+		calendar_dates.forEach( function ( calendar_date ) {
+			var normalized_date = String( calendar_date || '' );
+			var date_parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec( normalized_date );
+			var native_date;
+
+			if ( ! date_parts ) {
+				return;
+			}
+
+			native_date = new Date(
+				parseInt( date_parts[1], 10 ),
+				parseInt( date_parts[2], 10 ) - 1,
+				parseInt( date_parts[3], 10 )
+			);
+			if (
+				native_date.getFullYear() !== parseInt( date_parts[1], 10 ) ||
+				native_date.getMonth() !== parseInt( date_parts[2], 10 ) - 1 ||
+				native_date.getDate() !== parseInt( date_parts[3], 10 ) ||
+				seen_dates[ normalized_date ]
+			) {
+				return;
+			}
+
+			seen_dates[ normalized_date ] = true;
+			normalized_dates.push( normalized_date );
+		} );
+
+		return normalized_dates;
+	}
+
+	/**
+	 * Convert one validated ISO date into a local JavaScript Date.
+	 *
+	 * @param {string} calendar_date Date in `Y-m-d` format.
+	 * @return {Date} Local calendar date.
+	 */
+	function parse_initial_calendar_date( calendar_date ) {
+		var date_parts = calendar_date.split( '-' );
+
+		return new Date(
+			parseInt( date_parts[0], 10 ),
+			parseInt( date_parts[1], 10 ) - 1,
+			parseInt( date_parts[2], 10 )
+		);
+	}
+
+	/**
+	 * Read the explicit one-time calendar seed from the rendered component.
+	 *
+	 * @return {Object|null} Normalized handoff context, or null outside a handoff.
+	 */
+	function get_initial_calendar_context() {
+		var component_context = window.wpbc_add_booking_component_context || {};
+		var resource_id = parseInt( component_context.resource_id, 10 );
+		var initial_dates = normalize_initial_calendar_dates( component_context.initial_calendar_dates );
+
+		if ( 1 !== parseInt( component_context.preselect_calendar_dates, 10 ) || resource_id <= 0 || ! initial_dates.length ) {
+			return null;
+		}
+
+		return {
+			resource_id: resource_id,
+			initial_dates: initial_dates
+		};
+	}
+
+	/**
+	 * Seed the normal native calendar once from signed Timeline handoff context.
+	 *
+	 * Direct instance synchronization avoids replaying clicks through stale
+	 * availability markup. It changes only the browser selection; the canonical
+	 * create endpoint remains authoritative for availability and persistence.
+	 *
+	 * @return {boolean} True after the exact initial selection was applied.
+	 */
+	function apply_initial_calendar_dates() {
+		var initial_context = get_initial_calendar_context();
+		var calendar_instance;
+		var native_dates;
+		var $date_field;
+		var formatted_dates;
+
+		if ( initial_calendar_dates_applied || initial_calendar_dates_cancelled || ! initial_context ) {
+			return initial_calendar_dates_applied;
+		}
+		if ( 'function' !== typeof window.wpbc_calendar__get_inst || ! $.datepick || 'function' !== typeof $.datepick._updateDatepick ) {
+			return false;
+		}
+
+		calendar_instance = window.wpbc_calendar__get_inst( initial_context.resource_id );
+		$date_field = $( '#date_booking' + initial_context.resource_id );
+		if ( ! calendar_instance || ! $date_field.length ) {
+			return false;
+		}
+
+		if ( String( $date_field.val() || '' ).trim() ) {
+			initial_calendar_dates_cancelled = true;
+			$( 'body' ).off( initial_calendar_dates_event );
+			return false;
+		}
+
+		native_dates = initial_context.initial_dates.map( parse_initial_calendar_date );
+		formatted_dates = native_dates.map( function ( selected_date ) {
+			if ( 'function' === typeof $.datepick._formatDate ) {
+				return $.datepick._formatDate( calendar_instance, selected_date );
+			}
+
+			return ( '0' + selected_date.getDate() ).slice( -2 ) + '.' +
+				( '0' + ( selected_date.getMonth() + 1 ) ).slice( -2 ) + '.' +
+				selected_date.getFullYear();
+		} ).join( ', ' );
+
+		is_applying_initial_calendar_dates = true;
+		calendar_instance.stayOpen = false;
+		calendar_instance.dates = native_dates;
+		$date_field.val( formatted_dates );
+		$.datepick._updateDatepick( calendar_instance );
+
+		if ( 'function' === typeof window.wpbc_calendar__scroll_to ) {
+			window.wpbc_calendar__scroll_to(
+				initial_context.resource_id,
+				native_dates[0].getFullYear(),
+				native_dates[0].getMonth() + 1
+			);
+		}
+		if ( 'function' === typeof window.wpbc_disable_time_fields_in_booking_form ) {
+			window.wpbc_disable_time_fields_in_booking_form( initial_context.resource_id );
+		}
+
+		initial_calendar_dates_applied = true;
+		$( 'body' ).off( initial_calendar_dates_event );
+		try {
+			$( '.booking_form_div' ).trigger(
+				'date_selected',
+				[ initial_context.resource_id, formatted_dates, initial_context.initial_dates.slice( 0 ) ]
+			);
+		} finally {
+			is_applying_initial_calendar_dates = false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Retry initial hydration only while the matching native calendar mounts.
+	 *
+	 * @return {void}
+	 */
+	function schedule_initial_calendar_dates() {
+		if ( initial_calendar_dates_applied || initial_calendar_dates_cancelled || ! get_initial_calendar_context() ) {
+			return;
+		}
+
+		window.requestAnimationFrame( function () {
+			initial_calendar_dates_attempts++;
+			if ( apply_initial_calendar_dates() || initial_calendar_dates_attempts >= initial_calendar_dates_max_attempts ) {
+				return;
+			}
+
+			window.setTimeout( schedule_initial_calendar_dates, 100 );
+		} );
+	}
+
+	/**
+	 * Show the panel controlled by one compact right-sidebar tab.
+	 *
+	 * @param {jQuery} $tab Selected tab button.
+	 * @return {void}
+	 */
+	function switch_right_panel( $tab ) {
+		var panel_id = $tab.attr( 'aria-controls' );
+		var $tabs = $tab.closest( '.wpbc_add_booking__rightbar_tabs' ).find( '[role="tab"]' );
+		var $panels = $( '.wpbc_add_booking__rightbar' ).find( '[role="tabpanel"]' );
+
+		if ( ! panel_id || ! $( '#' + panel_id ).length ) {
+			return;
+		}
+
+		$tabs.attr( 'aria-selected', 'false' );
+		$tab.attr( 'aria-selected', 'true' );
+		$panels.attr( { hidden: true, 'aria-hidden': 'true' } );
+		$( '#' + panel_id ).removeAttr( 'hidden' ).attr( 'aria-hidden', 'false' );
+	}
+
+	/**
+	 * Scroll one page-owned control into view and move keyboard focus to it.
+	 *
+	 * @param {string} focus_selector Control selector.
+	 * @return {void}
+	 */
+	function focus_page_control( focus_selector ) {
+		var $control = focus_selector ? $( focus_selector ).first() : $();
+
+		if ( ! $control.length ) {
+			return;
+		}
+
+		window.requestAnimationFrame( function () {
+			$control.get( 0 ).scrollIntoView( { behavior: 'smooth', block: 'center' } );
+			window.setTimeout( function () {
+				$control.trigger( 'focus' );
+			}, 250 );
+		} );
+	}
+
+	/**
+	 * Expand an inspector group and focus one of its controls.
+	 *
+	 * The shared collapsible controller is used when available so exclusive
+	 * groups and ARIA state stay synchronized. The header click is a safe
+	 * fallback for older Booking Calendar admin bundles.
+	 *
+	 * @param {string} group_name Group data key.
+	 * @param {string} focus_selector Optional control to focus after expansion.
+	 * @return {void}
+	 */
+	function open_settings_group( group_name, focus_selector ) {
+		var $group = $( '.wpbc_add_booking__inspector_settings .wpbc_ui__collapsible_group[data-group="' + group_name + '"]' ).first();
+		var root;
+		var controller;
+
+		if ( ! $group.length ) {
+			return;
+		}
+
+		root = $group.closest( '.wpbc_collapsible' ).get( 0 );
+		controller = root && root.__wpbc_collapsible_instance ? root.__wpbc_collapsible_instance : null;
+
+		if ( controller && 'function' === typeof controller.expand ) {
+			controller.expand( $group.get( 0 ) );
+		} else {
+			$group.siblings( '.wpbc_ui__collapsible_group' ).each( function () {
+				var $sibling = $( this );
+
+				$sibling.removeClass( 'is-open' );
+				$sibling.children( '.group__header' ).attr( 'aria-expanded', 'false' );
+				$sibling.children( '.group__fields' ).attr( { hidden: true, 'aria-hidden': 'true' } );
+			} );
+			$group.addClass( 'is-open' );
+			$group.children( '.group__header' ).attr( 'aria-expanded', 'true' );
+			$group.children( '.group__fields' ).removeAttr( 'hidden' ).attr( 'aria-hidden', 'false' );
+		}
+
+		window.requestAnimationFrame( function () {
+			$group.get( 0 ).scrollIntoView( { behavior: 'smooth', block: 'start' } );
+			if ( focus_selector ) {
+				focus_page_control( focus_selector );
+			}
+		} );
+	}
+
+	/**
+	 * Synchronize Booking Tools status links with their current toggle values.
+	 *
+	 * @return {void}
+	 */
+	function refresh_booking_tools_summary() {
+		var $summary = $( '.wpbc_add_booking__setup_summary' ).first();
+		var enabled_label;
+		var disabled_label;
+
+		if ( ! $summary.length ) {
+			return;
+		}
+
+		enabled_label = $summary.attr( 'data-wpbc-add-booking-enabled-label' ) || 'Enabled';
+		disabled_label = $summary.attr( 'data-wpbc-add-booking-disabled-label' ) || 'Disabled';
+
+		$summary.find( '[data-wpbc-add-booking-summary="emails"]' ).text(
+			$( '#is_send_email_for_pending' ).is( ':checked' ) ? enabled_label : disabled_label
+		);
+		$summary.find( '[data-wpbc-add-booking-summary="allow-past"]' ).text(
+			$( '#is_allow_bookings_in_past' ).is( ':checked' ) ? enabled_label : disabled_label
+		);
+	}
+
+	/**
+	 * Get the Add Booking date-selection radio container.
+	 *
+	 * @return {jQuery} Date-selection container, when rendered.
+	 */
+	function get_days_selection_container() {
+		return $( '[data-wpbc-add-booking-days-selection="1"]' ).first();
+	}
+
+	/**
+	 * Normalize calendar engine modes to the three administrator radio choices.
+	 *
+	 * @param {string} mode Calendar or radio mode.
+	 * @return {string} single, multiple, range, or an empty string.
+	 */
+	function normalize_days_selection_mode( mode ) {
+		mode = String( mode || '' );
+
+		if ( 'fixed' === mode || 'dynamic' === mode || 'range' === mode ) {
+			return 'range';
+		}
+
+		return 'single' === mode || 'multiple' === mode ? mode : '';
+	}
+
+	/**
+	 * Get the current Add Booking resource ID from the radio control context.
+	 *
+	 * @return {number} Positive resource ID, or zero when unavailable.
+	 */
+	function get_days_selection_resource_id() {
+		var resource_id = parseInt( get_days_selection_container().attr( 'data-wpbc-resource-id' ), 10 );
+
+		if ( ! resource_id && window.wpbc_add_booking_component_context ) {
+			resource_id = parseInt( window.wpbc_add_booking_component_context.resource_id, 10 );
+		}
+
+		return resource_id > 0 ? resource_id : 0;
+	}
+
+	/**
+	 * Read one calendar parameter without exposing page state globally.
+	 *
+	 * @param {number} resource_id Booking resource ID.
+	 * @param {string} parameter_name Calendar parameter name.
+	 * @return {*} Current parameter value, or null when the calendar is unavailable.
+	 */
+	function get_calendar_parameter( resource_id, parameter_name ) {
+		if ( ! window._wpbc || ! window._wpbc.calendar || 'function' !== typeof window._wpbc.calendar__get_param_value ) {
+			return null;
+		}
+
+		return window._wpbc.calendar__get_param_value( resource_id, parameter_name );
+	}
+
+	/**
+	 * Normalize an array or comma-separated calendar parameter into integers.
+	 *
+	 * @param {Array|number|string} parameter_value Calendar parameter value.
+	 * @param {Array} fallback_value Value returned when no valid numbers exist.
+	 * @return {Array} Integer values.
+	 */
+	function normalize_calendar_number_list( parameter_value, fallback_value ) {
+		var values = Array.isArray( parameter_value ) ? parameter_value : String( parameter_value || '' ).split( ',' );
+		var normalized_values = [];
+
+		$.each( values, function ( index, number_value ) {
+			var parsed_number = parseInt( number_value, 10 );
+
+			if ( ! isNaN( parsed_number ) ) {
+				normalized_values.push( parsed_number );
+			}
+		} );
+
+		return normalized_values.length ? normalized_values : fallback_value;
+	}
+
+	/**
+	 * Get the fixed/dynamic engine to use for the Range days radio choice.
+	 *
+	 * @return {string} fixed or dynamic.
+	 */
+	function get_range_engine_mode() {
+		var range_engine_mode = String( get_days_selection_container().attr( 'data-wpbc-range-engine-mode' ) || 'dynamic' );
+
+		return 'fixed' === range_engine_mode ? 'fixed' : 'dynamic';
+	}
+
+	/**
+	 * Update the checked radio and visible setup summary from an effective mode.
+	 *
+	 * @param {string} mode Calendar or radio mode.
+	 * @return {void}
+	 */
+	function sync_days_selection_controls( mode ) {
+		var normalized_mode = normalize_days_selection_mode( mode );
+		var $container = get_days_selection_container();
+		var $radio;
+		var mode_label;
+
+		if ( ! normalized_mode || ! $container.length ) {
+			return;
+		}
+
+		$radio = $container.find( 'input[name="wpbc_add_booking_days_selection_mode"][value="' + normalized_mode + '"]' );
+		if ( 1 !== $radio.length ) {
+			return;
+		}
+
+		$radio.prop( 'checked', true );
+		mode_label = $radio.attr( 'data-wpbc-days-selection-label' ) || normalized_mode;
+		$( '[data-wpbc-add-booking-summary="days-selection"]' ).text( mode_label );
+	}
+
+	/**
+	 * Clear selected dates before changing their selection semantics.
+	 *
+	 * Customer fields remain untouched. Existing calendar helpers are used when
+	 * available so Datepick state and the hidden selected-date field stay aligned.
+	 *
+	 * @param {number} resource_id Booking resource ID.
+	 * @return {void}
+	 */
+	function clear_selected_booking_dates( resource_id ) {
+		var $date_field = $( '#date_booking' + resource_id );
+
+		if ( ! $date_field.length || ! String( $date_field.val() || '' ).trim() ) {
+			return;
+		}
+
+		if ( 'function' === typeof window.wpbc_calendar__unselect_all_dates ) {
+			window.wpbc_calendar__unselect_all_dates( resource_id );
+		} else {
+			$date_field.val( '' );
+		}
+
+		if ( 'function' === typeof window.wpbc_disable_time_fields_in_booking_form ) {
+			window.wpbc_disable_time_fields_in_booking_form( resource_id );
+		}
+	}
+
+	/**
+	 * Apply one radio mode through the shared immediate calendar helpers.
+	 *
+	 * Range mode retains the configured fixed/dynamic subtype and its existing
+	 * number-of-days and weekday parameters. No settings are saved.
+	 *
+	 * @param {string} mode Requested radio mode.
+	 * @param {boolean} clear_dates Whether an existing selection must be cleared.
+	 * @return {boolean} True when the requested helper was applied or already active.
+	 */
+	function apply_days_selection_mode( mode, clear_dates ) {
+		var normalized_mode = normalize_days_selection_mode( mode );
+		var resource_id = get_days_selection_resource_id();
+		var desired_engine_mode = 'range' === normalized_mode ? get_range_engine_mode() : normalized_mode;
+		var current_engine_mode;
+		var fixed_days_number;
+
+		if ( ! normalized_mode || ! resource_id ) {
+			return false;
+		}
+
+		current_engine_mode = String( get_calendar_parameter( resource_id, 'days_select_mode' ) || '' );
+		if ( desired_engine_mode === current_engine_mode ) {
+			sync_days_selection_controls( normalized_mode );
+			return true;
+		}
+
+		if ( clear_dates ) {
+			clear_selected_booking_dates( resource_id );
+		}
+
+		if ( 'single' === normalized_mode && 'function' === typeof window.wpbc_cal_days_select__single ) {
+			window.wpbc_cal_days_select__single( resource_id );
+		} else if ( 'multiple' === normalized_mode && 'function' === typeof window.wpbc_cal_days_select__multiple ) {
+			window.wpbc_cal_days_select__multiple( resource_id );
+		} else if ( 'range' === normalized_mode && 'fixed' === desired_engine_mode && 'function' === typeof window.wpbc_cal_days_select__fixed ) {
+			fixed_days_number = parseInt( get_calendar_parameter( resource_id, 'fixed__days_num' ), 10 );
+			window.wpbc_cal_days_select__fixed(
+				resource_id,
+				fixed_days_number > 0 ? fixed_days_number : 3,
+				normalize_calendar_number_list( get_calendar_parameter( resource_id, 'fixed__week_days__start' ), [ -1 ] )
+			);
+		} else if ( 'range' === normalized_mode && 'function' === typeof window.wpbc_cal_days_select__range_mode ) {
+			window.wpbc_cal_days_select__range_mode( resource_id );
+		} else {
+			return false;
+		}
+
+		sync_days_selection_controls( normalized_mode );
+		return true;
+	}
+
+	/**
+	 * Synchronize controls with the calendar, or enforce a user-selected override.
+	 *
+	 * @return {void}
+	 */
+	function synchronize_days_selection_mode() {
+		var resource_id = get_days_selection_resource_id();
+		var current_engine_mode;
+
+		if ( ! resource_id ) {
+			return;
+		}
+
+		if ( active_days_selection_override ) {
+			apply_days_selection_mode( active_days_selection_override, false );
+			return;
+		}
+
+		current_engine_mode = get_calendar_parameter( resource_id, 'days_select_mode' );
+		sync_days_selection_controls( current_engine_mode );
+	}
+
+	/**
+	 * Recheck mode after the selected Booking Form's legacy delayed initializer.
+	 *
+	 * Existing timers are cancelled so repeated clicks cannot accumulate work.
+	 * Reapplication occurs only when the calendar engine mode was changed by a
+	 * later initializer, avoiding unnecessary calendar renders.
+	 *
+	 * @return {void}
+	 */
+	function schedule_days_selection_synchronization() {
+		$.each( days_selection_enforcement_timers, function ( index, timer_id ) {
+			window.clearTimeout( timer_id );
+		} );
+		days_selection_enforcement_timers = [];
+
+		$.each( [ 0, 120, 1150, 2200 ], function ( index, delay ) {
+			days_selection_enforcement_timers.push( window.setTimeout( synchronize_days_selection_mode, delay ) );
+		} );
+	}
+
+	/**
+	 * Copy the authoritative cost-correction number into its convenience slider.
+	 *
+	 * The slider intentionally keeps its 0-1000 exploration range. Exact values,
+	 * including decimals and totals above 1000, remain unchanged in the number input.
+	 *
+	 * @return {void}
+	 */
+	function synchronize_cost_correction_range() {
+		var $number_field = $( '#wpbc_add_booking_cost_correction' );
+		var $range = $( '.wpbc_add_booking__cost_correction [data-wpbc-admin-cost-correction-range="1"]' ).first();
+		var number_value;
+
+		if ( ! $number_field.length || ! $range.length ) {
+			return;
+		}
+
+		number_value = Number( $number_field.val() );
+		if ( '' === String( $number_field.val() || '' ).trim() || ! isFinite( number_value ) ) {
+			$range.val( '0' );
+			return;
+		}
+
+		$range.val( String( number_value ) );
+	}
+
+	/**
+	 * Copy the convenience slider into the authoritative number input.
+	 *
+	 * @return {void}
+	 */
+	function synchronize_cost_correction_number() {
+		var $number_field = $( '#wpbc_add_booking_cost_correction' );
+		var $range = $( '.wpbc_add_booking__cost_correction [data-wpbc-admin-cost-correction-range="1"]' ).first();
+
+		if ( ! $number_field.length || ! $range.length ) {
+			return;
+		}
+
+		$number_field.val( $range.val() ).trigger( 'input' );
+	}
+
+	/**
+	 * Add an explicitly entered correction to the outgoing Add Booking request.
+	 *
+	 * The control is outside the Booking Form element and therefore is not part of
+	 * the legacy serialized form data. The server authorizes and normalizes this
+	 * dedicated value before it reaches the Business Small cost pipeline.
+	 *
+	 * @param {Event} event jQuery event.
+	 * @param {number} resource_id Submitted Booking resource ID.
+	 * @param {Object} params Mutable booking-create request parameters.
+	 * @return {void}
+	 */
+	function add_cost_correction_to_booking_request( event, resource_id, params ) {
+		var number_field = document.getElementById( 'wpbc_add_booking_cost_correction' );
+		var raw_cost;
+
+		if ( ! params || ! number_field ) {
+			return;
+		}
+
+		delete params.wpbc_admin_cost_correction;
+		raw_cost = String( number_field.value || '' ).trim();
+		if ( '' === raw_cost || ! number_field.checkValidity() ) {
+			return;
+		}
+
+		params.wpbc_admin_cost_correction = raw_cost;
+	}
+
+	$( document ).on( 'click', '.wpbc_add_booking__rightbar_tabs [role="tab"]', function () {
+		switch_right_panel( $( this ) );
+	} );
+
+	$( document ).on( 'click', '.wpbc_add_booking__setup_summary_link', function ( event ) {
+		var group_name = $( this ).attr( 'data-wpbc-add-booking-open-group' ) || '';
+		var focus_selector = $( this ).attr( 'data-wpbc-add-booking-focus' ) || '';
+
+		event.preventDefault();
+		if ( group_name ) {
+			open_settings_group( group_name, focus_selector );
+		} else {
+			focus_page_control( focus_selector );
+		}
+	} );
+
+	$( document ).on( 'change', '#is_send_email_for_pending, #is_allow_bookings_in_past', refresh_booking_tools_summary );
+	$( document ).on( 'date_selected.wpbc_add_booking_initial_dates', '.booking_form_div', function () {
+		if ( ! is_applying_initial_calendar_dates && ! initial_calendar_dates_applied ) {
+			initial_calendar_dates_cancelled = true;
+			$( 'body' ).off( initial_calendar_dates_event );
+		}
+	} );
+	$( 'body' ).off( initial_calendar_dates_event ).on( initial_calendar_dates_event, function ( event, loaded_resource_id ) {
+		var initial_context = get_initial_calendar_context();
+
+		if ( initial_context && initial_context.resource_id === parseInt( loaded_resource_id, 10 ) ) {
+			schedule_initial_calendar_dates();
+		}
+	} );
+	$( document ).on( 'input', '#wpbc_add_booking_cost_correction', synchronize_cost_correction_range );
+	$( document ).on( 'input', '.wpbc_add_booking__cost_correction [data-wpbc-admin-cost-correction-range="1"]', synchronize_cost_correction_number );
+	$( 'body' ).on( 'wpbc_before_booking_create.wpbc_add_booking_cost_correction', add_cost_correction_to_booking_request );
+	$( document ).on( 'click', 'input[name="wpbc_add_booking_days_selection_mode"]', function () {
+		active_days_selection_override = normalize_days_selection_mode( $( this ).val() );
+		apply_days_selection_mode( active_days_selection_override, true );
+		schedule_days_selection_synchronization();
+	} );
+	$( refresh_booking_tools_summary );
+	$( synchronize_cost_correction_range );
+	$( schedule_days_selection_synchronization );
+	$( schedule_initial_calendar_dates );
+}( jQuery ) );

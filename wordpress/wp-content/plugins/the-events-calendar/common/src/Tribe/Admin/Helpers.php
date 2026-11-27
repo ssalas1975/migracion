@@ -57,7 +57,7 @@ class Tribe__Admin__Helpers {
 	/**
 	 * Matcher for Admin Pages related to Post Types
 	 *
-	 * @param string|array|null $id What will be checked to see if we return true or false
+	 * @param string|array|null $post_type The post type to check.
 	 *
 	 * @return boolean
 	 */
@@ -102,7 +102,7 @@ class Tribe__Admin__Helpers {
 	/**
 	 * Matcher for administration pages that are from Tribe the easier way
 	 *
-	 * @param  string|array|null $id What will be checked to see if we return true or false
+	 * @param string|array|null $id What will be checked to see if we return true or false.
 	 *
 	 * @return boolean
 	 */
@@ -119,12 +119,12 @@ class Tribe__Admin__Helpers {
 			return false;
 		}
 
-		// Avoid Notices by checking the object type of WP_Screen
+		// Avoid Notices by checking the object type of WP_Screen.
 		if ( ! $this->is_wp_screen() ) {
 			return false;
 		}
 
-		// Match any screen from Tribe
+		// Match any screen from Tribe.
 		if ( is_null( $id ) && false !== strpos( $current_screen->id, 'tribe' ) ) {
 			return true;
 		}
@@ -139,12 +139,12 @@ class Tribe__Admin__Helpers {
 			return true;
 		}
 
-		// Match a specific page
+		// Match a specific page.
 		if ( $current_screen->id === $id ) {
 			return true;
 		}
 
-		// Match any post type page in the supported post types
+		// Match any post type page in the supported post types.
 		$defaults = apply_filters( 'tribe_is_post_type_screen_post_types', Tribe__Main::get_post_types() );
 		if ( in_array( $current_screen->post_type, $defaults ) ) {
 			return true;
@@ -156,7 +156,7 @@ class Tribe__Admin__Helpers {
 	/**
 	 * Matcher for administration pages action
 	 *
-	 * @param  string|array|null $action What will be checked to see if we return true or false
+	 * @param string|array|null $action What will be checked to see if we return true or false
 	 *
 	 * @return boolean
 	 */

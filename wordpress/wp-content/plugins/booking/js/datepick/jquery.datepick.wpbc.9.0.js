@@ -157,6 +157,7 @@ function Datepick() {
 			// [2] = cell title (optional), e.g. $.datepick.noWeekends
 		onChangeMonthYear: null, // Define a callback function when the month or year is changed
 		onHover: null, // Define a callback function when hovering over a day
+		beforeSelectDay: null, // Optional (Date, instance) callback; false vetoes selection before any state change.
 		onSelect: null, // Define a callback function when a date is selected
 		onClose: null, // Define a callback function when the datepicker is closed
 		altField: '', // Selector for an alternate field to store selected dates into
@@ -1147,6 +1148,11 @@ $.extend(Datepick.prototype, {
 			return false;
 		var rangeSelect = this._get(inst, 'rangeSelect');
 		var multiSelect = this._get(inst, 'multiSelect');
+		// Allow a domain validator to veto activation before native selection state changes.
+		var beforeSelectDay = this._get(inst, 'beforeSelectDay');
+		if (beforeSelectDay && beforeSelectDay.apply((inst.input ? inst.input[0] : null),
+			[this._daylightSavingAdjust(new Date(timestamp)), inst]) === false)
+			return false;
 		if (rangeSelect)
 			inst.stayOpen = !inst.stayOpen;
 		else if (multiSelect)
@@ -1740,13 +1746,13 @@ $.extend(Datepick.prototype, {
 		var useTR = this._get(inst, 'useThemeRoller') ? 1 : 0;
 		// Build the date picker HTML
 		var clear = (this._get(inst, 'mandatory') ? '' :
-			'<div class="' + this._clearClass[useTR] + '"><a href="javascript:void(0)" ' +
-			'onclick="jQuery.datepick._clearDate(\'#' + inst.id + '\');"' +
+			'<div class="' + this._clearClass[useTR] + '"><a href="javascript:void(0)" target="_self" ' +
+			'onclick="return jQuery.datepick._clearDate(\'#' + inst.id + '\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'clearStatus'), initStatus) +
 			'>' + this._get(inst, 'clearText') + '</a></div>');
 		var controls = '<div class="' + this._controlClass[useTR] + '">' + (isRTL ? '' : clear) +
-			'<div class="' + this._closeClass[useTR] + '"><a href="javascript:void(0)" ' +
-			'onclick="jQuery.datepick._hideDatepick();"' +
+			'<div class="' + this._closeClass[useTR] + '"><a href="javascript:void(0)" target="_self" ' +
+			'onclick="return jQuery.datepick._hideDatepick();"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'closeStatus'), initStatus) +
 			'>' + this._get(inst, 'closeText') + '</a></div>' + (isRTL ? clear : '')  + '</div>';
 		var prompt = this._get(inst, 'prompt');
@@ -1792,11 +1798,11 @@ $.extend(Datepick.prototype, {
 			this._getFormatConfig(inst)));
 		var prev = '<div class="' + this._prevClass[useTR] + '">' +
 			(this._canAdjustMonth(inst, -1, drawYear, drawMonth) ?
-			(showBigPrevNext ? '<a href="javascript:void(0)" onclick="jQuery.datepick._adjustDate(\'#' +
+			(showBigPrevNext ? '<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._adjustDate(\'#' +
 			inst.id + '\', -' + stepBigMonths + ', \'M\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'prevBigStatus'), initStatus) +
 			'>' + prevBigText + '</a>' : '') +
-			'<a href="javascript:void(0)" onclick="jQuery.datepick._adjustDate(\'#' +
+			'<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._adjustDate(\'#' +
 			inst.id + '\', -' + stepMonths + ', \'M\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'prevStatus'), initStatus) +
 			'>' + prevText + '</a>' :
@@ -1812,11 +1818,11 @@ $.extend(Datepick.prototype, {
 			this._getFormatConfig(inst)));
 		var next = '<div class="' + this._nextClass[useTR] + '">' +
 			(this._canAdjustMonth(inst, +1, drawYear, drawMonth) ?
-			'<a href="javascript:void(0)" onclick="jQuery.datepick._adjustDate(\'#' +
+			'<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._adjustDate(\'#' +
 			inst.id + '\', +' + stepMonths + ', \'M\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'nextStatus'), initStatus) +
 			'>' + nextText + '</a>' +
-			(showBigPrevNext ? '<a href="javascript:void(0)" onclick="jQuery.datepick._adjustDate(\'#' +
+			(showBigPrevNext ? '<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._adjustDate(\'#' +
 			inst.id + '\', +' + stepBigMonths + ', \'M\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'nextBigStatus'), initStatus) +
 			'>' + nextBigText + '</a>' : '') :
@@ -1829,7 +1835,7 @@ $.extend(Datepick.prototype, {
 		var html = (closeAtTop && !inst.inline ? controls : '');/* +
 			'<div class="' + this._linksClass[useTR] + '">' + (isRTL ? next : prev) +
 			'<div class="' + this._currentClass[useTR] + '">' + (this._isInRange(inst, gotoDate) ?
-			'<a href="javascript:void(0)" onclick="jQuery.datepick._gotoToday(\'#' + inst.id + '\');"' +
+			'<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._gotoToday(\'#' + inst.id + '\');"' +
 			this._addStatus(useTR, showStatus, inst.id, this._get(inst, 'currentStatus'), initStatus) + '>' +
 			currentText + '</a>' : (hideIfNoPrevNext ? '&#xa0;' : '<label>' + currentText + '</label>')) +
 			'</div>' + (isRTL ? prev : next) + '</div>' +
@@ -1873,7 +1879,7 @@ $.extend(Datepick.prototype, {
 						' class="' + this._weekendClass[useTR] + '"') + '>' +
 						(!changeFirstDay ? '<span' +
 						this._addStatus(useTR, showStatus, inst.id, dayNames[day], initStatus) :
-						'<a href="javascript:void(0)" onclick="jQuery.datepick._changeFirstDay(\'#' +
+						'<a href="javascript:void(0)" target="_self" onclick="return jQuery.datepick._changeFirstDay(\'#' +
 						inst.id + '\', ' + day + ');"' +
 						this._addStatus(useTR, showStatus, inst.id, dayStatus, initStatus)) +
 						' title="' + dayNames[day] + '">' +
@@ -1924,7 +1930,7 @@ $.extend(Datepick.prototype, {
 							(false ? '' : ' onmouseover="' + 'jQuery.datepick._doMouseOver(this,\'' +					//FixIn: 2023-08-06
 							inst.id + '\',' + printDate.getTime() + ')"' +
 							' onmouseout="jQuery.datepick._doMouseOut(this,\'' + inst.id + '\')"' +
-							' onclick="jQuery.datepick._selectDay(this,\'#' + // Select
+							' onclick="return jQuery.datepick._selectDay(this,\'#' + // Select
 							inst.id + '\',' + printDate.getTime() + ')"') + '>';
 
 							/** Start content of Day cell *************************************************************/
@@ -1950,7 +1956,7 @@ $.extend(Datepick.prototype, {
 												(unselectable ? '' : ((typeof (wpbc_show_date_info_top) == 'function') ? wpbc_show_date_info_top( inst.id, printDate.getTime() ) : '')) +
 											'</div>' +
 											(empty ? '&#xa0;' : // Not showing other months // FixIn: 6.0.1.2.
-											(unselectable ? '<span>' + printDate.getDate()+ '</span>' : '<a href="javascript:void(0)" >' + printDate.getDate() + '</a>')) +		// FixIn: 10.0.0.19.
+											(unselectable ? '<span>' + printDate.getDate()+ '</span>' : '<a href="javascript:void(0)" target="_self">' + printDate.getDate() + '</a>')) +		// FixIn: 10.0.0.19.
 											'<div class="date-content-bottom">'+
 												(unselectable ? '' : ((typeof (wpbc_show_date_info_bottom) == 'function') ? wpbc_show_date_info_bottom( inst.id, printDate.getTime() ) : '')) +
 											'</div>' +

@@ -62,23 +62,120 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Validates that an event exists and is the correct post type.
+	 *
+	 * @since 6.17.2
+	 *
+	 * @param int $event_id The event ID to validate.
+	 *
+	 * @return WP_Post|WP_Error The event post object on success, or WP_Error on failure.
+	 */
+	protected function validate_event_exists( $event_id ) {
+		$event = get_post( (int) $event_id );
+
+		// Check if the post exists.
+		if ( empty( $event ) ) {
+			$message = $this->messages->get_message( 'rest-event-not-found' );
+			return new WP_Error(
+				'rest-event-not-found',
+				sprintf( $message, $event_id ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		// Check if the post is the correct post type.
+		if ( Tribe__Events__Main::POSTTYPE !== $event->post_type ) {
+			$message = $this->messages->get_message( 'rest-invalid-event-id' );
+			return new WP_Error(
+				'rest-invalid-event-id',
+				$message,
+				[ 'status' => 400 ]
+			);
+		}
+
+		return $event;
+	}
+
+	/**
+	 * Validates that an event is accessible for reading.
+	 *
+	 * @since 6.17.2
+	 *
+	 * @param WP_Post         $event   The event post object.
+	 * @param WP_REST_Request $request The REST request object.
+	 *
+	 * @return true|WP_Error True if accessible, or WP_Error on failure.
+	 */
+	protected function validate_event_accessible( $event, WP_REST_Request $request ) {
+		// Check if the event is trashed and return a specific message.
+		if ( 'trash' === $event->post_status ) {
+			$message = $this->messages->get_message( 'event-no-longer-available' );
+			return new WP_Error(
+				'event-no-longer-available',
+				$message,
+				[ 'status' => 403 ]
+			);
+		}
+
+		$cap = get_post_type_object( Tribe__Events__Main::POSTTYPE )->cap->read_post;
+		if ( ! ( 'publish' === $event->post_status || current_user_can( $cap, $event->ID ) ) ) {
+			$message = $this->messages->get_message( 'event-not-accessible' );
+
+			return new WP_Error( 'event-not-accessible', $message, [ 'status' => 403 ] );
+		}
+
+		if ( ! $this->validator->can_access_password_content( $event, $request ) ) {
+			$message = $this->messages->get_message( 'event-password-protected' );
+
+			return new WP_Error( 'event-password-protected', $message, [ 'status' => 403 ] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * GET request via API.
+	 *
+	 * @since 6.17.2
+	 * @since 6.18.5 Builds the data of a password-protected event as unlocked once the request passed the password check.
+	 *
+	 * @param WP_REST_Request $request The REST request object.
 	 *
 	 * @return WP_REST_Response|WP_Error An array containing the data on success or a WP_Error instance on failure.
 	 */
 	public function get( WP_REST_Request $request ) {
 		$this->serving = $request;
 
-		$event = get_post( $request['id'] );
+		$event_id = $request['id'];
 
-		$cap = get_post_type_object( Tribe__Events__Main::POSTTYPE )->cap->read_post;
-		if ( ! ( 'publish' === $event->post_status || current_user_can( $cap, $request['id'] ) ) ) {
-			$message = $this->messages->get_message( 'event-not-accessible' );
-
-			return new WP_Error( 'event-not-accessible', $message, [ 'status' => 403 ] );
+		// Validate event exists and is correct post type.
+		$event = $this->validate_event_exists( $event_id );
+		if ( is_wp_error( $event ) ) {
+			return $event;
 		}
 
-		$data = $this->post_repository->get_event_data( $request['id'], 'single' );
+		// Validate event is accessible.
+		$accessible = $this->validate_event_accessible( $event, $request );
+		if ( is_wp_error( $accessible ) ) {
+			return $accessible;
+		}
+
+		/*
+		 * The request passed the password check above, possibly through the `password` parameter rather than the
+		 * cookie, so filters on the event data must see the event as unlocked. Only this event: linked venues and
+		 * organizers keep their own password check.
+		 */
+		$unlock = static function ( $required, $post ) use ( $event ) {
+			return $post instanceof WP_Post && $post->ID === $event->ID ? false : $required;
+		};
+
+		add_filter( 'post_password_required', $unlock, 10, 2 );
+
+		try {
+			$data = $this->post_repository->get_event_data( $event_id, 'single' );
+		} finally {
+			remove_filter( 'post_password_required', $unlock );
+		}
 
 		/**
 		 * Filters the data that will be returned for a single event request.
@@ -98,7 +195,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	 *
 	 * While the structure must conform to that used by v2.0 of Swagger the structure can be that of a full document
 	 * or that of a document part.
-	 * The intelligence lies in the "gatherer" of informations rather than in the single "providers" implementing this
+	 * The intelligence lies in the "gatherer" of information rather than in the single "providers" implementing this
 	 * interface.
 	 *
 	 * @link http://swagger.io/
@@ -208,7 +305,14 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 				'type'              => 'integer',
 				'description'       => __( 'the event post ID', 'the-events-calendar' ),
 				'required'          => true,
-				'validate_callback' => [ $this->validator, 'is_event_id' ],
+				'validate_callback' => [ $this->validator, 'is_event_id_format' ],
+			],
+			'password' => [
+				'in'                => 'path',
+				'type'              => 'string',
+				'description'       => __( 'The event password', 'the-events-calendar' ),
+				'required'          => false,
+				'validate_callback' => [ $this->validator, 'is_string' ],
 			],
 		];
 	}
@@ -266,7 +370,9 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 			],
 			'status'             => [
 				'required'          => false,
-				'validate_callback' => [ $this->validator, 'is_post_status' ],
+				// Other registered statuses, like the Event Aggregator record ones, are not event statuses.
+				'validate_callback' => 'rest_validate_request_arg',
+				'enum'              => [ 'publish', 'future', 'draft', 'pending', 'private', 'trash' ],
 				'type'              => 'string',
 				'description'       => __( 'The event post status', 'the-events-calendar' ),
 			],
@@ -361,7 +467,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 				'validate_callback' => [ $this->validator, 'is_venue_id_or_entry_or_empty' ],
 				'swagger_type'      => 'array',
 				'items'             => [ 'type' => 'integer' ],
-				'description'       => __( 'The event venue ID or data', 'the-events-calendar' ),
+				'description'       => __( 'The event venue IDs or data', 'the-events-calendar' ),
 			],
 			'organizer'          => [
 				'required'          => false,
@@ -387,6 +493,7 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 
 		$postarr = $this->prepare_postarr( $request );
 
+
 		if ( is_wp_error( $postarr ) ) {
 			return $postarr;
 		}
@@ -402,7 +509,6 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 		}
 
 		$data = $this->post_repository->get_event_data( $id );
-
 		$response = new WP_REST_Response( $data );
 		$response->set_status( 201 );
 
@@ -441,7 +547,11 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	public function delete( WP_REST_Request $request ) {
 		$event_id = $request['id'];
 
-		$event = get_post( $event_id );
+		// Validate event exists and is correct post type.
+		$event = $this->validate_event_exists( $event_id );
+		if ( is_wp_error( $event ) ) {
+			return $event;
+		}
 
 		if ( 'trash' === $event->post_status ) {
 			$message = $this->messages->get_message( 'event-is-in-trash' );
@@ -479,13 +589,24 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	 * Whether the current user can delete posts of the type managed by the endpoint or not.
 	 *
 	 * @since 4.6
+	 * @since 6.15.16.1 Add more logic to check if the user can delete the event.
+	 * @since 6.17.2 Fall back to general capability for non-existent posts.
+	 *
+	 * @param $request WP_REST_Request The request object.
 	 *
 	 * @return bool
 	 */
-	public function can_delete() {
-		$cap = get_post_type_object( Tribe__Events__Main::POSTTYPE )->cap->delete_posts;
+	public function can_delete( ?WP_REST_Request $request = null ) {
+		$cap = get_post_type_object( Tribe__Events__Main::POSTTYPE )->cap;
+		$id  = $request['id'] ?? null;
 
-		return current_user_can( $cap );
+		// Fall back to the general capability when the post doesn't exist so the
+		// request reaches the handler, which returns a proper 404.
+		if ( ! $id || ! get_post( (int) $id ) ) {
+			return current_user_can( $cap->delete_posts );
+		}
+
+		return current_user_can( $cap->delete_post, $id );
 	}
 
 	/**
@@ -499,13 +620,21 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	public function update( WP_REST_Request $request ) {
 		$this->serving = $request;
 
+		$event_id = $request['id'];
+
+		// Validate event exists and is correct post type.
+		$event = $this->validate_event_exists( $event_id );
+		if ( is_wp_error( $event ) ) {
+			return $event;
+		}
+
 		$postarr = $this->prepare_postarr( $request );
 
 		if ( is_wp_error( $postarr ) ) {
 			return $postarr;
 		}
 
-		$id = Tribe__Events__API::updateEvent( $request['id'], $postarr );
+		$id = Tribe__Events__API::updateEvent( $event_id, $postarr );
 
 		if ( is_wp_error( $id ) ) {
 			/** @var WP_Error $id */
@@ -544,11 +673,24 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 	 * Whether the current user can update content of this type or not.
 	 *
 	 * @since 4.6
+	 * @since 6.15.16.1 Add more logic to check if the user can edit the event.
+	 * @since 6.17.2 Fall back to general capability for non-existent posts.
+	 *
+	 * @param $request WP_REST_Request The request object.
 	 *
 	 * @return bool Whether the current user can update or not.
 	 */
-	public function can_edit() {
-		return $this->can_create();
+	public function can_edit( ?WP_REST_Request $request = null ) {
+		$cap = get_post_type_object( Tribe__Events__Main::POSTTYPE )->cap;
+		$id  = $request['id'] ?? null;
+
+		// Fall back to the general capability when the post doesn't exist so the
+		// request reaches the handler, which returns a proper 404.
+		if ( ! $id || ! get_post( (int) $id ) ) {
+			return current_user_can( $cap->edit_posts );
+		}
+
+		return current_user_can( $cap->edit_post, $id );
 	}
 
 	/**
@@ -562,29 +704,53 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 		$events_cat            = Tribe__Events__Main::TAXONOMY;
 
 		$post_date     = isset( $request['date'] )
-			? Tribe__Date_Utils::reformat( $request['date'], 'Y-m-d H:i:s' )
+			? Tribe__Date_Utils::build_date_object( $request['date'], $request['timezone'] )->format( 'Y-m-d H:i:s' )
 			: false;
 		$post_date_gmt = isset( $request['date_utc'] )
 			? Tribe__Timezones::localize_date( 'Y-m-d H:i:s', $request['date_utc'], 'UTC' )
 			: false;
 
+		// Resolve our dates based on timezone if available.
+		$event_start_date = null;
+		$event_start_time = null;
+		$event_end_date   = null;
+		$event_end_time   = null;
+		if ( $request['start_date'] ) {
+			$start_date_obj   = Tribe__Date_Utils::build_date_object( $request['start_date'], $request['timezone'] );
+			$event_start_date = $start_date_obj->format( 'Y-m-d' );
+			$event_start_time = $start_date_obj->format( 'H:i:s' );
+		}
+		if ( $request['end_date'] ) {
+			$end_date_obj   = Tribe__Date_Utils::build_date_object( $request['end_date'], $request['timezone'] );
+			$event_end_date = $end_date_obj->format( 'Y-m-d' );
+			$event_end_time = $end_date_obj->format( 'H:i:s' );
+		}
+
+		/*
+		 * Only an update route carries the ID in its URL. On create, `id` can still arrive in the body,
+		 * and must not be used to pick up another post's status.
+		 */
+		$post_id     = isset( $request->get_url_params()['id'] ) ? $request['id'] : null;
+		$post_status = $this->scale_back_post_status_for( $request['status'], Tribe__Events__Main::POSTTYPE, $post_id );
+
 		$postarr = [
 			// Post fields
-			'post_author'           => $request['author'],
+			'post_author'           => $this->scale_back_author( $request['author'], Tribe__Events__Main::POSTTYPE ),
 			'post_date'             => $post_date,
 			'post_date_gmt'         => $post_date_gmt,
 			'post_title'            => $request['title'],
 			'post_name'             => $request['slug'],
 			'post_content'          => $request['description'],
 			'post_excerpt'          => $request['excerpt'],
-			'post_status'           => $this->scale_back_post_status( $request['status'], Tribe__Events__Main::POSTTYPE ),
+			// An empty status keeps the updated event's current one, so it is left out of the update.
+			'post_status'           => $post_status ?: null,
 			// Event data
 			'EventTimezone'         => $request['timezone'],
 			'EventAllDay'           => isset( $request['all_day'] ) ? tribe_is_truthy( $request['all_day'] ) : null,
-			'EventStartDate'        => $request['start_date'] ? Tribe__Date_Utils::reformat( $request['start_date'], 'Y-m-d' ) : null,
-			'EventStartTime'        => $request['start_date'] ? Tribe__Date_Utils::reformat( $request['start_date'], 'H:i:s' ) : null,
-			'EventEndDate'          => $request['end_date'] ? Tribe__Date_Utils::reformat( $request['end_date'], 'Y-m-d' ) : null,
-			'EventEndTime'          => $request['end_date'] ? Tribe__Date_Utils::reformat( $request['end_date'], 'H:i:s' ) : null,
+			'EventStartDate'        => $event_start_date,
+			'EventStartTime'        => $event_start_time,
+			'EventEndDate'          => $event_end_date,
+			'EventEndTime'          => $event_end_time,
 			'FeaturedImage'         => tribe_upload_image( $request['image'] ),
 			'EventCost'             => $request['cost'],
 			'EventCurrencyPosition' => tribe( 'cost-utils' )->parse_currency_position( $request['cost'] ),
@@ -593,7 +759,6 @@ class Tribe__Events__REST__V1__Endpoints__Single_Event
 			// Taxonomies
 			'tax_input'             => [],
 		];
-
 		// Check if categories is provided (allowing for empty array to remove categories).
 		if ( isset( $request['categories'] ) ) {
 			$postarr['tax_input'][ $events_cat ] = [];

@@ -1,10 +1,10 @@
-const haystack = ['core/group'];
+const updatingBlock = ['core/group'];
 
 wp.hooks.addFilter(
 	'blocks.registerBlockType',
-	'lh/fseFixes/layoutSettings',
+	'astra/meta/groupLayoutSettings',
 	(settings, name) => {
-		if (!haystack.includes(name)) {
+		if (!updatingBlock.includes(name)) {
 			return settings;
 		}
 
@@ -14,13 +14,13 @@ wp.hooks.addFilter(
 				...(settings.supports || {}),
 				layout: {
 					...(settings.supports.layout || {}),
-					allowEditing: false,
+					allowEditing: true,
 					allowSwitching: false,
 					allowInheriting: true,
 				},
 				__experimentalLayout: {
 					...(settings.supports.__experimentalLayout || {}),
-					allowEditing: false,
+					allowEditing: true,
 					allowSwitching: false,
 					allowInheriting: true,
 				},
@@ -31,21 +31,65 @@ wp.hooks.addFilter(
 	20
 );
 
-wp.hooks.addFilter(
-	'blocks.getBlockAttributes',
-	'lh/fseFixes',
-	(attributes, blockType) => {
-		if (!haystack.includes(blockType.name)) {
-			return attributes;
+// Get the block editor's data module.
+const { dispatch } = wp.data;
+
+// Create a function to set the default align attribute
+function setWooDefaultAlignments() {
+	const checkoutBlocks = wp.blocks.getBlockTypes().some(block => block.name === 'woocommerce/checkout');
+	const cartBlocks = wp.blocks.getBlockTypes().some(block => block.name === 'woocommerce/cart');
+
+	if ( checkoutBlocks ) {
+	const checkoutBlock = wp.data.select('core/block-editor').getBlocks().find(block => block.name === 'woocommerce/checkout');
+		if (checkoutBlock && checkoutBlock.attributes.align !== 'none') {
+			const checkoutClientId = checkoutBlock.clientId;
+			const checkoutLocalStorageKey = 'hasCheckoutBlockInserted';
+			const checkoutLocalStorageData = JSON.parse(localStorage.getItem(checkoutLocalStorageKey)) || {};
+
+			if ( ! checkoutLocalStorageData[checkoutClientId] ) {
+				const updatedCheckoutAttributes = { ...checkoutBlock.attributes, align: 'none' };
+				dispatch('core/block-editor').updateBlockAttributes(checkoutClientId, updatedCheckoutAttributes);
+
+				checkoutLocalStorageData[checkoutClientId] = true;
+				localStorage.setItem(checkoutLocalStorageKey, JSON.stringify(checkoutLocalStorageData));
+			}
 		}
-
-		attributes = {
-			...attributes,
-			layout: {
-				inherit: true,
-			},
-		};
-
-		return attributes;
 	}
-);
+
+	if ( cartBlocks ) {
+	const cartBlock = wp.data.select('core/block-editor').getBlocks().find(block => block.name === 'woocommerce/cart');
+		if (cartBlock && cartBlock.attributes.align !== 'none') {
+			const cartClientId = cartBlock.clientId;
+			const cartLocalStorageKey = 'hasCartBlockInserted';
+			const cartLocalStorageData = JSON.parse(localStorage.getItem(cartLocalStorageKey)) || {};
+
+			if ( ! cartLocalStorageData[cartClientId] ) {
+				const updatedCartAttributes = { ...cartBlock.attributes, align: 'none' };
+				dispatch('core/block-editor').updateBlockAttributes(cartBlock.clientId, updatedCartAttributes);
+
+				cartLocalStorageData[cartClientId] = true;
+				localStorage.setItem(cartLocalStorageKey, JSON.stringify(cartLocalStorageData));
+			}
+		}
+	}
+}
+
+// Listen for the first insertion of a WooCommerce block
+let astraLastRootBlockOrder = null;
+wp.data.subscribe(() => {
+	const blockEditorSelect = wp.data.select( 'core/block-editor' );
+	if ( ! blockEditorSelect ) {
+		return;
+	}
+
+	// Root block order changes only on insert/remove/move — never while typing. The memoized selector
+	// returns the same array reference while the order is unchanged, so compare references.
+	// The alignment sync only targets root-level WooCommerce blocks, so skip every other notification.
+	const rootBlockOrder = blockEditorSelect.getBlockOrder();
+	if ( rootBlockOrder === astraLastRootBlockOrder ) {
+		return;
+	}
+	astraLastRootBlockOrder = rootBlockOrder;
+
+	setWooDefaultAlignments();
+}, 'core/block-editor');

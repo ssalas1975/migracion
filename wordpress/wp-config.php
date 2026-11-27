@@ -47,13 +47,17 @@ if (!function_exists('getenv_docker')) {
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', getenv_docker('WORDPRESS_DB_NAME', 'wordpress') );
+define( 'DB_NAME', "ms_laverdad" );
 
 /** Database username */
 define( 'DB_USER', getenv_docker('WORDPRESS_DB_USER', 'example username') );
 
 /** Database password */
 define( 'DB_PASSWORD', getenv_docker('WORDPRESS_DB_PASSWORD', 'example password') );
+
+
+define('DB_SLAVE1', 'des.db.vocento.in');
+    define('DB_SLAVE2', 'des.db.vocento.in');
 
 /**
  * Docker image fallback values above are sourced from the official WordPress installation wizard:
@@ -119,7 +123,7 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
  *
  * @link https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
  */
-define( 'WP_DEBUG', true );
+define( 'WP_DEBUG', false );
 
 /* Add any custom values between this line and the "stop editing" line. */
 
@@ -134,14 +138,9 @@ if ($configExtra = getenv_docker('WORDPRESS_CONFIG_EXTRA', '')) {
 	eval($configExtra);
 }
 
+define( 'DUPLICATOR_AUTH_KEY', 'A[S0=A%Xt/HW)@p,Dn?S*zbDyd.j<j u -Bm#{fgZ$3P{Gf`z|YAQt=3US(_^xO]' );
 /* That's all, stop editing! Happy publishing. */
-/* Multisite */
-define( 'MULTISITE', true );
-define( 'SUBDOMAIN_INSTALL', false );
-define( 'DOMAIN_CURRENT_SITE', 'localhost:8080' );
-define( 'PATH_CURRENT_SITE', '/' );
-define( 'SITE_ID_CURRENT_SITE', 1 );
-define( 'BLOG_ID_CURRENT_SITE', 1 );
+
 
 
 /** Absolute path to the WordPress directory. */

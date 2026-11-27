@@ -2,7 +2,7 @@
 /**
  * A string lazily built, suited to any string value that might be costly to be built.
  *
- * @since   4.9.16
+ * @since 4.9.16
  *
  * @package Tribe\Utils
  */
@@ -10,8 +10,14 @@
 
 namespace Tribe\Utils;
 
-
-class Lazy_String implements \Serializable, \JsonSerializable {
+/**
+ * Class Lazy_String.
+ *
+ * @since 4.9.16
+ *
+ * @package Tribe\Utils
+ */
+class Lazy_String implements \JsonSerializable {
 	use Lazy_Events;
 
 	/**
@@ -71,7 +77,12 @@ class Lazy_String implements \Serializable, \JsonSerializable {
 	 */
 	public function __toString() {
 		if ( null === $this->string ) {
-			$this->string = call_user_func( $this->value_callback );
+			$value =  call_user_func( $this->value_callback );
+			if ( ! $value instanceof \Generator ) {
+				$value = (string) $value;
+			}
+
+			$this->string = $value;
 			$this->resolved();
 		}
 
@@ -109,33 +120,67 @@ class Lazy_String implements \Serializable, \JsonSerializable {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Legacy serialization method kept for backward compatibility.
 	 *
 	 * @since 4.9.16
+	 * @deprecated 6.12.0 Use __serialize() instead.
+	 *
+	 * @return string The serialized representation of the object.
 	 */
 	public function serialize() {
-		$serialized = serialize( [ $this->__toString(), $this->escaped() ] );
+		_deprecated_function( __METHOD__, '6.12.0', '__serialize()' );
 
-		unset( $this->value_callback, $this->escape_callback );
-
-		return $serialized;
+		return maybe_serialize( $this->__serialize() );
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Legacy unserialization method kept for backward compatibility.
 	 *
 	 * @since 4.9.16
+	 * @deprecated 6.12.0 Use __unserialize() instead.
+	 *
+	 * @param string $serialized The serialized data.
+	 *
+	 * @return void
 	 */
 	public function unserialize( $serialized ) {
-		list( $string, $escaped ) = unserialize( $serialized );
-		$this->string  = $string;
-		$this->escaped = $escaped;
+		_deprecated_function( __METHOD__, '6.12.0', '__unserialize()' );
+
+		$data = maybe_unserialize( $serialized );
+		$this->__unserialize( $data );
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->value();
+	}
+
+	/**
+	 * PHP 8.0+ compatible implementation of the serialization logic.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @return array The data to serialize.
+	 */
+	public function __serialize(): array {
+		return [
+			'string'  => $this->__toString(),
+			'escaped' => $this->escaped(),
+		];
+	}
+
+	/**
+	 * PHP 8.0+ compatible implementation of the unserialization logic.
+	 *
+	 * @since 5.0.6
+	 *
+	 * @param array $data The data to unserialize.
+	 */
+	public function __unserialize( array $data ): void {
+		$this->string  = $data['string'] ?? null;
+		$this->escaped = $data['escaped'] ?? null;
 	}
 }

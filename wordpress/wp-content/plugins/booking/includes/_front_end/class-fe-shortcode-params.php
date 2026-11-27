@@ -440,6 +440,10 @@ class WPBC_FE_Attr_Postprocessor {
 			);
 		}
 
+		// Keep the verified credential in the normalized render contract so later
+		// layers do not need to read request globals independently.
+		$params_arr['booking_hash'] = $get_booking_hash;
+
 		// If booking_hash exists and this is calendar-only, show warning.
 		if ( 'calendar' === $context ) {
 			$is_error = '<div class="wpbc_after_booking_thank_you_section"><div class="wpbc_ty__container"><div class="wpbc_ty__header"><strong>'
@@ -560,6 +564,29 @@ class WPBC_FE_Attr_Postprocessor {
 class WPBC_FE_Options_Parser {
 
 	/**
+	 * Validate a custom parameter name used by the booking-form shortcode engine.
+	 *
+	 * Parameter names are identifiers, not arbitrary form-source search strings.
+	 * Keeping this contract narrow prevents a shortcode author from selecting HTML
+	 * fragments while preserving established names such as `guest_name`,
+	 * `bfb_form_id`, and `service-code`.
+	 *
+	 * @param mixed $parameter_name Raw parameter name from the shortcode options attribute.
+	 *
+	 * @return string Validated parameter name, or an empty string when invalid.
+	 */
+	public static function sanitize_parameter_name( $parameter_name ) {
+
+		$parameter_name = is_scalar( $parameter_name ) ? trim( (string) $parameter_name ) : '';
+
+		if ( ! preg_match( '/^[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}$/', $parameter_name ) ) {
+			return '';
+		}
+
+		return $parameter_name;
+	}
+
+	/**
 	 * Parse shortcode options parameter. e.g. - {parameter name="..." value="..."}
 	 *
 	 *        Paramaters defined in the Booking Calendar shortcode,  like this:
@@ -602,8 +629,10 @@ class WPBC_FE_Options_Parser {
 				$value = (string) $m2[2];
 			}
 
+			$name = self::sanitize_parameter_name( $name );
+
 			if ( ( '' !== $name ) && ( '' !== $value ) ) {
-				$custom_params[ sanitize_text_field( (string) $name ) ] = sanitize_text_field( (string) $value );
+				$custom_params[ $name ] = sanitize_text_field( (string) $value );
 			}
 		}
 

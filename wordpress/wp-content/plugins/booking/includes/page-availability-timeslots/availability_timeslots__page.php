@@ -9,6 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! defined( 'WPBC_AVAILABILITY_TIMESLOTS_DEFAULT_DAYS_COUNT' ) ) {
+	define( 'WPBC_AVAILABILITY_TIMESLOTS_DEFAULT_DAYS_COUNT', 30 );
+}
+
 /**
  * Check whether the reusable Time Slots Availability component is rendered on current admin page.
  *
@@ -21,6 +25,10 @@ function wpbc_availability_timeslots__is_component_page() {
 	}
 
 	if ( function_exists( 'wpbc_is_availability_page' ) && wpbc_is_availability_page() ) {
+		return true;
+	}
+
+	if ( function_exists( 'wpbc_timeline_is_page' ) && wpbc_timeline_is_page() ) {
 		return true;
 	}
 
@@ -200,7 +208,7 @@ function wpbc_availability_timeslots__get_resources() {
  *
  * @return array
  */
-function wpbc_availability_timeslots__get_initial_rows( $start_ts, $days_count = 7 ) {
+function wpbc_availability_timeslots__get_initial_rows( $start_ts, $days_count = WPBC_AVAILABILITY_TIMESLOTS_DEFAULT_DAYS_COUNT ) {
 
 	$rows       = array();
 	$days_count = max( 1, intval( $days_count ) );
@@ -323,7 +331,7 @@ function wpbc_availability_timeslots__render_timeline_component( $args = array()
 		'resource_id'           => wpbc_get_default_resource(),
 		'resources'             => null,
 		'start_ts'              => strtotime( wp_date( 'Y-m-d 00:00:00' ) ),
-		'days_count'            => 7,
+		'days_count'            => WPBC_AVAILABILITY_TIMESLOTS_DEFAULT_DAYS_COUNT,
 		'visible_start_minutes' => 360,
 		'visible_end_minutes'   => 1320,
 		'slot_step'             => 15,
@@ -489,6 +497,7 @@ function wpbc_availability_timeslots__render_timeline_component( $args = array()
 					<span><i class="wpbc_ts_legend_booked"><span class="wpbc_icn_lock"></span></i><?php esc_html_e( 'Booked', 'booking' ); ?></span>
 					<span><i class="wpbc_ts_legend_blocked"><span class="wpbc_icn_do_not_disturb_on"></span></i><?php esc_html_e( 'Blocked', 'booking' ); ?></span>
 					<span><i class="wpbc_ts_legend_unavailable_day"><span class="wpbc_icn_event_busy"></span></i><?php esc_html_e( 'Unavailable day', 'booking' ); ?></span>
+					<span><i class="wpbc_ts_legend_working_time"><span class="wpbc-bi-clock-history"></span></i><?php esc_html_e( 'Outside working time', 'booking' ); ?></span>
 					<span><i class="wpbc_ts_legend_selected"></i><?php esc_html_e( 'Selected pending changes', 'booking' ); ?></span>
 					<span class="wpbc_ts_legend_note"><span class="wpbc_icn_info_outline"></span><?php esc_html_e( 'Booked slots and availability rules cannot be changed here.', 'booking' ); ?></span>
 				</div>
@@ -521,15 +530,16 @@ class WPBC_Page_TimeSlots_Availability extends WPBC_Page_Structure {
 
 		$tabs = array();
 		$tabs['time_slots_availability'] = array(
-			'is_show_top_path'                          => false,
+			'is_show_top_path'                          => true,
 			'right_vertical_sidebar__is_show'           => true,
 			'right_vertical_sidebar__default_view_mode' => '',
 			'right_vertical_sidebar_compact__is_show'   => true,
-			'left_navigation__default_view_mode'        => 'compact',
-			'title'                                     => __( 'Time Slots Availability', 'booking' ).                            // Title of TAB.
-														   '<span class="wpbc_new_label" style="margin-left: auto;">' . esc_html__( 'New', 'booking' ) . '</span>',
+			'left_navigation__default_view_mode'        => '',  // FixIn:11.7.1.1: 'compact',
+			'top_path_title'                            => __( 'Block Times', 'booking' ),
+			'title'                                     => __( 'Block Times', 'booking' ),                            // Title of TAB.
+														   // . '<span class="wpbc_new_label" style="margin-left: auto;">' . esc_html__( 'New', 'booking' ) . '</span>',
 			'hint'                                      => __( 'Flexible blocking time-slot ranges.', 'booking' ),
-			'page_title'                                => __( 'Time Slots Availability', 'booking' ),
+			'page_title'                                => __( 'Block Times', 'booking' ),
 			'link'                                      => '',
 			'position'                                  => '',
 			'css_classes'                               => '',
@@ -542,6 +552,7 @@ class WPBC_Page_TimeSlots_Availability extends WPBC_Page_Structure {
 			'hided'                                     => false,
 			'subtabs'                                   => array(),
 			'folder_style'                              => 'order:92;',
+			'is_show_top_navigation'             => true,
 		);
 
 		return $tabs;
@@ -571,7 +582,7 @@ class WPBC_Page_TimeSlots_Availability extends WPBC_Page_Structure {
 				),
 			),
 			array(
-				'aria_label' => __( 'Time Slots Availability Panels', 'booking' ),
+				'aria_label' => __( 'Block Times Panels', 'booking' ),
 				'context'    => 'time_slots_availability',
 				'class'      => 'wpbc_ts_rightbar_tabs',
 			)

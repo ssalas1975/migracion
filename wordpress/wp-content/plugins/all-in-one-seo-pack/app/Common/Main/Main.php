@@ -15,31 +15,30 @@ use AIOSEO\Plugin\Common\Models;
  */
 class Main {
 	/**
+	 * Holds the BulkActions instance so its hooks remain registered.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @var BulkActions|null
+	 */
+	public $bulkActions = null;
+
+	/**
 	 * Construct method.
 	 *
 	 * @since 4.0.0
 	 */
 	public function __construct() {
-		$this->media = new Media();
+		new Media();
+		new QueryArgs();
 
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAssets' ] );
+		if ( aioseo()->options->advanced->truSeo ) {
+			$this->bulkActions = new BulkActions();
+		}
+
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueTranslations' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueueFrontEndAssets' ] );
 		add_action( 'admin_footer', [ $this, 'adminFooter' ] );
-	}
-
-	/**
-	 * Enqueue styles.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @return void
-	 */
-	public function enqueueAssets() {
-		$this->enqueueTranslations();
-
-		aioseo()->core->assets->load( 'src/vue/standalone/notifications/main.js', [], [
-			'newNotifications' => count( Models\Notification::getNewNotifications() )
-		], 'aioseoNotifications' );
 	}
 
 	/**
@@ -65,13 +64,13 @@ class Main {
 	public function enqueueFrontEndAssets() {
 		$canManageSeo = apply_filters( 'aioseo_manage_seo', 'aioseo_manage_seo' );
 		if (
-			! is_admin_bar_showing() ||
+			! aioseo()->helpers->isAdminBarEnabled() ||
 			! ( current_user_can( $canManageSeo ) || aioseo()->access->canManage() )
 		) {
 			return;
 		}
 
-		aioseo()->core->assets->enqueueCss( 'admin-bar.css', [], 'src/vue/assets/scss/app/admin-bar.scss' );
+		aioseo()->core->assets->enqueueCss( 'src/vue/assets/scss/app/admin-bar.scss' );
 	}
 
 	/**

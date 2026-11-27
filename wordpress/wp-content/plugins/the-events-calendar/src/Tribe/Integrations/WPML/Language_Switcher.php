@@ -24,15 +24,19 @@ class Tribe__Events__Integrations__WPML__Language_Switcher {
 	 * While the default view of the calendar will will be served on `/events` non default calendar
 	 * views like `list` or `photo` will be served, respectively, at `/events/list`, `/events/photo`
 	 * and so on.
-	 * For any view that's not the default one the `url` field in the language informtion array has to
+	 * For any view that's not the default one the `url` field in the language information array has to
 	 * be set to the correct one.
 	 *
 	 * @param array $languages The original languages information array.
 	 *
 	 * @return array The languages with maybe updated URLs
 	 */
-	public function filter_icl_ls_languages( array $languages = [] ) {
+	public function filter_icl_ls_languages( $languages = [] ) {
 		global $wp_query;
+
+		if ( ! is_array( $languages ) ) {
+			return $languages;
+		}
 
 		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 			return $languages;
@@ -54,6 +58,10 @@ class Tribe__Events__Integrations__WPML__Language_Switcher {
 
 		$current_language = $sitepress->get_current_language();
 		foreach ( $languages as &$language ) {
+			if ( ! is_array( $language ) ) {
+				continue;
+			}
+
 			$sitepress->switch_lang( $language['code'] );
 			$language['url'] = $sitepress->convert_url(
 				$tec->getLink( $view, __( $view, 'the-events-calendar' ) ),

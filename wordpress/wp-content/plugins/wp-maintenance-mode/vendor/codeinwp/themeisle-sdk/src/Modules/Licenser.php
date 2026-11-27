@@ -24,13 +24,30 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Licenser module for ThemeIsle SDK.
  */
 class Licenser extends Abstract_Module {
-
+	/**
+	 * License VALID status string.
+	 */
+	const STATUS_VALID = 'valid';
+	/**
+	 * License NOT_ACTIVE status string.
+	 */
+	const STATUS_NOT_ACTIVE = 'not_active';
+	/**
+	 * License active expired status string.
+	 */
+	const STATUS_ACTIVE_EXPIRED = 'active_expired';
 	/**
 	 * Number of max failed checks before showing the license message.
 	 *
 	 * @var int $max_failed Maximum failed checks allowed before show the notice
 	 */
-	private static $max_failed = 2;
+	private static $max_failed = 1;
+	/**
+	 * Flag to check if the global actions were loaded.
+	 *
+	 * @var bool If the globals actions were loaded.
+	 */
+	private static $globals_loaded = false;
 	/**
 	 * License key string.
 	 *
@@ -121,11 +138,11 @@ class Licenser extends Abstract_Module {
 		$status = $this->get_license_status();
 		$value  = $this->license_key;
 
-		$activate_string   = apply_filters( $this->product->get_key() . '_lc_activate_string', 'Activate' );
-		$deactivate_string = apply_filters( $this->product->get_key() . '_lc_deactivate_string', 'Deactivate' );
-		$valid_string      = apply_filters( $this->product->get_key() . '_lc_valid_string', 'Valid' );
-		$invalid_string    = apply_filters( $this->product->get_key() . '_lc_invalid_string', 'Invalid' );
-		$license_message   = apply_filters( $this->product->get_key() . '_lc_license_message', 'Enter your license from %s purchase history in order to get %s updates' );
+		$activate_string   = apply_filters( $this->product->get_key() . '_lc_activate_string', Loader::$labels['licenser']['activate'] );
+		$deactivate_string = apply_filters( $this->product->get_key() . '_lc_deactivate_string', Loader::$labels['licenser']['deactivate'] );
+		$valid_string      = apply_filters( $this->product->get_key() . '_lc_valid_string', Loader::$labels['licenser']['valid'] );
+		$invalid_string    = apply_filters( $this->product->get_key() . '_lc_invalid_string', Loader::$labels['licenser']['invalid'] );
+		$license_message   = apply_filters( $this->product->get_key() . '_lc_license_message', Loader::$labels['licenser']['notice'] );
 		$error_message     = $this->get_error();
 		?>
 		<style type="text/css">
@@ -216,6 +233,93 @@ class Licenser extends Abstract_Module {
 	}
 
 	/**
+	 * Check status.
+	 *
+	 * @param string $product_file Product basefile.
+	 *
+	 * @return string Status license.
+	 */
+	public static function status( $product_file ) {
+		$product = Product::get( $product_file );
+		if ( ! $product->requires_license() ) {
+			return self::STATUS_VALID;
+		}
+		$license_data = self::get_license_data( $product->get_key() );
+
+		$status = isset( $license_data->license ) ? $license_data->license : self::STATUS_NOT_ACTIVE;
+
+		return ( 'valid' === $status && isset( $license_data->is_expired ) && 'yes' === $license_data->is_expired ) ? 'active_expired' : $status;
+	}
+
+	/**
+	 * Product license data.
+	 *
+	 * @param string $key Product key.
+	 *
+	 * @return false|mixed|null
+	 */
+	private static function get_license_data( $key ) {
+		$license_data = get_option( $key . '_license_data', '' );
+
+		return isset( $license_data->license ) ? $license_data : false;
+	}
+
+	/**
+	 * Get license hash.
+	 *
+	 * @param string $key Product key.
+	 *
+	 * @return bool|string
+	 */
+	public static function create_license_hash( $key ) {
+		$data = self::get_license_data( $key );
+
+		if ( ! $data ) {
+			return false;
+		}
+
+		return isset( $data->key ) ? wp_hash( $data->key ) : false;
+	}
+
+	/**
+	 * Check if license is valid.
+	 *
+	 * @param string $product_file Product basefile.
+	 *
+	 * @return bool Is valid?
+	 */
+	public static function is_valid( $product_file ) {
+		return self::status( $product_file ) === self::STATUS_VALID;
+	}
+
+	/**
+	 * Get product plan.
+	 *
+	 * @param string $product_file Product file.
+	 *
+	 * @return int Plan id.
+	 */
+	public static function plan( $product_file ) {
+		$product = Product::get( $product_file );
+		$data    = self::get_license_data( $product->get_key() );
+
+		return isset( $data->price_id ) ? (int) $data->price_id : - 1;
+	}
+
+	/**
+	 * Get product license key.
+	 *
+	 * @param string $product_file Product file.
+	 *
+	 * @return string
+	 */
+	public static function key( $product_file ) {
+		$product = Product::get( $product_file );
+
+		return $product->get_license();
+	}
+
+	/**
 	 * Return the last error message.
 	 *
 	 * @return mixed Error message.
@@ -256,12 +360,7 @@ class Licenser extends Abstract_Module {
 	 * @return int License plan.
 	 */
 	public function get_plan() {
-		$license_data = get_option( $this->product->get_key() . '_license_data', '' );
-		if ( ! isset( $license_data->price_id ) ) {
-			return - 1;
-		}
-
-		return (int) $license_data->price_id;
+		return self::plan( $this->product->get_basefile() );
 	}
 
 	/**
@@ -279,9 +378,9 @@ class Licenser extends Abstract_Module {
 		}
 
 		$status                 = $this->get_license_status( true );
-		$no_activations_string  = apply_filters( $this->product->get_key() . '_lc_no_activations_string', 'No more activations left for %s. You need to upgrade your plan in order to use %s on more websites. If you need assistance, please get in touch with %s staff.' );
-		$no_valid_string        = apply_filters( $this->product->get_key() . '_lc_no_valid_string', 'In order to benefit from updates and support for %s, please add your license code from your  <a href="%s" target="_blank">purchase history</a> and validate it <a href="%s">here</a>. ' );
-		$expired_license_string = apply_filters( $this->product->get_key() . '_lc_expired_string', 'Your %s\'s License Key has expired. In order to continue receiving support and software updates you must  <a href="%s" target="_blank">renew</a> your license key.' );
+		$no_activations_string  = apply_filters( $this->product->get_key() . '_lc_no_activations_string', Loader::$labels['licenser']['no_activations'] );
+		$no_valid_string        = apply_filters( $this->product->get_key() . '_lc_no_valid_string', sprintf( Loader::$labels['licenser']['inactive'], '%s', '<a href="%s" target="_blank">', '</a>', '<a href="%s">', '</a>' ) );
+		$expired_license_string = apply_filters( $this->product->get_key() . '_lc_expired_heading_string', Loader::$labels['licenser']['expired'] );
 		// No activations left for this license.
 		if ( 'valid' != $status && $this->check_activation() ) {
 			?>
@@ -304,12 +403,72 @@ class Licenser extends Abstract_Module {
 
 		// Invalid license key.
 		if ( 'active_expired' === $status ) {
+			// Check if the notice was dismissed.
+			$dismiss_option_key = $this->product->get_key() . '_expired_notice_dismissed';
+			if ( get_option( $dismiss_option_key, false ) ) {
+				return false;
+			}
+
+			$license_data    = get_option( $this->product->get_key() . '_license_data', '' );
+			$expiration_date = '';
+			if ( is_object( $license_data ) && isset( $license_data->expires ) ) {
+				$timestamp = strtotime( (string) $license_data->expires );
+				if ( false !== $timestamp ) {
+					$expiration_date = gmdate( 'F j, Y', $timestamp );
+				}
+			}
+
+			$discount_config = apply_filters( $this->product->get_key() . '_lc_renew_discount', false );
+
+			if ( is_array( $discount_config ) && isset( $discount_config['url'] ) && isset( $discount_config['renew_button'] ) ) {
+				$renew_url    = $discount_config['url'];
+				$renew_button = $discount_config['renew_button'];
+			} else {
+				$renew_url    = apply_filters( $this->product->get_key() . '_lc_renew_url', $this->renew_url() );
+				$renew_button = apply_filters( $this->product->get_key() . '_lc_renew_button_string', Loader::$labels['licenser']['renew_license'] );
+			}
+
+			$learn_more_url    = apply_filters( $this->product->get_key() . '_lc_learn_more_url', $this->get_api_url() );
+			$learn_more_button = apply_filters( $this->product->get_key() . '_lc_learn_more_button_string', Loader::$labels['licenser']['learn_more'] );
+			$notice_message    = apply_filters( $this->product->get_key() . '_lc_expired_notice_message', Loader::$labels['licenser']['expired_notice'] );
+
+			$expired_date_string = apply_filters( $this->product->get_key() . '_lc_expired_date_string', sprintf( Loader::$labels['licenser']['expired_date'], esc_html( $expiration_date ) ) );
+			$heading             = apply_filters( $this->product->get_key() . '_lc_expired_heading_string', sprintf( Loader::$labels['licenser']['expired'], $this->product->get_name() ) );
+			$notice_id           = $this->product->get_key() . '_expired_notice';
 			?>
-			<div class="error">
-				<p>
-					<strong><?php echo sprintf( wp_kses_data( $expired_license_string ), esc_attr( $this->product->get_name() . ' ' . $this->product->get_type() ), esc_url( $this->get_api_url() . '?license=' . $this->license_key ) ); ?> </strong>
+			<div class="notice notice-warning notice-alt is-dismissible themeisle-sdk-license-notice" id="<?php echo esc_attr( $notice_id ); ?>" data-notice-id="<?php echo esc_attr( $notice_id ); ?>" style="position: relative; border-left: 4px solid #d63638; padding: 12px; background-color: #fff;">
+				<p style="margin: 0.5em 0; font-size: 13px;">
+					<strong><?php echo wp_kses_post( $heading ); ?></strong>
+					 · <?php echo esc_html( $expired_date_string ); ?>
+				</p>
+				<p style="margin: 0.5em 0 1em 0; font-size: 13px;">
+					<?php echo esc_html( $notice_message ); ?>
+				</p>
+				<p style="margin: 0.5em 0;">
+					<a href="<?php echo esc_url( $renew_url ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer">
+						<?php echo esc_html( $renew_button ); ?>
+					</a>
+					<a href="<?php echo esc_url( $learn_more_url ); ?>" class="button" target="_blank" rel="noopener noreferrer" style="border: none; background-color: transparent;">
+						<?php echo esc_html( $learn_more_button ); ?>
+					</a>
 				</p>
 			</div>
+			<script type="text/javascript">
+				jQuery(document).ready(function($) {
+					$('#<?php echo esc_js( $notice_id ); ?>').on('click', '.notice-dismiss', function(e) {
+						const noticeId = '<?php echo esc_js( $notice_id ); ?>';
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'themeisle_sdk_dismiss_license_notice',
+								notice_id: noticeId,
+								nonce: '<?php echo esc_js( wp_create_nonce( 'themeisle_sdk_dismiss_license_notice' ) ); ?>'
+							}
+						});
+					});
+				});
+			</script>
 			<?php
 
 			return false;
@@ -379,7 +538,7 @@ class Licenser extends Abstract_Module {
 			return $this->get_api_url();
 		}
 
-		return $this->get_api_url() . '/checkout/?edd_license_key=' . $license_data->key . '&download_id=' . $license_data->download_id;
+		return trim( $this->get_api_url(), '/' ) . '/checkout/?edd_license_key=' . $license_data->key . '&download_id=' . $license_data->download_id;
 	}
 
 	/**
@@ -444,15 +603,15 @@ class Licenser extends Abstract_Module {
 	 */
 	public function do_license_process( $license, $action = 'toggle' ) {
 		if ( strlen( $license ) < 10 ) {
-			return new \WP_Error( 'themeisle-license-invalid-format', 'Invalid license.' );
+			return new \WP_Error( 'themeisle-license-invalid-format', Loader::$labels['licenser']['invalid_msg'] );
 		}
 		$status = $this->get_license_status();
 
 		if ( 'valid' === $status && 'activate' === $action ) {
-			return new \WP_Error( 'themeisle-license-already-active', 'License is already active.' );
+			return new \WP_Error( 'themeisle-license-already-active', Loader::$labels['licenser']['already_active'] );
 		}
 		if ( 'valid' !== $status && 'deactivate' === $action ) {
-			return new \WP_Error( 'themeisle-license-already-deactivate', 'License not active.' );
+			return new \WP_Error( 'themeisle-license-already-deactivate', Loader::$labels['licenser']['not_active'] );
 		}
 
 		if ( 'toggle' === $action ) {
@@ -480,13 +639,13 @@ class Licenser extends Abstract_Module {
 
 		// make sure the response came back okay.
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'themeisle-license-500', sprintf( 'ERROR: Failed to connect to the license service. Please try again later. Reason: %s', $response->get_error_message() ) );
+			return new \WP_Error( 'themeisle-license-500', sprintf( Loader::$labels['licenser']['error_notice'], $response->get_error_message() ) );
 		}
 
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( ! is_object( $license_data ) ) {
-			return new \WP_Error( 'themeisle-license-404', 'ERROR: Failed to validate license. Please try again in one minute.' );
+			return new \WP_Error( 'themeisle-license-404', Loader::$labels['licenser']['error_notice2'] );
 		}
 		if ( 'check' === $action ) {
 			return $license_data;
@@ -519,8 +678,12 @@ class Licenser extends Abstract_Module {
 		update_option( $this->product->get_key() . '_license_data', $license_data );
 		set_transient( $this->product->get_key() . '_license_data', $license_data, 12 * HOUR_IN_SECONDS );
 		if ( 'activate' === $action && 'valid' !== $license_data->license ) {
-			return new \WP_Error( 'themeisle-license-invalid', 'ERROR: Invalid license provided.' );
+			return new \WP_Error( 'themeisle-license-invalid', Loader::$labels['licenser']['error_invalid'] );
 		}
+
+		// Remove the versions transient upon activation so that newer version for rollback can be acquired.
+		$versions_cache = $this->product->get_cache_key();
+		delete_transient( $versions_cache );
 
 		return true;
 	}
@@ -550,7 +713,7 @@ class Licenser extends Abstract_Module {
 			return;
 		}
 		if ( ! isset( $_POST[ $this->product->get_key() . 'nonce_field' ] )
-			|| ! wp_verify_nonce( $_POST[ $this->product->get_key() . 'nonce_field' ], $this->product->get_key() . 'nonce' ) //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			 || ! wp_verify_nonce( $_POST[ $this->product->get_key() . 'nonce_field' ], $this->product->get_key() . 'nonce' ) //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		) {
 			return;
 		}
@@ -600,18 +763,16 @@ class Licenser extends Abstract_Module {
 			return;
 		}
 		$update_url     = wp_nonce_url( 'update.php?action=upgrade-theme&amp;theme=' . urlencode( $this->product->get_slug() ), 'upgrade-theme_' . $this->product->get_slug() );
-		$update_message = apply_filters( 'themeisle_sdk_license_update_message', 'Updating this theme will lose any customizations you have made. Cancel to stop, OK to update.' );
+		$update_message = apply_filters( 'themeisle_sdk_license_update_message', Loader::$labels['licenser']['update_license'] );
 		$update_onclick = ' onclick="if ( confirm(\'' . esc_js( $update_message ) . '\') ) {return true;}return false;"';
 		if ( version_compare( $this->product->get_version(), $api_response->new_version, '<' ) ) {
 			echo '<div id="update-nag">';
 			printf(
-				'<strong>%1$s %2$s</strong> is available. <a href="%3$s" class="thickbox" title="%4s">Check out what\'s new</a> or <a href="%5$s"%6$s>update now</a>.',
-				esc_attr( $theme->get( 'Name' ) ),
-				esc_attr( $api_response->new_version ),
-				esc_url( sprintf( '%s&TB_iframe=true&amp;width=1024&amp;height=800', $this->product->get_changelog() ) ),
-				esc_attr( $theme->get( 'Name' ) ),
-				esc_url( $update_url ),
-				$update_onclick // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, Already escaped.
+				esc_html( Loader::$labels['licenser']['notice_update'] ),
+				'<strong>' . esc_attr( $theme->get( 'Name' ) ) . ' ' . esc_attr( $api_response->new_version ) . '</strong>',
+				'<a href="' . esc_url( sprintf( '%s&TB_iframe=true&amp;width=1024&amp;height=800', $this->product->get_changelog() ) ) . '" class="thickbox" title="' . esc_attr( $theme->get( 'Name' ) ) . '">',
+				'</a>',
+				'<a href="' . esc_url( $update_url ) . '" ' . $update_onclick . '>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, Already escaped.
 			);
 			echo '</div>';
 			echo '<div id="' . esc_attr( $this->product->get_slug() ) . '_changelog" style="display:none;">';
@@ -642,6 +803,7 @@ class Licenser extends Abstract_Module {
 		}
 
 		$value->response[ $this->product->get_slug() ] = $update_data;
+
 		return $value;
 	}
 
@@ -742,15 +904,19 @@ class Licenser extends Abstract_Module {
 
 			return $_transient_data;
 		}
+		$this->product->setup_from_fileheaders();
 		$api_response = $this->api_request();
 		if ( false !== $api_response && is_object( $api_response ) && isset( $api_response->new_version ) ) {
+			$plugin = $this->product->get_slug() . '/' . $this->product->get_file();
 			if ( ! isset( $api_response->plugin ) ) {
-				$api_response->plugin = $this->product->get_slug() . '/' . $this->product->get_file();
+				$api_response->plugin = $plugin;
 			}
 			if ( version_compare( $this->product->get_version(), $api_response->new_version, '<' ) ) {
-				$_transient_data->response[ $this->product->get_slug() . '/' . $this->product->get_file() ] = $api_response;
+				$_transient_data->response[ $plugin ] = $api_response;
+				unset( $_transient_data->no_update[ $plugin ] );
 			} else {
-				$_transient_data->no_update[ $this->product->get_slug() . '/' . $this->product->get_file() ] = $api_response;
+				$_transient_data->no_update[ $plugin ] = $api_response;
+				unset( $_transient_data->response[ $plugin ] );
 			}
 		}
 
@@ -824,7 +990,7 @@ class Licenser extends Abstract_Module {
 	 */
 	public function can_load( $product ) {
 
-		if ( $product->is_wordpress_available() ) {
+		if ( ! $product->requires_license() ) {
 			return false;
 		}
 
@@ -849,7 +1015,13 @@ class Licenser extends Abstract_Module {
 			$this->failed_checks = intval( get_option( $this->product->get_key() . '_failed_checks', 0 ) );
 			$this->register_license_hooks();
 		}
-
+		if ( ! self::$globals_loaded ) {
+			add_filter( 'themeisle_sdk_license/status', [ __CLASS__, 'status' ], 999, 1 );
+			add_filter( 'themeisle_sdk_license/is-valid', [ __CLASS__, 'is_valid' ], 999, 1 );
+			add_filter( 'themeisle_sdk_license/plan', [ __CLASS__, 'plan' ], 999, 1 );
+			add_filter( 'themeisle_sdk_license/key', [ __CLASS__, 'key' ], 999, 1 );
+			$globals_loaded = true;
+		}
 		$namespace = apply_filters( 'themesle_sdk_namespace_' . md5( $product->get_basefile() ), false );
 
 		if ( false !== $namespace ) {
@@ -867,25 +1039,59 @@ class Licenser extends Abstract_Module {
 
 		add_action( 'admin_head', [ $this, 'auto_activate' ] );
 		if ( $this->product->is_plugin() ) {
-			add_filter(
-				'pre_set_site_transient_update_plugins',
-				[
-					$this,
-					'pre_set_site_transient_update_plugins_filter',
-				]
-			);
-			add_filter( 'plugins_api', array( $this, 'plugins_api_filter' ), 10, 3 );
-			add_filter( 'http_request_args', array( $this, 'http_request_args' ), 10, 2 ); //phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
+			if ( ! $product->is_wordpress_available() ) {
+				add_filter(
+					'pre_set_site_transient_update_plugins',
+					[
+						$this,
+						'pre_set_site_transient_update_plugins_filter',
+					]
+				);
+				add_filter( 'plugins_api', array( $this, 'plugins_api_filter' ), 10, 3 );
+				add_filter( //phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
+					'http_request_args',
+					array(
+						$this,
+						'http_request_args',
+					),
+					10,
+					2
+				);
+				if ( ! self::is_valid( $product->get_basefile() ) ) {
+					add_filter(
+						'plugin_action_links_' . plugin_basename( $product->get_basefile() ),
+						function ( $actions ) {
+							if ( $this->get_license_status( true ) !== self::STATUS_ACTIVE_EXPIRED ) {
+								return $actions;
+							}
+							$new_actions['deactivate'] = $actions['deactivate'];
+							$new_actions['renew_link'] = '<a style="color:#d63638" href="' . esc_url( $this->renew_url() ) . '" target="_blank" rel="external noopener noreferrer">' . esc_html( Loader::$labels['licenser']['renew_cta'] ) . '</a>';
+
+							return $new_actions;
+						}
+					);
+				}
+			}
 
 			return $this;
 		}
 		if ( $this->product->is_theme() ) {
-			add_filter( 'site_transient_update_themes', array( &$this, 'theme_update_transient' ) );
-			add_action( 'delete_site_transient_update_themes', array( &$this, 'delete_theme_update_transient' ) );
-			add_action( 'load-update-core.php', array( &$this, 'delete_theme_update_transient' ) );
-			add_action( 'load-themes.php', array( &$this, 'delete_theme_update_transient' ) );
-			add_action( 'load-themes.php', array( &$this, 'load_themes_screen' ) );
-			add_filter( 'http_request_args', array( $this, 'disable_wporg_update' ), 5, 2 ); //phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
+			if ( ! $product->is_wordpress_available() ) {
+				add_filter( 'site_transient_update_themes', array( &$this, 'theme_update_transient' ) );
+				add_action( 'delete_site_transient_update_themes', array( &$this, 'delete_theme_update_transient' ) );
+				add_action( 'load-update-core.php', array( &$this, 'delete_theme_update_transient' ) );
+				add_action( 'load-themes.php', array( &$this, 'delete_theme_update_transient' ) );
+				add_action( 'load-themes.php', array( &$this, 'load_themes_screen' ) );
+				add_filter( //phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args
+					'http_request_args',
+					array(
+						$this,
+						'disable_wporg_update',
+					),
+					5,
+					2
+				);
+			}
 
 			return $this;
 
@@ -903,6 +1109,32 @@ class Licenser extends Abstract_Module {
 		add_action( 'admin_init', array( $this, 'product_valid' ), 99999999 );
 		add_action( 'admin_notices', array( $this, 'show_notice' ) );
 		add_filter( $this->product->get_key() . '_license_status', array( $this, 'get_license_status' ) );
+		add_action( 'wp_ajax_themeisle_sdk_dismiss_license_notice', array( $this, 'dismiss_license_notice' ) );
+	}
+
+	/**
+	 * Handle AJAX request to dismiss the license notice.
+	 */
+	public function dismiss_license_notice() {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['nonce'] ), 'themeisle_sdk_dismiss_license_notice' ) ) {
+			wp_send_json_error( 'Invalid nonce' );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Insufficient permissions' );
+		}
+
+		$notice_id = isset( $_POST['notice_id'] ) ? sanitize_text_field( $_POST['notice_id'] ) : '';
+
+		if ( empty( $notice_id ) ) {
+			wp_send_json_error( 'Missing notice ID' );
+		}
+
+		// Save the dismissal option.
+		$dismiss_option_key = $notice_id . '_dismissed';
+		update_option( $dismiss_option_key, true );
+
+		wp_send_json_success();
 	}
 
 	/**
@@ -928,8 +1160,10 @@ class Licenser extends Abstract_Module {
 		if ( ! isset( $content->key ) ) {
 			return false;
 		}
+
 		return $content->key;
 	}
+
 	/**
 	 * Run license activation on plugin activate.
 	 */
@@ -979,7 +1213,7 @@ class Licenser extends Abstract_Module {
 	public function autoactivate_notice() {
 		?>
 		<div class="notice notice-success is-dismissible">
-			<p><?php echo sprintf( '<strong>%s</strong> has been successfully activated using <strong>%s</strong> license !', esc_attr( $this->product->get_name() ), esc_attr( str_repeat( '*', 20 ) . substr( $this->license_local, - 10 ) ) ); ?></p>
+			<p><?php echo sprintf( esc_html( Loader::$labels['licenser']['autoactivate_notice'] ), '<strong>' . esc_attr( $this->product->get_name() ) . '</strong>', '<strong>' . esc_attr( str_repeat( '*', 20 ) . substr( $this->license_local, - 10 ) ) . '</strong>' ); ?></p>
 		</div>
 		<?php
 	}

@@ -7,15 +7,73 @@
 .booking_form_div .wpbc_bfb_form,
 .wpbc_bfb__panel--preview .wpbc_bfb__form_preview_section_container {
   width: var(--wpbc-bfb-booking_form_layout_width,100%);
-  max-width: 100%;
+  max-width: min(100%,67rem);
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box
+}
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom .wpbc_field_description,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom .wpbc_static_text,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom .wpdev-list-item-label,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom l,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom label,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom .wpbc_field_description,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom .wpbc_static_text,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom .wpdev-list-item-label,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom l,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom label {
+  color: var(--wpbc_form-label-color)!important
+}
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=date],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=datetime-local],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=datetime],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=email],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=month],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=number],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=password],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=range],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=search],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=tel],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=text],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=time],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=url],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=week],
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom select,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom textarea,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=date],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=datetime-local],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=datetime],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=email],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=month],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=number],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=password],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=range],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=search],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=tel],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=text],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=time],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=url],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=week],
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom select,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom textarea {
+  background-color: var(--wpbc_form-field-background-color)!important;
+  color: var(--wpbc_form-field-text-color)!important;
+  border-color: var(--wpbc_form-field-border-color)!important
+}
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=checkbox]:not(:checked):before,
+div.wpbc_container.wpbc_form .wpbc_bfb_form_appearance_custom input[type=radio]:not(:checked):before,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=checkbox]:not(:checked):before,
+div.wpbc_container.wpbc_form.wpbc_bfb_form_appearance_custom input[type=radio]:not(:checked):before {
+  background-color: var(--wpbc_form-field-background-color)!important;
+  border-color: var(--wpbc_form-field-border-color)!important
 }
 div .wpbc_bfb_form .wpbc__row .wpbc__field,
 div .wpbc_bfb_form .wpbc_bfb__section .wpbc_bfb__row .wpbc_bfb__column {
   display: -ms-flexbox;
   display: flex;
+  box-sizing: border-box;
   -ms-flex-direction: var(--wpbc-bfb-col-dir,column);
   flex-direction: var(--wpbc-bfb-col-dir,column);
   -ms-flex-wrap: var(--wpbc-bfb-col-wrap,nowrap);
@@ -25,8 +83,85 @@ div .wpbc_bfb_form .wpbc_bfb__section .wpbc_bfb__row .wpbc_bfb__column {
   -ms-flex-align: var(--wpbc-bfb-col-ai,stretch);
   align-items: var(--wpbc-bfb-col-ai,stretch);
   gap: var(--wpbc-bfb-col-gap,0);
+  padding: var(--wpbc-bfb-col-padding,0);
   -ms-flex-item-align: var(--wpbc-bfb-col-aself,flex-start);
   align-self: var(--wpbc-bfb-col-aself,flex-start)
+}
+div .wpbc_bfb_form .wpbc__row .wpbc__field:not(.wpbc__cal),
+div .wpbc_bfb_form .wpbc_bfb__section .wpbc_bfb__row .wpbc_bfb__column {
+  margin: .7em 0
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-margin:"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-margin:"] {
+  margin: var(--wpbc-bfb-col-margin)
+}
+div .wpbc_bfb_form .wpbc_bfb__section[data-selected-col] > .wpbc_bfb__row > .wpbc_bfb__column.is-selected-column {
+  padding: var(--wpbc-bfb-col-padding,0);
+  padding-top: var(--wpbc-bfb-col-padding-top,var(--wpbc-bfb-col-padding,0));
+  padding-right: var(--wpbc-bfb-col-padding-right,var(--wpbc-bfb-col-padding,0));
+  padding-bottom: var(--wpbc-bfb-col-padding-bottom,var(--wpbc-bfb-col-padding,0));
+  padding-left: var(--wpbc-bfb-col-padding-left,var(--wpbc-bfb-col-padding,0))
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-padding-top"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-padding-top"] {
+  padding-top: var(--wpbc-bfb-col-padding-top)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-padding-right"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-padding-right"] {
+  padding-right: var(--wpbc-bfb-col-padding-right)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-padding-bottom"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-padding-bottom"] {
+  padding-bottom: var(--wpbc-bfb-col-padding-bottom)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-padding-left"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-padding-left"] {
+  padding-left: var(--wpbc-bfb-col-padding-left)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-margin-top"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-margin-top"] {
+  margin-top: var(--wpbc-bfb-col-margin-top)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-margin-right"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-margin-right"] {
+  margin-right: var(--wpbc-bfb-col-margin-right)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-margin-bottom"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-margin-bottom"] {
+  margin-bottom: var(--wpbc-bfb-col-margin-bottom)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-margin-left"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-margin-left"] {
+  margin-left: var(--wpbc-bfb-col-margin-left)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-max-width"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-max-width"] {
+  max-width: var(--wpbc-bfb-col-max-width)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-max-height"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-max-height"] {
+  max-height: var(--wpbc-bfb-col-max-height)
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-overflow:"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-overflow:"] {
+  overflow: var(--wpbc-bfb-col-overflow);
+  scrollbar-width: thin
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-overflow-x:"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-overflow-x:"] {
+  overflow-x: var(--wpbc-bfb-col-overflow-x);
+  scrollbar-width: thin
+}
+div .wpbc_bfb_form .wpbc__row > .wpbc__field[style*="--wpbc-bfb-col-overflow-y:"],
+div .wpbc_bfb_form .wpbc_bfb__section > .wpbc_bfb__row > .wpbc_bfb__column[style*="--wpbc-bfb-col-overflow-y:"] {
+  overflow-y: var(--wpbc-bfb-col-overflow-y);
+  scrollbar-width: thin
+}
+:is(div.wpbc_bfb_form.wpbc__row>.wpbc__field,div.wpbc_bfb_form.wpbc_bfb__section>.wpbc_bfb__row>.wpbc_bfb__column):is([style*="--wpbc-bfb-col-overflow-y:auto"],[style*="--wpbc-bfb-col-overflow-y: auto"],[style*="--wpbc-bfb-col-overflow-y:hidden"],[style*="--wpbc-bfb-col-overflow-y: hidden"]):not(:is([style*="--wpbc-bfb-col-overflow-x:auto"],[style*="--wpbc-bfb-col-overflow-x: auto"],[style*="--wpbc-bfb-col-overflow-x:hidden"],[style*="--wpbc-bfb-col-overflow-x: hidden"],[style*="--wpbc-bfb-col-overflow:auto"],[style*="--wpbc-bfb-col-overflow: auto"],[style*="--wpbc-bfb-col-overflow:hidden"],[style*="--wpbc-bfb-col-overflow: hidden"])) {
+  overflow-x: hidden
+}
+:is(div.wpbc_bfb_form.wpbc__row>.wpbc__field,div.wpbc_bfb_form.wpbc_bfb__section>.wpbc_bfb__row>.wpbc_bfb__column):is([style*="--wpbc-bfb-col-overflow-x:auto"],[style*="--wpbc-bfb-col-overflow-x: auto"],[style*="--wpbc-bfb-col-overflow-x:hidden"],[style*="--wpbc-bfb-col-overflow-x: hidden"]):not(:is([style*="--wpbc-bfb-col-overflow-y:auto"],[style*="--wpbc-bfb-col-overflow-y: auto"],[style*="--wpbc-bfb-col-overflow-y:hidden"],[style*="--wpbc-bfb-col-overflow-y: hidden"],[style*="--wpbc-bfb-col-overflow:auto"],[style*="--wpbc-bfb-col-overflow: auto"],[style*="--wpbc-bfb-col-overflow:hidden"],[style*="--wpbc-bfb-col-overflow: hidden"])) {
+  overflow-y: hidden
 }
 div .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element:has(:input),
 div .wpbc_bfb_form .wpbc_bfb__section .wpbc_bfb__row .wpbc_bfb__column .wpbc_bfb__field {
@@ -52,6 +187,9 @@ div .wpbc_bfb_form .wpbc__row .wpbc__field[data-colstyles-active="1"] .bfb_eleme
 div .wpbc_bfb_form [data-colstyles-active="1"] .wpbc_bfb__row .wpbc_bfb__column .wpbc_bfb__field:not(:has(.wpbc_calendar_wraper)) {
   -ms-flex: 0 1 auto;
   flex: 0 1 auto
+}
+.wpbc__field:has(.wpbc_calendar_wraper) {
+  max-width: 100%
 }
 div .wpbc_bfb_form .wpbc__row .wpbc__field[data-colstyles-active="1"] .bfb_element:has(.wpbc_text_captcha_container),
 div .wpbc_bfb_form [data-colstyles-active="1"] .wpbc_bfb__row .wpbc_bfb__column .wpbc_bfb__field:has(.wpbc_text_captcha_container) {
@@ -106,6 +244,14 @@ div .wpbc_bfb_form [data-colstyles-active="1"] .wpbc_bfb__row .wpbc_bfb__column 
 div.wpbc_container.wpbc_form .wpdev-form-control-wrap input[type=checkbox],
 div.wpbc_container.wpbc_form .wpdev-form-control-wrap input[type=radio] {
   margin: -5px 5px 0
+}
+body:not(.wp-admin) .wpbc_bfb_form .wpbc-hidden-on-frontend {
+  display: none!important
+}
+.wpbc_bfb__panel--preview .wpbc_bfb__field.wpbc-hidden-on-frontend > :not(.wpbc_bfb__overlay-controls),
+.wpbc_bfb__panel--preview .wpbc_bfb__field:has(.wpbc-hidden-on-frontend) > :not(.wpbc_bfb__overlay-controls),
+.wpbc_bfb__panel--preview .wpbc_bfb__section.wpbc-hidden-on-frontend > .wpbc_bfb__row {
+  opacity: .5
 }
 .wpbc_bfb_form .wpbc_bfb__row .wpbc_bfb__column .wpbc_bfb__field[data-type=divider][data-orientation=horizontal] {
   width: 100%;
@@ -168,6 +314,18 @@ div div .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element:has(.wpbc_bfb_divide
 .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element .wpbc_bfb_divider_wrap hr {
   background: 0 0
 }
+@media (max-width:782px) {
+  div.booking_form_div .wpbc_bfb_form {
+    width: 100%;
+    max-width: 100%
+  }
+  .wpbc_bfb_form .wpbc__row.wpbc_bfb_full_day_split_form > .wpbc__field:has(.wpbc_bfb_divider_wrap[data-orientation=vertical]),
+  .wpbc_bfb_form .wpbc__row.wpbc_bfb_time_slots_split_form > .wpbc__field:has(.wpbc_bfb_divider_wrap[data-orientation=vertical]),
+  .wpbc_bfb_form .wpbc_bfb__section.wpbc_bfb_full_day_split_form .wpbc_bfb__field[data-type=divider][data-orientation=vertical],
+  .wpbc_bfb_form .wpbc_bfb__section.wpbc_bfb_time_slots_split_form .wpbc_bfb__field[data-type=divider][data-orientation=vertical] {
+    display: none
+  }
+}
 /*!
  * Booking Form Fields  
  *   
@@ -180,6 +338,8 @@ div div .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element:has(.wpbc_bfb_divide
   --wpbc_form-field-background-color: #ffffff;
   --wpbc_form-field-border-color: rgba(0, 0, 0, 0.25);
   --wpbc_form-field-border-color-spare: rgba(0, 0, 0, 0.25);
+  --wpbc_form-field-focus-border-color: #066aab;
+  --wpbc_form-field-focus-shadow-color: #066aab;
   --wpbc_form-field-text-color: rgba(0, 0, 0, 0.7);
   --wpbc_form-field-disabled-color: rgba(0, 0, 0, 0.2);
   --wpbc_form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
@@ -190,11 +350,16 @@ div div .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element:has(.wpbc_bfb_divide
   --wpbc_form-button-border-radius: 3px;
   --wpbc_form-button-border-style: none;
   --wpbc_form-button-border-size: 1px;
+  --wpbc_form-button-light-border-style: solid;
+  --wpbc_form-button-light-border-size: var(--wpbc_form-button-border-size, 1px);
   --wpbc_form-button-background-color: #066aab;
   --wpbc_form-button-background-color-alt: #066aab;
   --wpbc_form-button-border-color: #066aab;
   --wpbc_form-button-text-color: #ffffff;
   --wpbc_form-button-text-color-alt: #fff;
+  --wpbc_form-choice-checked-border-color: #066aab;
+  --wpbc_form-choice-checked-color: #066aab;
+  --wpbc_form-choice-focus-color: #066aab;
   --wpbc_form-page-break-color: #066aab;
   --wpbc_form-background-image: none;
   --wpbc_form-background-position: center center;
@@ -221,7 +386,7 @@ div div .wpbc_bfb_form .wpbc__row .wpbc__field .bfb_element:has(.wpbc_bfb_divide
   --wpbc_form-label-size-line-height: 19px;
   --wpbc_form-label-size-sublabel-font-size: 14px;
   --wpbc_form-label-size-sublabel-line-height: 17px;
-  --wpbc_form-button-size-font-size: 17px;
+  --wpbc_form-button-size-font-size: 16px;
   --wpbc_form-button-size-height: 41px;
   --wpbc_form-button-size-padding-h: 15px;
   --wpbc_form-button-size-margin-top: 10px;
@@ -324,8 +489,8 @@ div.wpbc_container.wpbc_form select:focus,
 div.wpbc_container.wpbc_form textarea:focus {
   border-width: var(--wpbc_form-field-border-size);
   border-style: solid;
-  border-color: var(--wpbc_form-button-background-color);
-  box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color),0 1px 2px rgba(0,0,0,.15);
+  border-color: var(--wpbc_form-field-focus-border-color,#066aab);
+  box-shadow: 0 0 0 1.2px var(--wpbc_form-field-focus-shadow-color,var(--wpbc_form-field-focus-border-color,#066aab)),0 1px 2px rgba(0,0,0,.15);
   outline: 0
 }
 .wp-core-ui div.wpbc_container.wpbc_form input[type=date]:focus:invalid,
@@ -362,8 +527,8 @@ div.wpbc_container.wpbc_form select:focus:invalid,
 div.wpbc_container.wpbc_form textarea:focus:invalid {
   border-width: var(--wpbc_form-field-border-size);
   border-style: solid;
-  border-color: var(--wpbc_form-button-background-color);
-  box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color),0 1px 2px rgba(0,0,0,.15);
+  border-color: var(--wpbc_form-field-focus-border-color,#066aab);
+  box-shadow: 0 0 0 1.2px var(--wpbc_form-field-focus-shadow-color,var(--wpbc_form-field-focus-border-color,#066aab)),0 1px 2px rgba(0,0,0,.15);
   outline: 0;
   color: var(--wpbc_form-field-text-color)
 }
@@ -571,78 +736,6 @@ div.wpbc_container.wpbc_form input[type=number]:read-only::-webkit-inner-spin-bu
   visibility: hidden
 }
 /*! --------------------------------------------------------------------------------------------------------------------
- *  Submit
- * ------------------------------------------------------------------------------------------------------------------ */
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light),
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light),
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light),
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light) {
-  height: var(--wpbc_form-button-size-height);
-  background-color: var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color));
-  border-radius: var(--wpbc_form-button-border-radius);
-  border-style: var(--wpbc_form-button-border-style);
-  border-color: var(--wpbc_form-button-border-color);
-  border-width: var(--wpbc_form-button-border-size);
-  box-shadow: none;
-  color: var(--wpbc_form-button-text-color);
-  padding: 0 var(--wpbc_form-button-size-padding-h);
-  font-family: inherit;
-  font-weight: 500;
-  font-size: var(--wpbc_form-button-size-font-size);
-  line-height: 100%;
-  cursor: pointer;
-  transition: .15s ease-in-out;
-  position: relative;
-  text-decoration: none
-}
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(:hover):not(:active),
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(:hover):not(:active),
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(:hover):not(:active),
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(:hover):not(:active) {
-  background-color: var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color));
-  color: var(--wpbc_form-button-text-color)
-}
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):active,
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):hover,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):active,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):hover,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):active,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):hover,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):active,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):hover {
-  background: linear-gradient(0deg,rgba(0,0,0,.2),rgba(0,0,0,.2)),var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color))
-}
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):focus,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):focus,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):focus,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):focus {
-  outline: 0
-}
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):focus:after,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):focus:after,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):focus:after,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):focus:after {
-  content: "";
-  position: absolute;
-  border: 2px solid var(--wpbc_form-button-background-color);
-  border-radius: calc(var(--wpbc_form-button-border-radius) + 2px);
-  top: calc(-4px - var(--wpbc_form-button-border-size,1px));
-  right: calc(-4px - var(--wpbc_form-button-border-size,1px));
-  bottom: calc(-4px - var(--wpbc_form-button-border-size,1px));
-  left: calc(-4px - var(--wpbc_form-button-border-size,1px))
-}
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):disabled,
-.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):disabled:hover,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):disabled,
-.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):disabled:hover,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):disabled,
-div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):disabled:hover,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):disabled,
-div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):disabled:hover {
-  background-color: var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color));
-  cursor: default
-}
-/*! --------------------------------------------------------------------------------------------------------------------
  *   Radio and Checkboxes
  * ------------------------------------------------------------------------------------------------------------------ */
 div.wpbc_container.wpbc_form input[type=checkbox],
@@ -737,13 +830,13 @@ div.wpbc_container.wpbc_form input[type=radio]:checked:before {
   margin: 0;
   border-width: var(--wpbc_form-field-border-size);
   border-style: solid;
-  border-color: var(--wpbc_form-field-border-color);
+  border-color: var(--wpbc_form-choice-checked-border-color,#066aab);
   outline: 0
 }
-div.wpbc_container.wpbc_form input[type=checkbox]:checked:before:focus,
-div.wpbc_container.wpbc_form input[type=radio]:checked:before:focus {
-  border-color: var(--wpbc_form-button-background-color);
-  box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color),0 1px 2px rgba(0,0,0,.15)
+div.wpbc_container.wpbc_form input[type=checkbox]:checked:focus:before,
+div.wpbc_container.wpbc_form input[type=radio]:checked:focus:before {
+  border-color: var(--wpbc_form-choice-focus-color,#066aab);
+  box-shadow: 0 0 0 1.2px var(--wpbc_form-choice-focus-color,#066aab),0 1px 2px rgba(0,0,0,.15)
 }
 div.wpbc_container.wpbc_form input[type=checkbox]:focus,
 div.wpbc_container.wpbc_form input[type=radio]:focus {
@@ -753,16 +846,16 @@ div.wpbc_container.wpbc_form input[type=checkbox]:focus:before,
 div.wpbc_container.wpbc_form input[type=radio]:focus:before {
   border-width: var(--wpbc_form-field-border-size);
   border-style: solid;
-  border-color: var(--wpbc_form-button-background-color);
-  box-shadow: 0 0 0 1.2px var(--wpbc_form-button-background-color),0 1px 2px rgba(0,0,0,.15);
+  border-color: var(--wpbc_form-choice-focus-color,#066aab);
+  box-shadow: 0 0 0 1.2px var(--wpbc_form-choice-focus-color,#066aab),0 1px 2px rgba(0,0,0,.15);
   outline: 0
 }
 div.wpbc_container.wpbc_form input[type=checkbox]:checked:after {
   border-top: none;
   border-right: none;
   height: calc(var(--wpbc_form-field-size-checkbox-size) * .6);
-  border-left: 4px solid var(--wpbc_form-button-background-color);
-  border-bottom: 4px solid var(--wpbc_form-button-background-color);
+  border-left: 4px solid var(--wpbc_form-choice-checked-color,#066aab);
+  border-bottom: 4px solid var(--wpbc_form-choice-checked-color,#066aab);
   background-color: transparent;
   -ms-transform: translate(0,1px) scale(.5) rotate(-45deg);
   transform: translate(0,1px) scale(.5) rotate(-45deg);
@@ -776,7 +869,7 @@ div.wpbc_container.wpbc_form input[type=radio]:before {
 div.wpbc_container.wpbc_form input[type=radio]:checked:after {
   border: 1px solid transparent;
   border-radius: 50%;
-  background-color: var(--wpbc_form-button-background-color);
+  background-color: var(--wpbc_form-choice-checked-color,#066aab);
   -ms-transform: scale(.5);
   transform: scale(.5);
   -moz-transform: scale(.47);
@@ -827,6 +920,443 @@ div.wpbc_container.wpbc_form.wpbc_container_booking_form input[type=radio].wpbc_
 div.wpbc_container.wpbc_form.wpbc_container_booking_form input[type=radio].wpbc_form_field_error:hover {
   border: none;
   box-shadow: none
+}
+/*!
+ * Booking Form Buttons
+ *
+ * Front-end button styles for booking forms. Keep this file focused on form
+ * buttons only; admin buttons stay in the admin CSS sources.
+ */
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Shared Booking Calendar button component
+ *
+ *  New public UI should use `.wpbc_button` plus a semantic modifier. The
+ *  `.wpbc_button_light` and unclassed submit selectors are compatibility
+ *  adapters for old custom form templates. All standard buttons deliberately
+ *  share one fixed outer geometry. Secondary buttons may use a visible border,
+ *  but border-box sizing keeps their outer height and alignment identical.
+ *  An explicit `.wpbc_button_secondary` modifier always wins over the legacy
+ *  rule that treats otherwise unclassified submit controls as primary.
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+.wpbc_booking_ui_theme_scope .wpbc_button,
+.wpbc_container.wpbc_container_booking_form .wpbc_button,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_gw),
+.wpbc_container.wpbc_form .wpbc_button,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_gw),
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary) {
+  -ms-flex-align: center;
+  align-items: center;
+  appearance: none;
+  border-radius: var(--wpbc_form-button-border-radius,4px);
+  border-style: var(--wpbc_form-button-border-style,solid);
+  border-width: var(--wpbc_form-button-border-size,1px);
+  box-sizing: border-box;
+  cursor: pointer;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  font-family: inherit;
+  font-size: var(--wpbc_form-button-size-font-size,16px);
+  font-weight: 500;
+  height: var(--wpbc_form-button-size-height,41px);
+  -ms-flex-pack: center;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  max-width: 100%;
+  min-width: 100px;
+  outline: transparent solid 2px;
+  outline-offset: 2px;
+  padding: 0 var(--wpbc_form-button-size-padding-h,24px);
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow-wrap: normal;
+  -ms-hyphens: auto;
+  hyphens: auto;
+  transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,color .15s ease-in-out;
+  vertical-align: middle;
+  white-space: normal;
+  width: auto
+}
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Secondary buttons and legacy `.wpbc_button_light` compatibility
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_secondary,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_secondary,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary),
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_secondary,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary) {
+  border-color: var(--wpbc_form-button-light-border-color,rgba(202,202,202,.7098039216));
+  border-style: var(--wpbc_form-button-light-border-style,solid);
+  border-width: var(--wpbc_form-button-light-border-size,var(--wpbc_form-button-border-size,1px));
+  box-shadow: var(--wpbc_form-button-light-box-shadow,0 2px 10px 2px rgba(255,255,255,.3294117647));
+  background: var(--wpbc_form-button-light-background-color,#fdfdfd);
+  color: var(--wpbc_form-button-light-text-color,rgba(68,68,68,.8784313725))
+}
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_secondary:focus,
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_secondary:hover,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_secondary:focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_secondary:hover,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):hover,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_secondary:focus,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_secondary:hover,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):hover {
+  border-color: var(--wpbc_form-button-light-hover-border-color,#4d91cd);
+  box-shadow: var(--wpbc_form-button-light-hover-box-shadow,var(--wpbc_form-button-light-box-shadow,0 2px 10px 2px rgba(255,255,255,.3294117647)));
+  background-color: var(--wpbc_form-button-light-hover-background-color,var(--wpbc_form-button-light-background-color,#fdfdfd));
+  color: var(--wpbc_form-button-light-hover-text-color,var(--wpbc_form-button-light-text-color,rgba(68,68,68,.8784313725)))
+}
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Primary buttons
+ *
+ *  `.wpbc_button_light.button-primary` remains as a legacy alias. Do not use
+ *  WordPress' generic `.button-primary` class in new public-facing markup.
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary,
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary),
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary) {
+  background: var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color,#066aab));
+  border-color: var(--wpbc_form-button-border-color,#066aab);
+  border-style: var(--wpbc_form-button-primary-border-style,var(--wpbc_form-button-border-style,solid));
+  box-shadow: none;
+  color: var(--wpbc_form-button-text-color,#fff)
+}
+.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):active,
+.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus,
+.wp-core-ui div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):hover,
+.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):active,
+.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus,
+.wp-core-ui div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):hover,
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary:active,
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary:focus,
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary:hover,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary:active,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary:focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary:hover,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:active,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:hover,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary:active,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary:focus,
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary:hover,
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):active,
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus,
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):hover,
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):active,
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus,
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):hover {
+  background: var(--wpbc_form-button-hover-background-color,linear-gradient(0deg,rgba(0,0,0,.2),rgba(0,0,0,.2)),var(--wpbc_form-button-background-color-alt,var(--wpbc_form-button-background-color,#066aab)));
+  color: var(--wpbc_form-button-hover-text-color,var(--wpbc_form-button-text-color,#fff));
+  border-color: var(--wpbc_form-button-hover-border-color,var(--wpbc_form-button-primary-hover-border-color,#fff))
+}
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):active:not(:disabled) {
+  background-color: var(--wpbc_form-button-light-hover-background-color,var(--wpbc_form-button-light-background-color,#fdfdfd));
+  border-color: var(--wpbc_form-button-light-hover-border-color,var(--wpbc_form-button-light-border-color,rgba(202,202,202,.7098039216)));
+  color: var(--wpbc_form-button-light-hover-text-color,var(--wpbc_form-button-light-text-color,rgba(68,68,68,.8784313725)));
+  cursor: pointer
+}
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled:focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled:hover,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled:focus,
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):disabled:hover {
+  color: #ccc;
+  border-color: var(--wpbc_form-button-light-border-color,rgba(202,202,202,.7098039216));
+  cursor: not-allowed;
+  opacity: .6
+}
+.wpbc_booking_ui_theme_scope .wpbc_button:disabled,
+.wpbc_container.wpbc_container_booking_form .wpbc_button:disabled,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:disabled,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.wpbc_button_primary:disabled,
+.wpbc_container.wpbc_form .wpbc_button:disabled,
+.wpbc_container.wpbc_form .wpbc_button_light.button-primary:disabled,
+.wpbc_container.wpbc_form .wpbc_button_light.wpbc_button_primary:disabled,
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):disabled,
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):disabled {
+  cursor: not-allowed;
+  opacity: .6
+}
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.wpbc_button_danger {
+  background: #de605c;
+  border-color: #de605c;
+  color: #f7f7f7;
+  text-shadow: 0 0 #ba5956
+}
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.wpbc_button_danger:focus,
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.wpbc_button_danger:hover {
+  background: #e65d59;
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #de605c
+}
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Payment gateway buttons
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wpbc_container .wpbc_button_light.wpbc_button_gw {
+  font-size: var(--wpbc_form-button-size-font-size,16px);
+  border-style: solid;
+  border-width: 2px;
+  border-radius: .375em;
+  padding: 0 2.2em;
+  line-height: calc(var(--wpbc_form-button-light-size-height,43px) - 3px);
+  text-decoration: none;
+  cursor: pointer;
+  -ms-flex: 1 1 100%;
+  flex: 1 1 100%;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column wrap;
+  flex-flow: column wrap;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  -ms-flex-align: center;
+  align-items: center;
+  margin: 0;
+  height: auto;
+  outline: transparent solid 2px;
+  outline-offset: 2px;
+  box-sizing: border-box;
+  text-shadow: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  overflow-wrap: normal;
+  white-space: normal;
+  -ms-hyphens: auto;
+  hyphens: auto;
+  width: 100%
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:hover {
+  background-image: url(../../../inc/assets/stripe.svg);
+  background-position: 90% 50%;
+  background-size: 80px auto;
+  background-repeat: no-repeat;
+  padding-right: 130px
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:hover {
+  background-image: url(../../../../booking-calendar-com/inc/assets/stripe.svg);
+  background-color: #2c2e2f;
+  color: #fff;
+  border-color: #2c2e2f;
+  background-position: 90% 50%;
+  background-size: 80px auto;
+  background-repeat: no-repeat;
+  padding-right: 130px
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:hover {
+  filter: brightness(1.3);
+  border: 1px solid var(--wpbc_form-button-light-hover-border-color,#4d91cd);
+  border-width: var(--wpbc_form-button-light-border-size,var(--wpbc_form-button-border-size,1px));
+  box-shadow: var(--wpbc_form-button-light-hover-box-shadow,var(--wpbc_form-button-light-box-shadow,0 2px 10px 2px rgba(255,255,255,.3294117647)));
+  box-shadow: none;
+  outline-offset: 0;
+  outline-color: var(--wpbc_form-button-light-hover-border-color,#4d91cd);
+  outline-width: 1px
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe * {
+  color: var(--wpbc_form-button-light-text-color,#fff)
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:active,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:active *,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:focus *,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:hover,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:hover * {
+  color: var(--wpbc_form-button-light-hover-text-color,var(--wpbc_form-button-light-text-color,#fff))
+}
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom,
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:active,
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:focus,
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:hover {
+  background-color: var(--wpbc_form-button-light-background-color);
+  border-color: var(--wpbc_form-button-light-border-color);
+  color: var(--wpbc_form-button-light-text-color)
+}
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:focus,
+.wpbc_container.wpbc_bfb_form_appearance_custom .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe.wpbc_button_gw_bccom:hover {
+  background-color: var(--wpbc_form-button-light-hover-background-color);
+  border-color: var(--wpbc_form-button-light-hover-border-color);
+  color: var(--wpbc_form-button-light-hover-text-color);
+  filter: none
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow {
+  padding-right: 115px;
+  background-color: #ffc439!important;
+  border: 2px solid #ffc439!important;
+  color: #2c2e2f;
+  box-shadow: none;
+  text-indent: -9999px;
+  background-image: url(../../../inc/assets/paypal_commerce.svg)!important;
+  background-position: 50% 50%!important;
+  background-size: 80px auto!important;
+  background-repeat: no-repeat!important;
+  min-width: 175px
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver.wpbc_button_gw_bccom,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white.wpbc_button_gw_bccom,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow.wpbc_button_gw_bccom {
+  background-image: url(../../../../booking-calendar-com/inc/assets/paypal_commerce.svg)!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver:hover,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white:hover,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:hover {
+  background-color: #f2ba36!important;
+  border-color: #f2ba36!important;
+  box-shadow: 0 5px 10px #f0f0f8;
+  color: #5f5f5f
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_blue {
+  padding-right: 115px;
+  background-color: #009cde!important;
+  border: 2px solid #009cde!important;
+  color: #fff;
+  box-shadow: none;
+  text-indent: -9999px;
+  background-image: url(../../../inc/assets/paypal_white_full.svg)!important;
+  background-position: 50% 50%!important;
+  background-size: 80px auto!important;
+  background-repeat: no-repeat!important;
+  min-width: 175px
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black.wpbc_button_gw_bccom,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_blue.wpbc_button_gw_bccom {
+  background-image: url(../../../../booking-calendar-com/inc/assets/paypal_white_full.svg)!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black:hover,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_blue:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_blue:hover {
+  background-color: #33b0e5!important;
+  border-color: #33b0e5!important;
+  box-shadow: 0 5px 10px #f0f0f8;
+  color: #fff
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver {
+  background-color: #eee!important;
+  border: 2px solid #eee!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_silver:hover {
+  background-color: #e2e2e2!important;
+  border-color: #e2e2e2!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white {
+  background-color: #fff!important;
+  border: 1px solid #2c2e2f!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_white:hover {
+  background-color: #fff!important;
+  border-color: #2c2e2f!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black {
+  background-color: #2c2e2f!important;
+  border: 2px solid #2c2e2f!important
+}
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black:focus,
+.wpbc_container .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_black:hover {
+  background-color: #565859!important;
+  border-color: #565859!important
+}
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Dark style button overrides
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary),
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary) {
+  box-shadow: var(--wpbc_form-button-light-box-shadow,0 0 0 #424242);
+  border-color: var(--wpbc_form-button-light-border-color,#525252);
+  background-color: var(--wpbc_form-button-light-background-color,#3f454f);
+  color: var(--wpbc_form-button-light-text-color,#fff);
+  filter: none
+}
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus,
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):hover,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):hover {
+  box-shadow: var(--wpbc_form-button-light-hover-box-shadow,0 0 0 #424242);
+  border-color: var(--wpbc_form-button-light-hover-border-color,var(--wpbc_form-button-light-border-color,#525252));
+  background-color: var(--wpbc_form-button-light-hover-background-color,var(--wpbc_form-button-light-background-color,#3f454f));
+  color: var(--wpbc_form-button-light-hover-text-color,#fff)
+}
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light[class*=wpbc_button_gw_paypal_]:hover,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light[class*=wpbc_button_gw_paypal_]:hover {
+  filter: none
+}
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:focus,
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:hover,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:focus,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_paypal_yellow:hover {
+  box-shadow: 0 5px 10px #424242
+}
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:focus,
+.wpbc_theme_dark_1.wpbc_bfb__theme_scope .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:hover,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:focus,
+.wpbc_theme_dark_1.wpbc_container.wpbc_form .wpbc_button_light.wpbc_button_gw.wpbc_button_gw_stripe:hover {
+  background-color: var(--wpbc_form-button-light-background-color,#3f454f);
+  border-color: var(--wpbc_form-button-light-border-color,#525252)
+}
+/*! --------------------------------------------------------------------------------------------------------------------
+ *  Final focus contract
+ *
+ *  Keep this after legacy, gateway, and dark-theme rules. The inner box-shadow
+ *  plus the outer outline create a stable two-layer focus ring without
+ *  changing button geometry.
+ * ------------------------------------------------------------------------------------------------------------------ */
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_secondary:focus-visible:not(:disabled),
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_secondary:focus:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_secondary:focus-visible:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_secondary:focus:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus-visible:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_secondary:focus-visible:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_secondary:focus:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus-visible:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button_light:not(.wpbc_button_primary):not(.button-primary):focus:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--wpbc_form-button-focus-inner-color,var(--wpbc-bfb-form-background,var(--wpbc_form-field-background-color,#fff)));
+  outline: 2px solid var(--wpbc_form-button-focus-outline-color,var(--wpbc_form-button-light-hover-border-color,#4d91cd));
+  outline-offset: 2px
+}
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary:focus-visible:not(:disabled),
+.wpbc_booking_ui_theme_scope .wpbc_button.wpbc_button_primary:focus:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary:focus-visible:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button.wpbc_button_primary:focus:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:focus-visible:not(:disabled),
+.wpbc_container.wpbc_container_booking_form .wpbc_button_light.button-primary:focus:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary:focus-visible:not(:disabled),
+.wpbc_container.wpbc_form .wpbc_button.wpbc_button_primary:focus:not(:disabled),
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus-visible:not(:disabled),
+div.wpbc_container.wpbc_form button[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus:not(:disabled),
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus-visible:not(:disabled),
+div.wpbc_container.wpbc_form input[type=submit]:not(.wpbc_button_light):not(.wpbc_button_secondary):focus:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--wpbc_form-button-focus-inner-color,var(--wpbc-bfb-form-background,var(--wpbc_form-field-background-color,#fff)));
+  outline: 2px solid var(--wpbc_form-button-focus-outline-color,var(--wpbc_form-field-focus-border-color,var(--wpbc_form-button-background-color,#066aab)));
+  outline-offset: 2px
 }
 .wpdev-form-control-wrap .wpdev-checkbox.group_inline,
 .wpdev-form-control-wrap .wpdev-radio.group_inline,
@@ -1022,11 +1552,11 @@ div.wpbc_container.wpbc_form .wpdev-form-control-wrap .wpdev-radio > .wpdev-list
 }
 /*!   ==  Wizard Form Tmeplate - Bordered Well Padding  ============================================================  */
 .wpbc_wizard__border_container {
-  box-shadow: rgba(0,0,0,.05) 0 2px 6px 0;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  background: #fff;
-  padding: 10px 30px;
+  box-shadow: var(--wpbc-bfb-form-box-shadow,rgba(0,0,0,.05) 0 2px 6px 0);
+  border: var(--wpbc-bfb-form-border-width,1px) solid var(--wpbc-bfb-form-border-color,#ccc);
+  border-radius: var(--wpbc-bfb-form-border-radius,2px);
+  background: var(--wpbc-bfb-form-background,#fff);
+  padding: var(--wpbc-bfb-form-padding,10px 30px);
   box-sizing: border-box;
   margin: auto;
   max-width: 100%;
@@ -1047,14 +1577,96 @@ div.wpbc_container.wpbc_form .wpdev-form-control-wrap .wpdev-radio > .wpdev-list
   word-break: normal
 }
 .wpbc_theme_dark_1 .wpbc_wizard__border_container {
-  border: 1px solid #000;
-  background: #626262;
-  color: #bbb;
-  box-shadow: 0 0 3px #3b3b3b
+  border: var(--wpbc-bfb-form-border-width,1px) solid var(--wpbc-bfb-form-border-color,#000);
+  background: var(--wpbc-bfb-form-background,#383a3d);
+  color: var(--wpbc_form-label-color,#bbb);
+  box-shadow: var(--wpbc-bfb-form-box-shadow,0 0 3px #3b3b3b)
 }
 .wpbc_theme_dark_1 .wpbc_wizard__border_container div:not(.datepick-inline*),
 .wpbc_theme_dark_1 .wpbc_wizard__border_container label,
 .wpbc_theme_dark_1 .wpbc_wizard__border_container p,
 .wpbc_theme_dark_1 .wpbc_wizard__border_container span:not(.datepick-inline*) {
-  color: #fff
+  color: var(--wpbc_form-label-color,#fff)
+}
+div.wpbc_container.wpbc_form .wpbc_field_description,
+div.wpbc_container.wpbc_form .wpbc_static_text,
+div.wpbc_container.wpbc_form .wpdev-list-item-label,
+div.wpbc_container.wpbc_form l,
+div.wpbc_container.wpbc_form label,
+div.wpbc_container.wpbc_form p {
+  color: var(--wpbc_form-label-color,#3c434a)
+}
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 .wpbc_field_description,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 .wpbc_static_text,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 .wpdev-list-item-label,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 .wpdev_hint_with_text .block_text,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 l,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 label,
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 p {
+  color: var(--wpbc_form-label-color,#bbb)
+}
+div.wpbc_container.wpbc_form.wpbc_theme_dark_1 {
+  --wpbc-bfb-form-background: #383a3d;
+  --wpbc-bfb-form-border-color: #000000;
+  --wpbc-bfb-form-box-shadow: 0 0px 3px #3b3b3b;
+  --wpbc_form-field-background-color: #3f454f;
+  --wpbc_form-field-border-color: rgba(255, 255, 255, 0.28);
+  --wpbc_form-field-border-color-spare: rgba(255, 255, 255, 0.28);
+  --wpbc_form-field-focus-border-color: #5b8bff;
+  --wpbc_form-field-focus-shadow-color: #5b8bff;
+  --wpbc_form-field-text-color: #f4f6f8;
+  --wpbc_form-field-disabled-color: rgba(255, 255, 255, 0.35);
+  --wpbc_form-field-menu-color: #303640;
+  --wpbc_form-label-color: #f4f6f8;
+  --wpbc_form-label-sublabel-color: rgba(255, 255, 255, 0.72);
+  --wpbc_form-label-error-color: #ff8a8a;
+  --wpbc_form-button-background-color: #1b1d22;
+  --wpbc_form-button-background-color-alt: #1b1d22;
+  --wpbc_form-button-border-color: #5f5f5f;
+  --wpbc_form-button-primary-border-style: solid;
+  --wpbc_form-button-text-color: #ffffff;
+  --wpbc_form-button-text-color-alt: #ffffff;
+  --wpbc_form-button-hover-background-color: #1b1d22;
+  --wpbc_form-button-hover-border-color: #5b8bff;
+  --wpbc_form-button-hover-text-color: #ffffff;
+  --wpbc_form-choice-checked-border-color: #5b8bff;
+  --wpbc_form-choice-checked-color: #f4f6f8;
+  --wpbc_form-choice-focus-color: #5b8bff;
+  --wpbc_form-button-light-background-color: #3f454f;
+  --wpbc_form-button-light-border-color: #525252;
+  --wpbc_form-button-light-text-color: #ffffff;
+  --wpbc_form-button-light-box-shadow: 0 0 0 #424242;
+  --wpbc_form-button-light-hover-background-color: #3f454f;
+  --wpbc_form-button-light-hover-border-color: #5b8bff;
+  --wpbc_form-button-light-hover-text-color: #ffffff;
+  --wpbc_form-button-light-hover-box-shadow: 0 0 0 #424242;
+  --wpbc-appointment-provider-avatar-background: #2C2E2F;
+  --wpbc-appointment-provider-avatar-border-color: #525252;
+  --wpbc-appointment-provider-avatar-text-color: #ffffff;
+  --wpbc_form-button-primary-hover-border-color: #5b8bff;
+  --wpbc_form-page-break-color: #5f9ee7
+}
+.wpbc_cal_powered_by,
+.wpbc_cal_powered_by a {
+  font-size: 7px;
+  text-align: left;
+  margin: 0 0 10px;
+  text-shadow: none
+}
+.wpbc_range_selection_guidance {
+  box-sizing: border-box;
+  max-width: 341px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  display: block
+}
+.wpbc_range_selection_guidance,
+.wpbc_range_selection_guidance.wpbc_front_end__message.wpbc_fe_message_info i.menu_icon {
+  border: 0;
+  box-shadow: none;
+  line-height: 2;
+  font-size: var(--wpbc_form-label-size-sublabel-font-size,14px);
+  color: #848280;
+  color: var(--wpbc_form-label-color,#3c434a);
+  opacity: .55
 }

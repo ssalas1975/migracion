@@ -55,8 +55,10 @@ function wpbc__where_to_save_booking( $local_params ){
 	$server_http_referer_uri = ( ( isset( $_SERVER['HTTP_REFERER'] ) ) ? sanitize_text_field( $_SERVER['HTTP_REFERER'] ) : '' );  /* phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash */ /* FixIn: sanitize_unslash */
 	$defaults = array(
 					'request_uri'                   => ( ( ( defined( 'DOING_AJAX' ) ) && ( DOING_AJAX ) ) ? $server_http_referer_uri : $server_request_uri ), //  front-end: $server_request_uri | ajax: $server_http_referer_uri                      // It different in Ajax requests. It's used for change-over days to detect for exception at specific pages
+					'allow_past'                    => false,
 					'as_single_resource'            => false,
 					'is_use_booking_recurrent_time' => ( 'On' === get_bk_option( 'booking_recurrent_time' ) ),
+					'time_override_source'          => '',
 					'aggregate_resource_id_arr'     => array(),
 					'custom_form'                   => ''                      //FixIn: 10.0.0.10       // Required for checking all available time-slots and compare with  booked time slots
 				);
@@ -91,19 +93,46 @@ function wpbc__where_to_save_booking( $local_params ){
 		'skip_booking_id'     => $local_params['skip_booking_id'],
 		'dates_to_check'      => $maybe_extended__dates_to_check_arr,
 		'request_uri'         => $local_params['request_uri'],
+		'allow_past'          => ! empty( $local_params['allow_past'] ),
 		'as_single_resource' => $local_params['as_single_resource'],                                                            // default FALSE  ::  get dates as for 'single resource' or 'parent' resource including bookings in all 'child booking resources' .
 		'additional_bk_types' => $local_params['aggregate_resource_id_arr'],
 		'aggregate_type'      => empty( $local_params['aggregate_type'] ) ? 'bookings_only' : $local_params['aggregate_type'],  //TODO: this parameter does not transfer during saving, so here will be always default value 'bookings_only'        // FixIn: 10.0.0.7.
 		'custom_form'         => $local_params['custom_form'],                                                                  // FixIn: 10.0.0.10.
 	) , $availability_per_days_arr__params ) );
 
+	// A contact form has no calendar and uses one synthetic date only to satisfy the booking storage schema.
+	// Keep its requested resource, because calendar availability rules do not apply to a no-date submission.
+	$is_no_dates_booking = ( is_array( $local_params['dates_only_sql_arr'] ) && ( 1 === count( $local_params['dates_only_sql_arr'] ) ) &&
+							 wpbc_is_these_dates__for__no_dates( $local_params['dates_only_sql_arr'] ) );
+	if ( $is_no_dates_booking ) {
+		$requested_resource_id = absint( $local_params['resource_id'] );
+		$loaded_resource_ids   = isset( $availability_per_days['resources_id_arr__in_dates'] ) ? array_map( 'absint', (array) $availability_per_days['resources_id_arr__in_dates'] ) : array();
+
+		if ( ( 0 === $requested_resource_id ) || ! in_array( $requested_resource_id, $loaded_resource_ids, true ) ) {
+			return array(
+				'result'  => 'error',
+				'message' => 'Wrong ID of booking resource: ' . $requested_resource_id,
+			);
+		}
+
+		$storage_resource_ids = array_values(
+			array_unique( array_merge( array( $requested_resource_id ), $loaded_resource_ids ) )
+		);
+		$resources_in_dates = array_fill_keys(
+			array_values( $local_params['dates_only_sql_arr'] ),
+			$storage_resource_ids
+		);
+
+		return array(
+			'result'             => 'ok',
+			'resources_in_dates' => $resources_in_dates,
+			'time_to_book'       => $local_params['time_as_his_arr'],
+			'main__resource_id'  => $requested_resource_id,
+		);
+	}
+
 	// Get value of how many  booking resources to  book
 	$how_many_items_to_book = $local_params['how_many_items_to_book'];
-
-	// FixIn: 2981-01-13    13 Jan 2981.
-	if ( ( ! empty( $local_params['dates_only_sql_arr'] ) ) && ( wpbc_is_these_dates__for__no_dates( $local_params['dates_only_sql_arr'] ) ) ) {
-		$how_many_items_to_book = 0;
-	}
 
 	// -------------------------------------------------------------------------------------------------------------
 	// [ 2023-10-18: [ 0:[ resource_id: 2, is_available: true, booked__seconds: [], booked__readable: [], time_to_book__seconds: [ 36030, 39570 ], time_to_book__readable: "10:00:00", "11:00:00" ] ], 1: [...], 2: [...], 3: [...] ], 2023-10-25: [...], 2023-11-25: [...] ]
@@ -111,12 +140,13 @@ function wpbc__where_to_save_booking( $local_params ){
 																					'dates_sql__arr'                => $local_params['dates_only_sql_arr'],
 																					'time_as_seconds_arr'           => $local_params['time_as_seconds_arr'],
 																					'is_use_booking_recurrent_time' => $local_params['is_use_booking_recurrent_time'],
+																					'time_override_source'          => $local_params['time_override_source'],
 																					'availability_per_days'         => $availability_per_days
 																				) );
 
 	$main__resource_id = 0;
 	// == In      SAME      'child' booking resources   ============================================================
-	if ( 'On' === get_bk_option( 'booking_is_dissbale_booking_for_different_sub_resources' ) ) {
+	if ( class_exists( 'wpdev_bk_biz_l' ) && ( 'On' === get_bk_option( 'booking_is_dissbale_booking_for_different_sub_resources' ) ) ) {
 
 		$availability_in_same_child_resources = $availability_per_days['resources_id_arr__in_dates'];
 
@@ -156,24 +186,11 @@ function wpbc__where_to_save_booking( $local_params ){
 			// Bad not save
 			return array(
 							'result'  => 'error',
-							'message' => __( 'These dates and times in this calendar are already booked or unavailable.', 'booking' )
+							'message' => wpbc_frontend_messages__get( 'message_dates_times_unavailable', array(), $local_params['resource_id'] )
 							             . ' <br> '
-										 . __( 'It is not possible to store this sequence of the dates into the one same resource.' , 'booking' )
+										 . wpbc_frontend_messages__get( 'message_cannot_save_in_one_resource', array(), $local_params['resource_id'] )
 							             . ' <br> '
-										 . __( 'Please choose alternative date(s), times, or adjust the number of slots booked.' , 'booking' )
-										 . ' <a href="javascript:void(0)" onclick="'
-							                             .'jQuery( this ).next().toggle();'
-							                             .'jQuery( this).hide();'
-														 .'jQuery( this ).parents(\'.wpbc_alert_message\').parent().on(\'hide\',function(even){jQuery(this).show();});'
-			                                    .'">'
-							             .    __( 'Show more details', 'booking' )
-							             . '</a>'
-							             . ' <div style="display:none;">'
-							                    . '<p><hr><code>'
-							                    . wp_json_encode( $available_slots )
-							                    . '</code></p>'
-							             . '</div>'
-							             . ' <div style="display:none;">' . wp_json_encode( $available_slots ) . '</div>'
+										 . wpbc_frontend_messages__get( 'message_choose_alternative_dates', array(), $local_params['resource_id'] )
 						);
 		}
 
@@ -205,26 +222,9 @@ function wpbc__where_to_save_booking( $local_params ){
 				// We can not store booking in this date  day_sql_key2,  number of available child booking resources less than  required
 				return array(
 							'result'  => 'error',
-							'message' => __( 'These dates and times in this calendar are already booked or unavailable.', 'booking' )
+							'message' => wpbc_frontend_messages__get( 'message_dates_times_unavailable', array(), $local_params['resource_id'] )
 							             . ' <br> '
-										 . __( 'Please choose alternative date(s), times, or adjust the number of slots booked.' , 'booking' )
-										 . ' <a href="javascript:void(0)" onclick="'
-							                             .'jQuery( this ).next().toggle();'
-							                             .'jQuery( this).hide();'
-														 .'jQuery( this ).parents(\'.wpbc_alert_message\').parent().on(\'hide\',function(even){jQuery(this).show();});'
-			                                    .'">'
-							             .    __( 'Show more details', 'booking' )
-							             . '</a>'
-							             . ' <div style="display:none;">'
-							                    . '<p><strong>'
-									            /* translators: 1: ... */
-									            . sprintf( __( 'Booking can not be saved in this date %1$s, number of available (single or child) booking resource(s) (%2$d) less than required (%3$d).', 'booking' )
-															, $day_sql_key2, count( $available_res_in_day_arr ), $how_many_items_to_book )
-												. '</strong><hr><code>'
-							                    . wp_json_encode( $available_slots )
-							                    // . wp_json_encode( $local_params, $availability_per_days )
-							                    . '</code></p>'
-							             . '</div>'
+										 . wpbc_frontend_messages__get( 'message_choose_alternative_dates', array(), $local_params['resource_id'] )
 
 						);
 			}
@@ -274,6 +274,7 @@ function wpbc__where_to_save_booking( $local_params ){
 							'dates_sql__arr'         => array(),
 							'time_as_seconds_arr'    => array(),
 							'availability_per_days'  => array(),
+							'time_override_source'   => '',
 							'is_use_booking_recurrent_time' => ( 'On' === get_bk_option( 'booking_recurrent_time' ) )
 						);
 		$params   = wp_parse_args( $params, $defaults );
@@ -321,7 +322,7 @@ function wpbc__where_to_save_booking( $local_params ){
 
 				 foreach ( $params['availability_per_days']['resources_id_arr__in_dates'] as $child_resource_id ) {
 
-					$merged_seconds_arr = wpbc_get__booking_obj__merged_seconds_arr( $date_bookings_obj[ $child_resource_id ] );
+					$merged_seconds_arr = wpbc_get__booking_obj__merged_seconds_arr( $date_bookings_obj[ $child_resource_id ], $params['time_override_source'] );
 
 					$is_intersect       = wpbc_is_intersect__merged_seconds_arr__and__seconds_arr( $merged_seconds_arr['merged_seconds'], $this_date_time_as_seconds_arr );
 
@@ -358,16 +359,32 @@ function wpbc__where_to_save_booking( $local_params ){
 
 
 		/**
-		 * Get Merged Seconds Array from   object ->  $params['availability_per_days']['dates'][ $sql_class_day ][ $child_resource_id ]
+		 * Get merged booked intervals for one Resource date.
 		 *
-		 * @param $date_booking_obj - date_bookings_obj  from   $params['availability_per_days']['dates']
+		 * Capacity projection can mark a one-slot Resource date unavailable as soon
+		 * as any booking exists. Exact-time creation sources must still compare the
+		 * proposed interval with the actual booked intervals. Full-day requests and
+		 * every unrecognized source retain the conservative whole-day result.
 		 *
-		 * @return array            -  [
-		 *                                    'merged_seconds'  => $merged_seconds,
-		 *                                    'merged_readable' => $merged_readable
-		 *                             ]
+		 * @param object $date_booking_obj     Availability object for one Resource date.
+		 * @param string $time_override_source Authorized exact-time source identifier.
+		 * @return array{merged_seconds:array<int,array<int,int>>,merged_readable:array<int,string>} Merged booked intervals.
 		 */
-		function wpbc_get__booking_obj__merged_seconds_arr( $date_booking_obj ) {
+		function wpbc_get__booking_obj__merged_seconds_arr( $date_booking_obj, $time_override_source = '' ) {
+
+			$is_exact_time_full_day_status = (
+				   in_array( $time_override_source, array( 'times_availability', 'booking_new_inspector_boundary' ), true )
+				&& ( ! empty( $date_booking_obj->is_day_unavailable ) )
+				&& ( ! empty( $date_booking_obj->_day_status ) )
+				&& ( 'full_day_booking' === $date_booking_obj->_day_status )
+			);
+
+			if ( $is_exact_time_full_day_status ) {
+				$merged_seconds_arr = wpbc_get__booking_obj__booked_details_seconds_arr( $date_booking_obj );
+				if ( ! empty( $merged_seconds_arr['merged_seconds'] ) ) {
+					return $merged_seconds_arr;
+				}
+			}
 
 			if ( $date_booking_obj->is_day_unavailable ){
 				$merged_seconds  = array( array( 0, 24 * 60 * 60 ) );                                            // Unavailable
@@ -381,6 +398,46 @@ function wpbc__where_to_save_booking( $local_params ){
 							'merged_seconds'  => $merged_seconds,
 							'merged_readable' => $merged_readable
 						);
+		}
+
+
+		/**
+		 * Rebuild real booked intervals from details after capacity marks the whole day unavailable.
+		 *
+		 * @param object $date_booking_obj Availability object for a date/resource.
+		 *
+		 * @return array
+		 */
+		function wpbc_get__booking_obj__booked_details_seconds_arr( $date_booking_obj ) {
+
+			$seconds_arr = array();
+			$readable_arr = array();
+
+			if ( empty( $date_booking_obj->__booked__times__details ) || ! is_array( $date_booking_obj->__booked__times__details ) ) {
+				return array(
+					'merged_seconds'  => array(),
+					'merged_readable' => array(),
+				);
+			}
+
+			foreach ( $date_booking_obj->__booked__times__details as $time_key => $details ) {
+				if ( '0' === (string) $time_key || false === strpos( (string) $time_key, '-' ) ) {
+					$seconds_arr[] = array( 0, 24 * 60 * 60 );
+				} else {
+					$seconds_arr[] = wpbc_transform_timerange__s_range__in__seconds_arr( $time_key );
+				}
+			}
+
+			$seconds_arr = wpbc_merge_intersected_intervals( $seconds_arr );
+
+			foreach ( $seconds_arr as $booked_time_slots__in_seconds ) {
+				$readable_arr[] = wpbc_transform_timerange__seconds_arr__in__formated_hours( $booked_time_slots__in_seconds );
+			}
+
+			return array(
+				'merged_seconds'  => $seconds_arr,
+				'merged_readable' => $readable_arr,
+			);
 		}
 
 

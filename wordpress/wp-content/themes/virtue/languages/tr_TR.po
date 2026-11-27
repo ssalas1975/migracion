@@ -2200,13 +2200,13 @@ msgid "Extra Sidebar"
 msgstr "Ekstra Kenar Çubuğu"
 
 #: ../themeoptions/options.php:1559
-msgid "Wordpress Galleries"
-msgstr "Wordpress Galerileri"
+msgid "WordPress Galleries"
+msgstr "WordPress Galerileri"
 
 #: ../themeoptions/options.php:1564
-msgid "Enable Virtue Galleries to override Wordpress"
+msgid "Enable Virtue Galleries to override WordPress"
 msgstr ""
-"Wordpress Galerilerini geçersiz kılmak için Virtue Galerilerini etkinleştir"
+"WordPress Galerilerini geçersiz kılmak için Virtue Galerilerini etkinleştir"
 
 #: ../themeoptions/options.php:1565
 msgid ""

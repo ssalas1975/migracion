@@ -6,12 +6,12 @@
 */
 ?>
 	<div class="lwa lwa-template-modal"><?php //class must be here, and if this is a template, class name should be that of template directory ?>
-		<a href="<?php echo LoginWithAjax::get_login_url(); ?>" class="lwa-links-modal"><?php esc_html_e('Log In','login-with-ajax') ?></a>
+		<a href="<?php echo \LoginWithAjax::get_login_url(); ?>" class="lwa-links-modal"><?php esc_html_e('Log In','login-with-ajax') ?></a>
 		<?php 
 		//FOOTER - once the page loads, this will be moved automatically to the bottom of the document.
 		?>
 		<div class="lwa-modal" style="display:none;">
-	        <form name="lwa-form" class="lwa-form" action="<?php echo LoginWithAjax::get_login_url(); ?>" method="post">
+	        <form name="lwa-form" class="lwa-form" action="<?php echo \LoginWithAjax::get_login_url(); ?>" method="post">
 	        	<span class="lwa-status"></span>
 	            <table>
 	                <tr class="lwa-username">
@@ -44,18 +44,18 @@
 	                        <input name="rememberme" type="checkbox" id="lwa_rememberme" value="forever" /> <label><?php esc_html_e( 'Remember Me','login-with-ajax' ) ?></label>
 	                        <br />
 				        	<?php if( !empty($lwa['remember']) ): ?>
-							<a class="lwa-links-remember" href="<?php echo LoginWithAjax::get_remember_url(); ?>" title="<?php esc_attr_e('Password Lost and Found','login-with-ajax') ?>"><?php esc_attr_e('Lost your password?','login-with-ajax') ?></a>
+							<a class="lwa-links-remember" href="<?php echo \LoginWithAjax::get_remember_url(); ?>" title="<?php esc_attr_e('Password Lost and Found','login-with-ajax') ?>"><?php esc_attr_e('Lost your password?','login-with-ajax') ?></a>
 							<?php endif; ?>
 							<?php if ( get_option('users_can_register') && !empty($lwa['registration']) ) : ?>
 							<br />  
-							<a href="<?php echo LoginWithAjax::get_register_url(); ?>" class="lwa-links-register-inline"><?php esc_html_e('Register','login-with-ajax'); ?></a>
+							<a href="<?php echo \LoginWithAjax::get_register_url(); ?>" class="lwa-links-register-inline"><?php esc_html_e('Register','login-with-ajax'); ?></a>
 							<?php endif; ?>
 	                    </td>
 	                </tr>
 	            </table>
 	        </form>
         	<?php if( !empty($lwa['remember']) && $lwa['remember'] == 1 ): ?>
-	        <form name="lwa-remember" class="lwa-remember" action="<?php echo LoginWithAjax::get_remember_url(); ?>" method="post" style="display:none;">
+	        <form name="lwa-remember" class="lwa-remember" action="<?php echo \LoginWithAjax::get_remember_url(); ?>" method="post" style="display:none;">
 	        	<span class="lwa-status"></span>
 	            <table>
 	                <tr>
@@ -84,7 +84,7 @@
 	        <?php endif; ?>
 		    <?php if ( get_option('users_can_register') && !empty($lwa['registration']) && $lwa['registration'] == 1 ) : //Taken from wp-login.php ?>
 		    <div class="lwa-register" style="display:none;">
-				<form name="lwa-register"  action="<?php echo LoginWithAjax::get_register_url(); ?>" method="post">
+				<form name="lwa-register"  action="<?php echo \LoginWithAjax::get_register_url(); ?>" method="post">
 	        		<span class="lwa-status"></span>
 					<table>
 		                <tr>

@@ -217,12 +217,6 @@ class AMP_Post_Meta_Box {
 	public function enqueue_block_assets() {
 		$post = get_post();
 
-		// Block validation script uses features only available beginning with WP 5.6.
-		$dependency_support = Services::get( 'dependency_support' );
-		if ( ! $dependency_support->has_support() ) {
-			return; // @codeCoverageIgnore
-		}
-
 		// Only enqueue scripts on the block editor for AMP-enabled posts.
 		$editor_support = Services::get( 'editor.editor_support' );
 		if ( ! $editor_support->is_current_screen_block_editor_for_amp_enabled_post_type() ) {
@@ -342,7 +336,7 @@ class AMP_Post_Meta_Box {
 	 */
 	public function render_status( $post ) {
 		$verify = (
-			isset( $post->ID )
+			! empty( $post->ID )
 			&&
 			in_array( $post->post_type, AMP_Post_Type_Support::get_supported_post_types(), true )
 			&&

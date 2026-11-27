@@ -265,10 +265,14 @@ class AMP_Validation_Manager {
 	/**
 	 * Filter AMP options to set Standard template mode if it is an AMP-override request.
 	 *
-	 * @param array $options Options.
+	 * @param array|false $options Options.
 	 * @return array Filtered options.
 	 */
 	public static function filter_options_when_force_standard_mode_request( $options ) {
+		if ( ! $options ) {
+			$options = [];
+		}
+
 		if (
 			self::is_validate_request()
 			&&
@@ -699,7 +703,9 @@ class AMP_Validation_Manager {
 		$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Only way to find theme/plugin responsible for calling.
 		foreach ( $backtrace as $call ) {
 			if (
-				isset( $call['function'], $call['file'] )
+				! empty( $call['function'] )
+				&&
+				! empty( $call['file'] )
 				&&
 				'wp_editor' === $call['function']
 			) {
@@ -1160,7 +1166,7 @@ class AMP_Validation_Manager {
 
 						$has_non_core = false;
 						foreach ( $extra_sources as $extra_source ) {
-							if ( 'core' !== $extra_source['type'] ) {
+							if ( isset( $extra_source['type'] ) && 'core' !== $extra_source['type'] ) {
 								$has_non_core = true;
 								break;
 							}
@@ -1282,7 +1288,7 @@ class AMP_Validation_Manager {
 
 		if ( empty( $matches['closing'] ) ) {
 			$source['block_content_index'] = self::$block_content_index;
-			self::$block_content_index++;
+			++self::$block_content_index;
 		}
 
 		// Make implicit core namespace explicit.
@@ -1653,7 +1659,7 @@ class AMP_Validation_Manager {
 		$called_functions = [];
 		$backtrace        = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Only way to find out if we are in a buffering display handler.
 		foreach ( $backtrace as $call_stack ) {
-			if ( '{closure}' === $call_stack['function'] ) {
+			if ( '{closure}' === $call_stack['function'] ) { // TODO: This may not be the right format for PHP 8.4.
 				$called_functions[] = 'Closure::__invoke';
 			} elseif ( isset( $call_stack['class'] ) ) {
 				$called_functions[] = sprintf( '%s::%s', $call_stack['class'], $call_stack['function'] );
@@ -2000,12 +2006,12 @@ class AMP_Validation_Manager {
 		foreach ( self::$validation_results as $validation_result ) {
 			$sanitization = AMP_Validation_Error_Taxonomy::get_validation_error_sanitization( $validation_result['error'] );
 			if ( ! ( (int) $sanitization['status'] & AMP_Validation_Error_Taxonomy::ACCEPTED_VALIDATION_ERROR_BIT_MASK ) ) {
-				$kept_count++;
+				++$kept_count;
 			}
 			if ( ! ( (int) $sanitization['status'] & AMP_Validation_Error_Taxonomy::ACKNOWLEDGED_VALIDATION_ERROR_BIT_MASK ) ) {
-				$unreviewed_count++;
+				++$unreviewed_count;
 			}
-			$total_count++;
+			++$total_count;
 		}
 
 		/*
@@ -2026,6 +2032,8 @@ class AMP_Validation_Manager {
 			return true;
 		}
 
+		$sandboxing_level = amp_get_sandboxing_level();
+
 		/*
 		 * In AMP-first, documents with invalid AMP markup can still be served. The amp attribute will be omitted in
 		 * order to prevent GSC from complaining about a validation error already surfaced inside of WordPress.
@@ -2035,8 +2043,10 @@ class AMP_Validation_Manager {
 		 * Otherwise, if in Paired AMP then redirect to the non-AMP version if the current user isn't an user who
 		 * can manage validation error statuses (access developer tools) and change the AMP options for the template
 		 * mode. Such users should be able to see kept invalid markup on the AMP page even though it is invalid.
+		 *
+		 * Also, if sandboxing is not set to strict mode, then the page should be displayed to the user.
 		 */
-		if ( amp_is_canonical() ) {
+		if ( amp_is_canonical() || ( 1 === $sandboxing_level || 2 === $sandboxing_level ) ) {
 			return true;
 		}
 
@@ -2479,19 +2489,17 @@ class AMP_Validation_Manager {
 			esc_url( 'https://wordpress.org/support/plugin/amp/#new-topic-0' )
 		);
 
-		$site_health_message = '';
-		if ( version_compare( get_bloginfo( 'version' ), '5.2', '>=' ) ) {
-			$site_health_message .= sprintf(
-				/* translators: %s is link to Site Health */
-				__( 'Please check your <a href="%s">Site Health</a> to verify it can perform loopback requests.', 'amp' ),
-				esc_url( admin_url( 'site-health.php' ) )
-			);
-			$support_forum_message .= ' ' . sprintf(
-				/* translators: %s is the URL to Site Health Info. */
-				__( 'Please include your <a href="%s">Site Health Info</a>.', 'amp' ),
-				esc_url( admin_url( 'site-health.php?tab=debug' ) )
-			);
-		}
+		$site_health_message = sprintf(
+			/* translators: %s is link to Site Health */
+			__( 'Please check your <a href="%s">Site Health</a> to verify it can perform loopback requests.', 'amp' ),
+			esc_url( admin_url( 'site-health.php' ) )
+		);
+
+		$support_forum_message .= ' ' . sprintf(
+			/* translators: %s is the URL to Site Health Info. */
+			__( 'Please include your <a href="%s">Site Health Info</a>.', 'amp' ),
+			esc_url( admin_url( 'site-health.php?tab=debug' ) )
+		);
 
 		$implode_non_empty_strings_with_spaces_and_sanitize = static function ( $strings ) {
 			return wp_kses(
@@ -2593,12 +2601,6 @@ class AMP_Validation_Manager {
 		 */
 		if ( ! self::get_dev_tools_user_access()->is_user_enabled() ) {
 			return;
-		}
-
-		// Block validation script uses features only available beginning with WP 5.6.
-		$dependency_support = Services::get( 'dependency_support' );
-		if ( ! $dependency_support->has_support() ) {
-			return; // @codeCoverageIgnore
 		}
 
 		// Only enqueue scripts on the block editor for AMP-enabled posts.

@@ -2,6 +2,11 @@
 
 namespace Pods\Whatsit;
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 use Pods\Whatsit;
 
 /**
@@ -20,6 +25,7 @@ class Legacy_Object extends Whatsit {
 		$old_mapping = [
 			'name' => 'label',
 			'slug' => 'name',
+			'uri'  => 'name',
 			'code' => 'description',
 		];
 
@@ -41,10 +47,15 @@ class Legacy_Object extends Whatsit {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_arg( $arg, $default = null, $strict = false ) {
+	public function get_arg( $arg, $default = null, $strict = false, $raw = false ) {
+		if ( $raw ) {
+			return parent::get_arg( $arg, $default, $strict, $raw );
+		}
+
 		$old_mapping = [
 			'name' => 'label',
 			'slug' => 'name',
+			'uri'  => 'name',
 			'code' => 'description',
 		];
 

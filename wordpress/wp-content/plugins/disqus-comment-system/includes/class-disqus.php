@@ -160,11 +160,16 @@ class Disqus {
         $plugin_admin = new Disqus_Admin( $this->get_disqus_name(), $this->get_version(), $this->get_shortname() );
 
         $this->loader->add_filter( 'rest_url', $plugin_admin, 'dsq_filter_rest_url' );
+        $this->loader->add_filter( 'wp_list_table_class_name', $plugin_admin, 'dsq_filter_comments_list_table_class' );
         $this->loader->add_filter( 'plugin_action_links', $plugin_admin, 'dsq_plugin_action_links', 10, 2 );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
         $this->loader->add_action( 'admin_menu', $plugin_admin, 'dsq_contruct_admin_menu' );
         $this->loader->add_action( 'admin_bar_menu', $plugin_admin, 'dsq_construct_admin_bar', 999 );
+        $this->loader->add_action( 'admin_notices', $plugin_admin, 'dsq_display_ads_notice' );
+        $this->loader->add_action( 'wp_ajax_disqus_dismiss_ads_notice', $plugin_admin, 'dsq_dismiss_ads_notice' );
+        $this->loader->add_action( 'admin_notices', $plugin_admin, 'dsq_display_in_response_wp_notice' );
+        $this->loader->add_action( 'wp_ajax_disqus_dismiss_in_response_wp_notice', $plugin_admin, 'dsq_dismiss_in_response_wp_notice' );
     }
 
     /**
@@ -180,6 +185,7 @@ class Disqus {
         $this->loader->add_filter( 'comments_number', $plugin_public, 'dsq_comments_link_template' );
         $this->loader->add_filter( 'comments_template', $plugin_public, 'dsq_comments_template' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_comment_count' );
+        $this->loader->add_action( 'comment_form_before', $plugin_public, 'hide_block_theme_comment_section' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_comment_embed' );
         $this->loader->add_action( 'show_user_profile', $plugin_public, 'dsq_close_window_template' );
     }
@@ -262,16 +268,28 @@ class Disqus {
     /**
      * Formats the unique disqus_identifier for a given post.
      *
+     * Not called anywhere: the plugin instance isn't exposed, and the live code uses
+     * Disqus_Public::dsq_identifier_for_post() instead.
+     * TODO: Remove this method and dsq_title_for_post() if confirmed to be unneeded.
+     *
      * @since     3.0
-     * @param     string $post    The WordPress post object.
-     * @return    string          The unique disqus_identifier.
+     * @param     WP_Post|object|null $post    The WordPress post object.
+     * @return    string                       The unique disqus_identifier, a single space without a post.
      */
     public function dsq_identifier_for_post( $post ) {
+        if ( ! isset( $post->ID ) ) {
+            // Same value as before posts were checked, in case callers depend on it.
+            return ' ';
+        }
+
         return $post->ID . ' ' . $post->guid;
     }
 
     /**
      * Formats the title for a given post.
+     *
+     * Not called anywhere, see dsq_identifier_for_post().
+     * TODO: Remove along with dsq_identifier_for_post() if confirmed to be unneeded.
      *
      * @since     3.0
      * @param     string $post    The WordPress post object.
