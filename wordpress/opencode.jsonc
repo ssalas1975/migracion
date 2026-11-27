@@ -1,6 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "meytel-orchestrator",
+  "instructions": [
+    "This is a WordPress multisite migration project for PHP 8.4 upgrade.",
+    "The core workflow is: audit → staging upgrade → test → production rollout → monitor.",
+    "Key directories: wp-content/themes/ (32 themes), wp-content/plugins/ (130+ plugins).",
+    "Critical config: multisite with path-based subdomains, Kadence Security hardened, getenv_docker() helper.",
+    "Never upgrade production directly — always use staging first.",
+    "Common pitfalls: hard-coded localhost:8080, wp_booster framework dependency, heavy plugin stack."
+  ],
   "permissions": [
     { "action": "external_directory", "resource": "*", "effect": "allow" },
     { "action": "shell", "resource": "*", "effect": "ask" },
