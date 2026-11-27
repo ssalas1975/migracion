@@ -2,7 +2,7 @@
 /**
  * Product Purchase Condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -18,7 +18,7 @@ trait ProductPurchaseCondition {
 	/**
 	 * Processes "Product Purchase" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition_settings Containing all settings of the condition.
 	 *
@@ -29,12 +29,10 @@ trait ProductPurchaseCondition {
 			return false;
 		}
 
-		// Checks for additional display rule for compatibility with Conditional Display older versions which didn't use `displayRule` key.
-		$legacy_display_rule = isset( $condition_settings['productPurchaseDisplay'] ) ? $condition_settings['productPurchaseDisplay'] : 'hasBoughtProduct';
-		$display_rule        = isset( $condition_settings['displayRule'] ) ? $condition_settings['displayRule'] : $legacy_display_rule;
-		$products_raw        = isset( $condition_settings['products'] ) ? $condition_settings['products'] : [];
-		$current_user        = wp_get_current_user();
-		$products_ids        = array_map(
+		$display_rule = isset( $condition_settings['productPurchaseDisplay'] ) ? $condition_settings['productPurchaseDisplay'] : 'hasBoughtProduct';
+		$products_raw = isset( $condition_settings['products'] ) ? $condition_settings['products'] : [];
+		$current_user = wp_get_current_user();
+		$products_ids = array_map(
 			function( $item ) {
 				return isset( $item['value'] ) ? $item['value'] : '';
 			},

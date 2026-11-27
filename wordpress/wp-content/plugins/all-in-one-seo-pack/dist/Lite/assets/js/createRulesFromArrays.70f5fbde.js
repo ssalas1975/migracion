@@ -1,0 +1,1 @@
+const e=function(n,r="i"){return n.length===2?{reg:new RegExp(n[0],r),repl:n[1]}:n.length===3?{reg:new RegExp(n[0],r),repl1:n[1],repl2:n[2]}:null},o=function(n,r="i"){return n.map(t=>e(t,r))};export{e as a,o as c};

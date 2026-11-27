@@ -1,0 +1,312 @@
+# Translation of Plugins - Force Regenerate Thumbnails - Stable (latest release) in Spanish (Spain)
+# This file is distributed under the same license as the Plugins - Force Regenerate Thumbnails - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-08-02 16:41:45+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: es\n"
+"Project-Id-Version: Plugins - Force Regenerate Thumbnails - Stable (latest release)\n"
+
+#: class-force-regenerate-thumbnails-cli.php:91
+msgid "Regenerating thumbnails"
+msgstr "Regenerando miniaturas"
+
+#: class-force-regenerate-thumbnails-cli.php:82
+msgid "No images found to process."
+msgstr "No se han encontrado imágenes para procesar."
+
+#: class-force-regenerate-thumbnails-cli.php:47
+msgid "Resume point cleared. Starting over."
+msgstr "Punto de reanudación vaciado. Comenzando de nuevo."
+
+#. translators: 1: Success count, 2: Failure count.
+#: class-force-regenerate-thumbnails-cli.php:237
+msgid "Done. Success: %1$d, Failures: %2$d"
+msgstr "Hecho. Correctos: %1$d, Fallos: %2$d"
+
+#. translators: %d: number of images.
+#: class-force-regenerate-thumbnails-cli.php:90
+msgid "Regenerating thumbnails for %d media items:"
+msgstr "Regenerando miniaturas para %d elementos multimedia:"
+
+#. translators: %s: link to EWWW Image Optimizer settings
+#: class-forceregeneratethumbnails.php:538
+msgid "Configure the %s to enable sharper thumbnails and control which thumbnails are created."
+msgstr "Configura %s para permitir miniaturas más precisas y controlar qué miniaturas se crean."
+
+#: class-forceregeneratethumbnails.php:483
+msgid "The following image sizes will be regenerated, all other thumbnails will be deleted:"
+msgstr "Se regenerarán los siguientes tamaños de imagen, y el resto de miniaturas se borrarán:"
+
+#: class-forceregeneratethumbnails.php:508
+msgid "Start Over"
+msgstr "Empezar de nuevo"
+
+#. translators: %s: size of the failed thumbnail(s), like 400x300
+#: class-forceregeneratethumbnails.php:867
+msgid "Delete failed: %s"
+msgstr "Falló al borrar: %s"
+
+#: class-forceregeneratethumbnails.php:497
+msgid "Continue Regenerating Thumbnails"
+msgstr "Seguir regenerando miniaturas"
+
+#: class-forceregeneratethumbnails.php:496
+msgid "A previous thumbnail regeneration was interrupted."
+msgstr "Se interrumió una regeneración de miniaturas previa."
+
+#: class-forceregeneratethumbnails.php:404
+msgid "Process aborted, refresh to resume or start again."
+msgstr "Proceso abortado, recarga para continuar o empezar de nuevo."
+
+#: class-forceregeneratethumbnails.php:418
+msgctxt "Thumbnail regen page"
+msgid "Force Regenerate Thumbnails"
+msgstr "Regenerar las miniaturas"
+
+#: class-forceregeneratethumbnails.php:314
+msgctxt "Media Library bulk actions drop-down"
+msgid "Force Regenerate Thumbnails"
+msgstr "Regenerar las miniaturas"
+
+#: class-forceregeneratethumbnails.php:291
+msgctxt "Media row action"
+msgid "Force Regenerate Thumbnails"
+msgstr "Regenerar las miniaturas"
+
+#: class-forceregeneratethumbnails.php:90
+msgctxt "Admin menu text"
+msgid "Force Regenerate Thumbnails"
+msgstr "Regenerar las miniaturas"
+
+#: class-forceregeneratethumbnails.php:89
+msgctxt "Admin menu page title tag"
+msgid "Force Regenerate Thumbnails"
+msgstr "Regenerar las miniaturas"
+
+#. Plugin Name of the plugin
+#: force-regenerate-thumbnails.php
+msgid "Force Regenerate Thumbnails"
+msgstr "Force Regenerate Thumbnails"
+
+#: class-forceregeneratethumbnails.php:291
+msgid "Regenerate the thumbnails for this single image"
+msgstr "Regenerar miniaturas solo para esta imagen"
+
+#: class-forceregeneratethumbnails.php:447
+msgid "Process Information"
+msgstr "Información del proceso"
+
+#. translators: %d: the total number of images
+#: class-forceregeneratethumbnails.php:452
+msgid "Total: %s"
+msgstr "Total: %s"
+
+#. translators: %d: the number of successfully regenerated images
+#: class-forceregeneratethumbnails.php:455
+msgid "Success: %s"
+msgstr "Correcto: %s"
+
+#: class-forceregeneratethumbnails.php:195
+msgid "Stopping..."
+msgstr "Deteniendo..."
+
+#: class-forceregeneratethumbnails.php:499
+msgid "Regenerate All Thumbnails"
+msgstr "Regenerar todas las miniaturas"
+
+#: class-forceregeneratethumbnails.php:440
+#: class-forceregeneratethumbnails.php:480
+msgid "You must enable Javascript in order to proceed!"
+msgstr "¡Debes activar JavaScript para poder continuar!"
+
+#: class-forceregeneratethumbnails.php:445
+msgid "Abort Process"
+msgstr "Abortar el proceso"
+
+#. translators: %d: the number of regeneration failures
+#: class-forceregeneratethumbnails.php:458
+msgid "Failure: %s"
+msgstr "Fallido: %s"
+
+#: class-force-regenerate-thumbnails-cli.php:124
+#: class-forceregeneratethumbnails.php:653
+msgid "The originally uploaded image file cannot be found."
+msgstr "No se ha encontrado el archivo de imagen subido originalmente."
+
+#. Description of the plugin
+#: force-regenerate-thumbnails.php
+msgid "Delete and REALLY force the regeneration of thumbnails."
+msgstr "Borrar y forzar REALMENTE la regeneración de miniaturas."
+
+#: class-force-regenerate-thumbnails-cli.php:110
+#: class-forceregeneratethumbnails.php:624
+msgid "Failed: The imagick extension is required for PDF files."
+msgstr "Error: es necesario la extensión imagick para los archivos PDF."
+
+#. translators: %d: attachment ID number
+#: class-force-regenerate-thumbnails-cli.php:99
+#: class-forceregeneratethumbnails.php:609
+msgid "Skipped: %d"
+msgstr "Omitido: %d"
+
+#: class-forceregeneratethumbnails.php:593
+msgid "Access token has expired, please reload the page."
+msgstr "El token de acceso ha caducado, vuelve a cargar la página."
+
+#: class-forceregeneratethumbnails.php:575
+msgid "No attachment ID submitted."
+msgstr "No se ha enviado ningún ID adjunto."
+
+#. translators: %s: link to install EWWW Image Optimizer plugin
+#: class-forceregeneratethumbnails.php:528
+msgid "Install the free %s for sharper thumbnails, better compression, and to control which thumbnails are created."
+msgstr "Instala el %s gratuito para obtener miniaturas más nítidas, mejor compresión y para controlar qué miniaturas se crean."
+
+#. translators: %s: Media Library (link)
+#: class-forceregeneratethumbnails.php:517
+msgid "Media Library"
+msgstr "Biblioteca de medios"
+
+#. translators: %s: Media Library (link)
+#: class-forceregeneratethumbnails.php:517
+msgid "You may regenerate thumbnails for specific images from the %s in List mode."
+msgstr "Puedes regenerar miniaturas para imágenes específicas de %s en el modo lista."
+
+#: class-forceregeneratethumbnails.php:513
+msgid "Specific Thumbnails"
+msgstr "Miniaturas específicas"
+
+#: class-forceregeneratethumbnails.php:477
+msgid "Be sure to backup your site before you begin."
+msgstr "Asegúrate de hacer una copia de seguridad de tu sitio antes de comenzar."
+
+#: class-forceregeneratethumbnails.php:476
+msgid "You may regenerate thumbnails for all images that you have uploaded to your blog."
+msgstr "Puedes regenerar miniaturas para todas las imágenes que hayas subido a tu blog."
+
+#: class-forceregeneratethumbnails.php:473
+msgid "All Thumbnails"
+msgstr "Todas las miniaturas"
+
+#: class-forceregeneratethumbnails.php:438
+msgid "Please be patient while the thumbnails are regenerated. Details will be displayed below as each image is completed."
+msgstr "Ten paciencia mientras se regeneran las miniaturas. Los detalles se mostrarán a continuación a medida que se complete cada imagen."
+
+#: class-forceregeneratethumbnails.php:433
+msgid "You do not appear to have uploaded any images or PDF files yet."
+msgstr "Parece que aún no has subido ninguna imagen o archivo PDF."
+
+#: class-forceregeneratethumbnails.php:413
+msgid "Retry Failed Images"
+msgstr "Reintentar imágenes fallidas"
+
+#: class-forceregeneratethumbnails.php:409
+msgid "Go back to the previous page."
+msgstr "Vuelve a la pagina anterior."
+
+#. translators: %d: the attachment ID number
+#: class-forceregeneratethumbnails.php:1082
+msgid "(ID %d)"
+msgstr "(ID %d)"
+
+#. translators: %s: time elapsed
+#: class-forceregeneratethumbnails.php:876
+msgid "Successfully regenerated in %s seconds"
+msgstr "Regenerado correctamente en %s segundos"
+
+#. translators: %s: list of regenerated thumbs/sizes
+#: class-forceregeneratethumbnails.php:873
+msgid "Regenerate: %s"
+msgstr "Regenerar: %s"
+
+#. translators: %s: the path to the uploads directory
+#: class-forceregeneratethumbnails.php:869
+msgid "Please ensure the folder has write permissions (chmod 755): %s"
+msgstr "Asegúrate de que la carpeta tiene permisos de escritura (chmod 755): %s"
+
+#. translators: %s: list of deleted thumbs
+#: class-forceregeneratethumbnails.php:863
+msgid "Deleted: %s"
+msgstr "Borrado: %s"
+
+#. translators: %s: debug info, if populated
+#: class-forceregeneratethumbnails.php:856
+msgid "Image Debug 4: %s"
+msgstr "Depurar imagen 4: %s"
+
+#. translators: %s: debug info, if populated
+#: class-forceregeneratethumbnails.php:852
+msgid "Image Debug 3: %s"
+msgstr "Depurar imagen 3: %s"
+
+#. translators: %s: debug info, if populated
+#: class-forceregeneratethumbnails.php:848
+msgid "Image Debug 2: %s"
+msgstr "Depurar imagen 2: %s"
+
+#. translators: %s: the full path of the image
+#: class-forceregeneratethumbnails.php:845
+msgid "Image: %s"
+msgstr "Imagen %s"
+
+#. translators: 1: attachment title 2: attachment ID number
+#: class-forceregeneratethumbnails.php:838
+msgid "%1$s (ID %2$d)"
+msgstr "%1$s (ID %2$d)"
+
+#: class-force-regenerate-thumbnails-cli.php:217
+#: class-forceregeneratethumbnails.php:766
+msgid "Unknown failure."
+msgstr "Fallo desconocido."
+
+#. translators: %d: SVG attachment ID.
+#. translators: %d: attachment ID number
+#: class-force-regenerate-thumbnails-cli.php:116
+#: class-forceregeneratethumbnails.php:633
+msgid "Skipped: %d is a SVG"
+msgstr "Saltado: %d es un SVG"
+
+#. translators: %d: The attachment ID that was invalid or not found.
+#. translators: %d: attachment ID number
+#: class-force-regenerate-thumbnails-cli.php:107
+#: class-forceregeneratethumbnails.php:620
+msgid "Failed: %d is an invalid media ID."
+msgstr "Fallo: %d es un ID de medio no válido."
+
+#: class-forceregeneratethumbnails.php:590
+msgid "Your user account does not have permission to regenerate thumbnails."
+msgstr "Tu cuenta de usuario no tiene permiso para regenerar miniaturas."
+
+#: class-forceregeneratethumbnails.php:407
+msgid "All done!"
+msgstr "¡Todo hecho!"
+
+#: class-forceregeneratethumbnails.php:196
+msgid "Unknown error occured."
+msgstr "Ha ocurrido un error desconocido."
+
+#: class-forceregeneratethumbnails.php:118
+#: class-forceregeneratethumbnails.php:132
+#: class-forceregeneratethumbnails.php:426
+msgid "Access denied."
+msgstr "Acceso denegado."
+
+#. Author URI of the plugin
+#: force-regenerate-thumbnails.php
+msgid "http://ewww.io/about/"
+msgstr "http://ewww.io/about/"
+
+#. Author of the plugin
+#: force-regenerate-thumbnails.php
+msgid "Exactly WWW"
+msgstr "Exactly WWW"
+
+#. Plugin URI of the plugin
+#: force-regenerate-thumbnails.php
+msgid "https://wordpress.org/plugins/force-regenerate-thumbnails/"
+msgstr "https://es.wordpress.org/plugins/force-regenerate-thumbnails/"

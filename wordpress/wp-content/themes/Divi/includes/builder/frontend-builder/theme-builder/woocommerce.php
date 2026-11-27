@@ -66,11 +66,9 @@ function et_theme_builder_wc_review_placeholder() {
  * @param array $conditional_tags evaluate conditional tags when current request is AJAX request
  */
 function et_theme_builder_wc_set_global_objects( $conditional_tags = array() ) {
-	$is_tb              = et_()->array_get( $conditional_tags, 'is_tb', false );
-	$is_use_placeholder = $is_tb || is_et_pb_preview();
-
+	$is_tb = et_()->array_get( $conditional_tags, 'is_tb', false );
 	// Check if current request is theme builder (direct page / AJAX request)
-	if ( ! et_builder_tb_enabled() && ! $is_use_placeholder ) {
+	if ( ! et_builder_tb_enabled() && ! $is_tb ) {
 		return;
 	}
 
@@ -103,7 +101,7 @@ function et_theme_builder_wc_set_global_objects( $conditional_tags = array() ) {
 	// Get placeholders
 	$placeholders = et_theme_builder_wc_placeholders();
 
-	if ( $is_use_placeholder ) {
+	if ( $is_tb ) {
 		$placeholder_src = wc_placeholder_img_src( 'full' );
 		$placeholder_id  = attachment_url_to_postid( $placeholder_src );
 
@@ -133,9 +131,7 @@ function et_theme_builder_wc_set_global_objects( $conditional_tags = array() ) {
 	// Set current post ID as product's ID. `ET_Theme_Builder_Woocommerce_Product_Variable_Placeholder`
 	// handles all placeholder related value but product ID need to be manually set to match current
 	// post's ID. This is especially needed when add-ons is used and accessing get_id() method.
-	if ( isset( $post->ID ) ) {
-		$product->set_id( $post->ID );
-	}
+	$product->set_id( $post->ID );
 
 	// Save modified global for later use
 	$tb_wc_post    = $post;
@@ -146,16 +142,9 @@ function et_theme_builder_wc_set_global_objects( $conditional_tags = array() ) {
  * Reset global objects needed to manipulate `ETBuilderBackend.currentPage.woocommerceComponents`
  *
  * @since 4.0.1
- * @since 4.14.5 Add conditional tags parameter to evaluate AJAX request.
- *
- * @param array $conditional_tags Evaluate conditional tags when current request is AJAX request.
  */
-function et_theme_builder_wc_reset_global_objects( $conditional_tags = array() ) {
-	$is_tb              = et_()->array_get( $conditional_tags, 'is_tb', false );
-	$is_use_placeholder = $is_tb || is_et_pb_preview();
-
-	// Check if current request is theme builder (direct page / AJAX request).
-	if ( ! et_builder_tb_enabled() && ! $is_use_placeholder ) {
+function et_theme_builder_wc_reset_global_objects() {
+	if ( ! et_builder_tb_enabled() ) {
 		return;
 	}
 

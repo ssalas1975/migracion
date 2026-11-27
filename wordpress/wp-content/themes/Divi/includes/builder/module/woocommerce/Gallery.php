@@ -10,8 +10,6 @@
  * @since   3.29
  */
 
-defined( 'ABSPATH' ) || exit;
-
 if ( ! class_exists( 'ET_Builder_Module_Gallery' ) ) {
 	require_once ET_BUILDER_DIR_RESOLVED_PATH . '/module/Gallery.php';
 }
@@ -28,10 +26,9 @@ class ET_Builder_Module_Woocommerce_Gallery extends ET_Builder_Module_Gallery {
 	public function init() {
 		parent::init();
 
-		$this->name             = esc_html__( 'Woo Product Gallery', 'et_builder' );
-		$this->plural           = esc_html__( 'Woo Product Gallery', 'et_builder' );
+		$this->name             = esc_html__( 'Woo Gallery', 'et_builder' );
+		$this->plural           = esc_html__( 'Woo Galleries', 'et_builder' );
 		$this->slug             = 'et_pb_wc_gallery';
-		$this->folder_name      = 'et_pb_woo_modules';
 		$this->main_css_element = '%%order_class%%';
 
 		// Intentionally removing inherited options group.
@@ -225,7 +222,7 @@ class ET_Builder_Module_Woocommerce_Gallery extends ET_Builder_Module_Gallery {
 	 * @return array
 	 */
 	public static function get_wc_gallery( $args = array(), $conditional_tags = array(), $current_page = array() ) {
-		if ( 'current' === $args['product'] && 'true' === et_()->array_get( $conditional_tags, 'is_tb', false ) || is_et_pb_preview() ) {
+		if ( 'current' === $args['product'] && 'true' === et_()->array_get( $conditional_tags, 'is_tb', false ) ) {
 			et_theme_builder_wc_set_global_objects( $conditional_tags );
 
 			global $product;

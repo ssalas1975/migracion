@@ -86,7 +86,7 @@ class RevSliderFunctions{
 
 	
 	//------------------------------------------------------------
-	// get variable from post or from get. post wins.
+	// get variable from post or from get. get wins.
 	public static function getPostGetVariable($name,$initVar = ""){
 		$var = $initVar;
 		if(isset($_POST[$name])) $var = $_POST[$name];
@@ -110,9 +110,6 @@ class RevSliderFunctions{
 		return($var);
 	}
 	
-	public static function sortByOrder($a, $b) {
-		return $a['order'] - $b['order'];
-	}
 	
 	/**
 	 * validate that some file exists, if not - throw error
@@ -207,9 +204,7 @@ class RevSliderFunctions{
 			$json = json_encode($arr);
 			$json = addslashes($json);
 		}
-
-		if(empty($json)) $json = '{}';
-
+		
 		$json = "'".$json."'";
 		
 		return($json);
@@ -485,7 +480,7 @@ class RevSliderFunctions{
 	/**
 	 * change hex to rgba
 	 */
-    public static function hex2rgba($hex, $transparency = false, $raw = false, $do_rgb = false) {
+    public static function hex2rgba($hex, $transparency = false) {
         if($transparency !== false){
 			$transparency = ($transparency > 0) ? number_format( ( $transparency / 100 ), 2, ".", "" ) : 0;
         }else{
@@ -505,17 +500,8 @@ class RevSliderFunctions{
             $g = hexdec(substr($hex,2,2));
             $b = hexdec(substr($hex,4,2));
         }
-		
-		if($do_rgb){
-			$ret = $r.', '.$g.', '.$b;
-		}else{
-			$ret = $r.', '.$g.', '.$b.', '.$transparency;
-		}
-		if($raw){
-			return $ret;
-		}else{
-			return 'rgba('.$ret.')';
-		}
+
+        return 'rgba('.$r.', '.$g.', '.$b.', '.$transparency.')';
 
     }
 	
@@ -573,53 +559,14 @@ class RevSliderFunctions{
 		
 		if($adv_resp_sizes == true){
 			$width = $slider->slider->getParam("width", 1240, RevSlider::FORCE_NUMERIC);
-			$def = $width;
-			$width .= ',';
-			if($enable_custom_size_notebook == 'on'){
-				$width.= $slider->slider->getParam("width_notebook", 1024, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("width_notebook", 1024, RevSlider::FORCE_NUMERIC);
-			}else{
-				$width.= $def;
-			}
-			$width.= ',';
-			if($enable_custom_size_tablet == 'on'){
-				$width.= $slider->slider->getParam("width_tablet", 778, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("width_tablet", 778, RevSlider::FORCE_NUMERIC);
-			}else{
-				$width.= $def;
-			}
-			$width.= ',';
-			if($enable_custom_size_iphone == 'on'){
-				$width.= $slider->slider->getParam("width_mobile", 480, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("width_mobile", 480, RevSlider::FORCE_NUMERIC);
-			}else{
-				$width.= $def;
-			}
-			
-			$height = $slider->slider->getParam("height", 1240, RevSlider::FORCE_NUMERIC);
-			$def = $height;
-			$height .= ',';
-			if($enable_custom_size_notebook == 'on'){
-				$height.= $slider->slider->getParam("height_notebook", 1024, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("height_notebook", 1024, RevSlider::FORCE_NUMERIC);
-			}else{
-				$height.= $def;
-			}
-			$height.= ',';
-			if($enable_custom_size_tablet == 'on'){
-				$height.= $slider->slider->getParam("height_tablet", 778, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("height_tablet", 778, RevSlider::FORCE_NUMERIC);
-			}else{
-				$height.= $def;
-			}
-			$height.= ',';
-			if($enable_custom_size_iphone == 'on'){
-				$height.= $slider->slider->getParam("height_mobile", 480, RevSlider::FORCE_NUMERIC);
-				$def = $slider->slider->getParam("height_mobile", 480, RevSlider::FORCE_NUMERIC);
-			}else{
-				$height.= $def;
-			}
-			
+			$width .= ','. $slider->slider->getParam("width_notebook", 1024, RevSlider::FORCE_NUMERIC);
+			$width .= ','. $slider->slider->getParam("width_tablet", 778, RevSlider::FORCE_NUMERIC);
+			$width .= ','. $slider->slider->getParam("width_mobile", 480, RevSlider::FORCE_NUMERIC);
+			$height = $slider->slider->getParam("height", 868, RevSlider::FORCE_NUMERIC);
+			$height .= ','. $slider->slider->getParam("height_notebook", 768, RevSlider::FORCE_NUMERIC);
+			$height .= ','. intval($slider->slider->getParam("height_tablet", 960, RevSlider::FORCE_NUMERIC));
+			$height .= ','. intval($slider->slider->getParam("height_mobile", 720, RevSlider::FORCE_NUMERIC));
+						
 			$responsive = (isset($arrValues['width'])) ? $arrValues['width'] : '1240';
 			$def = (isset($arrValues['width'])) ? $arrValues['width'] : '1240';
 			

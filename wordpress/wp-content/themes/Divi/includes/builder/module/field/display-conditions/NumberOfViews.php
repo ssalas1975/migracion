@@ -2,7 +2,7 @@
 /**
  * Number of Views condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -18,7 +18,7 @@ trait NumberOfViewsCondition {
 	/**
 	 * Processes "Number of Views" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
 	 * @param  array $condition_id       Condition ID.
 	 * @param  array $condition_settings Containing all settings of the condition.

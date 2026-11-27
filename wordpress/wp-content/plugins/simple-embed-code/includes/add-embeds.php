@@ -1,0 +1,370 @@
+<?php
+/**
+ * Add Embed to Posts
+ *
+ * Functions to add embed code to posts.
+ *
+ * @package  simple-embed-code
+ */
+
+// Exit if accessed directly.
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Add filter to add embed code
+ *
+ * Filter to add embed to any posts.
+ *
+ * @uses     ce_get_embed_code    Get embed code from other posts.
+ * @uses     ce_quick_replace     Perform a quick/replace of content.
+ * @uses.    ce_generate_code     Create the appropriate embed code.
+ *
+ * @param    string $content      Post content without embedded code.
+ * @return   string               Post content with embedded code.
+ */
+function ce_filter( $content ) {
+
+	global $post;
+
+	if ( ! isset( $post->ID ) ) {
+		return $content;
+	}
+
+	// Set initial values.
+	static $options = null;
+	if ( null === $options ) {
+		$options = get_option( 'artiss_code_embed' );
+	}
+
+	if ( ! is_array( $options ) ) {
+		return $content;
+	}
+
+	// Whether the author of the post being rendered may output raw, unfiltered HTML.
+
+	// This one decision gates raw output for both local and global embeds, so an untrusted author's page
+	// can never emit unsanitized markup - regardless of who authored the post a global embed is stored on.
+
+	$post_author       = get_post_field( 'post_author', $post->ID );
+	$author_allows_raw = user_can( $post_author, 'unfiltered_html' );
+
+	if ( ! $author_allows_raw ) {
+		$content = ce_strip_tokens_from_tags( $content, $options['opening_ident'] . $options['keyword_ident'], $options['closing_ident'] );
+	}
+
+	// Replace every embed token in a single pass. preg_replace_callback() never re-scans the text it has
+	// inserted, so a value can't bring in a further token (which could otherwise land inside one of the
+	// value's own attributes, or reference itself and loop forever). For untrusted authors, a name may only be
+	// letters, numbers, underscores and hyphens, so a "token" can never run across HTML.
+
+	$name    = $author_allows_raw ? '.*?' : '[A-Za-z0-9_-]*';
+	$pattern = '/' . preg_quote( $options['opening_ident'] . $options['keyword_ident'], '/' ) . '(' . $name . ')' . preg_quote( $options['closing_ident'], '/' ) . '/s';
+
+	$content = preg_replace_callback(
+		$pattern,
+		function ( $matches ) use ( $post, $options, $author_allows_raw ) {
+
+			$suffix = $matches[1];
+
+			// Check for responsive part of suffix.
+
+			$responsive = false;
+			$max_width  = false;
+			$res_pos    = false;
+			if ( 1 < strlen( $suffix ) ) {
+				$res_pos = strpos( $suffix, '_RES', 1 );
+			}
+
+			if ( false !== $res_pos ) {
+
+				// If responsive section found, check it's at the end or has an underscore afterwards.
+				// Otherwise it may be part of something else.
+
+				if ( strlen( $suffix ) - 4 === $res_pos ) {
+					$responsive = true;
+				} elseif ( '_' === substr( $suffix, $res_pos + 4, 1 ) ) {
+					$responsive = true;
+					$max_width  = substr( $suffix, $res_pos + 5 );
+					$max_width  = is_numeric( $max_width ) ? absint( $max_width ) : '';
+				}
+
+				if ( $responsive ) {
+					$suffix = substr( $suffix, 0, $res_pos );
+				}
+			}
+
+			// Get the meta for the current post.
+
+			$post_meta = get_post_meta( $post->ID, $options['keyword_ident'] . $suffix, false );
+			if ( isset( $post_meta[0] ) ) {
+				// Only a string can be embed markup; anything else (e.g. an array meta value) is neutralized.
+				$value = is_string( $post_meta[0] ) ? $post_meta[0] : '';
+				if ( '' !== $value && $author_allows_raw ) {
+					$html = $value;
+				} else {
+					$html = wp_kses_post( $value );
+				}
+			} else {
+				// No meta found, so look for it elsewhere.
+				$html = ce_get_embed_code( $options['keyword_ident'], $suffix, $author_allows_raw );
+			}
+
+			return ce_generate_code( $html, $responsive, $max_width );
+		},
+		$content
+	);
+
+	// Loop around the post content looking for HTTP addresses.
+
+	if ( '1' === get_post_meta( $post->ID, '_ce_allow_url_embeds', true ) ) {
+		$content = ce_quick_replace( $content, $options, 'http://' );
+
+		// Loop around the post content looking for HTTPS addresses.
+
+		$content = ce_quick_replace( $content, $options, 'https://' );
+	}
+
+	return $content;
+}
+
+add_filter( 'the_content', 'ce_filter' );
+add_filter( 'widget_text_content', 'ce_filter' );
+add_action( 'save_post', 'ce_save_url_embed_permission' );
+
+/**
+ * Save URL Embed Permission
+ *
+ * On post save, records whether the post author has the unfiltered_html
+ * capability, so that URL embed tokens are only expanded at render time
+ * for content authored by trusted users.
+ *
+ * @param    string $post_id    The post ID.
+ */
+function ce_save_url_embed_permission( $post_id ) {
+
+	if ( wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+
+	$post    = get_post( $post_id );
+	$allowed = user_can( $post->post_author, 'unfiltered_html' ) ? '1' : '0';
+	update_post_meta( $post_id, '_ce_allow_url_embeds', $allowed );
+}
+
+/**
+ * Quick Replace
+ *
+ * Function to do a quick search/replace of the content.
+ *
+ * @param    string $content    The content.
+ * @param    array  $options    The options array.
+ * @param    string $search     The string to search for.
+ * @return   string             The updated content.
+ */
+function ce_quick_replace( $content = '', $options = '', $search = '' ) {
+
+	$start_pos = strpos( $content, $options['opening_ident'] . $search, 0 );
+
+	while ( false !== $start_pos ) {
+
+		$end_pos = strpos( $content, $options['closing_ident'], $start_pos + 1 );
+
+		if ( false !== $end_pos ) {
+			$url  = substr( $content, $start_pos + strlen( $options['opening_ident'] ), $end_pos - ( $start_pos + strlen( $options['opening_ident'] ) ) );
+			$file = ce_get_file( $url );
+			if ( false === $file ) {
+				$file = ce_report_error( __( 'File could not be fetched', 'simple-embed-code' ), 'Code Embed', false );
+			}
+			$content   = str_replace( $options['opening_ident'] . $url . $options['closing_ident'], wp_kses_post( $file ), $content );
+			$start_pos = strpos( $content, $options['opening_ident'] . $search, 0 );
+		} else {
+			$start_pos = strpos( $content, $options['opening_ident'] . $search, $start_pos + 1 );
+		}
+	}
+
+	return $content;
+}
+
+/**
+ * Generate Embed Code
+ *
+ * Function to generate the embed code that will be output.
+ *
+ * @param    string      $html           The embed code (required).
+ * @param    bool        $responsive     Responsive output required? (optional).
+ * @param    string|bool $max_width      Maximum width of responsive output (optional).
+ * @return   string                      The embed code.
+ */
+function ce_generate_code( $html, $responsive = false, $max_width = false ) {
+
+	$code = '';
+
+	if ( false !== $max_width && '' !== $max_width ) {
+		$code .= '<div style="' . esc_attr( 'width: ' . absint( $max_width ) . 'px; max-width: 100%' ) . '">';
+	}
+
+	if ( $responsive ) {
+		$code .= '<div class="ce-video-container">';
+	}
+
+	$code .= $html;
+
+	if ( $responsive ) {
+		$code .= '</div>';
+	}
+
+	if ( false !== $max_width && '' !== $max_width ) {
+		$code .= '</div>';
+	}
+
+	return $code;
+}
+
+/**
+ * Strip Tokens From Tags
+ *
+ * Removes embed tokens that sit inside an HTML tag (an attribute value or name)
+ * rather than in body text.
+ *
+ * @param    string $content    Post content.
+ * @param    string $open       Opening identifier plus keyword (e.g. '{{CODE').
+ * @param    string $close      Closing identifier (e.g. '}}').
+ * @return   string             Post content with in-tag tokens removed.
+ */
+function ce_strip_tokens_from_tags( $content, $open, $close ) {
+	if ( false === stripos( $content, $open ) ) {
+		return $content;
+	}
+	$pattern   = '/' . preg_quote( $open, '/' ) . '.*?(?:' . preg_quote( $close, '/' ) . '|$)/is';
+	$processor = new WP_HTML_Tag_Processor( $content );
+	while ( $processor->next_tag() ) {
+		foreach ( (array) $processor->get_attribute_names_with_prefix( '' ) as $name ) {
+			if ( false !== stripos( $name, $open ) ) {
+				$processor->remove_attribute( $name );
+				continue;
+			}
+			$value = $processor->get_attribute( $name );
+			if ( is_string( $value ) && false !== stripos( $value, $open ) ) {
+				$processor->set_attribute( $name, preg_replace( $pattern, '', $value ) );
+			}
+		}
+	}
+	return $processor->get_updated_html();
+}
+
+/**
+ * Get the Global Embed Code
+ *
+ * Function to look for and, if available, return the global embed code.
+ *
+ * @uses   ce_report_error     Generate an error message
+ *
+ * @param  string $ident       The embed code opening identifier.
+ * @param  string $suffix      The embed code suffix.
+ * @param  bool   $allow_raw   Whether the current post's author may output raw HTML.
+ * @return string              The embed code (or error).
+ */
+function ce_get_embed_code( $ident, $suffix, $allow_raw = false ) {
+
+	// Meta was not found in the current post, so look across the meta table.
+
+	$meta_name = $ident . $suffix;
+	global $wpdb;
+	$meta = $wpdb->get_results( $wpdb->prepare( "SELECT meta_value, post_title, ID FROM $wpdb->postmeta INNER JOIN $wpdb->posts ON post_id = ID WHERE BINARY meta_key = %s AND post_status = 'publish' ORDER BY ID", $meta_name ) ); // @codingStandardsIgnoreLine -- requires the latest data when called, so caching is inappropriate
+
+	$total_records = count( $meta );
+
+	if ( 0 < $total_records ) {
+
+		// Results were found - count how many distinct embed code values exist.
+
+		$records = count( array_unique( wp_list_pluck( $meta, 'meta_value' ) ) );
+
+		if ( 1 === $records ) {
+
+			// Only one unique code result returned, so assume this is the global embed.
+			$value = is_string( $meta[0]->meta_value ) ? $meta[0]->meta_value : '';
+			if ( '' !== $value && $allow_raw ) {
+				$html = $value;
+			} else {
+				$html = wp_kses_post( $value );
+			}
+		} else {
+
+			// More than one unique code result returned, so output the list of posts.
+
+			/* translators: %1$s: the embed code name, %2$d: the number of pieces of embed code being stored with that name, %3$d: the number of posts using that embed name */
+			$error = sprintf( __( 'Cannot use %1$s as a global code as it is being used to store %2$d unique pieces of code in %3$d posts', 'simple-embed-code' ), $meta_name, $records, $total_records );
+			$html  = ce_report_error( $error, 'Code Embed', false );
+		}
+	} else {
+
+		// No meta code was found, so write out an error.
+
+		/* translators: %s: the name of the embed */
+		$html = ce_report_error( sprintf( __( 'No embed code was found for %s', 'simple-embed-code' ), $meta_name ), 'Code Embed', false );
+
+	}
+	return $html;
+}
+
+/**
+ * Fetch a file
+ *
+ * Use WordPress API to fetch a file and check the results.
+ *
+ * @param  string $filein      File name to fetch.
+ * @return string|false        File contents as a string, or false on failure.
+ */
+function ce_get_file( $filein ) {
+
+	if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+
+		$response = vip_safe_wp_remote_get( $filein, '', 3, 3 );
+
+	} else {
+
+		$response = wp_safe_remote_get( $filein, array( 'timeout' => 3 ) ); // @codingStandardsIgnoreLine -- for non-VIP environments
+
+	}
+
+	if ( is_array( $response ) ) {
+
+		return $response['body'];
+
+	} else {
+
+		return false;
+
+	}
+}
+
+/**
+ * Report an error
+ *
+ * Function to report an error.
+ *
+ * @param  string $error            Error message.
+ * @param  string $plugin_name      The name of the plugin.
+ * @param  bool   $echo_out         True to echo the error, false to return it.
+ * @return string                   The error message (empty string when echoing, or when the viewer cannot edit posts).
+ */
+function ce_report_error( $error, $plugin_name, $echo_out = true ) {
+
+	$output = '<p role="alert" style="color: #b91c1c; font-weight: bold;">' . esc_html( $plugin_name ) . ': ' . esc_html( $error ) . "</p>\n";
+
+	// Plugin errors are only ever surfaced to users who can edit posts; visitors see nothing.
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		return '';
+	}
+
+	if ( $echo_out ) {
+		echo $output; // @codingStandardsIgnoreLine -- being escaped above so this is a false positive
+		return '';
+	}
+
+	return $output;
+}

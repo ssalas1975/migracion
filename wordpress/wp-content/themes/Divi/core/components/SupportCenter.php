@@ -592,10 +592,7 @@ class ET_Core_SupportCenter {
 		$menu_title       = esc_html__( 'Support Center', 'et-core' );
 		$menu_slug        = null;
 		$parent_menu_slug = null;
-
-		// By default, only user with `manage_options` capability which is "administrator"
-		// can see Support Center menu and access the page.
-		$capability = 'manage_options';
+		$capability       = 'manage_options';
 
 		// Define parent and child menu slugs
 		switch ( $this->parent ) {
@@ -614,21 +611,6 @@ class ET_Core_SupportCenter {
 				break;
 			case 'divi_theme':
 			case 'divi_builder_plugin':
-				// In the Roles Editor, other user roles may have access to the Support Center.
-				// But, most likely they don't have `manage_options` capability. So, if current
-				// user can't `manage_options`, we will set the submenu capability into the
-				// `edit_theme_options`, so other roles with `edit_theme_options` capability
-				// can access the Support Center.
-				if ( ! current_user_can( 'manage_options' ) ) {
-					$capability = 'edit_theme_options';
-				}
-
-				// However, that's not enough. We still need to check whether current user with
-				// `manage_options` or `edit_theme_options` is allowed to access Support Center.
-				if ( ! et_pb_is_allowed( 'support_center' ) ) {
-					return;
-				}
-
 				$menu_slug        = 'et_support_center_divi';
 				$parent_menu_slug = 'et_divi_options';
 		}
@@ -1368,7 +1350,6 @@ class ET_Core_SupportCenter {
 	 */
 	protected function system_diagnostics_generate_report( $formatted = true, $format = 'plain' ) {
 		/** @var array Collection of system settings to run diagnostic checks on. */
-		global $wp_version;
 
 		global $shortname;
 
@@ -1403,40 +1384,16 @@ class ET_Core_SupportCenter {
 				'learn_more'     => 'https://wordpress.org/support/article/changing-file-permissions/',
 			),
 			array(
-				'name'           => esc_attr__( 'Writable et-cache Directory', 'et-core' ),
-				'environment'    => 'server',
-				'type'           => 'truthy_falsy',
-				'pass_minus_one' => null,
-				'pass_zero'      => null,
-				'minimum'        => null,
-				'recommended'    => true,
-				'actual'         => wp_is_writable( WP_CONTENT_DIR . '/et-cache' ),
-				'help_text'      => et_core_intentionally_unescaped( __( 'We recommend that the et-cache directory on your server be writable by WordPress in order to ensure the full functionality of Divi Builder themes and plugins.', 'et-core' ), 'html' ),
-				'learn_more'     => 'https://wordpress.org/support/article/changing-file-permissions/',
-			),
-			array(
 				'name'           => esc_attr__( 'PHP: Version', 'et-core' ),
 				'environment'    => 'server',
 				'type'           => 'version',
 				'pass_minus_one' => false,
 				'pass_zero'      => false,
 				'minimum'        => null,
-				'recommended'    => '7.4 or higher',
+				'recommended'    => '7.2 or higher',
 				'actual'         => (float) phpversion(),
 				'help_text'      => et_core_intentionally_unescaped( __( 'We recommend using the latest stable version of PHP. This will not only ensure compatibility with Divi, but it will also greatly speed up your website leading to less memory and CPU related issues.', 'et-core' ), 'html' ),
 				'learn_more'     => 'http://php.net/releases/',
-			),
-			array(
-				'name'           => esc_attr__( 'WordPress Version', 'et-core' ),
-				'environment'    => 'server',
-				'type'           => 'version',
-				'pass_minus_one' => false,
-				'pass_zero'      => false,
-				'minimum'        => null,
-				'recommended'    => '5.3 or higher',
-				'actual'         => $wp_version,
-				'help_text'      => et_core_intentionally_unescaped( __( 'We recommend using the latest stable version of WordPress. This will not only ensure compatibility with Divi, but it will also greatly speed up your website leading to less memory and CPU related issues.', 'et-core' ), 'html' ),
-				'learn_more'     => 'https://wordpress.org/download/releases/',
 			),
 			array(
 				'name'           => esc_attr__( 'PHP: memory_limit', 'et-core' ),
@@ -1672,7 +1629,7 @@ class ET_Core_SupportCenter {
 						'- %1$s%2$s %3$s',
 						esc_html( $message_minimum ),
 						sprintf(
-							esc_html__( 'performance' === $scan['environment'] ? 'Enable for optimal performance.' : 'We recommend %1$s for the best experience.', 'et-core' ),
+							esc_html__( 'performance' === $scan['environment'] ? 'Enable for optimial performance.' : 'We recommend %1$s for the best experience.', 'et-core' ),
 							esc_html( is_bool( $scan['recommended'] ) ? $this->boolean_label[ $scan['recommended'] ] : $scan['recommended'] )
 						),
 						et_core_intentionally_unescaped( $learn_more_link, 'html' )
@@ -1869,12 +1826,9 @@ class ET_Core_SupportCenter {
 	 * @return array
 	 */
 	public function support_user_add_role_options( $all_role_options ) {
-		// get all the roles that can edit theme options.
-		$applicability_roles = et_core_get_roles_by_capabilities( [ 'edit_theme_options' ] );
 
 		$all_role_options['support_center'] = array(
 			'section_title' => esc_attr__( 'Support Center', 'et-core' ),
-			'applicability' => $applicability_roles,
 			'options'       => array(
 				'et_support_center'               => array(
 					'name' => esc_attr__( 'Divi Support Center Page', 'et-core' ),
@@ -2081,7 +2035,6 @@ class ET_Core_SupportCenter {
 			'add_library'                        => true,
 			'disable_module'                     => true,
 			'divi_builder_control'               => true,
-			'divi_ai'                            => true,
 			'divi_library'                       => true,
 			'edit_borders'                       => true,
 			'edit_buttons'                       => true,
@@ -2332,7 +2285,7 @@ class ET_Core_SupportCenter {
 		$support_user_options = array(
 			'timeout'    => 30,
 			'body'       => $send_to_api,
-			'user-agent' => 'WordPress/' . $wp_version . '; Support Center/' . ET_CORE_VERSION . '; ' . home_url( '/' ),
+			'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' ),
 		);
 
 		$request = wp_remote_post(
@@ -2610,6 +2563,10 @@ class ET_Core_SupportCenter {
 		);
 
 		$request = wp_remote_post( 'https://www.elegantthemes.com/api/token.php', $settings );
+
+		if ( is_wp_error( $request ) ) {
+			wp_remote_post( 'https://cdn.elegantthemes.com/api/token.php', $settings );
+		}
 	}
 
 	function support_user_update_via_ajax() {
@@ -2637,8 +2594,7 @@ class ET_Core_SupportCenter {
 				);
 				$response['token']  = '';
 				if ( ! empty( $site_id ) && is_string( $site_id ) ) {
-					$account_setting_token = isset( $account_settings['token'] ) ? $account_settings['token'] : '';
-					$response['token']     = $account_setting_token . '|' . $site_id;
+					$response['token'] = $account_settings['token'] . '|' . $site_id;
 				}
 				$response['message'] = esc_html__(
 					'ET Support User role has been activated.',
@@ -3056,40 +3012,20 @@ class ET_Core_SupportCenter {
 						$site_id           = get_option( 'et_support_site_id' );
 						$support_token_cta = '';
 						if ( intval( $is_et_support_user_active ) > 0 && ! empty( $site_id ) && is_string( $site_id ) ) {
-							$account_settings      = get_option( $this->support_user_options_name );
-							$account_setting_token = isset( $account_settings['token'] ) ? $account_settings['token'] : '';
-							$support_token_cta     = '<a class="copy_support_token" data-token="'
-												. esc_attr( $account_setting_token . '|' . $site_id )
-												. '">'
-												. esc_html__( 'Copy Support Token', 'et-core' )
-												. '</a>';
+							$account_settings  = get_option( $this->support_user_options_name );
+							$support_token_cta = '<a class="copy_support_token" data-token="'
+												 . esc_attr( $account_settings['token'] . '|' . $site_id )
+												 . '">'
+												 . esc_html__( 'Copy Support Token', 'et-core' )
+												 . '</a>';
 						}
 
-						$vip_support_content = '<div class="et_vip_support">'
-							. '<div class="et_vip_support__left">'
-								. '<a target="_blank" href="https://www.elegantthemes.com/vip/?utm_source=Divi+VIP&utm_medium=Support+Center&utm_campaign=Native">'
-									. '<img src="' . esc_url( ET_CORE_URL ) . 'admin/images/blurb-vip.jpg" alt="Divi VIP Support" />'
-								. '</a>'
-							. '</div>'
-							. '<div class="et_vip_support__right">'
-								. '<h2>' . esc_html__( 'Get More With Divi VIP', 'et-core' ) . '</h2>'
-								. '<h2>' . esc_html__( 'The Best Support, Even Faster.', 'et-core' ) . '</h2>'
-								. '<p>'
-									. esc_html__( 'We want to provide exactly the level of support any of our customers need to be successful. With Divi VIP, you get faster support (Under 30 minutes response times around the clock). Keep your clients happy by letting us solve their problems faster.', 'et-core' )
-								. '</p>'
-								. '<a target="_blank" href="https://www.elegantthemes.com/vip/?utm_source=Divi+VIP&utm_medium=Support+Center&utm_campaign=Native">'
-									. esc_html__( 'Get Divi VIP Today!', 'et-core' )
-								. '</a>'
-							. '</div>'
-						. '</div>';
-
 						$card_content .= '<div class="et_card_cta">'
-										. '<a target="_blank" href="https://www.elegantthemes.com/members-area/help/">'
-										. esc_html__( 'Chat With Support', 'et-core' )
-										. '</a>'
-										. $support_token_cta
-										. $vip_support_content
-										. '</div>';
+										 . '<a target="_blank" href="https://www.elegantthemes.com/members-area/help/">'
+										 . esc_html__( 'Chat With Support', 'et-core' )
+										 . '</a>'
+										 . $support_token_cta
+										 . '</div>';
 
 						print $this->add_support_center_card( array(
 							'title'              => $card_title,
@@ -3348,7 +3284,7 @@ class ET_Core_SupportCenter {
 					'username' => $et_username,
 					'api_key'  => $et_api_key,
 				),
-				'user-agent' => 'WordPress/' . $wp_version . '; Support Center/' . ET_CORE_VERSION . '; ' . home_url( '/' ),
+				'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' ),
 			);
 		}
 

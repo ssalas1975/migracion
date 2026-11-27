@@ -497,8 +497,6 @@ abstract class ET_Builder_Module_Type_PostContent extends ET_Builder_Module {
 			'<div%3$s class="%2$s"%6$s%7$s%8$s>
 				%5$s
 				%4$s
-				%9$s
-				%10$s
 				%1$s
 			</div>',
 			et_theme_builder_frontend_render_post_content(),
@@ -508,9 +506,7 @@ abstract class ET_Builder_Module_Type_PostContent extends ET_Builder_Module {
 			$parallax_image_background, // #5
 			et_core_esc_previously( $data_background_layout ),
 			et_core_esc_previously( $data_background_layout_hover ),
-			et_core_esc_previously( $data_remove_top_window_classname ),
-			et_core_esc_previously( $this->background_pattern() ), // #9
-			et_core_esc_previously( $this->background_mask() ) // #10
+			et_core_esc_previously( $data_remove_top_window_classname )
 		);
 
 		return $output;

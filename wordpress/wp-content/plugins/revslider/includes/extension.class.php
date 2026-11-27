@@ -4,7 +4,7 @@
  *
  * @package   Essential_Grid
  * @author    ThemePunch <info@themepunch.com>
- * @link      http://revolution.themepunch.com/
+ * @link      http://www.revolution.themepunch.com/
  * @copyright 2015 ThemePunch
  */
 
@@ -53,7 +53,7 @@ class RevSliderExtension {
 	 */
 	public function add_slider_to_eg_ajax($media){
 		
-		$media['revslider'] = array('name' => __('Slider Revolution', 'revslider'), 'type' => 'ccw');
+		$media['revslider'] = array('name' => __('Slider Revolution', REVSLIDER_TEXTDOMAIN), 'type' => 'ccw');
 		
 		return $media;
 	}
@@ -106,17 +106,14 @@ class RevSliderExtension {
 		}
 		
 		$selected_slider = (isset($values['eg_sources_revslider'])) ? $values['eg_sources_revslider'] : '';
-		if($selected_slider == ''){
-			$selected_slider = array();
-			$selected_slider[0] = '';
-		}
+		if($selected_slider == '') $selected_slider[0] = '';
 		?>
 		<p>
-			<strong style="font-size:14px"><?php _e('Choose Revolution Slider', 'revslider'); ?></strong>
+			<strong style="font-size:14px"><?php _e('Choose Revolution Slider', REVSLIDER_TEXTDOMAIN); ?></strong>
 		</p>
 		<p>
 			<select name="eg_sources_revslider" id="eg_sources_revslider">
-				<option value=""<?php selected($selected_slider[0], ''); ?>><?php _e('--- Choose Slider ---', 'revslider'); ?></option>
+				<option value=""<?php selected($selected_slider[0], ''); ?>><?php _e('--- Choose Slider ---', REVSLIDER_TEXTDOMAIN); ?></option>
 				<?php
 				if(!empty($shortcodes)){
 					foreach($shortcodes as $id => $name){
@@ -149,11 +146,9 @@ class RevSliderExtension {
 	public function add_eg_additional_inline_javascript(){
 		?>
 		<script type="text/javascript">
-			var ajaxRevslider;
-			
 			jQuery(document).ready(function() {
 				// CUSTOM AJAX CONTENT LOADING FUNCTION
-				ajaxRevslider = function(obj) {
+				var ajaxRevslider = function(obj) {
 				
 					// obj.type : Post Type
 					// obj.id : ID of Content to Load

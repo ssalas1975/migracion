@@ -13,10 +13,6 @@ class CacheHeaderSkeleton
             $this->save();
         }
 
-        if (isset($_POST["submit-delete-cache-header-settings"])){
-            $this->deletecache();
-        }
-
         // add_action('network_admin_menu', array( $this, 'cache_header_skeleton_add_plugin_page' ));
         add_action('admin_menu', array( $this, 'cache_header_skeleton_add_plugin_page' ));
         add_action('admin_init', array( $this, 'cache_header_skeleton_page_init' ));
@@ -64,7 +60,6 @@ class CacheHeaderSkeleton
 				<?php
                     settings_fields('cache_header_skeleton_option_group');
         do_settings_sections('cache-header-skeleton-admin');
-        submit_button('Borrar Cache', 'button button-primary', 'submit-delete-cache-header-settings'); 
         submit_button('Guardar', 'button button-primary', 'submit-cache-header-settings'); ?>
 			</form>
 		</div>
@@ -95,28 +90,12 @@ class CacheHeaderSkeleton
         );
 
         add_settings_field(
-            'url_skeleton_abc', // id
-            'url skeleton abc', // title
-            array( $this, 'url_skeleton_callback_abc' ), // callback
+            'url_skeleton_amp', // id
+            'url skeleton amp', // title
+            array( $this, 'url_skeleton_callback_amp' ), // callback
             'cache-header-skeleton-admin', // page
             'cache_header_skeleton_setting_section' // section
         );
-
-        // add_settings_field(
-        //     'url_skeleton_amp', // id
-        //     'url skeleton amp', // title
-        //     array( $this, 'url_skeleton_callback_amp' ), // callback
-        //     'cache-header-skeleton-admin', // page
-        //     'cache_header_skeleton_setting_section' // section
-        // );
-
-        // add_settings_field(
-        //     'url_skeleton_abc_amp', // id
-        //     'url skeleton abc amp', // title
-        //     array( $this, 'url_skeleton_callback_abc_amp' ), // callback
-        //     'cache-header-skeleton-admin', // page
-        //     'cache_header_skeleton_setting_section' // section
-        // );
 
         // add_settings_field(
         //     'host', // id
@@ -165,27 +144,11 @@ class CacheHeaderSkeleton
         );
     }
 
-    public function url_skeleton_callback_abc()
-    {
-        printf(
-            '<input class="regular-text" type="text" name="cache_header_skeleton_option_name[url_skeleton_abc]" id="url_skeleton_abc" value="%s">',
-            isset($this->cache_header_skeleton_options['url_skeleton_abc']) ? esc_attr($this->cache_header_skeleton_options['url_skeleton_abc']) : ''
-        );
-    }
-
     public function url_skeleton_callback_amp()
     {
         printf(
             '<input class="regular-text" type="text" name="cache_header_skeleton_option_name[url_skeleton_amp]" id="url_skeleton_amp" value="%s">',
             isset($this->cache_header_skeleton_options['url_skeleton_amp']) ? esc_attr($this->cache_header_skeleton_options['url_skeleton_amp']) : ''
-        );
-    }
-
-    public function url_skeleton_callback_abc_amp()
-    {
-        printf(
-            '<input class="regular-text" type="text" name="cache_header_skeleton_option_name[url_skeleton_abc_amp]" id="url_skeleton_abc_amp" value="%s">',
-            isset($this->cache_header_skeleton_options['url_skeleton_abc_amp']) ? esc_attr($this->cache_header_skeleton_options['url_skeleton_abc_amp']) : ''
         );
     }
 
@@ -226,9 +189,7 @@ class CacheHeaderSkeleton
     public function save()
     {
         $this->cache_header_skeleton_options['url_skeleton']=$_POST["cache_header_skeleton_option_name"]["url_skeleton"];
-        $this->cache_header_skeleton_options['url_skeleton_abc']=$_POST["cache_header_skeleton_option_name"]["url_skeleton_abc"];
-        // $this->cache_header_skeleton_options['url_skeleton_amp']=$_POST["cache_header_skeleton_option_name"]["url_skeleton_amp"];
-        // $this->cache_header_skeleton_options['url_skeleton_abc_amp']=$_POST["cache_header_skeleton_option_name"]["url_skeleton_abc_amp"];
+        $this->cache_header_skeleton_options['url_skeleton_amp']=$_POST["cache_header_skeleton_option_name"]["url_skeleton_amp"];
         $this->cache_header_skeleton_options['host']=$_POST["cache_header_skeleton_option_name"]["host"];
         $this->cache_header_skeleton_options['duration']=$_POST["cache_header_skeleton_option_name"]["duration"];
 
@@ -245,19 +206,6 @@ class CacheHeaderSkeleton
         }
 
         $this->loadSettings();
-    }
-
-    public function deletecache()
-    {
-        $dir = WP_CONTENT_DIR.'/uploads/headercache/';
-    
-        $cdir = scandir($dir);
-        foreach ($cdir as $key => $value) {
-            if (!in_array($value, array(".","..","01","02","03","04","05","06","07","08","09","10","11","12",))) {
-                unlink($dir . $value);
-            }
-        }
-        $this->addMessage("La cache se ha borrado correctamente");
     }
 }
 if (is_admin()) {

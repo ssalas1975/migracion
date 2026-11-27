@@ -18,7 +18,6 @@ $show_header_social_icons = $et_secondary_nav_items->show_header_social_icons;
 $et_secondary_nav         = $et_secondary_nav_items->secondary_nav;
 $et_top_info_defined      = $et_secondary_nav_items->top_info_defined;
 $et_slide_header          = 'slide' === et_get_option( 'header_style', 'left' ) || 'fullscreen' === et_get_option( 'header_style', 'left' ) ? true : false;
-$show_search_icon         = ( false !== et_get_option( 'show_search_icon', true ) && ! $et_slide_header ) || is_customize_preview();
 ?>
 <?php if ( $et_top_info_defined && ! $et_slide_header || is_customize_preview() ) : ?>
 	<?php ob_start(); ?>
@@ -28,11 +27,11 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 		<?php if ( $et_contact_info_defined ) : ?>
 
 			<div id="et-info">
-			<?php if ( ! empty( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
-				<span id="et-info-phone"><?php echo et_core_esc_previously( et_sanitize_html_input_text( strval( $et_phone_number ) ) ); ?></span>
+			<?php if ( '' !== ( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
+				<span id="et-info-phone"><?php echo et_core_esc_previously( et_sanitize_html_input_text( $et_phone_number ) ); ?></span>
 			<?php endif; ?>
 
-			<?php if ( ! empty( $et_email = et_get_option( 'header_email' ) ) ) : ?>
+			<?php if ( '' !== ( $et_email = et_get_option( 'header_email' ) ) ) : ?>
 				<a href="<?php echo esc_attr( 'mailto:' . $et_email ); ?>"><span id="et-info-email"><?php echo esc_html( $et_email ); ?></span></a>
 			<?php endif; ?>
 
@@ -74,7 +73,7 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 			</div>
 
 		</div>
-	</div>
+	</div> 
 <?php
 	$top_header = ob_get_clean();
 
@@ -137,11 +136,11 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 		<?php if ( $et_contact_info_defined ) : ?>
 
 			<div id="et-info">
-			<?php if ( ! empty( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
-				<span id="et-info-phone"><?php echo et_core_esc_previously( et_sanitize_html_input_text( strval( $et_phone_number ) ) ); ?></span>
+			<?php if ( '' !== ( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
+				<span id="et-info-phone"><?php echo et_core_esc_previously( et_sanitize_html_input_text( $et_phone_number ) ); ?></span>
 			<?php endif; ?>
 
-			<?php if ( ! empty( $et_email = et_get_option( 'header_email' ) ) ) : ?>
+			<?php if ( '' !== ( $et_email = et_get_option( 'header_email' ) ) ) : ?>
 				<a href="<?php echo esc_attr( 'mailto:' . $et_email ); ?>"><span id="et-info-email"><?php echo esc_html( $et_email ); ?></span></a>
 			<?php endif; ?>
 			</div>
@@ -274,11 +273,11 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 					<span class="mobile_menu_bar et_pb_header_toggle et_toggle_<?php echo esc_attr( et_get_option( 'header_style', 'left' ) ); ?>_menu"></span>
 				<?php endif; ?>
 
-				<?php if ( $show_search_icon ) : ?>
-					<div id="et_top_search">
-						<span id="et_search_icon"></span>
-					</div>
-				<?php endif; ?>
+				<?php if ( ( false !== et_get_option( 'show_search_icon', true ) && ! $et_slide_header ) || is_customize_preview() ) : ?>
+				<div id="et_top_search">
+					<span id="et_search_icon"></span>
+				</div>
+				<?php endif; // true === et_get_option( 'show_search_icon', false ) ?>
 
 				<?php
 
@@ -290,9 +289,8 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 				do_action( 'et_header_top' );
 
 				?>
-			</div> <!-- #et-top-navigation -->
-		</div> <!-- .container -->
-		<?php if ( $show_search_icon ) : ?>
+			</div>
+		</div>
 		<div class="et_search_outer">
 			<div class="container et_search_form_container">
 				<form role="search" method="get" class="et-search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -314,8 +312,7 @@ $show_search_icon         = ( false !== et_get_option( 'show_search_icon', true 
 				<span class="et_close_search_field"></span>
 			</div>
 		</div>
-		<?php endif; ?>
-	</header> <!-- #main-header -->
+	</header>
 <?php
 	$main_header = ob_get_clean();
 

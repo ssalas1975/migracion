@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Contact Form 7 - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-10-26 18:46:22+0000\n"
+"PO-Revision-Date: 2026-11-23 12:37:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,19 @@ msgstr ""
 "X-Generator: GlotPress/4.1.0\n"
 "Language: es\n"
 "Project-Id-Version: Plugins - Contact Form 7 - Stable (latest release)\n"
+
+#. translators: %s: label of the list option the free text field belongs to
+#: modules/checkbox.php:167
+msgid "Free text for the \"%s\" option"
+msgstr "Texto libre para la opción «%s»"
+
+#: includes/config-validator/form.php:95
+msgid "Stripe is used in a way that deviates from recommended practices."
+msgstr "Stripe se utiliza de una forma que se desvía de las prácticas recomendadas."
+
+#: admin/includes/editor.php:116
+msgid "Form template"
+msgstr "Plantilla de formulario"
 
 #: admin/includes/dashboard.php:167
 msgid "&raquo; New version available"
@@ -61,7 +74,7 @@ msgid "Generates a form-tag for a <a href=\"%s\">drop-down menu</a>."
 msgstr "Genera una etiqueta de formulario para un <a href=\"%s\">menú desplegable</a>."
 
 #. translators: %s: URL to quiz field doc
-#: modules/quiz.php:213
+#: modules/quiz.php:214
 msgid "Generates a form-tag for a <a href=\"%s\">quiz</a>."
 msgstr "Genera una etiqueta de formulario para un <a href=\"%s\">cuestionario</a>."
 
@@ -81,12 +94,12 @@ msgid "Generates a form-tag for a <a href=\"%s\">date input field</a>."
 msgstr "Genera una etiqueta de formulario para un <a href=\"%s\">campo de entrada de fecha</a>."
 
 #. translators: %s: URL to radio buttons doc
-#: modules/checkbox.php:383
+#: modules/checkbox.php:388
 msgid "Generates a form-tag for a group of <a href=\"%s\">radio buttons</a>."
 msgstr "Genera una etiqueta de formulario para un grupo de <a href=\"%s\">botones de selección</a>."
 
 #. translators: %s: URL to checkboxes doc
-#: modules/checkbox.php:374
+#: modules/checkbox.php:379
 msgid "Generates a form-tag for a group of <a href=\"%s\">checkboxes</a>."
 msgstr "Genera una etiqueta de formulario para un grupo de <a href=\"%s\">casillas de verificación</a>."
 
@@ -246,7 +259,7 @@ msgid "Contact Form 7 Dashboard"
 msgstr "Escritorio de Contact Form 7"
 
 #. translators: %s: URL to the Really Simple CAPTCHA plugin page
-#: modules/really-simple-captcha.php:40
+#: modules/really-simple-captcha.php:42
 msgid "<strong>Warning:</strong> The <a href=\"%s\">Really Simple CAPTCHA</a> plugin is not active."
 msgstr "<strong>Advertencia:</strong> El plugin <a href=\"%s\">Really Simple CAPTCHA</a> no está activo."
 
@@ -255,22 +268,22 @@ msgstr "<strong>Advertencia:</strong> El plugin <a href=\"%s\">Really Simple CAP
 msgid "You can expand the possibilities of your contact forms by integrating them with external services. For details, see <a href=\"%s\">Integration with external APIs</a>."
 msgstr "Puedes ampliar las posibilidades de tus formularios de contacto integrándolos con servicios externos. Para más detalles, consulta la <a href=\"%s\">integración con API externas</a>."
 
-#: admin/includes/editor.php:399
+#: admin/includes/editor.php:410
 msgid "Exclude a line from output if all of its mail-tags are blank"
 msgstr "Excluye una línea de la salida si todas sus etiquetas de correo están en blanco"
 
 #. translators: %s: URL to support page about the additional settings editor
-#: admin/includes/editor.php:523
+#: admin/includes/editor.php:534
 msgid "You can add customization code snippets here. For details, see <a href=\"%s\">Additional settings</a>."
 msgstr "Puedes añadir fragmentos de código de personalización aquí. Para conocer los detalles ve a los <a href=\"%s\">ajustes adicionales</a>."
 
 #. translators: %s: URL to support page about the messages editor
-#: admin/includes/editor.php:462
+#: admin/includes/editor.php:473
 msgid "You can edit messages used in various situations here. For details, see <a href=\"%s\">Editing messages</a>."
 msgstr "Puedes editar mensajes utilizados en diversas situaciones aquí. Para conocer los detalles ve a la <a href=\"%s\">edición de mensajes</a>."
 
 #. translators: %s: URL to support page about the email template
-#: admin/includes/editor.php:210
+#: admin/includes/editor.php:221
 msgid "You can edit the email template here. For details, see <a href=\"%s\">Setting up mail</a>."
 msgstr "Puedes editar la plantilla de correo electrónico aquí. Para conocer los detalles ve a la <a href=\"%s\">configuración del correo electrónico</a>."
 
@@ -415,15 +428,15 @@ msgstr "Generadord etiqueta de formulario de meú desplegable"
 msgid "Drop-down menu"
 msgstr "Menú desplegable"
 
-#: modules/quiz.php:291
+#: modules/quiz.php:292
 msgid "The capital of Brazil? | Rio"
 msgstr "¿La capital de Brasil? | Rio"
 
-#: modules/quiz.php:276
+#: modules/quiz.php:277
 msgid "One pipe-separated question-answer pair (question|answer) per line."
 msgstr "Una pareja de pregunta-respuesta separadas por barra vertical  (pregunta|respuesta) por línea."
 
-#: modules/quiz.php:210
+#: modules/quiz.php:211
 msgid "Quiz form-tag generator"
 msgstr "Generador de etiqueta de formulario de cuestionario"
 
@@ -455,19 +468,19 @@ msgstr "Campo de subida de archivos"
 msgid "Date field form-tag generator"
 msgstr "Genarador de etiqueta de formulario de campo de fecha"
 
-#: modules/checkbox.php:380
+#: modules/checkbox.php:385
 msgid "Radio buttons form-tag generator"
 msgstr "Generador de etiqueta de formulario de botones de selección única"
 
-#: modules/checkbox.php:379
+#: modules/checkbox.php:384
 msgid "Radio buttons"
 msgstr "Botones de selección única"
 
-#: modules/checkbox.php:371
+#: modules/checkbox.php:376
 msgid "Checkboxes form-tag generator"
 msgstr "Genarador de etiqueta de formulario de casillas de verificación"
 
-#: modules/checkbox.php:370
+#: modules/checkbox.php:375
 msgid "Checkboxes"
 msgstr "Casillas de verificación"
 
@@ -560,7 +573,7 @@ msgstr "Cerrar esta ventana emergente"
 msgid "Use of tag generator instances older than version 2 is deprecated. Version %1$s instance (%2$s) detected."
 msgstr "El uso de instancias del generador de etiquetas anterior a la versión 2 está obsoleto. Instancia (%2$s) de la versión %1$s detectada."
 
-#: modules/checkbox.php:223
+#: modules/checkbox.php:228
 msgid "Too many items are selected."
 msgstr "Se han seleccionado demasiados elementos."
 
@@ -568,7 +581,7 @@ msgstr "Se han seleccionado demasiados elementos."
 msgid "Invalid action URL is detected."
 msgstr "Se ha detectado una URL de acción no válida."
 
-#: modules/checkbox.php:304 modules/select.php:217
+#: modules/checkbox.php:309 modules/select.php:217
 msgid "Undefined value was submitted through this field."
 msgstr "Se ha enviado un valor sin definir mediante este campo."
 
@@ -595,7 +608,7 @@ msgstr "Esto es un aviso de que se ha enviado un formulario de contacto en tu we
 msgid "Unsafe email config is used without sufficient protection."
 msgstr "Se está usando una configuración insegura del correo electrónico, sin la protección suficiente."
 
-#: includes/config-validator/validator.php:239
+#: includes/config-validator/validator.php:240
 msgid "Configuration error is detected."
 msgstr "Se ha detectado un error en la configuración."
 
@@ -958,6 +971,10 @@ msgstr "H:i"
 msgid "%1$s at %2$s"
 msgstr "%1$s a las %2$s"
 
+#: admin/includes/editor.php:560
+msgid "Additional settings"
+msgstr "Ajustes adicionales"
+
 #: modules/sendinblue/service.php:127 modules/sendinblue/service.php:138
 msgid "Error"
 msgstr "Error"
@@ -978,11 +995,11 @@ msgstr "reCAPTCHA está activo en este sitio."
 msgid "reCAPTCHA response token is empty."
 msgstr "El token de respuesta de reCAPTCHA está vacío."
 
-#: includes/submission.php:662
+#: includes/submission.php:661
 msgid "Submitted nonce is invalid."
 msgstr "El nonce enviado no es válido."
 
-#: includes/submission.php:653
+#: includes/submission.php:652
 msgid "User-Agent string is unnaturally short."
 msgstr "La cadena del agente de usuario es extrañamente corta."
 
@@ -1154,7 +1171,7 @@ msgstr "Hay varios controles de formulario en un solo elemento de etiqueta."
 msgid "FAQ about Configuration Validator"
 msgstr "Preguntas frecuentes sobre el validador de configuración"
 
-#: modules/quiz.php:185
+#: modules/quiz.php:186
 msgid "The answer to the quiz is incorrect."
 msgstr "La respuesta al cuestionario no es correcta."
 
@@ -1320,19 +1337,19 @@ msgstr "enviar"
 msgid "drop-down menu"
 msgstr "menú desplegable"
 
-#: modules/quiz.php:266
+#: modules/quiz.php:267
 msgid "Questions and answers"
 msgstr "Preguntas y respuestas"
 
-#: modules/quiz.php:209
+#: modules/quiz.php:210
 msgid "Quiz"
 msgstr "Cuestionario"
 
-#: modules/quiz.php:200
+#: modules/quiz.php:201
 msgid "quiz"
 msgstr "cuestionario"
 
-#: modules/quiz.php:183
+#: modules/quiz.php:184
 msgid "Sender does not enter the correct answer to the quiz"
 msgstr "El remitente no ha introducido la respuesta correcta al cuestionario"
 
@@ -1437,28 +1454,28 @@ msgstr "Envolver cada elemento con la etiqueta label"
 msgid "Field type"
 msgstr "Tipo de campo"
 
-#: modules/checkbox.php:356
+#: modules/checkbox.php:361
 msgid "radio buttons"
 msgstr "botones de selección"
 
-#: modules/checkbox.php:355
+#: modules/checkbox.php:360
 msgid "checkboxes"
 msgstr "casillas de verificación"
 
-#: modules/really-simple-captcha.php:294
+#: modules/really-simple-captcha.php:296
 msgid "This contact form contains CAPTCHA fields, but the necessary libraries (GD and FreeType) are not available on your server."
 msgstr "Este formulario de contacto tiene campos CAPTCHA, pero las bibliotecas necesarias (GD y FreeType) no están disponibles en tu servidor."
 
 #. translators: %s: Path to the temporary folder
-#: modules/really-simple-captcha.php:282
+#: modules/really-simple-captcha.php:284
 msgid "This contact form contains CAPTCHA fields, but the temporary folder for the files (%s) does not exist or is not writable. You can create the folder or change its permission manually."
 msgstr "Este formulario de contacto tiene campos CAPTCHA, pero la carpeta temporal para los archivos (%s) no existe o no tiene permisos de escritura. Puedes crear la carpeta o cambiar sus permisos manualmente."
 
-#: modules/really-simple-captcha.php:240
+#: modules/really-simple-captcha.php:242
 msgid "Your entered code is incorrect."
 msgstr "El código introducido es incorrecto."
 
-#: modules/really-simple-captcha.php:238
+#: modules/really-simple-captcha.php:240
 msgid "The code that sender entered does not match the CAPTCHA"
 msgstr "El código introducido por el remitente no coincide con el CAPTCHA"
 
@@ -1647,47 +1664,47 @@ msgstr "Acciones disponibles"
 msgid "Overview"
 msgstr "Resumen"
 
-#: admin/includes/editor.php:435
+#: admin/includes/editor.php:446
 msgid "File attachments"
 msgstr "Archivos adjuntos"
 
-#: admin/includes/editor.php:419
+#: admin/includes/editor.php:430
 msgid "Use HTML content type"
 msgstr "Usar contenido de tipo HTML"
 
-#: admin/includes/editor.php:362
+#: admin/includes/editor.php:373
 msgid "Message body"
 msgstr "Cuerpo del mensaje"
 
-#: admin/includes/editor.php:331
+#: admin/includes/editor.php:342
 msgid "Additional headers"
 msgstr "Cabeceras adicionales"
 
-#: admin/includes/editor.php:303 includes/contact-form-template.php:42
+#: admin/includes/editor.php:314 includes/contact-form-template.php:42
 msgid "Subject"
 msgstr "Asunto"
 
-#: admin/includes/editor.php:275
+#: admin/includes/editor.php:286
 msgid "From"
 msgstr "De"
 
-#: admin/includes/editor.php:247
+#: admin/includes/editor.php:258
 msgid "To"
 msgstr "Para"
 
-#: admin/includes/editor.php:219
+#: admin/includes/editor.php:230
 msgid "In the following fields, you can use these mail-tags:"
 msgstr "En los siguientes campos puedes usar estas etiquetas de correo electrónico:"
 
-#: admin/includes/editor.php:196
+#: admin/includes/editor.php:207
 msgid "Mail (2) is an additional mail template often used as an autoresponder."
 msgstr "Correo electrónico (2) es una plantilla de correo electrónico adicional, usada frecuentemente como respuesta automática."
 
-#: admin/includes/editor.php:135
+#: admin/includes/editor.php:146
 msgid "Use Mail (2)"
 msgstr "Usar correo electrónico (2)"
 
-#: admin/includes/editor.php:134
+#: admin/includes/editor.php:145
 msgid "Mail (2)"
 msgstr "Correo electrónico (2)"
 
@@ -1718,7 +1735,7 @@ msgstr "Autor"
 msgid "Title"
 msgstr "Título"
 
-#: admin/edit-contact-form.php:385 admin/includes/editor.php:532
+#: admin/edit-contact-form.php:385 admin/includes/editor.php:543
 msgid "Additional Settings"
 msgstr "Ajustes adicionales"
 
@@ -1727,11 +1744,11 @@ msgstr "Ajustes adicionales"
 msgid "Additional Settings (%d)"
 msgstr "Ajustes adicionales (%d)"
 
-#: admin/edit-contact-form.php:362 admin/includes/editor.php:480
+#: admin/edit-contact-form.php:362 admin/includes/editor.php:491
 msgid "Messages"
 msgstr "Mensajes"
 
-#: admin/edit-contact-form.php:358 admin/includes/editor.php:143
+#: admin/edit-contact-form.php:358 admin/includes/editor.php:154
 msgid "Mail"
 msgstr "Correo"
 

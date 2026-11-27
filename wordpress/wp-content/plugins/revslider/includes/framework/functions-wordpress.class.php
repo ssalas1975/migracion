@@ -7,7 +7,7 @@
 
 if( !defined( 'ABSPATH') ) exit();
 
-class RevSliderFunctionsWP {
+class RevSliderFunctionsWP{
 
 	public static $urlSite;
 	public static $urlAdmin;
@@ -174,13 +174,6 @@ class RevSliderFunctionsWP {
 	}
 	
 	
-	/**
-	 * Check if current user is administrator
-	 **/
-	public static function isAdminUser(){
-		return current_user_can('administrator');
-	}
-	
 	
 	/* Import media from url
 	 *
@@ -189,6 +182,7 @@ class RevSliderFunctionsWP {
 	 *
 	 * @return boolean True on success, false on failure
 	 */
+
 	public static function import_media($file_url, $folder_name) {
 		require_once(ABSPATH . 'wp-admin/includes/image.php');
 		
@@ -248,18 +242,12 @@ class RevSliderFunctionsWP {
 			return false;
 		}
 	}
-	
-	
 	/**
 	 * 
 	 * register widget (must be class)
 	 */
 	public static function registerWidget($widgetName){
-		add_action('widgets_init', array('RevSliderFunctionsWP', 'revSliderRegisterWidget'));
-	}
-	
-	public static function revSliderRegisterWidget(){
-	   register_widget( 'RevSliderWidget' );
+		add_action('widgets_init', create_function('', 'return register_widget("'.$widgetName.'");'));
 	}
 
 	/**
@@ -290,7 +278,7 @@ class RevSliderFunctionsWP {
 	public static function getImageUrlFromPath($pathImage){
 		//protect from absolute url
 		$pathLower = strtolower($pathImage);
-		if(strpos($pathLower, "http://") !== false || strpos($pathLower, "https://") !== false || strpos($pathLower, "www.") === 0)
+		if(strpos($pathLower, "http://") !== false || strpos($pathLower, "www.") === 0)
 			return($pathImage);
 		
 		$urlImage = self::getUrlUploads().$pathImage;
@@ -435,33 +423,26 @@ class RevSliderFunctionsWP {
 	 * 
 	 * get posts by coma saparated posts
 	 */
-	public static function getPostsByIDs($strIDs, $slider_id, $is_gal, $additional = array()){
+	public static function getPostsByIDs($strIDs, $slider_id){
 		
 		if(is_string($strIDs)){
 			$arr = explode(",",$strIDs);
-		}else{
-			$arr = $strIDs;
-		}
-
+		}			
+		
 		$query = array(
 			'post_type'=>"any",
 			'ignore_sticky_posts' => 1,
 			'post__in' => $arr
 		);
 		
-		if($is_gal){
-			$query['post_status'] = 'inherit';
-			$query['orderby'] = 'post__in';
-		}
-		
-		$query = array_merge($query, $additional);
 		$query = apply_filters('revslider_get_posts', $query, $slider_id);
 		
 		$objQuery = new WP_Query($query);
 		
-		$arrPosts = $objQuery->posts;		
-
+		$arrPosts = $objQuery->posts;						
+		
 		//dmp($query);dmp("num posts: ".count($arrPosts));exit();
+		
 		foreach($arrPosts as $key=>$post){
 				
 			if(method_exists($post, "to_array"))
@@ -470,8 +451,6 @@ class RevSliderFunctionsWP {
 				$arrPosts[$key] = (array)$post;
 		}
 		
-
-
 		return($arrPosts);
 	}
 	
@@ -501,8 +480,7 @@ class RevSliderFunctionsWP {
 		if(RevSliderWpml::isWpmlExists()){ //translate categories to languages
 			$newcat = array();
 			foreach($catID as $id){
-				//$newcat[] = icl_object_id($id, 'category', true);
-				$newcat[] = apply_filters( 'wpml_object_id', $id, 'category', true );
+				$newcat[] = icl_object_id($id, 'category', true);
 			}
 			$catID = $newcat;
 		}
@@ -572,6 +550,7 @@ class RevSliderFunctionsWP {
 		$objQuery = new WP_Query($query);
 
 		$arrPosts = $objQuery->posts;
+
 		
 		foreach($arrPosts as $key=>$post){
 			
@@ -787,21 +766,21 @@ class RevSliderFunctionsWP {
 	 * get excerpt from post id
 	 */
 	public static function getExcerptById($postID, $limit=55){
-
-		$post = get_post($postID);	
-
-		$excerpt = $post->post_excerpt;
-		$excerpt = trim($excerpt);
-
-		$excerpt = trim($excerpt);
-		if(empty($excerpt))
-		$excerpt = $post->post_content;			 
-
-		$excerpt = strip_tags($excerpt,"<b><br><br/><i><strong><small>");
-
-		$excerpt = RevSliderFunctions::getTextIntro($excerpt, $limit);
-
-		return apply_filters('revslider_getExcerptById', $excerpt, $post, $limit);
+		
+		 $post = get_post($postID);	
+		 
+		 $excerpt = $post->post_excerpt;
+		 $excerpt = trim($excerpt);
+		 
+		 $excerpt = trim($excerpt);
+		 if(empty($excerpt))
+			$excerpt = $post->post_content;			 
+		 
+		 $excerpt = strip_tags($excerpt,"<b><br><br/><i><strong><small>");
+		 
+		 $excerpt = RevSliderFunctions::getTextIntro($excerpt, $limit);
+		 
+		 return $excerpt;
 	}		
 	
 	
@@ -816,39 +795,6 @@ class RevSliderFunctionsWP {
 		return($displayName);
 	}
 	
-	/**
-	 * 
-	 * get user avatar from user id
-	 */
-	public static function getUserAvatarUrl($userID){
-		
-		$avatar =  get_avatar_url($userID,array("size"=>"80"));
-		
-		return($avatar);
-	}
-
-	/**
-	 * 
-	 * get user posts page from user id
-	 */
-	public static function getUserPostsPage($userID){
-		
-		$link =  get_author_posts_url($userID);
-		
-		return($link);
-	}
-
-	/**
-	 * 
-	 * get user page from user id
-	 */
-	public static function getUserPage($userID){
-		
-		$curauth = get_user_by('ID', $userID);
-		$user_url = $curauth->user_url;
-		
-		return($user_url);
-	}
 	
 	/**
 	 * 
@@ -940,7 +886,7 @@ class RevSliderFunctionsWP {
 			$catName = $category["name"];
 			
 			if(!empty($link))
-				$thelist .= '<a href="' . esc_url( $link ) . '" title="' . esc_attr( sprintf( __( "View all posts in %s", 'revslider'), $category["name"] ) ) . '" ' . $rel . '>' . $catName.'</a>';
+				$thelist .= '<a href="' . esc_url( $link ) . '" title="' . esc_attr( sprintf( __( "View all posts in %s", REVSLIDER_TEXTDOMAIN), $category["name"] ) ) . '" ' . $rel . '>' . $catName.'</a>';
 			else
 				$thelist .= $catName;
 			
@@ -1246,15 +1192,6 @@ class RevSliderFunctionsWP {
 		return $attachment_id;
 	}
 	
-	
-	public static function update_option($handle, $value, $autoload = 'on'){ //on is on, false is 'off'
-		
-		if(!add_option($handle, $value, '', $autoload)){ //returns false if option is not existing
-			delete_option($handle);
-		}
-		
-		add_option($handle, $value, '', $autoload);
-	}
 	
 }	//end of the class
 

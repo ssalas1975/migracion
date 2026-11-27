@@ -2,7 +2,7 @@
 /**
  * Date Archive condition logic swiftly crafted.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -20,21 +20,19 @@ trait DateArchiveCondition {
 	/**
 	 * Processes "Date Archive" condition.
 	 *
-	 * @since 4.11.0
+	 * @since ??
 	 *
-	 * @param  array $condition_settings Containing all settings of the condition.
+	 * @param  array $all_settings Containing all settings of the condition.
 	 *
 	 * @return boolean Condition output.
 	 */
-	protected function _process_date_archive_condition( $condition_settings ) {
+	protected function _process_date_archive_condition( $all_settings ) {
 		if ( ! is_date() ) {
 			return false;
 		}
 
-		// Checks for additional display rule for compatibility with Conditional Display older versions which didn't use `displayRule` key.
-		$legacy_display_rule = isset( $condition_settings['dateArchiveDisplay'] ) ? $condition_settings['dateArchiveDisplay'] : 'isAfter';
-		$display_rule        = isset( $condition_settings['displayRule'] ) ? $condition_settings['displayRule'] : $legacy_display_rule;
-		$date                = isset( $condition_settings['dateArchive'] ) ? $condition_settings['dateArchive'] : '';
+		$display_rule = isset( $all_settings['dateArchiveDisplay'] ) ? $all_settings['dateArchiveDisplay'] : 'isAfter';
+		$date         = isset( $all_settings['dateArchive'] ) ? $all_settings['dateArchive'] : '';
 
 		$year         = get_query_var( 'year' );
 		$monthnum     = get_query_var( 'monthnum' ) === 0 ? 1 : get_query_var( 'monthnum' );

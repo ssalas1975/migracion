@@ -1,20 +1,8 @@
-/************************************************
- * REVOLUTION 5.4.6.4 EDIT LAYER TIMELINE JS 
- * @version: 2.1 (06.03.2018)
- * @author ThemePunch
-************************************************/
 
-/* perfect-scrollbar v0.6.11 */
-!function t(e,n,r){function o(l,a){if(!n[l]){if(!e[l]){var s="function"==typeof require&&require;if(!a&&s)return s(l,!0);if(i)return i(l,!0);var c=new Error("Cannot find module '"+l+"'");throw c.code="MODULE_NOT_FOUND",c}var u=n[l]={exports:{}};e[l][0].call(u.exports,function(t){var n=e[l][1][t];return o(n?n:t)},u,u.exports,t,e,n,r)}return n[l].exports}for(var i="function"==typeof require&&require,l=0;l<r.length;l++)o(r[l]);return o}({1:[function(t,e,n){"use strict";function r(t){t.fn.perfectScrollbar=function(t){return this.each(function(){if("object"==typeof t||"undefined"==typeof t){var e=t;i.get(this)||o.initialize(this,e)}else{var n=t;"update"===n?o.update(this):"destroy"===n&&o.destroy(this)}})}}var o=t("../main"),i=t("../plugin/instances");if("function"==typeof define&&define.amd)define(["jquery"],r);else{var l=window.jQuery?window.jQuery:window.$;"undefined"!=typeof l&&r(l)}e.exports=r},{"../main":7,"../plugin/instances":18}],2:[function(t,e,n){"use strict";function r(t,e){var n=t.className.split(" ");n.indexOf(e)<0&&n.push(e),t.className=n.join(" ")}function o(t,e){var n=t.className.split(" "),r=n.indexOf(e);r>=0&&n.splice(r,1),t.className=n.join(" ")}n.add=function(t,e){t.classList?t.classList.add(e):r(t,e)},n.remove=function(t,e){t.classList?t.classList.remove(e):o(t,e)},n.list=function(t){return t.classList?Array.prototype.slice.apply(t.classList):t.className.split(" ")}},{}],3:[function(t,e,n){"use strict";function r(t,e){return window.getComputedStyle(t)[e]}function o(t,e,n){return"number"==typeof n&&(n=n.toString()+"px"),t.style[e]=n,t}function i(t,e){for(var n in e){var r=e[n];"number"==typeof r&&(r=r.toString()+"px"),t.style[n]=r}return t}var l={};l.e=function(t,e){var n=document.createElement(t);return n.className=e,n},l.appendTo=function(t,e){return e.appendChild(t),t},l.css=function(t,e,n){return"object"==typeof e?i(t,e):"undefined"==typeof n?r(t,e):o(t,e,n)},l.matches=function(t,e){return"undefined"!=typeof t.matches?t.matches(e):"undefined"!=typeof t.matchesSelector?t.matchesSelector(e):"undefined"!=typeof t.webkitMatchesSelector?t.webkitMatchesSelector(e):"undefined"!=typeof t.mozMatchesSelector?t.mozMatchesSelector(e):"undefined"!=typeof t.msMatchesSelector?t.msMatchesSelector(e):void 0},l.remove=function(t){"undefined"!=typeof t.remove?t.remove():t.parentNode&&t.parentNode.removeChild(t)},l.queryChildren=function(t,e){return Array.prototype.filter.call(t.childNodes,function(t){return l.matches(t,e)})},e.exports=l},{}],4:[function(t,e,n){"use strict";var r=function(t){this.element=t,this.events={}};r.prototype.bind=function(t,e){"undefined"==typeof this.events[t]&&(this.events[t]=[]),this.events[t].push(e),this.element.addEventListener(t,e,!1)},r.prototype.unbind=function(t,e){var n="undefined"!=typeof e;this.events[t]=this.events[t].filter(function(r){return n&&r!==e?!0:(this.element.removeEventListener(t,r,!1),!1)},this)},r.prototype.unbindAll=function(){for(var t in this.events)this.unbind(t)};var o=function(){this.eventElements=[]};o.prototype.eventElement=function(t){var e=this.eventElements.filter(function(e){return e.element===t})[0];return"undefined"==typeof e&&(e=new r(t),this.eventElements.push(e)),e},o.prototype.bind=function(t,e,n){this.eventElement(t).bind(e,n)},o.prototype.unbind=function(t,e,n){this.eventElement(t).unbind(e,n)},o.prototype.unbindAll=function(){for(var t=0;t<this.eventElements.length;t++)this.eventElements[t].unbindAll()},o.prototype.once=function(t,e,n){var r=this.eventElement(t),o=function(t){r.unbind(e,o),n(t)};r.bind(e,o)},e.exports=o},{}],5:[function(t,e,n){"use strict";e.exports=function(){function t(){return Math.floor(65536*(1+Math.random())).toString(16).substring(1)}return function(){return t()+t()+"-"+t()+"-"+t()+"-"+t()+"-"+t()+t()+t()}}()},{}],6:[function(t,e,n){"use strict";var r=t("./class"),o=t("./dom"),i=n.toInt=function(t){return parseInt(t,10)||0},l=n.clone=function(t){if(null===t)return null;if(t.constructor===Array)return t.map(l);if("object"==typeof t){var e={};for(var n in t)e[n]=l(t[n]);return e}return t};n.extend=function(t,e){var n=l(t);for(var r in e)n[r]=l(e[r]);return n},n.isEditable=function(t){return o.matches(t,"input,[contenteditable]")||o.matches(t,"select,[contenteditable]")||o.matches(t,"textarea,[contenteditable]")||o.matches(t,"button,[contenteditable]")},n.removePsClasses=function(t){for(var e=r.list(t),n=0;n<e.length;n++){var o=e[n];0===o.indexOf("ps-")&&r.remove(t,o)}},n.outerWidth=function(t){return i(o.css(t,"width"))+i(o.css(t,"paddingLeft"))+i(o.css(t,"paddingRight"))+i(o.css(t,"borderLeftWidth"))+i(o.css(t,"borderRightWidth"))},n.startScrolling=function(t,e){r.add(t,"ps-in-scrolling"),"undefined"!=typeof e?r.add(t,"ps-"+e):(r.add(t,"ps-x"),r.add(t,"ps-y"))},n.stopScrolling=function(t,e){r.remove(t,"ps-in-scrolling"),"undefined"!=typeof e?r.remove(t,"ps-"+e):(r.remove(t,"ps-x"),r.remove(t,"ps-y"))},n.env={isWebKit:"WebkitAppearance"in document.documentElement.style,supportsTouch:"ontouchstart"in window||window.DocumentTouch&&document instanceof window.DocumentTouch,supportsIePointer:null!==window.navigator.msMaxTouchPoints}},{"./class":2,"./dom":3}],7:[function(t,e,n){"use strict";var r=t("./plugin/destroy"),o=t("./plugin/initialize"),i=t("./plugin/update");e.exports={initialize:o,update:i,destroy:r}},{"./plugin/destroy":9,"./plugin/initialize":17,"./plugin/update":21}],8:[function(t,e,n){"use strict";e.exports={handlers:["click-rail","drag-scrollbar","keyboard","wheel","touch"],maxScrollbarLength:null,minScrollbarLength:null,scrollXMarginOffset:0,scrollYMarginOffset:0,stopPropagationOnClick:!0,suppressScrollX:!1,suppressScrollY:!1,swipePropagation:!0,useBothWheelAxes:!1,wheelPropagation:!1,wheelSpeed:1,theme:"default"}},{}],9:[function(t,e,n){"use strict";var r=t("../lib/helper"),o=t("../lib/dom"),i=t("./instances");e.exports=function(t){var e=i.get(t);e&&(e.event.unbindAll(),o.remove(e.scrollbarX),o.remove(e.scrollbarY),o.remove(e.scrollbarXRail),o.remove(e.scrollbarYRail),r.removePsClasses(t),i.remove(t))}},{"../lib/dom":3,"../lib/helper":6,"./instances":18}],10:[function(t,e,n){"use strict";function r(t,e){function n(t){return t.getBoundingClientRect()}var r=function(t){t.stopPropagation()};e.settings.stopPropagationOnClick&&e.event.bind(e.scrollbarY,"click",r),e.event.bind(e.scrollbarYRail,"click",function(r){var i=o.toInt(e.scrollbarYHeight/2),s=e.railYRatio*(r.pageY-window.pageYOffset-n(e.scrollbarYRail).top-i),c=e.railYRatio*(e.railYHeight-e.scrollbarYHeight),u=s/c;0>u?u=0:u>1&&(u=1),a(t,"top",(e.contentHeight-e.containerHeight)*u),l(t),r.stopPropagation()}),e.settings.stopPropagationOnClick&&e.event.bind(e.scrollbarX,"click",r),e.event.bind(e.scrollbarXRail,"click",function(r){var i=o.toInt(e.scrollbarXWidth/2),s=e.railXRatio*(r.pageX-window.pageXOffset-n(e.scrollbarXRail).left-i),c=e.railXRatio*(e.railXWidth-e.scrollbarXWidth),u=s/c;0>u?u=0:u>1&&(u=1),a(t,"left",(e.contentWidth-e.containerWidth)*u-e.negativeScrollAdjustment),l(t),r.stopPropagation()})}var o=t("../../lib/helper"),i=t("../instances"),l=t("../update-geometry"),a=t("../update-scroll");e.exports=function(t){var e=i.get(t);r(t,e)}},{"../../lib/helper":6,"../instances":18,"../update-geometry":19,"../update-scroll":20}],11:[function(t,e,n){"use strict";function r(t,e){function n(n){var o=r+n*e.railXRatio,l=Math.max(0,e.scrollbarXRail.getBoundingClientRect().left)+e.railXRatio*(e.railXWidth-e.scrollbarXWidth);0>o?e.scrollbarXLeft=0:o>l?e.scrollbarXLeft=l:e.scrollbarXLeft=o;var a=i.toInt(e.scrollbarXLeft*(e.contentWidth-e.containerWidth)/(e.containerWidth-e.railXRatio*e.scrollbarXWidth))-e.negativeScrollAdjustment;c(t,"left",a)}var r=null,o=null,a=function(e){n(e.pageX-o),s(t),e.stopPropagation(),e.preventDefault()},u=function(){i.stopScrolling(t,"x"),e.event.unbind(e.ownerDocument,"mousemove",a)};e.event.bind(e.scrollbarX,"mousedown",function(n){o=n.pageX,r=i.toInt(l.css(e.scrollbarX,"left"))*e.railXRatio,i.startScrolling(t,"x"),e.event.bind(e.ownerDocument,"mousemove",a),e.event.once(e.ownerDocument,"mouseup",u),n.stopPropagation(),n.preventDefault()})}function o(t,e){function n(n){var o=r+n*e.railYRatio,l=Math.max(0,e.scrollbarYRail.getBoundingClientRect().top)+e.railYRatio*(e.railYHeight-e.scrollbarYHeight);0>o?e.scrollbarYTop=0:o>l?e.scrollbarYTop=l:e.scrollbarYTop=o;var a=i.toInt(e.scrollbarYTop*(e.contentHeight-e.containerHeight)/(e.containerHeight-e.railYRatio*e.scrollbarYHeight));c(t,"top",a)}var r=null,o=null,a=function(e){n(e.pageY-o),s(t),e.stopPropagation(),e.preventDefault()},u=function(){i.stopScrolling(t,"y"),e.event.unbind(e.ownerDocument,"mousemove",a)};e.event.bind(e.scrollbarY,"mousedown",function(n){o=n.pageY,r=i.toInt(l.css(e.scrollbarY,"top"))*e.railYRatio,i.startScrolling(t,"y"),e.event.bind(e.ownerDocument,"mousemove",a),e.event.once(e.ownerDocument,"mouseup",u),n.stopPropagation(),n.preventDefault()})}var i=t("../../lib/helper"),l=t("../../lib/dom"),a=t("../instances"),s=t("../update-geometry"),c=t("../update-scroll");e.exports=function(t){var e=a.get(t);r(t,e),o(t,e)}},{"../../lib/dom":3,"../../lib/helper":6,"../instances":18,"../update-geometry":19,"../update-scroll":20}],12:[function(t,e,n){"use strict";function r(t,e){function n(n,r){var o=t.scrollTop;if(0===n){if(!e.scrollbarYActive)return!1;if(0===o&&r>0||o>=e.contentHeight-e.containerHeight&&0>r)return!e.settings.wheelPropagation}var i=t.scrollLeft;if(0===r){if(!e.scrollbarXActive)return!1;if(0===i&&0>n||i>=e.contentWidth-e.containerWidth&&n>0)return!e.settings.wheelPropagation}return!0}var r=!1;e.event.bind(t,"mouseenter",function(){r=!0}),e.event.bind(t,"mouseleave",function(){r=!1});var l=!1;e.event.bind(e.ownerDocument,"keydown",function(c){if(!c.isDefaultPrevented||!c.isDefaultPrevented()){var u=i.matches(e.scrollbarX,":focus")||i.matches(e.scrollbarY,":focus");if(r||u){var d=document.activeElement?document.activeElement:e.ownerDocument.activeElement;if(d){if("IFRAME"===d.tagName)d=d.contentDocument.activeElement;else for(;d.shadowRoot;)d=d.shadowRoot.activeElement;if(o.isEditable(d))return}var p=0,f=0;switch(c.which){case 37:p=-30;break;case 38:f=30;break;case 39:p=30;break;case 40:f=-30;break;case 33:f=90;break;case 32:f=c.shiftKey?90:-90;break;case 34:f=-90;break;case 35:f=c.ctrlKey?-e.contentHeight:-e.containerHeight;break;case 36:f=c.ctrlKey?t.scrollTop:e.containerHeight;break;default:return}s(t,"top",t.scrollTop-f),s(t,"left",t.scrollLeft+p),a(t),l=n(p,f),l&&c.preventDefault()}}})}var o=t("../../lib/helper"),i=t("../../lib/dom"),l=t("../instances"),a=t("../update-geometry"),s=t("../update-scroll");e.exports=function(t){var e=l.get(t);r(t,e)}},{"../../lib/dom":3,"../../lib/helper":6,"../instances":18,"../update-geometry":19,"../update-scroll":20}],13:[function(t,e,n){"use strict";function r(t,e){function n(n,r){var o=t.scrollTop;if(0===n){if(!e.scrollbarYActive)return!1;if(0===o&&r>0||o>=e.contentHeight-e.containerHeight&&0>r)return!e.settings.wheelPropagation}var i=t.scrollLeft;if(0===r){if(!e.scrollbarXActive)return!1;if(0===i&&0>n||i>=e.contentWidth-e.containerWidth&&n>0)return!e.settings.wheelPropagation}return!0}function r(t){var e=t.deltaX,n=-1*t.deltaY;return"undefined"!=typeof e&&"undefined"!=typeof n||(e=-1*t.wheelDeltaX/6,n=t.wheelDeltaY/6),t.deltaMode&&1===t.deltaMode&&(e*=10,n*=10),e!==e&&n!==n&&(e=0,n=t.wheelDelta),[e,n]}function o(e,n){var r=t.querySelector("textarea:hover, .ps-child:hover");if(r){if("TEXTAREA"!==r.tagName&&!window.getComputedStyle(r).overflow.match(/(scroll|auto)/))return!1;var o=r.scrollHeight-r.clientHeight;if(o>0&&!(0===r.scrollTop&&n>0||r.scrollTop===o&&0>n))return!0;var i=r.scrollLeft-r.clientWidth;if(i>0&&!(0===r.scrollLeft&&0>e||r.scrollLeft===i&&e>0))return!0}return!1}function a(a){var c=r(a),u=c[0],d=c[1];o(u,d)||(s=!1,e.settings.useBothWheelAxes?e.scrollbarYActive&&!e.scrollbarXActive?(d?l(t,"top",t.scrollTop-d*e.settings.wheelSpeed):l(t,"top",t.scrollTop+u*e.settings.wheelSpeed),s=!0):e.scrollbarXActive&&!e.scrollbarYActive&&(u?l(t,"left",t.scrollLeft+u*e.settings.wheelSpeed):l(t,"left",t.scrollLeft-d*e.settings.wheelSpeed),s=!0):(l(t,"top",t.scrollTop-d*e.settings.wheelSpeed),l(t,"left",t.scrollLeft+u*e.settings.wheelSpeed)),i(t),s=s||n(u,d),s&&(a.stopPropagation(),a.preventDefault()))}var s=!1;"undefined"!=typeof window.onwheel?e.event.bind(t,"wheel",a):"undefined"!=typeof window.onmousewheel&&e.event.bind(t,"mousewheel",a)}var o=t("../instances"),i=t("../update-geometry"),l=t("../update-scroll");e.exports=function(t){var e=o.get(t);r(t,e)}},{"../instances":18,"../update-geometry":19,"../update-scroll":20}],14:[function(t,e,n){"use strict";function r(t,e){e.event.bind(t,"scroll",function(){i(t)})}var o=t("../instances"),i=t("../update-geometry");e.exports=function(t){var e=o.get(t);r(t,e)}},{"../instances":18,"../update-geometry":19}],15:[function(t,e,n){"use strict";function r(t,e){function n(){var t=window.getSelection?window.getSelection():document.getSelection?document.getSelection():"";return 0===t.toString().length?null:t.getRangeAt(0).commonAncestorContainer}function r(){c||(c=setInterval(function(){return i.get(t)?(a(t,"top",t.scrollTop+u.top),a(t,"left",t.scrollLeft+u.left),void l(t)):void clearInterval(c)},50))}function s(){c&&(clearInterval(c),c=null),o.stopScrolling(t)}var c=null,u={top:0,left:0},d=!1;e.event.bind(e.ownerDocument,"selectionchange",function(){t.contains(n())?d=!0:(d=!1,s())}),e.event.bind(window,"mouseup",function(){d&&(d=!1,s())}),e.event.bind(window,"mousemove",function(e){if(d){var n={x:e.pageX,y:e.pageY},i={left:t.offsetLeft,right:t.offsetLeft+t.offsetWidth,top:t.offsetTop,bottom:t.offsetTop+t.offsetHeight};n.x<i.left+3?(u.left=-5,o.startScrolling(t,"x")):n.x>i.right-3?(u.left=5,o.startScrolling(t,"x")):u.left=0,n.y<i.top+3?(i.top+3-n.y<5?u.top=-5:u.top=-20,o.startScrolling(t,"y")):n.y>i.bottom-3?(n.y-i.bottom+3<5?u.top=5:u.top=20,o.startScrolling(t,"y")):u.top=0,0===u.top&&0===u.left?s():r()}})}var o=t("../../lib/helper"),i=t("../instances"),l=t("../update-geometry"),a=t("../update-scroll");e.exports=function(t){var e=i.get(t);r(t,e)}},{"../../lib/helper":6,"../instances":18,"../update-geometry":19,"../update-scroll":20}],16:[function(t,e,n){"use strict";function r(t,e,n,r){function o(n,r){var o=t.scrollTop,i=t.scrollLeft,l=Math.abs(n),a=Math.abs(r);if(a>l){if(0>r&&o===e.contentHeight-e.containerHeight||r>0&&0===o)return!e.settings.swipePropagation}else if(l>a&&(0>n&&i===e.contentWidth-e.containerWidth||n>0&&0===i))return!e.settings.swipePropagation;return!0}function s(e,n){a(t,"top",t.scrollTop-n),a(t,"left",t.scrollLeft-e),l(t)}function c(){Y=!0}function u(){Y=!1}function d(t){return t.targetTouches?t.targetTouches[0]:t}function p(t){return t.targetTouches&&1===t.targetTouches.length?!0:!(!t.pointerType||"mouse"===t.pointerType||t.pointerType===t.MSPOINTER_TYPE_MOUSE)}function f(t){if(p(t)){w=!0;var e=d(t);v.pageX=e.pageX,v.pageY=e.pageY,g=(new Date).getTime(),null!==y&&clearInterval(y),t.stopPropagation()}}function h(t){if(!w&&e.settings.swipePropagation&&f(t),!Y&&w&&p(t)){var n=d(t),r={pageX:n.pageX,pageY:n.pageY},i=r.pageX-v.pageX,l=r.pageY-v.pageY;s(i,l),v=r;var a=(new Date).getTime(),c=a-g;c>0&&(m.x=i/c,m.y=l/c,g=a),o(i,l)&&(t.stopPropagation(),t.preventDefault())}}function b(){!Y&&w&&(w=!1,clearInterval(y),y=setInterval(function(){return i.get(t)?Math.abs(m.x)<.01&&Math.abs(m.y)<.01?void clearInterval(y):(s(30*m.x,30*m.y),m.x*=.8,void(m.y*=.8)):void clearInterval(y)},10))}var v={},g=0,m={},y=null,Y=!1,w=!1;n&&(e.event.bind(window,"touchstart",c),e.event.bind(window,"touchend",u),e.event.bind(t,"touchstart",f),e.event.bind(t,"touchmove",h),e.event.bind(t,"touchend",b)),r&&(window.PointerEvent?(e.event.bind(window,"pointerdown",c),e.event.bind(window,"pointerup",u),e.event.bind(t,"pointerdown",f),e.event.bind(t,"pointermove",h),e.event.bind(t,"pointerup",b)):window.MSPointerEvent&&(e.event.bind(window,"MSPointerDown",c),e.event.bind(window,"MSPointerUp",u),e.event.bind(t,"MSPointerDown",f),e.event.bind(t,"MSPointerMove",h),e.event.bind(t,"MSPointerUp",b)))}var o=t("../../lib/helper"),i=t("../instances"),l=t("../update-geometry"),a=t("../update-scroll");e.exports=function(t){if(o.env.supportsTouch||o.env.supportsIePointer){var e=i.get(t);r(t,e,o.env.supportsTouch,o.env.supportsIePointer)}}},{"../../lib/helper":6,"../instances":18,"../update-geometry":19,"../update-scroll":20}],17:[function(t,e,n){"use strict";var r=t("../lib/helper"),o=t("../lib/class"),i=t("./instances"),l=t("./update-geometry"),a={"click-rail":t("./handler/click-rail"),"drag-scrollbar":t("./handler/drag-scrollbar"),keyboard:t("./handler/keyboard"),wheel:t("./handler/mouse-wheel"),touch:t("./handler/touch"),selection:t("./handler/selection")},s=t("./handler/native-scroll");e.exports=function(t,e){e="object"==typeof e?e:{},o.add(t,"ps-container");var n=i.add(t);n.settings=r.extend(n.settings,e),o.add(t,"ps-theme-"+n.settings.theme),n.settings.handlers.forEach(function(e){a[e](t)}),s(t),l(t)}},{"../lib/class":2,"../lib/helper":6,"./handler/click-rail":10,"./handler/drag-scrollbar":11,"./handler/keyboard":12,"./handler/mouse-wheel":13,"./handler/native-scroll":14,"./handler/selection":15,"./handler/touch":16,"./instances":18,"./update-geometry":19}],18:[function(t,e,n){"use strict";function r(t){function e(){s.add(t,"ps-focus")}function n(){s.remove(t,"ps-focus")}var r=this;r.settings=a.clone(c),r.containerWidth=null,r.containerHeight=null,r.contentWidth=null,r.contentHeight=null,r.isRtl="rtl"===u.css(t,"direction"),r.isNegativeScroll=function(){var e=t.scrollLeft,n=null;return t.scrollLeft=-1,n=t.scrollLeft<0,t.scrollLeft=e,n}(),r.negativeScrollAdjustment=r.isNegativeScroll?t.scrollWidth-t.clientWidth:0,r.event=new d,r.ownerDocument=t.ownerDocument||document,r.scrollbarXRail=u.appendTo(u.e("div","ps-scrollbar-x-rail"),t),r.scrollbarX=u.appendTo(u.e("div","ps-scrollbar-x"),r.scrollbarXRail),r.scrollbarX.setAttribute("tabindex",0),r.event.bind(r.scrollbarX,"focus",e),r.event.bind(r.scrollbarX,"blur",n),r.scrollbarXActive=null,r.scrollbarXWidth=null,r.scrollbarXLeft=null,r.scrollbarXBottom=a.toInt(u.css(r.scrollbarXRail,"bottom")),r.isScrollbarXUsingBottom=r.scrollbarXBottom===r.scrollbarXBottom,r.scrollbarXTop=r.isScrollbarXUsingBottom?null:a.toInt(u.css(r.scrollbarXRail,"top")),r.railBorderXWidth=a.toInt(u.css(r.scrollbarXRail,"borderLeftWidth"))+a.toInt(u.css(r.scrollbarXRail,"borderRightWidth")),u.css(r.scrollbarXRail,"display","block"),r.railXMarginWidth=a.toInt(u.css(r.scrollbarXRail,"marginLeft"))+a.toInt(u.css(r.scrollbarXRail,"marginRight")),u.css(r.scrollbarXRail,"display",""),r.railXWidth=null,r.railXRatio=null,r.scrollbarYRail=u.appendTo(u.e("div","ps-scrollbar-y-rail"),t),r.scrollbarY=u.appendTo(u.e("div","ps-scrollbar-y"),r.scrollbarYRail),r.scrollbarY.setAttribute("tabindex",0),r.event.bind(r.scrollbarY,"focus",e),r.event.bind(r.scrollbarY,"blur",n),r.scrollbarYActive=null,r.scrollbarYHeight=null,r.scrollbarYTop=null,r.scrollbarYRight=a.toInt(u.css(r.scrollbarYRail,"right")),r.isScrollbarYUsingRight=r.scrollbarYRight===r.scrollbarYRight,r.scrollbarYLeft=r.isScrollbarYUsingRight?null:a.toInt(u.css(r.scrollbarYRail,"left")),r.scrollbarYOuterWidth=r.isRtl?a.outerWidth(r.scrollbarY):null,r.railBorderYWidth=a.toInt(u.css(r.scrollbarYRail,"borderTopWidth"))+a.toInt(u.css(r.scrollbarYRail,"borderBottomWidth")),u.css(r.scrollbarYRail,"display","block"),r.railYMarginHeight=a.toInt(u.css(r.scrollbarYRail,"marginTop"))+a.toInt(u.css(r.scrollbarYRail,"marginBottom")),u.css(r.scrollbarYRail,"display",""),r.railYHeight=null,r.railYRatio=null}function o(t){return t.getAttribute("data-ps-id")}function i(t,e){t.setAttribute("data-ps-id",e)}function l(t){t.removeAttribute("data-ps-id")}var a=t("../lib/helper"),s=t("../lib/class"),c=t("./default-setting"),u=t("../lib/dom"),d=t("../lib/event-manager"),p=t("../lib/guid"),f={};n.add=function(t){var e=p();return i(t,e),f[e]=new r(t),f[e]},n.remove=function(t){delete f[o(t)],l(t)},n.get=function(t){return f[o(t)]}},{"../lib/class":2,"../lib/dom":3,"../lib/event-manager":4,"../lib/guid":5,"../lib/helper":6,"./default-setting":8}],19:[function(t,e,n){"use strict";function r(t,e){return t.settings.minScrollbarLength&&(e=Math.max(e,t.settings.minScrollbarLength)),t.settings.maxScrollbarLength&&(e=Math.min(e,t.settings.maxScrollbarLength)),e}function o(t,e){var n={width:e.railXWidth};e.isRtl?n.left=e.negativeScrollAdjustment+t.scrollLeft+e.containerWidth-e.contentWidth:n.left=t.scrollLeft,e.isScrollbarXUsingBottom?n.bottom=e.scrollbarXBottom-t.scrollTop:n.top=e.scrollbarXTop+t.scrollTop,a.css(e.scrollbarXRail,n);var r={top:t.scrollTop,height:e.railYHeight};e.isScrollbarYUsingRight?e.isRtl?r.right=e.contentWidth-(e.negativeScrollAdjustment+t.scrollLeft)-e.scrollbarYRight-e.scrollbarYOuterWidth:r.right=e.scrollbarYRight-t.scrollLeft:e.isRtl?r.left=e.negativeScrollAdjustment+t.scrollLeft+2*e.containerWidth-e.contentWidth-e.scrollbarYLeft-e.scrollbarYOuterWidth:r.left=e.scrollbarYLeft+t.scrollLeft,a.css(e.scrollbarYRail,r),a.css(e.scrollbarX,{left:e.scrollbarXLeft,width:e.scrollbarXWidth-e.railBorderXWidth}),a.css(e.scrollbarY,{top:e.scrollbarYTop,height:e.scrollbarYHeight-e.railBorderYWidth})}var i=t("../lib/helper"),l=t("../lib/class"),a=t("../lib/dom"),s=t("./instances"),c=t("./update-scroll");e.exports=function(t){var e=s.get(t);e.containerWidth=t.clientWidth,e.containerHeight=t.clientHeight,e.contentWidth=t.scrollWidth,e.contentHeight=t.scrollHeight;var n;t.contains(e.scrollbarXRail)||(n=a.queryChildren(t,".ps-scrollbar-x-rail"),n.length>0&&n.forEach(function(t){a.remove(t)}),a.appendTo(e.scrollbarXRail,t)),t.contains(e.scrollbarYRail)||(n=a.queryChildren(t,".ps-scrollbar-y-rail"),n.length>0&&n.forEach(function(t){a.remove(t)}),a.appendTo(e.scrollbarYRail,t)),!e.settings.suppressScrollX&&e.containerWidth+e.settings.scrollXMarginOffset<e.contentWidth?(e.scrollbarXActive=!0,e.railXWidth=e.containerWidth-e.railXMarginWidth,e.railXRatio=e.containerWidth/e.railXWidth,e.scrollbarXWidth=r(e,i.toInt(e.railXWidth*e.containerWidth/e.contentWidth)),e.scrollbarXLeft=i.toInt((e.negativeScrollAdjustment+t.scrollLeft)*(e.railXWidth-e.scrollbarXWidth)/(e.contentWidth-e.containerWidth))):e.scrollbarXActive=!1,!e.settings.suppressScrollY&&e.containerHeight+e.settings.scrollYMarginOffset<e.contentHeight?(e.scrollbarYActive=!0,e.railYHeight=e.containerHeight-e.railYMarginHeight,e.railYRatio=e.containerHeight/e.railYHeight,e.scrollbarYHeight=r(e,i.toInt(e.railYHeight*e.containerHeight/e.contentHeight)),e.scrollbarYTop=i.toInt(t.scrollTop*(e.railYHeight-e.scrollbarYHeight)/(e.contentHeight-e.containerHeight))):e.scrollbarYActive=!1,e.scrollbarXLeft>=e.railXWidth-e.scrollbarXWidth&&(e.scrollbarXLeft=e.railXWidth-e.scrollbarXWidth),e.scrollbarYTop>=e.railYHeight-e.scrollbarYHeight&&(e.scrollbarYTop=e.railYHeight-e.scrollbarYHeight),o(t,e),e.scrollbarXActive?l.add(t,"ps-active-x"):(l.remove(t,"ps-active-x"),e.scrollbarXWidth=0,e.scrollbarXLeft=0,c(t,"left",0)),e.scrollbarYActive?l.add(t,"ps-active-y"):(l.remove(t,"ps-active-y"),e.scrollbarYHeight=0,e.scrollbarYTop=0,c(t,"top",0))}},{"../lib/class":2,"../lib/dom":3,"../lib/helper":6,"./instances":18,"./update-scroll":20}],20:[function(t,e,n){"use strict";var r,o,i=t("./instances"),l=document.createEvent("Event"),a=document.createEvent("Event"),s=document.createEvent("Event"),c=document.createEvent("Event"),u=document.createEvent("Event"),d=document.createEvent("Event"),p=document.createEvent("Event"),f=document.createEvent("Event"),h=document.createEvent("Event"),b=document.createEvent("Event");l.initEvent("ps-scroll-up",!0,!0),a.initEvent("ps-scroll-down",!0,!0),s.initEvent("ps-scroll-left",!0,!0),c.initEvent("ps-scroll-right",!0,!0),u.initEvent("ps-scroll-y",!0,!0),d.initEvent("ps-scroll-x",!0,!0),p.initEvent("ps-x-reach-start",!0,!0),f.initEvent("ps-x-reach-end",!0,!0),h.initEvent("ps-y-reach-start",!0,!0),b.initEvent("ps-y-reach-end",!0,!0),e.exports=function(t,e,n){if("undefined"==typeof t)throw"You must provide an element to the update-scroll function";if("undefined"==typeof e)throw"You must provide an axis to the update-scroll function";if("undefined"==typeof n)throw"You must provide a value to the update-scroll function";"top"===e&&0>=n&&(t.scrollTop=n=0,t.dispatchEvent(h)),"left"===e&&0>=n&&(t.scrollLeft=n=0,t.dispatchEvent(p));var v=i.get(t);"top"===e&&n>=v.contentHeight-v.containerHeight&&(n=v.contentHeight-v.containerHeight,n-t.scrollTop<=1?n=t.scrollTop:t.scrollTop=n,t.dispatchEvent(b)),"left"===e&&n>=v.contentWidth-v.containerWidth&&(n=v.contentWidth-v.containerWidth,n-t.scrollLeft<=1?n=t.scrollLeft:t.scrollLeft=n,t.dispatchEvent(f)),r||(r=t.scrollTop),o||(o=t.scrollLeft),"top"===e&&r>n&&t.dispatchEvent(l),"top"===e&&n>r&&t.dispatchEvent(a),"left"===e&&o>n&&t.dispatchEvent(s),"left"===e&&n>o&&t.dispatchEvent(c),"top"===e&&(t.scrollTop=r=n,t.dispatchEvent(u)),"left"===e&&(t.scrollLeft=o=n,t.dispatchEvent(d))}},{"./instances":18}],21:[function(t,e,n){"use strict";var r=t("../lib/helper"),o=t("../lib/dom"),i=t("./instances"),l=t("./update-geometry"),a=t("./update-scroll");e.exports=function(t){var e=i.get(t);e&&(e.negativeScrollAdjustment=e.isNegativeScroll?t.scrollWidth-t.clientWidth:0,o.css(e.scrollbarXRail,"display","block"),o.css(e.scrollbarYRail,"display","block"),e.railXMarginWidth=r.toInt(o.css(e.scrollbarXRail,"marginLeft"))+r.toInt(o.css(e.scrollbarXRail,"marginRight")),e.railYMarginHeight=r.toInt(o.css(e.scrollbarYRail,"marginTop"))+r.toInt(o.css(e.scrollbarYRail,"marginBottom")),o.css(e.scrollbarXRail,"display","none"),o.css(e.scrollbarYRail,"display","none"),l(t),a(t,"top",t.scrollTop),a(t,"left",t.scrollLeft),o.css(e.scrollbarXRail,"display",""),o.css(e.scrollbarYRail,"display",""))}},{"../lib/dom":3,"../lib/helper":6,"./instances":18,"./update-geometry":19,"./update-scroll":20}]},{},[1]);
-
-// AUDIO CONTEXT
-window.AudioContext = window.AudioContext || window.webkitAudioContext ;
-if (window.AudioContext) {
-	var audioContext = new AudioContext(),
-		audiosource = audioContext.createBufferSource(); 	// creates a sound source
-} else {
-	audiosource = null;
-}
+/*! perfect-scrollbar - v0.5.7
+* http://noraesae.github.com/perfect-scrollbar/
+* Copyright (c) 2014 Hyunje Alex Jun; Licensed MIT */
+(function(e){"use strict";"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof exports?e(require("jquery")):e(jQuery)})(function(e){"use strict";function t(e){return"string"==typeof e?parseInt(e,10):~~e}var o={wheelSpeed:1,wheelPropagation:!1,minScrollbarLength:null,maxScrollbarLength:null,useBothWheelAxes:!1,useKeyboard:!0,suppressScrollX:!1,suppressScrollY:!1,scrollXMarginOffset:0,scrollYMarginOffset:0,includePadding:!1},n=0,r=function(){var e=n++;return function(t){var o=".perfect-scrollbar-"+e;return t===void 0?o:t+o}};e.fn.perfectScrollbar=function(n,l){return this.each(function(){function i(e,o){var n=e+o,r=E-W;I=0>n?0:n>r?r:n;var l=t(I*(D-E)/(E-W));S.scrollTop(l)}function a(e,o){var n=e+o,r=x-Y;X=0>n?0:n>r?r:n;var l=t(X*(M-x)/(x-Y));S.scrollLeft(l)}function c(e){return L.minScrollbarLength&&(e=Math.max(e,L.minScrollbarLength)),L.maxScrollbarLength&&(e=Math.min(e,L.maxScrollbarLength)),e}function s(){var e={width:x};e.left=O?S.scrollLeft()+x-M:S.scrollLeft(),B?e.bottom=q-S.scrollTop():e.top=H+S.scrollTop(),A.css(e);var t={top:S.scrollTop(),height:E};z?t.right=O?M-S.scrollLeft()-Q-N.outerWidth():Q-S.scrollLeft():t.left=O?S.scrollLeft()+2*x-M-F-N.outerWidth():F+S.scrollLeft(),_.css(t),K.css({left:X,width:Y-U}),N.css({top:I,height:W-G})}function d(){S.removeClass("ps-active-x"),S.removeClass("ps-active-y"),x=L.includePadding?S.innerWidth():S.width(),E=L.includePadding?S.innerHeight():S.height(),M=S.prop("scrollWidth"),D=S.prop("scrollHeight"),!L.suppressScrollX&&M>x+L.scrollXMarginOffset?(C=!0,Y=c(t(x*x/M)),X=t(S.scrollLeft()*(x-Y)/(M-x))):(C=!1,Y=0,X=0,S.scrollLeft(0)),!L.suppressScrollY&&D>E+L.scrollYMarginOffset?(k=!0,W=c(t(E*E/D)),I=t(S.scrollTop()*(E-W)/(D-E))):(k=!1,W=0,I=0,S.scrollTop(0)),X>=x-Y&&(X=x-Y),I>=E-W&&(I=E-W),s(),C&&S.addClass("ps-active-x"),k&&S.addClass("ps-active-y")}function u(){var t,o,n=!1;K.bind(j("mousedown"),function(e){o=e.pageX,t=K.position().left,A.addClass("in-scrolling"),n=!0,e.stopPropagation(),e.preventDefault()}),e(R).bind(j("mousemove"),function(e){n&&(a(t,e.pageX-o),d(),e.stopPropagation(),e.preventDefault())}),e(R).bind(j("mouseup"),function(){n&&(n=!1,A.removeClass("in-scrolling"))}),t=o=null}function p(){var t,o,n=!1;N.bind(j("mousedown"),function(e){o=e.pageY,t=N.position().top,n=!0,_.addClass("in-scrolling"),e.stopPropagation(),e.preventDefault()}),e(R).bind(j("mousemove"),function(e){n&&(i(t,e.pageY-o),d(),e.stopPropagation(),e.preventDefault())}),e(R).bind(j("mouseup"),function(){n&&(n=!1,_.removeClass("in-scrolling"))}),t=o=null}function f(e,t){var o=S.scrollTop();if(0===e){if(!k)return!1;if(0===o&&t>0||o>=D-E&&0>t)return!L.wheelPropagation}var n=S.scrollLeft();if(0===t){if(!C)return!1;if(0===n&&0>e||n>=M-x&&e>0)return!L.wheelPropagation}return!0}function v(){function e(e){var t=e.originalEvent.deltaX,o=-1*e.originalEvent.deltaY;return(t===void 0||o===void 0)&&(t=-1*e.originalEvent.wheelDeltaX/6,o=e.originalEvent.wheelDeltaY/6),e.originalEvent.deltaMode&&1===e.originalEvent.deltaMode&&(t*=10,o*=10),t!==t&&o!==o&&(t=0,o=e.originalEvent.wheelDelta),[t,o]}function t(t){var n=e(t),r=n[0],l=n[1];o=!1,L.useBothWheelAxes?k&&!C?(l?S.scrollTop(S.scrollTop()-l*L.wheelSpeed):S.scrollTop(S.scrollTop()+r*L.wheelSpeed),o=!0):C&&!k&&(r?S.scrollLeft(S.scrollLeft()+r*L.wheelSpeed):S.scrollLeft(S.scrollLeft()-l*L.wheelSpeed),o=!0):(S.scrollTop(S.scrollTop()-l*L.wheelSpeed),S.scrollLeft(S.scrollLeft()+r*L.wheelSpeed)),d(),o=o||f(r,l),o&&(t.stopPropagation(),t.preventDefault())}var o=!1;window.onwheel!==void 0?S.bind(j("wheel"),t):window.onmousewheel!==void 0&&S.bind(j("mousewheel"),t)}function g(){var t=!1;S.bind(j("mouseenter"),function(){t=!0}),S.bind(j("mouseleave"),function(){t=!1});var o=!1;e(R).bind(j("keydown"),function(n){if((!n.isDefaultPrevented||!n.isDefaultPrevented())&&t){for(var r=document.activeElement?document.activeElement:R.activeElement;r.shadowRoot;)r=r.shadowRoot.activeElement;if(!e(r).is(":input,[contenteditable]")){var l=0,i=0;switch(n.which){case 37:l=-30;break;case 38:i=30;break;case 39:l=30;break;case 40:i=-30;break;case 33:i=90;break;case 32:case 34:i=-90;break;case 35:i=n.ctrlKey?-D:-E;break;case 36:i=n.ctrlKey?S.scrollTop():E;break;default:return}S.scrollTop(S.scrollTop()-i),S.scrollLeft(S.scrollLeft()+l),o=f(l,i),o&&n.preventDefault()}}})}function b(){function e(e){e.stopPropagation()}N.bind(j("click"),e),_.bind(j("click"),function(e){var o=t(W/2),n=e.pageY-_.offset().top-o,r=E-W,l=n/r;0>l?l=0:l>1&&(l=1),S.scrollTop((D-E)*l)}),K.bind(j("click"),e),A.bind(j("click"),function(e){var o=t(Y/2),n=e.pageX-A.offset().left-o,r=x-Y,l=n/r;0>l?l=0:l>1&&(l=1),S.scrollLeft((M-x)*l)})}function h(){function t(){var e=window.getSelection?window.getSelection():document.getSlection?document.getSlection():{rangeCount:0};return 0===e.rangeCount?null:e.getRangeAt(0).commonAncestorContainer}function o(){r||(r=setInterval(function(){return P()?(S.scrollTop(S.scrollTop()+l.top),S.scrollLeft(S.scrollLeft()+l.left),d(),void 0):(clearInterval(r),void 0)},50))}function n(){r&&(clearInterval(r),r=null),A.removeClass("in-scrolling"),_.removeClass("in-scrolling")}var r=null,l={top:0,left:0},i=!1;e(R).bind(j("selectionchange"),function(){e.contains(S[0],t())?i=!0:(i=!1,n())}),e(window).bind(j("mouseup"),function(){i&&(i=!1,n())}),e(window).bind(j("mousemove"),function(e){if(i){var t={x:e.pageX,y:e.pageY},r=S.offset(),a={left:r.left,right:r.left+S.outerWidth(),top:r.top,bottom:r.top+S.outerHeight()};t.x<a.left+3?(l.left=-5,A.addClass("in-scrolling")):t.x>a.right-3?(l.left=5,A.addClass("in-scrolling")):l.left=0,t.y<a.top+3?(l.top=5>a.top+3-t.y?-5:-20,_.addClass("in-scrolling")):t.y>a.bottom-3?(l.top=5>t.y-a.bottom+3?5:20,_.addClass("in-scrolling")):l.top=0,0===l.top&&0===l.left?n():o()}})}function w(t,o){function n(e,t){S.scrollTop(S.scrollTop()-t),S.scrollLeft(S.scrollLeft()-e),d()}function r(){b=!0}function l(){b=!1}function i(e){return e.originalEvent.targetTouches?e.originalEvent.targetTouches[0]:e.originalEvent}function a(e){var t=e.originalEvent;return t.targetTouches&&1===t.targetTouches.length?!0:t.pointerType&&"mouse"!==t.pointerType&&t.pointerType!==t.MSPOINTER_TYPE_MOUSE?!0:!1}function c(e){if(a(e)){h=!0;var t=i(e);p.pageX=t.pageX,p.pageY=t.pageY,f=(new Date).getTime(),null!==g&&clearInterval(g),e.stopPropagation()}}function s(e){if(!b&&h&&a(e)){var t=i(e),o={pageX:t.pageX,pageY:t.pageY},r=o.pageX-p.pageX,l=o.pageY-p.pageY;n(r,l),p=o;var c=(new Date).getTime(),s=c-f;s>0&&(v.x=r/s,v.y=l/s,f=c),e.stopPropagation(),e.preventDefault()}}function u(){!b&&h&&(h=!1,clearInterval(g),g=setInterval(function(){return P()?.01>Math.abs(v.x)&&.01>Math.abs(v.y)?(clearInterval(g),void 0):(n(30*v.x,30*v.y),v.x*=.8,v.y*=.8,void 0):(clearInterval(g),void 0)},10))}var p={},f=0,v={},g=null,b=!1,h=!1;t&&(e(window).bind(j("touchstart"),r),e(window).bind(j("touchend"),l),S.bind(j("touchstart"),c),S.bind(j("touchmove"),s),S.bind(j("touchend"),u)),o&&(window.PointerEvent?(e(window).bind(j("pointerdown"),r),e(window).bind(j("pointerup"),l),S.bind(j("pointerdown"),c),S.bind(j("pointermove"),s),S.bind(j("pointerup"),u)):window.MSPointerEvent&&(e(window).bind(j("MSPointerDown"),r),e(window).bind(j("MSPointerUp"),l),S.bind(j("MSPointerDown"),c),S.bind(j("MSPointerMove"),s),S.bind(j("MSPointerUp"),u)))}function m(){S.bind(j("scroll"),function(){d()})}function T(){S.unbind(j()),e(window).unbind(j()),e(R).unbind(j()),S.data("perfect-scrollbar",null),S.data("perfect-scrollbar-update",null),S.data("perfect-scrollbar-destroy",null),K.remove(),N.remove(),A.remove(),_.remove(),S=A=_=K=N=C=k=x=E=M=D=Y=X=q=B=H=W=I=Q=z=F=O=j=null}function y(){d(),m(),u(),p(),b(),h(),v(),(J||V)&&w(J,V),L.useKeyboard&&g(),S.data("perfect-scrollbar",S),S.data("perfect-scrollbar-update",d),S.data("perfect-scrollbar-destroy",T)}var L=e.extend(!0,{},o),S=e(this),P=function(){return!!S};if("object"==typeof n?e.extend(!0,L,n):l=n,"update"===l)return S.data("perfect-scrollbar-update")&&S.data("perfect-scrollbar-update")(),S;if("destroy"===l)return S.data("perfect-scrollbar-destroy")&&S.data("perfect-scrollbar-destroy")(),S;if(S.data("perfect-scrollbar"))return S.data("perfect-scrollbar");S.addClass("ps-container");var x,E,M,D,C,Y,X,k,W,I,O="rtl"===S.css("direction"),j=r(),R=this.ownerDocument||document,A=e("<div class='ps-scrollbar-x-rail'>").appendTo(S),K=e("<div class='ps-scrollbar-x'>").appendTo(A),q=t(A.css("bottom")),B=q===q,H=B?null:t(A.css("top")),U=t(A.css("borderLeftWidth"))+t(A.css("borderRightWidth")),_=e("<div class='ps-scrollbar-y-rail'>").appendTo(S),N=e("<div class='ps-scrollbar-y'>").appendTo(_),Q=t(_.css("right")),z=Q===Q,F=z?null:t(_.css("left")),G=t(_.css("borderTopWidth"))+t(_.css("borderBottomWidth")),J="ontouchstart"in window||window.DocumentTouch&&document instanceof window.DocumentTouch,V=null!==window.navigator.msMaxTouchPoints;return y(),S})}});
 
 
 
@@ -24,17 +12,10 @@ if (window.AudioContext) {
 
 var tpLayerTimelinesRev = new function(){
 	var t = this,
-		u = new Object(),			
-		sortMode = "time",
-		__ctime,
-		__ctimeb,
-		__ctimei ,
-		__coffset = 0; 
+		u = new Object(),
+		mainMaxTimeLeft,
+		sortMode = "time";				//can be "depth" or "time"
 
-	t.timelinetype ="absolute";
-	t.mainMaxTimeLeft = 0;
-	t.layout="desktop";
-	t.timercorrectur = 0;	
 
 	/***********************************************************
 		-	INITIALISE THE TIMELINE AND ANIMATION ELEMENTS	-
@@ -46,7 +27,7 @@ var tpLayerTimelinesRev = new function(){
 		g_slideTime = u.getMaintime();
 		g_keyTimer = 0;
 		
-		t.mainMaxTimeLeft = jQuery('#mastertimer-maxtime').position().left;
+		 mainMaxTimeLeft = jQuery('#mastertimer-maxtime').position().left;
 		
 		initSlideDuration();
 		initSortbox();
@@ -58,7 +39,7 @@ var tpLayerTimelinesRev = new function(){
 		addIconFunction();
 
 		t.addToSortbox();
-		//jQuery('.master-rightcell .layers-wrapper, .master-leftcell .layers-wrapper, #divLayers-wrapper').perfectScrollbar("update");
+		jQuery('.master-rightcell .layers-wrapper, .master-leftcell .layers-wrapper, #divLayers-wrapper').perfectScrollbar("update");
 		
 		jQuery('#slide_transition, #slot_amount, #transition_rotation').change(function() {
 			
@@ -84,10 +65,7 @@ var tpLayerTimelinesRev = new function(){
 		})
 
 
-		jQuery('#fake-select-title-wrapper').click(function() {
-			jQuery('#slide-animation-settings-content-tab').click();
-			jQuery('html,body').animate({scrollTop: (-100 + jQuery('#slide-animation-settings-content-tab').offset().top)},200);
-		})
+		
 
 		jQuery('.slide-trans-menu-element').each(function() {
 			var b = jQuery(this);
@@ -155,8 +133,6 @@ var tpLayerTimelinesRev = new function(){
 			return false;
 			
 		});
-
-		
 
 		jQuery('.slide-trans-checkelement').on("mouseover", function(e) {		
 
@@ -230,7 +206,7 @@ var tpLayerTimelinesRev = new function(){
 			jQuery(this).addClass('selected');
 			
 			jQuery('input[name="slot_amount"]').val(jQuery(this).data('slot'));
-			jQuery('input[name="transition_rotation"]').val(jQuery(this).data('rotation'));			
+			jQuery('input[name="transition_rotation"]').val(jQuery(this).data('rotation'));
 			jQuery('input[name="transition_duration"]').val(jQuery(this).data('duration'));
 			jQuery('select[name="transition_ease_in"] option[value="'+jQuery(this).data('ease_in')+'"]').attr('selected', true);
 			jQuery('select[name="transition_ease_out"] option[value="'+jQuery(this).data('ease_out')+'"]').attr('selected', true);
@@ -244,13 +220,8 @@ var tpLayerTimelinesRev = new function(){
 		jQuery('input[name="transition_rotation"]').change(function(){
 			jQuery('.slide-trans-cur-ul li.selected').data('rotation', jQuery(this).val());
 		});
-		jQuery('#transition_duration').change(function(){			
+		jQuery('input[name="transition_duration"]').change(function(){
 			jQuery('.slide-trans-cur-ul li.selected').data('duration', jQuery(this).val());
-			t.setSlideTransitionTimerBar();
-		});
-		jQuery('#delay').change(function(){
-			t.mainMaxTimeLeft = this.value / 10;
-			t.setSlideTransitionTimerBar();
 		});
 		jQuery('select[name="transition_ease_in"]').change(function(){
 			jQuery('.slide-trans-cur-ul li.selected').data('ease_in', jQuery(this).val());
@@ -269,56 +240,14 @@ var tpLayerTimelinesRev = new function(){
 		})
 			
 
-		jQuery('#abs_rel_timeline').on('change',function() {
-			t.timelinetype = jQuery(this).val();			
-			t.updateAllLayerTimeline();
-		})
+			
 
 		// END OF MAIN TRANSITION SELECTOR 
-		jQuery(document).on('keydown', function(event) {	
-			 var noinputfocus = jQuery('input:focus').length>0;
-			 
-			 if (event.ctrlKey || event.metaKey || event.shiftKey) {
-			 
-		        switch (String.fromCharCode(event.which).toLowerCase()) {
-		        	case 's':
-		     
-		        		if (!event.shiftKey) {
-		           			event.preventDefault();
-		           			if (jQuery('#button_save_static_slide-tb').length>0)
-		           				jQuery('#button_save_static_slide-tb').click();	
-		           			else
-		            			jQuery('#button_save_slide-tb').click();
-		            	}
-		            break;		      
-		            case 'z':
-						if ((event.metaKey || event.ctrlKey) && !noinputfocus) { 		            	
-			            	event.preventDefault();
-			            	if (event.shiftKey)
-			            		u.oneStepRedo();
-			            	else
-			            		u.oneStepUndo();
-			            }
-		            break;  
-		            case 'y':		            
-		            	if ((event.ctrlKey || event.metaKey) && !noinputfocus) {
-		            		event.preventDefault();
-		            		u.oneStepRedo();
-		            	}
-		            break;  
-
-		    	}
-		    }
-		    switch (event) {
-				
-			}
-		});
-
+		
 		jQuery("body").on("keydown keyup",function(e) {
 			
 			
 			if (jQuery('#layer_text').is(":focus")) return true;
-			if (jQuery('#layer_text_toggle').is(":focus")) return true;
 			
 			var code = (e.keyCode ? e.keyCode : e.which),
 			dist = jQuery(document.activeElement).data('steps')!=undefined ? parseFloat(jQuery(document.activeElement).data('steps')):1,
@@ -326,8 +255,7 @@ var tpLayerTimelinesRev = new function(){
 			y = Number(parseInt(jQuery('#layer_top').val(),0));
 			
 			if (e.shiftKey) dist = dist*10; 
-									
-			switch (jQuery(document.activeElement).get(0).tagName.toLowerCase()) {
+			switch (jQuery(document.activeElement).get(0).tagName) {
 				case "INPUT":
 				case "input":				
 					var cv = parseFloat(jQuery(document.activeElement).val());
@@ -336,69 +264,81 @@ var tpLayerTimelinesRev = new function(){
 						cv=Number(cv);
 						if (jQuery.isNumeric(cv)) 
 							switch(code) {
-							    case 38: 
-									if (e.type=="keyup") reBlurFocus(dist,cv,jQuery(document.activeElement));
-									return false;
-						        break;
-						        case 40:									
-									if (e.type=="keyup") reBlurFocus(-dist,cv,jQuery(document.activeElement));			 	
-									return false;
-						        break;
+								    case 38: 
+										if (e.type=="keyup") reBlurFocus(dist,cv,jQuery(document.activeElement));
+										return false;
+							        break;
+							        case 40:									
+										if (e.type=="keyup") reBlurFocus(-dist,cv,jQuery(document.activeElement));			 	
+										return false;
+							        break;
 							}
 					}							
 				break;
-				case "textarea":				
+				case "textarea":
 					return true;
 				break;
-				default:					
+				default:
+					if (keyboardallowed && !jQuery('#layer_left').hasClass('setting-disabled')) 	
+						
 					switch(code) {
-						case 8:
-						case 46:
-							e.preventDefault();
-							if (e.type=="keydown") {								
-								jQuery('#button_delete_layer').click();
-								window.deletecalled = true;
+					    case 40: 
+							if (e.type=="keyup") {
+								if (jQuery('#align_bottom').hasClass("selected"))
+									y = y -dist;
+								else
+									y = y +dist;
+								
+								jQuery('#layer_top').val(y+"px");
+								g_rebuildTimer = 0;
+								u.updateCurrentLayerPosition();
 							}
-						break;
+
+							return false;
+					    break;
+					    case 38:
+						    if (e.type=="keyup") {
+						    	if (jQuery('#align_bottom').hasClass("selected"))
+						    		y = y + dist;
+						    	else
+							 		y = y - dist;
+							 	
+								jQuery('#layer_top').val(y+"px");
+								g_rebuildTimer = 0;	
+								u.updateCurrentLayerPosition();															
+							}
+							return false;
+					    break;
+					    case 37:
+						    if (e.type=="keyup") {
+						    	if (jQuery('#align_right').hasClass("selected"))
+						    		x = x + dist;
+						    	else
+						    		x = x - dist;
+						    	jQuery('#layer_left').val(x+"px");								
+								g_rebuildTimer = 0;			
+								u.updateCurrentLayerPosition();					
+							}
+							return false;
+					    break;
+					    case 39:
+						    if (e.type=="keyup") {
+						    	if (jQuery('#align_right').hasClass("selected"))
+						    		x = x - dist;
+						    	else
+						    		x = x + dist;
+						    	jQuery('#layer_left').val(x+"px");								
+								g_rebuildTimer = 0;	
+								u.updateCurrentLayerPosition();							
+							}
+							return false;
+					    break;
 					}
 
-					if (keyboardallowed) 						
-						switch(code) {						
-							
-						    case 40: 
-								if (e.type=="keyup") 
-									setTimeout(function() {u.updateMovedLayers()},50);
-								else
-									u.adjustSelectedLayerPositions("top",dist);
-								return false;
-						    break;
-						    case 38:
-							    if (e.type=="keyup")
-									setTimeout(function() {u.updateMovedLayers();},50);
-								else
-									u.adjustSelectedLayerPositions("top",-1*dist);				
-								return false;
-						    break;
-						    case 37:
-							    if (e.type=="keyup")					    		
-									setTimeout(function() {u.updateMovedLayers();},50);
-								else
-									u.adjustSelectedLayerPositions("left",-1*dist);					
-								return false;
-						    break;
-						    case 39:
-							    if (e.type=="keyup") 						    		
-									setTimeout(function() {u.updateMovedLayers();},50);	
-								else											
-									u.adjustSelectedLayerPositions("left",dist);						
-								return false;
-						    break;
-						}					
 				break;
 			}
 		});
 
-		t.deepSelection();
 
 		// DEEP LINK INPUT FIELD ADD ONS
 		jQuery('.input-deepselects').each(function() {
@@ -408,15 +348,12 @@ var tpLayerTimelinesRev = new function(){
 			var dl = inp.parent().find('.inp-deep-list'),
 				txt = '<span class="inp-deep-listitems">',
 				rev = inp.data('reverse'),
-				minw = inp.data('deepwidth'),
 				list = inp.data('selects') != undefined ? inp.data('selects').split("||") : "",
 				vals = inp.data('svalues') != undefined ? inp.data('svalues').split("||") : "",
 				icos = inp.data('icons') != undefined ? inp.data('icons').split("||") : "",
 				id = inp.attr('id');
 				
-			if (minw!==undefined)
-				punchgs.TweenLite.set(dl,{minWidth:minw+"px"});
-
+			
 			if (rev=="on") {
 				txt = txt+"<span class='reverse_input_wrapper'><span class='reverse_input_text'>Direction Auto Reverse</span><input class='reverse_input_check tp-moderncheckbox' name='"+id+"_reverse' id='"+id+"_reverse' type='checkbox'></span>";
 			}
@@ -469,257 +406,10 @@ var tpLayerTimelinesRev = new function(){
 			 	jQuery('.mask-end-settings').show();
 			 else									
 			 	jQuery('.mask-end-settings').hide();
-		});
-
-		jQuery('#use_text_color_start').on("change",function() {
-			if (jQuery(this).attr('checked') === "checked")
-				jQuery('.use_text_color_wrap_start').show();
-			else
-				jQuery('.use_text_color_wrap_start').hide();
-		});
-
-		jQuery('#use_bg_color_start').on("change",function() {
-			if (jQuery(this).attr('checked') === "checked")
-				jQuery('.use_bg_color_wrap_start').show();
-			else
-				jQuery('.use_bg_color_wrap_start').hide();
-		});
+		})	
 
 
-		jQuery('#use_text_color_end').on("change",function() {
-			if (jQuery(this).attr('checked') === "checked")
-				jQuery('.use_text_color_wrap_end').show();
-			else
-				jQuery('.use_text_color_wrap_end').hide();
-		});
 
-		jQuery('#use_bg_color_end').on("change",function() {
-			if (jQuery(this).attr('checked') === "checked")
-				jQuery('.use_bg_color_wrap_end').show();
-			else
-				jQuery('.use_bg_color_wrap_end').hide();
-		});
-
-		
-
-		// OPEN QUICK TIME LINE INPUT FIELDS		
-		jQuery('body').on('click','.show_timeline_helper',function() {
-			var btn = jQuery(this),
-				li = btn.closest('li'),
-				tf = btn.closest('.timeline_frame'),
-				d = jQuery('#timline-manual-dialog'),
-				pl = tf.position().left,
-				lw = li.width(),
-				fi = tf.data('frameindex'),
-				objLayer = u.getLayerByUniqueId(li.data('uniqueid')),
-				st = objLayer.frames["frame_"+fi].time,
-				sp = objLayer.frames["frame_"+fi].speed;
-
-
-			d.appendTo(li);
-			pl = fi===999 ? (pl-d.width()+tf.width()-20) : fi===0 ? pl : (pl-d.width()/2)+10;
-			pl = pl<20 ? 20 : pl;			
-			d.css({left:pl});
-
-			// Update Frame Start and Speed in Quick Editor
-
-			jQuery('#clayer_start_time').val(st)
-			jQuery('#clayer_start_speed').val(sp)
-			d.data('frameindex',fi);
-			d.data('uniqueid',objLayer.unique_id);
-			d.show();
-		})
-
-		// CLOSE QUICK TIME LINE INPUT FIELDS
-		jQuery('body').on('click','#timline-manual-closer',function() {
-			var d = jQuery('#timline-manual-dialog');
-			d.hide();
-			d.appendTo(jQuery('#thelayer-editor-wrapper'));
-			
-		});
-
-		jQuery('body').on('click','#timline-manual-apply',function() {	
-
-			var btn = jQuery(this),
-				d = jQuery('#timline-manual-dialog'),																
-				fi = d.data('frameindex'),
-				frame = document.getElementById("tl_"+d.data('uniqueid')+"_frame_"+fi)
-				objLayer = u.getLayerByUniqueId(d.data('uniqueid')),
-				objUpdate = {frames:{}};
-			
-			t.recordFrameStatus(frame);
-
-			objUpdate.frames["frame_"+fi] = {};
-			
-			objUpdate.frames["frame_"+fi].time = jQuery('#clayer_start_time').val();
-			objUpdate.frames["frame_"+fi].speed = jQuery('#clayer_start_speed').val();
-	
-			d.hide();	
-			d.appendTo(jQuery('#thelayer-editor-wrapper'));			
-			u.updateLayer(objLayer.serial,objUpdate);
-			t.updateLayerTimeline(objLayer);	
-
-	  		t.updateTLFrame(frame,"trigger");
-	  		t.updateAllSelectedLayerTimeline(frame);	 	
-	  		
-			t.updateAllLayerTimeline();  	//PERFORMANCE WIN, ONLY CALL IF LAYER IS A GROUP OR COLUMN ETC... 
-		});
-
-		
-
-		// SELECT / DESELECT ALL LAYERS
-		jQuery('body').on('click','#timing-all-onoff-checkbox',function() {
-			var b = jQuery(this),
-				objUpdate = {};
-			
-			if (b.attr('checked')!="checked" || jQuery('.mastertimer-timeline-selector-row.selected').length==jQuery('.layer-on-timeline-selector').length) {				
-				jQuery('.mastertimer-timeline-selector-row.selected').removeClass("selected");
-				jQuery('.layer-on-timeline-selector').removeAttr('checked');
-			} else {				
-				jQuery('.layer-on-timeline-selector').attr('checked','checked');
-				jQuery('.sortable_elements .mastertimer-timeline-selector-row').addClass("selected");
-			}
-			t.checkMultipleSelectedItems();
-			checkAvailableAutoTimes();
-		});
-
-		jQuery('body').on('click','.list-of-layer-links', function() {
-			jQuery(this).toggleClass("showmenow");
-		});
-
-		jQuery('body').on('click','.timing-layer-link-type-element',function() {
-			var ltype = jQuery(this).data('linktype'),
-				objUpdate = {};
-			u.selectedLayers = [];
-			jQuery('.layer-on-timeline-selector').each(function() {
-				var inp = jQuery(this),
-					uniqueid = inp.closest('.mastertimer-layer').data('uniqueid'),
-					objLayer = u.getLayerByUniqueId(uniqueid);
-
-				if (objLayer.groupLink == ltype) {
-					inp.attr('checked','checked');
-					u.selectedLayers.push(uniqueid);	
-					objLayer.references.htmlLayer.addClass("multiplelayerselected");					
-				} else {
-					inp.removeAttr('checked','checked');
-					objLayer.references.htmlLayer.removeClass("multiplelayerselected");				
-				}				
-			});	
-		});
-		jQuery('body').on('change','.layer-on-timeline-selector',function() { t.checkMultipleSelectedItems() });		
-	}
-
-
-	t.deepSelection = function(extend) {
-		// DEEP LINK INPUT FIELD ADD ONS
-		jQuery('.input-deepselects').each(function() {
-			var inp = jQuery(this);
-			if (!inp.hasClass("deepselection_ready")) {
-				inp.addClass("deepselection_ready");
-				inp.wrap('<span class="inp-deep-wrapper"></span>');
-				inp.parent().append('<span class="inp-deep-list"></span>');
-				var dl = inp.parent().find('.inp-deep-list'),
-					txt = '<span class="inp-deep-listitems">',
-					rev = inp.data('reverse'),
-					minw = inp.data('deepwidth'),
-					list = inp.data('selects') != undefined ? inp.data('selects').split("||") : "",
-					vals = inp.data('svalues') != undefined ? inp.data('svalues').split("||") : "",
-					icos = inp.data('icons') != undefined ? inp.data('icons').split("||") : "",
-					id = inp.attr('id');
-					
-				if (minw!==undefined)
-					punchgs.TweenLite.set(dl,{minWidth:minw+"px"});
-
-				if (rev=="on") {
-					txt = txt+"<span class='reverse_input_wrapper'><span class='reverse_input_text'>Direction Auto Reverse</span><input class='reverse_input_check tp-moderncheckbox' name='"+id+"_reverse' id='"+id+"_reverse' type='checkbox'></span>";
-				}
-				if (list!==undefined && list!="") {							
-					jQuery.each(list,function(i){
-						var v = vals[i] || "",
-							l = list[i] || "",
-							i = icos[i] || "";								
-						txt = txt + "<span class='inp-deep-prebutton' data-val='"+v+"'><i class='eg-icon-"+i+"'></i>"+l+"</span>";
-					});	
-				}
-				txt = txt + "</span>";
-				
-				dl.append(txt);
-				if (rev=="on") {
-					RevSliderSettings.onoffStatus(jQuery('input[name="'+id+'_reverse"]'));
-				}
-
-				inp.parent().on('mouseleave',function() {					
-					jQuery(this).find('.inp-deep-list').removeClass("visible");
-					jQuery(this).removeClass("selected-deep-wrapper");
-				});
-			}
-
-		})
-
-		if (extend!==true) {
-
-			jQuery('body').on('click','.inp-deep-prebutton',function() {
-				var btn = jQuery(this),
-					inp = btn.closest('.inp-deep-wrapper').find('input');
-				inp.val(btn.data('val'));			
-				inp.blur();
-				inp.focus();
-				inp.trigger("change");						
-			});
-
-			jQuery('body').on('click','.input-deepselects',function() {					
-					jQuery(this).closest('.inp-deep-wrapper').find('.inp-deep-list').addClass("visible");
-					jQuery(this).closest('.inp-deep-wrapper').addClass("selected-deep-wrapper");
-			})
-
-
-		}
-
-	}
-
-	t.checkMultipleSelectedItems = function(disableall) {
-		u.selectedLayers = [];
-		var objUpdate = {};
-		jQuery('.layer-on-timeline-selector').each(function() {
-			var inp = jQuery(this),
-				objLayer = u.getLayerByUniqueId(inp.closest('.mastertimer-layer').data('uniqueid'));
-
-			if (inp.attr('checked') && disableall!==true) {
-				objLayer.references.htmlLayer.addClass("multiplelayerselected");
-				u.selectedLayers.push(objLayer.unique_id);				
-			} else {
-				inp.removeAttr('checked');
-				objLayer.references.htmlLayer.removeClass("multiplelayerselected");				
-			}			
-		});					
-	}
-
-	// COMPARE SLIDE LENGTH TO LAYERS END, AND UPDATE THE END OF THE LAYERS AS NEEDED
-	t.compareLayerEndsVSSlideEnd = function() {				
-		var maxtime = (t.mainMaxTimeLeft)*10;		
-		jQuery.each(u.arrLayers,function(i,objLayer) {						
-			if (objLayer.endWithSlide || maxtime<objLayer.frames["frame_999"].time - objLayer.frames["frame_999"].speed) {				
-				objLayer.frames["frame_999"].time = maxtime+objLayer.frames["frame_999"].speed;
-				//t.updateLayerTimeline(jQuery('#layer_sort_time_'+objLayer.serial+" .timeline .tl-fullanim"));
-			}
-		});		
-		t.updateAllLayerTimeline();
-	}
-
-	function checkAvailableAutoTimes() {
-		var sel = jQuery('.mastertimer-timeline-selector-row.selected').length;				
-			jQuery('.autotiming-action').addClass("notclickable");
-		
-		if (sel>1) {
-			jQuery('.autotiming-action').removeClass("notclickable");			
-		} else
-
-		if (sel==1) {
-			jQuery('.autotiming-action-3').removeClass("notclickable");
-			jQuery('.autotiming-action-4').removeClass("notclickable");
-			jQuery('.autotiming-action-5').removeClass("notclickable");
-			jQuery('.autotiming-action-6').removeClass("notclickable");
-		}
 	}
 	
 	function addIconFunction() {
@@ -729,7 +419,7 @@ var tpLayerTimelinesRev = new function(){
 			var buttons = {"Close":function(){jQuery("#dialog_insert_button").dialog("close")}}			
 			jQuery("#dialog_insert_icon").dialog({
 				//buttons:buttons,
-				width:491,
+				width:500,
 				height:500,
 				dialogClass:"tpdialogs",
 				resize:function() {
@@ -742,8 +432,7 @@ var tpLayerTimelinesRev = new function(){
 						sheets = document.styleSheets,
 						di = jQuery('#dialog_insert_icon');
 					di.parent().css({padding:"0px", border:"none", borderRadius:"0px"});
-					di.parent().find('.ui-dialog-titlebar.ui-widget-header.ui-corner-all.ui-helper-clearfix.ui-draggable-handle').addClass("tp-slider-new-dialog-title");
-					//css({fontSize:"14px", fontWeight:"400",lineHeight:"35px"});
+					di.parent().find('.ui-dialog-titlebar.ui-widget-header.ui-corner-all.ui-helper-clearfix.ui-draggable-handle').css({fontSize:"12px", fontWeight:"400",lineHeight:"30px"});
 					if (sheets)
 					jQuery.each(sheets,function(index,sheet) {
 						var found = false,
@@ -787,17 +476,11 @@ var tpLayerTimelinesRev = new function(){
 								jQuery("#dialog_insert_icon").dialog("close");
 								setExampleButtons();
 							} else {
-								if (jQuery('.lasteditedlayertext').length>0)
-									jQuery('.lasteditedlayertext').val(jQuery('.lasteditedlayertext').val()+jQuery(this).html()).blur().focus();	
-								else
-									jQuery('#layer_text').val(jQuery('#layer_text').val()+jQuery(this).html()).blur().focus();										
+								jQuery('#layer_text').val(jQuery('#layer_text').val()+jQuery(this).html()).blur().focus();	
 								jQuery("#dialog_insert_icon").dialog("close");
 							}																												
 						} else {
-							if (jQuery('.lasteditedlayertext').length>0)
-								jQuery('.lasteditedlayertext').val(jQuery('.lasteditedlayertext').val()+jQuery(this).html()).blur().focus();
-							else
-								jQuery('.layer_text').val(jQuery('#layer_text').val()+jQuery(this).html()).blur().focus();
+							jQuery('#layer_text').val(jQuery('#layer_text').val()+jQuery(this).html()).blur().focus();
 							jQuery("#dialog_insert_icon").dialog("close");
 						}
 						
@@ -811,7 +494,6 @@ var tpLayerTimelinesRev = new function(){
 	}
 
 	function reBlurFocus(dist,cv,el) {	
-
 		if (!jQuery('#rs-animation-tab-button').hasClass("selected") && !jQuery('#rs-loopanimation-tab-button').hasClass("selected")) {
 			cv = Number(cv) +dist;			
 			cv=Math.round(cv*100)/100;		
@@ -925,7 +607,7 @@ var tpLayerTimelinesRev = new function(){
 					jQuery('.slide_layer').each(function() {
 						
 						t.rebuildLayerIdle(jQuery(this));	
-						var inlayer = jQuery(this).find('.innerslide_layer').first();
+						var inlayer = jQuery(this).find('.innerslide_layer');
 						if (inlayer.length>0 && inlayer.data('hoveranim')!=undefined) {
 							var tl = inlayer.data('hoveranim');
 							tl.seek(tl.endTime());
@@ -1012,21 +694,20 @@ var tpLayerTimelinesRev = new function(){
 	********************************/
 
 	t.stopAllLayerAnimation = function() {
+
 		
-		document.getElementById('mastertimer-playpause-wrapper').innerHTML = '<i class="eg-icon-play"></i><span>PLAY</span>';
 		
-		punchgs.TweenLite.set(document.getElementsByClassName('tp-mask-wrap'),{clearProps:"transform",overwrite:"all"});
-		jQuery('#divbgholder').find('.tp-blockmask_in, .tp-blockmask_out').remove();
-		
+		jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-play"></i><span>PLAY</span>');
+		//var nextcaption = jQuery('#preview_caption_animateme');
+		punchgs.TweenLite.set(jQuery('.tp-mask-wrap'),{clearProps:"transform",overwrite:"all"});
 		jQuery('.tp-showmask').removeClass('tp-showmask');
-		
-		var ils = document.getElementsByClassName("innerslide_layer");
-		for (var i=0;i<ils.length;i++) {
-			var nextcaption = jQuery(ils[i]);			
-				if (ils[i].parentNode.classList.contains('rs-preview-inside-looper') || ils[i].parentNode.parentNode.classList.contains('rs-preview-inside-looper'))
+
+		jQuery('.innerslide_layer').each(function() {
+			var nextcaption = jQuery(this);
+				if (nextcaption.closest('.rs-preview-inside-looper').length>0)
 					nextcaption.unwrap();
 
-			if (nextcaption.data('tl')!=undefined) {				
+			if (nextcaption.data('tl')!=undefined) {
 				var tl = nextcaption.data('tl');
 				tl.clear();
 				tl.kill();				
@@ -1034,15 +715,17 @@ var tpLayerTimelinesRev = new function(){
 					if (nextcaption.data('mySplitText')) 
 							nextcaption.data('mySplitText').revert();
 					} catch(e) {}
-				punchgs.TweenLite.set(nextcaption[0].parentNode,{autoAlpha:1});
+				punchgs.TweenLite.set(nextcaption.parent(),{autoAlpha:1});
 				
 				t.rebuildLayerIdle(nextcaption.closest('.slide_layer'));
 				u.removeCurrentLayerRotatable();
 			}
-		}
-		
-		punchgs.TweenLite.set(document.getElementById('startanim_wrapper'),{autoAlpha:0});
-		punchgs.TweenLite.set(document.getElementById('endanim_wrapper'),{autoAlpha:0});
+
+
+		});
+		punchgs.TweenLite.set(jQuery('#startanim_wrapper'),{autoAlpha:0});
+		punchgs.TweenLite.set(jQuery('#endanim_wrapper'),{autoAlpha:0});
+
 
 	}
 
@@ -1055,7 +738,7 @@ var tpLayerTimelinesRev = new function(){
 		t.stopAllLayerAnimation();
 		
 		var caption = jQuery('.slide_layer.layer_selected'),
-			el = caption.find('.innerslide_layer').first();
+			el = caption.find('.innerslide_layer');
 		if (el.length==0) {
 				return false;
 			}
@@ -1128,25 +811,21 @@ var tpLayerTimelinesRev = new function(){
 					}}));
 			break;
 
-			case "rs-wave":					
-					var _ox = ((parseInt(params["loop_xorigin"],0)/100)-0.5) * loopobj.width(),
-						_oy = ((parseInt(params["loop_yorigin"],0)/100)-0.5) * loopobj.height(),
-						yo = (-1*radius) + _oy,
-						xo = 0 + _ox,
+			case "rs-wave":
+					
+					var yo = (0-loopobj.height()/2) + (radius*(-1+(parseInt(params["loop_yorigin"],0)/100))),
+						xo = (loopobj.width())*(-0.5+(parseInt(params["loop_xorigin"],0)/100)),
 						angobj = {a:0, ang : angle, element:loopobj, unit:radius,xoffset:xo,yoffset:yo};
-
-					var ang = parseInt(angle,0);
-
 					tl.add(punchgs.TweenLite.fromTo(angobj,speed,
-							{	a:0+ang	},
-							{	a:360+ang,
+							{	a:360	},
+							{	a:0,
 								force3D:"auto",
-								ease:punchgs.Linear.easeNone,								
+								ease:punchgs.Linear.easeNone,
 								onUpdate:function() {
-									var rad = angobj.a * (Math.PI / 180),
-										yy = angobj.yoffset+(angobj.unit * (1 - Math.sin(rad))),
-										xx = angobj.xoffset+Math.cos(rad) * angobj.unit;
-						            punchgs.TweenLite.to(angobj.element,0.1,{force3D:"auto",x:xx, y:yy});
+
+									var rad = angobj.a * (Math.PI / 180);
+						            punchgs.TweenLite.to(angobj.element,0.1,{force3D:"auto",x:angobj.xoffset+Math.cos(rad) * angobj.unit, y:angobj.yoffset+angobj.unit * (1 - Math.sin(rad))});
+
 								},
 								onComplete:function() {
 									tl.restart();
@@ -1164,7 +843,8 @@ var tpLayerTimelinesRev = new function(){
 		-	REBUILD IDLE STATES OF ITEMS 	-
 	******************************************/
 	
-	t.rebuildLayerIdle = function(caption,timer,isDemo) {				
+	t.rebuildLayerIdle = function(caption,timer,isDemo) {
+		
 		timer = timer == undefined ? 50 : timer;
 		isDemo = isDemo == undefined ? false : isDemo;
 				
@@ -1172,25 +852,28 @@ var tpLayerTimelinesRev = new function(){
 			timer = 0;
 			g_rebuildTimer = 999;
 		}
-						
-		if (caption==undefined || jQuery(caption).length==0 || caption[0].classList.contains("layer-deleted")) return false;
+		
+			
+		if (caption==undefined || jQuery(caption).length==0) return false;
 				
 		var cp = jQuery(caption);
 		
 
 		clearTimeout(cp.data('idlerebuildtimer'));
-						
+		
+		
+		
 		t.rebuildLayerIdleProgress(caption);
 		
 		
 		var id = u.getSerialFromID(caption.attr('id')),
 			objLayer = u.getLayer(id,isDemo);
-
 		
 		var e_img = caption.find('.tp-caption img');
-		
-		u.updateHtmlLayerPosition(false,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
 
+
+		u.updateHtmlLayerPosition(false,caption,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
+		
 		if (e_img.length>0 && !jQuery(e_img).hasClass("loaded")) {
 			jQuery(e_img).addClass("loaded");
 			
@@ -1199,25 +882,25 @@ var tpLayerTimelinesRev = new function(){
 							 				
 				objLayer.originalWidth = this.width;
 				objLayer.originalHeight = this.height;
-				u.updateHtmlLayerPosition(false,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
+				u.updateHtmlLayerPosition(false,caption,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
 			}
 			img.onerror = function() {				
 				e_img[0].src = objLayer.image_url = g_revslider_url+"/admin/assets/images/tp-brokenimage.png";
-				u.updateHtmlLayerPosition(false,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
+				u.updateHtmlLayerPosition(false,caption,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
 			}
 			img.onabort = function() {				
-				u.updateHtmlLayerPosition(false,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
+				u.updateHtmlLayerPosition(false,caption,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
 			}
 
 			img.src = e_img[0].src;
 		} else {
 			//u.updateHtmlLayerPosition(false,caption,objLayer,u.getVal(objLayer, 'top'),u.getVal(objLayer, 'left'),u.getVal(objLayer, 'align_hor'),u.getVal(objLayer, 'align_vert'));
 			//update corners
-			u.updateHtmlLayerCorners(objLayer);
+			u.updateHtmlLayerCorners(caption,objLayer);
 			//update cross position
-			u.updateCrossIconPosition(objLayer);
+			u.updateCrossIconPosition(caption,objLayer);
 		}
-		u.extendSlideHeightBasedOnRows();
+		
 		return true;
 	}
 	
@@ -1227,47 +910,23 @@ var tpLayerTimelinesRev = new function(){
 	// REBUILD LAYER CSS FOR IDLE //
 	////////////////////////////////
 	t.rebuildLayerIdleProgress = function(caption) {
-
-		if (caption===undefined) return;
-		
 		var is_demo = (caption.attr('id') !== caption.attr('id').replace('demo_layer_')) ? true : false;
 		
 		if (caption==undefined || jQuery(caption).length==0) return false;
 		
 		var id = u.getSerialFromID(caption.attr('id')),
-			params=u.getLayer(id, is_demo);
-		if (params==undefined || params==false) return false;
-
-		// CLEAR UP HALF ANIMATED STATUS ON WRAPPING AND HELPING CONTAINERS
-		punchgs.TweenLite.set(caption.find('.tp-mask-wrap'), {	 clearProps:"all", visibility:"visible",opacity:1});
-		
-		if (params.type==="column")
-			punchgs.TweenLite.set(caption.find('.column_background').first(),{clearProps:"all",visibility:"visible",opacity:1});
-				
-
-		var inlayer = jQuery(caption[0].getElementsByClassName('innerslide_layer')[0]),
+			params=u.getLayer(id, is_demo),
+			inlayer = caption.find('.innerslide_layer'),
 			deform = params.deformation,
 			deformidle = params.deformation,
-			deformhover = params["deformation-hover"],
 			ss = params["static_styles"],
-			fontcolor = window.RevColor.get(u.getVal(ss,"color")),
+			fontcolor = u.getVal(ss,"color"),
 			fonttrans = deform["color-transparency"],
-			bgcolor = window.RevColor.get(deform["background-color"]),			
+			bgcolor = deform["background-color"],
+			bgtrans = deform["background-transparency"],
 			bordercolor = deform["border-color"],
 			bordertrans = deform["border-transparency"];
 
-	
-		if (params.type=="audio") {
-			if (params.video_data.video_show_visibility) {
-				caption.addClass("invisible-audio");
-			} else {
-				caption.removeClass("invisible-audio");
-			}
-			return false;
-		}
-
-
-		//console.log(params)
 
 		if(is_demo && params.alias == 'First'){
 			
@@ -1277,452 +936,200 @@ var tpLayerTimelinesRev = new function(){
 		if (inlayer.data('mySplitText') != undefined) {
 			try{inlayer.data('mySplitText').revert();} catch(e) {}
 			if (params.type=="text" || params.type=="button") {
-				inlayer[0].innerHTML = params.text;				
+				inlayer.html(params.text);
 				u.makeCurrentLayerRotatable();
 			}
 			inlayer.removeData('mySplitText')
 		}
 
-		
+		// BACKGROUND OPACITY
+		if (Number(bgtrans)<1) {
+			var rgb = UniteAdminRev.convertHexToRGB(bgcolor);
+			bgcolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+bgtrans+")";
+		}
+
 		// BORDER OPACITY
 		if (Number(bordertrans)<1) {
 			var rgb = UniteAdminRev.convertHexToRGB(bordercolor);
 			bordercolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+bordertrans+")";
 		}
-		
+
+		// FONT OPACITY
+		if (Number(fonttrans)<1) {
+			var rgb = UniteAdminRev.convertHexToRGB(fontcolor);
+			fontcolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+fonttrans+")";
+		}
+
 
 		// SET ELEMENT IDLE		
 		var mwidth = u.getVal(params,"max_width"),
 			mheight = u.getVal(params,"max_height"),
-			cmode = u.getVal(params,"cover_mode"),
-			loc_position = "absolute";
+			cmode = u.getVal(params,"cover_mode");
 		
-
-
-				
+		
 		switch(params.type){
 			case 'image':
 				mwidth = u.getVal(params,"scaleX");
 				mheight = u.getVal(params,"scaleY"); 
 			break;
 			case 'video':
-				mwidth = params.video_data.cover===true || params.video_data.fullwidth===true ? "100%" : u.getVal(params,"video_width");
-				mheight = params.video_data.cover===true || params.video_data.fullwidth===true ? "100%" :  u.getVal(params,"video_height"); 						
-				caption.find('.slide_layer_video').css({width:parseInt(mwidth,0)+"px",height:parseInt(mheight,0)+"px"});								
-			break;
-			case 'row':				
-				mwidth = "100%";
-				if (u.getVal(params,"align_vert")==="bottom") 
-					caption[0].style.position = "absolute"					
-				else
-					caption[0].style.position = "relative"			
-
-				if ((params.column_break_at==="mobile" && t.layout==="mobile") ||
-					(params.column_break_at==="tablet" && (t.layout==="tablet" || t.layout==="mobile")) ||
-					(params.column_break_at==="notebook" && t.layout!=="desktop")) {
-					caption.addClass("rev_breakcolumns");
-				} else {
-					caption.removeClass("rev_breakcolumns");
-				}
-
-			break;
-			case 'column':
-			
-				mwidth = (100*eval(params.column_size))+"%";								
-				mheight = "auto";
-				caption[0].style.position = "relative";
-				caption[0].style.display = "table_cell";
-				caption[0].style.minHeight = parseInt(u.getVal(params,"min_height"),0)+"px";				
-				caption[0].style.verticalAlign = deform["vertical-align"];
-				caption[0].cb = caption[0].cb === undefined ? caption.find('.column_background') : caption[0].cb;
-				/*caption[0].style.marginTop = parseInt(u.getVal(params,'margin')[0],0)+"px";
-				caption[0].style.marginRight= parseInt(u.getVal(params,'margin')[1],0)+"px";
-				caption[0].style.marginBottom = parseInt(u.getVal(params,'margin')[2],0)+"px";
-				caption[0].style.marginLeft = parseInt(u.getVal(params,'margin')[3],0)+"px";*/				
-				if (params.bgimage_url!==undefined && params.bgimage_url.length>0) {
-					caption[0].cb.css({
-						backgroundImage:"url('"+params.bgimage_url+"')", 
-						backgroundSize:params.layer_bg_size, 
-						backgroundPosition:params.layer_bg_position, 
-						backgroundRepeat:params.layer_bg_repeat,						
-					});									
-				} else {
-					caption[0].cb.css({
-						backgroundImage:"",
-						background:bgcolor				
-					})	
-				}
-				
-			break;
-			case 'group':
-				switch(mwidth) {
-					case '#1/1#': mwidth="100%";break;
-					case '#1/2#': mwidth="50%";break;
-					case '#1/3#': mwidth="33.333333%";break;
-					case '#2/3#': mwidth="66.666666%";break;
-					
-					case '#1/4#': mwidth="25%";break;
-					case '#3/4#': mwidth="75%";break;
-					
-					case '#1/5#': mwidth="20%";break;
-					case '#2/5#': mwidth="40%";break;
-					case '#3/5#': mwidth="60%";break;
-					case '#4/5#': mwidth="80%";break;
-
-					case '#1/6#': mwidth="16.666666%";break;
-					case '#4/6#': mwidth="66.666666%";break;
-					case '#5/6#': mwidth="83.333333%";break;
-					
-
-
-				}
-				
-				
-			break;
-			
+				mwidth = u.getVal(params,"video_width");
+				mheight = u.getVal(params,"video_height"); 				
+				caption.find('.slide_layer_video').css({width:parseInt(mwidth,0)+"px",height:parseInt(mheight,0)+"px"});
+			break;			
 		}
-
-
-		//console.log(params.text+"  "+params.groupOrder)
-		
-		if (deform.overflow===undefined || params.type!=="group")
-			deform.overflow = "visible";
 		
 		if(mwidth == undefined) mwidth = '';
 		if(mheight == undefined) mheight = '';
 
 		
-		if (params.p_uid!==-1 && u.getObjLayerType(params.p_uid)==="column") 
-			punchgs.TweenLite.set(caption,{position:"relative", display:u.getVal(params,"display"), top:"auto",left:"auto",right:"auto",bottom:"auto"});										
-		else {
-			if (params.type==="column") {			
-				punchgs.TweenLite.set(caption,{position:"absolute", display:"table-cell"});					
-			}
-			else
-				punchgs.TweenLite.set(caption,{position:"absolute", display:"block"});
-		}
 
-		if (params.type==="column") bgcolor = "transparent"
-		
 		mwidth = cmode===undefined || cmode==="custom" ?  
 				jQuery.isNumeric(mwidth) ? 
 					mwidth+"px" : mwidth.match(/px/g) ? 
 						parseInt(mwidth,0)+"px" : mwidth.match(/%/g) ? 
-							parseFloat(mwidth)+"%" : mwidth :
+							parseInt(mwidth,0)+"%" : mwidth :
 								cmode === "fullwidth" || cmode ==="cover"  || cmode ==="cover-proportional" ? "100%" : mwidth;
 
 		mheight = cmode===undefined || cmode==="custom" ?  
 				jQuery.isNumeric(mheight) ? 
 					mheight+"px" : mheight.match(/px/g) ? 
 						parseInt(mheight,0)+"px" : mheight.match(/%/g) ? 
-							parseFloat(mheight,0)+"%" : mheight :
+							parseInt(mheight,0)+"%" : mheight :
 								cmode === "fullheight" || cmode ==="cover" || cmode ==="cover-proportional"  ? "100%" : mheight;
 
 		
 
 		// SET LAYER WIDTH HEIGHT INNER AND OUTTER
 		
-		caption[0].style.width = mwidth;
-		caption[0].style.height = mheight;
-		if (params.type==="row") {			
-			caption[0].style.minHeight = mheight;
-
-			//caption[0].style.minWidth = mwidth;
-			//caption[0].style.maxWidth = mwidth;			
-		}
+		caption.css({width:mwidth, height:mheight});
 		
 		var fw = parseInt(u.getVal(ss,"font-weight"),0) || 400;
-
-		
-
-		var bgimage = "";
-		punchgs.TweenLite.set(inlayer, {	 clearProps:"all", visibility:"visible",opacity:1});
-
-		
-		if (params.bgimage_url!==undefined && params.bgimage_url.length>0 && params.type!=="column") 			
-			inlayer.css({backgroundImage:"url('"+params.bgimage_url+"')", backgroundSize:params.layer_bg_size, backgroundPosition:params.layer_bg_position, backgroundRepeat:params.layer_bg_repeat});			
-		else
-			inlayer.css({backgroundImage:"", backgroundSize:params.layer_bg_size, backgroundPosition:params.layer_bg_position, backgroundRepeat:params.layer_bg_repeat});
 		
 		
-		var inlay_object_anim = {
-									z:deform.z,												 
-									scaleX:parseFloat(deform.scalex),
-									scaleY:parseFloat(deform.scaley),
-									textAlign:u.getVal(params,"text-align"),
-									rotationX:parseFloat(deform.xrotate),
-									rotationY:parseFloat(deform.yrotate),
-									rotationZ:parseFloat(params["2d_rotation"]),
+		punchgs.TweenLite.set(inlayer, {	 clearProps:"all"});
+		punchgs.TweenLite.set(inlayer, {	
+											 z:deform.z,
+										//	 top:parseInt(deform["top"],0)+"px",
+										//	 left:parseInt(deform["left"],0)+"px",
+											 scaleX:parseFloat(deform.scalex),
+											 scaleY:parseFloat(deform.scaley),
+											 textAlign:deform["text-align"],
+											 rotationX:parseFloat(deform.xrotate),
+											 rotationY:parseFloat(deform.yrotate),
+											 rotationZ:parseFloat(params["2d_rotation"]),
 
-									skewX:parseFloat(deform.skewx),
-									skewY:parseFloat(deform.skewy),
+											 skewX:parseFloat(deform.skewx),
+											 skewY:parseFloat(deform.skewy),
 
-									transformPerspective:parseFloat(deform.pers),
-									transformOrigin:params["layer_2d_origin_x"]+"%"+params["layer_2d_origin_y"]+"%",
+											 transformPerspective:parseFloat(deform.pers),
+											 transformOrigin:params["layer_2d_origin_x"]+"% "+params["layer_2d_origin_y"]+"%",
 
-									autoAlpha:deform.opacity,
-									paddingTop:parseInt(u.getVal(params,'padding')[0],0)+"px",
-									paddingRight:parseInt(u.getVal(params,'padding')[1],0)+"px",
-									paddingBottom:parseInt(u.getVal(params,'padding')[2],0)+"px",
-									paddingLeft:parseInt(u.getVal(params,'padding')[3],0)+"px",
-																			
-									fontSize:parseInt(u.getVal(ss,"font-size"),0)+"px",
-									lineHeight:parseInt(u.getVal(ss,"line-height"),0)+"px",		
-									fontWeight:fw,		
-									color:fontcolor,							
-									letterSpacing:parseInt(u.getVal(ss,"letter-spacing"),0)+"px",
-														
-									fontStyle:deformidle["font-style"],
-									textDecoration:deform["text-decoration"],
-									textTransform:deform["text-transform"],
-									borderColor:bordercolor,
-									borderRadius:deform["border-radius"][0]+" "+deform["border-radius"][1]+" "+deform["border-radius"][2]+" "+deform["border-radius"][3],
-									borderWidth:deform["border-width"][0]+" "+deform["border-width"][1]+" "+deform["border-width"][2]+" "+deform["border-width"][3],
-									//borderWidth:parseInt(deform["border-width"],0)+"px",
-									borderStyle:deform["border-style"],
-									whiteSpace:u.getVal(params,"whitespace"),
-									maxWidth:"100%",
-									maxHeight:"100%"		
-								}
-
-		// CHECK GRADIENT BG COLOR
-		if (bgcolor.indexOf("gradient")>=0) {
-				inlay_object_anim.background = bgcolor;
-			} else {
-				inlay_object_anim.backgroundColor = bgcolor;
-			}
-		
-		
-		if ((deform.blurfilter!==undefined && parseInt(deform.blurfilter,0)>0) || (deformhover.blurfilter!==undefined && parseInt(deformhover.blurfilter,0)>0)) {
-			var bf = 'blur('+parseInt(deform.blurfilter,0)+'px)';
-			inlay_object_anim['-webkit-filter'] = bf;
-			inlay_object_anim['filter'] = bf;			
-		}
-
-
-		if ((deform.grayscalefilter!==undefined && parseInt(deform.grayscalefilter,0)>0) || (deformhover.grayscalefilter!==undefined && parseInt(deformhover.grayscalefilter,0)>0)) {
-			var gf = 'grayscale('+parseInt(deform.grayscalefilter,0)+'%)';
-			inlay_object_anim['-webkit-filter'] = inlay_object_anim['-webkit-filter']===undefined ? gf : inlay_object_anim['-webkit-filter']+' '+gf;
-			inlay_object_anim['filter'] = inlay_object_anim['filter']===undefined ? gf: inlay_object_anim['filter']+' '+gf;
-		}
-		
-		if ((deform.brightnessfilter!==undefined && parseInt(deform.brightnessfilter,0)!==100) || (deformhover.brightnessfilter!==undefined && parseInt(deformhover.brightnessfilter,0)!=100)) {
-			var brf = 'brightness('+parseInt(deform.brightnessfilter,0)+'%)';
-			inlay_object_anim['-webkit-filter'] = inlay_object_anim['-webkit-filter']===undefined ? brf : inlay_object_anim['-webkit-filter']+' '+brf;
-			inlay_object_anim['filter'] = inlay_object_anim['filter']===undefined ? brf: inlay_object_anim['filter']+' '+brf;
-		}
-
-		
-		
-		/*if (deform.shadow_idle===true) {
-			var shcolor = UniteAdminRev.convertHexToRGB(deform.ds_color);
-			shcolor="rgba("+shcolor[0]+","+shcolor[1]+","+shcolor[2]+","+deform.ds_opacity+")";
-			var dshadow = "drop-shadow("+parseInt(deform.ds_x,0)+"px "+parseInt(deform.ds_y,0)+"px "+parseInt(deform.ds_blur,0)+"px "+shcolor+")";
-			inlay_object_anim['-webkit-filter'] = inlay_object_anim['-webkit-filter']===undefined ? dshadow : inlay_object_anim['-webkit-filter']+' '+dshadow;
-			inlay_object_anim['filter'] = inlay_object_anim['filter']===undefined ? dshadow: inlay_object_anim['filter']+' '+dshadow;
-		}*/
-		
-		if (deformidle["font-family"]) inlay_object_anim.fontFamily = deformidle["font-family"];
-
-		
-		if (params.type==="group") punchgs.TweenLite.set(inlayer.find('.tp_layer_group_inner_wrapper').first(),{overflow:deform.overflow});
-		if (params.type==="row") punchgs.TweenLite.set(inlayer.find('.tp_layer_group_inner_wrapper').first(),{minHeight:mheight});
-		
-		if (params.layer_blend_mode!==undefined && jQuery.inArray(params.type,["image","shape","text","svg"]>=0))		
-			punchgs.TweenLite.set(inlayer.closest('.slide_layer'),{mixBlendMode:params.layer_blend_mode});
-		
-		switch (params.type) {
-			case "shape":
-			case "svg":
-				punchgs.TweenLite.set(caption, {	
-					 marginTop:parseInt(u.getVal(params,'margin')[0],0)+"px",
-					 marginRight:parseInt(u.getVal(params,'margin')[1],0)+"px",
-					 marginBottom:parseInt(u.getVal(params,'margin')[2],0)+"px",
-					 marginLeft:parseInt(u.getVal(params,'margin')[3],0)+"px"
-				});
-			break;			
-
-			case "column":				
-				// Draw Border to fake color Background of Column Content
-				punchgs.TweenLite.set(caption.find('.column_background'),{
-					 borderTopWidth:parseInt(u.getVal(params,'margin')[0],0)+"px",
-					 borderRightWidth:parseInt(u.getVal(params,'margin')[1],0)+"px",
-					 borderBottomWidth:parseInt(u.getVal(params,'margin')[2],0)+"px",
-					 borderLeftWidth:parseInt(u.getVal(params,'margin')[3],0)+"px"
-				});
-
-				// Set Column inner Content Spacing for Column Gap's				
-				inlay_object_anim.marginTop=parseInt(u.getVal(params,'margin')[0],0)+"px";
-				inlay_object_anim.marginRight=parseInt(u.getVal(params,'margin')[1],0)+"px";
-				inlay_object_anim.marginBottom=parseInt(u.getVal(params,'margin')[2],0)+"px";
-				inlay_object_anim.marginLeft=parseInt(u.getVal(params,'margin')[3],0)+"px";				
-			break;			
-			default:
-				punchgs.TweenLite.set(caption, {	
-					 marginTop:parseInt(u.getVal(params,'margin')[0],0)+"px",
-					 marginRight:parseInt(u.getVal(params,'margin')[1],0)+"px",
-					 marginBottom:parseInt(u.getVal(params,'margin')[2],0)+"px",
-					 marginLeft:parseInt(u.getVal(params,'margin')[3],0)+"px"
-				});
-			break;
-		}
+											 autoAlpha:deform.opacity,
+											 paddingTop:parseInt(deformidle.padding[0],0)+"px",
+											 paddingRight:parseInt(deformidle.padding[1],0)+"px",
+											 paddingBottom:parseInt(deformidle.padding[2],0)+"px",
+											 paddingLeft:parseInt(deformidle.padding[3],0)+"px",
+											 fontSize:parseInt(u.getVal(ss,"font-size"),0)+"px",
+											 lineHeight:parseInt(u.getVal(ss,"line-height"),0)+"px",		
+											 fontWeight:fw,		
+											 color:fontcolor,
+											 backgroundColor:bgcolor,
+						
+											 fontFamily:deformidle["font-family"],
+											 fontStyle:deformidle["font-style"],
+											 textDecoration:deform["text-decoration"],
+											 borderColor:bordercolor,
+											 borderRadius:deform["border-radius"][0]+" "+deform["border-radius"][1]+" "+deform["border-radius"][2]+" "+deform["border-radius"][3],
+											 borderWidth:parseInt(deform["border-width"],0)+"px",
+											 borderStyle:deform["border-style"],
+											 whiteSpace:u.getVal(params,"whitespace"),
+											 maxWidth:mwidth,
+											 maxHeight:mheight								 
+							});
 		
 		if (params.type==="image") {
 			if(params.scaleProportional) {					
-				punchgs.TweenLite.set(inlayer.find('img'),{width:"100%",height:"auto"})
-				inlay_object_anim.width="100%";
-				inlay_object_anim.height="auto";
-			} else {					
-				punchgs.TweenLite.set(inlayer.find('img'),{width:"100%",height:"100%"})
-				inlay_object_anim.width="100%";
-				inlay_object_anim.height="100%";				
+				punchgs.TweenLite.set(inlayer.find('img'),{width:mwidth,height:"auto"})
+				punchgs.TweenLite.set(inlayer,{width:mwidth,height:"auto"})
+			} else {	
+				
+				punchgs.TweenLite.set(inlayer.find('img'),{width:mwidth,height:mheight})
+				punchgs.TweenLite.set(inlayer,{width:mwidth,height:mheight})						
 			}		
 		}
-
-		if (params.type==="video") {			
-				punchgs.TweenLite.set(inlayer.find('.slide_layer_video'),{width:"100%",height:"100%"})				
-				inlay_object_anim.width="100%";
-				inlay_object_anim.height="100%";								
-		}
-		
-		if (params.type==="svg" && params.svg!=undefined) {			
-			var svgstrokecolor = window.RevColor.get(params.svg["svgstroke-color"]) || "transparent",				
-				svgstrokewidth = params.svg["svgstroke-width"] || 0,
-				svgstrokedasharray = params.svg["svgstroke-dasharray"] || 0,
-				svgstrokedashoffset = params.svg["svgstroke-dashoffset"] || 0;
-						
-			punchgs.TweenLite.set(inlayer.find('svg'),{
-															fill:fontcolor,
-															stroke:svgstrokecolor,
-															strokeWidth:svgstrokewidth,
-															strokeDasharray:svgstrokedasharray,
-															strokeDashoffset:svgstrokedashoffset
-														});				
-			punchgs.TweenLite.set(inlayer.find('svg path'),{
-															fill:fontcolor
-														});	
-		}
-
-
-		// SET INLAYER STYLE
-		
-		punchgs.TweenLite.set(inlayer, inlay_object_anim);
-
-
 		if (params.inline !=undefined && params.inline.idle!=undefined)					
 			jQuery.each(params.inline.idle, function(key,value) {
+
 				inlayer.css(key,value);
 			})
+
+		
 		
 		//SET ELEMENT HOVER (IN CASE IT EXISTS)
 		
 		if (params.hover===true) {
 			deform = params["deformation-hover"];
-			var fontcolor = window.RevColor.get(deform.color),
+			var fontcolor = deform.color,
 				fonttrans = deform["color-transparency"],		
-				bgcolor = window.RevColor.get(deform["background-color"]),
+				bgcolor = deform["background-color"],
 				bgtrans = deform["background-transparency"],
 				bordercolor = deform["border-color"],
 				bordertrans = deform["border-transparency"];
 
-						
+			
+			// BACKGROUND OPACITY
+			if (Number(bgtrans)<1) {
+				var rgb = UniteAdminRev.convertHexToRGB(bgcolor);
+				bgcolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+bgtrans+")";
+			}
 
 			// BORDER OPACITY
 			if (Number(bordertrans)<1) {
 				var rgb = UniteAdminRev.convertHexToRGB(bordercolor);
 				bordercolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+bordertrans+")";
 			}
-				
+
+			// FONT OPACITY
+			if (Number(fonttrans)<1) {
+				var rgb = UniteAdminRev.convertHexToRGB(fontcolor);
+				fontcolor="rgba("+rgb[0]+","+rgb[1]+","+rgb[2]+","+fonttrans+")";
+			}
+		
 			var tl=new punchgs.TimelineLite();				
 			tl.pause();
 			
 			var hoverspeed = parseFloat(deform.speed)/1000;
 			hoverspeed = hoverspeed === 0 ? 0.001 : hoverspeed;
-
-			var hover_object_anim =  {
-									 scaleX:parseFloat(deform.scalex),
-									 scaleY:parseFloat(deform.scaley),
-
-									 rotationX:parseFloat(deform.xrotate),
-									 rotationY:parseFloat(deform.yrotate),
-									 rotationZ:parseFloat(deform["2d_rotation"]),
-
-									 skewX:parseFloat(deform.skewx),
-									 skewY:parseFloat(deform.skewy),
-									 autoAlpha:deform.opacity,
-									 color:fontcolor,									 					
-									 textDecoration:deform["text-decoration"],
-									 borderColor:bordercolor,
-									 borderRadius:parseInt(deform["border-radius"][0],0)+"px "+parseInt(deform["border-radius"][1],0)+"px "+parseInt(deform["border-radius"][2],0)+"px "+parseInt(deform["border-radius"][3],0)+"px",
-									 borderWidth:parseInt(deform["border-width"][0],0)+"px "+parseInt(deform["border-width"][1],0)+"px "+parseInt(deform["border-width"][2],0)+"px "+parseInt(deform["border-width"][3],0)+"px",
-									 //borderWidth:parseInt(deform["border-width"],0)+"px",
-									 borderStyle:deform["border-style"],
-									 onComplete:function() {
-									 	if (params.inline && params.inline.hover!=undefined)					
-											jQuery.each(params.inline.hover, function(key,value) {
-												inlayer.css(key,value);
-											})
-									 },
-									 ease:deform.easing
-							}
-
-			if (bgcolor.indexOf("gradient")>=0) {
-				hover_object_anim.background = bgcolor;
-			} else {
-				hover_object_anim.backgroundColor = bgcolor;
-			}
-
-			if ((deform.blurfilter!==undefined && parseInt(deform.blurfilter,0)>0) || (deformidle.blurfilter!==undefined && parseInt(deformidle.blurfilter,0)>0)) {
-				var bf = 'blur('+parseInt(deform.blurfilter,0)+'px)';
-				hover_object_anim['-webkit-filter'] = bf;
-				hover_object_anim['filter'] = bf;			
-			}
-
-			if ((deform.grayscalefilter!==undefined && parseInt(deform.grayscalefilter,0)>0) || (deformidle.grayscalefilter!==undefined && parseInt(deformidle.grayscalefilter,0)>0)) {
-				var gf = 'grayscale('+parseInt(deform.grayscalefilter,0)+'%)';
-				hover_object_anim['-webkit-filter'] = hover_object_anim['-webkit-filter']===undefined ? gf : hover_object_anim['-webkit-filter']+' '+gf;
-				hover_object_anim['filter'] = hover_object_anim['filter']===undefined ? gf: hover_object_anim['filter']+' '+gf;
-			}
-
-			if ((deform.brightnessfilter!==undefined && parseInt(deform.brightnessfilter,0)!=100) || (deformidle.brightnessfilter!==undefined && parseInt(deformidle.brightnessfilter,0)!=100)) {
-				var brf = 'brightness('+parseInt(deform.brightnessfilter,0)+'%)';
-				hover_object_anim['-webkit-filter'] = hover_object_anim['-webkit-filter']===undefined ? brf : hover_object_anim['-webkit-filter']+' '+brf;
-				hover_object_anim['filter'] = hover_object_anim['filter']===undefined ? brf: hover_object_anim['filter']+' '+brf;
-			}
-
-			/*if (deformidle.shadow_idle===true) {
-				var shcolor = UniteAdminRev.convertHexToRGB(deformidle.ds_color);
-				shcolor="rgba("+shcolor[0]+","+shcolor[1]+","+shcolor[2]+","+deformidle.ds_opacity+")";
-				var dshadow = "drop-shadow("+parseInt(deformidle.ds_x,0)+"px "+parseInt(deformidle.ds_y,0)+"px "+parseInt(deformidle.ds_blur,0)+"px "+shcolor+")";
-				hover_object_anim['-webkit-filter'] = inlay_object_anim['-webkit-filter']===undefined ? dshadow : inlay_object_anim['-webkit-filter']+' '+dshadow;
-				hover_object_anim['filter'] = inlay_object_anim['filter']===undefined ? dshadow: inlay_object_anim['filter']+' '+dshadow;
-			}*/
-
-
-			// ANIMATION TO HOVER EFFECT
-			tl.add(punchgs.TweenLite.to(inlayer, hoverspeed,hover_object_anim));
-
-
-			if (params.type==="svg" && params.svg!=undefined) {					
-					var svgstrokecolor = window.RevColor.get(params.svg["svgstroke-hover-color"]) || "transparent",						
-						svgstrokewidth = params.svg["svgstroke-hover-width"] || 0,
-						svgstrokedasharray = params.svg["svgstroke-hover-dasharray"] || 0,
-						svgstrokedashoffset = params.svg["svgstroke-hover-dashoffset"] || 0;
-					
 			
-					tl.add(punchgs.TweenLite.to(inlayer.find('svg'),hoverspeed,{
-																	fill:fontcolor,
-																	stroke:svgstrokecolor,
-																	strokeWidth:svgstrokewidth,
-																	strokeDasharray:svgstrokedasharray,
-																	strokeDashoffset:svgstrokedashoffset,
-																	ease:deform.easing
-																}),0);		
-					tl.add(punchgs.TweenLite.to(inlayer.find('svg path'),hoverspeed,{
-															fill:fontcolor
-														}),0);	
-			}
-
+			tl.add(punchgs.TweenLite.to(inlayer, hoverspeed,{
+	
+											 scaleX:parseFloat(deform.scalex),
+											 scaleY:parseFloat(deform.scaley),
+	
+											 rotationX:parseFloat(deform.xrotate),
+											 rotationY:parseFloat(deform.yrotate),
+											 rotationZ:parseFloat(deform["2d_rotation"]),
+	
+											 skewX:parseFloat(deform.skewx),
+											 skewY:parseFloat(deform.skewy),
+		
+											 autoAlpha:deform.opacity,
+											 color:fontcolor,
+											 backgroundColor:bgcolor,						
+											 textDecoration:deform["text-decoration"],
+											 borderColor:bordercolor,
+											 borderRadius:parseInt(deform["border-radius"][0],0)+"px "+parseInt(deform["border-radius"][1],0)+"px "+parseInt(deform["border-radius"][2],0)+"px "+parseInt(deform["border-radius"][3],0)+"px",
+											 borderWidth:parseInt(deform["border-width"],0)+"px",
+											 borderStyle:deform["border-style"],
+											 onComplete:function() {
+											 	if (params.inline && params.inline.hover!=undefined)					
+													jQuery.each(params.inline.hover, function(key,value) {
+														inlayer.css(key,value);
+													})
+											 },
+											 ease:deform.easing
+							}));
 			inlayer.data('hoveranim',tl);
 			
 
@@ -1733,7 +1140,7 @@ var tpLayerTimelinesRev = new function(){
 				caption.hover(function() {
 				  if (jQuery('#rs-style-tab-button').hasClass("selected")) {
 					if (jQuery('#toggle-idle-hover').hasClass("idleisselected")) {
-						var inlayer = jQuery(this).find('.innerslide_layer').first();
+						var inlayer = jQuery(this).find('.innerslide_layer');
 						if (inlayer.length>0 && inlayer.data('hoveranim')!=undefined) {
 							var tl = inlayer.data('hoveranim');
 							tl.play(0);
@@ -1743,7 +1150,7 @@ var tpLayerTimelinesRev = new function(){
 				},function() {
 					if (jQuery('#rs-style-tab-button').hasClass("selected")) {
 						if (jQuery('#toggle-idle-hover').hasClass("idleisselected")) {
-							var inlayer = jQuery(this).find('.innerslide_layer').first();
+							var inlayer = jQuery(this).find('.innerslide_layer');
 							if (inlayer.length>0 && inlayer.data('hoveranim')!=undefined) {
 								var tl = inlayer.data('hoveranim');
 								tl.reverse();
@@ -1753,12 +1160,9 @@ var tpLayerTimelinesRev = new function(){
 				});
 				caption.data('hoverexist',true);
 			} 
-
-
 			
 			
-			
-			if (document.getElementById('toggle-idle-hover').classList.contains("hoverisselected")) {				
+			if (jQuery('#toggle-idle-hover').hasClass("hoverisselected")) {				
 				tl.seek(tl.endTime());
 			} else {				
 				tl.seek(0);
@@ -1772,8 +1176,16 @@ var tpLayerTimelinesRev = new function(){
 			caption.data("hoverexist",false);
 		}
 
+		/*else {
+			if (inlayer.data('hoveranim')!=undefined) {
+				var tl = inlayer.data('hoveranim');
+				tl.clear();
+				tl.kill();
+			} 
+			caption.unbind("hover");
+			caption.data('hoverexist',false);
+		}*/
 
-		
 	}
 
 	/******************************************************************************************
@@ -1785,7 +1197,7 @@ var tpLayerTimelinesRev = new function(){
 
 		//	if (delay==undefined) delay = 229;
 			u.removeCurrentLayerRotatable();
-			var nextcaption = jQuery('.slide_layer.layer_selected').find('.innerslide_layer').first();
+			var nextcaption = jQuery('.slide_layer.layer_selected .innerslide_layer');
 			
 			if (nextcaption.length==0) {
 					return false;
@@ -1834,7 +1246,7 @@ var tpLayerTimelinesRev = new function(){
 		-	BUILD IN ANIMATION TIMELINE	-
 	****************************************/
 
-	var checkAnimValue = function(val,defval,nextcaption,direction,$splitamount) {
+	var checkAnimValue = function(val,defval,nextcaption,direction) {
 		var v = val,
 			d = defval;
 
@@ -1849,17 +1261,7 @@ var tpLayerTimelinesRev = new function(){
 			var min = v.split(",");
 				max = min[1].split("}")[0];
 			min = min[0].split("{")[1];
-			
-			if ($splitamount!==undefined && $splitamount>1) {
-				v="["+(parseInt(Math.random()*(max-min),0) + parseInt(min,0));
-				for (var i=0;i<$splitamount;i++) {
-					v = v+"|"+(parseInt(Math.random()*(max-min),0) + parseInt(min,0));
-				}
-			v = v+"]";
-			} else {
-				v = Math.random()*(max-min) + min;				
-			}
-			
+			v = Math.random()*(max-min) + min;				
 			return v;
 		} else {
 			var cw = jQuery('#divLayers').width(),
@@ -1932,155 +1334,29 @@ var tpLayerTimelinesRev = new function(){
 		return v;	
 	}	
 
-	// SFX ANIMATIONS
-	function checkSFXAnimations(params,effect,mask,mdelay,easedata,speed) {
-		 
-		// BLOCK SFX ANIMATIONS
-		if (effect!==undefined && effect.indexOf("block")>=0) {
-			var $sfx = new Object();
-			
-			if (mask.find('.tp-blockmask_in').length===0) {
-				mask.append('<div class="tp-blockmask_in"></div>');
-				mask.append('<div class="tp-blockmask_out"></div>');
-			}
-			
-			$sfx.ft = [{scaleY:1,scaleX:0,transformOrigin:"0% 50%"},{scaleY:1,scaleX:1,ease:easedata,immediateRender:false}];				
-			$sfx.t =  {scaleY:1,scaleX:0,transformOrigin:"100% 50%",ease:easedata,immediateRender:false};						
-			$sfx.bmask_in = mask.find('.tp-blockmask_in');
-			$sfx.bmask_out = mask.find('.tp-blockmask_out');
-			$sfx.type = "block";
-														
-			switch (effect) {			
-				case "blocktoleft":
-				case "blockfromright":				
-					$sfx.ft[0].transformOrigin = "100% 50%";
-					$sfx.t.transformOrigin = "0% 50%";
-				break;
-
-				case "blockfromtop":
-				case "blocktobottom":
-					$sfx.ft = [{scaleX:1,scaleY:0,transformOrigin:"50% 0%"},{scaleX:1,scaleY:1,ease:easedata,immediateRender:false}];
-					$sfx.t =  {scaleX:1,scaleY:0,transformOrigin:"50% 100%",ease:easedata,immediateRender:false};
-				break;
-
-				case "blocktotop":
-				case "blockfrombottom":
-					$sfx.ft = [{scaleX:1,scaleY:0,transformOrigin:"50% 100%"},{scaleX:1,scaleY:1,ease:easedata,immediateRender:false}];
-					$sfx.t =  {scaleX:1,scaleY:0,transformOrigin:"50% 0%",ease:easedata,immediateRender:false};
-				break;
-			}
-			$sfx.ft[1].overwrite = "auto";
-			$sfx.t.overwrite = "auto";
-
-			return $sfx;
-		} else {
-			mask.find('.tp-blockmask').remove();
-			return false;
-		}
-	}
-
-	//////////////////////////////////////////////
-	//	-	GET SPLITTEXT DIRECTION ARRAY	-  //
-	/////////////////////////////////////////////
-
-	function shuffleArray(array) {
-	  var currentIndex = array.length, temporaryValue, randomIndex;
-
-	  // While there remain elements to shuffle...
-	  while (0 !== currentIndex) {
-
-	    // Pick a remaining element...
-	    randomIndex = Math.floor(Math.random() * currentIndex);
-	    currentIndex -= 1;
-
-	    // And swap it with the current element.
-	    temporaryValue = array[currentIndex];
-	    array[currentIndex] = array[randomIndex];
-	    array[randomIndex] = temporaryValue;
-	  }
-	  return array;
-	}
-
-	function getSplitTextDirs(alen,d) {
-		var ri = new Array();
-
-		switch (d) {
-			case "forward":
-			case "random":
-				for (var si=0;si<=alen;si++) { ri.push(si);}
-				if (d==="random") ri = shuffleArray(ri);
-			break;
-			case "backward":
-				for (var si=0;si<=alen;si++)	{ ri.push(alen-si); }							
-			break;
-			case "middletoedge":
-				var cc = Math.ceil(alen/2),
-					mm = cc-1,
-					pp = cc+1;							
-				ri.push(cc);														
-				for (var si=0;si<cc;si++) {
-					if (mm>=0) ri.push(mm);
-					if (pp<=alen) ri.push(pp);
-					mm--;
-					pp++;
-				}																	
-			break;
-			case "edgetomiddle":
-				var mm = alen,
-					pp = 0;														
-				for (var si=0;si<=Math.floor(alen/2);si++) {
-					ri.push(mm);
-					if (pp<mm) ri.push(pp);
-					mm--;
-					pp++;
-				}																						
-			break;		
-		}
-		
-		return ri;
-	}
-
-
-	//////////////////////////////////////////////
-	//	-	GET SPLITTEXT CYCLES ANIMATION	-  //
-	/////////////////////////////////////////////
-	function getCycles(anim) {
-	 	var _ = {};					  	
-		for (var a in anim) {
-			if (typeof anim[a] === "string" && anim[a].indexOf("|")>=0) {
-				if (_[a]===undefined) _[a] = {index:0};
-				_[a].values = ((anim[a].replace("[","")).replace("]","")).split("|");
-				_[a].len = _[a].values.length-1; 			
-			}								
-		}	
-		return _;	
-	}
 
 	function theLayerInAnimation(nextcaption) {
 
 		
-		var sl = nextcaption.closest('.slide_layer'),
-			id = u.getSerialFromID(sl.attr('id')),
+		var id = u.getSerialFromID(nextcaption.closest('.slide_layer').attr('id')),
 			params = new Object();		
 		params=jQuery.extend(true,{},params, u.getLayer(id));
 		
 		
-		if (sl.children(".tp-mask-wrap").length==0)
-			sl.wrapInner('<div style="width:100%;height:100%;position:relative;" class="tp-mask-wrap"></div>');
+		if (!nextcaption.parent().hasClass("tp-mask-wrap")) 
+			nextcaption.wrap('<div style="width:100%;height:100%;position:relative;" class="tp-mask-wrap"></div>');
 
 		
-		var	mask = sl.find('.tp-mask-wrap'),
-			anim = params.animation,					
-			colbg = sl.hasClass("slide_layer_type_column") ? sl.find('.column_background').first() : undefined,
-			speed = params.frames["frame_0"].speed/1000,
-			easedata = params.frames["frame_0"].easing,
-			mdelay = params.frames["frame_0"].splitdelay/100,
-			$split = params.frames["frame_0"].split,
-			$endsplit = params.frames["frame_999"].split, 
+		var	mask = nextcaption.closest('.tp-mask-wrap'),
+			anim = params.animation,
+			speed = params.speed/1000,
+			easedata = params.easing,
+			mdelay = params.splitdelay/100,
+			$split = params.split,
+			$endsplit = params.endsplit, 
 			animobject = nextcaption,
 			thesource = new Object(),
-			theresult = new Object(),
-			$splitdir = params.frames["frame_0"].split_direction;
+			theresult = new Object();
 
 		
 
@@ -2096,10 +1372,10 @@ var tpLayerTimelinesRev = new function(){
 		thesource.skewy = 0;
 		thesource.opac = 0;
 		thesource.tper = parseFloat(params.deformation.pers);
-		thesource.origin = "center,center";
+		thesource.origin = "center,center",
 
 		
-		//parseInt(u.getVal(ss,"font-size"),0)+"px",
+			//parseInt(u.getVal(ss,"font-size"),0)+"px",
 		theresult.transx = 0;
 		theresult.transy = 0;
 		theresult.transz = parseFloat(params.deformation.z);
@@ -2112,42 +1388,6 @@ var tpLayerTimelinesRev = new function(){
 		theresult.skewy = parseFloat(params.deformation.skewy);
 		theresult.opac = parseFloat(params.deformation.opacity);
 		theresult.tper = parseFloat(params.deformation.pers);
-		
-		thesource['-webkit-filter'] = "";
-		thesource['filter'] = "";			
-		theresult['-webkit-filter'] = "";
-		theresult['filter'] = "";
-		
-		//FILTERS
-		if ((params.deformation.blurfilter!==undefined && parseInt(params.deformation.blurfilter,0)>0) || (params.blurfilter_start!==undefined && parseInt(params.blurfilter_start,0)>0)) {
-			var bfidle = 'blur('+parseInt(params.deformation.blurfilter,0)+'px)',
-				bf = params.blurfilter_start==="inherit" ? bfidle : 'blur('+parseInt(params.blurfilter_start,0)+'px)';				
-			thesource['-webkit-filter'] = bf;
-			thesource['filter'] = bf;			
-			theresult['-webkit-filter'] = bfidle;
-			theresult['filter'] = bfidle;			
-		}
-
-		if ((params.deformation.grayscalefilter!==undefined && parseInt(params.deformation.grayscalefilter,0)>0) || (params.grayscalefilter_start!==undefined && parseInt(params.grayscalefilter_start,0)>0)) {
-			var gfidle = 'grayscale('+parseInt(params.deformation.grayscalefilter,0)+'%)',
-				gf = params.grayscalefilter_start==="inherit" ? gfidle : 'grayscale('+parseInt(params.grayscalefilter_start,0)+'%)';
-				
-			thesource['-webkit-filter'] = thesource['-webkit-filter']==="" ? gf : thesource['-webkit-filter']+' '+gf;
-			thesource['filter'] = thesource['filter']==="" ? gf: thesource['filter']+' '+gf;
-			theresult['-webkit-filter'] = theresult['-webkit-filter']==="" ? gfidle : theresult['-webkit-filter']+' '+gfidle;
-			theresult['filter'] = theresult['filter']==="" ? gfidle: theresult['filter']+' '+gfidle;
-		}
-
-		if ((params.deformation.brightnessfilter!==undefined && parseInt(params.deformation.brightnessfilter,0)!=100) || (params.brightnessfilter_start!==undefined && parseInt(params.brightnessfilter_start,0)!=100)) {
-			var brfidle = 'brightness('+parseInt(params.deformation.brightnessfilter,0)+'%)',
-				brr = params.brightnessfilter_start==="inherit" ? brfidle : 'brightness('+parseInt(params.brightnessfilter_start,0)+'%)';
-				
-			thesource['-webkit-filter'] = thesource['-webkit-filter']==="" ? brr : thesource['-webkit-filter']+' '+brr;
-			thesource['filter'] = thesource['filter']==="" ? brr: thesource['filter']+' '+brr;
-			theresult['-webkit-filter'] = theresult['-webkit-filter']==="" ? brfidle : theresult['-webkit-filter']+' '+brfidle;
-			theresult['filter'] = theresult['filter']==="" ? brfidle: theresult['filter']+' '+brfidle;
-		}
-
 		
 
 		var originx = params["layer_2d_origin_x"]+"%",
@@ -2195,12 +1435,12 @@ var tpLayerTimelinesRev = new function(){
 
 		var tl = new punchgs.TimelineLite(),
 			tt = new punchgs.TimelineLite();
-		
+
 		if (animobject != nextcaption) {
 			tl.add(punchgs.TweenLite.set(nextcaption, { scaleX:theresult.scalex, scaleY:theresult.scaley,
-						  rotationX:theresult.rotatex, rotationY:theresult.rotatey, rotationZ:theresult.rotatez,						 
+						  rotationX:theresult.rotatex, rotationY:theresult.rotatey, rotationZ:theresult.rotatez,
 						  x:theresult.transx, y:theresult.transy, z:theresult.transz+1,
-						  skewX:theresult.skewx, skewY:theresult.skewy, 
+						  skewX:theresult.skewx, skewY:theresult.skewy,
 						  transformPerspective:theresult.tper, transformOrigin:origin,
 						  autoAlpha:theresult.opac,overwrite:"all"}));
 		}
@@ -2209,111 +1449,45 @@ var tpLayerTimelinesRev = new function(){
 		if (nextcaption.data("timer")) clearTimeout(nextcaption.data('timer'));
 		if (nextcaption.data("timera")) clearTimeout(nextcaption.data('timera'));
 
-		var $sfx = checkSFXAnimations(params,params.frames["frame_0"].sfx_effect,mask,mdelay,easedata,speed);
-
-		if ($sfx!==false) {
-			if ($sfx.type==="block") {			
-				$sfx.ft[0].background = window.RevColor.get(params.frames["frame_0"].sfxcolor);	
-				tl.add(punchgs.TweenLite.fromTo($sfx.bmask_in,speed/2, $sfx.ft[0], $sfx.ft[1] ,mdelay));
-				tl.add(punchgs.TweenLite.fromTo($sfx.bmask_in,speed/2, $sfx.ft[1], $sfx.t, (mdelay+speed/2)));
-				tl.add(tt.set(animobject,{clearProps:"transform"}),0);			
-				tl.add(tt.staggerFromTo(animobject,0.05,{ x:0,y:0,scale:1,autoAlpha:0},{x:0,y:0,autoAlpha:1,delay:speed/2},mdelay),0);
-			}
-		} else {
-				
-			thesource.transx = checkAnimValue(params.x_start,theresult.transx,nextcaption,"horizontal",animobject.length);
-			thesource.transy = checkAnimValue(params.y_start,theresult.transy,nextcaption,"vertical",animobject.length);
-			thesource.transz = checkAnimValue(params.z_start,theresult.transz,nextcaption,undefined,animobject.length);
-			thesource.rotatex = checkAnimValue(params.x_rotate_start,theresult.rotatex,nextcaption,undefined,animobject.length);
-			thesource.rotatey = checkAnimValue(params.y_rotate_start,theresult.rotatey,nextcaption,undefined,animobject.length);
-			thesource.rotatez = checkAnimValue(params.z_rotate_start,theresult.rotatez,nextcaption,undefined,animobject.length);
-			thesource.scalex = checkAnimValue(params.scale_x_start,theresult.scalex,nextcaption,undefined,animobject.length);
-			thesource.scaley = checkAnimValue(params.scale_y_start,theresult.scaley,nextcaption,undefined,animobject.length);
-			thesource.skewx = checkAnimValue(params.skew_x_start,theresult.skewx,nextcaption,undefined,animobject.length);
-			thesource.skewy =checkAnimValue( params.skew_y_start,theresult.skewy,nextcaption,undefined,animobject.length);
-			thesource.opac = checkAnimValue(params.opacity_start,theresult.opac,nextcaption,undefined,animobject.length);
-			thesource.tper = params.deformation.pers;
-
-
-			tl.add(tt.set(animobject,{clearProps:"transform"}),0);
-
-			var animfrom = { scaleX:thesource.scalex,
-								  scaleY:thesource.scaley,
-								  rotationX:thesource.rotatex, rotationY:thesource.rotatey, rotationZ:thesource.rotatez,
-								  x:thesource.transx, y:thesource.transy, z:thesource.transz,
-								  skewX:thesource.skewx, skewY:thesource.skewy,
-								  transformPerspective:thesource.tper, transformOrigin:origin,
-								  autoAlpha:thesource.opac,
-								  "-webkit-filter":thesource['-webkit-filter'],
-								  filter:thesource['filter'],
-
-								},
-				animto = 	{ scaleX:theresult.scalex, scaleY:theresult.scaley,
-								  rotationX:theresult.rotatex, rotationY:theresult.rotatey, rotationZ:theresult.rotatez,
-								  x:theresult.transx, y:theresult.transy, z:theresult.transz,
-								  skewX:theresult.skewx, skewY:Number(theresult.skewy),
-								  transformPerspective:theresult.tper, transformOrigin:origin,
-								  ease:easedata,
-								  autoAlpha:theresult.opac,overwrite:"all",
-								  force3D:"auto",
-								  "-webkit-filter":theresult['-webkit-filter'],
-								  filter:theresult['filter'],
-								};
-			
-
-			if (params.frames["frame_0"].use_text_c) {
-				animfrom.color = params.frames["frame_0"].text_c;
-				animto.color = window.RevColor.get(u.getVal(params["static_styles"],"color"));
-			}
-			
-			if (params.frames["frame_0"].use_bg_c) {
-				animfrom.backgroundColor = params.frames["frame_0"].bg_c;
-				animto.backgroundColor = window.RevColor.get(params.deformation["background-color"]);
-			}
-
-			if (animobject.length>1) {
-				var ri = getSplitTextDirs(animobject.length-1, $splitdir),
-					cycles = {from:getCycles(jQuery.extend({},animfrom,true)), to:getCycles(jQuery.extend({},animto,true))};
-
-					for (var si in animobject) {	
-						var $fanim = jQuery.extend({},animfrom,true),
-							$tanim = jQuery.extend({},animto,true);						
-						for (var k in cycles.from) {
-							$fanim[k] = parseInt(cycles.from[k].values[cycles.from[k].index],0);														
-							cycles.from[k].index = cycles.from[k].index < cycles.from[k].len ?  cycles.from[k].index+1 : 0;
-						}
-						
-						tl.add(tt.fromTo(animobject[ri[si]],speed,$fanim,$tanim,mdelay*si),0);								
-					}
-			} else {
-				tl.add(tt.staggerFromTo(animobject,speed, jQuery.extend({},animfrom,true),jQuery.extend({},animto,true),mdelay));
-			}
-		}
-
-		// COLUMN BG ANIMATION
 		
-		if (colbg!=undefined) {
 			
-			tl.add(punchgs.TweenLite.fromTo(colbg,speed,
-							{ scaleX:thesource.scalex,
-							  scaleY:thesource.scaley,
-							  rotationX:thesource.rotatex, rotationY:thesource.rotatey, rotationZ:thesource.rotatez,
-							  x:thesource.transx, y:thesource.transy, z:thesource.transz,
-							  skewX:thesource.skewx, skewY:thesource.skewy,
-							  transformPerspective:thesource.tper, transformOrigin:origin,
-							  autoAlpha:thesource.opac
+		
 
-							},
-							{ scaleX:theresult.scalex, scaleY:theresult.scaley,
-							  rotationX:theresult.rotatex, rotationY:theresult.rotatey, rotationZ:theresult.rotatez,
-							  x:theresult.transx, y:theresult.transy, z:theresult.transz,
-							  skewX:theresult.skewx, skewY:Number(theresult.skewy),
-							  transformPerspective:theresult.tper, transformOrigin:origin,
-							  ease:easedata,
-							  autoAlpha:theresult.opac,overwrite:"all",
-							  force3D:"auto"							  
-							}),0);
-		}
+		thesource.transx = checkAnimValue(params.x_start,theresult.transx,nextcaption,"horizontal");
+		thesource.transy = checkAnimValue(params.y_start,theresult.transy,nextcaption,"vertical");
+		thesource.transz = checkAnimValue(params.z_start,theresult.transz,nextcaption);
+		thesource.rotatex = checkAnimValue(params.x_rotate_start,theresult.rotatex,nextcaption);
+		thesource.rotatey = checkAnimValue(params.y_rotate_start,theresult.rotatey,nextcaption);
+		thesource.rotatez = checkAnimValue(params.z_rotate_start,theresult.rotatez,nextcaption);
+		thesource.scalex = checkAnimValue(params.scale_x_start,theresult.scalex,nextcaption);
+		thesource.scaley = checkAnimValue(params.scale_y_start,theresult.scaley,nextcaption);
+		thesource.skewx = checkAnimValue(params.skew_x_start,theresult.skewx,nextcaption);
+		thesource.skewy =checkAnimValue( params.skew_y_start,theresult.skewy,nextcaption);
+		thesource.opac = checkAnimValue(params.opacity_start,theresult.opac,nextcaption);
+		thesource.tper = params.deformation.pers;
+
+		
+		tl.add(tt.set(animobject,{clearProps:"transform"}),0);
+		tl.add(tt.staggerFromTo(animobject,speed,
+						{ scaleX:thesource.scalex,
+						  scaleY:thesource.scaley,
+						  rotationX:thesource.rotatex, rotationY:thesource.rotatey, rotationZ:thesource.rotatez,
+						  x:thesource.transx, y:thesource.transy, z:thesource.transz,
+						  skewX:thesource.skewx, skewY:thesource.skewy,
+						  transformPerspective:thesource.tper, transformOrigin:origin,
+						  autoAlpha:thesource.opac
+
+						},
+						{ scaleX:theresult.scalex, scaleY:theresult.scaley,
+						  rotationX:theresult.rotatex, rotationY:theresult.rotatey, rotationZ:theresult.rotatez,
+						  x:theresult.transx, y:theresult.transy, z:theresult.transz,
+						  skewX:theresult.skewx, skewY:Number(theresult.skewy),
+						  transformPerspective:theresult.tper, transformOrigin:origin,
+						  ease:easedata,
+						  autoAlpha:theresult.opac,overwrite:"all",
+						  force3D:"auto",
+						},mdelay
+						));
 
 		// MASK ANIMATION
 		if (!params.mask_start) tl.add(punchgs.TweenLite.set(mask,{overflow:"visible"}),0);
@@ -2332,9 +1506,6 @@ var tpLayerTimelinesRev = new function(){
 		else
 			mask.removeClass('tp-showmask');
 
-
-
-
 		nextcaption.data('startanimobj',thesource);
 
 		tl.add(punchgs.TweenLite.fromTo(jQuery('#startanim_wrapper'),tt.totalDuration(),{autoAlpha:1,width:0},{width:67,ease:easedata}),0);
@@ -2349,29 +1520,26 @@ var tpLayerTimelinesRev = new function(){
 		-	BUILD OUT ANIMATION TIMELINE	-
 	****************************************/
 	function theLayerOutAnimation(nextcaption) {
-		var sl = nextcaption.closest('.slide_layer'),
-			id = u.getSerialFromID(sl.attr('id')),
-			params = new Object();
+		var id = u.getSerialFromID(nextcaption.closest('.slide_layer').attr('id')),
+				params = new Object();
 		
 		params=jQuery.extend(true,{},params, u.getLayer(id));
 
 
-		var	mask = sl.find('.tp-mask-wrap'),			
-			colbg = sl.hasClass("slide_layer_type_column") ? sl.find('.column_background').first() : undefined,			
-			anim = params.frames["frame_999"].animation,
-			speed = params.frames["frame_999"].speed/1000,
-			easedata = params.frames["frame_999"].easing,
-			mdelay = params.frames["frame_999"].splitdelay/100,
-			$split = params.frames["frame_999"].split,
+		var	mask = nextcaption.closest('.tp-mask-wrap'),
+			anim = params.endanimation,
+			speed = params.endspeed/1000,
+			easedata = params.endeasing,
+			mdelay = params.endsplitdelay/100,
+			$split = params.endsplit,
 			animobject = nextcaption;
 			theanim = new Object(),
 			theresult = new Object(),
 			originx = params["layer_2d_origin_x"]+"%",
 			originy = params["layer_2d_origin_y"]+"%",
-			origin = originx+" "+originy,
-			$splitdir = params.frames["frame_999"].split_direction;
+			origin = originx+" "+originy;
 
-		easedata = easedata=="nothing" ? params.frames["frame_999"].easing :  easedata;
+		easedata = easedata=="nothing" ? params.easing :  easedata;
 
 		theanim.transx = 0;
 		theanim.transy = 0;
@@ -2400,43 +1568,6 @@ var tpLayerTimelinesRev = new function(){
 		theresult.opac = parseFloat(params.deformation.opacity);
 		theresult.tper = parseFloat(params.deformation.pers);
 
-		theanim['-webkit-filter'] = "";
-		theanim['filter'] = "";			
-		theresult['-webkit-filter'] = "";
-		theresult['filter'] = "";
-
-		//FILTERS
-		if ((params.deformation.blurfilter!==undefined && parseInt(params.deformation.blurfilter,0)>0) || (params.blurfilter_start!==undefined && parseInt(params.blurfilter_start,0)>0)) {
-			var bfidle = 'blur('+parseInt(params.deformation.blurfilter,0)+'px)',
-				bf = params.blurfilter_end==="inherit" ? bfidle : 'blur('+parseInt(params.blurfilter_end,0)+'px)';	
-
-			theanim['-webkit-filter'] = bf;
-			theanim['filter'] = bf;			
-			theresult['-webkit-filter'] = bfidle;
-			theresult['filter'] = bfidle;			
-		}
-
-		if ((params.deformation.grayscalefilter!==undefined && parseInt(params.deformation.grayscalefilter,0)>0) || (params.grayscalefilter_end!==undefined && parseInt(params.grayscalefilter_end,0)>0)) {
-			var gfidle = 'grayscale('+parseInt(params.deformation.grayscalefilter,0)+'%)',
-				gf = params.grayscalefilter_end==="inherit" ? gfidle : 'grayscale('+parseInt(params.grayscalefilter_end,0)+'%)';
-				
-			theanim['-webkit-filter'] = theanim['-webkit-filter']==="" ? gf : theanim['-webkit-filter']+' '+gf;
-			theanim['filter'] = theanim['filter']==="" ? gf: theanim['filter']+' '+gf;
-			theresult['-webkit-filter'] = theresult['-webkit-filter']==="" ? gfidle : theresult['-webkit-filter']+' '+gfidle;
-			theresult['filter'] = theresult['filter']==="" ? gfidle: theresult['filter']+' '+gfidle;
-		}
-
-		if ((params.deformation.brightnessfilter!==undefined && parseInt(params.deformation.brightnessfilter,0)!=100) || (params.brightnessfilter_end!==undefined && parseInt(params.brightnessfilter_end,0)!=100)) {
-			var brfidle = 'brightness('+parseInt(params.deformation.brightnessfilter,0)+'%)',
-				brf = params.brightnessfilter_end==="inherit" ? brfidle : 'brightness('+parseInt(params.brightnessfilter_end,0)+'%)';
-				
-			theanim['-webkit-filter'] = theanim['-webkit-filter']==="" ? brf : theanim['-webkit-filter']+' '+brf;
-			theanim['filter'] = theanim['filter']==="" ? brf: theanim['filter']+' '+brf;
-			theresult['-webkit-filter'] = theresult['-webkit-filter']==="" ? brfidle : theresult['-webkit-filter']+' '+brfidle;
-			theresult['filter'] = theresult['filter']==="" ? brfidle: theresult['filter']+' '+brfidle;
-		}
-
-
 		switch($split) {
 			case "chars":
 				animobject = nextcaption.data('mySplitText').chars;
@@ -2456,105 +1587,37 @@ var tpLayerTimelinesRev = new function(){
 
 		
 		if (anim == null) anim = "auto";
-
+				
+		
 		// MASK ANIMATION
 		if (!params.mask_end || (anim==="auto" && !params.mask_start)) 			
 			tl.add(punchgs.TweenLite.set(mask,{overflow:"visible"}));
 
 
-		var $sfx = checkSFXAnimations(params,params.frames["frame_999"].sfx_effect,mask,mdelay,easedata,speed);			
-		if ($sfx!==false) {
-			if ($sfx.type==="block") {		
-				$sfx.ft[0].background = window.RevColor.get(params.frames["frame_999"].sfxcolor);		
-				tl.add(punchgs.TweenLite.fromTo($sfx.bmask_out,speed/2, $sfx.ft[0], $sfx.ft[1] ,mdelay));
-				tl.add(punchgs.TweenLite.fromTo($sfx.bmask_out,speed/2, $sfx.ft[1], $sfx.t, (mdelay+speed/2)));
-				tl.add(tt.set(animobject,{clearProps:"transform"}),0);			
-				tl.add(tt.staggerTo(animobject,0.05,{x:0,y:0,autoAlpha:0,delay:speed/2},mdelay),0);
-			}
-		}	else {
+		if (anim==="auto") {
+			theanim = nextcaption.data('startanimobj');
+		} else {		
+			var mask_is_on = params.mask_end || (anim==="auto" && params.mask_start) ? true : false;
 
-			if (anim==="auto") {
-				theanim = nextcaption.data('startanimobj');
-			} else {		
-				var mask_is_on = params.mask_end || (anim==="auto" && params.mask_start) ? true : false;
-
-				theanim.transx = checkAnimValue(params.x_end,theresult.transx,nextcaption,"horizontal",animobject.length);
-				theanim.transy = checkAnimValue(params.y_end,theresult.transy,nextcaption,"vertical",animobject.length);
-				theanim.transz = checkAnimValue(params.z_end,theresult.transz,nextcaption,undefined,animobject.length);
-				theanim.rotatex = checkAnimValue(params.x_rotate_end,theresult.rotatex,nextcaption,undefined,animobject.length);
-				theanim.rotatey = checkAnimValue(params.y_rotate_end,theresult.rotatey,nextcaption,undefined,animobject.length);
-				theanim.rotatez = checkAnimValue(params.z_rotate_end,theresult.rotatez,nextcaption,undefined,animobject.length);
-				theanim.scalex = checkAnimValue(params.scale_x_end,theresult.scalex,nextcaption,undefined,animobject.length);
-				theanim.scaley = checkAnimValue(params.scale_y_end,theresult.scaley,nextcaption,undefined,animobject.length);
-				theanim.skewx = checkAnimValue(params.skew_x_end,theresult.skewx,nextcaption,undefined,animobject.length);
-				theanim.skewy =checkAnimValue( params.skew_y_end,theresult.skewy,nextcaption,undefined,animobject.length);
-				theanim.opac = checkAnimValue(params.opacity_end,theresult.opac,nextcaption,undefined,animobject.length);
-				theanim.tper = params.deformation.pers;
-			}
-			
-			
-
-			tl.add(tt.staggerTo(animobject,0.001,
-									{ "-webkit-filter":theresult['-webkit-filter'],
-							  			filter:theresult['filter']
-									 },(mdelay-0.001)));
-			
-
-			var animto = {
-										  scaleX:theanim.scalex,
-										  scaleY:theanim.scaley,
-										  rotationX:theanim.rotatex,
-										  rotationY:theanim.rotatey,
-										  rotationZ:theanim.rotatez,
-										  x:theanim.transx,
-										  y:theanim.transy,
-										  z:theanim.transz+1,
-										  skewX:theanim.skewx,
-										  skewY:theanim.skewy,
-										  opacity:theanim.opac,
-										  transformPerspective:theanim.tper,
-										  transformOrigin:origin,
-										  ease:easedata,
-										   "-webkit-filter":theanim['-webkit-filter'],
-								  			filter:theanim['filter'],
-										 };
-
-			if (params.frames["frame_999"].use_text_c) 
-				animto.color = params.frames["frame_999"].text_c;
-			
-			if (params.frames["frame_999"].use_bg_c)
-				animto.backgroundColor = params.frames["frame_999"].bg_c;				
-			
-
-			if (animobject.length>1) {
-				var ri = getSplitTextDirs(animobject.length-1, $splitdir),
-					cycles = {to:getCycles(jQuery.extend({},animto,true))};
-
-					for (var si in animobject) {							
-						var $fanim = jQuery.extend({},animto,true);						
-						for (var k in cycles.to) {
-							$fanim[k] = parseInt(cycles.to[k].values[cycles.to[k].index],0);														
-							cycles.to[k].index = cycles.to[k].index < cycles.to[k].len ?  cycles.to[k].index+1 : 0;
-						}
-											
-						tl.add(tt.to(animobject[ri[si]],speed,$fanim,mdelay*si),0);								
-					}
-			} else {
-
-				tl.add(tt.staggerTo(animobject,speed,jQuery.extend({},animto,true),mdelay));
-			}
-
+			theanim.transx = checkAnimValue(params.x_end,theresult.transx,nextcaption,"horizontal");
+			theanim.transy = checkAnimValue(params.y_end,theresult.transy,nextcaption,"vertical");
+			theanim.transz = checkAnimValue(params.z_end,theresult.transz,nextcaption);
+			theanim.rotatex = checkAnimValue(params.x_rotate_end,theresult.rotatex,nextcaption);
+			theanim.rotatey = checkAnimValue(params.y_rotate_end,theresult.rotatey,nextcaption);
+			theanim.rotatez = checkAnimValue(params.z_rotate_end,theresult.rotatez,nextcaption);
+			theanim.scalex = checkAnimValue(params.scale_x_end,theresult.scalex,nextcaption);
+			theanim.scaley = checkAnimValue(params.scale_y_end,theresult.scaley,nextcaption);
+			theanim.skewx = checkAnimValue(params.skew_x_end,theresult.skewx,nextcaption);
+			theanim.skewy =checkAnimValue( params.skew_y_end,theresult.skewy,nextcaption);
+			theanim.opac = checkAnimValue(params.opacity_end,theresult.opac,nextcaption);
+			theanim.tper = params.deformation.pers;
 		}
-				
 		
-		
-
+		//	
 
 		
-
-		// COLUMN BG ANIMATION
-		if (colbg!=undefined) 		
-			tl.add(punchgs.TweenLite.to(colbg,speed,
+		
+		tl.add(tt.staggerTo(animobject,speed,
 								{
 								  scaleX:theanim.scalex,
 								  scaleY:theanim.scaley,
@@ -2570,9 +1633,9 @@ var tpLayerTimelinesRev = new function(){
 								  transformPerspective:theanim.tper,
 								  transformOrigin:origin,
 								  ease:easedata
-								 },mdelay),0);
+								 },mdelay));
+
 		
-			
 		// MASK ANIMATION
 		if (params.mask_end) {
 			var maskp = new Object();					
@@ -2607,7 +1670,7 @@ var tpLayerTimelinesRev = new function(){
 		var duration = jQuery('#delay').val();
 		if (duration==undefined || duration==0 || duration=="undefined")
 			duration = g_slideTime;
-		jQuery('#mastertimer-maxtime').css({left:duration/10});
+		jQuery('#mastertimer-maxtime').css({left:15 + duration/10});
 
 
 	}
@@ -2619,20 +1682,19 @@ var tpLayerTimelinesRev = new function(){
 		-	EVENT LISTENER FOR MASTER TIME POSITION CHANGE, ALL ANIMATION MOVE IN POSTION 	-
 	********************************************************************************************/
 
-	t.masterTimerPositionChange = function(recreatetimers) {
-			
-			var mp = jQuery(document.getElementById('mastertimer-position')),	
-				tpos =  (((mp[0].getBoundingClientRect().left - document.getElementById('master-rightheader').getBoundingClientRect().left+t.timercorrectur))/100),					
-				mst = jQuery(document.getElementById('divbgholder')).data('slidetimeline');
-				
-			mp[0].className = mp[0].classList.contains("hovering") ? mp[0].className : mp[0].className + " hovering";
-			
-			
+	var  masterTimerPositionChange = function(recreatetimers) {
+
+
+			var mp = jQuery('#mastertimer-position'),
+				tpos = (mp.position().left-15)/100,
+				mst = jQuery('#divbgholder').data('slidetimeline');
+
+			mp.addClass("hovering");
 			if (tpos<=0 && (mp.data('wasidle')=="wasnotidle" || mp.data('wasidle')==undefined)) {
 
 				t.stopAllLayerAnimation();
 				mp.data('wasidle',"wasidle");
-				
+				var mp = jQuery('#mastertimer-position');
 				if (mp.data('tl')!=undefined) {
 					mp.data('tl').kill();
 				}
@@ -2641,15 +1703,14 @@ var tpLayerTimelinesRev = new function(){
 					mst.seek(100000);
 				}
 					
-				t.allLayerToIdle();
+				allLayerToIdle();
 			}
 
-			
 			if (tpos>0 && (mp.data('wasidle')=="wasidle" || mp.data('wasidle')==undefined)) {
 				mp.data('wasidle','wasnotidle');
 				createGlobalTimeline(true);
-				document.getElementById('mastertimer-playpause-wrapper').innerHTML = '<i class="eg-icon-play"></i><span>PLAY</span>';
-				mp[0].className = mp[0].classList.contains('inaction') ? mp[0].className : mp[0].className+" inaction";
+				jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-play"></i><span>PLAY</span>');
+				jQuery('#mastertimer-position').addClass("inaction");
 			}
 
 			if (tpos>0 && mp.data('wasidle')=="wasnotidle") {
@@ -2662,20 +1723,12 @@ var tpLayerTimelinesRev = new function(){
 			}
 			
 			if (tpos>0) {
-				var mpst = document.getElementById('mastertimer-poscurtime');
-				mpst.className = mpst.classList.contains('movedalready') ? mpst.className : mpst.className+' movedalready';
-				mpst.innerHTML = t.convToTime(tpos*100);
-				mp.removeClass("timerinidle");
+				jQuery('#mastertimer-poscurtime').addClass("movedalready").html(t.convToTime(tpos*100));
 			} else {
-				var mpst = document.getElementById('mastertimer-poscurtime');
-				if (mpst.classList.contains('movedalready')) {
-					mpst.innerHTML = "Idle";
-					mp.addClass("timerinidle");
-				}
-
+				if (jQuery('#mastertimer-poscurtime').hasClass("movedalready"))
+					jQuery('#mastertimer-poscurtime').html("Idle");
 			}
 			mp.trigger('poschanged');
-			
 		}
 
 	t.convToTime = function(tpos) {
@@ -2701,14 +1754,20 @@ var tpLayerTimelinesRev = new function(){
 
 	}
 	
-	
+	function allLayerToIdle(obj) {
+		var search = obj!=undefined && obj.type!=undefined ? '.slide_layer_type_'+obj.type : '.slide_layer';
+		jQuery(search).each(function() {				
+			t.rebuildLayerIdle(jQuery(this));
+		});
+		
+	}
+
 	t.allLayerToIdle = function(obj) {		
-		var search = obj!=undefined && obj.type!=undefined ? 'slide_layer_type_'+obj.type : 'slide_layer';				
-			elements = document.getElementsByClassName(search);
-		for (var i=0;i<elements.length;i++) {
-			t.rebuildLayerIdle(jQuery(elements[i]));					
-		}
-				
+		var search = obj!=undefined && obj.type!=undefined ? '.slide_layer_type_'+obj.type : '.slide_layer';		
+		jQuery(search).each(function() {							
+			t.rebuildLayerIdle(jQuery(this));
+		});
+		
 	}
 
 	/***********************************
@@ -2721,22 +1780,21 @@ var tpLayerTimelinesRev = new function(){
 		// CHANGE THE POSITION OF THE TIME LINE
 		jQuery('#mastertimer-position').on("poschanged",function() {
 			var mp = jQuery(this),
-				tpos = Math.round((mp.position().left+t.timercorrectur)),
+				tpos = Math.round((mp.position().left-15)),
 				str = t.convToTime(tpos);
-			if (tpos<0) str="IDLE";
-			document.getElementById('master-timer-time').innerHTML = str;
+			if (tpos<0.015) str="IDLE";
+			jQuery('#master-timer-time').html(str);
 		});
 
 
 		// BACK TO IDLE
 		jQuery('#mastertimer-backtoidle').click(function() {
 			jQuery('#mastertimer-position').removeClass("inaction");
-			document.getElementById('mastertimer-playpause-wrapper').innerHTML = '<i class="eg-icon-play"></i><span>PLAY</span>';		
-			document.getElementById('master-timer-time').innerHTML = 'IDLE';
+			jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-play"></i><span>PLAY</span>');		
 			t.stopAllLayerAnimation();
 			var mp = jQuery('#mastertimer-position'),
 				mst = jQuery('#divbgholder').data('slidetimeline');
-			mp.css({left:"-15px"});			
+			mp.css({left:"7px"});			
 			if (mp.data('tl')!=undefined) {
 				mp.data('tl').kill();
 			}
@@ -2745,7 +1803,8 @@ var tpLayerTimelinesRev = new function(){
 				mst.seek(100000);
 			}
 
-			t.allLayerToIdle();
+			allLayerToIdle();
+
 			
 		})
 		
@@ -2753,10 +1812,9 @@ var tpLayerTimelinesRev = new function(){
 		// HOVER OUT OF MASTERTIMER SHOULD RESET ANY SETTINGS
 		jQuery('#divLayers').hover(function() {
 
-			var mp = jQuery(document.getElementById('mastertimer-position')),
-				mpw = document.getElementById('mastertimer-playpause-wrapper'),
-				mst = jQuery(document.getElementById('divbgholder')).data('slidetimeline');
-			
+			var mp = jQuery('#mastertimer-position'),
+				mpw = jQuery('#mastertimer-playpause-wrapper'),
+				mst = jQuery('#divbgholder').data('slidetimeline');
 			if (mp.data('tl')!=undefined)
 				mp.data('tl').stop();
 			
@@ -2765,12 +1823,12 @@ var tpLayerTimelinesRev = new function(){
 				mst.seek(100000);
 			}
 
-			mp.removeClass("inaction");
-			mpw.innerHTML = '<i class="eg-icon-play"></i><span>PLAY</span>';
+			jQuery('#mastertimer-position').removeClass("inaction");
+			jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-play"></i><span>PLAY</span>');
 			if (mp.hasClass("hovering")) {
 				mp.removeClass("hovering");
 				t.stopAllLayerAnimation();
-				t.allLayerToIdle();
+				allLayerToIdle();
 
 				// Click on LayerAnimation Button the current Selected Layer should be Animated
 				if (!jQuery('#layeranimation-playpause').hasClass("inpuase")) {
@@ -2788,10 +1846,9 @@ var tpLayerTimelinesRev = new function(){
 
 		// HOVER ON THE ANIMATION PART, SHOULD START THE ANIMATION MODE AGAIN
 		jQuery('#mastertimer-wrapper').hover(function() {
-
 			if (!jQuery(this).hasClass("overme")) {
 				jQuery(this).addClass("overme");
-				t.masterTimerPositionChange(true);
+				masterTimerPositionChange(true);
 			}
 		}, function() {
 			jQuery(this).removeClass("overme");
@@ -2803,22 +1860,16 @@ var tpLayerTimelinesRev = new function(){
 		// DRAG THE MASTER TIMER SHOULD ANIMATE THINGS IN POSITION
 		jQuery('#mastertimer-position').draggable({
 			axis:"x",
-			start:function(event,ui) {
-
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime'),{autoAlpha:0,x:-3,y:-10});
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime-b'),{autoAlpha:0});		
-						
-				t.deactivatePerfectScrollBars();
-
+			start:function() {
+				punchgs.TweenLite.set(jQuery('#mastertimer-poscurtime'),{autoAlpha:1,x:-1,y:0});
 			},
-			drag:function(event,ui) {
-				ui.position.left = Math.max(-15,ui.position.left);
-				t.masterTimerPositionChange(false);
+			drag:function() {
+				masterTimerPositionChange(false)
 			},
-			
-			stop:function(event,ui) {
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime'),{autoAlpha:1,x:-1,y:0,ease:punchgs.Power2.easeInOut});
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime-b'),{autoAlpha:1});						
+			containment:"#master-rightheader",
+			stop:function() {
+				punchgs.TweenLite.to(jQuery('#mastertimer-poscurtime'),0.3,{autoAlpha:0,x:-3,y:-10,ease:punchgs.Power2.easeInOut});
+
 			}
 		});
 
@@ -2827,73 +1878,43 @@ var tpLayerTimelinesRev = new function(){
 			var lo = jQuery('#mastertimer-linear').offset().left,
 				sl = jQuery('#master-rightheader').scrollLeft();
 
-			jQuery('#mastertimer-position').css({left:(e.pageX-lo + sl)+"px"});
-			t.masterTimerPositionChange();
+			jQuery('#mastertimer-position').css({left:(e.pageX-lo + sl+15)+"px"});
+			masterTimerPositionChange();
 		})
 		
 		jQuery('#mastertimer-maxtime').draggable({
 			axis:"x",			
 			containment:"#master-rightheader",
-			create:function(event,ui) {
-				t.mainMaxTimeLeft = jQuery('#mastertimer-maxtime').position().left;
-				document.getElementById('mastertimer-maxcurtime').innerHTML = t.convToTime(t.mainMaxTimeLeft);
-				t.setIdleZones();				
+			create:function() {
+				mainMaxTimeLeft = jQuery('#mastertimer-maxtime').position().left;
+				jQuery('#mastertimer-maxcurtime').html(t.convToTime(mainMaxTimeLeft-15));
+				jQuery('.slide-idle-section').css({left:mainMaxTimeLeft});
 			},
-			start:function(event,ui) {
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime'),{autoAlpha:0,x:-3,y:-10});
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime-b'),{autoAlpha:0});	
-				document.getElementById('mastertimer-maxcurtime').innerHTML = t.convToTime(t.mainMaxTimeLeft);				
-				t.setIdleZones();
-				t.deactivatePerfectScrollBars();
+			start:function() {
+				jQuery('#mastertimer-maxcurtime').html(t.convToTime(mainMaxTimeLeft-15));
+				jQuery('.slide-idle-section').css({left:mainMaxTimeLeft});
 			},
-			drag:function(event,ui) {			
-				t.mainMaxTimeLeft = ui.position.left;
-				document.getElementById('mastertimer-maxcurtime').innerHTML = t.convToTime(t.mainMaxTimeLeft);				
-				document.getElementById('delay').value = t.mainMaxTimeLeft*10;			
-				t.setIdleZones();								
-				t.compareLayerEndsVSSlideEnd();
-				t.setSlideTransitionTimerBar();
+			drag:function() {
+				var w = jQuery('#mastertimer-maxtime').position().left;
+
+				jQuery('#mastertimer-maxcurtime').html(t.convToTime(w-15));
+				jQuery('.slide-idle-section').css({left:w});
+				jQuery('#delay').val((w-15)*10);
+				jQuery('.mastertimer-slide .tl-fullanim').css({width:(w-15)+"px"});
+
 			},
-			stop:function(event,ui) {
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime'),{autoAlpha:1,x:-1,y:0,ease:punchgs.Power2.easeInOut});
-				punchgs.TweenLite.set(document.getElementById('mastertimer-curtime-b'),{autoAlpha:1});
-				t.mainMaxTimeLeft = ui.position.left;
-				document.getElementById('mastertimer-maxcurtime').innerHTML = t.convToTime(t.mainMaxTimeLeft);				
-				document.getElementById('delay').value = t.mainMaxTimeLeft*10;			
-				t.setIdleZones();								
-				g_slideTime = t.mainMaxTimeLeft*10;
+			stop:function() {
+				var w = jQuery('#mastertimer-maxtime').position().left;
+				mainMaxTimeLeft = w;
+				jQuery('#mastertimer-maxcurtime').html(t.convToTime(w-15));
+				jQuery('.slide-idle-section').css({left:w});
+				jQuery('#delay').val((w-15)*10);
+				jQuery('.mastertimer-slide .tl-fullanim').css({width:(w-15)+"px"});
+				g_slideTime = (w-15)*10;
 				u.setMaintime(g_slideTime);
-				t.compareLayerEndsVSSlideEnd();
-				t.rerenderAllAudioMap();
-				t.setSlideTransitionTimerBar();
+
 			}
 
-		});
-
-		
-		__ctime = jQuery('#mastertimer-curtime');
-		__ctimeb = jQuery('#mastertimer-curtime-b');
-		__ctimei = jQuery('#mastertimer-curtimeinner');
-
-		function checklroffset() {
-			__coffset = parseInt(jQuery('#layers-right').offset().left,0);
-		}
-
-		jQuery(window).resize(function() {
-				checklroffset();		
-		});
-
-		checklroffset();
-		__ctime.data('offset',0);
-		
-		jQuery('.master-rightcell').on('mousemove',function(e) {
-			
-			var x = (e.pageX-__coffset)-jQuery(document.getElementById('master-rightheader')).data('left');
-			if (__ctime.data('offset') ==0) {				
-				punchgs.TweenLite.set(__ctime,{left:x});
-				punchgs.TweenLite.set(__ctimeb,{left:x+15});
-				__ctimei[0].innerHTML = t.convToTime(x-10);
-			}
 		});
 
 		
@@ -2903,7 +1924,7 @@ var tpLayerTimelinesRev = new function(){
 			punchgs.TweenLite.to(jQuery('#mastertimer-poscurtime'),0.3,{autoAlpha:0,x:-3,y:-10,ease:punchgs.Power2.easeInOut});
 			if (mpw.find('.eg-icon-pause').length>0) {
 
-				document.getElementById('mastertimer-playpause-wrapper').innerHTML = '<i class="eg-icon-play"></i><span>PLAY</span>';
+				jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-play"></i><span>PLAY</span>');
 				t.stopAllLayerAnimation();
 				var mp = jQuery('#mastertimer-position');
 				if (mp.data('tl')!=undefined) {
@@ -2911,12 +1932,12 @@ var tpLayerTimelinesRev = new function(){
 				}
 			} else {
 				createGlobalTimeline(true);
-				document.getElementById('mastertimer-playpause-wrapper').innerHTML ='<i class="eg-icon-pause"></i><span>PAUSE</span>';
+				jQuery('#mastertimer-playpause-wrapper').html('<i class="eg-icon-pause"></i><span>PAUSE</span>');
 				jQuery('#mastertimer-position').addClass("inaction");
 				var mp = jQuery('#mastertimer-position'),
 					mtl = mp.data('tl'),
 					mst = jQuery('#divbgholder').data('slidetimeline'),
-					tpos = (mp.position().left)/100;
+					tpos = (mp.position().left-15)/100;
 
 				mtl.play(tpos);
 				mst.play(tpos);
@@ -2926,19 +1947,12 @@ var tpLayerTimelinesRev = new function(){
 					mst.play(0);
 				});
 				mtl.eventCallback("onUpdate",function() {
-					mp.css({left:((mtl.time()*100))});
+					mp.css({left:(15+(mtl.time()*100))});
 					mp.trigger('poschanged');
 				})
 			}
 		})
 
-	}
-
-	t.setIdleZones = function() {
-		var el = document.getElementsByClassName('slide-idle-section');
-		for (var i=0;i<el.length;i++) {
-			el[i].style.left = (t.mainMaxTimeLeft+15)+"px";
-		}
 	}
 
 	/**********************************
@@ -2948,7 +1962,6 @@ var tpLayerTimelinesRev = new function(){
 
 		if (firsttime) t.stopAllLayerAnimation();
 		var mp = jQuery('#mastertimer-position');
-
 
 		if (mp.data('tl')!=undefined) {
 			mp.data('tl').kill();
@@ -2965,11 +1978,10 @@ var tpLayerTimelinesRev = new function(){
 			var id = u.getSerialFromID(nextcaption.closest('.slide_layer').attr('id'));
 				params=u.getLayer(id);
 
-			
-			mtl.add(nextcaption.data('inanim'),params.frames["frame_0"].time/1000);
-			var endspeed = params.frames["frame_999"].endspeed;
-			if (endspeed==undefined) endspeed = params.frames["frame_0"].speed;			
-			mtl.add(nextcaption.data('outanim'),(params.frames["frame_999"].time/1000));
+			mtl.add(nextcaption.data('inanim'),params.time/1000);
+			var endspeed = params.endspeed;
+			if (endspeed==undefined) endspeed = params.speed;
+			mtl.add(nextcaption.data('outanim'),(params.endtime/1000 - endspeed/1000));
 
 		});
 
@@ -2990,7 +2002,7 @@ var tpLayerTimelinesRev = new function(){
 		} 
 
 		
-		document.getElementById('fake-select-label').innerHTML = '"'+comingtext+'"';
+		jQuery('#fake-select-label').html(comingtext);					
 		jQuery('#fake-select-label').data('valu',comingtransition);
 		
 		removeAllSlots();
@@ -3003,49 +2015,51 @@ var tpLayerTimelinesRev = new function(){
 	/**************************************
 		-	ADD SLIDE MAIN TO SORTBOX	-
 	**************************************/
-
-	t.setSlideTransitionTimerBar = function() {
-		var sist = document.getElementById('slide_in_sort_time'),
-			speed = sist.getElementsByClassName('timeline_frame')[0],
-			cont = sist.getElementsByClassName('timeline_full')[0],
-			dur = document.getElementById('transition_duration') ? document.getElementById('transition_duration').value : 0,
-			durcont = sist.getElementsByClassName('duration_cont')[0];
-
-		durcont.innerHTML = dur;
-		if (!jQuery.isNumeric(dur)) dur = 500;
-		punchgs.TweenLite.set(speed,{width:dur/10});
-		
-		punchgs.TweenLite.set(cont,{left:15,width:t.mainMaxTimeLeft});
-		
-	}
-
-
 	var addSlideToSortbox = function() {
+
 		
-		t.setSlideTransitionTimerBar();
+		var htmlSortbox = "";
+			
+		var cur = jQuery('#slide_in_sort_time'),
+			dragspeedin = cur.find('.tl-startanim'),
+			dur = jQuery('#transition_duration').val(),
+			maxtime = (mainMaxTimeLeft)-15;			
+		cur.find('.tl-fullanim').css({left:"15px",width:maxtime});
+		cur.find('.tl-startanim').css({width:dur/10});
+		cur.find('.sortbox_speedin').html(msToSec(dur));
 		
 
-		var sist = document.getElementById('slide_in_sort_time'),
-			speed = sist.getElementsByClassName('timeline_frame')[0],
-			durcont = sist.getElementsByClassName('duration_cont')[0];
-			
-							
-		jQuery(speed).resizable({
+		
+		
+		//setFakeAnim();
+		
+		
+		cur.on('click',function() {
+			jQuery('#timline-manual-dialog').hide();
+		})
+		
+		dragspeedin.resizable({
 			minWidth:0,
 			handles:"e",
-			start:function(event,ui) {
-				
+			start:function() {
+				var w = maxtime,
+					spt = cur.find('.tl-startanim').width()*10;
+				dragspeedin.resizable("option","maxWidth",(w));
+				jQuery(this).closest('li').addClass("showstartspeed");
+				dragspeedin.closest('.timeline').addClass("onchange");
+				jQuery('#timline-manual-dialog').hide();
+				cur.find('.sortbox_speedin').html(msToSec(spt));
 			},
-			stop:function(event,ui) {								
-				document.getElementById('transition_duration').value = ui.size.width*10;
-				durcont.innerHTML = (ui.size.width*10);
-				jQuery('.slide-trans-cur-ul li.selected').data('duration', (ui.size.width*10));
+			stop:function() {
+				jQuery(this).closest('li').removeClass("showstartspeed");
+				dragspeedin.closest('.timeline').removeClass("onchange");
 				t.resetSlideAnimations(true);
+
 			},
-			resize:function(event,ui) {
-				document.getElementById('transition_duration').value = ui.size.width*10;				
-				jQuery('.slide-trans-cur-ul li.selected').data('duration', (ui.size.width*10));
-				durcont.innerHTML = (ui.size.width*10);
+			resize:function() {
+				var spt = cur.find('.tl-startanim').width()*10;
+				jQuery('#transition_duration').val(spt);
+				cur.find('.sortbox_speedin').html(msToSec(spt));
 			}
 			//snap:".tl-fullanim"
 		});
@@ -3055,255 +2069,51 @@ var tpLayerTimelinesRev = new function(){
 	}
 
 	
-	
 
-
-	//////////////////////////////////
-	// 		SET AUDIO MAP 			//
-	//////////////////////////////////
-
-	t.rerenderAllAudioMap = function() {
-		jQuery.each(u.arrLayers,function(i,objLayer) {			
-			if (objLayer.type == "audio") {				
-				t.drawAudioMap(objLayer);
-			}
-		});
-	};
-
-
-	t.drawAudioMap = function(objLayer) {
-	 	
-	 //	try {
-		 	var li = objLayer.references.sorttable.timeline;	 	
-		 	if (li.data('lastaudio') == objLayer.video_data.urlAudio && li.data('audiobuffer')!=undefined) {	 		
-		 		displayAudioBuffer(objLayer,li.data('audiobuffer'));
-		 	} else {
-		 		loadMusicTimeLine(objLayer,objLayer.video_data.urlAudio);
-		 	}
-
-		 	li.data('lastaudio',objLayer.video_data.urlAudio);
-			
-
-			if (!AudioContext) {
-				console.log('Audio Map cannot be drawn  in your Browser. Try a recent Chrome or Firefox. ');
-				return false;
-			}
-	//	} catch(e) { console.log("Drwaring of Audio Map Failer at Initialisation");}
-		
-	}
-	
-	
-
-	// MUSIC LOADER + DECODE
-	function loadMusicTimeLine(objLayer,url) {   
-		if (audioContext === null || !AudioContext) return false;
-	    var req = new XMLHttpRequest(),	  
-	    	li =   	objLayer.references.sorttable.timeline,
-	    	currentBuffer  = null;
-	    
-	    req.open( "GET", url, true );
-	    req.responseType = "arraybuffer";    
-	    
-	    req.onreadystatechange = function (e) {
-	          if (req.readyState == 4) {
-	             if(req.status == 200)
-	                  audioContext.decodeAudioData(req.response, 
-	                    function(buffer) {
-	                             currentBuffer = buffer;
-	                             li.data('audiobuffer',buffer);
-	                             displayAudioBuffer(objLayer,buffer);
-	                    }, onDecodeError);
-	             else
-	                  console.log('error during the load.Wrong url or cross origin issue');
-	          }
-	    } ;
-	    req.send();
-	}	
-
-	function onDecodeError() {  alert('error while decoding your Audio file.');  }
-
-	function getStartSec(st) {						
-		return st == undefined ? -1 : st=="" ? -1 : st==" " ? -1 : jQuery.isNumeric(st) ? st : st.split(":").length>1 ? parseInt(st.split(":")[0],0)*60 + parseInt(st.split(":")[1],0) : st;
-	};
-
-	function displayAudioBuffer(objLayer,buff) {
-		try {
-			var li = objLayer.references.sorttable.timeline,
-				leftChannel = buff.getChannelData(0), // Float32Array describing left channel     
-				wr = li.find('.timeline_full'),				
-				canvasWidth =buff.duration*100,
-			   	canvasHeight = 19,
-			   	shift = objLayer.video_data.start_at,		   	
-			   	s = getStartSec(objLayer.video_data.start_at),
-			   	e = getStartSec(objLayer.video_data.end_at)
-			
-			s= s==-1 ? 0 : s;
-			e= e==-1 ? 999999999 : e;				
-			s= s /60;
-			e= e /60;			
-			e = e>buff.duration ? buff.duration : e;
-			s = s*buff.sampleRate;
-			e = e*buff.sampleRate;			
-			canvasWidth = ((e-s)/buff.sampleRate)*100;
-			li.find('canvas').remove();
-			
-			// CANVAS		
-			var newCanvas   = document.createElement('canvas');
-			newCanvas.width = ((t.mainMaxTimeLeft));
-			newCanvas.height = canvasHeight;	
-			li.append('<div class="timeline_audio"></div>');
-
-			li.find('.timeline_audio').append(newCanvas);
-			
-			var jc = li.find('canvas');			
-			punchgs.TweenLite.set(jc,{zIndex:2,top:3,left:0,position:"absolute"});
-
-			var context = newCanvas.getContext('2d'),
-				lineOpacity = canvasWidth / leftChannel.length;
-
-			   
-		   context.save();
-		   context.fillStyle = 'transparent' ;
-		   context.fillRect(0,0,canvasWidth,canvasHeight );
-		   context.strokeStyle = '#333';	   
-		   context.translate(0,canvasHeight / 2);
-		   context.globalAlpha = 0.5 ; // lineOpacity ;
-		   
-		   var pl = 0,
-		   	   seglength = e-s;		   	 
-			for (var i=0; i<e-s; i=i+200) {
-			       // on which line do we get ?
-			       var x = Math.floor (canvasWidth * i / seglength );
-			       var y = leftChannel[s+i] * canvasHeight;			       
-			       context.beginPath();
-			       context.moveTo( x  , 0 );
-			       context.lineTo( x+1, y );
-			       context.stroke();
-			       pl++;
-			}
-
-			if (objLayer.video_data.videoloop!="none") {
-				var imgdata = context.getImageData(0, 0, canvasWidth, canvasHeight),
-					lmult = (((t.mainMaxTimeLeft)) / canvasWidth);								
-				for (var i=0;i<lmult;i++) {
-					context.beginPath();
-					context.moveTo(i*canvasWidth,-50);
-					context.lineTo(i*canvasWidth,canvasHeight);
-					context.lineWidth = 3;
-					context.strokeStyle = "#c0392b";
-					context.stroke();
-					context.putImageData(imgdata,i*canvasWidth,0);
-				}
-
-			}
-
-			//playSound(buff);
-			
-		   context.restore();	   
-		   audio = jQuery(objLayer.references.sorttable.timeline[0]).find('.timeline_audio');			
-			if (audio!==undefined && audio.length>0)		
-				punchgs.TweenLite.set(audio,{left:15+(objLayer.frames["frame_0"].time/10), width:((objLayer.frames["frame_999"].time - objLayer.frames["frame_0"].time) + objLayer.frames["frame_999"].split_extratime + objLayer.frames["frame_999"].speed)/10});
-		 } catch(e) { console.log("Drawing of Audio Map failed !")}
-	}
-
-	
-
-	
 
 	/******************************
 		-	ADD LAYER TO SORTBOX	-
 	********************************/
 	t.addToSortbox = function(serial,objLayer){
 
-				
-		if (document.getElementById('layers-right-ul').children.length===1) 	
-			addSlideToSortbox();
 		
+		if (jQuery('#layers-right ul li').length==1) 				
+				addSlideToSortbox();
+		
+
 		if (serial===undefined) return false;
 
 		
 		var endslideclass = "",
-			isVisible = t.isLayerVisible(objLayer.references.htmlLayer),
+			isVisible = t.isLayerVisible(serial),
 			classLI = "",
-			classDrop = "",
 			sortboxText = t.getSortboxText(objLayer.alias),
 			depth = Number(objLayer.order)+5,
 			htmlSortbox = "",
 			quicksb  = ""
-			visibleclass = "in-on",
-			groupLink = objLayer.groupLink !==undefined ? objLayer.groupLink : 0;
-		
-		switch (objLayer.type) {
-			case "group":
-				classLI=" sortable_elements sortable_group";
-				classDrop = " droppable_sortable_group";
-			break;
-			case "row":
-				classLI="  sortable_elements sortable_group sortable_row";
-				classDrop = " droppable_sortable_row";
-			break;
-			case "column":
-				classLI=" sortable_elements sortable_column";
-				classDrop = " droppable_sortable_column";
-			break;
-			default:
-				classLI=" sortable_elements sortable_layers";
-			break;
-		}
-		
-		if (objLayer.deleted) classLI=classLI+" layer-deleted";
-							
-		htmlSortbox += '<li data-uniqueid="'+objLayer.unique_id+'" id="layer_sort_'+serial+'" data-type="'+objLayer.type+'" class="mastertimer-layer ui-state-default'+classLI+'" data-grouptype="'+objLayer.grouptype+'" data-pid="'+objLayer.p_uid+'">';
-		
-		htmlSortbox += '	<div class="layer_sort_inner_wrapper '+classDrop+'">';
-				
-		htmlSortbox += '		<span class="mastertimer-timeline-selector-row tipsy_enabled_top" title="Select Layer in Timeline">';
-		htmlSortbox += '			<input data-uniqueid="'+objLayer.unique_id+'"  id="lots_id_'+objLayer.unique_id+'" class="layer-on-timeline-selector" style="margin:0px" type="checkbox"/>';		
-		htmlSortbox += '		</span>';
-		htmlSortbox += '		<span data-uniqueid="'+objLayer.unique_id+'" class="list-of-layer-links tipsy_enabled_top" title="Choose Layers Group Link">';		
-		htmlSortbox += '			<span class="layer-link-type-element layer-link-type-element-cs layer-link-type-'+groupLink+'"></span>';
-		htmlSortbox += '			<span class="list-of-layer-links-inner">';		
-		htmlSortbox += '				<span data-linktype="1" class="layer-link-type-element layer-link-type-1"></span>';
-		htmlSortbox += '				<span data-linktype="2" class="layer-link-type-element layer-link-type-2"></span>';
-		htmlSortbox += '				<span data-linktype="3" class="layer-link-type-element layer-link-type-3"></span>';
-		htmlSortbox += '				<span data-linktype="4" class="layer-link-type-element layer-link-type-4"></span>';
-		htmlSortbox += '				<span data-linktype="5" class="layer-link-type-element layer-link-type-5"></span>';
-		htmlSortbox += '				<span data-linktype="0" class="layer-link-type-element layer-link-type-0"></span>';		
-		htmlSortbox += '			</span>';				
-		htmlSortbox += '		</span>';
-		if (objLayer.type!="column") {
+			visibleclass = "in-on";
 			
-			if (objLayer.type!=="row") {
-				htmlSortbox += '	<span  class="mastertimer-timeline-zindex-row tipsy_enabled_top" title="z-Index">';
-				htmlSortbox += '		<i style="margin-left:15px;margin-right:0px;" class="layersortclass eg-icon-sort"></i>';
-				htmlSortbox += '		<span class="sortbox_depth" title="z-Index">'+depth+'</span>';
-				htmlSortbox += '	</span>';
-			} else {
-				htmlSortbox += '	<span  class="mastertimer-timeline-zindex-row tipsy_enabled_top" style="cursor:default !important" title="z-Index"></span>';
-			}
+		
 			
-		} else {
-			htmlSortbox += ' 	<span class="column_sort_row_spacer"></span>';
-		}			
-		htmlSortbox += '		<span class="mastertimer-timeline-tillendcontainer" style="">';
-		htmlSortbox += '			<span data-uniqueid="'+objLayer.unique_id+'" data-serial="'+serial+'" class="till_slideend tipsy_enabled_top '+endslideclass+'" title="Wait till Slides End / Custom End"><i class="eg-icon-back-in-time"></i><i class="eg-icon-download-2"></i></span>';
-		htmlSortbox += '		</span>';		
+		//if(isVisible == false)
+		//	classLI = " sortitem-hidden";
+
+		
+
+		htmlSortbox += '<li id="layer_sort_'+serial+'" class="sortablelayers mastertimer-layer ui-state-default'+classLI+'">';
+		htmlSortbox += '	<div style="width:5000px;position:absolute;left:0px;top:0px;">';
+		htmlSortbox += '		<span style="margin-right:5px;width:25px;padding-right:10px;border-right:1px solid #f1f1f1; position:relative" class="tipsy_enabled_top" title="z-Index">';
+		htmlSortbox += '			<i style="margin-left:15px;margin-right:0px;" class="layersortclass eg-icon-sort"></i>';
+		htmlSortbox += '			<span class="sortbox_depth" title="z-Index">'+depth+'</span>';
+		htmlSortbox += '		</span>';
+		htmlSortbox += '		<span style="width:25px;border-right:1px solid #f1f1f1">';
+		htmlSortbox += '			<span class="till_slideend tipsy_enabled_top '+endslideclass+'" title="Wait till Slides End / Custom End"><i class="eg-icon-back-in-time"></i><i class="eg-icon-download-2"></i></span>';
+		htmlSortbox += '		</span>';
 		htmlSortbox += '		<span class="sort-hover-part layer_sort_layer_text_field">';
 		htmlSortbox += '			<span class="sortbox_text"><i class="layertypeclass ';		
 
 		
 		switch (objLayer.type) {
-			case "group":
-				htmlSortbox += 'fa-icon-object-group';
-			break;
-			case "row":
-				htmlSortbox += 'rs-icon-layergroup';		
-			break;
-
-			case "column":
-				htmlSortbox += 'rs-icon-layercolumns';		
-			break;
-
 			case "text":
 				htmlSortbox += 'rs-icon-layerfont';
 		
@@ -3313,26 +2123,10 @@ var tpLayerTimelinesRev = new function(){
 		
 			break;
 			case "video":
-				htmlSortbox += 'rs-icon-layervideo';		
-			break;
-
-			case "audio":
-				htmlSortbox += 'rs-icon-layeraudio';		
-			break;
-			
-			case "button":
-				htmlSortbox += 'rs-icon-layerbutton';		
-			break;
-
-			case "shape":
-				htmlSortbox += 'rs-icon-layershape';		
-			break;
-
-			case "svg":
-				htmlSortbox += 'rs-icon-layersvg';		
+				htmlSortbox += 'rs-icon-layervideo';
+		
 			break;
 		}
-
 
 		htmlSortbox += '"></i>';
 
@@ -3340,48 +2134,23 @@ var tpLayerTimelinesRev = new function(){
 
 		htmlSortbox += '			</span>';
 		htmlSortbox += '		</span>';
-		if (objLayer.type=="group" || objLayer.type=="row" || objLayer.type=="column") 
-			htmlSortbox += '		<span class="sort_group_collapser"><i class="eg-icon-down-dir"></i><i class="eg-icon-right-dir"></i></span>'
-		
-		if (objLayer.type!="column")
-			htmlSortbox += '		<span class="timer-manual-edit"><i class="eg-icon-pencil"></i></span>'
+		htmlSortbox += '		<span class="timer-manual-edit"><i class="eg-icon-pencil"></i></span>'
 		htmlSortbox += '	</div>';
-		
-		if (objLayer.type=="group" || objLayer.type=="row") 
-			htmlSortbox += '<ul id="sortable_group_'+objLayer.unique_id+'" class="sortable_groups_wrap sgw_def"></ul>';
-		if (objLayer.type=="column") 
-			htmlSortbox += '<ul id="sortable_columns_'+objLayer.unique_id+'" class="sortable_layers_in_columns sgw_def"></ul>';
+		htmlSortbox += '<div class="timeline" style="display:none">';
+		htmlSortbox += '<div class="tl-fullanim"><div class="tl-startanim"></div><div class="tl-endanim"></div></div>';
+		htmlSortbox += '</div>';
+
 		htmlSortbox += '</li>';
 
-		var quickClassE = "";
-		if (objLayer.p_uid!=undefined && objLayer.p_uid !==-1 && objLayer.type!=="row" && objLayer.type!=="group") quickClassE = " quick_in_group";
-		if (objLayer.type==="row") quickClassE +=" quick_in_row"
-
-		quicksb += '<li id="layer_quicksort_'+serial+'" data-serial="'+serial+'" class="quicksortlayer ui-state-default layer-toolbar-li'+quickClassE+'">';
+		quicksb += '<li id="layer_quicksort_'+serial+'" data-serial="'+serial+'" class="quicksortlayer ui-state-default layer-toolbar-li">';
 		var btlist ='<span class="quick-edit-toolbar-in-list">';
 
+		
 		switch (objLayer.type) {
 			case "text":
 				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layerfont_n"></i>';
 				btlist += '<span id="button_edit_layer_'+serial+'" class="button_edit_layer layer-short-tool revblue"><i class="eg-icon-pencil"></i></span>';
 				btlist += '<span id="button_reset_size_'+serial+'" class="button_reset_size layer-short-tool revblue"><i class="eg-icon-resize-normal"></i></span>';
-			break;
-			case "group":			
-				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="fa-icon-object-group"></i>';				
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-			break;
-			case "row":
-				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layergroup_n"></i>';				
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-			break;
-			case "column":			
-				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layercolumns_n"></i>';				
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
 			break;	
 			case "shape":
 				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layershape_n"></i>';
@@ -3403,80 +2172,45 @@ var tpLayerTimelinesRev = new function(){
 				btlist += '<span  id="button_change_video_settings_'+serial+'" class="button_change_video_settings layer-short-tool revblue"><i class="eg-icon-pencil"></i></span>';				
 				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
 			break;
-			case "audio":
-				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layeraudio_n"></i>';
-				btlist += '<span  id="button_changeaudio_settings_'+serial+'" class="button_change_audio_settings layer-short-tool revblue"><i class="eg-icon-pencil"></i></span>';				
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-				classLI = " layer-sort-audio-item"
-			break;
-			case "svg":
-				quicksb += '<span class="layer-short-tool revdarkgray layer-title-with-icon"><i class="rs-icon-layersvg_n"></i>';
-				btlist += '<span  id="button_changesvg_settings_'+serial+'" class="button_change_svg_settings layer-short-tool revblue"><i class="eg-icon-pencil"></i></span>';				
-				btlist += '<span  class="layer-short-tool revdarkgray"></span>';
-			break;
 		}
 		
 		quicksb += '<input type="text" class="layer-title-in-list" value="'+sortboxText+'"></span>';
 		quicksb += btlist;		
-		if (objLayer.type!=="column") {
-			quicksb += '<span id="button_delete_layer_'+serial+'" class="button_delete_layer layer-short-tool revred"><i class="rs-lighttrash"></i></span>';
-			quicksb += '<span id="button_duplicate_layer_'+serial+'" class="button_duplicate_layer layer-short-tool revyellow" data-isstatic=""><i class="rs-lightcopy"></i></span>';
-		} 
+		quicksb += '<span id="button_delete_layer_'+serial+'" class="button_delete_layer layer-short-tool revred"><i class="rs-lighttrash"></i></span>';
+		quicksb += '<span id="button_duplicate_layer_'+serial+'" class="button_duplicate_layer layer-short-tool revyellow" data-isstatic=""><i class="rs-lightcopy"></i></span>';
 		quicksb += '<span style="display:block;float:none;clear:both"></span></span>';
 		quicksb += '<span class="quick-layer-view layer-short-tool revdarkgray '+visibleclass+'"><i class="eg-icon-eye"></i></span>';
 		quicksb += '<span class="quick-layer-lock layer-short-tool revdarkgray"><i class="eg-icon-lock-open"></i></span>';
 		quicksb += '<div style="clear:both;display:block"></div>';
 		quicksb +='</li>';
+
 		
+
+		jQuery('#layers-left ul').append(htmlSortbox);
+		jQuery('.quick-layers-list').append(quicksb);
+
 		
-				
-		if (document.getElementById('quick-layers-list-id').childNodes.length>1) document.getElementById('nolayersavailable').style.display='none';
+		if (jQuery('.quick-layers-list li').length>1) jQuery('.nolayersavailable').hide();
 
-		var htmlTimeline = "",
-			grouptypeclass = objLayer.grouptype === "logical_o" ? " hide_timeline" : "";
-		htmlTimeline += '<li data-uniqueid="'+objLayer.unique_id+'" data-serial="'+serial+'" id="layer_sort_time_'+serial+'" class="sortable_elements mastertimer-layer ui-state-default'+classLI+grouptypeclass+'" data-grouptype="'+objLayer.grouptype+'" data-pid="'+objLayer.p_uid+'">';
-		htmlTimeline += '		<div class="timeline_full"></div>';		
-		htmlTimeline += '  <div class="timeline">';		
-		htmlTimeline += '  	<div class="timeline-relative-marker trm-groupandrowmarker"></div>';
+		htmlSortbox = "";
+		htmlSortbox += '<li id="layer_sort_time_'+serial+'" class="sortablelayers mastertimer-layer ui-state-default'+classLI+'">';
+		htmlSortbox += '  <div class="timeline">';
+		htmlSortbox += '		<div class="tl-fullanim">';
+		htmlSortbox += '			<span class="start-puller"><span class="sortbox_time">'+msToSec(objLayer.time)+'</span></span>';
+		htmlSortbox += '			<div class="tl-startanim"><span class="sortbox_speedin">'+msToSec(objLayer.speed)+'</span><span class="start-anim-puller"></span><div class="splitinextratime"></div></div>';
+		htmlSortbox += '			<div class="tl-endanim"><span class="sortbox_speedout">'+msToSec(objLayer.endspeed)+'</span><span class="end-anim-puller"></span><div class="splitoutextratime"></div></div>';
+		htmlSortbox += '			<span class="end-puller"><span class="sortbox_timeend">'+msToSec(objLayer.endtime)+'</span></span>';
+		htmlSortbox += '		</div>';
+		htmlSortbox += '		<div class="slide-idle-section"></div>';
+		htmlSortbox += ' </div>';
+		htmlSortbox += '</li>';
+		jQuery('#layers-right ul').append(htmlSortbox);
 
-		htmlTimeline += '		<div data-frameindex="0" id="tl_'+objLayer.unique_id+'_frame_0" class="timeline_frame tf_startframe tl_layer_frame" data-uniqueid="'+objLayer.unique_id+'" data-serial="'+serial+'" style="z-index:50;">';		
-		htmlTimeline += ' 			<span class="timebefore_cont"></span>';
-		htmlTimeline += '			<div class="tl_speed_wrapper">';			
-		htmlTimeline += '				<div class="tlf_speed"><span class="duration_cont"></span></div>';
-		htmlTimeline += '				<div class="tlf_splitdelay"></div>';
-		htmlTimeline += '			</div>';
-		htmlTimeline += '			<span class="show_timeline_helper">EDIT</span>';
-		htmlTimeline += '		</div>';		
-		htmlTimeline += '		<div data-frameindex="999" id="tl_'+objLayer.unique_id+'_frame_999" class="timeline_frame tf_endframe tl_layer_frame" data-uniqueid="'+objLayer.unique_id+'" data-serial="'+serial+'" style="z-index:48;">';
-		htmlTimeline += ' 			<span class="timebefore_cont"></span>';
-		htmlTimeline += '			<div class="tl_speed_wrapper">';		
-		htmlTimeline += '				<div class="tlf_speed"><span class="duration_cont"></span></div>';
-		htmlTimeline += '				<div class="tlf_splitdelay"></div>';
-		htmlTimeline += '			</div>';
-		htmlTimeline += '			<span class="show_timeline_helper">EDIT</span>';
-		htmlTimeline += '		</div>';		
-		htmlTimeline += ' </div>';
-		htmlTimeline += ' <div class="slide-idle-section"></div>';
-		htmlTimeline += '</li>';
-
-		var inserttoend = true;
-		if (objLayer.type==="row" && document.getElementById('layers-left-ul').getElementsByClassName('sortable_row').length>0) {
-			inserttoend = false;
-			document.getElementById('layers-left-ul').getElementsByClassName('sortable_row')[0].insertAdjacentHTML('afterend',htmlSortbox);				
-			document.getElementById('quick-layers-list-id').getElementsByClassName('quick_in_row')[0].insertAdjacentHTML('afterend',quicksb);
-			document.getElementById('layers-right-ul').getElementsByClassName('sortable_row')[0].insertAdjacentHTML('afterend',htmlTimeline);
-		}	
-
-		if (inserttoend) {
-			document.getElementById('layers-left-ul').insertAdjacentHTML('beforeend',htmlSortbox);		
-			document.getElementById('quick-layers-list-id').insertAdjacentHTML('beforeend',quicksb);
-			document.getElementById('layers-right-ul').insertAdjacentHTML('beforeend',htmlTimeline);
-		}
-		
 		
 		jQuery('#layer_quicksort_'+serial).on('mouseenter',function(event) {
 			jQuery('.layer_due_list_element_selected').removeClass('layer_due_list_element_selected');
 			jQuery('#slide_layer_'+jQuery(this).data('serial')).addClass("layer_due_list_element_selected");
+
 		});
 
 		jQuery('#layer_quicksort_'+serial).on('mouseleave',function(event) {
@@ -3488,599 +2222,293 @@ var tpLayerTimelinesRev = new function(){
   				delayIn: 70
   		});
 
-  		
-		reinitSortBox();
-
 		
-		var liel= document.getElementById('layer_sort_time_'+serial),
-			li = jQuery(liel),
-			curel = liel.getElementsByClassName("timeline")[0],
-			cur = jQuery(curel);
+		var cur = jQuery('#layer_sort_time_'+serial+" .timeline"),
+			qcur = jQuery('#layer_quicksort_'+serial),
+			dragfull = cur.find('.tl-fullanim'),
+			dragspeedin = cur.find('.tl-startanim'),
+			dragspeedout = cur.find('.tl-endanim'),
+			maxtime = (mainMaxTimeLeft)-15; //slidemaxtime==undefined || slidemaxtime=="" || slidemaxtime<=0 ? g_slideTime : slidemaxtime;
+		
+		
+		
+		setCurTimer(dragfull,true);
+		cur.parent().find('.slide-idle-section').css({left:(maxtime+15)+"px"});
+		
+		// DRAG LEFT / RIGHT THE FULL ANIMATION
+		dragfull.draggable({
+			containment:"parent",
+
+			axis:"x",
+			start:function() {
+				//dragfull.draggable("option","containment",[215,0,(slidemaxtime/10)+dragspeedout.width()+15,0]);
+				dragfull.closest('.timeline').addClass("onchange");
+				jQuery(this).closest('li').addClass("showstarttoend");
+				jQuery('#timline-manual-dialog').show();
+			},
+			stop:function() {
+
+				var maxtime = (mainMaxTimeLeft)-15,
+					l = parseInt(dragfull.position().left),
+					w = dragfull.width(),
+					speedoutw = dragspeedout.width();
+
+				if (l<15) dragfull.css({left:"15px"});
+				if (l>maxtime+speedoutw-w+15) dragfull.css({left:(maxtime+speedoutw-w+15)+"px"});
+				if (dragfull.position().left<15) dragfull.css({left:15});
 				
 
-		objLayer.references.sorttable = objLayer.references.sorttable === undefined ? {} : objLayer.references.sorttable;
-		objLayer.references.sorttable.layer = jQuery(document.getElementById('layer_sort_'+serial));
-		objLayer.references.sorttable.timeline = li;
-		objLayer.references.quicklayer = jQuery(document.getElementById('layer_quicksort_'+serial));
 
+				t.updateCurTimer("dragstop",jQuery(this));
+				jQuery(this).closest('li').removeClass("showstarttoend");
+				dragfull.closest('.timeline').removeClass("onchange");
+			},
+			drag:function() {
+				t.updateCurTimer("drag",jQuery(this));
+			}
+		})
 
+		
+		
+		var dsiw = dragspeedin.data('dsw') || dragspeedin.width(),
+			dsow = dragspeedout.data('dew') || dragspeedout.width();
 
+		// CHANGE DURATION OF ELEMENTS
+		dragfull.resizable({
+			containment:"parent",
+			handles:"w,e",
+			minWidth: (dsiw+dsow),
+			maxWidth: (maxtime+dsow),
 
-		if (objLayer.type=="audio") {
-			li.data('objref',objLayer);			
+			// BASIC SETTINGS FOR THE DRAGBAR
+			create:function() {
+				
+				var maxtime = (mainMaxTimeLeft)-15,
+					w =dragfull.data('dfw') || dragfull.width(),					
+					speedoutw = dragspeedout.data('dew') || dragspeedout.width(),
+					dfl = dragfull.data('dfl') || dragfull.position().left,
+					l = parseInt(dfl);
+								
+				// IF THE TIMELINE TOO LONGTH AT START
+				if (w-speedoutw>maxtime) {
+					var neww = maxtime-l+ speedoutw;
+						newl = maxtime+speedoutw - neww + 15;
+					dragfull.css({width:neww+"px",left:newl+"px"});
+				}
+			},
 
-  			t.drawAudioMap(objLayer);
-
-  			li.on('mousemove',function(e) {  				
-  				try{
-	  				var li = jQuery(this),
-	  					objLayer = li.data('objref'),
-	  					serial = li.data('serial'),
-	  					player = jQuery('#slide_layer_'+serial+" audio")[0];
-	  				if (!li.hasClass("ui-state-hover")) return false;
+			// ON START TO RESIZE, CHANGE SOME IMPORTANT PARAMETERS
+			start:function(e,ui) {
 					
-					clearTimeout(li.data('audiopreview'));
-					li.find('.audio-progress').remove();
-					player.pause();
-	  				
-	  				
-	  				li.data('audiopreview',setTimeout(function() {
-		  				
-		  				var	tf = li.find('.timeline_full'),
-		  					dl = tf.position().left,  					
-		  					dw = tf.width(),
-		  					mousex = (e.pageX-li.offset().left),
-		  					time = mousex-dl;
+				// ADD CLASS ONCHANGE
+				dragfull.closest('.timeline').addClass("onchange");
+				jQuery('#timline-manual-dialog').show();
+				
 
-		  				if (mousex <dl || mousex>(dl+dw)) return;
-		  				
-		  				
-		  				li.find('.audio-progress').remove();
-		  				li.append('<div class="audio-progress"></div>');
-		  				var ap = li.find('.audio-progress'),		  						  				
-		  					
-		  					_s = getStartSec(objLayer.video_data.start_at),
-			   				_e = getStartSec(objLayer.video_data.end_at);
+				var maxtime = (mainMaxTimeLeft)-15,
+					w = dragfull.width(),
+					speedinw = dragspeedin.width(),
+					speedoutw = dragspeedout.width(),
+					l = parseInt(dragfull.position().left),
+					minwidth = speedinw+speedoutw,
+					maxwidth = maxtime+speedoutw,
+					dir = e.toElement ? e.toElement : e.originalEvent.target;
 
-						_s= _s==-1 ? 0 : _s;
-						_e= _e==-1 ? 999999999 : _e;				
-						_s= _s /60;
-						_e= _e /60;			
-						_e = _e>player.duration ? player.duration : _e;
-						
-						var segment = _e-_s,
-							shift = Math.floor((time / (segment*100)));
-						
 
-		  				if (time>segment*100) 
-		  					time = time - ((segment*100)*shift);
+				if (jQuery(dir).hasClass("ui-resizable-e"))
+				  	maxwidth = maxwidth - l+15;
+				else
+					maxwidth = l+w-15; //maxtime>(l+w) ? l+w-15 : maxwidth;
+				
 
-		  					  				
-		  				if (time>0) {
-		  					restw = (segment-time/100) * 100;  					  				
-		  					punchgs.TweenLite.fromTo(ap,(segment-time/100),{left:(dl+time+(shift*(segment*100))),transformOrigin:"0% 50%", width:restw,scaleX:0},{scale:1,ease:punchgs.Linear.easeNone, onUpdate:function() {}, onComplete:function() {
-		  						player.pause();
-		  					}});
-		  				}
-		  				if (time>0) {
-		  					player.play();
-		  					player.currentTime = time/100;
-		  				} 	
-		  			},400));	  				
-		  		} catch(er) {
+				// OVERWRITE THE BASIC OPTIONS
+				dragfull.resizable("option","minWidth",minwidth);
+				dragfull.resizable("option","maxWidth",maxwidth);
 
-		  		}
-  			});
+				// CONSOLE LOGGING
 
-  			li.on('mouseleave',function(e) {
-  				try {
-  					var li = jQuery(this),  					
-	  					serial = li.data('serial'),
-	  					player = jQuery('#slide_layer_'+serial+" audio")[0];
-	  				clearTimeout(li.data('audiopreview'));
-	  				li.find('.audio-progress').remove();
-  					player.pause();
-  				} catch(er) { }
-	  		});
-  		}
+				if (jQuery(dir).hasClass("ui-resizable-w"))
+					jQuery(this).closest('li').addClass("showtlstart");
+				else
+					jQuery(this).closest('li').addClass("showtlend");
+			},
 
-  		var el = liel.getElementsByClassName('timeline_frame');  		  		
-  		for (var i=0;i<el.length;i++) {  			
-  			jQuery(el[i]).resizable({
-  				handles: 'e,w',
-  				minWidth:1,
-	  			create: function(event,ui) {
-	  				var a = this;		  				 			
-	  				t.setTLFrame(a);
-	  				setTimeout(function() {
-	  					t.frameLimitations(a);
-	  				},25);
-	  			},
-	  			start: function(event,ui) {	  				
-	  				t.deactivatePerfectScrollBars();	  	  				
-	  				t.updateTLFrame(this,"trigger",undefined,ui.size.width);
 
-	  			},
-	  			resize: function(event,ui) {	  					  				
-	  				t.updateTLFrame(this,"trigger",undefined,ui.size.width);	  				
-	  			},
-	  			stop: function(event,ui) {
-	  				t.updateTLFrame(this,"trigger");
-	  			}
-	  		});
+			stop:function() {
+				t.updateCurTimer("resizestop",jQuery(this));
+				jQuery(this).closest('li').removeClass("showtlstart").removeClass("showtlend");
+				dragfull.closest('.timeline').removeClass("onchange");
+			},
+			resize:function(event) {
+				if (jQuery(event.srcElement).hasClass("ui-resizable-w"))
+					t.updateCurTimer("changestart",jQuery(this));
+				else
+					t.updateCurTimer("changeend",jQuery(this));
+			}
+			//snap:".tl-fullanim"
+		});
+		
+		dragspeedin.resizable({
+			minWidth:0,
+			handles:"e",
+			start:function() {
+				var w = dragfull.width(),
+					speedoutw = dragspeedout.width();
 
-	  		jQuery(el[i]).draggable({
-	  			axis:"x",
-	  			start:function(event,ui) {
-	  				t.recordFrameStatus(this,ui);
-	  			},
-	  			drag:function(event,ui) {	  				
-	  				t.frameLimitations(this,ui);
-	  				t.updateTLFrame(this,"trigger");	
-	  				t.updateAllSelectedLayerTimeline(this);  									
-	  			},
-	  			stop:function(event,ui) {
-	  				t.frameLimitations(this,ui);
-	  				t.updateTLFrame(this,"trigger");
-	  				t.updateAllSelectedLayerTimeline(this);	  				
-	  			}
-	  		});
-  		}  	
-  		t.resetTimeLineHeight();
-  		t.setIdleZones();			
-	}
+				dragspeedin.resizable("option","maxWidth",(w-speedoutw));
+				dragfull.closest('.timeline').addClass("onchange");
+				jQuery(this).closest('li').addClass("showstartspeed");
+				dragfull.closest('.timeline').addClass("onchange");
+				jQuery('#timline-manual-dialog').show();
+			},
+			stop:function() {
+				var dragfull = jQuery(this).closest('li').find('.tl-fullanim');
+				jQuery(this).closest('li').removeClass("showstartspeed");
+				t.updateCurTimer("speedinstop",dragfull);
+				dragfull.closest('.timeline').removeClass("onchange");
+			},
+			resize:function() {
 
-	/**
-	 Deactivate the Perfect Scroll bars for a while, since elements just simple slow down
-	*/
-	t.deactivatePerfectScrollBars = function() {
-		jQuery('.revolution-template-groups').perfectScrollbar("destroy");		
-	}
+				var dragfull = jQuery(this).closest('li').find('.tl-fullanim');
+				t.updateCurTimer("speedin",dragfull);
+			}
+			//snap:".tl-fullanim"
+		});
 
-	t.activatePerfectScrollBars = function() {
-		jQuery('.revolution-template-groups').perfectScrollbar();
+		
+		dragspeedout.resizable({
+			minWidth:1,
+			handles:"w",
+			start:function() {
+				var maxtime = (mainMaxTimeLeft)-15,
+					w = dragfull.width(),
+					speedinw = dragspeedin.width(),
+					speedoutw = dragspeedout.width(),
+					l = parseInt(dragfull.position().left),
+					minwidth = speedinw+speedoutw,
+					maxwidth = maxtime+speedoutw;
+				dragspeedout.resizable("option","minWidth",(l+w-maxtime-15));
+				dragspeedout.resizable("option","maxWidth",(w-speedinw));
+				dragfull.closest('.timeline').addClass("onchange");
+				jQuery(this).closest('li').addClass("showendspeed");
+				jQuery('#timline-manual-dialog').show();
+			},
+			stop:function() {
+				var dragfull = jQuery(this).closest('li').find('.tl-fullanim');
+				t.updateCurTimer("speedoutstop",dragfull);
+				jQuery(this).closest('li').removeClass("showendspeed");
+				dragfull.closest('.timeline').removeClass("onchange");
+			},
+			resize:function() {
+				var dragfull = jQuery(this).closest('li').find('.tl-fullanim');
+				t.updateCurTimer("speedout",dragfull);
+			}
+			//snap:".tl-fullanim"
+		});
+		
 	}
 
 	/**
 	 check if the Layer should go till Slide End, or should animate our before.
 	 if objLayer.endWithSlide == true -> the Layer should not get any "data-end" output !!
 	*/
-	var checkTillSlideEnd = function(objLayer) {
+	var checkTillSlideEnd = function(serial,objLayer) {
+
 		
-		var maxtime = ((t.mainMaxTimeLeft))*10,
-			li = document.getElementById('layer_sort_'+objLayer.serial);
-			
-		if ( objLayer.frames["frame_999"].time >= maxtime) {			
+		var maxtime = ((mainMaxTimeLeft)-15)*10,
+			li = jQuery('#layer_sort_'+serial);
+		
+
+		if ( objLayer.endtime-objLayer.endspeed >= maxtime) {
 			objLayer.endWithSlide = true;
-			if (!li.classList.contains("tillendon")) 			
-				li.className += " tillendon";			
+			li.find('.till_slideend').addClass("tillendon");
 		} else {
 			objLayer.endWithSlide = false;
-			jQuery(li).removeClass("tillendon");
-		}	
+			li.find('.till_slideend').removeClass("tillendon");
+
+		}
 	}
 
-	t.setTLFrame = function(frame) {
-		var speedcont = frame.getElementsByClassName('tlf_speed')[0],
-			splitcont = frame.getElementsByClassName('tlf_splitdelay')[0],	
-			durcont = frame.getElementsByClassName('duration_cont')[0],	
-			timecont = frame.getElementsByClassName('timebefore_cont')[0],				
-			trm = frame.parentNode.parentNode.getElementsByClassName('timeline-relative-marker')[0],
-			frame=jQuery(frame),			
-			objLayer = u.getLayerByUniqueId(frame.data('uniqueid')),
-			triggered = u.checkLayerTriggered(objLayer),
-			frameslength = u.getObjectLength(objLayer.frames);
 
-		objLayer.frames["frame_0"].time = Math.max(0,objLayer.frames["frame_0"].time);				
-		objLayer.frames["frame_999"].time = Math.min(t.mainMaxTimeLeft*10,objLayer.frames["frame_999"].time);
+	/**
+	 * update timeline of current layer
+	 */
+	t.updateCurrentLayerTimeline = function(){			
+		var timer = jQuery('#layers-right').find('.ui-state-hover .timeline .tl-fullanim');
+		setTimeout(function() {					
+				setCurTimer(timer);					
+				t.updateCurTimer("",timer);
+			},20);
+	}
 
-
-		var fi = frame.data('frameindex'),
-			speed = objLayer.frames["frame_"+fi].speed,
-			time = objLayer.frames["frame_"+fi].time,
-			splitdelay = getSplitCounts(objLayer.text,objLayer.frames["frame_"+fi].split,objLayer.frames["frame_"+fi].splitdelay),
-			timedif = time;
-										
-
-		objLayer.frames["frame_"+fi].split_extratime = splitdelay;
+	/**
+		Set the Current Timer Line to Position end start/end time should be set as well
+	*/
+	var setCurTimer = function(timer) {
+		
+		
+		var li = timer.closest("li"),
+			sortLayerID = li.attr("id"),
+			serial = u.getSerialFromSortID(sortLayerID),
+			objLayer = u.getLayer(serial);
 				
-		if (splitdelay!==0) {
-			punchgs.TweenLite.set(speedcont,{width:(speed/10)-splitdelay});
-			punchgs.TweenLite.set(splitcont,{width:splitdelay});
-		} else {
-			punchgs.TweenLite.set(speedcont,{width:speed/10});
-			punchgs.TweenLite.set(splitcont,{width:0});
-		}
-
-		
-		punchgs.TweenLite.set(frame,{left:time/10, width:(splitdelay+(speed/10))});		
-		durcont.innerHTML = speed;
-		
-		
-		if (objLayer.p_uid!==undefined && objLayer.p_uid!==-1 && u.getLayerByUniqueId(objLayer.p_uid) !==undefined && (typeof u.getLayerByUniqueId(objLayer.p_uid)==='object')) {
-			var p_objLayer = u.getLayerByUniqueId(objLayer.p_uid);			
-			trm.style.display="block";
-			trm.style.width = ((p_objLayer.frames["frame_0"].time/10)-1)+"px";		
-			timedif = time - p_objLayer.frames["frame_0"].time;				
-		} else {
-			trm.style.display="none";
-			trm.style.width = "0px";
-			if (fi!==0) {				
-				var prevframe = fi===999 ? objLayer.frames["frame_"+(frameslength-2)] : objLayer.frames["frame_"+(fi-1)];
-				if (prevframe!==undefined)
-					timedif = time - (prevframe.time + prevframe.speed + (prevframe.split_extratime*10));
-			}
-		}
-
-
-		if (time == t.mainMaxTimeLeft * 10) 
-			timecont.innerHTML = '<span class="wait_slide_end">WAIT</span>';								
-	
-		
-		objLayer.frames["frame_"+fi].time_relative = timedif;
-
-		if (fi==0 && triggered.in) timecont.innerHTML = '<span class="triggered_layer_on_timeline">a</span>';
-		if (fi==999 && triggered.out) timecont.innerHTML = '<span class="triggered_layer_on_timeline">a</span>';
-		t.updateFullTime(objLayer);
-		checkTillSlideEnd(objLayer);
-
-	}
-
-	t.updateTLFrame = function(frame,source,ignorerecursive,resizewidth) {
-		if (t.recordFrameStatusForce) 
-			t.recordFrameStatus(frame);
-		
-
-		var curserial = u.getCurrentLayer().serial,
-			speedcont = frame.getElementsByClassName('tlf_speed')[0],
-			splitcont = frame.getElementsByClassName('tlf_splitdelay')[0],	
-			durcont = frame.getElementsByClassName('duration_cont')[0],
-			timecont = frame.getElementsByClassName('timebefore_cont')[0],							
-			trm = frame.parentNode.parentNode.getElementsByClassName('timeline-relative-marker')[0],
-			frame=jQuery(frame),			
-			objLayer = u.getLayerByUniqueId(frame.data('uniqueid')),
-			objUpdate = {frames:{}},
-			frameslength = u.getObjectLength(objLayer.frames),
-			triggered = u.checkLayerTriggered(objLayer);	
-			fi = frame.data('frameindex'),
-			speed = frame.outerWidth()*10,
-			time = frame.position().left*10,			
-			splitdelay = getSplitCounts(objLayer.text,objLayer.frames["frame_"+fi].split,objLayer.frames["frame_"+fi].splitdelay),
-			currentframe = objLayer.frames["frame_"+fi],
-			updateTimerText = true,
-			timedif = time;
-		
-		objUpdate.frames["frame_"+fi] = {};
-			
-		if ((speed-(splitdelay*10))<0) {
-			speed = splitdelay*10;			
-			punchgs.TweenLite.set(frame,{width:(splitdelay)});
-		}
-
-
+		var tl = jQuery('#layer_sort_time_'+serial).find('.timeline'),			
+			dragfull = tl.find('.tl-fullanim'),
+			dragstart =dragfull.find('.tl-startanim'),
+			dragend = dragfull.find('.tl-endanim'),
+			ft = ((mainMaxTimeLeft)-15)*10,
+			ietime = tl.find('.splitinextratime'),
+			oetime = tl.find('.splitoutextratime'),
+			fromreal = false;		
 				
-		if (splitdelay!==0) {
-			punchgs.TweenLite.set(speedcont,{width:(speed/10)-splitdelay});
-			punchgs.TweenLite.set(splitcont,{width:splitdelay});
-		} else {
-			punchgs.TweenLite.set(speedcont,{width:speed/10});
-			punchgs.TweenLite.set(splitcont,{width:0});
+		if (objLayer.realEndTime && objLayer.realEndTime!="undefined" && objLayer.realEndTime!=undefined) {				
+			 objLayer.endtime = objLayer.realEndTime;
+			 if (objLayer.endWithSlide) objLayer.endtime = 	(parseInt(ft,0)+parseInt(objLayer.endspeed,0));			
+			 delete objLayer.realEndTime;
+			 delete objLayer.endTimeFinal;
+			 delete objLayer.endSpeedFinal;			 
 		}
 		
 		
-		durcont.innerHTML = speed;
+		if (objLayer.endtime=="undefined" || objLayer.endtime==undefined) {
+			objLayer.endtime = ft;
+		}
 		
-		if ((time == t.mainMaxTimeLeft * 10) || (fi==0 && triggered.in) || (fi==999 && triggered.out))
-			updateTimerText = false;
+		
+		if (objLayer.endspeed==undefined || objLayer.endspeed=="undefined")
+			objLayer.endspeed = objLayer.speed;
+		
 
-		// CALCULATE THE DELAYS BETWEEN FRAMES OR PARRENT ELEMENTS				
-		if (objLayer.p_uid!==undefined && objLayer.p_uid!==-1 && u.getLayerByUniqueId(objLayer.p_uid) !==undefined && (typeof u.getLayerByUniqueId(objLayer.p_uid)==='object')) {
+		var isw = getSplitCounts(objLayer.text,objLayer.split,objLayer.splitdelay),
+			osw = getSplitCounts(objLayer.text,objLayer.endsplit,objLayer.endsplitdelay);
 			
-			var p_objLayer = u.getLayerByUniqueId(objLayer.p_uid);			
-			timedif = time - p_objLayer.frames["frame_0"].time;
-			trm.style.display="block";
-		} else {
-			
-			trm.style.display="none";
-			trm.style.width="0px";		
-			if (fi!==0) {
-				var prevframe = fi===999 ? objLayer.frames["frame_"+(frameslength-2)] : objLayer.frames["frame_"+(fi-1)];							
-				if (prevframe)
-					timedif = time - (prevframe.time + prevframe.speed + (prevframe.split_extratime*10));
-			}
-		}
-		
-		// SET TO "WAIT" IF ELEMENT IS BIGGER THAN SLIDE LENGTH
-		if (time == t.mainMaxTimeLeft * 10) timecont.innerHTML = '<span class="wait_slide_end">WAIT</span>';												
-		// DRAW AN "A" IF LAYER ACTION TRIGGERED
-		if (fi==0 && triggered.in) timecont.innerHTML = '<span class="triggered_layer_on_timeline">a</span>';
-		if (fi==999 && triggered.out) timecont.innerHTML = '<span class="triggered_layer_on_timeline">a</span>';
-		
-		currentframe.time_relative = timedif;		
-		objUpdate.frames["frame_"+fi].speed = speed-(splitdelay*10);
-		objUpdate.frames["frame_"+fi].time = time;	
-		objUpdate.frames["frame_"+fi].time_relative=timedif;	
-		objUpdate.frames["frame_"+fi].split_extratime = splitdelay;						
-		
-		if (objLayer.serial == curserial) {	
-			if (fi===0)	document.getElementById('layer_speed').value = objUpdate.frames["frame_0"].speed;
-			if (fi===999) document.getElementById('layer_endspeed').value =  objUpdate.frames["frame_999"].speed;
-		}
-		if (source!=="trigger") {
-			currentframe.speed = objUpdate.frames["frame_"+fi].speed;
-			currentframe.time = objUpdate.frames["frame_"+fi].time;
-		}			
-
-		// MOVE ALL CHILDREN ELEMENTS TOGETHER WITH THE FIRST FRAME
-		if (fi===0) {
-			if (objLayer.type==="row" || objLayer.type==="column" || objLayer.type=="group") {
-				var _list = u.getLayersInGroup(objLayer.unique_id);						
-				for (var i=0;i<_list.columns.length;i++) {
-					var l_tl = _list.columns[i].references.sorttable.timeline,
-						trm = l_tl[0].getElementsByClassName('timeline-relative-marker')[0];
-					trm.style.width = ((time/10)-1)+"px";
-				}
-				for (i=0;i<_list.layers.length;i++) {
-					var l_tl = _list.layers[i].references.sorttable.timeline,
-						trm = l_tl[0].getElementsByClassName('timeline-relative-marker')[0];
-
-					if (objLayer.type==="row") {
-						var p_tl = document.getElementById("tl_"+_list.layers[i].p_uid+"_frame_0");							
-						if (p_tl!==null && p_tl!==undefined) {															
-							trm.style.width = p_tl.style.left; 							
-						}
-					} else {
-						trm.style.width = ((time/10)-1)+"px";
-					}
-				}
-			}		
-		}
+		if (objLayer.endspeed<=0) objLayer.endspeed = 2;
+		if (objLayer.speed<=0) objLayer.speed = 2;		
 
 		
-		// UPDATE DELAYS ON EACH FRAMES COMING AFTER THE CURRENT FRAME 
-		if (fi!==999) {
-			var nfi = fi+1>=frameslength-1 ? 999 : fi+1,
-				nextframe = objLayer.frames["frame_"+nfi];			
-			if (nextframe!=undefined) {
-				nextframe.time_relative = nextframe.time - (currentframe.time+currentframe.speed+(currentframe.split_extratime*10));				
-				objUpdate.frames["frame_"+nfi] = {time_relative : nextframe.time_relative};
-				objLayer.frames["frame_"+nfi].time_relative =nextframe.time_relative;
-			}
-		} else {
-			var nfi="frame_0";			
-			for (var fri in objLayer.frames) {
-				if (fri!=="frame_999")
-					nfi = fri;
-			}			
-			var prevframe = objLayer.frames[nfi];				
-			if (prevframe!=undefined) {					
-				var time_relative = objLayer.frames["frame_"+fi].time - (prevframe.time+prevframe.speed+(prevframe.split_extratime*10));									
-				objUpdate.frames.frame_999.time_relative = time_relative;	
-				objLayer.frames.frame_999.time_relative =time_relative;				
-			}
-		}
-		
-		if (source=="trigger") {			
-			u.updateLayer(objLayer.serial,objUpdate);
-		} else 
-			currentframe.split_extratime = objUpdate.frames["frame_"+fi].split_extratime;
-		
-		t.frameLimitations(frame,false,ignorerecursive,{update:updateTimerText,triggered:triggered,timecont:timecont});
-		t.updateFullTime(objLayer);
-		checkTillSlideEnd(objLayer);
-	}
 
-	t.addLayersColumnsToSelectedElements = function(objLayer,fi) {		
-		var temp =  u.getLayersInGroup(objLayer.unique_id)
-		if (objLayer.type==="row" || objLayer.type=="column" || objLayer.type==="group") {
-			for (var sfi=0;sfi<=temp.layers.length-1;sfi++) {
-				var _pid = temp.layers[sfi].unique_id;
-				if (jQuery.inArray(_pid,u.selectedLayers) == -1 && jQuery.inArray(_pid,u.currentGroupElements) == -1) {					
-					var _pel = document.getElementById('tl_'+_pid+'_frame_'+fi);					
-					u.currentGroupElementsPositionLeftReset.push(parseInt(_pel.style.left,0));			
-					u.currentGroupElements.push(_pid);
-				}
-			}
-			if (objLayer.type==="row")
-				for (var sfi=0;sfi<=temp.columns.length-1;sfi++) {
-					var _pid = temp.columns[sfi].unique_id;
-					if (jQuery.inArray(_pid,u.selectedLayers) == -1 && jQuery.inArray(_pid,u.currentGroupElements) == -1) {					
-						var _pel = document.getElementById('tl_'+_pid+'_frame_'+fi);						
-						u.currentGroupElementsPositionLeftReset.push(parseInt(_pel.style.left,0));			
-						u.currentGroupElements.push(_pid);
-					}
-				}
-		}
-		return true;
-	}
+		ietime.css({width:isw+"px"});
+		oetime.css({width:osw+"px"});
 
-	// Record the last known Position of Elements before Drag
-	t.recordFrameStatus = function(frame,ui) {
-		var frame=jQuery(frame),
-			fi = frame.data('frameindex'),
-			objLayer = u.getLayerByUniqueId(frame.data('uniqueid'));
-		
-		objLayer.positionLeftReset = ui!==undefined ? ui.position.left : frame.position().left;
-		u.selectedLayersPositionLeftReset = [];
-		u.currentGroupElements = [];
-		u.currentGroupElementsPositionLeftReset = [];
-		for (var sfi=0;sfi<=u.selectedLayers.length-1;sfi++) {
-			var _pid = u.selectedLayers[sfi],
-				_obj = _pid!==-1 ? u.getLayerByUniqueId(_pid) : -1,
-				_pel = document.getElementById('tl_'+_pid+'_frame_'+fi);
-			u.selectedLayersPositionLeftReset.push(parseInt(_pel.style.left,0));			
-			if (_obj!==-1) 				
-				t.addLayersColumnsToSelectedElements(_obj,0);
-			
-		}				
-		t.addLayersColumnsToSelectedElements(objLayer,0);
-		t.recordFrameStatusForce=false;		
-	}
-
-	// CHECK IF LEFT OR RIGHT SIDE OF FRAME ALREADY REACHED, REPRINT DELAYS AND POSITIONS
-	t.frameLimitations = function(frame,ui,ignorerecursive,_tc) {
-		
-		if (t.recordFrameStatusForce) 
-			t.recordFrameStatus(frame);
-		
-		var frame=jQuery(frame),
-			objLayer = u.getLayerByUniqueId(frame.data('uniqueid')),
-			pframe = frame.prev(),
-			nframe = frame.next(),
-			nframei = nframe.data('frameindex'),
-			fi = frame.data('frameindex'),
-			fl = ui!==undefined && ui!==false ? ui.position.left : frame.position().left,
-			fw = frame.outerWidth(),
-			frameslength = u.getObjectLength(objLayer.frames),
-			currentframe = objLayer.frames["frame_"+fi];
-			
-
-			
-		// LEFT CHECK
-
-		if (pframe.length>0) 			
-			fl = Math.max((pframe.position().left+pframe.outerWidth()), fl);			
-		
-		fl = Math.max(0,fl); 					
-		
-		// RIGHT CHECK
-		if (nframe.length>0 && fi!==999)
-			fl = Math.min(nframe.position().left-fw, fl);
-		fl = Math.min(t.mainMaxTimeLeft,fl);
-
-		// REWRITE TIME INFO'S
-		if (_tc!==undefined && _tc.update) {
-			var timedif = 0;
-			if (objLayer.p_uid!==undefined && fi===0 && objLayer.p_uid!==-1 && u.getLayerByUniqueId(objLayer.p_uid) !==undefined && (typeof u.getLayerByUniqueId(objLayer.p_uid)==='object')) {				
-				var p_objLayer = u.getLayerByUniqueId(objLayer.p_uid);			
-				timedif = (fl*10) - p_objLayer.frames["frame_0"].time;
-			} else
-			if (fi!==0) {
-				var prevframe = fi===999 ? objLayer.frames["frame_"+(frameslength-2)] : objLayer.frames["frame_"+(fi-1)];	
-				if (prevframe)					
-					timedif = (fl*10) - (prevframe.time + prevframe.speed + (prevframe.split_extratime*10));
-			}
-			
-			if (t.timelinetype==="absolute") 
-				_tc.timecont.innerHTML = fl*10;
-			else 
-				_tc.timecont.innerHTML = timedif;
-		}
-
-		if (fi!==999 && t.timelinetype!=="absolute") {
-			var nextframe = objLayer.frames["frame_"+nframei];
-			nextframe.time_relative = nextframe.time - (currentframe.time+(currentframe.split_extratime*10)+currentframe.speed);
-			nframe.find('.timebefore_cont').html(nextframe.time_relative);
-		}
-		
-		if (ui!==undefined && ui!==false) ui.position.left = fl;
+		var result = objLayer.endtime - objLayer.time,
+			dfw = result/10,
+			dfl = 15+(objLayer.time/10),
+			dew = objLayer.endspeed/10,
+			dsw = objLayer.speed/10;
 
 		
-		punchgs.TweenLite.set(frame,{left:fl});
-
-		// Check if more than one Layer selected, and move all Layer parallel to the Master layer				
-		if ((u.selectedLayers.length>0 && !ignorerecursive) || (u.currentGroupElements!=undefined && u.currentGroupElements.length>0 && !ignorerecursive)) {
-			var dragdif = fl - (objLayer.positionLeftReset);						
-			for (var sfi=0;sfi<=u.selectedLayers.length-1;sfi++) {				
-				var _pid = u.selectedLayers[sfi];													
-				if (_pid != objLayer.unique_id) {					
-					var _pel = document.getElementById('tl_'+_pid+'_frame_'+fi);								
-					_pel.style.left = (u.selectedLayersPositionLeftReset[sfi] + dragdif)+"px"; 
-					t.updateFullTime(u.getLayerByUniqueId(_pid),(u.selectedLayersPositionLeftReset[sfi] + dragdif));				
-				}
-			}
-
-			if (fi===0 && u.currentGroupElements!==undefined && u.currentGroupElements.length>0)
-				for (var sfi=0;sfi<=u.currentGroupElements.length-1;sfi++) {
-					var _pid = u.currentGroupElements[sfi];
-																	
-					if (_pid != objLayer.unique_id) {					
-						var _pel = document.getElementById('tl_'+_pid+'_frame_'+fi);																			
-						_pel.style.left = (u.currentGroupElementsPositionLeftReset[sfi] + dragdif)+"px";
-						t.updateFullTime(u.getLayerByUniqueId(_pid),(u.currentGroupElementsPositionLeftReset[sfi] + dragdif) );
-					}
-				}
-		}	
-
-
-		t.updateFullTime(objLayer);
-		checkTillSlideEnd(objLayer);
-	}
-
-	t.updateFullTime = function(objLayer,left) {
-		var fullcont = objLayer.references.sorttable.timeline[0].getElementsByClassName('timeline_full')[0],
-			audio = jQuery(objLayer.references.sorttable.timeline[0]).find('.timeline_audio'),
-			left = left === undefined ? 15+(objLayer.frames["frame_0"].time/10) : left+15,
-			newtime = (left - 15) * 10;				
-		punchgs.TweenLite.set(fullcont,{left:left, width:((objLayer.frames["frame_999"].time - newtime) + objLayer.frames["frame_999"].split_extratime + objLayer.frames["frame_999"].speed)/10});
-		if (audio!==undefined && audio.length>0)		
-			punchgs.TweenLite.set(audio,{left:left, width:((objLayer.frames["frame_999"].time - newtime) + objLayer.frames["frame_999"].split_extratime + objLayer.frames["frame_999"].speed)/10});
+		dragfull.css({width:dfw+"px",
+					  left: dfl+"px"});
 		
-	}
-	t.updateLayerTimeline = function(objLayer) {
-		var tf = objLayer.references.sorttable.timeline[0].getElementsByClassName('timeline_frame');
-			for (var i=0;i<tf.length;i++) { 
-			t.setTLFrame(tf[i]);
-			t.updateTLFrame(tf[i],false,true);
-		}
-	}
+		dragstart.css({width:dsw +"px" });
+		dragend.css({right:"0px",width:dew+"px" });
 
-	t.updateCurrentLayerTimeline = function() {								
-		var el = document.getElementById('layer_sort_time_'+u.getCurrentLayer().serial),
-			tf = el.getElementsByClassName('timeline_frame');		
-  		for (var i=0;i<tf.length;i++) { 
-			t.setTLFrame(tf[i],false,true);
-		}
-	};
+		dragfull.data('dfw',dfw);
+		dragfull.data('dfl',dfl);
+		dragend.data('dew',dew);
+		dragstart.data('dsw',dsw);
 
-	t.updateAllLayerTimeline = function() {
-		var tf = document.getElementsByClassName('timeline_frame tl_layer_frame');		
-  		for (var i=0;i<tf.length;i++) { 
-  			
-			t.updateTLFrame(tf[i],false,true);
-			
-		}
-	}
-
-	t.updateAllSelectedLayerTimeline = function(frame) {
-		var frame=jQuery(frame),
-			frameid = frame.data('uniqueid'),
-			fi = frame.data('frameindex');
-		if (u.selectedLayers.length>0) 						
-			for (var i=0;i<=u.selectedLayers.length-1;i++) {
-				var _pid = u.selectedLayers[i];													
-				if (_pid != frameid) 
-					t.updateTLFrame(document.getElementById('tl_'+_pid+'_frame_'+fi),false,true);
-			}
-		if (fi===0 && u.currentGroupElements!==undefined && u.currentGroupElements.length>0)
-			for (var i=0;i<=u.currentGroupElements.length-1;i++) {
-				var _pid = u.currentGroupElements[i];															
-				if (_pid != frameid)
-					t.updateTLFrame(document.getElementById('tl_'+_pid+'_frame_'+fi),false,true);									
-			}
-	}
-
-
-	t.showTimeLineDirectInput = function(objLayer) {
-		// SET CURRENT TIMING HELPERS
-		jQuery('#clayer_start_time').val(objLayer.time);
-		jQuery('#clayer_start_speed').val(objLayer.speed);
-	}
-
-	t.manageTimeLineDirectInput = function() {
-		jQuery('#clayer_start_time, #clayer_end_time').on("change blur", function() {
-			var objLayer = t.getLayer(selectedLayerSerial);
-			
-			objLayer.time = jQuery('#clayer_start_time').val();
-			objLayer.frames["frame_999"].time = jQuery('#clayer_end_time').val();
-			objLayer.speed = jQuery('#clayer_start_speed').val();
-			objLayer.frames["frame_999"].speed = jQuery('#clayer_end_speed').val();
-			
-			jQuery('#layer_speed').val(objLayer.speed);
-			jQuery('#layer_endspeed').val(objLayer.frames["frame_999"].speed);
-			t.updateLayerFromFields();
-			u.updateCurrentLayerTimeline();
-		});
+		checkTillSlideEnd(serial,objLayer);
 	}
 
 
@@ -4099,16 +2527,16 @@ var tpLayerTimelinesRev = new function(){
 
 	// COUNT THE AMOUNT OF CHARS, WORDS, LINES IN A TEXT
 	var getSplitCounts = function(txt,split,splitdelay) {
-		
 		if (txt==undefined) return 0;
 		var splitted = new Object();
 			ht = jQuery('<div>'+txt+'</div>'),
-			w = 1;
+			w = 0;
 
 		splitted.c = ht.text().replace(/ /g, "").length;
 		splitted.w = txt.split(" ").length;
 		splitted.l = txt.split('<br').length;
-		
+
+
 		switch (split) {
 			case "chars":
 				w = splitted.c;
@@ -4121,10 +2549,66 @@ var tpLayerTimelinesRev = new function(){
 			break;
 		}
 
-		
 		return (w -1) * splitdelay;
 	}
 
+
+	/**
+		Update the Current Timelines
+	*/
+	t.updateCurTimer = function(event,timer) {
+		var li = timer.closest("li"),
+			sortLayerID = li.attr("id"),
+			serial = u.getSerialFromSortID(sortLayerID),
+			objLayer = u.getLayer(serial),
+			l = timer.position().left
+			w = parseInt(timer.width(),0),
+			tl = li.find('.timeline'),
+			tw = tl.width(),
+			dragstart = tl.find('.tl-startanim'),
+			inspeedw = dragstart.width(),
+			dragend = tl.find('.tl-endanim'),
+			outspeedw = dragend.width(),
+			startspeed = inspeedw*10,
+			endspeed = outspeedw*10,
+			starttime = (l-15)*10,
+			endtime = 	(l-15 + w)*10,
+			slidemaxtime = ((mainMaxTimeLeft)-15)*10,
+			ietime = li.find('.splitinextratime'),
+			oetime = li.find('.splitoutextratime');
+
+
+		var isw = getSplitCounts(objLayer.text,objLayer.split,objLayer.splitdelay),
+			osw = getSplitCounts(objLayer.text,objLayer.endsplit,objLayer.endsplitdelay);
+
+		ietime.css({width:isw+"px"});
+		oetime.css({width:osw+"px"});
+			
+		jQuery('#layer_sort_time_'+serial).find('.sortbox_time').html(msToSec(starttime));
+		jQuery('#layer_sort_time_'+serial).find('.sortbox_timeend').html(msToSec(endtime));
+		jQuery('#layer_sort_time_'+serial).find('.sortbox_speedin').html(msToSec(startspeed));
+		jQuery('#layer_sort_time_'+serial).find('.sortbox_speedout').html(msToSec(endspeed));
+
+		jQuery('#layer_speed').val(startspeed);
+		jQuery('#layer_endspeed').val(endspeed);
+
+		dragstart.css({ left:"0px" });
+		dragend.css({ left:"auto", right:"0px" });
+
+		objLayer.speed = startspeed;
+		objLayer.endspeed = endspeed;
+		objLayer.time = starttime;
+		objLayer.endtime = endtime;
+
+		jQuery('#clayer_start_time').val(starttime);
+		jQuery('#clayer_end_time').val(endtime);
+		jQuery('#clayer_start_speed').val(startspeed);
+		jQuery('#clayer_end_speed').val(endspeed);
+
+		checkTillSlideEnd(serial,objLayer);
+
+		masterTimerPositionChange(true);
+	}
 
 	/**
 		Show / HIde The Timelines
@@ -4154,15 +2638,12 @@ var tpLayerTimelinesRev = new function(){
 	t.deleteLayerFromSortbox = function(serial){
 
 		var sortboxLayer = t.getHtmlSortItemFromSerial(serial),
-			sortboxTimeLayer = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
-		try{
-			sortboxLayer.remove();
-			sortboxTimeLayer.remove();
-			quickItem.remove();
-		} catch(e) {
-
-		}
+			sortboxTimeLayer = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
+		
+		sortboxLayer.remove();
+		sortboxTimeLayer.remove();
+		quickItem.remove();
 
 		if (jQuery('.quick-layers-list li').length<2) jQuery('.nolayersavailable').show();
 
@@ -4178,248 +2659,48 @@ var tpLayerTimelinesRev = new function(){
 
 	}
 
-	/**
-	 * Organise groups and objects *
-     * This will move one Single Layer into its Group / Row / Column * 
-	*/
-	
-	t.organiseGroupsAndLayer = function(editorupdate,demo,ignore_timelines) {	
-
-		var _A_ = demo ? u.arrLayersDemo : u.arrLayers,		
-			sortchanged = false;		
-		
-		for (var i in _A_) {
-		    var objLayer = _A_[i];				    
-		    
-		    
-			if (objLayer.type!="group" && objLayer.type!="row" && objLayer.p_uid!=undefined && objLayer.p_uid!=-1) {					
-				
-				var sortelement = demo ? null : objLayer.references.sorttable.layer,
-					j_gpel = u.getLayerByUniqueId(objLayer.p_uid),
-					groupelement =  !demo && j_gpel ? j_gpel.references.sorttable.layer[0].getElementsByClassName("sgw_def")[0] : undefined,
-					htmllayer = objLayer.references.htmlLayer,
-					grouplayer = j_gpel ? j_gpel.references.htmlLayer : undefined;
-				
-				
-				if (grouplayer && htmllayer && !grouplayer[0].contains(htmllayer[0])) {
-					
-					var g = grouplayer[0].getElementsByClassName('tp_layer_group_inner_wrapper')[0];					
-					if (g!==undefined && htmllayer[0]!==undefined) {
-						if (objLayer.type!=="column") {
-							var noelement = true,
-								so = 99999,
-								ib;						
-							for (var j in _A_) {
-								var objComp = _A_[j];							
-								if (objLayer.p_uid === objComp.p_uid && objComp.references.htmlLayer!==undefined && objComp.groupOrder!==undefined && objComp.groupOrder > objLayer.groupOrder && objComp.groupOrder<so) {
-									so = objComp.groupOrder;
-									noelement = false;
-									ib = objComp.references.htmlLayer;					
-								}
-							}
-							if (ib!==undefined && so<99999) {							
-								if (ib[0].parentNode == g)
-									g.insertBefore(htmllayer[0],ib[0]); 
-								else
-									g.appendChild(htmllayer[0])
-							}
-							else
-								g.appendChild(htmllayer[0]);
-						} else {				
-							//console.log("Add Column with ID:"+objLayer.unique_id+"  into Group:"+objLayer.p_uid);
-							g.appendChild(htmllayer[0])
-						}
-					}
-					
-				} 
-			
-										
-				
-				if (!demo && !editorupdate && groupelement!==undefined && !groupelement.contains(sortelement[0])) {					
-					sortchanged = true;
-					groupelement.appendChild(sortelement[0]);					
-				}
-
-				
-				if (!demo && groupelement===undefined && objLayer.type==="column") u.deleteLayer(objLayer.serial);	
-			} else {
-				objLayer.p_uid = -1;
-				var htmllayer = objLayer.references.htmlLayer,
-					sortelement = demo ? null : objLayer.references.sorttable.layer;
-
-			 
-				if (objLayer.type==="row") {	
-					
-					// PUT IN THE RIGHT ORDER THE ROW IN TO THE ZONE	
-					var _zone = "row-zone-"+u.getVal(objLayer, 'align_vert'),													
-						_znoelement = true,
-						_zso = 99999,
-						_zib,
-						_zg = document.getElementById(_zone);
-					
-					//if (htmllayer[0].parentNode.id===_zone) return false;
-					
-					for (var _j in _A_) {
-						var objComp = _A_[_j];
-						
-						
-						if (objComp.type==="row" && objComp.unique_id !== objLayer.unique_id && u.getVal(objLayer, 'align_vert') === u.getVal(objComp, 'align_vert') && objComp.references.htmlLayer!==undefined && objComp.groupOrder!==undefined && objComp.groupOrder >= objLayer.groupOrder && objComp.groupOrder<_zso) {
-						
-							_zso = objComp.groupOrder;
-							_znoelement = false;
-							_zib = objComp.references.htmlLayer;					
-						}
-					}
-					
-					if (_zib!==undefined && _zso<99999) {							
-						if (_zib[0].parentNode == _zg)
-							_zg.insertBefore(htmllayer[0],_zib[0]); 
-						else
-							_zg.appendChild(htmllayer[0])
-					}
-					else
-						_zg.appendChild(htmllayer[0]);
-					u.checkRowZoneContents();
-				} else {
-					if (htmllayer[0].parentNode.id!='divLayers') document.getElementById("divLayers").appendChild(htmllayer[0]);
-				}
-				
-				
-				if (!demo && sortelement[0].parentNode.id!='layers-left-ul') {					
-					document.getElementById('layers-left-ul').insertBefore(sortelement[0],document.getElementById("last_drop_zone_layers"));
-					sortchanged = true;
-				}
-			}
-		}
-		
-		u.setMiddleRowZone();
-		
-		if (sortchanged) t.updateOrderFromSortbox(ignore_timelines);
-		
-	}
 
 
 	/**
 	 * update layers order from sortbox elements
 	 */
-	t.updateOrderFromSortbox = function(ignore_timelines){
+	var updateOrderFromSortbox = function(){
 		
-		// RESET GROUP AND COLUMN REFERENCES			
-		for (i in u.arrLayers) {
-			var objLayer = u.arrLayers[i];
-			if (objLayer.type!="column" && objLayer.type != "row" && objLayer.type != "group") {
-				
-				var _t = objLayer.references.sorttable.layer,					
-					cc = _t[0].parentNode.parentNode.classList.contains("sortable_column"),
-					gg = _t[0].parentNode.parentNode.classList.contains("sortable_group"),					
-					uqid = -1; 			
-								
-				if ((!cc && !gg) || _t[0].parentNode.parentNode.id == "layers-left-ul") {						
-					// IGNORE ITEM HERE
-				} else {
-					var c = jQuery(_t[0].parentNode.parentNode);							
-					if (!cc) {	
-						
-						_t.data('pid',c.data('uniqueid'));
-						var gtype = c.data('type');
-						
-						if (gtype==="row") {
-							
-							c = _t.prev();
-							if (c.length==0) c = _t.next();
-							
-							c[0].getElementsByClassName("sortable_layers_in_columns")[0].appendChild(_t[0]);							
-						} else {
-							//c[0].getElementsByClassName("sortable_groups_wrap")[0].appendChild(_t[0]);							
-						}
-					}	
-					uqid = 	c.data('uniqueid');			
-				}
-				_t.data('pid',uqid);	
-				_t.attr('pid',uqid);							
-				
-				if (objLayer.p_uid != uqid) {				
-					objLayer.p_uid = uqid;				
-					u.add_layer_change();
-				}
-			}
-		}	
-		
+		var arrSortLayers = jQuery( ".sortlist ul" ).sortable("toArray");
 
-		var arrSortLayers = jQuery( "#layers-left-ul" ).sortable("toArray",{attribute:"data-uniqueid"});
-		
 		for(var i=0;i<arrSortLayers.length;i++){
-			var objLayer = u.getLayerByUniqueId(arrSortLayers[i]),
-				depth = i+5,				
-				objUpdate = {order:i,zIndex:depth};
-						
-			u.arrLayers[objLayer.serial].order = i;
-			u.arrLayers[objLayer.serial].zIndex = depth;
-						
+			var sortID = arrSortLayers[i];
+			var serial = u.getSerialFromSortID(sortID);
+			var objUpdate = {order:i};
+			u.updateLayer(serial,objUpdate);
+
+			
 			//update sortbox order input
-			
-			
-			
-			if (objLayer.references.sorttable.layer[0].getElementsByClassName("sortbox_depth")[0])
-				objLayer.references.sorttable.layer[0].getElementsByClassName("sortbox_depth")[0].innerHTML = depth;
-
-			
-
-			document.getElementById("layers-right-ul").appendChild(objLayer.references.sorttable.timeline[0]);
-
-			document.getElementById('quick-layers-list-id').appendChild(objLayer.references.quicklayer[0]);
-			
-			if (objLayer.p_uid!=-1 && objLayer.p_uid!==undefined && objLayer.type!=="row" && objLayer.type!=="group") 
-				objLayer.references.quicklayer.addClass("quick_in_group")
-			else
-				objLayer.references.quicklayer.removeClass("quick_in_group")
-
+			var depth = i+5;	
+			jQuery("#"+sortID+" .sortbox_depth").text(depth);
+			// Change Right Side Of Layer Container Also.
+			jQuery('#layer_sort_time_'+serial).appendTo(jQuery('#layers-right ul'));
+			jQuery('#layer_quicksort_'+serial).appendTo(jQuery('.quick-layers-list'));
 		}
-		
+
 		//update z-index of the html window by order
-				
-		t.updateZIndexByOrder();
-		
-		
-		if (ignore_timelines!=true) t.updateAllLayerTimeline();
-		
+		updateZIndexByOrder();
+
 	}
 
-
-	t.resetTimeLineHeight = function() {
-		// SET HEIGHT OF MASTERTIMER
-		var maxh = document.getElementById('layers-right-ul').clientHeight;		
-		punchgs.TweenLite.set(jQuery('#mastertimer-position'),{height:maxh+40});						
-	}
-
-
-	t.timeLineTableDimensionUpdate = function() {		
-		clearTimeout(timeline_timer);		
-		timeline_timer = setTimeout(function() {		
-			t.resetTimeLineHeight();	
-			var maxh = ((jQuery('#layers-right ul li').length+1)*30) - ((jQuery('#layers-right ul li.layer-deleted').length+1)*30);
-			
-			punchgs.TweenLite.set(jQuery('.layers-wrapper'),{height:maxh+3});
-			punchgs.TweenLite.set(jQuery('#mastertimer-wrapper'),{height:maxh+3})
-			jQuery('.master-rightcell .layers-wrapper, .master-leftcell .layers-wrapper, #divLayers-wrapper, .quick-layers-list').perfectScrollbar("update");
-		},50);
-	}
 
 	/**
 	 * update z-index of the layers by order value
 	 */
-	t.updateZIndexByOrder = function(){
-		
-		for (var i in u.arrLayers) {
-			var objLayer = u.arrLayers[i],
-				depth = objLayer.order!==undefined ? objLayer.order+5 : 5,
-				objUpdate = {zIndex:depth};
-
-			if (objLayer.order !==undefined)
-				punchgs.TweenLite.set(objLayer.references.htmlLayer,{zIndex:(Number(objLayer.order)+100)});
-
-			u.updateLayer(objLayer.serial,objUpdate,false,true);			
-		}
+	var updateZIndexByOrder = function(){
+		var l = u.getLayers()		
+		for(var key in u.getLayers()){
+			var layer = l[key];			
+			if(layer.order !== undefined){
+				var zindex = layer.order+100;
+				jQuery("#slide_layer_"+key).css("z-index",zindex);
+			}
+		};
 
 	}
 
@@ -4444,8 +2725,7 @@ var tpLayerTimelinesRev = new function(){
 	 */
 	t.getSortboxText = function(text){
 		sorboxTextSize = 20;
-
-		var textSortbox = text===undefined ? "NoText" : UniteAdminRev.stripTags(text);
+		var textSortbox = UniteAdminRev.stripTags(text);
 
 		//if no content - escape html
 		if(textSortbox.length < 2)
@@ -4480,13 +2760,13 @@ var tpLayerTimelinesRev = new function(){
 		
 		for(var i=0; i<layers_array.length;i++){
 			var objLayer = layers_array[i];
-			t.addToSortbox(objLayer.serial,objLayer);
+			addToSortbox(objLayer.serial,objLayer);
 		}
 
 				
 
-		if(u.selectedLayerSerial != -1)
-			t.setSortboxItemSelected(u.selectedLayerSerial);
+		if(selectedLayerSerial != -1)
+			setSortboxItemSelected(selectedLayerSerial);
 
 
 
@@ -4494,97 +2774,6 @@ var tpLayerTimelinesRev = new function(){
 
 	}
 
-	
-	var reinitSortBox = function(sortable) {	
-
-		jQuery('#last_drop_zone_layers').appendTo('#layers-left-ul');
-		//set the sortlist sortable
-		if (sortable) {
-			jQuery('.layer_sortbox ul').sortable({
-				//axis:'y',	
-				refreshPositions:true,
-				placeholder:"silent-placeholder",
-				cancel:"#slide_in_sort, input",
-				handle:".mastertimer-timeline-zindex-row",
-				items:".sortable_elements",				
-				//toleranceElement: '> div',						
-				connectWith:"#layers-left-ul, .sortable_groups_wrap, .sortable_layers_in_columns",
-				update: function(event,ui){					
-					var src = jQuery(ui.item);
-					// CANCEL IF ELEMENT IS A ROW
-					if (src.hasClass("sortable_row")) jQuery(this).sortable("cancel");
-					
-					// CANCEL CHANGE IF GROUP MOVED INTO OTHER GROUP
-					
-					var tg = src.parent(),
-						mg = tg.closest('.sortable_group'),
-						telement = jQuery('#layers-left-ul');
-						
-					if ((tg.hasClass("sortable_groups_wrap") || tg.hasClass("sortable_layers_in_columns")) && !src.hasClass("sortable_layers")) {
-						
-						if (src.index()<tg.children().length/2) 						
-							src.insertBefore(mg);						
-						else 							
-							src.insertAfter(mg);																		
-					} 		
-
-
-
-					// PUT ITEM BEFORE OR AFTER ROWS IN CASE THE ROW 					
-					if (tg.attr("id")==="layers-left-ul" || tg.parent().attr('id')==="layers-left-ul" || src.hasClass("sortable_group")) {
-						var rows = telement.find('.sortable_row'),
-							fr = rows.first().index(),
-							lr = rows.last().index(),
-							si = src.index();						
-						if (si>fr && si<lr) 
-							src.insertAfter(rows.last());					
-					}										
-					onSortboxSorted();	
-					t.organiseGroupsAndLayer();								
-				}
-			});
-		}
-
-	
-
-	jQuery('.droppable_sortable_group,.droppable_sortable_row, .droppable_sortable_column').droppable({
-			tolerance:"intersect",
-			greedy:true,	
-			over:function(ui) {
-				jQuery(ui.target).addClass("readytodrop")
-			},
-			out:function(ui) {
-				jQuery(ui.target).removeClass("readytodrop")
-			},
-			drop:function(ui,a) {				
-				var ul = jQuery('#layers-left-ul');				
-				jQuery(ui.target).removeClass("readytodrop");
-				var cl = jQuery(ui.target).attr('class'),
-					src = jQuery(ui.srcElement).closest('.sortable_elements.sortable_layers'),
-					tg;
-								
-				if (!src.length) return false;
-
-				// ADD TO GROUP					
-				if (cl.indexOf('droppable_sortable_group')>=0)					
-					tg = jQuery(ui.target).closest('li.sortable_group').find('.sortable_groups_wrap');
-				
-				// ADD TO FIRST COLUMN IN ROW					
-				if (cl.indexOf('droppable_sortable_row')>=0)
-					tg = jQuery(ui.target).closest('li.sortable_group.sortable_row').find('.sortable_layers_in_columns').first();
-				
-				// ADD TO COLUMN
-				if (cl.indexOf('droppable_sortable_column')>=0) 					
-					tg = jQuery(ui.target).closest('li.sortable_column').find('.sortable_layers_in_columns').first();
-
-				setTimeout(function(){
-					src.appendTo(tg);
-					onSortboxSorted();
-					t.organiseGroupsAndLayer();	
-				},50);
-			}
-		})
-	}
 
 	//======================================================
 	//			Sortbox Functions
@@ -4592,58 +2781,36 @@ var tpLayerTimelinesRev = new function(){
 	var initSortbox = function(){
 
 		t.redrawSortbox();
-		reinitSortBox(true);
-		
 
-		//set click event on full row
-		jQuery("body").delegate(".layer_sort_inner_wrapper","mousedown",function(e){
-			var li = jQuery(this).closest('.sortable_elements');
+		//set the sortlist sortable
+		jQuery( ".sortlist ul" ).sortable({
+			axis:'y',
+			cancel:"#slide_in_sort, input",
+			items:".sortablelayers",
+			connectWith:"#layers-right ul",
+			update: function(){
+				onSortboxSorted();
+			}
+		});
 
-			if (li.hasClass("ui-state-hover")) return true;
-			if (!li.hasClass("mastertimer-slide")) {				
-				var serial = u.getSerialFromSortID(li.attr('id'));
+		//set click event
+		jQuery(".sortlist, #layers-right").delegate("li","mousedown",function(){
+			
+			if (jQuery(this).hasClass("ui-state-hover")) return true;
+			if (jQuery(this).hasClass("mastertimer-slide")) {
+				// SELECT THE SLIDE IN SORTS
+			} else {
+				var serial = u.getSerialFromSortID(this.id);
 				u.setLayerSelected(serial);
-				return false;
 			}
 			
 		});
 
-		//set click event on collapser
-		jQuery("body").on("click",".sort_group_collapser",function(e){
-			
-			var t = jQuery(this),
-				c = t.closest('.sortable_column'),
-				g = c.length ? c  : t.closest('.sortable_group'),
-				cenv = c.length? g.find('.sortable_layers_in_columns') : g.find('.sortable_groups_wrap');
-			
-			t.toggleClass("collapsed");			
-			if (t.hasClass("collapsed"))									
-				cenv.css({maxHeight:"0px", overflow:"hidden"});
-			else
-				cenv.css({maxHeight:"none", overflow:"visible"});
-					
-			cenv.find('.sortable_elements').each(function(i,a) {				
-				var a = jQuery(a),
-					uid = a.data('uniqueid');
-				
-				if (t.hasClass("collapsed"))
-					jQuery('#layers-right-ul li[data-uniqueid="'+uid+'"]').addClass("unvisibletimeline");
-				else
-					jQuery('#layers-right-ul li[data-uniqueid="'+uid+'"]').removeClass("unvisibletimeline");
-			});							
-		});
 
-		//set click event on timelines
-		jQuery("#layers-right").delegate("li","mousedown",function(e){
-			var li = jQuery(this);
-			t.recordFrameStatusForce = true;
-			if (li.hasClass("ui-state-hover")) return true;
-			if (!li.hasClass("mastertimer-slide")) {				
-				var serial = u.getSerialFromSortID(this.id);
-				u.setLayerSelected(serial);
-				return false;
-			}			
-		});
+		
+		
+
+		
 
 
 		jQuery('.quick-layer-all-lock').click(function() {
@@ -4687,20 +2854,28 @@ var tpLayerTimelinesRev = new function(){
 
 		//on show / hide layer icon click - show / hide layer
 		jQuery(".sortlist").delegate(".till_slideend","mousedown",function(event){
-			var button = jQuery(this),
-				li = button.closest('li'),
-				serial = button.data('serial'),
-				objLayer = u.getLayer(serial),				
-				maxtime = (t.mainMaxTimeLeft)*10;
+			var sortboxID = jQuery(this).parent().parent().parent().attr("id"),
+				serial = u.getSerialFromSortID(sortboxID),
+				objLayer = u.getLayer(serial),
+				button = jQuery(this),
+				maxtime = (mainMaxTimeLeft-15)*10;
 
-			if (li.hasClass("tillendon")) {
-				li.removeClass("tillendon")
-				objLayer.frames["frame_999"].time = objLayer.frames["frame_999"].time-200;
-				t.updateLayerTimeline(objLayer);				
+			if (button.hasClass("tillendon")) {
+				button.removeClass("tillendon")
+
+				if (objLayer.endtime-objLayer.endspeed >= maxtime) {					
+					objLayer.endtime = maxtime + objLayer.endspeed - 100;
+
+					jQuery('#layer_sort_time_'+serial).find('.sortbox_timeend').html(msToSec(maxtime+objLayer.endspeed-100));					
+					setCurTimer(jQuery('#layer_sort_time_'+serial).find('.timeline'))
+				}
 			} else {
-				li.addClass("tillendon");
-				objLayer.frames["frame_999"].time =  maxtime;				
-				t.updateLayerTimeline(objLayer);
+				button.addClass("tillendon");
+
+				objLayer.endtime =  maxtime + objLayer.endspeed;
+				jQuery('#layer_sort_time_'+serial).find('.sortbox_timeend').html(msToSec(maxtime + objLayer.endspeed));
+				
+				setCurTimer(jQuery('#layer_sort_time_'+serial).find('.timeline'));
 			}
 
 		});
@@ -4771,14 +2946,11 @@ var tpLayerTimelinesRev = new function(){
 	/**
 	 * hide in html and sortbox
 	 */
-	t.hideLayer = function(objLayer,skipGlobalButton){		
-		if (objLayer.references===undefined || objLayer.references.htmlLayer===undefined) return;
-		var htmlLayer = objLayer.references.htmlLayer;
-		
-		htmlLayer.css({visibility:"hidden"});
+	t.hideLayer = function(serial,skipGlobalButton){
+		var htmlLayer = jQuery("#slide_layer_"+serial);
+		htmlLayer.hide();
 		htmlLayer.addClass("currently_not_visible");
-		if (!objLayer.isDemo)
-			setSortboxItemHidden(objLayer.serial);
+		setSortboxItemHidden(serial);
 		
 		if(skipGlobalButton != true){
 			if(t.isAllLayersHidden())
@@ -4790,13 +2962,11 @@ var tpLayerTimelinesRev = new function(){
 	/**
 	 * show layer in html and sortbox
 	 */
-	t.showLayer = function(objLayer,skipGlobalButton){		
-		if (objLayer.references===undefined || objLayer.references.htmlLayer===undefined) return;
-		var htmlLayer = objLayer.references.htmlLayer;
-		htmlLayer.css({visibility:"visible"});
+	t.showLayer = function(serial,skipGlobalButton){
+		var htmlLayer = jQuery("#slide_layer_"+serial);
+		htmlLayer.show();
 		htmlLayer.removeClass("currently_not_visible");
-		if (!objLayer.isDemo)
-			setSortboxItemVisible(objLayer.serial);
+		setSortboxItemVisible(serial);
 
 		if(skipGlobalButton != true)
 			jQuery("#button_sort_visibility").removeClass("e-disabled");
@@ -4811,12 +2981,11 @@ var tpLayerTimelinesRev = new function(){
 	/**
 	 * get true / false if the layer is hidden
 	 */
-	t.isLayerVisible = function(htmlLayer){
-		var isVisible = true;
-		
-		if (htmlLayer!=undefined && htmlLayer[0].classList.contains("currently_not_visible"))
-			isVisible = false;		
-			
+	t.isLayerVisible = function(serial){
+		var htmlLayer = jQuery("#slide_layer_"+serial),
+		isVisible = true;
+		if (htmlLayer.hasClass("currently_not_visible"))
+			isVisible = false;
 		return(isVisible);
 	}
 
@@ -4824,10 +2993,10 @@ var tpLayerTimelinesRev = new function(){
 	 * get true / false if all layers hidden
 	 */
 	t.isAllLayersHidden = function(){
-		var i=0;
-		for(serial in u.arrLayers){			
-			if(u.arrLayers[i]!==undefined && t.isLayerVisible(u.arrLayers[i].references.htmlLayer) == true) return(false);			
-			i++;
+		for(serial in u.arrLayers){
+			if(t.isLayerVisible(serial) == true) {
+				return(false);
+			}
 		}
 		return(true);
 	}
@@ -4836,8 +3005,12 @@ var tpLayerTimelinesRev = new function(){
 	/**
 	 * get true / false if the layer can be moved
 	 */
-	t.isLayerLocked = function(htmllayer){		
-		return htmllayer.hasClass("layer_on_lock");
+	t.isLayerLocked = function(serial){
+		var htmlLayer = jQuery("#slide_layer_"+serial),
+			isLocked = htmlLayer.hasClass("layer_on_lock");
+		
+		return htmlLayer.hasClass("layer_on_lock");
+
 	}
 
 
@@ -4869,10 +3042,9 @@ var tpLayerTimelinesRev = new function(){
 	 * set sortbox items selected
 	 */
 	t.setSortboxItemSelected = function(serial){
-
 		var sortItem = t.getHtmlSortItemFromSerial(serial),
-			sortTimeItem = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
+			sortTimeItem = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
 		
 		t.unselectSortboxItems();
 		if (sortItem)
@@ -4889,8 +3061,8 @@ var tpLayerTimelinesRev = new function(){
 	 */
 	var setSortboxItemHidden = function(serial){
 		var sortItem = t.getHtmlSortItemFromSerial(serial),
-			sortTimeItem = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
+			sortTimeItem = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
 
 		if (sortItem)
 			sortItem.addClass("sortitem-hidden");
@@ -4908,8 +3080,8 @@ var tpLayerTimelinesRev = new function(){
 	 */
 	var setSortboxItemVisible = function(serial){
 		var sortItem = t.getHtmlSortItemFromSerial(serial),
-			sortTimeItem = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
+			sortTimeItem = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
 		if (sortItem)
 			sortItem.removeClass("sortitem-hidden");
 		if (sortTimeItem)
@@ -4923,8 +3095,8 @@ var tpLayerTimelinesRev = new function(){
 	 */
 	var setSortboxItemLocked = function(serial){
 		var sortItem = t.getHtmlSortItemFromSerial(serial),
-			sortTimeItem = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
+			sortTimeItem = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
 		
 		if (sortItem)
 			sortItem.addClass("sortitem-locked");
@@ -4939,8 +3111,8 @@ var tpLayerTimelinesRev = new function(){
 	 */
 	var setSortboxItemUnlocked = function(serial){
 		var sortItem = t.getHtmlSortItemFromSerial(serial),
-			sortTimeItem = t.getHtmlSortTimeItemFromSerial(serial),
-			quickItem = t.getHtmlQuickTimeItemFromSerial(serial);
+			sortTimeItem = getHtmlSortTimeItemFromSerial(serial),
+			quickItem = getHtmlQuickTimeItemFromSerial(serial);
 		
 		if (sortItem)
 			sortItem.removeClass("sortitem-locked");
@@ -4962,7 +3134,7 @@ var tpLayerTimelinesRev = new function(){
 		return(htmlSortItem);
 	}
 
-	t.getHtmlSortTimeItemFromSerial = function(serial){
+	var getHtmlSortTimeItemFromSerial = function(serial){
 		var htmlSortItem = jQuery("#layer_sort_time_"+serial);
 		if(htmlSortItem.length == 0){
 			UniteAdminRev.showErrorMessage("Html sort field with serial: "+serial+" not found!");
@@ -4971,7 +3143,7 @@ var tpLayerTimelinesRev = new function(){
 		return(htmlSortItem);
 	}
 
-	t.getHtmlQuickTimeItemFromSerial = function(serial){
+	var getHtmlQuickTimeItemFromSerial = function(serial){
 		var htmlSortItem = jQuery("#layer_quicksort_"+serial);
 		if(htmlSortItem.length == 0){
 			UniteAdminRev.showErrorMessage("Html sort field with serial: "+serial+" not found!");
@@ -4986,8 +3158,8 @@ var tpLayerTimelinesRev = new function(){
 	 * remove all from sortbox
 	 */
 	var emptySortbox = function(){
-		jQuery(".sortlist ul").find('.sortable_elements').remove();
-		jQuery('#layers-right ul').find('.sortable_elements').remove();
+		jQuery(".sortlist ul").find('.sortablelayers').remove();
+		jQuery('#layers-right ul').find('.sortablelayers').remove();
 	}
 
 
@@ -4995,8 +3167,7 @@ var tpLayerTimelinesRev = new function(){
 	 * on sortbox sorted event.
 	 */
 	var onSortboxSorted = function(){
-		
-		t.updateOrderFromSortbox();
+		updateOrderFromSortbox();
 	}
 	//======================================================
 	//			Sortbox Functions End
@@ -5030,8 +3201,8 @@ var tpLayerTimelinesRev = new function(){
 				if (bgposition==undefined) bgposition="center center";
 				
 
-				var w= w !=undefined ? w : jQuery('#divbgholder').width(),
-					h= h !=undefined ? h : jQuery('#divbgholder').height();
+				var w= w || jQuery('#divbgholder').width(),
+					h= h || jQuery('#divbgholder').height();
 				opt.slotw=Math.ceil(w/opt.slots),
 				opt.sloth=Math.ceil(h/opt.slots);
 				
@@ -5296,15 +3467,7 @@ var tpLayerTimelinesRev = new function(){
 							 ['slidingoverlaydown', 28, 0,1,0,'horizontal',true,true,48,p1io,p1o,2000,1],
 							 ['slidingoverlayright', 30, 0,1,0,'horizontal',true,true,49,p1io,p1o,2000,1],
 							 ['slidingoverlayleft', 29, 0,1,0,'horizontal',true,true,50,p1io,p1o,2000,1],
-							 ['notransition',26,0,1,0,'horizontal',true,null,46,p2io,p2i,1000,1],
-							 ['grayscale', 11, 5, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['grayscalecross', 11, 6, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['brightness', 11, 7, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['brightnesscross', 11, 8, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['blurlight', 11, 9, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['blurlightcross', 11, 10, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['blurstrong', 11, 9, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1],
-							 ['blurstrongcross', 11, 10, 1 ,300,'horizontal',true,null,11,p2io,p2io,1000,1]
+							 ['notransition',26,0,1,0,'horizontal',true,null,46,p2io,p2i,1000,1],							 
 						   ];
 
 
@@ -5729,42 +3892,11 @@ var tpLayerTimelinesRev = new function(){
 							mtl.add(punchgs.TweenLite.set(actsh,{autoAlpha:0,force3D:"auto"}),0);
 							mtl.add(punchgs.TweenLite.fromTo(actsh,masterspeed/2000,{autoAlpha:0},{autoAlpha:1,force3D:"auto",ease:ei}),masterspeed/2000);							
 						break;
-						case 5: // GRAYSCALE
-						case 6: // GRAYSCALECROSS
-						case 7: // BRIGHTNESS					
-						case 8: // BRIGHTNESSCROSS
-						case 9: // BLUR LIGHT
-						case 10: // BLUR LIGHT CROSS
-						case 11: // BLUR STRONG
-						case 12: // BLUR STRONG CROSS
-
-							
-							var _blur = jQuery.inArray(specials,[9,10])>=0 ? 5 : jQuery.inArray(specials,[11,12])>=0 ? 10 : 0,
-								_gray = jQuery.inArray(specials,[5,6,7,8])>=0 ? 100 : 0,
-								_bright = jQuery.inArray(specials,[7,8])>=0 ? 300 : 0,
-								__ff = "blur("+_blur+"px) grayscale("+_gray+"%) brightness("+_bright+"%)",
-								__ft = "blur(0px) grayscale(0%) brightness(100%)";
-
-							mtl.add(punchgs.TweenLite.fromTo(nextsh,masterspeed/1000,{autoAlpha:0,filter:__ff, "-webkit-filter":__ff},{autoAlpha:1,filter:__ft, "-webkit-filter":__ft,force3D:"auto",ease:ei}),0);
-							if (jQuery.inArray(specials,[6,8,10])>=0)
-								mtl.add(punchgs.TweenLite.fromTo(actsh,masterspeed/1000,{autoAlpha:1,filter:__ft, "-webkit-filter":__ft},{autoAlpha:0,force3D:"auto",ease:ei,filter:__ff, "-webkit-filter":__ff}),0);
-							
-						break;
 					}
 				} else {				
 					nextsh.find('.slotslide').each(function(i) {
 						var ss=jQuery(this);
-						if (specials<5)
-						 	mtl.add(punchgs.TweenLite.fromTo(ss,masterspeed/1000,{autoAlpha:0},{autoAlpha:1,force3D:"auto",ease:ei}),0);
-						else {
-							var _blur = jQuery.inArray(specials,[9,10])>=0 ? 5 : jQuery.inArray(specials,[11,12])>=0 ? 10 : 0,
-								_gray = jQuery.inArray(specials,[5,6,7,8])>=0 ? 100 : 0,
-								_bright = jQuery.inArray(specials,[7,8])>=0 ? 300 : 0,
-								__ff = "blur("+_blur+"px) grayscale("+_gray+"%) brightness("+_bright+"%)",
-								__ft = "blur(0px) grayscale(0%) brightness(100%)";
-
-							mtl.add(punchgs.TweenLite.fromTo(ss,masterspeed/1000,{autoAlpha:0,filter:__ff, "-webkit-filter":__ff},{autoAlpha:1,filter:__ft, "-webkit-filter":__ft,force3D:"auto",ease:ei}),0);
-						}
+						mtl.add(punchgs.TweenLite.fromTo(ss,masterspeed/1000,{autoAlpha:0},{autoAlpha:1,force3D:"auto",ease:ei}),0);
 					});
 				}
 	}
@@ -6306,7 +4438,7 @@ var tpLayerTimelinesRev = new function(){
 		slideAnimation();
 		var mst = jQuery('#divbgholder').data('slidetimeline'),
 			mp = jQuery('#mastertimer-position'),
-			tpos = (mp.position().left)/100;
+			tpos = (mp.position().left-15)/100;
 		if (mst!=undefined) {
 			mst.stop();
 			if (seekinpos) mst.seek(tpos);

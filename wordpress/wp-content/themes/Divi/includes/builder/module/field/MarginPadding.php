@@ -241,9 +241,6 @@ class ET_Builder_Module_Field_MarginPadding extends ET_Builder_Module_Field_Base
 				'sub_toggle'      => $sub_toggle,
 				'priority'        => $config['priority'],
 			);
-			if ( isset( $config['depends_on'] ) && '' !== $config['depends_on'] ) {
-				$fields[ $custom_padding ]['depends_on'] = $config['depends_on'];
-			}
 			$fields[ $custom_padding_tablet ] = array(
 				'type'        => 'skip',
 				'tab_slug'    => $tab_slug,
@@ -498,7 +495,7 @@ class ET_Builder_Module_Field_MarginPadding extends ET_Builder_Module_Field_Base
 			return;
 		}
 
-		$allowed_advanced_fields = array( 'form_field', 'button', 'image_icon' );
+		$allowed_advanced_fields = array( 'form_field', 'button' );
 		foreach ( $allowed_advanced_fields as $advanced_field ) {
 			if ( empty( $advanced_fields[ $advanced_field ] ) ) {
 				continue;
@@ -509,14 +506,12 @@ class ET_Builder_Module_Field_MarginPadding extends ET_Builder_Module_Field_Base
 				$padding_key = "{$label}_custom_padding";
 				$multi_view  = et_pb_multi_view_options( $module );
 
-				$has_margin         = '' !== $utils->array_get( $all_values, $margin_key, '' );
-				$has_padding        = '' !== $utils->array_get( $all_values, $padding_key, '' );
-				$has_margin_hover   = $multi_view->hover_is_enabled( $margin_key );
-				$has_padding_hover  = $multi_view->hover_is_enabled( $padding_key );
-				$has_padding_sticky = ! empty( et_pb_sticky_options()->get_value( "{$label}_custom_padding", $all_values, '' ) ) && et_pb_sticky_options()->is_enabled( "{$label}_custom_padding", $all_values );
-				$has_margin_sticky  = ! empty( et_pb_sticky_options()->get_value( "{$label}_custom_margin", $all_values, '' ) ) && et_pb_sticky_options()->is_enabled( "{$label}_custom_margin", $all_values );
+				$has_margin        = '' !== $utils->array_get( $all_values, $margin_key, '' );
+				$has_padding       = '' !== $utils->array_get( $all_values, $padding_key, '' );
+				$has_margin_hover  = $multi_view->hover_is_enabled( $margin_key );
+				$has_padding_hover = $multi_view->hover_is_enabled( $padding_key );
 
-				if ( $has_margin || $has_padding || $has_margin_hover || $has_padding_hover || $has_padding_sticky || $has_margin_sticky ) {
+				if ( $has_margin || $has_padding || $has_margin_hover || $has_padding_hover ) {
 					$settings = $utils->array_get( $form_field, 'margin_padding', array() );
 
 					// Ensure main selector exists.

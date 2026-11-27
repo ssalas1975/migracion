@@ -528,9 +528,6 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 		$hover_icon_phone  = isset( $hover_icon_values['phone'] ) ? $hover_icon_values['phone'] : '';
 		$hover_icon_sticky = $sticky->get_value( 'hover_icon', $this->props );
 
-		// validate $orientation, it should be either 'landscape' or 'portrait', default to 'landscape'.
-		$orientation = 'portrait' === $orientation ? 'portrait' : 'landscape';
-
 		// Zoom Icon Color.
 		$this->generate_styles(
 			array(
@@ -610,16 +607,14 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 		$data_background_layout = et_pb_background_layout_options()->get_background_layout_attrs( $this->props );
 
 		$output = sprintf(
-			'<div%1$s class="%2$s"%4$s>%5$s%6$s%7$s%8$s
+			'<div%1$s class="%2$s"%4$s>%5$s%6$s
 				<div class="et_pb_gallery_items et_post_gallery clearfix" data-per_page="%3$d">',
 			$this->module_id(),
 			$this->module_classname( $render_slug ),
 			esc_attr( $posts_number ),
 			et_core_esc_previously( $data_background_layout ),
 			$parallax_image_background,
-			$video_background,
-			et_core_esc_previously( $this->background_pattern() ), // #7
-			et_core_esc_previously( $this->background_mask() ) // #8
+			$video_background
 		);
 
 		// Images: Add CSS Filters and Mix Blend Mode rules (if set)
@@ -640,24 +635,6 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 				'icon_sticky' => $hover_icon_sticky,
 			)
 		);
-
-		if ( 'on' !== $fullwidth ) {
-			// Overlay Icon Styles.
-			$this->generate_styles(
-				array(
-					'hover'          => false,
-					'utility_arg'    => 'icon_font_family',
-					'render_slug'    => $render_slug,
-					'base_attr_name' => 'hover_icon',
-					'important'      => true,
-					'selector'       => '%%order_class%% .et_overlay:before',
-					'processor'      => array(
-						'ET_Builder_Module_Helper_Style_Processor',
-						'process_extended_icon',
-					),
-				)
-			);
-		}
 
 		$images_count = 0;
 
@@ -701,13 +678,10 @@ class ET_Builder_Module_Gallery extends ET_Builder_Module {
 
 			$images_count++;
 
-			$output .= sprintf(
-				'<div class="et_pb_gallery_image %1$s">
-					%2$s
-				</div>',
-				esc_attr( $orientation ),
-				$image_output
-			);
+			$output .= "
+				<div class='et_pb_gallery_image {$orientation}'>
+					$image_output
+				</div>";
 
 			if ( 'on' !== $fullwidth && $multi_view->has_value( 'show_title_and_caption', 'on' ) ) {
 				if ( trim( $attachment->post_title ) ) {

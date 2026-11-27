@@ -10,8 +10,6 @@
  * @since   3.29
  */
 
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Class representing WooCommerce Stock component.
  */
@@ -20,11 +18,10 @@ class ET_Builder_Module_Woocommerce_Stock extends ET_Builder_Module {
 	 * Initialize.
 	 */
 	public function init() {
-		$this->name        = esc_html__( 'Woo Product Stock', 'et_builder' );
-		$this->plural      = esc_html__( 'Woo Product Stock', 'et_builder' );
-		$this->slug        = 'et_pb_wc_stock';
-		$this->vb_support  = 'on';
-		$this->folder_name = 'et_pb_woo_modules';
+		$this->name       = esc_html__( 'Woo Stock', 'et_builder' );
+		$this->plural     = esc_html__( 'Woo Stock', 'et_builder' );
+		$this->slug       = 'et_pb_wc_stock';
+		$this->vb_support = 'on';
 
 		$this->settings_modal_toggles = array(
 			'general' => array(

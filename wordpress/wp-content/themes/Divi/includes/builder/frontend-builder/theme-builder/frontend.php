@@ -74,13 +74,10 @@ add_filter( 'body_class', 'et_theme_builder_frontend_add_body_classes', 9 );
  * @return string
  */
 function et_theme_builder_frontend_override_template( $template ) {
-	$layouts           = et_theme_builder_get_template_layouts();
-	$page_template     = locate_template( 'page.php' );
-	$override_header   = et_theme_builder_overrides_layout( ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE );
-	$override_body     = et_theme_builder_overrides_layout( ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE );
-	$override_footer   = et_theme_builder_overrides_layout( ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE );
-	$is_visual_builder = isset( $_GET['et_fb'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Value is not used
-	$is_theme_builder  = et_builder_tb_enabled();
+	$layouts         = et_theme_builder_get_template_layouts();
+	$override_header = et_theme_builder_overrides_layout( ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE );
+	$override_body   = et_theme_builder_overrides_layout( ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE );
+	$override_footer = et_theme_builder_overrides_layout( ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE );
 
 	if ( ( $override_header || $override_body || $override_footer ) && et_core_is_fb_enabled() ) {
 		// When cached assets/definitions do not exist, a VB/BFB page will generate them inline.
@@ -103,17 +100,8 @@ function et_theme_builder_frontend_override_template( $template ) {
 
 	et_theme_builder_frontend_enqueue_styles( $layouts );
 
-	// For other themes than Divi, use 'frontend-body-template.php'.
-	if ( $override_body && ! function_exists( 'et_divi_fonts_url' ) ) {
+	if ( $override_body ) {
 		return ET_THEME_BUILDER_DIR . 'frontend-body-template.php';
-	}
-
-	if ( $override_body && ( $is_theme_builder || ! $is_visual_builder || ! $layouts['et_template'] || ! et_pb_is_allowed( 'theme_builder' ) ) ) {
-		return ET_THEME_BUILDER_DIR . 'frontend-body-template.php';
-	}
-
-	if ( $override_body && ! is_home() ) {
-		return $page_template;
 	}
 
 	return $template;
@@ -135,7 +123,7 @@ function et_theme_builder_frontend_enqueue_styles( $layouts ) {
 		return;
 	}
 
-	if ( ! is_singular() && ! et_core_is_fb_enabled() ) {
+	if ( ! is_singular() || et_core_is_fb_enabled() ) {
 		// Create styles managers so they can enqueue styles early enough.
 		// What styles are created and how they are enqueued:
 		// - In FE, singular post view:
@@ -271,11 +259,12 @@ function et_theme_builder_frontend_override_footer( $name ) {
  */
 function et_theme_builder_frontend_filter_add_outer_content_wrap( $wrap ) {
 	$override_header = et_theme_builder_overrides_layout( ET_THEME_BUILDER_HEADER_LAYOUT_POST_TYPE );
+	$override_body   = et_theme_builder_overrides_layout( ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE );
 	$override_footer = et_theme_builder_overrides_layout( ET_THEME_BUILDER_FOOTER_LAYOUT_POST_TYPE );
 
 	// Theme Builder layouts must not be individually wrapped as they are wrapped
-	// collectively, with the exception of the BFB or body layout.
-	if ( ( $override_header || $override_footer ) && ! et_builder_bfb_enabled() ) {
+	// collectively, with the exception of the BFB.
+	if ( ( $override_header || $override_body || $override_footer ) && ! et_builder_bfb_enabled() ) {
 		$wrap = false;
 	}
 
@@ -333,30 +322,11 @@ function et_theme_builder_frontend_render_layout( $layout_type, $layout_id ) {
 
 	ET_Post_Stack::replace( $layout );
 
-	$is_visual_builder     = isset( $_GET['et_fb'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Value is not used
-	$theme_builder_layouts = array( 'et_header_layout', 'et_footer_layout' );
-
-	// Do not pass header and footer content here if visual builder is loaded,
-	// they will be loaded inside the builder itself.
-	if ( et_pb_is_allowed( 'theme_builder' ) && $is_visual_builder && in_array( $layout_type, $theme_builder_layouts, true ) ) {
-		$post_content = '';
-	} else {
-		$post_content = get_the_content();
-	}
-
-	echo et_core_intentionally_unescaped( et_builder_render_layout( $post_content ), 'html' );
-
-	// Get dynamic content.
-	$has_dynamic_content = et_builder_get_dynamic_contents( get_the_content() );
+	echo et_builder_render_layout( get_the_content() );
 
 	// Handle style output.
 	if ( is_singular() && ! et_core_is_fb_enabled() ) {
 		$result = ET_Builder_Element::setup_advanced_styles_manager( ET_Post_Stack::get_main_post_id() );
-	} elseif ( is_tax() && ! empty( $has_dynamic_content ) ) {
-		// Set post id to 0 if its a taxonomy page.
-		// This is because of the dynamic content not working properly,
-		// With the theme builder cache.
-		$result = ET_Builder_Element::setup_advanced_styles_manager( 0 );
 	} else {
 		$result = ET_Builder_Element::setup_advanced_styles_manager( $layout->ID );
 	}
@@ -376,7 +346,7 @@ function et_theme_builder_frontend_render_layout( $layout_type, $layout_id ) {
 	 */
 	$is_critical_enabled = apply_filters( 'et_builder_critical_css_enabled', false );
 
-	if ( ET_Builder_Element::$forced_inline_styles || ! $advanced_styles_manager->has_file() || $advanced_styles_manager->forced_inline ) {
+	if ( ET_Builder_Element::$forced_inline_styles || ! $advanced_styles_manager->has_file() ) {
 		$custom = et_pb_get_page_custom_css( $layout->ID );
 
 		$critical = $is_critical_enabled ? ET_Builder_Element::get_style( false, $layout->ID, true ) . ET_Builder_Element::get_style( true, $layout->ID, true ) : [];
@@ -618,10 +588,6 @@ function et_theme_builder_frontend_render_common_wrappers( $area, $open ) {
 function et_theme_builder_frontend_render_post_content() {
 	static $__prevent_recursion = false;
 	global $wp_query;
-
-	if ( is_et_theme_builder_template_preview() ) {
-		return et_theme_builder_get_post_content_placeholder();
-	}
 
 	if ( ET_Builder_Element::get_theme_builder_layout_type() !== ET_THEME_BUILDER_BODY_LAYOUT_POST_TYPE ) {
 		// Prevent usage on non-body layouts.

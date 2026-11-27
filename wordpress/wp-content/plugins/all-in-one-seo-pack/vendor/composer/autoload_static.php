@@ -4,34 +4,34 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb
+class ComposerStaticInitcbb883331a0e0a657ab67cb8eacd985b
 {
     public static $prefixLengthsPsr4 = array (
-        'L' => 
+        'L' =>
         array (
             'League\\HTMLToMarkdown\\' => 22,
         ),
-        'A' => 
+        'A' =>
         array (
             'AIOSEO\\Plugin\\' => 14,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'League\\HTMLToMarkdown\\' => 
+        'League\\HTMLToMarkdown\\' =>
         array (
             0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
-        'AIOSEO\\Plugin\\' => 
+        'AIOSEO\\Plugin\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
         ),
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
+        'P' =>
         array (
-            'PHPInsight' => 
+            'PHPInsight' =>
             array (
                 0 => __DIR__ . '/..' . '/jwhennessey/phpinsight/lib',
             ),
@@ -143,8 +143,10 @@ class ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb
         'AIOSEO\\Plugin\\Common\\Main\\Head' => __DIR__ . '/../..' . '/app/Common/Main/Head.php',
         'AIOSEO\\Plugin\\Common\\Main\\Main' => __DIR__ . '/../..' . '/app/Common/Main/Main.php',
         'AIOSEO\\Plugin\\Common\\Main\\Media' => __DIR__ . '/../..' . '/app/Common/Main/Media.php',
+        'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Definitions\\ClearDuplicateCanonicalUrls' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Definitions/ClearDuplicateCanonicalUrls.php',
         'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Definitions\\DropLegacyCacheIndexes' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Definitions/DropLegacyCacheIndexes.php',
         'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Definitions\\DropLegacyOgImageDimensionColumns' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Definitions/DropLegacyOgImageDimensionColumns.php',
+        'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Definitions\\ReopenDefaultTaglineCheck' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Definitions/ReopenDefaultTaglineCheck.php',
         'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Definitions\\UnscheduleAiCreditFetch' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Definitions/UnscheduleAiCreditFetch.php',
         'AIOSEO\\Plugin\\Common\\Main\\Migrations\\Migration' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/Migration.php',
         'AIOSEO\\Plugin\\Common\\Main\\Migrations\\MigrationLog' => __DIR__ . '/../..' . '/app/Common/Main/Migrations/MigrationLog.php',
@@ -250,7 +252,6 @@ class ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb
         'AIOSEO\\Plugin\\Common\\Services\\RobotsService' => __DIR__ . '/../..' . '/app/Common/Services/RobotsService.php',
         'AIOSEO\\Plugin\\Common\\Services\\SettingsService' => __DIR__ . '/../..' . '/app/Common/Services/SettingsService.php',
         'AIOSEO\\Plugin\\Common\\Sitemap\\Content' => __DIR__ . '/../..' . '/app/Common/Sitemap/Content.php',
-        'AIOSEO\\Plugin\\Common\\Sitemap\\File' => __DIR__ . '/../..' . '/app/Common/Sitemap/File.php',
         'AIOSEO\\Plugin\\Common\\Sitemap\\Helpers' => __DIR__ . '/../..' . '/app/Common/Sitemap/Helpers.php',
         'AIOSEO\\Plugin\\Common\\Sitemap\\Html\\Block' => __DIR__ . '/../..' . '/app/Common/Sitemap/Html/Block.php',
         'AIOSEO\\Plugin\\Common\\Sitemap\\Html\\CompactArchive' => __DIR__ . '/../..' . '/app/Common/Sitemap/Html/CompactArchive.php',
@@ -418,10 +419,10 @@ class ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitd2bae48b3ad107f510a03ceb0f8403fb::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitcbb883331a0e0a657ab67cb8eacd985b::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitcbb883331a0e0a657ab67cb8eacd985b::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitcbb883331a0e0a657ab67cb8eacd985b::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitcbb883331a0e0a657ab67cb8eacd985b::$classMap;
 
         }, null, ClassLoader::class);
     }

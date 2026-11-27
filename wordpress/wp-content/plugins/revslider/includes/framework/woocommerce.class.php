@@ -18,7 +18,9 @@ class RevSliderWooCommerce{
 	
 	const META_REGULAR_PRICE = "_regular_price";
 	const META_SALE_PRICE = "_sale_price";
+	const META_STOCK_STATUS = "_stock_status";	//can be 'instock' or 'outofstock'
 	const META_SKU = "_sku";	//can be 'instock' or 'outofstock'
+	const META_FEATURED = "_featured";	//can be 'instock' or 'outofstock'
 	const META_STOCK = "_stock";	//can be 'instock' or 'outofstock'
 	
 	
@@ -43,27 +45,13 @@ class RevSliderWooCommerce{
 	
 	
 	/**
-	 * compare wc current version to given version
-	 */
-	public static function version_check( $version = '1.0' ) {
-		if(self::isWooCommerceExists()){
-			global $woocommerce;
-			if(version_compare($woocommerce->version, $version, '>=')){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	
-	/**
 	 * 
 	 * get wc post types
 	 */
 	public static function getCustomPostTypes(){
 		$arr = array();
-		$arr["product"] = __("Product", 'revslider');
-		$arr["product_variation"] = __("Product Variation", 'revslider');
+		$arr["product"] = __("Product", REVSLIDER_TEXTDOMAIN);
+		$arr["product_variation"] = __("Product Variation", REVSLIDER_TEXTDOMAIN);
 		
 		return($arr);
 	}
@@ -105,7 +93,6 @@ class RevSliderWooCommerce{
 		$featuredOnly = RevSliderFunctions::getVal($args, self::ARG_FEATURED_ONLY);
 		
 		$arrQueries = array();
-		$tax_query = array();
 		
 		//get regular price array
 		if(!empty($regPriceFrom) || !empty($regPriceTo)){
@@ -118,32 +105,22 @@ class RevSliderWooCommerce{
 		}
 		
 		if($inStockOnly == "on"){
-			$tax_query[] = array(
-				'taxonomy' => 'product_visibility',
-				'field'    => 'name',
-				'terms'    => 'outofstock',
-				'operator' => 'NOT IN',
-			);
+			$query = array( 'key' => self::META_STOCK_STATUS,
+							'value' => "instock");
+			$arrQueries[] = $query;
 		}
 		
 		if($featuredOnly == "on"){
-			$tax_query[] = array(
-				'taxonomy' => 'product_visibility',
-				'field'    => 'name',
-				'terms'    => 'featured',
-			);
+			$query = array( 'key' => self::META_FEATURED,
+							'value' => "yes");
+			$arrQueries[] = $query;
 		}
 		
 		
 		$query = array();
-		if(!empty($arrQueries)){
+		if(!empty($arrQueries))
 			$query = array("meta_query"=>$arrQueries);
-		}
-		
-		if(!empty($tax_query)){
-			$query['tax_query'] = $tax_query;
-		}
-		
+			
 		return($query);			
 	}
 	
@@ -155,12 +132,12 @@ class RevSliderWooCommerce{
 	public static function getArrSortBy(){
 		
 		$arrSortBy = array();
-		$arrSortBy[self::SORTBY_REGULAR_PRICE] = __("Regular Price", 'revslider');
-		$arrSortBy[self::SORTBY_SALE_PRICE] = __("Sale Price", 'revslider');
-		$arrSortBy[self::SORTBY_NUMSALES] = __("Number Of Sales", 'revslider');
-		$arrSortBy[self::SORTBY_FEATURED] = __("Featured Products", 'revslider');
-		$arrSortBy[self::SORTBY_SKU] = __("SKU", 'revslider');
-		$arrSortBy[self::SORTBY_STOCK] = __("Stock Quantity", 'revslider');
+		$arrSortBy[self::SORTBY_REGULAR_PRICE] = __("Regular Price", REVSLIDER_TEXTDOMAIN);
+		$arrSortBy[self::SORTBY_SALE_PRICE] = __("Sale Price", REVSLIDER_TEXTDOMAIN);
+		$arrSortBy[self::SORTBY_NUMSALES] = __("Number Of Sales", REVSLIDER_TEXTDOMAIN);
+		$arrSortBy[self::SORTBY_FEATURED] = __("Featured Products", REVSLIDER_TEXTDOMAIN);
+		$arrSortBy[self::SORTBY_SKU] = __("SKU", REVSLIDER_TEXTDOMAIN);
+		$arrSortBy[self::SORTBY_STOCK] = __("Stock Quantity", REVSLIDER_TEXTDOMAIN);
 		
 		return($arrSortBy);
 	}

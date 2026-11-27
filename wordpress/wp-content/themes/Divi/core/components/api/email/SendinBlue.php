@@ -22,7 +22,7 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 	/**
 	 * @inheritDoc
 	 */
-	public $LISTS_URL = 'https://api.sendinblue.com/v3/contacts/lists/'; // @phpcs:ignore ET.Sniffs.ValidVariableName.PropertyNotSnakeCase -- Keep the variable name.
+	public $LISTS_URL = 'https://api.sendinblue.com/v3/contacts/lists'; // @phpcs:ignore ET.Sniffs.ValidVariableName.PropertyNotSnakeCase -- Keep the variable name.
 
 	/**
 	 * The URL to which new subscribers can be posted.
@@ -76,16 +76,11 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 			return $args;
 		}
 
-		$fields      = $args['custom_fields'];
-		$fileds_info = $args['fileds_info'];
+		$fields = $args['custom_fields'];
 
 		unset( $args['custom_fields'] );
 
 		foreach ( $fields as $field_id => $value ) {
-			if ( ! isset( $fileds_info[ $field_id ] ) ) {
-				continue;
-			}
-
 			if ( is_array( $value ) && $value ) {
 				// This is a multiple choice field (eg. checkbox, radio, select)
 				$value = array_values( $value );
@@ -93,10 +88,7 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 				if ( count( $value ) > 1 ) {
 					$value = implode( ',', $value );
 				} else {
-					$type = self::$_->array_get( $fileds_info, "{$field_id}.native_type" );
-
-					// User checked the checkbox, when native type is Boolean.
-					$value = 'boolean' === $type ? true : array_pop( $value );
+					$value = array_pop( $value );
 				}
 			}
 
@@ -136,9 +128,8 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 				'updateEnabled' => 'updateEnabled',
 			),
 			'custom_field' => array(
-				'native_type' => 'type',
-				'field_id'    => 'name',
-				'name'        => 'name',
+				'field_id' => 'name',
+				'name'     => 'name',
 			),
 		);
 
@@ -182,20 +173,13 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 			);
 		} else {
 			$this->response_data_key = 'lists';
-			$params                  = array();
+			$params                  = array(
+				'limit'  => 50,
+				'offset' => 0,
+			);
 		}
 
-		/**
-		 * The maximum number of subscriber lists to request from Sendinblue's API.
-		 *
-		 * @since 4.11.4
-		 *
-		 * @param int $max_lists
-		 */
-		$max_lists = (int) apply_filters( 'et_core_api_email_sendinblue_max_lists', 50 );
-		$url       = "{$this->LISTS_URL}?limit={$max_lists}&offset=0&sort=desc";
-
-		$this->prepare_request( $url, 'GET', false, $params );
+		$this->prepare_request( $this->LISTS_URL, 'GET', false, $params );
 
 		$this->request->data_format = 'body';
 
@@ -211,7 +195,7 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 
 		$result                      = 'success';
 		$this->data['is_authorized'] = 'true';
-		$list_data                   = $use_legacy_api ? $this->response->DATA['data']['lists'] : ( isset( $this->response->DATA['lists'] ) ? $this->response->DATA['lists'] : [] );
+		$list_data                   = $use_legacy_api ? $this->response->DATA['data']['lists'] : $this->response->DATA['lists'];
 
 		if ( ! empty( $list_data ) ) {
 			$this->data['lists'] = $this->_process_subscriber_lists( $list_data );
@@ -264,8 +248,6 @@ class ET_Core_API_Email_SendinBlue extends ET_Core_API_Email_Provider {
 
 			$args = $this->transform_data_to_provider_format( $args, 'subscriber' );
 			if ( $this->custom_fields ) {
-				$args['fileds_info'] = $this->_fetch_custom_fields();
-
 				$args = $this->_process_custom_fields( $args );
 			}
 			$this->prepare_request( $this->SUBSCRIBE_URL, 'POST', false, $args, true ); // @phpcs:ignore ET.Sniffs.ValidVariableName.UsedPropertyNotSnakeCase -- Keep the variable name.

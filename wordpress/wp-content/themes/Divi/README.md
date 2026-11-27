@@ -7,32 +7,32 @@ is available as part of the ElegantThemes.com membership. The membership provide
 access to important theme updates and tech support, as well as the rest of 
 our awesome WordPress themes and plugins.
 
-https://www.elegantthemes.com/join/
+https://www.elegantthemes.com/join.php
 
 
 ## Getting Started
 
 To get started using Divi, we recommend browsing our extensive theme documentation
-at https://www.elegantthemes.com/documentation/divi/. Below are listed 
+at http://www.elegantthemes.com/gallery/divi/documentation/. Below are listed 
 some of the best tutorials for beginners. 
 
 **1. Installing Divi**
-https://www.elegantthemes.com/documentation/divi/install/
+http://www.elegantthemes.com/gallery/divi/documentation/install/
 
 **2. Updating Divi**
-https://www.elegantthemes.com/documentation/divi/update/
+http://www.elegantthemes.com/gallery/divi/documentation/update/
 
 **3. Using the Divi Builder**
-https://www.elegantthemes.com/documentation/divi/builder-overview-new/
+http://www.elegantthemes.com/gallery/divi/documentation/builder-overview-new/
 
 **4. Using The Divi Theme Options**
-https://www.elegantthemes.com/documentation/divi/theme-options/
+http://www.elegantthemes.com/gallery/divi/documentation/theme-options/
 
 **5. Using The Divi Library**
-https://www.elegantthemes.com/documentation/divi/divi-library/
+http://www.elegantthemes.com/gallery/divi/documentation/divi-library/
 
 **6. Using The Divi Theme Customizer**
-https://www.elegantthemes.com/documentation/divi/customizer/
+http://www.elegantthemes.com/gallery/divi/documentation/customizer/
 
 ## Copyright
-> **© Copyright 2013-2022, Elegant Themes, Inc.**
+> **© Copyright 2013-2020, Elegant Themes, Inc.**

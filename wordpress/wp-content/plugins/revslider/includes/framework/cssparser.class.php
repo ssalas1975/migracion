@@ -160,17 +160,13 @@ class RevSliderCssParser{
 			$styles = json_decode(str_replace("'", '"', $attr['params']), true);
 			$styles_adv = $attr['advanced']['idle'];
 			
-			
 			$css.= $attr['handle'];
 			if(!empty($stripped)) $css.= ', '.$stripped;
 			$css.= " {".$nl;
 			if(is_array($styles) || is_array($styles_adv)){
 				if(is_array($styles)){
 					foreach($styles as $name => $style){
-						
-						if(in_array($name, $deformations)) {
-							if($name !== 'css_cursor' && $name !== 'pointer_events') continue;
-						}
+						if(in_array($name, $deformations)) continue;
 						
 						if(!is_array($name) && isset($transparency[$name])){ //the style can have transparency!
 							if(isset($styles[$transparency[$name]]) && $style !== 'transparent'){
@@ -180,27 +176,17 @@ class RevSliderCssParser{
 						if(!is_array($name) && isset($check_parameters[$name])){
 							$style = RevSliderFunctions::add_missing_val($style, $check_parameters[$name]);
 						}
-						if(is_array($style) || is_object($style)) $style = implode(' ', $style);
 						
-						$ret = self::check_for_modifications($name, $style);
-						if($ret['name'] == 'cursor' && $ret['style'] == 'auto') continue;
-						if($ret['name'] == 'pointer-events' && $ret['style'] == 'auto') continue;
 						
-						$css.= $ret['name'].':'.$ret['style'].";".$nl;
+						if(is_array($style)) $style = implode(' ', $style);
+						$css.= $name.':'.$style.";".$nl;
 					}
 				}
 				if(is_array($styles_adv)){
 					foreach($styles_adv as $name => $style){
-						
-						if(in_array($name, $deformations)) {
-							if($name !== 'css_cursor' && $name !== 'pointer_events') continue;
-						}
-						
-						if(is_array($style) || is_object($style)) $style = implode(' ', $style);
-						$ret = self::check_for_modifications($name, $style);
-						if($ret['name'] == 'cursor' && $ret['style'] == 'auto') continue;
-						if($ret['name'] == 'pointer-events' && $ret['style'] == 'auto') continue;
-						$css.= $ret['name'].':'.$ret['style'].";".$nl;
+						if(in_array($name, $deformations)) continue;
+						if(is_array($style)) $style = implode(' ', $style);
+						$css.= $name.':'.$style.";".$nl;
 					}
 				}
 			}
@@ -218,10 +204,7 @@ class RevSliderCssParser{
 					$css.= " {".$nl;
 					if(is_array($hover)){
 						foreach($hover as $name => $style){
-							
-							if(in_array($name, $deformations)) {
-								if($name !== 'css_cursor' && $name !== 'pointer_events') continue;
-							}
+							if(in_array($name, $deformations)) continue;
 							
 							if(!is_array($name) && isset($transparency[$name])){ //the style can have transparency!
 								if(isset($hover[$transparency[$name]]) && $style !== 'transparent'){
@@ -231,26 +214,16 @@ class RevSliderCssParser{
 							if(!is_array($name) && isset($check_parameters[$name])){
 								$style = RevSliderFunctions::add_missing_val($style, $check_parameters[$name]);
 							}
-							if(is_array($style)|| is_object($style)) $style = implode(' ', $style);
 							
-							$ret = self::check_for_modifications($name, $style);
-							if($ret['name'] == 'cursor' && $ret['style'] == 'auto') continue;
-							if($ret['name'] == 'pointer-events' && $ret['style'] == 'auto') continue;
-								
-							$css.= $ret['name'].':'.$ret['style'].";".$nl;
+							if(is_array($style)) $style = implode(' ', $style);
+							$css.= $name.':'.$style.";".$nl;
 						}
 					}
 					if(is_array($hover_adv)){
 						foreach($hover_adv as $name => $style){
-							
-							if(in_array($name, $deformations)) {
-								if($name !== 'css_cursor' && $name !== 'pointer_events') continue;
-							}
-							
-							if(is_array($style)|| is_object($style)) $style = implode(' ', $style);
-							$ret = self::check_for_modifications($name, $style);
-							if($ret['name'] == 'cursor' && $ret['style'] == 'auto') continue;
-							$css.= $ret['name'].':'.$ret['style'].";".$nl;
+							if(in_array($name, $deformations)) continue;
+							if(is_array($style)) $style = implode(' ', $style);
+							$css.= $name.':'.$style.";".$nl;
 						}
 					}
 					$css.= "}".$nl.$nl;
@@ -261,28 +234,7 @@ class RevSliderCssParser{
 	}
 	
 	
-	/**
-	 * Check for Modifications like with css_cursor
-	 * @since: 5.1.3
-	 **/
-	public static function check_for_modifications($name, $style){
-		if($name == 'css_cursor'){
-			if($style == 'zoom-in') $style = 'zoom-in; -webkit-zoom-in; cursor: -moz-zoom-in';
-			if($style == 'zoom-out') $style = 'zoom-out; -webkit-zoom-out; cursor: -moz-zoom-out';
-			$name = 'cursor';
-		}
-		
-		if($name == 'pointer_events'){
-			$name = 'pointer-events';
-		}
-		
-		return array('name' => $name, 'style' => $style);
-	}
-	
-	
 	public static function parseArrayToCss($cssArray, $nl = "\n\r", $adv = false){
-		$deformations = self::get_deformation_css_tags();
-		
 		$css = '';
 		foreach($cssArray as $id => $attr){
 			$setting = (array)$attr['settings'];
@@ -306,19 +258,13 @@ class RevSliderCssParser{
 			
 			if(is_array($styles) && !empty($styles)){
 				foreach($styles as $name => $style){
-					
-					if(in_array($name, $deformations)) {
-						if($name !== 'css_cursor' && $name !== 'pointer_events') continue;
-					}
-					
 					if($name == 'background-color' && strpos($style, 'rgba') !== false){ //rgb && rgba
 						$rgb = explode(',', str_replace('rgba', 'rgb', $style));
 						unset($rgb[count($rgb)-1]);
 						$rgb = implode(',', $rgb).')';
 						$css.= $name.':'.$rgb.";".$nl;
 					}
-					
-					$style = (is_array($style) || is_object($style)) ? implode(' ', $style) : $style;
+					$style = (is_array($style)) ? implode(' ', $style) : $style;
 					$css.= $name.':'.$style.";".$nl;
 				}
 			}
@@ -343,7 +289,7 @@ class RevSliderCssParser{
 							$rgb = implode(',', $rgb).')';
 							$css.= $name.':'.$rgb.";".$nl;
 						}
-						$style = (is_array($style) || is_object($style)) ? implode(' ', $style) : $style;
+						$style = (is_array($style)) ? implode(' ', $style) : $style;
 						$css.= $name.':'.$style.";".$nl;
 					}
 					$css.= "}".$nl.$nl;
@@ -355,18 +301,12 @@ class RevSliderCssParser{
 	
 	
 	public static function parseStaticArrayToCss($cssArray, $nl = "\n"){
-		$css = RevSliderCssParser::parseSimpleArrayToCss();
-		return $css;
-	}
-	
-	
-	public static function parseSimpleArrayToCss($cssArray, $nl = "\n"){
 		$css = '';
 		foreach($cssArray as $class => $styles){
 			$css.= $class." {".$nl;
 			if(is_array($styles) && !empty($styles)){
 				foreach($styles as $name => $style){
-					$style = (is_array($style) || is_object($style)) ? implode(' ', $style) : $style;
+					$style = (is_array($style)) ? implode(' ', $style) : $style;
 					$css.= $name.':'.$style.";".$nl;
 				}
 			}
@@ -374,7 +314,6 @@ class RevSliderCssParser{
 		}
 		return $css;
 	}
-	
 	
 	
 	public static function parseDbArrayToArray($cssArray, $handle = false){
@@ -551,37 +490,33 @@ class RevSliderCssParser{
 	public static function get_deformation_css_tags(){
 		
 		return array(
-			'x' => 'x',
-			'y' => 'y',
-			'z' => 'z',
-			'skewx' => 'skewx',
-			'skewy' => 'skewy',
-			'scalex' => 'scalex',
-			'scaley' => 'scaley',
-			'opacity' => 'opacity',
-			'xrotate' => 'xrotate',
-			'yrotate' => 'yrotate',
-			'2d_rotation' => '2d_rotation',
-			'layer_2d_origin_x' => 'layer_2d_origin_x',
-			'layer_2d_origin_y' => 'layer_2d_origin_y',
-			'2d_origin_x' => '2d_origin_x',
-			'2d_origin_y' => '2d_origin_y',
-			'pers' => 'pers',
+			'x',
+			'y',
+			'z',
+			'skewx',
+			'skewy',
+			'scalex',
+			'scaley',
+			'opacity',
+			'xrotate',
+			'yrotate',
+			'2d_rotation',
+			'layer_2d_origin_x',
+			'layer_2d_origin_y',
+			'2d_origin_x',
+			'2d_origin_y',
+			'pers',
 			
-			'color-transparency' => 'color-transparency',
-			'background-transparency' => 'background-transparency',
-			'border-transparency' => 'border-transparency',
-			'css_cursor' => 'css_cursor',
-			'pointer_events' => 'pointer_events',
-			'speed' => 'speed',
-			'easing' => 'easing',
-			'corner_left' => 'corner_left',
-			'corner_right' => 'corner_right',
-			'parallax' => 'parallax',
-			'type' => 'type',
-			'padding' => 'padding',
-			'margin' => 'margin',
-			'text-align' => 'text-align'
+			'color-transparency',
+			'background-transparency',
+			'border-transparency',
+			'css_cursor',
+			'speed',
+			'easing',
+			'corner_left',
+			'corner_right',
+			'parallax'
+			
 		);
 		
 	}
@@ -610,74 +545,6 @@ class RevSliderCssParser{
 		
 		return $sorted;
 	}
-	
-	
-	/**
-	 * Handles media queries
-	 * @since: 5.2.0
-	 **/
-	public static function parse_media_blocks($css){
-		$mediaBlocks = array();
-
-		$start = 0;
-		while(($start = strpos($css, '@media', $start)) !== false){
-			$s = array();
-			
-			$i = strpos($css, '{', $start);
-			
-			if ($i !== false){
-				
-				$block = trim(substr($css, $start, $i - $start));
-				
-				array_push($s, $css[$i]);
-
-				$i++;
-
-				while(!empty($s)){
-					if ($css[$i] == '{'){
-						array_push($s, '{');
-					}elseif ($css[$i] == '}'){
-						array_pop($s);
-					}else{
-						//broken css?
-					}
-					$i++;
-				}
-				
-				$mediaBlocks[$block] = substr($css, $start, ($i + 1) - $start);
-				$start = $i;
-			}
-		}
-
-		return $mediaBlocks;
-	}
-	
-	
-	/**
-	 * removes @media { ... } queries from CSS
-	 * @since: 5.2.0
-	 **/
-	public static function clear_media_block($css){
-		
-		$start = 0;
-		if(strpos($css, '@media', $start) !== false){
-			$start = strpos($css, '@media', 0);
-
-			$i = strpos($css, '{', $start) + 1;
-			
-			//remove @media ... first {
-			$remove = substr($css, $start - 1, $i - $start + 1);
-			
-			$css = str_replace($remove, '', $css);
-			
-			//remove last }
-			$css = preg_replace('/}$/', '', $css);
-			
-		}
-		
-		return $css;
-	}
-	
 }
 
 /**

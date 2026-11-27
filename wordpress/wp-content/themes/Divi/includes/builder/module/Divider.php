@@ -1,13 +1,6 @@
 <?php
 
 class ET_Builder_Module_Divider extends ET_Builder_Module {
-	/**
-	 * Array to store divier options.
-	 *
-	 * @var array
-	 */
-	public $show_divider_options;
-
 	function init() {
 		$this->name       = esc_html__( 'Divider', 'et_builder' );
 		$this->plural     = esc_html__( 'Dividers', 'et_builder' );
@@ -393,14 +386,12 @@ class ET_Builder_Module_Divider extends ET_Builder_Module {
 		);
 
 		$output = sprintf(
-			'<div%2$s class="%1$s"%5$s>%4$s%3$s%6$s%7$s<div class="et_pb_divider_internal"></div></div>',
+			'<div%2$s class="%1$s"%5$s>%4$s%3$s<div class="et_pb_divider_internal"></div></div>',
 			$this->module_classname( $render_slug ),
 			$this->module_id(),
 			$video_background,
 			$parallax_image_background,
-			$multi_view_data_attr,
-			et_core_esc_previously( $this->background_pattern() ), // #6
-			et_core_esc_previously( $this->background_mask() ) // #7
+			$multi_view_data_attr
 		);
 
 		return $output;

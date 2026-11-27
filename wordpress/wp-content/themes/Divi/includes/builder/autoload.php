@@ -41,39 +41,6 @@ function _et_pb_autoload_helpers_motion( $class ) {
 }
 
 /**
- * Autoloader for module mask style.
- *
- * @param string $class The class name.
- */
-function _et_pb_autoload_mask_pattern_helpers( $class ) {
-	// For multipart classnames.
-	$class = str_replace( '_', '', $class );
-	require_once "feature/background-masks/{$class}.php";
-}
-
-/**
- * Autoloader for module mask style.
- *
- * @param string $class The class name.
- */
-function _et_pb_autoload_mask( $class ) {
-	// For multipart classnames.
-	$class = str_replace( '_', '', $class );
-	require_once "feature/background-masks/mask/{$class}.php";
-}
-
-/**
- * Autoloader for module pattern style.
- *
- * @param string $class The class name.
- */
-function _et_pb_autoload_pattern( $class ) {
-	// For multipart classnames.
-	$class = str_replace( '_', '', $class );
-	require_once "feature/background-masks/pattern/{$class}.php";
-}
-
-/**
  * Autoloader for module types.
  *
  * @param string $class The class name.
@@ -90,11 +57,9 @@ function _et_pb_autoload_types( $class ) {
  * @param string $class The class name.
  */
 function _et_pb_autoload_woo_modules( $class ) {
-	if ( et_is_woocommerce_plugin_active() ) {
-		// For multipart classnames.
-		$class = str_replace( '_', '', $class );
-		require_once "module/woocommerce/{$class}.php";
-	}
+	// For multipart classnames.
+	$class = str_replace( '_', '', $class );
+	require_once "module/woocommerce/{$class}.php";
 }
 
 /**
@@ -108,14 +73,6 @@ function _et_pb_autoload_modules( $class ) {
 
 	if ( file_exists( ET_BUILDER_DIR . "module/{$class}.php" ) ) {
 		require_once "module/{$class}.php";
-	} elseif ( 'Shop' === $class && et_is_woocommerce_plugin_active() &&
-
-		/*
-		 * ET_Builder_Module_Shop class moved to "woocommerce/" directory
-		 * as part of WooCommerce Modules v2.
-		*/
-		file_exists( ET_BUILDER_DIR . "module/woocommerce/{$class}.php" ) ) {
-		require_once "module/woocommerce/{$class}.php";
 	}
 }
 
@@ -154,14 +111,6 @@ function _et_pb_autoload( $class ) {
 		require_once 'class-et-builder-dynamic-assets-feature.php';
 	} elseif ( 'ET_Builder_Module_Field_DisplayConditions' === $class ) {
 		require_once 'module/field/DisplayConditions.php';
-	} elseif ( strpos( $class, 'ET_Builder_Background_Mask' ) !== false || strpos( $class, 'ET_Builder_Background_Pattern' ) !== false ) {
-		_et_pb_autoload_mask_pattern_helpers( str_replace( 'ET_Builder_', '', $class ) );
-	} elseif ( strpos( $class, 'ET_Builder_Mask_' ) !== false ) {
-		_et_pb_autoload_mask( str_replace( 'ET_Builder_Mask_', '', $class ) );
-	} elseif ( strpos( $class, 'ET_Builder_Pattern_' ) !== false ) {
-		_et_pb_autoload_pattern( str_replace( 'ET_Builder_Pattern_', '', $class ) );
-	} elseif ( 'ET_Builder_Woocommerce_Product_Simple_Placeholder' === $class ) {
-		require_once 'feature/woocommerce/placeholder/WoocommerceProductSimplePlaceholder.php';
 	} elseif ( strpos( $class, 'ET_Builder_Module_Helper_Motion_' ) !== false ) {
 		_et_pb_autoload_helpers_motion( str_replace( 'ET_Builder_Module_Helper_Motion_', '', $class ) );
 	} elseif ( strpos( $class, 'ET_Builder_Module_Helper_' ) !== false ) {
@@ -174,14 +123,6 @@ function _et_pb_autoload( $class ) {
 		_et_pb_autoload_woo_modules( str_replace( 'ET_Builder_Module_Woocommerce_', '', $class ) );
 	} elseif ( strpos( $class, 'ET_Builder_Module_' ) !== false ) {
 		_et_pb_autoload_modules( str_replace( 'ET_Builder_Module_', '', $class ) );
-	} elseif ( 'ET_Item_Library_Local' === $class ) {
-		require_once ET_CORE_PATH . '/item-library-local/ItemLibraryLocal.php';
-	} elseif ( 'ET_Theme_Options_Library_Local' === $class ) {
-		require_once ET_EPANEL_DIR . '/theme-options-library/theme-options-library-local/ThemeOptionsLibraryLocal.php';
-	} elseif ( 'ET_Code_Snippets_Library_Local' === $class ) {
-		require_once ET_CORE_PATH . '/code-snippets/code-snippets-library-local/CodeSnippetsLibraryLocal.php';
-	} elseif ( 'ET_Theme_Builder_Library_Local' === $class ) {
-		require_once ET_BUILDER_DIR . 'frontend-builder/theme-builder/theme-builder-library-local/ThemeBuilderLibraryLocal.php';
 	}
 }
 
@@ -422,37 +363,4 @@ function et_pb_background_options() {
  */
 function et_pb_media_options() {
 	return ET_Builder_Module_Helper_Media::instance();
-}
-
-/**
- * Class ET_Theme_Options_Library_Local wrapper
- *
- * @since 4.21.0
- *
- * @return ET_Theme_Options_Library_Local
- */
-function et_pb_theme_options_library_local() {
-	return ET_Theme_Options_Library_Local::instance();
-}
-
-/**
- * Class ET_Code_Snippets_Library_Local wrapper
- *
- * @since 4.21.0
- *
- * @return ET_Code_Snippets_Library_Local
- */
-function et_pb_code_snippets_library_local() {
-	return ET_Code_Snippets_Library_Local::instance();
-}
-
-/**
- * Class ET_Theme_Builder_Library_Local wrapper
- *
- * @since 4.21.0
- *
- * @return ET_Theme_Builder_Library_Local
- */
-function et_pb_theme_builder_library_local() {
-	return ET_Theme_Builder_Library_Local::instance();
 }

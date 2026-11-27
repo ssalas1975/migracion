@@ -351,7 +351,7 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 	 * @return mixed portfolio item data
 	 */
 	static function get_portfolio_item( $args = array(), $conditional_tags = array(), $current_page = array() ) {
-		global $et_fb_processing_shortcode_object, $post, $paged, $__et_portfolio_module_paged;
+		global $et_fb_processing_shortcode_object, $post;
 
 		$global_processing_original_value = $et_fb_processing_shortcode_object;
 
@@ -382,13 +382,8 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 			$et_paged = $is_front_page ? get_query_var( 'page' ) : get_query_var( 'paged' );
 		}
 
-		if ( $__et_portfolio_module_paged > 1 ) {
-			$et_paged      = $__et_portfolio_module_paged;
-			$paged         = $__et_portfolio_module_paged; //phpcs:ignore WordPress.Variables.GlobalVariables.OverrideProhibited -- Override with ajax pagination.
-			$args['paged'] = $__et_portfolio_module_paged;
-		}
-
 		if ( $is_front_page ) {
+			global $paged;
 			$paged = $et_paged; // phpcs:ignore WordPress.Variables.GlobalVariables.OverrideProhibited
 		}
 
@@ -606,22 +601,6 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 					'icon_sticky' => $hover_icon_sticky,
 				)
 			);
-
-			// Overlay Icon Styles.
-			$this->generate_styles(
-				array(
-					'hover'          => false,
-					'utility_arg'    => 'icon_font_family',
-					'render_slug'    => $render_slug,
-					'base_attr_name' => 'hover_icon',
-					'important'      => true,
-					'selector'       => '%%order_class%% .et_overlay:before',
-					'processor'      => array(
-						'ET_Builder_Module_Helper_Style_Processor',
-						'process_extended_icon',
-					),
-				)
-			);
 		}
 
 		ob_start();
@@ -769,7 +748,7 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 							'<div class="alignleft">
 								<a href="%1$s">%2$s</a>
 							</div>',
-							add_query_arg( 'et_portfolio', '', esc_url( $portfolio->posts_next['url'] ) ),
+							esc_url( $portfolio->posts_next['url'] ),
 							esc_html( $portfolio->posts_next['label'] )
 						);
 					}
@@ -779,7 +758,7 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 							'<div class="alignright">
 								<a href="%1$s">%2$s</a>
 							</div>',
-							add_query_arg( 'et_portfolio', '', esc_url( $portfolio->posts_prev['url'] ) ),
+							esc_url( $portfolio->posts_prev['url'] ),
 							esc_html( $portfolio->posts_prev['label'] )
 						);
 					}
@@ -856,8 +835,6 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 				<div class="et_pb_ajax_pagination_container">
 					%6$s
 					%5$s
-					%11$s
-					%12$s
 					%7$s
 						%2$s
 					%8$s
@@ -873,9 +850,7 @@ class ET_Builder_Module_Portfolio extends ET_Builder_Module_Type_PostBased {
 			$fullwidth ? '' : '<div class="et_pb_portfolio_grid_items">',
 			$fullwidth ? '' : '</div>',
 			isset( $pagination ) ? $pagination : '',
-			et_core_esc_previously( $data_background_layout ), // #10
-			et_core_esc_previously( $this->background_pattern() ), // #11
-			et_core_esc_previously( $this->background_mask() ) // #12
+			et_core_esc_previously( $data_background_layout ) // #10
 		);
 
 		return $output;

@@ -27,6 +27,10 @@ function et_core_init() {
 	if ( get_option( 'et_core_page_resource_remove_all' ) ) {
 		ET_Core_PageResource::remove_static_resources( 'all', 'all', true );
 	}
+
+	if ( ! wp_next_scheduled( 'et_core_page_resource_auto_clear' ) ) {
+		wp_schedule_event( time() + MONTH_IN_SECONDS, 'monthly', 'et_core_page_resource_auto_clear' );
+	}
 }
 endif;
 
@@ -210,19 +214,9 @@ function et_core_clear_wp_cache( $post_id = '' ) {
 
 		// GoDaddy.
 		if ( class_exists( '\WPaaS\Cache' ) ) {
-			global $wpaas_cache_class;
-
-			// Since GD System Plugin 4.51.1 the cache class instance can be accessed
-			// with $wpaas_cache_class global. In addition to this, the 'has_ban' method
-			// is no longer static. To cover both static and non-static versions we
-			// can test if $wpaas_cache_class exists and use the correct type accordingly.
-			$has_ban = $wpaas_cache_class ? $wpaas_cache_class->has_ban() : \WPaaS\Cache::has_ban();
-
-			if ( ! $has_ban ) {
-				$gd_cache_class = $wpaas_cache_class ? $wpaas_cache_class : '\WPaaS\Cache';
-
-				remove_action( 'shutdown', array( $gd_cache_class, 'purge' ), PHP_INT_MAX );
-				add_action( 'shutdown', array( $gd_cache_class, 'ban' ), PHP_INT_MAX );
+			if ( ! \WPaaS\Cache::has_ban() ) {
+				remove_action( 'shutdown', array( '\WPaaS\Cache', 'purge' ), PHP_INT_MAX );
+				add_action( 'shutdown', array( '\WPaaS\Cache', 'ban' ), PHP_INT_MAX );
 			}
 		}
 
@@ -258,7 +252,6 @@ function et_core_get_nonces() {
 
 	return $nonces ? $nonces : $nonces = array(
 		'clear_page_resources_nonce' => wp_create_nonce( 'clear_page_resources' ),
-		'et_core_portability_export' => wp_create_nonce( 'et_core_portability_export' ),
 	);
 }
 endif;
@@ -271,6 +264,7 @@ function et_core_page_resource_auto_clear() {
 add_action( 'switch_theme', 'et_core_page_resource_auto_clear' );
 add_action( 'activated_plugin', 'et_core_page_resource_auto_clear', 10, 0 );
 add_action( 'deactivated_plugin', 'et_core_page_resource_auto_clear', 10, 0 );
+add_action( 'et_core_page_resource_auto_clear', 'et_core_page_resource_auto_clear' );
 endif;
 
 

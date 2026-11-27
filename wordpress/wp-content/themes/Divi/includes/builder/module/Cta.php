@@ -339,8 +339,6 @@ class ET_Builder_Module_Cta extends ET_Builder_Module {
 			'<div%5$s class="%4$s"%8$s>
 				%7$s
 				%6$s
-				%10$s
-				%11$s
 				%9$s
 				%3$s
 			</div>',
@@ -352,9 +350,7 @@ class ET_Builder_Module_Cta extends ET_Builder_Module {
 			$video_background,
 			$parallax_image_background,
 			et_core_esc_previously( $data_background_layout ),
-			et_core_esc_previously( $content_wrapper ),
-			et_core_esc_previously( $this->background_pattern() ), // #10
-			et_core_esc_previously( $this->background_mask() ) // #11
+			et_core_esc_previously( $content_wrapper )
 		);
 
 		return $output;

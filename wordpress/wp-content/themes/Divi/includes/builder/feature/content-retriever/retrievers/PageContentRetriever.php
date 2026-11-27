@@ -2,7 +2,7 @@
 /**
  * Page Content Retriever is used to get Page related Contents from WordPress.
  *
- * @since 4.11.0
+ * @since ??
  *
  * @package     Divi
  * @sub-package Builder
@@ -28,12 +28,11 @@ trait PageContentRetriever {
 	 * Parameter $post must be given as a variable, since it is passed by reference.
 	 * If $post is not given, It then uses global $post if available.
 	 *
-	 * @since 4.11.0
-	 * @since 4.14.5 Return empty string on failure instead of null.
+	 * @since ??
 	 *
 	 * @param  WP_Post|int $post Optional. WP_Post instance or Post ID. Default null.
 	 *
-	 * @return string Empty string on failure.
+	 * @return null|string null on failure, string on success.
 	 */
 	public function get_entire_page_content( $post = null ) {
 
@@ -53,10 +52,8 @@ trait PageContentRetriever {
 			$wp_post = \WP_Post::get_instance( $post );
 		}
 
-		// Return empty string on failure because the return value is mostly used along with
-		// PHP PCRE or String functions that require non-nullable value.
 		if ( ! $wp_post ) {
-			return '';
+			return null;
 		}
 
 		/**

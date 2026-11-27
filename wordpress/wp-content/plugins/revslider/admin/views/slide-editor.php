@@ -30,9 +30,6 @@ $slideParams = $slide->getParams();
 
 $operations = new RevSliderOperations();
 
-$rs_nav = new RevSliderNavigation();
-$arr_navigations = $rs_nav->get_all_navigations();
-
 //init slider object
 $sliderID = $slide->getSliderID();
 $slider = new RevSlider();
@@ -44,7 +41,6 @@ $arrSlides = $slider->getSlides(false);
 $arrSlidesWPML = $slider->getSlidesWPML(false, $slide);
 
 $arrSliders = $slider->getArrSlidersShort($sliderID);
-$arrSlidersFull = $slider->getArrSlidersShort();
 $selectSliders = RevSliderFunctions::getHTMLSelect($arrSliders,"","id='selectSliders'",true);
 
 //check if slider is template
@@ -70,6 +66,8 @@ $arrCaptionClassesSorted = RevSliderCssParser::get_captions_sorted();
 
 $arrFontFamily = $operations->getArrFontFamilys($slider);
 $arrCSS = $operations->getCaptionsContentArray();
+$arrButtonClasses = $operations->getButtonClasses();
+
 
 $arrAnim = $operations->getFullCustomAnimations();
 $arrAnimDefaultIn = $operations->getArrAnimations(false);
@@ -109,8 +107,6 @@ $def_use_parallax = $slider->getParam('use_parallax', 'on');
 
 /* NEW KEN BURN INPUTS */
 $def_kb_start_offset_x = $slider->getParam('def-kb_start_offset_x', '0');
-$def_kb_blur_start = $slider->getParam('def-kb_blur_start', '0');
-$def_kb_blur_end = $slider->getParam('def-kb_blur_end', '0');
 $def_kb_start_offset_y = $slider->getParam('def-kb_start_offset_y', '0');
 $def_kb_end_offset_x = $slider->getParam('def-kb_end_offset_x', '0');
 $def_kb_end_offset_y = $slider->getParam('def-kb_end_offset_y', '0');
@@ -169,8 +165,6 @@ $ext_width = RevSliderFunctions::getVal($slideParams, 'ext_width', '1920');
 $ext_height = RevSliderFunctions::getVal($slideParams, 'ext_height', '1080');
 $use_parallax = RevSliderFunctions::getVal($slideParams, 'use_parallax', $def_use_parallax);
 
-$mediafilter = RevSliderFunctions::getVal($slideParams, 'media-filter-type', 'none');
-
 $parallax_level[] =  RevSliderFunctions::getVal($sliderParams,"parallax_level_1","5");
 $parallax_level[] =  RevSliderFunctions::getVal($sliderParams,"parallax_level_2","10");
 $parallax_level[] =  RevSliderFunctions::getVal($sliderParams,"parallax_level_3","15");
@@ -222,9 +216,7 @@ $kbStartOffsetY = intval(RevSliderFunctions::getVal($slideParams, 'kb_start_offs
 $kbEndOffsetX = intval(RevSliderFunctions::getVal($slideParams, 'kb_end_offset_x', $def_kb_end_offset_x));
 $kbEndOffsetY = intval(RevSliderFunctions::getVal($slideParams, 'kb_end_offset_y', $def_kb_end_offset_y));
 $kbStartRotate = intval(RevSliderFunctions::getVal($slideParams, 'kb_start_rotate', $def_kb_start_rotate));
-$kbEndRotate = intval(RevSliderFunctions::getVal($slideParams, 'kb_end_rotate', $def_kb_end_rotate));
-$kbBlurStart = intval(RevSliderFunctions::getVal($slideParams, 'kb_blur_start', $def_kb_blur_start));
-$kbBlurEnd = intval(RevSliderFunctions::getVal($slideParams, 'kb_blur_end', $def_kb_blur_end));
+$kbEndRotate = intval(RevSliderFunctions::getVal($slideParams, 'kb_end_rotate', $def_kb_start_rotate));
 /* END OF NEW KEN BURN INPUTS*/
 
 $bgRepeat = RevSliderFunctions::getVal($slideParams, 'bg_repeat', $def_bg_repeat);
@@ -311,22 +303,11 @@ $isWpmlExists = RevSliderWpml::isWpmlExists();
 $useWpml = $slider->getParam("use_wpml","off");
 $wpmlActive = false;
 
-$jsonStaticLayers = "";
 if(!$slide->isStaticSlide()){
 	if($isWpmlExists && $useWpml == "on"){
 		$wpmlActive = true;
 		$parentSlide = $slide->getParentSlide();
 		$arrChildLangs = $parentSlide->getArrChildrenLangs();
-	}
-	
-	//get static slide, check all layers and add them to the action list
-	$static_slide_id = $slide->getStaticSlideID($sliderID);
-	
-	if($static_slide_id !== false){
-		$static_slide = new RevSlide();
-		$static_slide->initByStaticID($static_slide_id);
-		$static_layers = $static_slide->getLayers();
-		$jsonStaticLayers = RevSliderFunctions::jsonEncodeForClientSide($static_layers);
 	}
 }
 
@@ -427,11 +408,11 @@ Y.prototype.load=function(a){a(this.p)};function Z(a,b){this.d=a;this.f=b}Z.prot
 
 	?>
 	var callAllIdle_LocalTimeOut;
-	function fontLoaderWaitForTextLayers() {
-		if (jQuery('.slide_layer_type_text').length>0) {
+	function fontLoaderWaitForTextLayers() {		
+		if (jQuery('.slide_layer_type_text').length>0) {			
 			tpLayerTimelinesRev.allLayerToIdle({type:"text"});
 			clearTimeout(callAllIdle_LocalTimeOut);
-			callAllIdle_LocalTimeOut = setTimeout(function() {
+			callAllIdle_LocalTimeOut = setTimeout(function() {				
 				tpLayerTimelinesRev.allLayerToIdle({type:"text"});
 			},1250);
 		}
@@ -439,26 +420,22 @@ Y.prototype.load=function(a){a(this.p)};function Z(a,b){this.d=a;this.f=b}Z.prot
 			setTimeout(fontLoaderWaitForTextLayers,250);
 	}
 
-	if (sgfamilies.length){
-		for(var key in sgfamilies){
-			var loadnow = [sgfamilies[key]];
-			
-			tpWebFont.load({
-				timeout:10000,
-				google:{
-					families:loadnow
-				},
-				loading:function(e) {
-				},
-				active:function() {
-					fontLoaderWaitForTextLayers();
-				},
-				inactive:function() {
-					fontLoaderWaitForTextLayers();
-				},
-			});
-		}
-	}
+	if (sgfamilies.length)
+		tpWebFont.load({
+			timeout:10000,
+			google:{
+				families:sgfamilies
+			},
+			loading:function() {				
+			},
+			active:function() {						
+				fontLoaderWaitForTextLayers();								
+			},
+			inactive:function() {														
+				fontLoaderWaitForTextLayers();								
+			},
+		});
+   
 </script>
 <?php
 
@@ -466,100 +443,27 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 	?><input type="hidden" id="sliderid" value="<?php echo $slider->getID(); ?>" /><?php
 }
 
+require self::getPathTemplate('template-selector');
+
 ?>
 
 <div class="wrap settings_wrap">
 	<div class="clear_both"></div>
 
 	<div class="title_line" style="margin-bottom:0px !important;">
-		<?php 
-			$icon_general = '<div class="icon32" id="icon-options-general"></div>';
-			echo apply_filters( 'rev_icon_general_filter', $icon_general ); 
-		?>		
-		<a href="<?php echo RevSliderGlobals::LINK_HELP_SLIDE; ?>" class="button-primary float_right revblue mtop_10 mleft_10" target="_blank"><?php _e("Help",'revslider'); ?></a>
+		<div id="icon-options-general" class="icon32"></div>		
+		<a href="<?php echo RevSliderGlobals::LINK_HELP_SLIDE; ?>" class="button-primary float_right revblue mtop_10 mleft_10" target="_blank"><?php _e("Help",REVSLIDER_TEXTDOMAIN); ?></a>
+
 	</div>
 
 	<div class="rs_breadcrumbs">
-		<a class='breadcrumb-button' href='<?php echo self::getViewUrl("sliders");?>'><i class="eg-icon-th-large"></i><?php _e("All Sliders", 'revslider');?></a>
-		<a class='breadcrumb-button' href="<?php echo self::getViewUrl(RevSliderAdmin::VIEW_SLIDER,"id=$sliderID"); ?>"><i class="eg-icon-cog"></i><?php _e('Slider Settings', 'revslider');?></a>
-		<a class='breadcrumb-button selected' href="#"><i class="eg-icon-pencil-2"></i><?php _e('Slide Editor ', 'revslider');?>"<?php echo ' '.esc_attr(stripslashes($slider->getParam("title",""))); ?>"</a>
+		<a class='breadcrumb-button' href='<?php echo self::getViewUrl("sliders");?>'><i class="eg-icon-th-large"></i><?php _e("All Sliders", REVSLIDER_TEXTDOMAIN);?></a>
+		<a class='breadcrumb-button' href="<?php echo self::getViewUrl(RevSliderAdmin::VIEW_SLIDER,"id=$sliderID"); ?>"><i class="eg-icon-cog"></i><?php _e('Slider Settings', REVSLIDER_TEXTDOMAIN);?></a>
+		<a class='breadcrumb-button selected' href="#"><i class="eg-icon-pencil-2"></i><?php _e('Slide Editor ', REVSLIDER_TEXTDOMAIN);?>"<?php echo ' '.$slider->getParam("title",""); ?>"</a>
 		<div class="tp-clearfix"></div>
-
-
-		<!-- FIXED TOOLBAR ON THE RIGHT SIDE -->
-		<ul class="rs-mini-toolbar" id="revslider_mini_toolbar">
-			<?php
-			if(!$slide->isStaticSlide()){
-				$savebtnid="button_save_slide-tb";
-				$prevbtn = "button_preview_slide-tb";
-				if($slider->isSlidesFromPosts()){
-					$prevbtn = "button_preview_slider-tb";
-				}
-			}else{
-				$savebtnid="button_save_static_slide-tb";
-				$prevbtn = "button_preview_slider-tb";
-			}
-			?>
-			<!--<div class="rs-toolbar-stickybtn rs-mini-toolbar-button notyetsticky" id="stickystylesbutton_wrap">
-				<a class='button-primary revbluedark' href='javascript:void(0)' id="stickystylesbutton" ><i class="fa-icon-paperclip" style="display: inline-block;vertical-align: middle;width: 18px;height: 20px;font-size:18px"></i><span class="mini-toolbar-text"><?php _e("Toggle Sticky",'revslider'); ?></span></a>
-			</div>-->
-			<li class="rs-toolbar-savebtn rs-mini-toolbar-button">
-				<a class='button-primary revgreen' href='javascript:void(0)' id="<?php echo $savebtnid; ?>" ><i class="rs-icon-save-light" style="display: inline-block;vertical-align: middle;width: 18px;height: 20px;background-repeat: no-repeat;"></i><span class="mini-toolbar-text"><?php _e("Save Slide",'revslider'); ?></span></a>
-			</li>
-			
-			<li class="rs-toolbar-cssbtn rs-mini-toolbar-button">
-				<a class='button-primary revpurple' href='javascript:void(0)' id='button_edit_css_global'><i class="">&lt;/&gt;</i><span class="mini-toolbar-text"><?php _e("Slider CSS/JS",'revslider'); ?></span></a>
-			</li>
-
-
-			<li class="rs-toolbar-slides rs-mini-toolbar-button">
-				<?php
-				$slider_url = ($sliderTemplate == 'true') ? RevSliderAdmin::VIEW_SLIDER_TEMPLATE : RevSliderAdmin::VIEW_SLIDER;
-				?>
-				<a class="button-primary revblue" href="<?php echo self::getViewUrl($slider_url,"id=$sliderID"); ?>" id="link_edit_slides_t"><i class="revicon-cog"></i><span class="mini-toolbar-text"><?php _e("Slider Settings",'revslider'); ?></span> </a>
-				
-			</li>
-			<li class="rs-toolbar-preview rs-mini-toolbar-button">
-				<a class="button-primary revgray" href="javascript:void(0)"  id="<?php echo $prevbtn; ?>" ><i class="revicon-search-1"></i><span class="mini-toolbar-text"><?php _e("Preview",'revslider'); ?></span></a>
-			</li>
-			
-		</ul>
 	</div>
 
-	<script>
-		jQuery(document).ready(function() {			
-			jQuery('.rs-mini-toolbar-button').hover(function() {				
-				var btn=jQuery(this),
-					txt = btn.find('.mini-toolbar-text');
-				punchgs.TweenLite.to(txt,0.2,{width:"100px",ease:punchgs.Linear.easeNone,overwrite:"all"});
-				punchgs.TweenLite.to(txt,0.1,{autoAlpha:1,ease:punchgs.Linear.easeNone,delay:0.1,overwrite:"opacity"});
-			}, function() {
-				var btn=jQuery(this),
-					txt = btn.find('.mini-toolbar-text');
-				punchgs.TweenLite.to(txt,0.2,{autoAlpha:0,width:"0px",ease:punchgs.Linear.easeNone,overwrite:"all"});				
-			});
-			var mtb = jQuery('.rs-mini-toolbar'),
-				mtbo = mtb.offset().top;
-			
-			function checkStickyToolBar() {
-				if (mtbo-jQuery(window).scrollTop()<35) {
-					mtb.addClass("sticky");
-					jQuery('#wp-admin-bar-my-account').css({paddingRight:"180px"});
-				}
-				else {
-					mtb.removeClass("sticky");
-					jQuery('#wp-admin-bar-my-account').css({paddingRight:"0px"});
-				}
-				
-			}
-			checkStickyToolBar();
-			jQuery(document).on("scroll",checkStickyToolBar);
 
-			
-			
-		});
-	</script>
-	
 	<?php
 	require self::getPathTemplate('slide-selector');
 	
@@ -569,7 +473,9 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 		require self::getPathTemplate('wpml-selector');
 	}
 	
-	require self::getPathTemplate('slide-general-settings');
+	if(!$slide->isStaticSlide()){
+		require self::getPathTemplate('slide-general-settings');
+	}
 	
 	$operations = new RevSliderOperations();
 
@@ -584,10 +490,10 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 
 	<div id="jqueryui_error_message" class="unite_error_message" style="display:none;">
 		<?php _e("<b>Warning!!! </b>The jquery ui javascript include that is loaded by some of the plugins are custom made and not contain needed components like 'autocomplete' or 'draggable' function.
-		Without those functions the editor may not work correctly. Please remove those custom jquery ui includes in order the editor will work correctly.", 'revslider'); ?>
+		Without those functions the editor may not work correctly. Please remove those custom jquery ui includes in order the editor will work correctly.", REVSLIDER_TEXTDOMAIN); ?>
 	</div>
 	
-	<div id="id-esw" class="<?php echo ($slide->isStaticSlide()) ? ' rev_static_layers' : ''; ?>">
+	<div class="edit_slide_wrapper<?php echo ($slide->isStaticSlide()) ? ' rev_static_layers' : ''; ?>">
 		<?php
 		require self::getPathTemplate('slide-stage');
 		?>
@@ -595,169 +501,147 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 
 		<div id="dialog_insert_icon" class="dialog_insert_icon" title="Insert Icon" style="display:none;"></div>
 
-		<div id="dialog_template_insert" class="dialog_template_help" title="<?php _e('Insert Meta','revslider') ?>" style="display:none;">
+		<div id="dialog_template_insert" class="dialog_template_help" title="<?php _e('Insert Meta',REVSLIDER_TEXTDOMAIN) ?>" style="display:none;">
 			<ul class="rs-template-settings-tabs">
 				<?php
 				switch($slider_type){
 					case 'posts':
 					case 'specific_posts':
-					case 'current_post':
 					case 'woocommerce':
 						?>
-						<li data-content="#slide-post-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('Post', 'revslider'); ?></span></li>
+						<li data-content="#slide-post-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('Post', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 						if(RevSliderWooCommerce::isWooCommerceExists()){
 							?>
-							<li data-content="#slide-woocommerce-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('WooCommerce', 'revslider'); ?></span></li>
+							<li data-content="#slide-woocommerce-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('WooCommerce', REVSLIDER_TEXTDOMAIN); ?></span></li>
 							<?php
 						}
 						if(RevSliderEventsManager::isEventsExists()){
 							?>
-							<li data-content="#slide-events-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('Events', 'revslider'); ?></span></li>
+							<li data-content="#slide-events-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon revicon-doc rs-toolbar-icon"></i><span><?php _e('Events', REVSLIDER_TEXTDOMAIN); ?></span></li>
 							<?php
 						}
 					break;
 					case 'flickr':
 						?>
-						<li data-content="#slide-flickr-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-flickr rs-toolbar-icon"></i><span><?php _e('Flickr', 'revslider'); ?></span></li>
+						<li data-content="#slide-flickr-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-flickr rs-toolbar-icon"></i><span><?php _e('Flickr', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 					case 'instagram':
 						?>
-						<li data-content="#slide-instagram-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-info rs-toolbar-icon"></i><span><?php _e('Instagram', 'revslider'); ?></span></li>
+						<li data-content="#slide-instagram-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-info rs-toolbar-icon"></i><span><?php _e('Instagram', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 					case 'twitter':
 						?>
-						<li data-content="#slide-twitter-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-twitter rs-toolbar-icon"></i><span><?php _e('Twitter', 'revslider'); ?></span></li>
+						<li data-content="#slide-twitter-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-twitter rs-toolbar-icon"></i><span><?php _e('Twitter', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 					case 'facebook':
 						?>
-						<li data-content="#slide-facebook-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-facebook rs-toolbar-icon"></i><span><?php _e('Facebook', 'revslider'); ?></span></li>
+						<li data-content="#slide-facebook-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-facebook rs-toolbar-icon"></i><span><?php _e('Facebook', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 					case 'youtube':
 						?>
-						<li data-content="#slide-youtube-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-youtube rs-toolbar-icon"></i><span><?php _e('YouTube', 'revslider'); ?></span></li>
+						<li data-content="#slide-youtube-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-youtube rs-toolbar-icon"></i><span><?php _e('YouTube', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 					case 'vimeo':
 						?>
-						<li data-content="#slide-vimeo-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-vimeo rs-toolbar-icon"></i><span><?php _e('Vimeo', 'revslider'); ?></span></li>
-						<?php
-					break;
-					case 'gallery':
-						?>
-						<li data-content="#slide-gallery-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-picture rs-toolbar-icon"></i><span><?php _e('General', 'revslider'); ?></span></li>
+						<li data-content="#slide-vimeo-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-vimeo rs-toolbar-icon"></i><span><?php _e('Vimeo', REVSLIDER_TEXTDOMAIN); ?></span></li>
 						<?php
 					break;
 				}
-				// Apply Filters for Tabs from Add-Ons
-				do_action( 'rev_slider_insert_meta_tabs',array(
-						'dummy'=>'<li data-content="#slide-INSERT_TAB_SLUG-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon INSERT_ICON_CLASS rs-toolbar-icon"></i><span>INSERT_TAB_NAME</span></li>',
-						'slider_type'=>$slider_type
-					)
-				);
-				if($slider_type != "gallery"){
 				?>
-					<li data-content="#slide-images-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-picture-1 rs-toolbar-icon"></i><span><?php _e('Images', 'revslider'); ?></span></li>
-				<?php } ?>
+				<li data-content="#slide-images-template-entry" class="selected"><i style="height:45px" class="rs-mini-layer-icon eg-icon-picture-1 rs-toolbar-icon"></i><span><?php _e('Images', REVSLIDER_TEXTDOMAIN); ?></span></li>
 			</ul>
 			<div style="clear: both;"></div>
 			<?php
 			switch($slider_type){
 				case 'posts':
 				case 'specific_posts':
-				case 'current_post':
 				case 'woocommerce':
 					?>
 					<table class="table_template_help" id="slide-post-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('meta:somemegatag')">{{meta:somemegatag}}</a></td><td><?php _e("Any custom meta tag",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Post Title",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e("Post Excerpt",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('alias')">{{alias}}</a></td><td><?php _e("Post Alias",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Post content",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("The link to the post",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_modified')">{{date_modified}}</a></td><td><?php _e("Date modified",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e("Author name",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_avatar:80px')">{{author_avatar:80px}}</a></td><td><?php _e("Author Avatar URL(size in px)",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_website')">{{author_website}}</a></td><td><?php _e("Author Website",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_posts')">{{author_posts}}</a></td><td><?php _e("Author Posts Page",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e("Number of comments",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('catlist')">{{catlist}}</a></td><td><?php _e("List of categories with links",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('catlist_raw')">{{catlist_raw}}</a></td><td><?php _e("List of categories without links",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('taglist')">{{taglist}}</a></td><td><?php _e("List of tags with links",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('id')">{{id}}</a></td><td><?php _e("Post ID",'revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('meta:somemegatag')">{{meta:somemegatag}}</a></td><td><?php _e("Any custom meta tag",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Post Title",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e("Post Excerpt",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('alias')">{{alias}}</a></td><td><?php _e("Post Alias",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Post content",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("The link to the post",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_modified')">{{date_modified}}</a></td><td><?php _e("Date modified",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e("Author name",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e("Number of comments",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('catlist')">{{catlist}}</a></td><td><?php _e("List of categories with links",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('taglist')">{{taglist}}</a></td><td><?php _e("List of tags with links",REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('featured_image_url_<?php echo $img_handle; ?>')">{{featured_image_url_<?php echo $img_handle; ?>}}</a></td><td><?php _e("Featured Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('featured_image_<?php echo $img_handle; ?>')">{{featured_image_<?php echo $img_handle; ?>}}</a></td><td><?php _e("Featured Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('featured_image_url_<?php echo $img_handle; ?>')">{{featured_image_url_<?php echo $img_handle; ?>}}</a></td><td><?php _e("Featured Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('featured_image_<?php echo $img_handle; ?>')">{{featured_image_<?php echo $img_handle; ?>}}</a></td><td><?php _e("Featured Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
 					</table>
 					<?php if(RevSliderWooCommerce::isWooCommerceExists()){ ?>
 						<table class="table_template_help" id="slide-woocommerce-template-entry" style="display: none;">
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_sku')">{{wc_sku}}</a></td><td><?php _e("SKU",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_full_price')">{{wc_full_price}}</a></td><td><?php _e("Full Price",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_price')">{{wc_price}}</a></td><td><?php _e("Single Price",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_price_no_cur')">{{wc_price_no_cur}}</a></td><td><?php _e("Single Price without currency",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_stock')">{{wc_stock}}</a></td><td><?php _e("In Stock",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_stock_quantity')">{{wc_stock_quantity}}</a></td><td><?php _e("Stock Quantity",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_rating_count')">{{wc_rating_count}}</a></td><td><?php _e("Number of Ratings",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_review_count')">{{wc_review_count}}</a></td><td><?php _e("Number of Reviews",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_rating')">{{wc_rating}}</a></td><td><?php _e("Text Rating",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_star_rating')">{{wc_star_rating}}</a></td><td><?php _e("Star Rating",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_categories')">{{wc_categories}}</a></td><td><?php _e("Categories",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_tags')">{{wc_tags}}</a></td><td><?php _e("Tags",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_add_to_cart')">{{wc_add_to_cart}}</a></td><td><?php _e("Add to Cart URL",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_add_to_cart_button')">{{wc_add_to_cart_button}}</a></td><td><?php _e("Add to Cart Button",'revslider') ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_sku')">{{wc_sku}}</a></td><td><?php _e("SKU",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_full_price')">{{wc_full_price}}</a></td><td><?php _e("Full Price",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_price')">{{wc_price}}</a></td><td><?php _e("Single Price",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_price_no_cur')">{{wc_price_no_cur}}</a></td><td><?php _e("Single Price without currency",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_stock')">{{wc_stock}}</a></td><td><?php _e("In Stock",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_stock_quantity')">{{wc_stock_quantity}}</a></td><td><?php _e("Stock Quantity",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_rating_count')">{{wc_rating_count}}</a></td><td><?php _e("Number of Ratings",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_review_count')">{{wc_review_count}}</a></td><td><?php _e("Number of Reviews",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_rating')">{{wc_rating}}</a></td><td><?php _e("Text Rating",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_star_rating')">{{wc_star_rating}}</a></td><td><?php _e("Star Rating",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_categories')">{{wc_categories}}</a></td><td><?php _e("Categories",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_tags')">{{wc_tags}}</a></td><td><?php _e("Tags",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_add_to_cart')">{{wc_add_to_cart}}</a></td><td><?php _e("Add to Cart URL",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('wc_add_to_cart_button')">{{wc_add_to_cart_button}}</a></td><td><?php _e("Add to Cart Button",REVSLIDER_TEXTDOMAIN) ?></td></tr>
 						</table>
 					<?php }else{ ?>
 					<?php if(RevSliderEventsManager::isEventsExists()){ ?>
 						<table class="table_template_help" id="slide-events-template-entry" style="display: none;">
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_start_date')">{{event_start_date}}</a></td><td><?php _e("Event start date",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_end_date')">{{event_end_date}}</a></td><td><?php _e("Event end date",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_start_time')">{{event_start_time}}</a></td><td><?php _e("Event start time",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_end_time')">{{event_end_time}}</a></td><td><?php _e("Event end time",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_event_id')">{{event_event_id}}</a></td><td><?php _e("Event ID",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_name')">{{event_location_name}}</a></td><td><?php _e("Event location name",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_slug%')">{{event_location_slug}}</a></td><td><?php _e("Event location slug",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_address')">{{event_location_address}}</a></td><td><?php _e("Event location address",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_town')">{{event_location_town}}</a></td><td><?php _e("Event location town",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_state')">{{event_location_state}}</a></td><td><?php _e("Event location state",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_postcode')">{{event_location_postcode}}</a></td><td><?php _e("Event location postcode",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_region')">{{event_location_region}}</a></td><td><?php _e("Event location region",'revslider') ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_country')">{{event_location_country}}</a></td><td><?php _e("Event location country",'revslider') ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_start_date')">{{event_start_date}}</a></td><td><?php _e("Event start date",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_end_date')">{{event_end_date}}</a></td><td><?php _e("Event end date",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_start_time')">{{event_start_time}}</a></td><td><?php _e("Event start time",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_end_time')">{{event_end_time}}</a></td><td><?php _e("Event end time",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_event_id')">{{event_event_id}}</a></td><td><?php _e("Event ID",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_name')">{{event_location_name}}</a></td><td><?php _e("Event location name",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_slug%')">{{event_location_slug}}</a></td><td><?php _e("Event location slug",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_address')">{{event_location_address}}</a></td><td><?php _e("Event location address",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_town')">{{event_location_town}}</a></td><td><?php _e("Event location town",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_state')">{{event_location_state}}</a></td><td><?php _e("Event location state",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_postcode')">{{event_location_postcode}}</a></td><td><?php _e("Event location postcode",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_region')">{{event_location_region}}</a></td><td><?php _e("Event location region",REVSLIDER_TEXTDOMAIN) ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('event_location_country')">{{event_location_country}}</a></td><td><?php _e("Event location country",REVSLIDER_TEXTDOMAIN) ?></td></tr>
 						</table>
 					<?php }
 					}
+					?>
+					<?php
 				break;
 				case 'flickr':
 					?>
 					<table class="table_template_help" id="slide-flickr-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Post Title",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Post content",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("The link to the post",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('views')">{{views}}</a></td><td><?php _e('Views','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Post Title",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Post content",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("The link to the post",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('views')">{{views}}</a></td><td><?php _e('Views',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
@@ -767,22 +651,20 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 				case 'instagram':
 					?>
 					<table class="table_template_help" id="slide-instagram-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Title",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Content",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("Link",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e('Number of Comments','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e("Title",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e("Content",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("Link",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date')">{{date}}</a></td><td><?php _e("Date created",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e('Number of Comments',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
@@ -792,22 +674,20 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 				case 'twitter':
 					?>
 					<table class="table_template_help" id="slide-twitter-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("Link",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('retweet_count')">{{retweet_count}}</a></td><td><?php _e('Retweet Count','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('favorite_count')">{{favorite_count}}</a></td><td><?php _e('Favorite Count','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e("Link",REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('retweet_count')">{{retweet_count}}</a></td><td><?php _e('Retweet Count',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('favorite_count')">{{favorite_count}}</a></td><td><?php _e('Favorite Count',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
@@ -817,22 +697,20 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 				case 'facebook':
 					?>
 					<table class="table_template_help" id="slide-facebook-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('Link','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_modified}}</a></td><td><?php _e('Last Modify Date','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('Link',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_modified}}</a></td><td><?php _e('Last Modify Date',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
@@ -842,56 +720,43 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 				case 'youtube':
 					?>
 					<table class="table_template_help" id="slide-youtube-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e('Excerpt','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('Link','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e('Excerpt',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('Link',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
 					</table>
 					<?php
 				break;
-				case 'gallery':
-					?>
-					<table class="table_template_help" id="slide-gallery-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('current_page_link')">{{current_page_link}}</a></td><td><?php _e('Link to current page','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('home_url')">{{home_url}}</a></td><td><?php _e('Link to WP Home Page','revslider'); ?></td></tr>
-						<?php do_action( 'rev_slider_insert_gallery_meta_row' ); ?>
-					</table>
-					<?php
-				break;
 				case 'vimeo':
 					?>
 					<table class="table_template_help" id="slide-vimeo-template-entry" style="display: none;">
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e('Excerpt','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:words:10')">{{content:words:10}}</a></td><td><?php _e("Post content limit by words",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content:chars:10')">{{content:chars:10}}</a></td><td><?php _e("Post content limit by chars",'revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('The link to the post','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('views')">{{views}}</a></td><td><?php _e('Number of Views','revslider'); ?></td></tr>
-						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e('Number of Comments','revslider'); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('title')">{{title}}</a></td><td><?php _e('Title',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('excerpt')">{{excerpt}}</a></td><td><?php _e('Excerpt',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('content')">{{content}}</a></td><td><?php _e('Content',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('link')">{{link}}</a></td><td><?php _e('The link to the post',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('date_published')">{{date_published}}</a></td><td><?php _e('Pulbishing Date',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('author_name')">{{author_name}}</a></td><td><?php _e('Username',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('likes')">{{likes}}</a></td><td><?php _e('Number of Likes',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('views')">{{views}}</a></td><td><?php _e('Number of Views',REVSLIDER_TEXTDOMAIN); ?></td></tr>
+						<tr><td><a href="javascript:UniteLayersRev.insertTemplate('num_comments')">{{num_comments}}</a></td><td><?php _e('Number of Comments',REVSLIDER_TEXTDOMAIN); ?></td></tr>
 					</table>
 					<table class="table_template_help" id="slide-images-template-entry" style="display: none;">
 						<?php
 						foreach($img_sizes as $img_handle => $img_name){
 							?>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",'revslider'); echo ' '.$img_name; ?></td></tr>
-							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",'revslider'); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_url_<?php echo sanitize_title($img_handle); ?>')">{{image_url_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image URL",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
+							<tr><td><a href="javascript:UniteLayersRev.insertTemplate('image_<?php echo sanitize_title($img_handle); ?>')">{{image_<?php echo sanitize_title($img_handle); ?>}}</a></td><td><?php _e("Image &lt;img /&gt;",REVSLIDER_TEXTDOMAIN); echo ' '.$img_name; ?></td></tr>
 							<?php
 						}
 						?>
@@ -899,14 +764,6 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 					<?php
 				break;
 			}
-			// Apply Filters for Tab Content from Add-Ons
-			do_action( 'rev_slider_insert_meta_tab_content',array(
-					'tab_head' => '<table class="table_template_help" id="slide-INSERT_TAB_SLUG-template-entry" style="display: none;">' ,
-					'tab_row'  => '<tr><td><a href="javascript:UniteLayersRev.insertTemplate(\'INSERT_META_SLUG\')">{{INSERT_META_SLUG}}</a></td><td>INSERT_META_NAME</td></tr>',
-					'tab_foot' => '</table>',
-					'slider_type' => $slider_type
-				)
-			);
 			?>
 			<script type="text/javascript">
 			jQuery('document').ready(function() {
@@ -923,54 +780,46 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 		</script>
 		</div>
 
-		<div id="dialog_advanced_css" class="dialog_advanced_css" title="<?php _e('Advanced CSS', 'revslider'); ?>" style="display:none;">
+		<div id="dialog_advanced_css" class="dialog_advanced_css" title="<?php _e('Advanced CSS', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div style="display: none;"><span id="rev-example-style-layer">example</span></div>
-			<div id="change_acea_wrappers">
-				<div id="change_acea_toidle" class="revblue button-primary"><?php _e('Edit Idle', 'revslider'); ?></div>
-				<div id="change_acea_tohover" class="revblue button-primary"><?php _e('Edit Hover', 'revslider'); ?></div>
-			</div>
 			<div class="first-css-area">
-				<span class="cbi-title"><?php _e('Style from options', 'revslider'); ?><span class="acsa_idle_or_hover"></span><span style="font-size:11px;font-style:italic;display:block;line-height:13px">(<?php _e('Editable via Option Fields, Saved in the Class:', 'revslider'); ?><span class="current-advance-edited-class"></span>)</span></span>				
+				<span class="advanced-css-title" style="background:#e67e22"><?php _e('Style from Options', REVSLIDER_TEXTDOMAIN); ?><span style="margin-left:15px;font-size:11px;font-style:italic">(<?php _e('Editable via Option Fields, Saved in the Class:', REVSLIDER_TEXTDOMAIN); ?><span class="current-advance-edited-class"></span>)</span></span>
 				<textarea id="textarea_template_css_editor_uneditable" rows="20" cols="81" disabled="disabled"></textarea>
 			</div>
 			<div class="second-css-area">
-				<span class="cbi-title"><?php _e('Additional Custom Styling', 'revslider'); ?><span class="acsa_idle_or_hover"></span><span style="font-size:11px;font-style:italic;display:block;line-height:13px">(<?php _e('Appended in the Class:', 'revslider'); ?><span class="current-advance-edited-class"></span>)</span></span>				
+				<span class="advanced-css-title"><?php _e('Additional Custom Styling', REVSLIDER_TEXTDOMAIN); ?><span style="margin-left:15px;font-size:11px;font-style:italic">(<?php _e('Appended in the Class:', REVSLIDER_TEXTDOMAIN); ?><span class="current-advance-edited-class"></span>)</span></span>
 				<textarea id="textarea_advanced_css_editor" rows="20" cols="81"></textarea>
 			</div>
 		</div>
 		
-		<div id="dialog_save_as_css" class="dialog_save_as_css" title="<?php _e('Save As', 'revslider'); ?>" style="display:none;">
+		<div id="dialog_save_as_css" class="dialog_save_as_css" title="<?php _e('Save As', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div style="margin-top:14px">
-				<span style="margin-right:15px"><?php _e('Save As:', 'revslider'); ?></span><input id="rs-save-as-css" type="text" name="rs-save-as-css" value="" />
+				<span style="margin-right:15px"><?php _e('Save As:', REVSLIDER_TEXTDOMAIN); ?></span><input id="rs-save-as-css" type="text" name="rs-save-as-css" value="" />
 			</div>
 		</div>
 		 
-		<div id="dialog_rename_css" class="dialog_rename_css" title="<?php _e('Rename CSS', 'revslider'); ?>" style="display:none;">
+		<div id="dialog_rename_css" class="dialog_rename_css" title="<?php _e('Rename CSS', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div style="margin-top:14px">
-				<span style="margin-right:15px"><?php _e('Rename to:', 'revslider'); ?></span><input id="rs-rename-css" type="text" name="rs-rename-css" value="" />
+				<span style="margin-right:15px"><?php _e('Rename to:', REVSLIDER_TEXTDOMAIN); ?></span><input id="rs-rename-css" type="text" name="rs-rename-css" value="" />
 			</div>
 		</div>
 		 
-		<div id="dialog_advanced_layer_css" class="dialog_advanced_layer_css" title="<?php _e('Layer Inline CSS', 'revslider'); ?>" style="display:none;">
-			<div id="change_ace_wrappers">
-				<div id="change_ace_toidle" class="revblue button-primary"><?php _e('Edit Idle', 'revslider'); ?></div>
-				<div id="change_ace_tohover" class="revblue button-primary"><?php _e('Edit Hover', 'revslider'); ?></div>
-			</div>
+		<div id="dialog_advanced_layer_css" class="dialog_advanced_layer_css" title="<?php _e('Layer Inline CSS', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div class="first-css-area">
-				<span class="cbi-title"><?php _e('Advanced Custom Styling', 'revslider'); ?><span id="acs_idle_or_hover"></span><span style="font-size:11px;font-style:italic;display:block;line-height:13px">(<?php _e('Appended Inline to the Layer Markup', 'revslider'); ?>)</span></span>
+				<span class="advanced-css-title" style="background:#e67e22"><?php _e('Advanced Custom Styling', REVSLIDER_TEXTDOMAIN); ?><span style="margin-left:15px;font-size:11px;font-style:italic">(<?php _e('Appended Inline to the Layer Markup', REVSLIDER_TEXTDOMAIN); ?>)</span></span>
 				<textarea id="textarea_template_css_editor_layer" name="textarea_template_css_editor_layer"></textarea>
 			</div>
 		</div>
 		
-		<div id="dialog_save_as_animation" class="dialog_save_as_animation" title="<?php _e('Save As', 'revslider'); ?>" style="display:none;">
+		<div id="dialog_save_as_animation" class="dialog_save_as_animation" title="<?php _e('Save As', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div style="margin-top:14px">
-				<span style="margin-right:15px"><?php _e('Save As:', 'revslider'); ?></span><input id="rs-save-as-animation" type="text" name="rs-save-as-animation" value="" />
+				<span style="margin-right:15px"><?php _e('Save As:', REVSLIDER_TEXTDOMAIN); ?></span><input id="rs-save-as-animation" type="text" name="rs-save-as-animation" value="" />
 			</div>
 		</div>
 		
-		<div id="dialog_save_animation" class="dialog_save_animation" title="<?php _e('Save Under', 'revslider'); ?>" style="display:none;">
+		<div id="dialog_save_animation" class="dialog_save_animation" title="<?php _e('Save Under', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 			<div style="margin-top:14px">
-				<span style="margin-right:15px"><?php _e('Save Under:', 'revslider'); ?></span><input id="rs-save-under-animation" type="text" name="rs-save-under-animation" value="" />
+				<span style="margin-right:15px"><?php _e('Save Under:', REVSLIDER_TEXTDOMAIN); ?></span><input id="rs-save-under-animation" type="text" name="rs-save-under-animation" value="" />
 			</div>
 		</div>
 		
@@ -989,11 +838,11 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 			 
 			jQuery(document).ready(function() {
 
-				UniteLayersRev.addPreventLeave();
+				
 				
 				<?php if(!empty($jsonLayers)){ ?>
 					//set init layers object
-					UniteLayersRev.setInitLayersJson(<?php echo $jsonLayers; ?>);
+					UniteLayersRev.setInitLayersJson(<?php echo $jsonLayers?>);
 				<?php } ?>
 				
 				<?php
@@ -1014,11 +863,7 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 					UniteLayersRev.setInitDemoSettingsJson(<?php echo $jsonDemoSettings; ?>);
 					<?php
 				} ?>
-				
-				<?php if(!empty($jsonStaticLayers)){ ?>
-				UniteLayersRev.setInitStaticLayersJson(<?php echo $jsonStaticLayers; ?>);
-				<?php } ?>
-				
+
 				<?php if(!empty($jsonCaptions)){ ?>
 				UniteLayersRev.setInitCaptionClasses(<?php echo $jsonCaptions; ?>);
 				<?php } ?>
@@ -1046,6 +891,7 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 
 				UniteLayersRev.init("<?php echo $slideDelay; ?>");
 				
+								
 				UniteCssEditorRev.init();
 				
 				
@@ -1107,79 +953,19 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 				horRuler();
 
 
-			
-				jQuery('.my-color-field').tpColorPicker({
-					defaultValue:'#FFFFFF',
-					mode:'full',					
-					wrapper:'<span class="rev-colorpickerspan"></span>',	
-					cancel:function() {						
-						jQuery('#style_form_wrapper').trigger("colorchanged");
-					},
+				jQuery('.my-color-field').wpColorPicker({
+					palettes:false,
+					height:250,
 
-					onEdit:function(inputElement,color,gradientObj) {				    					    				    	
-				    	switch (inputElement.attr('name')) {
-
-							case "adbutton-color-1":
-							case "adbutton-color-2":
-							case "adbutton-border-color":
-								setExampleButtons();
-							break;
-
-							case "adshape-color-1":
-							case "adshape-color-2":
-							case "adshape-border-color":							
-								setExampleShape();
-							break;
-							case "bg_color":															
-								if (color.length>7) {
-									jQuery("#divbgholder").css("background",color);
-									jQuery('.slotholder .tp-bgimg.defaultimg').css({background:color});
-									jQuery('#slide_selector .list_slide_links li.selected .slide-media-container ').css({background:color});
-								} else {
-									jQuery("#divbgholder").css("background-color",color);
-									jQuery('.slotholder .tp-bgimg.defaultimg').css({backgroundColor:color});
-									jQuery('#slide_selector .list_slide_links li.selected .slide-media-container ').css({backgroundColor:color});
-								}
-							
-							break;
-						}		
-
-
-						var layer = jQuery('.layer_selected.slide_layer');
-						if (layer.length>0) {							
-							switch (inputElement.attr('name')) {
-								case "color_static":
-								case "hover_color_static":
-									if (layer.hasClass("slide_layer_type_text"))
-										punchgs.TweenLite.set(layer.find('>.tp-caption'),{color:color});
-									else if (layer.hasClass("slide_layer_type_svg"))
-										punchgs.TweenLite.set(layer.find('>.tp-caption>svg, >.tp-caption>svg path'),{fill:color});
-								break;
-								case "css_svgstroke-color-show":
-								case "css_svgstroke-hover-color-show":
-									if (layer.hasClass("slide_layer_type_svg"))
-										punchgs.TweenLite.set(layer.find('>.tp-caption>svg'),{stroke:color});
-								break;
-								case "css_background-color":
-								case "hover_css_background-color":
-									jQuery('#style_form_wrapper').trigger("colorchanged");
-									if (color.indexOf('gradient')>=0)
-										punchgs.TweenLite.set(layer.find('>.tp-caption'),{background:color});
-									else
-										punchgs.TweenLite.set(layer.find('>.tp-caption'),{backgroundColor:color});
-								break;
-								case "css_border-color-show":
-								case "hover_css_border-color-show":
-									punchgs.TweenLite.set(layer.find('>.tp-caption'),{borderColor:color});
-								break;
-							}
-						}
-
-					},
-
-				    change:function(inputElement,color,gradientObj) {				    					    
-				    	
-				    	switch (inputElement.attr('name')) {
+					border:false,
+										
+				    change:function(event,ui) {
+				    	/*var col = jQuery(event.target).val();
+				    	if (col.length<5) {
+				    		col = "#"+col[1]+col[1]+col[2]+col[2]+col[3]+col[3];
+				    	}				    	
+				    	jQuery(event.target).val(col);*/
+				    	switch (jQuery(event.target).attr('name')) {
 							case "adbutton-color-1":
 							case "adbutton-color-2":
 							case "adbutton-border-color":
@@ -1192,24 +978,28 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 								setExampleShape();
 							break;
 							case "bg_color":
-								var bgColor = jQuery("#slide_bg_color").val();								
-								if (bgColor.length>7) {
-									jQuery("#divbgholder").css("background",bgColor);
-									jQuery('.slotholder .tp-bgimg.defaultimg').css({background:bgColor});
-									jQuery('#slide_selector .list_slide_links li.selected .slide-media-container ').css({background:bgColor});
-								} else {
-									jQuery("#divbgholder").css("background-color",bgColor);
-									jQuery('.slotholder .tp-bgimg.defaultimg').css({backgroundColor:bgColor});
-									jQuery('#slide_selector .list_slide_links li.selected .slide-media-container ').css({backgroundColor:bgColor});
-								}
-							
+								var bgColor = jQuery("#slide_bg_color").val();
+								jQuery("#divbgholder").css("background-color",bgColor);
+								jQuery('.slotholder .tp-bgimg.defaultimg').css({backgroundColor:bgColor});
+								jQuery('#slide_selector .list_slide_links li.selected .slide-media-container ').css({backgroundColor:bgColor});
 							break;
-						}								
-						jQuery('#style_form_wrapper').trigger("colorchanged");
+						}		
 
-					}					
+						if (jQuery('.layer_selected.slide_layer').length>0) {
+							jQuery(event.target).blur().focus();
+							//jQuery('#style_form_wrapper').trigger("colorchanged");
+						}
+
+					},
+					clear:function(event,ui) {
+						if (jQuery('.layer_selected.slide_layer').length>0) {
+							var inp = jQuery(event.target).closest('.wp-picker-input-wrap').find('.my-color-field');
+							inp.val("transparent").blur().focus();
+							//jQuery('#style_form_wrapper').trigger("colorchanged");
+						}
+					}
+								
 				});
-
 
 				jQuery('.adb-input').on("change blur focus",setExampleButtons);
 				jQuery('.ads-input, input[name="shape_fullwidth"], input[name="shape_fullheight"]').on("change blur focus",setExampleShape);
@@ -1287,39 +1077,70 @@ if($slide->isStaticSlide() || $slider->isSlidesFromPosts()){ //insert sliderid f
 
 		<?php
 		if(!$slide->isStaticSlide()){
-			?>
-<!--			<a href="javascript:void(0)" id="button_save_slide" class="revgreen button-primary"><div class="updateicon"></div><i class="rs-icon-save-light" style="display: inline-block;vertical-align: middle;width: 18px;height: 20px;background-repeat: no-repeat;margin-right:5px;"></i><?php _e("Save Slide",'revslider'); ?></a>
-
--->
-			<?php
-		}else{
-			?>
-<!--			<a href="javascript:void(0)" id="button_save_static_slide" class="revgreen button-primary"><div class="updateicon"></div><i class="revicon-arrows-ccw"></i><?php _e("Update Static Layers",'revslider'); ?></a>
-
--->
-			<?php
-		}
 		?>
-<!--		<span id="loader_update" class="loader_round" style="display:none;"><?php _e("updating",'revslider'); ?>...</span>
+<!--			<a href="javascript:void(0)" id="button_save_slide" class="revgreen button-primary"><div class="updateicon"></div><i class="rs-icon-save-light" style="display: inline-block;vertical-align: middle;width: 18px;height: 20px;background-repeat: no-repeat;margin-right:5px;"></i><?php _e("Save Slide",REVSLIDER_TEXTDOMAIN); ?></a>
+
+-->
+		<?php }else{ ?>
+<!--			<a href="javascript:void(0)" id="button_save_static_slide" class="revgreen button-primary"><div class="updateicon"></div><i class="revicon-arrows-ccw"></i><?php _e("Update Static Layers",REVSLIDER_TEXTDOMAIN); ?></a>
+
+-->
+		<?php } ?>
+<!--		<span id="loader_update" class="loader_round" style="display:none;"><?php _e("updating",REVSLIDER_TEXTDOMAIN); ?>...</span>
 		<span id="update_slide_success" class="success_message" class="display:none;"></span>
-		<a href="<?php echo self::getViewUrl(RevSliderAdmin::VIEW_SLIDER,"id=$sliderID"); ?>" class="button-primary revblue"><i class="revicon-cog"></i><?php _e("Slider Settings",'revslider'); ?></a>
-		<a id="button_close_slide" href="<?php echo $closeUrl?>" class="button-primary revyellow"><div class="closeicon"></div><i class="revicon-list-add"></i><?php _e("Slides Overview",'revslider'); ?></a>
+		<a href="<?php echo self::getViewUrl(RevSliderAdmin::VIEW_SLIDER,"id=$sliderID"); ?>" class="button-primary revblue"><i class="revicon-cog"></i><?php _e("Slider Settings",REVSLIDER_TEXTDOMAIN); ?></a>
+		<a id="button_close_slide" href="<?php echo $closeUrl?>" class="button-primary revyellow"><div class="closeicon"></div><i class="revicon-list-add"></i><?php _e("Slides Overview",REVSLIDER_TEXTDOMAIN); ?></a>
 -->
 		<?php
 		if(!$slide->isStaticSlide()){
-			?>
-<!--		<a href="javascript:void(0)" id="button_delete_slide" class="button-primary revred" original-title=""><i class="revicon-trash"></i><?php _e("Delete Slide",'revslider'); ?></a>
+		?>
+<!--		<a href="javascript:void(0)" id="button_delete_slide" class="button-primary revred" original-title=""><i class="revicon-trash"></i><?php _e("Delete Slide",REVSLIDER_TEXTDOMAIN); ?></a>
 	-->
-			<?php 
-		} ?>
+		<?php } ?>
 	</div>
 
 <div class="vert_sap"></div>
 
+<!-- FIXED TOOLBAR ON THE RIGHT SIDE -->
+<div class="rs-mini-toolbar">
+	<?php
+	if(!$slide->isStaticSlide()){
+		$savebtnid="button_save_slide-tb";
+		$prevbtn = "button_preview_slide-tb";
+		if($slider->isSlidesFromPosts()){
+			$prevbtn = "button_preview_slider-tb";
+		}
+	}else{
+		$savebtnid="button_save_static_slide-tb";
+		$prevbtn = "button_preview_slider-tb";
+	}
+	?>
+	<div class="rs-toolbar-savebtn">
+		<a class='button-primary revgreen' href='javascript:void(0)' id="<?php echo $savebtnid; ?>" ><i class="rs-icon-save-light" style="display: inline-block;vertical-align: middle;width: 18px;height: 20px;background-repeat: no-repeat;"></i><?php _e("Save Slide",REVSLIDER_TEXTDOMAIN); ?></a>
+	</div>
+	
+	<div class="rs-toolbar-cssbtn">
+		<a class='button-primary revpurple' href='javascript:void(0)' id='button_edit_css_global'><i class="">&lt;/&gt;</i><?php _e("CSS Global",REVSLIDER_TEXTDOMAIN); ?></a>
+	</div>
 
-<div id="dialog_rename_animation" class="dialog_rename_animation" title="<?php _e('Rename Animation', 'revslider'); ?>" style="display:none;">
+
+	<div class="rs-toolbar-slides">
+		<?php
+		$slider_url = ($sliderTemplate == 'true') ? RevSliderAdmin::VIEW_SLIDER_TEMPLATE : RevSliderAdmin::VIEW_SLIDER;
+		?>
+		<a class="button-primary revblue" href="<?php echo self::getViewUrl($slider_url,"id=$sliderID"); ?>" id="link_edit_slides_t"><i class="revicon-cog"></i><?php _e("Slider Settings",REVSLIDER_TEXTDOMAIN); ?> </a>
+		
+	</div>
+	<div class="rs-toolbar-preview">
+		<a class="button-primary revgray" href="javascript:void(0)"  id="<?php echo $prevbtn; ?>" ><i class="revicon-search-1"></i><?php _e("Preview",REVSLIDER_TEXTDOMAIN); ?></a>
+	</div>
+	
+</div>
+
+
+<div id="dialog_rename_animation" class="dialog_rename_animation" title="<?php _e('Rename Animation', REVSLIDER_TEXTDOMAIN); ?>" style="display:none;">
 	<div style="margin-top:14px">
-		<span style="margin-right:15px"><?php _e('Rename to:', 'revslider'); ?></span><input id="rs-rename-animation" type="text" name="rs-rename-animation" value="" />
+		<span style="margin-right:15px"><?php _e('Rename to:', REVSLIDER_TEXTDOMAIN); ?></span><input id="rs-rename-animation" type="text" name="rs-rename-animation" value="" />
 	</div>
 </div>
 
@@ -1343,66 +1164,15 @@ $mslide_list = RevSliderFunctions::jsonEncodeForClientSide($mslide_list);
 	var g_patternViewSlide = '<?php echo $patternViewSlide; ?>';
 
 	
-	var g_messageDeleteSlide = "<?php _e("Delete this slide?",'revslider'); ?>";
+	var g_messageDeleteSlide = "<?php _e("Delete this slide?",REVSLIDER_TEXTDOMAIN); ?>";
 	jQuery(document).ready(function(){
 		RevSliderAdmin.initEditSlideView(<?php echo $slideID; ?>, <?php echo $sliderID; ?>, <?php echo ($slide->isStaticSlide()) ? 'true' : 'false'; ?>);
 		
 		UniteLayersRev.setInitSlideIds(<?php echo $mslide_list; ?>);
 	});
 	var curSlideID = <?php echo $slideID; ?>;
-	var curSliderID = <?php echo $sliderID; ?>;
 </script>
 
 <?php
 require self::getPathTemplate("../system/dialog-copy-move");
-?>
-
-
-<script type="text/javascript">
-	jQuery(document).ready(function(){
-		jQuery('#rs-do-set-style-on-devices').click(function(){
-			var layer = UniteLayersRev.getCurrentLayer();
-			
-			if(layer !== false){
-				if(layer['static_styles'] == undefined) layer['static_styles'] = {};
-				
-				var mcolor = jQuery('input[name="color_static"]').val();
-				var mfontsize = jQuery('input[name="font_size_static"]').val();
-				var mlineheight = jQuery('input[name="line_height_static"]').val();
-				var mfontweight = jQuery('select[name="font_weight_static"] option:selected').val();
-				
-				jQuery('.rs-set-device-chk').each(function(){
-					if(jQuery(this).is(':checked')){
-						var dt = jQuery(this).data('device'); //which device to set on
-						var so = jQuery(this).data('seton'); //set on color/font-size and so on
-						
-						switch(so){
-							case 'color':
-								var mval = mcolor;
-							break;
-							case 'font-size':
-								var mval = mfontsize;
-							break;
-							case 'line-height':
-								var mval = mlineheight;
-							break;
-							case 'font-weight':
-								var mval = mfontweight;
-							break;
-						}
-						
-						layer['static_styles'] = UniteLayersRev.setVal(layer['static_styles'], so, mval, false, [dt]);
-					}
-				});
-				
-				//give status that it has been done
-				
-				jQuery('#rs-set-style-on-devices-dialog').toggle();
-			}
-		});
-	});
-</script>
-
-<?php
-require self::getPathTemplate('template-selector');
 ?>

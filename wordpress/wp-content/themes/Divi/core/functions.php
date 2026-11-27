@@ -265,29 +265,20 @@ function et_core_get_main_fonts() {
 endif;
 
 
-if ( ! function_exists( 'et_core_get_theme_info' ) ) :
-	/**
-	 * Gets Theme Info.
-	 *
-	 * Gets Parent theme's info even when child theme is used.
-	 *
-	 * @param string $key One of WP_Theme class public properties.
-	 *
-	 * @returns string
-	 */
-	function et_core_get_theme_info( $key ) {
-		static $theme_info = null;
+if ( ! function_exists( 'et_core_get_theme_info' ) ):
+function et_core_get_theme_info( $key ) {
+	static $theme_info = null;
 
-		if ( ! $theme_info ) {
-			$theme_info = wp_get_theme();
+	if ( ! $theme_info ) {
+		$theme_info = wp_get_theme();
 
-			if ( defined( 'STYLESHEETPATH' ) && is_child_theme() ) {
-				$theme_info = wp_get_theme( $theme_info->parent_theme );
-			}
+		if ( defined( 'STYLESHEETPATH' ) && is_child_theme() ) {
+			$theme_info = wp_get_theme( $theme_info->parent_theme );
 		}
-
-		return $theme_info->display( $key );
 	}
+
+	return $theme_info->display( $key );
+}
 endif;
 
 
@@ -884,8 +875,7 @@ if ( ! function_exists( 'et_requeue_child_theme_styles' ) ) :
 
 			foreach ( $styles->registered as $handle => $style ) {
 				if ( preg_match( '/' . $template_directory_uri . '.*/', $style->src ) ) {
-					$style_version = isset( $style->ver ) ? $style->ver : $theme_version;
-					et_core_replace_enqueued_style( $style->src, '', $style_version, '', $style_dep, false );
+					et_core_replace_enqueued_style( $style->src, '', $theme_version, '', $style_dep, false );
 				}
 			}
 		}
@@ -978,27 +968,26 @@ if ( ! function_exists( 'et_core_replace_enqueued_style' ) ):
 				continue;
 			}
 
-			$old_ver               = isset( $style->ver ) ? $style->ver : false;
-			$old_handle            = $handle;
-			$old_deps              = isset( $style->deps ) ? $style->deps : array();
-			$style_handle          = $new_handle ? $new_handle : $old_handle;
-			$style_src             = $regex ? preg_replace( $old_src, $new_src, $style->src ) : $new_src;
-			$style_src             = $new_src ? $style_src : $old_src;
-			$style_deps            = $new_deps ? $new_deps : $old_deps;
-			$style_ver             = $new_ver ? $new_ver : $old_ver;
-			$style_media           = isset( $style->args ) ? $style->args : 'all';
-			$inline_styles         = $styles->get_data( $handle, 'after' );
-			$style_handle_filtered = apply_filters( 'et_core_enqueued_style_handle', $style_handle );
+			$old_ver       = isset( $style->ver ) ? $style->ver : false;
+			$old_handle    = $handle;
+			$old_deps      = isset( $style->deps ) ? $style->deps : array();
+			$style_handle  = $new_handle ? $new_handle : $old_handle;
+			$style_src     = $regex ? preg_replace( $old_src, $new_src, $style->src ) : $new_src;
+			$style_src     = $new_src ? $style_src : $old_src;
+			$style_deps    = $new_deps ? $new_deps : $old_deps;
+			$style_ver     = $new_ver ? $new_ver : $old_ver;
+			$style_media   = isset( $style->args ) ? $style->args : 'all';
+			$inline_styles = $styles->get_data( $handle, 'after' );
 
 			// Deregister first, so the handle can be re-enqueued.
 			wp_dequeue_style( $old_handle );
 			wp_deregister_style( $old_handle );
 
 			// Enqueue the same handle with the new src.
-			wp_enqueue_style( $style_handle_filtered, $style_src, $style_deps, $style_ver, $style_media );
+			wp_enqueue_style( $style_handle, $style_src, $style_deps, $style_ver, $style_media );
 
 			if ( ! empty( $inline_styles ) ) {
-				wp_add_inline_style( $style_handle_filtered, implode( "\n", $inline_styles ) );
+				wp_add_inline_style( $style_handle, implode( "\n", $inline_styles ) );
 			}
 		}
 	}
@@ -1510,13 +1499,13 @@ function et_get_attachment_size_by_url( $url, $default_size = 'full' ) {
 
 	$metadata = wp_get_attachment_metadata( $attachment_id );
 
-	if ( ! is_array( $metadata ) ) {
+	if ( ! $metadata ) {
 		return $default_size;
 	}
 
 	$size = $default_size;
 
-	if ( isset( $metadata['file'] ) && strpos( $url, $metadata['file'] ) === ( strlen( $url ) - strlen( $metadata['file'] ) ) ) {
+	if ( strpos( $url, $metadata['file'] ) === ( strlen( $url ) - strlen( $metadata['file'] ) ) ) {
 		$size = array( $metadata['width'], $metadata['height'] );
 	} elseif ( preg_match( '/-(\d+)x(\d+)\.(jpg|jpeg|gif|png|svg|webp)$/', $url, $match ) ) {
 		// Get the image width and height.
@@ -1751,13 +1740,9 @@ function et_core_get_et_account() {
 	$utils           = ET_Core_Data_Utils::instance();
 	$updates_options = get_site_option( 'et_automatic_updates_options', array() );
 
-	// Improve performance by NOT using $utils->array_get().
-	$username = isset( $updates_options['username'] ) ? $updates_options['username'] : '';
-	$api_key  = isset( $updates_options['api_key'] ) ? $updates_options['api_key'] : '';
-
 	return array(
-		'et_username' => $username,
-		'et_api_key'  => $api_key,
+		'et_username' => $utils->array_get( $updates_options, 'username', '' ),
+		'et_api_key'  => $utils->array_get( $updates_options, 'api_key', '' ),
 		'status'      => get_site_option( 'et_account_status', 'not_active' ),
 	);
 }
@@ -1935,13 +1920,13 @@ if ( ! function_exists( 'et_maybe_update_hosting_card_status' ) ) :
 
 		// Prepare settings for API request
 		$options = array(
-			'timeout'    => 10,
+			'timeout'    => 30,
 			'body'       => array(
 				'action'   => 'disable_hosting_card',
 				'username' => $et_username,
 				'api_key'  => $et_api_key,
 			),
-			'user-agent' => 'WordPress/' . $wp_version . '; Hosting Card/' . ET_CORE_VERSION . '; ' . home_url( '/' ),
+			'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' ),
 		);
 
 		$request               = wp_remote_post( 'https://www.elegantthemes.com/api/api.php', $options );
@@ -2063,9 +2048,8 @@ if ( ! function_exists( 'et_dequeue_block_css' ) ) :
 		$post_id                 = get_the_id();
 		$is_page_builder_used    = function_exists( 'et_pb_is_pagebuilder_used' ) ? et_pb_is_pagebuilder_used( $post_id ) : false;
 		$defer_block_css_enabled = ( 'on' === et_get_option( $shortname . '_defer_block_css', 'on' ) );
-		$is_wp_template_used     = ! empty( et_builder_get_wp_editor_templates() );
 
-		if ( $is_page_builder_used && $defer_block_css_enabled && ! $is_wp_template_used ) {
+		if ( $is_page_builder_used && $defer_block_css_enabled ) {
 			wp_dequeue_style( 'wp-block-library' );
 		}
 	}
@@ -2112,157 +2096,3 @@ if ( ! function_exists( 'et_defer_gb_css' ) ) :
 		return $html;
 	}
 endif;
-
-/**
- * Enqueue Code snippets library scripts on theme options page.
- *
- * @since 4.19.0
- *
- * @param string $hook_suffix Page hook suffix.
- * @return void
- */
-function et_code_snippets_admin_enqueue_scripts( $hook_suffix ) {
-	global $shortname;
-
-	// phpcs:disable WordPress.Security.NonceVerification -- This function does not change any state and is therefore not susceptible to CSRF.
-	$is_templates_page = isset( $_GET['page'] ) && 'et_theme_builder' === $_GET['page'];
-	$is_options_page   = 'toplevel_page_et_' . $shortname . '_options' === $hook_suffix;
-
-	$current_screen          = get_current_screen();
-	$is_layouts_library_page = isset( $current_screen->id ) && 'edit-et_pb_layout' === $current_screen->id;
-
-	if ( ! $is_templates_page && ! $is_options_page && ! $is_layouts_library_page && ! et_builder_bfb_enabled() ) {
-		return;
-	}
-
-	if ( ! class_exists( 'ET_Code_Snippets_App' ) ) {
-		require_once ET_CORE_PATH . 'code-snippets/code-snippets-app.php';
-	}
-
-	if ( $is_layouts_library_page ) {
-		// Avoids et_cloud_data not defined error.
-		ET_Cloud_App::load_js();
-	}
-	ET_Code_Snippets_App::load_js();
-}
-
-add_action( 'admin_enqueue_scripts', 'et_code_snippets_admin_enqueue_scripts' );
-
-/**
- * Enqueue Code snippets library scripts in VB.
- *
- * @since 4.19.0
- *
- * @return void
- */
-function et_code_snippets_vb_enqueue_scripts() {
-	if ( ! et_core_is_fb_enabled() ) {
-		return;
-	}
-
-	if ( ! class_exists( 'ET_Code_Snippets_App' ) ) {
-		require_once ET_CORE_PATH . 'code-snippets/code-snippets-app.php';
-	}
-
-	ET_Code_Snippets_App::load_js();
-}
-add_action( 'wp_enqueue_scripts', 'et_code_snippets_vb_enqueue_scripts' );
-
-/**
- * Enqueue AI scripts on BFB page.
- *
- * @since 4.22.0
- *
- * @return void
- */
-function et_ai_admin_enqueue_scripts() {
-	if ( ! et_builder_bfb_enabled() ) {
-		return;
-	}
-
-	if ( ! class_exists( 'ET_AI_App' ) ) {
-		$path = defined( 'ET_BUILDER_PLUGIN_ACTIVE' ) ? ET_BUILDER_PLUGIN_DIR : get_template_directory();
-		require_once $path . '/ai-app/ai-app.php';
-	}
-
-	if ( et_pb_is_allowed( 'divi_ai' ) ) {
-		ET_AI_App::load_js();
-	}
-}
-
-add_action( 'admin_enqueue_scripts', 'et_ai_admin_enqueue_scripts' );
-
-/**
- * Load Cloud Snippets App on `Export To Divi Cloud` btn click.
- *
- * @since 4.21.1
- *
- * @return void
- */
-function et_save_to_cloud_modal() {
-	$current_screen    = get_current_screen();
-	$current_screen_id = $current_screen ? $current_screen->id : '';
-
-	if ( 'edit-et_pb_layout' !== $current_screen_id ) {
-		return;
-	}
-	?>
-		<div id="et-cloud-app--layouts"></div>
-	<?php
-}
-
-add_action( 'admin_footer', 'et_save_to_cloud_modal' );
-
-/**
- * Get roles with specific capabilities.
- *
- * This function iterates through WordPress roles, identifying those with the specific
- * capabilities. The resulting array of applicable roles is then filtered using the
- * 'et_core_get_roles_by_capabilities' hook.
- *
- * Notes: The relation between the capabilities is "AND". So, all the capabilites should
- * be available and enabled to mark current role.
- *
- * @since 4.25.2
- *
- * @param array $capabilities Specific capabilities that we want to check.
- *
- * @return array List of roles based on the specific capabilities.
- */
-function et_core_get_roles_by_capabilities( $capabilities ) {
-	global $wp_roles;
-
-	$roles = [];
-
-	foreach ( $wp_roles->roles as $role => $details ) {
-		// By default, we assume that current role has all the capabilities.
-		$has_capabilities = true;
-
-		// Iterate through the capabilities to check the availability and activation.
-		foreach ( $capabilities as $capability ) {
-			// But once we find out one of the capabilities doesn't exist for current role,
-			// break the loop and mark it as `false` to fasten the checking process.
-			$has_capability = isset( $details['capabilities'][ $capability ] ) ? $details['capabilities'][ $capability ] : false;
-
-			if ( ! $has_capability ) {
-				$has_capabilities = false;
-				break;
-			}
-		}
-
-		// If capability check done and current role has all the capabilities, assign it.
-		if ( $has_capabilities ) {
-			$roles[] = $role;
-		}
-	}
-
-	/**
-	 * Filters the list of roles based on the specific capabilities.
-	 *
-	 * @since 4.25.2
-	 *
-	 * @param array  $roles        List of roles based on the specific capabilities.
-	 * @param string $capabilities Specific capabilities that we want to check.
-	 */
-	return apply_filters( 'et_core_get_roles_by_capabilities', $roles, $capabilities );
-}

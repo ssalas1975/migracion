@@ -11,20 +11,6 @@ import $ from 'jquery';
 // Internal dependencies
 import { top_window } from '@core/admin/js/frame-helpers';
 
-export const getBuilderUtilsParams = () => {
-  if (window.et_builder_utils_params) {
-    return window.et_builder_utils_params;
-  }
-
-  if (top_window.et_builder_utils_params) {
-    return top_window.et_builder_utils_params;
-  }
-
-  return {};
-};
-
-export const getBuilderType = () => get(getBuilderUtilsParams(), 'builderType', '');
-
 /**
  * Check current page's builder Type.
  *
@@ -34,7 +20,7 @@ export const getBuilderType = () => get(getBuilderUtilsParams(), 'builderType', 
  *
  * @returns {bool}
  */
-export const isBuilderType = (builderType) => builderType === getBuilderType();
+export const isBuilderType = builderType => builderType === window.et_builder_utils_params.builderType;
 
 /**
  * Return condition value.
@@ -45,7 +31,7 @@ export const isBuilderType = (builderType) => builderType === getBuilderType();
  *
  * @returns {bool}
  */
-export const is = conditionName => get(getBuilderUtilsParams(), `condition.${conditionName}`);
+export const is = conditionName => window.et_builder_utils_params.condition[conditionName];
 
 /**
  * Is current page Frontend.
@@ -133,7 +119,7 @@ export const isBlockEditor = 0 < $(top_window.document).find('.edit-post-layout_
  *
  * @type {bool}
  */
-export const isBuilder = includes(['vb', 'bfb', 'tb', 'lbb'], getBuilderType());
+export const isBuilder = includes(['vb', 'bfb', 'tb', 'lbb'], window.et_builder_utils_params.builderType);
 
 /**
  * Get offsets value of all sides.
